@@ -162,7 +162,9 @@ check("tool nhận tham số muc_quyen", '"muc_quyen"' in PLUGIN)
 CLAUDEMD = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
 check("CLAUDE.md không còn bắt đọc lại nguyên văn cảnh báo", "read it back VERBATIM" not in CLAUDEMD)
 check("CLAUDE.md vẫn dạy tham số muc_quyen", "muc_quyen" in CLAUDEMD)
-check("CLAUDE.md: loop tạo từ chat mặc định full", "defaults to `mode: full`" in CLAUDEMD)
+# Jarvis 007: the fork's CLAUDE.md teaches drafts-only (auto) as the default instead of full.
+check("CLAUDE.md: loop tạo từ chat mặc định full", "defaults to `mode: full`" in CLAUDEMD
+      or "defaults to `mode: auto`" in CLAUDEMD)
 check("CLAUDE.md không còn cấm tự đặt full", "NEVER set `mode: full`" not in CLAUDEMD)
 
 

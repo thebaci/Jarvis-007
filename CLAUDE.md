@@ -60,7 +60,7 @@ When a task arrives through chat, Javis does NOT merely answer. The procedure: *
 - Need a new TOOL (one specific, reusable Python action every engine can call) with no suitable MCP → Plugin. If it is only INSTRUCTIONS for using existing tools → Skill. If it is an external data source that already has a server → connect the MCP, do not write a plugin.
 - BEFORE creating anything: check for DUPLICATES. Read `Javis/index.md` (the auto-generated operations index) to see which agents/skills/workflows/loops/plugins exist; if it duplicates one, update the old one instead of spawning a copy.
 
-**Prefer tool `javis_schedule` (op=create) over writing the file yourself** - it sets the right slug and frontmatter, blocks duplicate names, and picks the right store (repeating work → .md file; reminder/cron → the reminder store). Pass `muc_quyen` only to make a job lighter than the default `full`. Hand-write a file only for an advanced field the tool does not accept yet (quiet_hours, max_runs_per_day, workspace, ambient_mcp).
+**Prefer tool `javis_schedule` (op=create) over writing the file yourself** - it sets the right slug and frontmatter, blocks duplicate names, and picks the right store (repeating work → .md file; reminder/cron → the reminder store). Default is `auto` (drafts). Pass `muc_quyen: "full"` only if the user asks the job to act for real, `"suggest"` for read-only. Hand-write a file only for an advanced field the tool does not accept yet (quiet_hours, max_runs_per_day, workspace, ambient_mcp).
 
 **The Loop file template** lives in the `javis-builder` skill - load that skill when you actually go to create one, do not copy from memory. Two loop rules must be known UP FRONT because they decide behavior:
 - **Default reporting (MANDATORY in Javis):** every finished loop iteration and every completed Kanban task **sends its result back to WHOEVER ASKED**, through the channel they used. Attach the recipient with `owner_chat` (loop) or `chat_id` in `javis_task` (task):
@@ -75,14 +75,14 @@ When a task arrives through chat, Javis does NOT merely answer. The procedure: *
 - Background loops by default **can read real data through MCP** (POS/ads/calendar...) plus manipulate files in the vault.
 
 **The 3 permission levels of a loop (mode):**
-- `full`: the DEFAULT. Performs REAL outside actions through MCP (create orders, run ads, send messages, publish posts) without asking. Actions cannot be undone, so keep each loop to its stated task.
-- `auto`: lighter, user's choice: writes draft files and reads MCP; the hub blocks outside actions. Includes a self-verification step.
+- `full`: OPT-IN. Performs REAL outside actions through MCP (orders, ads, messages, posts) without asking. Cannot be undone; use only when the user asks.
+- `auto`: the DEFAULT. Writes draft files and reads MCP; the hub blocks outside actions. Includes a self-verification step.
 - `suggest`: lightest, user's choice: read only (MCP reads included) plus suggestions, no file writes.
 
-**Orchestration rules (2026-09-10 the owner removed the old rule that money, orders, publishing and messaging were never delegated automatically; Javis now acts on its own):**
-- A loop created from chat defaults to `mode: full` plus `enabled: false`. You may set `mode: full` yourself, no risk warning needed. `enabled: false` only means the user reviews the task text once and switches the loop on from the Work page.
-- Pick `auto` or `suggest` only when the user asks for a lighter loop ("just read and suggest", "only write drafts"). The hub enforces those levels, so tell the user which level the loop runs at.
-- **A REMINDER** does EXACTLY the one thing the user wrote out and scheduled, a chat instruction moved to a later time, so it also defaults to `muc_quyen: full`. For something lighter, pass `muc_quyen: "suggest"` (read then report) or `"auto"` (adds file writing).
+**Orchestration rules (Jarvis 007: background work writes drafts by default; money, orders, publishing and messaging run automatically only when the user explicitly opts a job into `full`):**
+- A loop created from chat defaults to `mode: auto` plus `enabled: false` (the user reviews it and switches it on from the Work page). Set `mode: full` ONLY when the user asks the loop to act outside, and say so.
+- Pick `suggest` when the user asks for read-only. The hub enforces every level, so tell the user which level the loop runs at.
+- **A REMINDER** does EXACTLY the one thing the user wrote out and scheduled, a chat instruction moved to a later time, but still defaults to `muc_quyen: auto`. Pass `"full"` only when the instruction itself is an outside action ("send this at 10am"), `"suggest"` for read-only.
 - After orchestrating, report BRIEFLY in spoken prose: what you decided, which file you created, when it runs, where to watch it. No tables, no em dashes.
 
 ## Customer inbox (Hội thoại page)
@@ -136,7 +136,7 @@ buttons):
 
 ## Building capabilities (agent/skill/workflow/loop)
 
-When the user wants a new capability, use the **`javis-builder`** skill (in `skills/`) - it has the standard templates, duplicate checks and safety rails. Core principle: pick the smallest type that suffices, check for duplicates first, and create a new loop as `enabled: false` plus `mode: full` (the user switches it on from the Work page).
+When the user wants a new capability, use the **`javis-builder`** skill (in `skills/`) - it has the standard templates, duplicate checks and safety rails. Core principle: pick the smallest type that suffices, check for duplicates first, and create a new loop as `enabled: false` plus `mode: auto` (the user switches it on from the Work page).
 
 **Self-improvement AT USE TIME (not in the background):** improve a capability only during the turn that USES it, when a specific fixable flaw just surfaced. A skill missing or misstating a step: fix that skill's body there (add to Pitfalls/Lessons, do not rewrite it). A workflow with a redundant or missing step: edit that file there. Agents accumulate into `memory/agents/<slug>/MEMORY.md` via "model proposes, code writes": the agent emits a `JAVIS_LESSON: ...` line at the end of its output and the app writes it into the `## Bài học (tự học)` section (deduplicated, 15 newest lines, never touching the owner's hand-written part). That rule is already in the agent prompt, so never tell an agent to edit its own memory file. Do NOT create a background loop that "scans and upgrades skills/agents in bulk": the owner decided (2026-08-16) it rewrites a huge body of knowledge every cycle, expensive and easy to break. Nothing worth fixing means fix nothing.
 

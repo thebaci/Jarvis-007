@@ -58,7 +58,8 @@ VALID_TARGETS = ("workflow", "task")
 VALID_LEVELS = ("suggest", "auto", "full")
 # Opening line of the job prompt when a hook runs a written job through the reminder runner.
 TASK_INTRO = "NHIỆM VỤ TỪ WEBHOOK - một hệ thống bên ngoài vừa gửi sự kiện tới."
-DEFAULT_LEVEL = "full"   # same reasoning as reminders.MUC_QUYEN_MAC_DINH: the owner wrote the job out
+import os as _os
+DEFAULT_LEVEL = "full" if _os.getenv("JAVIS_UPSTREAM_DEFAULTS", "").strip().lower() in ("1", "true", "yes", "on") else "auto"  # Jarvis 007: drafts-only by default   # same reasoning as reminders.MUC_QUYEN_MAC_DINH: the owner wrote the job out
 
 
 @dataclass

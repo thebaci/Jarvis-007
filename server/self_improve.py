@@ -51,6 +51,9 @@ Thiết kế "register(app, deps)" + LoopDeps: module KHÔNG import main.py (tr�
 from __future__ import annotations
 
 import localefmt   # múi giờ theo cấu hình, thay UTC+7 nhúng cứng
+import os as _os
+# Jarvis 007: loops without an explicit mode run drafts-only (upstream: "full").
+LOOP_MODE_DEFAULT = "full" if _os.getenv("JAVIS_UPSTREAM_DEFAULTS", "").strip().lower() in ("1", "true", "yes", "on") else "auto"
 import asyncio
 import sys
 import json
@@ -181,7 +184,7 @@ class LoopFeature:
         # (Telegram đọc) + danh sách "brains" mà scheduler quét.
         self.config_path = Path(deps.state_dir) / "loop_config.json"
         self.DEFAULT = {
-            "enabled": False, "brain": "brain", "mode": "full",
+            "enabled": False, "brain": "brain", "mode": LOOP_MODE_DEFAULT,
             "goal": "business", "custom_goal": "",
             "interval_min": 60, "last_run": 0.0, "last_summary": "", "last_status": "",
         }
@@ -249,7 +252,7 @@ class LoopFeature:
                           "workspace": "vault", "tools_profile": "vault-safe",
                           "quiet_hours": "", "max_runs_per_day": 0, "body": ""}
             old.update({
-                "enabled": bool(cfg.get("enabled")), "mode": cfg.get("mode", "full"),
+                "enabled": bool(cfg.get("enabled")), "mode": cfg.get("mode", LOOP_MODE_DEFAULT),
                 "goal": cfg.get("goal", "business"),
                 "interval_min": max(5, int(cfg.get("interval_min", 60) or 60)),
                 "body": cfg.get("custom_goal", old.get("body", "")),
@@ -297,9 +300,9 @@ class LoopFeature:
         goal = str(fm.get("goal", "custom") or "custom").strip().lower()
         if goal not in GOALS:
             goal = "custom"
-        mode = str(fm.get("mode", "full") or "").strip().lower()
+        mode = str(fm.get("mode", LOOP_MODE_DEFAULT) or "").strip().lower()
         if mode not in ("suggest", "auto", "full"):
-            mode = "full"
+            mode = LOOP_MODE_DEFAULT  # Jarvis 007
         try:
             interval = max(5, int(fm.get("interval_min", 60)))
         except (TypeError, ValueError):
@@ -529,7 +532,7 @@ class LoopFeature:
             self.save_loop(brain, {
                 "slug": LEGACY_SLUG, "name": "Vòng lặp tự cải thiện",
                 "enabled": bool(cfg.get("enabled")), "goal": cfg.get("goal", "business"),
-                "mode": cfg.get("mode", "full"),
+                "mode": cfg.get("mode", LOOP_MODE_DEFAULT),
                 "interval_min": cfg.get("interval_min", 60),
                 "workspace": "vault", "tools_profile": "vault-safe",
                 "quiet_hours": "", "max_runs_per_day": 0,
