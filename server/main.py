@@ -254,7 +254,7 @@ app.add_middleware(CORSMiddleware,
 _AUTH_PUBLIC_PREFIX = ("/static", "/health", "/s/", "/hooks/")
 # /brand-logo: hiện trên màn đăng nhập (trước session). /tls-check: Caddy gọi (không đăng nhập được).
 _AUTH_PUBLIC_EXACT = ("/", "/favicon.ico", "/auth/status", "/auth/login", "/auth/setup",
-                      "/brand-logo", "/brand-theme.css", "/tls-check",
+                      "/brand-logo", "/brand-theme.css", "/tls-check", "/app-manifest.json",
                       # /hub/mcp: Claude CLI/Codex gọi bằng Bearer hub_token riêng (không có cookie).
                       # /connect/oauth/callback: browser redirect từ provider OAuth về.
                       "/hub/mcp", "/connect/oauth/callback",
@@ -1373,6 +1373,7 @@ async def root():
     # freshness.js phát hiện ra chuyện đó.
     # Operator theme (STATE_DIR/branding/theme.css): outside the code tree, survives updates.
     html = _inject_brand_theme(html)
+    html = _inject_brand_name(html)   # Jarvis 007: shown product name (settings branding.name)
     moc = ('<script id="javis-fresh" type="application/json">'
            + json.dumps({"version": ver, "assets": fps}, ensure_ascii=False)
            + "</script>\n</head>")
@@ -14448,6 +14449,40 @@ def _inject_brand_theme(html: str) -> str:
         html = html.replace("<head>", "<head>\n  " + seed, 1)
     link = f'<link rel="stylesheet" href="/brand-theme.css?v={binascii.crc32(data):08x}">\n'
     return html.replace("</head>", link + "</head>", 1)
+
+
+def _inject_brand_name(html: str) -> str:
+    """Jarvis 007: put the configured product name on the page shell and hand it to i18n.
+
+    i18n/index.js swaps "Javis" in dictionary text for window.JAVIS_BRAND, so one setting renames
+    the whole interface without editing hundreds of strings (and without merge conflicts)."""
+    if not cfgmod.vn_channels_enabled():
+        html = html.replace("<head>", "<head>\n  <script>window.JAVIS_HIDE_VN=true;</script>", 1)
+    name = cfgmod.brand_name()
+    if not name:
+        return html
+    esc = html_mod.escape(name)
+    html = (html.replace("<title>Javis OS</title>", f"<title>{esc}</title>", 1)
+                .replace('content="Javis OS"', f'content="{esc}"')
+                .replace('<span class="brand-text">JAVIS OS</span>', f'<span class="brand-text">{esc}</span>')
+                .replace('<span class="rail-brand-text">JAVIS <i>OS</i></span>',
+                         f'<span class="rail-brand-text">{esc}</span>')
+                .replace('href="/static/manifest.json?v=5"', 'href="/app-manifest.json?v=' + urllib.parse.quote(name) + '"'))
+    seed = "<script>window.JAVIS_BRAND=" + json.dumps(name).replace("<", "\\u003c") + ";</script>"
+    return html.replace("<head>", "<head>\n  " + seed, 1)
+
+
+@app.get("/app-manifest.json")
+async def app_manifest():
+    """Jarvis 007: the PWA manifest with the configured name (Add to Home Screen label)."""
+    data = json.loads((DASHBOARD_PATH / "manifest.json").read_text(encoding="utf-8"))
+    name = cfgmod.brand_name()
+    if name:
+        data["name"] = name
+        data["short_name"] = name[:12]
+        data["description"] = name + " - personal AI assistant"
+    return JSONResponse(data, media_type="application/manifest+json",
+                        headers={"Cache-Control": "no-cache"})
 
 
 @app.get("/brand-theme.css")

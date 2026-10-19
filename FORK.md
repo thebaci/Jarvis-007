@@ -6,6 +6,8 @@ Jarvis 007 is a personal, English-first fork of [Javis OS](https://github.com/bl
 
 ## How this fork differs from upstream
 
+To rename it, set `"branding": {"name": "Your Name"}` in `server/settings.json` and restart. Text written straight into the code instead of the dictionary still says Javis.
+
 Changes are kept small and marked with `Jarvis 007` comments so upstream merges stay easy.
 
 | Area | Upstream default | Jarvis 007 default |
@@ -15,6 +17,9 @@ Changes are kept small and marked with `Jarvis 007` comments so upstream merges 
 | Interface language | Guessed from browser, `vi` for old installs | `en` |
 | Timezone / currency | Asia/Ho_Chi_Minh, VND | Asia/Bangkok, USD (same UTC+7 offset) |
 | System prompt (`CLAUDE.md`) | Background work acts on its own | Background work writes drafts unless the user opts a job into `full` |
+| Product name | Javis OS | Jarvis 007 (settings `branding.name`; empty = build default) |
+| Zalo, Botcake connectors and the Zalo admin channel | Shown | Hidden unless settings `regional.vn_channels` is `true` (an existing connection always stays visible) |
+| Reminder endpoints behind a same-machine tunnel | Exempt from login for any 127.0.0.1 caller | Exempt only for direct local calls (no proxy headers) |
 
 Existing jobs that already store an explicit level keep it. A job saved without a level now runs at `auto`.
 
@@ -32,7 +37,7 @@ Resolve any conflict in favour of the upstream change, then re-apply the small `
 ## Roadmap
 
 1. Safe defaults and English locale (this pass).
-2. Rename the visible product name through one setting instead of editing hundreds of strings.
-3. Hide the Vietnam-only channels (Zalo, Pancake, Webcake) by default.
+2. Done: product name through one setting (`branding.name`), applied to dictionary text, page title, sidebar and home-screen name.
+3. Done: Vietnam-only connectors and the Zalo admin channel hidden by default. The Zalo section of `CLAUDE.md` stays, because upstream tests depend on it.
 4. Rebuild the 3D brain graph and strict model routing that were added locally.
 5. Guided English setup for the Google connectors (Gmail drafts, Calendar, Drive).
