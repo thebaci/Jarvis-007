@@ -96,7 +96,8 @@ VALID_MUC_QUYEN = {"suggest", "auto", "full"}
 # ngoài (gửi tin, đăng bài, đặt lịch, tạo đơn) đều thức dậy đúng giờ, chạy, rồi báo về là không
 # làm được - trong khi việc thì vẫn chưa ai làm. Ai muốn mức nhẹ hơn thì đặt muc_quyen="suggest"
 # hoặc "auto" cho nhắc hẹn đó.
-MUC_QUYEN_MAC_DINH = "full"
+import os as _os
+MUC_QUYEN_MAC_DINH = "full" if _os.getenv("JAVIS_UPSTREAM_DEFAULTS", "").strip().lower() in ("1", "true", "yes", "on") else "auto"  # Jarvis 007: drafts-only by default; muc_quyen="full" opts in
 
 NHAN_MUC_QUYEN = {"suggest": "chỉ đọc", "auto": "được ghi file", "full": "toàn quyền"}
 

@@ -11,6 +11,11 @@ import hashlib
 import secrets
 from pathlib import Path
 
+# Jarvis 007: JAVIS_UPSTREAM_DEFAULTS=1 restores every upstream Javis OS default this fork changes
+# (language, timezone, currency, login, background permission level). The test suite sets it so
+# upstream tests keep passing; tests/python/test_jarvis007_defaults.py checks the fork defaults.
+UPSTREAM_DEFAULTS = os.getenv("JAVIS_UPSTREAM_DEFAULTS", "").strip().lower() in ("1", "true", "yes", "on")
+
 # Mọi state Javis tự ghi (settings, auth sessions, loop config) nằm ở JAVIS_STATE_DIR.
 # Mặc định = server/ (không đổi trên máy cũ). Docker/VPS đặt = /data/state (volume ghi được,
 # vì code tree /app là read-only trong container).
@@ -46,10 +51,10 @@ _DEFAULT = {
     # Gộp ba cái làm một là chặn đứng ca dùng đáng tiền nhất: chủ Việt, giao diện Việt, brain
     # Việt, nhưng chatbot đối ngoại trả lời tiếng Nhật.
     "locale": {
-        "ui_lang": "",
+        "ui_lang": "" if UPSTREAM_DEFAULTS else "en",       # Jarvis 007: English-first
         "reply_lang": "auto",              # auto | vi | en
-        "tz": "Asia/Ho_Chi_Minh",
-        "currency": "VND",
+        "tz": "Asia/Ho_Chi_Minh" if UPSTREAM_DEFAULTS else "Asia/Bangkok",
+        "currency": "VND" if UPSTREAM_DEFAULTS else "USD",
     },
     # Nhà cung cấp giọng đọc (TTS). edge = Edge TTS miễn phí (mặc định, dự phòng).
     # openai = OpenAI TTS (dùng model.openai_api_key). elevenlabs = ElevenLabs (key riêng).
@@ -923,7 +928,7 @@ def _ui_lang_ban_cu(cfg: dict, data: dict) -> None:
     Việt, nên "vi" là đúng sự thật chứ không phải đoán. Chỉ chạm vào bộ nhớ, không ghi file.
     """
     if data and "ui_lang" not in (data.get("locale") or {}):
-        cfg.setdefault("locale", {})["ui_lang"] = "vi"
+        cfg.setdefault("locale", {})["ui_lang"] = "vi" if UPSTREAM_DEFAULTS else "en"  # Jarvis 007
 
 
 def read_settings():
@@ -1150,6 +1155,10 @@ def require_login():
         return False
     # FAIL-CLOSED: bind KHÔNG phải loopback (0.0.0.0, ::, IP LAN…) → coi là public → bắt buộc login.
     # Chỉ tắt khi nghe thuần localhost. (Localhost + tunnel: đặt JAVIS_REQUIRE_LOGIN=1.)
+    # Jarvis 007: login is required by default, localhost included (the agent runs with real
+    # file and account access). Set JAVIS_REQUIRE_LOGIN=0 to restore the upstream behaviour.
+    if not UPSTREAM_DEFAULTS:
+        return True
     host = os.getenv("JAVIS_HOST", "127.0.0.1").strip().lower()
     return host not in ("127.0.0.1", "localhost", "::1")
 

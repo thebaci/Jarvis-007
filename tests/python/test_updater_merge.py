@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "server"))
 os.environ["JAVIS_STATE_DIR"] = tempfile.mkdtemp(prefix="javis-merge-state-")
+os.environ.setdefault("JAVIS_UPSTREAM_DEFAULTS", "1")  # Jarvis 007: asserts the Vietnamese message
 import updater  # noqa: E402
 
 

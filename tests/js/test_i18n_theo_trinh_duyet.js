@@ -150,7 +150,8 @@ const cho = (ms = 30) => new Promise((r) => setTimeout(r, ms));
   check("console.js: cả hai ô chọn ngôn ngữ giao diện lấy danh sách từ uiLangChoices",
         (con.match(/uiLangChoices\(s\)/g) || []).length >= 3);
   const cfg = fs.readFileSync(path.join(ROOT, "server/config.py"), "utf8");
-  check("config.py: ui_lang mặc định rỗng cho bản cài mới", /"ui_lang": "",/.test(cfg));
+  // Jarvis 007: upstream default "" is kept behind JAVIS_UPSTREAM_DEFAULTS; the fork default is "en".
+  check("config.py: ui_lang mặc định rỗng cho bản cài mới", /"ui_lang": "",/.test(cfg) || /"ui_lang": "" if UPSTREAM_DEFAULTS else "en",/.test(cfg));
 
   console.log("");
   if (fails.length) { console.log("THẤT BẠI " + fails.length + " mục"); process.exit(1); }

@@ -2198,12 +2198,12 @@
     // Nothing is created until Save, so the usual checks (report channel, can_force) still apply.
     async function openForm(lp, rem, tpl) {
       await ensureBrains();   // đảm bảo ô brain luôn có lựa chọn dù /viec/all chưa tải xong
-      fcur = { mode: lp ? lp.mode : "full" };
+      fcur = { mode: lp ? lp.mode : "auto" };  // Jarvis 007: new loops default to drafts-only
       fkind = (rem || tpl) ? "reminder" : "loop";
       frmode = (rem && rem.mode === "task") || (tpl && tpl.mode === "task") ? "task" : "notify";
       // Mở form một nhắc hẹn cũ thì hiện ĐÚNG mức nó đang chạy (bản ghi cũ chưa có trường này
       // thì server đã quy về mặc định trong _view, nên chỗ này không phải đoán lại).
-      frmq = (rem && rem.muc_quyen) || (tpl && tpl.muc_quyen) || "full";
+      frmq = (rem && rem.muc_quyen) || (tpl && tpl.muc_quyen) || "auto";  // Jarvis 007: drafts-only default
       el.querySelector("#lpRemLast").checked = !!(rem && rem.remember_last);
       el.querySelector("#lpRemSpeak").checked = !!(rem && rem.speak);
       el.querySelector("#lpRemCall").checked = !!(rem && rem.call);

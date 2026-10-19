@@ -205,7 +205,8 @@ def _loops_dir(vault_root: str) -> Path:
 
 
 _LOOP_MODES = ("suggest", "auto", "full")
-_LOOP_MODE_MAC_DINH = "full"
+import os as _os
+_LOOP_MODE_MAC_DINH = "full" if _os.getenv("JAVIS_UPSTREAM_DEFAULTS", "").strip().lower() in ("1", "true", "yes", "on") else "auto"  # Jarvis 007: drafts-only by default
 
 
 def _create_loop_file(vault_root: str, name: str, prompt: str, schedule: str,
@@ -295,7 +296,7 @@ def _list_loops(vault_root: str) -> list:
             "id": fp.stem,
             "name": str(fm.get("name") or fp.stem),
             "enabled": bool(fm.get("enabled", False)),
-            "mode": str(fm.get("mode", "full") or "full"),
+            "mode": str(fm.get("mode", _LOOP_MODE_MAC_DINH) or _LOOP_MODE_MAC_DINH),
             "interval_min": fm.get("interval_min", 0),
         })
     return out
