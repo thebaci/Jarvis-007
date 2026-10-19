@@ -333,7 +333,10 @@ async def _auth_guard(request: Request, call_next):
         client_host = request.client.host if request.client else ""
         public = (path in _AUTH_PUBLIC_EXACT
                   or any(path.startswith(p) for p in _AUTH_PUBLIC_PREFIX)
-                  or (path in _AUTH_LOCAL_EXACT and client_host in ("127.0.0.1", "::1"))
+                  # Jarvis 007: only a DIRECT local caller (the agent on this machine) is exempt.
+                  # A tunnel or proxy on the same host (cloudflared, Tailscale Serve) also connects
+                  # from 127.0.0.1, so loopback alone let the internet create reminders unauthenticated.
+                  or (path in _AUTH_LOCAL_EXACT and _direct_local_request(request))
                   # Đường HTTP của plugin mà CHÍNH plugin khai là công khai (0.64.26). Chỉ hỏi
                   # khi đúng tiền tố, để request thường không phải đi tra danh sách plugin.
                   or ((path.startswith("/ext/") or path.startswith("/.well-known/"))
@@ -1774,7 +1777,9 @@ async def auth_logout(request: Request):
     return resp
 
 
-_FORWARD_HEADERS = ("x-forwarded-for", "x-real-ip", "forwarded", "cf-connecting-ip")
+_FORWARD_HEADERS = ("x-forwarded-for", "x-real-ip", "forwarded", "cf-connecting-ip",
+                    # Jarvis 007: also the headers Tailscale Serve and generic proxies add.
+                    "x-forwarded-host", "x-forwarded-proto", "tailscale-user-login")
 
 
 def _direct_local_request(request: Request) -> bool:
