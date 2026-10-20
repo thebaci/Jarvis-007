@@ -24,7 +24,7 @@ Running all three at once is fine, they do not collide.
 
 1. Open the Zalo app and find the Official Account **Zalo Bot Manager**.
 2. In the chat, choose **Create bot**.
-3. Name the bot. The name **must start with the word "Bot"**, for example "Bot Jarvis 007 Của Tôi".
+3. Name the bot. The name **must start with the word "Bot"**, for example "Bot My Jarvis 007".
 4. Zalo sends you the token by message, shaped `123456789:abc-xyz`.
 
 The token **does not expire** until you reset it yourself in Zalo Bot Manager. Keep it private, because whoever has it controls the bot.

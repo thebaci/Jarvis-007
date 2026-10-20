@@ -1,279 +1,279 @@
-# Nhóm chat team: wireframe và sơ đồ (13/10/2026)
+# Team chat: wireframes and diagrams (13/10/2026)
 
-Đi kèm [thiết kế nhóm chat team](../superpowers/specs/2026-10-13-team-chat-design.md). Đây là wireframe nhẹ để thống nhất bố cục và trạng thái, không phải bản vẽ cuối.
-- Chữ trên màn hình có khoá i18n ở cả `vi.json` và `en.json`.
-- Màu không phải nơi duy nhất mang trạng thái: mọi trạng thái đều có chữ.
+Companion to the [team chat design](../superpowers/specs/2026-10-13-team-chat-design.md). These are light wireframes to agree on layout and states, not final artwork.
+- Every piece of on-screen text has an i18n key in both `vi.json` and `en.json`.
+- Color is never the only carrier of a state: every state also has text.
 
-## 1. Desktop: trang Nhóm
+## 1. Desktop: the Teams page
 
 ```
 +----------------------+------------------------------------------------+--------------------------+
-| NHÓM          [+ Tạo]| Ra mắt sản phẩm 11/2           [Lọc việc v] [⚙]| Cài đặt nhóm             |
-| [Tìm nhóm........ ]  | Trưởng nhóm: Lan (điều phối) · 4 thành viên    | [Thành viên][Việc][Lượt] |
-|----------------------|------------------------------------------------|  [Cài đặt]               |
-| ● Ra mắt sản phẩm  2 | 10:02  Anh                                     |--------------------------|
-|   Lan đang tổng hợp  |        Giao việc: soạn kế hoạch ra mắt         | ĐANG LÀM                 |
-|   2 việc chờ anh     |        [Việc #12]                              |  #12 Soạn kế hoạch ra mắt|
-| ○ Nội dung tuần      | 10:02  (ảnh) Lan · Lập kế hoạch · #12          |   Lan điều phối · bước 3/5|
-|   Minh: đã xong      |        Chia 2 phần: Minh viết thông điệp,      |   [Sửa yêu cầu] [Huỷ]    |
-| ○ Báo cáo tháng      |        Hà làm lịch đăng.                       | CHỜ (theo thứ tự chạy)   |
-|                      | 10:05  (ảnh) Minh · Làm · #12   ✓ Xong         |  1 ★ #14 Bảng giá   [Bỏ ★]|
-|                      |        Thông điệp chính: ...                   |  2   #13 Ảnh bìa   [★ Ưu tiên]|
-|                      |        😂 1                                     | BỊ CHẶN / CHỜ ANH        |
-|                      | 10:06  (ảnh) Hà · Làm · #12    ⏳ Đang làm      |  #11 Kịch bản video      |
-|                      |        ...                                      |   Chờ anh trả lời: thiếu |
-|                      |                                                |   ngày quay  [Trả lời]   |
-|                      |------------------------------------------------| LỊCH SỬ (xem thêm)       |
-|                      | Đang làm: #12 Soạn kế hoạch  [Sửa yêu cầu][Huỷ]|                          |
-| [Trang sau]          | [ ] Giao việc   @Minh ...............  [Gửi]  |                          |
+| TEAMS         [+ New]| Product launch 11/2          [Filter jobs v] [⚙]| Team settings            |
+| [Search teams.... ]  | Coordinator: Lan (leads) · 4 members           | [Members][Jobs][Turns]   |
+|----------------------|------------------------------------------------|  [Settings]              |
+| ● Product launch   2 | 10:02  You                                     |--------------------------|
+|   Lan is compiling   |        Assign job: draft the launch plan       | WORKING ON               |
+|   2 jobs wait on you |        [Job #12]                               |  #12 Draft launch plan   |
+| ○ Weekly content     | 10:02  (photo) Lan · Planning · #12            |   Lan leads · step 3/5   |
+|   Minh: done         |        Splits in 2: Minh writes the message,   |   [Edit request] [Cancel]|
+| ○ Monthly report     |        Hà builds the posting schedule.         | WAITING (in run order)   |
+|                      | 10:05  (photo) Minh · Work · #12   ✓ Done      |  1 ★ #14 Price list [Unprioritize]|
+|                      |        Main message: ...                       |  2   #13 Cover art [★ Prioritize]|
+|                      |        😂 1                                     | BLOCKED / WAITING FOR YOU|
+|                      | 10:06  (photo) Hà · Work · #12    ⏳ Working    |  #11 Video script        |
+|                      |        ...                                      |   Waiting for your answer: |
+|                      |                                                |   shoot date missing [Reply]|
+|                      |------------------------------------------------| HISTORY (see more)       |
+|                      | Working on: #12 Draft plan  [Edit request][Cancel]|                        |
+| [Next page]          | [ ] Assign job   @Minh ...............  [Send]  |                          |
 +----------------------+------------------------------------------------+--------------------------+
 ```
 
-- **Cột trái:** danh sách nhóm phân trang. Mỗi dòng có trạng thái ngắn và số việc chờ anh.
-- **Cột giữa:**
-  - mỗi tin có tên, ảnh, vai trong việc, nhãn việc (bấm được) và trạng thái;
-  - "Lọc việc" chỉ hiện tin của một việc.
-- **Cột phải:** cài đặt nhóm. Trên màn dưới 1060px thành ngăn kéo, như trang Cộng sự.
-- **Thứ tự hàng chờ:** đánh số đúng thứ tự sẽ chạy. Dấu ★ kèm chữ "Ưu tiên" trên nút và trong tooltip, không chỉ là màu.
+- **Left column:** paginated team list. Each row has a short status and the number of jobs waiting on you.
+- **Middle column:**
+  - each message shows the name, photo, role in the job, job tag (clickable) and status;
+  - "Filter jobs" shows only the messages of one job.
+- **Right column:** team settings. Below 1060px wide it becomes a drawer, like the Partners page.
+- **Queue order:** numbered in the exact order jobs will run. The ★ comes with the word "Prioritize" on the button and in the tooltip, not just color.
 
-## 2. Màn hẹp (375px)
+## 2. Narrow screen (375px)
 
 ```
- Trang 1: Danh sách nhóm      Trang 2: Khung chat            Trang 3: Cài đặt nhóm (trượt lên)
+ Page 1: Team list             Page 2: Chat pane              Page 3: Team settings (slides up)
 +-------------------------+  +-------------------------+    +-------------------------+
-| Nhóm             [+]    |  | < Ra mắt sản phẩm   [⚙] |    | Cài đặt nhóm        [x] |
-| [Tìm nhóm.......]       |  | Lan điều phối · 4 người |    | [Thành viên] [Việc]     |
-|-------------------------|  |-------------------------|    | [Lượt] [Cài đặt]        |
-| ● Ra mắt sản phẩm    2  |  | Anh                     |    |-------------------------|
-|   2 việc chờ anh        |  |  Giao việc: soạn ...    |    | ĐANG LÀM                |
-| ○ Nội dung tuần         |  | Lan · Lập kế hoạch #12  |    |  #12 Soạn kế hoạch      |
-| ○ Báo cáo tháng         |  |  Chia 2 phần ...        |    |  [Sửa] [Huỷ]            |
-|                         |  | Minh · Làm #12 ✓        |    | CHỜ                     |
-|                         |  |  ...      (giữ để chọn  |    |  1 ★ #14 Bảng giá       |
-|                         |  |            reaction)    |    |      [Bỏ ưu tiên]       |
-|                         |  |-------------------------|    |  2   #13 Ảnh bìa        |
-|                         |  | Đang làm #12 [Sửa][Huỷ] |    |      [Ưu tiên]          |
-|                         |  | [Giao việc] @..  [Gửi]  |    | BỊ CHẶN                 |
+| Teams            [+]    |  | < Product launch    [⚙] |    | Team settings       [x] |
+| [Search teams...]       |  | Lan leads · 4 people    |    | [Members] [Jobs]        |
+|-------------------------|  |-------------------------|    | [Turns] [Settings]      |
+| ● Product launch     2  |  | You                     |    |-------------------------|
+|   2 jobs wait on you    |  |  Assign job: draft ...  |    | WORKING ON              |
+| ○ Weekly content        |  | Lan · Planning #12      |    |  #12 Draft plan         |
+| ○ Monthly report        |  |  Splits in 2 ...        |    |  [Edit] [Cancel]        |
+|                         |  | Minh · Work #12 ✓       |    | WAITING                 |
+|                         |  |  ...      (hold to pick |    |  1 ★ #14 Price list     |
+|                         |  |            a reaction)  |    |      [Unprioritize]     |
+|                         |  |-------------------------|    |  2   #13 Cover art      |
+|                         |  | Working on #12 [Edit][Cancel]|      [Prioritize]      |
+|                         |  | [Assign job] @..  [Send]|    | BLOCKED                 |
 +-------------------------+  +-------------------------+    +-------------------------+
 ```
 
-- Một cột; không cuộn ngang. Nút tối thiểu 44px.
-- Khung soạn cố định ở đáy và tránh bàn phím ảo (mẫu `mobile-chat.js`).
+- One column; no horizontal scrolling. Buttons are at least 44px.
+- The composer is pinned to the bottom and avoids the on-screen keyboard (the `mobile-chat.js` pattern).
 
-## 3. Khung soạn, @ và Giao việc
+## 3. Composer, @ and Assign job
 
 ```
 +------------------------------------------------------------------+
-| Đang làm: #12 Soạn kế hoạch ra mắt         [Sửa yêu cầu] [Huỷ]   |
+| Working on: #12 Draft launch plan          [Edit request] [Cancel]|
 |------------------------------------------------------------------|
-| [ ] Giao việc   Viết giúp anh @Mi|                       [Gửi]  |
-|                 +-----------------------------+                   |
-|                 | (ảnh) Minh  · Viết nội dung |  <- gợi ý thành viên|
-|                 | (ảnh) Mi Hà · Thiết kế      |     đang hoạt động  |
-|                 +-----------------------------+                   |
+| [ ] Assign job   Write this for me @Mi|                  [Send]  |
+|                  +-----------------------------+                  |
+|                  | (photo) Minh  · Content writer|  <- suggestions: |
+|                  | (photo) Mi Hà · Design        |     active members|
+|                  +-----------------------------+                  |
 +------------------------------------------------------------------+
- Khi bật "Giao việc": nút Gửi thành "Giao việc", dưới khung hiện:
- "Tạo 1 việc · giao cho Minh · vào cuối hàng (vị trí 3)"
+ When "Assign job" is on: the Send button becomes "Assign job", and below the box it shows:
+ "Create 1 job · assign to Minh · at the end of the queue (position 3)"
 ```
 
-- Chọn từ gợi ý thì @ thành thẻ có mã thành viên. Gõ tay "@abc" mà không chọn thì chỉ là chữ.
-- Quá 3 @ (hay trần đang đặt): nút Gửi tắt, chữ báo trần.
+- Picking from the suggestions turns the @ into a chip carrying the member id. Typing "@abc" by hand without picking is just text.
+- More than 3 @ (or whatever ceiling is set): Send is disabled and the text states the ceiling.
 
-## 4. Tin, kết quả, trạng thái
-
-```
-(ảnh) Hà · Làm · Việc #12                         ⏳ Đang làm
-(ảnh) Hà · Làm · Việc #12                         ✓ Xong
-(ảnh) Hà · Hỗ trợ Minh · Việc #12                 ✓ Xong
-(ảnh) Lan · Tổng hợp · Việc #12        [Kết quả việc]  ✓ Xong
-(ảnh) Minh · Làm · Việc #12            ⚠ Đến sau khi huỷ, không áp dụng
-(ảnh) Minh · Làm · Việc #12            ⚠ Theo yêu cầu cũ (bản 1), không áp dụng
-(ảnh) Minh · Làm · Việc #12            ✕ Lỗi: engine hết giờ   [Chạy lại bước]
- Hệ thống · Việc #12 chạm trần 12 lượt. [Cho thêm lượt] [Huỷ việc]
- Hệ thống · Nhóm chưa có trưởng nhóm. @ một thành viên để hỏi trực tiếp. [Chọn trưởng nhóm]
- Hệ thống · Minh đang làm ở nhóm "Nội dung tuần", sẽ trả lời sau.
- (thẻ) Lan đề xuất giao việc: "Làm bảng giá"   [Tạo việc] [Bỏ qua]
-```
-
-## 5. Sáu reaction
-
-**Desktop:** rê chuột vào tin của agent thì hiện nút mặt cười ở góc tin.
+## 4. Messages, results, states
 
 ```
- (ảnh) Minh · Làm · #12  ✓ Xong                               [☺]
- Thông điệp chính: ...
+(photo) Hà · Work · Job #12                         ⏳ Working
+(photo) Hà · Work · Job #12                         ✓ Done
+(photo) Hà · Helping Minh · Job #12                 ✓ Done
+(photo) Lan · Synthesis · Job #12      [Job result]  ✓ Done
+(photo) Minh · Work · Job #12          ⚠ Arrived after cancel, not applied
+(photo) Minh · Work · Job #12          ⚠ Based on the old request (version 1), not applied
+(photo) Minh · Work · Job #12          ✕ Error: engine timed out   [Re-run step]
+ System · Job #12 hit the 12-turn ceiling. [Allow more turns] [Cancel job]
+ System · The team has no coordinator. @ a member to ask directly. [Pick a coordinator]
+ System · Minh is working in the team "Weekly content" and will reply later.
+ (card) Lan suggests assigning a job: "Make the price list"   [Create job] [Skip]
+```
+
+## 5. The six reactions
+
+**Desktop:** hover over an agent's message and a smiley button appears at the corner of the message.
+
+```
+ (photo) Minh · Work · #12  ✓ Done                            [☺]
+ Main message: ...
    +----------------------------------------------+
    | 👍  ❤️  😂  😮  😢  😡                         |
-   | Thích Tim Haha Wow Huhu Phẫn nộ (tooltip)    |
-   | [+ Lý do / góp ý]                            |
+   | Like Love Haha Wow Sad Angry (tooltip)       |
+   | [+ Reason / comment]                         |
    +----------------------------------------------+
- Dưới tin sau khi chọn:  😂 1   (bấm để đổi hay bỏ)
+ Under the message after picking:  😂 1   (click to change or remove)
 ```
 
-**Điện thoại:** nhấn giữ tin.
+**Phone:** long-press the message.
 
 ```
 +-----------------------------------------+
-|  👍    ❤️    😂    😮    😢    😡         |   <- mỗi ô >= 44px
-| Thích  Tim  Haha  Wow  Huhu  Phẫn nộ    |
+|  👍    ❤️    😂    😮    😢    😡         |   <- each cell >= 44px
+| Like  Love  Haha  Wow  Sad  Angry       |
 |-----------------------------------------|
-| Lý do (không bắt buộc, chọn nhiều):     |
-| [Đúng ý] [Sai dữ kiện] [Thiếu ý]        |
-| [Quá dài] [Khó hiểu] [Lạc đề]           |
-| Góp ý: [..............................] |
-|                       [Bỏ reaction] [Lưu]|
+| Reasons (optional, pick any):           |
+| [On point] [Wrong facts] [Missing points]|
+| [Too long] [Unclear] [Off topic]        |
+| Comment: [............................] |
+|                 [Remove feedback] [Save]|
 +-----------------------------------------+
 ```
 
-- Sáu emoji luôn hiện đủ; lý do và góp ý là phần thêm.
-- Chọn lại emoji đang chọn là bỏ.
+- All six emoji are always shown; reasons and comment are optional extras.
+- Picking the emoji that is already selected removes it.
 
-## 6. Cài đặt nhóm
+## 6. Team settings
 
-### 6.1 Thành viên
-
-```
-THÀNH VIÊN (4)                                           [+ Thêm] [+ Tạo agent mới]
-(ảnh) Lan     Trưởng nhóm   Cộng hưởng: Bật  [công tắc]   [Đổi trưởng nhóm] [Bỏ khỏi nhóm]
-(ảnh) Minh    Thành viên    Cộng hưởng: Tắt  [công tắc]   [Đặt làm trưởng nhóm] [Bỏ khỏi nhóm]
-(ảnh) Hà      Thành viên    Cộng hưởng: Cần xác nhận (mở trang Cộng sự)
-(ảnh) Tú      Đã xoá khỏi Jarvis 007 · 1 việc chuyển về chờ giao lại
-```
-
-- **Công tắc ở đây** gọi cùng route với trang Cộng sự. Chỉ báo xong khi server xác nhận.
-- **"Bỏ khỏi nhóm"** với người đang làm hiện hộp xác nhận: "Minh đang làm bước 2 của việc #12. Bỏ ra thì bước này không được áp dụng; trưởng nhóm sẽ giao lại."
-- **"+ Thêm"** mở danh sách agent của brain, lọc theo tag. Tag chỉ để lọc, không tự thêm ai.
-
-### 6.2 Cài đặt và Toàn quyền
+### 6.1 Members
 
 ```
-CÀI ĐẶT (một cột, nút Lưu ở cuối)
-Tên nhóm      [Ra mắt sản phẩm 11/2      ]
-Mô tả         [...........................]
-Trạng thái    (•) Đang chạy  ( ) Tạm dừng  ( ) Lưu trữ
-Trưởng nhóm   [Lan v]
-Quyền của trưởng nhóm
-  (•) Quyền giới hạn: điều phối trong việc anh giao; việc mới, thêm người cần anh bấm
-  ( ) Toàn quyền  -> mở hộp cấp quyền
-TRẦN (Quyền giới hạn: dùng mặc định)
-  Lượt model mỗi việc        12
-  Bước mỗi việc               8
-  Lượt mỗi nhóm mỗi ngày    100  (hôm nay đã dùng 37)
-                                                    [Lưu]
+MEMBERS (4)                                              [+ Add] [+ Create new agent]
+(photo) Lan     Coordinator  Resonance: On  [switch]   [Change coordinator] [Remove from team]
+(photo) Minh    Member       Resonance: Off [switch]   [Make coordinator] [Remove from team]
+(photo) Hà      Member       Resonance: Needs confirmation (opens the Partners page)
+(photo) Tú      Deleted from Jarvis 007 · 1 job moved back to wait for reassignment
+```
+
+- **The switch here** calls the same route as the Partners page. It reports done only once the server confirms.
+- **"Remove from team"** on someone who is working shows a confirmation box: "Minh is working on step 2 of job #12. If you remove him, this step is not applied; the coordinator will reassign it."
+- **"+ Add"** opens the brain's agent list, filtered by tag. A tag is only for filtering and never adds anyone by itself.
+
+### 6.2 Settings and Full access
+
+```
+SETTINGS (one column, Save button at the bottom)
+Team name     [Product launch 11/2       ]
+Description   [...........................]
+Status        (•) Active  ( ) Paused  ( ) Archived
+Coordinator   [Lan v]
+Coordinator permissions
+  (•) Limited: coordinates inside the jobs you assign; new jobs and adding people need your tap
+  ( ) Full access  -> opens the grant box
+CEILINGS (Limited: use the defaults)
+  Model turns per job          12
+  Steps per job                 8
+  Turns per team per day      100  (37 used today)
+                                                    [Save]
 ```
 
 ```
-HỘP CẤP TOÀN QUYỀN CHO LAN
-Phạm vi: chỉ trong nhóm "Ra mắt sản phẩm 11/2"
-Lan được:  [x] Thêm, bỏ thành viên   [x] Tạo agent mới (agent mới do nhóm quản lý)
-           [x] Đổi thứ tự việc chờ   [ ] Được ngắt việc đang chạy
-           [x] Bật, tắt Cộng hưởng cho agent do nhóm quản lý
-           [ ] Duyệt quyền ghi trong thư mục:  [Teams/ra-mat/      ] (D4)
-Agent do nhóm quản lý: Minh [x]  Hà [ ]   (Lan sửa được lời nhắc, model, Cộng hưởng của các agent này;
-                       agent đang ở nhóm khác: hiện danh sách nhóm bị ảnh hưởng)
-Provider, model được dùng: [x] Claude (gói thuê bao)  [ ] OpenAI API (trả phí)
-TRẦN TRẦN (Lan chỉnh được trong mức này)
-  Lượt model mỗi việc    ( ) Số [  ]  (•) Không giới hạn
-  Bước mỗi việc          (•) Số [ 20 ] ( ) Không giới hạn
-  Lượt mỗi nhóm mỗi ngày ( ) Số [  ]  (•) Không giới hạn
-  Việc chạy cùng lúc     (•) Số [ 1 ]
-Luôn áp, không bỏ được: hạn mức gói thuê bao và nhà cung cấp; trần máy chủ JAVIS_RESONANCE_CALL_CEILING
-(chỉ cho mục tiêu Cộng hưởng); dừng, huỷ, thu hồi của anh; cổng review A5.
-Vòng không tiến triển: luôn phát hiện; với "Không giới hạn" thì tạm dừng việc và báo anh.
-                                            [Huỷ]  [Cấp Toàn quyền]
+GRANT FULL ACCESS TO LAN
+Scope: only inside the team "Product launch 11/2"
+Lan may:   [x] Add and remove members   [x] Create new agents (new agents are managed by the team)
+           [x] Reorder waiting jobs     [ ] Interrupt a running job
+           [x] Turn Resonance on and off for team-managed agents
+           [ ] Approve write access in folder:  [Teams/launch/      ] (D4)
+Team-managed agents: Minh [x]  Hà [ ]   (Lan can edit the prompt, model and Resonance of these agents;
+                       an agent that is in another team: shows the list of affected teams)
+Providers and models allowed: [x] Claude (subscription plan)  [ ] OpenAI API (pay as you go)
+CEILING OF CEILINGS (Lan can adjust within this range)
+  Model turns per job    ( ) Number [  ]  (•) Unlimited
+  Steps per job          (•) Number [ 20 ] ( ) Unlimited
+  Turns per team per day ( ) Number [  ]  (•) Unlimited
+  Jobs running at once   (•) Number [ 1 ]
+Always applied, cannot be removed: subscription plan and provider quotas; the server ceiling JAVIS_RESONANCE_CALL_CEILING
+(for Resonance goals only); your own stop, cancel and revoke; the A5 review gate.
+No-progress loops: always detected; with "Unlimited" the job is paused and you are told.
+                                            [Cancel]  [Grant Full access]
 ```
 
-### 6.3 Lượt
+### 6.3 Turns
 
 ```
-LƯỢT (7 ngày)          Hôm nay 37 / 100
-Theo việc: #12  9 lượt · 41k token vào · 3k ra
-Theo agent: Lan 14 · Minh 12 · Hà 11
-Theo vai: Trả lời 10 · Lập kế hoạch 4 · Làm 15 · Hỗ trợ 3 · Tổng hợp 5
-(Lượt Grok, Antigravity: có đếm, chưa có token)
+TURNS (7 days)          Today 37 / 100
+By job: #12  9 turns · 41k tokens in · 3k out
+By agent: Lan 14 · Minh 12 · Hà 11
+By role: Reply 10 · Planning 4 · Work 15 · Help 3 · Synthesis 5
+(Grok and Antigravity turns: counted, no tokens yet)
 ```
 
-## 7. Màn Trợ lý (Cộng sự): công tắc trên dòng
+## 7. Assistants page (Partners): switch on the row
 
 ```
-TRỢ LÝ                                [Tất cả agent v] [Tìm]
-(ảnh) Lan        Điều phối dự án      #Marketing          Cộng hưởng: Bật  [●━]  [...]
-(ảnh) Minh       Viết nội dung        #Nội dung           Cộng hưởng: Tắt  [━○]  [...]
-(ảnh) Hà         Thiết kế                                 Cộng hưởng: Cần xác nhận >
+ASSISTANTS                            [All agents v] [Search]
+(photo) Lan      Project coordinator  #Marketing        Resonance: On  [●━]  [...]
+(photo) Minh     Content writer       #Content          Resonance: Off [━○]  [...]
+(photo) Hà       Designer                               Resonance: Needs confirmation >
 ```
 
-- **Bấm công tắc:** trạng thái "Đang lưu...". Server xác nhận thì đổi; lỗi hay 409 thì tải lại và hiện lý do.
-- **Tắt khi đang có việc:** hộp xác nhận "Lan có 2 mục tiêu Cộng hưởng đang mở (sẽ dừng ở bước kế) và đang ở 2 nhóm. Việc nhóm không bị dừng bởi công tắc này."
-- **Trang Cài đặt** chỉ còn: "3 trợ lý đang bật Cộng hưởng · Quản lý ở trang Cộng sự >".
+- **Clicking the switch:** the state reads "Saving...". It changes when the server confirms; on an error or a 409 the page reloads and shows the reason.
+- **Turning it off while there is work:** a confirmation box, "Lan has 2 open Resonance goals (they stop at the next step) and is in 2 teams. Team jobs are not stopped by this switch."
+- **The Settings page** keeps only: "3 assistants have Resonance on · Manage on the Partners page >".
 
-## 8. Sơ đồ luồng
+## 8. Flow diagrams
 
-### 8.1 Tạo nhóm tới chat (A)
+### 8.1 Creating a team to chat (A)
 
 ```mermaid
 sequenceDiagram
-  actor Chu as Chủ nhóm
-  participant UI as Trang Nhóm
+  actor Chu as Team owner
+  participant UI as Teams page
   participant API as /teams
   participant TS as team_store
-  participant RS as Sổ danh tính
-  Chu->>UI: Tạo nhóm, chọn Lan, Minh, Hà, trưởng nhóm Lan
+  participant RS as Identity registry
+  Chu->>UI: Create team, pick Lan, Minh, Hà, coordinator Lan
   UI->>API: POST /teams
-  API->>RS: agent_register cho từng slug (enabled=0 nếu chưa có)
-  API->>TS: teams, team_members, phiên team:
-  API-->>UI: nhóm mới
-  Chu->>UI: Gửi tin trò chuyện (không @)
+  API->>RS: agent_register for each slug (enabled=0 if missing)
+  API->>TS: teams, team_members, team: sessions
+  API-->>UI: new team
+  Chu->>UI: Send a chat message (no @)
   UI->>API: /ws {team_id, client_msg_id}
-  API->>TS: lượt leader_reply cho Lan
+  API->>TS: leader_reply turn for Lan
 ```
 
-### 8.2 Giao chung, phân công, tổng hợp (B) và nhờ hỗ trợ (D)
+### 8.2 Shared assignment, delegation, synthesis (B) and asking for help (D)
 
 ```mermaid
 sequenceDiagram
-  actor Chu as Chủ nhóm
-  participant Q as Hàng nhóm (tasks lane=team)
+  actor Chu as Team owner
+  participant Q as Team queue (tasks lane=team)
   participant R as team_runner
-  participant L as Lan (trưởng nhóm)
+  participant L as Lan (coordinator)
   participant M as Minh
   participant H as Hà
-  Chu->>Q: Giao việc (không @) -> team_queued
-  R->>Q: nhận việc (CAS, một việc mỗi nhóm) -> team_running
-  R->>L: bước plan
+  Chu->>Q: Assign job (no @) -> team_queued
+  R->>Q: pick up the job (CAS, one job per team) -> team_running
+  R->>L: plan step
   L->>R: javis_team assign(Minh), assign(Hà)
-  R->>M: bước work
+  R->>M: work step
   M->>R: javis_team request_help(Hà)
-  R->>H: bước help (parent = bước của Minh)
-  H-->>R: trả lời
-  R->>M: lượt tiếp với trả lời của Hà
-  M-->>R: submit kết quả
-  R->>H: bước work của Hà
+  R->>H: help step (parent = Minh's step)
+  H-->>R: reply
+  R->>M: next turn with Hà's reply
+  M-->>R: submit result
+  R->>H: Hà's work step
   H-->>R: submit
-  R->>L: bước synthesize
-  L-->>R: Kết quả việc
-  R->>Q: done, đăng vào nhóm
+  R->>L: synthesize step
+  L-->>R: Job result
+  R->>Q: done, post to the team
 ```
 
-### 8.3 Trạng thái việc nhóm
+### 8.3 Team job states
 
 ```mermaid
 stateDiagram-v2
-  [*] --> team_queued: Giao việc / đề xuất được nhận
-  team_queued --> team_running: tới lượt (đầu hàng, nhóm rảnh)
-  team_running --> done: tổng hợp xong
-  team_running --> team_blocked: chờ anh, lỗi, no_leader, cap_reached, interrupted, no_progress
-  team_blocked --> team_queued: anh gỡ chặn (giữ thứ tự cũ)
-  team_queued --> cancelled: huỷ
-  team_running --> cancelled: huỷ (kết quả muộn không áp dụng)
-  team_blocked --> cancelled: huỷ
+  [*] --> team_queued: Job assigned / proposal accepted
+  team_queued --> team_running: its turn (head of queue, team idle)
+  team_running --> done: synthesis finished
+  team_running --> team_blocked: waiting for you, error, no_leader, cap_reached, interrupted, no_progress
+  team_blocked --> team_queued: you unblock it (keeps the old order)
+  team_queued --> cancelled: cancel
+  team_running --> cancelled: cancel (late results are not applied)
+  team_blocked --> cancelled: cancel
 ```
 
-### 8.4 Hàng đợi: ví dụ A, C, B
+### 8.4 Queue: example A, C, B
 
 ```
-t0  Đang làm: A        Chờ: B(seq 2), C(seq 3)
-t1  Anh bấm Ưu tiên C  -> C.team_prio = 1      Chờ: C★, B
-t2  A xong             -> nhận đầu hàng: C      Đang làm: C   Chờ: B
-t3  C xong             -> nhận B                Đang làm: B
-A không chạy lại; C không ngắt A.
+t0  Working: A         Waiting: B(seq 2), C(seq 3)
+t1  You tap Prioritize on C  -> C.team_prio = 1      Waiting: C★, B
+t2  A finishes         -> take the head of the queue: C      Working: C   Waiting: B
+t3  C finishes         -> take B                Working: B
+A does not run again; C does not interrupt A.
 ```

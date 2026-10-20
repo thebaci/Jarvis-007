@@ -1,67 +1,67 @@
-# Resonance A2: nhịp tim thích nghi, cách dùng, nâng cấp, quay về
+# Resonance A2: adaptive heartbeat, usage, upgrade, rollback
 
-Áp dụng cho bản 0.88.0 trở đi. Thiết kế đầy đủ: `docs/superpowers/specs/2026-10-08-resonance-a2-heartbeat-design.md`. Phần A1 (công tắc theo trợ lý) vẫn theo `docs/dev/resonance-a1-migration.md`.
+Applies to release 0.88.0 onward. Full design: `docs/superpowers/specs/2026-10-08-resonance-a2-heartbeat-design.md`. The A1 part (per-assistant switch) still follows `docs/dev/resonance-a1-migration.md`.
 
-## Trợ lý thức khi nào
+## When the assistant wakes up
 
-Trợ lý đã bật Cộng hưởng chỉ gọi model khi có một trong ba lý do:
+An assistant with Resonance on calls the model only for one of three reasons:
 
-- **Việc mới:** mục tiêu vừa lập, hay cách hiểu vừa đổi, mà chưa có bản nào.
-- **Tin mới từ bạn:** góp ý trên thẻ, hay một lần xem lại bạn đã hẹn giờ.
-- **Thử lại còn trong giới hạn:** sau một lượt chưa đạt, hay sau lỗi.
+- **New work:** a goal was just set, or its understanding just changed, and no draft exists yet.
+- **New word from you:** feedback on the card, or a recheck you scheduled.
+- **A retry still within limits:** after a turn that did not pass, or after an error.
 
-Mọi lần thức khác chỉ chạy code, không gọi model:
-- xem lại định kỳ (6 giờ, rồi giãn dần tới 7 ngày nếu không có gì đổi);
-- kiểm hạn chót;
-- kiểm lại công tắc trợ lý hay điều kiện bảo vệ.
+Every other wake-up only runs code, without calling the model:
+- the periodic recheck (6 hours, then stretching out to 7 days if nothing changes);
+- the deadline check;
+- re-checking the assistant switch or the protective conditions.
 
-Bản chat trợ lý viết ngay trong cuộc trò chuyện được tính là lượt đầu. Chưa đạt thì việc nền sửa lại theo lịch thử lại (15 phút sau), không chạy ngay.
+A draft the assistant writes right inside the conversation counts as the first turn. If it does not pass, the background job fixes it on the retry schedule (15 minutes later), not immediately.
 
-## Giới hạn thử lại
+## Retry limits
 
-- **Bế tắc:** hai lượt liên tiếp không tiến thêm theo tiêu chí thì trợ lý dừng thử và chờ. Mục tiêu vẫn mở; góp ý hay nói rõ hơn là làm tiếp.
-- **Lỗi:** tối đa 3 lượt lỗi, rồi dừng. Lỗi cố định (bộ não việc nền không chạy được) không thử lại.
-- **Thử lại tự động chừa một lượt:** không dùng lượt cuối của hạn mức. Việc mới hay góp ý của bạn thì dùng được lượt đó.
-- **Hạn chót:** gần hạn thì kiểm dày hơn. Qua hạn mà chưa đạt thì báo một lần; Jarvis 007 không tự gia hạn hay tự kết luận.
+- **Deadlock:** after two consecutive turns that make no further progress against the criteria, the assistant stops trying and waits. The goal stays open; feedback or a clearer statement continues the work.
+- **Errors:** at most 3 error turns, then it stops. A permanent error (the background-job brain cannot run) is not retried.
+- **Automatic retries leave one turn spare:** they do not use the last turn of the quota. New work or your feedback can use that turn.
+- **Deadline:** close to the deadline it checks more often. Past the deadline without passing, it reports once; Jarvis 007 does not extend the deadline or reach a conclusion on its own.
 
-## File bạn sửa tay
+## A file you edit by hand
 
-File sản phẩm bị sửa ngoài Jarvis 007 sau lần Jarvis 007 ghi:
-- Jarvis 007 không ghi đè, không gọi model làm lại, báo một lần mỗi phiên bản file;
-- tự kiểm lại sau 1 giờ, giãn dần tới 24 giờ; góp ý thì kiểm ngay;
-- đưa file về đúng bản Jarvis 007 đã ghi thì Jarvis 007 làm tiếp; bản bạn sửa vẫn đạt tiêu chí thì Jarvis 007 ghi nhận và không làm gì thêm.
+If a product file is edited outside Jarvis 007 after Jarvis 007 last wrote it:
+- Jarvis 007 does not overwrite it, does not call the model to redo it, and reports once per file version;
+- it rechecks itself after 1 hour, stretching out to 24 hours; with feedback it checks right away;
+- if the file is put back to exactly the version Jarvis 007 wrote, Jarvis 007 carries on; if your edited version still meets the criteria, Jarvis 007 records that and does nothing more.
 
-## Điều kiện bảo vệ (guard)
+## Protective conditions (guard)
 
-- **Tạm dừng mục tiêu:** vẫn theo dõi bằng code; guard chạm thì vẫn báo.
-- **Tắt trợ lý:** ngừng theo dõi và báo một lần. Thẻ hiện "Không còn theo dõi điều kiện bảo vệ". Bật lại thì kiểm ngay trước mọi tác động.
+- **Goal paused:** still watched by code; if a guard fires, it still reports.
+- **Assistant turned off:** stops watching and reports once. The card shows that the protective conditions are no longer being watched. When it is turned back on, it checks right away before any action.
 
-## Thẻ mục tiêu
+## The goal card
 
-- "Lần làm tiếp" kèm lý do (ví dụ "xem lại định kỳ", "có góp ý mới").
-- Mục "Chi tiết và lịch sử" có "Các lần thức gần đây": giờ, lý do, có gọi model hay không.
+- "Next step" with the reason (for example "periodic recheck", "new feedback").
+- The "Details and history" section has "Recent wake-ups": time, reason, and whether the model was called.
 
-Không có ô cài đặt mới. Các khoảng thời gian là hằng có phiên bản (`heartbeat.v1`) trong `server/resonance_heartbeat.py`.
+There is no new settings field. The time intervals are versioned constants (`heartbeat.v1`) in `server/resonance_heartbeat.py`.
 
-## Nâng cấp từ 0.87.x
+## Upgrading from 0.87.x
 
-- **Không phải làm gì tay.** Lần đầu mở kho, Jarvis 007 chép `resonance.sqlite3` thành `resonance.sqlite3.pre-a2.bak` cạnh file gốc, chỉ một lần.
-- **Kho chỉ có thêm bốn bảng mới:** `wake_reasons` (lý do thức), `wake_log` (sổ thức, chỉ để xem), `source_observations` (bản file bị sửa ngoài Jarvis 007), `heartbeat_state` (chuỗi lỗi và tiến bộ dùng để quyết định thử lại). Không bảng cũ nào đổi cột.
-- **Mục tiêu đang mở được dựng lại lý do từ lịch sử sự kiện:**
-  - chưa làm lượt nào thì có lý do "việc mới";
-  - góp ý chưa xử lý thì vẫn được xử lý một lần.
+- **Nothing to do by hand.** The first time the store is opened, Jarvis 007 copies `resonance.sqlite3` to `resonance.sqlite3.pre-a2.bak` next to the original file, once only.
+- **The store only gains four new tables:** `wake_reasons` (wake reasons), `wake_log` (wake ledger, for viewing only), `source_observations` (versions of files edited outside Jarvis 007), `heartbeat_state` (the error and progress streaks used to decide retries). No old table changes a column.
+- **Open goals get their reasons rebuilt from the event history:**
+  - if no turn has run yet, there is a "new work" reason;
+  - feedback not yet handled is still handled once.
 
-## Quay về 0.87.x
+## Rolling back to 0.87.x
 
-- **Bản 0.87.0 chạy được trên kho đã nâng:** nó bỏ qua bốn bảng mới. Đã kiểm bằng mã 0.87.0 thật trong `tests/python/test_resonance_a2_rollback.py`.
-- **Trong lúc chạy 0.87:** nhịp cũ của MVP hoạt động lại, nên lần xem lại có thể gọi model như trước A2.
-- **Nâng lại lên A2:** góp ý hay việc mới mà bản 0.87 đã làm (lượt bắt đầu sau khi tin đó tới) được tính là đã xử lý, không gọi model lần nữa.
+- **Release 0.87.0 runs on the upgraded store:** it ignores the four new tables. Verified with the real 0.87.0 code in `tests/python/test_resonance_a2_rollback.py`.
+- **While running 0.87:** the old MVP heartbeat is active again, so a recheck may call the model as it did before A2.
+- **Upgrading to A2 again:** feedback or new work that 0.87 already handled (a turn started after that message arrived) counts as handled, and the model is not called again.
 
-## Khôi phục bằng bản sao trước nâng cấp
+## Recovering from the pre-upgrade copy
 
-`resonance.sqlite3.pre-a2.bak` chỉ có dữ liệu tới lúc nâng. Cách làm giống bản sao A1:
+`resonance.sqlite3.pre-a2.bak` only has data up to the moment of the upgrade. The procedure is the same as for the A1 copy:
 
-1. Dừng server.
-2. Chép riêng kho hiện tại (`resonance.sqlite3`, cùng `-wal`, `-shm` nếu có).
-3. Chép bản sao đè thành `resonance.sqlite3`, xoá `-wal` và `-shm` cũ.
-4. Chạy bản 0.87.x.
+1. Stop the server.
+2. Copy the current store (`resonance.sqlite3`, plus `-wal` and `-shm` if present) somewhere else separately.
+3. Copy the backup over `resonance.sqlite3`, and delete the old `-wal` and `-shm`.
+4. Run release 0.87.x.

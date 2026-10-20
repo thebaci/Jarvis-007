@@ -1,80 +1,80 @@
-# Kế hoạch: Tầng Gói mở rộng (Pack Layer) cho Jarvis 007
+# Plan: the Pack Layer (extension packs) for Jarvis 007
 
-> Bản kế hoạch dev, viết 2026-09-03 trên nền code v0.55.7. Mục tiêu: đưa connector và plugin
-> thành GÓI cài được lúc chạy (zip, URL hoặc repo riêng, và về sau là kho công khai), giữ
-> nguyên lõi FastAPI. Kèm việc xoá kết nối cho sạch và một đợt đóng băng ngôn ngữ mã nguồn.
+> Dev plan, written 2026-09-03 on top of code v0.55.7. Goal: make connectors and plugins
+> installable PACKS at runtime (zip, URL or a separate repo, and later a public store), keeping
+> the FastAPI core as it is. Includes clean connection deletion and a source-code language freeze.
 
-## Bối cảnh
+## Background
 
-Jarvis 007 đã có nền. Vấn đề bây giờ không phải thiếu tính năng mà là **mọi năng lực mới đều phải đi qua một bản phát hành**. Đo trên repo:
+Jarvis 007 already has a foundation. The problem now is not missing features but that **every new capability has to go through a release**. Measured on the repo:
 
-- **524 lần bump VERSION trong 3 tháng** (tháng 7: 326, tháng 8: 181, tháng 9: 17).
-- **60 lần trong số đó chỉ để sửa `system/mcp-catalog.json`**, tức thêm hoặc vá một connector.
+- **524 VERSION bumps in 3 months** (July: 326, August: 181, September: 17).
+- **60 of those were only to edit `system/mcp-catalog.json`**, that is, to add or patch one connector.
 
-Nguyên nhân nằm ở một dòng: `server/mcp_catalog.py:19` trỏ cứng vào đúng một file trong repo, `load()` ở `:35-50` không merge, không override, và không endpoint nào ghi được vào đó. Trên Docker cây code lại root-owned read-only (`Dockerfile:81,112`), chỉ `/data` ghi được. Nên thêm một kết nối nghĩa là ra bản mới, không có đường nào khác.
+The cause is a single line: `server/mcp_catalog.py:19` points hard at exactly one file in the repo, `load()` at `:35-50` does no merge and no override, and no endpoint can write into it. On Docker the code tree is root-owned and read-only (`Dockerfile:81,112`), and only `/data` is writable. So adding a connection means shipping a new release, with no other way.
 
-Plugin thì gần đích hơn nhiều. `server/plugins_host.py` (605 dòng) đã quét ba tầng, đã hot reload thật theo mtime (`_signature` :323-337), đã có cổng quyền chạy bằng code chứ không bằng prompt (`_make_call` :446-473). Thiếu đúng ba thứ: **không có đường cài, không có đường gỡ, và cổng env là bật-tất-cả-hoặc-tắt-tất-cả**.
+Plugins are much closer to the goal. `server/plugins_host.py` (605 lines) already scans three tiers, already does real hot reload by mtime (`_signature` :323-337), and already has a permission gate enforced by code rather than by prompt (`_make_call` :446-473). Exactly three things are missing: **no install path, no uninstall path, and the env gate is all-on or all-off**.
 
-Mục tiêu của kế hoạch này: một **gói (pack)** cài được lúc chạy từ file zip, từ URL hoặc repo riêng, và về sau từ một kho công khai. Giữ nguyên lõi FastAPI, không viết lại theo kiểu seam của deepseek-harness. Gỡ gói phải sạch, xoá kết nối phải sạch.
-
----
-
-## Bốn thứ hỏng phát hiện được khi khảo sát
-
-Đây là lỗi thật, đã tự kiểm chứng lại, không phải suy đoán. Ba cái đầu là tiền đề của kế hoạch nên phải sửa trước.
-
-**1. Xoá kết nối đang để lại rác, trong đó có credential sống.**
-`POST /connect/delete` (`main.py:3212-3221`) gọi `mcp_store.delete_connection` **trước** rồi mới `mcp_hub.invalidate_cache`, mà `invalidate_cache` (`mcp_hub.py:890-899`) lại lặp qua `list_connections()` để tìm session cần đóng. Hàng đã bị xoá nên session không bao giờ được đóng, tiến trình con stdio sống tới `_IDLE_TTL = 900` giây. Và `STATE_DIR/connector-home/` **không có ai xoá cả**: hai chỗ ghi (`mcp_store.py:428`, `zalo_login.py:161`), không chỗ nào xoá. Trên máy khảo sát lúc viết bản này có **5 thư mục `connector-home/zalo-*` mồ côi** trong khi không còn kết nối Zalo nào, một trong số đó chứa credential phiên đăng nhập.
-
-**2. `safeHref` chặn nhầm, và ba chỗ render bỏ qua nó.**
-`dashboard/console.js:156` chỉ nhận `^https?://`, nên `guide_url: "/static/docs/substack.html"` trong catalog trả về `#`: **link hướng dẫn Substack đang chết**. Nghiêm trọng hơn, ba chỗ render (`:4227`, `:4263`, `:4491`) nội suy thẳng `esc(con.guide_url)` vào `href=` mà không qua `safeHref`. `esc()` chỉ escape `& < > " '`, nên `javascript:` đi lọt. Hôm nay chưa khai thác được vì catalog do mình viết; ngày gói của người khác cấp được `guide_url` thì đó là XSS trên chính origin của dashboard.
-
-**3. Hai hàm slugify lệch nhau, một cái ăn mất chữ Đ.**
-`share_bundle.py:55 slugify` dùng NFKD rồi `encode("ascii","ignore")`, mà U+0111 (đ) không có phân rã NFKD nên bị **xoá thẳng**. Chạy thử: `"Đo lường doanh thu"` ra `"o-luong-doanh-thu"`. Đây là đường export/import agent, nên một vòng xuất rồi nhập lại là hỏng tên. `main.py:4567 _ascii_slug` làm đúng vì có `replace("đ","d")` tường minh.
-
-**4. Bộ dò chatbot bí chỉ biết tiếng Việt.**
-`chatbot_runtime.py:515 _DAU_BI` là 9 cụm tiếng Việt thuần. Chatbot phục vụ khách nói tiếng Anh sẽ **không bao giờ** bị ghi nhận là đang bí, tab bot-bí hiện trống trong khi bot đang hỏng. Đây là lỗi đúng nghĩa, chỉ khoác áo ngôn ngữ.
+The goal of this plan: a **pack** that can be installed at runtime from a zip file, from a URL or a separate repo, and later from a public store. Keep the FastAPI core as it is, with no rewrite in the style of deepseek-harness's seam. Uninstalling a pack must be clean, and deleting a connection must be clean.
 
 ---
 
-## Gói là gì
+## Four broken things found during the survey
 
-Một đơn vị. Một thư mục. Một manifest. Connector và plugin **dùng chung một định dạng**, chỉ khác nhau ở phần `provides:` nào được điền. Lý do: `meta-ads-graph` hôm nay đã là một tính năng bị chẻ làm hai hiện vật, dính nhau bằng chuỗi `CONNECTOR_ID = "meta-ads-graph"` viết cứng ở `system/plugins/meta-ads-graph/plugin.py:13`. Tách định dạng làm hai là hợp thức hoá cái lỗi đó.
+These are real bugs, re-verified by hand, not guesses. The first three are prerequisites of the plan, so they must be fixed first.
+
+**1. Deleting a connection leaves junk behind, including a live credential.**
+`POST /connect/delete` (`main.py:3212-3221`) calls `mcp_store.delete_connection` **first** and only then `mcp_hub.invalidate_cache`, but `invalidate_cache` (`mcp_hub.py:890-899`) loops over `list_connections()` to find sessions to close. The row is already deleted, so the session is never closed, and the stdio child process lives until `_IDLE_TTL = 900` seconds. And nobody ever deletes `STATE_DIR/connector-home/`: two places write to it (`mcp_store.py:428`, `zalo_login.py:161`), none deletes. On the survey machine at the time of writing there were **5 orphaned `connector-home/zalo-*` folders** while no Zalo connection remained, and one of them held a login-session credential.
+
+**2. `safeHref` blocks too much, and three render sites bypass it.**
+`dashboard/console.js:156` only accepts `^https?://`, so `guide_url: "/static/docs/substack.html"` in the catalog returns `#`: **the Substack guide link is dead today**. More seriously, three render sites (`:4227`, `:4263`, `:4491`) interpolate `esc(con.guide_url)` straight into `href=` without going through `safeHref`. `esc()` only escapes `& < > " '`, so `javascript:` slips through. It cannot be exploited today because we write the catalog ourselves; the day someone else's pack can supply `guide_url`, it becomes XSS on the dashboard's own origin.
+
+**3. Two slugify functions disagree, and one eats the letter Đ.**
+`share_bundle.py:55 slugify` uses NFKD and then `encode("ascii","ignore")`, but U+0111 (đ) has no NFKD decomposition and is **simply deleted**. Tried it: `"Đo lường doanh thu"` gives `"o-luong-doanh-thu"`. This is the agent export/import path, so one export-then-import round trip corrupts the name. `main.py:4567 _ascii_slug` does it right because it has an explicit `replace("đ","d")`.
+
+**4. The "stuck" detector in the chatbot only knows Vietnamese.**
+`chatbot_runtime.py:515 _DAU_BI` is 9 pure Vietnamese phrases. A chatbot serving English-speaking customers will **never** be recorded as stuck, so the stuck-bot tab shows empty while the bot is broken. This is a genuine bug, just dressed up as a language issue.
+
+---
+
+## What a pack is
+
+One unit. One folder. One manifest. Connectors and plugins **share one format**, differing only in which `provides:` parts are filled in. The reason: `meta-ads-graph` today is already one feature split into two artifacts, glued together by the hard-coded string `CONNECTOR_ID = "meta-ads-graph"` at `system/plugins/meta-ads-graph/plugin.py:13`. Splitting the format in two would legitimize that flaw.
 
 ```
 STATE_DIR/packs/<id>/
-    javis-pack.yaml       manifest, giữ nguyên văn tác giả viết
-    pack.json             bản đã chuẩn hoá + kiểm, do trình cài ghi
-    connectors/*.yaml     mỗi file một connector
-    plugins/<slug>/       plugin.yaml + plugin.py, ĐỂ NGUYÊN TẠI CHỖ
-    assets/               icon, phục vụ tại /packs/<id>/asset/<path>
-    pages/                trang hướng dẫn
-STATE_DIR/packs.json          sổ cài đặt
-STATE_DIR/packs-state/<id>.json   sổ hiệu ứng (thứ ghi RA NGOÀI thư mục gói)
-STATE_DIR/packs-staging/      file đã soi nhưng chưa cài, dọn sau 30 phút
+    javis-pack.yaml       manifest, kept verbatim as the author wrote it
+    pack.json             normalized + checked version, written by the installer
+    connectors/*.yaml     one connector per file
+    plugins/<slug>/       plugin.yaml + plugin.py, LEFT IN PLACE
+    assets/               icons, served at /packs/<id>/asset/<path>
+    pages/                guide pages
+STATE_DIR/packs.json          install ledger
+STATE_DIR/packs-state/<id>.json   effects ledger (things written OUTSIDE the pack folder)
+STATE_DIR/packs-staging/      files inspected but not yet installed, cleaned after 30 minutes
 ```
 
-**Quyết định làm cho việc gỡ trở nên khả thi:** plugin của gói nằm luôn trong `STATE_DIR/packs/<id>/plugins/<slug>/`, **không bao giờ copy** sang `STATE_DIR/plugins/`. Gỡ khi đó là `rmtree` cộng phát lại sổ hiệu ứng, chứ không phải đi diff.
+**The decision that makes uninstalling feasible:** a pack's plugins live permanently in `STATE_DIR/packs/<id>/plugins/<slug>/` and are **never copied** to `STATE_DIR/plugins/`. Uninstalling is then `rmtree` plus replaying the effects ledger, not a diff hunt.
 
 ### Manifest, spec 1
 
-Khoá tiếng Anh toàn bộ ngay từ ngày đầu (đây là hợp đồng công khai mới). `name` và `description` là map đa ngôn ngữ.
+All keys are in English from day one (this is a new public contract). `name` and `description` are multi-language maps.
 
 ```yaml
 format: javis-pack
-spec: 1                        # phiên bản SCHEMA, không phải phiên bản gói
-id: acme.pos-vn                # ^[a-z0-9][a-z0-9._-]{0,63}$, bất biến, = tên thư mục
+spec: 1                        # SCHEMA version, not the pack version
+id: acme.pos-vn                # ^[a-z0-9][a-z0-9._-]{0,63}$, immutable, = folder name
 version: 1.0.0
 name: {en: "Vietnam POS", vi: "POS Viet Nam"}
 description: {en: "...", vi: "..."}
 author: {name: "Acme", url: "https://acme.dev"}
 license: MIT
-icon: assets/pos.png           # CHỈ đường dẫn tương đối trong gói
-category: sales                # slug tiếng Anh
+icon: assets/pos.png           # relative path inside the pack ONLY
+category: sales                # English slug
 category_label: {en: "Sales", vi: "Bán hàng"}
-compat: {app: ">=0.57.0 <2.0.0"}   # kiểm lúc cài VÀ lúc khởi động
-permissions:                   # KHAI BÁO của tác giả, để hiện trước khi cài. KHÔNG phải cưỡng chế.
-  code: false                  # trình cài tự tính, không tin file
+compat: {app: ">=0.57.0 <2.0.0"}   # checked at install AND at startup
+permissions:                   # the author's DECLARATION, shown before install. NOT enforcement.
+  code: false                  # the installer computes this itself, never trusts the file
   network: ["api.pos.vn"]
   filesystem: none
 provides:
@@ -83,371 +83,371 @@ provides:
   assets: [assets/]
   pages: [{id: guide, file: pages/guide.md}]
 update: {channel: manual, source: ""}
-signature: {}                  # ĐỂ DÀNH, spec 1 chỉ kiểm có mặt
-listing:                       # ĐỂ DÀNH cho chợ, trình cài bỏ qua
+signature: {}                  # RESERVED, spec 1 only checks presence
+listing:                       # RESERVED for the store, ignored by the installer
   price: {amount: 0, currency: VND, model: free}
   purchase_url: ""
   entitlement: {required: false, check_url: ""}
 ```
 
-`plugin.yaml` cũ không có khoá `format:` được một shim ~20 dòng trong `packs.py` quy về `{spec: 0, id: <tên thư mục>, provides: {plugins: ["."]}}`. **Mọi plugin đang có, bundled lẫn của người dùng, chạy tiếp mãi mãi, không phải sửa một byte nào.**
+An old `plugin.yaml` with no `format:` key is mapped by a ~20-line shim in `packs.py` to `{spec: 0, id: <folder name>, provides: {plugins: ["."]}}`. **Every existing plugin, bundled and user-made, keeps running forever without changing a single byte.**
 
-Một file `connectors/pos.yaml` là **y nguyên** một phần tử của mảng `connectors[]` trong `system/mcp-catalog.json` hôm nay, thêm `category_key` và đường dẫn icon/guide tương đối.
+A `connectors/pos.yaml` file is **exactly** one element of the `connectors[]` array in `system/mcp-catalog.json` today, plus `category_key` and relative icon/guide paths.
 
-### Hai điểm nút
+### Two choke points
 
-Cả ba lượt phản biện đều xác nhận chỉ cần chạm hai chỗ:
+All three review rounds confirmed that only two places need touching:
 
-- `mcp_catalog.load()` (`:35-50`): một lần đọc có cache theo mtime, trả `{id: connector}`. **Mọi** hàm phía sau (`get`, `public_catalog`, `build_headers`, `build_url`, `build_env`, `classify`, `allowed`, và `mcp_store.resolved()` :373-501) đều đã nhận connector dưới dạng **dict tham số**. Nên biến `load()` thành hàm merge là thay đổi khép kín.
-- `plugins_host._iter_plugin_dirs` (`:170-182`): một tuple ba nguồn dedupe theo tên thư mục. Thêm nguồn thứ tư là chèn một phần tử, và `_signature()` vốn đã stat mọi `plugin.yaml`/`plugin.py` nó trả ra, nên **hot reload cho plugin của gói là miễn phí**.
+- `mcp_catalog.load()` (`:35-50`): a single mtime-cached read that returns `{id: connector}`. **Every** function downstream (`get`, `public_catalog`, `build_headers`, `build_url`, `build_env`, `classify`, `allowed`, and `mcp_store.resolved()` :373-501) already receives the connector as a **dict parameter**. So turning `load()` into a merge function is a self-contained change.
+- `plugins_host._iter_plugin_dirs` (`:170-182`): a tuple of three sources deduplicated by folder name. Adding a fourth source means inserting one element, and `_signature()` already stats every `plugin.yaml`/`plugin.py` it returns, so **hot reload for pack plugins comes for free**.
 
-**Luật chống deadlock:** `server/packs.py` chỉ import `config`, `secrets_store`, `fastyaml` và stdlib. Không bao giờ import `plugins_host`, `mcp_store`, `mcp_hub` hay `main`. Spec 1 **không có** `ctx.register_connector`, nên code của gói không thể quay ngược vào lớp merge catalog trong lúc `plugins_host._lock` (:57) đang bị giữ qua `reg(ctx)` (:403).
+**Anti-deadlock rule:** `server/packs.py` imports only `config`, `secrets_store`, `fastyaml` and the stdlib. It never imports `plugins_host`, `mcp_store`, `mcp_hub` or `main`. Spec 1 **has no** `ctx.register_connector`, so pack code cannot call back into the catalog merge layer while `plugins_host._lock` (:57) is held through `reg(ctx)` (:403).
 
 ---
 
-## Ranh giới tin cậy: "bề mặt thực thi", không phải "không có file .py"
+## Trust boundary: the "execution surface", not "no .py files"
 
-Đây là điều chỉnh quan trọng nhất, và là lý do một kho công khai có thể an toàn.
+This is the most important adjustment, and the reason a public store can be safe.
 
-`transport: stdio` chép `command`/`args` từ connector vào connection (`mcp_store.py:225-229`), rồi `mcp_client.py:216-220` spawn nó với `env = dict(os.environ)`, và `POST /connect/add` (`main.py:3112`) dial ngay. **Một gói không chứa một dòng Python nào vẫn chạy được `npx -y goi-doc-hai` với toàn bộ biến môi trường của server chỉ bằng một cú bấm.** Plugin `javis-connect` đã biết chuyện này và ép mọi kết nối stdio do model thêm về `enabled: False` (`plugin.py:224-228`).
+`transport: stdio` copies `command`/`args` from the connector into the connection (`mcp_store.py:225-229`), then `mcp_client.py:216-220` spawns it with `env = dict(os.environ)`, and `POST /connect/add` (`main.py:3112`) dials immediately. **A pack containing not one line of Python can still run `npx -y goi-doc-hai` with the server's entire environment from a single click.** The `javis-connect` plugin already knows this and forces every stdio connection added by the model to `enabled: False` (`plugin.py:224-228`).
 
-Nên phân **ba bậc, do trình cài tự tính từ cây file đã giải nén, không tin lời tác giả khai**:
+So there are **three tiers, computed by the installer itself from the unpacked file tree, never trusting the author's claims**:
 
-**Bậc DATA** - cài được không cần đồng ý chạy code:
-transport `http`/`sse`; `url`/`url_template` **chỉ https cổng 443**, tên miền hiện lên màn hình xác nhận; `auth.type` là `apikey`/`none`/`oauth` với `provider` thuộc phương ngữ đã có (`meta`, `google`, `generic`); `tool_meta`, `validate`, `arg_rules`, `rate_limit`, `risk`; icon và trang hướng dẫn **chỉ đường dẫn trong gói** (icon `http://` bị từ chối vì đó là beacon nổ mỗi lần vẽ trang Kết nối); và `default_perm` bị **ép về `readonly`** cho mọi connector đến từ gói, người dùng tự nâng từng kết nối qua UI cũ nơi cảnh báo rủi ro đã có sẵn.
+**DATA tier** - installable without agreeing to run code:
+transport `http`/`sse`; `url`/`url_template` **https on port 443 only**, with the domain shown on the confirmation screen; `auth.type` is `apikey`/`none`/`oauth` with a `provider` from the existing dialects (`meta`, `google`, `generic`); `tool_meta`, `validate`, `arg_rules`, `rate_limit`, `risk`; icons and guide pages **as in-pack paths only** (an `http://` icon is rejected because it is a beacon that fires every time the Connections page is drawn); and `default_perm` is **forced to `readonly`** for every connector coming from a pack, and the user raises each connection themselves through the old UI where the risk warning already exists.
 
-**Bậc CODE** - đòi đồng ý riêng từng gói, gắn với hash nội dung:
-bất kỳ file `.py` nào; `transport: stdio` hoặc bất kỳ `command`/`args`; khối `env` tĩnh; `cred_dir`, `isolate_home`, `oauth_file`, `needs_local_browser`; `auth.exchange`.
+**CODE tier** - requires separate consent per pack, tied to a content hash:
+any `.py` file; `transport: stdio` or any `command`/`args`; a static `env` block; `cred_dir`, `isolate_home`, `oauth_file`, `needs_local_browser`; `auth.exchange`.
 
-**Gói chứa Python là chuyện BÌNH THƯỜNG, không phải ngoại lệ phải xin phép hai lần.** Chủ dự án chốt 2026-09-03: gói mở cho mã Python, vì chính chủ là người xem gói trước khi cài. Nên **cổng env `JAVIS_ENABLE_USER_PLUGINS` KHÔNG áp cho gói cài qua trình cài.** Việc này nhất quán chứ không phải nới lỏng, và lý do đáng viết ra:
+**A pack containing Python is NORMAL, not an exception that must be asked for twice.** The project owner settled this on 2026-09-03: packs are open to Python code, because the owner is the one who looks at the pack before installing it. So **the `JAVIS_ENABLE_USER_PLUGINS` env gate does NOT apply to packs installed through the installer.** This is consistent rather than a loosening, and the reason is worth writing down:
 
-Cổng env sinh ra để bịt đúng một lỗ: `STATE_DIR/plugins/` và `<brain>/plugins/` là thư mục **ghi được**, nên bất cứ thứ gì ghi được vào đó là chạy được code trong tiến trình server mà **không ai bấm gì cả** - kể cả một model đang thao tác file trong brain. Trình cài phá bỏ đúng điều kiện đó: có người bấm, có màn hình liệt kê từng file `.py` trước khi bấm, và có digest ghi lại để lần nạp sau đối chiếu. Ba thứ đó là cùng một loại bảo đảm mà cổng env cung cấp, chỉ chính xác hơn vì nó theo TỪNG gói thay vì bật-tắt-tất-cả.
+The env gate was created to plug exactly one hole: `STATE_DIR/plugins/` and `<brain>/plugins/` are **writable** folders, so anything that can write there gets code running inside the server process **with nobody clicking anything** - including a model working on files in the brain. The installer removes exactly that condition: a person clicks, there is a screen listing every `.py` file before the click, and a digest is recorded so later loads can check against it. Those three things are the same kind of guarantee the env gate provides, only more precise because it works PER pack instead of all-on or all-off.
 
-Nên phân đường, không phân mức tin:
+So we split by route, not by trust level:
 
-| Đường vào | Điều kiện chạy code |
+| Entry route | Condition for running code |
 |---|---|
-| Cài qua trình cài (zip, URL, repo riêng, kho) | Đồng ý từng gói, gắn digest. **Không cần env.** |
-| Thả tay thư mục vào `STATE_DIR/plugins/` hoặc `<brain>/plugins/` | Vẫn cần `JAVIS_ENABLE_USER_PLUGINS=true` như hôm nay |
+| Installed through the installer (zip, URL, separate repo, store) | Consent per pack, tied to a digest. **No env needed.** |
+| Folder dropped by hand into `STATE_DIR/plugins/` or `<brain>/plugins/` | Still needs `JAVIS_ENABLE_USER_PLUGINS=true` as today |
 
-Cổng env vì thế **không bị gỡ**, chỉ thôi chắn con đường vốn đã có người gác. Nó vẫn là đường cứu khi cần tắt sạch mọi plugin người dùng cài mà không vào được dashboard, và `JAVIS_DISABLE_PACKS` là công tắc tương ứng cho gói.
+The env gate is therefore **not removed**, it just stops blocking a path that already has a guard. It remains the rescue route when you need to switch off every user-installed plugin without being able to reach the dashboard, and `JAVIS_DISABLE_PACKS` is the matching switch for packs.
 
-**TỪ CHỐI thẳng ở spec 1**, nêu đích danh trường sai:
-`transport: internal` và khoá `internal:` (vì `mcp_client.py:37 _INTERNAL` là **allowlist bảo vệ** `importlib.import_module`, không phải bảng tra); `auth.type: qr` (Zalo là đường riêng); `provider` OAuth lạ; và **id connector trùng với catalog gốc hoặc với gói khác**. Không có `override: true` trong spec 1. Một luật này giết luôn đòn hiểm nhất: một gói ship `id: pancake-pos` kèm `url_template: https://evil.host/mcp` sẽ **âm thầm bẻ hướng một kết nối đang đăng nhập thật**, vì `mcp_store.py:383-388, 489-495` dựng lại url và header **từ connector** ở mỗi lần resolve.
+**REFUSED outright in spec 1**, naming the offending field:
+`transport: internal` and the `internal:` key (because `mcp_client.py:37 _INTERNAL` is a **protective allowlist** for `importlib.import_module`, not a lookup table); `auth.type: qr` (Zalo is its own path); an unknown OAuth `provider`; and **a connector id that collides with the base catalog or with another pack**. There is no `override: true` in spec 1. This one rule also kills the nastiest attack: a pack shipping `id: pancake-pos` with `url_template: https://evil.host/mcp` would **silently redirect a connection that is really logged in**, because `mcp_store.py:383-388, 489-495` rebuilds the url and headers **from the connector** on every resolve.
 
-**Ai tin nguồn nào là lựa chọn của người cài, và Jarvis 007 phải cho họ thấy đủ để chọn.** Chính chủ review gói của chính mình thì đủ; nhưng khi có kho công khai, người fork Jarvis 007 cài gói của người thứ ba, ở đó "tác giả đã review" không còn là bảo đảm cho họ. Nên gói mang **nhãn nguồn** (chính chủ / kho công khai / zip tự tải / repo riêng) hiện cạnh tên ở mọi chỗ, và màn hình đồng ý của gói chưa qua review nói dài hơn một dòng. Jarvis 007 không thay người dùng quyết định tin ai; nó chỉ không được để họ bấm mà không biết mình đang bấm gì.
+**Who trusts which source is the installer's choice, and Jarvis 007 has to show them enough to choose.** The owner reviewing their own pack is enough; but once there is a public store, someone who forks Jarvis 007 installs a third party's pack, and there "the author reviewed it" is no longer a guarantee for them. So a pack carries a **source label** (first-party / public store / self-downloaded zip / separate repo) shown next to its name everywhere, and the consent screen for an unreviewed pack says more than one line. Jarvis 007 does not decide for users whom to trust; it just must not let them click without knowing what they are clicking.
 
-**Nói thẳng trên màn hình xác nhận, không làm mềm:** `min_mode` chỉ chặn cái **model** được gọi, không chặn cái `register()` được làm. `permissions.network` và `permissions.filesystem` là lời khai, không có tầng chặn. Không có sandbox. Câu chữ bắt buộc: **"Gói này chạy Python thật bên trong server Jarvis 007. Nó đọc được mọi khoá API, token và file mà Jarvis 007 đọc được. Chỉ cài gói từ nguồn bạn tin."** Không icon ổ khoá.
-
----
-
-## Ba sự thật khó nghe
-
-Nói trước để không ai kỳ vọng sai.
-
-**Một: chỉ 13 trong 29 connector hiện có diễn đạt được bằng gói DATA hôm nay**, không phải 24 như bản thiết kế đầu tiên tự nhận. Sau giai đoạn code pack là khoảng 25. Ba cái (`zalo` qr, `botcake` và `substack` internal) vĩnh viễn cần lõi. Con số này sẽ do `tests/python/test_pack_coverage.py` tự tính từ catalog và in lý do từ chối từng cái, chứ không chép tay, vì bản thiết kế đầu đã sai con số này 11 đơn vị.
-
-**Hai: cái này KHÔNG rút ngắn vòng lặp của chính đội phát triển bao nhiêu.** Trong 60 commit chạm `system/mcp-catalog.json` gần đây, **41 cái đồng thời chạm `server/*.py`**, 18 chạm `tests/`, 17 chạm `console.js`. Tầng gói chỉ bỏ được bản phát hành cho những connector vốn đã không cần sửa server, tức đúng phần rẻ nhất. **Thứ chương trình này thật sự mua là gói của bên thứ ba và gói riêng của người phát hành**, chứ không phải giảm con số 60 kia.
-
-**Ba: 29 connector gốc GIỮ NGUYÊN CHỖ trong `system/mcp-catalog.json`, nhưng phải gỡ được.** Đây là chỗ chủ dự án chỉnh lại bản đầu (2026-09-03): không xoá gì bây giờ, cũng không di chuyển dữ liệu, nhưng **code phải đúng cấu trúc để gỡ được**, vì đích đến là bao giờ có kho thì xoá bớt, để lại đúng bộ lõi mặc định và người dùng tự cài thêm.
-
-Hai việc này khác nhau, và tách chúng ra là cả điểm cốt lõi: **di trú dữ liệu** (chẻ file catalog thành 29 gói rời) là việc đắt, gãy 18 file test đọc file đó bằng đường dẫn nguyên văn, và mua được đúng số không cho người dùng hôm nay. **Lớp gỡ được** thì rẻ, không đụng một byte nào của catalog, và mua ngay được thứ cần có: người dùng tắt bớt connector không dùng, và ngày xoá thật thì đường đã sẵn.
-
-Nên làm lớp gỡ, đừng di trú. Xem mục "Bộ lõi và cái cài thêm" ngay dưới.
+**Say it plainly on the confirmation screen, without softening:** `min_mode` only limits what the **model** may call, it does not limit what `register()` may do. `permissions.network` and `permissions.filesystem` are declarations, with no enforcement layer. There is no sandbox. Required wording: **"This pack runs real Python inside the Jarvis 007 server. It can read every API key, token and file that Jarvis 007 can read. Only install packs from a source you trust."** No padlock icon.
 
 ---
 
-## Bộ lõi và cái cài thêm
+## Three hard truths
 
-Đích đến chủ dự án đặt ra: **bao giờ có kho thì xoá bớt, để lại đúng cấu trúc mặc định của Jarvis 007, còn lại người dùng tự chọn cài thêm plugin, skill hay kết nối.** Bây giờ chưa xoá gì, nhưng cấu trúc phải sẵn.
+Said up front so nobody expects the wrong thing.
 
-Cấu trúc đó chỉ cần một ý: **mọi năng lực mặc định đều gỡ được, và trạng thái "đã gỡ" ghi ở `STATE_DIR` chứ không sửa vào cây code.** Cây code là read-only trên Docker và bị `git pull` ghi đè trên bản native, nên đó là chỗ duy nhất trạng thái sống được qua một lần cập nhật.
+**One: only 13 of the 29 existing connectors can be expressed as a DATA pack today**, not 24 as the first design claimed. After the pack-code phase it is about 25. Three (`zalo` qr, `botcake` and `substack` internal) will permanently need the core. This number will be computed by `tests/python/test_pack_coverage.py` from the catalog, which prints the reason for each refusal, rather than copied by hand, because the first design got this number wrong by 11.
 
-Ba loại năng lực mặc định, ba chỗ ghi, một cách hiểu:
+**Two: this does NOT shorten the dev team's own loop by much.** Of the 60 recent commits touching `system/mcp-catalog.json`, **41 also touched `server/*.py`**, 18 touched `tests/`, 17 touched `console.js`. The pack layer only removes the release for connectors that never needed a server change, which is exactly the cheapest part. **What this program really buys is third-party packs and the publisher's own private packs**, not a reduction of that 60.
 
-| Loại | Nằm ở đâu | Sổ ghi "đã gỡ" | Có sẵn chưa |
+**Three: the 29 base connectors STAY IN PLACE in `system/mcp-catalog.json`, but must be removable.** This is where the project owner corrected the first draft (2026-09-03): delete nothing now, and migrate no data, but **the code must have the right structure to be removable**, because the destination is that once the store exists we delete some, leaving exactly the default core and letting users install more themselves.
+
+These are two different jobs, and separating them is the whole point: **data migration** (splitting the catalog file into 29 separate packs) is expensive, breaks 18 test files that read that file by literal path, and buys exactly nothing for users today. **The removable layer** is cheap, touches not one byte of the catalog, and immediately buys what is needed: users switch off connectors they do not use, and the day we really delete, the road is ready.
+
+So build the removable layer, do not migrate. See the section "Core set and add-ons" right below.
+
+---
+
+## Core set and add-ons
+
+The destination the project owner set: **once the store exists, delete some things and leave exactly the default structure of Jarvis 007, and users choose for themselves to install more plugins, skills or connections.** Nothing is deleted now, but the structure must be ready.
+
+That structure needs only one idea: **every default capability is removable, and the "removed" state is recorded in `STATE_DIR`, not by editing the code tree.** The code tree is read-only on Docker and overwritten by `git pull` on native installs, so `STATE_DIR` is the only place state survives an update.
+
+Three kinds of default capability, three places to record, one way of understanding:
+
+| Kind | Lives in | Ledger recording "removed" | Exists yet |
 |---|---|---|---|
-| Connector lõi (29 cái) | `system/mcp-catalog.json` | `STATE_DIR/core-off.json` khoá `connectors[]` | Chưa, làm ở Giai đoạn 1 |
-| Plugin bundled (11 cái) | `system/plugins/<slug>/` | `STATE_DIR/plugins.json` khoá `removed[]` | Đã có `enabled`/`disabled`, thêm `removed` ở Giai đoạn 2 |
-| Skill hệ thống (6 cái) | `.claude/skills/`, `system_sync` đồng bộ vào brain | `<brain>/skills/.disabled/` | **Đã chạy rồi** (`system_sync` tôn trọng nó) |
+| Core connectors (29) | `system/mcp-catalog.json` | `STATE_DIR/core-off.json` key `connectors[]` | Not yet, done in Phase 1 |
+| Bundled plugins (11) | `system/plugins/<slug>/` | `STATE_DIR/plugins.json` key `removed[]` | `enabled`/`disabled` exist, add `removed` in Phase 2 |
+| System skills (6) | `.claude/skills/`, synced into the brain by `system_sync` | `<brain>/skills/.disabled/` | **Already working** (`system_sync` respects it) |
 
-Ba luật đi kèm, và cả ba đều để tránh cùng một loại lời hứa sai:
+Three accompanying rules, all aimed at avoiding the same kind of false promise:
 
-1. **"Gỡ" khác "xoá file".** Với thứ ship kèm app, gỡ nghĩa là biến mất khỏi danh sách chính, khỏi mọi engine, khỏi prompt; file vẫn ở trong image. Xoá file thật thì trên Docker sẽ `EACCES`, còn trên bản native thì `git pull` sau đó mọc lại - một thứ "đã xoá" mà tự quay về thì tệ hơn một thứ đang tắt.
-2. **Gỡ được thì cài lại được, bằng một cú bấm.** Đây là điều kiện để "gỡ" không đáng sợ, và cũng là điều làm nó khác xoá.
-3. **Gỡ một connector lõi KHÔNG xoá kết nối đã đấu theo nó.** Kết nối là dữ liệu của người dùng; connector chỉ là cái khuôn. Gỡ khuôn mà kết nối còn thì kết nối thành **mồ côi**, và chốt mồ côi ở Giai đoạn 1 chính là thứ làm trạng thái đó an toàn thay vì âm thầm mất quyền. Giao diện hỏi thẳng: gỡ khuôn thôi, hay xoá cả kết nối.
+1. **"Remove" is not "delete the file".** For something shipped with the app, removing means disappearing from the main list, from every engine, from the prompt; the file stays inside the image. Deleting the file for real would hit `EACCES` on Docker, and on native installs it would grow back after the next `git pull` - a thing that is "deleted" and comes back by itself is worse than a thing that is switched off.
+2. **Removable means reinstallable, with one click.** This is the condition that makes "remove" not scary, and it is what makes it different from delete.
+3. **Removing a core connector does NOT delete the connections already set up on it.** A connection is the user's data; the connector is only the mold. If you remove the mold while connections remain, those connections become **orphans**, and the orphan guard in Phase 1 is what makes that state safe instead of silently losing permissions. The UI asks directly: remove the mold only, or delete the connections too.
 
-Ngày xoá thật thì việc phải làm chỉ còn là chẻ `system/mcp-catalog.json` thành các gói rời và sửa 18 file test đang đọc nó bằng đường dẫn nguyên văn. Lúc đó là một lần cố ý, có kho để người dùng cài lại ngay, chứ không phải một lần vá vội giữa đường.
-
----
-
-## Lộ trình
-
-Mỗi giai đoạn merge riêng được, CI xanh, và tự nó đã có ích.
-
-### Giai đoạn 0 - Xoá kết nối cho sạch (4 ngày)
-
-Nửa còn lại của yêu cầu đặt ra, đồng thời là rò rỉ credential đang sống, đồng thời là tiền đề của việc gỡ gói. Làm trước và làm riêng.
-
-- File mới `server/purge.py`, **chủ sở hữu duy nhất** của câu hỏi "một kết nối có thể để lại những gì". API: `plan_connection(cid)`, `async purge_connection(cid, mode="trash", purge_audit=False)`, `gc_trash(days=30)`. Mọi thao tác xoá đường dẫn đi qua một guard `_inside(path, base)` dùng `resolve()`, vì `config.home_dir` người dùng sửa được qua `POST /connect/update`, thiếu guard thì "xoá kết nối" thành `rmtree` tuỳ ý.
-- `SessionPool.close_now(key)` mới trong `mcp_client.py` cạnh `invalidate` (:451-455): pop rồi **await** `obj.close()` để chạm `_kill_tree` (:308-338). `invalidate` là bắn-rồi-quên qua `_close_later`, đúng cho đổi cấu hình, sai khi sắp `rmtree`.
-- Thứ tự cố định: **làm im** (`await close_now`) → **chụp lại** (dời vào `STATE_DIR/purge-trash/conn-<cid>__<ts>/` kèm `manifest.json`) → **gỡ** (`oauth_mcp.forget`, `connect_health.forget`, `mcp_hub.forget_rate` mới, `capability_registry.drop_source` mới xoá cứng, `purge_home_dir` mới, rồi `mcp_store.delete_connection`) → **invalidate** → **báo cáo**.
-- `purge_home_dir`: đọc `config.home_dir` trước, thiếu thì glob theo tiền tố `connector-home/<connector_id>-<slug>*`, và từ chối mọi thứ trượt `_inside`. Hai chỗ ghi dùng hai dạng tên khác nhau nên suy từ id và slug là bỏ sót mọi thư mục do QR tạo, tức đúng 5 thư mục đang có trên máy khảo sát.
-- Dòng audit **mặc định giữ lại**, chỉ xoá trường nhãn. Một nhật ký mà cái gói tự xoá được thì không còn là nhật ký. Có ô tick riêng để xoá hẳn.
-- Nếu `pool.dang_goi_tool(spec)` đang true thì trả `{"ok": false, "busy": true}` và để UI nói ra, vì đóng session stdio là SIGKILL cả cây tiến trình có thể đang đặt đơn.
-- Tách `_kill_tree` ra `server/winproc.py` và gọi từ `zalo_login.cancel` (:191-203), chỗ hôm nay chỉ giết `cmd.exe /c npx` mà bỏ sót tiến trình node thật đang giữ thư mục home.
-- **Sửa `safeHref`** (`console.js:156`) nhận thêm đường dẫn cùng origin một dấu gạch đầu (không bao giờ `//`), và **cả sáu** chỗ render `guide_url` đi qua nó.
-- Endpoint mới `GET /connect/purge-plan?id=`. Hộp xác nhận **vẽ từ chính cái plan** để lời cảnh báo không trôi lệch khỏi việc thật sự làm. Thêm trường `purge_warning` **trong catalog** (không phải trong JS), mục zalo ghi: "Xoá kết nối này là mất phiên đăng nhập QR. Muốn dùng lại phải mở app Zalo trên điện thoại quét mã lần nữa." Với connector có trường đó, nút chính là "Chuyển vào thùng rác 30 ngày", còn "Xoá hẳn ngay" bắt gõ đúng nhãn kết nối, theo đúng luật `confirm == name` của `/brains/delete` (`main.py:4517-4518`). Đưa "Tắt tạm" và "Đăng nhập lại" **lên trên** Xoá trong menu.
-
-**Xong khi:** xoá một kết nối stdio đang sống thì `ps` thấy tiến trình con biến mất trong một giây chứ không phải 900. `server/connector-home/` không còn thư mục của nó, kể cả thư mục do QR tạo với `home_dir` tuỳ biến. Một test chụp `STATE_DIR`, thêm kết nối, dùng thử, xoá, rồi khẳng định diff rỗng ngoại trừ `mcp_audit.jsonl` và `logs/`. `purge_connection` trên kết nối có `home_dir` là `C:\` thì từ chối và thư mục đích còn nguyên. `javascript:...` ra `#` ở cả sáu chỗ render.
-
-### Giai đoạn 1 - Sổ gói, lớp phủ catalog, và lớp gỡ được (4 ngày) - ĐÃ LÀM
-
-> Ship ở 0.55.20 (`server/core_off.py`: lớp gỡ được, chốt mồ côi) và 0.55.21
-> (`server/packs.py`: nạp gói từ `STATE_DIR/packs/`, lớp phủ catalog, endpoint
-> `/packs` và `/packs/<id>/asset/<path>`). Chưa làm phần trang hướng dẫn của gói:
-> nó phải là markdown render phía server ra HTML đã lọc, xếp vào Giai đoạn 3.
-
-Chưa có UI cài, chưa chạm mạng. Thả một thư mục vào là connector hiện ra, không cần ra bản mới. Và connector lõi **tắt được**, tức cấu trúc gỡ được có mặt từ đây chứ không chờ tới kho.
-
-- `server/packs.py` mới: `load_manifest`, `installed()`, `catalog_signature()`, `connector_layers()`, `plugin_dirs()` (tạm trả rỗng), `asset_path()`, `page_path()`, shim spec 0.
-- Sửa `mcp_catalog.py`: khoá cache thành `(chữ ký file gốc, packs.catalog_signature())`; dựng `by_id` từ file gốc rồi phủ `connector_layers()` lên, gắn nhãn `_pack: "<id>"`. Import `packs` là lazy và bọc `try/except` để `packs.py` hỏng thì thoái về đúng hành vi hôm nay, khớp nhánh file-hỏng sẵn có ở `:46-48`.
-- **Trùng id connector là từ chối, không bao giờ merge.** Kiểm id theo `_SLUG_RE` **trước khi** dựng bất kỳ đường dẫn nào từ nó: `mcp_catalog.py:44` hôm nay không kiểm gì, mà `mcp_store.py:301, 421, 428` nội suy id đó vào đường dẫn, một trong số đó dẫn tới `shutil.rmtree`.
-- `public_catalog()` viết lại icon và guide tương đối thành `/packs/<id>/asset/...` **ở phía server**, nên `iconInner` (`console.js:4062-4075`, vốn đã route dấu `/` sang `<img>`) không cần đổi.
-- `classify()` với entry có `_pack`: heuristic `WRITE_HINTS` thành **sàn** chứ không phải phương án dự phòng, tức gói chỉ được làm phân loại **chặt hơn**, không được nới.
-- **Chốt mồ côi** (bắt buộc có trước khi bất cứ thứ gì gỡ được): `mcp_store.resolved()` :386-408 hôm nay chịu được `con = None` và im lặng bỏ header, env, cred_dir; tệ hơn, `mcp_hub._guard` khi đó gọi `allowed(None, perm, ...)` với `perm` mặc định `"full"` và hàm trả True vô điều kiện (`mcp_catalog.py:327-328`). Sửa: kết nối có `connector_id` không ai cung cấp bị đánh dấu mồ côi, `resolved()` từ chối dựng spec, và có quét lúc khởi động để hiện băng đỏ mời "Cài lại gói" hoặc "Xoá kết nối".
-- `mcp_hub._store_mtime()` trả `max(mtime mcp_servers.json, mtime packs.json)`. Một lệnh `stat` thêm, đóng được ca thả tay trong TTL 60 giây sẵn có. **Không** đi quét mọi manifest trên đường nóng.
-- `.gitignore` **và** `.dockerignore` thêm sáu đường mới, cập nhật `test_ignore_files.py`. Nhớ `STATE_DIR` mặc định là `server/` (`config.py:15`) nên trên bản native, gói rơi **vào trong cây git**. Thêm luôn `server/connector-cred/`, hiện không có trong file nào cả.
-- Từ chối id gói trùng tên module top-level của `server/` (vì `server/` nằm trên `sys.path` và `__init__.py` là entry file hợp lệ).
-- **LỚP GỠ ĐƯỢC cho connector lõi.** `STATE_DIR/core-off.json` dạng `{"connectors": ["tiktok-ads", "lark"]}`, đọc trong `packs.py` (cùng chỗ, cùng kiểu cache theo `(mtime_ns, size)`), và `mcp_catalog.load()` lọc chúng ra **sau** khi phủ gói. Ba điểm phải đúng:
-  - Lọc ở `load()` chứ không ở `public_catalog()`: lọc ở chỗ hiển thị thì tool vẫn ra tới engine, tức "đã gỡ" là lời hứa sai. `load()` là nơi duy nhất mọi đường đi qua.
-  - `catalog_signature()` gộp mtime của `core-off.json`, nên tắt một connector có hiệu lực ở lần load kế mà không phải khởi động lại.
-  - Endpoint `POST /connect/core-toggle {id, off}`. Gỡ khuôn **không** xoá kết nối đã đấu theo nó: chúng thành mồ côi và chốt mồ côi ở gạch đầu dòng trên lo phần an toàn. API trả về số kết nối sẽ thành mồ côi để giao diện hỏi lại một câu.
-  - Danh sách đã gỡ hiện ở một khu gập trên trang Kết nối, mỗi thẻ một nút Cài lại. Không xoá file trong `system/`, xem mục "Bộ lõi và cái cài thêm".
-
-**Xong khi:** một thư mục gói mẫu trong `STATE_DIR` tạm làm `mcp_catalog.get("acme.pos-vn")` trả về connector, `public_catalog()` có nó với URL icon tuyệt đối, `POST /connect/add` tạo được kết nối thật, xoá thư mục thì nó biến mất ở lần load kế. Gỡ `tiktok-ads` thì `mcp_catalog.get("tiktok-ads")` trả `None`, thẻ của nó rời khỏi kho, tool của nó biến khỏi `mcp_hub.discover_all`, và bấm Cài lại là quay về đủ - **không byte nào của `system/mcp-catalog.json` bị sửa trong cả vòng đó**. **Toàn bộ 18 file test đọc catalog vẫn xanh mà không sửa dòng nào.** `server/bench_hotpath.py` không lùi quá mốc 150,8ms.
-
-### Giai đoạn 2 - Cài từ zip, màn hình đồng ý, gỡ sạch, trang Gói (9 ngày) - ĐÃ LÀM
-
-> Ship ở 0.55.22. `server/pack_install.py` (luật zip, sổ cài đặt, cài hai bước có chốt
-> dấu vân tay, gỡ sạch), `server/routes/packs.py` (7 endpoint, đòi phiên thật),
-> `dashboard/packs.js` (trang Gói + màn hình xác nhận), và plugin bundled gỡ được qua
-> `plugins_host.set_removed`. CHƯA làm: cài từ URL và repo riêng (Giai đoạn 5), trang
-> hướng dẫn của gói (Giai đoạn 3), sổ hiệu ứng cho plugin của gói (Giai đoạn 4).
-
-Giai đoạn giao đúng phần cần nhất: gói riêng bằng zip, và gỡ sạch.
-
-- `server/routes/packs.py` mới theo đúng khuôn factory của `server/routes/__init__.py` (không bao giờ import `main`, mọi thứ qua dataclass `Deps`). **Đăng ký cả 14 endpoint một lượt**, cái của giai đoạn sau trả 501 nhưng **để đúng tên hàm cuối cùng**, vì `test_route_table.py:95-99` bắt cả thứ tự lẫn tên. Cả chương trình chỉ regenerate `route_table.json` **hai lần**.
-- **Mọi `/packs/*` đòi session thật, vô điều kiện**, không phụ thuộc `gate_active()` (`config.py:811-813` trả False trên bản local mặc định, khiến `main.py:190-207` bỏ qua guard). Cài đòi session chứ không nhận API token. **Không tool, skill hay agent nào chạm được `/packs/install`**: endpoint không nằm trong bảng route của hub, và điều này viết vào tài liệu, vì `javis_add_mcp` chính là tiền lệ model chạm được bề mặt dạng cài đặt.
-- **Cài hai bước.** `POST /packs/inspect` stream file lên `packs-staging/<sha256>.zip` (đọc theo khối 1MB, huỷ khi quá 25MB, **đừng** chép cách `/import` ở `main.py:5952` vì nó `await file.read()` nạp hết vào RAM rồi mới kiểm), mở archive chỉ-đọc, đọc manifest, chạy mọi luật, trả về `{manifest, permissions, provides, tier, conflicts, sha256, staging_id}`. **Chưa giải nén gì cả.** `POST /packs/install {staging_id, consent_sha256, ...}` từ chối nếu hash không khớp, tức **buộc cái đã hiện ra phải chính là cái được cài**.
-- **Luật zip.** Chép hằng số và vị từ chống traversal từ `share_bundle.py:36-38, 250-255` (chép logic, **không gọi**, vì `_bad` là closure bên trong `import_bundle` và hàm đó có hình dạng bundle riêng). Thêm cái `share_bundle` chưa cần: từ chối member không phải file thường qua `(info.external_attr >> 16) & 0o170000` (một symlink tên `plugin.py` trỏ vào `.secret_key` sẽ bị mọi endpoint file phục vụ lại); giải nén cố định 0o644/0o755, không nghe mode trong archive; chặn tỉ lệ nén quá 100:1; từ chối thẳng `.env`, `*.pem`, `id_rsa*`, `*.p12`; **chỉ zip, không tar** (Python 3.12 `extractall` vẫn mặc định `filter=None`); chặn kích thước manifest trước khi `safe_load` vì SafeLoader vẫn nở anchor.
-- **Cài nguyên tử có rollback.** Giải nén ra `packs/.tmp-<id>-<pid>-<ts>/`, kiểm trên cây đã giải nén, `os.replace` bản cũ sang `.trash-<id>-<ts>` **trước**, rồi `os.replace(tmp, packs/<id>)`. Hỏng ở bất cứ bước nào thì rmtree tmp và trả bản cũ về. Rồi ghi sổ và gọi đúng bộ ba mà `/plugins/toggle` đang dùng (`main.py:8091-8095`).
-- **Sổ cài đặt** `packs.json` ghi `{version, enabled, tier, installed_at, source, sha256, code_consent, connectors[], plugins[], assets[], pages[]}`; bốn trường cuối chính là bản kê để gỡ. Ghi bằng tmp + `os.replace` như `plugins_host._write_state` (:142-150), kèm xoay `.bak` và `POST /packs/repair` dựng lại từ quét thư mục (mất bản ghi đồng ý, nên sẽ hỏi lại, đúng hướng an toàn).
-- **Gỡ.** `GET /packs/uninstall-plan` trả đúng những gì sẽ chết kèm số lượng và dung lượng, hộp thoại vẽ từ đó. Rồi: từ chối nếu có kết nối đang bận; **bắt buộc** purge mọi kết nối thuộc connector của gói (không có đường để lại mồ côi, vì một hàng mồ côi vẫn spawn được lệnh stdio của nó với cổng quyền đã biến mất); phát lại sổ hiệu ứng ngược LIFO, mỗi cái một `try/except`; chỉ `rmtree plugin-data/<slug>` khi người dùng tick (mặc định **không** tick: code gói là thứ vứt đi được, dữ liệu gói thì không); `os.replace` sang `.trash-` rồi rmtree; bỏ hàng trong `packs.json` và mọi mục `plugins.json` của nó; invalidate ba cache. Trả biên nhận để UI in một dòng thật thà.
-- **Không bao giờ xoá được plugin bundled** trong `system/plugins/`. Cây code read-only nên có cố cũng EACCES, và một thứ "đã xoá" mà mọi lần pull image lại mọc lại thì tệ hơn là để nó tắt.
-
-- **Nhưng plugin mặc định vẫn phải GỠ được, theo nghĩa người dùng hiểu** (chủ dự án hỏi thẳng
-  2026-09-03: "sẽ có các plugin mặc định được tải lên sẵn mà máy khách có thể gỡ"). Cách đạt
-  điều đó mà không đánh nhau với cây code read-only: thêm trạng thái **đã gỡ**, ghi vào
-  `STATE_DIR/plugins.json` bên cạnh `enabled`/`disabled` sẵn có (`plugins_host._read_state`
-  :127, `_effective_enabled` :213-223). Thẻ biến mất khỏi danh sách chính và rơi xuống một mục
-  gập "Đã gỡ, cài lại được"; `_load_all` bỏ qua nó nên tool biến mất khỏi mọi engine y hệt xoá
-  thật. Khác xoá đúng hai điểm, và cả hai đều là điểm cộng: bản cập nhật app không làm nó mọc
-  lại, và bấm nhầm thì cài lại bằng một cú bấm chứ không phải đi tải lại. Chi phí khoảng nửa
-  ngày, so với vài ngày nếu chuyển 11 plugin bundled thành gói cài sẵn. Đây là ô thứ hai của
-  bảng trong mục "Bộ lõi và cái cài thêm"; ô thứ nhất (connector lõi) làm ở Giai đoạn 1, ô thứ
-  ba (skill hệ thống) thì `system_sync` đã chạy sẵn, chỉ cần đưa lên cùng một chỗ hiển thị.
-  Không chuyển plugin bundled thành gói ở spec 1: chúng đi kèm app nên vẫn cần một bản phát
-  hành để đổi, tức chuyển đi không mua được gì, mà lại thêm một đường di trú phải bảo trì.
-- **Skill hệ thống chỉ cần một nút, phần khó đã có.** `system_sync` đã tôn trọng
-  `<brain>/skills/.disabled/`: gỡ một skill là dời thư mục nó vào đó, và lượt đồng bộ sau không
-  mọc lại. Nên việc ở đây là một nút Gỡ trên trang Skills đi qua đúng đường đó, cộng một khu
-  gập "Đã gỡ" có nút Cài lại - không phải cơ chế mới. Nói riêng ra vì bản kế hoạch đầu đã xếp
-  skill ra ngoài spec 1, mà chủ dự án nêu rõ 2026-09-03 là muốn cả plugin, skill lẫn kết nối
-  đều cài thêm và gỡ được.
-- `dashboard/packs.js` mới phơi `window.JavisPacks = {render}`, gọi từ chỗ dispatch của console.js theo cách `studio.js` đang làm. **Đừng nuôi console.js to thêm** (đã 6.951 dòng). Đăng ký trang ở năm chỗ: `VIEW_ICON`, `RAIL_ITEMS`, `RAIL_GROUPS`, khoá `page.packs.label`/`sub` trong **cả hai** từ điển i18n (đang cân 715/715, test JS đỏ nếu lệch), và một thẻ `<script src>` gần `index.html:803`. Trước khi viết i18n trong code gói, **đổi tên 11 biến cục bộ tên `t` trong console.js**, đáng chú ý là `const [t, c] = SRC[s]` (:1431) và `const chip = (t, iconName)` (:1436), cả hai nằm ngay trong `renderPlugins()`.
-- **Màn hình đồng ý**, vẽ hoàn toàn từ `/packs/inspect`: tên và phiên bản; xuất xứ nguyên văn (tên file kèm đầu sha256, hoặc repo @ ref @ commit); bậc tin cậy; với bậc CODE là khối đỏ không gập được kèm câu chữ ở trên, liệt kê mọi file `.py` và dung lượng, và bắt gõ đúng id gói; liệt kê tool và hook kèm ghi chú **hook nhìn thấy mọi lần gọi tool và cả kết quả** (`wrap_with_hooks` :533-542 bọc mọi tool trong route, kể cả MCP và builtin); một dòng nói `permissions` là lời khai chứ không phải cưỡng chế; nút Huỷ được focus mặc định, không Enter-để-gửi; ô "Bật sau khi cài" **mặc định TẮT**, đúng luật trong CLAUDE.md là năng lực tạo từ chat không bao giờ tự bật.
-- Trên trang Plugins, plugin đến từ gói được badge `pack` và một link "Quản lý ở trang Gói" thay cho nút xoá, để chỉ có **một** chỗ gỡ. `plugins_host.describe()` (:226-253) phải học nguồn `"pack"`, nếu không một plugin gói đang chạy sẽ hiện sai là "bật (chưa nạp)".
-
-**Xong khi:** kéo một zip mẫu chỉ có dữ liệu lên trang Gói, đọc màn hình đồng ý có nêu tên miền nó sẽ nói chuyện, cài, thấy thẻ với icon riêng trên trang Kết nối, tạo kết nối, và **gọi được tool đó từ một engine API** (OpenRouter hoặc Gemini, không phải engine CLI) để chứng minh nó đi qua `mcp_hub.discover_all` chứ không chỉ đường SDK. Rồi gỡ kèm purge: bản chụp băm đệ quy toàn bộ `STATE_DIR` trước khi cài **bằng đúng từng byte** với bản chụp sau khi gỡ, trừ `mcp_audit.jsonl` và `logs/`. Zip chứa `../../x`, member tuyệt đối, member symlink, tỉ lệ 500:1, hay 600 file đều bị từ chối mà không ghi gì ra đĩa.
-
-### Giai đoạn 3 - Trình bày cho gói (4 ngày)
-
-Phục vụ icon và trang hướng dẫn của gói, kèm guard resolve-rồi-kiểm-tiền-tố và allowlist content-type **hẹp**: `png`, `webp`, `jpg`. **Không SVG** (SVG phục vụ cùng origin thì trơ trong `<img>` nhưng chạy script khi mở thẳng một tab). Gửi kèm `X-Content-Type-Options: nosniff` và một `Content-Security-Policy` chặt trên đúng hai route này; hiện app **chưa có CSP ở đâu cả**.
-
-Trang hướng dẫn của gói là **Markdown render phía server ra HTML đã lọc**, không phải HTML của tác giả: một trang HTML lạ trên origin của dashboard chỉ cách `POST /packs/install` đúng một lỗ XSS.
-
-Thêm `category_key` cho cả 29 entry gốc trong một commit máy móc, **giữ nguyên `category`** cũ; `public_catalog()` phát cả hai; console đọc `category_key` qua `t("catalog.cat." + key)` có fallback nên không chỗ nào trắng. Gói cấp `category` lạ kèm `category_label` thì tự hiện nhãn của nó, không cần sửa repo. Badge "từ gói `<tên>`" trên thẻ connector và trên chi tiết kết nối, để connector do gói cấp không bao giờ lẫn với hàng chính chủ.
-
-### Giai đoạn 4 - Gói có code (7 ngày) - ĐÃ LÀM
-
-> Ship ở 0.55.23. `plugins_host` học nguồn thứ tư 'pack'; chữ ký mã đối chiếu lúc NẠP
-> (`_pack_duoc_nap`), không chỉ lúc cài; `ctx.on_unload` + `unload(slug)` pop cả
-> `sys.modules`; bỏ `sys.path.insert` thay bằng `submodule_search_locations`; trình cài
-> từ chối gói cướp tên plugin bundled; quét tương thích lúc khởi động. CHƯA làm:
-> `ctx.record_effect` và sổ hiệu ứng, `permissions.max_effect`.
-
-`_iter_plugin_dirs` thêm nguồn `("pack", d)`, thứ tự **bundled → pack → user → vault**. **Gói có thư mục plugin trùng tên slug bundled thì bị từ chối ngay lúc cài** (danh sách cấm là 11 slug bundled). Việc này giữ nguyên bit-for-bit hành vi user/vault-đè-bundled hôm nay, đồng thời chặn một gói lặng lẽ thay thế `javis_task`/`javis_schedule`/`javis_add_mcp` dưới một màn hình đồng ý chỉ nói "cái này chạy code".
-
-**Cổng env KHÔNG áp cho gói.** Plugin của gói nạp khi gói có `code_consent` hợp lệ, thế là đủ; `_env_user_enabled()` giữ nguyên từng bit cho hai nguồn `user` và `vault` như hôm nay. Lý do đầy đủ ở mục "Ranh giới tin cậy": cổng env bịt lỗ "thư mục ghi được mà không ai bấm gì", còn trình cài thì có người bấm, có màn hình liệt kê từng file `.py`, và có digest ghi lại - cùng loại bảo đảm, chỉ theo từng gói thay vì bật-tắt-tất-cả. `JAVIS_DISABLE_PACKS` là công tắc tắt sạch tương ứng cho gói.
-
-**Đồng ý được kiểm lúc NẠP, không phải lúc cài.** `code_consent` ghi digest của mọi file `.py` trong gói; `_load_all` tính lại digest từ đĩa và từ chối nạp khi lệch, và digest nằm trong `_signature()` để đổi nội dung là buộc nạp lại chứ không cưỡi lên cache mtime. Ai ghi được `plugin.py` thì cũng ghi được `packs.json`.
-
-`ctx.on_unload(fn)` và `ctx.record_effect(kind, ref)`. Tool và hook **vốn đã** đảo ngược được (register chỉ append vào list trên `LoadedPlugin` trong cache, không có registry toàn cục, và hub dựng lại bảng route mỗi lần cache miss). Cái **chưa** đảo ngược được: `sys.modules[mod_name]` đặt ở :340-341 và không bao giờ pop, cùng mọi thread/socket/atexit mà `register()` mở ra. Nên `plugins_host.unload(slug)` chạy `on_unload` ngược LIFO, bỏ cache, rồi pop mọi khoá `javis_plugin_*_<slug>`. `set_enabled(..., False)` đi qua `unload` để nút "Tắt" là dừng thật. Thêm khoá manifest `unload: clean | restart-required` để UI nói "cần khởi động lại" thay vì nói dối.
-
-**Sửa `sys.path.insert(0, plugin_dir)`** ở `_import_entry` :348-350: một gói chứa `config.py` hay `mcp_hub.py` hiện đang **che module của chính server** trong suốt thân module của nó. Dùng `submodule_search_locations` thay vì chọc `sys.path`.
-
-**Quét tương thích lúc khởi động:** `compat.app` kiểm lúc cài là chưa đủ, vì `update.sh` (`git pull`) và `updater.py:326` không bao giờ chạy lại trình cài. Thêm một lượt lúc boot **tắt** (không bao giờ xoá) gói có dải không còn khớp `VERSION`, kèm lý do trên thẻ.
-
-Không chuyển `meta-ads-graph`, `meta-pages-graph`, `fb-monitor-apify` thành gói ở spec 1. Chúng là bằng chứng cho việc một định dạng là đúng, không phải đích di trú: chỗ dính `CONNECTOR_ID` chỉ gỡ được khi có `ctx.connector_id`, mà đó là việc về sau.
-
-### Giai đoạn 5 - Cài từ URL và repo riêng (4 ngày) - LÀM MỘT NỬA
-
-> Ship ở 0.55.24: `server/packs_fetch.py` (chốt SSRF theo địa chỉ đã phân giải, kiểm lại
-> mỗi chặng chuyển hướng, trần theo byte thật) và endpoint `/packs/install-url`.
-> CHƯA làm: token cho repo riêng, ghim theo commit, kiểm bản mới định kỳ. Gói riêng hiện
-> vẫn ship bằng tệp .zip, đường đó đã đủ dùng.
-
-`server/packs_fetch.py` mới. **Chỉ zip qua HTTPS.** Không dùng `git clone` dù image có git, vì ba lý do: token nằm trong argv và `/proc/<pid>/cmdline` đọc được (chính là hình dạng `_auth_url` ở `git_brain.py:489-503`, lý do `_redact` tồn tại); clone kéo cả lịch sử nên không chặn được dung lượng trước khi byte rơi xuống; và `httpx` đã pin sẵn nên đường HTTPS không thêm dependency lẫn subprocess. Token đi bằng **header**.
-
-- `owner/repo@ref` → `api.github.com/repos/<o>/<r>/zipball/<ref>` với `Authorization: Bearer`.
-- GitLab → `repository/archive.zip?sha=<ref>` với `PRIVATE-TOKEN`.
-- `git+https://` **không có** trong spec 1: không subprocess, không bề mặt tiêm tham số.
-
-**Chốt SSRF**, thứ hôm nay server **không có ở đâu cả**: chỉ `https`, chỉ cổng 443, và mọi địa chỉ đã resolve phải trượt `is_private / is_loopback / is_link_local / is_reserved / is_multicast`; tối đa 3 redirect, **kiểm lại theo địa chỉ socket đã resolve sau mỗi chặng**, không phải theo hostname. Chuyện này rất cụ thể: `mcp_hub.py:82` đặt hub ở `http://127.0.0.1:7777/hub/mcp`, và hub là nơi giữ toàn bộ khoá của người dùng. Nói cho đủ: `/hub/mcp` bỏ qua guard cookie (nó nằm trong `_AUTH_PUBLIC_EXACT`, main.py:158-162) nhưng KHÔNG hở - `handle_http` đòi `Bearer hub_token` so sánh hằng-thời-gian. Cái chốt SSRF chặn là một tầng khác: một URL do người khác đưa mà trỏ vào loopback thì request đi RA từ chính tiến trình server, tức nó ở sẵn bên trong vành đai mạng, và bất cứ dịch vụ nội bộ nào tin localhost đều thành đích. Chốt phải có trước khi mở đường tải từ URL, không phải sau.
-
-**Token lưu theo host, mã hoá Fernet trong settings.** `config.py:452 _SECRET_PATHS` thêm `"packs.tokens.*"`, cần sửa ~6 dòng trong `_transform_secret_fields` để hiểu dấu `*` cuối là "mọi khoá của dict này", và phải thêm cùng ký tự đó vào `secret_paths_hong()` nếu không việc báo secret hỏng lặng lẽ ngừng phủ chúng.
-
-**Ghim phiên bản:** ghi lại `ref` đã yêu cầu, `commit` đã resolve, và `sha256` của archive. Ghim theo nhánh thì hiện chip hổ phách "đang bám main". **Không bao giờ tự động cập nhật gói có code.** Khi cập nhật, tính lại `permissions` và digest code; nếu rộng ra thì cài ở trạng thái **tắt** và hỏi lại. Giữ một thế hệ rollback ở `packs/.prev/<id>/`.
-
-### Giai đoạn 6 - Kho công khai (4 ngày) - ĐÃ LÀM
-
-> Ship ở 0.55.24. `server/packs_store.py`, `system/pack-index.json`,
-> `docs/dev/pack-store-index.md`, và lưới kho trong `dashboard/packs.js`. Chủ dự án chốt
-> 2026-09-04: kho chỉ chứa gói chính chủ, BỎ số lượt tải (tệp JSON tĩnh không đếm được,
-> mà tự đếm thì máy khách phải gọi về server nên thành một chuyện riêng tư phải nói rõ).
-
-`server/packs_store.py` fetch `packs.store_url` **phía server** (giữ token và chốt SSRF ở server, tránh luôn CORS), `If-None-Match`, cache TTL 6 giờ. Schema index công bố ở `docs/dev/pack-store-index.md`, mỗi mục soi gương manifest cộng `download: {url, sha256, size}`, `verified`, `updated`, và khối `listing` để dành. **Các trường giá có mặt từ v1** để một gói bán tiền sau này chỉ là một nút "Mua" mở `purchase_url`, không phải một lần phá định dạng.
-
-`sha256` **ghim từ lần cài đầu**, trong sổ. Kiểm một bản tải về bằng hash do chính index đó cấp thì không chứng minh gì về người phát hành; từ chối một hiện vật **đã đổi** ở **cùng một phiên bản** thì có.
-
-**Kho công khai liệt kê được gói bậc CODE**, nhưng một chạm từ kho vẫn phải đi qua đúng màn hình đồng ý như zip và URL - không có đường tắt "cài ngay" cho gói chứa Python. Kèm hai thứ để người cài thấy mình đang chọn gì: **nhãn nguồn** (chính chủ / cộng đồng / chưa review) và một dòng nói rõ gói này chạy mã. Gói của chính chủ dán nhãn `verified` trong index; gói cộng đồng thì không, và màn hình đồng ý của nó nói dài hơn. Jarvis 007 không thay người dùng quyết định tin ai.
-
-Ba trạng thái suy giảm, không cái nào là stack trace: có cache thì hiện dòng hổ phách và vẫn vẽ lưới; không cache thì trạng thái rỗng kèm "vẫn cài được từ zip hoặc URL"; `format_version` lạ thì nói thẳng "kho này cần Jarvis 007 mới hơn", không bao giờ parse nửa vời.
-
-Thêm biến môi trường `JAVIS_DISABLE_PACKS` đọc live, deny thắng, tắt sạch mọi gói không-bundled mà không cần vào dashboard.
-
-Coi index là **dữ liệu không tin được**: `name`, `description` và mô tả tool của gói đi thẳng vào danh sách tool của những engine đang cầm Bash.
-
-### Giai đoạn L - Đóng băng ngôn ngữ (10 ngày, chạy song song)
-
-Chạy lúc nào cũng được, ràng buộc thứ tự duy nhất là `category_key` phải xong trước giai đoạn 6.
-
-- **Cổng chặn.** `tests/python/test_ngon_ngu_ma_nguon.py` mới, quét AST với **danh sách CLEAN theo đường dẫn kiểu bánh cóc**, đúng khuôn repo đã dùng hai lần (`MIEN_TRU` trong `test_lang_bat_bien.py`, `I18N_MIGRATED` ở `tests/js/test_i18n.mjs:178`). Gieo CLEAN bằng `server/routes/**` (đo được 0 cờ thật), `server/packs*.py`, `server/purge.py`, `dashboard/packs.js`. Luật trong CONTRIBUTING.md: mọi module mới vào CLEAN ngay trong commit sinh ra nó. Cộng thêm một kiểm toàn cây không allowlist rằng không định danh nào chứa ký tự ngoài ASCII (hôm nay đo được **đúng 0**, nên là cái bánh cóc miễn phí). Lối thoát `# lang-ok: <lý do>` có in số lần dùng.
-  Không dùng ruff (repo không có ruff, và không luật nào diễn đạt được "đây có phải từ tiếng Việt không"), không quét theo git diff (`actions/checkout@v4` không có `with:` nên fetch-depth 1, không có merge base), không dùng baseline 853 mục (dương tính giả không giảm được ở `cap`, `do`, `con`, `day`, `ban`, `tin`, `set`).
-- **Gộp slugify**, đây là sửa lỗi chứ không phải dọn dẹp. Nâng một `ascii_slug()` duy nhất theo bản đúng ở `main.py:4567`, route cả `share_bundle` lẫn trình nạp gói qua đó, và chuyển `main.py:4709, 5887, 7138` khỏi `_slugify` (dùng `\w` với `re.UNICODE` nên **giữ nguyên dấu**, tức mọi brain mới đang được gieo sẵn một file agent có slug mang dấu).
-- **Đổi tên hợp đồng công khai**, mỗi cái một chiến lược đọc-cả-hai-ghi-cái-mới có nêu thời hạn: 7 đường URL tiếng Việt (không phải 5, sót `/usage/tong-quan` và `/usage/bao-cao`), alias nối thành **một khối ở cuối** danh sách route để `route_table.json` chỉ dài thêm 7 dòng mà không đánh số lại; ~13 trường JSON trả về đổi cùng với chỗ tiêu thụ trong dashboard trong một commit (không cần alias, mọi consumer đều là JS chính chủ trong repo này); 5 khoá settings cộng `nguon_tra_loi` thêm bước `_migrate_key_names` vào chuỗi chuẩn hoá của `read_settings` (`config.py:698`) và bước đó phải **pop** khoá cũ, vì `_deep_merge` để cả hai cùng sống; và `muc_quyen` → `permission` (140 chỗ, 15 file, món to nhất, và cùng một khái niệm với `min_mode` trong `plugin.yaml` lẫn `discover_all(mode)`, nên định dạng gói tuyệt đối không được đẻ ra cái tên thứ tư).
-- **Mã lỗi thay vì dựng framework i18n cho server.** Trả `{"ok": false, "error_code": "tts_no_audio", "error": "<chữ tiếng Việt>"}` rồi để dashboard render `t("err." + error_code)` với fallback về chính câu tiếng Việt. Việc này biến một dự án vô hạn ở phía server thành một dự án khoá-từ-điển hữu hạn, ở đúng cái tầng đã có sẵn 715/715 tiếng Anh.
-- Chuyển `chatbot_runtime.py:515 _DAU_BI` và `conversation_state.py:26 _GOAL_RE` vào `server/lexicon/` (lỗi số 4 ở trên).
-
-**Xong khi:** thêm `def _kiem_tra_moi(): pass` vào `server/routes/domain.py` làm `python tests/run.py lang` đỏ và nêu đúng file, dòng, từ; thêm `# lang-ok:` làm nó xanh với số lần dùng bằng 1. `ascii_slug("Đo lường doanh thu") == "do-luong-doanh-thu"` và một agent có chữ Đ trong tên sống sót một vòng export/import từng byte. Cả hai cách viết của cả 7 URL trả về byte y hệt nhau.
+The day we really delete, the remaining work is just to split `system/mcp-catalog.json` into separate packs and fix the 18 test files that read it by literal path. By then it is a deliberate one-time job, with a store so users can reinstall right away, not a rushed patch halfway through.
 
 ---
 
-## Đã làm xong tới đâu (cập nhật 2026-09-04)
+## Roadmap
 
-| Giai đoạn | Trạng thái | Bản |
+Each phase can be merged on its own, with green CI, and is useful by itself.
+
+### Phase 0 - Clean connection deletion (4 days)
+
+The other half of the original request, and also a live credential leak, and also a prerequisite for uninstalling packs. Do it first and do it separately.
+
+- New file `server/purge.py`, the **sole owner** of the question "what can a connection leave behind". API: `plan_connection(cid)`, `async purge_connection(cid, mode="trash", purge_audit=False)`, `gc_trash(days=30)`. Every path deletion goes through a guard `_inside(path, base)` that uses `resolve()`, because `config.home_dir` is user-editable through `POST /connect/update`, and without the guard "delete connection" becomes an arbitrary `rmtree`.
+- New `SessionPool.close_now(key)` in `mcp_client.py` next to `invalidate` (:451-455): pop, then **await** `obj.close()` so it reaches `_kill_tree` (:308-338). `invalidate` is fire-and-forget through `_close_later`, right for a config change, wrong right before an `rmtree`.
+- Fixed order: **quiesce** (`await close_now`) → **snapshot** (move into `STATE_DIR/purge-trash/conn-<cid>__<ts>/` with a `manifest.json`) → **remove** (`oauth_mcp.forget`, `connect_health.forget`, new `mcp_hub.forget_rate`, new `capability_registry.drop_source` hard delete, new `purge_home_dir`, then `mcp_store.delete_connection`) → **invalidate** → **report**.
+- `purge_home_dir`: read `config.home_dir` first, and if missing glob by the prefix `connector-home/<connector_id>-<slug>*`, and refuse anything that fails `_inside`. The two writers use two different name forms, so deriving from id and slug would miss every folder created by QR, which is exactly the 5 folders on the survey machine.
+- Audit lines are **kept by default**, only the label field is cleared. A log that the pack can delete itself is no longer a log. There is a separate checkbox to delete it entirely.
+- If `pool.dang_goi_tool(spec)` is true, return `{"ok": false, "busy": true}` and let the UI say so, because closing a stdio session is a SIGKILL of the whole process tree, which may be placing an order.
+- Split `_kill_tree` out into `server/winproc.py` and call it from `zalo_login.cancel` (:191-203), which today only kills `cmd.exe /c npx` and misses the real node process holding the home folder.
+- **Fix `safeHref`** (`console.js:156`) to also accept same-origin paths with a single leading slash (never `//`), and **all six** places that render `guide_url` go through it.
+- New endpoint `GET /connect/purge-plan?id=`. The confirmation box is **drawn from the plan itself** so the warning cannot drift from what is actually done. Add a `purge_warning` field **in the catalog** (not in JS); the zalo entry says: "Deleting this connection loses the QR login session. To use it again you must open the Zalo app on your phone and scan the code again." For a connector with that field, the main button is "Move to trash for 30 days", and "Delete permanently now" requires typing the connection's exact label, following the same `confirm == name` rule as `/brains/delete` (`main.py:4517-4518`). Put "Pause" and "Sign in again" **above** Delete in the menu.
+
+**Done when:** deleting a live stdio connection makes `ps` show the child process gone within a second instead of 900. `server/connector-home/` no longer holds its folder, including folders created by QR with a custom `home_dir`. A test snapshots `STATE_DIR`, adds a connection, uses it, deletes it, then asserts the diff is empty except for `mcp_audit.jsonl` and `logs/`. `purge_connection` on a connection whose `home_dir` is `C:\` refuses and the target folder is left intact. `javascript:...` becomes `#` at all six render sites.
+
+### Phase 1 - Pack ledger, catalog overlay, and the removable layer (4 days) - DONE
+
+> Shipped in 0.55.20 (`server/core_off.py`: the removable layer, the orphan guard) and 0.55.21
+> (`server/packs.py`: loading packs from `STATE_DIR/packs/`, the catalog overlay, the
+> `/packs` and `/packs/<id>/asset/<path>` endpoints). The pack guide-page part is not done yet:
+> it must be markdown rendered server-side into filtered HTML, moved to Phase 3.
+
+No install UI yet, no network touched. Drop a folder in and the connector appears, no new release needed. And core connectors can be **switched off**, so the removable structure exists from here on instead of waiting for the store.
+
+- New `server/packs.py`: `load_manifest`, `installed()`, `catalog_signature()`, `connector_layers()`, `plugin_dirs()` (returns empty for now), `asset_path()`, `page_path()`, the spec 0 shim.
+- Edit `mcp_catalog.py`: key the cache on `(base file signature, packs.catalog_signature())`; build `by_id` from the base file, then overlay `connector_layers()` on top, tagging `_pack: "<id>"`. The `packs` import is lazy and wrapped in `try/except` so a broken `packs.py` falls back to exactly today's behavior, matching the existing broken-file branch at `:46-48`.
+- **A duplicate connector id is a refusal, never a merge.** Check the id against `_SLUG_RE` **before** building any path from it: `mcp_catalog.py:44` checks nothing today, yet `mcp_store.py:301, 421, 428` interpolate that id into paths, one of which leads to `shutil.rmtree`.
+- `public_catalog()` rewrites relative icon and guide paths to `/packs/<id>/asset/...` **on the server side**, so `iconInner` (`console.js:4062-4075`, which already routes a `/` to `<img>`) needs no change.
+- `classify()` for an entry with `_pack`: the `WRITE_HINTS` heuristic becomes a **floor** rather than a fallback, meaning a pack may only make classification **stricter**, never looser.
+- **Orphan guard** (mandatory before anything can be removed): `mcp_store.resolved()` :386-408 today tolerates `con = None` and silently drops the headers, env and cred_dir; worse, `mcp_hub._guard` then calls `allowed(None, perm, ...)` with `perm` defaulting to `"full"`, and the function returns True unconditionally (`mcp_catalog.py:327-328`). Fix: a connection whose `connector_id` nobody supplies is marked orphaned, `resolved()` refuses to build a spec, and a startup scan shows a red banner offering "Reinstall pack" or "Delete connection".
+- `mcp_hub._store_mtime()` returns `max(mtime of mcp_servers.json, mtime of packs.json)`. One extra `stat` call, closing the hand-drop case within the existing 60-second TTL. **Do not** scan every manifest on the hot path.
+- `.gitignore` **and** `.dockerignore` gain six new paths, update `test_ignore_files.py`. Remember `STATE_DIR` defaults to `server/` (`config.py:15`), so on native installs packs land **inside the git tree**. Also add `server/connector-cred/`, which currently appears in neither file.
+- Refuse a pack id equal to a top-level module name in `server/` (because `server/` is on `sys.path` and `__init__.py` is a valid entry file).
+- **THE REMOVABLE LAYER for core connectors.** `STATE_DIR/core-off.json` shaped like `{"connectors": ["tiktok-ads", "lark"]}`, read in `packs.py` (same place, same cache keyed on `(mtime_ns, size)`), and `mcp_catalog.load()` filters them out **after** the pack overlay. Three points must be right:
+  - Filter in `load()`, not in `public_catalog()`: filtering at display time still lets the tool reach the engine, so "removed" would be a false promise. `load()` is the one place every path goes through.
+  - `catalog_signature()` folds in the mtime of `core-off.json`, so switching a connector off takes effect on the next load without a restart.
+  - Endpoint `POST /connect/core-toggle {id, off}`. Removing the mold does **not** delete connections already set up on it: they become orphans and the orphan guard in the bullet above handles safety. The API returns the number of connections that will become orphans so the UI can ask one more question.
+  - The removed list shows in a collapsed section on the Connections page, each card with a Reinstall button. No file under `system/` is deleted, see the section "Core set and add-ons".
+
+**Done when:** a sample pack folder in a temporary `STATE_DIR` makes `mcp_catalog.get("acme.pos-vn")` return the connector, `public_catalog()` includes it with an absolute icon URL, `POST /connect/add` creates a real connection, and deleting the folder makes it vanish on the next load. Removing `tiktok-ads` makes `mcp_catalog.get("tiktok-ads")` return `None`, its card leaves the store, its tools vanish from `mcp_hub.discover_all`, and clicking Reinstall brings it all back - **not one byte of `system/mcp-catalog.json` is modified in that whole round trip**. **All 18 test files that read the catalog stay green without editing a line.** `server/bench_hotpath.py` does not regress past the 150.8ms mark.
+
+### Phase 2 - Install from zip, consent screen, clean uninstall, Packs page (9 days) - DONE
+
+> Shipped in 0.55.22. `server/pack_install.py` (zip rules, install ledger, two-step install
+> pinned by a fingerprint, clean uninstall), `server/routes/packs.py` (7 endpoints, require a real
+> session), `dashboard/packs.js` (Packs page + confirmation screen), and bundled plugins made
+> removable through `plugins_host.set_removed`. NOT done yet: install from URL and separate repo
+> (Phase 5), the pack guide page (Phase 3), the effects ledger for pack plugins (Phase 4).
+
+This phase delivers exactly the part that is needed most: private packs by zip, and clean removal.
+
+- New `server/routes/packs.py` following the factory pattern of `server/routes/__init__.py` (never imports `main`, everything through the `Deps` dataclass). **Register all 14 endpoints in one go**; the ones for later phases return 501 but **keep their final function names**, because `test_route_table.py:95-99` checks both order and names. The whole program regenerates `route_table.json` only **twice**.
+- **Every `/packs/*` requires a real session, unconditionally**, independent of `gate_active()` (`config.py:811-813` returns False on the default local build, making `main.py:190-207` skip the guard). Installing requires a session and does not accept an API token. **No tool, skill or agent can reach `/packs/install`**: the endpoint is not in the hub's route table, and this goes in the docs, because `javis_add_mcp` is exactly the precedent of a model reaching an install-style surface.
+- **Two-step install.** `POST /packs/inspect` streams the file to `packs-staging/<sha256>.zip` (read in 1MB blocks, abort past 25MB, **do not** copy how `/import` does it at `main.py:5952`, because it does `await file.read()` and loads everything into RAM before checking), opens the archive read-only, reads the manifest, runs every rule, and returns `{manifest, permissions, provides, tier, conflicts, sha256, staging_id}`. **Nothing is extracted yet.** `POST /packs/install {staging_id, consent_sha256, ...}` refuses if the hash does not match, which **forces what was shown to be exactly what gets installed**.
+- **Zip rules.** Copy the constants and the anti-traversal predicate from `share_bundle.py:36-38, 250-255` (copy the logic, **do not call it**, because `_bad` is a closure inside `import_bundle` and that function has its own bundle shape). Add what `share_bundle` does not need yet: reject members that are not regular files via `(info.external_attr >> 16) & 0o170000` (a symlink named `plugin.py` pointing at `.secret_key` would be served right back by any file endpoint); extract with fixed 0o644/0o755, ignoring modes in the archive; block compression ratios over 100:1; reject `.env`, `*.pem`, `id_rsa*`, `*.p12` outright; **zip only, no tar** (Python 3.12 `extractall` still defaults to `filter=None`); cap the manifest size before `safe_load` because SafeLoader still expands anchors.
+- **Atomic install with rollback.** Extract into `packs/.tmp-<id>-<pid>-<ts>/`, check on the extracted tree, `os.replace` the old version to `.trash-<id>-<ts>` **first**, then `os.replace(tmp, packs/<id>)`. A failure at any step rmtrees tmp and restores the old version. Then write the ledger and call the same trio that `/plugins/toggle` uses (`main.py:8091-8095`).
+- **Install ledger** `packs.json` records `{version, enabled, tier, installed_at, source, sha256, code_consent, connectors[], plugins[], assets[], pages[]}`; the last four fields are the inventory used for uninstalling. Written with tmp + `os.replace` like `plugins_host._write_state` (:142-150), with `.bak` rotation and `POST /packs/repair` rebuilding from a directory scan (the consent record is lost, so it asks again, which is the safe direction).
+- **Uninstall.** `GET /packs/uninstall-plan` returns exactly what will die with counts and sizes, and the dialog is drawn from it. Then: refuse if a connection is busy; **mandatory** purge of every connection belonging to the pack's connectors (no path leaves orphans, because an orphaned row can still spawn its stdio command with the permission gate gone); replay the effects ledger in reverse LIFO, each in its own `try/except`; `rmtree plugin-data/<slug>` only if the user ticks the box (default **unticked**: pack code is disposable, pack data is not); `os.replace` to `.trash-` then rmtree; remove the row in `packs.json` and every `plugins.json` entry of the pack; invalidate three caches. Return a receipt so the UI prints one honest line.
+- **A bundled plugin in `system/plugins/` can never be deleted.** The code tree is read-only so even trying would hit EACCES, and a thing that is "deleted" and grows back on every image pull is worse than leaving it switched off.
+
+- **But default plugins must still be REMOVABLE, in the sense users understand** (the project owner asked
+  directly on 2026-09-03: "there will be default plugins preloaded that the customer's machine can remove"). The way to get
+  there without fighting the read-only code tree: add a **removed** state, recorded in
+  `STATE_DIR/plugins.json` next to the existing `enabled`/`disabled` (`plugins_host._read_state`
+  :127, `_effective_enabled` :213-223). The card disappears from the main list and drops into a
+  collapsed section "Removed, can be reinstalled"; `_load_all` skips it so the tool vanishes from every engine exactly like a
+  real delete. It differs from deleting in exactly two points, and both are pluses: an app update does not make it
+  grow back, and a mis-click is undone with one click instead of a re-download. The cost is about half
+  a day, versus several days if the 11 bundled plugins were converted into preinstalled packs. This is the second row of the
+  table in "Core set and add-ons"; the first row (core connectors) is done in Phase 1, and the third row (system skills) is
+  already handled by `system_sync`, it only needs to be surfaced in the same place.
+  Do not convert bundled plugins into packs in spec 1: they ship with the app so changing them still needs a release,
+  meaning converting buys nothing and adds a migration path that has to be maintained.
+- **System skills need only one button, the hard part already exists.** `system_sync` already respects
+  `<brain>/skills/.disabled/`: removing a skill means moving its folder in there, and the next sync does not
+  grow it back. So the work here is a Remove button on the Skills page that goes through exactly that path, plus a collapsed
+  "Removed" section with a Reinstall button - not a new mechanism. Called out separately because the first draft of the plan
+  put skills outside spec 1, while the project owner stated clearly on 2026-09-03 that plugins, skills and connections
+  should all be installable and removable.
+- New `dashboard/packs.js` exposes `window.JavisPacks = {render}`, called from the dispatch spot in console.js the way `studio.js` is. **Do not keep growing console.js** (already 6,951 lines). Register the page in five places: `VIEW_ICON`, `RAIL_ITEMS`, `RAIL_GROUPS`, keys `page.packs.label`/`sub` in **both** i18n dictionaries (currently balanced at 715/715, the JS test goes red if they drift), and a `<script src>` tag near `index.html:803`. Before writing i18n in the pack code, **rename the 11 local variables named `t` in console.js**, notably `const [t, c] = SRC[s]` (:1431) and `const chip = (t, iconName)` (:1436), both right inside `renderPlugins()`.
+- **Consent screen**, drawn entirely from `/packs/inspect`: name and version; origin verbatim (file name with the head of the sha256, or repo @ ref @ commit); trust tier; for the CODE tier, a red block that cannot be collapsed with the wording above, listing every `.py` file and its size, and requiring the exact pack id to be typed; lists tools and hooks with a note that **a hook sees every tool call and its result** (`wrap_with_hooks` :533-542 wraps every tool in the route, MCP and builtin included); one line saying `permissions` is a declaration, not enforcement; the Cancel button is focused by default, no Enter-to-submit; the "Enable after install" checkbox **defaults to OFF**, per the rule in CLAUDE.md that capabilities created from chat never switch themselves on.
+- On the Plugins page, a plugin that comes from a pack gets a `pack` badge and a "Manage on the Packs page" link instead of a delete button, so there is only **one** place to uninstall. `plugins_host.describe()` (:226-253) must learn the `"pack"` source, otherwise a running pack plugin would wrongly show as "enabled (not loaded)".
+
+**Done when:** drag a sample data-only zip onto the Packs page, read the consent screen naming the domain it will talk to, install it, see the card with its own icon on the Connections page, create a connection, and **call that tool from an API engine** (OpenRouter or Gemini, not a CLI engine) to prove it goes through `mcp_hub.discover_all` and not only the SDK path. Then uninstall with purge: a recursive hash snapshot of the whole `STATE_DIR` before install is **byte-for-byte identical** to the snapshot after uninstall, except `mcp_audit.jsonl` and `logs/`. A zip containing `../../x`, an absolute member, a symlink member, a 500:1 ratio, or 600 files is rejected without writing anything to disk.
+
+### Phase 3 - Presentation for packs (4 days)
+
+Serve a pack's icon and guide page, with a resolve-then-check-prefix guard and a **narrow** content-type allowlist: `png`, `webp`, `jpg`. **No SVG** (SVG served from the same origin is inert inside `<img>` but runs script when opened directly in a tab). Send `X-Content-Type-Options: nosniff` and a tight `Content-Security-Policy` on exactly these two routes; the app **has no CSP anywhere yet**.
+
+A pack's guide page is **Markdown rendered server-side into filtered HTML**, not the author's HTML: a foreign HTML page on the dashboard's origin is exactly one XSS hole away from `POST /packs/install`.
+
+Add `category_key` to all 29 base entries in one mechanical commit, **keeping the old `category`**; `public_catalog()` emits both; the console reads `category_key` through `t("catalog.cat." + key)` with a fallback so nothing is blank. A pack that supplies an unknown `category` with a `category_label` shows its own label, with no repo change needed. A badge "from pack `<name>`" on the connector card and on the connection detail, so a connector supplied by a pack is never confused with a first-party row.
+
+### Phase 4 - Packs with code (7 days) - DONE
+
+> Shipped in 0.55.23. `plugins_host` learned the fourth source 'pack'; the code signature is checked at LOAD
+> (`_pack_duoc_nap`), not only at install; `ctx.on_unload` + `unload(slug)` also pop
+> `sys.modules`; `sys.path.insert` removed in favor of `submodule_search_locations`; the installer
+> refuses a pack that hijacks a bundled plugin's name; compatibility scan at startup. NOT done:
+> `ctx.record_effect` and the effects ledger, `permissions.max_effect`.
+
+`_iter_plugin_dirs` gains the source `("pack", d)`, in the order **bundled → pack → user → vault**. **A pack with a plugin folder whose slug equals a bundled slug is rejected at install time** (the deny list is the 11 bundled slugs). This keeps today's behavior of user/vault overriding bundled exactly bit-for-bit, while blocking a pack from silently replacing `javis_task`/`javis_schedule`/`javis_add_mcp` under a consent screen that only says "this runs code".
+
+**The env gate does NOT apply to packs.** A pack's plugin loads when the pack has a valid `code_consent`, and that is enough; `_env_user_enabled()` stays bit-for-bit unchanged for the `user` and `vault` sources as today. The full reason is in "Trust boundary": the env gate plugs the "writable folder with nobody clicking" hole, while the installer has a person clicking, a screen listing every `.py` file, and a digest recorded - the same kind of guarantee, only per pack instead of all-on or all-off. `JAVIS_DISABLE_PACKS` is the matching switch that turns packs off completely.
+
+**Consent is checked at LOAD, not at install.** `code_consent` records the digest of every `.py` file in the pack; `_load_all` recomputes the digest from disk and refuses to load on a mismatch, and the digest sits inside `_signature()` so changing content forces a reload instead of riding on the mtime cache. Anyone who can write `plugin.py` can also write `packs.json`.
+
+`ctx.on_unload(fn)` and `ctx.record_effect(kind, ref)`. Tools and hooks are **already** reversible (register only appends to lists on the `LoadedPlugin` in the cache, there is no global registry, and the hub rebuilds the route table on every cache miss). What is **not** yet reversible: `sys.modules[mod_name]` set at :340-341 and never popped, plus every thread/socket/atexit that `register()` opens. So `plugins_host.unload(slug)` runs `on_unload` in reverse LIFO, drops the cache, then pops every `javis_plugin_*_<slug>` key. `set_enabled(..., False)` goes through `unload` so the "Off" button really stops it. Add a manifest key `unload: clean | restart-required` so the UI says "restart needed" instead of lying.
+
+**Fix `sys.path.insert(0, plugin_dir)`** in `_import_entry` :348-350: a pack containing `config.py` or `mcp_hub.py` currently **shadows the server's own modules** throughout its module body. Use `submodule_search_locations` instead of poking `sys.path`.
+
+**Startup compatibility scan:** checking `compat.app` at install is not enough, because `update.sh` (`git pull`) and `updater.py:326` never rerun the installer. Add a pass at boot that **switches off** (never deletes) any pack whose range no longer matches `VERSION`, with the reason on its card.
+
+Do not convert `meta-ads-graph`, `meta-pages-graph`, `fb-monitor-apify` into packs in spec 1. They are evidence that one format is right, not a migration target: the `CONNECTOR_ID` coupling can only be removed once there is a `ctx.connector_id`, and that is later work.
+
+### Phase 5 - Install from URL and separate repo (4 days) - HALF DONE
+
+> Shipped in 0.55.24: `server/packs_fetch.py` (SSRF guard by resolved address, rechecked
+> at every redirect hop, cap by real bytes) and the `/packs/install-url` endpoint.
+> NOT done: token for a private repo, pinning by commit, periodic new-version check. A private pack
+> still ships as a .zip file, which is already enough to use.
+
+New `server/packs_fetch.py`. **Zip over HTTPS only.** No `git clone` even though the image has git, for three reasons: the token ends up in argv and is readable from `/proc/<pid>/cmdline` (exactly the shape of `_auth_url` at `git_brain.py:489-503`, the reason `_redact` exists); a clone pulls the whole history so size cannot be capped before the bytes land; and `httpx` is already pinned so the HTTPS path adds neither a dependency nor a subprocess. The token travels in a **header**.
+
+- `owner/repo@ref` → `api.github.com/repos/<o>/<r>/zipball/<ref>` with `Authorization: Bearer`.
+- GitLab → `repository/archive.zip?sha=<ref>` with `PRIVATE-TOKEN`.
+- `git+https://` is **not in** spec 1: no subprocess, no argument-injection surface.
+
+**SSRF guard**, which the server **has nowhere today**: `https` only, port 443 only, and every resolved address must fail `is_private / is_loopback / is_link_local / is_reserved / is_multicast`; at most 3 redirects, **rechecked against the resolved socket address after every hop**, not against the hostname. This is very concrete: `mcp_hub.py:82` puts the hub at `http://127.0.0.1:7777/hub/mcp`, and the hub holds all of the user's keys. To be complete: `/hub/mcp` skips the cookie guard (it is in `_AUTH_PUBLIC_EXACT`, main.py:158-162) but is NOT open - `handle_http` requires a `Bearer hub_token` compared in constant time. What the SSRF guard blocks is a different layer: a URL supplied by someone else that points at loopback makes the request go OUT from the server process itself, so it is already inside the network perimeter, and any internal service that trusts localhost becomes a target. The guard must exist before opening the download-from-URL path, not after.
+
+**Tokens are stored per host, Fernet-encrypted in settings.** `config.py:452 _SECRET_PATHS` gains `"packs.tokens.*"`, which needs ~6 lines changed in `_transform_secret_fields` to understand a trailing `*` as "every key of this dict", and the same character must be added to `secret_paths_hong()` otherwise the broken-secret reporting silently stops covering them.
+
+**Version pinning:** record the requested `ref`, the resolved `commit`, and the `sha256` of the archive. Pinning by branch shows an amber chip "tracking main". **Never auto-update a pack with code.** On update, recompute `permissions` and the code digest; if broader, install in the **off** state and ask again. Keep one rollback generation in `packs/.prev/<id>/`.
+
+### Phase 6 - Public store (4 days) - DONE
+
+> Shipped in 0.55.24. `server/packs_store.py`, `system/pack-index.json`,
+> `docs/dev/pack-store-index.md`, and the store grid in `dashboard/packs.js`. The project owner settled
+> 2026-09-04: the store holds first-party packs only, DROP download counts (a static JSON file cannot count them,
+> and counting ourselves would mean clients calling back to the server, which becomes a privacy matter that must be stated clearly).
+
+`server/packs_store.py` fetches `packs.store_url` **server-side** (keeping the token and the SSRF guard on the server, and avoiding CORS entirely), with `If-None-Match`, cache TTL 6 hours. The index schema is published in `docs/dev/pack-store-index.md`, each entry mirrors the manifest plus `download: {url, sha256, size}`, `verified`, `updated`, and the reserved `listing` block. **The price fields are present from v1** so a paid pack later is just a "Buy" button opening `purchase_url`, not a format break.
+
+The `sha256` is **pinned from the first install**, in the ledger. Checking a download against a hash supplied by that same index proves nothing about the publisher; refusing an artifact that **has changed** under the **same version** does.
+
+**The public store may list CODE-tier packs**, but a tap from the store must still go through the same consent screen as zip and URL - there is no "install now" shortcut for a pack containing Python. With two things so the installer sees what they are choosing: a **source label** (first-party / community / unreviewed) and one line saying plainly that this pack runs code. First-party packs get the `verified` label in the index; community packs do not, and their consent screen says more. Jarvis 007 does not decide for users whom to trust.
+
+Three degraded states, none of them a stack trace: with a cache, show an amber line and still draw the grid; with no cache, an empty state with "you can still install from zip or URL"; an unknown `format_version` says outright "this store needs a newer Jarvis 007", never parsing halfway.
+
+Add the environment variable `JAVIS_DISABLE_PACKS`, read live, deny wins, switching off every non-bundled pack without opening the dashboard.
+
+Treat the index as **untrusted data**: a pack's `name`, `description` and tool descriptions go straight into the tool list of engines that are holding Bash.
+
+### Phase L - Language freeze (10 days, runs in parallel)
+
+Can run at any time; the only ordering constraint is that `category_key` must be done before Phase 6.
+
+- **Blocking gate.** New `tests/python/test_ngon_ngu_ma_nguon.py`, scanning the AST with a **CLEAN list by path in ratchet style**, exactly the pattern the repo has used twice (`MIEN_TRU` in `test_lang_bat_bien.py`, `I18N_MIGRATED` at `tests/js/test_i18n.mjs:178`). Seed CLEAN with `server/routes/**` (measured 0 real flags), `server/packs*.py`, `server/purge.py`, `dashboard/packs.js`. Rule in CONTRIBUTING.md: every new module goes into CLEAN in the very commit that creates it. Plus a whole-tree check with no allowlist that no identifier contains a non-ASCII character (measured at **exactly 0** today, so it is a free ratchet). The escape hatch `# lang-ok: <reason>` prints how many times it is used.
+  Do not use ruff (the repo has no ruff, and no rule can express "is this a Vietnamese word"), do not scan by git diff (`actions/checkout@v4` has no `with:` so fetch-depth is 1, no merge base), do not use an 853-entry baseline (false positives cannot be reduced on `cap`, `do`, `con`, `day`, `ban`, `tin`, `set`, which are Vietnamese words without diacritics that are also English words).
+- **Merge the slugify functions**, this is a bug fix, not tidying up. Promote a single `ascii_slug()` based on the correct version at `main.py:4567`, route both `share_bundle` and the pack loader through it, and move `main.py:4709, 5887, 7138` off `_slugify` (which uses `\w` with `re.UNICODE` and so **keeps diacritics**, meaning every new brain is being seeded with an agent file whose slug carries diacritics).
+- **Rename the public contract**, each with a read-both-write-the-new strategy with a stated deadline: 7 Vietnamese URL routes (not 5, missing `/usage/tong-quan` and `/usage/bao-cao`), the aliases joined into **one block at the end** of the route list so `route_table.json` only grows by 7 lines without renumbering; ~13 returned JSON fields renamed together with their consumers in the dashboard in one commit (no alias needed, every consumer is first-party JS in this repo); 5 settings keys plus `nguon_tra_loi` get a `_migrate_key_names` step added to the normalization chain of `read_settings` (`config.py:698`) and that step must **pop** the old key, because `_deep_merge` lets both live; and `muc_quyen` → `permission` (140 places, 15 files, the biggest item, and the same concept as `min_mode` in `plugin.yaml` and `discover_all(mode)`, so the pack format must absolutely not spawn a fourth name).
+- **Error codes instead of building an i18n framework for the server.** Return `{"ok": false, "error_code": "tts_no_audio", "error": "<Vietnamese text>"}` and let the dashboard render `t("err." + error_code)` with a fallback to the Vietnamese sentence itself. This turns an unbounded server-side project into a finite dictionary-key project, at exactly the layer that already has 715/715 English.
+- Move `chatbot_runtime.py:515 _DAU_BI` and `conversation_state.py:26 _GOAL_RE` into `server/lexicon/` (bug number 4 above).
+
+**Done when:** adding `def _kiem_tra_moi(): pass` to `server/routes/domain.py` turns `python tests/run.py lang` red and names the right file, line and word; adding `# lang-ok:` turns it green with a usage count of 1. `ascii_slug("Đo lường doanh thu") == "do-luong-doanh-thu"` and an agent with the letter Đ in its name survives one export/import round trip byte for byte. Both spellings of all 7 URLs return byte-identical responses.
+
+---
+
+## How far it is done (updated 2026-09-04)
+
+| Phase | Status | Version |
 |---|---|---|
-| 0 - Xoá kết nối cho sạch | Xong | 0.55.19 |
-| 1 - Sổ gói, lớp phủ catalog, lớp gỡ được | Xong | 0.55.20 và 0.55.21 |
-| 2 - Cài từ zip, màn hình đồng ý, gỡ sạch | Xong | 0.55.22 |
-| 3 - Trang hướng dẫn của gói | **Chưa** | |
-| 4 - Gói có code | Xong | 0.55.23 |
-| 5 - Cài từ URL và repo riêng | Xong | 0.55.24 và 0.55.25 |
-| 6 - Kho công khai | Xong | 0.55.24 |
-| L - Đóng băng ngôn ngữ | **Chưa** | |
+| 0 - Clean connection deletion | Done | 0.55.19 |
+| 1 - Pack ledger, catalog overlay, removable layer | Done | 0.55.20 and 0.55.21 |
+| 2 - Install from zip, consent screen, clean uninstall | Done | 0.55.22 |
+| 3 - Pack guide page | **Not yet** | |
+| 4 - Packs with code | Done | 0.55.23 |
+| 5 - Install from URL and separate repo | Done | 0.55.24 and 0.55.25 |
+| 6 - Public store | Done | 0.55.24 |
+| L - Language freeze | **Not yet** | |
 
-Ngoài kế hoạch ban đầu, 0.55.25 làm thêm phần mà bản đầu xếp ra ngoài spec 1: **gói mang được
-agent, workflow và skill**. Cơ chế ở `server/pack_vault.py`, dùng lại đúng khuôn hash chuẩn hoá
-của `system_sync` chứ không viết bản thứ hai. Ba luật: cài không ghi đè thứ gói không đặt vào;
-cập nhật chỉ ghi đè khi mục còn y nguyên; gỡ chỉ xoá thứ chưa sửa.
+Beyond the original plan, 0.55.25 also did the part the first draft left outside spec 1: **packs can carry
+agents, workflows and skills**. The mechanism is in `server/pack_vault.py`, reusing exactly the normalized hash pattern of
+`system_sync` rather than writing a second one. Three rules: installing does not overwrite anything the pack did not put there;
+updating only overwrites an entry that is still unchanged; uninstalling only deletes what has not been edited.
 
-Còn lại đáng kể: trang hướng dẫn của gói (Giai đoạn 3), ghim gói theo commit và kiểm bản mới
-định kỳ (nửa sau Giai đoạn 5), và toàn bộ Giai đoạn L.
-
----
-
-## Sau khi xong hết, việc gì vẫn phải ra bản mới
-
-Nói thẳng, vì con số đau là 524 bản trong 3 tháng và chương trình này **không** làm nó giảm một nửa.
-
-Cần nói lại một chỗ so với bản đầu: **29 connector lõi giờ GỠ được từ Giai đoạn 1**, nên danh sách dưới đây chỉ còn đúng với việc SỬA hoặc THÊM một connector lõi, không còn đúng với việc bỏ nó khỏi máy người dùng.
-
-**Vẫn cần bản mới:** một phương ngữ OAuth mới (`meta`, `google`, `generic` gói chọn được, cái thứ tư là PR vào lõi, và tách các nhánh Meta ra là thay đổi dễ gây hồi quy nhất trong repo này, hỏng thì 60 ngày sau mới hiện ra dưới dạng token hết hạn im lặng chứ không phải test đỏ); một luồng đăng nhập kiểu QR Zalo; `transport: internal`; **một trường mới trong mô tả connector** (schema vẫn đang lớn: `inject_args` thêm 19/08, `url_template` thêm 31/07, `env` tĩnh, `cred_dir`, `isolate_home` đều mới vài tháng, và 8 trong 60 commit catalog gần đây có sửa chính `mcp_catalog.py`; chính sách là khoá lạ thì **bỏ qua, không bao giờ từ chối**); sửa hoặc thêm một trong 29 connector lõi; mọi UI dashboard vượt quá một icon và một trang hướng dẫn (không có build step, 34 thẻ script đánh phiên bản tay, thêm trình nạp JS cho gói là đẻ ra hệ mở rộng thứ hai); và `notifications/tools/list_changed` cho phiên CLI đang mở.
-
-**Không còn cần bản mới:** một connector apikey/http mới kèm icon, trang hướng dẫn, nhãn nhóm, `tool_meta`, `validate`, `arg_rules`, `rate_limit`; một plugin mới có tool và hook; và **chính hai thứ đó ship riêng cho một khách bằng zip hoặc repo private**, đúng mục tiêu đặt ra.
-
-**Những cặp song song sẽ tồn tại vĩnh viễn, nêu ra để không ai bất ngờ:** `system/mcp-catalog.json` cạnh YAML connector của gói; `plugin.yaml` (spec 0) cạnh `javis-pack.yaml`; `system/plugins/` cạnh `STATE_DIR/packs/`; `plugins.json` cạnh `packs.json`; `/plugins` cạnh `/packs`; `connector_id="custom"` cạnh gói. Mỗi cặp đều có lý do riêng. Không cặp nào chết đi.
+What notably remains: the pack guide page (Phase 3), pinning packs by commit and the periodic new-version check
+(second half of Phase 5), and all of Phase L.
 
 ---
 
-## Công sức
+## After everything is done, what still needs a new release
 
-| Giai đoạn | Nội dung | Ngày |
+Said plainly, because the painful number is 524 releases in 3 months and this program does **not** cut it in half.
+
+One point to restate versus the first draft: **the 29 core connectors are now REMOVABLE from Phase 1**, so the list below is only still true for FIXING or ADDING a core connector, no longer for taking one off a user's machine.
+
+**Still needs a new release:** a new OAuth dialect (`meta`, `google`, `generic` are selectable by a pack, a fourth is a PR into the core, and splitting the Meta branches apart is the most regression-prone change in this repo, and if it breaks it shows up 60 days later as silently expired tokens rather than a red test); a Zalo-style QR login flow; `transport: internal`; **a new field in the connector description** (the schema is still growing: `inject_args` was added 08/19, `url_template` 07/31, static `env`, `cred_dir`, `isolate_home` are all only a few months old, and 8 of the 60 recent catalog commits also edit `mcp_catalog.py` itself; the policy is that an unknown key is **ignored, never refused**); fixing or adding one of the 29 core connectors; any dashboard UI beyond one icon and one guide page (there is no build step, 34 hand-versioned script tags, and adding a JS loader for packs would spawn a second extension system); and `notifications/tools/list_changed` for an already-open CLI session.
+
+**No longer needs a new release:** a new apikey/http connector with its icon, guide page, group label, `tool_meta`, `validate`, `arg_rules`, `rate_limit`; a new plugin with a tool and a hook; and **those same two things shipped privately to one customer by zip or a private repo**, exactly the goal set.
+
+**Parallel pairs that will exist permanently, listed so nobody is surprised:** `system/mcp-catalog.json` next to a pack's connector YAML; `plugin.yaml` (spec 0) next to `javis-pack.yaml`; `system/plugins/` next to `STATE_DIR/packs/`; `plugins.json` next to `packs.json`; `/plugins` next to `/packs`; `connector_id="custom"` next to packs. Each pair has its own reason. No pair dies out.
+
+---
+
+## Effort
+
+| Phase | Content | Days |
 |---|---|---|
-| 0 | Xoá kết nối sạch, `purge.py`, `close_now`, `safeHref` | 4 |
-| 1 | `packs.py`, lớp phủ catalog, chốt mồ côi, lớp gỡ được | 4 |
-| 2 | Cài zip, màn đồng ý, gỡ sạch, routes, trang Gói | 9 |
-| 3 | Asset, trang hướng dẫn, CSP, `category_key`, badge | 4 |
-| 4 | Gói có code, đồng ý theo hash, `unload`, `sys.path` | 7 |
-| 5 | Cài từ URL và repo riêng, chốt SSRF, lưu token | 4 |
-| 6 | Kho công khai, kill switch, kiểm bản mới | 4 |
-| L | Cổng ngôn ngữ, slugify, đổi tên hợp đồng, mã lỗi | 10 |
+| 0 | Clean connection deletion, `purge.py`, `close_now`, `safeHref` | 4 |
+| 1 | `packs.py`, catalog overlay, orphan guard, removable layer | 4 |
+| 2 | Zip install, consent screen, clean uninstall, routes, Packs page | 9 |
+| 3 | Assets, guide page, CSP, `category_key`, badge | 4 |
+| 4 | Packs with code, consent by hash, `unload`, `sys.path` | 7 |
+| 5 | Install from URL and separate repo, SSRF guard, token storage | 4 |
+| 6 | Public store, kill switch, new-version check | 4 |
+| L | Language gate, slugify, contract renaming, error codes | 10 |
 
-Tổng khoảng **46 ngày công**, trong đó **giai đoạn 0 đến 2 (17 ngày) đã giao đủ**: xoá sạch, tầng gói chạy được, và gói riêng bằng zip. Các giai đoạn 0, 1, 2, 3, 5, 6 merge độc lập. Giai đoạn L chạy song song.
+About **46 person-days** in total, of which **phases 0 to 2 (17 days) are fully delivered**: clean deletion, a working pack layer, and private packs by zip. Phases 0, 1, 2, 3, 5, 6 merge independently. Phase L runs in parallel.
 
 ---
 
-## Nghiệm thu
+## Acceptance
 
 ```
-.venv\Scripts\python tests\run.py              # đủ 234 file; python hệ thống thiếu lib
+.venv\Scripts\python tests\run.py              # all 234 files; system python lacks libs
 .venv\Scripts\python tests\run.py packs
 .venv\Scripts\python tests\run.py purge
-.venv\Scripts\python tests\run.py cred_dir     # phải xanh: canh delete_connection vẫn gọi forget_cred_dir
-.venv\Scripts\python tests\run.py catalog      # không em dash, guide wrap, độ dài dòng, nay quét cả gói
-.venv\Scripts\python tests\run.py i18n         # cân từ điển, cân placeholder, bánh cóc I18N_MIGRATED
-.venv\Scripts\python tests\run.py lang         # cổng định danh
-.venv\Scripts\python server\bench_hotpath.py   # build_system_prompt không lùi quá 150,8ms
+.venv\Scripts\python tests\run.py cred_dir     # must be green: guards that delete_connection still calls forget_cred_dir
+.venv\Scripts\python tests\run.py catalog      # no em dash, guide wrap, line length, now also scans packs
+.venv\Scripts\python tests\run.py i18n         # dictionary balance, placeholder balance, I18N_MIGRATED ratchet
+.venv\Scripts\python tests\run.py lang         # identifier gate
+.venv\Scripts\python server\bench_hotpath.py   # build_system_prompt does not regress past 150.8ms
 ```
 
-Test mới đáng kể nhất là **`test_packs_purge.py`**: chụp băm đệ quy `STATE_DIR`, cài gói mẫu, tạo kết nối theo connector của nó, gọi một tool, gỡ kèm purge, rồi khẳng định bản chụp giống hệt từng byte. Kèm dạng chống hồi quy: khẳng định chuỗi `cid` xuất hiện ở **không** tên file và **không** nội dung file nào dưới `STATE_DIR`. Chính vế thứ hai mới là cái bắt được loại hiện vật **tiếp theo** mà ai đó thêm vào mà quên báo cho `purge.py`.
+The most notable new test is **`test_packs_purge.py`**: a recursive hash snapshot of `STATE_DIR`, install a sample pack, create a connection on its connector, call a tool, uninstall with purge, then assert the snapshot is identical byte for byte. Plus a regression form: assert that the `cid` string appears in **no** file name and **no** file content under `STATE_DIR`. That second half is what catches the **next** kind of artifact that someone adds and forgets to tell `purge.py` about.
 
-Kèm theo: `test_pack_coverage.py` (tự tính con số 13/29 và in lý do từ chối), `test_packs_zip_safety.py` (traversal, member tuyệt đối, symlink, bit thực thi, tỉ lệ 500:1, 600 file, YAML alias bomb), `test_purge_giet_tien_trinh.py` (spawn tiến trình thật, purge, khẳng định `poll() is not None` ngay chứ không phải 900 giây sau), `test_packs_fetch_ssrf.py` (302 từ host công khai sang `169.254.169.254` phải bị chặn, chứng minh guard chạy lại từng chặng), `test_packs_secret.py` (token trên đĩa phải bắt đầu bằng `enc:`).
+Accompanying: `test_pack_coverage.py` (computes the 13/29 number itself and prints the refusal reasons), `test_packs_zip_safety.py` (traversal, absolute member, symlink, executable bit, 500:1 ratio, 600 files, YAML alias bomb), `test_purge_giet_tien_trinh.py` (spawns a real process, purges, asserts `poll() is not None` immediately and not 900 seconds later), `test_packs_fetch_ssrf.py` (a 302 from a public host to `169.254.169.254` must be blocked, proving the guard reruns at every hop), `test_packs_secret.py` (the token on disk must start with `enc:`).
 
-**Chạy tay, đầu tới cuối:** dựng zip mẫu → kéo lên trang Gói → đọc màn hình đồng ý → cài với ô "Bật sau khi cài" **không** tick → bật → tạo kết nối → gọi tool đó **trên cả ba loại engine** (Claude Code, Codex, và một engine API như OpenRouter; cái thứ ba mới là cái chứng minh nó đi qua `mcp_hub.discover_all` chứ không chỉ đường SDK) → chạy thêm một tick loop nền → gỡ kèm purge → `tools/list` sạch → diff bản chụp rỗng. **Rồi lặp lại toàn bộ trong Docker** với cây code read-only dưới user non-root, khẳng định mọi byte rơi vào `/data/state/packs/` và **không gì** ghi vào `/app`, và `docker compose restart` thì gói còn nguyên.
+**Manual run, end to end:** build a sample zip → drag it onto the Packs page → read the consent screen → install with the "Enable after install" box **unticked** → enable → create a connection → call that tool **on all three kinds of engine** (Claude Code, Codex, and an API engine such as OpenRouter; the third is what proves it goes through `mcp_hub.discover_all` and not only the SDK path) → run one more background loop tick → uninstall with purge → `tools/list` is clean → the snapshot diff is empty. **Then repeat the whole thing in Docker** with the read-only code tree under a non-root user, asserting every byte lands in `/data/state/packs/` and **nothing** is written to `/app`, and that `docker compose restart` leaves the pack intact.
 
-Một việc phải làm bằng tay, không tự động: **đừng tự xoá 5 thư mục `connector-home/zalo-*` mồ côi trên máy đang chạy.** Báo cáo ra rồi mời dọn một lượt, vì một trong số đó có thể còn giữ phiên người dùng vẫn cần.
+One thing that must be done by hand, not automatically: **do not delete the 5 orphaned `connector-home/zalo-*` folders on the running machine yourself.** Report them and offer a single cleanup pass, because one of them may still hold a session the user still needs.
 
 ---
 
-## Trả lời câu hỏi "sửa tiếng Việt bây giờ có kịp không"
+## Answering the question "is it too late to fix Vietnamese now"
 
-Kịp, và rẻ hơn cảm giác ban đầu nhiều. Số đo thật:
+It is not too late, and it is much cheaper than it first feels. Real measurements:
 
-- **0 định danh có dấu** trong toàn bộ `server/**/*.py`. Không một hàm hay biến nào.
-- Định danh tiếng Việt không dấu: **181 hàm (7,2%), 0 class, 81 biến**. Gần như toàn bộ là helper private có gạch dưới đầu.
-- Hợp đồng công khai dính tiếng Việt: **khoảng 22 chỗ**, đã liệt kê hết ở giai đoạn L.
-- **Frontmatter agent/workflow/loop và toàn bộ 35 bảng SQLite đã dùng khoá tiếng Anh sẵn**, có luật viết thẳng trong `server/meta_tools.py:79` bắt phải thế.
-- `dashboard/i18n/en.json` **đã đủ 715/715 khoá**.
+- **0 identifiers with diacritics** in all of `server/**/*.py`. Not one function or variable.
+- Vietnamese identifiers without diacritics: **181 functions (7.2%), 0 classes, 81 variables**. Almost all are private helpers with a leading underscore.
+- Public contract touched by Vietnamese: **about 22 places**, all listed in Phase L.
+- **Agent/workflow/loop frontmatter and all 35 SQLite tables already use English keys**, with a rule written straight into `server/meta_tools.py:79` requiring it.
+- `dashboard/i18n/en.json` **already has all 715/715 keys**.
 
-Nghĩa là phần **đắt nhất** của việc quốc tế hoá, tức đổi schema dữ liệu đã lưu trên đĩa của người dùng, **gần như không tồn tại**. Không phải bắt ai di trú brain.
+That means the **most expensive** part of internationalization, changing the data schema stored on users' disks, **barely exists**. Nobody has to migrate a brain.
 
-Cái còn nợ thật, xếp theo mức cản một người dùng nói tiếng Anh **ngay hôm nay**:
+What is really still owed, ordered by how much it blocks an English-speaking user **today**:
 
-1. **`CLAUDE.md`, 33,7KB tiếng Việt, đọc nguyên văn vào mọi system prompt.** Không cản, vì model đọc hướng dẫn tiếng Việt rồi trả lời tiếng Anh bình thường, và tài liệu của chính dự án đã bác chuyện dịch nó ra N bản (N bản là N thứ trôi lệch). Tốn token thì có.
-2. **~2.081 chuỗi tiếng Việt còn ghim cứng trong JS**, mới rút ra từ điển được ~25% (`console.js` 328 chỗ gọi `t()`, `studio.js` 96, `app.js` đúng 4, 30 file còn lại con số 0). **Cái này cản thật.** Đây là việc bóc dần theo bánh cóc `I18N_MIGRATED`, không phải làm một lượt.
-3. **~2.244 chuỗi trong Python, phủ 0%**, và không có hàm `t()` nào ở phía server. Cản, nhưng cách rẻ là **mã lỗi** ở giai đoạn L chứ không phải dựng cả framework.
-4. Tài liệu, commit message, CHANGELOG tiếng Việt. Không cản, chỉ là chưa gọn.
+1. **`CLAUDE.md`, 33.7KB of Vietnamese, read verbatim into every system prompt.** It does not block, because the model reads Vietnamese instructions and answers in English just fine, and the project's own docs have already rejected translating it into N copies (N copies means N things drifting apart). It does cost tokens.
+2. **~2,081 Vietnamese strings still hard-pinned in JS**, only ~25% extracted into the dictionary so far (`console.js` 328 `t()` calls, `studio.js` 96, `app.js` exactly 4, the other 30 files at 0). **This one really blocks.** It is work to peel off gradually through the `I18N_MIGRATED` ratchet, not to do in one pass.
+3. **~2,244 strings in Python, 0% covered**, and there is no `t()` function on the server side. It blocks, but the cheap way is the **error codes** in Phase L rather than building a whole framework.
+4. Docs, commit messages, CHANGELOG in Vietnamese. Does not block, just not tidy.
 
-Nói gọn: khởi đầu bằng tiếng Việt không phải sai lầm. Dự án đã vô tình làm đúng chỗ tốn kém nhất (khoá dữ liệu tiếng Anh), và chỗ còn lại là chuỗi hiển thị, tức thứ bóc dần được mà không gãy gì.
+In short: starting in Vietnamese was not a mistake. The project accidentally got the most expensive part right (English data keys), and what remains is display strings, which can be peeled off gradually without breaking anything.

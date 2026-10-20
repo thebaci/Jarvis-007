@@ -55,7 +55,7 @@ Since 0.61.0 a token is a **channel account**, and a bot only **points** to it. 
 
 If the bot runs on **Telegram**: go to **@BotFather**, type `/newbot`, set a name and username, and take the token string shaped `123456789:ABCdef...`.
 
-If the bot runs on **Zalo**: open the Zalo app, find the Official Account **Zalo Bot Manager** and choose **Create bot**. The bot name must start with the word "Bot" (for example "Bot Kim Khí Hà Lộc"). The token arrives as a Zalo message, shaped `123456789:abc-xyz`, and it **does not expire** until you reset it yourself.
+If the bot runs on **Zalo**: open the Zalo app, find the Official Account **Zalo Bot Manager** and choose **Create bot**. The bot name must start with the word "Bot" (for example "Bot Ha Loc Hardware"). The token arrives as a Zalo message, shaped `123456789:abc-xyz`, and it **does not expire** until you reset it yourself.
 
 **Each bot needs its own token, and do not use your main Jarvis 007 bot's token.** One token can only run one process; sharing kills both and the server returns a 409. Jarvis 007 blocks this when you click Test, but knowing in advance is better.
 

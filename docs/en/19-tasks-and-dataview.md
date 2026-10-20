@@ -158,7 +158,7 @@ Notes mentioning one customer:
 
 ````markdown
 ```dataview
-LIST WHERE contains(file.name, "Chị Nga") OR contains(tags, "#chi-nga")
+LIST WHERE contains(file.name, "Ms. Nga") OR contains(tags, "#chi-nga")
 ```
 ````
 

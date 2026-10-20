@@ -1,52 +1,52 @@
-# Resonance A3: học từ phản hồi, cách dùng, nâng cấp, quay về
+# Resonance A3: learning from feedback, usage, upgrade, rollback
 
-Thiết kế: [2026-10-09-resonance-a3-feedback-learning-design.md](../superpowers/specs/2026-10-09-resonance-a3-feedback-learning-design.md). Biên bản kiểm: [resonance-a3-verification.md](resonance-a3-verification.md).
+Design: [2026-10-09-resonance-a3-feedback-learning-design.md](../superpowers/specs/2026-10-09-resonance-a3-feedback-learning-design.md). Verification record: [resonance-a3-verification.md](resonance-a3-verification.md).
 
-## Hai làn học
+## Two learning lanes
 
-**Làn trình bày (P):**
-- Dưới mỗi tin báo của trợ lý (tin do Jarvis 007 gửi về khung chat, có thẻ mục tiêu) có hàng **Tin này thế nào?** gồm hai nút Hữu ích và Chưa ổn.
-- Bấm Chưa ổn thì hiện ba lý do: Dài quá, Báo nhiều quá, Khó hiểu. Bấm lại đúng nút đang sáng là rút phản hồi.
-- Đủ hai tin khác nhau cùng lý do thì Jarvis 007 **đề xuất**: báo gọn tin "đã đạt" và tin cập nhật định kỳ, hoặc không rung chuông cho tin cập nhật định kỳ.
-- Đề xuất nằm ở mục **Bài học** trên trang trợ lý (trang Cộng sự, cột phải), kèm câu cũ và câu mới của cùng một tin. Bạn bấm Áp dụng hay Bỏ qua. Không ai quyết thì đề xuất hết hạn sau 14 ngày và giữ cách cũ.
-- Làn này không bao giờ gọi model.
+**The presentation lane (P):**
+- Under each assistant report (a message Jarvis 007 sends into the chat box, carrying a goal card) there is a **How was this update?** row with two buttons, Helpful and Not quite.
+- Clicking Not quite shows three reasons: Too long, Too frequent, Unclear. Clicking the lit button again withdraws the feedback.
+- Once two different reports have the same reason, Jarvis 007 **proposes**: shorten the "done" report and the periodic update report, or do not ring the bell for the periodic update.
+- The proposal sits in the **Lessons** section on the assistant page (Partners page, right column), showing the old sentence and the new sentence of the same message. You click Apply or Dismiss. If nobody decides, the proposal expires after 14 days and the old way is kept.
+- This lane never calls the model.
 
-**Làn cách làm (M):**
-- Khi hai lượt liên tiếp không tiến thêm theo tiêu chí Jarvis 007 tự chấm được (bế tắc của A2), Jarvis 007 có thể thử cách làm "Rà đủ ý trước khi trả" so với cách cũ, trên hai tình huống, bằng đúng phép thử M5.
-- Chỉ thử khi đủ cả hai điều kiện:
-  - **ngân sách trọn vòng**: phép thử 4 lượt, cộng một lượt làm lại sản phẩm được giữ sẵn, cộng lượt dự phòng;
-  - **có tình huống đối chứng hợp lệ**: một cách hiểu trước của cùng mục tiêu, cùng bộ tiêu chí, lời người dùng khác thật.
-- **Mục tiêu mặc định 6 lượt không bao giờ thử**: bế tắc sau 3 lượt thì cần hạn mức ít nhất 9.
-- Cách mới thắng thì áp dụng cho đúng cách hiểu hiện tại, rồi làm lại sản phẩm một lần bằng lượt đã giữ, và báo kết quả. Thua hay chưa rõ thì giữ cách cũ.
+**The method lane (M):**
+- When two consecutive turns make no further progress against criteria that Jarvis 007 can score itself (the A2 deadlock), Jarvis 007 may trial the method "Check every point before returning" against the old method, on two scenarios, using exactly the M5 trial.
+- It only trials when both conditions hold:
+  - **a full-cycle budget**: the 4-turn trial, plus one held turn for redoing the product, plus a reserve turn;
+  - **a valid control scenario**: an earlier understanding of the same goal, the same set of criteria, and real different words from the user.
+- **A goal with the default 6 turns never trials**: a deadlock after 3 turns needs a quota of at least 9.
+- If the new method wins, it is applied to the current understanding only, then the product is redone once using the held turn, and the result is reported. If it loses or is unclear, the old method is kept.
 
-## Những điều không bao giờ xảy ra
+## Things that never happen
 
-- Phản hồi không làm mục tiêu đạt, không đổi tiêu chí, không mở lượt model, không đổi lịch thức.
-- Phản hồi không ghi vào file trợ lý, công tắc, version hay hạn mức.
-- Tin bắt buộc luôn đầy đủ và luôn rung chuông, gồm:
-  - cảnh báo: guard, mất giám sát, qua hạn chót, xung đột ghi file, lỗi, bị chặn;
-  - tin cần bạn làm gì: chờ xác nhận, bế tắc, khám phá xong;
-  - tin đổi cách làm.
-- Lời chat thường không nhận phản hồi; chỉ tin báo có biên nhận của Jarvis 007 mới nhận.
+- Feedback does not make a goal pass, change the criteria, open a model turn, or change the wake schedule.
+- Feedback does not write to the assistant file, the switch, the version or the quota.
+- Mandatory messages are always complete and always ring the bell, including:
+  - warnings: guard, lost supervision, past the deadline, file write conflict, error, blocked;
+  - messages that need you to do something: waiting for confirmation, deadlock, exploration finished;
+  - messages about a change of method.
+- Ordinary chat text does not accept feedback; only a report with a Jarvis 007 receipt does.
 
-## Thu hồi
+## Revoking
 
-- **Bài học trình bày:** bấm Thu hồi ở mục Bài học, tin kế tiếp quay về cách mặc định.
-- **Cách làm đã học:** bấm Quay lại cách cũ trên thẻ mục tiêu, hoặc Thu hồi ở mục Bài học. Lượt làm sản phẩm còn giữ sẵn được trả lại cùng lúc.
-- Sửa cách hiểu (revision mới) thì cách làm vừa học tự hết hiệu lực, vì nó chỉ được kiểm cho cách hiểu cũ.
+- **Presentation lesson:** click Revoke in the Lessons section, and the next message returns to the default way.
+- **Learned method:** click Revert method on the goal card, or Revoke in the Lessons section. The held product-making turn is returned at the same time.
+- Editing the understanding (a new revision) makes the just-learned method lapse automatically, because it was only checked for the old understanding.
 
-## Nâng cấp từ 0.88.x
+## Upgrading from 0.88.x
 
-- Lần đầu 0.89 mở kho `resonance.sqlite3` có từ trước: chép bản sao `resonance.sqlite3.pre-a3.bak`, rồi thêm năm bảng `reactions`, `reaction_log`, `lessons`, `lesson_events`, `call_holds`. Bảng cũ không đổi cột.
-- Mỗi lần mở kho, Jarvis 007 đối soát lượt giữ: dựng lại lý do làm sản phẩm nếu bị mất, trả lượt không còn hợp lệ, đúng một lần.
+- The first time 0.89 opens a pre-existing `resonance.sqlite3` store: it copies a backup `resonance.sqlite3.pre-a3.bak`, then adds five tables `reactions`, `reaction_log`, `lessons`, `lesson_events`, `call_holds`. Old tables do not change columns.
+- Each time the store opens, Jarvis 007 reconciles the held turns: it rebuilds the product-making reason if it was lost, and returns turns that are no longer valid, exactly once.
 
-## Quay về 0.88.x
+## Rolling back to 0.88.x
 
-- Bản cũ bỏ qua các bảng A3. Tin báo trở lại đầy đủ và rung chuông.
-- Cách làm đã áp dụng vẫn nằm ở cột M5 mà 0.88 hiểu, vẫn chỉ cho đúng cách hiểu đó.
-- Lượt giữ còn `held` vẫn tính trong `calls_used` (dư một lượt, phía an toàn). Bản cũ coi lý do làm sản phẩm là lý do chỉ kiểm: chốt nó, không gọi model.
-- Nâng lại 0.89: đối soát khi mở kho dựng lại lý do (hay trả lượt nếu trong lúc đó bản cũ đã huỷ, sửa cách hiểu hoặc quay lại cách cũ). Chu trình này có test chạy mã 0.88.1 thật (`tests/python/test_resonance_a3_rollback.py`).
+- The old release ignores the A3 tables. Reports return to full length and ring the bell.
+- A method that was already applied stays in the M5 column that 0.88 understands, and still only applies to that exact understanding.
+- A hold still in `held` still counts in `calls_used` (one turn too many, on the safe side). The old release treats the product-making reason as a check-only reason: it settles it without calling the model.
+- Upgrading to 0.89 again: the reconciliation on store open rebuilds the reason (or returns the turn if, in the meantime, the old release cancelled, edited the understanding, or reverted the method). This cycle has a test that runs the real 0.88.1 code (`tests/python/test_resonance_a3_rollback.py`).
 
-## Khôi phục bằng bản sao trước nâng cấp
+## Recovering from the pre-upgrade copy
 
-Dừng Jarvis 007, đổi tên `resonance.sqlite3` hiện tại, chép `resonance.sqlite3.pre-a3.bak` thành `resonance.sqlite3`, rồi chạy bản 0.88.x. Mọi phản hồi và bài học sau lúc nâng cấp sẽ mất; mục tiêu và lịch A2 giữ như lúc chép.
+Stop Jarvis 007, rename the current `resonance.sqlite3`, copy `resonance.sqlite3.pre-a3.bak` to `resonance.sqlite3`, then run release 0.88.x. Every piece of feedback and every lesson after the upgrade will be lost; goals and the A2 schedule stay as they were when the copy was made.

@@ -1,67 +1,67 @@
-# Nhóm chat team T3: trưởng nhóm Toàn quyền (0.121.0)
+# Team chat T3: full-authority team lead (0.121.0)
 
-Spec: [2026-10-13-team-chat-design.md](../superpowers/specs/2026-10-13-team-chat-design.md) mục 13, 15.2, 21.3 (D4 tới D6); ca TC31 tới TC36. Chồng trên T2 (PR #639).
+Spec: [2026-10-13-team-chat-design.md](../superpowers/specs/2026-10-13-team-chat-design.md) sections 13, 15.2, 21.3 (D4 to D6); cases TC31 to TC36. Stacked on T2 (PR #639).
 
-## Luồng
+## Flow
 
-1. Chủ mở tab Cài đặt của nhóm, mục **Toàn quyền cho trưởng nhóm**: hộp cấp quyền có phạm vi, trợ lý do nhóm quản lý, provider được Không giới hạn lượt model, nguồn thanh toán, từng trần (giá trị và trần tối đa trưởng nhóm được đặt, mỗi ô có "Không giới hạn"), quyền "Được ngắt việc đang chạy", và các trần luôn áp không bỏ được. Bấm **Bật Toàn quyền**.
-2. Lời nhắc của trưởng nhóm có khối "Toàn quyền": trần đang áp, các lệnh quản trị dùng được (khối `JAVIS_TEAM`), giới hạn không vượt được. Ngắt việc chỉ hiện khi chủ cho.
-3. Trưởng nhóm trả lời kèm lệnh: mở việc, ưu tiên hay bỏ ưu tiên việc chờ, thêm hay bỏ thành viên, tạo trợ lý mới (thành trợ lý do nhóm quản lý), đặt trần trong mức tối đa, sửa lời nhắc hay bật tắt Cộng hưởng của trợ lý do nhóm quản lý, ngắt việc đang chạy (nếu được cho). Mỗi thao tác hiện thành tin hệ thống trong nhóm và có sự kiện `by=leader:<mã>`.
-4. Chủ bấm **Thu hồi** bất cứ lúc nào, hay đổi trưởng nhóm: nhóm về Quyền giới hạn ngay.
+1. The owner opens the team's Settings tab, section **Full authority for the team lead**: a scoped grant box, team-managed assistants, providers allowed unlimited model turns, billing source, each cap (the value, and the maximum cap the team lead may set, each field with "Unlimited"), the "May interrupt the running job" permission, and the caps that always apply and cannot be lifted. Click **Enable full authority**.
+2. The team lead's prompt gets a "Full authority" block: the caps in force, the admin commands available (a `JAVIS_TEAM` block), and the limits that cannot be exceeded. Interrupting a job only appears when the owner allows it.
+3. The team lead replies with commands attached: open a task, prioritize or deprioritize a waiting task, add or remove a member, create a new assistant (becomes a team-managed assistant), set a cap within the maximum, edit the prompt or toggle Resonance of a team-managed assistant, interrupt a running job (if allowed). Each action shows up as a system message in the team and as an event with `by=leader:<code>`.
+4. The owner clicks **Revoke** at any time, or changes the team lead: the team goes back to Limited authority immediately.
 
-## Bản đồ mã
+## Code map
 
-| Phần | File | Việc |
+| Part | File | What it does |
 |---|---|---|
-| Kho | `server/team_store.py` | Bảng `team_authority` (một dòng hiệu lực mỗi nhóm, `revoked_at`); `grant_authority`, `revoke_authority`, `active_authority` (chỉ khi còn đúng trưởng nhóm), `update_authority_caps` (CAS theo dòng chưa thu hồi), `set_managed` (mỗi agent tối đa một nhóm quản lý), `teams_with_member`; đổi hay bỏ trưởng nhóm thu hồi trong CÙNG giao dịch |
-| Bộ chạy | `server/team_runner.py` | `effective_caps` (None = Không giới hạn, D6 theo provider), `_caps` ở mọi chỗ kiểm trần; `grant_authority`, `revoke_authority`, `set_managed`, `authority_view`; `_apply_admin` (chín lệnh) gọi trong `accept_lock` ở pha chấp nhận; khối "Toàn quyền" trong `_context` |
-| Host | `server/main.py` (`_TeamAdmin`) | Tạo trợ lý mới không ghi đè (slug `-2`, `-3`), gắn tag "Nhóm"; sửa lời nhắc giữ frontmatter; bật Cộng hưởng ghi `by=leader:<mã>`; cấp mã. Thứ tự khoá: `accept_lock` rồi `_AGENT_META_LOCK` như `delete_agent` |
-| Route | `server/team_api.py` | `POST /teams/{id}/authority {mode, grant}`, `POST /teams/{id}/members/{key}/managed {on}`; `GET /teams/{id}` kèm `authority` (dòng, trần hiệu lực, trần không bỏ được), thành viên kèm `managed` |
-| Giao diện | `dashboard/teams.js`, `console.css`, i18n | `authorityHtml`, `readGrant`, công tắc "Nhóm quản lý" ở tab Thành viên |
+| Store | `server/team_store.py` | Table `team_authority` (one active row per team, `revoked_at`); `grant_authority`, `revoke_authority`, `active_authority` (only while the team lead is still the same one), `update_authority_caps` (CAS on the unrevoked row), `set_managed` (each agent has at most one managing team), `teams_with_member`; changing or removing the team lead revokes in the SAME transaction |
+| Runner | `server/team_runner.py` | `effective_caps` (None = Unlimited, D6 per provider), `_caps` at every cap check; `grant_authority`, `revoke_authority`, `set_managed`, `authority_view`; `_apply_admin` (nine commands) called inside `accept_lock` in the accept phase; the "Full authority" block in `_context` |
+| Host | `server/main.py` (`_TeamAdmin`) | Creates a new assistant without overwriting (slug `-2`, `-3`), adds the "Team" tag; prompt edits keep the frontmatter; enabling Resonance records `by=leader:<code>`; issues the code. Lock order: `accept_lock` then `_AGENT_META_LOCK`, same as `delete_agent` |
+| Routes | `server/team_api.py` | `POST /teams/{id}/authority {mode, grant}`, `POST /teams/{id}/members/{key}/managed {on}`; `GET /teams/{id}` includes `authority` (the row, effective caps, caps that cannot be lifted), and members include `managed` |
+| UI | `dashboard/teams.js`, `console.css`, i18n | `authorityHtml`, `readGrant`, the "Team-managed" switch on the Members tab |
 
-## Quy tắc đã giữ
+## Rules kept
 
-- Trưởng nhóm không có đường nào tự bật Toàn quyền: chỉ route của chủ (auth, CSRF) gọi `grant_authority`; lệnh lạ trong khối `JAVIS_TEAM` bị bỏ kèm ghi chú.
-- "Không giới hạn" lưu là `{"unlimited": true}` trong hộp cấp quyền và trả `None` ở trần hiệu lực; mã kiểm trần coi `None` là không có trần, không thay bằng số lớn (`reserve_turn` nhận `daily_cap=None`, `task_cap=None`).
-- Trần trưởng nhóm đặt phải nằm trong trần tối đa chủ đặt; trần tối đa vắng nghĩa là trưởng nhóm không đổi được trần đó; trần tối đa là số thì không đặt được "Không giới hạn".
-- D6: Không giới hạn lượt model (`task_turns`, `daily_turns`) chỉ áp khi provider của lượt (suy như adapter: model Claude riêng của agent là `anthropic-cli`, còn lại `aux`) có trong danh sách chủ tích; provider khác dùng trần của nhóm.
-- D5: trưởng nhóm chỉ sửa lời nhắc, Cộng hưởng của trợ lý có `managed_by_team` ở nhóm này; sửa trợ lý đang ở nhóm khác thì tin hệ thống liệt kê các nhóm bị ảnh hưởng.
-- Thu hồi (13.5): `revoked_at` ghi trong `accept_lock`; lệnh quản trị được áp ở pha chấp nhận, kiểm Toàn quyền TRONG cùng khoá, nên lệnh tới sau mốc thu hồi bị từ chối; nội dung câu trả lời vẫn đăng như ở Quyền giới hạn; trần về mức giới hạn ở lần giữ chỗ kế tiếp, việc vượt trần mới vào `cap_reached`.
-- M11: đổi trưởng nhóm (hay bỏ trưởng nhóm khỏi nhóm) thu hồi trong cùng giao dịch, sự kiện `authority_revoked` lý do `leader_changed` hay `leader_removed`.
-- Ngắt việc đang chạy chỉ khi `can_interrupt`; lý do ghi sự kiện `job_interrupted` và hiện trong nhóm.
-- Không tiến triển ở Không giới hạn: vẫn phát hiện, việc chặn `no_progress`, có tin hộp thư; không chạy tiếp âm thầm.
+- The team lead has no way to enable full authority itself: only the owner's route (auth, CSRF) calls `grant_authority`; an unknown command in the `JAVIS_TEAM` block is dropped with a note.
+- "Unlimited" is stored as `{"unlimited": true}` in the grant box and comes back as `None` in the effective caps; the cap-check code treats `None` as no cap and never substitutes a large number (`reserve_turn` accepts `daily_cap=None`, `task_cap=None`).
+- A cap set by the team lead must stay within the maximum cap set by the owner; a missing maximum means the team lead cannot change that cap; if the maximum is a number, "Unlimited" cannot be set.
+- D6: unlimited model turns (`task_turns`, `daily_turns`) apply only when the turn's provider (derived like the adapter does: an agent's own Claude model is `anthropic-cli`, everything else is `aux`) is in the list the owner ticked; any other provider uses the team's cap.
+- D5: the team lead only edits the prompt and Resonance of assistants that have `managed_by_team` for this team; editing an assistant that is also in another team makes the system message list the affected teams.
+- Revoke (13.5): `revoked_at` is written inside `accept_lock`; admin commands are applied in the accept phase and Full authority is checked INSIDE the same lock, so a command arriving after the revoke point is rejected; the reply text is still posted as under Limited authority; caps go back to the limited level at the next reservation, and only a job that exceeds the cap newly enters `cap_reached`.
+- M11: changing the team lead (or removing the team lead from the team) revokes in the same transaction, with event `authority_revoked` and reason `leader_changed` or `leader_removed`.
+- Interrupting a running job only when `can_interrupt`; the reason is recorded in the `job_interrupted` event and shown in the team.
+- No progress under Unlimited: still detected, the job is blocked with `no_progress`, and an inbox message is sent; it never keeps running silently.
 
-## Phán quyết và phần chưa làm
+## Verdicts and what is not done
 
-- **Trần goal theo nhóm (13.6, các dòng goal) và duyệt phạm vi ghi A4 trong thư mục nhóm (D4): chưa làm.** Lượt nhóm vẫn chỉ chữ (phán quyết R3 của T1): không có đường nào tạo goal hay ghi file từ lượt nhóm, nên các trần đó không có gì để áp. Giá nếu sai: khi mở công cụ cho lượt nhóm phải làm hai phần này cùng lúc.
-- Đổi model của trợ lý do nhóm quản lý: chưa làm (chỉ lời nhắc và Cộng hưởng).
-- Trần "một lượt mỗi agent cùng lúc" giữ 1, chưa có ô cho chủ đổi.
-- Lệnh quản trị dùng khối `JAVIS_TEAM` (phán quyết R1 của T1) thay cho công cụ `javis_team`; `submit` của spec 15.2 không cần vì kết quả là chính câu trả lời.
-- Mở việc của trưởng nhóm có khoá chống trùng theo lượt (`leader:<turn_id>:<thứ tự lệnh>`): cùng lượt xử lý lặp không tạo việc thứ hai; hai lượt khác nhau mở cùng tiêu đề là hai việc.
-- Chữ của tin hệ thống, ghi chú lệnh bị bỏ chỉ tiếng Việt (như các chữ từ server khác của T1).
+- **Per-team goal caps (13.6, the goal rows) and A4 write-scope approval inside the team folder (D4): not done.** A team turn is still text only (T1 verdict R3): there is no path that creates a goal or writes a file from a team turn, so these caps have nothing to apply to. Cost if this is wrong: when tools are opened to team turns, both parts must be done at the same time.
+- Changing the model of a team-managed assistant: not done (only the prompt and Resonance).
+- The cap "one turn per agent at a time" stays at 1; there is no field for the owner to change it.
+- Admin commands use the `JAVIS_TEAM` block (T1 verdict R1) instead of the `javis_team` tool; the spec 15.2 `submit` is not needed because the result is the reply itself.
+- Tasks opened by the team lead have a per-turn dedupe key (`leader:<turn_id>:<command order>`): a repeated handling of the same turn does not create a second task; two different turns opening the same title make two tasks.
+- The text of system messages and of dropped-command notes is Vietnamese only (like the other server-side text from T1).
 
-## Kiểm
+## Checks
 
-| Lệnh | Kết quả |
+| Command | Result |
 |---|---|
-| `tests/python/test_team_authority.py` | TC31 tới TC36 với bộ chạy thật, engine giả, host giả: không tự bật, chủ bật, lời nhắc có khối Toàn quyền, thêm thành viên, tạo trợ lý do nhóm quản lý, sự kiện by=leader, tin hệ thống, đổi thứ tự, mở việc; Không giới hạn là null, D6, trần trong trần tối đa; D5 và báo nhóm khác, mỗi agent một nhóm quản lý; thu hồi giữa lượt, cap_reached sau thu hồi, đổi trưởng nhóm thu hồi; ngắt việc cần quyền; không tiến triển ở Không giới hạn |
-| `tests/python/test_team_api.py` | thêm ca route `authority`, `managed`, `_TeamAdmin` thật (không ghi đè, giữ frontmatter, Cộng hưởng) |
-| `tests/js/test_teams_ui.js` | thêm ca hộp cấp quyền và công tắc Nhóm quản lý |
+| `tests/python/test_team_authority.py` | TC31 to TC36 with the real runner, a fake engine and a fake host: no self-enable, owner enables, the prompt has the Full authority block, add member, create a team-managed assistant, by=leader event, system message, reorder, open a task; Unlimited is null, D6, caps within the maximum cap; D5 and the other-team notice, one managing team per agent; revoke mid-turn, cap_reached after revoke, changing the team lead revokes; interrupting a job needs the permission; no progress under Unlimited |
+| `tests/python/test_team_api.py` | added cases for the `authority` route, `managed`, and the real `_TeamAdmin` (no overwrite, keeps frontmatter, Resonance) |
+| `tests/js/test_teams_ui.js` | added cases for the grant box and the Team-managed switch |
 
-## Review cuối (người review mới, model mạnh nhất)
+## Final review (fresh reviewer, strongest model)
 
-Kết luận "Ready with fixes": 0 Critical, 2 Important, 6 Minor. Xếp lại theo tác động:
-- **Important:** cờ "do nhóm quản lý" sót lại sau khi bỏ thành viên: nhóm khác không giao quản lý được, chủ không tắt được, thêm lại thì cờ tự sống lại. Nay bỏ hay thêm lại thành viên đều xoá cờ; kiểm "nhóm khác đang quản lý" chỉ tính thành viên đang hoạt động.
-- **Important:** D6 suy provider riêng, lệch với engine thật (agent cũ có model Claude mà thiếu provider chạy Claude Code nhưng bị coi là model việc nền, lọt Không giới hạn). Nay provider lấy đúng nhãn `engine_for` trả; chỉ dựng khi nhóm đang Toàn quyền.
-- Sửa thêm:
-  - trần ngày của tin trò chuyện tính theo provider của người nhận, không chặn nhầm khi trưởng nhóm được Không giới hạn;
-  - khoá nguồn việc trưởng nhóm mở không kết thúc bằng số (`_source_id` từng đọc nhầm thứ tự lệnh thành mã tin);
-  - sửa lời nhắc trên file không đọc được frontmatter bị từ chối (trước đây xoá tên, vai, model);
-  - chủ đặt trần không kèm trần tối đa được, trưởng nhóm không đổi được trần đó;
-  - tối đa 10 lệnh quản trị mỗi lượt;
-  - form trần ở Cài đặt báo rõ khi Toàn quyền đang bật (trần lấy theo mục Toàn quyền).
-- Để lại: lần thu hồi chen giữa lúc đọc Toàn quyền và lúc giữ chỗ lượt có thể cho một lượt chạy theo trần cũ (một lượt, chấp nhận).
+Verdict "Ready with fixes": 0 Critical, 2 Important, 6 Minor. Reordered by impact:
+- **Important:** the "team-managed" flag survived removing a member: another team could not take over management, the owner could not turn it off, and re-adding the member brought the flag back to life. Now both removing and re-adding a member clear the flag; the "another team is managing" check only counts active members.
+- **Important:** D6 derived the provider on its own, which diverged from the real engine (an old agent with a Claude model but no provider runs Claude Code yet was treated as a background model, so it slipped into Unlimited). Now the provider is the exact label `engine_for` returns; it is only built while the team is on Full authority.
+- Other fixes:
+  - the daily cap for chat messages is computed by the recipient's provider, so it no longer blocks wrongly when the team lead has Unlimited;
+  - the source key of tasks opened by the team lead no longer ends in a number (`_source_id` used to misread the command order as a message id);
+  - a prompt edit on a file whose frontmatter cannot be read is rejected (it used to wipe name, role and model);
+  - the owner can set a cap without a maximum cap, and the team lead then cannot change that cap;
+  - at most 10 admin commands per turn;
+  - the caps form in Settings says clearly when Full authority is on (the caps come from the Full authority section).
+- Left as is: a revoke landing between reading Full authority and reserving the turn can let one turn run under the old caps (a single turn, accepted).
 
-Ca review #1 tới #4, #7, #8 trong `test_team_authority.py` đỏ trước rồi xanh; ca #5 (`test_team_api.py`) và #6 (`test_teams_ui.js`) viết sau khi sửa.
+Review cases #1 to #4, #7, #8 in `test_team_authority.py` were red first, then green; case #5 (`test_team_api.py`) and #6 (`test_teams_ui.js`) were written after the fix.
 
-**Smoke giao diện** (sandbox cổng 7788, nhóm tạm dừng, trần ngày 0, không mở trần ngày): bật Toàn quyền bằng giao diện với "Không giới hạn" lượt mỗi việc (ô số tự tắt), trạng thái và trần đang áp hiện đúng, tin hệ thống trong nhóm; thu hồi về Quyền giới hạn; 375px không cuộn ngang. Ảnh `exports/reviews/team-t3-smoke/`.
+**UI smoke** (sandbox port 7788, team paused, daily cap 0, daily cap not opened): enabling Full authority through the UI with "Unlimited" turns per task (the number field disables itself), the state and the caps in force show correctly, system message in the team; revoked back to Limited authority; no horizontal scroll at 375px. Screenshots in `exports/reviews/team-t3-smoke/`.

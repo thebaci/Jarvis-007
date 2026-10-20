@@ -6,7 +6,7 @@ Background scenery adds calibration rings, edge circuitry, a perspective floor a
 
 Controls:
 - Slow spin is on initially, except when the device requests reduced motion. The toggle pauses/resumes it.
-- Drag to rotate; Shift-drag to pan. Scroll, pinch with two fingers, or use the plus/minus buttons to zoom (0.45–5×). Reset restores the initial camera.
+- Drag to rotate; Shift-drag to pan. Scroll, pinch with two fingers, or use the plus/minus buttons to zoom (0.45 to 5×). Reset restores the initial camera.
 - Hover shows a note label. Select a dot to inspect its title/path, then Open memory uses the existing dashboard note opener. Rotation pauses during inspection.
 - With the canvas focused: arrows rotate, plus/minus zoom, 0 resets, Space toggles spin, Page Up/Down select memories, Enter selects/opens, Escape dismisses selection.
 

@@ -1,89 +1,89 @@
-# Rà soát tiến độ Resonance và điều chỉnh phạm vi agent
+# Resonance progress review and agent scope adjustment
 
-Ngày kiểm: 08/10/2026, Asia/Saigon. Snapshot mã: `09f254d0e4d009451dc58cb2e97788631c5acc1a` (main 0.86.1). Phạm vi: Resonance, agent/workflow/loop/học có liên quan và bộ tài liệu tiến độ. Không kiểm toán toàn bộ tính năng Jarvis 007.
+Review date: 2026-10-08, Asia/Saigon. Code snapshot: `09f254d0e4d009451dc58cb2e97788631c5acc1a` (main 0.86.1). Scope: Resonance, the related agent/workflow/loop/learning code, and the progress documents. This is not an audit of every Jarvis 007 feature.
 
-## Cập nhật sau A1 (08/10/2026, tối)
+## Update after A1 (2026-10-08, evening)
 
-Phần còn lại của tài liệu là ảnh chụp lúc rà (sáng 08/10), giữ làm lịch sử. Từ đó:
-- A1 đạt review mã và pilot A1-1 (một kịch bản), phát hành 0.87.0 ngày 09/10/2026 (`fdfec7c5`). Xem [biên bản A1](resonance-a1-verification.md).
-- A2 phát hành 0.88.0 ngày 09/10/2026 (`c101d108`), hiệu năng VPS chưa đo. Xem [biên bản A2](resonance-a2-verification.md).
-- Con số "0/5 mốc" bên dưới là của lúc rà. A1 chỉ tính là mốc hoàn tất khi đã merge và phát hành.
+The rest of this document is a snapshot from the time of the review (morning of 2026-10-08), kept as history. Since then:
+- A1 passed code review and pilot A1-1 (one scenario), and shipped as 0.87.0 on 2026-10-09 (`fdfec7c5`). See the [A1 record](resonance-a1-verification.md).
+- A2 shipped as 0.88.0 on 2026-10-09 (`c101d108`); VPS performance not measured. See the [A2 record](resonance-a2-verification.md).
+- The "0/5 milestones" figure below is from the time of the review. A1 counts as a finished milestone only once it is merged and released.
 
-## Bổ sung sau báo cáo kiểm cục bộ
+## Addendum after the local check report
 
-Theo báo cáo Claude được chủ dự án chuyển lại: server thử localhost 0.86.0 đã đạt 13 kiểm không model và một chat thật (1 Opus, engine ok, turn completed). ChatGPT chưa chạy lại; cần gắn báo cáo/log và commit vào hồ sơ triển khai. Không suy ra server thật cổng 7777 hoặc VPS đã được kiểm. VPS vẫn chưa kiểm vì kết nối Hostinger ngắt.
+According to the report Claude relayed from the project owner: the localhost 0.86.0 test server passed 13 no-model checks and one real chat (1 Opus, engine ok, turn completed). ChatGPT has not been re-run; the report/log and commit still need to be attached to the deployment record. Do not infer that the real server on port 7777 or a VPS was checked. The VPS is still unchecked because the Hostinger connection dropped.
 
-A1 thu hẹp về phiên agent; giao từ chat thường tách sau A1. Xem review và chỉ dẫn Claude (`exports/reviews/Resonance-A1-review-and-Claude-instructions-2026-10-08.md`, ngoài git, chỉ có trên máy chủ dự án).
+A1 is narrowed to the agent session; handing off from ordinary chat is split out after A1. See the review and the Claude instructions (`exports/reviews/Resonance-A1-review-and-Claude-instructions-2026-10-08.md`, outside git, only on the project owner's machine).
 
-## Kết luận tiến độ
+## Progress conclusion
 
-- **MVP M1–M5: 5/5 mốc hoàn tất và phát hành trong 0.86.0.** Squash `438f83097db4ee64e96b7b4880deb581521f217a`, PR #587. Các PR xếp chồng đã đóng; không bắt đầu lại từ M1.
-- Main đã lên **0.86.1**, PR #589 cải thiện hiển thị bước đang chạy của Codex; không phải một mốc Resonance mới.
-- Pilot 5 đạt nội dung và kỹ thuật trong một kịch bản, 2 lượt Opus, 0 Sonnet, xác nhận cuối mô phỏng. Không suy thành mọi engine/kênh hoặc định tuyến luôn đúng.
-- **Hướng mới A1–A5: 0/5 mốc mới được nghiệm thu.** Có nền tái sử dụng đáng kể; con số này là đếm mốc, không phải 0% code hoặc 0% công sức.
-- Chưa có bằng chứng một VPS cụ thể đã cập nhật và chạy ổn. Chưa có bằng chứng thực thi goal chỉ được cấp cho từng agent ở sản phẩm hiện tại.
-- Tại lúc rà, danh sách PR mở do GitHub trả về là rỗng. Không có PR đang mở được dùng làm bằng chứng rằng A1–A5 đã bắt đầu.
+- **MVP M1-M5: 5/5 milestones finished and released in 0.86.0.** Squash `438f83097db4ee64e96b7b4880deb581521f217a`, PR #587. The stacked PRs are closed; do not restart from M1.
+- Main is now at **0.86.1**; PR #589 improves how Codex's running step is shown, and is not a new Resonance milestone.
+- Pilot 5 passed on content and technically in one scenario: 2 Opus turns, 0 Sonnet, simulated final confirmation. Do not generalize this to every engine or channel, or to routing always being right.
+- **New direction A1-A5: 0/5 new milestones accepted.** There is a substantial reusable base; this figure counts milestones, it is not 0% of the code or 0% of the effort.
+- There is no evidence that any specific VPS was updated and runs stably. There is no evidence that goal execution granted per agent exists in the current product.
+- At the time of the review, the open PR list returned by GitHub was empty. No open PR is used as evidence that A1-A5 have started.
 
-## M1–M5 đã mang lại gì?
+## What did M1-M5 deliver?
 
-| Mốc | Kết quả đã có | Giới hạn cần giữ |
+| Milestone | Result so far | Limit to keep in mind |
 |---|---|---|
-| M1 | Engine thực thi có receipt, hạn mức, lỗi và usage | Không suy ra mọi engine có cùng khả năng |
-| M2 | Tự hình thành/cập nhật mục tiêu, lưu lời giao và revision | Hiện scope theo brain, agent chung javis; không phải agent riêng |
-| M3 | Làm/kiểm/chờ/dừng, guard, bằng chứng, next_wake, restart | Chưa phải scheduler thích nghi học theo giá trị cho từng agent |
-| M4 | Thẻ, phản hồi cách hiểu/đầu ra, điều khiển, chống báo trùng | Công tắc theo brain; chưa có màn hình tiến độ riêng theo agent |
-| M5 | So phương pháp, giới hạn thử, áp dụng có điều kiện | Chưa tự đề xuất phép thử; chưa vòng học reaction; pilot thật chưa áp dụng ứng viên thắng |
+| M1 | Execution engine with receipts, quota, errors and usage | Do not infer that every engine has the same capability |
+| M2 | Goals formed/updated automatically, stored handoffs and revisions | Scope is currently per brain, with the shared agent javis; not a dedicated agent |
+| M3 | Do/check/wait/stop, guard, evidence, next_wake, restart | Not yet an adaptive scheduler that learns by value for each agent |
+| M4 | Cards, feedback on understanding/output, controls, duplicate-report prevention | Switch is per brain; no separate per-agent progress screen yet |
+| M5 | Compare methods, trial limits, conditional apply | Does not yet propose trials by itself; no reaction learning loop yet; the real pilot has not applied the winning candidate |
 
-Bàn giao sau pilot 3 đã bổ sung tiếp nhận Write thành công từ Claude Code; pilot 5 chứng minh đường chat → tiếp nhận → góp ý → tiếp nhận bản sửa. Không gọi Sonnet trong lần đó là đúng ca tránh viết lại, không phải thiếu lượt phải chạy bù.
+The handoff after pilot 3 added acceptance of a successful Write from Claude Code; pilot 5 proved the path chat → acceptance → feedback → acceptance of the revised version. Not calling Sonnet that time was the correct rewrite-avoiding case, not a missing make-up turn.
 
-## Bằng chứng mã và hệ có thể tái sử dụng
+## Code evidence and reusable parts
 
-| Nơi đọc ở snapshot | Quan sát | Tác động lên kế hoạch |
+| Where read at the snapshot | Observation | Effect on the plan |
 |---|---|---|
-| `server/resonance.py: enabled_for` | Đọc `<brain>/Javis/resonance.json`; thiếu/hỏng thì tắt | Công tắc hiện chưa theo agent |
-| `system/plugins/javis-goal/plugin.py: javis_goal` | Dùng Principal agent/javis, gate theo brain; `_turn` dựa lượt web | Phải đổi danh tính và gate tool ở A1 |
-| `server/resonance_api.py: goal_request` | Form goal qua agent/javis trong brain | Phải chặn đường vòng HTTP, không chỉ đổi UI |
-| `server/resonance_store.py: _SCHEMA` | Goal có brain/owner/session; chưa có khóa agent thực thi riêng | Cần migration có chủ thể; không coi owner là agent_id |
-| `server/workflow_chat.py: persona_cua_phien` | Có phân giải session agent:<slug>/workflow:<slug> | Có điểm tích hợp danh tính, chưa tự là chính sách cấp quyền |
-| `server/resonance.py: next_wake, advance, tick` | Đã có lịch rẻ, backoff, chờ, lease; reaction bị bỏ qua khi đổi lịch | A2 tái dùng; A3 không nối điểm emoji trực tiếp vào nhịp |
-| `server/resonance_store.py: record_feedback, fit_status` và `dashboard/chat-resonance.js` | Có feedback đúng revision và hash | Nền dùng lại cho vòng học, chưa là vòng học hoàn chỉnh |
-| `server/resonance.py: compare_methods`, `server/resonance_store.py: apply_method` | Có thử trên cùng thước đo và áp dụng hạn chế phạm vi | Dùng cho A3, không xây ExperimentService lớn trước |
-| `server/self_improve.py: LoopFeature` | Loop có cấu hình/lịch/chế độ và cơ chế báo kết quả | Tránh goal và loop cùng chạy một việc; không thay mọi loop bằng Resonance |
-| `server/learn.py` | Có hệ tự học, fork/promote, hạn mức và lịch curator | Không thể nói Jarvis 007 chưa có học; cần adapter/phạm vi để khỏi hai hệ cùng sửa một agent |
-| `server/agent_runtime.py`, `workflow_graph.py` | Agent có replan có grant; workflow có verify_agent | Đội Resonance chưa có, nhưng có nền làm/review để nối |
-| `dashboard/chatbots-reply-policy.js` | Có thumb gắn quyết định trả lời của chatbot | Không coi đó là reaction loop chung cho Resonance |
+| `server/resonance.py: enabled_for` | Reads `<brain>/Javis/resonance.json`; off if missing or broken | The switch is not yet per agent |
+| `system/plugins/javis-goal/plugin.py: javis_goal` | Uses Principal agent/javis, gated per brain; `_turn` relies on the web turn | Identity and tool gate must change in A1 |
+| `server/resonance_api.py: goal_request` | The goal form goes through agent/javis in the brain | The HTTP bypass must be blocked, not just the UI changed |
+| `server/resonance_store.py: _SCHEMA` | A goal has brain/owner/session; no separate executing-agent key | Needs a migration with a subject; do not treat owner as agent_id |
+| `server/workflow_chat.py: persona_cua_phien` | Resolves session agent:<slug>/workflow:<slug> | An identity integration point exists, but it is not itself a permission policy |
+| `server/resonance.py: next_wake, advance, tick` | Already has cheap scheduling, backoff, waiting, lease; reaction is skipped when the schedule changes | A2 reuses it; A3 does not wire emoji points straight into the rhythm |
+| `server/resonance_store.py: record_feedback, fit_status` and `dashboard/chat-resonance.js` | Feedback tied to the right revision and hash | A base to reuse for the learning loop, not yet a complete learning loop |
+| `server/resonance.py: compare_methods`, `server/resonance_store.py: apply_method` | Tries on the same measure and applies with limited scope | Use for A3; do not build a large ExperimentService first |
+| `server/self_improve.py: LoopFeature` | Loops have config/schedule/mode and a result-reporting mechanism | Avoid a goal and a loop both running the same job; do not replace every loop with Resonance |
+| `server/learn.py` | Has a self-learning system, fork/promote, quotas and a curator schedule | Cannot say Jarvis 007 has no learning; needs an adapter/scope so two systems do not both edit one agent |
+| `server/agent_runtime.py`, `workflow_graph.py` | Agents have replan with a grant; workflows have verify_agent | The Resonance team does not exist yet, but there is a do/review base to connect to |
+| `dashboard/chatbots-reply-policy.js` | Has a thumb attached to the chatbot's reply decision | Do not treat it as a general reaction loop for Resonance |
 
-Không nhầm heartbeat giữ kết nối hoặc heartbeat cuộc gọi voice với nhịp thực thi mục tiêu.
+Do not confuse the heartbeat that keeps a connection alive, or the voice-call heartbeat, with the goal-execution rhythm.
 
-## Những sai lệch trong hồ sơ đã xử lý ở đợt này
+## Discrepancies in the records fixed in this pass
 
-1. HTML cũ dừng ở 80% và review pilot trước lần 2; thay bằng mốc phát hành 0.86.0, snapshot main 0.86.1 và lộ trình mới.
-2. README cũ nói bộ tài liệu chưa chứng minh triển khai, bảo bắt đầu M1; đổi thành danh mục hiện hành, dẫn hướng agent và hồ sơ đã phát hành.
-3. File lệnh triển khai M1–M5 cũ còn có hạn mức pilot và lệnh chạy; gắn nhãn lịch sử, không cấp lại hạn mức cũ cho việc mới.
-4. Spec và kế hoạch 00/01/02/03 cũ được giữ để tra, thêm chỉ dẫn tới tài liệu mới. Không xoá bằng chứng hoặc viết lại kết quả quá khứ.
+1. The old HTML stopped at 80% and at the review before pilot 2; replaced with the 0.86.0 release milestone, the main 0.86.1 snapshot and the new roadmap.
+2. The old README said the document set had not proven deployment and told readers to start M1; changed to the current index, agent guidance and released records.
+3. The old M1-M5 implementation command file still carried pilot quotas and run commands; labeled as history, and the old quota is not granted again for new work.
+4. The old specs and plans 00/01/02/03 are kept for reference, with pointers to the new documents added. No evidence deleted and no past result rewritten.
 
-Bản trước khi chỉnh được lưu cùng manifest SHA-256 tại `exports/archive/resonance-before-agent-scope-20261008-120051/`.
+The version before the edit is stored with a SHA-256 manifest at `exports/archive/resonance-before-agent-scope-20261008-120051/`.
 
-## Lộ trình hiện hành
+## Current roadmap
 
-**A1 agent + công tắc + tiến độ tối thiểu → A2 heartbeat thích nghi → A3 học từ phản hồi → A4 bàn giao đa engine → A5 đội làm/review.**
+**A1 agent + switch + minimal progress → A2 adaptive heartbeat → A3 learning from feedback → A4 multi-engine handoff → A5 do/review team.**
 
-Kiểm một VPS (D0) có thể làm song song việc thiết kế A1; bật thử có model cần phạm vi và hạn mức của lần thử đó. Không dùng ngày hoàn thành hoặc tổng % tuỳ ý cho phần chưa ước lượng.
+Checking one VPS (D0) can run in parallel with A1 design work; a trial with a model needs the scope and quota of that trial. Do not use a completion date or an arbitrary overall percentage for the parts not yet estimated.
 
-Xem [phạm vi và điều kiện nghiệm thu chi tiết](../superpowers/specs/2026-10-08-resonance-agent-scope-roadmap.md).
+See the [detailed scope and acceptance conditions](../superpowers/specs/2026-10-08-resonance-agent-scope-roadmap.md).
 
-## Trạng thái đầu ra của lần rà này
+## Output status of this review
 
-Đã cập nhật tài liệu và trang HTML theo dõi. **Chưa sửa runtime, schema, API, công tắc đang dùng hoặc cấu hình brain/agent.** Không gọi model, không đổi nhánh checkout chính, không commit/push hoặc triển khai lên máy người dùng. Những thay đổi hành vi A1–A5 cần các PR tiếp theo.
+Documents and the tracking HTML page were updated. **No runtime, schema, API, live switch or brain/agent configuration was changed.** No model was called, the main checkout branch was not changed, and nothing was committed, pushed or deployed to a user machine. The A1-A5 behavior changes need the follow-up PRs.
 
-Các file tài liệu ở checkout chính hiện là bản làm việc cục bộ (checkout chính vẫn ở nhánh cũ); mã nguồn được đọc từ checkout review riêng tại snapshot main nêu đầu tài liệu. Khi giao triển khai, mang tài liệu mới sang nhánh dựa trên main mới nhất, không code trên checkout cũ và không lấy số dòng lịch sử làm hợp đồng.
+The document files in the main checkout are currently a local working copy (the main checkout is still on the old branch); the source code was read from a separate review checkout at the main snapshot named at the top of this document. When handing over for implementation, bring the new documents onto a branch based on the latest main; do not code on the old checkout and do not treat historical line numbers as a contract.
 
-## Nguồn phát hành và nghiệm thu
+## Release and acceptance sources
 
 - [PR #587](https://github.com/blogminhquy/javis-os/pull/587)
-- [CI sau merge](https://github.com/blogminhquy/javis-os/actions/runs/37726542811)
+- [CI after merge](https://github.com/blogminhquy/javis-os/actions/runs/37726542811)
 - [Build/push 0.86.0](https://github.com/blogminhquy/javis-os/actions/runs/37726542815)
-- [Hồ sơ pilot 5 tại commit bằng chứng](https://github.com/blogminhquy/javis-os/blob/450dd095/docs/dev/resonance-mvp-e2e-pilot-5.json)
-- Review nội dung độc lập (`exports/reviews/PR-579-pilot5-content-review.md`, ngoài git, chỉ có trên máy chủ dự án)
-- Review sau phát hành (`exports/reviews/Resonance-0860-post-release-review.md`, ngoài git, chỉ có trên máy chủ dự án)
-- Trang theo dõi mới (`exports/javis-resonance-tien-do.html`, ngoài git, chỉ có trên máy chủ dự án)
+- [Pilot 5 record at the evidence commit](https://github.com/blogminhquy/javis-os/blob/450dd095/docs/dev/resonance-mvp-e2e-pilot-5.json)
+- Independent content review (`exports/reviews/PR-579-pilot5-content-review.md`, outside git, only on the project owner's machine)
+- Post-release review (`exports/reviews/Resonance-0860-post-release-review.md`, outside git, only on the project owner's machine)
+- New tracking page (`exports/javis-resonance-tien-do.html`, outside git, only on the project owner's machine)

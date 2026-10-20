@@ -1,76 +1,74 @@
-# Hợp đồng T2: API, gói WS và dữ liệu reaction (0.154.0)
+# T2 contract: API, WS packets and reaction data (0.154.0)
 
-Tài liệu này chốt mặt tiếp giáp giữa phần máy chủ và phần giao diện của T2, để hai phần làm song song mà ghép khớp. Thiết kế gốc:
-`docs/superpowers/specs/2026-10-15-team-adaptive-design.md` mục 2, 3, 4 và 9.1. Đổi hợp đồng thì sửa file này cùng commit.
+This document locks the interface between the server side and the UI side of T2, so the two can be built in parallel and fit together. Original design:
+`docs/superpowers/specs/2026-10-15-team-adaptive-design.md` sections 2, 3, 4 and 9.1. If the contract changes, edit this file in the same commit.
 
-## 1. Giá trị
+## 1. Values
 
-- Sáu emoji, giữ đúng mã đang dùng ở chat nhóm (không đổi tên để dữ liệu cũ còn đọc được): `like` 👍, `love` ❤️, `haha` 😂,
-  `wow` 😮, `sad` 😢, `angry` 😡. Bỏ emoji: `value: null` (hay `"none"`).
-- Lý do chất lượng (chọn nhiều): `on_point`, `wrong_facts`, `missing`, `too_long`, `unclear`, `off_topic`.
-- Trục nói/im (chọn một hoặc không): `axis` là `""`, `"should_speak"` ("Đáng lẽ nên nói") hay `"should_silent"` ("Nên im (chen
-  ngang)"). Nhận ở cả hai nơi.
-- Góp ý chữ: tối đa 500 ký tự.
-- Không trường nào bắt buộc để thả emoji.
+- Six emoji, keeping the codes already used in team chat (names are not changed so old data stays readable): `like` 👍, `love` ❤️, `haha` 😂,
+  `wow` 😮, `sad` 😢, `angry` 😡. Removing the emoji: `value: null` (or `"none"`).
+- Quality reasons (multiple choice): `on_point`, `wrong_facts`, `missing`, `too_long`, `unclear`, `off_topic`.
+- Speak/stay-quiet axis (pick one or none): `axis` is `""`, `"should_speak"` ("Should have spoken") or `"should_silent"` ("Should stay quiet (interrupted)"). Accepted in both places.
+- Free-text feedback: at most 500 characters.
+- No field is required to drop an emoji.
 
-## 2. Trạng thái của một reaction (do host ghi, giao diện chỉ hiển thị)
+## 2. Status of a reaction (written by the host, the UI only displays it)
 
-`status`: `received` (Đã nhận), `pending_review` (Chờ xem xét), `reviewing` (Đang xem xét), `adjusted` (Đã điều chỉnh),
-`no_change` (Không cần đổi), `waiting_quota` (Chờ hạn mức), `stored_only` (Đã nhận, chỉ lưu; `status_reason` nói vì sao:
-Cộng hưởng của trợ lý đang tắt, hay phản hồi có trước lúc bật lại Cộng hưởng).
-`status_reason`: một câu ngắn host viết sẵn theo ngôn ngữ giao diện (có thể rỗng). Giao diện hiện nhãn của `status` qua i18n
-(`react.status.<status>`, viết trọn từng khoá) và thêm `status_reason` nếu có.
+`status`: `received` (Received), `pending_review` (Waiting for review), `reviewing` (Under review), `adjusted` (Adjusted),
+`no_change` (No change needed), `waiting_quota` (Waiting for quota), `stored_only` (Received, stored only; `status_reason` says why:
+the assistant's Resonance is off, or the feedback came before Resonance was turned back on).
+`status_reason`: a short sentence the host writes in advance in the UI language (may be empty). The UI shows the label of `status` through i18n
+(`react.status.<status>`, each key written out in full) and adds `status_reason` if present.
 
-## 3. Khuôn reaction `R` trả về
+## 3. The reaction shape `R` that is returned
 
 ```
 {"value": "love", "reasons": ["too_long"], "axis": "", "comment": "", "stale": false,
  "status": "pending_review", "status_reason": "", "source_kind": "owner", "revision": 3, "updated_at": 1760500000.0}
 ```
 
-`value` có thể `null` khi chỉ có lý do hay góp ý. `R` là `null` khi chủ đã bỏ hết (không emoji, không lý do, không trục, không góp ý).
+`value` can be `null` when there is only a reason or a comment. `R` is `null` when the owner has removed everything (no emoji, no reason, no axis, no comment).
 
-## 4. Chat riêng (trang Trò chuyện chính và trang Cộng sự `agent:<slug>`)
+## 4. Private chat (the main Chat page and the Agents page `agent:<slug>`)
 
 - `POST /sessions/{session_id}/messages/{message_id}/reaction?brain=<brain>`
-  - Thân: `{"value", "reasons", "axis", "comment", "nonce", "seen_sha"}`. `nonce` do trình duyệt sinh MỘT lần cho mỗi thao tác và
-    gửi lại y nguyên khi thử lại sau lỗi mạng. `seen_sha` là `content_sha` giao diện đã nhận (tuỳ chọn).
-  - 200: `{"ok": true, "reaction": R|null}`. Gửi lại cùng `nonce` trả đúng trạng thái hiện tại, không ghi thêm dòng.
-  - 400 thân sai (giá trị lạ, quá dài, nonce rỗng hay dài hơn 100); 404 không có phiên hay tin; 409 tin không phải câu trả lời
-    (chỉ tin `role = assistant` nhận reaction), hay nonce đã dùng cho tin khác. Thân lỗi: `{"ok": false, "error": "..."}`.
-- `GET /sessions/{session_id}/messages` (đã có): mỗi tin có `id` (đã có) và thêm `content_sha`; tin `assistant` thêm
-  `reaction: R|null`. `GET /sessions/{session_id}` (có hay không `?limit=`, dùng khi mở phiên từ lịch sử) cũng vậy: mọi tin
-  trong `messages` có `content_sha`, tin `assistant` có `reaction`.
-- Gói WS (gửi mọi tab dashboard qua `_CHAT_RUNTIME.publish`):
-  - `{"type": "chat_reaction", "session_id": "...", "message_id": 123, "reaction": R|null}` sau mỗi lần ghi và mỗi lần host đổi
-    trạng thái (bộ chiếu, lượt xem xét).
-  - `{"type": "turn_saved", "session_id": "...", "message_id": 123, "content_sha": "..."}` ngay sau khi lưu câu trả lời của một
-    lượt (`_persist_turn` trả mã tin và CHỜ gửi xong gói này trước khi trả về, nên gói luôn tới trước `turn_done` của
-    lượt đó). Gói tới sau `response`, trước `turn_done`. Bong bóng vừa trả lời nhận
-    `data-mid` từ gói này; chưa có mã thì chưa hiện nút reaction.
-- Tác giả: phiên kênh `agent:<slug>` (hay có dòng `session_agents`) là agent đó, `agent_key` do host tra; phiên Jarvis 007 chính là
-  `agent_key` rỗng (lưu và hiện, không vào học hay phán xử của agent nào, `status` luôn `received`).
+  - Body: `{"value", "reasons", "axis", "comment", "nonce", "seen_sha"}`. `nonce` is generated by the browser ONCE per action and
+    sent again unchanged when retrying after a network error. `seen_sha` is the `content_sha` the UI has received (optional).
+  - 200: `{"ok": true, "reaction": R|null}`. Resending the same `nonce` returns the current state exactly, without writing another row.
+  - 400 bad body (unknown value, too long, empty nonce or nonce longer than 100); 404 no such session or message; 409 the message is not an answer
+    (only `role = assistant` messages accept reactions), or the nonce was already used for another message. Error body: `{"ok": false, "error": "..."}`.
+- `GET /sessions/{session_id}/messages` (existing): each message has `id` (existing) plus `content_sha`; `assistant` messages also get
+  `reaction: R|null`. `GET /sessions/{session_id}` (with or without `?limit=`, used when opening a session from history) is the same: every message
+  in `messages` has `content_sha`, and `assistant` messages have `reaction`.
+- WS packets (sent to every dashboard tab through `_CHAT_RUNTIME.publish`):
+  - `{"type": "chat_reaction", "session_id": "...", "message_id": 123, "reaction": R|null}` after every write and every time the host changes
+    the status (projector, review turn).
+  - `{"type": "turn_saved", "session_id": "...", "message_id": 123, "content_sha": "..."}` right after a turn's answer is saved (`_persist_turn` returns the message id and WAITS until this packet
+    is sent before returning, so the packet always arrives before that turn's `turn_done`). The packet arrives after `response`, before `turn_done`. The bubble that just answered receives
+    `data-mid` from this packet; with no id yet, the reaction button is not shown.
+- Author: a session on channel `agent:<slug>` (or one with a `session_agents` row) belongs to that agent, and the host looks up `agent_key`; the main Jarvis 007 session has an empty
+  `agent_key` (stored and shown, but it enters no agent's learning or judging, and `status` is always `received`).
 
-## 5. Chat nhóm
+## 5. Team chat
 
-- `POST /teams/{team_id}/messages/{message_id}/reaction?brain=<brain>` (đã có): thân thêm `axis` và `seen_sha`; `R` thêm `axis`,
-  `stale`, `status`, `status_reason`, `source_kind`, `revision`. Cùng quy tắc nonce dùng lại (gửi lại cùng nonce trả trạng thái
-  hiện tại, 200).
-- Tin trong trang tin nhóm và chi tiết việc mang `reaction: R|null` như hiện nay, kèm các trường mới, và `content_sha`.
-- Gói WS `team_message` (đã có) mang tin đã gắn `reaction` mới; khung lọc theo việc (`S.filterTask`) cũng phải nhận và vẽ lại tin
-  đó nếu đang hiện.
-- Reaction của agent (trưởng nhóm, thành viên) đi qua lệnh có cấu trúc trong lượt của agent, không qua route:
-  `<!-- JAVIS_TEAM: {"op": "react", "message_id": 123, "value": "like", "reasons": [], "comment": ""} -->`. Host gán
-  `source_kind` theo lượt; agent không thả lên tin của chính mình. Tin mang thêm `agent_reactions: [{"agent_key", "name",
-  "source_kind", "value", "reasons", "comment"}]`; giao diện hiện thành chip riêng có tên agent, chỉ đọc, tách khỏi chip của chủ.
+- `POST /teams/{team_id}/messages/{message_id}/reaction?brain=<brain>` (existing): the body gains `axis` and `seen_sha`; `R` gains `axis`,
+  `stale`, `status`, `status_reason`, `source_kind`, `revision`. The same nonce-reuse rule applies (resending the same nonce returns the current
+  state, 200).
+- Messages in the team message page and the job detail carry `reaction: R|null` as now, with the new fields, and `content_sha`.
+- The `team_message` WS packet (existing) carries the message with the new `reaction` attached; the job filter view (`S.filterTask`) must also receive and redraw
+  that message if it is showing.
+- An agent's reaction (leader, member) goes through a structured command in the agent's turn, not through the route:
+  `<!-- JAVIS_TEAM: {"op": "react", "message_id": 123, "value": "like", "reasons": [], "comment": ""} -->`. The host sets
+  `source_kind` according to the turn; an agent does not react to its own message. The message gains `agent_reactions: [{"agent_key", "name",
+  "source_kind", "value", "reasons", "comment"}]`; the UI shows them as separate chips with the agent's name, read-only, apart from the owner's chip.
 
-## 6. Giao diện dùng chung (`dashboard/reactions.js`)
+## 6. Shared UI (`dashboard/reactions.js`)
 
-- `window.JavisReactions` (và `module.exports` cho node): `EMOJI` (bảng sáu emoji duy nhất của repo), `REASONS`, `AXES`,
+- `window.JavisReactions` (and `module.exports` for node): `EMOJI` (the single table of six emoji in the repo), `REASONS`, `AXES`,
   `nextReaction(cur, pick)`, `chipHtml(R, opts)`, `pickerHtml(mid, R, opts)`, `statusHtml(R)`, `agentChipsHtml(list)`,
   `newNonce()`, `bindLongPress(root, selector, onOpen)`.
-- `teams.js`, `app.js` (bong bóng trả lời, bong bóng stream sau khi chốt, lịch sử) và `mobile-chat.js` dùng module này; không
-  file nào khác chứa ký tự emoji của bảng (`test_icons` đổi phạm vi ngoại lệ sang `reactions.js`).
-- Bấm chọn, đổi, bỏ; nhấn giữ 500 ms trên điện thoại; nút luôn hiện ở `@media (hover: none)`; vùng chạm 44px; chữ 16px.
-- Gửi: giữ `nonce` của thao tác đang gửi tới khi có kết quả; lỗi mạng thì Thử lại gửi lại cùng `nonce`. Thành công hay lỗi 4xx thì
-  thao tác kế tiếp dùng nonce mới.
+- `teams.js`, `app.js` (answer bubbles, stream bubbles after they are finalized, history) and `mobile-chat.js` use this module; no
+  other file contains the emoji characters of the table (`test_icons` moves its exception scope to `reactions.js`).
+- Tap to pick, change, remove; 500 ms long press on phones; the button is always visible under `@media (hover: none)`; 44px touch target; 16px text.
+- Sending: keep the `nonce` of the action in flight until there is a result; on a network error, Retry resends with the same `nonce`. After success or a 4xx error, the
+  next action uses a new nonce.
