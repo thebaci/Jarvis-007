@@ -1,249 +1,235 @@
-# Phiên hội thoại
+# Sessions
 
 ***Tiếng Việt** · [English](en/04-sessions.md)*
 
-Mọi cuộc trò chuyện bạn nói với Javis đều được lưu lại tự động. Trang này hướng dẫn cách xem lại, tìm kiếm, đổi tên, xoá và mở tiếp một cuộc trò chuyện cũ, kể cả cuộc đã diễn ra từ nhiều ngày trước.
+Every conversation you have with Jarvis 007 is saved automatically. This page covers how to review, search, rename, delete and continue an old conversation, including one from days ago.
 
-Nếu bạn chưa quen với màn hình chat, đọc trước [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md).
+If the chat screen is new to you, read [Chat & voice](02-tro-chuyen-va-giong-noi.md) first.
 
-## Tính năng này là gì
+## What this feature is
 
-Javis tự lưu lại từng lượt hỏi và trả lời vào một cơ sở dữ liệu trên máy của bạn. Nhờ vậy bạn không mất nội dung khi tắt trình duyệt hay khởi động lại máy chủ. Cụ thể bạn có thể:
+Jarvis 007 saves every question and answer into a database on your own machine, so nothing is lost when you close the browser or restart the server. Specifically, you can:
 
-- Xem danh sách các cuộc trò chuyện cũ, mới nhất nằm trên đầu.
-- Tìm kiếm toàn văn: gõ một từ khoá và Javis tìm trong nội dung của mọi cuộc trò chuyện.
-- Mở lại một cuộc cũ và trò chuyện tiếp đúng mạch cũ.
-- Đổi tên cho dễ nhớ.
-- **Ghim** cuộc quan trọng lên đầu danh sách.
-- **Gom** nhiều cuộc vào một **Project** (nhóm).
-- **Gắn icon cho từng Project** để phân loại nhóm bằng mắt.
-- Xoá cuộc không cần nữa.
+- Browse past conversations, newest first.
+- Search full text: type a keyword and Jarvis 007 searches inside every conversation.
+- Reopen an old conversation and keep talking in the same thread.
+- Rename conversations so they are easy to recognise.
+- **Pin** important conversations to the top of the list.
+- **Group** conversations into a **Project**.
+- **Give each Project an icon** so groups are easy to tell apart visually.
+- Delete conversations you no longer need.
 
-## Ghim, Project và icon
+## Pinning, Projects and icons
 
-Danh sách xếp theo thời gian, nên một cuộc dùng đi dùng lại sẽ trôi dần xuống dưới. Ba công cụ
-dưới đây để bạn tự sắp lại, tất cả đều nằm ở cột **Lịch sử** bên trái khung chat.
+The list is ordered by time, so a conversation you keep returning to slowly sinks. These three tools let you rearrange it, all of them in the **History** column on the left of the chat.
 
-**Ghim.** Rê chuột vào một cuộc rồi bấm biểu tượng ghim. Cuộc đó chuyển lên nhóm **Đã ghim**
-trên đầu danh sách và ở yên đó. Ghim không làm cuộc đó trông như "vừa nói chuyện" nên thứ tự
-của các cuộc còn lại giữ nguyên. Bấm lại để bỏ ghim.
+**Pinning.** Hover a conversation and click the pin icon. It moves to the **Pinned** group at the top of the list and stays there. Pinning does not make the conversation look "just used", so the order of the others is unaffected. Click again to unpin.
 
-**Project.** Thanh ngay dưới nút "Hội thoại mới" là nơi chọn nhóm. Bấm vào để xem danh sách,
-tạo nhóm mới, đổi tên, đổi icon hoặc xoá. Khi đang mở một project:
+**Projects.** The bar right under the "New conversation" button is the group picker. Click it to see the list, create a group, rename it, change its icon or delete it. While a project is open:
 
-- Danh sách chỉ hiện các cuộc thuộc project đó.
-- **Cuộc trò chuyện mới bạn bắt đầu sẽ tự rơi vào project đó**, không phải gắn tay.
+- The list only shows conversations in that project.
+- **New conversations you start land in that project automatically**, with no manual tagging.
 
-Chọn "Tất cả hội thoại" để xem lại toàn bộ, hoặc "Chưa xếp nhóm" để tìm những cuộc còn sót.
-Muốn chuyển một cuộc sang nhóm khác thì rê chuột vào nó và bấm biểu tượng thư mục.
+Pick "All conversations" to see everything again, or "Ungrouped" to find the leftovers. To move a conversation into another group, hover it and click the folder icon.
 
-**Xoá project KHÔNG xoá hội thoại.** Các cuộc bên trong chỉ được gỡ khỏi nhóm và quay về
-"Chưa xếp nhóm". Hộp xác nhận cũng nói rõ điều này kèm số cuộc sẽ được gỡ.
+**Deleting a project does NOT delete conversations.** The conversations inside are only removed from the group and return to "Ungrouped". The confirmation box says so, along with how many conversations will be released.
 
-**Icon cho Project.** Mở menu chọn nhóm, rê chuột vào một project rồi bấm biểu tượng bảng
-màu. Bảng chọn hiện toàn bộ icon Javis đang dùng, kèm ô lọc theo tên (gõ `star`, `folder`,
-`brain`...). Project chưa đặt icon thì mượn tạm icon thư mục, nên hàng nào cũng có icon và mắt
-quét theo cột icon được.
+**Project icons.** Open the group picker, hover a project and click the palette icon. The picker shows every icon Jarvis 007 uses, with a name filter (type `star`, `folder`, `brain`...). A project with no icon borrows the folder icon, so every row has one and your eye can scan down the icon column.
 
-Icon chỉ có ở **Project**, không có ở từng cuộc trò chuyện. Lý do: hàng nào trong danh sách
-cũng là một cuộc trò chuyện nên icon ở đó chẳng phân loại được gì, chỉ thêm một nút phải bấm.
-Còn mỗi project thật sự là một thứ khác nhau, nên icon ở đó mới có việc để làm.
+Icons exist for **Projects** only, not for individual conversations. The reason: every row in the list is a conversation, so an icon there classifies nothing and only adds a button to click. Each project genuinely is a different thing, so an icon there has work to do.
 
-Đây là **icon của chính Javis** chứ không phải emoji, và đó là chủ ý: icon Javis tự đổi màu
-theo tông sáng hay tối bạn đang dùng, và vẽ giống hệt nhau trên mọi máy. Emoji thì mỗi hệ
-điều hành vẽ một kiểu, lại có màu cứng nên nền tối nhìn chói.
+These are **Jarvis 007's own icons**, not emoji, and that is deliberate: Jarvis 007 icons recolour themselves for the light or dark theme you use, and render identically on every machine. Emoji are drawn differently by each operating system and have fixed colours that glare on dark backgrounds.
 
-Project gắn theo bộ não, nên đổi bộ não thì danh sách project đổi theo. Riêng "đang mở project
-nào" được nhớ trên từng máy (trình duyệt), không đồng bộ sang máy khác.
+Projects belong to a brain, so switching brains switches the project list. Which project is currently open is remembered per machine (per browser) and is not synced elsewhere.
 
-Một điểm quan trọng: các cuộc trò chuyện được gắn theo "bộ não" (vault) đang chọn. Khi bạn đổi bộ não ở thanh chọn vault, danh sách lịch sử đổi theo để chỉ hiện các cuộc thuộc bộ não đó, **và khung chat cũng đổi theo**. Xem mục "Đổi bộ não giữa chừng" bên dưới, và cách chọn bộ não ở [Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md).
+One important point: conversations are attached to the selected "brain" (vault). When you switch brains in the vault picker, the history list follows so it only shows that brain's conversations, **and the chat frame follows too**. See "Switching brains mid-flight" below, and how to pick a brain in [Getting started & first-run setup](01-bat-dau-thiet-lap.md).
 
-## Nơi lưu dữ liệu
+## Where the data lives
 
-Toàn bộ lịch sử nằm trong một tệp duy nhất tên `conversations.db`.
+The whole history sits in a single file named `conversations.db`.
 
-| Mục | Giá trị mặc định | Ghi chú |
+| Item | Default | Note |
 |---|---|---|
-| Tên tệp | `conversations.db` | Định dạng SQLite |
-| Thư mục | Thư mục `server/` của Javis | Cùng chỗ với `settings.json` |
-| Biến môi trường đổi vị trí tệp | `JAVIS_SESSIONS_DB` | Trỏ tới đường dẫn tệp `.db` khác |
-| Biến môi trường đổi thư mục gốc | `JAVIS_STATE_DIR` | Đổi cả thư mục chứa trạng thái |
+| File name | `conversations.db` | SQLite format |
+| Folder | Jarvis 007's `server/` folder | Same place as `settings.json` |
+| Environment variable to move the file | `JAVIS_SESSIONS_DB` | Point it at another `.db` path |
+| Environment variable to move the root folder | `JAVIS_STATE_DIR` | Moves the whole state folder |
 
-Nếu bạn muốn dời tệp lịch sử sang chỗ khác (ví dụ ổ dữ liệu riêng), đặt biến `JAVIS_SESSIONS_DB` trong tệp cấu hình. Chi tiết cách chỉnh biến môi trường xem [Cấu hình .env](16-cau-hinh-env.md).
+To move the history file elsewhere (a dedicated data disk, for example), set `JAVIS_SESSIONS_DB` in the config file. Details on environment variables are in [.env configuration](16-cau-hinh-env.md).
 
-Mỗi cuộc trò chuyện lưu kèm: tên (title), bộ não, engine đang dùng, model, kênh sinh ra nó, số tin nhắn, thời gian tạo và thời gian cập nhật gần nhất. Từng lượt hỏi và đáp lưu riêng để có thể tìm kiếm và mở lại chính xác.
+Each conversation stores its title, brain, engine in use, model, the channel it came from, message count, creation time and last update time. Each question and answer is stored separately so it can be searched and reopened exactly.
 
-## Cuộc trò chuyện đến từ Telegram
+## Conversations that came from Telegram
 
-Danh sách này không chỉ có các cuộc bạn mở trên web. Những gì bạn nhắn với Javis qua **Telegram** cũng được lưu vào đây và mang nhãn **TG** trong danh sách, nên ngồi máy tính bạn vẫn đọc lại và tìm kiếm được cuộc đã nói lúc đang đi đường.
+This list is not just the ones you open on the web. What you say to Jarvis 007 over **Telegram** is saved here too, labelled **TG** in the list, so at your desk you can reread and search a conversation you had on the road.
 
-Vì trên Telegram gần như không ai bấm bắt đầu cuộc mới, Javis tự cắt sang cuộc mới khi bạn nghỉ quá 12 tiếng hoặc khi cuộc hiện tại đã dài khoảng 100 lượt. Việc cắt này chỉ để bản lưu dễ đọc, không làm Javis quên mạch trong lúc bạn đang trò chuyện trên Telegram. Các cuộc Telegram cũ hơn 30 ngày được tự cất vào kho lưu nên không hiện ở danh sách mặc định, nhưng vẫn tìm được bằng ô tìm kiếm. Chi tiết ở [Kênh Telegram](11-telegram.md).
+Because almost nobody starts a new conversation explicitly on Telegram, Jarvis 007 cuts to a new one when you pause for more than 12 hours or when the current one reaches about 100 turns. That cut only makes the archive readable; it does not make Jarvis 007 forget the thread while you are talking on Telegram. Telegram conversations older than 30 days are archived so they do not clutter the default list, but they are still findable through search. Details in [Telegram channel](11-telegram.md).
 
-## Mở ở đâu trong Javis
+## Where to find it in Jarvis 007
 
-Sidebar lịch sử nằm ở trang **Trò chuyện**. Có ba đường vào, đều dẫn tới đúng chỗ đó:
+The history sidebar lives on the **Chat** page. Three entrances lead to the same place:
 
-- **Rail điều hướng.** Mở nhóm **Trợ lý** bên trái rồi bấm **Trò chuyện**.
-- **Nút ⛶** trên khung **HỘI THOẠI** ở màn hình chính Javis.
-- **Nút 🕘 Lịch sử** ở hàng nút góc trên bên phải màn hình.
+- **Navigation rail.** Open the **Assistant** group on the left and click **Chat**.
+- **The ⛶ button** on the **CONVERSATION** panel of the main Jarvis 007 screen.
+- **The 🕘 History button** in the top right button row.
 
-Trang có hai cột: cột trái là **sidebar Lịch sử** gồm nút **＋ Hội thoại mới** trên cùng, ô tìm kiếm, và danh sách các cuộc trò chuyện nhóm theo thời gian (**Hôm nay / Hôm qua / 7 ngày qua / Cũ hơn**); cột phải là khung chat với tiêu đề "Trò chuyện với Javis". Cuộc đang mở được tô sáng trong danh sách để bạn biết mình đang ở đâu.
+The page has two columns: on the left the **History sidebar** with a **＋ New conversation** button on top, a search box, and the conversation list grouped by time (**Today / Yesterday / Last 7 days / Older**); on the right the chat with the title "Chat with Jarvis 007". The open conversation is highlighted in the list so you know where you are.
 
-Nút **🕘** trên thanh tiêu đề (chú thích khi rê chuột: "Ẩn/hiện lịch sử") thu hoặc mở cột trái. Nút **‹ Thu nhỏ** đưa về lại màn Javis. Trên màn hình hẹp (dưới 860px), sidebar tự ẩn và mở dạng ngăn kéo nổi; chọn một cuộc là ngăn kéo tự đóng.
+The **🕘** button in the title bar (tooltip: "Show/hide history") collapses or expands the left column. **‹ Shrink** returns to the Jarvis 007 screen. On narrow screens (under 860px) the sidebar hides itself and opens as a floating drawer; picking a conversation closes the drawer.
 
-## Cách dùng (từng bước)
+## How to use it (step by step)
 
-### Xem lại danh sách cuộc trò chuyện
+### Reviewing the conversation list
 
-1. Mở sidebar lịch sử theo một trong hai cách ở trên.
-2. Danh sách hiện các cuộc thuộc bộ não đang chọn, nhóm theo thời gian, cuộc cập nhật gần nhất nằm trên cùng.
-3. Mỗi dòng cho biết: tên cuộc trò chuyện, giờ (hoặc ngày), nhãn kênh nếu không phải web (ví dụ **TG**), engine đã dùng và số tin nhắn (ví dụ `12 tin`).
-4. Danh sách hiện **20 cuộc** đầu tiên. Còn nữa thì cuối danh sách có nút **Xem thêm 20**, bấm một lần mở thêm 20 mục. Không có trần trên, bấm tiếp là ra tiếp.
-5. Nếu chưa có cuộc nào, sidebar hiện dòng "Chưa có hội thoại nào." kèm dòng "Bấm ＋ để bắt đầu."
+1. Open the history sidebar in either way above.
+2. The list shows conversations for the selected brain, grouped by time, most recently updated on top.
+3. Each row shows: the conversation title, the time (or date), a channel label when it is not web (for example **TG**), the engine used and the message count (for example `12 msgs`).
+4. The list shows the first **20 conversations**. If there are more, a **Show 20 more** button sits at the bottom; click it to load another 20. There is no ceiling, so keep clicking for more.
+5. With nothing saved yet, the sidebar reads "No conversations yet." with "Click ＋ to start."
 
-Cuộc chưa được đặt tên sẽ hiện tạm câu hỏi đầu tiên của bạn làm tên. Javis cũng tự đặt tên rút gọn từ câu hỏi đầu (khoảng 48 ký tự) ngay sau lượt trả lời đầu tiên.
+An unnamed conversation temporarily shows your first question as its title. Jarvis 007 also generates a short title from that first question (about 48 characters) right after the first answer.
 
-### Nhận biết cuộc đang trả lời dở
+### Spotting a conversation that is still answering
 
-Cuộc nào còn một lượt đang chạy nền sẽ có biểu tượng **⏳** đứng trước tên (chú thích khi rê chuột: "Đang trả lời") và cả dòng được làm nổi. Bạn cứ đi làm việc khác, câu trả lời vẫn chạy tiếp trên máy chủ và tự lưu vào cuộc đó.
+A conversation with a turn still running in the background shows an **⏳** before its title (tooltip: "Answering") and the whole row is highlighted. Go do something else; the answer keeps running on the server and saves itself into that conversation.
 
-Trong lúc đó bạn vẫn gửi thêm được vào chính cuộc đang chạy (từ 0.206.0): Javis đọc tin đó ở bước kế tiếp mà không dừng việc đang làm, hoặc làm nó ngay sau khi xong. Xem [Gửi thêm việc khi Javis đang làm](02-tro-chuyen-va-giong-noi.md). Muốn một việc chạy hoàn toàn riêng thì bấm **＋ Hội thoại mới**.
+You can still send more into that same conversation while it runs (from 0.206.0): Jarvis 007 reads the message at its next step without stopping, or does it right after. See [Sending more while Jarvis 007 is working](02-tro-chuyen-va-giong-noi.md). For work that should run fully apart, click **＋ New conversation**.
 
-### Tìm kiếm toàn văn
+### Full-text search
 
-1. Mở sidebar Lịch sử.
-2. Bấm vào ô có chữ mờ **Tìm trong mọi hội thoại…** ở phía trên.
-3. Gõ từ khoá. Javis tự tìm sau khi bạn ngừng gõ một chút, không cần bấm Enter.
-4. Trong lúc tìm, danh sách hiện "Đang tìm…".
-5. Kết quả hiện các dòng khớp: tên cuộc trò chuyện, đoạn trích ngắn quanh từ khoá (phần trùng từ khoá được in đậm) và thời điểm của tin nhắn đó.
-6. Bấm vào một kết quả để mở thẳng cuộc trò chuyện chứa đoạn đó.
-7. Xoá hết chữ trong ô tìm kiếm để quay lại danh sách đầy đủ.
+1. Open the History sidebar.
+2. Click the box with the placeholder **Search all conversations…** at the top.
+3. Type a keyword. Jarvis 007 searches shortly after you stop typing, no Enter needed.
+4. While searching, the list reads "Searching…".
+5. Results show matching rows: the conversation title, a short excerpt around the keyword (the match in bold) and the time of that message.
+6. Click a result to open the conversation containing it.
+7. Clear the search box to return to the full list.
 
-Nếu không có dòng nào khớp, sidebar hiện "Không tìm thấy." Tìm kiếm chỉ quét các cuộc thuộc bộ não đang chọn. Muốn tìm ở bộ não khác, đổi bộ não trước rồi tìm lại.
+With no matches, the sidebar shows "Nothing found." Search only covers the selected brain. To search another brain, switch brains first.
 
-### Mở lại và trò chuyện tiếp một cuộc cũ
+### Reopening and continuing an old conversation
 
-1. Trong danh sách (hoặc kết quả tìm kiếm), bấm vào cuộc bạn muốn mở.
-2. Khung chat bên phải nạp lại NGAY toàn bộ lượt hỏi và đáp cũ, dòng đó được tô sáng trong danh sách.
-3. Gõ câu mới như bình thường. Javis nối tiếp đúng mạch cuộc cũ, không bắt đầu lại từ đầu.
+1. In the list (or in the search results), click the conversation you want.
+2. The chat on the right IMMEDIATELY reloads every past question and answer, and that row is highlighted in the list.
+3. Type a new message as usual. Jarvis 007 continues the same thread rather than starting over.
 
-Cách Javis giữ mạch khác nhau theo engine, xem mục "Javis nhớ mạch cũ bằng cách nào" bên dưới và [Models & engine](10-models-va-engine.md).
+How Jarvis 007 keeps the thread differs per engine, see "How Jarvis 007 remembers the thread" below and [Models & engines](10-models-va-engine.md).
 
-### Bắt đầu một cuộc trò chuyện mới
+### Starting a new conversation
 
-1. Mở sidebar Lịch sử.
-2. Bấm nút **＋ Hội thoại mới** trên cùng.
-3. Khung chat được dọn trống, bạn bắt đầu cuộc mới. Cuộc mới chỉ được lưu vào lịch sử sau khi bạn gửi câu đầu tiên.
+1. Open the History sidebar.
+2. Click **＋ New conversation** at the top.
+3. The chat clears and you start fresh. The new conversation is only saved into history after you send the first message.
 
-### Đổi tên một cuộc trò chuyện
+### Renaming a conversation
 
-1. Trong danh sách, đưa chuột vào dòng cuộc cần đổi tên. Hai biểu tượng nhỏ hiện ra bên phải.
-2. Bấm biểu tượng cây bút **✎** (chú thích khi rê chuột: "Đổi tên").
-3. Một ô nhập hiện ra với dòng "Tên mới cho hội thoại:". Gõ tên mới rồi bấm OK.
-4. Danh sách tự cập nhật tên vừa đặt.
+1. In the list, hover the row you want to rename. Two small icons appear on the right.
+2. Click the pencil **✎** (tooltip: "Rename").
+3. A prompt appears reading "New name for this conversation:". Type it and click OK.
+4. The list updates with the new name.
 
-Tên tối đa khoảng 120 ký tự, phần thừa sẽ bị cắt bớt. Nếu bạn bấm Huỷ, tên giữ nguyên.
+Titles are capped at about 120 characters; anything longer is trimmed. Clicking Cancel keeps the old name.
 
-### Xoá một cuộc trò chuyện
+### Deleting a conversation
 
-1. Trong danh sách, đưa chuột vào dòng cuộc cần xoá.
-2. Bấm biểu tượng thùng rác **🗑** (chú thích khi rê chuột: "Xoá").
-3. Một hộp xác nhận hiện ra kèm tên cuộc: `Xoá hội thoại "<tên cuộc>"?`. Bấm OK để xoá, bấm Huỷ để giữ lại.
-4. Cuộc và toàn bộ tin nhắn của nó bị xoá khỏi cơ sở dữ liệu, danh sách tự cập nhật.
-5. Nếu cuộc vừa xoá đúng là cuộc bạn đang mở, khung chat tự chuyển sang một hội thoại mới trống.
+1. In the list, hover the row you want to delete.
+2. Click the bin **🗑** (tooltip: "Delete").
+3. A confirmation box appears with the name: `Delete conversation "<name>"?`. Click OK to delete, Cancel to keep it.
+4. The conversation and all of its messages are removed from the database, and the list updates.
+5. If you deleted the conversation you had open, the chat switches to a new empty one.
 
-Lưu ý: xoá là vĩnh viễn, không có thùng rác khôi phục. Cân nhắc kỹ trước khi xoá cuộc quan trọng. (Khác với xoá cả một bộ não - cái đó có thùng rác giữ 30 ngày, xem [Quản lý tệp tin](05-quan-ly-tep-tin.md).)
+Note: deletion is permanent, with no recycle bin. Think twice before deleting something important. (Deleting a whole brain is different: that has a bin that keeps it for 30 days, see [File manager](05-quan-ly-tep-tin.md).)
 
-## Javis nhớ mạch cũ bằng cách nào
+## How Jarvis 007 remembers the thread
 
-Ba engine giữ ngữ cảnh theo ba cách khác nhau, nên hành vi khi mở lại cuộc cũ cũng khác nhau.
+Three engines keep context in three different ways, so reopening an old conversation behaves differently.
 
-**Engine Claude (Agent SDK).** Mỗi cuộc trò chuyện trên dashboard lưu kèm mã phiên gốc của Claude. Mở lại cuộc cũ là Javis nối đúng phiên đó, nên cả ngữ cảnh lẫn công cụ đã dùng đều còn nguyên.
+**Claude engine (Agent SDK).** Every dashboard conversation stores Claude's native session id. Reopening an old conversation reconnects to that exact session, so both the context and the tools already used are intact.
 
-**Engine Codex (gói ChatGPT).** Mỗi cuộc lưu kèm mã thread native riêng của Codex để lượt sau nối tiếp đúng thread. Nếu thread đó mất (máy được nâng cấp, rollout cũ bị dọn), Javis không bỏ mạch: nó dựng lại ngữ cảnh từ chính lịch sử đã lưu trong `conversations.db` rồi mở thread mới, và báo trong khung chat một dòng "Phiên Codex cũ không còn trên máy - Javis đang khôi phục ngữ cảnh từ lịch sử đã lưu." Phần lịch sử đưa vào có ngân sách khoảng 60.000 ký tự, ưu tiên giữ đoạn gần nhất.
+**Codex engine (ChatGPT plan).** Every conversation stores Codex's own native thread id so the next turn continues that thread. If the thread is gone (the machine was upgraded, an old rollout was cleaned), Jarvis 007 does not drop the thread: it rebuilds the context from the history already stored in `conversations.db`, opens a new thread, and prints a line in the chat saying the old Codex session no longer exists on the machine and that Jarvis 007 is restoring context from saved history The history it feeds back has a budget of about 60,000 characters, preferring the most recent part.
 
-Nếu bạn đổi sang engine khác rồi hỏi tiếp trong cùng một cuộc, liên kết thread Codex cũ được bỏ (vì thread đó không chứa lượt vừa rồi). Quay lại Codex, Javis dựng thread mới từ lịch sử đã lưu.
+If you switch to another engine and keep asking in the same conversation, the old Codex thread link is dropped (that thread does not contain the latest turns). Coming back to Codex, Jarvis 007 builds a new thread from the saved history.
 
-**Engine gọi qua API (OpenRouter, OpenAI, Anthropic API, Google Gemini).** Mỗi lượt Javis dựng lại lịch sử từ cơ sở dữ liệu rồi gửi kèm. Cuộc dài thì phần cũ **được nén chứ không bị cắt câm**: Javis tự tóm tắt gộp phần đầu hội thoại, lưu bản tóm tắt lại, rồi ở các lượt sau chèn nó vào đầu payload dưới dạng ghi chú "[Tóm tắt phần đầu hội thoại - đã nén để tiết kiệm context...]". Model vẫn nhớ chủ đề, quyết định đã chốt, con số và việc đang dang dở, trong khi payload không phình vô hạn.
+**API engines (OpenRouter, OpenAI, Anthropic API, Google Gemini).** Every turn, Jarvis 007 rebuilds the history from the database and sends it along. In a long conversation the older part is **compressed rather than silently truncated**: Jarvis 007 summarises the beginning of the conversation, stores that summary, then prepends it to later payloads as a note reading "[Summary of the earlier conversation, compressed to save context...]". The model still remembers the topic, settled decisions, figures and unfinished work, while the payload does not grow without bound.
 
-Việc nén thường chạy nền sau mỗi lượt nên bạn không thấy chậm. Chỉ khi phần chưa nén dồn quá dài (hay gặp ở lượt API đầu tiên ngay sau một mạch chat bằng engine Claude) Javis mới nén ngay trong lượt, chậm thêm một nhịp. Nếu nhà cung cấp lỗi khiến bước tóm tắt hỏng, Javis mới rơi về cách cũ là cắt bớt phần rất cũ.
+Compression usually runs in the background after a turn, so you do not feel a delay. Only when the uncompressed part has piled up too far (common on the first API turn right after a stretch of chatting on the Claude engine) does Jarvis 007 compress inside the turn, adding one beat of delay. If the provider fails and the summarising step breaks, only then does Jarvis 007 fall back to the old behaviour of trimming the very oldest part.
 
-## Đổi bộ não giữa chừng
+## Switching brains mid-flight
 
-Đổi bộ não ở ô chọn trên thanh trên cùng không chỉ đổi danh sách lịch sử, mà đổi cả khung chat:
+Switching brains in the top bar picker changes more than the history list; it changes the chat frame too:
 
-- Nội dung của bộ não cũ bị dọn khỏi khung chat ngay lập tức, để bạn không nhầm là đang nói chuyện trong bộ não mới.
-- Bộ não nào bạn đã xem trong lần tải trang này thì Javis mở lại đúng cuộc bạn đang dở ở đó.
-- Bộ não bạn chưa mở lần nào trong phiên trang này thì khung chat để trắng, coi như bắt đầu mới.
-- Việc ghi nhớ này chỉ sống trong một lần tải trang. Tải lại trang (F5) là quay về luật chung: mỗi lần mở trang là một hội thoại mới. Cuộc cũ vẫn nằm nguyên trong danh sách lịch sử, bấm vào là mở lại được.
+- The old brain's content is cleared from the chat immediately, so you never mistake it for a conversation in the new brain.
+- For any brain you already visited during this page load, Jarvis 007 reopens exactly the conversation you left there.
+- For a brain you have not opened during this page load, the chat starts blank, as a fresh start.
+- This memory only lives for one page load. Reloading (F5) returns to the general rule: every page load starts a new conversation. Old conversations stay in the history list, one click away.
 
-## Bảng thao tác nhanh
+## Quick action table
 
-| Thao tác | Nút / phím | Vị trí |
+| Action | Button / key | Where |
 |---|---|---|
-| Mở trang Trò chuyện (có sidebar lịch sử) | Mục `Trò chuyện` | Rail điều hướng, nhóm Trợ lý |
-| Mở trang Trò chuyện từ màn Javis | `⛶` hoặc `🕘 Lịch sử` | Khung HỘI THOẠI / hàng nút góc trên phải |
-| Ẩn/hiện sidebar | `🕘` | Thanh tiêu đề "Trò chuyện với Javis" |
-| Về lại màn Javis | `‹ Thu nhỏ` | Thanh tiêu đề |
-| Tìm toàn văn | Ô "Tìm trong mọi hội thoại…" | Đầu sidebar |
-| Cuộc mới | `＋ Hội thoại mới` | Đầu sidebar |
-| Mở lại cuộc | Bấm vào dòng | Danh sách (cuộc đang mở được tô sáng) |
-| Nạp thêm cuộc cũ | `Xem thêm 20` | Cuối danh sách |
-| Đổi tên | `✎` | Hiện khi rê chuột vào dòng |
-| Xoá | `🗑` | Hiện khi rê chuột vào dòng |
-| Cuộc đang trả lời dở | `⏳` trước tên | Dấu hiệu, không bấm được |
+| Open the Chat page (with the history sidebar) | `Chat` item | Navigation rail, Assistant group |
+| Open the Chat page from the Jarvis 007 screen | `⛶` or `🕘 History` | CONVERSATION panel / top right button row |
+| Show or hide the sidebar | `🕘` | The "Chat with Jarvis 007" title bar |
+| Back to the Jarvis 007 screen | `‹ Shrink` | Title bar |
+| Full-text search | The "Search all conversations…" box | Top of the sidebar |
+| New conversation | `＋ New conversation` | Top of the sidebar |
+| Reopen a conversation | Click the row | The list (the open one is highlighted) |
+| Load older conversations | `Show 20 more` | Bottom of the list |
+| Rename | `✎` | Appears on hover |
+| Delete | `🗑` | Appears on hover |
+| Conversation still answering | `⏳` before the title | An indicator, not a button |
 
-## Mẹo
+## Tips
 
-- Đặt tên rõ ràng cho các cuộc quan trọng ngay sau khi làm xong, để sau này tìm nhanh mà không phải đọc lại từng cuộc.
-- Muốn giữ mạch cho một chủ đề dài, hãy mở lại đúng cuộc cũ thay vì bấm **＋ Hội thoại mới**. Như vậy Javis vẫn nhớ ngữ cảnh trước đó.
-- Khi làm một việc mới hoàn toàn không liên quan, bấm **＋ Hội thoại mới** để Javis không lẫn ngữ cảnh cũ vào câu trả lời.
-- Tìm kiếm quét cả nội dung tin nhắn, nên bạn có thể tìm theo một con số, một tên khách hàng hay một cụm từ đã trao đổi, không chỉ theo tên cuộc.
-- Danh sách và tìm kiếm luôn theo bộ não đang chọn. Nếu không thấy cuộc cần tìm, kiểm tra xem bạn có đang ở đúng bộ não hay không.
-- Cuộc rất dài vẫn dùng được, nhưng nếu bạn chuyển sang một chủ đề khác hẳn thì mở cuộc mới vẫn cho câu trả lời sắc hơn: phần cũ khi bị nén chỉ còn ở dạng tóm tắt, không còn nguyên chữ.
+- Give important conversations a clear name as soon as you finish, so later you find them without rereading everything.
+- To keep one long topic coherent, reopen the same conversation instead of clicking **＋ New conversation**. That way Jarvis 007 still remembers the earlier context.
+- When you start something entirely unrelated, click **＋ New conversation** so old context does not bleed into the answer.
+- Search covers message contents, so you can search by a number, a customer name or a phrase you discussed, not only by title.
+- The list and the search always follow the selected brain. If a conversation seems missing, check which brain you are in.
+- Very long conversations still work, but if you move to a completely different topic a new conversation gives sharper answers: the compressed part only survives as a summary, not verbatim.
 
-## Đồng bộ khi đổi máy
+## Syncing when you change machines
 
-Lịch sử hội thoại nằm trong tệp `conversations.db` trên chính máy chủ chạy Javis. Tệp này không tự đồng bộ lên đám mây và không tự chuyển sang máy khác.
+The conversation history lives in `conversations.db` on the machine running Jarvis 007. That file does not sync to the cloud and does not move to another machine by itself.
 
-- Nếu bạn chuyển Javis sang máy hoặc VPS mới mà muốn giữ lịch sử, hãy sao chép tệp `conversations.db` (trong thư mục `server/`) sang cùng vị trí ở máy mới, làm khi máy chủ đang tắt để tránh tệp đang mở.
-- Nếu bạn không sao chép tệp, máy mới sẽ bắt đầu với lịch sử trống. Đây là hành vi bình thường, không phải lỗi.
-- Không nên mở cùng một tệp `conversations.db` từ hai máy chủ chạy song song, vì có thể gây tranh chấp ghi dữ liệu.
-- Khi sao lưu định kỳ, chỉ cần sao lưu tệp `conversations.db` là đủ để giữ toàn bộ lịch sử trò chuyện.
+- To keep the history when moving Jarvis 007 to a new machine or VPS, copy `conversations.db` (in the `server/` folder) to the same location on the new machine, doing it while the server is stopped so the file is not open.
+- Without that copy, the new machine starts with empty history. That is normal, not a fault.
+- Do not open the same `conversations.db` from two servers running in parallel; that can cause write conflicts.
+- For routine backups, backing up `conversations.db` alone preserves the whole chat history.
 
-## Sự cố thường gặp
+## Common problems
 
-**Bảng lịch sử trống dù trước đó có nhiều cuộc.**
-Nhiều khả năng bạn đang ở một bộ não khác. Danh sách chỉ hiện cuộc thuộc bộ não đang chọn. Đổi lại đúng bộ não rồi mở bảng lần nữa.
+**The history panel is empty although there were plenty of conversations.**
+Most likely you are in a different brain. The list only shows the selected brain's conversations. Switch back and open the panel again.
 
-**Bấm mở bảng nhưng hiện "Lỗi tải danh sách."**
-Máy chủ Javis có thể chưa chạy hoặc vừa khởi động lại. Kiểm tra máy chủ đang chạy ở cổng mặc định (7777) rồi thử lại. Xem thêm [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+**Opening the panel shows "Failed to load the list."**
+The Jarvis 007 server may not be running or just restarted. Check that it is up on the default port (7777) and try again. See [Troubleshooting & FAQ](17-khac-phuc-su-co.md).
 
-**Không thấy cuộc trò chuyện từ tuần trước ở cuối danh sách.**
-Danh sách chỉ nạp 20 cuộc một lần. Cuộn xuống cuối và bấm **Xem thêm 20** vài lần, hoặc nhanh hơn là gõ một từ khoá vào ô tìm kiếm.
+**A conversation from last week is not at the bottom of the list.**
+The list loads 20 at a time. Scroll down and click **Show 20 more** a few times, or faster, type a keyword into the search box.
 
-**Tìm kiếm báo "Không tìm thấy" dù chắc chắn đã nói câu đó.**
-Kiểm tra bạn có đang ở đúng bộ não chứa cuộc đó không. Nếu vẫn không ra, thử từ khoá ngắn hơn hoặc một từ đơn giản hơn thay vì cả câu dài.
+**Search says "Nothing found" although you are sure you said it.**
+Check that you are in the brain that holds that conversation. If it still does not appear, try a shorter keyword or a simpler word instead of a full sentence.
 
-**Gửi câu mới thì báo "Phiên này đang trả lời - đợi lượt hiện tại xong đã."**
-Từ 0.206.0 tin gõ trong lúc đang chạy đi vào việc đang làm (xem [Gửi thêm việc khi Javis đang làm](02-tro-chuyen-va-giong-noi.md)), nên câu này chỉ còn gặp ở các đường khác như nút Chạy lại. Đợi lượt đó xong, hoặc bấm **＋ Hội thoại mới** để hỏi việc khác song song.
+**Sending a new message reports "This session is answering, wait for the current turn to finish."**
+From 0.206.0, a message typed while a turn is running goes into the work in progress (see [Sending more while Jarvis 007 is working](02-tro-chuyen-va-giong-noi.md)), so this message now only shows up on other paths such as the Re-run button. Wait for that turn to finish, or click **＋ New conversation** to ask something else in parallel.
 
-**Mở lại cuộc cũ nhưng Javis không nhớ ngữ cảnh trước.**
-Với engine Claude, khả năng nhớ đầy đủ phụ thuộc vào phiên gốc còn được lưu hay không. Với engine Codex, thread native có thể đã bị dọn khỏi máy - Javis sẽ tự khôi phục từ lịch sử đã lưu và báo một dòng trong khung chat. Với engine API, phần rất cũ có thể đã ở dạng tóm tắt nén thay vì nguyên văn, nên chi tiết vụn có thể mờ đi; khi đó nhắc lại ngắn gọn thông tin quan trọng trong câu hỏi mới là đủ.
+**Reopening an old conversation but Jarvis 007 does not remember the earlier context.**
+On the Claude engine, full recall depends on whether the native session is still stored. On the Codex engine, the native thread may have been cleaned from the machine; Jarvis 007 restores from saved history and prints a line in the chat. On API engines, the very old part may exist only as a compressed summary rather than verbatim, so small details can blur; restating the key facts briefly in your new question is enough.
 
-**Đổi bộ não xong thì khung chat trắng trơn.**
-Đúng như thiết kế: bộ não bạn chưa mở lần nào trong lần tải trang này thì khung chat bắt đầu trống. Cuộc cũ của bộ não đó vẫn nằm trong sidebar lịch sử, bấm vào là mở lại.
+**The chat is blank after switching brains.**
+That is by design: a brain you have not opened during this page load starts blank. That brain's old conversations are still in the history sidebar, one click away.
 
-**Lỡ xoá nhầm một cuộc.**
-Xoá là vĩnh viễn, không khôi phục được từ giao diện. Cách phòng ngừa duy nhất là sao lưu tệp `conversations.db` định kỳ (xem mục "Đồng bộ khi đổi máy").
+**You deleted a conversation by mistake.**
+Deletion is permanent and cannot be undone from the interface. The only prevention is backing up `conversations.db` regularly (see "Syncing when you change machines").
 
-**Đổi tên xong nhưng tên bị cắt ngắn.**
-Tên cuộc trò chuyện giới hạn khoảng 120 ký tự. Nếu bạn nhập dài hơn, phần thừa bị bỏ. Hãy đặt tên ngắn gọn, súc tích.
+**The renamed title came out truncated.**
+Conversation titles are capped at about 120 characters. Anything beyond is dropped, so keep names short.
 
-## Liên quan
+## Related
 
-- [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md) - cách gửi câu hỏi, đính kèm file, bật giọng nói.
-- [Models & engine](10-models-va-engine.md) - chọn engine Claude, Codex hay một provider API.
-- [Kênh Telegram](11-telegram.md) - cuộc trò chuyện sinh ra từ Telegram và nhãn TG.
-- [Quản lý tệp tin](05-quan-ly-tep-tin.md) - chọn và quản lý bộ não.
-- [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md)
+- [Chat & voice](02-tro-chuyen-va-giong-noi.md) - sending questions, attaching files, turning on voice.
+- [Models & engines](10-models-va-engine.md) - choosing the Claude engine, Codex or an API provider.
+- [Telegram channel](11-telegram.md) - conversations created from Telegram and the TG label.
+- [File manager](05-quan-ly-tep-tin.md) - picking and managing brains.
+- [Troubleshooting & FAQ](17-khac-phuc-su-co.md)

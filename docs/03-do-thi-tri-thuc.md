@@ -1,161 +1,161 @@
-# Đồ thị tri thức
+# Knowledge graph
 
 ***Tiếng Việt** · [English](en/03-knowledge-graph.md)*
 
-Đồ thị tri thức biến các ghi chú trong brain thành một mạng lưới trực quan. Mỗi đốm sáng là một file Markdown; mỗi sợi nối là một wikilink `[[...]]` giữa hai ghi chú.
+The knowledge graph turns the notes in a brain into a visual network. Every glowing dot is a Markdown file; every thread is a `[[...]]` wikilink between two notes.
 
-Đồ thị dùng canvas 2D, không dùng WebGL và không cần tải thư viện từ Internet. Nó hiện cả các ghi chú chưa có liên kết, hỗ trợ timelapse và có thể tắt hoàn toàn trong Cài đặt.
+The graph uses a 2D canvas, no WebGL, and loads no library from the internet. It shows notes that have no links yet, supports a timelapse, and can be switched off entirely in Settings.
 
-Xem thêm nơi dữ liệu này được tạo ra: [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
+To see where this data comes from, read [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
 
-## Đồ thị thể hiện gì
+## What the graph shows
 
-- **Mỗi node = một ghi chú** trong brain đang chọn. Node có nhiều kết nối sẽ lớn hơn.
-- **Mỗi sợi nối = một wikilink `[[...]]`** giữa hai ghi chú.
-- **Màu node = thư mục cha trực tiếp** của file.
-- **Nhãn danh mục** quanh đồ thị cho biết các thư mục lớn nhất, số note và tỷ lệ của chúng trong vault.
-- **Dải AGENTS · SKILLS · WORKFLOWS** ở đáy cho biết số năng lực đang có. Bấm một mục để mở đúng trang quản lý.
+- **Each node is a note** in the selected brain. Nodes with more connections are larger.
+- **Each thread is a `[[...]]` wikilink** between two notes.
+- **Node colour is the direct parent folder** of the file.
+- **Category labels** around the graph name the largest folders, their note counts and their share of the vault.
+- **The AGENTS · SKILLS · WORKFLOWS strip** at the bottom shows how many capabilities exist. Click one to open its management page.
 
-## Mở đồ thị
+## Opening the graph
 
-1. Mở dashboard, mặc định tại `http://<địa-chỉ-máy>:7777`.
-2. Trên thanh điều hướng bên trái, mở nhóm **Trợ lý** rồi chọn **Javis**.
-3. Đồ thị nằm ở vùng giữa màn hình.
+1. Open the dashboard, by default at `http://<machine-address>:7777`.
+2. In the left navigation rail, open the **Assistant** group and select **Jarvis 007**.
+3. The graph occupies the middle of the screen.
 
-Khi bạn chuyển sang trang khác hoặc mở trình soạn ghi chú, đồ thị tự tạm dừng. Quay lại trang **Javis** hoặc đóng trình soạn thì nó chạy tiếp.
+When you move to another page or open the note editor, the graph pauses itself. Returning to the **Jarvis 007** page or closing the editor resumes it.
 
-Trên màn hình hẹp dưới 860px, Javis ưu tiên giao diện nhẹ và mở thẳng trang **Trò chuyện**.
+On screens narrower than 860px, Jarvis 007 prefers the light interface and opens the **Chat** page directly.
 
-## Bật hoặc tắt đồ thị
+## Turning the graph on or off
 
-1. Mở **Hệ thống → Cài đặt**.
-2. Mở nhóm **Giao diện & Brain**.
-3. Tìm thẻ **Đồ thị não**.
-4. Bấm **Tắt đồ thị** hoặc **Bật đồ thị**.
+1. Open **System → Settings**.
+2. Open the **Interface & Brain** group.
+3. Find the **Brain graph** card.
+4. Click **Disable graph** or **Enable graph**.
 
-Khi tắt, Javis không dựng đồ thị và mở thẳng trang **Trò chuyện**. Lựa chọn được lưu trong cài đặt server.
+While disabled, Jarvis 007 does not build the graph and opens the **Chat** page directly. The choice is stored in the server settings.
 
-## Chọn brain
+## Choosing a brain
 
-Ô chọn brain nằm trên thanh trên cùng, cạnh chữ JAVIS OS. Khi đổi brain, Javis đồng thời cập nhật đồ thị, bộ nhớ, số agent/skill/workflow, cây tệp tin và khung hội thoại.
+The brain picker sits in the top bar next to the JARVIS 007 wordmark. Switching brains updates the graph, the memory, the agent/skill/workflow counts, the file tree and the conversation panel together.
 
-Ba nút nhỏ cạnh ô chọn:
+Three small buttons sit next to the picker:
 
-| Nút | Chức năng |
+| Button | What it does |
 |---|---|
-| ➕ | Tạo brain mới trong thư mục `brains`. |
-| 🗑 | Xoá brain đang chọn sau khi xác nhận đúng tên. Không xoá được **Brain Default**. |
-| 📁 | Chọn một thư mục ghi chú bất kỳ trên máy làm nguồn. |
+| ➕ | Create a new brain in the `brains` folder. |
+| 🗑 | Delete the selected brain after you confirm its name. **Brain Default** cannot be deleted. |
+| 📁 | Pick any notes folder on the machine as a source. |
 
-Thư mục ngoài được lưu vào danh sách để chọn lại. Khi bấm 🗑 với một nguồn ngoài, Javis chỉ gỡ nó khỏi menu chứ không xoá dữ liệu trên ổ đĩa.
+External folders are remembered in the list so you can pick them again. Clicking 🗑 on an external source only removes it from the menu; it does not delete anything on disk.
 
-## Di chuyển và đọc đồ thị
+## Moving around and reading the graph
 
-- **Kéo nền** để dời mạng lưới.
-- **Lăn con lăn** để phóng to hoặc thu nhỏ.
-- **Kéo một node** để đổi vị trí tạm thời; khi thả, node trở lại trạng thái cân bằng.
-- **Rê chuột lên node** để hiện tên ghi chú, làm sáng node đó cùng các hàng xóm và làm mờ phần còn lại.
-- **Bấm node** để mở ghi chú trong trình soạn.
-- **Bấm nhãn danh mục** để rọi sáng riêng cụm của thư mục đó. Bấm lại nhãn hoặc bấm nền để bỏ lọc.
+- **Drag the background** to move the network.
+- **Scroll the wheel** to zoom in or out.
+- **Drag a node** to move it temporarily; on release it settles back into balance.
+- **Hover a node** to show the note name, highlight that node and its neighbours, and dim the rest.
+- **Click a node** to open the note in the editor.
+- **Click a category label** to spotlight that folder's cluster. Click the label again or click the background to clear the filter.
 
-Sau khi các lực vật lý ổn định, Javis tự canh cho toàn bộ mạng vừa khung.
+Once the physics settle, Jarvis 007 fits the whole network to the frame automatically.
 
-## Mở và sửa ghi chú từ node
+## Opening and editing a note from a node
 
-1. Bấm một node.
-2. Trình soạn ghi chú mở ngay trên vùng đồ thị.
-3. Đọc, sửa hoặc tải file như bình thường.
-4. Bấm ✕ hoặc nhấn Esc để đóng và chạy lại đồ thị.
+1. Click a node.
+2. The note editor opens over the graph area.
+3. Read, edit or download the file as usual.
+4. Click ✕ or press Esc to close and restart the graph.
 
-Với file `.md`, trình soạn có hai chế độ **Sửa** và **Nguồn**. Thanh công cụ gồm:
+For `.md` files the editor has two modes, **Edit** and **Source**. The toolbar has:
 
-| Nút | Việc nó làm |
+| Button | What it does |
 |---|---|
-| 💾 Lưu | Ghi nội dung xuống file; hỗ trợ `Ctrl+S`. |
-| ✎ | Đổi tên file. |
-| 🗑 | Xoá ghi chú sau khi xác nhận. |
-| ↗ | Mở file thô ở tab mới. |
-| ⤓ Tải | Tải file về máy. |
-| ⛶ | Phóng to hoặc thu nhỏ trình soạn. |
-| ✕ | Đóng trình soạn. |
+| 💾 Save | Write the content to the file; `Ctrl+S` works too. |
+| ✎ | Rename the file. |
+| 🗑 | Delete the note after confirmation. |
+| ↗ | Open the raw file in a new tab. |
+| ⤓ Download | Download the file. |
+| ⛶ | Enlarge or shrink the editor. |
+| ✕ | Close the editor. |
 
-Bấm node chỉ mở file, không tự gửi câu hỏi vào chat. Muốn Javis tóm tắt hay phân tích, hãy yêu cầu trong khung hội thoại.
+Clicking a node only opens the file; it does not send a question into the chat. To have Jarvis 007 summarise or analyse it, ask in the conversation panel.
 
-## Ẩn lớp thông tin phủ
+## Hiding the overlay
 
-Nút hình con mắt ở góc trên bên phải vùng đồ thị dùng để ẩn hoặc hiện:
+The eye button in the top right of the graph area hides or shows:
 
-- nhãn danh mục;
-- dải AGENTS · SKILLS · WORKFLOWS.
+- category labels;
+- the AGENTS · SKILLS · WORKFLOWS strip.
 
-Trạng thái được nhớ trong trình duyệt và đồng bộ giữa các tab.
+The state is remembered in the browser and synced across tabs.
 
-## Timelapse “cuộc đời brain”
+## The "brain lifetime" timelapse
 
-Nút hình đồng hồ dưới nút con mắt chiếu lại quá trình brain lớn lên:
+The clock button under the eye replays how the brain grew:
 
-1. Đồ thị bắt đầu từ trống.
-2. Các note xuất hiện theo thứ tự ngày tạo file, cách nhau khoảng 0,16 giây.
-3. Một sợi nối chỉ xuất hiện khi cả hai đầu đã có mặt.
-4. Bấm nút lần nữa để dừng; đồ thị đầy đủ sẽ được khôi phục.
+1. The graph starts empty.
+2. Notes appear in file creation order, roughly 0.16 seconds apart.
+3. A thread only appears once both of its ends exist.
+4. Click the button again to stop; the full graph is restored.
 
-## Màu node theo thư mục
+## Node colours by folder
 
-Javis dùng bảng màu tương phản và gán lần lượt cho từng thư mục cha trực tiếp. Tiền tố số như `07 - ` được bỏ qua khi so tên, nên `07 - Wiki` và `Wiki` được xem là cùng một danh mục.
+Jarvis 007 uses a high-contrast palette and assigns colours to direct parent folders in turn. Numeric prefixes such as `07 - ` are ignored when comparing names, so `07 - Wiki` and `Wiki` count as the same category.
 
-Màu trên node cũng được dùng cho phần “% Vault” của nhãn danh mục. Khi đổi tông sáng/tối, đồ thị đổi sang bảng màu phù hợp nhưng giữ nguyên nhóm màu của từng thư mục.
+The node colour is also used for the "% of Vault" part of the category label. Switching between light and dark themes swaps to a matching palette while keeping each folder's colour group.
 
-## Dòng thống kê
+## The statistics line
 
-Trên thanh trên cùng có dòng dạng:
+The top bar carries a line like:
 
 ```text
-42 note · 87 kết nối
+42 notes · 87 connections
 ```
 
-- **note**: số ghi chú đang hiển thị, gồm cả note chưa có wikilink.
-- **kết nối**: tổng số wikilink hợp lệ giữa các ghi chú.
+- **notes**: how many notes are displayed, including notes with no wikilinks yet.
+- **connections**: the total number of valid wikilinks between notes.
 
-Các trạng thái khác là **Đang tải...**, **Lỗi: ...** hoặc cảnh báo không nạp được thư viện đồ thị.
+Other states are **Loading...**, **Error: ...**, or a warning that the graph library could not load.
 
-## Cập nhật theo thời gian thực
+## Real-time updates
 
-Đồ thị theo dõi brain và tự cập nhật khi có ghi chú mới hoặc liên kết mới:
+The graph watches the brain and updates itself when a note or a link appears:
 
-1. Node mới nảy lên rồi co về kích thước bình thường.
-2. Dòng thống kê cập nhật và nháy nhẹ.
+1. A new node pops in and shrinks to its normal size.
+2. The statistics line updates with a soft flash.
 
-Nếu kết nối theo dõi bị ngắt, Javis tự nối lại. Một lần quét định kỳ cũng giúp bắt các thay đổi bị bỏ lỡ.
+If the watch connection drops, Jarvis 007 reconnects. A periodic scan also catches anything the watch missed.
 
-## Phản ứng theo giọng nói và trạng thái
+## Reacting to voice and status
 
-- Khi bạn nói hoặc Javis đọc câu trả lời, các node phồng nhẹ theo mức âm lượng.
-- Khi Javis chuyển sang **ĐANG SUY NGHĨ**, mạng đổi nhịp.
-- Khi nghỉ, các node thở nhẹ với pha lệch nhau.
+- While you speak or Jarvis 007 reads an answer, nodes swell slightly with the volume.
+- When Jarvis 007 switches to **THINKING**, the network changes rhythm.
+- At rest, nodes breathe gently with offset phases.
 
-## Đồ thị được dựng ra sao
+## How the graph is built
 
-1. Javis quét tối đa 2.000 file `.md` trong nguồn đang chọn.
-2. Mỗi file trở thành một node; tên node là tên file bỏ đuôi.
-3. Javis tìm wikilink `[[...]]`; mỗi liên kết tới một file khác trở thành một cạnh.
-4. Dạng `[[thư-mục/Tên|bí danh]]` được hỗ trợ; Javis lấy phần tên file để nối.
-5. Javis đếm note theo thư mục cha và chọn tối đa 8 thư mục lớn nhất làm nhãn.
+1. Jarvis 007 scans up to 2,000 `.md` files in the selected source.
+2. Each file becomes a node; the node name is the filename without its extension.
+3. Jarvis 007 finds `[[...]]` wikilinks; each link to another file becomes an edge.
+4. The `[[folder/Name|alias]]` form is supported; Jarvis 007 takes the filename part to connect.
+5. Jarvis 007 counts notes per parent folder and picks up to the 8 largest folders as labels.
 
-## Sự cố thường gặp
+## Common problems
 
-- **Đồ thị trống hoặc ít node**: kiểm tra brain đang chọn và xem nguồn có file `.md` hay không.
-- **Không nạp được thư viện đồ thị**: tải lại trang. Thư viện nằm trên chính máy chủ Javis, nên lỗi thường do trang tải dở hoặc static file không được phục vụ.
-- **Dòng thống kê báo “Lỗi”**: nguồn ngoài có thể đã đổi đường dẫn hoặc không còn quyền đọc.
-- **Đồ thị đứng im**: kiểm tra xem bạn có đang ở trang khác, mở trình soạn, dùng màn hình hẹp hoặc đã tắt đồ thị trong Cài đặt không.
-- **Vào Javis nhưng chuyển thẳng sang Trò chuyện**: màn hình đang hẹp hoặc đồ thị đã bị tắt.
-- **Node mới chưa xuất hiện**: chờ kết nối theo dõi tự nối lại, hoặc đổi brain rồi chọn lại để tải mới.
+- **The graph is empty or has few nodes**: check which brain is selected and whether the source contains `.md` files.
+- **The graph library will not load**: reload the page. The library is served from the Jarvis 007 server itself, so the error usually means a partial page load or static files not being served.
+- **The statistics line reads "Error"**: an external source may have moved or lost read permission.
+- **The graph is frozen**: check whether you are on another page, have the editor open, are on a narrow screen, or have disabled the graph in Settings.
+- **Opening Jarvis 007 jumps straight to Chat**: the screen is narrow or the graph is disabled.
+- **A new node has not appeared**: wait for the watch connection to reconnect, or switch brains and back to reload.
 
-## Liên quan
+## Related
 
-- [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md)
-- [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md)
-- [Quản lý tệp tin](05-quan-ly-tep-tin.md)
+- [Chat & voice](02-tro-chuyen-va-giong-noi.md)
+- [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md)
+- [File manager](05-quan-ly-tep-tin.md)
 - [Agents & Workflows](07-agents-va-workflows.md)
 - [Skills](06-skills.md)
-- [Sao lưu brain lên GitHub](18-sao-luu-github.md)
-- [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md)
+- [Backing the brain up to GitHub](18-sao-luu-github.md)
+- [Troubleshooting & FAQ](17-khac-phuc-su-co.md)
