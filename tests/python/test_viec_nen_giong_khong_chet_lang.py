@@ -53,7 +53,7 @@ check("tìm được thân _voice_bg_task", bool(body))
 check("có hạn giờ, không treo im vô hạn",
       "asyncio.wait_for(" in body and "timeout=VOICE_BG_TIMEOUT" in body)
 check("quá hạn thì nói thật bằng lời, không im",
-      "asyncio.TimeoutError" in body and "chưa xong nên em dừng lại" in body)
+      "asyncio.TimeoutError" in body and "without finishing, so I stopped it" in body)
 check("bị HUỶ cũng báo về khung chat rồi mới ném tiếp",
       re.search(r"except asyncio\.CancelledError:[\s\S]{0,300}push_to_chat\([\s\S]{0,200}raise", body) is not None)
 check("lỗi thường vẫn đẩy câu lỗi về chat (0.64.48: câu người đọc, không in tên lớp ngoại lệ)",
@@ -137,7 +137,7 @@ check("hỏng thì đóng bằng block, xong mới complete",
       "tasks_feature.store.block(tid" in body and "tasks_feature.store.complete(tid" in body)
 check("khởi động lại thì dọn thẻ mồ côi, không để kẹt 'đang chạy' vĩnh viễn",
       "_don_the_viec_giong_mo_coi" in src
-      and 'server khởi động lại nên việc nền không còn chạy' in src)
+      and 'the server restarted so the background job is no longer running' in src)
 
 # ---- 7. "Dừng việc nền đi" là LỆNH, không phải một việc mới (0.57.21) ----
 # Chủ dự án 15/09 gặp vòng lặp cười ra nước mắt: bảo "tạm dừng cái việc tìm kiếm ngầm đi nhé"

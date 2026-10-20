@@ -105,20 +105,20 @@ def _noi(body):
 
 
 _m = _noi(_groq("tokens per day (TPD)", 100000, 100000, 3200, "Please try again in 6h12m."))
-check("[ngày] nói rõ là hạn mức theo NGÀY", "NGÀY" in _m)
+check("[ngày] nói rõ là hạn mức theo NGÀY", "DAILY" in _m)
 # Đây là chỗ bản trước chỉ sai đường cho người đang bí.
-check("CANARY: [ngày] nói THẲNG rút gọn không giúp gì", "không giúp gì" in _m)
-check("[ngày] chỉ ra lối ra có thật", "sang ngày" in _m and "Models" in _m)
-check("[ngày] KHÔNG bảo Javis đã tự rút gọn", "đã tự rút gọn" not in _m)
+check("CANARY: [ngày] nói THẲNG rút gọn không giúp gì", "does not help at all" in _m)
+check("[ngày] chỉ ra lối ra có thật", "next day" in _m and "Models" in _m)
+check("[ngày] KHÔNG bảo Javis đã tự rút gọn", "shortened the context itself" not in _m)
 
 _m = _noi(_groq("requests per minute (RPM)", 30, 30, 1))
-check("[lượt/phút] nói đúng đơn vị là số lượt", "số lượt mỗi phút" in _m)
+check("[lượt/phút] nói đúng đơn vị là số lượt", "requests per minute" in _m)
 check("[lượt/phút] bảo chờ chứ không bảo rút gọn",
-      "hỏi lại" in _m and "Rút gọn câu hỏi không giúp" in _m)
+      "ask again" in _m and "Shortening the question does not help" in _m)
 
 _m = _noi("Request too large for model `x` on tokens per minute (TPM): Limit 12000, "
           "Requested 21446, please reduce your message size and try again.")
-check("[lượt quá to] vẫn giữ đường cũ: đã rút gọn rồi báo", "đã tự rút gọn" in _m)
+check("[lượt quá to] vẫn giữ đường cũ: đã rút gọn rồi báo", "shortened the context itself" in _m)
 check("[lượt quá to] nêu ĐÚNG số Groq nói, không phải số tra bảng",
       "12,000" in _m and "21,446" in _m)
 
@@ -127,14 +127,14 @@ check("[lượt quá to] nêu ĐÚNG số Groq nói, không phải số tra bả
 # ============================================================
 _m = _noi("Rate limit reached. Please try again in 12s.")
 check("[không rõ chiều] có nguyên văn lời Groq", "Rate limit reached" in _m)
-check("[không rõ chiều] vẫn nói được việc cần làm (chờ 12 giây)", "12 giây" in _m)
+check("[không rõ chiều] vẫn nói được việc cần làm (chờ 12 giây)", "12 seconds" in _m)
 # Ba dấu vết của câu sai cũ. Còn cái nào là còn đúng lỗi đó.
 for _xau in ("0 token", "request quá lớn"):
     check(f"CANARY: không còn câu bịa '{_xau}'", _xau not in _m.casefold())
 
 _m = main._limit_autoshrink_message("groq", "m", {"limit": 0, "remedy": "unknown",
                                                   "raw": "Some brand new error text"})
-check("[hoàn toàn lạ] thú nhận là chưa biết phải làm gì", "chưa biết" in _m)
+check("[hoàn toàn lạ] thú nhận là chưa biết phải làm gì", "does not know" in _m)
 check("[hoàn toàn lạ] và vẫn đưa nguyên văn ra", "Some brand new error text" in _m)
 check("KHÔNG dùng em dash", "—" not in _m)
 

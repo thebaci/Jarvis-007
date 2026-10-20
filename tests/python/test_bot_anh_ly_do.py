@@ -78,11 +78,11 @@ check("mỗi lượt xoá lý do của lượt trước", 'cfg.pop("_anh_loi", N
 check("bộ não không nhận ảnh: cả hai đường trả lời mượn mắt, ghi cảnh báo khi không ai xem hộ",
       MAIN.count("_anh_khong_gui_duoc(prov))") == 2)
 check("model từ chối ảnh: cả hai đường trả lời ghi LỖI GỐC vào cảnh báo",
-      MAIN.count("không nhận ảnh (lỗi gốc: {goc}).") == 2)
+      MAIN.count("does not accept images (original error: {goc}).") == 2)
 
 import main  # noqa: E402
-check("câu cảnh báo bộ não không nhận ảnh chỉ đường đổi model", "không nhận ảnh" in main._anh_khong_gui_duoc("antigravity-cli")
-      and "Đổi model" in main._anh_khong_gui_duoc("antigravity-cli"))
+check("câu cảnh báo bộ não không nhận ảnh chỉ đường đổi model", "does not accept images" in main._anh_khong_gui_duoc("antigravity-cli")
+      and "Switch the bot's model" in main._anh_khong_gui_duoc("antigravity-cli"))
 
 print()
 if _fails:

@@ -153,7 +153,7 @@ check("báo tối đa 5 và không lặp",
       len(K(" ".join(f"[{i}](k/{i % 3}.md)" for i in range(12)))) == 3)
 _cau = main._cau_link_khong_thay(["bai-viet/khong-co.txt"])
 check("câu báo kể tên file, chỉ chỗ tự kiểm, không dùng em dash",
-      "bai-viet/khong-co.txt" in _cau and "Tệp tin" in _cau and "—" not in _cau)
+      "bai-viet/khong-co.txt" in _cau and "Files page" in _cau and "—" not in _cau)
 
 # ============================================================
 # 4. File "vừa ghi trong lượt": có thật, trong brain, mtime mới
@@ -203,11 +203,11 @@ check("telegram: mất mạch thì mồi lại", "_rf = await _chay_claude(_cli_
 check("LỚP AGENTIC dặn ghi FILE THƯỜNG vào trong vault bằng đường dẫn tuyệt đối",
       "OTHER FILES (articles, reports, drafts, data): write INSIDE the vault root" in MAIN)
 check("LỚP AGENTIC dặn đếm/liệt kê file bằng tool ngay lúc đó (không nhớ lại lượt trước)",
-      "liệt kê lại thư mục bằng tool ngay lúc đó" in MAIN)
+      "list the folder again with a tool right then" in MAIN)
 # Luật này CỐ Ý không nằm trong CLAUDE.md: file đó đã sát trần 33.600 ký tự (test_prompt_budget),
 # còn khối LỚP AGENTIC thì đi cùng mọi engine mỗi lượt và mang đúng đường dẫn gốc brain.
 check("luật ghi file mang ĐÚNG gốc brain (f-string {root}), không phải chữ chung chung",
-      'f"dẫn TUYỆT ĐỐI `{root}/<thư mục>/<tên file>`' in MAIN)
+      'f"ABSOLUTE path `{root}/<folder>/<file name>`' in MAIN)
 check("dashboard: link trỏ vào hư không → đẩy một dòng riêng (cùng cách lời hứa suông)",
       "await push_to_chat(conv_sid, _cau_link_khong_thay(_thieu))" in MAIN)
 check("telegram: nối dòng đó vào cuối tin", '+ "\\n\\n" + _cau_link_khong_thay(_thieu)' in MAIN)

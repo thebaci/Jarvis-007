@@ -170,7 +170,7 @@ finally:
 # ---- 4. the outside senders no longer guess ----
 set_tg("111,222")
 ok, err = run(main._gui_qua_kenh("999", "x"))
-check("Telegram: an id outside the allow-list is refused, not redirected", ok is False and "danh sách" in err, err)
+check("Telegram: an id outside the allow-list is refused, not redirected", ok is False and "allowed list" in err, err)
 ok, err = run(main._gui_qua_kenh("", "x"))
 check("Telegram: no id at all is refused", ok is False, err)
 cfg = main.cfgmod.read_settings()

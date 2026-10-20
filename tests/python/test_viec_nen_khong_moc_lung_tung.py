@@ -138,7 +138,7 @@ check("bản web bỏ câu đầu emoji và câu 'xem ở trang Việc'",
 check("bản đầy đủ (hòm thư) vẫn giữ tiêu đề", "Tổng hợp" in text)
 
 # Luồng Cộng sự: có cổng "chỉ khi chủ bảo"
-check("Cộng sự: việc nền chỉ khi chủ bảo rõ", "Việc nền (`javis_task`) CHỈ khi chủ bảo" in MAIN)
+check("Cộng sự: việc nền chỉ khi chủ bảo rõ", "Background work (`javis_task`) ONLY when the owner says" in MAIN)
 
 print(f"\n{len(fails)} FAIL" if fails else "\nTất cả xanh")
 sys.exit(1 if fails else 0)

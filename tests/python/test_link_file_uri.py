@@ -121,7 +121,7 @@ check("chuẩn hoá tuyệt đối có (ngoặc) ra đủ đuôi .md",
 # 5. Prompt: dặn thẳng model không dùng file://
 # ============================================================
 check("LỚP AGENTIC dặn KHÔNG dùng giao thức file:// và không mã hoá %20",
-      "KHÔNG dùng giao thức `file://` và không mã hoá %20" in MAIN)
+      "do NOT use the `file://` protocol and do not encode %20" in MAIN)
 check("không em dash trong đoạn dặn", "\u2014" not in MAIN[MAIN.find("LỚP AGENTIC"):MAIN.find("LỚP AGENTIC") + 2500])
 
 print("")

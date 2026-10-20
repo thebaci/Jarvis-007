@@ -75,7 +75,7 @@ check("lượt nối tiếp mang lời dặn và độ sâu +1",
 bao.clear(); chay_tiep.clear()
 asyncio.run(chay(viec(do_sau=T.TRAN_NOI_TIEP)))
 check("chạm trần độ sâu thì không tự mở lượt nữa", chay_tiep == [])
-check("chạm trần thì mời nhắn 'làm tiếp'", bool(bao) and "làm tiếp" in bao[-1][1])
+check("chạm trần thì mời nhắn 'làm tiếp'", bool(bao) and "continue" in bao[-1][1])
 
 # 3. Không dặn, không hứa: chỉ báo
 bao.clear(); chay_tiep.clear()
@@ -87,7 +87,7 @@ bao.clear(); chay_tiep.clear()
 asyncio.run(chay(viec(chat_id="12345")))
 check("Telegram: báo về đúng chat_id", bool(bao) and bao[-1][0] == "12345")
 check("Telegram: không tự mở lượt, mời nhắn 'làm tiếp'",
-      chay_tiep == [] and "làm tiếp" in bao[-1][1])
+      chay_tiep == [] and "continue" in bao[-1][1])
 
 # 5. Bị dừng: báo 'đã dừng', không nối tiếp
 bao.clear(); chay_tiep.clear()

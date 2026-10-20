@@ -188,8 +188,8 @@ uA = [m for m in ss.get_messages(SA) if m["role"] == "user"]
 uB = [m for m in ss.get_messages(SB) if m["role"] == "user"]
 first = [s for s in SEEN if not s["has_result"]]
 check("1 phiên trợ lý bật: prompt engine nhận có dòng gợi ý javis_goal và câu BA lối, không còn 'chỉ hai lối'",
-      len(first) >= 2 and all("javis_goal op=create" in s["system"] and "Ba lối đúng" in s["system"]
-                               and "Chỉ hai lối đúng" not in s["system"] for s in first),
+      len(first) >= 2 and all("javis_goal op=create" in s["system"] and "Three paths are correct" in s["system"]
+                               and "Only two paths are correct" not in s["system"] for s in first),
       [s["system"][:80] for s in first])
 searched = [x for x in SEEN if x["has_result"] and "javis_goal" in x["user"] + str(x)]
 check("1 phiên trợ lý bật: engine API (nạp lười) tìm thấy javis_goal qua javis_search_tools",
@@ -205,7 +205,7 @@ check("2 tool trả về đúng mục tiêu cho đúng lượt (không lẫn k�
 SEEN.clear()
 turns((SC, USER))
 check("1 phiên trợ lý TẮT: prompt như trước A1 (chỉ hai lối, không gợi ý), danh sách tool đầu không có javis_goal, không mục tiêu",
-      SEEN and "Chỉ hai lối đúng" in SEEN[0]["system"] and "javis_goal op=create" not in SEEN[0]["system"]
+      SEEN and "Only two paths are correct" in SEEN[0]["system"] and "javis_goal op=create" not in SEEN[0]["system"]
       and "javis_goal" not in SEEN[0]["tools"] and not store.list_open(OWNER, session_id=SC),
       SEEN[0]["system"][:80] if SEEN else None)
 SEEN.clear()

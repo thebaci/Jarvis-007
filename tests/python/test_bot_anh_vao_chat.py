@@ -188,7 +188,7 @@ check("OpenAI-family brain: the last user message carries the photo as image_url
       isinstance(last, list) and last[1]["type"] == "image_url" and out.get("text") == "Dạ còn ạ", last if not isinstance(last, list) else "")
 hist = sess["bot"][0]["content"]
 check("history keeps PLAIN text with a short note, never base64",
-      isinstance(hist, str) and "base64" not in hist and "ảnh" in hist and hist.startswith("áo này"), hist)
+      isinstance(hist, str) and "base64" not in hist and "image" in hist and hist.startswith("áo này"), hist)
 turn("grok-cli", [str(SMALL)])
 last = SENT[0]["messages"][-1]["content"]
 check("a brain with no image channel (Grok Build), no other eyes connected: the honest label, no image", isinstance(last, str)

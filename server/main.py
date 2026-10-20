@@ -846,7 +846,7 @@ def _liet_ke_tai_lieu(brain: str, files: list, links: list):
         da_nap.append(f"\n## {ten} - {duong}{thieu}\n{cat}")
     for l in links[:PROJECT_FILES_LIET_KE]:
         dong.append(f"- [link] {l.get('label') or l.get('url')} - {l.get('url')}"
-                    + (" (ghim)" if l.get("pinned") else ""))
+                    + (" (pinned)" if l.get("pinned") else ""))
     return dong, da_nap
 
 
@@ -2291,11 +2291,11 @@ def _resonance_turn_agent(conv_sid, brain, get_session):
 # hợp P1-1: trước đó chỉ build_system_prompt có dòng này, mà phiên trợ lý lại không dùng hàm đó.
 _RESONANCE_GOAL_HINT = (
     "GOALS (resonance is on): finish in this turn when you can; a one-off background job (done when it finishes): "
-    "javis_task; a reminder at a fixed time: javis_schedule. When the user hands "
+    "javis_task; a fixed-time reminder: javis_schedule. When the user hands "
     "you responsibility for pursuing a result AFTER the chat turn (do it, self-check, fix from feedback, "
     "maintain, wait for an event, keep it open until achieved), call javis_goal op=create; to add detail to "
     "an open goal use op=update. If not loaded: Claude Code uses ToolSearch "
-    "(mcp__javis-plugins__javis_goal), other engines use javis_search_tools. Questions and advice: NO goal. "
+    "(mcp__javis-plugins__javis_goal), other engines: javis_search_tools. Questions and advice: NO goal. "
     "Deliverables: submit the full text via javis_submit_deliverable."
 )
 
@@ -20979,7 +20979,7 @@ def _bot_full_prompt(brain, sys_bot, lang, conv_sid=""):
     dẫn công cụ, kỹ năng, giao việc nằm ở đó. Vai Agent đứng SAU và nói rõ nó thắng phần giới thiệu
     Javis ở trên, để bot vẫn là con bot chủ dựng chứ không tự xưng Javis với khách."""
     base = build_system_prompt(brain, lang=lang, session_id=conv_sid or "")
-    return (base + "\n\n# === FULL-ACCESS BOT: YOUR ROLE IN THIS CHAT ===\n"
+    return (base + "\n\n# === BOT TOÀN QUYỀN: VAI CỦA BẠN TRONG CUỘC CHAT NÀY ===\n"
             "You are answering through a dedicated bot that the owner set to FULL ACCESS: you have the full "
             "tools, connections, skills and permissions as when the owner chats with Jarvis 007 directly. The person "
             "messaging may NOT be the owner. Talk in the right role and follow the rules below; wherever they differ from "

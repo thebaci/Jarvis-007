@@ -349,7 +349,7 @@ check("khai trần 5 giờ thì lấy trần đó làm mốc, không lấy đỉ
 _bc = asyncio.run(main.usage_bao_cao(period="this_month"))
 check("dựng được báo cáo dạng chữ", isinstance(_bc.get("text"), str) and len(_bc["text"]) > 40)
 check("báo cáo là văn nói, không phải bảng markdown", "|---" not in _bc["text"])
-check("báo cáo nói cả tiền mặt", "Tiền mặt thật" in _bc["text"])
+check("báo cáo nói cả tiền mặt", "Real cash" in _bc["text"])
 
 # ============================================================
 # 9. Giao diện phải VẼ những thứ đó ra

@@ -264,8 +264,8 @@ try:
               len(SENT) == 1 and isinstance(SENT[0][-1]["content"], list), [type(m[-1]["content"]) for m in SENT])
         check("tool loop empty: the photo is not blamed, no second model asked", LOOKS == [], LOOKS)
         check("tool loop empty: answered, warning is about tools only",
-              out.get("text") == "Dạ em xem rồi ạ" and "công cụ" in out.get("canh_bao", "")
-              and "ảnh" not in out.get("canh_bao", ""), out)
+              out.get("text") == "Dạ em xem rồi ạ" and "tools" in out.get("canh_bao", "")
+              and "image" not in out.get("canh_bao", ""), out)
 
         # tool loop empty AND the model refuses the photo: borrowed eyes, then tool loop + no-tool again with the description
         main._api_stream = make_api_stream(True)
@@ -277,7 +277,7 @@ try:
         check("tool loop empty + photo refused: the tool loop is retried with the description",
               len(TOOL_CALLS) == 2 and isinstance(TOOL_CALLS[1], str) and "phiếu bảo hành" in TOOL_CALLS[1], TOOL_CALLS)
         check("tool loop empty + photo refused: answered, both warnings shown",
-              out.get("text") == "Dạ em xem rồi ạ" and "công cụ" in out.get("canh_bao", "")
+              out.get("text") == "Dạ em xem rồi ạ" and "tools" in out.get("canh_bao", "")
               and "image input not supported" in out.get("canh_bao", ""), out)
     finally:
         main._bot_stream_co_tool, main.mcp_hub.discover_all = goc_tool, goc_disc

@@ -115,8 +115,8 @@ with redirect_stderr(buf):
 log = buf.getvalue()
 check("chế độ chuẩn: không đi làn nhanh", a is True and b is True)
 check("chế độ chuẩn: chỉ log MỘT lần", log.count("[voice lane]") == 3 and "'standard'" in log)
-check("Làn nhanh nhưng chưa chọn bộ não: log nói đúng", c is True and "chưa chọn bộ não giọng" in log)
-check("không đọc được cài đặt: log nói đúng", d is True and "không đọc được" in log)
+check("Làn nhanh nhưng chưa chọn bộ não: log nói đúng", c is True and "no voice brain is chosen" in log)
+check("không đọc được cài đặt: log nói đúng", d is True and "could not read" in log)
 check("Làn nhanh có bộ não: đi làn nhanh, không log", e is False)
 
 print()

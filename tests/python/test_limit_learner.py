@@ -159,7 +159,7 @@ check("không biết hạn mức: vẫn giữ câu hỏi",
 # Hạn mức siết tới mức prompt lõi cũng phải cắt.
 _tiny = main._shrink_messages(_msgs, 400)
 _sys = next(m for m in _tiny if m["role"] == "system")
-check("hạn mức siết: cắt cả đuôi prompt lõi", "rút gọn" in _sys["content"])
+check("hạn mức siết: cắt cả đuôi prompt lõi", "shortened to fit the limit" in _sys["content"])
 check("hạn mức siết: vẫn giữ câu hỏi hiện tại",
       _tiny[-1]["content"] == "CÂU HỎI HIỆN TẠI")
 
@@ -170,7 +170,7 @@ _msg = main._limit_autoshrink_message("groq", "llama-3.3",
                                       {"limit": 12000, "requested": 15447, "kind": "tpm"})
 check("báo lỗi cuối: nêu hạn mức thật", "12,000" in _msg)
 check("báo lỗi cuối: nêu số đã cần", "15,447" in _msg)
-check("báo lỗi cuối: nói rõ đã tự thử lại", "thử lại" in _msg)
+check("báo lỗi cuối: nói rõ đã tự thử lại", "retried" in _msg)
 
 # ---- 7. MỌI đường gọi provider đều phải học hạn mức ----
 # Lỗi đã xảy ra thật: bản đầu chỉ vá các hàm stream thuần, trong khi đường Groq thật đi qua

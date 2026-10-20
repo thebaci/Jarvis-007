@@ -360,7 +360,7 @@ for prov in _CLI_KHONG_HEP:
     check(f"{prov} ở mức Được ghi: vẫn trả lời, KHÔNG gọi nhầm Anthropic API",
           isinstance(r, dict) and r.get("text") and not any(g.get("co_tool") for g in _goi))
     check(f"{prov} ở mức Được ghi: nói thật với chủ và chỉ đường ra (Toàn quyền)",
-          bool(cb) and "Toàn quyền" in cb)
+          bool(cb) and "Full access" in cb)
 main.engine.anthropic_chat_with_mcp = _ao["anthropic_chat_with_mcp"]
 
 # ============================================================
@@ -396,8 +396,8 @@ check("và lượt đó chạy lại bằng stream KHÔNG tool",
 # chủ tưởng bot đang làm việc thật, còn nó chỉ đang nói chuyện.
 _cb = (r or {}).get("canh_bao") or ""
 check("và kèm cảnh báo cho chủ, không im lặng hạ mức", bool(_cb))
-check("cảnh báo nói rõ mức đang chạy khác mức đã đặt", "Chỉ đọc" in _cb and "Được ghi" in _cb)
-check("cảnh báo nói luôn việc cần làm", "trang Models" in _cb or "hạ mức" in _cb)
+check("cảnh báo nói rõ mức đang chạy khác mức đã đặt", "Read-only" in _cb and "Can write" in _cb)
+check("cảnh báo nói luôn việc cần làm", "Models page" in _cb or "lower the bot" in _cb)
 
 # Cảnh báo phải đi tới THẺ BOT, không chỉ nằm trong biến. Và phải tách khỏi `loi` - `loi` kéo
 # theo bộ đếm bí rồi kéo theo gọi người trực, trong khi đây là lượt trả lời bình thường.

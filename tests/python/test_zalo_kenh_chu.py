@@ -55,7 +55,7 @@ me = {"chat_id": "6ede9afa66b88fe6d6a9", "user_name": "Ted"}
 r1 = main._zalo_precheck("chào", me)
 check("danh sách RỖNG thì người lạ vẫn bị chặn (fail-closed, khác Telegram)", r1 is not None)
 check("và được cấp một mã ghép nối để chủ đối chiếu",
-      "Mã ghép nối" in (r1 or {}).get("reply", ""), r1)
+      "pairing code" in (r1 or {}).get("reply", ""), r1)
 check("người đó vào hàng chờ kèm TÊN THẬT",
       any(v.get("ten") == "Ted" for v in main._ZALO_CHO.values()), main._ZALO_CHO)
 

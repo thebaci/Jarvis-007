@@ -85,7 +85,7 @@ async def _run():
           ok2 is False and "Telegram" in err2)
     ok3, err3 = await main._gui_qua_kenh(main.WEB_CHAT_PREFIX, "rỗng")
     check("kênh: tiền tố web: nhưng thiếu mã phiên -> thất bại, không im lặng",
-          ok3 is False and "phiên chat web" in err3)
+          ok3 is False and "Web chat session" in err3)
 
     # Telegram vẫn là đường riêng: chat_id thường KHÔNG được coi là phiên web.
     ok4, err4 = await main._gui_qua_kenh("123456789", "gửi telegram")
@@ -201,7 +201,7 @@ asyncio.run(_run_day_du())
 # là đã cắt - cắt lặng thì người đọc tưởng mình đã đọc hết.
 _cat = main._cat_cho_tg(DAI)
 check("CANARY: tin Telegram cắt cho vừa trần 4096", len(_cat) < 4096)
-check("và nói ra là đã cắt, kèm đường đi tìm bản đầy đủ", "còn nữa" in _cat)
+check("và nói ra là đã cắt, kèm đường đi tìm bản đầy đủ", "more - see the full text" in _cat)
 check("tin ngắn thì không đụng vào", main._cat_cho_tg("ngắn thôi") == "ngắn thôi")
 
 # ─────────── 4. System prompt ───────────

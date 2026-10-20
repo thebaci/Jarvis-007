@@ -56,7 +56,7 @@ with tempfile.TemporaryDirectory() as td:
           "Self-improvement at use time" in sp and "JAVIS_LESSON" in sp)
     check("luật CẤM agent tự sửa file bộ nhớ", "Do NOT edit the memory file directly" in sp)
     check("luật có phanh chống ghi vụn vặt và chống lặp",
-          "ĐỪNG phát JAVIS_LESSON" in sp and "đừng lặp lại" in sp)
+          "do NOT emit JAVIS_LESSON" in sp and "do not repeat" in sp)
 
     # Có ký ức thì nội dung phải vào prompt như cũ.
     memf = Path(brain, "memory", "agents", "chuyen-vien-test")

@@ -337,7 +337,7 @@ check("Telegram ChatGPT đi qua CodexCLI thay vì chat-thuần",
 check("Telegram ChatGPT được gắn MCP hub đúng brain",
       "_apply_codex_hub(ccli, _brain_root(brain))" in tg_src)
 check("lệnh /or không còn báo sai là không có MCP",
-      "chat thuần, không MCP" not in main_src and "chat + MCP đa-model" in main_src)
+      "chat thuần, không MCP" not in main_src and "chat + multi-model MCP" in main_src)
 
 if fails:
     print(f"\nFAIL - test_tool_reliability: {len(fails)} lỗi: {fails}")

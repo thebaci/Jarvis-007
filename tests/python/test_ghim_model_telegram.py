@@ -86,7 +86,7 @@ r = chay(main._tg_command("model", "ghim", chat="1"))
 mm = cfgmod.read_settings()["model"]
 check("/model ghim khoá Telegram vào model ĐANG DÙNG",
       mm["telegram"] == {"provider": "anthropic-cli", "model": "opus"}, mm["telegram"])
-check("và câu trả lời nói web đổi không còn kéo theo", "không còn kéo" in (r or {}).get("reply", ""))
+check("và câu trả lời nói web đổi không còn kéo theo", "no longer drags" in (r or {}).get("reply", ""))
 # Đang ghim: /model <tên> chỉ đổi Telegram, model chính đứng yên.
 r = chay(main._tg_command("model", "sonnet", chat="1"))
 mm = cfgmod.read_settings()["model"]
@@ -94,13 +94,13 @@ check("CANARY: đang ghim thì /model <tên> đổi ô Telegram, KHÔNG đụng 
       mm["telegram"]["model"] == "sonnet" and mm["main"]["model"] == "opus",
       (mm["telegram"], mm["main"]))
 r = chay(main._tg_command("status", "", chat="1"))
-check("/status nói rõ đang ghim riêng cho Telegram", "ghim riêng" in (r or {}).get("reply", ""))
-check("/model (menu) cũng nói đang ghim", "GHIM" in main._model_header())
+check("/status nói rõ đang ghim riêng cho Telegram", "pinned separately" in (r or {}).get("reply", ""))
+check("/model (menu) cũng nói đang ghim", "PINNED" in main._model_header())
 r = chay(main._tg_command("model", "theo", chat="1"))
 mm = cfgmod.read_settings()["model"]
 check("/model theo bỏ ghim", not mm["telegram"].get("provider"))
 check("và /status nói theo model chính",
-      "theo model chính" in (chay(main._tg_command("status", "", chat="1")) or {}).get("reply", ""))
+      "follows the main model" in (chay(main._tg_command("status", "", chat="1")) or {}).get("reply", ""))
 # Chưa ghim: hành vi CŨ giữ nguyên - /model <tên> đổi model chính (và web đổi theo).
 r = chay(main._tg_command("model", "haiku", chat="1"))
 mm = cfgmod.read_settings()["model"]
