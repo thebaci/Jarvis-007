@@ -1,63 +1,63 @@
-# Task & Dataview trong note
+# Tasks and Dataview in notes
 
 ***Tiếng Việt** · [English](en/19-tasks-and-dataview.md)*
 
-Từ bản 0.9.216, note trong brain của Javis "sống" hơn hẳn theo kiểu Obsidian: ô checkbox `- [ ]` trong note **bấm được và tự lưu**, còn khối ` ```dataview ` **chạy thật** ngay trong dashboard - hiện danh sách việc, danh sách note, bảng tổng hợp lấy từ toàn bộ brain. Hai tính năng này lấy cảm hứng từ hai plugin nổi tiếng của Obsidian là **Tasks** và **Dataview**, được Javis tự cài lại gọn nhẹ, không cần cài Obsidian hay plugin nào cả.
+Since version 0.9.216, notes in a Jarvis 007 brain are far more "alive" in the Obsidian sense: a `- [ ]` checkbox in a note is **clickable and saves itself**, and a ` ```dataview ` block **actually runs** inside the dashboard, showing task lists, note lists and summary tables pulled from the whole brain. Both features are inspired by two well-known Obsidian plugins, **Tasks** and **Dataview**, reimplemented compactly by Jarvis 007 with no need to install Obsidian or any plugin.
 
-## 1. Checkbox task bấm được
+## 1. Clickable task checkboxes
 
-### Tính năng là gì
+### What the feature is
 
-Trong file markdown, một dòng việc viết theo cú pháp chuẩn:
+In a markdown file, a task line written in the standard syntax:
 
 ```markdown
-- [ ] Gọi lại khách hàng A
-- [x] Chốt báo giá lô hàng thép
+- [ ] Call customer A back
+- [x] Close the steel batch quote
 ```
 
-Trước đây Javis chỉ hiển thị mấy ô này cho đẹp, muốn tick phải mở chế độ Nguồn sửa tay chữ `[ ]` thành `[x]`. Giờ thì bấm thẳng vào ô vuông là xong: dấu tick hiện ra, chữ gạch ngang, và **file được lưu ngay lập tức** - không cần bấm nút 💾 Lưu.
+Jarvis 007 used to display these boxes decoratively, and ticking one meant opening Source mode and hand-editing `[ ]` into `[x]`. Now clicking the box is enough: the tick appears, the text is struck through, and **the file is saved immediately**, with no 💾 Save button needed.
 
-### Tick ở đâu
+### Where you can tick
 
-- **Trang Tệp tin** (nhóm **Bộ não** trên thanh nav trái): mở một file `.md`, để ở chế độ **Sửa** (bản render, mặc định). Bấm checkbox là tick và tự lưu.
-- **Khung sửa file bung ra từ chat** (khi bấm vào link file trong câu trả lời của Javis): y hệt, tick là lưu.
-- **Trong tin nhắn chat**: checkbox chỉ để xem, không bấm được. Lý do: nội dung chat không gắn với file nào để ghi lại.
-- **Trong kết quả khối dataview**: bấm được, ghi thẳng vào file gốc chứa việc đó (xem phần 2).
+- **The Files page** (**Brain** group on the left nav rail): open an `.md` file and stay in **Edit** mode (the rendered view, the default). Clicking a checkbox ticks it and saves.
+- **The file editor opened from chat** (clicking a file link in one of Jarvis 007's answers): exactly the same, ticking saves.
+- **Inside a chat message**: checkboxes are display-only and not clickable. The reason: chat content is not bound to any file to write back to.
+- **In dataview block results**: clickable, writing straight into the source file holding that task (see part 2).
 
-### Gõ nhanh task với menu gợi ý (kiểu Obsidian, bản gọn)
+### Typing tasks quickly with the suggestion menu (Obsidian style, condensed)
 
-Trong chế độ **Sửa** của note, Javis có bộ gợi ý giống plugin Tasks của Obsidian nhưng rút gọn cho đỡ ngợp:
+In a note's **Edit** mode, Jarvis 007 offers suggestions like Obsidian's Tasks plugin but trimmed down so it is not overwhelming:
 
-1. Gõ `- [ ]` ở đầu dòng rồi **ấn phím cách** - dòng đó biến ngay thành task thật có checkbox. Đang ở danh sách gạch đầu dòng thì chỉ cần gõ `[ ]` rồi ấn cách.
-2. Đứng ở **cuối dòng task**, ấn phím cách - bung menu 6 mục: 📅 hạn chót, ⏳ ngày dự kiến, 🛫 ngày bắt đầu, và 3 mức ưu tiên ⏫🔼🔽.
-3. Chọn mục ngày - bung tiếp: **Hôm nay / Ngày mai / Cuối tuần / Tuần sau / Chọn ngày…** (mở lịch). Chọn xong Javis chèn thẳng `📅 2026-07-28` vào dòng, đúng chuẩn obsidian-tasks nên mọi khối truy vấn đều hiểu.
+1. Type `- [ ]` at the start of a line then **press space**, and the line becomes a real task with a checkbox. Inside a bullet list you only need `[ ]` then space.
+2. Standing at the **end of a task line**, press space to open a 6-item menu: 📅 due date, ⏳ scheduled date, 🛫 start date, and the 3 priority levels ⏫🔼🔽.
+3. Choose a date item and a second menu opens: **Today / Tomorrow / This weekend / Next week / Pick a date…** (opening a calendar). Once chosen, Jarvis 007 inserts `📅 2026-07-28` straight into the line in proper obsidian-tasks format, so every query block understands it.
 
-Điều khiển bằng mũi tên lên xuống + Enter, hoặc bấm chuột. Esc để đóng, gõ chữ tiếp thì menu tự tắt, không cản trở việc viết.
+Navigate with the up and down arrows plus Enter, or with the mouse. Esc closes it, and typing on dismisses the menu so it never gets in the way of writing.
 
-### Ký hiệu ngày và độ ưu tiên (kiểu plugin Tasks)
+### Date and priority markers (Tasks plugin style)
 
-Javis hiểu các ký hiệu emoji mà plugin obsidian-tasks dùng, viết ngay trong dòng việc:
+Jarvis 007 understands the emoji markers the obsidian-tasks plugin uses, written inline in the task:
 
-| Ký hiệu | Ý nghĩa | Ví dụ |
+| Marker | Meaning | Example |
 |---|---|---|
-| 📅 | Hạn chót (due) | `- [ ] Nộp báo cáo 📅 2026-08-01` |
-| ⏳ | Ngày dự kiến làm | `- [ ] Soạn slide ⏳ 2026-07-30` |
-| 🛫 | Ngày bắt đầu | `- [ ] Chiến dịch Tết 🛫 2026-12-01` |
-| ✅ | Ngày hoàn thành | tự sinh khi tick xong |
-| 🔺 ⏫ 🔼 🔽 ⏬ | Độ ưu tiên từ cao nhất tới thấp nhất | `- [ ] Xử lý khiếu nại ⏫` |
+| 📅 | Due date | `- [ ] Submit the report 📅 2026-08-01` |
+| ⏳ | Scheduled date | `- [ ] Draft the slides ⏳ 2026-07-30` |
+| 🛫 | Start date | `- [ ] Tet campaign 🛫 2026-12-01` |
+| ✅ | Completion date | added automatically when ticked |
+| 🔺 ⏫ 🔼 🔽 ⏬ | Priority from highest to lowest | `- [ ] Handle the complaint ⏫` |
 
-Hai hành vi tự động giống plugin Tasks:
+Two automatic behaviours matching the Tasks plugin:
 
-- Việc **có ký hiệu ngày** (📅/⏳/🛫/🔁) khi tick xong sẽ tự được gắn thêm `✅ 2026-07-28` (ngày hôm đó); bỏ tick thì ngày ✅ được gỡ ra.
-- Checklist thường (không có ký hiệu nào) thì tick chỉ đổi `[ ]` thành `[x]`, **không** chèn thêm gì vào chữ của bạn.
+- A task **with a date marker** (📅/⏳/🛫/🔁) gets `✅ 2026-07-28` (that day) appended when ticked; unticking removes the ✅ date.
+- An ordinary checklist item (no markers at all) only turns `[ ]` into `[x]` when ticked, adding **nothing** to your text.
 
-Việc có 📅 mà đã quá hạn sẽ hiện badge đỏ trong kết quả dataview để đập vào mắt.
+A task with a 📅 that is past due shows a red badge in dataview results so it catches the eye.
 
-## 2. Khối dataview - truy vấn note như cơ sở dữ liệu
+## 2. The dataview block, querying notes like a database
 
-### Tính năng là gì
+### What the feature is
 
-Chèn một khối code với ngôn ngữ `dataview` vào bất kỳ note nào:
+Insert a code block with the `dataview` language into any note:
 
 ````markdown
 ```dataview
@@ -65,19 +65,19 @@ TASK WHERE !completed
 ```
 ````
 
-Khi mở note đó trong Javis (hoặc khi Javis dán khối này vào câu trả lời chat), khối không hiện dưới dạng code nữa mà **chạy truy vấn thật** trên toàn bộ note `.md` của brain đang chọn và vẽ kết quả: danh sách việc chưa xong, gom theo từng file, tick được từng việc.
+When you open that note in Jarvis 007 (or when Jarvis 007 pastes such a block into a chat answer), the block is no longer shown as code but **runs a real query** across every `.md` note in the selected brain and draws the result: unfinished tasks, grouped by file, each tickable.
 
-Ba loại truy vấn:
+Three query kinds:
 
-- `TASK` - liệt kê các dòng việc `- [ ]` / `- [x]`, gom nhóm theo file, có checkbox tick được.
-- `LIST` - liệt kê note (mỗi dòng một link, bấm mở note luôn).
-- `TABLE` - bảng: mỗi hàng một note, cột lấy từ frontmatter hoặc thông tin file.
+- `TASK` - lists `- [ ]` / `- [x]` task lines, grouped by file, with working checkboxes.
+- `LIST` - lists notes (one link per line, clicking opens the note).
+- `TABLE` - a table: one row per note, columns taken from frontmatter or file information.
 
-### Các mệnh đề hỗ trợ
+### Supported clauses
 
-Viết theo thứ tự quen thuộc của Dataview: dòng đầu là loại truy vấn, sau đó tuỳ chọn `FROM`, `WHERE`, `SORT`, `LIMIT`.
+Write them in Dataview's familiar order: the query kind on the first line, then optional `FROM`, `WHERE`, `SORT`, `LIMIT`.
 
-**FROM - khoanh vùng lấy dữ liệu:**
+**FROM, narrowing the data source:**
 
 ````markdown
 ```dataview
@@ -85,12 +85,12 @@ TASK FROM "01 - Daily"
 ```
 ````
 
-- `"thư mục"` - chỉ lấy note trong thư mục đó (tính cả thư mục con).
-- `#tag` - chỉ lấy note mang tag đó (tag trong frontmatter hoặc `#tag` viết trong bài).
-- Kết hợp: `FROM "05 - Việc" OR #du-an`, `FROM "notes" AND -#luu-tru` (dấu `-` hoặc `!` là loại trừ).
-- Không có `FROM` thì quét cả brain.
+- `"folder"` - only notes in that folder (subfolders included).
+- `#tag` - only notes carrying that tag (in frontmatter or written as `#tag` in the body).
+- Combined: `FROM "05 - Work" OR #project`, `FROM "notes" AND -#archive` (a `-` or `!` excludes).
+- With no `FROM`, the whole brain is scanned.
 
-**WHERE - lọc theo điều kiện:**
+**WHERE, filtering by condition:**
 
 ````markdown
 ```dataview
@@ -98,14 +98,14 @@ TASK WHERE !completed AND due <= date(today)
 ```
 ````
 
-- Với `TASK`, các trường có sẵn: `completed` (đã tick chưa), `text` (nội dung việc), `due`, `scheduled`, `start`, `done` (các ngày dạng `2026-08-01`), `priority` (0 cao nhất, 3 mặc định, 5 thấp nhất), `tags`, `file.name`, `file.folder`.
-- Với `LIST` / `TABLE`, dùng thẳng tên trường frontmatter của note (`status`, `type`...), cùng `tags`, `file.name`, `file.folder`, `file.mtime`.
-- Phép so sánh: `=`, `!=`, `>`, `<`, `>=`, `<=`. Ngày so sánh được vì cùng định dạng `YYYY-MM-DD`.
+- With `TASK`, the available fields are: `completed` (ticked or not), `text` (the task content), `due`, `scheduled`, `start`, `done` (dates shaped `2026-08-01`), `priority` (0 highest, 3 default, 5 lowest), `tags`, `file.name`, `file.folder`.
+- With `LIST` / `TABLE`, use the note's frontmatter field names directly (`status`, `type`...), plus `tags`, `file.name`, `file.folder`, `file.mtime`.
+- Comparisons: `=`, `!=`, `>`, `<`, `>=`, `<=`. Dates compare correctly because they share the `YYYY-MM-DD` format.
 - `date(today)`, `date(tomorrow)`, `date(yesterday)`, `date("2026-12-31")`.
-- `contains(text, "khách")` - chuỗi chứa chuỗi; `contains(tags, "#ban-hang")` - mảng chứa phần tử.
-- Kết hợp `AND` / `OR` / `!` / ngoặc `( )` thoải mái.
+- `contains(text, "customer")` - a string containing a string; `contains(tags, "#sales")` - an array containing an element.
+- Combine `AND` / `OR` / `!` / parentheses `( )` freely.
 
-**SORT và LIMIT:**
+**SORT and LIMIT:**
 
 ````markdown
 ```dataview
@@ -113,29 +113,29 @@ TASK WHERE !completed SORT due ASC LIMIT 10
 ```
 ````
 
-- `SORT trường ASC` (tăng dần, mặc định) hoặc `DESC` (giảm dần).
-- `LIMIT n` - lấy tối đa n kết quả.
+- `SORT field ASC` (ascending, the default) or `DESC` (descending).
+- `LIMIT n` - at most n results.
 
-**Cột trong TABLE:**
+**Columns in TABLE:**
 
 ````markdown
 ```dataview
-TABLE status AS "Trạng thái", file.folder AS "Thư mục"
-FROM #du-an
+TABLE status AS "Status", file.folder AS "Folder"
+FROM #project
 SORT file.mtime DESC
 ```
 ````
 
-- Liệt kê cột cách nhau dấu phẩy, `AS "Tên cột"` để đặt tên đẹp.
-- Cột đầu tiên luôn là link tới file; muốn bỏ thì viết `TABLE WITHOUT ID ...`.
+- List the columns comma separated, with `AS "Column name"` for a nicer heading.
+- The first column is always a link to the file; to drop it write `TABLE WITHOUT ID ...`.
 
-### Tick việc ngay trong kết quả
+### Ticking tasks right in the results
 
-Kết quả `TASK` có checkbox y như trong note. Tick một cái là Javis ghi thẳng vào **file gốc** chứa dòng việc đó, kể cả khi bạn đang đứng ở một note tổng hợp khác. Có rào an toàn: nếu file gốc vừa bị sửa (dòng việc không còn đúng chỗ cũ), Javis tự dò lại đúng dòng theo nội dung; dò không chắc chắn thì báo lỗi "File đã thay đổi" và **không ghi bừa** - bạn tải lại trang rồi tick lại là được.
+A `TASK` result has checkboxes just like the note does. Ticking one makes Jarvis 007 write straight into the **source file** holding that task line, even while you are standing in a different summary note. There is a safety rail: if the source file was just edited (the task line is no longer where it was), Jarvis 007 re-locates the correct line by content; when it cannot be sure it reports "The file changed" and **writes nothing blindly**, so reloading the page and ticking again is all it takes.
 
-### Ví dụ thực dụng
+### Practical examples
 
-Việc quá hạn, gấp nhất lên đầu:
+Overdue tasks, most urgent first:
 
 ````markdown
 ```dataview
@@ -143,18 +143,18 @@ TASK WHERE !completed AND due < date(today) SORT priority ASC
 ```
 ````
 
-Bảng dự án đang chạy, mới sửa gần đây nhất lên đầu:
+A table of running projects, most recently edited first:
 
 ````markdown
 ```dataview
-TABLE status AS "Trạng thái", deadline AS "Hạn"
+TABLE status AS "Status", deadline AS "Due"
 FROM "03 - Projects"
 WHERE status != "done"
 SORT file.mtime DESC
 ```
 ````
 
-Note nhắc tới một khách hàng:
+Notes mentioning one customer:
 
 ````markdown
 ```dataview
@@ -162,7 +162,7 @@ LIST WHERE contains(file.name, "Chị Nga") OR contains(tags, "#chi-nga")
 ```
 ````
 
-Việc của riêng một note/thư mục Daily tuần này:
+Tasks in one note or Daily folder this week:
 
 ````markdown
 ```dataview
@@ -170,9 +170,9 @@ TASK FROM "01 - Daily" WHERE !completed LIMIT 20
 ```
 ````
 
-### Khối ```tasks - viết theo ngôn ngữ plugin Tasks
+### The ```tasks block, written in the Tasks plugin language
 
-Nếu bạn quen cú pháp của plugin obsidian-tasks thì dùng thẳng, Javis hiểu luôn khối ` ```tasks `:
+If you are used to the obsidian-tasks syntax, use it directly, because Jarvis 007 also understands the ` ```tasks ` block:
 
 ````markdown
 ```tasks
@@ -183,65 +183,65 @@ limit 20
 ```
 ````
 
-Mỗi dòng là một điều kiện, các dòng VÀ với nhau (đúng ngữ nghĩa plugin gốc). Các dòng được hỗ trợ:
+Each line is one condition and the lines AND together (matching the original plugin's semantics). Supported lines:
 
 - `done` / `not done`
-- `due|scheduled|starts|done|created before|after|on <today|tomorrow|yesterday|YYYY-MM-DD>` (viết `due today` cũng được; `happens` được tính xấp xỉ bằng `due`)
-- `has due date` / `no due date` (tương tự cho scheduled/start/done/created)
-- `description includes <chữ>` / `description does not include <chữ>`
-- `path includes <chữ>` / `path does not include <chữ>`
+- `due|scheduled|starts|done|created before|after|on <today|tomorrow|yesterday|YYYY-MM-DD>` (`due today` works too; `happens` is approximated as `due`)
+- `has due date` / `no due date` (likewise for scheduled/start/done/created)
+- `description includes <text>` / `description does not include <text>`
+- `path includes <text>` / `path does not include <text>`
 - `tag includes #x` / `tags do not include #x`
 - `priority is [above|below] high|medium|low|none|highest|lowest`
 - `sort by due|priority|description|path|... [reverse]`, `limit N` / `limit to N tasks`
-- `group by ...`, `hide ...`, `show ...`, `short mode`, `explain` - được bỏ qua im lặng (không ảnh hưởng kết quả)
+- `group by ...`, `hide ...`, `show ...`, `short mode`, `explain` - silently ignored (they do not affect the result)
 
-Dòng nào chưa hỗ trợ (vd `filter by function`) thì khối hiện cảnh báo ghi rõ dòng bị bỏ qua, các dòng còn lại vẫn chạy bình thường.
+An unsupported line (`filter by function`, say) makes the block show a warning naming the skipped line, while the remaining lines still run normally.
 
-### Nút "+ Việc" - thêm task chủ động
+### The "+ Task" button, adding tasks deliberately
 
-Mọi khối ra danh sách việc (` ```tasks ` hoặc `TASK`) đều có nút **+ Việc** ở góc phải đầu khối. Bấm vào là hiện ô nhập nội dung + ô chọn hạn (tuỳ chọn), Enter hoặc bấm Thêm là xong. Việc mới được ghi vào file **`Task Inbox.md`** trong thư mục dashboard của brain, kèm `📅 hạn` nếu bạn chọn ngày, và mọi khối trên trang tự làm mới ngay. Task Inbox là hộp thư việc: thêm nhanh ở đó, lúc rảnh kéo về đúng sổ Daily/Weekly.
+Every block producing a task list (` ```tasks ` or `TASK`) has a **+ Task** button in its top right corner. Clicking it shows a content field plus an optional due-date picker, and Enter or clicking Add finishes it. The new task is written into the file **`Task Inbox.md`** in the brain's dashboard folder, with `📅 due` if you picked a date, and every block on the page refreshes at once. Task Inbox is a task mailbox: add quickly there, then move items into the right Daily/Weekly note when you have time.
 
-File này **chỉ được tạo ở lần bạn thêm việc đầu tiên**. Không dùng nút "+ Việc" thì nó không bao giờ xuất hiện, nên thư mục Dashboard không có file rỗng nằm chờ.
+That file is **only created the first time you add a task**. Never use the "+ Task" button and it never appears, so the Dashboard folder has no empty file sitting around.
 
-Javis **dò** thư mục dashboard chứ không cắm cứng một tên: thư mục cấp 1 nào của brain có tên là `dashboard` (không phân biệt hoa thường, cho phép tiền tố số thứ tự kiểu `00 - Dashboard`, `01 - dashboard`, `02_Dashboard`) thì việc mới rơi vào đó. Brain chưa có thư mục nào khớp thì Javis mới tạo mới với tên `00 - Dashboard`.
+Jarvis 007 **detects** the dashboard folder rather than hard-coding a name: any top-level folder of the brain named `dashboard` (case insensitive, allowing a numeric prefix like `00 - Dashboard`, `01 - dashboard`, `02_Dashboard`) receives new tasks. Only when a brain has no matching folder does Jarvis 007 create one named `00 - Dashboard`.
 
-### Trang Dashboard mặc định
+### The default Dashboard page
 
-Thư mục dashboard nằm trong cấu trúc chuẩn của brain: brain mới được tạo sẵn `00 - Dashboard` kèm một file seed là `Dashboard.md` (các khối tasks: quá hạn, hôm nay, sắp tới, chưa có hạn). Brain cũ thiếu thì banner cấu trúc vault có nút tạo bổ sung. File seed chỉ tạo khi chưa có - bạn sửa gì Javis giữ nguyên.
+The dashboard folder is part of the brain's standard structure: a new brain gets `00 - Dashboard` ready-made with a seed file `Dashboard.md` (task blocks for overdue, today, upcoming and no due date). An older brain missing it gets a create button in the vault-structure banner. The seed file is only created when absent, so anything you edit is left alone.
 
-`Task Inbox.md` **không** nằm trong bộ seed (từ 0.55.17): nó chỉ mọc ra khi bạn bấm "+ Việc" lần đầu. Brain cũ đang có sẵn file đó mà bạn không dùng thì cứ xoá, Javis không tạo lại.
+`Task Inbox.md` is **not** part of the seed set (since 0.55.17): it only appears when you first click "+ Task". If an older brain already has that file and you do not use it, just delete it, Jarvis 007 will not recreate it.
 
-### Chưa hỗ trợ gì
+### What is not supported
 
-Đây là bản "lite", cố tình chỉ phủ phần hay dùng nhất. Chưa có:
+This is a "lite" build that deliberately covers only the most-used parts. Not there yet:
 
-- `dataviewjs` (khối chạy code JavaScript) - khối sẽ hiện thông báo rõ ràng thay vì im lặng.
-- `FLATTEN`, `GROUP BY` tuỳ ý (TASK vốn đã tự gom theo file), hàm `dur(...)` cộng trừ thời gian.
-- `[[link]]` trong `FROM`.
+- `dataviewjs` (blocks running JavaScript), where the block shows a clear notice rather than staying silent.
+- `FLATTEN`, arbitrary `GROUP BY` (TASK already groups by file), and the `dur(...)` function for adding and subtracting durations.
+- `[[link]]` inside `FROM`.
 
-Gặp cú pháp chưa hỗ trợ, khối hiện thông báo lỗi kèm nguyên văn truy vấn để bạn sửa, không bao giờ vỡ trang.
+On unsupported syntax the block shows an error message with the query verbatim so you can fix it, and never breaks the page.
 
-### Hiệu năng và giới hạn kỹ thuật
+### Performance and technical limits
 
-Dataview được thiết kế để vault lớn vẫn mượt, các tầng tiết kiệm tự động:
+Dataview is built to stay smooth on a large vault, with several automatic savings:
 
-- **Hâm nóng lúc khởi động**: server tự dựng sẵn chỉ mục cho mọi brain ngay sau khi boot (chạy nền), nên lượt mở dashboard đầu tiên không phải ngồi chờ parse cả vault.
+- **Warm-up at startup**: the server prebuilds the index for every brain right after boot (in the background), so the first dashboard opening does not wait for the whole vault to be parsed.
 
-- **Cache tăng dần ở server**: chỉ mục note được giữ trong RAM, mỗi lần gọi chỉ đọc và parse lại đúng những file vừa sửa (so theo thời gian sửa + dung lượng), phần còn lại dùng bản đã có. Vault hàng nghìn note: lần đầu sau khi khởi động server hơi chậm, từ lần hai chỉ còn vài chục ms.
-- **ETag / 304**: không có note nào đổi thì server trả gói rỗng thay vì gửi lại cả cục chỉ mục, trình duyệt dùng lại bản cũ.
-- **Khoanh vùng theo FROM**: truy vấn dùng `FROM "thư mục"` thì chỉ quét đúng nhánh đó thay vì cả brain. Vì vậy **nên viết FROM thư mục cụ thể** khi có thể, ví dụ chỉ quan tâm nhật ký thì `FROM "01 - Daily Log" OR "02 - Weekly Log" OR "03 - Monthly Log" OR "04 - Future Log"` nhanh hơn hẳn quét cả vault. Nhánh `FROM` chỉ có `#tag` thì vẫn phải quét cả brain (tag nằm rải rác mọi nơi).
+- **An incremental cache on the server**: the note index is held in RAM, and each call only re-reads and re-parses the files that changed (comparing modification time plus size), reusing what it already has for the rest. On a vault of thousands of notes: the first call after a server start is a little slow, and from the second it is a few tens of milliseconds.
+- **ETag / 304**: with no note changed, the server returns an empty payload instead of resending the whole index, and the browser reuses its copy.
+- **Narrowing with FROM**: a query using `FROM "folder"` scans only that branch instead of the whole brain. So **write a specific FROM folder** whenever you can; if you only care about the journals, `FROM "01 - Daily Log" OR "02 - Weekly Log" OR "03 - Monthly Log" OR "04 - Future Log"` is far faster than scanning the vault. A `FROM` with only a `#tag` still has to scan the whole brain (tags are scattered everywhere).
 
-Giới hạn còn lại:
+The remaining limits:
 
-- Chỉ mục tối đa **20.000 note** mỗi brain, bỏ qua file `.md` nặng hơn 1MB và các thư mục ẩn (`.git`, `.obsidian`, `.trash`...).
-- Trình duyệt giữ kết quả khoảng **15 giây** rồi mới hỏi lại server: vừa sửa note xong mà khối chưa cập nhật thì đợi vài giây rồi mở lại note chứa khối. Tick task thì cập nhật ngay, không phải đợi.
-- Task nằm **trong khối code** của note khác không bị nhặt nhầm (ví dụ code mẫu có chứa `- [ ]`).
+- The index holds at most **20,000 notes** per brain, skipping `.md` files over 1MB and hidden folders (`.git`, `.obsidian`, `.trash`...).
+- The browser keeps results for about **15 seconds** before asking the server again: if you just edited a note and the block has not updated, wait a few seconds then reopen the note holding the block. Ticking a task updates immediately with no wait.
+- Tasks **inside a code block** in another note are not picked up by mistake (sample code containing `- [ ]`, for instance).
 
-## Khắc phục sự cố
+## Troubleshooting
 
-- **Bấm checkbox không ăn**: kiểm tra bạn đang ở chế độ **Sửa** (bản render) chứ không phải **Nguồn**; trong chat thì checkbox vốn chỉ để xem. Nếu vẫn không ăn, khả năng server đang chạy bản cũ hơn 0.9.216 - cập nhật rồi tải lại trang (Ctrl+Shift+R).
-- **Khối dataview hiện "Đang chạy truy vấn…" mãi**: server chưa có API `/files/mdindex` (bản cũ). Cập nhật Javis rồi khởi động lại server.
-- **Kết quả trống dù chắc chắn có việc**: xem lại `FROM` - tên thư mục phải đúng nguyên văn (có dấu, có số thứ tự, ví dụ `"05 - Việc"` chứ không phải `"Việc"`); tag phải có `#`.
-- **Báo "File đã thay đổi - tải lại rồi tick lại"**: file gốc vừa bị sửa chỗ khác (bởi bạn hoặc bởi Javis). Tải lại trang cho khối chạy lại với dữ liệu mới rồi tick lại.
+- **Clicking a checkbox does nothing**: check you are in **Edit** mode (the rendered view) rather than **Source**; in chat, checkboxes are display-only by design. If it still does nothing, the server is probably older than 0.9.216, so update and reload the page (Ctrl+Shift+R).
+- **A dataview block sits on "Running query…" forever**: the server has no `/files/mdindex` API (an old build). Update Jarvis 007 then restart the server.
+- **The result is empty although tasks certainly exist**: check the `FROM`, since a folder name must be verbatim (with diacritics and numeric prefix, for example `"05 - Việc"` rather than `"Việc"`); a tag must carry the `#`.
+- **It reports "The file changed, reload then tick again"**: the source file was just edited elsewhere (by you or by Jarvis 007). Reload the page so the block runs against the new data, then tick again.
 
-Xem thêm: [Quản lý tệp tin](05-quan-ly-tep-tin.md) (mở và sửa note), [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) (cấu trúc brain), [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+See also: [File manager](05-quan-ly-tep-tin.md) (opening and editing notes), [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) (brain structure), [Troubleshooting and FAQ](17-khac-phuc-su-co.md).

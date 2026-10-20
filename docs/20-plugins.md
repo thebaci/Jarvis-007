@@ -1,380 +1,380 @@
-# Plugins: thêm công cụ native cho mọi engine
+# Plugins: adding native tools for every engine
 
 ***Tiếng Việt** · [English](en/20-plugins.md)*
 
-Plugin là cách thêm **công cụ mới** cho Javis mà không phải sửa mã nguồn: một thư mục Python thả vào đúng chỗ, Javis tự nạp, và từ đó mọi engine (Claude Code, ChatGPT/Codex, OpenRouter, OpenAI, Anthropic, Gemini) đều gọi được công cụ đó.
+A plugin is how you add **new tools** to Jarvis 007 without editing the source: a Python folder dropped in the right place, loaded automatically, and from then on every engine (Claude Code, ChatGPT/Codex, OpenRouter, OpenAI, Anthropic, Gemini) can call that tool.
 
-Trang này hướng dẫn đọc danh sách plugin trong dashboard, bật/tắt từng cái, hiểu 11 plugin có sẵn, và cách tự cài plugin riêng kèm rào an toàn bắt buộc phải biết trước khi làm.
+This page covers reading the plugin list in the dashboard, turning each one on and off, understanding the 11 bundled plugins, and how to install your own with the safety rails you must know before you do.
 
-## Tính năng này là gì
+## What this feature is
 
-Một plugin là **một thư mục** gồm 2 file:
+A plugin is **one folder** with 2 files:
 
-- `plugin.yaml`: khai báo tên, slug, mô tả, phiên bản, bật hay tắt, mức quyền tối thiểu, danh sách tool và hook.
-- `plugin.py`: mã Python, bắt buộc có hàm `register(ctx)`. Trong hàm đó bạn gọi `ctx.register_tool(...)` để thêm tool, và/hoặc `ctx.register_hook(...)` để thêm hook.
+- `plugin.yaml`: declares the name, slug, description, version, enabled state, minimum permission level, and the lists of tools and hooks.
+- `plugin.py`: the Python code, which must have a `register(ctx)` function. Inside it you call `ctx.register_tool(...)` to add a tool, and/or `ctx.register_hook(...)` to add a hook.
 
-Plugin cho Javis hai thứ:
+A plugin gives Jarvis 007 two things:
 
-- **Tool**: một công cụ engine gọi được, ví dụ `javis_now` (hỏi bây giờ mấy giờ theo giờ Việt Nam) hay `javis_generate_image` (tạo ảnh). Tool của plugin đi qua MCP Hub nên **mọi engine đều dùng được**, không riêng Claude Code.
-- **Hook**: đoạn mã chạy **quanh mỗi lần gọi tool**. Bản hiện tại hỗ trợ hai sự kiện quanh tool: `pre_tool_call` (trước khi tool chạy) và `post_tool_call` (sau khi tool chạy xong). Khi không plugin nào đăng ký hook thì Javis không bọc gì cả, nên không tốn thêm gì. Sự kiện thứ ba, `chatbot_turn_context`, chạy một lần mỗi lượt bot chuyên trách và cho plugin thêm một dòng ngữ cảnh (xem [bên dưới](#hook-ngữ-cảnh-lượt-chatbot-chatbot_turn_context)).
+- **A tool**: something an engine can call, for example `javis_now` (asking what time it is in Vietnam) or `javis_generate_image` (creating an image). Plugin tools go through the MCP Hub, so **every engine can use them**, not only Claude Code.
+- **A hook**: code that runs **around each tool call**. The current build supports two events around tools: `pre_tool_call` (before the tool runs) and `post_tool_call` (after it finishes). When no plugin registers a hook, Jarvis 007 wraps nothing at all, so it costs nothing. A third event, `chatbot_turn_context`, runs once per dedicated-bot turn and lets a plugin add one line of context (see [below](#chatbot-turn-context-hook-chatbot_turn_context)).
 
-Tool của plugin **tôn trọng đúng 3 mức quyền** của Javis y như tool khác, nên một loop đang ở chế độ chỉ-đọc sẽ không tự gọi được tool ghi của plugin.
+Plugin tools **respect Jarvis 007's 3 permission levels** exactly like any other tool, so a loop running read-only cannot call a plugin's write tool.
 
-## Plugin khác Skill và MCP thế nào
+## How a plugin differs from a Skill and an MCP
 
-Ba thứ này hay bị lẫn. Phân biệt bằng câu hỏi "cái đang thiếu là gì":
+These three get mixed up often. Tell them apart by asking "what is actually missing":
 
-| Thiếu gì | Dùng cái nào | Bản chất |
+| What is missing | What to use | What it really is |
 |---|---|---|
-| Javis chưa biết **cách làm** một loại việc theo chuẩn của bạn | **Skill** | Một file `SKILL.md` chứa hướng dẫn. Không chạy mã, chỉ dạy AI làm đúng quy trình. Xem [Skills](06-skills.md). |
-| Cần một **hành động thật** bằng Python (tính toán, biến đổi dữ liệu, gọi một API đơn giản, đọc/ghi file theo luật riêng) mà chưa có nguồn nào phủ | **Plugin** | Mã Python chạy thật, thêm tool/hook cho mọi engine. |
-| Cần **nguồn dữ liệu ngoài** đã có server sẵn (POS, quảng cáo, lịch, email, ghi chú...) | **Kết nối (MCP)** | Đấu server có sẵn ở trang Kết nối, không phải viết mã. Xem [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md). |
+| Jarvis 007 does not know **how to do** a kind of work your way | **Skill** | A `SKILL.md` file with instructions. No code runs, it only teaches the AI the right procedure. See [Skills](06-skills.md). |
+| You need a **real action** in Python (computation, data transformation, calling a simple API, reading or writing files under custom rules) that nothing else covers | **Plugin** | Real Python code, adding tools and hooks for every engine. |
+| You need an **external data source** that already has a server (POS, ads, calendar, email, notes...) | **Connection (MCP)** | Attach the existing server on the Connections page, no code needed. See [Connections and business data](09-mcp-va-so-lieu.md). |
 
-Nói ngắn: skill là **tri thức cách làm**, plugin là **mã chạy thật**, MCP là **nguồn dữ liệu có sẵn**. Nếu việc bạn cần đã có MCP thì đừng viết plugin.
+In short: a skill is **know-how**, a plugin is **code that really runs**, an MCP is **an existing data source**. If what you need already has an MCP, do not write a plugin.
 
-## Mở ở đâu trong Javis
+## Where to open it in Jarvis 007
 
-Mở dashboard (mặc định tại cổng 7777), nhìn thanh điều hướng bên trái, bấm nhóm **Năng lực** để mở ra, rồi bấm mục **Plugins**. Đầu trang hiện tiêu đề **Plugins** kèm dòng phụ "Tool/hook native cho mọi engine".
+Open the dashboard (default port 7777), look at the left navigation rail, click the **Capabilities** group to open it, then click **Plugins**. The page header reads **Plugins** with the subtitle "Native tools/hooks for every engine".
 
-Ngay dưới tiêu đề là ba khối giới thiệu:
+Right under the heading are three introductory blocks:
 
-1. Dòng mô tả: "Plugin thêm **tool** (công cụ engine gọi được) và **hook** native cho Javis mà không sửa lõi - dùng được ở MỌI engine (Claude Code, Codex, API) qua hub, tôn trọng 3 mức quyền như tool khác."
-2. Khung cảnh báo màu cam (chỉ hiện khi máy này tắt plugin người dùng): "**⚠ Plugin do bạn cài đang bị tắt trên máy này.** Máy này đặt biến môi trường `JAVIS_ENABLE_USER_PLUGINS=false` nên plugin toàn cục/brain không chạy. Bỏ biến đó (hoặc đặt true) rồi khởi động lại Javis. Plugin có sẵn (bundled) vẫn chạy bình thường."
-3. Dòng chỉ đường xám: "Thả plugin TOÀN CỤC (dùng cho MỌI brain) vào `<đường dẫn thật trên máy bạn>` · mỗi plugin gồm `plugin.yaml` + `plugin.py`. Hoặc bảo Javis trong khung chat: "tạo plugin ..."."
+1. A description line: "Plugins add native **tools** (callable by engines) and **hooks** to Jarvis 007 without touching the core, usable on EVERY engine (Claude Code, Codex, API) through the hub, respecting the 3 permission levels like any other tool."
+2. An orange warning box (shown only when this machine turns user plugins off): "**⚠ Plugins you installed are turned off on this machine.** This machine sets the environment variable `JAVIS_ENABLE_USER_PLUGINS=false` so global and brain plugins do not run. Remove it (or set it to true) and restart Jarvis 007. Bundled plugins keep running normally."
+3. A grey signpost line: "Drop a GLOBAL plugin (used by EVERY brain) into `<the real path on your machine>` · each plugin is `plugin.yaml` + `plugin.py`. Or tell Jarvis 007 in the chat box: 'create a plugin ...'."
 
-Đường dẫn trong dòng thứ 3 là đường dẫn **thật** trên máy đang chạy Javis, cứ sao chép từ màn hình ra chứ đừng gõ tay theo tài liệu.
+The path on the third line is the **real** path on the machine running Jarvis 007, so copy it from the screen rather than typing it from the documentation.
 
-Bên dưới là danh sách thẻ plugin, xếp theo nguồn: Có sẵn trước, rồi Toàn cục, rồi Brain này; trong mỗi nhóm xếp theo tên. Nếu chưa có plugin nào, trang hiện dòng "Chưa có plugin nào. Thả một thư mục plugin vào `<đường dẫn>` rồi tải lại."
+Below is the list of plugin cards, ordered by source: Bundled first, then Global, then This brain; within each group they are ordered by name. With no plugins at all, the page reads "No plugins yet. Drop a plugin folder into `<path>` then reload."
 
-## Đọc một thẻ plugin
+## Reading a plugin card
 
-Mỗi plugin là một thẻ. Đọc từ trên xuống:
+Each plugin is a card. Read it top to bottom:
 
-**Dòng đầu (bên trái):** biểu tượng 🧩, tên hiển thị của plugin, rồi **slug** in nhỏ mờ (chính là tên thư mục), rồi một nhãn nguồn:
+**First line (left):** the 🧩 icon, the plugin's display name, then the **slug** in small grey type (which is the folder name), then a source label:
 
-| Nhãn nguồn | Nghĩa là | Nằm ở đâu |
+| Source label | Meaning | Where it lives |
 |---|---|---|
-| **Có sẵn** (xanh lá) | Plugin đi kèm app, do Javis phát hành, tin cậy | `system/plugins/<slug>/` trong thư mục cài đặt |
-| **Toàn cục** (xanh dương) | Plugin bạn tự cài, dùng chung cho **mọi brain** | Thư mục state của Javis, `<JAVIS_STATE_DIR>/plugins/<slug>/` |
-| **Brain này** (cam) | Plugin bạn tự cài, chỉ dùng cho **một brain** | `<brain>/plugins/<slug>/` (brain cũ có thể là `<brain>/Javis/plugins/<slug>/`) |
+| **Bundled** (green) | A plugin shipped with the app, published by Jarvis 007, trusted | `system/plugins/<slug>/` in the install folder |
+| **Global** (blue) | A plugin you installed, shared by **every brain** | Jarvis 007's state folder, `<JAVIS_STATE_DIR>/plugins/<slug>/` |
+| **This brain** (orange) | A plugin you installed, used by **one brain** only | `<brain>/plugins/<slug>/` (an older brain may have `<brain>/Javis/plugins/<slug>/`) |
 
-Trùng slug thì nguồn sau đè nguồn trước: một plugin "Brain này" tên `datetime-vn` sẽ thay chỗ bản "Có sẵn" cùng tên.
+On a slug collision, the later source wins: a "This brain" plugin named `datetime-vn` replaces the "Bundled" one of the same name.
 
-**Dòng đầu (bên phải):** trạng thái hiện tại (xem bảng ở mục "Bảng tra nhanh nút và trạng thái").
+**First line (right):** the current status (see the table in "Quick reference of buttons and states").
 
-**Dòng mô tả:** nội dung trường `description` trong `plugin.yaml`.
+**Description line:** the content of the `description` field in `plugin.yaml`.
 
-**Dòng thông tin:** ghép bằng dấu chấm giữa, gồm "quyền tối thiểu: ..." rồi phiên bản (`v1.0.0`) rồi tác giả. Ví dụ: "quyền tối thiểu: chỉ đọc · v1.0.0 · Javis (bundled)".
+**Information line:** joined with middle dots, containing "minimum level: ..." then the version (`v1.0.0`) then the author. For example: "minimum level: read only · v1.0.0 · Jarvis 007 (bundled)".
 
-**Hàng chip:** mỗi tool plugin cung cấp là một chip có biểu tượng 🔧 kèm tên tool; mỗi hook là một chip 🪝 kèm tên sự kiện. Đây chính là những cái tên engine sẽ gọi, nên nếu muốn nhờ Javis dùng đúng tool nào, cứ nhắc tên trong chip.
+**The chip row:** each tool the plugin provides is a chip with a 🔧 icon and the tool name; each hook is a 🪝 chip with the event name. These are exactly the names the engine will call, so to have Jarvis 007 use a particular tool, mention the name on the chip.
 
-**Nút cuối thẻ:** **Bật** hoặc **Tắt** (nhãn đổi theo trạng thái hiện tại).
+**The button at the bottom of the card:** **Enable** or **Disable** (the label follows the current state).
 
-Thẻ của plugin không chạy sẽ hiển thị mờ đi. Nếu plugin lỗi, dòng lý do lỗi hiện màu đỏ ngay dưới hàng chip.
+The card of a plugin that is not running is dimmed. If the plugin errored, the reason appears in red right under the chip row.
 
-## Cách dùng (từng bước)
+## How to use it (step by step)
 
-### Bước 1: Xem plugin nào đang chạy
+### Step 1: See which plugins are running
 
-Vào **Năng lực > Plugins**. Nhìn cột trạng thái bên phải mỗi thẻ. Chỉ những thẻ ghi **● đang chạy** mới thực sự có tool bơm ra cho engine. Thẻ mờ là không dùng được lúc này.
+Go to **Capabilities > Plugins**. Look at the status column on the right of each card. Only cards reading **● running** actually expose tools to the engine. A dimmed card is unusable right now.
 
-### Bước 2: Bật hoặc tắt một plugin
+### Step 2: Enable or disable a plugin
 
-1. Tìm thẻ plugin cần đổi.
-2. Bấm nút **Bật** (hoặc **Tắt**) ở cuối thẻ.
-3. Danh sách tự tải lại, trạng thái đổi ngay.
+1. Find the card you want to change.
+2. Click **Enable** (or **Disable**) at the bottom of the card.
+3. The list reloads and the status changes immediately.
 
-Với plugin **Có sẵn**, Javis không sửa file của app: lựa chọn bật/tắt được ghi ra file `plugins.json` trong thư mục state. Nhờ vậy cập nhật Javis lên bản mới **không làm mất** lựa chọn của bạn.
+For a **Bundled** plugin, Jarvis 007 does not edit the app's files: your on/off choice is written to a `plugins.json` file in the state folder. That way updating Jarvis 007 to a new version **does not lose** your choice.
 
-Với plugin **Toàn cục** và **Brain này**, Javis ghi thẳng `enabled: true/false` vào `plugin.yaml` của plugin đó.
+For **Global** and **This brain** plugins, Jarvis 007 writes `enabled: true/false` straight into that plugin's `plugin.yaml`.
 
-Bật/tắt có hiệu lực ngay, không cần khởi động lại: Javis làm mới bộ nhớ đệm của hub nên tool xuất hiện hoặc biến mất ở lượt chat kế tiếp, và chỉ mục năng lực `Javis/index.md` của brain cũng được dựng lại.
+Enabling and disabling takes effect immediately with no restart: Jarvis 007 refreshes the hub's cache so the tool appears or disappears on the next chat turn, and the brain's capability index `Javis/index.md` is rebuilt too.
 
-Ngoại lệ duy nhất: nếu bạn bật một plugin **Toàn cục/Brain này** trên máy đặt `JAVIS_ENABLE_USER_PLUGINS=false`, Javis hiện hộp thoại báo: "Đã bật trong manifest NHƯNG máy này đang tắt plugin do người dùng cài bằng JAVIS_ENABLE_USER_PLUGINS=false. Bỏ biến đó (hoặc đặt true) rồi khởi động lại để chạy." Thẻ khi đó chuyển sang **⚠ tắt bằng env**.
+The one exception: if you enable a **Global/This brain** plugin on a machine that sets `JAVIS_ENABLE_USER_PLUGINS=false`, Jarvis 007 shows a dialog saying: "Enabled in the manifest, BUT this machine turns user-installed plugins off with JAVIS_ENABLE_USER_PLUGINS=false. Remove it (or set it to true) and restart to run it." The card then switches to **⚠ off by env**.
 
-### Bước 3: Kiểm tra tool đã ra tới engine chưa
+### Step 3: Check that the tool reached the engine
 
-Mở khung trò chuyện và hỏi thẳng, ví dụ "bây giờ mấy giờ" (plugin `datetime-vn`) hoặc "liệt kê các Trang Facebook của tôi" (plugin `meta-pages-graph`). Javis biết plugin nào đang chạy vì danh sách "Plugins đang chạy" kèm tên tool được đưa sẵn vào ngữ cảnh mỗi lượt chat.
+Open the chat box and ask directly, for example "what time is it" (the `datetime-vn` plugin) or "list my Facebook Pages" (the `meta-pages-graph` plugin). Jarvis 007 knows which plugins are running because the "Running plugins" list with their tool names is placed into the context of every chat turn.
 
-Nếu tool bị chặn vì mức quyền, câu trả lời sẽ chứa nguyên văn dòng lỗi bắt đầu bằng `ERROR: tool '<tên>' cần mức quyền cao hơn`. Nếu tool cần một kết nối chưa có, lỗi sẽ nói rõ phải vào trang nào để đấu nối.
+If a tool is blocked by the permission level, the answer contains the error line verbatim, starting with `ERROR: tool '<tên>' cần mức quyền cao hơn` (the server's own Vietnamese wording, meaning "tool '<name>' needs a higher permission level"). If a tool needs a connection you do not have, the error states which page to go to in order to attach it.
 
-## Các plugin có sẵn
+## The bundled plugins
 
-Đây là các plugin đi kèm app (nhãn **Có sẵn**). Tất cả bật sẵn trừ `tool-audit`.
+These ship with the app (the **Bundled** label). All are on by default except `tool-audit`.
 
-| Tên trên thẻ | slug | Tool cung cấp | Quyền tối thiểu | Mặc định |
+| Name on the card | slug | Tools provided | Minimum level | Default |
 |---|---|---|---|---|
-| Thời gian & ngày (VN) | `datetime-vn` | `javis_now`, `javis_date_add` | chỉ đọc | Bật |
-| Đặt việc định kỳ & nhắc hẹn | `javis-schedule` | `javis_schedule` | ghi (safe) | Bật |
-| Giao việc Kanban | `javis-task` | `javis_task` | ghi (safe) | Bật |
-| Quản lý nhóm chat | `javis-team` | `javis_team` | ghi (safe), chỉ chủ | Bật |
-| Đấu thêm MCP | `javis-connect` | `javis_add_mcp` | ghi (safe) | Bật |
-| Tạo và xem ảnh (ChatGPT) | `image-chatgpt` | `javis_generate_image`, `javis_describe_image` | ghi (safe); xem ảnh: chỉ đọc | Bật |
-| Đọc video YouTube | `youtube-read` | `javis_youtube_read` | chỉ đọc | Bật |
-| Meta Ads (Graph API) | `meta-ads-graph` | `meta_ads_accounts`, `meta_ads_insights`, `meta_ads_campaigns`, `meta_ads_get` | chỉ đọc | Bật |
-| Facebook Trang (Graph API) | `meta-pages-graph` | `fb_pages_list`, `fb_page_posts`, `fb_page_comments`, `fb_page_post`, `fb_page_photo`, `fb_page_album`, `fb_page_video`, `fb_page_edit`, `fb_page_delete`, `fb_page_reply` | toàn quyền | Bật |
-| Theo dõi Facebook (Apify) | `fb-monitor-apify` | `fb_monitor` | chỉ đọc | Bật |
-| Nhật ký dùng tool | `tool-audit` | `javis_tool_stats` + hook `post_tool_call` | chỉ đọc | **Tắt** |
+| Date & time | `datetime-vn` | `javis_now`, `javis_date_add` | read only | On |
+| Recurring jobs & reminders | `javis-schedule` | `javis_schedule` | write (safe) | On |
+| Kanban tasks | `javis-task` | `javis_task` | write (safe) | On |
+| Team chat management | `javis-team` | `javis_team` | write (safe), owner only | On |
+| Connect an MCP server | `javis-connect` | `javis_add_mcp` | write (safe) | On |
+| Create and view images (ChatGPT) | `image-chatgpt` | `javis_generate_image`, `javis_describe_image` | write (safe); viewing: read only | On |
+| Read YouTube videos | `youtube-read` | `javis_youtube_read` | read only | On |
+| Meta Ads (Graph API) | `meta-ads-graph` | `meta_ads_accounts`, `meta_ads_insights`, `meta_ads_campaigns`, `meta_ads_get` | read only | On |
+| Facebook Pages (Graph API) | `meta-pages-graph` | `fb_pages_list`, `fb_page_posts`, `fb_page_comments`, `fb_page_post`, `fb_page_photo`, `fb_page_album`, `fb_page_video`, `fb_page_edit`, `fb_page_delete`, `fb_page_reply` | full power | On |
+| Facebook monitor (Apify) | `fb-monitor-apify` | `fb_monitor` | read only | On |
+| Tool usage log | `tool-audit` | `javis_tool_stats` + the `post_tool_call` hook | read only | **Off** |
 
-Từng cái làm được gì:
+What each one does:
 
-- **Giao việc Kanban**: giao một việc nền vào hàng đợi ngay từ chat (`op=add`) và xem việc đang chạy tới đâu (`op=list`). Có từ 0.17.1. Trước đó đường duy nhất để giao việc là `POST /kanban/task`, mà gọi được nó thì phải chạy được lệnh máy - nên chỉ Claude Code với Codex làm được, dù tài liệu vẫn hứa mọi bộ não đều làm được. Tool này gọi thẳng vào hàng đợi in-process, không mở thêm cửa HTTP nào. Mặc định giao việc ở mức `full` (tự thao tác ra ngoài như lúc chat); nói rõ nếu muốn việc chỉ ghi nháp (`auto`) hay chỉ đọc (`suggest`). Trước 0.55.62 tool này từ chối mức full và mặc định `suggest`. Chuyển cột, huỷ việc, duyệt việc chờ phê duyệt vẫn làm ở trang Việc. Từ 0.107.0 nhận thêm `route`: `auto` (một worker chung làm) hoặc `wf:<slug>` để chạy đúng một quy trình có thật; slug sai bị từ chối, còn route auto mà tên việc nhắc tới một quy trình có thật thì tool cảnh báo.
-- **Quản lý nhóm chat**: nhờ Javis ngay trong chat tạo nhóm chat, đổi tên, thêm bớt trợ lý, chọn trưởng nhóm, lưu trữ hay xoá nhóm, và tạo trợ lý mới với model riêng rồi ghép vào nhóm trong một lần ("tạo nhóm thử gồm ba trợ lý, mỗi người một model"). Có từ 0.173.0. Tool gọi thẳng cùng bộ thao tác mà trang Nhóm dùng, nên luật y như bấm tay. Xoá chỉ nhận nhóm đã lưu trữ và chỉ khi bạn nói rõ là xoá; file trợ lý không bị xoá theo. Bot chăm khách không thấy tool này.
-- **Đấu thêm MCP**: nhờ Javis ngay trong chat đấu một nguồn MCP mới, và nó **hiện ra trang Kết nối** ở khu "Đã kết nối" như tài khoản bạn tự thêm bằng tay, dùng chung cho mọi bộ não. Trước plugin này Javis không có đường nào ghi vào kho kết nối, nên nó chỉ còn cách chạy `claude mcp add` - server đó rơi vào cấu hình riêng của Claude Code, sáu bộ não còn lại không thấy, và trên trang Kết nối nó không nằm ở khu "Đã kết nối" mà lọt xuống khu gập "Kết nối sẵn của Claude Code và Codex" (mặc định đóng), nên nhìn vào tưởng như chẳng có gì được thêm. Ba rào an toàn: mức quyền mặc định là **chỉ đọc** (muốn cho ghi thì bạn tự nâng ở trang Kết nối); nguồn chạy bằng **lệnh trên máy** (stdio) được thêm ở trạng thái **tắt** để bạn tự đọc lệnh rồi mới bật; dịch vụ đã có sẵn trong Kho kết nối (Gmail, Lịch, POS...) thì Javis chỉ tay sang đúng card chứ không đẻ một bản tự khai song song. Thử kết nối hỏng thì mục đó **vẫn nằm lại** trang Kết nối kèm lý do, chứ không biến mất im lặng.
-- **Zalo mở rộng (gói `javis.zalo` trên Javis Store)**: từ 0.73.0 các tool Zalo bù chỗ MCP chuẩn còn thiếu không còn đi sẵn trong app nữa, để ai không dùng Zalo thì không phải mang theo. Gói gồm gửi ảnh và file (`zalo_send_image`), tag đúng người, ghi chú, nhắc hẹn, poll trong nhóm (`zalo_group_members`, `zalo_send_mention`, `zalo_create_note`, `zalo_create_reminder`, `zalo_create_poll`) và đọc ảnh trong nhóm (`zalo_read_images`). Quét QR Zalo xong là Javis mời cài; máy đã dùng Zalo từ trước thì trang Kết nối hiện nút cài. Chi tiết ở [Zalo](12-zalo.md).
-- **Thời gian & ngày (VN)**: cho Javis biết hôm nay là ngày nào, mấy giờ, thứ mấy theo giờ Việt Nam (UTC+7), và tính ngày tương đối ("3 ngày nữa", "tuần trước"). Thuần thư viện chuẩn, không cần mạng. Đây cũng là plugin mẫu đơn giản nhất để đọc khi bạn muốn tự viết plugin.
-- **Đặt việc định kỳ & nhắc hẹn**: cho phép tạo, liệt kê, huỷ việc định kỳ và nhắc hẹn **ngay trong câu chat**, khỏi gõ YAML tay. Việc lặp và bền được ghi ra `Javis/loops/<slug>.md` (mở sửa được trong Obsidian); nhắc một lần hoặc lịch cron thì vào kho nhắc hẹn. Chi tiết ở [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md).
-- **Tạo ảnh (ChatGPT)**: tạo ảnh từ mô tả bằng chính **gói ChatGPT** bạn đang đăng nhập (OAuth), không cần khoá API OpenAI. Ảnh lưu vào `attachments/` của brain rồi nhúng thẳng vào câu trả lời. Cần đã kết nối ChatGPT ở trang **Models**; chưa kết nối thì tool trả về câu "Chưa kết nối ChatGPT (OAuth). Vào trang Model đăng nhập ChatGPT rồi thử lại...".
-- **Đọc video YouTube**: dán link video vào chat rồi nhờ tóm tắt. Plugin lấy **phụ đề thật** của video (đường mà trình phát YouTube dùng) nên Javis đọc được lời thoại chứ không đoán theo tiêu đề. Không cần khoá API, không cần đăng nhập YouTube, chạy trên **mọi engine** kể cả engine API vốn không mở được URL. Khi YouTube chặn máy chủ, nó tự đổi lần lượt qua sáu kiểu trình phát rồi mới nhờ tới yt-dlp, nên vượt được phần lớn ca bị nghi là robot. Video không có phụ đề, video riêng tư hoặc bị YouTube chặn thì tool nói thẳng lý do để Javis khỏi bịa. Video dài bị cắt bớt thì nhờ "đọc tiếp" là nó đọc khúc sau. Chi tiết ở [Trò chuyện](02-tro-chuyen-va-giong-noi.md).
-- **Luật cho từng cuộc chat Zalo**: đặt cách ứng xử cho từng nhóm hoặc từng khách trên Zalo bằng lời (im lặng, báo mọi tin, báo theo từ khoá, nhắc khi quên trả lời quá N phút). Luật ghi ra `Javis/zalo/<slug>.md` nên xem và sửa lại được.
-- **Gửi tin Zalo an toàn**: gửi tin Zalo thay cho tool thô. Nó khoá cứng vào tài khoản đang nghe và chỉ gửi được cho cuộc chat trong danh sách đang theo dõi; tên khớp nhiều người thì từ chối và bắt hỏi lại. Hai plugin Zalo dùng chung với [Kênh Zalo](12-zalo.md).
-- **Meta Ads (Graph API)**: đọc số liệu quảng cáo Facebook/Instagram (danh sách tài khoản ads, chiến dịch, hiệu suất). **Chỉ đọc, không tiêu tiền.** Cần đã đấu kết nối "Meta Ads (tự tạo app - Graph API)" ở trang Kết nối.
-- **Facebook Trang (Graph API)**: quản lý Trang/Fanpage. Đọc danh sách Trang, bài và bình luận là chỉ-đọc; đăng bài, đăng ảnh, đăng album, đăng video, sửa chữ, xoá bài, trả lời bình luận là hành động **thật, công khai** và cần mức toàn quyền. Cần kết nối "Facebook Trang (tự tạo app - Graph API)".
-- **Theo dõi Facebook (Apify)**: theo dõi Trang và Nhóm **công khai** để tìm bài nhiều lượt chia sẻ, qua dịch vụ Apify. Chỉ đọc, không đụng tài khoản cá nhân, chạy được trên VPS. Cần dán Personal API token của apify.com vào kết nối "Theo dõi Facebook (Apify)".
-- **Nhật ký dùng tool**: đếm số lần **mỗi** tool được engine gọi (qua hook `post_tool_call`) rồi cho xem thống kê tool hay dùng nhất. Đây là ví dụ minh hoạ cơ chế hook, nên mặc định để tắt; bật ở trang Plugins, chat vài lượt có gọi tool, rồi hỏi Javis "tool nào hay dùng nhất".
+- **Kanban tasks**: queue a background job straight from chat (`op=add`) and see how running work is going (`op=list`). Available since 0.17.1. Before that, the only way to hand off work was `POST /kanban/task`, and calling it required being able to run machine commands, so only Claude Code and Codex could do it even though the documentation promised every brain could. This tool calls the in-process queue directly and opens no extra HTTP door. By default it queues work at the `full` level (acting outside on its own, as in chat); say so explicitly if you want the job to only write drafts (`auto`) or only read (`suggest`). Before 0.55.62 this tool refused the full level and defaulted to `suggest`. Moving columns, cancelling work and approving work that awaits approval still happen on the Work page. Since 0.107.0 it also takes `route`: `auto` (one shared worker does it) or `wf:<slug>` to run exactly one real workflow; a wrong slug is rejected, and for an auto route whose task name mentions a real workflow the tool gives a warning.
+- **Team chat management**: have Jarvis 007 create a team chat right in chat, rename it, add or remove assistants, pick the team leader, archive or delete a team, and create a new assistant with its own model and add it to a team in one go ("create a test team of three assistants, one model each"). Available since 0.173.0. The tool calls the same set of operations the Teams page uses, so the rules are exactly the same as clicking by hand. Delete only accepts an archived team and only when you say plainly that you want it deleted; the assistant files are not deleted with it. Customer-care bots do not see this tool.
+- **Connect an MCP server**: have Jarvis 007 attach a new MCP source right from chat, and it **appears on the Connections page** under "Connected" like an account you added by hand, shared by every brain. Before this plugin, Jarvis 007 had no way to write into the connection store, so all it could do was run `claude mcp add`; that server landed in Claude Code's own configuration where the other six brains could not see it, and on the Connections page it did not sit under "Connected" but fell into the collapsed "Built-in connections of Claude Code and Codex" section (closed by default), so it looked as if nothing had been added. Three safety rails: the permission level defaults to **read only** (raise it yourself on the Connections page if you want writes); a source that runs a **local command** (stdio) is added **disabled** so you read the command before enabling it; and a service already in the Connections catalogue (Gmail, Calendar, POS...) makes Jarvis 007 point at the right card rather than spawning a parallel hand-declared copy. If the connection test fails, the entry **stays** on the Connections page with the reason rather than vanishing silently.
+- **Zalo extras (the `javis.zalo` pack on Jarvis 007 Store)**: since 0.73.0 the Zalo tools that fill what the standard MCP lacks no longer ship inside the app, so people who do not use Zalo do not carry them. The pack has image and file sending (`zalo_send_image`), tagging the right people, notes, reminders and polls in a group (`zalo_group_members`, `zalo_send_mention`, `zalo_create_note`, `zalo_create_reminder`, `zalo_create_poll`) and reading group images (`zalo_read_images`). Jarvis 007 offers it right after you scan the Zalo QR; on a machine that already used Zalo, the Connections page shows an install button. Details in [Zalo](12-zalo.md).
+- **Date & time**: tells Jarvis 007 today's date, the time and the weekday in Vietnam time (UTC+7), and computes relative dates ("in 3 days", "last week"). Pure standard library, no network needed. It is also the simplest example plugin to read when you want to write your own.
+- **Recurring jobs & reminders**: lets you create, list and cancel recurring jobs and reminders **right in a chat sentence**, with no YAML typing. Repeating, durable work is written to `Javis/loops/<slug>.md` (editable in Obsidian); one-off reminders or cron schedules go into the reminder store. Details in [Recurring jobs and reminders](08-viec-dinh-ky.md).
+- **Create images (ChatGPT)**: generates images from a description using the **ChatGPT plan** you are signed in to (OAuth), with no OpenAI API key. Images are saved into the brain's `attachments/` then embedded straight into the answer. It requires ChatGPT connected on the **Models** page; without it the tool returns a sentence saying ChatGPT (OAuth) is not connected and telling you to sign in on the Models page and try again.
+- **Read YouTube videos**: paste a video link into chat and ask for a summary. The plugin fetches the video's **real subtitles** (the route the YouTube player uses) so Jarvis 007 reads the dialogue rather than guessing from the title. No API key, no YouTube sign-in, and it works on **every engine**, including API engines that cannot open a URL. When YouTube blocks the server it cycles through six player variants before falling back to yt-dlp, which gets past most robot-suspicion cases. A video with no subtitles, a private video or one YouTube blocks makes the tool state the reason plainly so Jarvis 007 does not invent anything. A long video that got truncated continues when you ask it to "keep reading". Details in [Chat](02-tro-chuyen-va-giong-noi.md).
+- **Per-chat Zalo rules**: set the behaviour for each Zalo group or customer in words (stay silent, report every message, report on keywords, nudge when a reply is over N minutes late). The rules are written to `Javis/zalo/<slug>.md` so they can be read and edited.
+- **Safe Zalo sending**: sends Zalo messages in place of the raw tool. It locks onto the listening account and can only send to chats on the watch list; when a name matches several people it refuses and forces a question back. The two Zalo plugins are shared with [the Zalo channel](12-zalo.md).
+- **Meta Ads (Graph API)**: reads Facebook/Instagram advertising figures (ad accounts, campaigns, performance). **Read only, spends no money.** Requires the "Meta Ads (your own app, Graph API)" connection on the Connections page.
+- **Facebook Pages (Graph API)**: manages Pages. Reading the Page list, posts and comments is read-only; posting, uploading photos, albums and videos, editing text, deleting posts and replying to comments are **real, public** actions and need the full-power level. Requires the "Facebook Pages (your own app, Graph API)" connection.
+- **Facebook monitor (Apify)**: monitors **public** Pages and Groups to find heavily shared posts, through the Apify service. Read only, does not touch a personal account, and works on a VPS. Requires pasting an apify.com Personal API token into the "Facebook monitor (Apify)" connection.
+- **Tool usage log**: counts how many times **each** tool is called by the engine (through the `post_tool_call` hook) and lets you see the most-used ones. It is a demonstration of the hook mechanism, so it is off by default; enable it on the Plugins page, chat a few turns that call tools, then ask Jarvis 007 which tool is used most.
 
-Lưu ý về cột "Quyền tối thiểu": đó là mức khai báo cho **cả plugin** và là cái hiển thị trên thẻ. Từng tool bên trong vẫn có mức riêng. Ví dụ `meta-pages-graph` ghi "toàn quyền" trên thẻ, nhưng ba tool đọc bài/bình luận của nó chỉ cần mức chỉ-đọc, còn các tool đăng và xoá mới cần toàn quyền.
+A note about the "Minimum level" column: that is the level declared for the **whole plugin** and what the card shows. Each tool inside still has its own level. For example `meta-pages-graph` says "full power" on the card, but its three post/comment reading tools only need read-only, and only the posting and deleting tools need full power.
 
-## Plugin đến từ một Gói
+## Plugins that come from a Package
 
-Từ 0.55.23, một **Gói** cài ở trang **Năng lực > Kho cài đặt** mang theo được cả plugin, tức cả công cụ mới, chứ không chỉ dịch vụ kết nối. Thẻ của chúng hiện ở trang này với nhãn nguồn **Từ gói**.
+Since 0.55.23, a **Package** installed on the **Capabilities > Install store** page can bring plugins along, meaning new tools rather than only connection services. Their cards appear on this page with the source label **From a package**.
 
-Khác ba nguồn kia ở ba điểm:
+They differ from the other three sources in three ways:
 
-- **Bật, tắt và gỡ đều làm ở Kho cài đặt**, không làm ở đây. Plugin đi theo cả gói, nên tách ra bật lẻ chỉ gây nhầm. Thẻ ở trang này có nút dẫn thẳng sang đó.
-- **Biến môi trường `JAVIS_ENABLE_USER_PLUGINS` không áp cho gói.** Gói đi qua trình cài, tức bạn đã xem màn hình liệt kê từng tệp mã rồi mới bấm đồng ý, và chữ ký mã được đối chiếu mỗi lần nạp.
-- **Mã trong gói bị khoá theo nội dung.** Lúc cài, Javis ghi lại một dấu vân tay của toàn bộ mã trong gói. Mỗi lần nạp, nó tính lại và đối chiếu: lệch một byte là plugin **không chạy**, và thẻ nói rõ "mã trong gói đã đổi so với lúc bạn đồng ý cài". Muốn dùng tiếp thì cài lại ở Kho cài đặt để xem và xác nhận lại.
+- **Enabling, disabling and removing all happen in the Install store**, not here. A plugin travels with its whole package, so toggling it separately only causes confusion. The card on this page has a button that takes you straight there.
+- **`JAVIS_ENABLE_USER_PLUGINS` does not apply to packages.** A package goes through the installer, meaning you saw the screen listing every code file before clicking agree, and its code signature is checked on every load.
+- **The code in the package is locked to its content.** At install time, Jarvis 007 records a fingerprint of all the code in the package. On every load it recomputes and compares: one byte off and the plugin **does not run**, with the card stating that the code in the package changed since you agreed to install it. To keep using it, reinstall from the Install store to review and confirm again.
 
-Lưu ý khi tự sửa: mở tệp `plugin.py` của một gói bằng trình soạn thảo trên Windows rồi lưu là đủ để dấu vân tay lệch, vì nhiều trình soạn thảo tự đổi ký tự xuống dòng. Đó không phải lỗi, chỉ là nội dung tệp thật sự đã khác. Sửa plugin thì nên sửa trong thư mục plugin của bạn chứ không sửa trong gói.
+A note when editing by hand: opening a package's `plugin.py` in a Windows editor and saving is enough to shift the fingerprint, because many editors change the line endings. That is not a bug, the file content genuinely differs. To modify a plugin, edit it in your own plugin folder rather than inside a package.
 
-Một gói **không được** mang plugin trùng tên với plugin có sẵn của Javis. Trình cài từ chối ngay và nói tên bị trùng, để không có chuyện một gói lặng lẽ thay thế công cụ lõi.
+A package **may not** carry a plugin whose name collides with one of Jarvis 007's bundled plugins. The installer refuses immediately and names the collision, so no package can quietly replace a core tool.
 
-## Gỡ hẳn một plugin khỏi danh sách
+## Removing a plugin from the list entirely
 
-Nút **Tắt** giữ thẻ lại cho bạn nhìn; nút **Gỡ** thì cho nó biến khỏi danh sách chính. Cả hai đều làm tool của plugin biến mất khỏi mọi bộ não, khác nhau ở chỗ bạn còn định dùng lại hay không.
+The **Disable** button keeps the card visible; the **Remove** button makes it disappear from the main list. Both make the plugin's tools vanish from every brain, differing only in whether you still intend to use it.
 
-Gỡ **không xoá tệp** trong bản cài. Javis chỉ ghi nhớ lựa chọn đó vào thư mục state, nên cập nhật Javis lên bản mới không làm plugin mọc lại, mà cài lại thì chỉ mất một cú bấm ở mục **Đã gỡ** nằm cuối trang (mặc định gập).
+Removing **does not delete the files** in the install. Jarvis 007 only records the choice in the state folder, so updating Jarvis 007 does not bring the plugin back, and reinstalling is one click in the **Removed** section at the bottom of the page (collapsed by default).
 
-Áp cho cả plugin **Có sẵn** đi kèm Javis. Đây là cách dọn bộ mặc định cho gọn nếu bạn không dùng tới.
+This applies to **Bundled** plugins shipped with Jarvis 007 too. It is how you tidy the default set when you do not use one.
 
-## Mức quyền tối thiểu và chế độ chạy
+## The minimum permission level and run modes
 
-Mỗi tool plugin khai báo một mức quyền tối thiểu; mỗi lượt chạy của Javis lại có một trần quyền. Tool chỉ chạy khi trần của lượt chạy đủ cao.
+Each plugin tool declares a minimum permission level; each Jarvis 007 run has a permission ceiling. A tool only runs when the run's ceiling is high enough.
 
-| Mức tối thiểu của tool (nhãn trên thẻ) | Ý nghĩa | Chạy được ở chế độ nào |
+| The tool's minimum (the card label) | Meaning | Which mode it runs in |
 |---|---|---|
-| `readonly` - "chỉ đọc" | Chỉ đọc hoặc tính toán, không đổi gì | Mọi chế độ |
-| `safe` - "ghi (safe)" | Có ghi file hoặc tiêu quota | Chế độ Tự làm an toàn và Toàn quyền |
-| `full` - "toàn quyền" | Hành động thật ra ngoài (đăng bài, xoá, gửi) | Chỉ chế độ Toàn quyền |
+| `readonly` - "read only" | Only reads or computes, changes nothing | Every mode |
+| `safe` - "write (safe)" | Writes files or spends quota | Auto (drafts) mode and Full power |
+| `full` - "full power" | A real outside action (posting, deleting, sending) | Full power mode only |
 
-Khung chat bạn gõ tay chạy ở mức đầy đủ nên gọi được cả ba loại. Ngược lại, một [việc định kỳ](08-viec-dinh-ky.md) đang để chế độ **Đề xuất** chỉ chạy được tool chỉ-đọc; gặp tool mức cao hơn nó trả về `ERROR: tool '<tên>' cần mức quyền cao hơn (...)` và dừng lại thay vì làm liều. Đây là lớp chặn cứng trong mã, không phải lời dặn trong prompt, nên model không "nói khéo" để vượt được.
+The chat box you type into runs at the full level, so all three kinds are callable. Conversely, a [recurring job](08-viec-dinh-ky.md) set to **Suggest** can only run read-only tools; meeting a higher-level tool it returns `ERROR: tool '<tên>' cần mức quyền cao hơn (...)` (Vietnamese for "tool '<name>' needs a higher permission level") and stops rather than acting recklessly. This is a hard block in code, not an instruction in the prompt, so no model can talk its way past it.
 
-## Cài plugin của bạn
+## Installing your own plugin
 
-### Bước 1: Chọn nơi đặt
+### Step 1: Choose where to put it
 
-Có hai chỗ, tuỳ bạn muốn plugin dùng chung hay dùng riêng:
+There are two places, depending on whether the plugin should be shared or private:
 
-- **Toàn cục** (khuyên dùng): `<JAVIS_STATE_DIR>/plugins/<slug>/`. Mọi brain đều thấy plugin này, và mọi engine đều gọi được. Đường dẫn thật đang hiện sẵn ở dòng chỉ đường trên trang Plugins, cứ sao chép từ đó. Mặc định `JAVIS_STATE_DIR` là thư mục `server/` của dự án; trên Docker/VPS thường là `/data/state`.
-- **Riêng một brain**: `<brain>/plugins/<slug>/`. Chỉ brain đó dùng được. Hợp khi plugin gắn chặt với dữ liệu của một brain cụ thể.
+- **Global** (recommended): `<JAVIS_STATE_DIR>/plugins/<slug>/`. Every brain sees it and every engine can call it. The real path is already shown on the signpost line of the Plugins page, so copy it from there. `JAVIS_STATE_DIR` defaults to the project's `server/` folder; on Docker/VPS it is usually `/data/state`.
+- **One brain only**: `<brain>/plugins/<slug>/`. Only that brain can use it. Suitable when the plugin is tightly bound to one brain's data.
 
-`<slug>` là tên thư mục, phải là chữ thường ASCII không dấu, bắt đầu bằng chữ hoặc số, chỉ chứa chữ số, dấu chấm, gạch dưới, gạch nối. Sai kiểu chữ thì Javis bỏ qua plugin và báo "slug không hợp lệ".
+`<slug>` is the folder name and must be lowercase ASCII without diacritics, starting with a letter or digit, containing only letters, digits, dots, underscores and hyphens. Get the character set wrong and Jarvis 007 skips the plugin, reporting "invalid slug".
 
-### Bước 2: Viết plugin.yaml
+### Step 2: Write plugin.yaml
 
 ```yaml
-name: Tính tiền ship
+name: Shipping calculator
 slug: tinh-tien-ship
 version: 1.0.0
-description: Tính phí giao hàng theo cân nặng và khu vực theo bảng giá của shop.
-author: Bạn
-enabled: false            # luôn tạo ở trạng thái TẮT, tự bật sau khi đọc lại mã
+description: Calculates the delivery fee by weight and area using the shop's price table.
+author: You
+enabled: false            # always create it DISABLED, enable it after re-reading the code
 min_mode: readonly        # readonly | safe | full
 tools: [tinh_tien_ship]
-hooks: []                 # ví dụ: [post_tool_call]
+hooks: []                 # for example: [post_tool_call]
 ```
 
-Hai trường `tools` và `hooks` ở đây chỉ để **hiển thị chip trên thẻ**. Cái thực sự tạo ra tool là mã trong `plugin.py`, nên hãy giữ hai danh sách này khớp với mã cho khỏi rối.
+The `tools` and `hooks` fields here only exist **to display the chips on the card**. What actually creates the tool is the code in `plugin.py`, so keep these two lists matching the code to avoid confusion.
 
-### Bước 3: Viết plugin.py
+### Step 3: Write plugin.py
 
 ```python
 def register(ctx):
-    def handler(args, ctx):        # args là dict; trả về chuỗi. Lỗi thì trả "ERROR: ..."
+    def handler(args, ctx):        # args is a dict; return a string. On failure return "ERROR: ..."
         kg = float((args or {}).get("kg") or 0)
-        return f"Phí ship: {int(kg * 5000)} đồng"
+        return f"Shipping fee: {int(kg * 5000)} dong"
 
     ctx.register_tool(
         name="tinh_tien_ship",
-        description="Tính phí giao hàng theo cân nặng (kg). Dùng khi khách hỏi phí ship.",
+        description="Calculates the delivery fee by weight (kg). Use when a customer asks about shipping.",
         handler=handler,
         min_mode="readonly",
         schema={"type": "object",
-                "properties": {"kg": {"type": "number", "description": "Cân nặng kiện hàng"}},
+                "properties": {"kg": {"type": "number", "description": "Parcel weight"}},
                 "required": ["kg"]},
     )
 ```
 
-Vài điều cần nhớ khi viết:
+A few things to remember while writing:
 
-- Tên tool phải bắt đầu bằng chữ thường, chỉ gồm chữ thường, số và gạch dưới.
-- `description` là thứ engine đọc để quyết định **khi nào** gọi tool, nên viết rõ tình huống và tham số. Mô tả mờ thì tool nằm im không ai gọi.
-- Handler có thể là hàm thường hoặc `async`. Trả về chuỗi là gọn nhất; trả về dict thì Javis tự chuyển thành JSON.
-- `ctx` có sẵn `ctx.slug`, `ctx.vault_root` (brain đang làm việc) và `ctx.data_dir` (thư mục riêng để plugin lưu state, **không** nằm trong brain nên không làm bẩn ghi chú của bạn).
-- Muốn tool tự từ chối khi chưa đủ điều kiện (chưa đăng nhập, thiếu khoá), truyền thêm `check_fn=` là một hàm trả về `None` khi sẵn sàng hoặc một câu tiếng Việt giải thích khi chưa.
-- Một plugin lỗi **không làm sập** Javis: mọi bước nạp, mọi lần gọi tool và hook đều được bọc lại, lỗi chỉ hiện trên thẻ plugin đó.
+- A tool name must start with a lowercase letter and contain only lowercase letters, digits and underscores.
+- The `description` is what the engine reads to decide **when** to call the tool, so state the situation and the parameters clearly. A vague description leaves the tool sitting unused.
+- The handler can be an ordinary or an `async` function. Returning a string is simplest; returning a dict makes Jarvis 007 convert it to JSON.
+- `ctx` provides `ctx.slug`, `ctx.vault_root` (the working brain) and `ctx.data_dir` (a private folder for the plugin's state, which is **not** inside the brain so it does not pollute your notes).
+- To make a tool refuse itself when prerequisites are missing (not signed in, no key), pass `check_fn=`, a function returning `None` when ready or an explanatory sentence when not.
+- A broken plugin **does not bring Jarvis 007 down**: every load step, tool call and hook is wrapped, and the error appears only on that plugin's card.
 
-### Bước 4: Bật plugin
+### Step 4: Enable the plugin
 
-Từ 0.162.0, Javis **tải plugin do bạn cài theo mặc định**: plugin nào có `enabled: true` (tức bạn đã bấm **Bật** trên thẻ) là chạy, không cần biến môi trường nào.
+Since 0.162.0, Jarvis 007 **loads the plugins you install by default**: a plugin with `enabled: true` (you clicked **Enable** on its card) runs, no environment variable needed.
 
-Muốn chặn hẳn plugin người dùng trên một máy (ví dụ máy chủ dùng chung):
+To block user plugins on a machine altogether (for example a shared server):
 
-1. Mở file `.env` ở thư mục gốc dự án (chưa có thì tạo, xem [Cấu hình .env](16-cau-hinh-env.md)).
-2. Thêm một dòng: `JAVIS_ENABLE_USER_PLUGINS=false`
-3. Lưu file và **khởi động lại Javis**.
+1. Open the `.env` file in the project root (create it if absent, see [.env configuration](16-cau-hinh-env.md)).
+2. Add one line: `JAVIS_ENABLE_USER_PLUGINS=false`
+3. Save the file and **restart Jarvis 007**.
 
-Giá trị tắt nhận `0`, `false`, `no` hoặc `off` (không phân biệt hoa thường). Tên cũ `JAVIS_ENABLE_VAULT_PLUGINS` vẫn còn tác dụng, nhưng nếu đặt cả hai thì tên mới thắng.
+Off accepts `0`, `false`, `no` or `off` (case insensitive). The old name `JAVIS_ENABLE_VAULT_PLUGINS` still works, but when both are set the new name wins.
 
-## Rào an toàn (đọc trước khi cài plugin lạ)
+## Safety rails (read before installing an unfamiliar plugin)
 
-Đây là phần quan trọng nhất của trang này.
+This is the most important part of this page.
 
-- **Plugin do bạn cài chạy mã Python thật, trong chính tiến trình server của Javis.** Nó có quyền của tiến trình đó: đọc ghi file, gọi mạng, đọc biến môi trường. Từ 0.162.0 chủ dự án quyết định **cho tải mặc định**; chốt chặn còn lại là công tắc **Bật** của từng plugin (`enabled: true` trong `plugin.yaml`).
-- **Chỉ bật plugin khi bạn đã tự đọc mã của nó.** Lưu ý: ai ghi được vào thư mục `plugins/` (kể cả model, vì nó ghi được vào brain) cũng có thể ghi `enabled: true`. Máy chủ dùng chung hoặc chạy bot cho người lạ thì nên đặt `JAVIS_ENABLE_USER_PLUGINS=false`.
-- **Plugin có sẵn (nhãn "Có sẵn") không chịu công tắc này** vì chúng đi kèm bản phát hành Javis. Chúng vẫn chạy bình thường kể cả khi máy đặt `false`.
-- **Plugin do Javis tạo qua chat luôn ở trạng thái tắt** (`enabled: false`) và mức `readonly`. Javis không tự bật hộ; bạn phải đọc mã rồi tự bấm **Bật**.
-- **Đừng viết plugin để làm hành động tiền bạc, tạo đơn, gửi tin hay đăng bài.** Những việc đó nên đi qua kết nối MCP và hệ mức quyền, nơi đã có lớp chặn và nhật ký. Plugin nên để `min_mode: readonly` trừ khi bạn cố ý cần khác.
-- **Đừng nhân bản plugin có sẵn vào brain.** Chúng đi theo app và tự cập nhật; bản sao trong brain sẽ đè mất bản gốc và không được cập nhật nữa.
+- **Plugins you install run real Python code, inside Jarvis 007's own server process.** They have that process's rights: reading and writing files, calling the network, reading environment variables. Since 0.162.0 the project owner chose to **load them by default**; the remaining guard is each plugin's own **Enable** switch (`enabled: true` in `plugin.yaml`).
+- **Only enable a plugin once you have read its code.** Note: anyone who can write into a `plugins/` folder (including the model, since it can write into the brain) can also write `enabled: true`. On a shared server, or one that runs bots for strangers, set `JAVIS_ENABLE_USER_PLUGINS=false`.
+- **Bundled plugins (the "Bundled" label) are not subject to this switch** because they ship with the Jarvis 007 release. They keep working even when the machine sets `false`.
+- **A plugin Jarvis 007 creates from chat is always disabled** (`enabled: false`) and at the `readonly` level. Jarvis 007 never enables it for you; you must read the code then click **Enable** yourself.
+- **Do not write plugins that perform money, order, messaging or publishing actions.** Those should go through MCP connections and the permission system, where the blocks and logs already exist. A plugin should be `min_mode: readonly` unless you deliberately need otherwise.
+- **Do not clone bundled plugins into a brain.** They travel with the app and update themselves; a copy in the brain shadows the original and stops being updated.
 
-## Nhờ Javis tạo plugin bằng lời
+## Asking Jarvis 007 to create a plugin in words
 
-Bạn không cần tự gõ hai file. Mở khung trò chuyện và nói thẳng, ví dụ: "Tạo cho tôi một plugin tính phí ship theo cân nặng, bảng giá 5 nghìn một ký, dưới 1 ký tính tròn."
+You do not have to type the two files yourself. Open the chat box and say it plainly, for example: "Create me a plugin that calculates shipping by weight, 5 thousand per kilo, rounding up below 1 kilo."
 
-Javis sẽ tự chọn loại năng lực phù hợp trước (nếu chỉ cần hướng dẫn thì nó tạo skill, nếu là nguồn dữ liệu có sẵn thì nó khuyên đấu MCP), kiểm tra trùng với những gì brain đã có, rồi mới ghi thư mục plugin. Khi tạo xong nó báo lại tên file và nhắc bạn rằng plugin đang tắt cùng cách mở khoá biến môi trường.
+Jarvis 007 first picks the right kind of capability (if only instructions are needed it writes a skill; if it is an existing data source it advises attaching an MCP), checks for duplicates against what the brain already has, and only then writes the plugin folder. When it finishes it reports the file names and reminds you the plugin is disabled and how to unlock it with the environment variable.
 
-Sau đó bạn tự làm 3 việc: mở `plugin.py` đọc lại mã (dùng trang **Tệp tin** nếu plugin nằm trong brain), đặt biến môi trường nếu chưa có, rồi vào **Plugins** bấm **Bật**.
+Then you do 3 things yourself: open `plugin.py` and read the code (using the **Files** page if the plugin is inside a brain), set the environment variable if it is not set, then go to **Plugins** and click **Enable**.
 
-## Hook: chạy quanh mỗi lần gọi tool
+## Hooks: running around each tool call
 
-Ngoài tool, plugin còn đăng ký được hook. Bản hiện tại có hai sự kiện:
+Besides tools, a plugin can register hooks. The current build has two events:
 
-| Sự kiện | Bắn khi nào | Nhận được gì |
+| Event | When it fires | What it receives |
 |---|---|---|
-| `pre_tool_call` | Ngay trước khi một tool bất kỳ chạy | `tool_name`, `args`, `mode`, `vault_root`, `turn` |
-| `post_tool_call` | Ngay sau khi tool chạy xong | thêm `result` |
+| `pre_tool_call` | Just before any tool runs | `tool_name`, `args`, `mode`, `vault_root`, `turn` |
+| `post_tool_call` | Just after a tool finishes | plus `result` |
 
-`turn` cho hook biết **ai đang nói** trong lượt gọi tool đó: `kenh` (kênh), `sender_id` (mã người gửi tin này, trong nhóm vẫn là người gửi chứ không phải nhóm), `chat_type` (`private` hoặc `group`), `chat_id` (cuộc trò chuyện) và `la_chu` (`true` ở dashboard và kênh quản trị của chủ, luôn `false` với bot chuyên trách). Không xác định được (việc nền, engine chưa mang được khoá lượt) thì `turn` là `None`: hook cần danh tính phải coi `None` là "không ai", đừng coi là chủ máy.
+`turn` tells a hook **who is talking** in that tool call: `kenh` (the channel), `sender_id` (the id of whoever sent this message; in a group it is still the sender, not the group), `chat_type` (`private` or `group`), `chat_id` (the conversation) and `la_chu` (`true` on the dashboard and the owner's admin channels, always `false` for a dedicated bot). When it cannot be known (background work, an engine that cannot carry the turn key yet) `turn` is `None`: a hook that needs an identity must read `None` as "nobody", never as the owner.
 
-Hook bọc **mọi** tool call, kể cả tool của MCP và tool lõi, chứ không riêng tool của plugin đó. Dùng để ghi nhật ký, đếm, cảnh báo. Khi không plugin nào đăng ký hook, Javis không bọc gì nên không mất thêm hiệu năng. Plugin `tool-audit` là ví dụ chạy được: bật nó lên là mỗi lượt gọi tool được đếm vào một file riêng của plugin.
+A hook wraps **every** tool call, MCP tools and core tools included, not only that plugin's tools. Use it for logging, counting, alerting. When no plugin registers a hook, Jarvis 007 wraps nothing, so there is no performance cost. The `tool-audit` plugin is a working example: enable it and every tool call is counted into a file private to the plugin.
 
-## Hook ngữ cảnh lượt chatbot (`chatbot_turn_context`)
+## Chatbot turn context hook (`chatbot_turn_context`)
 
-Sự kiện thứ ba không bọc tool call mà chạy **một lần mỗi lượt bot chuyên trách trả lời**, ngay trước khi engine soạn câu. Nó giải một việc mà mô hình tự làm không được: biết **tài khoản nào** đang nhắn. Mô hình chỉ thấy tên hiển thị, mà tên thì ai cũng gõ được ("em là mẹ bé An"). Lớp kênh thì biết mã tài khoản thật, và hook này chuyển mã đó cho plugin, không cho mô hình.
+The third event does not wrap tool calls. It runs **once per dedicated-bot turn**, just before the engine writes the reply. It solves something the model cannot do on its own: know **which account** is writing. The model only sees a display name, and anyone can type a name ("I'm An's mum"). The channel layer knows the real account id, and this hook hands that id to a plugin, not to the model.
 
-Callback nhận các khoá sau (luôn khai `**kwargs`, khoá mới có thể thêm về sau):
+The callback receives these keys (always declare `**kwargs`, new keys may be added later):
 
-| Khoá | Ý nghĩa |
+| Key | Meaning |
 |---|---|
-| `channel` | Kênh của lượt: `zalo_personal`, `telegram`, `zalo`, `messenger`... |
-| `account_id` | Tài khoản kênh mà bot đang trực, rỗng nếu bot chưa gắn tài khoản |
-| `bot_id` | Mã bot chuyên trách |
-| `chat_type` | `private` hoặc `group` |
-| `chat_id` | Cuộc trò chuyện (trong nhóm là mã nhóm) |
-| `sender_id` | Mã tài khoản do nền tảng cấp cho người gửi tin này, không bao giờ là tên hiển thị. Trong nhóm vẫn là người gửi. Sự kiện có người vào nhóm thì rỗng |
-| `vault_root` | Đường dẫn brain của bot |
-| `trial` | `true` ở lượt **Thử bot** |
+| `channel` | Channel of the turn: `zalo_personal`, `telegram`, `zalo`, `messenger`... |
+| `account_id` | The channel account the bot answers through, empty when the bot has none |
+| `bot_id` | The dedicated bot's id |
+| `chat_type` | `private` or `group` |
+| `chat_id` | The conversation (the group id in a group) |
+| `sender_id` | The platform-assigned account id of whoever sent this message, never a display name. In a group it is still the sender. Empty for a member-join event |
+| `vault_root` | Path of the bot's brain |
+| `trial` | `true` on the **Try bot** turn |
 
-Callback trả về **một dòng chữ ngắn** hoặc `None`. Javis đặt dòng đó vào prompt hệ thống của đúng lượt này, trong một khối có nhãn và rào `<operator_context>`, ghi rõ đây là thông tin từ hệ thống của chủ bot chứ không phải lời người nhắn tự khai.
+The callback returns **one short line** or `None`. Jarvis 007 puts that line in the system prompt of that turn only, inside a labelled block fenced with `<operator_context>`, which says this is information from the bot owner's system, not something the person claimed.
 
 ```python
 def register(ctx):
-    def _ngu_canh(sender_id="", chat_type="", **kwargs):
+    def _context(sender_id="", chat_type="", **kwargs):
         if chat_type != "private":
-            return None                      # nhóm: không nói gì
-        return "Khách quen" if sender_id in KHACH_QUEN else None
-    ctx.register_hook("chatbot_turn_context", _ngu_canh)
+            return None                      # groups: say nothing
+        return "Returning customer" if sender_id in REGULARS else None
+    ctx.register_hook("chatbot_turn_context", _context)
 ```
 
-Rào Javis tự giữ, plugin không nới được:
+Rails Jarvis 007 enforces, which a plugin cannot loosen:
 
-- **Không plugin nào nghe thì prompt giống hệt từng byte** như trước khi có hook này.
-- Lõi **không bao giờ tự ghi mã người gửi vào prompt**. Chỉ dòng plugin trả về mới vào, nên plugin nên trả kết luận ("đã xác nhận") chứ đừng trả lại mã.
-- Mỗi dòng bị ép về **một dòng**: xuống dòng, ký tự điều khiển, ký tự đảo chiều và ký tự vô hình thành dấu cách; cắt ở **300 ký tự**. Nhiều plugin thì mỗi plugin một dòng, tổng **900 ký tự**. Chữ `<operator_context>` trong dòng bị gỡ để không ai đóng được khối.
-- Callback ném lỗi hoặc chạy quá **2 giây** thì bị bỏ qua và ghi log, lượt trả lời vẫn đi tiếp. Callback đồng bộ chạy ở luồng riêng nên không chặn các cuộc chat khác.
-- Mỗi callback nhận **bản sao riêng** của các khoá: plugin trước sửa gì cũng không đổi thứ plugin sau thấy.
+- **No plugin listening means the prompt is byte-for-byte** what it was before this hook existed.
+- The core **never writes the sender id into the prompt itself**. Only the line a plugin returns goes in, so a plugin should return a verdict ("verified") rather than echo the id.
+- Each line is forced to **one line**: newlines, control, bidi and zero-width characters become a space, and it is cut at **300 characters**. Several plugins give one line each, **900 characters** in total. The text `<operator_context>` is stripped from a line so nobody can close the block.
+- A callback that raises or takes longer than **2 seconds** is skipped and logged, and the reply goes on. A synchronous callback runs in a worker thread so it cannot stall other chats.
+- Each callback gets **its own copy** of the keys: whatever one plugin edits, the next one does not see.
 
-Ba loại lượt đều bắn hook: lượt thật, lượt **Trả lời giúp tin này / Gợi ý câu trả lời** ở Hộp thư (người gửi là người nhắn tin cuối của cuộc chat), và lượt **Thử bot**. Lượt thử mang `trial: true` và người gửi giả của trang thử (`javis-try-user`, cuộc chat `javis-try`), cùng người gửi giả mà lượt thử vẫn dùng cho mọi kiểm tra theo người. Mã giả đó không khớp ai thật, nên plugin kiểu sổ danh sách sẽ cho thấy nhánh "người lạ". Muốn xử lý lượt thử khác đi thì plugin tự đọc `trial`.
+All three kinds of turn fire the hook: the live turn, the Inbox **Reply for me / Suggest a reply** turn (the sender is whoever wrote the last message of that chat), and the **Try bot** turn. A try turn carries `trial: true` and the try page's synthetic sender (`javis-try-user`, chat `javis-try`), the same stand-in a try turn already uses for every per-person check. That id matches nobody real, so a roster-style plugin shows its "stranger" path. A plugin that wants to treat try turns differently reads `trial`.
 
-Plugin dùng hook này vẫn chịu đúng rào chung: plugin người dùng tự cài chỉ chạy khi đặt `JAVIS_ENABLE_USER_PLUGINS=true`, plugin của Gói đi qua trình cài, và nên khai `min_mode: readonly` nếu nó chỉ đọc.
+A plugin using this hook sits behind the usual rails: a user-installed plugin only runs with `JAVIS_ENABLE_USER_PLUGINS=true`, a Package plugin goes through the installer, and it should declare `min_mode: readonly` when it only reads.
 
-## Trang riêng và đường HTTP (từ 0.64.26)
+## Own page and HTTP routes (since 0.64.26)
 
-Plugin mở được đường web của riêng nó, dưới `/ext/<slug>/`. Dùng cho trang cài đặt, hoặc cho dịch vụ bên ngoài gọi vào (webhook, cửa OAuth). Gói "Javis trong ChatGPT" trong kho là ví dụ chạy thật.
+A plugin can open web routes of its own, under `/ext/<slug>/`. Use it for a settings page, or for an outside service to call in (webhook, OAuth door). The "Jarvis 007 in ChatGPT" package in the store is a working example.
 
 ```python
 def register(ctx):
-    ctx.register_http("", trang_cai_dat)                          # phải đăng nhập dashboard
-    ctx.register_http("webhook", nhan_tin, methods=("POST",),
-                      public=True, no_cookie=True)                # máy chủ ngoài gọi vào
+    ctx.register_http("", settings_page)                          # needs a dashboard login
+    ctx.register_http("webhook", on_event, methods=("POST",),
+                      public=True, no_cookie=True)                # an outside server calls in
     ctx.register_well_known("oauth-authorization-server", meta)  # /.well-known/...
 ```
 
-- **Mặc định phải đăng nhập bằng trình duyệt.** Token API không mở được trang của plugin.
-- **`public=True`**: vào không cần đăng nhập, plugin tự xác thực (chữ ký, token). Chỉ áp cho đúng method đã khai.
-- **`no_cookie=True`** (đi cùng `public`): miễn chặn CSRF, và Javis gỡ hẳn cookie trước khi giao request cho plugin.
-- **`register_well_known`**: chỉ GET, công khai, không cookie. Hai plugin xin cùng tên thì plugin nạp trước giữ.
-- Khai `page: ""` trong `plugin.yaml` thì thẻ plugin có nút **Mở trang**.
-- Chỉ plugin đi kèm app, plugin của gói đã cài và plugin toàn cục mới có đường. **Plugin trong brain thì không**, vì model ghi được vào brain.
+- **A browser login is required by default.** An API token cannot open a plugin's page.
+- **`public=True`**: no login needed, the plugin checks callers itself (signature, token). Applies only to the methods declared.
+- **`no_cookie=True`** (only with `public`): exempt from the CSRF block, and Jarvis 007 strips every cookie before handing the request over.
+- **`register_well_known`**: GET only, public, no cookie. If two plugins claim one name, the one loaded first keeps it.
+- Declare `page: ""` in `plugin.yaml` and the plugin card gets an **Open page** button.
+- Only bundled plugins, plugins from an installed package and global plugins get routes. **A plugin inside a brain does not**, because the model can write into the brain.
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference of buttons and states
 
-| Bạn thấy | Ý nghĩa / thao tác |
+| What you see | Meaning / action |
 |---|---|
-| **● đang chạy** (xanh lá) | Plugin đã nạp, tool của nó đang có mặt cho engine |
-| **⚠ tắt bằng env** (cam) | Bạn đã bật plugin nhưng máy này đặt `JAVIS_ENABLE_USER_PLUGINS=false` |
-| **⚠ lỗi** (đỏ) | Manifest hỏng hoặc mã nạp không được; lý do hiện ngay dưới hàng chip |
-| **○ tắt** (xám) | Plugin có mặt nhưng đang tắt, không có tool nào ra |
-| **● bật (chưa nạp)** (cam) | Trạng thái hiếm: đã bật nhưng chưa nạp được vì lý do khác. Tải lại trang, nếu vẫn vậy thì xem log server |
-| Nhãn **Có sẵn** / **Toàn cục** / **Brain này** | Nguồn của plugin (app / thư mục chung mọi brain / một brain) |
-| Chip **🔧 tên** | Một tool plugin cung cấp; đây là tên engine sẽ gọi |
-| Chip **🪝 tên** | Một hook plugin đăng ký (`pre_tool_call`, `post_tool_call` hoặc `chatbot_turn_context`) |
-| "quyền tối thiểu: chỉ đọc / ghi (safe) / toàn quyền" | Mức quyền tối thiểu để tool của plugin được phép chạy |
-| Nút **Bật** | Bật plugin (thẻ đang tắt) |
-| Nút **Tắt** | Tắt plugin (thẻ đang bật) |
-| Thẻ hiển thị mờ | Plugin không đang chạy |
-| Khung cảnh báo cam đầu trang | Chưa mở khoá plugin người dùng; plugin có sẵn vẫn chạy |
+| **● running** (green) | The plugin is loaded and its tools are available to the engine |
+| **⚠ off by env** (orange) | You enabled the plugin but this machine sets `JAVIS_ENABLE_USER_PLUGINS=false` |
+| **⚠ error** (red) | The manifest is broken or the code failed to load; the reason appears under the chip row |
+| **○ off** (grey) | The plugin is present but disabled, exposing no tools |
+| **● enabled (not loaded)** (orange) | A rare state: enabled but not loaded for some other reason. Reload the page, and if it persists check the server log |
+| The **Bundled** / **Global** / **This brain** label | The plugin's source (app / the folder shared by every brain / one brain) |
+| A **🔧 name** chip | A tool the plugin provides; this is the name the engine will call |
+| A **🪝 name** chip | A hook the plugin registers (`pre_tool_call`, `post_tool_call` or `chatbot_turn_context`) |
+| "minimum level: read only / write (safe) / full power" | The minimum permission level for the plugin's tools to be allowed to run |
+| The **Enable** button | Enables the plugin (the card is off) |
+| The **Disable** button | Disables the plugin (the card is on) |
+| A dimmed card | The plugin is not running |
+| The orange warning box at the top | User plugins are still locked; bundled plugins keep working |
 
-## Mẹo
+## Tips
 
-- Trước khi định viết plugin, hỏi lại: cái thiếu là **cách làm** hay **hành động**? Thiếu cách làm thì viết skill, rẻ và dễ sửa hơn nhiều.
-- Đọc `system/plugins/datetime-vn/plugin.py` làm mẫu khởi động: nó ngắn, thuần thư viện chuẩn, đủ minh hoạ một tool đọc. Muốn xem mẫu có hook thì đọc `tool-audit`.
-- Đặt plugin ở **Toàn cục** trừ khi có lý do rõ ràng để buộc vào một brain. Toàn cục không phụ thuộc brain nên bạn đổi brain vẫn dùng được.
-- Không dùng plugin nào thì **tắt** thay vì xoá thư mục, để lần sau bật lại là xong.
-- Tắt bớt plugin không dùng cũng làm gọn danh sách tool đưa cho model, giúp nó chọn tool đúng hơn.
-- Muốn biết Javis đang thấy những năng lực gì (agent, skill, workflow, loop, plugin) thì mở file `Javis/index.md` trong brain bằng trang **Tệp tin**; file này tự dựng lại mỗi khi bạn bật/tắt plugin.
+- Before deciding to write a plugin, ask again: is what is missing the **know-how** or the **action**? Missing know-how means writing a skill, which is far cheaper and easier to change.
+- Read `system/plugins/datetime-vn/plugin.py` as a starting example: it is short, pure standard library, and enough to illustrate a read tool. For a hook example, read `tool-audit`.
+- Put plugins in **Global** unless there is a clear reason to bind one to a brain. Global does not depend on the brain, so switching brains keeps it usable.
+- If you do not use a plugin, **disable** it rather than deleting the folder, so re-enabling later is one click.
+- Disabling unused plugins also shortens the tool list handed to the model, helping it pick the right tool.
+- To see what capabilities Jarvis 007 currently sees (agents, skills, workflows, loops, plugins), open the brain's `Javis/index.md` file through the **Files** page; it is rebuilt every time you enable or disable a plugin.
 
-## Sự cố thường gặp
+## Common problems
 
-- **Thẻ ghi "⚠ tắt bằng env":** máy này đặt `JAVIS_ENABLE_USER_PLUGINS=false`. Bỏ dòng đó trong `.env` (hoặc đặt `true`) rồi khởi động lại Javis. Biến này chỉ được đọc lúc khởi động.
-- **Đã đặt biến môi trường mà vẫn bị chặn:** kiểm tra file `.env` nằm đúng thư mục gốc dự án, dòng biến không bị dấu `#` ở đầu, và giá trị là `true` (hoặc `1`/`yes`/`on`). Trên Docker thì đặt biến ở phần Environment của container chứ không phải trong file trên máy chủ.
-- **Plugin mới thả vào mà không hiện trên trang:** thư mục phải nằm **trực tiếp** trong thư mục plugins (không lồng thêm cấp), và bên trong phải có `plugin.py` (hoặc `__init__.py`). Thiếu thì Javis không coi đó là plugin. Tên thư mục cũng phải là slug hợp lệ (chữ thường không dấu).
-- **Thẻ ghi "⚠ lỗi" kèm "thiếu plugin.py":** thư mục chỉ có `plugin.yaml`. Thêm file mã vào.
-- **Thẻ ghi "⚠ lỗi" kèm "manifest lỗi: ...":** `plugin.yaml` sai cú pháp YAML. Hay gặp nhất là mô tả có dấu hai chấm mà không bọc nháy.
-- **Thẻ ghi "⚠ lỗi" kèm "thiếu hàm register(ctx)":** `plugin.py` chưa có hàm `register`, hoặc bạn đặt tên khác. Hàm phải tên đúng là `register` và nhận một tham số.
-- **Thẻ ghi "⚠ lỗi" kèm tên một lỗi Python (ví dụ `ModuleNotFoundError`):** mã plugin dùng thư viện chưa cài trong môi trường Python của Javis. Cài thư viện đó vào đúng môi trường ảo Javis đang chạy, rồi khởi động lại.
-- **Plugin đang chạy nhưng engine không thấy tool:** nhiều khả năng tên tool **trùng** với một tool đã có của MCP hoặc tool lõi. Javis không cho plugin chiếm chỗ tool lõi, nó bỏ qua tool trùng và ghi một dòng vào log server. Đổi tên tool trong `plugin.py` cho khác đi (đặt tiền tố riêng là cách chắc nhất). Các tên lõi không được dùng lại: `javis_connections`, `javis_read_file`, `javis_list_dir`, `javis_write_file`, `javis_use_skill`.
-- **Tool trả về `ERROR: tool '<tên>' cần mức quyền cao hơn`:** lượt chạy đang bị hạn chế mức quyền. Nếu là việc định kỳ, nâng chế độ của việc đó (xem [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md)); nếu là plugin của bạn thì xem lại `min_mode` khai trong `register_tool`.
-- **Tool trả về "Chưa kết nối ...":** plugin cần một kết nối mà bạn chưa đấu. Làm theo đúng câu hướng dẫn trong lỗi, thường là vào trang **Kết nối** (hoặc **Models** với plugin tạo ảnh).
-- **Bấm Bật báo "không tìm thấy plugin":** danh sách trên màn hình đã cũ so với đĩa (bạn vừa xoá hoặc đổi tên thư mục). Tải lại trang.
-- **Bấm Bật báo "ghi manifest lỗi":** Javis không ghi được vào `plugin.yaml`, thường do quyền thư mục hoặc file đang mở khoá bởi chương trình khác. Xem thêm [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+- **The card reads "⚠ off by env":** this machine sets `JAVIS_ENABLE_USER_PLUGINS=false`. Remove that line from `.env` (or set `true`) and restart Jarvis 007. The variable is only read at startup.
+- **The environment variable is set and it is still blocked:** check that the `.env` file is in the project root, that the line has no leading `#`, and that the value is `true` (or `1`/`yes`/`on`). On Docker, set the variable in the container's Environment section rather than in a file on the host.
+- **A newly dropped plugin does not appear on the page:** the folder must be **directly** inside the plugins folder (no extra nesting) and must contain `plugin.py` (or `__init__.py`). Without that, Jarvis 007 does not consider it a plugin. The folder name must also be a valid slug (lowercase, no diacritics).
+- **The card reads "⚠ error" with "plugin.py missing":** the folder has only `plugin.yaml`. Add the code file.
+- **The card reads "⚠ error" with "manifest error: ...":** `plugin.yaml` has invalid YAML. Most often a description containing a colon without quotes.
+- **The card reads "⚠ error" with "no register(ctx) function":** `plugin.py` has no `register` function, or you named it something else. It must be named exactly `register` and take one parameter.
+- **The card reads "⚠ error" with a Python error name (`ModuleNotFoundError`, say):** the plugin code uses a library not installed in Jarvis 007's Python environment. Install it into the virtual environment Jarvis 007 actually runs in, then restart.
+- **The plugin is running but the engine does not see the tool:** most likely the tool name **collides** with an existing MCP or core tool. Jarvis 007 does not let a plugin take a core tool's place, so it skips the colliding tool and writes a line to the server log. Rename the tool in `plugin.py` (a private prefix is the safest approach). Core names that cannot be reused: `javis_connections`, `javis_read_file`, `javis_list_dir`, `javis_write_file`, `javis_use_skill`.
+- **The tool returns `ERROR: tool '<tên>' cần mức quyền cao hơn` (Vietnamese for "tool '<name>' needs a higher permission level"):** the run is permission-restricted. If it is a recurring job, raise that job's mode (see [Recurring jobs and reminders](08-viec-dinh-ky.md)); if it is your own plugin, review the `min_mode` declared in `register_tool`.
+- **The tool returns "not connected ...":** the plugin needs a connection you have not attached. Follow the instruction in the error exactly, usually going to the **Connections** page (or **Models** for the image plugin).
+- **Clicking Enable reports "plugin not found":** the list on screen is stale compared to disk (you just deleted or renamed the folder). Reload the page.
+- **Clicking Enable reports "failed to write the manifest":** Jarvis 007 cannot write to `plugin.yaml`, usually a folder permission issue or the file being locked by another program. See also [Troubleshooting and FAQ](17-khac-phuc-su-co.md).
 
-## Liên quan
+## Related
 
-- [Skills](06-skills.md) - khi cái bạn thiếu là tri thức cách làm chứ không phải mã chạy.
-- [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md) - đấu nguồn dữ liệu ngoài; các plugin Meta Ads, Facebook Trang và Apify lấy token từ đây.
-- [Models & engine](10-models-va-engine.md) - vì sao mọi engine đều gọi được tool của plugin.
-- [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md) - ba mức quyền của việc chạy nền, và plugin `javis-schedule`.
-- [Zalo Agent MCP](12-zalo.md) - Zalo nay dùng MCP của CLI riêng `javis-zalo`, không còn plugin riêng.
-- [Cấu hình .env](16-cau-hinh-env.md) - cách đặt biến môi trường và khởi động lại.
-- [Agents & Workflows](07-agents-va-workflows.md) - các loại năng lực khác của Javis.
+- [Skills](06-skills.md) - when what you lack is know-how rather than running code.
+- [Connections and business data](09-mcp-va-so-lieu.md) - attaching external data sources; the Meta Ads, Facebook Pages and Apify plugins take their tokens from here.
+- [Models and engines](10-models-va-engine.md) - why every engine can call plugin tools.
+- [Recurring jobs and reminders](08-viec-dinh-ky.md) - the three permission levels of background work, and the `javis-schedule` plugin.
+- [Zalo Agent MCP](12-zalo.md) - Zalo now uses the MCP of Jarvis 007's own `javis-zalo` CLI and no longer has its own plugin.
+- [.env configuration](16-cau-hinh-env.md) - how to set an environment variable and restart.
+- [Agents and Workflows](07-agents-va-workflows.md) - Jarvis 007's other kinds of capability.

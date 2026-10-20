@@ -1,162 +1,162 @@
-# Đồng bộ brain với GitHub (2 chiều)
+# Syncing the brain with GitHub (two-way)
 
 ***Tiếng Việt** · [English](en/18-github-backup.md)*
 
-Tính năng này đồng bộ **TẤT CẢ brain trong thư mục brains** (mọi bộ não: ghi chú, Wiki, ký ức, agent/workflow) với một repo GitHub **riêng tư** của bạn - theo CẢ HAI CHIỀU: đẩy thay đổi của máy này lên, đồng thời kéo thay đổi từ máy khác về. Mục đích: không mất dữ liệu khi hỏng máy/mất VPS, và **dùng được nhiều máy cùng lúc** (máy nhà + VPS) - các máy tự khớp dữ liệu với nhau qua repo.
+This feature syncs **EVERY brain in the brains folder** (all of them: notes, Wiki, memories, agents and workflows) with a **private** GitHub repo of yours, in BOTH directions: pushing this machine's changes up while pulling other machines' changes down. The point: no data lost when a machine dies or a VPS disappears, and **being able to use several machines at once** (home machine plus VPS), with the machines matching each other's data through the repo.
 
-> Nên để **mọi brain nằm trong thư mục brains** (tạo brain mới qua nút ➕ là tự vào đó). Đồng bộ lấy nguyên thư mục brains làm một khối, nên brain nào nằm ngoài (chọn folder ngoài bằng nút 📁) sẽ KHÔNG được đồng bộ chung - hãy chuyển nó vào brains.
+> Keep **every brain inside the brains folder** (creating one with the ➕ button puts it there automatically). Sync takes the whole brains folder as one unit, so any brain outside it (an external folder picked with the 📁 button) is NOT synced along; move it into brains.
 
-Mở tại: trang **Tự học** (nhóm **Bộ não** trên thanh nav trái), kéo xuống mục **⇅ Đồng bộ brain với GitHub (2 chiều)**.
+Open it at: the **Self-learning** page (**Brain** group on the left nav rail), scrolling down to **⇅ Sync brain with GitHub (two-way)**.
 
-## Vì sao nên bật
+## Why turn it on
 
-Brain là toàn bộ tri thức Javis tích luỹ được về bạn và công việc. Nó nằm trên đĩa máy/VPS. Nếu chỉ có một bản, một sự cố là mất sạch. Đồng bộ với GitHub cho bạn:
+The brain is all the knowledge Jarvis 007 has accumulated about you and your work. It sits on the machine's or VPS's disk. With only one copy, one accident loses everything. Syncing with GitHub gives you:
 
-- Bản sao ngoài, an toàn khi máy hỏng.
-- Lịch sử từng lần thay đổi (xem lại, khôi phục điểm cũ).
-- Làm việc xen kẽ nhiều máy: sửa ở máy nhà, VPS tự nhận được ở lần đồng bộ sau, và ngược lại.
-- Máy mới chỉ cần dán repo + token rồi bấm đồng bộ là toàn bộ brain về lại đủ.
+- An off-machine copy, safe when hardware fails.
+- A history of every change (review it, restore an earlier point).
+- Working across machines: edit at home, and the VPS picks it up on the next sync, and the other way around.
+- A new machine only needs the repo plus token pasted in and one sync to have every brain back in full.
 
-## Điều kiện
+## Requirements
 
-- Máy/VPS phải có **git** (mục Đồng bộ sẽ báo "máy chưa cài git" nếu thiếu). Trên Docker image chính thức đã có sẵn git.
-- Một tài khoản GitHub.
+- The machine or VPS must have **git** (the Sync section reports "git is not installed on this machine" if it is missing). The official Docker image already ships git.
+- A GitHub account.
 
-## Cài đặt trong 3 bước
+## Setup in 3 steps
 
-### Bước 1 - Tạo repo GitHub riêng tư
+### Step 1 - Create a private GitHub repo
 
-1. Vào https://github.com/new
-2. Đặt tên, ví dụ `javis-brain-backup`.
-3. Chọn **Private** (BẮT BUỘC - brain chứa dữ liệu cá nhân/kinh doanh, tuyệt đối không để Public).
-4. **KHÔNG** tích "Add a README file" (để repo trống, tránh xung đột lần đẩy đầu).
-5. Bấm **Create repository**. Copy URL dạng `https://github.com/<tên-bạn>/javis-brain-backup`.
+1. Go to https://github.com/new
+2. Give it a name, for example `javis-brain-backup`.
+3. Choose **Private** (MANDATORY: the brain holds personal and business data, never make it Public).
+4. Do **NOT** tick "Add a README file" (leave the repo empty to avoid a conflict on the first push).
+5. Click **Create repository**. Copy the URL, shaped `https://github.com/<your-name>/javis-brain-backup`.
 
-### Bước 2 - Tạo token (fine-grained)
+### Step 2 - Create a token (fine-grained)
 
-1. Vào https://github.com/settings/tokens?type=beta (Settings → Developer settings → **Fine-grained tokens** → Generate new token).
-2. Đặt tên token, chọn thời hạn.
-3. **Repository access** → Only select repositories → chọn đúng repo `javis-brain-backup`.
-4. **Permissions** → Repository permissions → **Contents** → chọn **Read and write**.
-5. Bấm Generate, **copy token** (dạng `github_pat_...`). Token chỉ hiện 1 lần - copy ngay.
+1. Go to https://github.com/settings/tokens?type=beta (Settings → Developer settings → **Fine-grained tokens** → Generate new token).
+2. Name the token and choose an expiry.
+3. **Repository access** → Only select repositories → pick exactly the `javis-brain-backup` repo.
+4. **Permissions** → Repository permissions → **Contents** → choose **Read and write**.
+5. Click Generate and **copy the token** (shaped `github_pat_...`). The token is shown once only, so copy it immediately.
 
-### Bước 3 - Dán vào Javis
+### Step 3 - Paste it into Jarvis 007
 
-1. Mở trang **Tự học** → mục **⇅ Đồng bộ brain với GitHub (2 chiều)**.
-2. Dán **URL repo (https)** và **GitHub token (fine-grained, quyền Contents)** vào ô tương ứng.
-3. Kiểm tra ô **Nhánh**: mặc định là `main`. Repo của bạn dùng nhánh mặc định khác (ví dụ `master`) thì sửa ở đây, không thì đẩy lên sẽ trật nhánh.
-4. Bấm **🔌 Kiểm tra kết nối** - phải hiện "Kết nối OK".
-5. Bấm **⇅ Đồng bộ ngay** cho lần đầu.
-6. Muốn tự động: bật công tắc **Tự động**, đặt **Tự đồng bộ mỗi (giờ)** (mặc định 6), rồi **💾 Lưu cấu hình**.
+1. Open the **Self-learning** page → the **⇅ Sync brain with GitHub (two-way)** section.
+2. Paste the **repo URL (https)** and the **GitHub token (fine-grained, Contents permission)** into their fields.
+3. Check the **Branch** field: it defaults to `main`. If your repo's default branch differs (`master`, say), fix it here or the push goes to the wrong branch.
+4. Click **🔌 Test connection**, which must report "Connection OK".
+5. Click **⇅ Sync now** for the first run.
+6. To automate it: turn the **Automatic** switch on, set **Auto-sync every (hours)** (default 6), then **💾 Save configuration**.
 
-Dùng nhiều máy: làm đúng 3 bước này trên TỪNG máy (cùng repo, cùng nhánh, cùng token hoặc token riêng đều được). Bật Tự động ở cả hai nơi - các máy sẽ tự khớp nhau theo chu kỳ.
+Using several machines: do these 3 steps on EACH machine (same repo, same branch, the same token or separate tokens both work). Turn Automatic on in both places and the machines match each other on the cycle.
 
-## Bảng tra nhanh ô nhập và nút
+## Quick reference of fields and buttons
 
-| Ô / nút | Việc nó làm |
+| Field / button | What it does |
 |---|---|
-| **URL repo (https)** | Repo GitHub riêng tư nhận backup, dạng `https://github.com/<bạn>/<repo>`. |
-| **GitHub token (fine-grained, quyền Contents)** | Token đẩy/kéo. Lưu nội bộ trong `settings.json` ở dạng mã hoá, không bao giờ lên repo. |
-| **Nhánh** | Nhánh sẽ đẩy lên, mặc định `main`. Ứng với khoá `backup.branch` trong `settings.json`. |
-| **Tự đồng bộ mỗi (giờ)** | Chu kỳ tự chạy, mặc định 6. |
-| **Tự động** | Công tắc bật/tắt chạy định kỳ, hiện **○ Tắt** khi đang tắt. |
-| **🔌 Kiểm tra kết nối** | Thử kết nối repo + token, không đẩy gì. |
-| **⇅ Đồng bộ ngay** | Chạy một lượt đồng bộ đầy đủ ngay lập tức. |
-| **💾 Lưu cấu hình** | Ghi lại toàn bộ ô trên (kể cả công tắc Tự động và số giờ). |
+| **Repo URL (https)** | The private GitHub repo receiving the backup, shaped `https://github.com/<you>/<repo>`. |
+| **GitHub token (fine-grained, Contents permission)** | The token used to push and pull. Stored locally in `settings.json` encrypted, never pushed to the repo. |
+| **Branch** | The branch to push to, `main` by default. Corresponds to the `backup.branch` key in `settings.json`. |
+| **Auto-sync every (hours)** | The automatic cycle, 6 by default. |
+| **Automatic** | The on/off switch for periodic runs, showing **○ Off** when off. |
+| **🔌 Test connection** | Tries the repo plus token, pushing nothing. |
+| **⇅ Sync now** | Runs one full sync immediately. |
+| **💾 Save configuration** | Writes every field above (the Automatic switch and the hour count included). |
 
-## Cách nó hoạt động
+## How it works
 
-Mỗi lượt đồng bộ làm 4 việc theo thứ tự:
+Each sync does 4 things in order:
 
-1. **Chụp** thư mục brains vào một bản sao sạch (bỏ file nhạy cảm + git thô của từng brain) và ghi nhận thay đổi của máy này.
-2. **Kéo về** bản mới nhất trên GitHub và **hoà nhập**: file khác nhau thì tự ghép; hai máy cùng sửa MỘT file thì **bản sửa mới hơn thắng**, bản thua được giữ nguyên thành file `.conflict-<local|remote>-<thời điểm>` ngay cạnh để bạn tự quyết; một bên sửa một bên xoá thì bản sửa thắng (không âm thầm mất dữ liệu).
-3. **Áp kết quả** về thư mục brains của máy (file vừa sửa tay ngay trong lúc đồng bộ sẽ không bị đè - máy giữ bản của bạn, vòng sau tự hoà tiếp).
-4. **Đẩy lên** GitHub (đẩy thường, KHÔNG force). Nếu máy khác vừa đẩy chen ngang, Javis tự kéo về hoà tiếp rồi đẩy lại.
+1. **Snapshots** the brains folder into a clean copy (dropping sensitive files and each brain's raw git) and records this machine's changes.
+2. **Pulls** the latest version from GitHub and **merges**: different files are combined automatically; when two machines edited THE SAME file, the **more recent edit wins**, and the losing version is kept alongside as `.conflict-<local|remote>-<timestamp>` for you to decide; when one side edited and the other deleted, the edit wins (nothing is lost silently).
+3. **Applies the result** back into the machine's brains folder (a file you edited by hand during the sync itself is not overwritten, the machine keeps your copy and the next round merges it).
+4. **Pushes** to GitHub (an ordinary push, NOT a force). If another machine pushed in between, Jarvis 007 pulls, merges again and pushes again.
 
-Ghi chú an toàn của cơ chế:
+Safety notes about the mechanism:
 
-- Token **không** được lưu vào brain hay đẩy lên repo. Nó nằm trong `settings.json` nội bộ (đã git bỏ qua). Thông báo lỗi cũng tự che token.
-- **Chỉ file CHỮ mới được đồng bộ.** Ảnh, video, âm thanh, PDF và mọi file nhị phân khác không lên repo - xem mục [Chỉ đồng bộ THÔNG TIN, không đồng bộ media](#chỉ-đồng-bộ-thông-tin-không-đồng-bộ-media) ngay dưới.
-- File nhạy cảm cũng bị loại khỏi đồng bộ dù là chữ: hội thoại gốc (`memory/conversations`), log loop/learn (`Javis/loop-log`, `Javis/learn-log`, `Javis/learn-staging`), thống kê dùng skill (`Javis/skill-usage.json`), khoá lock, file `.tmp`, và `.git` riêng của từng brain. Những file này chỉ nằm trên máy tạo ra chúng.
-- Thùng rác brain (`brain-trash` trong thư mục state) nằm NGOÀI vùng đồng bộ nên không lên repo.
-- Máy có thư mục brains **trống** (máy mới, volume mới) được coi là KHÔI PHỤC: chỉ nhận dữ liệu về, không bao giờ đẩy "trạng thái trống" lên đè mất backup.
-- Xoá file/brain trên một máy thì lần đồng bộ sau các máy khác cũng xoá theo (đó là nghĩa của sync). Nhờ repo là git, mọi thứ vẫn nằm trong lịch sử commit - khôi phục được khi cần.
+- The token is **not** stored in the brain or pushed to the repo. It lives in the local `settings.json` (git-ignored). Error messages mask the token too.
+- **Only TEXT files are synced.** Images, video, audio, PDFs and every other binary do not go to the repo; see [Sync INFORMATION only, not media](#sync-information-only-not-media) just below.
+- Sensitive files are excluded from sync even when they are text: raw conversations (`memory/conversations`), loop and learn logs (`Javis/loop-log`, `Javis/learn-log`, `Javis/learn-staging`), skill usage statistics (`Javis/skill-usage.json`), lock files, `.tmp` files, and each brain's own `.git`. Those stay on the machine that created them.
+- The brain trash (`brain-trash` in the state folder) is OUTSIDE the sync area, so it never reaches the repo.
+- A machine with an **empty** brains folder (a new machine, a new volume) is treated as a RESTORE: it only receives data and never pushes an "empty state" that would wipe the backup.
+- Deleting a file or brain on one machine deletes it on the others at the next sync (that is what sync means). Because the repo is git, everything remains in the commit history and can be recovered when needed.
 
-## Chỉ đồng bộ THÔNG TIN, không đồng bộ media
+## Sync INFORMATION only, not media
 
-Đây là chỗ dễ bất ngờ nhất, đọc kỹ một lần rồi thôi.
+This is the most surprising part, so read it carefully once and be done.
 
-**Lên GitHub chỉ có file chữ.** Ghi chú, Wiki, ký ức, skill, cấu hình việc định kỳ, script: `.md`, `.txt`, `.html`, `.csv`, `.json`, `.yaml`, `.canvas`, `.py`, `.svg` và vài đuôi chữ khác. Danh sách đầy đủ nằm ở `TEXT_EXTS` trong `server/git_brain.py`.
+**Only text files reach GitHub.** Notes, Wiki, memories, skills, recurring-job configuration, scripts: `.md`, `.txt`, `.html`, `.csv`, `.json`, `.yaml`, `.canvas`, `.py`, `.svg` and a few other text extensions. The full list is `TEXT_EXTS` in `server/git_brain.py`.
 
-**Ảnh, video, âm thanh, PDF và mọi file nhị phân khác KHÔNG lên.** Chúng vẫn nằm nguyên trên máy và dùng bình thường, chỉ là không đi vào lịch sử git và không sang máy khác qua đường này.
+**Images, video, audio, PDFs and every other binary do NOT.** They stay on the machine and work normally, they just do not enter git history and do not travel to other machines this way.
 
-### Vì sao lại chặn, thay vì cứ đẩy hết cho chắc
+### Why block them rather than push everything to be safe
 
-Git được thiết kế để **nhớ mãi mãi**, và đó là chỗ khác biệt căn bản với một ổ đĩa hay Google Drive.
+Git is designed to **remember forever**, and that is the fundamental difference from a disk or Google Drive.
 
-Mỗi lần commit, git lấy ruột file, băm ra một mã, rồi cất cái ruột đó thành một cục nén trong `.git/objects` (gọi là *blob*). Xoá file ở lần commit sau chỉ ghi thêm một dòng "từ đây không còn file này nữa" - bản thân blob vẫn phải giữ, vì không giữ thì không quay ngược về commit cũ được. `git gc` cũng không dọn được nó, vì nó vẫn có chủ. Nói cách khác: **xoá file khỏi git không đòi lại được dung lượng.**
+At every commit, git takes the file's contents, hashes them, then stores those contents as a compressed object in `.git/objects` (a *blob*). Deleting the file in a later commit only records a line saying "from here on this file is gone"; the blob itself must be kept, because without it you cannot go back to the old commit. `git gc` cannot clean it either, since it still has an owner. In other words: **deleting a file from git does not reclaim space.**
 
-Với chữ, tính chất đó là ưu điểm. Git nén rất tốt và chỉ lưu phần chênh lệch giữa các phiên bản, nên một file `.md` sửa cả trăm lượt gộp lại vẫn nhẹ hơn bạn tưởng.
+For text, that property is a strength. Git compresses very well and stores only the difference between versions, so an `.md` file edited a hundred times adds up to less than you would think.
 
-Với media thì ngược hẳn. File `.mp4` hay `.jpg` đã được codec nén sẵn, git không nén thêm được, và hai bản render của cùng một clip thì với git là hai file hoàn toàn khác nhau chứ không phải một file sửa nhẹ. Mỗi lượt xuất lại là thêm nguyên một cục vào kho, vĩnh viễn. Một brain vài trăm MB media cộng thói quen chỉnh vài lượt mỗi clip sẽ đẩy repo lên nhiều GB trong ít tháng, và máy mới clone về phải tải cả những bản render đã bỏ từ năm ngoái.
+For media it is the exact opposite. An `.mp4` or `.jpg` is already codec-compressed, git cannot compress it further, and two renders of the same clip are, to git, two entirely different files rather than one lightly edited file. Every re-export adds another whole object to the store, permanently. A brain with a few hundred MB of media plus a habit of re-editing each clip a few times pushes the repo into multiple GB within months, and a new machine cloning it has to download even the renders you abandoned last year.
 
-Lúc đó muốn dọn thì phải **viết lại toàn bộ lịch sử** (`git filter-repo` hoặc BFG). Việc đó đổi mã băm của mọi commit, nên mọi bản sao ở máy khác thành không tương thích và phải tải lại từ đầu. Với Javis đang đồng bộ hai chiều nhiều máy thì đó là thảm hoạ chứ không phải một thao tác bảo trì. Nên cách đúng là ngay từ đầu đừng cho media vào.
+Cleaning that up then requires **rewriting the entire history** (`git filter-repo` or BFG). That changes every commit's hash, so every copy on other machines becomes incompatible and has to be downloaded from scratch. For a Jarvis 007 syncing two ways across several machines, that is a disaster rather than a maintenance task. So the right approach is to keep media out from the start.
 
-### Vậy media sao lưu ở đâu
+### So where do you back media up
 
-Dùng thứ lưu theo **trạng thái hiện tại**: Google Drive, OneDrive, ổ cứng ngoài, NAS. Ở đó xoá là mất thật và đòi lại được dung lượng thật - đúng thứ bạn cần cho ảnh và video. Hai công cụ chia việc cho nhau chứ không thay nhau: git giữ tri thức và toàn bộ lịch sử của nó, Drive giữ file nặng ở trạng thái mới nhất.
+Use something that stores the **current state**: Google Drive, OneDrive, an external disk, a NAS. There, deleting really deletes and really reclaims space, exactly what you want for images and video. The two tools divide the work rather than replacing one another: git holds knowledge and its whole history, Drive holds the heavy files at their latest state.
 
-Sau mỗi lần bấm **⇅ Đồng bộ ngay**, nếu có media bị bỏ qua thì Javis ghi rõ ngay dưới dòng trạng thái: bao nhiêu file, tổng bao nhiêu MB. Bỏ qua lặng lẽ thì có ngày bạn tưởng ảnh của mình cũng đã được sao lưu, tới lúc mất máy mới biết là không.
+After every **⇅ Sync now**, if media was skipped Jarvis 007 states it right under the status line: how many files, how many MB in total. Skipping silently would one day leave you believing your images were backed up too, only to learn otherwise when the machine is gone.
 
-### Muốn ảnh cũng đi theo: công tắc "Đồng bộ cả ảnh"
+### If you want images to travel too: the "Sync images too" switch
 
-Có người thật sự cần ảnh trong brain (chụp màn hình, ảnh sản phẩm vài trăm KB) đi theo tri thức sang máy khác. Từ bản 0.46.0, trong khối đồng bộ có thêm công tắc **Đồng bộ cả ảnh** (mặc định tắt). Bật lên thì:
+Some people genuinely need the images in their brain (screenshots, product photos of a few hundred KB) to follow the knowledge to another machine. Since version 0.46.0, the sync block has an extra **Sync images too** switch (off by default). Turning it on means:
 
-- Ảnh **jpg / png / gif / webp**, mỗi ảnh tối đa **10 MB** (đổi bằng biến môi trường `JAVIS_SYNC_ANH_MAX_MB`), cũng lên repo và đồng bộ 2 chiều như file chữ. Video, âm thanh, PDF và ảnh quá trần vẫn không bao giờ lên; `inbox/` cũng không - đó là chỗ trung chuyển một lượt chat.
-- Javis **ngừng tự dọn `attachments/`** trên máy đó (vẫn dọn `inbox/`): ảnh đã backup mà máy dọn xoá theo hạn thì lệnh xoá lan sang mọi máy, ảnh backup tự biến mất - nên hai thứ này phải đi cùng nhau.
+- **jpg / png / gif / webp** images, each up to **10 MB** (change it with the `JAVIS_SYNC_ANH_MAX_MB` environment variable), also reach the repo and sync two ways like text files. Video, audio, PDFs and images over the ceiling still never go; nor does `inbox/`, which is a one-chat transit area.
+- Jarvis 007 **stops clearing `attachments/`** on that machine (it still clears `inbox/`): if backed-up images were cleared by the age rule, the deletion would propagate to every machine and the backup images would vanish, so the two must go together.
 
-Ba điều cần cân nhắc TRƯỚC khi bật:
+Three things to weigh BEFORE turning it on:
 
-1. **Git nhớ mãi mãi.** Ảnh đã đẩy lên nằm vĩnh viễn trong lịch sử repo; tắt công tắc sau này không lấy lại dung lượng. Repo Private GitHub thoải mái ở mức vài trăm MB - đủ cho ảnh làm việc, không đủ cho kho ảnh gia đình.
-2. **Dùng nhiều máy chung repo thì bật trên MỌI máy.** Máy chưa bật coi ảnh là "ngoài phạm vi": không đẩy, không nhận, và cũng không xoá ảnh máy khác đã đưa lên - nên lệch cấu hình không làm mất ảnh, chỉ làm máy đó không thấy ảnh.
-3. **Video và file nặng vẫn theo lời khuyên cũ**: Drive, ổ ngoài, NAS.
+1. **Git remembers forever.** Pushed images sit permanently in the repo history; turning the switch off later does not reclaim the space. A private GitHub repo is comfortable at a few hundred MB, enough for working images, not enough for a family photo library.
+2. **Sharing a repo across machines means turning it on EVERYWHERE.** A machine with it off treats images as "out of scope": it neither pushes nor receives them, and it also does not delete images another machine uploaded, so mismatched configuration loses nothing, it only means that machine does not see the images.
+3. **Video and heavy files still follow the old advice**: Drive, an external disk, a NAS.
 
-### Media trong brain vẫn tự hết hạn như cũ
+### Media in the brain still expires as before
 
-Khi KHÔNG bật "Đồng bộ cả ảnh", Javis coi `attachments/` và `inbox/` là vùng cache: cứ 6 tiếng một lần, file quá **30 ngày** bị xoá, và nếu tổng vượt trần **300 MB** thì xoá từ cũ tới mới cho tới khi xuống dưới trần. Luật này không liên quan tới đồng bộ, nhưng cần biết vì nó là lý do ảnh cũ tự biến mất khỏi máy. Muốn giữ lâu dài thì rút nội dung ra note `.md`, chuyển file sang thư mục khác của brain, hoặc nới/tắt luật dọn (khoá `media` trong `settings.json`). Chi tiết cách tắt ở [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+With "Sync images too" OFF, Jarvis 007 treats `attachments/` and `inbox/` as a cache: every 6 hours, files over **30 days** old are deleted, and if the total passes the **300 MB** ceiling it deletes oldest first until it is back under. This rule has nothing to do with sync, but it is worth knowing because it is why old images vanish from the machine. To keep something long term, pull its content into an `.md` note, move the file into another folder of the brain, or loosen or disable the clearing rule (the `media` key in `settings.json`). How to disable it: [Troubleshooting and FAQ](17-khac-phuc-su-co.md).
 
-## Khôi phục brain trên máy mới
+## Restoring the brain on a new machine
 
-Không cần thao tác git tay: cài Javis, vào **Tự học → ⇅ Đồng bộ brain với GitHub (2 chiều)**, dán repo + token + đúng nhánh, bấm **⇅ Đồng bộ ngay** - toàn bộ brain về lại đủ. (Cách cũ `git clone` thẳng vào thư mục brains vẫn dùng được.)
+No manual git needed: install Jarvis 007, go to **Self-learning → ⇅ Sync brain with GitHub (two-way)**, paste the repo, the token and the right branch, click **⇅ Sync now**, and every brain comes back in full. (The old way, `git clone` straight into the brains folder, still works.)
 
-## Xử lý file .conflict-*
+## Handling .conflict-* files
 
-Khi hai máy sửa cùng một file giữa hai lần đồng bộ, bạn sẽ thấy thêm file dạng `ten-file.conflict-local-20260702-101530.md` cạnh file gốc:
+When two machines edit the same file between syncs, you get an extra file such as `file-name.conflict-local-20260702-101530.md` next to the original:
 
-- File gốc = bản THẮNG (bản có lần sửa mới hơn).
-- File `.conflict-*` = bản THUA, giữ nguyên nội dung để bạn so và gộp tay nếu cần.
-- Xem xong thì xoá file `.conflict-*` đi (nó cũng đồng bộ giữa các máy như file thường).
+- The original file = the WINNING version (the one with the more recent edit).
+- The `.conflict-*` file = the LOSING version, kept verbatim so you can compare and merge by hand if needed.
+- Delete the `.conflict-*` file once you have looked at it (it syncs between machines like any other file).
 
-## Lưu ý an toàn
+## Safety notes
 
-- **Luôn dùng repo Private.** Brain có thể chứa số liệu kinh doanh, tên khách hàng, đôi khi cả khoá bạn lỡ dán trong hội thoại - và như mục trên đã nói, cả ảnh/file bạn gửi lên chat cũng đi theo.
-- Token nên đặt thời hạn và chỉ cấp quyền **Contents** cho đúng repo đó - không cấp rộng hơn.
-- Một repo dùng cho MỘT bộ brains. Đừng trỏ 2 hệ thống Javis khác mục đích (dữ liệu khác nhau hoàn toàn) vào cùng repo - chúng sẽ trộn dữ liệu vào nhau đúng như thiết kế sync.
+- **Always use a Private repo.** A brain can hold business figures, customer names, sometimes even a key you happened to paste into a conversation, and as the section above says, the files you send into chat travel too.
+- Give the token an expiry and grant only the **Contents** permission on exactly that repo, nothing broader.
+- One repo serves ONE set of brains. Do not point two Jarvis 007 systems with entirely different purposes at the same repo, as they will mix their data together exactly as sync is designed to.
 
-## Sự cố thường gặp
+## Common problems
 
-| Triệu chứng | Nguyên nhân / cách xử lý |
+| Symptom | Cause / what to do |
 |---|---|
-| "máy chưa cài git" | Cài git trên máy/VPS. Docker image chính thức đã có sẵn. |
-| Kiểm tra kết nối báo lỗi 403 | Token thiếu quyền Contents: Read and write, hoặc chưa chọn đúng repo. |
-| Đẩy được nhưng trên GitHub không thấy file ở nhánh quen thuộc | Ô **Nhánh** đang khác nhánh mặc định của repo (mặc định Javis dùng `main`). Sửa ô Nhánh cho khớp rồi Lưu cấu hình và đồng bộ lại. |
-| "push liên tục bị vượt" | Nhiều máy đồng bộ cùng lúc liên tục. Bấm lại sau ít phút - cơ chế tự hoà sẽ khớp. |
-| "Áp bản đồng bộ về máy lỗi N file" | Có file đang bị khoá/không ghi được trên máy (vd đang mở trong app khác). Lần này KHÔNG đẩy gì lên (an toàn), đóng app đang giữ file rồi đồng bộ lại. |
-| Thấy nhiều file `.conflict-*` | Hai máy hay sửa cùng file giữa hai lần đồng bộ. Rút ngắn chu kỳ Tự động, hoặc chia việc mỗi máy một mảng; xử lý file conflict theo mục ở trên. |
-| Repo backup phình rất nhanh | Thường do bật "Đồng bộ cả ảnh" với brain nhiều ảnh. Dung lượng đã vào lịch sử thì không rút ra được; từ giờ hạn chế ảnh mới hoặc tắt công tắc (ảnh cũ vẫn nằm trong lịch sử). |
-| Bật "Đồng bộ cả ảnh" mà máy khác không thấy ảnh | Máy đó chưa bật công tắc - nó không nhận ảnh về. Bật trên mọi máy dùng chung repo. |
-| Muốn ngừng tự động | Tắt công tắc Tự động rồi Lưu cấu hình. Vẫn bấm "Đồng bộ ngay" thủ công được. |
+| "git is not installed on this machine" | Install git on the machine or VPS. The official Docker image already has it. |
+| Test connection reports a 403 | The token lacks Contents: Read and write, or the right repo was not selected. |
+| The push succeeds but GitHub shows no files on the branch you expected | The **Branch** field differs from the repo's default branch (Jarvis 007 defaults to `main`). Fix the Branch field to match, Save configuration and sync again. |
+| "the push keeps being overtaken" | Several machines are syncing at once, continuously. Click again in a few minutes and the merge mechanism will settle it. |
+| "applying the sync locally failed for N files" | Some files are locked or unwritable on the machine (open in another app, say). Nothing is pushed this round (which is safe); close the app holding the file and sync again. |
+| Many `.conflict-*` files appear | Two machines frequently edit the same file between syncs. Shorten the Automatic cycle, or split the work so each machine owns an area; handle the conflict files as described above. |
+| The backup repo grows very fast | Usually "Sync images too" turned on with an image-heavy brain. Space already in history cannot be reclaimed; from now on limit new images or turn the switch off (old images stay in history). |
+| "Sync images too" is on but another machine sees no images | That machine has the switch off, so it does not receive images. Turn it on for every machine sharing the repo. |
+| You want to stop the automatic runs | Turn the Automatic switch off and Save configuration. You can still click "Sync now" manually. |
 
 ---
 
-Liên quan: [08 - Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md) · [13 - Second Brain: bộ nhớ, Wiki](13-second-brain-bo-nho-wiki.md) · [22 - Tự học](22-tu-hoc.md) · [17 - Khắc phục sự cố](17-khac-phuc-su-co.md)
+Related: [08 - Recurring jobs and reminders](08-viec-dinh-ky.md) · [13 - Second Brain: memory, Wiki](13-second-brain-bo-nho-wiki.md) · [22 - Self-learning](22-tu-hoc.md) · [17 - Troubleshooting](17-khac-phuc-su-co.md)

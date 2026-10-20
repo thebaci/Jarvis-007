@@ -1,222 +1,222 @@
-# Khắc phục sự cố & FAQ
+# Troubleshooting and FAQ
 
 ***Tiếng Việt** · [English](en/17-troubleshooting.md)*
 
-Trang này gom các trục trặc hay gặp khi dùng Javis OS và cách xử lý từng bước. Phần lớn sự cố chỉ cần một trong hai thao tác: khởi động lại server, hoặc tải lại trình duyệt bằng Ctrl+Shift+R. Cuối trang có mục Câu hỏi thường gặp (FAQ) ngắn gọn.
+This page gathers the problems people hit most often with Jarvis 007 and how to work through each one. Most of them need only one of two actions: restart the server, or reload the browser with Ctrl+Shift+R. A short FAQ closes the page.
 
-Nếu bạn mới cài Javis lần đầu, xem trước [Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md). Nếu bạn đang chỉnh biến môi trường, xem [Cấu hình .env](16-cau-hinh-env.md).
+If you have just installed Jarvis 007 for the first time, read [Getting started and first setup](01-bat-dau-thiet-lap.md) first. If you are editing environment variables, see [.env configuration](16-cau-hinh-env.md).
 
-## Trước khi đọc: hai thao tác cứu hộ hay dùng nhất
+## Before you read on: the two rescue actions used most
 
-Rất nhiều lỗi biến mất sau một trong hai việc này, nên thử trước khi lo lắng:
+A great many errors disappear after one of these, so try them before worrying:
 
-1. **Khởi động lại server (khi bạn hoặc bản cập nhật vừa đổi code Python `.py`).**
-   - Trên **Windows**: chạy `stop-javis.bat` để tắt, rồi chạy `start-javis.vbs` (chạy ngầm) hoặc `setup.bat` (hiện cửa sổ) để bật lại.
-   - Trên **Docker / VPS**: `docker compose restart`.
-   - Trên **Linux (systemd)**: `sudo systemctl restart javis`.
-2. **Tải lại giao diện sạch bộ nhớ đệm (khi màn hình hiện sai, thiếu nút, hoặc bạn vừa đổi giao diện).** Nhấn **Ctrl+Shift+R** trên trình duyệt (Mac: Cmd+Shift+R). Đây là "hard refresh", buộc trình duyệt tải lại toàn bộ file giao diện thay vì dùng bản cũ trong cache.
+1. **Restart the server (when you or an update just changed Python `.py` code).**
+   - On **Windows**: run `stop-javis.bat` to stop it, then `start-javis.vbs` (runs in the background) or `setup.bat` (shows a window) to start it again.
+   - On **Docker / VPS**: `docker compose restart`.
+   - On **Linux (systemd)**: `sudo systemctl restart javis`.
+2. **Reload the interface with a clean cache (when the screen is wrong, a button is missing, or you just changed the interface).** Press **Ctrl+Shift+R** in the browser (Mac: Cmd+Shift+R). This is a hard refresh, forcing the browser to reload every interface file instead of using the cached copy.
 
-> Quy tắc đơn giản để nhớ: đổi phần lõi (file `.py`) thì **restart server**; giao diện hiển thị sai thì **Ctrl+Shift+R**.
+> The simple rule to remember: change the core (a `.py` file) means **restart the server**; the interface displaying wrong means **Ctrl+Shift+R**.
 
-## Bảng sự cố thường gặp
+## Common problems table
 
-| Hiện tượng | Cách xử lý |
+| Symptom | What to do |
 |---|---|
-| Sửa code (hoặc vừa cập nhật) mà **không thấy đổi** | Nếu đổi file `.py`: **khởi động lại server** (Windows: `stop-javis.bat` rồi `start-javis.vbs`; Docker: `docker compose restart`). Nếu chỉ đổi giao diện: nhấn **Ctrl+Shift+R**. |
-| **Cổng 7777 bị giữ**, bản mới không lên được | Tắt tiến trình cũ TRƯỚC rồi mới bật lại. Windows: chạy `stop-javis.bat`, hoặc `taskkill /F /PID <pid>` với PID đang giữ cổng. Docker: `docker compose down` rồi `docker compose up -d`. |
-| **Hostinger không pull được image** | Đặt package GHCR ở chế độ **Public** (GitHub, repo, mục Packages, chọn `javis-os`, Package settings, Visibility = Public). Sau đó đợi GitHub Action build xong (xem tab Actions của repo) rồi Deploy lại. |
-| Mở app ra **màn tạo tài khoản admin** trên server public | Chưa có admin nên ai mở link trước sẽ tạo được admin. Tạo tài khoản ngay (mật khẩu tối thiểu 8 ký tự), hoặc lần sau đặt sẵn env `JAVIS_ADMIN_USER` và `JAVIS_ADMIN_PASSWORD` lúc deploy để đăng nhập luôn. Vào được rồi thì bật 2FA. |
-| **Claude báo chưa đăng nhập** (Javis không trả lời được) | Đăng nhập lại "bộ não" Claude 1 lần. Cách trong app: mở **Models**, ở thẻ Claude Code bấm **Đăng nhập Claude**, mở link, dán code nếu được yêu cầu. Cách bằng lệnh: `claude auth login --claudeai` (Docker: chạy trong App terminal). |
-| **Trang Tệp tin báo lỗi ở "Đang tải..."** | Máy chủ chưa có endpoint Tệp tin (báo lỗi 404). **Khởi động lại server** để nạp endpoint mới, rồi nhấn **Ctrl+Shift+R**. |
-| Ảnh trong hội thoại cũ hiện ô xám **Ảnh đã hết hạn** | Đúng thiết kế: `attachments/` và `inbox/` là vùng cache, file quá 30 ngày (hoặc khi vượt trần 300MB) bị dọn. Xem mục "Ảnh và file cũ biến mất" bên dưới để biết cách giữ lại hoặc tắt hẳn. |
-| Voice / micro không bật được | Trình duyệt chỉ cấp quyền micro trên **HTTPS** (hoặc localhost). Mở qua `http://<ip>:7777` sẽ luôn bị chặn. Dùng URL `https://` (Hostinger `*.hstgr.cloud`, Cloudflare Tunnel, hoặc tên miền riêng có SSL). Xem [Thương hiệu & tên miền riêng](15-thuong-hieu-ten-mien.md). |
-| Cập nhật trong app xong mà **phiên bản không đổi** | Đợi thêm; nếu vẫn báo bản cũ, kiểm tra log cập nhật: `update.log` trong thư mục state (`server/update.log` khi chạy local, `/data/state/update.log` trên Docker), hoặc `docker compose logs`. |
-| **`javis` báo 401** hoặc "token không hợp lệ" | Token sai hoặc đã bị thu hồi. Tạo cái mới ở **Tài khoản > Token API** rồi `javis login <địa-chỉ>` lại. Xem [Javis CLI](24-cli-terminal.md). |
-| **`javis task add` / `javis brain ls` báo 403** | Token của bạn là loại **chỉ chat**. Những lệnh này cần token **toàn quyền** - tạo thêm một cái ở Tài khoản > Token API. |
-| **`javis up` báo không thấy bản cài Javis** | Đúng như nó nói: gói CLI KHÔNG chứa server bên trong. Đặt `JAVIS_HOME` trỏ tới thư mục Javis, chạy lệnh từ trong thư mục đó, hoặc `javis login <địa-chỉ>` để nối tới một Javis đang chạy nơi khác. |
+| You edited code (or just updated) and **nothing changed** | If a `.py` file changed: **restart the server** (Windows: `stop-javis.bat` then `start-javis.vbs`; Docker: `docker compose restart`). If only the interface changed: press **Ctrl+Shift+R**. |
+| **Port 7777 is held** and the new build will not come up | Kill the old process FIRST, then start again. Windows: run `stop-javis.bat`, or `taskkill /F /PID <pid>` with the PID holding the port. Docker: `docker compose down` then `docker compose up -d`. |
+| **Hostinger cannot pull the image** | Set the GHCR package to **Public** (GitHub, the repo, Packages, choose `javis-os`, Package settings, Visibility = Public). Then wait for the GitHub Action build to finish (the repo's Actions tab) and Deploy again. |
+| Opening the app shows the **create-admin screen** on a public server | No admin exists yet, so whoever opens the link first can create it. Create the account now (password at least 8 characters), or next time preset the env vars `JAVIS_ADMIN_USER` and `JAVIS_ADMIN_PASSWORD` at deploy time and sign straight in. Once inside, turn on 2FA. |
+| **Claude reports it is not signed in** (Jarvis 007 cannot answer) | Sign the Claude "brain" in once. In the app: open **Models**, on the Claude Code card click **Sign in to Claude**, open the link, paste the code if asked. By command: `claude auth login --claudeai` (on Docker, run it in the App terminal). |
+| **The Files page errors at "Loading..."** | The server has no Files endpoint yet (a 404). **Restart the server** to load the new endpoint, then press **Ctrl+Shift+R**. |
+| Images in old conversations show a grey **Image expired** box | By design: `attachments/` and `inbox/` are a cache, and files over 30 days (or when the 300MB ceiling is passed) are cleared. See "Old images and files disappear" below for how to keep them or turn clearing off. |
+| Voice / microphone will not turn on | Browsers only grant microphone permission over **HTTPS** (or on localhost). Opening `http://<ip>:7777` is always blocked. Use an `https://` URL (Hostinger `*.hstgr.cloud`, Cloudflare Tunnel, or a custom domain with SSL). See [Branding and custom domains](15-thuong-hieu-ten-mien.md). |
+| You updated in the app but **the version did not change** | Wait a little longer; if it still reports the old build, check the update log: `update.log` in the state folder (`server/update.log` locally, `/data/state/update.log` on Docker), or `docker compose logs`. |
+| **`javis` reports 401** or "invalid token" | The token is wrong or was revoked. Create a new one at **Account > API tokens** then run `javis login <address>` again. See [The Jarvis 007 CLI](24-cli-terminal.md). |
+| **`javis task add` / `javis brain ls` report 403** | Your token is the **chat only** kind. These commands need a **full power** token, so create one at Account > API tokens. |
+| **`javis up` reports it cannot find a Jarvis 007 install** | Exactly as it says: the CLI package does NOT contain the server. Point `JAVIS_HOME` at the Jarvis 007 folder, run the command from inside that folder, or use `javis login <address>` to connect to a Jarvis 007 running elsewhere. |
 
-Các mục dưới đây giải thích chi tiết hơn từng dòng trong bảng.
+The sections below explain each row in more detail.
 
-## Sửa code mà không thấy đổi
+## You edited code and nothing changed
 
-Javis gồm hai phần chạy khác nhau, nên cách làm mới cũng khác:
+Jarvis 007 has two parts that run differently, so refreshing them differs too:
 
-1. **Đổi phần lõi (file Python `.py` trong `server/`)**: server đang chạy vẫn giữ bản cũ trong bộ nhớ. Bạn phải **tắt và bật lại server**:
-   - Windows: chạy `stop-javis.bat`, đợi vài giây, rồi chạy `start-javis.vbs`.
+1. **Changing the core (Python `.py` files in `server/`)**: the running server still holds the old build in memory. You must **stop and start the server**:
+   - Windows: run `stop-javis.bat`, wait a few seconds, then run `start-javis.vbs`.
    - Docker / VPS: `docker compose restart`.
    - Linux systemd: `sudo systemctl restart javis`.
-2. **Đổi phần giao diện (HTML/CSS/JS trong `dashboard/`)**: server không cần restart, nhưng trình duyệt hay giữ bản cũ trong cache. Nhấn **Ctrl+Shift+R** để tải lại sạch.
+2. **Changing the interface (HTML/CSS/JS in `dashboard/`)**: the server needs no restart, but the browser often keeps the old build in cache. Press **Ctrl+Shift+R** for a clean reload.
 
-Nếu làm cả hai vẫn không đổi, kiểm tra bạn có đang mở đúng cổng và đúng brain hay không.
+If neither helps, check that you are on the right port and the right brain.
 
-## Cổng 7777 bị giữ, bản mới không lên
+## Port 7777 is held and the new build will not come up
 
-Cổng mặc định của Javis là **7777**. Khi một tiến trình cũ chưa tắt hẳn mà bạn bật bản mới, bản mới sẽ báo lỗi vì cổng đang bận. Xử lý theo thứ tự:
+Jarvis 007's default port is **7777**. When an old process has not fully stopped and you start a new build, the new one errors because the port is busy. Work through it in order:
 
-1. Tắt tiến trình cũ trước. Windows: chạy `stop-javis.bat`. Nếu vẫn còn, tìm PID đang giữ cổng rồi `taskkill /F /PID <pid>`. Docker: `docker compose down`.
-2. Bật lại. Windows: `start-javis.vbs`. Docker: `docker compose up -d`.
+1. Stop the old process first. Windows: run `stop-javis.bat`. If it persists, find the PID holding the port then `taskkill /F /PID <pid>`. Docker: `docker compose down`.
+2. Start again. Windows: `start-javis.vbs`. Docker: `docker compose up -d`.
 
-Muốn đổi sang cổng khác (khi 7777 đụng phần mềm khác), đặt biến `JAVIS_PORT` trong file `.env`; xem [Cấu hình .env](16-cau-hinh-env.md).
+To move to another port (when 7777 collides with other software), set `JAVIS_PORT` in the `.env` file; see [.env configuration](16-cau-hinh-env.md).
 
-## Hostinger không pull được image
+## Hostinger cannot pull the image
 
-Khi deploy bằng Hostinger Docker Manager mà nó không tải được image, thường do hai nguyên nhân:
+When deploying through Hostinger Docker Manager and it cannot download the image, there are usually two causes:
 
-1. **Image ở chế độ riêng tư (Private).** Vào GitHub, mở repo, chọn mục **Packages**, chọn `javis-os`, vào **Package settings**, đặt **Visibility = Public**. Có vậy Hostinger mới pull được mà không cần đăng nhập registry.
-2. **Image chưa build xong.** Mỗi lần đẩy code mới lên nhánh `main`, GitHub Action mới bắt đầu build. Mở tab **Actions** của repo, đợi lượt build gần nhất chạy xong (dấu tích xanh), rồi bấm Deploy lại trên Hostinger.
+1. **The image is Private.** Go to GitHub, open the repo, choose **Packages**, choose `javis-os`, go to **Package settings** and set **Visibility = Public**. Only then can Hostinger pull without a registry login.
+2. **The image has not finished building.** Every push to the `main` branch starts a new GitHub Action build. Open the repo's **Actions** tab, wait for the latest build to finish (a green tick), then Deploy again on Hostinger.
 
-## Mở app ra màn tạo tài khoản admin trên server public
+## Opening the app shows the create-admin screen on a public server
 
-Khi Javis chạy public (Docker/VPS/Hostinger) mà chưa có admin, lần đầu mở app sẽ ra màn tạo tài khoản, chỉ hỏi tên đăng nhập và mật khẩu. Nghĩa là **ai mở link trước sẽ tạo được admin** (mà engine chạy toàn quyền trên máy), nên:
+When Jarvis 007 runs public (Docker/VPS/Hostinger) with no admin yet, opening the app the first time shows the create-account screen, which only asks for a username and password. That means **whoever opens the link first can create the admin** (and the engine runs with full power on the machine), so:
 
-1. **Đặt sẵn admin lúc deploy (khuyến nghị)**: hai env `JAVIS_ADMIN_USER` và `JAVIS_ADMIN_PASSWORD` trong compose hoặc `.env`. Khi đó mở app là đăng nhập luôn.
-2. **Không đặt env**: tạo tài khoản ngay sau khi deploy, mật khẩu tối thiểu 8 ký tự.
-3. **Vào được rồi**: bật xác thực 2 lớp (2FA) ở trang **Tài khoản**.
+1. **Preset the admin at deploy time (recommended)**: the two env vars `JAVIS_ADMIN_USER` and `JAVIS_ADMIN_PASSWORD` in the compose file or `.env`. Then opening the app takes you straight to sign-in.
+2. **Without the env vars**: create the account right after deploying, with a password of at least 8 characters.
+3. **Once inside**: turn on two-factor authentication (2FA) on the **Account** page.
 
-Chi tiết bảo mật và cách đặt mật khẩu xem [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md).
+Security details and how to set a password: [Security and accounts](14-bao-mat-tai-khoan.md).
 
-## Claude báo chưa đăng nhập
+## Claude reports it is not signed in
 
-Khi bạn chạy engine Claude, Javis mượn đúng phiên đăng nhập của `claude` CLI trên máy: đăng nhập 1 lần và giữ qua mọi restart/update. Nếu Javis không trả lời hoặc báo chưa đăng nhập:
+When you run the Claude engine, Jarvis 007 borrows the `claude` CLI's own login session on the machine: sign in once and it survives every restart and update. If Jarvis 007 does not answer or reports it is not signed in:
 
-1. **Cách trong giao diện:** mở **Models** (nhóm **Kết nối** trên thanh nav trái). Ở thẻ Claude Code, dòng trạng thái sẽ hiện **○ Chưa đăng nhập**. Bấm **Đăng nhập Claude**, app hiện một link; mở link để đăng nhập claude.ai; nếu trang hiện một mã code thì dán vào ô rồi bấm **Gửi code**. Khi xong, trạng thái đổi thành **● Đã kết nối**. Có nút **↻ Kiểm tra lại** để làm mới trạng thái.
-2. **Cách bằng lệnh:** chạy `claude auth login --claudeai` một lần (trên Docker thì chạy trong **App terminal**), mở link, dán code.
+1. **In the interface:** open **Models** (the **Connections** group on the left nav rail). On the Claude Code card, the status line reads **○ Not signed in**. Click **Sign in to Claude**, the app shows a link; open it to sign in to claude.ai; if the page shows a code, paste it into the field and click **Send code**. When it finishes, the status changes to **● Connected**. There is a **↻ Check again** button to refresh the status.
+2. **By command:** run `claude auth login --claudeai` once (on Docker, run it in the **App terminal**), open the link, paste the code.
 
-Token đăng nhập nằm trong `~/.claude` (Docker: volume `claude-auth`) nên không mất khi update. Nếu đã đăng nhập trên máy khác, có thể copy thư mục `~/.claude` sang. Xem thêm [Models & engine](10-models-va-engine.md).
+The login token lives in `~/.claude` (Docker: the `claude-auth` volume), so it survives updates. If you already signed in on another machine, you can copy the `~/.claude` folder across. See also [Models and engines](10-models-va-engine.md).
 
-## Trang Tệp tin báo lỗi ở "Đang tải..."
+## The Files page errors at "Loading..."
 
-Nếu vào **Tệp tin** (nhóm **Bộ não**) mà chỗ danh sách file báo lỗi thay vì lên danh sách, thường do máy chủ đang chạy bản cũ chưa có endpoint Tệp tin (lỗi 404). Bản thân giao diện sẽ nhắc: hãy **khởi động lại server** (Windows: `stop-javis.bat` rồi `start-javis.vbs`) rồi **tải lại trang** bằng Ctrl+Shift+R.
+If you open **Files** (**Brain** group) and the file list errors instead of appearing, the server is usually running an old build with no Files endpoint (a 404). The interface itself says so: **restart the server** (Windows: `stop-javis.bat` then `start-javis.vbs`) then **reload the page** with Ctrl+Shift+R.
 
-Nếu hiện dòng báo phiên đăng nhập hết hạn (lỗi 401), chỉ cần tải lại trang và đăng nhập lại. Hướng dẫn dùng Tệp tin đầy đủ ở [Quản lý tệp tin](05-quan-ly-tep-tin.md).
+If it reports an expired session (a 401), just reload the page and sign in again. The full Files guide is at [File manager](05-quan-ly-tep-tin.md).
 
-## Ảnh và file cũ biến mất (ô xám "Ảnh đã hết hạn")
+## Old images and files disappear (the grey "Image expired" box)
 
-Cuộn lại một hội thoại cũ mà thấy chỗ ảnh chỉ còn một ô xám ghi **Ảnh đã hết hạn**, hoặc file bạn từng gửi lên không mở được nữa: đây là hành vi cố ý, không phải lỗi.
+Scrolling back through an old conversation and finding only a grey box reading **Image expired**, or a file you once uploaded no longer opening: this is deliberate behaviour, not a bug.
 
-Hai thư mục `attachments/` và `inbox/` của brain (ảnh Javis tạo, file bạn gửi qua chat hoặc Telegram) được coi là **vùng cache**, không phải tri thức. Tri thức là file `.md`. Javis tự dọn chúng theo hai luật:
+A brain's `attachments/` and `inbox/` folders (images Jarvis 007 generated, files you sent through chat or Telegram) are treated as a **cache**, not as knowledge. Knowledge is the `.md` files. Jarvis 007 clears them under two rules:
 
-| Luật | Mặc định | Ý nghĩa |
+| Rule | Default | Meaning |
 |---|---|---|
-| Tuổi file | 30 ngày | File trong `attachments/` + `inbox/` già hơn ngần này bị xoá. |
-| Trần dung lượng | 300 MB | Nếu tổng vùng cache vượt trần, xoá từ cũ tới mới cho tới khi xuống dưới trần. |
-| Thư mục stage tạm | 3 ngày | Nơi file bạn dán/tải lên khung chat rơi xuống trước khi engine đọc (`.staging` trong thư mục state). Ở đây file `.md` cũng bị dọn. |
+| File age | 30 days | Files in `attachments/` + `inbox/` older than this are deleted. |
+| Size ceiling | 300 MB | If the total cache area passes the ceiling, delete oldest first until it is back under. |
+| Temporary stage folder | 3 days | Where files you paste or upload into the chat box land before the engine reads them (`.staging` in the state folder). Here `.md` files are cleared too. |
 
-Lượt dọn chạy nền **6 tiếng một lần**. File `.md` lạc trong `attachments/` và `inbox/` thì **không bao giờ bị xoá** (chỉ riêng thư mục stage tạm là dọn cả `.md`).
+The clearing pass runs in the background **every 6 hours**. `.md` files that end up in `attachments/` and `inbox/` are **never deleted** (only the temporary stage folder clears `.md` as well).
 
-**Muốn giữ lâu dài:** đừng để ảnh nằm trong vùng cache. Đọc xong thì rút nội dung ra note `.md` trong brain, hoặc đưa file sang một thư mục khác của brain (chỉ `attachments/`, biến thể của nó, và `inbox/` mới bị dọn), hoặc lưu ở kho ngoài.
+**To keep something long term:** do not leave the image in the cache area. Once read, pull its content into an `.md` note in the brain, or move the file into another folder of the brain (only `attachments/`, its variants, and `inbox/` are cleared), or store it externally.
 
-**Muốn tắt hẳn việc dọn:** mở file `settings.json` trong thư mục state (`server/settings.json` khi chạy local, `/data/state/settings.json` trên Docker) và thêm khối `media`:
+**To turn clearing off entirely:** open `settings.json` in the state folder (`server/settings.json` locally, `/data/state/settings.json` on Docker) and add the `media` block:
 
 ```json
 "media": { "enabled": false }
 ```
 
-Đặt `"enabled": false` là không dọn gì cả. Muốn nới thay vì tắt thì chỉnh số: `"max_age_days": 90`, `"max_mb": 2000`, `"staging_days": 7`; đặt `max_age_days` hoặc `max_mb` bằng 0 là tắt riêng luật đó. Sửa xong **khởi động lại server**.
+Setting `"enabled": false` clears nothing at all. To loosen rather than disable, adjust the numbers: `"max_age_days": 90`, `"max_mb": 2000`, `"staging_days": 7`; setting `max_age_days` or `max_mb` to 0 disables just that rule. After editing, **restart the server**.
 
-Lưu ý nếu bạn đang bật đồng bộ GitHub: `attachments/` và `inbox/` VẪN nằm trong phạm vi đồng bộ, nên việc dọn cũng lan sang repo backup và sang máy khác ở lần đồng bộ sau. Xem [Sao lưu brain lên GitHub](18-sao-luu-github.md).
+A note if you have GitHub sync on: `attachments/` and `inbox/` ARE within the sync scope, so clearing also propagates to the backup repo and to other machines on the next sync. See [Backing the brain up to GitHub](18-sao-luu-github.md).
 
-## Nhà cung cấp báo vượt hạn mức
+## The provider reports a rate limit
 
-Gói miễn phí của các nhà cung cấp API (Groq rõ nhất) siết **bốn thứ song song**, và chúng đòi bốn cách xử lý khác hẳn nhau. Javis đọc câu báo lỗi rồi tự phân loại, nên đọc thông báo trong chat là biết mình đang dính cái nào:
+The free tiers of API providers (Groq most visibly) tighten **four things in parallel**, and each demands a completely different response. Jarvis 007 reads the error message and classifies it, so reading the notice in chat tells you which one you hit:
 
-- **Token mỗi phút, lượt này quá to.** Javis tự rút gọn ngữ cảnh rồi gửi lại. Không vừa nữa thì bật mức **Tối ưu** ở đầu trang Mức dùng, hoặc hỏi câu ngắn hơn.
-- **Token mỗi phút, cửa sổ đang đầy.** Các lượt trước chưa trôi qua. Javis tự chờ đúng số giây nhà cung cấp nói rồi gửi lại. Rút gọn câu hỏi không giúp gì.
-- **Số lượt mỗi phút.** Gọi quá dày. Chờ một lát rồi hỏi lại.
-- **Hạn mức theo NGÀY** (token hoặc số lượt). Hết quota ngày. Rút gọn câu hỏi hoàn toàn không giúp. Phải chờ sang ngày mới, đổi tạm sang bộ não khác ở trang **Models**, hoặc nâng gói với nhà cung cấp.
+- **Tokens per minute, this turn is too large.** Jarvis 007 shortens the context itself and resends. If it still does not fit, turn on the **Optimised** level at the top of the Usage page, or ask a shorter question.
+- **Tokens per minute, the window is full.** Earlier turns have not aged out. Jarvis 007 waits exactly the number of seconds the provider states then resends. Shortening the question does not help.
+- **Requests per minute.** Calls came too thick and fast. Wait a moment then ask again.
+- **A DAILY limit** (tokens or requests). The day's quota is spent. Shortening the question does not help at all. You have to wait for the new day, switch temporarily to another brain on the **Models** page, or upgrade your plan with the provider.
 
-Nếu Javis không nhận ra loại nào, nó sẽ **đưa nguyên văn câu báo lỗi của nhà cung cấp** ra thay vì đoán. Gửi nguyên câu đó khi báo lỗi thì dễ lần ra hơn nhiều.
+If Jarvis 007 cannot classify it, it shows the **provider's error message verbatim** rather than guessing. Sending that exact sentence in a bug report makes it far easier to trace.
 
-Mẹo giảm hẳn tần suất gặp: chọn mức **Tối ưu** hoặc **Siêu tiết kiệm** ở đầu trang **Mức dùng** (từ 0.24.7 máy mới đã mặc định ở Siêu tiết kiệm). Sau lần đầu bị từ chối, Javis nhớ luôn hạn mức thật của tài khoản đó (do chính nhà cung cấp nói ra) và tự canh ngữ cảnh dưới ngưỡng cho các lượt sau, không cần khai gì cả.
+To hit this far less often: choose the **Optimised** or **Ultra-saving** level at the top of the **Usage** page (since 0.24.7 new machines default to Ultra-saving). After the first refusal, Jarvis 007 remembers that account's real limits (as stated by the provider itself) and keeps the context under the threshold on later turns, with nothing to declare.
 
-### Nhà cung cấp gãy một nhịp thì Javis tự hỏi lại
+### When the provider stumbles once, Jarvis 007 re-asks by itself
 
-Từ bản 0.24.4, lượt gọi model gãy vì lỗi **tạm thời** (429 gọi quá dày, 5xx quá tải, mạng chớp tắt) được tự chạy lại tối đa ba lần, cách nhau vài giây. Nhà cung cấp có gửi kèm `Retry-After` thì Javis nghe theo đúng số giây đó. Bạn thường không thấy gì cả, chỉ là câu trả lời tới chậm hơn một hai giây.
+Since version 0.24.4, a model call that fails on a **transient** error (429 too many calls, 5xx overload, a network blip) is retried automatically up to three times, seconds apart. If the provider sends `Retry-After`, Jarvis 007 obeys that exact number of seconds. You usually see nothing at all, only an answer arriving a second or two later.
 
-Hai trường hợp Javis **cố ý không** chạy lại:
+Two cases where Jarvis 007 **deliberately does not** retry:
 
-- **Câu trả lời đã bắt đầu hiện ra.** Chạy lại là bạn đọc câu trả lời hai lần.
-- **Lượt đó đã chạy công cụ** (gửi tin, ghi file, đặt lịch). Chạy lại cả vòng là làm những việc đó lần thứ hai. Thà báo lỗi.
+- **The answer already started appearing.** Retrying would make you read the answer twice.
+- **The turn already ran tools** (sent a message, wrote a file, scheduled something). Retrying the whole round would do those things a second time. Better to report the error.
 
-Hết ba lần vẫn hỏng thì Javis báo nguyên văn lỗi của nhà cung cấp, kèm chữ *(đã thử lại 3 lần)* để bạn biết đây không phải sự cố chớp nhoáng. Lỗi **không** tạm thời (sai khoá, sai tên model, hết quota ngày, vượt kích thước ngữ cảnh) thì báo ngay từ lần đầu, vì thử lại y nguyên chỉ tốn thêm một lượt gọi để nhận lại đúng lỗi đó.
+If all three attempts fail, Jarvis 007 reports the provider's error verbatim with the note *(retried 3 times)* so you know it was not a momentary blip. **Non**-transient errors (a wrong key, a wrong model name, a spent daily quota, exceeding the context size) are reported on the first attempt, because retrying identically only burns another call to receive the same error.
 
-## Xem nhật ký (log) ở đâu
+## Where to see the logs
 
-Có vài nơi xem "nhật ký" tùy loại thông tin:
+There are several places, depending on what you want to see:
 
-1. **Nhật ký Javis tự chạy nền**: mở nhóm **Việc** ở thanh nav trái, chọn **Việc định kỳ**, kéo xuống mục **Nhật ký gần đây**. Đây là nơi ghi lại các lượt Javis tự thức làm nhiệm vụ, lọc được theo từng loop. Xem [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md).
-2. **Nhật ký tự học**: trang **Tự học** (nhóm **Bộ não**) có hai khung riêng là **Javis đã tự học gì (commit gần nhất)** và **Nhật ký học**. Xem [Tự học](22-tu-hoc.md).
-3. **Trang Cập nhật** (nhóm **Hệ thống**, tiêu đề trang là **Nhật ký cập nhật**): đây là nơi xem phiên bản đang chạy và lịch sử tính năng mới theo từng bản. Không còn trang "Logs" hay "Nhật ký hoạt động" riêng nào nữa; mục `logs` trên rail chính là trang này.
-4. **Log kỹ thuật của server** (khi cần soi lỗi sâu):
-   - Windows chạy ngầm bằng `start-javis.vbs`: log ghi ở `server\javis.log`.
-   - Docker / VPS: `docker compose logs javis` (thêm `-f` để xem trực tiếp: `docker compose logs -f`).
+1. **The log of Jarvis 007 running in the background**: open the **Work** group on the left nav rail, choose **Recurring jobs**, and scroll to **Recent log**. This is where turns of Jarvis 007 waking to do a job are recorded, filterable per loop. See [Recurring jobs and reminders](08-viec-dinh-ky.md).
+2. **The self-learning log**: the **Self-learning** page (**Brain** group) has two separate panels, **What Jarvis 007 taught itself (latest commit)** and **Learning log**. See [Self-learning](22-tu-hoc.md).
+3. **The Updates page** (**System** group, the page title is **Update log**): this is where you see the running version and the feature history per release. There is no separate "Logs" or "Activity log" page any more; the `logs` item on the rail is this page.
+4. **The server's technical log** (when you need to dig into an error):
+   - Windows running in the background through `start-javis.vbs`: the log is at `server\javis.log`.
+   - Docker / VPS: `docker compose logs javis` (add `-f` to follow: `docker compose logs -f`).
    - Linux systemd: `journalctl -u javis -f`.
-5. **Log cập nhật** khi bấm nút cập nhật trong app: file `update.log` nằm trong thư mục state, tức `server/update.log` khi chạy local và `/data/state/update.log` trên Docker (đường dẫn theo biến `JAVIS_STATE_DIR`). Thường bạn không cần mở tệp: khi cập nhật lỗi, giao diện đã hiện sẵn thông báo và app cũng đọc 50 dòng cuối của tệp này để báo trạng thái.
+5. **The update log** when you click the update button in the app: the `update.log` file in the state folder, so `server/update.log` locally and `/data/state/update.log` on Docker (the path follows `JAVIS_STATE_DIR`). You usually do not need to open it: when an update fails the interface already shows the notice, and the app reads the last 50 lines of this file to report the state.
 
-## Câu hỏi thường gặp (FAQ)
+## Frequently asked questions
 
-### Dữ liệu có mất khi cập nhật không?
+### Is data lost during an update?
 
-Không, nếu chạy bằng Docker. Mọi ghi chú, brain, settings và cả token đăng nhập Claude nằm trong **Docker volume** (`javis-data`, `claude-auth`), tách khỏi image. Khi bạn cập nhật (bấm **⬆ Cập nhật ngay** trong **Cập nhật**, Redeploy trên Hostinger, hoặc chạy `./update.sh` trên VPS), image được thay mới nhưng volume giữ nguyên nên dữ liệu **không mất**. Với bản cài native, dữ liệu nằm trong thư mục `brains/` của repo, cũng không bị `git pull` xoá.
+No, if you run Docker. Every note, brain, setting and even the Claude login token lives in a **Docker volume** (`javis-data`, `claude-auth`), separate from the image. When you update (clicking **⬆ Update now** on the **Updates** page, a Redeploy on Hostinger, or `./update.sh` on a VPS), the image is replaced but the volumes stay, so data is **not** lost. On a native install the data is in the repo's `brains/` folder, which `git pull` does not delete either.
 
-### Cập nhật trong app hoạt động thế nào?
+### How does in-app updating work?
 
-Mở **Hệ thống → Cài đặt → Cập nhật**; thẻ **Javis OS** hiện phiên bản đang chạy và tự kiểm tra bản mới trên GitHub. Nếu có bản mới, dòng trạng thái hiện **🆕 Có bản mới** kèm khung **Bản mới có gì**, và nút **⬆ Cập nhật ngay** xuất hiện khi môi trường hỗ trợ. Bấm nút, xác nhận, app chạy qua 6 bước hiện trên thanh tiến trình (Chuẩn bị, Tải code, Cài thư viện, Khởi động lại, Kiểm tra sức khoẻ, Xong) rồi tự tải lại trang. Nếu bản mới lỗi, Javis **tự quay về bản cũ** và báo **↩ Bản mới lỗi, đã tự quay về bản cũ**. Bên dưới thẻ là timeline nhật ký cập nhật của các bản đã ra.
+Open **System → Settings → Updates**; the **Jarvis 007** card shows the running version and checks GitHub for a newer one. If there is one, the status line reads **🆕 New version available** with a **What's new** panel, and the **⬆ Update now** button appears when the environment supports it. Click it, confirm, and the app runs through the 6 steps shown on the progress bar (Prepare, Download code, Install libraries, Restart, Health check, Done) then reloads the page. If the new build is broken, Jarvis 007 **rolls back by itself** and reports **↩ The new build failed, rolled back**. Below the card is the update-log timeline of released versions.
 
-Bản cài trực tiếp trên máy (Windows, Linux, macOS) luôn tự cập nhật được. Bản Docker chỉ tự cập nhật tại chỗ khi container **Watchtower** đang chạy.
+An install directly on the machine (Windows, Linux, macOS) can always update itself. The Docker build only updates in place when the **Watchtower** container is running.
 
-Từ 0.55.56 Watchtower **đi kèm sẵn** trong cả compose VPS lẫn compose Hostinger, nên cài mới là có nút. Còn thiếu nút nghĩa là stack đang chạy bằng file compose cũ: trước đó Watchtower nằm trong `profiles: ["update"]` (lệnh `docker compose up -d` không bật nó) và stack Hostinger thì không kèm nó. Cách ra là lấy compose mới rồi dựng lại - VPS chạy `curl -fsSLO https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.yml` rồi `docker compose up -d --pull always`, Hostinger bấm **Redeploy** trong Docker Manager. Chưa muốn đổi file thì bật riêng bằng `docker compose --profile update up -d`. Khung Cập nhật tự nói máy bạn rơi vào trường hợp nào.
+Since 0.55.56 Watchtower **ships by default** in both the VPS compose and the Hostinger compose, so a fresh install has the button. Still missing it means the stack is running from an older compose file: Watchtower used to sit under `profiles: ["update"]` (which `docker compose up -d` does not start) and the Hostinger stack shipped without it. The way out is to fetch the new compose and bring it up again - on a VPS run `curl -fsSLO https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.yml` then `docker compose up -d --pull always`; on Hostinger hit **Redeploy** in Docker Manager. Not ready to swap the file? `docker compose --profile update up -d` starts it on its own. The Updates panel tells you which case your machine is in.
 
-**Muốn khỏi bấm nút, để Javis tự cập nhật**: thêm `JAVIS_AUTO_UPDATE=true` vào `.env` (Hostinger: ô Environment) rồi dựng lại stack. Mặc định tắt, vì tự cập nhật nghĩa là app tự khởi động lại bất cứ lúc nào có bản mới, cắt ngang việc nền đang chạy. Chu kỳ mặc định 24 giờ, đổi bằng `JAVIS_AUTO_UPDATE_INTERVAL` (giây).
+**To skip the button and let Jarvis 007 update itself**: add `JAVIS_AUTO_UPDATE=true` to `.env` (Hostinger: the Environment box) and rebuild the stack. It is off by default, because self-updating means the app restarts itself whenever a new version appears, interrupting any background work in progress. The default interval is 24 hours; change it with `JAVIS_AUTO_UPDATE_INTERVAL` (seconds).
 
-**Stack báo "Partially running" sau khi cập nhật compose**: gần như luôn là container `<tên>-watchtower` không đụng được Docker socket của host (Hostinger từng dính đúng lỗi này). App Javis KHÔNG bị ảnh hưởng - nó là container riêng, vẫn chạy bình thường; chỉ là nút "Cập nhật ngay" không dùng được và bạn quay lại cách Redeploy. Xem lý do thật trong log: `docker logs javis-watchtower`.
+**The stack reports "Partially running" after updating the compose file**: almost always the `<name>-watchtower` container failing to reach the host's Docker socket (Hostinger has hit exactly this). The Jarvis 007 app is unaffected - it is a separate container and keeps running; you simply lose the "Update now" button and fall back to Redeploy. The real reason is in the log: `docker logs javis-watchtower`.
 
-**Gõ lệnh compose mà báo `not found`** - ba kiểu, ba nguyên nhân khác hẳn:
+**A compose command reporting `not found`** comes in three shapes with three entirely different causes:
 
-| Báo lỗi | Nguyên nhân | Cách xử lý |
+| Error | Cause | What to do |
 |---|---|---|
-| `no configuration file provided: not found` | Đứng sai thư mục. Tên thư mục tuỳ lúc clone: `javis` nếu theo đúng lệnh trong DEPLOY.md, `javis-os` nếu clone thẳng không đổi tên | `cd` vào đúng thư mục chứa `docker-compose.yml`. Không nhớ nó đâu thì hỏi Docker: `docker ps --format '{{.Names}}\t{{.Label "com.docker.compose.project.working_dir"}}'` |
-| `docker: command not found` | Đang gõ **bên trong** container Javis (terminal của app) chứ không phải trên máy chủ | SSH vào VPS rồi gõ |
-| `docker: 'compose' is not a docker command` | Compose bản cũ (v1) | Viết có gạch nối: `docker-compose --profile update up -d` |
+| `no configuration file provided: not found` | You are in the wrong folder. The folder name depends on how you cloned: `javis` if you followed the command in DEPLOY.md, `javis-os` if you cloned straight without renaming | `cd` into the folder holding `docker-compose.yml`. If you cannot remember where it is, ask Docker: `docker ps --format '{{.Names}}\t{{.Label "com.docker.compose.project.working_dir"}}'` |
+| `docker: command not found` | You are typing **inside** the Jarvis 007 container (the app's terminal) rather than on the host | SSH into the VPS and type it there |
+| `docker: 'compose' is not a docker command` | An old Compose (v1) | Write it hyphenated: `docker-compose --profile update up -d` |
 
-### Chạy nhiều brain (second brain) được không?
+### Can I run several brains (second brains)?
 
-Được. Javis quản lý nhiều brain trong thư mục `brains/`. Ở dropdown chọn brain trên giao diện, bạn có thể:
+Yes. Jarvis 007 manages several brains in the `brains/` folder. From the brain dropdown in the interface you can:
 
-1. Tạo brain mới: bấm nút thêm brain, đặt tên khi được hỏi.
-2. Chuyển brain: chọn brain khác trong dropdown; mọi thao tác Tệp tin, đồ thị và bộ nhớ sẽ theo brain đang chọn.
-3. Xoá brain: chọn brain cần xoá rồi bấm nút xoá, giao diện yêu cầu **gõ chính xác tên brain** để xác nhận (chống xoá nhầm). Không xoá được **Brain mặc định**.
+1. Create a new brain: click the add-brain button and give it a name when asked.
+2. Switch brain: pick another one in the dropdown; the Files page, the graph and the memory all follow the selected brain.
+3. Delete a brain: select it and click the delete button, and the interface requires you to **type the brain name exactly** to confirm (against accidental deletion). The **default brain** cannot be deleted.
 
-Xem chi tiết ở [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
+Details in [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
 
-### Lỡ xoá brain thì cứu được không?
+### Can a deleted brain be recovered?
 
-Được, trong 30 ngày. Xoá brain không phải là xoá vĩnh viễn: Javis chuyển cả thư mục brain vào **thùng rác cục bộ** `brain-trash` nằm trong thư mục state (`server/brain-trash` khi chạy local, `/data/state/brain-trash` trên Docker), đặt tên dạng `<tên brain>__<ngày giờ>`. Bản sao này được giữ 30 ngày rồi mới bị dọn, và nó **không** đi lên repo đồng bộ. Muốn cứu, copy thư mục đó trở lại `brains/` rồi tải lại trang.
+Yes, within 30 days. Deleting a brain is not permanent: Jarvis 007 moves the whole brain folder to a **local trash** at `brain-trash` inside the state folder (`server/brain-trash` locally, `/data/state/brain-trash` on Docker), named `<brain name>__<date time>`. That copy is kept 30 days before being cleared, and it does **not** go to the sync repo. To recover, copy the folder back into `brains/` and reload the page.
 
-Ngược lại, việc xoá sẽ được **lan sang các máy khác** đang đồng bộ chung repo (Javis ghi một "giấy báo tử" để máy kia không hồi sinh brain đã xoá). Nên nếu muốn phục hồi, làm sớm và làm trên máy còn giữ bản trong thùng rác.
+Conversely, the deletion **propagates to other machines** syncing the same repo (Jarvis 007 writes a "tombstone" so the other machine does not resurrect the deleted brain). So if you want to recover, do it soon and do it on the machine that still holds the trash copy.
 
-### Ảnh và file gửi lên có được giữ mãi không?
+### Are uploaded images and files kept forever?
 
-Không. `attachments/` và `inbox/` là vùng cache: mặc định file quá **30 ngày** hoặc phần vượt trần **300 MB** sẽ bị dọn, thư mục stage tạm thì **3 ngày**. Ảnh đã bị dọn hiện thành ô xám **Ảnh đã hết hạn** trong hội thoại cũ. Cách giữ lại hoặc tắt hẳn xem mục "Ảnh và file cũ biến mất" ở trên.
+No. `attachments/` and `inbox/` are a cache: by default files over **30 days** old, or the excess above the **300 MB** ceiling, are cleared, and the temporary stage folder after **3 days**. A cleared image shows as a grey **Image expired** box in the old conversation. How to keep them or turn clearing off is in "Old images and files disappear" above.
 
-### Đổi giọng nói của Javis thế nào?
+### How do I change Jarvis 007's voice?
 
-Giọng đọc mặc định là `en-US-EmmaMultilingualNeural` (Edge TTS đa ngôn ngữ), tốc độ `+5%`. Muốn đổi giọng hoặc tốc độ, đặt hai biến trong file `.env` rồi khởi động lại server:
+The default voice is `en-US-EmmaMultilingualNeural` (multilingual Edge TTS) at `+5%` speed. To change the voice or speed, set two variables in `.env` and restart the server:
 
-| Biến | Ý nghĩa | Mặc định |
+| Variable | Meaning | Default |
 |---|---|---|
-| `TTS_VOICE` | Tên giọng đọc | `en-US-EmmaMultilingualNeural` |
-| `TTS_RATE` | Tốc độ đọc | `+5%` |
+| `TTS_VOICE` | The voice name | `en-US-EmmaMultilingualNeural` |
+| `TTS_RATE` | The reading speed | `+5%` |
 
-Xem cách đặt biến ở [Cấu hình .env](16-cau-hinh-env.md). Lưu ý: nút loa trên giao diện chỉ để **bật/tắt** việc đọc trả lời bằng giọng, không phải để đổi giọng. Cách dùng giọng nói trong trò chuyện xem [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md).
+How to set variables: [.env configuration](16-cau-hinh-env.md). Note: the speaker button in the interface only turns reading answers aloud on and off, it does not change the voice. How to use voice in a conversation: [Chat and voice](02-tro-chuyen-va-giong-noi.md).
 
-### Truy cập từ xa mà micro không bật được?
+### The microphone will not turn on over remote access?
 
-Trình duyệt bắt buộc **HTTPS** mới cho cấp quyền micro (trừ localhost). Mở app qua IP trần `http://<ip>:7777` thì micro luôn bị chặn và không có cách bật tay. Giải pháp: dùng URL `https://` qua Hostinger (`*.hstgr.cloud`), Cloudflare Tunnel (cho URL `https://...trycloudflare.com`), hoặc tên miền riêng có SSL. Xem [Thương hiệu & tên miền riêng](15-thuong-hieu-ten-mien.md).
+Browsers require **HTTPS** before granting microphone permission (localhost aside). Opening the app on a bare IP like `http://<ip>:7777` always blocks the microphone with no manual override. The fix: use an `https://` URL through Hostinger (`*.hstgr.cloud`), Cloudflare Tunnel (which gives a `https://...trycloudflare.com` URL), or a custom domain with SSL. See [Branding and custom domains](15-thuong-hieu-ten-mien.md).
 
-## Vẫn chưa xử lý được?
+## Still stuck?
 
-1. Thu thập log server (xem mục "Xem nhật ký (log) ở đâu" phía trên) để biết lỗi cụ thể.
-2. Thử lần lượt: khởi động lại server, rồi Ctrl+Shift+R.
-3. Kiểm tra biến môi trường trong `.env` có đặt đúng không, xem [Cấu hình .env](16-cau-hinh-env.md).
-4. Kiểm tra "bộ não" còn đăng nhập không (mục **Models**, thẻ engine bạn đang dùng phải hiện **● Đã kết nối**).
+1. Collect the server log (see "Where to see the logs" above) to find the specific error.
+2. Try in order: restart the server, then Ctrl+Shift+R.
+3. Check that the environment variables in `.env` are set correctly, see [.env configuration](16-cau-hinh-env.md).
+4. Check that the "brain" is still signed in (on **Models**, the card of the engine you use must read **● Connected**).
