@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# JAVIS OS - macOS launcher (start)
+# JARVIS 007 - macOS launcher (start)
 # Starts the FastAPI server (if not already running) and opens
 # the dashboard in the default browser. No Docker required.
 #
@@ -33,7 +33,7 @@ if curl -sf -o /dev/null "${URL}/" 2>/dev/null; then
 fi
 
 if [ ! -x "${PY}" ]; then
-  osascript -e 'display alert "JAVIS OS" message "Chua cai moi truong. Chay ./install.sh trong thu muc du an truoc."' 2>/dev/null || true
+  osascript -e 'display alert "JARVIS 007" message "Chua cai moi truong. Chay ./install.sh trong thu muc du an truoc."' 2>/dev/null || true
   echo "Missing venv at ${PY} - run ./install.sh first." >&2
   exit 1
 fi

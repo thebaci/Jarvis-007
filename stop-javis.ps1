@@ -1,4 +1,4 @@
-# Dung Javis OS - giet theo DUNG python cua venv nay (moi tien trinh cha/con), khong dua vao port/tieu de.
+# Dung Jarvis 007 - giet theo DUNG python cua venv nay (moi tien trinh cha/con), khong dua vao port/tieu de.
 $killed = $false
 # LUU Y: python cua venv chi la LAUNCHER - no re-exec Python goc lam tien trinh CON
 # (con nay moi giu port). Vi vay chi loc theo COMMANDLINE, KHONG loc theo duong dan exe

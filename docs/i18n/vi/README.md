@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧠 Javis OS
+# 🧠 Jarvis 007
 
 **AI agentic đổi được bộ não + Second Brain - chạy trên model nào bạn muốn (Claude Code, ChatGPT/Codex, Antigravity CLI, OpenRouter, OpenAI, Gemini, Anthropic API, Groq, Ollama), có giọng nói, đồ thị tri thức, và tự thông minh dần lên.**
 
@@ -32,7 +32,7 @@
 
 ## Cài nhanh bằng chính AI của bạn
 
-Đưa link repo này cho **Claude Code** hoặc **Codex** đang chạy trên máy bạn và nói "cài Javis OS giúp tôi". Nó chỉ cần chạy **một lệnh duy nhất**:
+Đưa link repo này cho **Claude Code** hoặc **Codex** đang chạy trên máy bạn và nói "cài Jarvis 007 giúp tôi". Nó chỉ cần chạy **một lệnh duy nhất**:
 
 | Máy | Một lệnh cài hết |
 |---|---|
@@ -41,33 +41,33 @@
 
 Lệnh đó cài trọn gói: Python + thư viện, **bốn bộ não CLI chạy bằng gói thuê bao bạn đang có** (`claude`, `codex`, `agy`, `grok`), `.env`, rồi bật server ở `http://localhost:7777`. Sau đó đăng nhập từng bộ não **ngay trong trang Models** của dashboard, không phải gõ lệnh nữa.
 
-> ⚠️ Cài thêm một CLI **sau khi** Javis đã chạy thì **khởi động lại Javis**. Tiến trình đang chạy giữ PATH của lúc nó bật, nên CLI vừa cài nó chưa thấy.
+> ⚠️ Cài thêm một CLI **sau khi** Jarvis 007 đã chạy thì **khởi động lại Jarvis 007**. Tiến trình đang chạy giữ PATH của lúc nó bật, nên CLI vừa cài nó chưa thấy.
 
 <p align="center">
-<img src="../../../docs/assets/diagrams/install-terminal.svg" width="100%" alt="Terminal động: lệnh cài một dòng dựng Python, bốn bộ não CLI chạy bằng gói thuê bao và file .env, rồi báo Javis đang chạy ở http://localhost:7777">
+<img src="../../../docs/assets/diagrams/install-terminal.svg" width="100%" alt="Terminal động: lệnh cài một dòng dựng Python, bốn bộ não CLI chạy bằng gói thuê bao và file .env, rồi báo Jarvis 007 đang chạy ở http://localhost:7777">
 </p>
 
 ---
 
-## Javis là gì?
+## Jarvis 007 là gì?
 
-Javis OS **không phải** một chatbot. Nó là một **AI agentic tự host** chạy trên máy/VPS của bạn: đọc/ghi file, gọi công cụ (MCP), chạy skill, giao việc chạy nền, tự đặt lịch - rồi gói tất cả vào một **dashboard đẹp, điều khiển bằng giọng nói**, kèm một **Second Brain** (bộ nhớ + wiki) tích luỹ tri thức theo thời gian.
+Jarvis 007 **không phải** một chatbot. Nó là một **AI agentic tự host** chạy trên máy/VPS của bạn: đọc/ghi file, gọi công cụ (MCP), chạy skill, giao việc chạy nền, tự đặt lịch - rồi gói tất cả vào một **dashboard đẹp, điều khiển bằng giọng nói**, kèm một **Second Brain** (bộ nhớ + wiki) tích luỹ tri thức theo thời gian.
 
 **Bộ não thì bạn chọn, và đổi lúc nào cũng được.** 13 đường dùng được ngay: **Claude Code**, **ChatGPT/Codex**, **Grok Build** và **Antigravity CLI** (dùng chính gói subscription bạn đang trả, không cần mua API riêng), **OpenRouter · OpenAI API · Google Gemini · Anthropic API · Groq · DeepSeek · Ollama Cloud** (chỉ cần API key), cộng thêm **Ollama chạy ngay trên máy bạn** và **mọi endpoint tương thích OpenAI**.
 
 <p align="center">
-<img src="../../../docs/assets/diagrams/swappable-brain.svg" width="100%" alt="Hình động: lõi Javis ở giữa, bộ đồ nghề (MCP Hub, Skills, Second Brain, Tasks, Schedules, Plugins) bao quanh, 12 bộ não lần lượt lắp vào mà mọi công cụ vẫn sáng nguyên">
+<img src="../../../docs/assets/diagrams/swappable-brain.svg" width="100%" alt="Hình động: lõi Jarvis 007 ở giữa, bộ đồ nghề (MCP Hub, Skills, Second Brain, Tasks, Schedules, Plugins) bao quanh, 12 bộ não lần lượt lắp vào mà mọi công cụ vẫn sáng nguyên">
 </p>
 
-> ⚠️ **Đọc trước khi cho gói subscription chạy việc nền.** Anthropic chỉ tính gói Claude Pro/Max cho việc dùng **cá nhân, thông thường** của Claude Code. Chạy nền liên tục (loop, nhắc hẹn, việc Kanban, chatbot), chạy trên VPS, hoặc nhiều người dùng chung một tài khoản đều nằm ngoài phạm vi đó, và đã có người **bị khoá tài khoản** vì lý do này. Javis không tự đọc token đăng nhập của bạn (đường đó đã gỡ ở 0.26.17) - nó chạy qua đúng binary `claude`, nhưng như vậy vẫn không làm việc chạy nền 24/7 trở thành hợp lệ. Muốn yên tâm: ở trang **Models**, đặt Claude Code chạy bằng **API key**, hoặc trỏ **model việc nền** sang một provider khác. Xem `server/claude_auth.py`.
+> ⚠️ **Đọc trước khi cho gói subscription chạy việc nền.** Anthropic chỉ tính gói Claude Pro/Max cho việc dùng **cá nhân, thông thường** của Claude Code. Chạy nền liên tục (loop, nhắc hẹn, việc Kanban, chatbot), chạy trên VPS, hoặc nhiều người dùng chung một tài khoản đều nằm ngoài phạm vi đó, và đã có người **bị khoá tài khoản** vì lý do này. Jarvis 007 không tự đọc token đăng nhập của bạn (đường đó đã gỡ ở 0.26.17) - nó chạy qua đúng binary `claude`, nhưng như vậy vẫn không làm việc chạy nền 24/7 trở thành hợp lệ. Muốn yên tâm: ở trang **Models**, đặt Claude Code chạy bằng **API key**, hoặc trỏ **model việc nền** sang một provider khác. Xem `server/claude_auth.py`.
 
-> Triết lý: **năng lực nằm ở Javis, không nằm ở model.** Mọi bộ não đều được cấp cùng bộ đồ nghề qua trung tâm kết nối (MCP Hub) chung - MCP đã đấu, tool đọc/ghi brain, skill, việc Kanban, agent/workflow/loop/nhắc hẹn. Khác biệt duy nhất: hai engine CLI chạy thêm được **lệnh máy**. Đổi từ Claude sang Gemini không làm Javis mất chức năng nào ngoài chuyện đó.
+> Triết lý: **năng lực nằm ở Jarvis 007, không nằm ở model.** Mọi bộ não đều được cấp cùng bộ đồ nghề qua trung tâm kết nối (MCP Hub) chung - MCP đã đấu, tool đọc/ghi brain, skill, việc Kanban, agent/workflow/loop/nhắc hẹn. Khác biệt duy nhất: hai engine CLI chạy thêm được **lệnh máy**. Đổi từ Claude sang Gemini không làm Jarvis 007 mất chức năng nào ngoài chuyện đó.
 
 <p align="center">
-<img src="../../../docs/assets/diagrams/chat-to-action.svg" width="100%" alt="Hình động: một câu chat đi vào Javis, Javis chọn công cụ nhỏ nhất đủ làm xong việc, từ trả lời thẳng, xếp việc, tới tạo agent, workflow, nhắc hẹn hay loop">
+<img src="../../../docs/assets/diagrams/chat-to-action.svg" width="100%" alt="Hình động: một câu chat đi vào Jarvis 007, Jarvis 007 chọn công cụ nhỏ nhất đủ làm xong việc, từ trả lời thẳng, xếp việc, tới tạo agent, workflow, nhắc hẹn hay loop">
 </p>
 
-Bạn đấu các **kết nối** của riêng mình vào (bán hàng/POS, quảng cáo, lịch, email, Zalo, ghi chú…) → Javis tự phát hiện và **báo cáo kinh doanh + cuộc sống** bằng số liệu thật, nói chuyện như người.
+Bạn đấu các **kết nối** của riêng mình vào (bán hàng/POS, quảng cáo, lịch, email, Zalo, ghi chú…) → Jarvis 007 tự phát hiện và **báo cáo kinh doanh + cuộc sống** bằng số liệu thật, nói chuyện như người.
 
 ### Cái bẫy không ai nói trước: bị khoá vào một nhà cung cấp AI
 
@@ -82,9 +82,9 @@ Tất cả nằm trên máy chủ của nhà cung cấp, theo định dạng c�
 
 Thế là bạn ở lại. Không phải vì model cũ còn tốt nhất, mà vì rời đi nghĩa là làm lại từ con số không. Và khi nhà cung cấp tăng giá, siết giới hạn, khai tử model hay khoá tài khoản, bạn không có đường lui.
 
-### Javis đảo ngược chuyện đó: model đi thuê, bộ não là của bạn
+### Jarvis 007 đảo ngược chuyện đó: model đi thuê, bộ não là của bạn
 
-Trong Javis, model chỉ là một bộ phận thay được. Mọi thứ bạn tích luỹ đều nằm trong tay bạn, dưới dạng file mở ra đọc được:
+Trong Jarvis 007, model chỉ là một bộ phận thay được. Mọi thứ bạn tích luỹ đều nằm trong tay bạn, dưới dạng file mở ra đọc được:
 
 | Thứ bạn tích luỹ | Nằm ở đâu | Định dạng |
 |---|---|---|
@@ -99,13 +99,13 @@ Nhờ vậy:
 
 - **Có model mới? Đổi ở trang Models rồi làm tiếp.** Model mới đọc cùng trí nhớ, chạy cùng skill, agent, workflow, gọi cùng các kết nối qua MCP Hub. Không phải chuyển dữ liệu, không phải dựng lại gì cả.
 - **Dùng nhiều bộ não cùng lúc.** Model mạnh để trò chuyện, model rẻ chạy việc nền, model Ollama chạy ngay trên máy cho ghi chú riêng tư, tất cả cùng làm việc trên một brain.
-- **Không cần Javis vẫn đọc được.** Brain là một thư mục markdown, mở bằng Obsidian hay trình soạn thảo nào cũng được. Lỡ mai Javis không còn, tri thức của bạn vẫn nằm đó, bằng chữ thường.
-- **Có lịch sử phiên bản, mang đi đâu cũng được.** Mỗi lần Javis tự học là một commit git, hoàn tác bằng một chạm, và cả brain đồng bộ được lên repo GitHub riêng tư của bạn, dùng chung giữa laptop và VPS.
-- **Dữ liệu nằm trên máy của bạn.** Không có máy chủ Javis nào đứng giữa. Mỗi yêu cầu chỉ đi tới đúng nhà cung cấp model bạn chọn, còn dùng model Ollama trên máy thì không rời khỏi máy bạn.
+- **Không cần Jarvis 007 vẫn đọc được.** Brain là một thư mục markdown, mở bằng Obsidian hay trình soạn thảo nào cũng được. Lỡ mai Jarvis 007 không còn, tri thức của bạn vẫn nằm đó, bằng chữ thường.
+- **Có lịch sử phiên bản, mang đi đâu cũng được.** Mỗi lần Jarvis 007 tự học là một commit git, hoàn tác bằng một chạm, và cả brain đồng bộ được lên repo GitHub riêng tư của bạn, dùng chung giữa laptop và VPS.
+- **Dữ liệu nằm trên máy của bạn.** Không có máy chủ Jarvis 007 nào đứng giữa. Mỗi yêu cầu chỉ đi tới đúng nhà cung cấp model bạn chọn, còn dùng model Ollama trên máy thì không rời khỏi máy bạn.
 
-### Javis so với chatbot thường
+### Jarvis 007 so với chatbot thường
 
-| | Chatbot thường | **Javis OS** |
+| | Chatbot thường | **Jarvis 007** |
 |---|---|---|
 | Bộ não | Khoá cứng 1 model, API gọi rời từng câu | **Đổi được**: 13 nhà cung cấp, cái nào cũng đủ tool, MCP, skill, session - kể cả model chạy ngay trên máy bạn qua Ollama |
 | Trí nhớ | Quên sau mỗi phiên | **Second Brain sống** - nhớ bạn, dày lên qua từng hội thoại |
@@ -115,7 +115,7 @@ Nhờ vậy:
 | Công việc của bạn | Nằm trên máy chủ nhà cung cấp, theo định dạng của họ | **File thường trên máy bạn**: lịch sử, trí nhớ, skill, agent, workflow mang sang được mọi model mới |
 | Triển khai | Khoá vào 1 nhà cung cấp | **Tự host**: [Hostinger](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN) 1-click / Docker / VPS bất kỳ |
 
-> 💡 **Triết lý:** Javis *biên dịch một lần* tri thức từ ghi chú thô → Wiki, rồi *duy trì* nó sống cùng mỗi nguồn mới. Tri thức **tích luỹ**, không tái phát hiện mỗi lần.
+> 💡 **Triết lý:** Jarvis 007 *biên dịch một lần* tri thức từ ghi chú thô → Wiki, rồi *duy trì* nó sống cùng mỗi nguồn mới. Tri thức **tích luỹ**, không tái phát hiện mỗi lần.
 
 ---
 
@@ -125,23 +125,23 @@ Nhờ vậy:
 <img src="../../../docs/assets/diagrams/second-brain-grows.svg" width="100%" alt="Đồ thị tri thức động: ghi chú và liên kết lần lượt mọc ra, Second Brain lớn dần từ vài ghi chú lên hơn một nghìn">
 </p>
 
-- 🎙️ **Trò chuyện bằng giọng nói rảnh tay** - nói, Javis nghe và trả lời bằng giọng. Chọn được nhà cung cấp giọng đọc: Edge TTS (miễn phí, mặc định), OpenAI hoặc ElevenLabs.
+- 🎙️ **Trò chuyện bằng giọng nói rảnh tay** - nói, Jarvis 007 nghe và trả lời bằng giọng. Chọn được nhà cung cấp giọng đọc: Edge TTS (miễn phí, mặc định), OpenAI hoặc ElevenLabs.
 - 🌌 **Đồ thị tri thức** - bộ não của bạn hiện ra thành mạng note nối nhau qua `[[wikilink]]`, bằng canvas nhẹ và chạy được ngoại tuyến.
 - 💬 **Phiên hội thoại** - lưu / mở lại / **tìm kiếm toàn văn** mọi cuộc trò chuyện cũ; phiên dài được nén tóm tắt thay vì cắt cụt trí nhớ.
 - 🗂️ **Quản lý tệp tin** - duyệt, **sửa file `.md`/`.txt` trực tiếp** trong trình duyệt, tìm file theo tên hoặc theo nội dung, tải lên/về.
-- 🧩 **Skills** - gom nhóm, tìm kiếm, **bật/tắt từng skill**, thêm/sửa/xoá, nhập/xuất gói; Javis tự xếp skill mới vào đúng nhóm.
+- 🧩 **Skills** - gom nhóm, tìm kiếm, **bật/tắt từng skill**, thêm/sửa/xoá, nhập/xuất gói; Jarvis 007 tự xếp skill mới vào đúng nhóm.
 - 🧰 **Plugins** - thả một thư mục Python vào là có thêm **tool/hook native** cho MỌI engine, không phải sửa lõi.
 - 🤖 **Agents & Workflows** - tạo trợ lý chuyên biệt (có bộ nhớ riêng) + chuỗi tự động nhiều bước, có bước kiểm chứng.
 - ♻️ **Việc định kỳ & nhắc hẹn** - nhiều vòng lặp chạy nền song song, mỗi vòng làm đúng một việc bạn mô tả rồi tự kiểm chứng; kèm nhắc hẹn theo giờ cố định hoặc cron.
 - 🗃️ **Việc (Kanban)** - giao một "goal" bằng lời, AI tự đặc tả, chọn worker, chạy nền và chỉ gọi bạn khi có ngoại lệ.
-- 🧠 **Tự học** - sau mỗi hội thoại Javis tự rút ký ức, đúc tri thức Wiki và kỹ năng; mỗi lần học là một commit git nên **hoàn tác được một chạm**.
-- 🔌 **Kho kết nối đa tài khoản** - Pancake POS, Zalo, Meta/Google/TikTok Ads, Google Workspace, Slack, Webcake, Substack… nhiều tài khoản cùng một dịch vụ, mỗi tài khoản một mức quyền riêng, Javis **chặn cứng** thao tác vượt quyền.
-- 📱 **Telegram & Zalo** - hỏi Javis qua Telegram; đọc, tìm lịch sử và gửi tin Zalo bằng MCP của `javis-zalo`, bản CLI Zalo riêng của Javis.
-- 💬 **Slack & WhatsApp** - chat với Javis và đặt bot khách hàng trên Slack (không cần tên miền) và WhatsApp (API chính thức của Meta). Hướng dẫn: [docs/29](../../../docs/29-slack-whatsapp.md).
+- 🧠 **Tự học** - sau mỗi hội thoại Jarvis 007 tự rút ký ức, đúc tri thức Wiki và kỹ năng; mỗi lần học là một commit git nên **hoàn tác được một chạm**.
+- 🔌 **Kho kết nối đa tài khoản** - Pancake POS, Zalo, Meta/Google/TikTok Ads, Google Workspace, Slack, Webcake, Substack… nhiều tài khoản cùng một dịch vụ, mỗi tài khoản một mức quyền riêng, Jarvis 007 **chặn cứng** thao tác vượt quyền.
+- 📱 **Telegram & Zalo** - hỏi Jarvis 007 qua Telegram; đọc, tìm lịch sử và gửi tin Zalo bằng MCP của `javis-zalo`, bản CLI Zalo riêng của Jarvis 007.
+- 💬 **Slack & WhatsApp** - chat với Jarvis 007 và đặt bot khách hàng trên Slack (không cần tên miền) và WhatsApp (API chính thức của Meta). Hướng dẫn: [docs/29](../../../docs/29-slack-whatsapp.md).
 - 🎨 **Tạo ảnh** bằng chính gói ChatGPT đã đăng nhập, không cần API key riêng.
-- 📊 **Mức dùng** - Javis tự đo token vào/ra và chi phí theo ngày, theo nhà cung cấp, tách rõ phần bạn gõ tay với phần Javis tự chạy nền.
+- 📊 **Mức dùng** - Jarvis 007 tự đo token vào/ra và chi phí theo ngày, theo nhà cung cấp, tách rõ phần bạn gõ tay với phần Jarvis 007 tự chạy nền.
 - ⇅ **Sao lưu brain lên GitHub** - đồng bộ 2 chiều mọi brain lên một repo riêng tư, dùng chung giữa máy nhà và VPS.
-- 🔄 **Đa engine, đổi không mất chức năng** - Claude Code, ChatGPT (Codex), OpenRouter, OpenAI API, Google Gemini, Anthropic API, Groq. Đổi trong **Models** một cú bấm; bộ não nào cũng gọi được MCP Javis, tool file brain và skill.
+- 🔄 **Đa engine, đổi không mất chức năng** - Claude Code, ChatGPT (Codex), OpenRouter, OpenAI API, Google Gemini, Anthropic API, Groq. Đổi trong **Models** một cú bấm; bộ não nào cũng gọi được MCP Jarvis 007, tool file brain và skill.
 - 🔐 **An toàn khi lên VPS** - tự bắt buộc đăng nhập khi chạy public, chống chiếm tài khoản, rate-limit, chặn CSRF, mã hoá khoá bí mật trong cấu hình.
 
 
@@ -153,11 +153,11 @@ Nhờ vậy:
 
 ## 🚀 Cài đặt
 
-> ⚠️ **Quan trọng về bảo mật:** Javis chạy bộ não AI với **toàn quyền** trên máy. Khi chạy public (Docker/VPS/Hostinger), Javis **tự bắt buộc đăng nhập** - mở app ra là màn tạo tài khoản / đăng nhập, không ai điều khiển được khi chưa có mật khẩu.
+> ⚠️ **Quan trọng về bảo mật:** Jarvis 007 chạy bộ não AI với **toàn quyền** trên máy. Khi chạy public (Docker/VPS/Hostinger), Jarvis 007 **tự bắt buộc đăng nhập** - mở app ra là màn tạo tài khoản / đăng nhập, không ai điều khiển được khi chưa có mật khẩu.
 
 ### Cách 1 - Hostinger Docker Manager (tên miền + HTTPS) ⚡
 
-> 🛒 **Chưa có VPS?** [Đăng ký VPS Hostinger tại đây](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN). VPS có sẵn Docker Manager nên cài Javis đúng một cú bấm. Thuê xong quay lại làm các bước dưới.
+> 🛒 **Chưa có VPS?** [Đăng ký VPS Hostinger tại đây](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN). VPS có sẵn Docker Manager nên cài Jarvis 007 đúng một cú bấm. Thuê xong quay lại làm các bước dưới.
 
 VPS Hostinger → **Docker Manager → Compose → URL** → dán **file Hostinger** rồi **Deploy**:
 ```
@@ -165,7 +165,7 @@ https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.hosti
 ```
 Ô **Environment** của mẫu mới chỉ còn 3 trường cần thiết: `DOMAIN_NAME`,
 `JAVIS_ADMIN_USER`, `JAVIS_ADMIN_PASSWORD`, cộng một trường tuỳ chọn
-`JAVIS_AUTO_UPDATE` (đặt `true` là Javis tự cập nhật mỗi ngày, bỏ trống thì cập
+`JAVIS_AUTO_UPDATE` (đặt `true` là Jarvis 007 tự cập nhật mỗi ngày, bỏ trống thì cập
 nhật bằng nút trong app). Các biến kỹ thuật về cổng, state, brain và thư mục chạy
 đã được ẩn vì Docker image tự đặt đúng.
 
@@ -230,11 +230,11 @@ Dừng:                                  stop-javis.bat
 Mở dashboard:                          http://localhost:7777
 ```
 
-> ⚠️ **Cài thêm một CLI sau khi Javis đang chạy thì phải khởi động lại Javis** (`stop-javis.bat` rồi `start-javis.vbs`). Tiến trình đang chạy giữ PATH của lúc nó bật, nên CLI vừa cài nó không thấy - trang Models sẽ vẫn báo "CLI chưa cài" cho một CLI đã nằm sẵn trên ổ đĩa.
+> ⚠️ **Cài thêm một CLI sau khi Jarvis 007 đang chạy thì phải khởi động lại Jarvis 007** (`stop-javis.bat` rồi `start-javis.vbs`). Tiến trình đang chạy giữ PATH của lúc nó bật, nên CLI vừa cài nó không thấy - trang Models sẽ vẫn báo "CLI chưa cài" cho một CLI đã nằm sẵn trên ổ đĩa.
 
 > 🪟 **Windows - mở như một app:** sau khi `setup.bat` chạy xong lần đầu, từ đó về sau chỉ cần double-click **`JAVIS OS.bat`** - server tự chạy nền (không cửa sổ đen) rồi dashboard tự mở thành **cửa sổ riêng** không thanh địa chỉ, có ô riêng trên taskbar. Tự chạy khi đăng nhập máy: `javis-autostart.bat install` (gỡ: `uninstall`).
 
-### Nhiều bản Javis trên cùng một VPS (mỗi bản một link riêng)
+### Nhiều bản Jarvis 007 trên cùng một VPS (mỗi bản một link riêng)
 
 Chạy được bao nhiêu bản cũng được - brain, cài đặt và tài khoản của mỗi bản tách bạch hoàn toàn.
 Chỉ cần ba giá trị khác nhau giữa các bản: `JAVIS_NAME`, `JAVIS_HOST_PORT`, `DOMAIN_NAME`.
@@ -253,12 +253,12 @@ Bỏ trống các biến = y hệt cách cài cũ. Từng bước một: **[DEPL
 
 ## 🎬 Thiết lập lần đầu
 
-Mở Javis → bộ cài đặt sẽ dẫn bạn qua:
+Mở Jarvis 007 → bộ cài đặt sẽ dẫn bạn qua:
 
 1. **Tài khoản admin** - đặt mật khẩu (bắt buộc khi chạy public, để chặn người lạ).
 2. **Chọn bộ não** - đi bằng gói subscription thì đăng nhập 1 lần, không cần API key: Claude Code lưu token trong `~/.claude` (Docker: volume riêng → không mất khi update), ChatGPT/Codex đăng nhập ngay trong trang **Models**. Đi bằng API key thì chỉ dán key OpenRouter / OpenAI / Gemini / Anthropic là xong. Ở thẻ Claude Code còn một ô **"Chạy bằng"**: giữ gói đang đăng nhập, hoặc chuyển sang API key Anthropic - hai lựa chọn giữ nguyên năng lực, chỉ khác ai trả tiền và ai chịu rủi ro (xem cảnh báo ở trên).
 3. **Chọn model** - mặc định chọn sẵn Claude Code, nhưng đổi sang nhà cung cấp nào trong **Models** cũng được và **không mất chức năng nào** (trừ chạy lệnh máy, vốn chỉ có ở hai engine CLI).
-4. **Đấu kết nối** (tuỳ chọn) - vào **Kết nối**, chọn dịch vụ trong Kho rồi dán key hoặc quét QR. Javis sẽ báo cáo số liệu thật từ đó.
+4. **Đấu kết nối** (tuỳ chọn) - vào **Kết nối**, chọn dịch vụ trong Kho rồi dán key hoặc quét QR. Jarvis 007 sẽ báo cáo số liệu thật từ đó.
 
 ---
 
@@ -273,8 +273,8 @@ Thanh điều hướng bên trái gom **22 trang** thành **6 nhóm** (bấm tê
 | **Bộ não** | **Đồ thị** | Màn chính khi mở app: đồ thị tri thức, trò chuyện (gõ hoặc nói), cây thư mục brain bên trái. | [Trò chuyện & giọng nói](../../../docs/02-tro-chuyen-va-giong-noi.md) · [Đồ thị tri thức](../../../docs/03-do-thi-tri-thuc.md) |
 | | **Trò chuyện** | Khung chat rộng toàn màn hình kèm cột lịch sử hội thoại. | [Phiên hội thoại](../../../docs/04-phien-hoi-thoai.md) |
 | | **Tệp tin** | Duyệt brain, **sửa `.md`/`.txt` trực tiếp**, tìm file theo tên/nội dung, tải lên/về. | [Quản lý tệp tin](../../../docs/05-quan-ly-tep-tin.md) |
-| | **Tự học** | Javis tự rút ký ức, đúc Wiki, kỹ năng sau mỗi hội thoại; hoàn tác được. | [Tự học](../../../docs/22-tu-hoc.md) |
-| **Code** | **Terminal** | **Dòng lệnh thật** của máy chạy Javis, mở ngay trong trình duyệt - khỏi mở SSH. | [Nhóm Code: Terminal](../../../docs/27-tab-code-terminal.md) |
+| | **Tự học** | Jarvis 007 tự rút ký ức, đúc Wiki, kỹ năng sau mỗi hội thoại; hoàn tác được. | [Tự học](../../../docs/22-tu-hoc.md) |
+| **Code** | **Terminal** | **Dòng lệnh thật** của máy chạy Jarvis 007, mở ngay trong trình duyệt - khỏi mở SSH. | [Nhóm Code: Terminal](../../../docs/27-tab-code-terminal.md) |
 | **Năng lực** | **Agents** | Tạo trợ lý chuyên biệt (vai trò + skill + bộ nhớ riêng). | [Agents & Workflows](../../../docs/07-agents-va-workflows.md) |
 | | **Skills** | Gom nhóm + tìm kiếm + **bật/tắt** + thêm/sửa/xoá + nhập/xuất skill. | [Skills](../../../docs/06-skills.md) |
 | | **Workflows** | Tạo/chạy chuỗi tự động (agent → agent), có bước kiểm chứng. | [Agents & Workflows](../../../docs/07-agents-va-workflows.md) |
@@ -284,24 +284,24 @@ Thanh điều hướng bên trái gom **22 trang** thành **6 nhóm** (bấm tê
 | **Việc** | **Việc** | Hàng đợi task nền do AI tự đặc tả và tự chạy; bạn chỉ xử lý ngoại lệ. | [Việc (Kanban)](../../../docs/21-viec-kanban.md) |
 | | **Việc định kỳ** | Nhiều vòng lặp chạy nền + nhắc hẹn theo giờ hoặc cron. | [Việc định kỳ & Nhắc hẹn](../../../docs/08-viec-dinh-ky.md) |
 | **Kết nối** | **Kết nối** | Kho dịch vụ ngoài, đa tài khoản cùng một dịch vụ, phân quyền 3 mức. | [Kết nối & số liệu](../../../docs/09-mcp-va-so-lieu.md) |
-| | **Kênh** | Bật bot Telegram, Zalo, Slack, WhatsApp (hỏi Javis qua điện thoại). | [Kênh Telegram](../../../docs/11-telegram.md) · [Kênh Zalo](../../../docs/12-zalo.md) · [Slack và WhatsApp](../../../docs/29-slack-whatsapp.md) |
-| | *(terminal)* | `pip install javis-cli` rồi gõ `javis "..."` - kênh thứ ba, cùng một Javis. | [Javis CLI](../../../docs/24-cli-terminal.md) |
+| | **Kênh** | Bật bot Telegram, Zalo, Slack, WhatsApp (hỏi Jarvis 007 qua điện thoại). | [Kênh Telegram](../../../docs/11-telegram.md) · [Kênh Zalo](../../../docs/12-zalo.md) · [Slack và WhatsApp](../../../docs/29-slack-whatsapp.md) |
+| | *(terminal)* | `pip install javis-cli` rồi gõ `javis "..."` - kênh thứ ba, cùng một Jarvis 007. | [Jarvis 007 CLI](../../../docs/24-cli-terminal.md) |
 | | **Models** | Main model + các provider + mức suy nghĩ + model việc nền. | [Models & engine](../../../docs/10-models-va-engine.md) |
 | **Hệ thống** | **Mức dùng** | Token và chi phí theo ngày, theo nhà cung cấp, theo nguồn phát sinh. | [Mức dùng](../../../docs/23-muc-dung-token.md) |
 | | **Cài đặt** | Trạng thái hệ thống, giao diện & brain, giọng nói, thương hiệu, tên miền. | [Bắt đầu & thiết lập](../../../docs/01-bat-dau-thiet-lap.md) |
 | | **Linh vật** | Hình dáng, bảng màu và bật tắt con pet nép ở mép màn hình. | [Bắt đầu & thiết lập](../../../docs/01-bat-dau-thiet-lap.md) |
 | | **Cập nhật** | Phiên bản hiện tại, cập nhật/Redeploy, tiến trình và nhật ký tính năng mới. | [Khắc phục sự cố](../../../docs/17-khac-phuc-su-co.md) |
-| | **Tài khoản** | Workspace, đăng nhập/đăng xuất, đổi/tắt mật khẩu, token API cho CLI. | [Bảo mật & tài khoản](../../../docs/14-bao-mat-tai-khoan.md) · [Javis CLI](../../../docs/24-cli-terminal.md) |
+| | **Tài khoản** | Workspace, đăng nhập/đăng xuất, đổi/tắt mật khẩu, token API cho CLI. | [Bảo mật & tài khoản](../../../docs/14-bao-mat-tai-khoan.md) · [Jarvis 007 CLI](../../../docs/24-cli-terminal.md) |
 
 **Mục lục đầy đủ (27 trang):** [docs/README.md](../../../docs/README.md) - gồm thêm [Second Brain: bộ nhớ / Wiki / INGEST](../../../docs/13-second-brain-bo-nho-wiki.md), [Sao lưu brain lên GitHub](../../../docs/18-sao-luu-github.md), [Task & Dataview trong note](../../../docs/19-task-va-dataview.md), [Thương hiệu & tên miền riêng](../../../docs/15-thuong-hieu-ten-mien.md), [Cấu hình .env](../../../docs/16-cau-hinh-env.md).
 
 ### Vài luồng hay dùng
 
-- **Hỏi số liệu:** *"Doanh thu hôm nay thế nào? So với hôm qua?"* → Javis gọi đúng kết nối, trả số thật + đề xuất.
-- **Tiêu hoá tri thức (INGEST):** thả file/ghi chú vào → Javis tóm tắt, rút insight, viết vào Wiki, gợi ý task.
+- **Hỏi số liệu:** *"Doanh thu hôm nay thế nào? So với hôm qua?"* → Jarvis 007 gọi đúng kết nối, trả số thật + đề xuất.
+- **Tiêu hoá tri thức (INGEST):** thả file/ghi chú vào → Jarvis 007 tóm tắt, rút insight, viết vào Wiki, gợi ý task.
 - **Giao việc nền:** vào **Việc** → **+ Giao goal** → mô tả bằng lời (vd *"tổng hợp bán hàng tuần này, tìm hàng bán chậm, soạn 3 caption đẩy hàng"*) → AI tự đặc tả và chạy, báo kết quả về Telegram.
 - **Việc định kỳ:** vào **Việc định kỳ** → **+ Thêm việc** → chọn *Việc lặp* (mỗi N phút) hoặc *Nhắc hẹn* (8h30 mỗi ngày).
-- **Giọng nói:** bấm mic (hoặc bật rảnh tay) → nói → Javis trả lời bằng giọng.
+- **Giọng nói:** bấm mic (hoặc bật rảnh tay) → nói → Jarvis 007 trả lời bằng giọng.
 
 ---
 
@@ -437,7 +437,7 @@ Người đóng góp quốc tế có [ARCHITECTURE.md](../../../ARCHITECTURE.md)
 ## 🙏 Cảm hứng & ghi nhận
 
 - **Bộ não:** [Claude Code](https://claude.com/claude-code) và [Claude Agent SDK](https://docs.claude.com/en/api/agent-sdk/overview) (Anthropic), [Codex CLI](https://developers.openai.com/codex/cli) (OpenAI), cùng API của [OpenRouter](https://openrouter.ai), OpenAI, [Google Gemini](https://ai.google.dev), Anthropic và [Groq](https://groq.com).
-- **Chuẩn công cụ:** [Model Context Protocol](https://modelcontextprotocol.io) - toàn bộ kho Kết nối của Javis chạy trên chuẩn này.
+- **Chuẩn công cụ:** [Model Context Protocol](https://modelcontextprotocol.io) - toàn bộ kho Kết nối của Jarvis 007 chạy trên chuẩn này.
 - Pattern Second Brain + Bullet Journal số hoá.
 
 ---
@@ -448,9 +448,9 @@ Mã nguồn mở theo giấy phép **MIT** - dùng, sửa, phân phối tự do,
 
 ---
 
-## ☕ Ủng hộ Javis OS
+## ☕ Ủng hộ Jarvis 007
 
-Javis OS mã nguồn mở, dùng miễn phí, và mình vẫn đang một mình vừa code vừa gánh chi phí server chạy thử mỗi ngày. Nếu Javis đang giúp được gì cho công việc hay cuộc sống của bạn, một chút ủng hộ sẽ giúp mình có thêm thời gian ngồi sửa bug, viết tính năng mới, thay vì lo tiền server.
+Jarvis 007 mã nguồn mở, dùng miễn phí, và mình vẫn đang một mình vừa code vừa gánh chi phí server chạy thử mỗi ngày. Nếu Jarvis 007 đang giúp được gì cho công việc hay cuộc sống của bạn, một chút ủng hộ sẽ giúp mình có thêm thời gian ngồi sửa bug, viết tính năng mới, thay vì lo tiền server.
 
 Không bắt buộc, không đổi lấy quyền lợi gì cả - đơn giản là một lời cảm ơn gửi bằng tiền cho người đang âm thầm code buổi tối.
 
@@ -458,7 +458,7 @@ Không bắt buộc, không đổi lấy quyền lợi gì cả - đơn giản l
 - 📱 **Ví MoMo**: `0372752740`
 - 🌍 **PayPal**: [paypal.me/quy01](https://paypal.me/quy01)
 
-Không tiện donate cũng không sao - dùng Javis, góp ý, hay gửi một Pull Request cũng đã là ủng hộ rồi.
+Không tiện donate cũng không sao - dùng Jarvis 007, góp ý, hay gửi một Pull Request cũng đã là ủng hộ rồi.
 
 ---
 

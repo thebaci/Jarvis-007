@@ -1,4 +1,4 @@
-# Đóng góp cho Javis OS
+# Đóng góp cho Jarvis 007
 
 *[English](../../../CONTRIBUTING.md) · **Tiếng Việt***
 
@@ -62,7 +62,7 @@ mục trong cả [CHANGELOG.md](../../../CHANGELOG.md) tiếng Việt lẫn
 - **Comment giải thích vì sao** (ràng buộc ẩn, cách lách, lỗi từng gặp), không lặp lại cái dòng
   code bên dưới đã nói.
 - **Không dùng em dash (U+2014) hay en dash (U+2013)** ở bất cứ đâu: code, tài liệu, chuỗi. Dùng
-  gạch nối, dấu phẩy hoặc hai chấm. Hai dấu này làm giọng đọc TTS khựng, và test kiểm chữ Javis hiện lên hay đọc ra.
+  gạch nối, dấu phẩy hoặc hai chấm. Hai dấu này làm giọng đọc TTS khựng, và test kiểm chữ Jarvis 007 hiện lên hay đọc ra.
 - **Ngôn ngữ của code:** module, tên hàm và comment MỚI viết bằng tiếng Anh. Sửa một file có sẵn
   thì theo ngôn ngữ của file đó cho nhất quán; không cần dịch phần code mình không sửa.
 - **Chữ hiện lên màn hình không viết cứng một thứ tiếng:**
@@ -78,7 +78,7 @@ nằm ở [docs/quy-uoc-dev.md](../../quy-uoc-dev.md).
 
 ## Dịch thuật
 
-Javis vốn đã **trả lời** bằng bất kỳ thứ tiếng nào người dùng viết. Bản dịch thêm vào là giao
+Jarvis 007 vốn đã **trả lời** bằng bất kỳ thứ tiếng nào người dùng viết. Bản dịch thêm vào là giao
 diện, tài liệu và giọng đọc bằng thứ tiếng đó. Ba cách góp, từ nhỏ tới lớn:
 
 1. **README.** README và hướng dẫn cài nhanh bằng các thứ tiếng khác (Trung, Tây Ban Nha, Nhật, Hindi, Bồ Đào Nha, Hàn, Nga, Đức, Pháp, Indonesia) trong

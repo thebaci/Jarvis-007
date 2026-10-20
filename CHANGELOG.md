@@ -2,7 +2,7 @@
 
 ***Tiếng Việt** · [English](CHANGELOG.en.md)*
 
-Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay trong app tại **Cài đặt → Cập nhật**.
+Lịch sử phiên bản Jarvis 007. Bản mới nhất ở trên cùng. Xem ngay trong app tại **Cài đặt → Cập nhật**.
 
 Định dạng: mỗi phiên bản là một khối `## [x.y.z] - ngày`, bên dưới nhóm thay đổi theo `### Thêm mới / Sửa lỗi / Cải thiện / Bảo mật`.
 
@@ -14,15 +14,15 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.225.0] - 2026-10-19
 ### Cải thiện
-- **Đổi bộ não, tải note nhanh hơn nhiều.** Đo trên bộ não 2000 note qua mạng như VPS: mở lần đầu từ 1,6 giây xuống 0,24 giây, quay lại bộ não vừa xem còn 0,12 giây. Javis không đọc lại các note không đổi, nhớ cả sau khi khởi động lại, và quay lại bộ não cũ thì không phải tải lại.
+- **Đổi bộ não, tải note nhanh hơn nhiều.** Đo trên bộ não 2000 note qua mạng như VPS: mở lần đầu từ 1,6 giây xuống 0,24 giây, quay lại bộ não vừa xem còn 0,12 giây. Jarvis 007 không đọc lại các note không đổi, nhớ cả sau khi khởi động lại, và quay lại bộ não cũ thì không phải tải lại.
 - **Cả hệ thống nhẹ hơn khi chạy trên VPS:** mọi danh sách và trang chủ được nén trước khi gửi, dữ liệu đồ thị nhỏ đi khoảng 16 lần, trang chủ nhỏ đi 3 lần. Luồng chat vẫn hiện từng chữ như cũ.
 
 ## [0.223.0] - 2026-10-19
 ### Thêm mới
-- **Ghim ngay trong kết quả tìm hội thoại.** Gõ tìm ở cột Lịch sử (trang Trò chuyện, lịch sử của trợ lý và Javis Core, trang Coding) thì mỗi kết quả có nút ghim, cuộc đã ghim đứng đầu kết quả. Khỏi phải xoá ô tìm rồi lục lại danh sách.
+- **Ghim ngay trong kết quả tìm hội thoại.** Gõ tìm ở cột Lịch sử (trang Trò chuyện, lịch sử của trợ lý và Jarvis 007 Core, trang Coding) thì mỗi kết quả có nút ghim, cuộc đã ghim đứng đầu kết quả. Khỏi phải xoá ô tìm rồi lục lại danh sách.
 - **Ghim cuộc chat trong Hòm thư bot.** Rê chuột vào một cuộc chat (trên điện thoại nút luôn hiện) rồi bấm ghim là nó nằm trên đầu hòm thư, có vạch màu bên trái. Bấm lần nữa để bỏ ghim.
 ### Sửa lỗi
-- **Tắt thông báo đẩy rồi thì không tự bật lại nữa.** Trước đây bấm Tắt xong, lần mở Javis sau nó lặng lẽ bật lại vì trình duyệt vẫn còn giữ quyền thông báo. Giờ Javis nhớ bạn đã tắt trên máy đó, chỉ bật lại khi bạn bấm Bật.
+- **Tắt thông báo đẩy rồi thì không tự bật lại nữa.** Trước đây bấm Tắt xong, lần mở Jarvis 007 sau nó lặng lẽ bật lại vì trình duyệt vẫn còn giữ quyền thông báo. Giờ Jarvis 007 nhớ bạn đã tắt trên máy đó, chỉ bật lại khi bạn bấm Bật.
 
 ## [0.222.0] - 2026-10-19
 ### Thêm mới
@@ -30,25 +30,25 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 - **Mẫu Bản tin buổi sáng** ở trang Việc định kỳ: bấm là điền sẵn một nhắc hẹn 7 giờ sáng (chào, lịch hôm nay, chuyện hôm qua, tin đáng chú ý). Bấm Lưu mới tạo.
 ### Cải thiện
 - **Việc nền không mất thời gian thử lại model đang hỏng.** Model vừa lỗi được cho nghỉ một lúc (hết hạn mức 5 phút, không phản hồi 30 phút, không có quyền 6 tiếng), các việc sau đi thẳng model còn chạy được.
-- **Javis vẫn nhớ ra ký ức cũ khi danh sách quá dài:** những ký ức không vừa chỗ vẫn được nêu tên để Javis biết mà mở đọc.
+- **Jarvis 007 vẫn nhớ ra ký ức cũ khi danh sách quá dài:** những ký ức không vừa chỗ vẫn được nêu tên để Jarvis 007 biết mà mở đọc.
 
 ## [0.221.0] - 2026-10-19
 ### Cải thiện
-- **Javis chỉ nói "đã mở" khi app thật sự lên.** Mở app xong, Javis kiểm tra app đã chạy chưa. Không thấy thì nói thẳng là chưa chắc mở được, không báo xong cho có.
+- **Jarvis 007 chỉ nói "đã mở" khi app thật sự lên.** Mở app xong, Jarvis 007 kiểm tra app đã chạy chưa. Không thấy thì nói thẳng là chưa chắc mở được, không báo xong cho có.
 - **App đang chạy thì đưa lên trước**, không mở thêm một bản thứ hai. Ví dụ Zalo đang chạy ngầm sau mấy cửa sổ khác thì "mở Zalo" là Zalo hiện lên.
-- **Không còn mở nhầm app có tên gần giống.** Tên quá ngắn như "wp" phải khớp đúng tên, và tên mập mờ thì Javis hỏi lại thay vì đoán.
+- **Không còn mở nhầm app có tên gần giống.** Tên quá ngắn như "wp" phải khớp đúng tên, và tên mập mờ thì Jarvis 007 hỏi lại thay vì đoán.
 - Đóng app, kể cả ép tắt, cũng được kiểm tra lại xem app đã tắt thật chưa.
 
 ## [0.220.0] - 2026-10-19
 ### Cải thiện
-- **Gọi Javis qua Gemini Live không còn im lặng lúc đang tra cứu.** Javis đáp ngay một câu ngắn rồi vẫn nghe bạn nói tiếp, có kết quả thì tự đọc vào lúc không ai đang nói. Việc chạy lâu thì thỉnh thoảng báo tiến độ.
+- **Gọi Jarvis 007 qua Gemini Live không còn im lặng lúc đang tra cứu.** Jarvis 007 đáp ngay một câu ngắn rồi vẫn nghe bạn nói tiếp, có kết quả thì tự đọc vào lúc không ai đang nói. Việc chạy lâu thì thỉnh thoảng báo tiến độ.
 - **Không trả lời tiếng TV hay người bên cạnh nữa** (Gemini Live). Trong Cài đặt → Giọng nói → Nâng cao có thêm ô **Lọc tiếng xung quanh** (mặc định bật) và **Nhịp trả lời**: Nhanh, Vừa, Chậm rãi.
 - **Giọng đọc tự đổi theo thứ tiếng:** chọn giọng "Tự động theo thứ tiếng" thì tiếng Việt đọc bằng Hoài My, tiếng Anh bằng Emma, tiếng Nhật, Trung, Hàn bằng giọng bản xứ. Câu ngắn như "OK" không làm đổi giọng.
 - **Tiếng mic mượt hơn khi gọi Live qua API key**, kể cả lúc trang đang bận. Câu trả lời tiếng Nhật, tiếng Trung được đọc từng câu nên tiếng ra sớm hơn, và số phiên bản như "0.220.0" không còn bị đọc ngắt quãng.
 
 ## [0.219.0] - 2026-10-19
 ### Thêm mới
-- **Đổi tên bộ não được rồi, kể cả Brain Default, mà không gãy liên kết nào.** Bấm nút bút chì cạnh ô chọn bộ não, gõ tên mới. Javis chỉ đổi tên hiển thị, thư mục giữ nguyên. Vì vậy các link wiki, link tới file trong note và chat, bot, nhắc việc, vòng lặp, việc nền và bản sao lưu GitHub vẫn trỏ đúng như cũ.
+- **Đổi tên bộ não được rồi, kể cả Brain Default, mà không gãy liên kết nào.** Bấm nút bút chì cạnh ô chọn bộ não, gõ tên mới. Jarvis 007 chỉ đổi tên hiển thị, thư mục giữ nguyên. Vì vậy các link wiki, link tới file trong note và chat, bot, nhắc việc, vòng lặp, việc nền và bản sao lưu GitHub vẫn trỏ đúng như cũ.
 - **Tên mới đi theo bộ não:** lưu ngay trong bộ não (`Javis/brain.json`), nên sao lưu GitHub mang sang máy khác. Để trống là về lại tên thư mục.
 - **Tên mới hiện ở mọi chỗ:** ô chọn bộ não, trang Việc, Cài đặt, webhook, Telegram (`/brain`, `/status`) và lệnh `/brain` trong chat. Gõ tên cũ (tên thư mục) vẫn chọn được.
 
@@ -61,36 +61,36 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 ## [0.216.0] - 2026-10-18
 ### Thêm mới
 - **Hòm thư bot tìm được theo số điện thoại.** Gõ 0912 345 678, 84912345678 hay +84 912 345 678 đều ra cùng một người.
-- **Số chưa có trong máy thì Javis hỏi Zalo giúp:** gõ đủ một số, Javis hỏi các tài khoản Zalo cá nhân đang kết nối xem số đó là ai, rồi hiện cuộc chat với người đó. Từ đó số được nhớ vào khách, lần sau ra ngay.
+- **Số chưa có trong máy thì Jarvis 007 hỏi Zalo giúp:** gõ đủ một số, Jarvis 007 hỏi các tài khoản Zalo cá nhân đang kết nối xem số đó là ai, rồi hiện cuộc chat với người đó. Từ đó số được nhớ vào khách, lần sau ra ngay.
 - **Người chưa từng nhắn thì Hòm thư báo rõ:** "Số này là Zalo của chị Ngọc, chưa có cuộc chat nào". Số không có Zalo, hoặc người đó tắt cho tìm bằng số, cũng được báo.
 - **Không hỏi Zalo lặp lại:** kết quả được nhớ (tìm thấy thì 30 ngày, không thấy thì 1 ngày). Mỗi giờ hỏi tối đa 20 số, vì Zalo giới hạn số lần tra mỗi ngày.
-- **Vuốt một tin sang trái để trích dẫn (điện thoại):** như Zalo, kéo bong bóng sang trái tới khi hiện dấu trích dẫn màu cam rồi nhấc tay, tin đó vào ngay khung "Đang trích dẫn" trên ô nhập. Dùng được cho cả tin của Javis lẫn tin của bạn, ở khung chat chính và chat với Javis Core hay cộng sự. Vuốt ngắn hoặc cuộn lên xuống thì không làm gì.
+- **Vuốt một tin sang trái để trích dẫn (điện thoại):** như Zalo, kéo bong bóng sang trái tới khi hiện dấu trích dẫn màu cam rồi nhấc tay, tin đó vào ngay khung "Đang trích dẫn" trên ô nhập. Dùng được cho cả tin của Jarvis 007 lẫn tin của bạn, ở khung chat chính và chat với Jarvis 007 Core hay cộng sự. Vuốt ngắn hoặc cuộn lên xuống thì không làm gì.
 
 ### Sửa lỗi
 - **Menu trên điện thoại không còn tự tắt, để lại màn hình tối:** trên iPhone, menu trượt ra rồi biến mất, chỉ còn lớp nền tối. Menu giờ dùng nền đặc thay cho hiệu ứng làm mờ (Safari có lúc vẽ mất khung vừa làm mờ vừa trượt). Lớp tối luôn đi cùng menu, menu đóng là tối cũng mất. Một lần chạm bị tính thành hai cú bấm cũng không đóng ngay menu vừa mở.
 
 ## [0.214.0] - 2026-10-18
 ### Sửa lỗi
-- **Antigravity không còn đổ lỗi nhầm cho Google khi một lượt chạy quá lâu:** lượt dài quá 15 phút bị chính Antigravity CLI dừng, trước đây Javis báo "Google trục trặc tạm thời, đã thử lại 2 lần" dù không thử lại lần nào. Giờ câu báo nói đúng là lượt quá dài, các bước đã xong vẫn giữ, nhắn "làm tiếp" để làm nốt hoặc giao thành việc nền.
-- **Câu "đã thử lại N lần" chỉ hiện khi Javis thật sự thử lại.** Lượt đã làm được một phần thì Javis không chạy lại, tránh làm một việc hai lần, và câu báo nói đúng như vậy.
+- **Antigravity không còn đổ lỗi nhầm cho Google khi một lượt chạy quá lâu:** lượt dài quá 15 phút bị chính Antigravity CLI dừng, trước đây Jarvis 007 báo "Google trục trặc tạm thời, đã thử lại 2 lần" dù không thử lại lần nào. Giờ câu báo nói đúng là lượt quá dài, các bước đã xong vẫn giữ, nhắn "làm tiếp" để làm nốt hoặc giao thành việc nền.
+- **Câu "đã thử lại N lần" chỉ hiện khi Jarvis 007 thật sự thử lại.** Lượt đã làm được một phần thì Jarvis 007 không chạy lại, tránh làm một việc hai lần, và câu báo nói đúng như vậy.
 
 ### Cải thiện
-- **Các trang gọn hẳn: chữ giải thích gập vào nút (i).** Ngoài mặt chỉ còn tiêu đề, trạng thái, ô nhập và nút; phần vì sao, lưu ý, cách làm từng bước nằm sau nút (i) cạnh tiêu đề, bấm mới mở. Áp dụng khắp Javis: Models, Cài đặt, Kênh, Chatbot, Plugin, Học hỏi, Việc, Team, Cộng sự, Mức dùng.
+- **Các trang gọn hẳn: chữ giải thích gập vào nút (i).** Ngoài mặt chỉ còn tiêu đề, trạng thái, ô nhập và nút; phần vì sao, lưu ý, cách làm từng bước nằm sau nút (i) cạnh tiêu đề, bấm mới mở. Áp dụng khắp Jarvis 007: Models, Cài đặt, Kênh, Chatbot, Plugin, Học hỏi, Việc, Team, Cộng sự, Mức dùng.
 - **Mô tả dài trên thẻ (plugin, quy trình) chỉ hiện 2 dòng**, đầy đủ trong (i).
 - **Chữ trong khung giải thích 16px**, đọc dễ trên điện thoại.
 
 ## [0.213.0] - 2026-10-18
 ### Thêm mới
-- **Nhắn thêm khi Javis đang làm, giờ có cả trên Telegram, Discord, Slack, Lark, Messenger và Zalo:** trước đây bot báo "đang xử lý câu trước, gửi /stop" rồi bỏ tin của bạn. Giờ tin được giữ lại, không mất tin nào.
+- **Nhắn thêm khi Jarvis 007 đang làm, giờ có cả trên Telegram, Discord, Slack, Lark, Messenger và Zalo:** trước đây bot báo "đang xử lý câu trước, gửi /stop" rồi bỏ tin của bạn. Giờ tin được giữ lại, không mất tin nào.
 - **Codex (gói ChatGPT) giờ đọc tin mới ngay trong lượt**, trên web lẫn các kênh, như nút Enter của ứng dụng Codex: không phải đợi xong việc mới làm tin của bạn nữa. Tắt bằng `JAVIS_CODEX_STEER=0` nếu cần.
-- **Trên kênh nhắn tin, bot đáp một dòng ngắn** cho biết Javis đọc tin ngay ở bước kế tiếp (Claude Code, Codex, các bộ não dùng API key) hay làm ngay sau câu đang trả lời (Grok, Antigravity).
+- **Trên kênh nhắn tin, bot đáp một dòng ngắn** cho biết Jarvis 007 đọc tin ngay ở bước kế tiếp (Claude Code, Codex, các bộ não dùng API key) hay làm ngay sau câu đang trả lời (Grok, Antigravity).
 - **/stop dừng việc đang làm và bỏ luôn các tin đang chờ.** Bot chăm sóc khách giữ nguyên cách cũ: im lặng, gộp tin khách nhắn thêm vào lượt sau.
 
 ## [0.211.0] - 2026-10-17
 ### Cải thiện
-- **Thẻ Claude Code nói đúng một việc khi máy chưa cài:** một khung hướng dẫn duy nhất (Docker thì cập nhật Javis, cài tay thì một lệnh để chép), chỉ còn nút Kiểm tra lại. Bỏ nút Đăng nhập vốn chỉ báo lỗi, bỏ dòng phiên bản và nút Cập nhật của một chương trình chưa có.
+- **Thẻ Claude Code nói đúng một việc khi máy chưa cài:** một khung hướng dẫn duy nhất (Docker thì cập nhật Jarvis 007, cài tay thì một lệnh để chép), chỉ còn nút Kiểm tra lại. Bỏ nút Đăng nhập vốn chỉ báo lỗi, bỏ dòng phiên bản và nút Cập nhật của một chương trình chưa có.
 - **Thông báo không còn bị ép thành cột hẹp:** lỗi và hướng dẫn nằm dưới hàng nút, đủ bề ngang, nút giữ đúng chiều cao. Chi tiết về PATH và Windows gập vào mục "Đã cài mà vẫn báo thiếu?".
-- **Chữ trên các thẻ nhà cung cấp lên 16px**, đọc dễ trên điện thoại. Thẻ đổi tên thành "Claude Code" (Javis không dùng token OAuth của nó), khiên xanh chỉ sáng khi đã có CLI.
+- **Chữ trên các thẻ nhà cung cấp lên 16px**, đọc dễ trên điện thoại. Thẻ đổi tên thành "Claude Code" (Jarvis 007 không dùng token OAuth của nó), khiên xanh chỉ sáng khi đã có CLI.
 
 ## [0.210.0] - 2026-10-17
 ### Cải thiện
@@ -123,14 +123,14 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.206.0] - 2026-10-17
 ### Thêm mới
-- **Gửi thêm việc khi Javis đang làm, như Claude Code và Codex:** gõ rồi gửi tiếp trong lúc Javis đang chạy, việc đang làm không bị dừng. Trước đây tin gõ lúc này bị bỏ qua im lặng.
+- **Gửi thêm việc khi Jarvis 007 đang làm, như Claude Code và Codex:** gõ rồi gửi tiếp trong lúc Jarvis 007 đang chạy, việc đang làm không bị dừng. Trước đây tin gõ lúc này bị bỏ qua im lặng.
 - **Claude Code và các bộ não dùng API key đọc tin mới ở bước kế tiếp:** sửa hướng thì áp dụng ngay, việc mới thì nhận thêm và làm song song nếu được.
 - **Codex, Grok và Antigravity tự làm tin của bạn ngay sau khi xong việc hiện tại**, vì các engine này chạy một mạch. Không tin nào bị mất.
 - **Dưới tin vừa gửi có dòng trạng thái:** sẽ đọc ở bước kế tiếp, đã đọc, hay đang làm.
 
 ## [0.205.0] - 2026-10-17
 ### Cải thiện
-- **Cộng sự vừa có tin mới tự lên đầu danh sách:** bạn nhắn, cộng sự trả lời hay việc nền báo kết quả vào hội thoại của cộng sự đều đẩy thẻ đó lên trên (sau Javis Core và mục đã ghim).
+- **Cộng sự vừa có tin mới tự lên đầu danh sách:** bạn nhắn, cộng sự trả lời hay việc nền báo kết quả vào hội thoại của cộng sự đều đẩy thẻ đó lên trên (sau Jarvis 007 Core và mục đã ghim).
 - **Số tin chưa đọc trên từng thẻ cộng sự**, cạnh giờ nhắn. Mở hội thoại là số tự xoá, ở mọi tab đang mở.
 - **Tắt thông báo theo từng cộng sự:** nút ⋮ có **Tắt thông báo** trong 1 giờ, 4 giờ, đến 8:00 sáng hoặc đến khi mở lại. Tin vẫn vào hội thoại và chuông, chỉ không kêu và không đẩy thông báo.
 
@@ -139,57 +139,57 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 - **Trang Việc định kỳ gọn lại:** ô chọn bộ não thay cho cảnh mọi bộ não xếp chồng, thêm lọc **Việc lặp / Nhắc hẹn** và phân trang 10 việc một trang. Sự cố và Nhật ký thành tab riêng; Webhook có trang riêng trong nhóm Việc.
 
 ### Sửa lỗi
-- **Cuộc gọi hẹn giờ giờ đổ chuông thật:** trước đây chuông chỉ đổ khi bạn đang mở đúng cuộc trò chuyện nhận nhắc hẹn, nên thường không thấy gì. Giờ thẻ cuộc gọi hiện ở bất kỳ trang Javis nào đang mở.
+- **Cuộc gọi hẹn giờ giờ đổ chuông thật:** trước đây chuông chỉ đổ khi bạn đang mở đúng cuộc trò chuyện nhận nhắc hẹn, nên thường không thấy gì. Giờ thẻ cuộc gọi hiện ở bất kỳ trang Jarvis 007 nào đang mở.
 - **Nút Đọc tất cả ở Thông báo to và dễ bấm hơn:** sáng màu khi còn tin chưa đọc, mờ đi khi đã đọc hết, và giờ đọc hết cả hai tab thay vì chỉ tab đang mở.
 - **Tên được gọi @ trong tin nhắn Team hiện bình thường**, không còn bị ép thành vòng tròn nhỏ với từng chữ xếp dọc.
 
 ## [0.203.0] - 2026-10-17
 ### Thêm mới
-- **Javis gọi điện cho bạn đúng giờ:** nhắc hẹn có thêm ô **Gọi điện cho tôi** (hoặc nói "7h sáng gọi đọc báo cáo cho anh"). Tới giờ, trang Javis đang mở đổ chuông và hiện thẻ cuộc gọi đến với nút **Nghe** và **Từ chối**.
-- **Bấm Nghe là vào cuộc gọi giọng nói:** Javis đọc ngắn gọn nội dung nhắc hay báo cáo rồi hỏi bạn cần gì thêm, nói chuyện tiếp như khi bấm mic (ChatGPT Live nếu đã bật).
-- **Không nghe thì không mất gì:** sau 45 giây là cuộc gọi nhỡ, nội dung vẫn nằm trong khung chat; không mở Javis thì Telegram vẫn nhận tin như mọi nhắc hẹn khác.
+- **Jarvis 007 gọi điện cho bạn đúng giờ:** nhắc hẹn có thêm ô **Gọi điện cho tôi** (hoặc nói "7h sáng gọi đọc báo cáo cho anh"). Tới giờ, trang Jarvis 007 đang mở đổ chuông và hiện thẻ cuộc gọi đến với nút **Nghe** và **Từ chối**.
+- **Bấm Nghe là vào cuộc gọi giọng nói:** Jarvis 007 đọc ngắn gọn nội dung nhắc hay báo cáo rồi hỏi bạn cần gì thêm, nói chuyện tiếp như khi bấm mic (ChatGPT Live nếu đã bật).
+- **Không nghe thì không mất gì:** sau 45 giây là cuộc gọi nhỡ, nội dung vẫn nằm trong khung chat; không mở Jarvis 007 thì Telegram vẫn nhận tin như mọi nhắc hẹn khác.
 
 ## [0.202.1] - 2026-10-17
 ### Cải thiện
-- **Nhắc hẹn đọc thành tiếng giờ "gọi" thật:** tới giờ, nếu Javis đang mở thì tin thoại tự phát ngay như một cuộc gọi, không cần bấm. Trình duyệt chặn tự phát thì trình phát vẫn nằm đó để bấm; Telegram vẫn nhận file âm thanh như trước.
+- **Nhắc hẹn đọc thành tiếng giờ "gọi" thật:** tới giờ, nếu Jarvis 007 đang mở thì tin thoại tự phát ngay như một cuộc gọi, không cần bấm. Trình duyệt chặn tự phát thì trình phát vẫn nằm đó để bấm; Telegram vẫn nhận file âm thanh như trước.
 
 ## [0.202.0] - 2026-10-17
 ### Thêm mới
-- **Tin thoại:** bảo Javis "đọc cho tôi nghe" là nó ghi một đoạn nói ngắn thành file mp3, khung chat hiện trình phát ngay dưới câu trả lời, Telegram nhận dạng âm thanh. Nội dung vẫn có bằng chữ bên dưới.
+- **Tin thoại:** bảo Jarvis 007 "đọc cho tôi nghe" là nó ghi một đoạn nói ngắn thành file mp3, khung chat hiện trình phát ngay dưới câu trả lời, Telegram nhận dạng âm thanh. Nội dung vẫn có bằng chữ bên dưới.
 - **Nhắc hẹn đọc thành tiếng:** tick **Đọc thành tiếng** là tới giờ nhắc hay báo cáo được gửi kèm tin thoại, nghe được lúc đang lái xe hay nấu ăn.
-- **Giữ ấm bộ nhớ đệm (tuỳ chọn, mặc định tắt):** ở trang Mức dùng token, bật là Javis giữ bộ nhớ đệm 1 giờ của chat Claude Code qua lúc bạn nghỉ ngắn, tin tiếp theo không phải nạp lại cả cuộc trò chuyện. Dừng ngay khi hết lượt hay cache đã nguội.
+- **Giữ ấm bộ nhớ đệm (tuỳ chọn, mặc định tắt):** ở trang Mức dùng token, bật là Jarvis 007 giữ bộ nhớ đệm 1 giờ của chat Claude Code qua lúc bạn nghỉ ngắn, tin tiếp theo không phải nạp lại cả cuộc trò chuyện. Dừng ngay khi hết lượt hay cache đã nguội.
 
 ## [0.201.0] - 2026-10-17
 ### Thêm mới
 - **Biểu đồ và ô số liệu ngay trong chat:** báo cáo doanh thu, đơn hàng, quảng cáo có thể kèm biểu đồ cột hay đường và vài ô số chính có mức tăng giảm, vẽ thẳng dưới câu trả lời.
-- **Nút bấm chọn nhanh:** Javis có thể đưa tối đa 4 nút như "Duyệt bản A", bấm là gửi câu đó như bạn tự gõ. Telegram và Zalo nhận bản chữ dễ đọc.
-- **Javis nhớ lại chat cũ:** mở chat mới mà nhắc chuyện hôm trước, Javis tự tìm trong các chat khác của bạn và lấy vài đoạn liên quan làm ngữ cảnh. Chat Team và chat với khách không bao giờ được đưa vào.
+- **Nút bấm chọn nhanh:** Jarvis 007 có thể đưa tối đa 4 nút như "Duyệt bản A", bấm là gửi câu đó như bạn tự gõ. Telegram và Zalo nhận bản chữ dễ đọc.
+- **Jarvis 007 nhớ lại chat cũ:** mở chat mới mà nhắc chuyện hôm trước, Jarvis 007 tự tìm trong các chat khác của bạn và lấy vài đoạn liên quan làm ngữ cảnh. Chat Team và chat với khách không bao giờ được đưa vào.
 
 ## [0.200.0] - 2026-10-17
 ### Thêm mới
 - **Chia sẻ cả team bằng một file:** menu ⋯ của team có **Chia sẻ team**, tải về một file gồm các cộng sự, kỹ năng và hướng dẫn chung. Không có lịch sử chat, khoá, model hay công tắc Auto; chữ trông giống mật khẩu hay khoá API bị xoá trước khi ghi.
 - **Nhập team:** nút **Nhập team** ở trang Team đọc file, cho xem trước có những ai rồi mới thêm. Cộng sự trùng tên bạn đã có thì giữ nguyên bản của bạn.
-- **Thấy ngay Javis vừa tạo gì:** lượt chat nào tạo, sửa hay gỡ lịch, việc lặp, cộng sự, quy trình hay kỹ năng thì hiện dòng nhỏ "Đã tạo lịch: ..." dưới câu trả lời. Cái mới tạo có nút **Hoàn tác**.
+- **Thấy ngay Jarvis 007 vừa tạo gì:** lượt chat nào tạo, sửa hay gỡ lịch, việc lặp, cộng sự, quy trình hay kỹ năng thì hiện dòng nhỏ "Đã tạo lịch: ..." dưới câu trả lời. Cái mới tạo có nút **Hoàn tác**.
 
 ## [0.199.0] - 2026-10-17
 ### Thêm mới
-- **Javis Core tự xử lý việc nền hỏng:** việc Kanban, việc lặp, nhắc hẹn hay webhook bị lỗi thì Javis Core biết trước tiên. Lỗi thoáng qua (mạng chập, hết giờ) thì nó cho chạy lại một lần; lỗi chỉ bạn gỡ được (đăng nhập, khoá, cài đặt) thì nói rõ một hai câu cần làm gì.
+- **Jarvis 007 Core tự xử lý việc nền hỏng:** việc Kanban, việc lặp, nhắc hẹn hay webhook bị lỗi thì Jarvis 007 Core biết trước tiên. Lỗi thoáng qua (mạng chập, hết giờ) thì nó cho chạy lại một lần; lỗi chỉ bạn gỡ được (đăng nhập, khoá, cài đặt) thì nói rõ một hai câu cần làm gì.
 - **Không thành cơn bão tin:** một việc hỏng liên tục chỉ là một sự cố, chạy lại vẫn hỏng thì báo đúng một tin "cần bạn".
 - **Mục Sức khoẻ việc nền ở trang Việc:** xem sự cố đang mở, bấm Đã xử lý để đóng, và danh sách lỗi 24 giờ qua gom theo nguyên nhân (14 lần cùng một lỗi token hiện thành một dòng).
-- **Quét sức khoẻ từ ngoài:** lệnh `python tools/sentinel.py` đọc dữ liệu (chỉ đọc) và chạy được cả khi Javis đang tắt.
+- **Quét sức khoẻ từ ngoài:** lệnh `python tools/sentinel.py` đọc dữ liệu (chỉ đọc) và chạy được cả khi Jarvis 007 đang tắt.
 
 ## [0.198.0] - 2026-10-17
 ### Thêm mới
-- **Webhook: hệ thống bên ngoài gọi Javis làm việc.** Ở trang Việc, mục **Webhook** tạo một đường link bí mật. Form trên landing page, đơn thanh toán hay một app khác gọi vào là Javis chạy ngay quy trình hoặc việc bạn chọn, kèm dữ liệu sự kiện, rồi báo kết quả như nhắc hẹn.
+- **Webhook: hệ thống bên ngoài gọi Jarvis 007 làm việc.** Ở trang Việc, mục **Webhook** tạo một đường link bí mật. Form trên landing page, đơn thanh toán hay một app khác gọi vào là Jarvis 007 chạy ngay quy trình hoặc việc bạn chọn, kèm dữ liệu sự kiện, rồi báo kết quả như nhắc hẹn.
 - **An toàn sẵn:** mã bí mật chỉ hiện một lần, có nút gửi thử, tắt, tạo mã mới. Gửi trùng không chạy hai lần, tối đa 30 lần mỗi giờ cho mỗi webhook.
-- **Nhắc hẹn tự làm có thể nhớ lần trước:** tick **Nhớ kết quả lần trước** là mỗi lần chạy Javis biết đã báo gì, chỉ báo cái mới. Hợp với việc theo dõi giá đối thủ, theo dõi chỉ số.
+- **Nhắc hẹn tự làm có thể nhớ lần trước:** tick **Nhớ kết quả lần trước** là mỗi lần chạy Jarvis 007 biết đã báo gì, chỉ báo cái mới. Hợp với việc theo dõi giá đối thủ, theo dõi chỉ số.
 
 ### Cải thiện
-- **Lịch lặp hiện ba lần chạy tới** trên thẻ việc, và khi tạo lịch từ chat Javis đọc lại ba ngày đó để bạn xác nhận. Lần chạy bị trễ vì máy tắt thì Javis biết là trễ.
+- **Lịch lặp hiện ba lần chạy tới** trên thẻ việc, và khi tạo lịch từ chat Jarvis 007 đọc lại ba ngày đó để bạn xác nhận. Lần chạy bị trễ vì máy tắt thì Jarvis 007 biết là trễ.
 
 ## [0.197.1] - 2026-10-17
 ### Sửa lỗi
-- **Safari không còn mất kết nối hàng phút.** Safari có lỗi riêng với kiểu nén dữ liệu trên đường kết nối trực tiếp: gặp tin lớn là tự cắt, rồi nối lại cũng cắt tiếp, trong khi Chrome vẫn chạy bình thường. Javis giờ tắt kiểu nén đó, mọi trình duyệt đều ổn định như Chrome.
+- **Safari không còn mất kết nối hàng phút.** Safari có lỗi riêng với kiểu nén dữ liệu trên đường kết nối trực tiếp: gặp tin lớn là tự cắt, rồi nối lại cũng cắt tiếp, trong khi Chrome vẫn chạy bình thường. Jarvis 007 giờ tắt kiểu nén đó, mọi trình duyệt đều ổn định như Chrome.
 - **Lần sau còn rớt là có dấu vết:** mỗi lần đứt kết nối, trang ghi lại trình duyệt, mã đóng và thời gian đứt rồi gửi về máy chủ khi nối lại, xem ở `/health/loop`.
 
 ## [0.197.0] - 2026-10-17
@@ -264,15 +264,15 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ### Sửa lỗi
 - **Ghim thư mục con:** trong ô ghim thư mục, thư mục nào có thư mục con thì có dấu **>**. Bấm dấu để đi vào trong, bấm tên để ghim đúng thư mục đó.
-- **Bấm thông báo là vào đúng chỗ:** bỏ nút "Hỏi Javis Core". Thông báo trả lời đoạn chat nào thì bấm vào là mở lại đúng đoạn đó; thông báo của hệ thống thì mở trong Javis Core.
+- **Bấm thông báo là vào đúng chỗ:** bỏ nút "Hỏi Jarvis 007 Core". Thông báo trả lời đoạn chat nào thì bấm vào là mở lại đúng đoạn đó; thông báo của hệ thống thì mở trong Jarvis 007 Core.
 - **Tab Công việc:** chưa có việc thì báo "Chưa có công việc nào" thay vì "Chưa tải được công việc". Nút tab đang chọn có khoảng thở, không còn dính sát chữ.
 
 ## [0.190.0] - 2026-10-16
 ### Cải thiện
-- **Cài đặt gọn như app quen dùng:** cột Cài đặt của cộng sự chỉ còn ảnh, tên, mô tả, hướng dẫn, tài liệu, kỹ năng, model. Bài học, Thu hồi, Dùng ở mọi nơi và mục Trí nhớ của Javis Core không còn nữa: muốn sửa hay quên gì, bạn cứ nhắn trong chat, ví dụ "quên chuyện kênh bán đi".
-- **Thấy ngay Javis vừa nhớ gì:** lượt chat nào lưu, sửa hay quên một ghi nhớ thì hiện dòng nhỏ "Đã nhớ: ..." dưới câu trả lời, có nút **Hoàn tác**. Javis nói "đã nhớ, đã quên" mà không đổi gì thật thì có dòng đính chính.
+- **Cài đặt gọn như app quen dùng:** cột Cài đặt của cộng sự chỉ còn ảnh, tên, mô tả, hướng dẫn, tài liệu, kỹ năng, model. Bài học, Thu hồi, Dùng ở mọi nơi và mục Trí nhớ của Jarvis 007 Core không còn nữa: muốn sửa hay quên gì, bạn cứ nhắn trong chat, ví dụ "quên chuyện kênh bán đi".
+- **Thấy ngay Jarvis 007 vừa nhớ gì:** lượt chat nào lưu, sửa hay quên một ghi nhớ thì hiện dòng nhỏ "Đã nhớ: ..." dưới câu trả lời, có nút **Hoàn tác**. Jarvis 007 nói "đã nhớ, đã quên" mà không đổi gì thật thì có dòng đính chính.
 - **Thẻ cộng sự gọn lại:** giờ chat nhỏ, cùng hàng với công tắc Auto ở góc dưới; công tắc có lại trên mọi cộng sự. Khối Auto trong Cài đặt chỉ còn "Tự làm tối đa ... lần mỗi ngày" và việc cần bạn quyết.
-- **Tin bản mới không vào Javis Core nữa:** thẻ tab Tin tức của chuông bỏ nút "Hỏi Javis Core".
+- **Tin bản mới không vào Jarvis 007 Core nữa:** thẻ tab Tin tức của chuông bỏ nút "Hỏi Jarvis 007 Core".
 
 ## [0.189.1] - 2026-10-16
 ### Sửa lỗi
@@ -284,42 +284,42 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.188.0] - 2026-10-16
 ### Sửa lỗi
-- **Chat luôn chạy đúng brain của nó:** mở một chat của brain khác (từ chuông, lịch sử) rồi nhắn tiếp, Javis giờ trả lời bằng trí nhớ và file của chính brain đó, và khung chat ghi rõ chat thuộc brain nào kèm nút chuyển. Bấm thông báo của brain khác thì dashboard tự chuyển sang brain đó trước.
-- **Javis Core gọn hơn:** vòng chạy trót lọt chỉ nằm ở chuông thông báo, chỉ báo cáo cần bạn ra tay mới vào chat. Báo cáo gửi Telegram của người khác dùng chung bot không còn chép vào Javis Core của bạn.
+- **Chat luôn chạy đúng brain của nó:** mở một chat của brain khác (từ chuông, lịch sử) rồi nhắn tiếp, Jarvis 007 giờ trả lời bằng trí nhớ và file của chính brain đó, và khung chat ghi rõ chat thuộc brain nào kèm nút chuyển. Bấm thông báo của brain khác thì dashboard tự chuyển sang brain đó trước.
+- **Jarvis 007 Core gọn hơn:** vòng chạy trót lọt chỉ nằm ở chuông thông báo, chỉ báo cáo cần bạn ra tay mới vào chat. Báo cáo gửi Telegram của người khác dùng chung bot không còn chép vào Jarvis 007 Core của bạn.
 - **Tắt tự học là chặn thật với Claude Code:** khi tắt, Claude Code không ghi được gì vào thư mục trí nhớ của brain đó.
-- **Ghi nhớ mới luôn có nguồn:** Javis tự ghi chat và ngày tạo ra ghi nhớ. Ô "Telegram của bạn" giờ là ô chọn từ danh sách ID.
+- **Ghi nhớ mới luôn có nguồn:** Jarvis 007 tự ghi chat và ngày tạo ra ghi nhớ. Ô "Telegram của bạn" giờ là ô chọn từ danh sách ID.
 
 ## [0.187.0] - 2026-10-16
 ### Thêm mới
-- **Hỏi Javis Core về một thông báo:** thẻ trong chuông có nút **Hỏi Javis Core**. Thông báo được đưa vào khung Javis Core của bạn kèm nguồn và thời điểm để hỏi tiếp; thông báo chung không đổi.
-- **Xem, sửa, quên trí nhớ:** thẻ Javis Core có mục **Trí nhớ của brain này**, liệt kê Javis đang nhớ gì và từ đâu. Quên rồi thì Javis không tự học lại từ chat cũ; có công tắc tắt việc lưu ghi nhớ mới.
+- **Hỏi Jarvis 007 Core về một thông báo:** thẻ trong chuông có nút **Hỏi Jarvis 007 Core**. Thông báo được đưa vào khung Jarvis 007 Core của bạn kèm nguồn và thời điểm để hỏi tiếp; thông báo chung không đổi.
+- **Xem, sửa, quên trí nhớ:** thẻ Jarvis 007 Core có mục **Trí nhớ của brain này**, liệt kê Jarvis 007 đang nhớ gì và từ đâu. Quên rồi thì Jarvis 007 không tự học lại từ chat cũ; có công tắc tắt việc lưu ghi nhớ mới.
 - **Hồ sơ của bạn dùng chung mọi brain:** cách xưng hô, ngôn ngữ, mức chi tiết bạn tự viết một lần; ghi nhớ riêng của từng brain vẫn thắng khi khác nhau.
 ### Cải thiện
 - **Tin tức đọc rồi là hết chấm trên mọi máy**, và thông báo đẩy gắn với lần đăng nhập: đăng xuất thì thiết bị đó ngừng nhận. Có tuỳ chọn **ẩn nội dung** trên thông báo đẩy.
 
 ## [0.186.0] - 2026-10-16
 ### Sửa lỗi
-- **Báo cáo không có hội thoại riêng giờ về Javis Core của đúng brain:** việc nền, loop, nhắc hẹn tạo trên trang Việc hay không gắn chat sẽ báo vào khung Javis Core của brain đã sinh ra việc đó, không phụ thuộc brain bạn đang mở.
+- **Báo cáo không có hội thoại riêng giờ về Jarvis 007 Core của đúng brain:** việc nền, loop, nhắc hẹn tạo trên trang Việc hay không gắn chat sẽ báo vào khung Jarvis 007 Core của brain đã sinh ra việc đó, không phụ thuộc brain bạn đang mở.
 - **Không còn gửi đoán sang Telegram:** trước đây báo cáo không rõ người nhận bị gửi cho ID Telegram ĐẦU TIÊN trong danh sách (có thể là người khác dùng chung bot), còn tin loop tự dừng thì gửi cho MỌI ID. Giờ chỉ gửi cho Telegram của chính bạn.
-- **Ô mới "Telegram của bạn (nhận báo cáo)"** trong cài đặt Telegram. Danh sách chỉ có một ID thì Javis tự dùng ID đó; có nhiều ID thì bạn chọn, Javis không đoán.
-- **Không gửi trùng khi thử lại:** một báo cáo được gửi lại sau sự cố chỉ hiện một lần. Chat gốc đã xoá thì báo cáo về Javis Core; không rõ cả chat lẫn brain thì chỉ giữ ở chuông thông báo.
+- **Ô mới "Telegram của bạn (nhận báo cáo)"** trong cài đặt Telegram. Danh sách chỉ có một ID thì Jarvis 007 tự dùng ID đó; có nhiều ID thì bạn chọn, Jarvis 007 không đoán.
+- **Không gửi trùng khi thử lại:** một báo cáo được gửi lại sau sự cố chỉ hiện một lần. Chat gốc đã xoá thì báo cáo về Jarvis 007 Core; không rõ cả chat lẫn brain thì chỉ giữ ở chuông thông báo.
 
 ## [0.185.0] - 2026-10-16
 ### Thêm mới
-- **Javis Core, trợ lý hệ thống có sẵn trong mọi brain:** luôn đứng đầu trang Trợ lý với nhãn **Hệ thống**, ở cả brain cũ lẫn brain mới. Đây là đầu mối để nhận báo cáo, hỏi tiếp và giao việc, với đủ năng lực của Javis.
+- **Jarvis 007 Core, trợ lý hệ thống có sẵn trong mọi brain:** luôn đứng đầu trang Trợ lý với nhãn **Hệ thống**, ở cả brain cũ lẫn brain mới. Đây là đầu mối để nhận báo cáo, hỏi tiếp và giao việc, với đủ năng lực của Jarvis 007.
 - **Không xoá, đổi tên, bỏ ghim hay sửa được:** máy chủ chặn luôn chứ không chỉ ẩn nút. Chọn model vẫn như mọi cuộc trò chuyện.
-- **Mỗi brain có một chat Javis Core mặc định:** xoá hay lưu trữ chat đó thì lần sau Javis tạo một chat mới trống, không khôi phục nội dung đã xoá.
-- **Cập nhật một lần cho mọi brain:** định nghĩa Javis Core đi kèm ứng dụng, không chép vào brain, nên trí nhớ và cá nhân hoá của bạn giữ nguyên qua mỗi bản cập nhật.
+- **Mỗi brain có một chat Jarvis 007 Core mặc định:** xoá hay lưu trữ chat đó thì lần sau Jarvis 007 tạo một chat mới trống, không khôi phục nội dung đã xoá.
+- **Cập nhật một lần cho mọi brain:** định nghĩa Jarvis 007 Core đi kèm ứng dụng, không chép vào brain, nên trí nhớ và cá nhân hoá của bạn giữ nguyên qua mỗi bản cập nhật.
 
 ## [0.184.0] - 2026-10-16
 ### Sửa lỗi
-- **Ấn giữ tin nhắn trên điện thoại không còn dính lệnh chọn chữ của máy (iPhone và Android):** trước đây giữ lâu một chút là máy tự bôi xanh chữ và hiện thanh Sao chép của nó, đè lên khung của Javis. Giờ chỉ còn khung Javis (thả cảm xúc, Trả lời, Sao chép...).
+- **Ấn giữ tin nhắn trên điện thoại không còn dính lệnh chọn chữ của máy (iPhone và Android):** trước đây giữ lâu một chút là máy tự bôi xanh chữ và hiện thanh Sao chép của nó, đè lên khung của Jarvis 007. Giờ chỉ còn khung Jarvis 007 (thả cảm xúc, Trả lời, Sao chép...).
 - **Vẫn sao chép được như cũ:** nút Sao chép trong khung chép nguyên tin nhắn. Ô nhập chữ vẫn chọn và dán bình thường.
 
 ## [0.183.0] - 2026-10-16
 ### Sửa lỗi
-- **Zalo không còn lặng lẽ bỏ sót tin khách:** trước đây mỗi lần Javis khởi động lại hay cập nhật, kho tin Zalo bị xoá sạch, tin khách nhắn đúng lúc đó có thể biến mất khỏi cả ba cách đọc. Giờ kho tin được lưu lại (30 ngày) và không mất khi khởi động lại.
-- **Biết khi nào có thể đang thiếu tin:** mỗi lần đọc tin Zalo, Javis biết trong khoảng đó có lúc mất kết nối hay không. Nếu có, Javis nói rõ là chưa chắc, giữ bước đang chờ (duyệt, phát hành) và báo bạn, thay vì kết luận khách chưa trả lời.
+- **Zalo không còn lặng lẽ bỏ sót tin khách:** trước đây mỗi lần Jarvis 007 khởi động lại hay cập nhật, kho tin Zalo bị xoá sạch, tin khách nhắn đúng lúc đó có thể biến mất khỏi cả ba cách đọc. Giờ kho tin được lưu lại (30 ngày) và không mất khi khởi động lại.
+- **Biết khi nào có thể đang thiếu tin:** mỗi lần đọc tin Zalo, Jarvis 007 biết trong khoảng đó có lúc mất kết nối hay không. Nếu có, Jarvis 007 nói rõ là chưa chắc, giữ bước đang chờ (duyệt, phát hành) và báo bạn, thay vì kết luận khách chưa trả lời.
 - **Tin tới lúc mất kết nối vẫn vào Hộp thư:** tin mà Zalo gửi bù khi kết nối lại giờ cũng hiện trong Hộp thư hội thoại, không chỉ nằm trong lịch sử.
 
 ## [0.182.0] - 2026-10-16
@@ -347,7 +347,7 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 ### Cải thiện
 - **Nút chọn model gọn như app Claude:** chỉ hiện tên model (ví dụ "Opus 4.8", "GPT-5 mini"), không kèm tên nhà cung cấp. Bấm vào vẫn mở bảng chọn nhà cung cấp và model như cũ, rê chuột vào nút thì thấy tên nhà cung cấp. Phiên nào đang ghim model riêng thì nút có biểu tượng ghim nhỏ, ghim vẫn chạy như cũ.
 - **Điện thoại: nút model nằm ngay dưới khung soạn**, cạnh nút mức suy nghĩ, không còn nằm trên thanh đầu trang. Chọn model ngay chỗ đang gõ.
-- **Bấm Sao chép không bị trượt nữa (máy tính):** lúc Javis đang trả lời, khung chat tạm dừng tự cuộn khi chuột đang ở hàng nút của một tin hoặc đang di trên tin. Rời chuột ra là nó cuộn tiếp xuống cuối.
+- **Bấm Sao chép không bị trượt nữa (máy tính):** lúc Jarvis 007 đang trả lời, khung chat tạm dừng tự cuộn khi chuột đang ở hàng nút của một tin hoặc đang di trên tin. Rời chuột ra là nó cuộn tiếp xuống cuối.
 
 ## [0.179.0] - 2026-10-16
 ### Cải thiện
@@ -358,7 +358,7 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.178.0] - 2026-10-16
 ### Thêm mới
-- **Tải ảnh của bạn làm ảnh đại diện trợ lý:** trong phần sửa trợ lý, dưới ô xem trước có nút **Tải ảnh lên**. Ảnh tự cắt vuông và thu nhỏ trước khi gửi, rồi hiện ở mọi chỗ có trợ lý: danh sách, khung chat, nhóm. Bấm **Dùng hình Javis** là về hình cũ.
+- **Tải ảnh của bạn làm ảnh đại diện trợ lý:** trong phần sửa trợ lý, dưới ô xem trước có nút **Tải ảnh lên**. Ảnh tự cắt vuông và thu nhỏ trước khi gửi, rồi hiện ở mọi chỗ có trợ lý: danh sách, khung chat, nhóm. Bấm **Dùng hình Jarvis 007** là về hình cũ.
 - **Ảnh riêng cho nhóm làm việc:** mục Ảnh nhóm trong cài đặt nhóm cũng có nút Tải ảnh lên. Mặc định nhóm vẫn dùng ảnh ghép từ gương mặt thành viên như trước.
 - Nhận ảnh PNG, JPG, WEBP, GIF, tối đa 2MB.
 
@@ -379,7 +379,7 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.175.0] - 2026-10-16
 ### Sửa lỗi
-- **Kết nối Higgsfield (và các máy chủ MCP đăng nhập qua Clerk) không còn báo invalid_grant:** Javis chỉ xin những quyền máy chủ MCP cần. Nhà cung cấp từ chối quyền nào thì Javis tự bỏ quyền đó và mở lại trang đăng nhập; lỗi khác ở bước đăng nhập hiện đúng tên lỗi.
+- **Kết nối Higgsfield (và các máy chủ MCP đăng nhập qua Clerk) không còn báo invalid_grant:** Jarvis 007 chỉ xin những quyền máy chủ MCP cần. Nhà cung cấp từ chối quyền nào thì Jarvis 007 tự bỏ quyền đó và mở lại trang đăng nhập; lỗi khác ở bước đăng nhập hiện đúng tên lỗi.
 
 ### Cải thiện
 - **Thẻ trợ lý gọn lại:** mỗi thẻ còn tên, giờ, vai trò. Chỉ khi có chuyện mới thêm một dòng "Cần bạn 1", "Đang làm 2" bằng chữ, thay biểu tượng bàn tay dễ nhầm với dấu ghim. Auto chỉ hiện thành nhãn nhỏ khi đang bật (bật ở menu ba chấm hoặc tab Cài đặt). Tag không vẽ trên thẻ nữa (lọc ở ô đầu cột, rê chuột vào thẻ để xem).
@@ -389,17 +389,17 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.174.0] - 2026-10-16
 ### Thêm mới
-- **Nhập tin cũ của Zalo cá nhân vào Hộp thư:** mới đăng nhập Zalo vào Javis thì bấm **Nhập tin cũ** (trên thẻ tài khoản Zalo, hoặc bấm vào ô Zalo trên thẻ bot). Javis lấy khoảng 2 tuần tin gần nhất mà Zalo cho tải lại, tối đa 5.000 tin.
+- **Nhập tin cũ của Zalo cá nhân vào Hộp thư:** mới đăng nhập Zalo vào Jarvis 007 thì bấm **Nhập tin cũ** (trên thẻ tài khoản Zalo, hoặc bấm vào ô Zalo trên thẻ bot). Jarvis 007 lấy khoảng 2 tuần tin gần nhất mà Zalo cho tải lại, tối đa 5.000 tin.
 - **An toàn khi nhập:** chỉ nhập vào cuộc chat chưa có tin trong Hộp thư, bot không trả lời các tin này và chúng không tính là chưa đọc. Bấm lại nhiều lần không bị trùng.
 
 ## [0.173.1] - 2026-10-16
 ### Cải thiện
-- **/goal rõ ràng hơn:** mỗi lần Javis tự nhắc làm tiếp hiện một dòng gập mở được (vòng n/5), kèm nút Tắt mục tiêu, và vẫn còn sau khi tải lại trang.
-- Javis dừng ngay khi thiếu quyền, công cụ hay dữ liệu, nói rõ vì sao và gợi ý cách gỡ, thay vì nhắc đi nhắc lại. Tối đa 5 vòng.
+- **/goal rõ ràng hơn:** mỗi lần Jarvis 007 tự nhắc làm tiếp hiện một dòng gập mở được (vòng n/5), kèm nút Tắt mục tiêu, và vẫn còn sau khi tải lại trang.
+- Jarvis 007 dừng ngay khi thiếu quyền, công cụ hay dữ liệu, nói rõ vì sao và gợi ý cách gỡ, thay vì nhắc đi nhắc lại. Tối đa 5 vòng.
 
 ## [0.173.0] - 2026-10-16
 ### Thêm mới
-- **Javis tự tạo và quản lý nhóm chat ngay trong khung chat.** Nói "tạo nhóm thử gồm ba trợ lý" là Javis tạo trợ lý còn thiếu, lập nhóm, chọn trưởng nhóm; sửa tên, thêm bớt người, lưu trữ hay xoá nhóm cũng chỉ cần nói.
+- **Jarvis 007 tự tạo và quản lý nhóm chat ngay trong khung chat.** Nói "tạo nhóm thử gồm ba trợ lý" là Jarvis 007 tạo trợ lý còn thiếu, lập nhóm, chọn trưởng nhóm; sửa tên, thêm bớt người, lưu trữ hay xoá nhóm cũng chỉ cần nói.
 - Mỗi trợ lý tạo theo cách này có thể chạy một model riêng, để thử nhóm nhiều model cho nhanh.
 - Nhóm đã lưu trữ giờ xoá hẳn được. Nhóm đang mở mà bị xoá thì trang Nhóm tự đóng lại và báo cho bạn biết.
 
@@ -408,23 +408,23 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 - **Zalo cá nhân, chỉnh được số phút bot nhường khi bạn tự nhắn tay** (0 là không nhường). Mốc tính từ tin nhắn tay cuối của bạn, nên ở chat riêng bot trả lời thay sớm hơn trước. Đã ghi số thì trong nhóm, tin tag thẳng nick vẫn được trả lời ngay.
 - **Ngoại lệ theo từng cuộc chat:** một người tin cậy (ví dụ người nhà) được mức quyền và thời gian chờ riêng, không phải nâng cả bot đang trả lời người lạ. Tự nhận lời mời kết bạn Zalo (mặc định tắt) và đưa lời giới thiệu cho bot đọc. Plugin thêm được một dòng ngữ cảnh cho mỗi lượt bot.
 ### Sửa lỗi
-- **Zalo cá nhân hiểu khách hơn:** ảnh gửi không kèm chữ ở chat riêng tới được bot và được kèm lại 10 phút. Khách nhắn thêm lúc bot đang soạn thì bỏ câu cũ, trả lời một lần cho tất cả. Hướng dẫn vai bạn viết luôn thắng mặc định của Javis. Bot không còn trích bản sao cũ hay file agent, workflow như tài liệu.
+- **Zalo cá nhân hiểu khách hơn:** ảnh gửi không kèm chữ ở chat riêng tới được bot và được kèm lại 10 phút. Khách nhắn thêm lúc bot đang soạn thì bỏ câu cũ, trả lời một lần cho tất cả. Hướng dẫn vai bạn viết luôn thắng mặc định của Jarvis 007. Bot không còn trích bản sao cũ hay file agent, workflow như tài liệu.
 - **Sửa lặt vặt:** nhắc việc trả lời `[SILENT]` không gửi gì. Phần bạn viết dưới mục "Lịch sử (tự học)" không còn bị xoá. Dòng `---` giữa câu không còn làm workflow 16 bước thành 14.
 
 ## [0.171.4] - 2026-10-16
 ### Sửa lỗi
-- **Gọi tên trợ lý trong nhóm mà không gắn @ giờ được nhận ra.** Trước đây trợ lý tên Minh không bao giờ nghe thấy "Minh ơi", vì khi bỏ dấu, "Minh" trùng với chữ "mình" và bị bỏ qua. Javis giờ so cả dấu, nên "nhóm mình" vẫn không bị hiểu là gọi Minh.
+- **Gọi tên trợ lý trong nhóm mà không gắn @ giờ được nhận ra.** Trước đây trợ lý tên Minh không bao giờ nghe thấy "Minh ơi", vì khi bỏ dấu, "Minh" trùng với chữ "mình" và bị bỏ qua. Jarvis 007 giờ so cả dấu, nên "nhóm mình" vẫn không bị hiểu là gọi Minh.
 
 ## [0.171.3] - 2026-10-16
 ### Sửa lỗi
-- **Nhóm chat không còn hiện tên lệnh lạ do trợ lý tự bịa.** Khi câu trả lời của một trợ lý có lệnh Javis không hỗ trợ, nhóm chỉ ghi "Câu trả lời có một lệnh Javis không hỗ trợ, đã bỏ", thay vì chép nguyên một mã khó hiểu ra bong bóng tin.
+- **Nhóm chat không còn hiện tên lệnh lạ do trợ lý tự bịa.** Khi câu trả lời của một trợ lý có lệnh Jarvis 007 không hỗ trợ, nhóm chỉ ghi "Câu trả lời có một lệnh Jarvis 007 không hỗ trợ, đã bỏ", thay vì chép nguyên một mã khó hiểu ra bong bóng tin.
 
 ## [0.171.2] - 2026-10-16
 ### Sửa lỗi
-- **Mất kết nối giữa chừng không còn làm hỏng cả lượt:** khi kết nối tới nhà cung cấp model bị cắt (lỗi kiểu `ReadError ... WinError 1236` trên Windows), Javis tự gửi lại tối đa 3 lần, kể cả giữa một lượt đang dùng công cụ. Hết cách thì báo rõ nguyên nhân hay gặp (mạng, VPN, phần mềm diệt virus) thay vì chỉ dán chuỗi lỗi.
+- **Mất kết nối giữa chừng không còn làm hỏng cả lượt:** khi kết nối tới nhà cung cấp model bị cắt (lỗi kiểu `ReadError ... WinError 1236` trên Windows), Jarvis 007 tự gửi lại tối đa 3 lần, kể cả giữa một lượt đang dùng công cụ. Hết cách thì báo rõ nguyên nhân hay gặp (mạng, VPN, phần mềm diệt virus) thay vì chỉ dán chuỗi lỗi.
 - **Tin Zalo dài tự cắt thành nhiều tin:** câu trả lời dài trên Zalo cá nhân được chia ở chỗ hết đoạn hoặc hết câu rồi gửi lần lượt, thay vì bị Zalo từ chối và khách không nhận được gì. Trong nhóm, người được trả lời chỉ bị tag ở tin đầu.
 ### Cải thiện
-- **Cảnh báo của bot chỉ về chuông thông báo:** bỏ đường nhắn Telegram cho "người trực" (ô này đã ẩn khỏi form từ lâu). Khách xin gặp người thật hoặc bot bí 2 câu liền giờ báo vào chuông của Javis, kèm tên khách. Lỗi kỹ thuật vẫn báo chuông như bản trước.
+- **Cảnh báo của bot chỉ về chuông thông báo:** bỏ đường nhắn Telegram cho "người trực" (ô này đã ẩn khỏi form từ lâu). Khách xin gặp người thật hoặc bot bí 2 câu liền giờ báo vào chuông của Jarvis 007, kèm tên khách. Lỗi kỹ thuật vẫn báo chuông như bản trước.
 
 ## [0.171.0] - 2026-10-15
 ### Thêm mới
@@ -463,17 +463,17 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.166.4] - 2026-10-15
 ### Sửa lỗi
-- **Lưu cài đặt không còn có thể xoá sạch tài khoản, model và kênh admin.** Nếu `settings.json` bị khoá trong tích tắc lúc Javis đọc (hay gặp trên Windows khi phần mềm diệt virus quét file vừa ghi), Javis từng hiểu nhầm là máy mới cài, hiện lại trình cài đặt, rồi lần lưu kế tiếp (ví dụ lưu kênh Lark) ghi cấu hình trống đè lên cấu hình thật. Giờ Javis đọc lại vài lần cho tới khi được, và không bao giờ ghi một cấu hình trống đè lên máy đã cài đặt.
+- **Lưu cài đặt không còn có thể xoá sạch tài khoản, model và kênh admin.** Nếu `settings.json` bị khoá trong tích tắc lúc Jarvis 007 đọc (hay gặp trên Windows khi phần mềm diệt virus quét file vừa ghi), Jarvis 007 từng hiểu nhầm là máy mới cài, hiện lại trình cài đặt, rồi lần lưu kế tiếp (ví dụ lưu kênh Lark) ghi cấu hình trống đè lên cấu hình thật. Giờ Jarvis 007 đọc lại vài lần cho tới khi được, và không bao giờ ghi một cấu hình trống đè lên máy đã cài đặt.
 
 ## [0.166.3] - 2026-10-15
 ### Sửa lỗi
 - **Bot không còn nhắn khách "Anh chị đợi em chút xíu để em kiểm tra lại ạ" khi gặp trục trặc kỹ thuật** (hết token, hết lượt gói, model lỗi). Khách không nhận tin nào cả, kể cả trên Zalo cá nhân, Zalo OA, Telegram và WhatsApp.
-- **Chủ được báo ở chuông thông báo của Javis:** bot nào lỗi, khách nào vừa nhắn mà chưa được trả lời, lỗi gì. Mỗi đợt lỗi chỉ báo một lần, bot chạy lại được thì lần lỗi sau mới báo tiếp. Người trực (nếu có cài) vẫn được báo như trước.
+- **Chủ được báo ở chuông thông báo của Jarvis 007:** bot nào lỗi, khách nào vừa nhắn mà chưa được trả lời, lỗi gì. Mỗi đợt lỗi chỉ báo một lần, bot chạy lại được thì lần lỗi sau mới báo tiếp. Người trực (nếu có cài) vẫn được báo như trước.
 
 ## [0.166.2] - 2026-10-15
 ### Sửa lỗi
-- **Tạo ảnh bằng gói ChatGPT không còn kẹt ở lỗi "The 'gpt-5.5' model is not supported".** Gói nào không có model đó, Javis tự chuyển sang model khác trong danh sách model ChatGPT của chính tài khoản bạn và tạo ảnh luôn, không phải chỉnh gì.
-- Lần sau Javis dùng ngay model vừa tạo ảnh được, nên không mất thêm một lượt lỗi. Tính năng nhờ ChatGPT xem ảnh hộ cũng được sửa cùng kiểu.
+- **Tạo ảnh bằng gói ChatGPT không còn kẹt ở lỗi "The 'gpt-5.5' model is not supported".** Gói nào không có model đó, Jarvis 007 tự chuyển sang model khác trong danh sách model ChatGPT của chính tài khoản bạn và tạo ảnh luôn, không phải chỉnh gì.
+- Lần sau Jarvis 007 dùng ngay model vừa tạo ảnh được, nên không mất thêm một lượt lỗi. Tính năng nhờ ChatGPT xem ảnh hộ cũng được sửa cùng kiểu.
 
 ## [0.165.1] - 2026-10-15
 ### Sửa lỗi
@@ -486,12 +486,12 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 ## [0.164.0] - 2026-10-15
 ### Thêm mới
 - **Tia sét Fast mode chạy thật trên từng bộ não:** Claude Code và Anthropic API (Opus 5.5, Opus 5, Opus 4.8), ChatGPT qua Codex, OpenAI API, OpenRouter và Gemini. Bộ não không có Fast mode (Grok, Antigravity, Groq, DeepSeek, Ollama) vẫn để tia sét mờ.
-- **Tắt tia sét là tốc độ thường thật:** với Codex, Javis ép về tốc độ thường kể cả khi model hoặc cấu hình Codex đang để mặc định là Fast. Việc chạy nền (loop, nhắc hẹn, Kanban, quy trình, nhóm) và bot trả lời khách luôn chạy tốc độ thường, kể cả khi bạn từng bật `/fast` trong Claude Code.
-- **Nhà cung cấp từ chối Fast mode** (tài khoản không đủ điều kiện, vượt giới hạn) thì Javis tự gửi lại ở tốc độ thường, lượt chat không hỏng; rê chuột vào tia sét sẽ thấy lý do (vd. cần bật usage credits).
+- **Tắt tia sét là tốc độ thường thật:** với Codex, Jarvis 007 ép về tốc độ thường kể cả khi model hoặc cấu hình Codex đang để mặc định là Fast. Việc chạy nền (loop, nhắc hẹn, Kanban, quy trình, nhóm) và bot trả lời khách luôn chạy tốc độ thường, kể cả khi bạn từng bật `/fast` trong Claude Code.
+- **Nhà cung cấp từ chối Fast mode** (tài khoản không đủ điều kiện, vượt giới hạn) thì Jarvis 007 tự gửi lại ở tốc độ thường, lượt chat không hỏng; rê chuột vào tia sét sẽ thấy lý do (vd. cần bật usage credits).
 
 ## [0.162.0] - 2026-10-15
 ### Bảo mật
-- **Plugin do bạn cài được tải mặc định**, không cần đặt biến môi trường nữa. Từng plugin vẫn chỉ chạy khi bạn bấm **Bật** trên thẻ của nó (plugin Javis tạo qua chat luôn bắt đầu ở trạng thái tắt), và mức quyền vẫn quyết định từng lần gọi tool.
+- **Plugin do bạn cài được tải mặc định**, không cần đặt biến môi trường nữa. Từng plugin vẫn chỉ chạy khi bạn bấm **Bật** trên thẻ của nó (plugin Jarvis 007 tạo qua chat luôn bắt đầu ở trạng thái tắt), và mức quyền vẫn quyết định từng lần gọi tool.
 - Máy nào muốn chặn hẳn plugin người dùng (máy chủ dùng chung, bot cho người lạ) thì đặt `JAVIS_ENABLE_USER_PLUGINS=false` rồi khởi động lại.
 
 ## [0.160.0] - 2026-10-15
@@ -551,7 +551,7 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 ## [0.141.0] - 2026-10-14
 ### Cải thiện
 - **Bot Zalo xem được ảnh trong tin được quote.** Quote (trả lời) một ảnh rồi tag bot "xem ảnh này" là bot nhìn đúng ảnh đó. Trước đây bot chỉ nhận chữ và nói không thấy ảnh, phải gửi lại ảnh rồi tag trong 3 phút.
-- Chạy ở cả nhóm lẫn chat riêng, và cả khi bạn bấm "Trả lời giúp" ở Hộp thư. Ảnh phải là ảnh Javis đã đọc được lúc nó được gửi, tức gửi sau khi tài khoản Zalo đã kết nối.
+- Chạy ở cả nhóm lẫn chat riêng, và cả khi bạn bấm "Trả lời giúp" ở Hộp thư. Ảnh phải là ảnh Jarvis 007 đã đọc được lúc nó được gửi, tức gửi sau khi tài khoản Zalo đã kết nối.
 
 ## [0.140.0] - 2026-10-14
 ### Thêm mới
@@ -563,30 +563,30 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.139.0] - 2026-10-14
 ### Sửa lỗi
-- **Gửi file Excel, PDF, Word qua Zalo không còn treo.** Trước đây Javis gửi file kiểu này phải chờ mãi tới 2 phút rồi báo lỗi, file không tới (ảnh thì vẫn gửi được). Giờ file đi qua đúng kết nối Zalo đang trực Hộp thư nên tới được người nhận.
-- **Zalo không xác nhận trong 1 phút thì Javis báo lỗi rõ và không gửi gì**, gửi lại an toàn. Không còn cảnh chờ mãi không biết file đã đi chưa.
-- Sau khi cập nhật, **bấm "Có bản mới" của gói "Zalo mở rộng"** ở Kho cài đặt để lên bản 1.2.0, và Javis tự chuyển kết nối Zalo sang javis-zalo 1.4.0 (không phải quét QR lại).
+- **Gửi file Excel, PDF, Word qua Zalo không còn treo.** Trước đây Jarvis 007 gửi file kiểu này phải chờ mãi tới 2 phút rồi báo lỗi, file không tới (ảnh thì vẫn gửi được). Giờ file đi qua đúng kết nối Zalo đang trực Hộp thư nên tới được người nhận.
+- **Zalo không xác nhận trong 1 phút thì Jarvis 007 báo lỗi rõ và không gửi gì**, gửi lại an toàn. Không còn cảnh chờ mãi không biết file đã đi chưa.
+- Sau khi cập nhật, **bấm "Có bản mới" của gói "Zalo mở rộng"** ở Kho cài đặt để lên bản 1.2.0, và Jarvis 007 tự chuyển kết nối Zalo sang javis-zalo 1.4.0 (không phải quét QR lại).
 - Cảm ơn @thanhtmfyu-lang đã đóng góp.
 
 ## [0.137.0] - 2026-10-14
 ### Sửa lỗi
-- **Antigravity CLI tự lên bản mới mỗi ngày, nên model mới (như Gemini 4 Argon) tự hiện trong Javis.** Danh sách model của Antigravity lấy thẳng từ `agy`, mà trước đây `agy` không bao giờ được cập nhật: bản Docker cài nó một lần rồi đứng yên ở đó. Giờ Javis tự chạy `agy update` mỗi ngày, cả trong Docker. `agy` đã mới nhất mà vẫn không thấy model thì tài khoản Google của bạn chưa được cấp model đó.
+- **Antigravity CLI tự lên bản mới mỗi ngày, nên model mới (như Gemini 4 Argon) tự hiện trong Jarvis 007.** Danh sách model của Antigravity lấy thẳng từ `agy`, mà trước đây `agy` không bao giờ được cập nhật: bản Docker cài nó một lần rồi đứng yên ở đó. Giờ Jarvis 007 tự chạy `agy update` mỗi ngày, cả trong Docker. `agy` đã mới nhất mà vẫn không thấy model thì tài khoản Google của bạn chưa được cấp model đó.
 - **Bot không còn nói "Em đang gặp trục trặc kỹ thuật, anh chị nhắn lại giúp em sau ít phút ạ"** khi lượt trả lời bị lỗi. Câu đó khai với khách là máy và bắt khách nhắn lại. Giờ bot nói "Anh chị đợi em chút xíu để em kiểm tra lại ạ." Người trực vẫn được báo lỗi thật như trước.
 
 ## [0.136.0] - 2026-10-14
 ### Cải thiện
-- **Bot Zalo cá nhân trả lời thay khi bạn chưa trả lời sau 10 phút.** Trước đây bạn vừa tự nhắn vào một cuộc chat thì tin khách tới sau đó bị bỏ hẳn, không ai trả lời. Giờ Javis giữ lại; bạn không trả lời trong 10 phút thì bot trả lời một lần cho tất cả, chỉ ở chat riêng.
+- **Bot Zalo cá nhân trả lời thay khi bạn chưa trả lời sau 10 phút.** Trước đây bạn vừa tự nhắn vào một cuộc chat thì tin khách tới sau đó bị bỏ hẳn, không ai trả lời. Giờ Jarvis 007 giữ lại; bạn không trả lời trong 10 phút thì bot trả lời một lần cho tất cả, chỉ ở chat riêng.
 - **Khách chỉ gửi file hay ảnh không chữ cũng được đáp hợp cảnh**: bot được báo khách gửi gì (tên file, ảnh), và bot có quyền Được ghi thì mở luôn file đó. Bạn trả lời trên điện thoại hay từ Hộp thư thì bot không xen vào.
 - Cảm ơn @thanhtmfyu-lang đã đóng góp.
 
 ## [0.135.0] - 2026-10-14
 ### Sửa lỗi
-- **Trang Công cụ báo đúng "Sẵn sàng" cho Trình duyệt (Chromium) cài bằng Playwright mới.** Từ Playwright 1.57, bản trình duyệt chạy ẩn đổi tên file chạy thành `chrome-headless-shell`. Javis không nhận ra tên này nên luôn báo "Có thư mục trình duyệt nhưng thiếu file chạy, bản tải về hỏng dở", dù bản cài đủ và chạy được, gỡ cài lại bao nhiêu lần cũng vậy. Giờ Javis nhận cả tên mới lẫn tên cũ. Không cần tải lại: cập nhật xong mở trang Công cụ là thấy Sẵn sàng.
+- **Trang Công cụ báo đúng "Sẵn sàng" cho Trình duyệt (Chromium) cài bằng Playwright mới.** Từ Playwright 1.57, bản trình duyệt chạy ẩn đổi tên file chạy thành `chrome-headless-shell`. Jarvis 007 không nhận ra tên này nên luôn báo "Có thư mục trình duyệt nhưng thiếu file chạy, bản tải về hỏng dở", dù bản cài đủ và chạy được, gỡ cài lại bao nhiêu lần cũng vậy. Giờ Jarvis 007 nhận cả tên mới lẫn tên cũ. Không cần tải lại: cập nhật xong mở trang Công cụ là thấy Sẵn sàng.
 
 ## [0.134.0] - 2026-10-14
 ### Thêm mới
 - **Bot trả lời hộp thư Fanpage Facebook (Messenger).** Thêm kênh Messenger ở trang Chatbot, gắn vào bot đang có là bot trả lời cả Zalo lẫn Messenger bằng cùng một Agent. Tin khách vào Hộp thư như các kênh khác.
-- **Form thêm kênh hiện sẵn địa chỉ webhook và mã xác minh** để dán sang app Meta. Lúc bật bot, Javis tự đăng ký Fanpage với webhook, khỏi làm tay. Token thiếu quyền tự đăng ký thì bot vẫn chạy và nhắc bạn gắn tay một lần.
+- **Form thêm kênh hiện sẵn địa chỉ webhook và mã xác minh** để dán sang app Meta. Lúc bật bot, Jarvis 007 tự đăng ký Fanpage với webhook, khỏi làm tay. Token thiếu quyền tự đăng ký thì bot vẫn chạy và nhắc bạn gắn tay một lần.
 - **App secret sai bị chặn ngay lúc lưu**, thay vì bot trông vẫn chạy mà không nghe được tin nào.
 - **Lỗi của Meta nói bằng lời:** quá 24 giờ kể từ tin cuối của khách, app chưa qua xét duyệt quyền nhắn tin, token hết hạn. Hướng dẫn từng bước ở docs/31-messenger.md.
 - Cảm ơn @thanhtmfyu-lang đã đóng góp.
@@ -600,7 +600,7 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.131.0] - 2026-10-14
 ### Thêm mới
-- **Theme riêng cho người vận hành.** Đặt file `theme.css` vào thư mục `branding` trong dữ liệu của Javis (cạnh logo) là dashboard đổi màu, font theo thương hiệu của bạn, và giữ nguyên qua mọi lần cập nhật. Xoá file là về giao diện gốc. Hướng dẫn trong tài liệu Thương hiệu và tên miền.
+- **Theme riêng cho người vận hành.** Đặt file `theme.css` vào thư mục `branding` trong dữ liệu của Jarvis 007 (cạnh logo) là dashboard đổi màu, font theo thương hiệu của bạn, và giữ nguyên qua mọi lần cập nhật. Xoá file là về giao diện gốc. Hướng dẫn trong tài liệu Thương hiệu và tên miền.
 - Cảm ơn @hodaclong đã đóng góp.
 
 ## [0.130.0] - 2026-10-14
@@ -625,7 +625,7 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.125.0] - 2026-10-14
 ### Sửa lỗi
-- **Việc nền chạy bằng ChatGPT (Codex) không còn báo xong giả khi mất công cụ.** Nhắc hẹn, việc lặp và việc Kanban chạy bằng Codex giờ chờ MCP Hub của Javis lên hẳn. Hub không lên thì việc báo lỗi rõ ràng, thay vì chạy mà không có công cụ rồi vẫn ghi là đã xong.
+- **Việc nền chạy bằng ChatGPT (Codex) không còn báo xong giả khi mất công cụ.** Nhắc hẹn, việc lặp và việc Kanban chạy bằng Codex giờ chờ MCP Hub của Jarvis 007 lên hẳn. Hub không lên thì việc báo lỗi rõ ràng, thay vì chạy mà không có công cụ rồi vẫn ghi là đã xong.
 - Cảm ơn @dev23072005 đã đóng góp.
 
 ## [0.123.0] - 2026-10-14
@@ -635,7 +635,7 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.122.0] - 2026-10-14
 ### Bảo mật
-- **Công cụ mở file không còn chạy file chương trình.** Lệnh mở file trên máy chạy Javis giờ từ chối file chạy được (script, chương trình, lối tắt). Mở app theo tên vẫn như cũ.
+- **Công cụ mở file không còn chạy file chương trình.** Lệnh mở file trên máy chạy Jarvis 007 giờ từ chối file chạy được (script, chương trình, lối tắt). Mở app theo tên vẫn như cũ.
 - **File phiên đăng nhập chỉ chủ máy đọc được**, giống khoá bí mật và token của hub.
 
 ## [0.119.0] - 2026-10-14
@@ -644,7 +644,7 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.118.0] - 2026-10-14
 ### Bảo mật
-- **Siết kết nối trực tiếp tới Javis.** Mọi kết nối thời gian thực (khung chat, terminal, giọng nói, đồ thị) giờ qua cùng lớp kiểm nguồn gốc như các thao tác ghi, kể cả trên máy chưa đặt mật khẩu. Dashboard của bạn, Telegram và các công cụ dòng lệnh không bị ảnh hưởng. Nên cập nhật sớm.
+- **Siết kết nối trực tiếp tới Jarvis 007.** Mọi kết nối thời gian thực (khung chat, terminal, giọng nói, đồ thị) giờ qua cùng lớp kiểm nguồn gốc như các thao tác ghi, kể cả trên máy chưa đặt mật khẩu. Dashboard của bạn, Telegram và các công cụ dòng lệnh không bị ảnh hưởng. Nên cập nhật sớm.
 
 ## [0.117.0] - 2026-10-14
 ### Bảo mật
@@ -652,8 +652,8 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.114.0] - 2026-10-14
 ### Sửa lỗi
-- **Bot Zalo không còn im sau khi Javis khởi động lại.** Javis tắt không êm (crash, dừng cứng khi cập nhật) từng để lại tiến trình Zalo cũ còn chạy, nên tài khoản có hai phiên nghe. Zalo chỉ gửi tin về một phiên, bot đọc phiên kia và im luôn. Giờ Javis ghi lại mọi tiến trình kết nối nó mở và tự dọn phần sót của lần chạy trước.
-- **An toàn khi dọn.** Chỉ dọn khi server cũ đã thật sự tắt và tiến trình vẫn đúng là lệnh Javis đã mở, nên không đụng tới chương trình khác.
+- **Bot Zalo không còn im sau khi Jarvis 007 khởi động lại.** Jarvis 007 tắt không êm (crash, dừng cứng khi cập nhật) từng để lại tiến trình Zalo cũ còn chạy, nên tài khoản có hai phiên nghe. Zalo chỉ gửi tin về một phiên, bot đọc phiên kia và im luôn. Giờ Jarvis 007 ghi lại mọi tiến trình kết nối nó mở và tự dọn phần sót của lần chạy trước.
+- **An toàn khi dọn.** Chỉ dọn khi server cũ đã thật sự tắt và tiến trình vẫn đúng là lệnh Jarvis 007 đã mở, nên không đụng tới chương trình khác.
 
 ## [0.109.0] - 2026-10-13
 ### Thêm mới
@@ -662,26 +662,26 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 - **Thẻ mục tiêu cho biết ai làm, ai review**, bản nào đã được review, đang chờ ai và lượt còn của từng vai. Có nút **Bật lại người review** và **Bỏ yêu cầu review** khi mục tiêu bị kẹt.
 - Mục tiêu duy trì và bước khám phá cũng chờ người review đạt rồi mới báo đã cập nhật hay xong bước; cùng một bản không bị review lại theo lịch.
 - Lượt hỏng trước khi kịp gọi model được trả lại, không bị tính.
-- File đã đăng bị sửa tay thì mục tiêu có đội chờ, không tự coi là đạt. Muốn quay về 0.108.0: tắt Javis, chạy `tools/resonance_restore_pre_a5.py`.
+- File đã đăng bị sửa tay thì mục tiêu có đội chờ, không tự coi là đạt. Muốn quay về 0.108.0: tắt Jarvis 007, chạy `tools/resonance_restore_pre_a5.py`.
 
 ## [0.108.0] - 2026-10-13
 ### Sửa lỗi
 - **Bot không còn gửi câu báo hết lượt cho khách.** Câu như "You've hit your session limit" hay "API Error" từng được bot đăng thẳng vào nhóm Zalo kèm tag người hỏi. Giờ lượt đó tính là lượt hỏng: người hỏi nhận câu xin lỗi chung, lý do thật nằm trong nhật ký bot.
-- **Tin bạn nhắn tay trên Zalo cá nhân vào được Hộp thư.** Tin chủ hoặc nhân viên trả lời bằng điện thoại giờ hiện là tin "Bạn", và bot nhường cuộc chat đó. Gốc lỗi ở CLI Zalo: bản cũ bỏ mọi tin của chính tài khoản, Javis giờ chạy javis-zalo 1.3.0.
+- **Tin bạn nhắn tay trên Zalo cá nhân vào được Hộp thư.** Tin chủ hoặc nhân viên trả lời bằng điện thoại giờ hiện là tin "Bạn", và bot nhường cuộc chat đó. Gốc lỗi ở CLI Zalo: bản cũ bỏ mọi tin của chính tài khoản, Jarvis 007 giờ chạy javis-zalo 1.3.0.
 - **Không hiện trùng, bot không tự im oan.** Ảnh bot vừa gửi và câu bạn gõ ở Hộp thư quay về được nhận ra, không bị ghi lần hai và không làm bot tưởng bạn vừa nhắn tay.
 
 ## [0.107.0] - 2026-10-13
 ### Sửa lỗi
 - **Việc nền chỉ sang Hoàn thành khi đạt thật.** Worker chạy xong, một lượt AI riêng đối chiếu kết quả với điều kiện hoàn thành và mở đúng file, ảnh để kiểm. Chưa đạt thì việc dừng chờ bạn kèm lý do thật (không còn lấy nhầm câu cuối bài), và tin báo kể tên các việc đang chờ nó.
 - **Quy trình hết "tạm chấp nhận".** Bước kiểm chứng lỗi hay trả lời mơ hồ giờ tính là chưa đạt; sửa hết lượt vẫn trượt thì quy trình dừng ở bước đó chứ không chạy tiếp. Quy trình đang tắt không còn chạy nền.
-- **Chat giao được việc chạy đúng quy trình** bằng `route: wf:<tên>`; tên sai bị từ chối, còn chỉ chép tên quy trình vào mô tả thì Javis cảnh báo. Việc cần làm ảnh được cấp riêng công cụ tạo ảnh mà không phải mở Toàn quyền, và từng bước quy trình cũng khai được công cụ riêng.
+- **Chat giao được việc chạy đúng quy trình** bằng `route: wf:<tên>`; tên sai bị từ chối, còn chỉ chép tên quy trình vào mô tả thì Jarvis 007 cảnh báo. Việc cần làm ảnh được cấp riêng công cụ tạo ảnh mà không phải mở Toàn quyền, và từng bước quy trình cũng khai được công cụ riêng.
 - **Mức dùng, tự học, nhắc hẹn, Docker chính xác hơn.** Hội thoại dài được nén sang mạch mới vẫn tính là chat chứ không đội phần "nền"; trần token tự học đếm token thật. Script nhắc hẹn không còn bị bỏ lượt khi có nhắc hẹn dài đang chạy, và bản Docker giữ cấu hình Claude Code cùng đăng nhập Google Workspace qua mỗi lần dựng lại.
 
 ## [0.105.0] - 2026-10-13
 ### Sửa lỗi
 - **Tự học không còn làm agent quên luật bạn đã dặn.** Trước đây mỗi lần tự học sửa một agent là viết lại cả lời dặn của nó, nên luật như "nhắn Zalo thì không dùng markdown" có thể biến mất sau vài vòng. Giờ tự học chỉ được thêm luật mới vào cuối, phần bạn viết giữ nguyên.
 - **Luật dặn trong chat được giữ vĩnh viễn.** Khi bạn dặn agent một luật lâu dài, nó vào mục **Luật chủ dặn** trong bộ nhớ của agent. Mục này không bị đẩy ra như các bài học tự rút (chỉ giữ 15 bài mới nhất).
-- **Chốt chặn cuối.** Lần ghi nào làm mất dù một dòng bạn đã viết trong agent hay bộ nhớ của nó thì Javis không ghi.
+- **Chốt chặn cuối.** Lần ghi nào làm mất dù một dòng bạn đã viết trong agent hay bộ nhớ của nó thì Jarvis 007 không ghi.
 
 ## [0.103.0] - 2026-10-13
 ### Cải thiện
@@ -699,9 +699,9 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 
 ## [0.102.0] - 2026-10-12
 ### Thêm mới
-- **Chatbot có kênh Lark (và Feishu).** Ở trang Chatbot, thêm tài khoản kênh Lark bằng App ID và App Secret của một app Lark riêng, gắn vào bot là bot trả lời khách trên Lark, mọi cuộc chat vào Hộp thư và tiếp quản được như các kênh khác. Không cần tên miền: Javis tự mở kết nối ra Lark.
+- **Chatbot có kênh Lark (và Feishu).** Ở trang Chatbot, thêm tài khoản kênh Lark bằng App ID và App Secret của một app Lark riêng, gắn vào bot là bot trả lời khách trên Lark, mọi cuộc chat vào Hộp thư và tiếp quản được như các kênh khác. Không cần tên miền: Jarvis 007 tự mở kết nối ra Lark.
 - **Bot Lark vào được nhóm, gửi được ảnh và tài liệu**, nhìn được ảnh khách gửi, và chủ trả lời khách được ngay từ Hộp thư.
-- **Javis tự dò app thuộc Lark hay Feishu**, khỏi phải chọn. Dán nhầm app đang chạy kênh admin thì Javis báo ngay, vì hai bên dùng chung một app sẽ bị chia tin ngẫu nhiên.
+- **Jarvis 007 tự dò app thuộc Lark hay Feishu**, khỏi phải chọn. Dán nhầm app đang chạy kênh admin thì Jarvis 007 báo ngay, vì hai bên dùng chung một app sẽ bị chia tin ngẫu nhiên.
 - **Hộp thư hiện tên khách và tên nhóm Lark** khi app được cấp quyền đọc danh bạ và thông tin nhóm. Thiếu quyền thì bot vẫn chạy, chỉ hiện mã.
 
 ## [0.100.0] - 2026-10-12
@@ -718,27 +718,27 @@ Lịch sử phiên bản Javis OS. Bản mới nhất ở trên cùng. Xem ngay 
 - **Ô chọn ngôn ngữ có thêm "Deutsch"**, cả ở dưới thanh bên lẫn trong Cài đặt, nên chọn lại được tiếng Đức sau khi đã đổi sang thứ tiếng khác.
 
 ### Sửa lỗi
-- **Người đọc giao diện tiếng Đức không bị Javis trả lời bằng tiếng Việt.** Server chỉ nói tiếng Việt và tiếng Anh, nên với thứ tiếng chỉ có ở dashboard, tin Telegram, việc nền, giọng đọc và brain mặc định sẽ dùng tiếng Anh. Trước đây những chỗ đó có thể rơi về tiếng Việt.
+- **Người đọc giao diện tiếng Đức không bị Jarvis 007 trả lời bằng tiếng Việt.** Server chỉ nói tiếng Việt và tiếng Anh, nên với thứ tiếng chỉ có ở dashboard, tin Telegram, việc nền, giọng đọc và brain mặc định sẽ dùng tiếng Anh. Trước đây những chỗ đó có thể rơi về tiếng Việt.
 
 Cảm ơn @sirschnake đã đóng góp bản dịch tiếng Đức (#618).
 
 ## [0.96.1] - 2026-10-11
 ### Sửa lỗi
-- **Cập nhật xong không còn bị khoá ngoài.** Máy chủ đặt tài khoản qua biến môi trường (Docker, Hostinger) mà giá trị `JAVIS_ADMIN_PASSWORD` dính dấu cách thừa thì từ bản 0.92.1, lần khởi động đầu sau khi cập nhật Javis tưởng mật khẩu môi trường đã đổi và đặt lại tài khoản. Mật khẩu bạn tự đổi trên dashboard bị ghi đè, tên đăng nhập thành `admin`. Giờ cập nhật không đụng vào tài khoản nữa, chỉ đổi giá trị trong biến môi trường mới đặt lại.
+- **Cập nhật xong không còn bị khoá ngoài.** Máy chủ đặt tài khoản qua biến môi trường (Docker, Hostinger) mà giá trị `JAVIS_ADMIN_PASSWORD` dính dấu cách thừa thì từ bản 0.92.1, lần khởi động đầu sau khi cập nhật Jarvis 007 tưởng mật khẩu môi trường đã đổi và đặt lại tài khoản. Mật khẩu bạn tự đổi trên dashboard bị ghi đè, tên đăng nhập thành `admin`. Giờ cập nhật không đụng vào tài khoản nữa, chỉ đổi giá trị trong biến môi trường mới đặt lại.
 - **Máy đã bị đặt lại:** đăng nhập bằng tên `admin` (hoặc giá trị `JAVIS_ADMIN_USER` nếu bạn có đặt) và mật khẩu đang ghi trong `JAVIS_ADMIN_PASSWORD` ở Hostinger, không cần gõ dấu cách thừa. Vào được rồi thì đổi lại tên và mật khẩu trong Cài đặt.
 
 ## [0.96.0] - 2026-10-11
 ### Thêm mới
 - **Trợ lý Cộng hưởng chỉ ghi vào file bạn đã cho phép.** Mục tiêu mới hay đổi sang file khác thì thẻ hỏi "Trợ lý muốn ghi vào ... Cho phép?" kèm đúng đường file. Đã cho phép thì trợ lý làm tiếp, không hỏi lại từng lần sửa.
-- **Bản trợ lý soạn trước khi bạn cho phép được giữ làm nháp.** Bấm Xem trước để đọc, bấm Cho phép là Javis đăng đúng bản đó, không gọi model viết lại.
-- **Codex và các bộ não dùng API key cũng giao được sản phẩm ngay trong cuộc trò chuyện**, qua cùng một cửa kiểm như Claude: Javis tự đọc, kiểm và đăng bản nộp, không ghi đè file bạn đã sửa.
-- **Nút Thu hồi quyền trên thẻ mục tiêu** dừng mục tiêu ngay; bấm Tiếp tục để cấp lại. Muốn quay về 0.95.1 thì tắt Javis và chạy `tools/resonance_restore_pre_a4.py`.
+- **Bản trợ lý soạn trước khi bạn cho phép được giữ làm nháp.** Bấm Xem trước để đọc, bấm Cho phép là Jarvis 007 đăng đúng bản đó, không gọi model viết lại.
+- **Codex và các bộ não dùng API key cũng giao được sản phẩm ngay trong cuộc trò chuyện**, qua cùng một cửa kiểm như Claude: Jarvis 007 tự đọc, kiểm và đăng bản nộp, không ghi đè file bạn đã sửa.
+- **Nút Thu hồi quyền trên thẻ mục tiêu** dừng mục tiêu ngay; bấm Tiếp tục để cấp lại. Muốn quay về 0.95.1 thì tắt Jarvis 007 và chạy `tools/resonance_restore_pre_a4.py`.
 
 ## [0.95.1] - 2026-10-11
 ### Sửa lỗi
-- **Ollama (Local) hết báo "trả về rỗng" vì mải suy nghĩ.** Model như qwen3 tự bật chế độ suy nghĩ, gặp việc như đếm dòng file có thể nghĩ hết cả lượt mà không viết ra chữ nào. Giờ Javis tắt hẳn chế độ suy nghĩ cho model local, có dùng công cụ hay không cũng vậy, nên model trả lời thẳng.
+- **Ollama (Local) hết báo "trả về rỗng" vì mải suy nghĩ.** Model như qwen3 tự bật chế độ suy nghĩ, gặp việc như đếm dòng file có thể nghĩ hết cả lượt mà không viết ra chữ nào. Giờ Jarvis 007 tắt hẳn chế độ suy nghĩ cho model local, có dùng công cụ hay không cũng vậy, nên model trả lời thẳng.
 - **Nút Effort không còn kéo theo model local.** Để Effort ở mức Vừa hay Rất cao cho Claude thì model local vẫn trả lời thẳng, đổi qua lại giữa hai model không phải bật tắt lại nữa.
-- **Model chỉ suy nghĩ mà chưa trả lời thì Javis nói đúng như vậy**, kèm việc nên làm (hạ mức suy nghĩ hoặc chia việc nhỏ hơn), thay vì câu "trả về rỗng" dễ tưởng mất kết nối.
+- **Model chỉ suy nghĩ mà chưa trả lời thì Jarvis 007 nói đúng như vậy**, kèm việc nên làm (hạ mức suy nghĩ hoặc chia việc nhỏ hơn), thay vì câu "trả về rỗng" dễ tưởng mất kết nối.
 
 Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên Mac.
 
@@ -748,13 +748,13 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 - **Bot nhớ ảnh lúc nãy có gì.** Khách hỏi tiếp "cái trong ảnh vừa rồi" thì bot vẫn biết, vì phần mô tả được giữ lại trong cuộc chat.
 
 ### Sửa lỗi
-- **Ảnh Zalo không còn bị bỏ oan.** Máy chủ ảnh của Zalo gửi một số ảnh với nhãn "file nhị phân" thay vì nhãn ảnh, và Javis bỏ qua ảnh đó trước khi bot kịp thấy. Giờ Javis nhìn chính nội dung file để nhận ra ảnh.
+- **Ảnh Zalo không còn bị bỏ oan.** Máy chủ ảnh của Zalo gửi một số ảnh với nhãn "file nhị phân" thay vì nhãn ảnh, và Jarvis 007 bỏ qua ảnh đó trước khi bot kịp thấy. Giờ Jarvis 007 nhìn chính nội dung file để nhận ra ảnh.
 - **Thẻ bot ghi lỗi thật khi model không nhận ảnh**, thay vì câu chung chung "từ chối ảnh". Không bộ não nào xem hộ được thì thẻ nói rõ vì sao từng bộ não không xem được.
 
 ## [0.92.2] - 2026-10-11
 ### Sửa lỗi
-- **Ollama (Local) dùng được công cụ.** Chọn model Ollama chạy trên máy mình thì model không đọc được file, không gọi được kết nối nào và tự báo "không có quyền tool", vì Javis quên nạp công cụ cho đúng loại model này. Giờ model local nhận đủ công cụ như các model API khác, và trang Kết nối hết báo nhầm là nó không gọi được công cụ.
-- **Trang Local Model trên Mac chip Apple ghi đúng là chạy bằng GPU.** Trước đây trang ghi "Chạy bằng CPU và RAM" trong khi Ollama chạy trọn trên GPU của chip. Javis giờ nhận ra chip Apple kể cả khi Python chạy qua Rosetta, tính RAM dùng chung là bộ nhớ của GPU, và không làm mất GPU khi bạn khai tay dung lượng RAM.
+- **Ollama (Local) dùng được công cụ.** Chọn model Ollama chạy trên máy mình thì model không đọc được file, không gọi được kết nối nào và tự báo "không có quyền tool", vì Jarvis 007 quên nạp công cụ cho đúng loại model này. Giờ model local nhận đủ công cụ như các model API khác, và trang Kết nối hết báo nhầm là nó không gọi được công cụ.
+- **Trang Local Model trên Mac chip Apple ghi đúng là chạy bằng GPU.** Trước đây trang ghi "Chạy bằng CPU và RAM" trong khi Ollama chạy trọn trên GPU của chip. Jarvis 007 giờ nhận ra chip Apple kể cả khi Python chạy qua Rosetta, tính RAM dùng chung là bộ nhớ của GPU, và không làm mất GPU khi bạn khai tay dung lượng RAM.
 
 ### Cải thiện
 - **Model API và model local đọc được file PDF và Word (.docx).** Trước đây các file này đọc ra toàn mã nhị phân. PDF scan (chỉ có ảnh) được báo thẳng là không có chữ để đọc.
@@ -764,7 +764,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.92.1] - 2026-10-11
 ### Sửa lỗi
 - **Đăng nhập không còn hỏng vì chữ hoa và dấu cách vô hình.** Tên đăng nhập không phân biệt hoa thường nữa, "Phong" hay "phong" đều vào. Dấu cách thừa ở đầu hoặc cuối mật khẩu, thứ bàn phím điện thoại hay tự chèn, không còn làm báo sai mật khẩu.
-- **Mật khẩu đúng mà trình duyệt không giữ được phiên thì Javis nói thẳng**, kèm các nguyên nhân thường gặp, thay vì cứ quay lại màn đăng nhập trống không một lời.
+- **Mật khẩu đúng mà trình duyệt không giữ được phiên thì Jarvis 007 nói thẳng**, kèm các nguyên nhân thường gặp, thay vì cứ quay lại màn đăng nhập trống không một lời.
 - **Máy chủ đặt tài khoản qua biến môi trường thì câu báo sai nhắc rằng tên đăng nhập là `JAVIS_ADMIN_USER`** (mặc định admin). Đặt lại mật khẩu qua Hostinger cũng đổi luôn tên đăng nhập, rất dễ bỏ sót.
 ### Cải thiện
 - **Màn cài đặt đầu đọc rõ ở giao diện sáng.** Tên các bộ não, viền thẻ và lệnh đăng nhập Claude trước đây gần như tàng hình trên nền sáng. Trên máy chủ công khai, mục tài khoản admin ghi rõ là bắt buộc ngay từ đầu thay vì báo đỏ dưới đáy.
@@ -772,7 +772,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.91.0] - 2026-10-10
 ### Thêm mới
 - **DeepSeek thành một bộ não mới.** Dán API key DeepSeek ở trang Models là chọn được `deepseek-flash` hoặc `deepseek-v4-pro` làm não chính, cho trợ lý hay việc nền, đủ công cụ như các engine API khác.
-- **Độ sâu suy nghĩ dùng được với DeepSeek.** Để Tắt thì DeepSeek trả lời thẳng, rẻ và nhanh hơn; bật lên thì nó suy nghĩ trước. Cuộc trò chuyện cũ không hợp chế độ suy nghĩ thì Javis tự trả lời ở chế độ thường, kèm một dòng báo.
+- **Độ sâu suy nghĩ dùng được với DeepSeek.** Để Tắt thì DeepSeek trả lời thẳng, rẻ và nhanh hơn; bật lên thì nó suy nghĩ trước. Cuộc trò chuyện cũ không hợp chế độ suy nghĩ thì Jarvis 007 tự trả lời ở chế độ thường, kèm một dòng báo.
 
 ## [0.89.2] - 2026-10-10
 ### Cải thiện
@@ -786,21 +786,21 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Thêm mới
 - **Trợ lý Cộng hưởng học từ phản hồi có kiểm chứng.** Bấm phản hồi trên tin báo của trợ lý để gợi ý cách báo gọn hơn hay ít làm phiền hơn; bạn xem trước và tự quyết có áp dụng.
 - **Bế tắc thì thử một cách làm khác, chỉ khi hạn mức của mục tiêu đủ cho cả phép thử lẫn một lượt làm lại sản phẩm,** so với cách cũ trên cùng tiêu chí; thua hoặc chưa rõ thì giữ nguyên cách cũ.
-- **Mỗi bài học có nguồn, phạm vi và nút thu hồi.** Thu hồi hay bỏ qua một gợi ý thì 14 ngày sau Javis mới gợi ý lại đúng thay đổi đó. Phản hồi không bao giờ tự làm mục tiêu đạt, không mở thêm quyền hay hạn mức.
+- **Mỗi bài học có nguồn, phạm vi và nút thu hồi.** Thu hồi hay bỏ qua một gợi ý thì 14 ngày sau Jarvis 007 mới gợi ý lại đúng thay đổi đó. Phản hồi không bao giờ tự làm mục tiêu đạt, không mở thêm quyền hay hạn mức.
 
 ## [0.88.6] - 2026-10-10
 ### Sửa lỗi
-- **Thẻ bot Zalo nói đúng lý do khi kết nối Zalo bị ngắt.** Trước đây thẻ chỉ hiện một dòng cấu hình kỹ thuật kiểu `process đóng stdout ([mcp] Config loaded: ...)`, còn lý do thật bị cắt mất. Giờ thẻ nói bằng lời thường. Nếu Zalo ngắt phiên vì tài khoản vừa được mở ở nơi khác (Zalo Web trên trình duyệt, hoặc một máy Javis khác cùng đăng nhập tài khoản này), thẻ bảo đóng nơi kia, Javis tự nối lại sau khoảng 2 phút. Nếu phiên đăng nhập Zalo đã hết hạn, thẻ bảo vào trang Kết nối đăng nhập lại bằng mã QR. Lỗi khác thì hiện phần cuối của thông báo, nơi có lý do thật.
+- **Thẻ bot Zalo nói đúng lý do khi kết nối Zalo bị ngắt.** Trước đây thẻ chỉ hiện một dòng cấu hình kỹ thuật kiểu `process đóng stdout ([mcp] Config loaded: ...)`, còn lý do thật bị cắt mất. Giờ thẻ nói bằng lời thường. Nếu Zalo ngắt phiên vì tài khoản vừa được mở ở nơi khác (Zalo Web trên trình duyệt, hoặc một máy Jarvis 007 khác cùng đăng nhập tài khoản này), thẻ bảo đóng nơi kia, Jarvis 007 tự nối lại sau khoảng 2 phút. Nếu phiên đăng nhập Zalo đã hết hạn, thẻ bảo vào trang Kết nối đăng nhập lại bằng mã QR. Lỗi khác thì hiện phần cuối của thông báo, nơi có lý do thật.
 
 ## [0.88.5] - 2026-10-10
 ### Cải thiện
 - **Hội thoại có nhiều thẻ mục tiêu mở nhanh hơn.** Các thẻ của cùng một mục tiêu dùng chung một lần tải thay vì mỗi thẻ một lần, và chỉ vẽ lại một lượt.
-- **Mở thẻ mục tiêu không còn làm các trang khác chờ.** Javis đọc trạng thái mục tiêu ở luồng riêng và chỉ đọc phần thẻ cần hiện, nên mục tiêu có lịch sử dài vẫn mở nhanh.
-- **Đo được Javis xử lý mỗi yêu cầu mất bao lâu.** Mỗi phản hồi có thêm header `Server-Timing`, giúp tách chậm do Javis với chậm do đường mạng hay proxy (Cloudflare).
+- **Mở thẻ mục tiêu không còn làm các trang khác chờ.** Jarvis 007 đọc trạng thái mục tiêu ở luồng riêng và chỉ đọc phần thẻ cần hiện, nên mục tiêu có lịch sử dài vẫn mở nhanh.
+- **Đo được Jarvis 007 xử lý mỗi yêu cầu mất bao lâu.** Mỗi phản hồi có thêm header `Server-Timing`, giúp tách chậm do Jarvis 007 với chậm do đường mạng hay proxy (Cloudflare).
 
 ## [0.88.4] - 2026-10-09
 ### Sửa lỗi
-- **Trang Cộng sự không còn thỉnh thoảng trống trơn dù brain có trợ lý.** Mở app thẳng vào trang này thì lúc đầu Javis chưa biết đang ở brain nào, nên tải danh sách của brain mặc định (rỗng), rồi tải lại khi biết brain thật. Nếu lượt tải đầu về muộn hơn, nó ghi đè danh sách đúng và trang báo "Chưa có cộng sự nào". Giờ kết quả của lượt cũ bị bỏ. Server báo lỗi khi tải danh sách thì trang hiện lỗi kèm nút Thử lại, không giả làm danh sách rỗng nữa.
+- **Trang Cộng sự không còn thỉnh thoảng trống trơn dù brain có trợ lý.** Mở app thẳng vào trang này thì lúc đầu Jarvis 007 chưa biết đang ở brain nào, nên tải danh sách của brain mặc định (rỗng), rồi tải lại khi biết brain thật. Nếu lượt tải đầu về muộn hơn, nó ghi đè danh sách đúng và trang báo "Chưa có cộng sự nào". Giờ kết quả của lượt cũ bị bỏ. Server báo lỗi khi tải danh sách thì trang hiện lỗi kèm nút Thử lại, không giả làm danh sách rỗng nữa.
 
 ## [0.88.3] - 2026-10-09
 ### Sửa lỗi
@@ -810,7 +810,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.88.2] - 2026-10-09
 ### Sửa lỗi
-- **Chat cũ dùng ChatGPT tự khôi phục sau khi chuyển máy hay VPS.** Phiên làm việc của Codex nằm trên máy cũ không đi theo, nên chat cũ báo lỗi "no rollout found" mãi trong khi chat mới chạy bình thường. Javis đã có sẵn bước dựng lại ngữ cảnh từ lịch sử chat, nhưng không nhận ra câu lỗi này, nhất là khi Codex chỉ báo lỗi rồi thoát ngay. Giờ Javis nhận ra và tự dựng lại đúng một lần. Lỗi đăng nhập, hết hạn mức hay mất mạng vẫn báo như cũ. (Báo lỗi của @dev23072005, issue #595.)
+- **Chat cũ dùng ChatGPT tự khôi phục sau khi chuyển máy hay VPS.** Phiên làm việc của Codex nằm trên máy cũ không đi theo, nên chat cũ báo lỗi "no rollout found" mãi trong khi chat mới chạy bình thường. Jarvis 007 đã có sẵn bước dựng lại ngữ cảnh từ lịch sử chat, nhưng không nhận ra câu lỗi này, nhất là khi Codex chỉ báo lỗi rồi thoát ngay. Giờ Jarvis 007 nhận ra và tự dựng lại đúng một lần. Lỗi đăng nhập, hết hạn mức hay mất mạng vẫn báo như cũ. (Báo lỗi của @dev23072005, issue #595.)
 
 ## [0.88.1] - 2026-10-09
 ### Sửa lỗi
@@ -820,7 +820,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Cải thiện
 - **Trợ lý Cộng hưởng chỉ gọi model khi có lý do.** Việc mới, góp ý mới của bạn, hay một lần thử lại còn trong giới hạn. Đang chờ bạn thì ngủ; lần xem lại định kỳ chỉ kiểm bằng code và giãn dần tới 7 ngày.
 - **Không thử lại vô ích.** Hai lượt liên tiếp không tiến thêm thì dừng và chờ góp ý; lỗi chỉ thử tối đa 3 lượt; thử lại tự động luôn chừa một lượt cho góp ý của bạn.
-- **File bạn sửa tay không bị ghi đè hay làm lại.** Javis báo một lần rồi tự kiểm lại; tạm dừng mục tiêu vẫn theo dõi điều kiện bảo vệ, tắt trợ lý thì báo rõ đã ngừng theo dõi.
+- **File bạn sửa tay không bị ghi đè hay làm lại.** Jarvis 007 báo một lần rồi tự kiểm lại; tạm dừng mục tiêu vẫn theo dõi điều kiện bảo vệ, tắt trợ lý thì báo rõ đã ngừng theo dõi.
 - **Thẻ mục tiêu hiện vì sao trợ lý thức** và các lần thức gần đây, có gọi model hay không.
 
 ## [0.87.0] - 2026-10-08
@@ -828,31 +828,31 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 - **Cộng hưởng theo từng trợ lý.** Mỗi trợ lý có công tắc riêng ở trang Cộng sự. Chỉ trợ lý đã bật mới tự lập và theo đuổi mục tiêu; trò chuyện thường không tự sinh mục tiêu. Cột phải của trợ lý hiện các mục tiêu nó đang theo đuổi.
 ### Thay đổi
 - **Công tắc Cộng hưởng theo brain không còn dùng.** Mục tiêu lập trước bản này nằm ở mục "Chờ gán" trong Cài đặt và không tự chạy cho tới khi anh gán cho một trợ lý.
-- **Xoá rồi tạo lại trợ lý cùng tên là trợ lý mới.** Trợ lý mới phải bật lại; mục tiêu và cuộc trò chuyện cũ ở lại với trợ lý cũ. Bật trong cuộc trò chuyện mở trước đó thì Javis nhắc mở cuộc trò chuyện mới.
+- **Xoá rồi tạo lại trợ lý cùng tên là trợ lý mới.** Trợ lý mới phải bật lại; mục tiêu và cuộc trò chuyện cũ ở lại với trợ lý cũ. Bật trong cuộc trò chuyện mở trước đó thì Jarvis 007 nhắc mở cuộc trò chuyện mới.
 
 ## [0.86.2] - 2026-10-08
 ### Sửa lỗi
 - **Cài đặt không còn bị xoá sạch khi mở tab WhatsApp hay cho phép một người nhắn bot.** Từ 0.71.0 có ba chỗ chỉ định lưu một mảnh nhỏ nhưng lại ghi đè cả file cài đặt: mở tab WhatsApp ở trang Kênh Admin lần đầu, cho phép một chat Zalo, cho phép một người dùng Slack, WhatsApp, Discord hay Lark. Mỗi lần như vậy là mất tên miền HTTPS, khoá API, kết nối Telegram cùng mọi thiết lập khác. Bản Docker dùng tên miền riêng còn có thể mất HTTPS sau lần khởi động lại reverse proxy kế tiếp. Giờ cả ba chỉ cập nhật đúng phần của mình. Cảm ơn đội DaoVix đã rà mã và gửi báo lỗi chi tiết.
 - **File cài đặt được ghi an toàn hơn.**
   - Ghi nguyên tử: máy tắt giữa lúc lưu không còn để lại file hỏng.
-  - Giữ bản dự phòng `settings.json.bak` của lần lưu tốt gần nhất. File hỏng thì Javis đọc bản dự phòng thay vì lặng lẽ quay về mặc định rồi ghi đè lên, và giữ lại bản hỏng để cứu tay.
+  - Giữ bản dự phòng `settings.json.bak` của lần lưu tốt gần nhất. File hỏng thì Jarvis 007 đọc bản dự phòng thay vì lặng lẽ quay về mặc định rồi ghi đè lên, và giữ lại bản hỏng để cứu tay.
   - Nhiều thao tác lưu cùng lúc không còn đè mất thay đổi của nhau.
 
 ## [0.86.1] - 2026-10-08
 ### Cải thiện
-- **Dùng ChatGPT làm bộ não, khung chat hiện ngay bước Javis đang làm, không im hẳn tới lúc xong.** Trước đây khi Codex chạy một lệnh dài (cài thư viện, quét file, chạy script), khung chat chỉ có chữ "Javis đang suy nghĩ..." đếm giờ cho tới khi lệnh chạy xong, trông như bị treo. Giờ bước hiện ra ngay lúc bắt đầu, kiểu "Chạy lệnh: npm install", rồi được đánh dấu xong khi chạy xong, giống như khi dùng Claude.
+- **Dùng ChatGPT làm bộ não, khung chat hiện ngay bước Jarvis 007 đang làm, không im hẳn tới lúc xong.** Trước đây khi Codex chạy một lệnh dài (cài thư viện, quét file, chạy script), khung chat chỉ có chữ "Jarvis 007 đang suy nghĩ..." đếm giờ cho tới khi lệnh chạy xong, trông như bị treo. Giờ bước hiện ra ngay lúc bắt đầu, kiểu "Chạy lệnh: npm install", rồi được đánh dấu xong khi chạy xong, giống như khi dùng Claude.
 
 ## [0.86.0] - 2026-10-08
 ### Thêm mới
-- **Hệ thống cộng hưởng: Javis theo đuổi việc anh giao tới khi đạt.** Khi anh giao một việc cần làm tiếp sau lượt chat, Javis tự lập mục tiêu có cách nhận biết xong, làm ở nền trong hạn mức, chỉ báo xong khi có bằng chứng và giữ việc qua cả lúc khởi động lại. Tính năng tắt sẵn, bật riêng cho từng brain.
-- **Thẻ "Em đang hướng tới" trong khung chat.** Anh bấm Đúng ý hay Chưa đúng ý cho cách hiểu, Đạt yêu cầu cho sản phẩm, hoặc tạm dừng. Góp ý thêm trong chat được nối vào đúng mục tiêu, và Javis sửa từ đúng bản anh đã xem; bản Javis viết ngay trong lượt chat được giữ làm bản đầu, không tốn lượt viết lại.
-- **Thử cách làm mới trước khi đổi.** Javis so cách làm hiện tại với một cách khác trên cùng bộ tình huống, chỉ đổi khi cách mới thắng rõ, chưa đủ căn cứ thì giữ cách cũ.
+- **Hệ thống cộng hưởng: Jarvis 007 theo đuổi việc anh giao tới khi đạt.** Khi anh giao một việc cần làm tiếp sau lượt chat, Jarvis 007 tự lập mục tiêu có cách nhận biết xong, làm ở nền trong hạn mức, chỉ báo xong khi có bằng chứng và giữ việc qua cả lúc khởi động lại. Tính năng tắt sẵn, bật riêng cho từng brain.
+- **Thẻ "Em đang hướng tới" trong khung chat.** Anh bấm Đúng ý hay Chưa đúng ý cho cách hiểu, Đạt yêu cầu cho sản phẩm, hoặc tạm dừng. Góp ý thêm trong chat được nối vào đúng mục tiêu, và Jarvis 007 sửa từ đúng bản anh đã xem; bản Jarvis 007 viết ngay trong lượt chat được giữ làm bản đầu, không tốn lượt viết lại.
+- **Thử cách làm mới trước khi đổi.** Jarvis 007 so cách làm hiện tại với một cách khác trên cùng bộ tình huống, chỉ đổi khi cách mới thắng rõ, chưa đủ căn cứ thì giữ cách cũ.
 ### Sửa lỗi
-- **Lượt chat trùng lúc Claude Code đang làm mới đăng nhập nói rõ là gửi lại được.** Claude Code bản mới báo lỗi này bằng một câu khác mà Javis từng hiện nguyên tiếng Anh; câu trả lời bình thường có chữ "already used" cũng không còn bị thay nhầm bằng câu báo lỗi.
+- **Lượt chat trùng lúc Claude Code đang làm mới đăng nhập nói rõ là gửi lại được.** Claude Code bản mới báo lỗi này bằng một câu khác mà Jarvis 007 từng hiện nguyên tiếng Anh; câu trả lời bình thường có chữ "already used" cũng không còn bị thay nhầm bằng câu báo lỗi.
 
 ## [0.85.11] - 2026-10-08
 ### Sửa lỗi
-- **Khung chat không còn đứng im ở "Javis đang suy nghĩ..." khi kết nối bị đứt ngầm.** Máy ngủ, đổi Wi-Fi hay mạng chập chờn có thể làm kết nối giữa trang và Javis chết mà trình duyệt không hay biết. Javis vẫn làm xong việc, nhưng câu trả lời không về được trang, nên chữ "đang suy nghĩ" đếm mãi và bạn phải gửi lại câu lệnh. Giờ trang tự hỏi thăm Javis sau mỗi quãng im lặng. Không thấy trả lời thì trang tự nối lại và kéo về câu trả lời đã xong. Nút Dừng cũng luôn tới được Javis, kể cả khi kết nối đã chết.
+- **Khung chat không còn đứng im ở "Jarvis 007 đang suy nghĩ..." khi kết nối bị đứt ngầm.** Máy ngủ, đổi Wi-Fi hay mạng chập chờn có thể làm kết nối giữa trang và Jarvis 007 chết mà trình duyệt không hay biết. Jarvis 007 vẫn làm xong việc, nhưng câu trả lời không về được trang, nên chữ "đang suy nghĩ" đếm mãi và bạn phải gửi lại câu lệnh. Giờ trang tự hỏi thăm Jarvis 007 sau mỗi quãng im lặng. Không thấy trả lời thì trang tự nối lại và kéo về câu trả lời đã xong. Nút Dừng cũng luôn tới được Jarvis 007, kể cả khi kết nối đã chết.
 
 ## [0.85.10] - 2026-10-08
 ### Sửa lỗi
@@ -868,7 +868,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.85.7] - 2026-10-08
 ### Sửa lỗi
-- **Đồng bộ brain với GitHub không còn hỏng ở lần đẩy đầu tiên trên máy đặt tiếng Việt.** Khi repo trên GitHub còn trống, Javis đọc thông báo của git theo ngôn ngữ hệ điều hành nên không nhận ra trường hợp này và báo lỗi. Giờ Javis hỏi git bằng ngôn ngữ trung lập, máy đặt ngôn ngữ nào cũng khởi tạo được ngay. (Đóng góp của @dev23072005.)
+- **Đồng bộ brain với GitHub không còn hỏng ở lần đẩy đầu tiên trên máy đặt tiếng Việt.** Khi repo trên GitHub còn trống, Jarvis 007 đọc thông báo của git theo ngôn ngữ hệ điều hành nên không nhận ra trường hợp này và báo lỗi. Giờ Jarvis 007 hỏi git bằng ngôn ngữ trung lập, máy đặt ngôn ngữ nào cũng khởi tạo được ngay. (Đóng góp của @dev23072005.)
 
 ## [0.85.5] - 2026-10-07
 ### Cải thiện
@@ -888,12 +888,12 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.85.1] - 2026-10-07
 ### Cải thiện
-- **Bản Docker tự cài Antigravity CLI và Grok Build.** Trước đây hai thẻ này ở trang Models báo "CLI chưa cài" kèm một lệnh phải tự gõ, mà cài qua Hostinger thì không có chỗ gõ. Giờ Javis tự cài lúc khởi động, cài một lần là giữ qua mọi lần cập nhật.
-- Trong lúc đang cài, thẻ báo "Javis đang tự cài" thay vì đưa lệnh. Cài hỏng (máy chủ không ra được mạng) thì thẻ nói thật và chỉ cách thử lại. Ai không muốn thì tắt bằng `JAVIS_AUTO_INSTALL_CLIS=0`.
+- **Bản Docker tự cài Antigravity CLI và Grok Build.** Trước đây hai thẻ này ở trang Models báo "CLI chưa cài" kèm một lệnh phải tự gõ, mà cài qua Hostinger thì không có chỗ gõ. Giờ Jarvis 007 tự cài lúc khởi động, cài một lần là giữ qua mọi lần cập nhật.
+- Trong lúc đang cài, thẻ báo "Jarvis 007 đang tự cài" thay vì đưa lệnh. Cài hỏng (máy chủ không ra được mạng) thì thẻ nói thật và chỉ cách thử lại. Ai không muốn thì tắt bằng `JAVIS_AUTO_INSTALL_CLIS=0`.
 
 ## [0.85.0] - 2026-10-07
 ### Thêm mới
-- **Chat với Javis từ Lark/Feishu và Discord.** Hai kênh mới tự nối ra ngoài nên chạy được cả trên laptop, không cần tên miền. Người lạ nhắn bot nhận mã ghép nối, bạn bấm Cho phép là xong.
+- **Chat với Jarvis 007 từ Lark/Feishu và Discord.** Hai kênh mới tự nối ra ngoài nên chạy được cả trên laptop, không cần tên miền. Người lạ nhắn bot nhận mã ghép nối, bạn bấm Cho phép là xong.
 ### Cải thiện
 - **Trang "Kênh" đổi tên thành "Kênh Admin"** cho khỏi lẫn với bot trả lời khách ở trang Chatbot, và chia mỗi kênh một tab, chấm màu trên tab cho biết kênh nào đang chạy.
 - **Bỏ ô tích "Bật bot" khó hiểu.** Giờ đầu mỗi tab có công tắc Bật/Tắt có tác dụng ngay, nút cuối tab ghi đúng việc nó làm ("Lưu và bật kênh" hay "Lưu thay đổi"), và thiếu thông tin gì thì trang nói tên ô đó.
@@ -910,7 +910,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.84.7] - 2026-10-06
 ### Thêm mới
-- **Duyệt người xin vào nhóm Zalo ngay trong Javis.** Có người xin vào nhóm phải duyệt là Javis báo bạn qua chuông và Telegram. Hỏi "ai đang xin vào nhóm X" để xem danh sách, bảo "duyệt hết" hay "duyệt Lan, từ chối Minh" là Javis làm và báo lại từng người.
+- **Duyệt người xin vào nhóm Zalo ngay trong Jarvis 007.** Có người xin vào nhóm phải duyệt là Jarvis 007 báo bạn qua chuông và Telegram. Hỏi "ai đang xin vào nhóm X" để xem danh sách, bảo "duyệt hết" hay "duyệt Lan, từ chối Minh" là Jarvis 007 làm và báo lại từng người.
 - Bot chuyên trách không bao giờ tự duyệt. Tài khoản Zalo phải là trưởng hoặc phó nhóm, và kết nối Zalo ở mức Toàn quyền.
 
 ## [0.84.6] - 2026-10-06
@@ -924,24 +924,24 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.84.2] - 2026-10-06
 ### Thêm mới
-- **Biết ai vừa vào nhóm Zalo và vào lúc nào.** Hỏi "tuần này ai mới vào nhóm X" là Javis trả tên kèm giờ vào, kể cả người do chính tài khoản của bạn thêm vào. Nhật ký giữ lại sau khi khởi động lại.
-- **Bot nhận được sự kiện người mới vào nhóm.** Ở nhóm đã cho phép, Agent của bot làm theo chỉ dẫn bạn viết (chào, hỏi thăm) và câu nó gửi tự tag đúng người mới. Javis không có lời chào mặc định: Agent không được dặn gì về người mới thì bot im.
+- **Biết ai vừa vào nhóm Zalo và vào lúc nào.** Hỏi "tuần này ai mới vào nhóm X" là Jarvis 007 trả tên kèm giờ vào, kể cả người do chính tài khoản của bạn thêm vào. Nhật ký giữ lại sau khi khởi động lại.
+- **Bot nhận được sự kiện người mới vào nhóm.** Ở nhóm đã cho phép, Agent của bot làm theo chỉ dẫn bạn viết (chào, hỏi thăm) và câu nó gửi tự tag đúng người mới. Jarvis 007 không có lời chào mặc định: Agent không được dặn gì về người mới thì bot im.
 - Zalo chỉ báo lúc đang kết nối, và danh sách thành viên không có ngày vào nhóm, nên người vào trước khi có tính năng này hay trong lúc máy tắt thì không có giờ vào.
 
 ## [0.83.2] - 2026-10-06
 ### Bảo mật
 - **Bot không còn đọc được lệnh giấu bằng ký tự vô hình.** Người lạ nhắn tin có thể chèn chữ không hiện ra trên màn hình (ký tự ẩn, ký tự đảo chiều chữ) để lén ra lệnh cho bot mà chủ đọc hộp thư không thấy. Giờ mọi tin từ Telegram, Zalo và bot khách đều được gỡ sạch các ký tự này trước khi tới bộ não và trước khi lưu lại.
 ### Cải thiện
-- **Một nguồn kết nối đang hỏng không còn làm Javis đứng chờ.** Khi một nguồn vừa không khởi động được, các lần gọi tiếp theo trong 1 phút được báo lỗi ngay thay vì mỗi lần chờ tới cả phút rồi mới hỏng. Bấm Kiểm tra ở trang Kết nối thành công thì Javis dùng lại nguồn đó ngay.
+- **Một nguồn kết nối đang hỏng không còn làm Jarvis 007 đứng chờ.** Khi một nguồn vừa không khởi động được, các lần gọi tiếp theo trong 1 phút được báo lỗi ngay thay vì mỗi lần chờ tới cả phút rồi mới hỏng. Bấm Kiểm tra ở trang Kết nối thành công thì Jarvis 007 dùng lại nguồn đó ngay.
 
 ## [0.83.1] - 2026-10-05
 ### Sửa lỗi
-- **Trên Windows, đường dẫn file trong câu trả lời lại bấm được.** Khi Javis báo "Đã lưu tại C:\...\bai-1.txt" mà không bọc trong dấu nháy ngược, khung chat giờ biến nó thành link mở file như trên Linux và macOS.
-- **Trên Windows, đổi múi giờ ở Cài đặt giờ có tác dụng.** Trước đây chọn múi giờ nào khác Việt Nam thì Javis vẫn lặng lẽ tính theo giờ Việt Nam, vì Windows thiếu bảng múi giờ. Bản cập nhật tự cài bảng đó.
+- **Trên Windows, đường dẫn file trong câu trả lời lại bấm được.** Khi Jarvis 007 báo "Đã lưu tại C:\...\bai-1.txt" mà không bọc trong dấu nháy ngược, khung chat giờ biến nó thành link mở file như trên Linux và macOS.
+- **Trên Windows, đổi múi giờ ở Cài đặt giờ có tác dụng.** Trước đây chọn múi giờ nào khác Việt Nam thì Jarvis 007 vẫn lặng lẽ tính theo giờ Việt Nam, vì Windows thiếu bảng múi giờ. Bản cập nhật tự cài bảng đó.
 
 ## [0.83.0] - 2026-10-05
 ### Cải thiện
-- **Zalo chạy bản riêng của Javis.** Kết nối Zalo cá nhân giờ dùng `javis-zalo`, do Javis tự giữ và tự sửa, thay cho công cụ của tác giả bên ngoài. Tài khoản đã quét QR từ trước tự chuyển sang, không phải quét lại.
+- **Zalo chạy bản riêng của Jarvis 007.** Kết nối Zalo cá nhân giờ dùng `javis-zalo`, do Jarvis 007 tự giữ và tự sửa, thay cho công cụ của tác giả bên ngoài. Tài khoản đã quét QR từ trước tự chuyển sang, không phải quét lại.
 - **Đọc được lịch sử tin nhóm.** Bộ não lấy được tin cũ của cả nhóm lẫn chat riêng, biết ai trả lời ai và ai được tag, và tìm được mọi tin của một người hay trong một khoảng ngày.
 - Mã QR hết hạn hay bị Zalo từ chối thì cửa sổ đăng nhập nói đúng lý do, thay vì báo đăng nhập thành công rồi không dùng được.
 ### Bảo mật
@@ -951,27 +951,27 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Cải thiện
 - **Kết nối MCP của bên thứ 3 luôn chạy bản chính thức mới nhất.** Google Search Console, Google Workspace, Google Tasks, Google Keep, NotebookLM và Google Ads tự lên bản mới mỗi khi bên phát hành ra bản, thay vì kẹt ở bản máy tải lần đầu.
 - **Kết nối đã tạo từ trước cũng tự lên lệnh mới.** Trước đây mỗi kết nối giữ nguyên lệnh chạy lúc tạo, nên bản sửa trong app không tới được máy đã kết nối sẵn (Zalo cũ chạy bản không ghim, Google Sheets cũ thiếu bản vá). Lệnh bạn tự sửa tay thì vẫn giữ nguyên.
-- **Google Ads không cần cài Git nữa.** Javis chạy bản chính thức của Google trên PyPI thay cho code chưa phát hành trên GitHub, và bỏ ô Google Cloud Project ID vì không còn dùng tới.
+- **Google Ads không cần cài Git nữa.** Jarvis 007 chạy bản chính thức của Google trên PyPI thay cho code chưa phát hành trên GitHub, và bỏ ô Google Cloud Project ID vì không còn dùng tới.
 ### Bảo mật
-- **Google Workspace không còn chạy Apps Script ở mức Ghi nháp.** Bản mới của Workspace có công cụ chạy hàm Apps Script mà Javis lỡ xếp vào nhóm chỉ đọc. Giờ nó cần Toàn quyền, còn các công cụ nhập tệp vào Docs, Sheets, Slides tính là ghi.
+- **Google Workspace không còn chạy Apps Script ở mức Ghi nháp.** Bản mới của Workspace có công cụ chạy hàm Apps Script mà Jarvis 007 lỡ xếp vào nhóm chỉ đọc. Giờ nó cần Toàn quyền, còn các công cụ nhập tệp vào Docs, Sheets, Slides tính là ghi.
 - Kết nối dạng cổng (một công cụ chạy được nhiều lệnh, như Hostinger bản mới) được xét quyền theo từng lệnh bên trong: lệnh đọc chạy ở mức Chỉ đọc, lệnh lạ tính là nguy hiểm.
 
 ## [0.81.1] - 2026-10-05
 ### Sửa lỗi
-- **Khoá mã hoá lệch không còn xoá sạch các kết nối.** Key API, đăng nhập ChatGPT, token Telegram được mã hoá bằng khoá riêng của máy. Khi khoá bị lệch (dựng lại volume, mất file khoá), trước đây chỉ cần một lần lưu cài đặt, hay lần khởi động đầu sau cập nhật, là các giá trị đó bị ghi rỗng vĩnh viễn. Giờ Javis giữ nguyên bản mã hoá cũ, trả đúng khoá về là mọi kết nối quay lại.
+- **Khoá mã hoá lệch không còn xoá sạch các kết nối.** Key API, đăng nhập ChatGPT, token Telegram được mã hoá bằng khoá riêng của máy. Khi khoá bị lệch (dựng lại volume, mất file khoá), trước đây chỉ cần một lần lưu cài đặt, hay lần khởi động đầu sau cập nhật, là các giá trị đó bị ghi rỗng vĩnh viễn. Giờ Jarvis 007 giữ nguyên bản mã hoá cũ, trả đúng khoá về là mọi kết nối quay lại.
 - Khoá vẫn đúng thì không có gì thay đổi: bạn xoá hay đổi key vẫn như bình thường, và key gõ lại mới luôn được lưu.
 
 ## [0.81.0] - 2026-10-05
 ### Thêm mới
 - **Bot tự nhìn ảnh khách gửi bằng chính bộ não của nó.** Ảnh đi thẳng vào lượt chat cho Claude, GPT, Gemini, OpenRouter, Groq, Ollama, gói ChatGPT hay gói Claude Code xem, không còn phụ thuộc ChatGPT tả hộ. Ảnh lưu trong brain của bot và tự dọn như mọi file tải về.
 - **Telegram đọc được ảnh trong nhóm.** Ảnh có tag bot trong chú thích, trả lời vào một ảnh rồi tag bot, hoặc gửi ảnh trước rồi tag bot ngay sau (trong 3 phút, cùng một người) đều được. Logo gửi dạng File cũng được tính là ảnh.
-- Bộ não không xem được ảnh (Antigravity, Grok Build, model chữ thuần) thì bot nói thật là không xem được ảnh, không đoán. Model từ chối ảnh thì Javis tự gửi lại phần chữ để khách vẫn có câu trả lời.
+- Bộ não không xem được ảnh (Antigravity, Grok Build, model chữ thuần) thì bot nói thật là không xem được ảnh, không đoán. Model từ chối ảnh thì Jarvis 007 tự gửi lại phần chữ để khách vẫn có câu trả lời.
 ### Sửa lỗi
 - Bot Telegram trước đây nói "em đọc được ảnh" dù thực ra chỉ nhận một dòng đường dẫn file, và dòng đó còn lộ đường dẫn trên máy chủ cho model. Giờ dòng đó bị gỡ trước khi tới bot.
 
 ## [0.80.1] - 2026-10-05
 ### Sửa lỗi
-- **Chọn ổ C trong hộp chọn brain không còn treo ở "Đang tải...".** Trước đây Javis đếm file ghi chú trong từng thư mục con, mà riêng `C:\Windows` có hàng trăm nghìn file nên quét mãi không xong. Giờ mỗi thư mục chỉ được đếm trong một khoảng ngắn, ổ C mở ra sau vài giây là cùng.
+- **Chọn ổ C trong hộp chọn brain không còn treo ở "Đang tải...".** Trước đây Jarvis 007 đếm file ghi chú trong từng thư mục con, mà riêng `C:\Windows` có hàng trăm nghìn file nên quét mãi không xong. Giờ mỗi thư mục chỉ được đếm trong một khoảng ngắn, ổ C mở ra sau vài giây là cùng.
 
 ## [0.80.0] - 2026-10-05
 ### Thêm mới
@@ -993,25 +993,25 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.77.1] - 2026-10-05
 ### Sửa lỗi
-- **Đổi mật khẩu admin trên Hostinger giờ có tác dụng.** Trước đây `JAVIS_ADMIN_PASSWORD` chỉ dùng lúc máy chưa có admin, nên đổi trong ô Environment rồi Redeploy vẫn báo "Sai tài khoản hoặc mật khẩu". Nay env đổi so với lần trước là Javis đặt lại tài khoản theo nó, 2FA giữ nguyên, phiên cũ bị đăng xuất.
+- **Đổi mật khẩu admin trên Hostinger giờ có tác dụng.** Trước đây `JAVIS_ADMIN_PASSWORD` chỉ dùng lúc máy chưa có admin, nên đổi trong ô Environment rồi Redeploy vẫn báo "Sai tài khoản hoặc mật khẩu". Nay env đổi so với lần trước là Jarvis 007 đặt lại tài khoản theo nó, 2FA giữ nguyên, phiên cũ bị đăng xuất.
 - Env để nguyên thì không đụng gì, nên mật khẩu bạn đổi trong dashboard không bị ghi đè mỗi lần khởi động lại. Đây cũng là đường lấy lại mật khẩu trên VPS, không cần SSH.
 ### Cải thiện
 - **Nút con mắt ở ô mật khẩu màn đăng nhập** để xem mình gõ đúng chưa.
 
 ## [0.77.0] - 2026-10-05
 ### Thêm mới
-- **Bộ phán xử của bot nhóm tự soát và tự chỉnh.** Khi gom đủ phản hồi, Javis đưa số liệu của bot cho bộ não chính (model mạnh nhất bạn chọn) tìm mẫu lặp lại, rồi tự chỉnh tối đa 3 chỗ: bài học, ca mẫu, ngưỡng từng nhóm, độ hăng nói. Mỗi lần có chỉnh thì bạn nhận một tin báo.
+- **Bộ phán xử của bot nhóm tự soát và tự chỉnh.** Khi gom đủ phản hồi, Jarvis 007 đưa số liệu của bot cho bộ não chính (model mạnh nhất bạn chọn) tìm mẫu lặp lại, rồi tự chỉnh tối đa 3 chỗ: bài học, ca mẫu, ngưỡng từng nhóm, độ hăng nói. Mỗi lần có chỉnh thì bạn nhận một tin báo.
 - **Sai thì tự hoàn.** Sau mỗi lần soát máy tự đo: bot bị chấm sai nhiều hơn thì lần soát đó tự hoàn lại. Chỗ phải sửa trong mã thì được ghi vào `Javis/gop-y-bo-phan-xu.md`.
-- **Muốn chỉnh thì nói với Javis.** "Vì sao Javis Vũ im nhiều thế?", "cho bot trả lời thay anh khi khách tag anh hỏi lịch học", "hoàn lại lần soát vừa rồi": Javis đọc đúng số liệu thật rồi chỉnh. Bot chăm khách không bao giờ thấy các công cụ này.
+- **Muốn chỉnh thì nói với Jarvis 007.** "Vì sao Jarvis 007 Vũ im nhiều thế?", "cho bot trả lời thay anh khi khách tag anh hỏi lịch học", "hoàn lại lần soát vừa rồi": Jarvis 007 đọc đúng số liệu thật rồi chỉnh. Bot chăm khách không bao giờ thấy các công cụ này.
 ### Sửa lỗi
 - Tin khách mở đầu bằng **@tag người khác** (ví dụ tag chủ hỏi việc của bot) trước đây bị bỏ qua dù bạn bấm Sai hay dạy bằng lời. Giờ bấm Sai là có tác dụng, và vòng tự soát bật được chế độ xét loại tin này.
 
 ## [0.76.0] - 2026-10-05
 ### Cải thiện
 - **Trang Kỹ năng làm lại cho dễ dùng.** Mỗi kỹ năng có công tắc bật/tắt riêng ở bên phải, hết cảnh hai ô tick giống nhau mà bấm nhầm là tắt mất kỹ năng. Bấm vào một kỹ năng là mở khung chi tiết: mô tả, mục "Dùng khi nào", số lần dùng, nút Sửa, Xuất, Xoá.
-- **Chọn nhiều kỹ năng để mang đi nơi khác.** Ô tick ở đầu mỗi thẻ luôn có sẵn, chọn xong là hiện nút "Xuất N kỹ năng". Gói .zip nhập lại được vào Javis khác, hoặc giải nén vào thư mục .claude là Claude Code dùng ngay. Chiều ngược lại, nhập một gói chứa nhiều thư mục kỹ năng giờ vào đủ cả, không chỉ cái đầu tiên.
+- **Chọn nhiều kỹ năng để mang đi nơi khác.** Ô tick ở đầu mỗi thẻ luôn có sẵn, chọn xong là hiện nút "Xuất N kỹ năng". Gói .zip nhập lại được vào Jarvis 007 khác, hoặc giải nén vào thư mục .claude là Claude Code dùng ngay. Chiều ngược lại, nhập một gói chứa nhiều thư mục kỹ năng giờ vào đủ cả, không chỉ cái đầu tiên.
 - **Lọc và sắp xếp:** lọc Đang bật, Đang tắt, Hệ thống, sắp theo Hay dùng nhất hoặc Tên. Nhóm trùng tên kiểu "ai" với "AI" được gộp lại, lưu kỹ năng là sửa luôn về tên chuẩn.
-- **Sửa lỗi:** bật/tắt ở trang 3 không còn nhảy về trang 1. Ô mô tả đếm ký tự, báo ngay khi quá 150 ký tự (phần Javis không đọc được tô đỏ), và lưu lỗi thì hiện lý do thay vì đóng form như đã lưu.
+- **Sửa lỗi:** bật/tắt ở trang 3 không còn nhảy về trang 1. Ô mô tả đếm ký tự, báo ngay khi quá 150 ký tự (phần Jarvis 007 không đọc được tô đỏ), và lưu lỗi thì hiện lý do thay vì đóng form như đã lưu.
 
 ## [0.75.1] - 2026-10-05
 ### Cải thiện
@@ -1019,12 +1019,12 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.74.2] - 2026-10-04
 ### Sửa lỗi
-- **ChatGPT hết chết ngay lượt đầu với lỗi "Could not find home directory".** Trên một số máy Windows, Codex không tự tìm ra thư mục người dùng nên không thấy đăng nhập ChatGPT, dù trang Models vẫn báo đã kết nối. Giờ Javis tự chỉ đường cho Codex, nên chat, danh sách model và ChatGPT Live chạy được trên các máy đó.
+- **ChatGPT hết chết ngay lượt đầu với lỗi "Could not find home directory".** Trên một số máy Windows, Codex không tự tìm ra thư mục người dùng nên không thấy đăng nhập ChatGPT, dù trang Models vẫn báo đã kết nối. Giờ Jarvis 007 tự chỉ đường cho Codex, nên chat, danh sách model và ChatGPT Live chạy được trên các máy đó.
 - **Nếu vẫn gặp thì lỗi nói rõ phải làm gì**: đăng xuất Windows rồi đăng nhập lại, hoặc khởi động lại máy, thay cho một dòng tiếng Anh khó hiểu.
 
 ## [0.74.1] - 2026-10-04
 ### Sửa lỗi
-- **Bot Zalo xem được ảnh khách gửi.** Tag bot kèm một ảnh (kiểu "@Javis Vũ đây em") thì bot không còn trả lời "em chỉ đọc được chú thích" nữa: Javis lấy ảnh về brain của bot, nhờ ChatGPT trên gói đang đăng nhập nhìn và tả lại, nên bot trả lời đúng theo nội dung ảnh. Chạy được cả khi chủ bấm "Trả lời giúp" ở Hộp thư.
+- **Bot Zalo xem được ảnh khách gửi.** Tag bot kèm một ảnh (kiểu "@Jarvis 007 Vũ đây em") thì bot không còn trả lời "em chỉ đọc được chú thích" nữa: Jarvis 007 lấy ảnh về brain của bot, nhờ ChatGPT trên gói đang đăng nhập nhìn và tả lại, nên bot trả lời đúng theo nội dung ảnh. Chạy được cả khi chủ bấm "Trả lời giúp" ở Hộp thư.
 - **Chưa đăng nhập ChatGPT thì bot vẫn trả lời như cũ**, dựa vào chú thích và nói rõ là chưa xem được ảnh, không bao giờ đoán bừa nội dung ảnh.
 
 ## [0.74.0] - 2026-10-04
@@ -1034,31 +1034,31 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.73.0] - 2026-10-04
 ### Tính năng mới
-- **Javis xem được ảnh người ta gửi trong nhóm Zalo.** Hỏi kiểu "xem ảnh hoá đơn chị Lan vừa gửi trong nhóm Kinh doanh" là Javis lấy ảnh về, hiện ngay trong khung chat và nói trong ảnh có gì, chép nguyên văn chữ và số. Ảnh lấy thẳng từ Zalo nên không còn giới hạn 2 giờ.
+- **Jarvis 007 xem được ảnh người ta gửi trong nhóm Zalo.** Hỏi kiểu "xem ảnh hoá đơn chị Lan vừa gửi trong nhóm Kinh doanh" là Jarvis 007 lấy ảnh về, hiện ngay trong khung chat và nói trong ảnh có gì, chép nguyên văn chữ và số. Ảnh lấy thẳng từ Zalo nên không còn giới hạn 2 giờ.
 - **Mọi bộ não đều nhìn được ảnh.** Claude Code và Codex tự mở ảnh. OpenRouter, Gemini và các engine API khác nhờ ChatGPT trên gói đang đăng nhập nhìn rồi tả lại, không cần API key, với mọi ảnh trong brain chứ không riêng ảnh Zalo.
 ### Cải thiện
-- **Tool Zalo mở rộng chuyển sang gói "Zalo mở rộng" trên Javis Store.** Gửi ảnh, tag người, ghi chú, nhắc hẹn, poll và đọc ảnh nhóm không còn đi sẵn trong app, ai không dùng Zalo thì không phải mang theo. Quét QR Zalo xong là Javis mời cài gói ngay.
+- **Tool Zalo mở rộng chuyển sang gói "Zalo mở rộng" trên Jarvis 007 Store.** Gửi ảnh, tag người, ghi chú, nhắc hẹn, poll và đọc ảnh nhóm không còn đi sẵn trong app, ai không dùng Zalo thì không phải mang theo. Quét QR Zalo xong là Jarvis 007 mời cài gói ngay.
 - **Máy đã dùng Zalo từ trước:** vào trang Kết nối bấm **Cài gói đi kèm** một lần là có lại đủ tool. Kết nối Zalo, Hộp thư và chatbot Zalo vẫn chạy bình thường dù chưa cài.
 
 ## [0.72.1] - 2026-10-04
 ### Sửa lỗi
-- **Khi Claude Code khởi động quá hạn, Javis nói rõ nó kẹt ở đâu thay vì đoán "chắc do nguồn dữ liệu".** Câu báo lỗi nay cho biết Claude Code có chạm tới cổng công cụ của Javis không, cổng đó trả lời nhanh hay chậm, và trích luôn dòng lỗi Claude Code tự in ra, ví dụ đăng nhập hết hạn. Kết luận nằm ngay đầu câu nên đọc được cả trên thẻ bot.
+- **Khi Claude Code khởi động quá hạn, Jarvis 007 nói rõ nó kẹt ở đâu thay vì đoán "chắc do nguồn dữ liệu".** Câu báo lỗi nay cho biết Claude Code có chạm tới cổng công cụ của Jarvis 007 không, cổng đó trả lời nhanh hay chậm, và trích luôn dòng lỗi Claude Code tự in ra, ví dụ đăng nhập hết hạn. Kết luận nằm ngay đầu câu nên đọc được cả trên thẻ bot.
 - **Câu lỗi không còn ghi "trần cho phép" từ lượt thứ hai.** Nó luôn nêu đúng số giây đang áp dụng.
 - Chi tiết đầy đủ của mỗi lần quá hạn cũng được ghi vào log máy chủ ở dòng `[claude init timeout]`.
 
 ## [0.71.2] - 2026-10-04
 ### Sửa lỗi
-- **Gọi ChatGPT Live trong lúc Javis đang làm việc dài không còn im re.** Trước đây mọi câu anh hỏi thêm phải xếp hàng sau việc đang chạy, nên hỏi "xong chưa" thì không ai trả lời, rồi lúc việc xong Javis đọc dồn một loạt câu trả lời cũ. Giờ hỏi tiến độ là được trả lời ngay bằng trạng thái thật: đang làm việc gì, được mấy phút, tới bước nào.
-- **Việc mới không phải chờ việc cũ.** Nhờ thêm một việc khác trong lúc Javis còn đang làm thì việc đó chạy song song, kết quả về khi nào đọc khi đó.
-- **Việc kéo dài thì Javis tự lên tiếng.** Quá một phút mà chưa xong thì khoảng mỗi phút rưỡi Javis nói một câu ngắn cho biết vẫn đang làm, lúc anh không nói. Câu này không ghi vào lịch sử chat.
+- **Gọi ChatGPT Live trong lúc Jarvis 007 đang làm việc dài không còn im re.** Trước đây mọi câu anh hỏi thêm phải xếp hàng sau việc đang chạy, nên hỏi "xong chưa" thì không ai trả lời, rồi lúc việc xong Jarvis 007 đọc dồn một loạt câu trả lời cũ. Giờ hỏi tiến độ là được trả lời ngay bằng trạng thái thật: đang làm việc gì, được mấy phút, tới bước nào.
+- **Việc mới không phải chờ việc cũ.** Nhờ thêm một việc khác trong lúc Jarvis 007 còn đang làm thì việc đó chạy song song, kết quả về khi nào đọc khi đó.
+- **Việc kéo dài thì Jarvis 007 tự lên tiếng.** Quá một phút mà chưa xong thì khoảng mỗi phút rưỡi Jarvis 007 nói một câu ngắn cho biết vẫn đang làm, lúc anh không nói. Câu này không ghi vào lịch sử chat.
 
 ## [0.71.1] - 2026-10-03
 ### Sửa lỗi
-- **Trang Models hiện đủ model ChatGPT mới, như GPT-6.1-Sol.** Máy có cài cả Codex Desktop lẫn Codex CLI thì Javis trước đây luôn hỏi bản đi kèm Codex Desktop, kể cả khi bản đó đã cũ vài tháng, nên danh sách model dừng ở đời cũ. Giờ Javis chọn bản Codex mới nhất trên máy.
+- **Trang Models hiện đủ model ChatGPT mới, như GPT-6.1-Sol.** Máy có cài cả Codex Desktop lẫn Codex CLI thì Jarvis 007 trước đây luôn hỏi bản đi kèm Codex Desktop, kể cả khi bản đó đã cũ vài tháng, nên danh sách model dừng ở đời cũ. Giờ Jarvis 007 chọn bản Codex mới nhất trên máy.
 
 ## [0.71.0] - 2026-10-03
 ### Tính năng mới
-- **Chat với Javis qua Slack và WhatsApp.** Bật ở trang Kênh như Telegram và Zalo. Slack chạy được cả trên laptop, không cần tên miền; WhatsApp dùng API chính thức của Meta và cần Javis có tên miền HTTPS.
+- **Chat với Jarvis 007 qua Slack và WhatsApp.** Bật ở trang Kênh như Telegram và Zalo. Slack chạy được cả trên laptop, không cần tên miền; WhatsApp dùng API chính thức của Meta và cần Jarvis 007 có tên miền HTTPS.
 - **Bot khách hàng trên Slack và WhatsApp.** Thêm tài khoản ở trang Chatbot, khách nhắn vào là agent trả lời, mọi cuộc chat vào hộp thư chung và bạn tiếp quản được như với Telegram, Zalo.
 - **Người lạ không chạm được vào brain.** Danh sách để trống là chưa ai được phép: ai nhắn tới sẽ nhận mã ghép nối, bạn bấm Cho phép một lần là xong. Việc nền giao từ Slack hay WhatsApp báo kết quả về đúng nơi đó.
 - **Hướng dẫn từng bước** ở docs/29-slack-whatsapp.md, kèm manifest app Slack dán vào là chạy.
@@ -1069,7 +1069,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.70.1] - 2026-10-03
 ### Cải thiện
-- **README nói rõ vì sao nên dùng Javis: dữ liệu là của bạn.** Mục "Why Javis" giải thích nỗi lo bị khoá vào một nhà cung cấp AI, và liệt kê từng thứ bạn tích luỹ (lịch sử chat, trí nhớ, skill, agent, workflow) nằm ở file nào trên máy bạn, để khi có model mới chỉ cần đổi, không phải làm lại từ đầu.
+- **README nói rõ vì sao nên dùng Jarvis 007: dữ liệu là của bạn.** Mục "Why Jarvis 007" giải thích nỗi lo bị khoá vào một nhà cung cấp AI, và liệt kê từng thứ bạn tích luỹ (lịch sử chat, trí nhớ, skill, agent, workflow) nằm ở file nào trên máy bạn, để khi có model mới chỉ cần đổi, không phải làm lại từ đầu.
 - **Hàng lá cờ ở đầu README.** 12 lá cờ, bấm vào là sang đúng bản dịch. Trên Windows biểu tượng cờ hay hiện thành chữ cái, nay là hình thật.
 
 ## [0.70.0] - 2026-10-03
@@ -1079,7 +1079,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.69.0] - 2026-10-03
 ### Cải thiện
-- **README có thêm tiếng Trung, Tây Ban Nha và Nhật.** Cả hướng dẫn cài nhanh cũng vậy. Mỗi bản ghi rõ đây là bản máy dịch, Javis trả lời bằng mọi thứ tiếng, còn giao diện có tiếng Anh và tiếng Việt.
+- **README có thêm tiếng Trung, Tây Ban Nha và Nhật.** Cả hướng dẫn cài nhanh cũng vậy. Mỗi bản ghi rõ đây là bản máy dịch, Jarvis 007 trả lời bằng mọi thứ tiếng, còn giao diện có tiếng Anh và tiếng Việt.
 - **Tự báo khi bản dịch đã cũ.** Sửa README tiếng Anh xong, GitHub chỉ ra bản dịch nào cần cập nhật, không chặn việc phát hành.
 - **Bỏ thư mục website.** Trang giới thiệu sẽ đặt ở nơi khác, repo gọn hơn.
 
@@ -1095,13 +1095,13 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.67.0] - 2026-10-02
 ### Cải thiện
-- **Javis nói tiếng Anh trọn vẹn với người dùng nước ngoài.** Thông báo lỗi, trang Models, kho Kết nối (mô tả, hướng dẫn, cảnh báo quyền), trang Plugins và brain mới tạo đều ra tiếng Anh khi trình duyệt để tiếng Anh. Người dùng tiếng Việt thấy y như cũ.
+- **Jarvis 007 nói tiếng Anh trọn vẹn với người dùng nước ngoài.** Thông báo lỗi, trang Models, kho Kết nối (mô tả, hướng dẫn, cảnh báo quyền), trang Plugins và brain mới tạo đều ra tiếng Anh khi trình duyệt để tiếng Anh. Người dùng tiếng Việt thấy y như cũ.
 - **Mỗi thiết bị một ngôn ngữ.** Điện thoại để tiếng Việt, laptop để tiếng Anh thì mỗi máy thấy đúng tiếng của mình, kể cả chữ do máy chủ trả về.
 - **Trang giới thiệu có bản tiếng Anh**, bản tiếng Việt vẫn ở nút "Tiếng Việt" trên thanh menu.
 
 ## [0.66.0] - 2026-10-02
 ### Cải thiện
-- **Trang GitHub của Javis giờ là tiếng Anh**, có ảnh chụp màn hình thật, bảng 12 bộ não và thanh chọn ngôn ngữ. Bản tiếng Việt vẫn đầy đủ, bấm "Tiếng Việt" ngay đầu trang là sang.
+- **Trang GitHub của Jarvis 007 giờ là tiếng Anh**, có ảnh chụp màn hình thật, bảng 12 bộ não và thanh chọn ngôn ngữ. Bản tiếng Việt vẫn đầy đủ, bấm "Tiếng Việt" ngay đầu trang là sang.
 - **Giao diện tự theo ngôn ngữ của trình duyệt** khi máy đó chưa chọn ngôn ngữ nào. Máy đang dùng tiếng Việt thì giữ nguyên, không bị đổi sang tiếng Anh.
 - **Chỗ nào chưa dịch sẽ hiện tiếng Anh** thay vì tiếng Việt, để người dùng thứ tiếng khác vẫn đọc được.
 - **Lệnh cài đặt và cập nhật trên Linux/macOS in thông báo bằng tiếng Anh.**
@@ -1123,8 +1123,8 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 - **Link chia sẻ có tên.** Link mới tự lấy tên theo tiêu đề file (tiêu đề trang `.html`, tiêu đề ghi chú `.md`), không còn cả loạt cùng tên "index.html". Ở trang Chia sẻ bấm **Đổi tên** để đặt tên khác; link đã gửi đi vẫn giữ nguyên. Ô tìm kiếm tìm được theo tên.
 
 ### Sửa lỗi
-- **iPhone mở Javis từ màn hình chính: thanh công cụ của trình sửa file không còn bị thanh trạng thái che.** Trình sửa chừa đúng phần mép trên cho đồng hồ và pin, nút Đóng luôn bấm được.
-- **Kéo ảnh vừa chụp vào ô chat trên iPhone gửi được.** Trước đây ảnh hiện trên chip mà bấm gửi thì hỏng, vì iPhone chỉ cho đọc ảnh kéo thả ngay lúc thả. Nay Javis chép ảnh ngay khi thả; ảnh không đọc được thì báo rõ trên chip.
+- **iPhone mở Jarvis 007 từ màn hình chính: thanh công cụ của trình sửa file không còn bị thanh trạng thái che.** Trình sửa chừa đúng phần mép trên cho đồng hồ và pin, nút Đóng luôn bấm được.
+- **Kéo ảnh vừa chụp vào ô chat trên iPhone gửi được.** Trước đây ảnh hiện trên chip mà bấm gửi thì hỏng, vì iPhone chỉ cho đọc ảnh kéo thả ngay lúc thả. Nay Jarvis 007 chép ảnh ngay khi thả; ảnh không đọc được thì báo rõ trên chip.
 
 ## [0.65.29] - 2026-10-02
 ### Sửa lỗi
@@ -1133,11 +1133,11 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.65.28] - 2026-10-02
 ### Sửa lỗi
-- **Đang gọi, nói chen không còn làm Javis dừng câu trả lời.** Trước đây ở đường Cơ bản, nói thêm một câu lúc Javis đang trả lời là hiện "Đã dừng lượt này" và câu trả lời bị cắt, nói nhiều thì bị cắt liên tục. Nay câu trả lời luôn được viết trọn; câu bạn nói thêm được giữ lại và Javis trả lời ngay sau khi đọc xong. Cắt lời hay nói "thôi" chỉ làm Javis thôi đọc. Cuộc gọi chỉ dừng khi bạn cúp máy.
+- **Đang gọi, nói chen không còn làm Jarvis 007 dừng câu trả lời.** Trước đây ở đường Cơ bản, nói thêm một câu lúc Jarvis 007 đang trả lời là hiện "Đã dừng lượt này" và câu trả lời bị cắt, nói nhiều thì bị cắt liên tục. Nay câu trả lời luôn được viết trọn; câu bạn nói thêm được giữ lại và Jarvis 007 trả lời ngay sau khi đọc xong. Cắt lời hay nói "thôi" chỉ làm Jarvis 007 thôi đọc. Cuộc gọi chỉ dừng khi bạn cúp máy.
 
 ## [0.65.27] - 2026-10-02
 ### Sửa lỗi
-- **Nút Cập nhật ngay trên Docker/VPS không còn kẹt "Đang cập nhật rồi, chờ chút".** Bấm ngay sau khi có bản mới thì image Docker có thể chưa đóng gói xong (thường mất 2 đến 5 phút), nên máy kéo về đúng bản cũ rồi khoá nút 15 phút. Nay Javis kiểm tra image trước và báo "đang đóng gói, thử lại sau ít phút". Nếu Watchtower chạy xong mà không thay được bản mới, trang báo lý do và nút bấm lại được ngay.
+- **Nút Cập nhật ngay trên Docker/VPS không còn kẹt "Đang cập nhật rồi, chờ chút".** Bấm ngay sau khi có bản mới thì image Docker có thể chưa đóng gói xong (thường mất 2 đến 5 phút), nên máy kéo về đúng bản cũ rồi khoá nút 15 phút. Nay Jarvis 007 kiểm tra image trước và báo "đang đóng gói, thử lại sau ít phút". Nếu Watchtower chạy xong mà không thay được bản mới, trang báo lý do và nút bấm lại được ngay.
 
 ## [0.65.26] - 2026-10-02
 ### Sửa lỗi
@@ -1149,7 +1149,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.65.25] - 2026-10-02
 ### Sửa lỗi
-- **Giữa cuộc gọi ChatGPT Live, Javis không còn tự đổi giọng.** Trước đây lúc nối lại sau khi tạm ngắt mà hỏng, Javis lặng lẽ chuyển sang đường Cơ bản đọc bằng giọng khác (nữ thành nam). Nay Javis giữ ChatGPT Live: thử lại một lần, vẫn hỏng thì báo một dòng và chờ, bạn nói lại là thử tiếp.
+- **Giữa cuộc gọi ChatGPT Live, Jarvis 007 không còn tự đổi giọng.** Trước đây lúc nối lại sau khi tạm ngắt mà hỏng, Jarvis 007 lặng lẽ chuyển sang đường Cơ bản đọc bằng giọng khác (nữ thành nam). Nay Jarvis 007 giữ ChatGPT Live: thử lại một lần, vẫn hỏng thì báo một dòng và chờ, bạn nói lại là thử tiếp.
 - Nối lại trên iPhone không còn có thể treo ở bước bật âm thanh.
 
 ### Thêm mới
@@ -1157,22 +1157,22 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.65.24] - 2026-10-02
 ### Cải thiện
-- **Javis nối lại nhanh hơn sau lúc tạm ngắt.** Nghe được mấy chữ đầu là Javis bắt đầu nối lại ngay trong lúc bạn còn đang nói, và chốt câu sau 0,7 giây im thay vì 1,2 giây. Đo trên máy thử: từ lúc ngừng nói tới lúc nghe Javis giảm từ khoảng 5 giây xuống khoảng 2 giây.
+- **Jarvis 007 nối lại nhanh hơn sau lúc tạm ngắt.** Nghe được mấy chữ đầu là Jarvis 007 bắt đầu nối lại ngay trong lúc bạn còn đang nói, và chốt câu sau 0,7 giây im thay vì 1,2 giây. Đo trên máy thử: từ lúc ngừng nói tới lúc nghe Jarvis 007 giảm từ khoảng 5 giây xuống khoảng 2 giây.
 
 ## [0.65.23] - 2026-10-01
 ### Sửa lỗi
-- **ChatGPT Live đọc các câu trả lời lần lượt.** Khi kết quả thứ hai về lúc Javis còn đang đọc kết quả thứ nhất, hai câu từng bị đọc trộn vào nhau như hai giọng chồng lên nhau. Nay Javis đọc xong câu đang nói rồi mới đọc câu tiếp theo.
+- **ChatGPT Live đọc các câu trả lời lần lượt.** Khi kết quả thứ hai về lúc Jarvis 007 còn đang đọc kết quả thứ nhất, hai câu từng bị đọc trộn vào nhau như hai giọng chồng lên nhau. Nay Jarvis 007 đọc xong câu đang nói rồi mới đọc câu tiếp theo.
 
 ## [0.65.22] - 2026-10-01
 ### Cải thiện
-- **Im lâu thì tạm ngắt, nói là Javis tự nối lại.** Trong cuộc gọi ChatGPT Live, im 30 giây (trước là 20) thì tạm ngắt cho đỡ tốn hạn mức; cứ nói tiếp là Javis nối lại và trả lời luôn câu đó. Không cần gọi "Javis" nữa, nên hết cảnh gọi mãi không nối lại vì máy nghe thành "David".
+- **Im lâu thì tạm ngắt, nói là Jarvis 007 tự nối lại.** Trong cuộc gọi ChatGPT Live, im 30 giây (trước là 20) thì tạm ngắt cho đỡ tốn hạn mức; cứ nói tiếp là Jarvis 007 nối lại và trả lời luôn câu đó. Không cần gọi "Jarvis 007" nữa, nên hết cảnh gọi mãi không nối lại vì máy nghe thành "David".
 - **Giữ màn hình sáng khi đang gọi**, để điện thoại không tự khoá màn hình rồi cắt mic giữa cuộc gọi.
 - Bỏ công tắc "Tập trung khi đàm thoại" ở trang Giọng nói.
 
 ## [0.65.21] - 2026-10-01
 ### Sửa lỗi
-- **ChatGPT Live không còn lặp câu trả lời.** Đang chờ Javis làm việc mà nói thêm "ok, xong thì báo anh nhé" từng làm bộ não chính chạy lần hai, ra hai bong bóng kết quả khác chữ. Nay câu xác nhận không chạy lại gì; câu có ý mới được làm tiếp sau việc đang chạy.
-- Lời Javis đọc tóm tắt kết quả không còn hiện thành bong bóng thứ hai, vì bản đầy đủ đã nằm ngay trên.
+- **ChatGPT Live không còn lặp câu trả lời.** Đang chờ Jarvis 007 làm việc mà nói thêm "ok, xong thì báo anh nhé" từng làm bộ não chính chạy lần hai, ra hai bong bóng kết quả khác chữ. Nay câu xác nhận không chạy lại gì; câu có ý mới được làm tiếp sau việc đang chạy.
+- Lời Jarvis 007 đọc tóm tắt kết quả không còn hiện thành bong bóng thứ hai, vì bản đầy đủ đã nằm ngay trên.
 
 ## [0.65.20] - 2026-10-01
 ### Sửa lỗi
@@ -1181,31 +1181,31 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.65.19] - 2026-10-01
 ### Cải thiện
-- **Trang cài đặt Giọng nói gọn còn 3 ô, đổi là tự lưu.** Dòng "Đang dùng" cho biết cuộc gọi đang chạy đường nào và vì sao, ô **Giọng Javis** đổi theo đường gọi (có nút nghe thử), và công tắc **Tập trung**. Đường gọi, tốc độ đọc và ElevenLabs nằm trong Nâng cao.
+- **Trang cài đặt Giọng nói gọn còn 3 ô, đổi là tự lưu.** Dòng "Đang dùng" cho biết cuộc gọi đang chạy đường nào và vì sao, ô **Giọng Jarvis 007** đổi theo đường gọi (có nút nghe thử), và công tắc **Tập trung**. Đường gọi, tốc độ đọc và ElevenLabs nằm trong Nâng cao.
 - Máy tự lo phần còn lại: ngôn ngữ nghe theo ngôn ngữ giao diện, ngắt lời bằng giọng luôn bật, bộ não trả lời nhanh tự chọn trên gói bạn đã đăng nhập (Antigravity, ChatGPT, Claude Code, Grok Build). Cài đặt cũ vẫn dùng tiếp.
 - Bỏ công tắc "Đọc trả lời bằng giọng" (trùng nút mic), nhịp hội thoại thử nghiệm, ô từ hay nghe nhầm và ô API key OpenAI trong trang Giọng nói (key nằm ở trang Models).
 
 ## [0.65.18] - 2026-10-01
 ### Cải thiện
-- **Bấm mic là gọi Javis.** Nút mic thành nút Cúp máy màu đỏ, và một thanh gọi hiện trên khung chat: đang nghe, Javis đang nói hay đang làm việc, kèm đồng hồ, nút Tắt mic và Cúp máy. Esc cũng cúp máy.
-- Javis tự chọn đường gọi: ChatGPT Live khi đã nối gói ChatGPT, rồi Live qua API key, không thì đường Cơ bản. ChatGPT Live mở không được thì cuộc gọi tự chuyển sang Cơ bản thay vì tắt.
+- **Bấm mic là gọi Jarvis 007.** Nút mic thành nút Cúp máy màu đỏ, và một thanh gọi hiện trên khung chat: đang nghe, Jarvis 007 đang nói hay đang làm việc, kèm đồng hồ, nút Tắt mic và Cúp máy. Esc cũng cúp máy.
+- Jarvis 007 tự chọn đường gọi: ChatGPT Live khi đã nối gói ChatGPT, rồi Live qua API key, không thì đường Cơ bản. ChatGPT Live mở không được thì cuộc gọi tự chuyển sang Cơ bản thay vì tắt.
 - Phím Space không còn mở mic, để không ai lỡ chạm mà bật nghe.
 
 ## [0.65.17] - 2026-10-01
 ### Thêm mới
-- **ChatGPT Live: nói chuyện với Javis qua gói ChatGPT, không cần API key.** Vào Cài đặt → Giọng nói, chọn Live rồi ChatGPT Live. Nói liền mạch, Javis đáp chưa tới một giây, chen ngang lúc nào cũng được.
-- Câu cần dữ liệu thật thì Javis giao bộ não chính bạn đã chọn rồi đọc tóm tắt; bản đầy đủ (có bảng) hiện thành bong bóng trong khung chat.
+- **ChatGPT Live: nói chuyện với Jarvis 007 qua gói ChatGPT, không cần API key.** Vào Cài đặt → Giọng nói, chọn Live rồi ChatGPT Live. Nói liền mạch, Jarvis 007 đáp chưa tới một giây, chen ngang lúc nào cũng được.
+- Câu cần dữ liệu thật thì Jarvis 007 giao bộ não chính bạn đã chọn rồi đọc tóm tắt; bản đầy đủ (có bảng) hiện thành bong bóng trong khung chat.
 - Có 9 giọng, mặc định juniper, kèm nút nghe thử. Cuộc gọi tính vào hạn mức gói ChatGPT.
 
 ## [0.65.16] - 2026-10-01
 ### Cải thiện
-- **Bản thiết kế ChatGPT Live.** Bấm mic là gọi Javis như gọi điện thoại: nói chuyện liền mạch, chen ngang lúc nào cũng được, chạy trên gói ChatGPT không cần API key, việc nặng vẫn giao bộ não bạn chọn. Trang cài đặt giọng nói sẽ còn 3 ô.
+- **Bản thiết kế ChatGPT Live.** Bấm mic là gọi Jarvis 007 như gọi điện thoại: nói chuyện liền mạch, chen ngang lúc nào cũng được, chạy trên gói ChatGPT không cần API key, việc nặng vẫn giao bộ não bạn chọn. Trang cài đặt giọng nói sẽ còn 3 ô.
 - Chưa có gì đổi trên giao diện ở bản này. 13 tài liệu thiết kế giọng nói cũ được gộp vào một tài liệu duy nhất.
 
 ## [0.65.15] - 2026-10-01
 ### Cải thiện
-- **Nghe câu Việt xen tiếng Anh đúng hơn hẳn.** Có key Groq thì Javis tự bật "tai nghe lại": một model đa ngôn ngữ nghe lại âm thanh rồi mới chốt chữ vào bong bóng. Đo trên 20 câu lệnh, trình duyệt sai 41% số từ, qua tai còn 14%.
-- Tai giờ chạy đủ mọi lượt: cả câu đầu tiên sau khi mở trang, chế độ tự nhiên, và câu "Javis ơi" mà trình duyệt nghe thành "David ơi".
+- **Nghe câu Việt xen tiếng Anh đúng hơn hẳn.** Có key Groq thì Jarvis 007 tự bật "tai nghe lại": một model đa ngôn ngữ nghe lại âm thanh rồi mới chốt chữ vào bong bóng. Đo trên 20 câu lệnh, trình duyệt sai 41% số từ, qua tai còn 14%.
+- Tai giờ chạy đủ mọi lượt: cả câu đầu tiên sau khi mở trang, chế độ tự nhiên, và câu "Jarvis 007 ơi" mà trình duyệt nghe thành "David ơi".
 - Trang Cài đặt có ô **Tai nghe lại** (Tự chọn / Groq / Tắt) kèm dòng cho biết tai nào đang chạy và vì sao.
 
 ## [0.65.14] - 2026-10-01
@@ -1215,18 +1215,18 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.65.13] - 2026-10-01
 ### Sửa lỗi
-- **Bot trong nhóm Zalo trả lời cả khi bạn tag bằng chú thích của ảnh.** Trước đây tin ảnh bị bỏ qua hết, nên "@Javis Vũ ..." viết trong phần chú thích của ảnh không bao giờ tới bot. Nay chú thích được coi như nội dung tin, và bot biết tin có kèm một ảnh. Ảnh không có chú thích thì vẫn bỏ qua.
+- **Bot trong nhóm Zalo trả lời cả khi bạn tag bằng chú thích của ảnh.** Trước đây tin ảnh bị bỏ qua hết, nên "@Jarvis 007 Vũ ..." viết trong phần chú thích của ảnh không bao giờ tới bot. Nay chú thích được coi như nội dung tin, và bot biết tin có kèm một ảnh. Ảnh không có chú thích thì vẫn bỏ qua.
 
 ## [0.65.12] - 2026-09-30
 ### Cải thiện
-- **Nhóm chat chỉ giữ 100 tin gần nhất trong Hòm thư**, nên kho không phình mãi và Javis không giữ lời của người lạ lâu hơn cần thiết. Chat riêng với khách vẫn lưu hết.
-- Lần đầu sau khi cập nhật, các nhóm cũ được cắt xuống 100 tin. Javis sao lưu file kho một lần trước khi cắt và tự xoá bản sao lưu sau 14 ngày.
+- **Nhóm chat chỉ giữ 100 tin gần nhất trong Hòm thư**, nên kho không phình mãi và Jarvis 007 không giữ lời của người lạ lâu hơn cần thiết. Chat riêng với khách vẫn lưu hết.
+- Lần đầu sau khi cập nhật, các nhóm cũ được cắt xuống 100 tin. Jarvis 007 sao lưu file kho một lần trước khi cắt và tự xoá bản sao lưu sau 14 ngày.
 - **Bot trong nhóm xem 30 tin gần nhất để trả lời đúng ngữ cảnh**, không chỉ thấy mỗi câu đang hỏi.
 
 ## [0.65.11] - 2026-09-30
 ### Cải thiện
 - **Hòm thư tải dần, đỡ nặng máy.** Danh sách hội thoại tải 40 dòng đầu, cuộn xuống thì tự tải thêm. Khung tin chỉ tải 40 tin mới nhất, kéo lên thì tải tin cũ hơn mà không nhảy chỗ đang đọc.
-- Cứ 5 giây Javis chỉ hỏi tin MỚI hơn tin cuối rồi chèn vào cuối khung, thay vì tải lại và vẽ lại cả 200 tin. Đang đọc tin cũ mà có tin mới về thì không còn bị kéo về đầu.
+- Cứ 5 giây Jarvis 007 chỉ hỏi tin MỚI hơn tin cuối rồi chèn vào cuối khung, thay vì tải lại và vẽ lại cả 200 tin. Đang đọc tin cũ mà có tin mới về thì không còn bị kéo về đầu.
 
 ## [0.65.10] - 2026-09-30
 ### Cải thiện
@@ -1241,8 +1241,8 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.65.8] - 2026-09-30
 ### Cải thiện
-- **Bot tag người trong nhóm Zalo nhanh hơn.** Javis tự cài sẵn một bản công cụ Zalo vào thư mục của mình rồi chạy thẳng, không qua `npx` mỗi lần. Trên máy thử, phần khởi động giảm từ khoảng 3,1 giây xuống 0,7 giây.
-- Câu tag đầu tiên sau khi cập nhật vẫn đi bằng cách cũ (chậm hơn) trong lúc Javis cài ngầm, từ câu sau là nhanh. Cài hỏng thì vẫn chạy được như trước.
+- **Bot tag người trong nhóm Zalo nhanh hơn.** Jarvis 007 tự cài sẵn một bản công cụ Zalo vào thư mục của mình rồi chạy thẳng, không qua `npx` mỗi lần. Trên máy thử, phần khởi động giảm từ khoảng 3,1 giây xuống 0,7 giây.
+- Câu tag đầu tiên sau khi cập nhật vẫn đi bằng cách cũ (chậm hơn) trong lúc Jarvis 007 cài ngầm, từ câu sau là nhanh. Cài hỏng thì vẫn chạy được như trước.
 
 ## [0.65.7] - 2026-09-30
 ### Thêm mới
@@ -1251,7 +1251,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.65.6] - 2026-09-30
 ### Thêm mới
-- **Javis tag đúng người trong nhóm Zalo.** Chỉ cần nói tên (kiểu "@minhquy"), Javis tự tìm ID Zalo thật. Trùng tên hoặc không thấy thì hỏi lại chứ không đoán, vì tag nhầm không rút lại được.
+- **Jarvis 007 tag đúng người trong nhóm Zalo.** Chỉ cần nói tên (kiểu "@minhquy"), Jarvis 007 tự tìm ID Zalo thật. Trùng tên hoặc không thấy thì hỏi lại chứ không đoán, vì tag nhầm không rút lại được.
 - **Tạo ghi chú nhóm, nhắc hẹn và poll trên Zalo** ngay từ chat, cho mọi bộ não. Nhắc hẹn hiện trong Zalo nên cả nhóm cùng thấy.
 ### Sửa lỗi
 - Gửi ảnh Zalo không còn báo "đã gửi" khi Zalo từ chối.
@@ -1295,7 +1295,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.86] - 2026-09-30
 ### Sửa lỗi
-- **Trang Cộng sự không còn hiện mã kiểu `ws.tab_agent`, `sess.new_chat` thay cho tên nút** khi mở lại Javis sau khi cập nhật. Nhãn giờ tự chuyển thành chữ ngay khi bộ chữ tải xong.
+- **Trang Cộng sự không còn hiện mã kiểu `ws.tab_agent`, `sess.new_chat` thay cho tên nút** khi mở lại Jarvis 007 sau khi cập nhật. Nhãn giờ tự chuyển thành chữ ngay khi bộ chữ tải xong.
 - **Thanh trên cũng vậy:** số note và liên kết không còn kẹt ở `app.graph_stats`.
 
 ## [0.64.85] - 2026-09-30
@@ -1307,7 +1307,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.84] - 2026-09-30
 ### Sửa lỗi
-- **Bot Zalo giờ trả lời được trong nhóm.** Trước đây câu trả lời hiện trong Hộp thư nhưng không tới nhóm, vì Javis gửi sai tên tham số cho Zalo nên tin nào cũng đi như chat riêng. Chat riêng vẫn như cũ.
+- **Bot Zalo giờ trả lời được trong nhóm.** Trước đây câu trả lời hiện trong Hộp thư nhưng không tới nhóm, vì Jarvis 007 gửi sai tên tham số cho Zalo nên tin nào cũng đi như chat riêng. Chat riêng vẫn như cũ.
 - **Nhóm Zalo mới hiện đúng tên nhóm** trong Hộp thư, không còn hiện tên người nhắn đầu tiên.
 - **Đọc tin Zalo không còn bị đói khi bộ đệm đầy.** Trước đây mỗi lần đọc lại từ đầu, nick ở nhiều nhóm sôi nổi thì tin mới có thể không bao giờ tới được bot.
 - **Gửi Zalo lỗi giờ hiện ở nhật ký bot** (tab Hội thoại), trước đây chỉ lướt qua vài giây rồi mất.
@@ -1328,8 +1328,8 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.64.81] - 2026-09-29
 ### Thêm mới
 - **Gõ `/` trong khung chat giờ có 12 lệnh hệ thống**, chạy giống nhau ở mọi bộ não. `/status` cho biết đang dùng model nào, `/model` đổi model, `/usage` xem token đã dùng, `/tasks` xem việc nền, `/memory` xem bộ nhớ, `/export` tải hội thoại về, cùng `/help`, `/brain`, `/retry`.
-- **`/compact` nén hội thoại dài ngay**, không đợi ngưỡng tự động. **`/plan việc-cần-làm`** cho Javis chỉ lập kế hoạch, chưa làm gì ra ngoài.
-- **`/goal mục-tiêu`: Javis tự làm tiếp từng vòng cho tới khi đạt** (tối đa 8 vòng). Bạn gõ tin mới hoặc bấm Dừng là dừng.
+- **`/compact` nén hội thoại dài ngay**, không đợi ngưỡng tự động. **`/plan việc-cần-làm`** cho Jarvis 007 chỉ lập kế hoạch, chưa làm gì ra ngoài.
+- **`/goal mục-tiêu`: Jarvis 007 tự làm tiếp từng vòng cho tới khi đạt** (tối đa 8 vòng). Bạn gõ tin mới hoặc bấm Dừng là dừng.
 - **Telegram có thêm `/usage`, `/tasks`, `/memory` và `/plan`.**
 
 ## [0.64.80] - 2026-09-29
@@ -1346,9 +1346,9 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.78] - 2026-09-29
 ### Sửa lỗi
-- **Model Claude mới (như Sonnet 5.5, Opus 5.5) giờ tự hiện trong Javis.** Trước đây Claude Code trên máy không tự lên bản mới khi chỉ được Javis gọi chạy ngầm, nên danh sách model đứng yên hàng tháng trời.
-- Javis nay tự cập nhật Claude Code mỗi ngày một lần. Thẻ Claude Code trên trang **Models** ghi đang ở bản nào, lần cuối xét khi nào, kèm nút **Cập nhật Claude Code** để chạy ngay và báo model nào vừa có thêm.
-- **Bản Docker/VPS** nhận Claude Code mới nhất theo mỗi bản cập nhật Javis. Trước đây ảnh Docker vô tình giữ mãi một bản Claude Code cũ.
+- **Model Claude mới (như Sonnet 5.5, Opus 5.5) giờ tự hiện trong Jarvis 007.** Trước đây Claude Code trên máy không tự lên bản mới khi chỉ được Jarvis 007 gọi chạy ngầm, nên danh sách model đứng yên hàng tháng trời.
+- Jarvis 007 nay tự cập nhật Claude Code mỗi ngày một lần. Thẻ Claude Code trên trang **Models** ghi đang ở bản nào, lần cuối xét khi nào, kèm nút **Cập nhật Claude Code** để chạy ngay và báo model nào vừa có thêm.
+- **Bản Docker/VPS** nhận Claude Code mới nhất theo mỗi bản cập nhật Jarvis 007. Trước đây ảnh Docker vô tình giữ mãi một bản Claude Code cũ.
 
 ## [0.64.77] - 2026-09-28
 ### Sửa lỗi
@@ -1358,11 +1358,11 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.64.76] - 2026-09-28
 ### Sửa lỗi
 - **Chat bằng ChatGPT không còn hiện liền mấy bong bóng "Codex: Reconnecting... 2/5".** Đó là Codex tự kết nối lại chứ chưa phải lỗi, nay chỉ hiện thành một dòng trạng thái mờ trong lúc chờ.
-- **Máy mà kết nối WebSocket tới ChatGPT hay bị ngắt (thường gặp trên VPS) giờ tự chuyển sang đường HTTPS** từ lượt sau, khỏi mất năm lần thử lại mỗi lượt. Sau 3 ngày Javis tự thử lại đường cũ.
+- **Máy mà kết nối WebSocket tới ChatGPT hay bị ngắt (thường gặp trên VPS) giờ tự chuyển sang đường HTTPS** từ lượt sau, khỏi mất năm lần thử lại mỗi lượt. Sau 3 ngày Jarvis 007 tự thử lại đường cũ.
 
 ## [0.64.75] - 2026-09-28
 ### Sửa lỗi
-- **Nhờ Javis vẽ ảnh khi đang dùng ChatGPT (Codex), ảnh hiện ngay trong khung chat.** Trước đây Codex vẽ bằng công cụ riêng rồi cất ảnh ngoài brain, nên link bấm vào không mở được, kèm dòng "không tìm thấy trong brain", và phải tự đi lưu ảnh về.
+- **Nhờ Jarvis 007 vẽ ảnh khi đang dùng ChatGPT (Codex), ảnh hiện ngay trong khung chat.** Trước đây Codex vẽ bằng công cụ riêng rồi cất ảnh ngoài brain, nên link bấm vào không mở được, kèm dòng "không tìm thấy trong brain", và phải tự đi lưu ảnh về.
 - Ảnh nay tự vào thư mục `attachments` của brain, Telegram cũng nhận được ảnh đính kèm. Ảnh vẽ xong mà câu trả lời quên nhắc cũng được hiện ở cuối.
 
 ## [0.64.74] - 2026-09-28
@@ -1378,16 +1378,16 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Sửa lỗi
 - **Nói trên điện thoại, máy tính bảng Android không còn bị lặp câu:** trình duyệt Android hay gửi đi gửi lại một câu mà sửa dần chữ cuối, trước đây mỗi bản bị nối thêm vào tin. Nay chỉ giữ bản cuối cùng.
 - **Bong bóng hiện đúng thuật ngữ nhiều hơn:** "cave" thành "KV", "Quốc cơ ford plat form của clap Play" thành "Workers for Platforms của Cloudflare".
-- Câu nào máy chưa chắc để tự sửa thì Javis trả lời thẳng vào việc, không mở đầu bằng "em hiểu X là Y" nữa.
+- Câu nào máy chưa chắc để tự sửa thì Jarvis 007 trả lời thẳng vào việc, không mở đầu bằng "em hiểu X là Y" nữa.
 
 ## [0.64.71] - 2026-09-27
 ### Sửa lỗi
-- **Chat bằng ChatGPT (Codex) nay gọi công cụ đúng brain đang mở.** Trước đây Javis có gửi brain cho Codex nhưng ghi sai cách, nên Codex bỏ qua, và Javis phải đoán brain theo cuộc trò chuyện vừa hoạt động gần nhất trên cả máy. Hậu quả: đang ở brain này mà một lệnh (ví dụ tạo đơn TTS Dropship) lại chạy ở brain khác, chỉ vì một kênh khác (Telegram, Zalo, việc chạy nền) vừa có tin nhắn. Nay brain đi kèm đúng từng lệnh, kể cả brain tên tiếng Việt có dấu.
+- **Chat bằng ChatGPT (Codex) nay gọi công cụ đúng brain đang mở.** Trước đây Jarvis 007 có gửi brain cho Codex nhưng ghi sai cách, nên Codex bỏ qua, và Jarvis 007 phải đoán brain theo cuộc trò chuyện vừa hoạt động gần nhất trên cả máy. Hậu quả: đang ở brain này mà một lệnh (ví dụ tạo đơn TTS Dropship) lại chạy ở brain khác, chỉ vì một kênh khác (Telegram, Zalo, việc chạy nền) vừa có tin nhắn. Nay brain đi kèm đúng từng lệnh, kể cả brain tên tiếng Việt có dấu.
 - Kênh Telegram dùng ChatGPT: đổi brain qua lại không còn làm lượt sau chạy nhầm brain cũ.
 
 ## [0.64.70] - 2026-09-27
 ### Cải thiện
-- **Cài hoặc cập nhật gói có mã không còn bắt gõ lại mã gói.** Khối cảnh báo đỏ "Gói này chạy Python thật trong máy chủ Javis" vẫn hiện đầy đủ kèm tên từng tệp mã, nút Huỷ vẫn được chọn sẵn, và gói có mã vẫn cài xong ở trạng thái tắt. Chỉ bỏ bước gõ tay.
+- **Cài hoặc cập nhật gói có mã không còn bắt gõ lại mã gói.** Khối cảnh báo đỏ "Gói này chạy Python thật trong máy chủ Jarvis 007" vẫn hiện đầy đủ kèm tên từng tệp mã, nút Huỷ vẫn được chọn sẵn, và gói có mã vẫn cài xong ở trạng thái tắt. Chỉ bỏ bước gõ tay.
 
 ## [0.64.69] - 2026-09-27
 ### Sửa lỗi
@@ -1449,7 +1449,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.57] - 2026-09-27
 ### Sửa lỗi
-- Tải lại Javis vẫn mở đúng cuộc hội thoại vừa xem, kể cả khi bộ não được nạp sau từ máy chủ.
+- Tải lại Jarvis 007 vẫn mở đúng cuộc hội thoại vừa xem, kể cả khi bộ não được nạp sau từ máy chủ.
 - Nhãn trong màn Trò chuyện hiển thị thành chữ thay vì mã dịch khi từ điển ngôn ngữ tải chậm.
 
 ## [0.64.56] - 2026-09-27
@@ -1458,8 +1458,8 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.55] - 2026-09-27
 ### Sửa lỗi
-- **Cập nhật được cả máy dùng nhánh code tùy chỉnh.** Javis lấy bản phát hành mới rồi hợp nhất vào nhánh đang chạy, giữ các commit riêng. Nếu hai phần sửa đụng nhau, Javis hủy lượt hợp nhất, nêu tên file xung đột và giữ bản sao sửa đổi cục bộ để khôi phục.
-- **Token Apify sai được báo ngay lúc kết nối.** Javis kiểm token với Apify trước khi lưu; nếu dịch vụ không phản hồi, form báo rõ để thử lại thay vì hiện kết nối xanh rồi hỏng ở lần quét đầu.
+- **Cập nhật được cả máy dùng nhánh code tùy chỉnh.** Jarvis 007 lấy bản phát hành mới rồi hợp nhất vào nhánh đang chạy, giữ các commit riêng. Nếu hai phần sửa đụng nhau, Jarvis 007 hủy lượt hợp nhất, nêu tên file xung đột và giữ bản sao sửa đổi cục bộ để khôi phục.
+- **Token Apify sai được báo ngay lúc kết nối.** Jarvis 007 kiểm token với Apify trước khi lưu; nếu dịch vụ không phản hồi, form báo rõ để thử lại thay vì hiện kết nối xanh rồi hỏng ở lần quét đầu.
 - **Đóng Đồ thị không còn có thể treo khi bộ theo dõi file dừng chậm.** Luồng WebSocket chờ dọn tài nguyên trong thời gian có giới hạn; test CI cũng báo lỗi khi không nhận được sự kiện thay vì chờ vô hạn.
 
 ## [0.64.54] - 2026-09-26
@@ -1468,17 +1468,17 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.53] - 2026-09-26
 ### Sửa lỗi
-- Lần đầu mở Javis vào Đồ thị. Lần sau quay về khung Trò chuyện hoặc Trợ lý dùng gần nhất, đúng cuộc hội thoại đang xem; các trang khác không thay đổi nơi quay lại.
-- Khắc phục trường hợp Claude đã báo trả lời xong nhưng khung chat vẫn chờ bản tổng kết mãi. Javis giữ lại câu trả lời và kết thúc lượt khi xác nhận không còn công cụ hay tác vụ phụ đang chạy.
+- Lần đầu mở Jarvis 007 vào Đồ thị. Lần sau quay về khung Trò chuyện hoặc Trợ lý dùng gần nhất, đúng cuộc hội thoại đang xem; các trang khác không thay đổi nơi quay lại.
+- Khắc phục trường hợp Claude đã báo trả lời xong nhưng khung chat vẫn chờ bản tổng kết mãi. Jarvis 007 giữ lại câu trả lời và kết thúc lượt khi xác nhận không còn công cụ hay tác vụ phụ đang chạy.
 
 ## [0.64.52] - 2026-09-26
 ### Sửa lỗi
-- Mở Javis lần đầu sẽ vào khung Trò chuyện. Những lần sau, Javis giữ đúng trang đang làm việc và cuộc hội thoại đang xem ở khung Trợ lý hoặc Trò chuyện trên cả điện thoại và máy tính.
+- Mở Jarvis 007 lần đầu sẽ vào khung Trò chuyện. Những lần sau, Jarvis 007 giữ đúng trang đang làm việc và cuộc hội thoại đang xem ở khung Trợ lý hoặc Trò chuyện trên cả điện thoại và máy tính.
 - Khi chuyển sang ứng dụng khác rồi quay lại, khung chat không tải lại nội dung nếu kết nối vẫn hoạt động.
 
 ## [0.64.51] - 2026-09-25
 ### Sửa lỗi
-- **Tải ảnh và tài liệu lên khung chat chạy lại bình thường.** Từ bản 0.64.43, mọi file đính kèm đều báo "lỗi mạng" dù mạng vẫn ổn. Lỗi nằm ở chính Javis (bộ canh mạng đứng gọi sai cách nên trình duyệt từ chối), không phải do mạng nhà anh. Nay đã sửa và thử trên trình duyệt thật.
+- **Tải ảnh và tài liệu lên khung chat chạy lại bình thường.** Từ bản 0.64.43, mọi file đính kèm đều báo "lỗi mạng" dù mạng vẫn ổn. Lỗi nằm ở chính Jarvis 007 (bộ canh mạng đứng gọi sai cách nên trình duyệt từ chối), không phải do mạng nhà anh. Nay đã sửa và thử trên trình duyệt thật.
 - Nếu sau này trình duyệt gặp lỗi lạ khi gửi file, chip sẽ ghi đúng lỗi đó thay vì đổ cho mạng.
 
 ## [0.64.50] - 2026-09-24
@@ -1487,15 +1487,15 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.49] - 2026-09-24
 ### Sửa lỗi
-- **Kết quả việc nền giao từ chat tự về đúng khung chat đang hỏi.** Trước đây nếu Javis quên ghi người nhận, kết quả rơi sang Telegram hoặc mất hút khi chưa đấu Telegram. Nay máy chủ tự nhận ra khung chat đang hỏi và gắn vào.
+- **Kết quả việc nền giao từ chat tự về đúng khung chat đang hỏi.** Trước đây nếu Jarvis 007 quên ghi người nhận, kết quả rơi sang Telegram hoặc mất hút khi chưa đấu Telegram. Nay máy chủ tự nhận ra khung chat đang hỏi và gắn vào.
 ### Cải thiện
 - **Kết quả vòng lặp và nhắc hẹn cũng hiện thành thẻ gọn** như việc nền: có icon, nhãn "Vòng lặp vừa chạy" hay "Nhắc hẹn", tên và nút mở trang Việc định kỳ. Telegram và hòm thư vẫn nhận nội dung đầy đủ như cũ.
 
 ## [0.64.48] - 2026-09-24
 ### Sửa lỗi
-- **Nói chuyện bằng giọng không còn tự đẻ việc ngầm lung tung.** Javis chỉ giao việc nền khi anh thật sự nhờ làm hoặc hỏi số liệu; nhắc tới chữ "việc", kể chuyện công việc hay bàn kế hoạch thì trả lời thẳng, không chắc thì hỏi lại một câu.
-- **Không giao trùng, không giao dồn.** Nhắc lại hay hỏi tiến độ một việc đang chạy thì Javis nói "việc này em đang làm rồi" thay vì giao thêm bản nữa; mỗi phiên nói chạy tối đa 3 việc nền cùng lúc.
-- **Câu hỏi thường không còn bị hiểu nhầm thành lệnh dừng.** Trước đây câu như "Thôi được rồi, quảng cáo đang chạy thế nào?" hay "tắt nhạc nền đi" bị nuốt mất và Javis đáp "không có việc nền nào".
+- **Nói chuyện bằng giọng không còn tự đẻ việc ngầm lung tung.** Jarvis 007 chỉ giao việc nền khi anh thật sự nhờ làm hoặc hỏi số liệu; nhắc tới chữ "việc", kể chuyện công việc hay bàn kế hoạch thì trả lời thẳng, không chắc thì hỏi lại một câu.
+- **Không giao trùng, không giao dồn.** Nhắc lại hay hỏi tiến độ một việc đang chạy thì Jarvis 007 nói "việc này em đang làm rồi" thay vì giao thêm bản nữa; mỗi phiên nói chạy tối đa 3 việc nền cùng lúc.
+- **Câu hỏi thường không còn bị hiểu nhầm thành lệnh dừng.** Trước đây câu như "Thôi được rồi, quảng cáo đang chạy thế nào?" hay "tắt nhạc nền đi" bị nuốt mất và Jarvis 007 đáp "không có việc nền nào".
 ### Cải thiện
 - **Kết quả việc nền hiện thành thẻ gọn** có icon trạng thái (xong, bị chặn, lỗi, quá giờ, đã dừng), tên việc và nút mở trang Việc; giữ nguyên đoạn văn, danh sách thay vì dính thành một khối chữ. Dòng "Đang làm nền" khi giao bằng giọng rõ hơn và mở lại hội thoại vẫn còn. Chữ ở dải việc nền cũng to lên cho dễ đọc trên điện thoại.
 
@@ -1503,11 +1503,11 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Cải thiện
 - **Thiết lập lần đầu chỉ cần tên đăng nhập và mật khẩu**, không còn phải đi tìm MÃ THIẾT LẬP trong log server. Bảo vệ tài khoản giờ giao cho 2FA: vào xong nên bật ngay.
 - Lưu ý khi dựng server công khai: lúc chưa có tài khoản, ai mở link trước sẽ tạo được admin. Cài bằng `install.sh` (đã hỏi tên và mật khẩu sẵn) hoặc tạo tài khoản ngay sau khi dựng là tránh được.
-- **Linh vật chính thức của Javis là ngôi sao cam.** Logo, favicon và icon app đổi sang ngôi sao cam mắt cười; linh vật mặc định cho người mới cũng là ngôi sao cam. Ai đã tự chọn hình và màu thì giữ nguyên lựa chọn của mình.
+- **Linh vật chính thức của Jarvis 007 là ngôi sao cam.** Logo, favicon và icon app đổi sang ngôi sao cam mắt cười; linh vật mặc định cho người mới cũng là ngôi sao cam. Ai đã tự chọn hình và màu thì giữ nguyên lựa chọn của mình.
 
 ## [0.64.46] - 2026-09-24
 ### Sửa lỗi
-- **iPhone: bấm tải file không còn làm kẹt cả app.** Ảnh trong chat mở ngay trong khung xem ảnh có nút Đóng; file khác (PDF, Word, zip...) mở ở lớp Safari nổi lên, xem hoặc lưu xong bấm Xong là quay lại Javis. Áp dụng cho mọi chỗ tải: chat, khung xem ảnh, trang Tệp tin, tải khối code.
+- **iPhone: bấm tải file không còn làm kẹt cả app.** Ảnh trong chat mở ngay trong khung xem ảnh có nút Đóng; file khác (PDF, Word, zip...) mở ở lớp Safari nổi lên, xem hoặc lưu xong bấm Xong là quay lại Jarvis 007. Áp dụng cho mọi chỗ tải: chat, khung xem ảnh, trang Tệp tin, tải khối code.
 - Dòng lệnh dài trong câu trả lời được giữ trong khung trên Safari iPhone: lệnh trong dòng chữ tự xuống dòng, khối lệnh cuộn ngang trong khối của nó.
 
 ## [0.64.45] - 2026-09-24
@@ -1521,7 +1521,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.43] - 2026-09-24
 ### Sửa lỗi
-- **Gửi ảnh hoặc file trong khung chat không còn quay mãi.** Mạng đứng quá 30 giây là Javis tự cắt và tự gửi lại (tối đa 2 lần), không bắt anh chờ đủ 3 phút như trước.
+- **Gửi ảnh hoặc file trong khung chat không còn quay mãi.** Mạng đứng quá 30 giây là Jarvis 007 tự cắt và tự gửi lại (tối đa 2 lần), không bắt anh chờ đủ 3 phút như trước.
 - **Chip file giờ hiện phần trăm đã gửi**, ví dụ "đang gửi 45% · 3/7 MB", rồi "máy chủ đang lưu". Nhìn là biết đang kẹt ở mạng nhà mình hay ở máy chủ.
 - **File tải hỏng có nút tải lại ngay trên chip**, bấm là gửi lại đúng file đó, không phải chọn lại. File to trên mạng chậm vẫn đi hết miễn là còn nhích.
 
@@ -1549,8 +1549,8 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.38] - 2026-09-24
 ### Sửa lỗi
-- **Javis lại hiểu lời nói theo ngữ cảnh.** Máy nghe chép sai từ gần âm ("David" thay cho Javis, "mô đồ" thay cho Models, "web kếch" thay cho Webcake) thì Javis hiểu đúng ý bạn định nói. Bản 0.64.32 lỡ tắt khả năng này.
-- Bong bóng chat hiện câu Javis đã hiểu, kèm chữ máy nghe được ở dòng nhỏ bên dưới để đối chiếu.
+- **Jarvis 007 lại hiểu lời nói theo ngữ cảnh.** Máy nghe chép sai từ gần âm ("David" thay cho Jarvis 007, "mô đồ" thay cho Models, "web kếch" thay cho Webcake) thì Jarvis 007 hiểu đúng ý bạn định nói. Bản 0.64.32 lỡ tắt khả năng này.
+- Bong bóng chat hiện câu Jarvis 007 đã hiểu, kèm chữ máy nghe được ở dòng nhỏ bên dưới để đối chiếu.
 - Vẫn giữ rào an toàn: không đổi số, câu phủ định, người nhận, không biến "vâng" thành tên "Vân". Câu nào không chắc thì giữ nguyên văn để bộ não chính tự hiểu.
 
 ## [0.64.37] - 2026-09-24
@@ -1560,9 +1560,9 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.36] - 2026-09-24
 ### Sửa lỗi
-- **Composio ở mức Chỉ đọc giờ đọc được dữ liệu thật** của các app đã nối (xem lịch, đọc mail, liệt kê file) và liệt kê được tài khoản đã nối. Trước đây Javis chỉ còn công cụ tìm kiếm của Composio nên không đọc nổi app nào.
-- Javis soi từng lệnh bên trong Composio: lệnh đọc chạy ngay, lệnh sửa, gửi, xoá vẫn cần **Toàn quyền**, và khi bị chặn Javis nói đúng lệnh nào bị chặn.
-- Javis thấy được danh sách app bạn đã nối trong Composio, không còn trả lời "chỉ có Google Calendar".
+- **Composio ở mức Chỉ đọc giờ đọc được dữ liệu thật** của các app đã nối (xem lịch, đọc mail, liệt kê file) và liệt kê được tài khoản đã nối. Trước đây Jarvis 007 chỉ còn công cụ tìm kiếm của Composio nên không đọc nổi app nào.
+- Jarvis 007 soi từng lệnh bên trong Composio: lệnh đọc chạy ngay, lệnh sửa, gửi, xoá vẫn cần **Toàn quyền**, và khi bị chặn Jarvis 007 nói đúng lệnh nào bị chặn.
+- Jarvis 007 thấy được danh sách app bạn đã nối trong Composio, không còn trả lời "chỉ có Google Calendar".
 
 ## [0.64.34] - 2026-09-24
 ### Cải thiện
@@ -1571,7 +1571,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.33] - 2026-09-24
 ### Sửa lỗi
-- Composio báo rõ khi key kết nối bị từ chối và chỉ đúng nơi lấy key dành cho Javis.
+- Composio báo rõ khi key kết nối bị từ chối và chỉ đúng nơi lấy key dành cho Jarvis 007.
 
 ## [0.64.32] - 2026-09-24
 ### Sửa lỗi
@@ -1584,17 +1584,17 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Cải thiện
 - **Thêm MCP tự đấu dễ hơn nhiều.** Dán nguyên cấu hình nhà cung cấp đưa (link, khối JSON, lệnh `claude mcp add` hoặc `npx`) là form tự điền. Với Composio, form tạo sẵn dòng `x-consumer-api-key`, chỉ việc dán key.
 - **API key nhập theo từng dòng** (tên header và giá trị, có nút hiện/ẩn), kèm gợi ý tên header hay gặp và lời nhắc khi Authorization thiếu chữ Bearer.
-- **Lưu xong Javis kiểm tra kết nối luôn** và báo có bao nhiêu công cụ. Sai thì sửa ngay trong form rồi bấm lại, không tạo bản trùng.
+- **Lưu xong Jarvis 007 kiểm tra kết nối luôn** và báo có bao nhiêu công cụ. Sai thì sửa ngay trong form rồi bấm lại, không tạo bản trùng.
 ### Sửa lỗi
 - **MCP tự thêm giờ sửa lại được**: menu của kết nối có mục **Sửa cấu hình** để đổi link, key, lệnh, xoá header thừa. Trước đây nút Kết nối lại chỉ báo "không có trường key để thay".
 
 ## [0.64.30] - 2026-09-24
 ### Cải thiện
-- Rê chuột lên link trong câu trả lời để xem địa chỉ đích trước khi mở, kể cả link đến tệp và ghi chú trong Javis.
+- Rê chuột lên link trong câu trả lời để xem địa chỉ đích trước khi mở, kể cả link đến tệp và ghi chú trong Jarvis 007.
 
 ## [0.64.28] - 2026-09-24
 ### Cải thiện
-- Thêm chế độ tập trung: bấm mic để nói ngay, gọi “Javis” để tiếp tục sau lúc chờ; hiện rõ lúc đang chờ được gọi.
+- Thêm chế độ tập trung: bấm mic để nói ngay, gọi “Jarvis 007” để tiếp tục sau lúc chờ; hiện rõ lúc đang chờ được gọi.
 - Chặn chữ nghe được trong lúc chờ trước khi gửi yêu cầu và ghi lịch sử. Live tạm đóng kết nối nghe nói khi chờ để tiếng nền không kích hoạt tác vụ.
 - Thay công tắc lọc tạp âm bằng lựa chọn tập trung rõ nghĩa; bỏ việc dùng bộ lọc chữ để đoán và cắt lời nói. Tiếng người hoặc TV xen vào lúc đang trao đổi vẫn phụ thuộc khả năng nhận dạng của trình duyệt.
 
@@ -1613,22 +1613,22 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.26] - 2026-09-24
 ### Thay đổi
-- **"Dùng Javis ngay trong ChatGPT" rời bản chính, thành một gói trong Javis Store.** Javis muốn mọi cuộc chat nằm chung một chỗ, nên tính năng đưa chat sang chatgpt.com không còn bật sẵn cho mọi người nữa.
-- **Ai vẫn cần thì cài gói "Javis trong ChatGPT"** ở Javis Store. Cài xong, bấm **Mở trang** trên thẻ plugin để lấy địa chỉ dán vào ChatGPT và chọn mức quyền. Kết nối cũ từ bản 0.64.21 phải nối lại một lần.
+- **"Dùng Jarvis 007 ngay trong ChatGPT" rời bản chính, thành một gói trong Jarvis 007 Store.** Jarvis 007 muốn mọi cuộc chat nằm chung một chỗ, nên tính năng đưa chat sang chatgpt.com không còn bật sẵn cho mọi người nữa.
+- **Ai vẫn cần thì cài gói "Jarvis 007 trong ChatGPT"** ở Jarvis 007 Store. Cài xong, bấm **Mở trang** trên thẻ plugin để lấy địa chỉ dán vào ChatGPT và chọn mức quyền. Kết nối cũ từ bản 0.64.21 phải nối lại một lần.
 ### Thêm mới
-- **Plugin có trang riêng.** Plugin khai trang thì thẻ của nó có nút **Mở trang**. Plugin cũng nhận được webhook từ dịch vụ bên ngoài, với rào an toàn do Javis giữ (phải đăng nhập mặc định, gỡ cookie ở đường công khai, plugin trong brain không có quyền này).
+- **Plugin có trang riêng.** Plugin khai trang thì thẻ của nó có nút **Mở trang**. Plugin cũng nhận được webhook từ dịch vụ bên ngoài, với rào an toàn do Jarvis 007 giữ (phải đăng nhập mặc định, gỡ cookie ở đường công khai, plugin trong brain không có quyền này).
 
 ## [0.64.25] - 2026-09-24
 ### Cải thiện
-- Menu, biểu mẫu và chữ giao diện dùng Be Vietnam Pro; chữ thương hiệu JAVIS vẫn dùng Montserrat, mã giữ font monospace.
-- Câu trả lời có dòng ngắn hơn, tiêu đề rõ hơn và chữ in đậm không còn đồng loạt tô cam. Hướng dẫn Javis nêu kết luận trước, đưa bằng chứng sau và không lặp nhật ký công cụ trong đáp án cuối.
+- Menu, biểu mẫu và chữ giao diện dùng Be Vietnam Pro; chữ thương hiệu JARVIS 007 vẫn dùng Montserrat, mã giữ font monospace.
+- Câu trả lời có dòng ngắn hơn, tiêu đề rõ hơn và chữ in đậm không còn đồng loạt tô cam. Hướng dẫn Jarvis 007 nêu kết luận trước, đưa bằng chứng sau và không lặp nhật ký công cụ trong đáp án cuối.
 
 ## [0.64.24] - 2026-09-24
 ### Sửa lỗi
 - Hội thoại bằng giọng không còn mất phần câu đã nghe khi trình duyệt tự mở lại phiên nhận dạng.
-- Bản ghi Groq bị cụt không ghi đè câu đầy đủ từ trình duyệt; gọi riêng "Javis" được chờ thêm để nghe tiếp yêu cầu.
+- Bản ghi Groq bị cụt không ghi đè câu đầy đủ từ trình duyệt; gọi riêng "Jarvis 007" được chờ thêm để nghe tiếp yêu cầu.
 ### Cải thiện
-- Tiếng Việt là ngôn ngữ dự phòng khi nhận dạng đa ngôn ngữ, và Javis xin nhắc lại bằng tiếng Việt nếu âm thanh mơ hồ thành câu pha tiếng lạ.
+- Tiếng Việt là ngôn ngữ dự phòng khi nhận dạng đa ngôn ngữ, và Jarvis 007 xin nhắc lại bằng tiếng Việt nếu âm thanh mơ hồ thành câu pha tiếng lạ.
 
 ## [0.64.23] - 2026-09-24
 ### Sửa lỗi
@@ -1638,17 +1638,17 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.21] - 2026-09-23
 ### Thêm mới
-- **Dùng Javis ngay trong ChatGPT.** Chat trên chatgpt.com bằng gói của bạn, và ChatGPT tự gọi công cụ của Javis: xem số liệu, đọc brain, tạo nhắc lịch, gửi Zalo. Phần suy nghĩ không tốn hạn mức Codex.
+- **Dùng Jarvis 007 ngay trong ChatGPT.** Chat trên chatgpt.com bằng gói của bạn, và ChatGPT tự gọi công cụ của Jarvis 007: xem số liệu, đọc brain, tạo nhắc lịch, gửi Zalo. Phần suy nghĩ không tốn hạn mức Codex.
 - Bật ở thẻ **ChatGPT** trên trang Models, chép địa chỉ rồi dán vào ChatGPT. Hướng dẫn từng bước có link ngay trên thẻ.
 - **Bạn giữ quyền:** chọn mức Toàn quyền, Tự làm có giới hạn, hoặc Chỉ đọc; đổi là có hiệu lực ngay. Nút **Ngắt mọi kết nối** cắt hết trong một lần bấm.
-- Cần gói ChatGPT trả phí, máy tính để cài lần đầu, và Javis có tên miền https.
+- Cần gói ChatGPT trả phí, máy tính để cài lần đầu, và Jarvis 007 có tên miền https.
 
 ## [0.64.20] - 2026-09-23
 ### Thay đổi
 - **Gỡ model ChatGPT Web.** Nó lái một trình duyệt vào chatgpt.com, mà trên máy chủ thuê thì trang đó chặn theo địa chỉ IP, nên không chạy được. Đã đối chiếu hai dự án khác làm cùng việc: cả hai đều phải chạy trình duyệt trên máy tính ở nhà.
 - **Ai đang chọn ChatGPT Web thì lượt chat kế tiếp tự chuyển sang model ChatGPT qua Codex**, kèm một dòng báo. Không phải làm gì thêm.
-- **Trang Công cụ bỏ mục "Thư viện lái trình duyệt"**, và Javis tự dọn chừng 140 MB nó từng cài. Mục Trình duyệt vẫn giữ cho kết nối Playwright.
-- Bản sau sẽ làm hướng ngược lại: bạn chat trên ChatGPT, và ChatGPT tự gọi công cụ của Javis.
+- **Trang Công cụ bỏ mục "Thư viện lái trình duyệt"**, và Jarvis 007 tự dọn chừng 140 MB nó từng cài. Mục Trình duyệt vẫn giữ cho kết nối Playwright.
+- Bản sau sẽ làm hướng ngược lại: bạn chat trên ChatGPT, và ChatGPT tự gọi công cụ của Jarvis 007.
 
 ## [0.64.19] - 2026-09-23
 ### Sửa lỗi
@@ -1658,30 +1658,30 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.18] - 2026-09-23
 ### Sửa lỗi
-- **Trình duyệt ChatGPT Web hết tự khai mình là máy tự động.** Javis vẫn tải bản Chromium rút gọn và chạy ẩn, nên trang chatgpt.com nhìn phát ra ngay: User-Agent ghi `HeadlessChrome`, không có plugin nào. Nay tải bản đầy đủ và chạy có cửa sổ trên một màn hình ảo, nên nó khai `Chrome` như một máy bình thường.
+- **Trình duyệt ChatGPT Web hết tự khai mình là máy tự động.** Jarvis 007 vẫn tải bản Chromium rút gọn và chạy ẩn, nên trang chatgpt.com nhìn phát ra ngay: User-Agent ghi `HeadlessChrome`, không có plugin nào. Nay tải bản đầy đủ và chạy có cửa sổ trên một màn hình ảo, nên nó khai `Chrome` như một máy bình thường.
 ### Thay đổi
 - **Nút tải trình duyệt nặng thêm chừng 70MB** vì đổi sang bản đầy đủ. Bản rút gọn nhẹ hơn nhưng không bao giờ qua nổi cửa kiểm tra, nên nhẹ mà vô dụng.
-- **Khi vẫn kẹt ở Cloudflare, Javis nói thẳng là bí và chỉ đường khác** thay vì bảo bạn bấm "Kiểm tra lại" mãi. Trên máy chủ thuê thì cửa đó xét địa chỉ IP, bấm thêm không đổi gì.
+- **Khi vẫn kẹt ở Cloudflare, Jarvis 007 nói thẳng là bí và chỉ đường khác** thay vì bảo bạn bấm "Kiểm tra lại" mãi. Trên máy chủ thuê thì cửa đó xét địa chỉ IP, bấm thêm không đổi gì.
 
 ## [0.64.17] - 2026-09-23
 ### Sửa lỗi
-- **Tài khoản ChatGPT gói Team dán cookie không vào được.** Cookie của các tài khoản này quá dài nên trình duyệt tự cắt làm hai dòng `.0` và `.1`, mà Javis chỉ nhận đúng một cái tên duy nhất. Nay nhận cả hai dòng đó.
-- **Dán nửa cookie không còn âm thầm trôi qua.** Trước đây copy thiếu một nửa thì Javis vẫn nhận rồi báo "chưa đăng nhập", không ai đoán ra thiếu ở đâu. Nay nó nói thẳng là còn thiếu mảnh nào.
-- Nối hai nửa lại thành một chuỗi rồi dán cũng được: Javis tự cắt lại cho vừa giới hạn của trình duyệt.
+- **Tài khoản ChatGPT gói Team dán cookie không vào được.** Cookie của các tài khoản này quá dài nên trình duyệt tự cắt làm hai dòng `.0` và `.1`, mà Jarvis 007 chỉ nhận đúng một cái tên duy nhất. Nay nhận cả hai dòng đó.
+- **Dán nửa cookie không còn âm thầm trôi qua.** Trước đây copy thiếu một nửa thì Jarvis 007 vẫn nhận rồi báo "chưa đăng nhập", không ai đoán ra thiếu ở đâu. Nay nó nói thẳng là còn thiếu mảnh nào.
+- Nối hai nửa lại thành một chuỗi rồi dán cũng được: Jarvis 007 tự cắt lại cho vừa giới hạn của trình duyệt.
 
 ## [0.64.16] - 2026-09-23
 ### Sửa lỗi
 - **Đổi trợ lý giữa lúc trợ lý khác đang trả lời thì màn hình đứng yên.** Vài việc chạy ngầm (kiểm tra đăng nhập Antigravity, dò lại danh sách công cụ MCP) chiếm luồng chính của máy chủ, nên mọi thao tác khác phải xếp hàng chờ. Nay các việc đó chạy riêng, bấm sang trợ lý khác là đổi ngay.
-- **Lượt chat trên Antigravity CLI có lúc treo tới khi bị cắt** vì Javis đọc log lỗi của `agy` quá muộn. Nay đọc song song.
+- **Lượt chat trên Antigravity CLI có lúc treo tới khi bị cắt** vì Jarvis 007 đọc log lỗi của `agy` quá muộn. Nay đọc song song.
 
 ## [0.64.15] - 2026-09-23
 ### Thay đổi
-- **Bỏ dải "VỪA GỌI" chữ xanh lá cạnh ô chọn model.** Từng bước Javis gọi tool giờ đã hiện ngay trong khung chat, nên dải này chỉ lặp lại thứ bạn vừa thấy và chiếm chỗ.
+- **Bỏ dải "VỪA GỌI" chữ xanh lá cạnh ô chọn model.** Từng bước Jarvis 007 gọi tool giờ đã hiện ngay trong khung chat, nên dải này chỉ lặp lại thứ bạn vừa thấy và chiếm chỗ.
 
 ## [0.64.14] - 2026-09-23
 ### Sửa lỗi
-- **Dán cookie ChatGPT xong bị báo "cookie hết hạn" dù trên máy vẫn chat bình thường.** Javis chỉ chờ 3 giây rồi kết luận, mà chatgpt.com là trang nặng, thường chưa vẽ xong trong từng đó. Nay chờ tới 45 giây và chờ ĐÚNG thứ cần chờ.
-- **Và khi vẫn không xong, Javis nói nó thấy gì** thay vì đổ lỗi cho cookie: trang đang dừng ở đâu, tiêu đề là gì, có phải đang mắc ở cửa kiểm tra Cloudflare không. Ba tình huống khác hẳn nhau trước đây gộp chung một câu.
+- **Dán cookie ChatGPT xong bị báo "cookie hết hạn" dù trên máy vẫn chat bình thường.** Jarvis 007 chỉ chờ 3 giây rồi kết luận, mà chatgpt.com là trang nặng, thường chưa vẽ xong trong từng đó. Nay chờ tới 45 giây và chờ ĐÚNG thứ cần chờ.
+- **Và khi vẫn không xong, Jarvis 007 nói nó thấy gì** thay vì đổ lỗi cho cookie: trang đang dừng ở đâu, tiêu đề là gì, có phải đang mắc ở cửa kiểm tra Cloudflare không. Ba tình huống khác hẳn nhau trước đây gộp chung một câu.
 
 ## [0.64.13] - 2026-09-23
 ### Sửa lỗi
@@ -1694,31 +1694,31 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Thay đổi
 - **Bỏ màn đăng nhập ChatGPT bằng chụp màn hình.** Nó chỉ hiện ra khi máy đã cài đủ trình duyệt, mà đúng lúc cần nhất thì lại không bấm được. Giờ chỉ còn một đường duy nhất: dán cookie.
 - **Ô dán cookie luôn hiện**, kể cả khi máy chưa tải trình duyệt, kèm câu nói rõ còn thiếu gì. Trước đây nó bị giấu cùng lúc với nút đăng nhập nên người dùng không thấy đường nào cả.
-- Ít đi một đường mở trình duyệt trên máy chủ, nên mật khẩu không còn cách nào đi qua máy chủ Javis nữa.
+- Ít đi một đường mở trình duyệt trên máy chủ, nên mật khẩu không còn cách nào đi qua máy chủ Jarvis 007 nữa.
 
 ## [0.64.11] - 2026-09-22
 ### Thêm mới
-- **Đăng nhập ChatGPT Web bằng cách dán cookie.** Mở chatgpt.com trên máy bạn, copy một giá trị cookie, dán vào ô trong thẻ ChatGPT. Không phải gõ mật khẩu trong khung đăng nhập nữa, nên mật khẩu cũng không đi qua máy chủ Javis.
-- Nhận cả ba kiểu dán: chỉ mỗi giá trị token, cả chuỗi `tên=giá trị; ...`, hoặc file JSON xuất từ tiện ích cookie. Javis tự bỏ những cookie không mang sang máy khác được.
+- **Đăng nhập ChatGPT Web bằng cách dán cookie.** Mở chatgpt.com trên máy bạn, copy một giá trị cookie, dán vào ô trong thẻ ChatGPT. Không phải gõ mật khẩu trong khung đăng nhập nữa, nên mật khẩu cũng không đi qua máy chủ Jarvis 007.
+- Nhận cả ba kiểu dán: chỉ mỗi giá trị token, cả chuỗi `tên=giá trị; ...`, hoặc file JSON xuất từ tiện ích cookie. Jarvis 007 tự bỏ những cookie không mang sang máy khác được.
 - Màn đăng nhập cũ vẫn còn nguyên cho ai thích bấm tay.
 
 ## [0.64.10] - 2026-09-22
 ### Sửa lỗi
-- **Vẫn không thấy nút Đăng nhập ChatGPT dù đã tải trình duyệt.** Javis tìm file chạy theo đường dẫn gõ cứng, mà bố cục thư mục của Chromium khác nhau tuỳ bản tải và tuỳ loại máy (máy ARM để ở chỗ khác). Nay Javis quét tìm file chạy thay vì đoán đường dẫn.
+- **Vẫn không thấy nút Đăng nhập ChatGPT dù đã tải trình duyệt.** Jarvis 007 tìm file chạy theo đường dẫn gõ cứng, mà bố cục thư mục của Chromium khác nhau tuỳ bản tải và tuỳ loại máy (máy ARM để ở chỗ khác). Nay Jarvis 007 quét tìm file chạy thay vì đoán đường dẫn.
 - **Câu báo "chưa có trình duyệt" nay nói luôn nó đã tìm ở đâu và thấy gì.** Trước đây gặp câu đó thì không ai biết làm gì tiếp, kể cả người viết ra nó.
 
 ## [0.64.9] - 2026-09-22
 ### Sửa lỗi
-- **Trang Công cụ báo "Sẵn sàng" mà thẻ ChatGPT vẫn kêu thiếu trình duyệt.** Javis tải Chromium về thành hai thư mục, và nó chỉ biết tìm file chạy trong một thư mục. Rơi vào thư mục kia là tải xong vẫn báo chưa có gì, nên nút **Đăng nhập ChatGPT** không bao giờ hiện ra.
+- **Trang Công cụ báo "Sẵn sàng" mà thẻ ChatGPT vẫn kêu thiếu trình duyệt.** Jarvis 007 tải Chromium về thành hai thư mục, và nó chỉ biết tìm file chạy trong một thư mục. Rơi vào thư mục kia là tải xong vẫn báo chưa có gì, nên nút **Đăng nhập ChatGPT** không bao giờ hiện ra.
 - Nay hai trang hỏi chung đúng một chỗ, nên không còn cảnh một bên báo xong một bên báo thiếu.
-- **Tải trình duyệt xong là thẻ ChatGPT nhận ra ngay**, không phải khởi động lại Javis mới thấy.
+- **Tải trình duyệt xong là thẻ ChatGPT nhận ra ngay**, không phải khởi động lại Jarvis 007 mới thấy.
 
 ## [0.64.8] - 2026-09-22
 ### Thêm mới
-- **Trang Công cụ có thêm mục "Thư viện lái trình duyệt".** Đây là thứ model **ChatGPT Web** cần. Bấm một nút là Javis tự tải về, khỏi mở terminal gõ lệnh. Tải xong nhớ khởi động lại Javis thì model mới hiện trong ô chọn model.
-- Cài **theo yêu cầu** nên bản cài mặc định không nặng thêm một byte nào: gói này khoảng 143 MB mà phần lớn máy không dùng tới. Gỡ cũng bằng một nút, và chỉ gỡ đúng bản Javis tải, không đụng gì khác trên máy.
+- **Trang Công cụ có thêm mục "Thư viện lái trình duyệt".** Đây là thứ model **ChatGPT Web** cần. Bấm một nút là Jarvis 007 tự tải về, khỏi mở terminal gõ lệnh. Tải xong nhớ khởi động lại Jarvis 007 thì model mới hiện trong ô chọn model.
+- Cài **theo yêu cầu** nên bản cài mặc định không nặng thêm một byte nào: gói này khoảng 143 MB mà phần lớn máy không dùng tới. Gỡ cũng bằng một nút, và chỉ gỡ đúng bản Jarvis 007 tải, không đụng gì khác trên máy.
 - Cả hai mục ở trang Công cụ đều tải vào ổ dữ liệu nên **sống qua mỗi lần cập nhật**, không phải tải lại.
-- **Đăng nhập ChatGPT ngay trong Javis, không cần máy chủ có màn hình.** Bấm Đăng nhập ở thẻ ChatGPT là trang ChatGPT hiện ra ngay trong dashboard: bấm và gõ như đang dùng trình duyệt bình thường, xong khung tự đóng. Nhờ vậy model **ChatGPT Web** dùng được cả trên VPS.
+- **Đăng nhập ChatGPT ngay trong Jarvis 007, không cần máy chủ có màn hình.** Bấm Đăng nhập ở thẻ ChatGPT là trang ChatGPT hiện ra ngay trong dashboard: bấm và gõ như đang dùng trình duyệt bình thường, xong khung tự đóng. Nhờ vậy model **ChatGPT Web** dùng được cả trên VPS.
 ### Sửa lỗi
 - **Engine ChatGPT Web không còn hỏng khi hai việc chạy chồng nhau.** Trước đây mở trang và gửi tin cùng lúc có thể làm lượt chat chết giữa chừng. Nay mọi thao tác trình duyệt đi qua một hàng đợi duy nhất.
 
@@ -1735,7 +1735,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 - **Dựng máy mới không còn hàng chục biến môi trường đỏ.** File mẫu `env.example` trước đây có gần trăm dòng chú thích. Các nền tảng deploy tự quét file này rồi cắt mọi dòng có dấu `=` thành một biến, nên mỗi dòng chú thích hoá ra một biến tên `#` và bảng Environment đỏ rực, chặn luôn nút triển khai. Nay file mẫu chỉ còn bốn dòng `TÊN=giá trị`, không một dòng chú thích nào.
 - Phần giải thích từng biến **không mất đi**, nó nằm ở trang **Cấu hình .env** trong tài liệu, đầy đủ hơn khối chú thích cũ. Ai đã lỡ dính thì xoá hết các dòng có dấu `#` trong ô Environment một lần là sạch.
 ### Cải thiện
-- **Model ChatGPT Web tự hiện ra khi máy dùng được, khỏi khai báo gì.** Bản trước bắt đặt tay một biến môi trường mới thấy model, mà biến đó không tự tạo ra được trình duyệt, nên máy thiếu đồ vẫn bày model ra rồi hỏng lúc chọn. Nay Javis tự dò: đủ đồ thì model nằm sẵn trong ô chọn, thiếu thì thẻ ChatGPT ở trang Models nói rõ thiếu gì và bấm ở đâu.
+- **Model ChatGPT Web tự hiện ra khi máy dùng được, khỏi khai báo gì.** Bản trước bắt đặt tay một biến môi trường mới thấy model, mà biến đó không tự tạo ra được trình duyệt, nên máy thiếu đồ vẫn bày model ra rồi hỏng lúc chọn. Nay Jarvis 007 tự dò: đủ đồ thì model nằm sẵn trong ô chọn, thiếu thì thẻ ChatGPT ở trang Models nói rõ thiếu gì và bấm ở đâu.
 
 ## [0.64.5] - 2026-09-22
 ### Cải thiện
@@ -1745,7 +1745,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.64.3] - 2026-09-22
 ### Sửa lỗi
 - **Mở trang Cộng sự nhanh hơn nhiều lần.** Danh sách trợ lý đang kéo theo cả bài prompt hệ thống của từng người: đo trên một bộ não 14 trợ lý là **366 KB** cho một thứ chỉ hiện tên và vai trò. Nay còn **2,9 KB**. Đây là chỗ làm cột trái trống trơn mấy giây mỗi lần mở trang từ menu linh vật.
-- Bài prompt vẫn lấy đủ, nhưng chỉ cho đúng trợ lý bạn đang mở trong ô sửa. Nếu lần lấy đó hỏng, Javis báo lỗi kèm nút thử lại thay vì mở ô trống (mở trống rồi bấm Lưu là mất bài prompt thật).
+- Bài prompt vẫn lấy đủ, nhưng chỉ cho đúng trợ lý bạn đang mở trong ô sửa. Nếu lần lấy đó hỏng, Jarvis 007 báo lỗi kèm nút thử lại thay vì mở ô trống (mở trống rồi bấm Lưu là mất bài prompt thật).
 - Ô chọn trợ lý trong Chatbot, lưới thẻ trong Studio và ô chọn từng bước của quy trình cũng nhẹ theo.
 
 ## [0.64.2] - 2026-09-22
@@ -1756,38 +1756,38 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.64.1] - 2026-09-22
 ### Sửa lỗi
-- **Đổi bộ não khi đang ở trang Cộng sự không còn trắng màn.** Mỗi lần đổi não, Javis nạp lại cả quả cầu tri thức của màn chính dù bạn đang nhìn trang khác, và việc đó khoá màn hình vài giây. Nay nó chờ tới lúc bạn quay về màn chính mới nạp.
+- **Đổi bộ não khi đang ở trang Cộng sự không còn trắng màn.** Mỗi lần đổi não, Jarvis 007 nạp lại cả quả cầu tri thức của màn chính dù bạn đang nhìn trang khác, và việc đó khoá màn hình vài giây. Nay nó chờ tới lúc bạn quay về màn chính mới nạp.
 - **Khung chat giữa trang Cộng sự không còn hiện hội thoại của não cũ.** Đổi não xong, khung chat mở đúng hội thoại của trợ lý đang chọn trong não mới.
 - **Chọn trợ lý khác nhanh hơn hẳn.** Bảng cài đặt bên phải không còn hỏi lại máy chủ danh sách kỹ năng và cấu hình model sau mỗi cú bấm.
 - Chọn một thư mục ngoài làm bộ não giờ cũng làm mới cả trang: trước đây chỉ quả cầu đổi, còn danh sách trợ lý và cây thư mục vẫn của não trước.
 
 ## [0.64.0] - 2026-09-22
 ### Thêm mới
-- **Thêm model `chatgpt-web` trong thẻ ChatGPT.** Chọn nó ở ô chọn model là Javis chạy bằng phiên ChatGPT trong trình duyệt của bạn, không tiêu lượt Codex. Vẫn gọi được tool, đọc ghi file trong bộ não, đặt lịch, chạy skill như mọi bộ não khác.
+- **Thêm model `chatgpt-web` trong thẻ ChatGPT.** Chọn nó ở ô chọn model là Jarvis 007 chạy bằng phiên ChatGPT trong trình duyệt của bạn, không tiêu lượt Codex. Vẫn gọi được tool, đọc ghi file trong bộ não, đặt lịch, chạy skill như mọi bộ não khác.
 - Cần bật một lần bằng biến môi trường `JAVIS_ENABLE_WEB_CHAT=true` rồi khởi động lại. Chưa bật thì model này không hiện ra, và mọi thứ khác chạy y như cũ.
-- Trang **Models**, trong thẻ ChatGPT, có thêm nút mở cửa sổ đăng nhập, nút kiểm tra lại và nút đóng trình duyệt. Javis không cầm mật khẩu của bạn: bạn tự đăng nhập một lần trong cửa sổ đó.
-- Lưu ý khi dùng: mỗi lượt là một cuộc chat thật trên chatgpt.com, nên **Memory** và **Custom instructions** của tài khoản sẽ ảnh hưởng câu trả lời. Muốn Javis trả lời thuần theo prompt của mình thì tắt hai thứ đó trong cài đặt ChatGPT. Mỗi vòng gọi tool cũng mất vài chục giây, nên việc nhiều bước vẫn nên để Codex.
+- Trang **Models**, trong thẻ ChatGPT, có thêm nút mở cửa sổ đăng nhập, nút kiểm tra lại và nút đóng trình duyệt. Jarvis 007 không cầm mật khẩu của bạn: bạn tự đăng nhập một lần trong cửa sổ đó.
+- Lưu ý khi dùng: mỗi lượt là một cuộc chat thật trên chatgpt.com, nên **Memory** và **Custom instructions** của tài khoản sẽ ảnh hưởng câu trả lời. Muốn Jarvis 007 trả lời thuần theo prompt của mình thì tắt hai thứ đó trong cài đặt ChatGPT. Mỗi vòng gọi tool cũng mất vài chục giây, nên việc nhiều bước vẫn nên để Codex.
 ## [0.63.10] - 2026-09-22
 ### Sửa lỗi
-- **Bộ não Antigravity giờ cũng hiện tiến trình.** Khối "Đã chạy N bước" thêm ở bản trước không bao giờ xuất hiện khi chạy Antigravity, kể cả lúc nó gọi công cụ thật. Lý do: `agy` báo việc nó làm theo một khuôn mà Javis đọc sót, nên mọi lần gọi công cụ rơi vào hư không.
-- Kèm theo đó, Javis nay biết lượt Antigravity đã chạy lệnh ngoài hay chưa. Trước đây gặp lỗi mạng tạm thời nó có thể chạy lại cả lượt và làm lần hai những việc đã làm rồi.
+- **Bộ não Antigravity giờ cũng hiện tiến trình.** Khối "Đã chạy N bước" thêm ở bản trước không bao giờ xuất hiện khi chạy Antigravity, kể cả lúc nó gọi công cụ thật. Lý do: `agy` báo việc nó làm theo một khuôn mà Jarvis 007 đọc sót, nên mọi lần gọi công cụ rơi vào hư không.
+- Kèm theo đó, Jarvis 007 nay biết lượt Antigravity đã chạy lệnh ngoài hay chưa. Trước đây gặp lỗi mạng tạm thời nó có thể chạy lại cả lượt và làm lần hai những việc đã làm rồi.
 
 ## [0.63.9] - 2026-09-22
 ### Thêm mới
 - **Một việc trong mục Coding giờ gắn được NHIỀU thư mục.** Bấm chip thư mục rồi tích chọn bao nhiêu cái tuỳ ý, menu không đóng giữa chừng nên chọn liền mấy cái một lúc. Hợp với việc đụng cả mã nguồn lẫn tài liệu, hay app với thư viện dùng chung.
-- Thư mục **đầu danh sách là thư mục chính**: Javis đứng ở đó và mọi thao tác git chạy ở đó. Các thư mục còn lại Javis vẫn đọc và sửa được bằng đường dẫn đầy đủ. Bỏ tích cái chính thì cái kế tiếp lên thay.
+- Thư mục **đầu danh sách là thư mục chính**: Jarvis 007 đứng ở đó và mọi thao tác git chạy ở đó. Các thư mục còn lại Jarvis 007 vẫn đọc và sửa được bằng đường dẫn đầy đủ. Bỏ tích cái chính thì cái kế tiếp lên thay.
 ### Sửa lỗi
 - **Chữ xanh nhạt trong menu thư mục và menu mức quyền giờ đọc được.** Nó đang lấy màu viền làm màu chữ nên mờ gần như tàng hình.
 - Bỏ dòng giải thích dài ở chân hộp thêm thư mục.
 
 ## [0.63.8] - 2026-09-22
 ### Thêm mới
-- **Đợi lâu không còn mù tịt.** Khi Javis phải gọi nhiều công cụ để trả lời, khung chat giờ liệt kê từng bước ngay trên câu trả lời thay vì chỉ một dòng nhấp nháy rồi mất. Trả lời xong, danh sách tự gấp thành một dòng `Đã chạy 6 bước`, bấm vào là bung ra xem lại.
-- Danh sách bước sống qua F5, nên tải lại trang vẫn đối chiếu được Javis đã làm những gì. Lượt trả lời thẳng, không gọi công cụ nào thì không mọc thêm dòng nào cả.
+- **Đợi lâu không còn mù tịt.** Khi Jarvis 007 phải gọi nhiều công cụ để trả lời, khung chat giờ liệt kê từng bước ngay trên câu trả lời thay vì chỉ một dòng nhấp nháy rồi mất. Trả lời xong, danh sách tự gấp thành một dòng `Đã chạy 6 bước`, bấm vào là bung ra xem lại.
+- Danh sách bước sống qua F5, nên tải lại trang vẫn đối chiếu được Jarvis 007 đã làm những gì. Lượt trả lời thẳng, không gọi công cụ nào thì không mọc thêm dòng nào cả.
 
 ## [0.63.7] - 2026-09-22
 ### Cải thiện
-- **Máy yếu bớt đơ hẳn khi mở màn chính.** Quả cầu não trước đây vẽ lại liên tục cả khi không có gì chuyển động, đốt CPU suốt ngày dù bạn chỉ ngồi nhìn. Nay nó đứng yên lúc rảnh và sống lại ngay khi bạn nói, khi Javis đang nghĩ, hoặc khi bạn rê chuột vào nó.
+- **Máy yếu bớt đơ hẳn khi mở màn chính.** Quả cầu não trước đây vẽ lại liên tục cả khi không có gì chuyển động, đốt CPU suốt ngày dù bạn chỉ ngồi nhìn. Nay nó đứng yên lúc rảnh và sống lại ngay khi bạn nói, khi Jarvis 007 đang nghĩ, hoặc khi bạn rê chuột vào nó.
 - Đo trên một bộ não 844 note: lúc không ai đụng vào gì, màn chính giảm từ **34% xuống 19,7%** một nhân CPU. Não càng nhiều note thì càng đỡ được nhiều.
 - Hiệu ứng thở và hiệu ứng rọi sáng khi trỏ vào một chấm vẫn nguyên, chỉ tắt trong lúc bạn không tương tác.
 
@@ -1813,33 +1813,33 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.63.3] - 2026-09-22
 ### Sửa lỗi
 - **Chat qua Antigravity bớt cảnh trả lời nhầm câu hỏi cũ.** Gói lịch sử hội thoại gửi kèm mỗi lượt đang dài quá mức, nên khi phải đi đường file thì model hay đọc được nửa đầu rồi trả lời một câu đã hỏi từ lâu. Nay gói này gọn lại, vẫn giữ phần hội thoại gần nhất.
-- **Skill thứ 21 trở đi không còn bị Javis bỏ quên.** Brain nào có nhiều skill thì trước đây Javis chỉ nhìn thấy 20 cái đầu theo bảng chữ cái, những cái tên vần sau coi như không tồn tại. Nay Javis nhìn thấy nhiều hơn, và ưu tiên đúng những skill bạn hay dùng.
-- **Plugin chặn được một hành động sai trước khi nó xảy ra.** Phần mở rộng của Javis vốn chỉ đứng nhìn rồi ghi sổ; nay nó dừng được một lời gọi sai và nói rõ lý do. Plugin viết hỏng thì Javis vẫn chạy bình thường chứ không đứng im.
+- **Skill thứ 21 trở đi không còn bị Jarvis 007 bỏ quên.** Brain nào có nhiều skill thì trước đây Jarvis 007 chỉ nhìn thấy 20 cái đầu theo bảng chữ cái, những cái tên vần sau coi như không tồn tại. Nay Jarvis 007 nhìn thấy nhiều hơn, và ưu tiên đúng những skill bạn hay dùng.
+- **Plugin chặn được một hành động sai trước khi nó xảy ra.** Phần mở rộng của Jarvis 007 vốn chỉ đứng nhìn rồi ghi sổ; nay nó dừng được một lời gọi sai và nói rõ lý do. Plugin viết hỏng thì Jarvis 007 vẫn chạy bình thường chứ không đứng im.
 
 ## [0.63.2] - 2026-09-22
 ### Cải thiện
 - **Cột trái của mục Coding giờ là đúng cột hội thoại bên Trò chuyện**: có tab Hội thoại và Thư mục, ô tìm, ghim, gom nhóm, chia theo ngày, đổi tên, xoá. Không còn một danh sách rút gọn riêng nữa.
-- **Thêm chế độ Plan.** Ba chế độ đọc là Plan, Tự động, Toàn quyền, mỗi cái có một dòng nói rõ nó cho làm gì. Plan không chỉ khoá việc sửa file mà còn bảo Javis đọc mã rồi trả về một kế hoạch để bạn duyệt.
-- Javis giờ được nói rõ trong mỗi lượt là nó đang đứng ở thư mục nào và nhánh nào, nên bớt hẳn chuyện đoán nhầm đường dẫn.
+- **Thêm chế độ Plan.** Ba chế độ đọc là Plan, Tự động, Toàn quyền, mỗi cái có một dòng nói rõ nó cho làm gì. Plan không chỉ khoá việc sửa file mà còn bảo Jarvis 007 đọc mã rồi trả về một kế hoạch để bạn duyệt.
+- Jarvis 007 giờ được nói rõ trong mỗi lượt là nó đang đứng ở thư mục nào và nhánh nào, nên bớt hẳn chuyện đoán nhầm đường dẫn.
 
 ## [0.63.1] - 2026-09-22
 ### Cải thiện
-- **Mục Coding: vào là nhắn được ngay.** Bản trước chặn bằng màn "Chưa có repo nào", phải khai một repo mới gõ được câu đầu tiên. Nay mở trang là có sẵn một việc, gắn thư mục lúc nào cũng được; chưa gắn thì Javis làm trong bộ não như mọi cuộc trò chuyện khác.
-- **Thêm THƯ MỤC, không bắt phải là repo git.** Thư mục script, thư mục tài liệu, dự án mới tinh đều dùng được. Có git thì Javis tự nhận ra và mở thêm nhánh, worktree, điểm hồi; không có thì ba thứ đó ẩn đi chứ không báo lỗi.
+- **Mục Coding: vào là nhắn được ngay.** Bản trước chặn bằng màn "Chưa có repo nào", phải khai một repo mới gõ được câu đầu tiên. Nay mở trang là có sẵn một việc, gắn thư mục lúc nào cũng được; chưa gắn thì Jarvis 007 làm trong bộ não như mọi cuộc trò chuyện khác.
+- **Thêm THƯ MỤC, không bắt phải là repo git.** Thư mục script, thư mục tài liệu, dự án mới tinh đều dùng được. Có git thì Jarvis 007 tự nhận ra và mở thêm nhánh, worktree, điểm hồi; không có thì ba thứ đó ẩn đi chứ không báo lỗi.
 - **Cột trái giờ liệt kê VIỆC đang làm** chứ không phải danh sách thư mục, kèm tên thư mục nhỏ ở dưới mỗi việc. Đổi thư mục giữa chừng cũng được.
 - Ô nhập đường dẫn nằm gọn trong app thay vì hộp thoại của trình duyệt, và icon của mục đổi cho đúng việc (bản trước là icon nhánh git).
 
 ## [0.63.0] - 2026-09-22
 ### Thêm mới
-- **Mục Coding mới** trong nhóm Code trên thanh bên. Khai báo repo của bạn một lần, rồi chat như bình thường: Javis làm việc NGAY TRONG repo đó thay vì trong bộ não, nên nó đọc đúng file, chạy đúng test, không còn đọc nhầm cây thư mục.
+- **Mục Coding mới** trong nhóm Code trên thanh bên. Khai báo repo của bạn một lần, rồi chat như bình thường: Jarvis 007 làm việc NGAY TRONG repo đó thay vì trong bộ não, nên nó đọc đúng file, chạy đúng test, không còn đọc nhầm cây thư mục.
 - Ngay trên ô nhập có một hàng nút nhỏ cho biết và đổi được: repo nào, nhánh nào, có worktree riêng không, mức quyền tới đâu. Nút chọn model vẫn là nút cũ, không mọc thêm cái thứ hai.
-- **Worktree riêng cho từng phiên**: hai việc chạy song song trên cùng một repo không còn giẫm chân nhau. Còn sửa dở thì Javis từ chối gỡ và nói rõ đang giữ ở đâu.
-- **Điểm hồi**: đặt một mốc trước khi để Javis sửa, hỏng thì kéo repo về mốc đó. Bỏ repo khỏi Javis không xoá gì trên đĩa.
+- **Worktree riêng cho từng phiên**: hai việc chạy song song trên cùng một repo không còn giẫm chân nhau. Còn sửa dở thì Jarvis 007 từ chối gỡ và nói rõ đang giữ ở đâu.
+- **Điểm hồi**: đặt một mốc trước khi để Jarvis 007 sửa, hỏng thì kéo repo về mốc đó. Bỏ repo khỏi Jarvis 007 không xoá gì trên đĩa.
 
 ## [0.62.6] - 2026-09-22
 ### Sửa lỗi
-- **Cài Javis ra màn hình chính máy tính bảng thì xoay ngang được rồi.** Trước đây app tự khai với hệ điều hành là "chỉ chạy dọc", nên xoay ngang tablet là Android ép giao diện vào một cột hẹp giữa màn, hai bên mờ đi. Nay app xoay theo máy: dọc thì dọc, ngang thì bung hết chiều ngang.
-- Trên máy đã cài icon Javis từ trước, gỡ icon cũ rồi **Thêm vào màn hình chính** lại một lần để máy đọc bản khai mới.
+- **Cài Jarvis 007 ra màn hình chính máy tính bảng thì xoay ngang được rồi.** Trước đây app tự khai với hệ điều hành là "chỉ chạy dọc", nên xoay ngang tablet là Android ép giao diện vào một cột hẹp giữa màn, hai bên mờ đi. Nay app xoay theo máy: dọc thì dọc, ngang thì bung hết chiều ngang.
+- Trên máy đã cài icon Jarvis 007 từ trước, gỡ icon cũ rồi **Thêm vào màn hình chính** lại một lần để máy đọc bản khai mới.
 
 ## [0.62.5] - 2026-09-21
 ### Sửa lỗi
@@ -1864,13 +1864,13 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.62.2] - 2026-09-21
 ### Sửa lỗi
-- **Xoá một tài khoản kênh hết vòng vo.** Trước đây tài khoản đang có bot trực thì Javis đá bạn sang tab Chatbot, mà bot ấy thường nằm ở brain khác nên chỉ nhận được câu "đổi brain rồi thử lại" và không biết đổi sang brain nào. Nay chỉ một câu hỏi: gỡ khỏi bot đó rồi xoá luôn? Đồng ý là xong.
+- **Xoá một tài khoản kênh hết vòng vo.** Trước đây tài khoản đang có bot trực thì Jarvis 007 đá bạn sang tab Chatbot, mà bot ấy thường nằm ở brain khác nên chỉ nhận được câu "đổi brain rồi thử lại" và không biết đổi sang brain nào. Nay chỉ một câu hỏi: gỡ khỏi bot đó rồi xoá luôn? Đồng ý là xong.
 - **Thẻ ở tab Kênh nói rõ bot đang trực nằm ở brain nào**, ví dụ `Bot trực: Chốt đơn · brain Shop Giày`. Tab này luôn hiện tài khoản của mọi brain vì một token là tài khoản có thật ngoài đời, không thuộc brain nào; giờ thì nhìn là biết bot của nó sống ở đâu.
-- Gỡ tài khoản cuối cùng của một bot thì Javis nói trước, và tắt bot đó đi thay vì để nó khoe đang bật mà không còn chỗ nào để trực. Bản ghi bot vẫn còn, gắn tài khoản khác vào là bật lại được.
+- Gỡ tài khoản cuối cùng của một bot thì Jarvis 007 nói trước, và tắt bot đó đi thay vì để nó khoe đang bật mà không còn chỗ nào để trực. Bản ghi bot vẫn còn, gắn tài khoản khác vào là bật lại được.
 
 ## [0.62.1] - 2026-09-21
 ### Sửa lỗi
-- **App HTML chia sẻ ra ngoài hết trắng trang.** Trang mở qua link `/s/` chạy trong hộp cách ly nên mọi câu lệnh nhớ tông màu hay bộ lọc đều ném lỗi và giết cả trang, dù dữ liệu bên cạnh đã tải xong. Nay Javis tự vá chỗ đó khi phục vụ trang: app chạy mượt, mà lớp cách ly vẫn nguyên vẹn không nới một chút nào.
+- **App HTML chia sẻ ra ngoài hết trắng trang.** Trang mở qua link `/s/` chạy trong hộp cách ly nên mọi câu lệnh nhớ tông màu hay bộ lọc đều ném lỗi và giết cả trang, dù dữ liệu bên cạnh đã tải xong. Nay Jarvis 007 tự vá chỗ đó khi phục vụ trang: app chạy mượt, mà lớp cách ly vẫn nguyên vẹn không nới một chút nào.
 - **Hộp Xoá kết nối được dựng lại** theo đúng mẫu hộp thoại của trang Kho: đọc một mạch từ trên xuống, nút bấm dính đáy, và trên điện thoại thì trượt lên từ mép dưới. Ô tích nhỏ xíu thành một hàng gạt bấm được cả dải.
 ### Cải thiện
 - **Mở một khối mã trong ghi chú giờ hiện hộp giữa màn hình**, không còn dính mép phải. Chữ tự xuống dòng cho vừa khung nên không phải kéo ngang để đọc, bấm ra ngoài là đóng, và có nút `Xuống dòng` để tắt đi khi cần xem nguyên dòng.
@@ -1886,27 +1886,27 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.61.5] - 2026-09-21
 ### Sửa lỗi
-- **Trang Mức dùng mở ra là thấy số ngay.** Trước đây mỗi lần vào trang phải đợi Javis đọc lại toàn bộ nhật ký phiên rồi mới vẽ, mà trên máy dùng nhiều thì đó là 602 MB và hơn 26 giây ngồi nhìn chữ "Đang dựng chỉ số token...". Nay trang vẽ ngay bằng số đã có, phần quét chạy lặng lẽ ở nền và chỉ cập nhật lại khi thật sự có số mới.
-- **Việc quét nhật ký nhẹ hẳn.** Javis giờ đọc tiếp từ chỗ lần trước dừng thay vì đọc lại cả file từ đầu, nên một phiên đang chạy ghi thêm vài dòng không còn kéo theo cả chục megabyte đọc lại. Đo trên máy chủ dự án: 26,7 giây xuống còn chưa tới một phần mười giây.
+- **Trang Mức dùng mở ra là thấy số ngay.** Trước đây mỗi lần vào trang phải đợi Jarvis 007 đọc lại toàn bộ nhật ký phiên rồi mới vẽ, mà trên máy dùng nhiều thì đó là 602 MB và hơn 26 giây ngồi nhìn chữ "Đang dựng chỉ số token...". Nay trang vẽ ngay bằng số đã có, phần quét chạy lặng lẽ ở nền và chỉ cập nhật lại khi thật sự có số mới.
+- **Việc quét nhật ký nhẹ hẳn.** Jarvis 007 giờ đọc tiếp từ chỗ lần trước dừng thay vì đọc lại cả file từ đầu, nên một phiên đang chạy ghi thêm vài dòng không còn kéo theo cả chục megabyte đọc lại. Đo trên máy chủ dự án: 26,7 giây xuống còn chưa tới một phần mười giây.
 - Số liệu token vẫn đếm y như cũ, không sai lệch một con số nào: đã dựng lại chỉ số từ đầu bằng cả mã cũ lẫn mã mới trên cùng 651 file để đối chiếu.
 
 ## [0.61.4] - 2026-09-21
 ### Sửa lỗi
 - **Trang Cập nhật hết ngồi chờ.** Trước đây mỗi lần mở trang phải tải gần 2 MB nhật ký về rồi mới vẽ được dòng nào, nên nó nằm im ở chữ "Đang tải nhật ký cập nhật..." đủ lâu để trông như hỏng. Nay trang chỉ lấy đúng 20 bản đang xem: mở xong gần như tức thì, bấm sang trang cũ hơn cũng vậy.
 - **Nút "Kiểm tra lại" lấy đúng bản mới nhất.** Nó ép máy chủ bỏ bản nhật ký đang giữ sẵn rồi hỏi lại GitHub, thay vì đọc lại bản cũ trong bộ nhớ.
-- **Javis hết nói "chưa biết đang làm việc trên brain nào"** khi bạn tự mở một phiên Codex rồi nhờ nó giao việc hay xem lịch. Nó tự lấy brain đang mở, và ghi rõ trong câu trả lời là đang chạy trên brain nào để bạn không bao giờ phải đoán.
+- **Jarvis 007 hết nói "chưa biết đang làm việc trên brain nào"** khi bạn tự mở một phiên Codex rồi nhờ nó giao việc hay xem lịch. Nó tự lấy brain đang mở, và ghi rõ trong câu trả lời là đang chạy trên brain nào để bạn không bao giờ phải đoán.
 
 ## [0.61.3] - 2026-09-21
 ### Sửa lỗi
-- **Javis không còn nói "chưa có dữ liệu" ngay trên bộ não của bạn.** Câu nào nhắc tới dữ liệu, dự án, quy trình, skill hay trợ lý giờ luôn đi đường đầy đủ, có tool và có bộ não. Trước đây mức Siêu tiết kiệm nhận nhầm chúng là chat vặt rồi trả lời chay, thậm chí bảo bạn tự dán tài liệu vào.
-- **Câu nói tiếp không còn mất mạch.** Nhắn "ừ, vậy viết bài đi" sau khi đã bàn xong chủ đề thì Javis viết tiếp, thay vì hỏi lại "bạn muốn viết về chủ đề gì".
-- **Gọi đúng tên một quy trình của bạn thì Javis nhường về đường có chạy được quy trình đó**, thay vì trả lời chay vì quy trình vốn không nằm trong danh sách tool.
+- **Jarvis 007 không còn nói "chưa có dữ liệu" ngay trên bộ não của bạn.** Câu nào nhắc tới dữ liệu, dự án, quy trình, skill hay trợ lý giờ luôn đi đường đầy đủ, có tool và có bộ não. Trước đây mức Siêu tiết kiệm nhận nhầm chúng là chat vặt rồi trả lời chay, thậm chí bảo bạn tự dán tài liệu vào.
+- **Câu nói tiếp không còn mất mạch.** Nhắn "ừ, vậy viết bài đi" sau khi đã bàn xong chủ đề thì Jarvis 007 viết tiếp, thay vì hỏi lại "bạn muốn viết về chủ đề gì".
+- **Gọi đúng tên một quy trình của bạn thì Jarvis 007 nhường về đường có chạy được quy trình đó**, thay vì trả lời chay vì quy trình vốn không nằm trong danh sách tool.
 - Chat thường (giải thích, dịch, đặt tiêu đề, nghĩ ý tưởng) vẫn đi đường tắt tiết kiệm như cũ.
 
 ## [0.61.2] - 2026-09-21
 ### Sửa lỗi
 - **Thẻ ở tab Kênh hết tràn chữ.** Câu lỗi dài (nhất là lỗi MCP, một cục chữ liền không có dấu cách) trước đây chạy ra ngoài thẻ và đè lên thẻ bên cạnh. Nay nó xuống dòng gọn trong thẻ, di chuột vào đọc được câu đầy đủ.
-- **Nút Xoá tài khoản kênh hiện trở lại.** Trước đây tài khoản nào đang có bot trực thì nút Xoá biến mất, không một lời giải thích. Nay nút luôn có: bấm vào là Javis nói rõ bot nào đang giữ và mở thẳng form sửa bot đó để bạn bỏ chọn.
+- **Nút Xoá tài khoản kênh hiện trở lại.** Trước đây tài khoản nào đang có bot trực thì nút Xoá biến mất, không một lời giải thích. Nay nút luôn có: bấm vào là Jarvis 007 nói rõ bot nào đang giữ và mở thẳng form sửa bot đó để bạn bỏ chọn.
 - Thẻ Zalo cá nhân có nút **Mở Kết nối** để sang đúng chỗ ngắt kết nối, thay vì không có lối nào.
 - Nút `Mở Kết nối` trong bảng Thêm tài khoản hết bị bóp méo thành hai dòng.
 
@@ -1921,24 +1921,24 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Thêm mới
 - **Chatbot và Hội thoại về chung một trang.** Mục Hội thoại trên thanh bên giờ có ba tab: Hộp thư (tin khách), Kênh (mọi tài khoản khách nhắn tới) và Chatbot (nhân viên AI). Nói "mở chatbot" vẫn tới đúng tab.
 - **Trả lời khách ngay trong Hộp thư.** Mở một cuộc chat, gõ câu trả lời ở ô dưới cùng rồi Enter. Gửi từ đây là bạn tiếp quản cuộc đó, bot im cho tới khi bạn bấm Trả lại AI. Zalo cá nhân gửi dưới tên chính bạn, ô soạn tin nói rõ.
-- **Tab Kênh đối xử mọi kênh như nhau.** Bot Telegram, bot Zalo, Zalo cá nhân đều là một thẻ cùng kiểu: trạng thái, bot đang trực, số hội thoại, năng lực (vào nhóm, gửi file, trả lời từ Javis). Thêm tài khoản bằng token ngay tại đây; kênh mới về sau chỉ việc xuất hiện thêm.
+- **Tab Kênh đối xử mọi kênh như nhau.** Bot Telegram, bot Zalo, Zalo cá nhân đều là một thẻ cùng kiểu: trạng thái, bot đang trực, số hội thoại, năng lực (vào nhóm, gửi file, trả lời từ Jarvis 007). Thêm tài khoản bằng token ngay tại đây; kênh mới về sau chỉ việc xuất hiện thêm.
 ### Cải thiện
 - **Một bot trực được nhiều tài khoản.** Token tách khỏi bot thành tài khoản kênh; form tạo bot tích chọn tài khoản có sẵn hoặc dán token mới. Bot cũ tự chuyển sang mô hình mới, hội thoại và token giữ nguyên.
 
 ## [0.60.1] - 2026-09-20
 ### Thêm mới
-- **Gói Quản lý khách hàng (CRM) trong Kho cài đặt.** Đặt lên hộp thư Hội thoại: hỏi Javis khách nào chờ lâu chưa được trả lời, một khách đã hỏi gì, gắn tag VIP, ghi chú, thống kê khách mới theo tuần, xuất Excel. Kèm trợ lý chăm sóc khách và quy trình rà soát mỗi ngày. Cần bản này để cài.
+- **Gói Quản lý khách hàng (CRM) trong Kho cài đặt.** Đặt lên hộp thư Hội thoại: hỏi Jarvis 007 khách nào chờ lâu chưa được trả lời, một khách đã hỏi gì, gắn tag VIP, ghi chú, thống kê khách mới theo tuần, xuất Excel. Kèm trợ lý chăm sóc khách và quy trình rà soát mỗi ngày. Cần bản này để cài.
 
 ## [0.60.0] - 2026-09-20
 ### Thêm mới
-- **Trang Hội thoại (nhóm Năng lực): hộp thư khách.** Mọi tin khách nhắn cho bot Telegram hay Zalo Bot của bạn được lưu thành từng cuộc hội thoại, đọc lại được ngay trong Javis: ai nhắn, kênh nào, bot trả lời gì, cuộc nào chưa đọc. Trên điện thoại là một cột, bấm vào mở lịch sử.
+- **Trang Hội thoại (nhóm Năng lực): hộp thư khách.** Mọi tin khách nhắn cho bot Telegram hay Zalo Bot của bạn được lưu thành từng cuộc hội thoại, đọc lại được ngay trong Jarvis 007: ai nhắn, kênh nào, bot trả lời gì, cuộc nào chưa đọc. Trên điện thoại là một cột, bấm vào mở lịch sử.
 - **Tiếp quản một cuộc chat.** Bấm Tiếp quản là bot im ở đúng khách đó để bạn tự trả lời trong app, xong bấm Trả lại AI. Thẻ bot ở trang Chatbot có thêm số hội thoại hôm nay và nút mở thẳng hộp thư.
 - **Zalo cá nhân thành một kênh của hộp thư.** Tài khoản đã quét QR ở trang Kết nối có công tắc Ghi hội thoại; bật lên là tin khách nhắn vào Zalo của bạn cũng về hộp thư, chỉ lưu từ lúc bật. Mặc định tắt, bot chưa tự trả lời qua kênh này.
-- Nói "mở hộp thư khách" hoặc "xem tin nhắn khách" là Javis mở đúng trang. Hướng dẫn đầy đủ ở tài liệu số 28.
+- Nói "mở hộp thư khách" hoặc "xem tin nhắn khách" là Jarvis 007 mở đúng trang. Hướng dẫn đầy đủ ở tài liệu số 28.
 
 ## [0.59.50] - 2026-09-20
 ### Cải thiện
-- **Giao diện tiếng Anh hết lọt chữ Việt:** chip lọc danh mục ở trang Kết nối (Văn phòng, Nhắn tin, Quảng cáo...), cột nhóm bên trái Javis Store và nhóm "Khác" trên thanh bên nay đổi theo ngôn ngữ đã chọn. Tên nhóm do gói cộng đồng tự đặt vẫn giữ nguyên.
+- **Giao diện tiếng Anh hết lọt chữ Việt:** chip lọc danh mục ở trang Kết nối (Văn phòng, Nhắn tin, Quảng cáo...), cột nhóm bên trái Jarvis 007 Store và nhóm "Khác" trên thanh bên nay đổi theo ngôn ngữ đã chọn. Tên nhóm do gói cộng đồng tự đặt vẫn giữ nguyên.
 - Lời nhắc tải bản .dmg trong lệnh cài Ollama trên Mac cũng có bản tiếng Anh.
 
 ## [0.59.49] - 2026-09-20
@@ -1947,10 +1947,10 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.59.48] - 2026-09-20
 ### Sửa lỗi
-- **Việc nền dài không còn bị cắt ở phút 15 rồi chạy lại từ đầu.** Trần một lần chạy giờ theo đúng trần của engine (mặc định 1 giờ), và khi hết giờ Javis giết hẳn tiến trình cũ trước khi thử lại, không còn hai bản cùng chạy. Tắt hay cập nhật máy chủ giữa chừng cũng không huỷ câm việc đang chạy nữa: việc về hàng đợi và tự chạy lại sau khi lên.
+- **Việc nền dài không còn bị cắt ở phút 15 rồi chạy lại từ đầu.** Trần một lần chạy giờ theo đúng trần của engine (mặc định 1 giờ), và khi hết giờ Jarvis 007 giết hẳn tiến trình cũ trước khi thử lại, không còn hai bản cùng chạy. Tắt hay cập nhật máy chủ giữa chừng cũng không huỷ câm việc đang chạy nữa: việc về hàng đợi và tự chạy lại sau khi lên.
 - **Chat với Claude Code hay Codex khi hết lượt gói: hiện đúng thẻ hết lượt kèm giờ tự chạy lại,** thay vì một bong bóng tiếng Anh trông như câu trả lời. Grok Build mất mạch cũ sau khi cập nhật CLI thì tự mở mạch mới thay vì đỏ mãi.
 - **Nhắc hẹn và loop không còn chặn nhau.** Một loop chạy 25 phút từng làm nhắc 7 giờ sáng đến trễ; nay việc dài chạy nền, nhắc giờ nào bắn giờ đó. Nhắc lặp đã huỷ trong lúc đang chạy không sống lại; loop gặp lỗi engine không lặp vô hạn mà ghi lỗi và tự tạm dừng như thiết kế.
-- **Trang Cộng sự:** mở hội thoại cũ từ tab Lịch sử rồi sang Trò chuyện không còn gửi nhầm vào phiên trợ lý; bấm Lưu ở cột Cài đặt không còn kéo cộng sự về nhóm cũ sau khi vừa chuyển nhóm. Giao việc trùng tên với việc đang kẹt thì Javis nói thẳng thay vì báo "đã giao".
+- **Trang Cộng sự:** mở hội thoại cũ từ tab Lịch sử rồi sang Trò chuyện không còn gửi nhầm vào phiên trợ lý; bấm Lưu ở cột Cài đặt không còn kéo cộng sự về nhóm cũ sau khi vừa chuyển nhóm. Giao việc trùng tên với việc đang kẹt thì Jarvis 007 nói thẳng thay vì báo "đã giao".
 ### Cải thiện
 - **Trên điện thoại,** nút ghim/chuyển/đổi tên/xoá của hàng hội thoại và nút chép mã luôn hiện (trước chỉ hiện khi rê chuột). Chữ ở cột cộng sự và bảng nhóm lên cỡ 16px. Lỗi engine không kèm thêm bong bóng "(không có nội dung)". Giờ hẹn chạy lại của việc nền hiện theo múi giờ của bạn.
 
@@ -1970,15 +1970,15 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.59.44] - 2026-09-20
 ### Sửa lỗi
-- **Việc nền chạy bằng Antigravity CLI ở mức auto đã dùng được shell và ghi file thật.** Trước đó Javis truyền hai cờ đi cùng nhau khiến agy tự huỷ tool sau 5 giây, việc Kanban, Loop và bước Workflow chạy rồi báo "không khởi động được lớp công cụ" mà log không có lỗi nào. Giờ mức auto chỉ giữ cờ tự duyệt, rào hành động ra ngoài vẫn ở hub như cũ.
+- **Việc nền chạy bằng Antigravity CLI ở mức auto đã dùng được shell và ghi file thật.** Trước đó Jarvis 007 truyền hai cờ đi cùng nhau khiến agy tự huỷ tool sau 5 giây, việc Kanban, Loop và bước Workflow chạy rồi báo "không khởi động được lớp công cụ" mà log không có lỗi nào. Giờ mức auto chỉ giữ cờ tự duyệt, rào hành động ra ngoài vẫn ở hub như cũ.
 - **Chat dài với Antigravity không còn trả lời lạc đề sang câu hỏi cũ.** Khi hội thoại dài phải đi qua file ngữ cảnh, lời nhắc trên dòng lệnh lại dán nhầm đoạn đầu lịch sử làm "tin nhắn mới nhất", nên model đọc dở file là trả lời một câu từ chiều. Nay lời nhắc chỉ chép đúng câu vừa hỏi, và lịch sử gửi lại mỗi lượt được gọn hơn.
 - **Việc nền vấp "hết lượt gói" nay tự đợi đúng giờ gói mở lại rồi chạy tiếp,** không tính vào số lần thử, thay vì thử lại liên tục trong vài phút rồi nằm chặn vĩnh viễn. Thẻ việc ghi rõ gói nào hết lượt và mấy giờ chạy lại; kéo việc về Sẵn sàng là chạy ngay.
 ### Cải thiện
-- **Cộng sự không còn từ chối việc "ngoài vai" hay bịa đã giao cho agent khác.** Prompt của mọi cộng sự nói rõ họ có toàn bộ công cụ của Javis (Drive, Composio, giao việc nền, nhắc hẹn...), chỉ được nói đã giao việc khi vừa gọi tool thật, và không hẹn "có kết quả em báo lại".
+- **Cộng sự không còn từ chối việc "ngoài vai" hay bịa đã giao cho agent khác.** Prompt của mọi cộng sự nói rõ họ có toàn bộ công cụ của Jarvis 007 (Drive, Composio, giao việc nền, nhắc hẹn...), chỉ được nói đã giao việc khi vừa gọi tool thật, và không hẹn "có kết quả em báo lại".
 
 ## [0.59.43] - 2026-09-20
 ### Sửa lỗi
-- **Ảnh trong file .md giờ hiện ra.** Trước đây Javis tìm mọi ảnh từ gốc brain, nên note nằm trong thư mục con mà chèn ảnh cạnh nó thì chỉ thấy một ô xám. Giờ Javis tìm cạnh chính file note trước, đúng như Obsidian và VS Code, rồi mới tìm ở gốc brain và trong attachments.
+- **Ảnh trong file .md giờ hiện ra.** Trước đây Jarvis 007 tìm mọi ảnh từ gốc brain, nên note nằm trong thư mục con mà chèn ảnh cạnh nó thì chỉ thấy một ô xám. Giờ Jarvis 007 tìm cạnh chính file note trước, đúng như Obsidian và VS Code, rồi mới tìm ở gốc brain và trong attachments.
 - Áp dụng cho cả ảnh chèn kiểu `![tên](anh.jpg)` lẫn kiểu `![[anh.jpg]]`, ở cả hai khung mở file, và cả trên trang chia sẻ công khai.
 
 ## [0.59.42] - 2026-09-18
@@ -1995,12 +1995,12 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.59.39] - 2026-09-18
 ### Thêm mới
-- **Nút Chia sẻ trong khung mở file.** Bấm một cái là có đường link gửi cho ai cũng xem được, không cần đăng nhập, không cần tài khoản Javis. Link mở ra **bản hoàn thiện** chứ không phải mã nguồn: file .html chạy đúng giao diện của nó, file .md hiện đậm nghiêng, danh sách, bảng và ảnh. Hợp để làm một ứng dụng nhỏ rồi gửi cho người khác xem ngay.
+- **Nút Chia sẻ trong khung mở file.** Bấm một cái là có đường link gửi cho ai cũng xem được, không cần đăng nhập, không cần tài khoản Jarvis 007. Link mở ra **bản hoàn thiện** chứ không phải mã nguồn: file .html chạy đúng giao diện của nó, file .md hiện đậm nghiêng, danh sách, bảng và ảnh. Hợp để làm một ứng dụng nhỏ rồi gửi cho người khác xem ngay.
 - **Link trỏ tới file thật.** Bạn sửa file thì người xem tải lại trang là thấy bản mới, không phải chia sẻ lại. Bấm Chia sẻ lần nữa trên cùng file vẫn ra đúng link cũ, nên link đã gửi đi không bao giờ bị thay.
 - **Thu hồi bất cứ lúc nào** bằng nút ngay cạnh link. Thu hồi xong là link cũ chết hẳn với tất cả mọi người.
 - **Trang Chia sẻ mới trong nhóm Hệ thống,** liệt kê mọi link đang sống kèm tên file, đường dẫn và ngày tạo. Đây là chỗ bạn nhìn lại toàn bộ và thu hồi cái nào lỡ quên, vì link không có hạn dùng. Ra lệnh bằng lời "mở trang chia sẻ" cũng tới đúng trang này.
 ### Bảo mật
-- Trang chia sẻ chạy trong hộp cách ly, nên nội dung file không đọc được phiên đăng nhập Javis của người mở, kể cả khi chính bạn bấm vào link của mình. Đổi lại, ứng dụng nhỏ trong file .html không dùng được bộ nhớ lưu trữ của trình duyệt.
+- Trang chia sẻ chạy trong hộp cách ly, nên nội dung file không đọc được phiên đăng nhập Jarvis 007 của người mở, kể cả khi chính bạn bấm vào link của mình. Đổi lại, ứng dụng nhỏ trong file .html không dùng được bộ nhớ lưu trữ của trình duyệt.
 - Ảnh và tài nguyên kèm theo chỉ lấy được quanh đúng file được chia sẻ, và chỉ lấy được ảnh, css, js, phông, nhạc, phim. Ghi chú khác trong brain không đọc được qua link.
 
 ## [0.59.38] - 2026-09-18
@@ -2012,7 +2012,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.59.37] - 2026-09-18
 ### Sửa lỗi
 - **Trang Cài đặt linh vật hết trống trơn.** Bản trước vừa thêm màu mới thì trang này chỉ còn cái tiêu đề, bên dưới không có gì, không báo lỗi gì. Lỗi nằm ở một dòng mã gọi nhầm biến nên cả trang dừng giữa chừng lúc đang vẽ. Nay vẽ đủ lại năm hàng chọn: hình dáng, cỡ, màu thân, màu mắt, cỡ mắt.
-- **Đổi logo thì icon trên tab trình duyệt đổi theo ngay.** Trước đây ảnh trong trang đổi liền còn cái icon nhỏ trên tab vẫn giữ hình cũ cho tới khi app lên bản mới. Giờ tải logo lên hoặc bấm khôi phục là nó đổi luôn, kể cả icon dùng khi bạn thêm Javis vào màn hình chính điện thoại.
+- **Đổi logo thì icon trên tab trình duyệt đổi theo ngay.** Trước đây ảnh trong trang đổi liền còn cái icon nhỏ trên tab vẫn giữ hình cũ cho tới khi app lên bản mới. Giờ tải logo lên hoặc bấm khôi phục là nó đổi luôn, kể cả icon dùng khi bạn thêm Jarvis 007 vào màn hình chính điện thoại.
 
 ## [0.59.36] - 2026-09-18
 ### Thêm mới
@@ -2023,22 +2023,22 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.59.35] - 2026-09-18
 ### Sửa lỗi
-- **Mic trên điện thoại hết cảnh chỉ nghe được một lần.** Nói xong lượt đầu là Javis điếc, tải lại trang cũng không nghe, phải vào xoá quyền mic rồi cấp lại mới nghe thêm được một lượt nữa. Không phải lỗi quyền: Javis mở hai đường thu mic cùng lúc, mà điện thoại chỉ cho một đường thu. Nay lúc nghe chỉ còn một đường, nên nói bao nhiêu lượt cũng được và tải lại trang vẫn nghe bình thường.
-- **Đổi lại, trên điện thoại quả cầu không còn sáng theo giọng lúc bạn đang nói.** Ngắt lời khi Javis đọc thì vẫn chạy y như cũ. Trên máy tính không có gì thay đổi.
+- **Mic trên điện thoại hết cảnh chỉ nghe được một lần.** Nói xong lượt đầu là Jarvis 007 điếc, tải lại trang cũng không nghe, phải vào xoá quyền mic rồi cấp lại mới nghe thêm được một lượt nữa. Không phải lỗi quyền: Jarvis 007 mở hai đường thu mic cùng lúc, mà điện thoại chỉ cho một đường thu. Nay lúc nghe chỉ còn một đường, nên nói bao nhiêu lượt cũng được và tải lại trang vẫn nghe bình thường.
+- **Đổi lại, trên điện thoại quả cầu không còn sáng theo giọng lúc bạn đang nói.** Ngắt lời khi Jarvis 007 đọc thì vẫn chạy y như cũ. Trên máy tính không có gì thay đổi.
 
 ## [0.59.34] - 2026-09-18
 ### Sửa lỗi
-- **Đăng nhập ChatGPT ở Javis không còn đá văng Codex trên máy.** Mỗi lượt chat Javis lại ghi đè file đăng nhập của Codex, kể cả khi mã trong tay đã hỏng, nên hai bên tranh nhau một mã và bên dùng sau thì mất phiên. Nay Javis đọc file đó trước: Codex vừa làm mới mã thì Javis dùng theo, mã của Javis hỏng thì để nguyên, không ghi gì cả.
-- **Máy đã tự đăng nhập Codex bằng tài khoản khác thì Javis để yên.** Trước đây phiên đó bị xoá lặng lẽ mỗi lần bạn nói chuyện với Javis.
-- **Nút Ngắt kết nối giờ ngắt thật.** Trước nó chỉ xoá phần bên trong Javis, file đăng nhập trên máy vẫn còn nên Codex chạy tiếp bằng tài khoản bạn tưởng đã ngắt. Phiên bạn tự tạo bằng lệnh đăng nhập Codex thì vẫn giữ nguyên.
+- **Đăng nhập ChatGPT ở Jarvis 007 không còn đá văng Codex trên máy.** Mỗi lượt chat Jarvis 007 lại ghi đè file đăng nhập của Codex, kể cả khi mã trong tay đã hỏng, nên hai bên tranh nhau một mã và bên dùng sau thì mất phiên. Nay Jarvis 007 đọc file đó trước: Codex vừa làm mới mã thì Jarvis 007 dùng theo, mã của Jarvis 007 hỏng thì để nguyên, không ghi gì cả.
+- **Máy đã tự đăng nhập Codex bằng tài khoản khác thì Jarvis 007 để yên.** Trước đây phiên đó bị xoá lặng lẽ mỗi lần bạn nói chuyện với Jarvis 007.
+- **Nút Ngắt kết nối giờ ngắt thật.** Trước nó chỉ xoá phần bên trong Jarvis 007, file đăng nhập trên máy vẫn còn nên Codex chạy tiếp bằng tài khoản bạn tưởng đã ngắt. Phiên bạn tự tạo bằng lệnh đăng nhập Codex thì vẫn giữ nguyên.
 
 ## [0.59.33] - 2026-09-18
 ### Sửa lỗi
-- **Nói bằng mic trên điện thoại hết bị lặp câu.** Nói "Em có nghe thấy anh nói gì không" thì tin gửi đi thành một đoạn dài dằng dặc, câu cứ được chép lại và mỗi lần thêm một chữ. Chrome trên Android trả về cả câu nhiều lần trong một lượt nghe, và Javis nối hết lại thay vì thay thế. Nay chỉ giữ đúng một câu, cả ở bong bóng chữ đang hiện lẫn tin gửi đi.
+- **Nói bằng mic trên điện thoại hết bị lặp câu.** Nói "Em có nghe thấy anh nói gì không" thì tin gửi đi thành một đoạn dài dằng dặc, câu cứ được chép lại và mỗi lần thêm một chữ. Chrome trên Android trả về cả câu nhiều lần trong một lượt nghe, và Jarvis 007 nối hết lại thay vì thay thế. Nay chỉ giữ đúng một câu, cả ở bong bóng chữ đang hiện lẫn tin gửi đi.
 
 ## [0.59.32] - 2026-09-17
 ### Cải thiện
-- **Mở hội thoại dài không còn khựng.** Vào một cuộc chat cũ, Javis chỉ dựng đoạn cuối và tụt thẳng xuống câu trả lời gần nhất. Cuộn lên thì phần cũ tự về dần, từng khúc một, và chỗ bạn đang đọc giữ nguyên chứ không nhảy. Thanh mốc bên phải cũng dài thêm theo.
+- **Mở hội thoại dài không còn khựng.** Vào một cuộc chat cũ, Jarvis 007 chỉ dựng đoạn cuối và tụt thẳng xuống câu trả lời gần nhất. Cuộn lên thì phần cũ tự về dần, từng khúc một, và chỗ bạn đang đọc giữ nguyên chứ không nhảy. Thanh mốc bên phải cũng dài thêm theo.
 - **Trang Kỹ năng có phân trang.** 20 kỹ năng mỗi trang, kèm nút Trước/Sau ở cuối danh sách. Ô tìm và cột nhóm vẫn lọc trên toàn bộ như cũ.
 
 ## [0.59.31] - 2026-09-17
@@ -2052,19 +2052,19 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.59.29] - 2026-09-17
 ### Sửa lỗi
-- **Việc chạy nền lúc nói chuyện ở lại đúng khung chat đang nói.** Trước đây mỗi lần giao việc nền là Javis mở thêm một hội thoại riêng cho nó, nên nói chuyện một buổi là thanh Lịch sử đầy những cuộc chỉ có một hai tin. Nay kết quả về thẳng khung bạn đang nói, và việc nền còn đọc được mạch trò chuyện ở đó nên trả lời sát ý hơn.
+- **Việc chạy nền lúc nói chuyện ở lại đúng khung chat đang nói.** Trước đây mỗi lần giao việc nền là Jarvis 007 mở thêm một hội thoại riêng cho nó, nên nói chuyện một buổi là thanh Lịch sử đầy những cuộc chỉ có một hai tin. Nay kết quả về thẳng khung bạn đang nói, và việc nền còn đọc được mạch trò chuyện ở đó nên trả lời sát ý hơn.
 - **Hết nhãn "TG" dán nhầm.** Hội thoại sinh ra từ Zalo, từ terminal, từ bot riêng và từ việc nền đều bị đánh dấu là Telegram. Nay mỗi cuộc mang đúng nhãn kênh của nó, nên lọc theo kênh mới ra đúng thứ cần tìm.
 
 ## [0.59.28] - 2026-09-17
 ### Thêm mới
-- **Javis lọc tạp âm khỏi câu bạn nói.** Mic bật liên tục nên tiếng TV, người khác trong phòng hay tiếng bạn lẩm bẩm cũng bị chép thành chữ và đi thẳng vào khung chat. Nay Javis cắt phần không nói với nó ra khỏi câu rồi mới trả lời, còn lượt nào chỉ toàn tạp âm thì bỏ hẳn: không đọc, không để lại bong bóng, chỉ hiện một dòng báo rồi tự tắt sau vài giây.
-- **Ô "Lọc tạp âm" trong thẻ Chế độ nói chuyện,** mặc định bật. Thấy Javis bỏ nhầm câu của mình nhiều quá thì tắt đi, lúc đó mọi câu đều được trả lời nguyên văn như trước. Chỉ chạy ở chế độ Làn nhanh.
+- **Jarvis 007 lọc tạp âm khỏi câu bạn nói.** Mic bật liên tục nên tiếng TV, người khác trong phòng hay tiếng bạn lẩm bẩm cũng bị chép thành chữ và đi thẳng vào khung chat. Nay Jarvis 007 cắt phần không nói với nó ra khỏi câu rồi mới trả lời, còn lượt nào chỉ toàn tạp âm thì bỏ hẳn: không đọc, không để lại bong bóng, chỉ hiện một dòng báo rồi tự tắt sau vài giây.
+- **Ô "Lọc tạp âm" trong thẻ Chế độ nói chuyện,** mặc định bật. Thấy Jarvis 007 bỏ nhầm câu của mình nhiều quá thì tắt đi, lúc đó mọi câu đều được trả lời nguyên văn như trước. Chỉ chạy ở chế độ Làn nhanh.
 ### Sửa lỗi
-- **Nói liên tục quá 30 giây thì Javis chốt luôn, không chờ nữa.** Trước đây hễ còn tiếng là đồng hồ "im lặng rồi gửi" lại lùi, nên ở phòng có TV nó không bao giờ nổ: chữ dồn thành một lượt dài cả trang và suốt lúc ấy Javis trông như điếc.
+- **Nói liên tục quá 30 giây thì Jarvis 007 chốt luôn, không chờ nữa.** Trước đây hễ còn tiếng là đồng hồ "im lặng rồi gửi" lại lùi, nên ở phòng có TV nó không bao giờ nổ: chữ dồn thành một lượt dài cả trang và suốt lúc ấy Jarvis 007 trông như điếc.
 
 ## [0.59.27] - 2026-09-17
 ### Sửa lỗi
-- **Khởi động cùng Windows: khi Windows đang chặn mục khởi động, nút trên thẻ đổi thành "Bật lại để sửa".** Trước đây thẻ báo "bật nhưng không chạy" mà nút duy nhất lại là Tắt, nên phải tự đoán ra hai cú bấm Tắt rồi Bật; mục của Javis trên máy chủ dự án bị Task Manager tắt từ cuối tháng 7 mà không ai nhận ra.
+- **Khởi động cùng Windows: khi Windows đang chặn mục khởi động, nút trên thẻ đổi thành "Bật lại để sửa".** Trước đây thẻ báo "bật nhưng không chạy" mà nút duy nhất lại là Tắt, nên phải tự đoán ra hai cú bấm Tắt rồi Bật; mục của Jarvis 007 trên máy chủ dự án bị Task Manager tắt từ cuối tháng 7 mà không ai nhận ra.
 ### Cải thiện
 - **Mở một quy trình là cột phải về ngay Cài đặt, nơi có nút Chạy quy trình.** Trợ lý vẫn mở ở Lịch sử như trước, hai loại nhớ tab riêng nên không còn đè lên nhau.
 - **Ba mục micro (ngôn ngữ nghe, im lặng rồi gửi, ngắt lời) nằm chung thẻ Chế độ nói chuyện,** nút Lưu chế độ ở cuối thẻ. Mặc định mới: chế độ Làn nhanh, im lặng rồi gửi 1,2 giây.
@@ -2074,25 +2074,25 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Sửa lỗi
 - **File đính kèm trong hội thoại của trợ lý và quy trình hết bị cắt cụt.** Dải đính kèm ngay trên ô nhập bị bóp lại khi khoang giữa thiếu chỗ, nên chip file chỉ lộ nửa trên và trông như nằm khuất sau dải model. Nay nó luôn cao đủ, đoạn hội thoại nhường chỗ thay vì ngược lại.
 ### Thêm mới
-- **Nút chép đường dẫn ở mọi hàng trong khung File & link.** Bấm một cái là có đúng đường dẫn file (hoặc địa chỉ link) trong bảng nhớ tạm để dán đi chỗ khác, không phải bôi đen dòng chữ nhỏ vốn hay bị cắt đuôi bằng ba chấm. Có ở cả hàng bạn tự gắn lẫn hàng Javis tự nhặt ra.
+- **Nút chép đường dẫn ở mọi hàng trong khung File & link.** Bấm một cái là có đúng đường dẫn file (hoặc địa chỉ link) trong bảng nhớ tạm để dán đi chỗ khác, không phải bôi đen dòng chữ nhỏ vốn hay bị cắt đuôi bằng ba chấm. Có ở cả hàng bạn tự gắn lẫn hàng Jarvis 007 tự nhặt ra.
 - **Thanh trình sửa file cũng có nút chép đường dẫn,** ngay cạnh nút Lưu.
 ### Cải thiện
 - **Nút File & link mang cùng một icon ghim giấy ở cả ba màn** (Đồ thị, Trò chuyện, Cộng sự), thay vì mỗi trang một kiểu cho cùng một thứ.
 
 ## [0.59.25] - 2026-09-16
 ### Cải thiện
-- **Khung chat hiện câu bạn ĐỊNH NÓI, không phải chữ thô máy nghe.** Ở làn nhanh, bộ não giọng viết lại câu vừa nghe đúng ý bạn (sửa mọi từ tiếng Anh bị chép sai, không chỉ "Javis") rồi mới trả lời. Bong bóng của bạn đổi sang câu đó, bên dưới ghi nhỏ "Máy nghe: ..." để đối chiếu xem Javis hiểu đúng chưa. Tải lại trang vẫn thấy câu đã diễn giải.
+- **Khung chat hiện câu bạn ĐỊNH NÓI, không phải chữ thô máy nghe.** Ở làn nhanh, bộ não giọng viết lại câu vừa nghe đúng ý bạn (sửa mọi từ tiếng Anh bị chép sai, không chỉ "Jarvis 007") rồi mới trả lời. Bong bóng của bạn đổi sang câu đó, bên dưới ghi nhỏ "Máy nghe: ..." để đối chiếu xem Jarvis 007 hiểu đúng chưa. Tải lại trang vẫn thấy câu đã diễn giải.
 - Ở chế độ chuẩn (bộ não chính), câu được sửa bằng bộ từ hay nghe nhầm cũng hiện lại trong bong bóng như vậy.
 
 ## [0.59.24] - 2026-09-16
 ### Cải thiện
-- **Nói lẫn tiếng Anh, Javis vẫn hiểu đúng tên.** Khi bạn gọi "Javis" mà máy nghe chép thành "David", "Jarvis" hay "Gia vít", Javis tự sửa lại theo âm và ngữ cảnh trước khi hiểu câu, nên hết cảnh trả lời "David là ai". Tên bạn của bạn ("nhắn cho David") thì để yên.
-- **Ô "Từ hay nghe nhầm" ở thẻ Giọng nói trong Cài đặt.** Gõ tên công cụ, tên dự án, tên người hay dùng, ngăn bằng dấu phẩy. Javis mồi những từ này cho máy nghe Groq để viết đúng chính tả, và sửa theo ngữ cảnh cho cả máy nghe của trình duyệt lẫn tin thoại Telegram, Zalo.
+- **Nói lẫn tiếng Anh, Jarvis 007 vẫn hiểu đúng tên.** Khi bạn gọi "Jarvis 007" mà máy nghe chép thành "David", "Jarvis" hay "Gia vít", Jarvis 007 tự sửa lại theo âm và ngữ cảnh trước khi hiểu câu, nên hết cảnh trả lời "David là ai". Tên bạn của bạn ("nhắn cho David") thì để yên.
+- **Ô "Từ hay nghe nhầm" ở thẻ Giọng nói trong Cài đặt.** Gõ tên công cụ, tên dự án, tên người hay dùng, ngăn bằng dấu phẩy. Jarvis 007 mồi những từ này cho máy nghe Groq để viết đúng chính tả, và sửa theo ngữ cảnh cho cả máy nghe của trình duyệt lẫn tin thoại Telegram, Zalo.
 - Bộ não giọng làn nhanh được dặn rằng câu đến từ máy nghe và phải hiểu theo ý người nói, không bám nghĩa đen của từ nghe sai.
 
 ## [0.59.23] - 2026-09-16
 ### Sửa lỗi
-- **Làn nhanh rơi về bộ não chính thì Javis nói rõ vì sao, ngay trong khung chat.** Trước đây khi bộ não giọng lỗi (chưa cài, chưa đăng nhập, hết hạn mức, mất mạng), Javis lặng lẽ chuyển câu bạn vừa nói sang bộ não chính: bật mic, nói, rồi chờ hàng chục giây như thể chưa từng có làn nhanh, không một dòng nào cho biết chuyện gì. Nay hiện một câu báo tên bộ não giọng và lỗi thật, kèm chỗ sửa.
+- **Làn nhanh rơi về bộ não chính thì Jarvis 007 nói rõ vì sao, ngay trong khung chat.** Trước đây khi bộ não giọng lỗi (chưa cài, chưa đăng nhập, hết hạn mức, mất mạng), Jarvis 007 lặng lẽ chuyển câu bạn vừa nói sang bộ não chính: bật mic, nói, rồi chờ hàng chục giây như thể chưa từng có làn nhanh, không một dòng nào cho biết chuyện gì. Nay hiện một câu báo tên bộ não giọng và lỗi thật, kèm chỗ sửa.
 - **Thẻ Giọng nói ở trang Cài đặt ghi lại lỗi gần nhất của làn nhanh** cho tới khi một lượt nói chạy trót lọt, nên mở Cài đặt là biết bộ não giọng đang hỏng hay cài đặt đã trôi về chế độ chuẩn.
 - Nhật ký máy chủ ghi một dòng khi tin từ mic đi bộ não chính vì chế độ giọng nói không phải Làn nhanh, để dò lỗi không phải đoán.
 
@@ -2120,11 +2120,11 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.59.19] - 2026-09-16
 ### Bảo mật
-- **Nâng nền web của Javis lên bản đã vá.** Bản cũ có chỗ cho phép người ngoài gửi vài request nặng để ăn hết RAM rồi làm Javis treo, và trên Windows có chỗ làm lộ mật khẩu máy. Cập nhật bằng cách chạy lại lệnh cài là nó tự tải bản mới; cài thủ công thì chạy thêm `pip install -r requirements.txt`.
+- **Nâng nền web của Jarvis 007 lên bản đã vá.** Bản cũ có chỗ cho phép người ngoài gửi vài request nặng để ăn hết RAM rồi làm Jarvis 007 treo, và trên Windows có chỗ làm lộ mật khẩu máy. Cập nhật bằng cách chạy lại lệnh cài là nó tự tải bản mới; cài thủ công thì chạy thêm `pip install -r requirements.txt`.
 
 ## [0.59.18] - 2026-09-16
 ### Cải thiện
-- **Javis khởi động nhanh hơn khoảng 75ms.** Một thư viện kiểm dữ liệu trước đây nạp ngay lúc mở app dù chỉ dùng cho một tính năng hiếm, giờ chỉ nạp khi cần. Trên VPS, khởi động nhanh hơn nghĩa là bản cập nhật ít bị báo lỗi sức khoẻ lúc vừa deploy.
+- **Jarvis 007 khởi động nhanh hơn khoảng 75ms.** Một thư viện kiểm dữ liệu trước đây nạp ngay lúc mở app dù chỉ dùng cho một tính năng hiếm, giờ chỉ nạp khi cần. Trên VPS, khởi động nhanh hơn nghĩa là bản cập nhật ít bị báo lỗi sức khoẻ lúc vừa deploy.
 
 ## [0.59.17] - 2026-09-16
 ### Cải thiện
@@ -2132,38 +2132,38 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.59.16] - 2026-09-16
 ### Bảo mật
-- **Vá một lỗ cho phép vào Javis mà không cần đăng nhập.** Chỉ cần thêm một dấu `/` vào một dòng ẩn trong request là cổng đăng nhập bị lách, đọc và ghi được API như đã đăng nhập. Ai đang mở Javis ra Internet (VPS, Docker, hoặc máy nhà có mở cổng) nên cập nhật ngay; máy chỉ chạy nội bộ thì không ai với tới được.
+- **Vá một lỗ cho phép vào Jarvis 007 mà không cần đăng nhập.** Chỉ cần thêm một dấu `/` vào một dòng ẩn trong request là cổng đăng nhập bị lách, đọc và ghi được API như đã đăng nhập. Ai đang mở Jarvis 007 ra Internet (VPS, Docker, hoặc máy nhà có mở cổng) nên cập nhật ngay; máy chỉ chạy nội bộ thì không ai với tới được.
 - **Cửa vào giờ có hai lớp khoá.** Hàng rào đăng nhập đọc đúng đường dẫn thật của request, và những request có dòng địa chỉ méo bị chặn thẳng từ đầu.
 
 ## [0.59.15] - 2026-09-16
 ### Sửa lỗi
-- **Gõ lệnh `/` không còn sửa câu của bạn.** Trước đây Javis nhồi câu bạn viết vào giữa một câu của máy ("Hãy dùng skill X với yêu cầu: …") rồi **lưu nguyên thế làm tin của bạn**, nên mở lại hội thoại là đọc được một câu mình chưa từng gõ, kèm một câu cuối tự xuất hiện. Giờ lời dặn cho skill đi riêng, bong bóng và lịch sử hiện đúng chữ bạn gõ.
-- **Nhắc tên skill giữa câu không làm mất chữ nữa.** "Skill `/viet-bai-x` sẽ là skill chính" từng bị cắt thành "Skill sẽ là skill chính". Giờ chỉ bỏ dấu `/`, câu giữ nguyên nghĩa; và Javis hiểu đó là bạn đang **nói về** skill chứ không hẳn ra lệnh chạy nó.
+- **Gõ lệnh `/` không còn sửa câu của bạn.** Trước đây Jarvis 007 nhồi câu bạn viết vào giữa một câu của máy ("Hãy dùng skill X với yêu cầu: …") rồi **lưu nguyên thế làm tin của bạn**, nên mở lại hội thoại là đọc được một câu mình chưa từng gõ, kèm một câu cuối tự xuất hiện. Giờ lời dặn cho skill đi riêng, bong bóng và lịch sử hiện đúng chữ bạn gõ.
+- **Nhắc tên skill giữa câu không làm mất chữ nữa.** "Skill `/viet-bai-x` sẽ là skill chính" từng bị cắt thành "Skill sẽ là skill chính". Giờ chỉ bỏ dấu `/`, câu giữ nguyên nghĩa; và Jarvis 007 hiểu đó là bạn đang **nói về** skill chứ không hẳn ra lệnh chạy nó.
 - **Câu "nếu không có skill tên này…" chỉ còn xuất hiện khi tên skill không tồn tại.**
-- **Rời trang Cộng sự là khung chat trở về bộ não chính.** Trước đây đoạn chat với trợ lý còn nằm nguyên ở trang Trò chuyện, và tin gõ tiếp ở đó vẫn bay vào đúng phiên của trợ lý dù bạn tưởng đang nói với Javis.
+- **Rời trang Cộng sự là khung chat trở về bộ não chính.** Trước đây đoạn chat với trợ lý còn nằm nguyên ở trang Trò chuyện, và tin gõ tiếp ở đó vẫn bay vào đúng phiên của trợ lý dù bạn tưởng đang nói với Jarvis 007.
 
 ## [0.59.14] - 2026-09-16
 ### Thêm mới
 - **Mỗi trợ lý và mỗi quy trình có menu quản lý riêng.** Trỏ vào một dòng trong danh sách là hiện nút ba chấm: **Ghim lên đầu**, **Chuyển vào thư mục**, **Sửa**, **Xoá**. Mục đã ghim luôn nằm trên cùng và có dấu ghim nhỏ cạnh tên.
 ### Cải thiện
 - **Cột phải đổi thứ tự: Lịch sử trước, rồi Thư mục, Cài đặt sau cùng.** Việc hằng ngày là mở lại một hội thoại cũ hay một file, còn cài đặt trợ lý thì sửa một lần rồi thôi.
-- **Mở một file trong khung chat không còn bóp hội thoại thành một sợi.** Javis tự thu cột phải để nhường chỗ, và nếu vẫn hẹp thì xếp file lên trên, hội thoại xuống dưới, thay vì hai cột cùng không đọc được.
+- **Mở một file trong khung chat không còn bóp hội thoại thành một sợi.** Jarvis 007 tự thu cột phải để nhường chỗ, và nếu vẫn hẹp thì xếp file lên trên, hội thoại xuống dưới, thay vì hai cột cùng không đọc được.
 ### Sửa lỗi
 - **Sửa một trợ lý không còn làm mất cái ghim của nó.** Trình sửa trước đây ghi lại cả file nên mọi thứ không nằm trong form đều bị xoá.
 
 ## [0.59.13] - 2026-09-16
 ### Sửa lỗi
 - **Windows: một lệnh cài hết bốn bộ não.** `install.ps1` mới cài trọn gói Python, thư viện, rồi cả `claude`, `codex`, `agy`, `grok`, tạo `.env`, giải phóng port và bật server, cuối cùng in bảng cho biết bộ não nào đã sẵn sàng. `setup.bat` và `install.sh` cũng cài thêm `agy` + `grok` thay vì chỉ hai cái.
-- **Hết cảnh "CLI chưa cài" cho một CLI đang nằm trên máy.** Javis giờ nhớ chỗ đã từng thấy mỗi CLI, nên khi một trình cài khác làm hỏng PATH (cài Antigravity xong là mất Claude Code) thì nó vẫn tìm ra. Dò thêm cả thư mục npm, nvm, volta, scoop, bun trên Windows.
-- **Cài thiếu thư viện thì nói ngay lúc cài, không để tới màn đăng nhập.** Trước đây `setup.bat` chạy tiếp dù `pip install` hỏng, rồi Javis mới chết vì thiếu `claude-agent-sdk`.
-- **Câu báo thiếu CLI nói đủ việc cần làm**: lệnh cài, và nhắc phải khởi động lại Javis (tiến trình đang chạy giữ PATH của lúc nó bật nên không thấy CLI vừa cài).
+- **Hết cảnh "CLI chưa cài" cho một CLI đang nằm trên máy.** Jarvis 007 giờ nhớ chỗ đã từng thấy mỗi CLI, nên khi một trình cài khác làm hỏng PATH (cài Antigravity xong là mất Claude Code) thì nó vẫn tìm ra. Dò thêm cả thư mục npm, nvm, volta, scoop, bun trên Windows.
+- **Cài thiếu thư viện thì nói ngay lúc cài, không để tới màn đăng nhập.** Trước đây `setup.bat` chạy tiếp dù `pip install` hỏng, rồi Jarvis 007 mới chết vì thiếu `claude-agent-sdk`.
+- **Câu báo thiếu CLI nói đủ việc cần làm**: lệnh cài, và nhắc phải khởi động lại Jarvis 007 (tiến trình đang chạy giữ PATH của lúc nó bật nên không thấy CLI vừa cài).
 ### Bảo mật
 - Nâng `python-multipart` lên 0.0.31 và `python-dotenv` lên 1.2.2 để dọn ba lỗ hổng đã công bố (issue #267).
 
 ## [0.59.12] - 2026-09-16
 ### Sửa lỗi
-- **Nhắn "sửa lại quy trình" không bị đem đi chạy nữa.** Ở khung chat của một quy trình, câu nói về CHÍNH quy trình (cập nhật, đánh giá lại, gộp bớt bước, tóm tắt) giờ được Javis trả lời và sửa thẳng vào file quy trình. Trước đây nó thành đề bài cho một lần chạy: mất cả 10 phút, tiêu hạn mức gói, rồi trả về một bài viết chẳng liên quan.
-- **Muốn chạy thật thì vẫn chạy.** Bấm nút **Chạy** ở cột phải là chạy ngay, không bị đoán lại; hoặc gửi lại tin với `chạy:` ở đầu. Javis luôn nói một dòng cho biết nó đã trả lời chứ không chạy.
+- **Nhắn "sửa lại quy trình" không bị đem đi chạy nữa.** Ở khung chat của một quy trình, câu nói về CHÍNH quy trình (cập nhật, đánh giá lại, gộp bớt bước, tóm tắt) giờ được Jarvis 007 trả lời và sửa thẳng vào file quy trình. Trước đây nó thành đề bài cho một lần chạy: mất cả 10 phút, tiêu hạn mức gói, rồi trả về một bài viết chẳng liên quan.
+- **Muốn chạy thật thì vẫn chạy.** Bấm nút **Chạy** ở cột phải là chạy ngay, không bị đoán lại; hoặc gửi lại tin với `chạy:` ở đầu. Jarvis 007 luôn nói một dòng cho biết nó đã trả lời chứ không chạy.
 - **Hết lượt gói thuê bao giữa lần chạy không còn lọt ra thành "kết quả".** Câu báo tiếng Anh của nhà cung cấp giờ thành lỗi tiếng Việt kèm giờ reset và tên trợ lý của bước đó, ở cả hai đường chạy quy trình.
 
 ## [0.59.11] - 2026-09-15
@@ -2174,17 +2174,17 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.59.10] - 2026-09-15
 ### Cải thiện
-- **Trang Cộng sự lúc chưa có gì giờ mời bạn tạo ngay tại chỗ.** Brain mới tinh trước đây chỉ hiện một dòng chữ giữa màn hình, bấm vào đâu cũng không ra gì. Giờ chỗ khung chat là hai nút **Tạo trợ lý** và **Tạo quy trình** (kèm lối sang Javis Store), bấm một cái là mở thẳng trình tạo.
+- **Trang Cộng sự lúc chưa có gì giờ mời bạn tạo ngay tại chỗ.** Brain mới tinh trước đây chỉ hiện một dòng chữ giữa màn hình, bấm vào đâu cũng không ra gì. Giờ chỗ khung chat là hai nút **Tạo trợ lý** và **Tạo quy trình** (kèm lối sang Jarvis 007 Store), bấm một cái là mở thẳng trình tạo.
 ### Sửa lỗi
 - **Nút Thử lại giờ tải lại thật.** Khi trang Cộng sự không lấy được danh sách, nút cũ chỉ mở lại hội thoại: câu báo lỗi biến mất, cột trái vẫn trống, không có gì được tải lại. Giờ nó tải lại danh sách và nói rõ là hỏng ở khâu lấy danh sách.
 
 ## [0.59.9] - 2026-09-15
 ### Cải thiện
-- **Lúc Javis suy nghĩ, mắt linh vật đảo qua lại giữa hai dáng**: liếc chéo lên như đang lục trí nhớ, rồi lim dim thành hai gạch ngang, mỗi dáng giữ chừng một giây rưỡi. Trước đây nó trơ một dáng suốt cả lượt trả lời.
+- **Lúc Jarvis 007 suy nghĩ, mắt linh vật đảo qua lại giữa hai dáng**: liếc chéo lên như đang lục trí nhớ, rồi lim dim thành hai gạch ngang, mỗi dáng giữ chừng một giây rưỡi. Trước đây nó trơ một dáng suốt cả lượt trả lời.
 
 ## [0.59.8] - 2026-09-15
 ### Sửa lỗi
-- **Cập nhật thất bại giờ nói rõ vì sao bằng tiếng Việt.** Trước đây nó ném nguyên lời của git ra màn hình ("Not possible to fast-forward, aborting") - đúng nhưng chỉ lập trình viên đọc mới hiểu. Giờ Javis nói thẳng máy đang đứng nhầm nhánh, mất mạng, hay có sửa đổi cục bộ chặn đường, kèm đúng câu lệnh cần chạy.
+- **Cập nhật thất bại giờ nói rõ vì sao bằng tiếng Việt.** Trước đây nó ném nguyên lời của git ra màn hình ("Not possible to fast-forward, aborting") - đúng nhưng chỉ lập trình viên đọc mới hiểu. Giờ Jarvis 007 nói thẳng máy đang đứng nhầm nhánh, mất mạng, hay có sửa đổi cục bộ chặn đường, kèm đúng câu lệnh cần chạy.
 
 ## [0.59.7] - 2026-09-15
 ### Cải thiện
@@ -2204,7 +2204,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.59.4] - 2026-09-15
 ### Sửa lỗi
 - **Mở một file trong lúc chat với cộng sự không còn để lại một khoảng trống to giữa màn hình.** Giờ file nằm bên trái, hội thoại thu vào một cột hẹp bên phải, ô nhập trải dài dưới đáy - đúng như trang Trò chuyện.
-- **Linh vật đang làm việc giờ nhìn là biết.** Vòng quanh người nó dày hẳn lên và sáng màu chính khi Javis nghe, nghĩ, trả lời hay gặp lỗi; lúc rảnh mới mảnh và nhạt như cũ.
+- **Linh vật đang làm việc giờ nhìn là biết.** Vòng quanh người nó dày hẳn lên và sáng màu chính khi Jarvis 007 nghe, nghĩ, trả lời hay gặp lỗi; lúc rảnh mới mảnh và nhạt như cũ.
 - **Các trợ lý thôi chớp mắt đồng loạt.** Mỗi trợ lý có nhịp riêng nên danh sách trông như mấy nhân vật khác nhau chứ không phải mấy bản sao của một cái máy.
 ### Cải thiện
 - **Lịch sử hội thoại của trợ lý và quy trình giờ là đúng cột lịch sử bạn quen ở trang Trò chuyện**: ô tìm riêng trong hội thoại của cộng sự đó, nhóm theo ngày, ghim, đổi tên, xoá, và nút xem thêm.
@@ -2231,7 +2231,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Sửa lỗi
 - **Bấm vào file .md hay ảnh trong lúc chat với trợ lý giờ mở được.** Trước đây bấm vào không có gì xảy ra, hoặc bạn bị quăng sang trang Tệp tin.
 - **Trợ lý có tên dấu tiếng Việt mở được hội thoại.** Trước đây chọn vào là hiện một câu lỗi kỹ thuật khó hiểu và không chat được.
-- **Quy trình gặp trục trặc không còn báo "đã hoàn tất".** Bước hỏng hiện rõ là hỏng, và khi bộ não của một trợ lý hết lượt gói thuê bao thì Javis nói thẳng bước nào, trợ lý nào, bao giờ mở lại, thay vì để lại một câu tiếng Anh khó hiểu ở chỗ đáng lẽ là kết quả.
+- **Quy trình gặp trục trặc không còn báo "đã hoàn tất".** Bước hỏng hiện rõ là hỏng, và khi bộ não của một trợ lý hết lượt gói thuê bao thì Jarvis 007 nói thẳng bước nào, trợ lý nào, bao giờ mở lại, thay vì để lại một câu tiếng Anh khó hiểu ở chỗ đáng lẽ là kết quả.
 ### Cải thiện
 - Ô tìm cộng sự thu lại thành một nút kính lúp, và bộ lọc nhóm đổi thành ô chọn cho đỡ rối mắt.
 
@@ -2250,7 +2250,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Thêm mới
 - **Trang Cộng sự thay cho hai trang Trợ lý và Quy trình.** Chọn một trợ lý là chat được ngay với đúng vai đó, mỗi trợ lý có hội thoại riêng và cài đặt nằm ở cột phải.
 - **Quy trình chạy ngay trong khung chat.** Gửi một tin là một lần chạy, tiến độ từng bước hiện ở cột phải, kết quả về chat và tin sau vẫn nhớ kết quả trước để bạn góp ý tiếp.
-- **Lịch sử chạy được lưu lại.** Cột phải liệt kê các lần chạy gần nhất, bấm vào là mở lại; hỏi Javis "quy trình chạy gần nhất ra sao" ở khung chat chính để tra kết quả đã lưu. Quy trình vừa chạy tự lên đầu danh sách.
+- **Lịch sử chạy được lưu lại.** Cột phải liệt kê các lần chạy gần nhất, bấm vào là mở lại; hỏi Jarvis 007 "quy trình chạy gần nhất ra sao" ở khung chat chính để tra kết quả đã lưu. Quy trình vừa chạy tự lên đầu danh sách.
 
 ## [0.58.8] - 2026-09-15
 ### Cải thiện
@@ -2274,18 +2274,18 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.58.5] - 2026-09-15
 ### Sửa lỗi
-- **"Cuộn xuống dưới" giờ cuộn đúng thứ bạn đang xem.** Trước đây lệnh này luôn kéo khung chat, nên đứng ở trang Tự học hay Việc định kỳ mà bảo cuộn thì danh sách đứng im còn khung chat bên cạnh nhảy. Nay Javis cuộn trang nội dung đang mở, chỉ quay về khung chat khi bạn đang ở màn hình chính.
-- Muốn chỉ rõ thì nói thẳng: "cuộn trang này xuống" hay "cuộn khung chat lên đầu". Javis cũng nói lại đúng cái nó vừa cuộn, thay vì luôn miệng bảo "đã cuộn khung chat".
-- Trang Terminal và trình sửa file cuộn ở khung bên trong nên trước đây lệnh cuộn không ăn gì cả; nay Javis tìm đúng khung đó. Trang không có gì để cuộn thì Javis nói thật chứ không im lặng.
+- **"Cuộn xuống dưới" giờ cuộn đúng thứ bạn đang xem.** Trước đây lệnh này luôn kéo khung chat, nên đứng ở trang Tự học hay Việc định kỳ mà bảo cuộn thì danh sách đứng im còn khung chat bên cạnh nhảy. Nay Jarvis 007 cuộn trang nội dung đang mở, chỉ quay về khung chat khi bạn đang ở màn hình chính.
+- Muốn chỉ rõ thì nói thẳng: "cuộn trang này xuống" hay "cuộn khung chat lên đầu". Jarvis 007 cũng nói lại đúng cái nó vừa cuộn, thay vì luôn miệng bảo "đã cuộn khung chat".
+- Trang Terminal và trình sửa file cuộn ở khung bên trong nên trước đây lệnh cuộn không ăn gì cả; nay Jarvis 007 tìm đúng khung đó. Trang không có gì để cuộn thì Jarvis 007 nói thật chứ không im lặng.
 
 ## [0.58.4] - 2026-09-15
 ### Sửa lỗi
-- **iPhone: câu bạn nói không còn hiện chữ cam rồi biến mất.** Safari trên iPhone hay giao chữ nghe được ở dạng tạm mà không bao giờ chốt, nhất là sau khi nói chuyện một hồi lâu; trước đây tới lúc hết câu Javis chỉ lấy phần đã chốt nên câu ấy rỗng và không vào khung chat. Nay phần chữ tạm được gửi đi đúng như bạn thấy trên màn hình.
-- **Nói chen vào lúc Javis đang trả lời mượt hơn.** Trước đây câu chen được gửi lại sau đúng 1,5 giây; nếu lượt cũ chưa dừng kịp thì máy chủ từ chối, hoặc dừng xong muộn thì xoá nhầm trạng thái của lượt mới khiến chữ không hiện và loa im. Nay Javis chờ đúng tín hiệu lượt cũ dừng hẳn, và câu bạn vừa nói vẫn nằm trên màn hình trong lúc chờ thay vì biến mất mấy giây.
+- **iPhone: câu bạn nói không còn hiện chữ cam rồi biến mất.** Safari trên iPhone hay giao chữ nghe được ở dạng tạm mà không bao giờ chốt, nhất là sau khi nói chuyện một hồi lâu; trước đây tới lúc hết câu Jarvis 007 chỉ lấy phần đã chốt nên câu ấy rỗng và không vào khung chat. Nay phần chữ tạm được gửi đi đúng như bạn thấy trên màn hình.
+- **Nói chen vào lúc Jarvis 007 đang trả lời mượt hơn.** Trước đây câu chen được gửi lại sau đúng 1,5 giây; nếu lượt cũ chưa dừng kịp thì máy chủ từ chối, hoặc dừng xong muộn thì xoá nhầm trạng thái của lượt mới khiến chữ không hiện và loa im. Nay Jarvis 007 chờ đúng tín hiệu lượt cũ dừng hẳn, và câu bạn vừa nói vẫn nằm trên màn hình trong lúc chờ thay vì biến mất mấy giây.
 
 ## [0.58.3] - 2026-09-15
 ### Cải thiện
-- **Thanh bên có lại chữ "JAVIS OS" cạnh linh vật.** Trước đó chỗ đó chỉ còn mỗi khuôn mặt. Thu gọn thanh bên thì chữ tự ẩn, chỉ còn khuôn mặt như cũ.
+- **Thanh bên có lại chữ "JARVIS 007" cạnh linh vật.** Trước đó chỗ đó chỉ còn mỗi khuôn mặt. Thu gọn thanh bên thì chữ tự ẩn, chỉ còn khuôn mặt như cũ.
 
 ## [0.58.2] - 2026-09-15
 ### Sửa lỗi
@@ -2302,16 +2302,16 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.58.0] - 2026-09-15
 ### Thêm mới
-- **Javis có linh vật riêng, nép ở mép màn hình.** Một khuôn mặt nhỏ ló ra nửa người bên phải, hai mắt né sang phần còn nhìn thấy, nhìn theo con trỏ và chớp mắt. Nó đổi biểu cảm theo đúng việc đang làm: mắt mở to khi lắng nghe, liếc lên khi suy nghĩ, cong lại khi trả lời.
+- **Jarvis 007 có linh vật riêng, nép ở mép màn hình.** Một khuôn mặt nhỏ ló ra nửa người bên phải, hai mắt né sang phần còn nhìn thấy, nhìn theo con trỏ và chớp mắt. Nó đổi biểu cảm theo đúng việc đang làm: mắt mở to khi lắng nghe, liếc lên khi suy nghĩ, cong lại khi trả lời.
 - **Bấm một lần là nó bước hẳn ra kèm menu nhanh** (trò chuyện, việc, cài đặt, ẩn) và đứng nguyên ngoài đó; bấm ra chỗ khác chỉ đóng menu chứ không kéo nó vào. Kéo thả đi đâu cũng được, ném sát mép thì nó mới nép nửa người trở lại.
 - **Trang "Linh vật" mới** trong nhóm Hệ thống: chọn 1 trong 5 hình dáng và 12 bảng màu, hoặc tắt hẳn. Mỗi bảng màu tự đổi tông theo giao diện ngày hay đêm, và lựa chọn lưu theo tài khoản nên máy nào mở cũng thấy đúng con mình chọn.
 ### Cải thiện
 - **Logo và favicon đổi sang mặt linh vật** (khối tròn cam, hai mắt đen). Logo giờ tự đổi theo phiên bản app, hết cảnh cập nhật xong vẫn thấy logo cũ nằm trong cache trình duyệt.
-- **Thanh bên gọn đi một tầng.** Nhóm "Trợ lý" được bỏ, hai mục bên trong dồn xuống "Bộ não" và đứng đầu nhóm. Trang "Javis" nay gọi đúng tên là **Đồ thị**, và vẫn là trang mở ra đầu tiên.
+- **Thanh bên gọn đi một tầng.** Nhóm "Trợ lý" được bỏ, hai mục bên trong dồn xuống "Bộ não" và đứng đầu nhóm. Trang "Jarvis 007" nay gọi đúng tên là **Đồ thị**, và vẫn là trang mở ra đầu tiên.
 
 ## [0.57.23] - 2026-09-15
 ### Thêm mới
-- **Trình duyệt cho Javis tự kiểm thử giao diện giờ là một lựa chọn, cài bằng nút bấm.** Trang Công cụ có mục "Công cụ tuỳ chọn" với nút cài, và trình hướng dẫn lần đầu cũng hỏi luôn. Máy nào đã có sẵn Chrome thì Javis dùng luôn và không mời tải gì; chỉ máy chủ thiếu trình duyệt mới thấy nút. Bản tải về nằm trên ổ dữ liệu nên còn nguyên sau mỗi lần cập nhật.
+- **Trình duyệt cho Jarvis 007 tự kiểm thử giao diện giờ là một lựa chọn, cài bằng nút bấm.** Trang Công cụ có mục "Công cụ tuỳ chọn" với nút cài, và trình hướng dẫn lần đầu cũng hỏi luôn. Máy nào đã có sẵn Chrome thì Jarvis 007 dùng luôn và không mời tải gì; chỉ máy chủ thiếu trình duyệt mới thấy nút. Bản tải về nằm trên ổ dữ liệu nên còn nguyên sau mỗi lần cập nhật.
 - Đang đấu kết nối Playwright mà máy chưa có trình duyệt thì có dòng nhắc ngay trong form, kèm lối đi thẳng sang trang Công cụ, thay vì đấu xong mới phát hiện không chạy được.
 
 ## [0.57.22] - 2026-09-15
@@ -2320,58 +2320,58 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.57.21] - 2026-09-15
 ### Sửa lỗi
-- **Bảo dừng việc ngầm thì nó dừng thật, thay vì đẻ thêm một việc để đi dừng.** Trước đây nói "tạm dừng việc tìm kiếm ngầm đi" là Javis dạ vâng rồi giao thêm một việc nền mới mang nội dung "dừng việc nền đang chạy", nói lần nữa lại đẻ thêm một cái nữa. Nay câu đó được hiểu là lệnh: huỷ ngay tại chỗ, trả lời tức thì, và nói rõ đã dừng mấy việc. Không có việc nào đang chạy thì nói thật chứ không giả vờ đã dừng.
+- **Bảo dừng việc ngầm thì nó dừng thật, thay vì đẻ thêm một việc để đi dừng.** Trước đây nói "tạm dừng việc tìm kiếm ngầm đi" là Jarvis 007 dạ vâng rồi giao thêm một việc nền mới mang nội dung "dừng việc nền đang chạy", nói lần nữa lại đẻ thêm một cái nữa. Nay câu đó được hiểu là lệnh: huỷ ngay tại chỗ, trả lời tức thì, và nói rõ đã dừng mấy việc. Không có việc nào đang chạy thì nói thật chứ không giả vờ đã dừng.
 
 ## [0.57.20] - 2026-09-15
 ### Thêm mới
 - **Việc giao bằng giọng giờ hiện thành thẻ trên trang Việc.** Nhận việc là có thẻ "đang chạy" ngay, xong thì thẻ chuyển sang xong kèm kết quả, hỏng hay quá lâu thì chuyển sang chặn kèm lý do thật. Không còn phải hỏi miệng mới biết việc còn sống hay đã chết, và xong rồi vẫn còn dấu để xem lại.
 ### Sửa lỗi
-- **Quả cầu não hết giật và hết tự thu nhỏ khi bạn nói.** Trước đây nó bám theo mức âm thô đọc lại 60 lần mỗi giây nên rung bần bật, và lúc Javis suy nghĩ thì mọi chấm cùng co lại gần một nửa, nhìn như màn hình tự thu nhỏ. Nay nhịp thở mượt và nhẹ, vẫn sống theo giọng nhưng không giật.
+- **Quả cầu não hết giật và hết tự thu nhỏ khi bạn nói.** Trước đây nó bám theo mức âm thô đọc lại 60 lần mỗi giây nên rung bần bật, và lúc Jarvis 007 suy nghĩ thì mọi chấm cùng co lại gần một nửa, nhìn như màn hình tự thu nhỏ. Nay nhịp thở mượt và nhẹ, vẫn sống theo giọng nhưng không giật.
 - **Thẻ việc không bị kẹt "đang chạy" sau khi khởi động lại.** Server tắt giữa chừng thì việc nền không còn chạy nữa, nên thẻ được đánh dấu chặn kèm lý do thay vì nằm đó mãi.
 
 ## [0.57.19] - 2026-09-15
 ### Thêm mới
-- **Javis tự hỏi thăm khi việc nền chạy lâu.** Giao một việc xong, thay vì im lặng hàng phút, nó thỉnh thoảng nói "em vẫn đang xem, chờ chút nhé", và thưa dần chứ không lải nhải: sau 25 giây, rồi một phút, rồi hai phút. Chờ quá lâu thì nó nói thật là lâu hơn dự tính. Chỉ nói khi bạn không đang nói và loa đang rảnh, và chỉ trong lúc bật chế độ rảnh tay.
+- **Jarvis 007 tự hỏi thăm khi việc nền chạy lâu.** Giao một việc xong, thay vì im lặng hàng phút, nó thỉnh thoảng nói "em vẫn đang xem, chờ chút nhé", và thưa dần chứ không lải nhải: sau 25 giây, rồi một phút, rồi hai phút. Chờ quá lâu thì nó nói thật là lâu hơn dự tính. Chỉ nói khi bạn không đang nói và loa đang rảnh, và chỉ trong lúc bật chế độ rảnh tay.
 ### Sửa lỗi
 - **Việc giao bằng giọng đã hiện trong dải việc nền.** Trước đây loại việc này không xuất hiện ở đâu cả nên bạn không có cách nào biết nó còn sống hay đã chết, ngoài hỏi miệng. Nay nó được đếm như mọi việc đang chạy khác.
 
 ## [0.57.18] - 2026-09-15
 ### Sửa lỗi
-- **Việc chạy nền không còn biến mất giữa chừng.** Javis nhận việc, báo "đang chạy nền", rồi kết quả không bao giờ về và hỏi lại thì vẫn báo đang chạy. Nguyên nhân: việc nền bị hệ thống dọn mất ngay khi đang chạy vì không có gì giữ nó lại. Nay việc nền sống trọn vẹn tới lúc xong.
-- **Việc nền luôn báo về một câu, dù xong, lỗi, bị dừng hay quá lâu.** Trước đây gặp mấy trường hợp đó là im lặng tuyệt đối, bạn ngồi đợi một kết quả không bao giờ tới. Quá 10 phút thì Javis nói thẳng là nó dừng và mời bạn giao lại.
+- **Việc chạy nền không còn biến mất giữa chừng.** Jarvis 007 nhận việc, báo "đang chạy nền", rồi kết quả không bao giờ về và hỏi lại thì vẫn báo đang chạy. Nguyên nhân: việc nền bị hệ thống dọn mất ngay khi đang chạy vì không có gì giữ nó lại. Nay việc nền sống trọn vẹn tới lúc xong.
+- **Việc nền luôn báo về một câu, dù xong, lỗi, bị dừng hay quá lâu.** Trước đây gặp mấy trường hợp đó là im lặng tuyệt đối, bạn ngồi đợi một kết quả không bao giờ tới. Quá 10 phút thì Jarvis 007 nói thẳng là nó dừng và mời bạn giao lại.
 
 ## [0.57.17] - 2026-09-15
 ### Sửa lỗi
-- **Nói chen vào được cả lúc Javis đang nghĩ.** Trước đây mic bị đóng suốt thời gian xử lý, có khi vài chục giây, nên bạn nói thêm ngữ cảnh hay bảo nó dừng đều như nói vào chỗ trống. Giờ mic vẫn nghe trong lúc nó nghĩ: bạn nói là nó bỏ câu đang làm dở và nhận câu mới, kèm đủ ngữ cảnh của câu trước.
+- **Nói chen vào được cả lúc Jarvis 007 đang nghĩ.** Trước đây mic bị đóng suốt thời gian xử lý, có khi vài chục giây, nên bạn nói thêm ngữ cảnh hay bảo nó dừng đều như nói vào chỗ trống. Giờ mic vẫn nghe trong lúc nó nghĩ: bạn nói là nó bỏ câu đang làm dở và nhận câu mới, kèm đủ ngữ cảnh của câu trước.
 - **Câu nói chen ngang không còn rơi mất.** Lượt cũ cần một nhịp để dừng hẳn, nên câu bạn vừa nói được giữ lại và gửi ngay khi lượt đó đóng, thay vì bị máy chủ từ chối rồi biến mất.
-- **Một khúc tiếng bị treo không làm câm cả câu trả lời.** Khi mạng chậm và một đoạn audio tắc giữa chừng, trước đây phần còn lại im luôn mà không báo gì. Nay Javis phát hiện đoạn treo, bỏ qua nó và đọc tiếp phần sau.
+- **Một khúc tiếng bị treo không làm câm cả câu trả lời.** Khi mạng chậm và một đoạn audio tắc giữa chừng, trước đây phần còn lại im luôn mà không báo gì. Nay Jarvis 007 phát hiện đoạn treo, bỏ qua nó và đọc tiếp phần sau.
 
 ## [0.57.16] - 2026-09-15
 ### Sửa lỗi
 - **Việc nền báo xong không còn làm chết cứng khung chat.** Sau khi một việc chạy nền đẩy kết quả vào, hội thoại bị coi nhầm là "vẫn đang trả lời": nút gửi khoá, tin nhắn tiếp theo biến mất không dấu vết, mic không mở lại và màn hình đứng mãi ở "đang suy nghĩ". Nay kết quả việc nền chỉ chèn thêm một bong bóng, không đụng tới trạng thái của lượt.
-- **Cắt lời giữa chừng thì dừng hẳn lượt đó.** Trước đây ngắt lời chỉ tắt tiếng, còn Javis vẫn viết tiếp cho một câu không ai nghe, và phiên vẫn bận nên câu bạn vừa chen vào bị chặn. Giờ nói chen vào là nó dừng luôn cả việc đang làm và nghe bạn.
+- **Cắt lời giữa chừng thì dừng hẳn lượt đó.** Trước đây ngắt lời chỉ tắt tiếng, còn Jarvis 007 vẫn viết tiếp cho một câu không ai nghe, và phiên vẫn bận nên câu bạn vừa chen vào bị chặn. Giờ nói chen vào là nó dừng luôn cả việc đang làm và nghe bạn.
 
 ## [0.57.15] - 2026-09-15
 ### Sửa lỗi
-- **Ngắt lời giờ mới thật sự chạy.** Bản trước làm đúng phần nhận biết nhưng chưa bao giờ được gọi tới: đang nói chuyện bằng giọng, bạn dứt lời là mic đóng lại trước khi Javis kịp trả lời, mà điều kiện rình ngắt lời lại đòi mic phải đang mở. Nay Javis giữ tai trong suốt lúc nó đọc, nên nói chen vào là nó dừng sau khoảng nửa giây. Tắt chế độ rảnh tay thì nó đọc trong im lặng như cũ, không nghe gì.
+- **Ngắt lời giờ mới thật sự chạy.** Bản trước làm đúng phần nhận biết nhưng chưa bao giờ được gọi tới: đang nói chuyện bằng giọng, bạn dứt lời là mic đóng lại trước khi Jarvis 007 kịp trả lời, mà điều kiện rình ngắt lời lại đòi mic phải đang mở. Nay Jarvis 007 giữ tai trong suốt lúc nó đọc, nên nói chen vào là nó dừng sau khoảng nửa giây. Tắt chế độ rảnh tay thì nó đọc trong im lặng như cũ, không nghe gì.
 
 ## [0.57.14] - 2026-09-15
 ### Sửa lỗi
-- **Nói chen vào là Javis dừng thật.** Trước đây đang nghe một đoạn dài mà nói "thôi" hay "dừng lại" thì nó giật một cái rồi đọc tiếp, vì phải chờ nhận dạng trả chữ trong 2 giây mà tiếng nói ngắn đã dứt trước khi tai kịp mở. Giờ Javis nhận ra trong khoảng nửa giây và dừng hẳn.
-- **Hết cảnh Javis nghe chính loa của mình rồi tự câm.** Khi nghi có người nói, nó hạ nhỏ tiếng một nhá rồi nghe lại: tiếng vọng từ loa nhỏ theo, giọng người thì không, nên phân biệt được ngay. Loa ngoài mở to vẫn dùng ngắt lời được, và mức vọng của phòng được nhớ lại cho những lần sau.
+- **Nói chen vào là Jarvis 007 dừng thật.** Trước đây đang nghe một đoạn dài mà nói "thôi" hay "dừng lại" thì nó giật một cái rồi đọc tiếp, vì phải chờ nhận dạng trả chữ trong 2 giây mà tiếng nói ngắn đã dứt trước khi tai kịp mở. Giờ Jarvis 007 nhận ra trong khoảng nửa giây và dừng hẳn.
+- **Hết cảnh Jarvis 007 nghe chính loa của mình rồi tự câm.** Khi nghi có người nói, nó hạ nhỏ tiếng một nhá rồi nghe lại: tiếng vọng từ loa nhỏ theo, giọng người thì không, nên phân biệt được ngay. Loa ngoài mở to vẫn dùng ngắt lời được, và mức vọng của phòng được nhớ lại cho những lần sau.
 
 ## [0.57.13] - 2026-09-14
 ### Cải thiện
-- **Xưng hô để tự do.** Bỏ luật cứng "mặc định bạn/mình" và test chặn chữ anh/em trong mã nguồn: cách xưng hô là chuyện của từng người dùng, Javis xưng theo cách bạn đang xưng với nó, có ký ức thì theo ký ức. Bộ dò "hứa suông" vẫn được giữ và kiểm với mọi giọng xưng hô.
+- **Xưng hô để tự do.** Bỏ luật cứng "mặc định bạn/mình" và test chặn chữ anh/em trong mã nguồn: cách xưng hô là chuyện của từng người dùng, Jarvis 007 xưng theo cách bạn đang xưng với nó, có ký ức thì theo ký ức. Bộ dò "hứa suông" vẫn được giữ và kiểm với mọi giọng xưng hô.
 
 ## [0.57.12] - 2026-09-14
 ### Cải thiện
-- **Bộ não giọng xưng hô theo bạn.** Bạn xưng thế nào với Javis thì nó đáp lại cho khớp, không còn bị ép về một cách xưng hô cố định; các câu chờ có sẵn cũng bỏ đại từ để không lệch với cách bạn đang nói.
+- **Bộ não giọng xưng hô theo bạn.** Bạn xưng thế nào với Jarvis 007 thì nó đáp lại cho khớp, không còn bị ép về một cách xưng hô cố định; các câu chờ có sẵn cũng bỏ đại từ để không lệch với cách bạn đang nói.
 
 ## [0.57.11] - 2026-09-14
 ### Cải thiện
-- **Nói chuyện không bao giờ bị khoá khi Javis đang làm việc.** Ở Làn nhanh, khi bạn nhờ một việc cần dữ liệu hay hành động, Javis nói "Ừ, để mình xem" rồi giao việc đó chạy nền và quay lại nghe bạn ngay, thay vì im lặng hàng chục giây và báo "phiên đang trả lời". Giao được nhiều việc liên tiếp, việc nào xong thì kết quả tự hiện trong khung chat và được đọc lên khi bạn không đang nói.
-- Trong lúc chờ, hỏi tiến độ thì Javis biết việc nào đang chạy, không bịa kết quả và không giao lại việc trùng. Dưới câu xác nhận có dòng nhỏ cho biết việc đã nhận.
+- **Nói chuyện không bao giờ bị khoá khi Jarvis 007 đang làm việc.** Ở Làn nhanh, khi bạn nhờ một việc cần dữ liệu hay hành động, Jarvis 007 nói "Ừ, để mình xem" rồi giao việc đó chạy nền và quay lại nghe bạn ngay, thay vì im lặng hàng chục giây và báo "phiên đang trả lời". Giao được nhiều việc liên tiếp, việc nào xong thì kết quả tự hiện trong khung chat và được đọc lên khi bạn không đang nói.
+- Trong lúc chờ, hỏi tiến độ thì Jarvis 007 biết việc nào đang chạy, không bịa kết quả và không giao lại việc trùng. Dưới câu xác nhận có dòng nhỏ cho biết việc đã nhận.
 
 ## [0.57.10] - 2026-09-14
 ### Cải thiện
@@ -2384,21 +2384,21 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.57.8] - 2026-09-14
 ### Cải thiện
-- **Chữ hiện theo lời đọc, như ChatGPT Voice.** Khi bạn nói chuyện bằng giọng, bong bóng trả lời của Javis hiện dần đúng chỗ giọng đang đọc tới, thay vì hiện cả câu trước rồi loa mới đọc đuổi theo. Ngắt lời giữa chừng thì chữ dừng đúng chỗ Javis đã nói, có dấu ba chấm ở cuối. Đọc xong hết mới vẽ đầy đủ ảnh, link, bảng và nút hỏi lại.
+- **Chữ hiện theo lời đọc, như ChatGPT Voice.** Khi bạn nói chuyện bằng giọng, bong bóng trả lời của Jarvis 007 hiện dần đúng chỗ giọng đang đọc tới, thay vì hiện cả câu trước rồi loa mới đọc đuổi theo. Ngắt lời giữa chừng thì chữ dừng đúng chỗ Jarvis 007 đã nói, có dấu ba chấm ở cuối. Đọc xong hết mới vẽ đầy đủ ảnh, link, bảng và nút hỏi lại.
 - Áp dụng cho cả chế độ chuẩn, Làn nhanh và Live. Tải lại trang vẫn thấy đủ câu trả lời trong lịch sử.
 
 ## [0.57.7] - 2026-09-14
 ### Cải thiện
-- **Thanh bên nói tiếng Việt nốt.** Nhóm Năng lực giờ là **Trợ lý**, **Kỹ năng**, **Quy trình**, **Công cụ** (Chatbot giữ nguyên), đúng bộ chữ mà Javis Store vẫn dùng. Tiêu đề trang vẫn kèm tên tiếng Anh trong ngoặc nên ai quen chữ cũ vẫn nhận ra ngay.
-- **Ra lệnh bằng giọng theo đúng chữ nhìn thấy.** Nói "mở trang công cụ", "cho xem trang kỹ năng", "mở trang trợ lý" là Javis mở đúng tab, không cần đọc tên tiếng Anh nữa.
-- **Sửa lỗi nói tên trang tiếng Việt thì không mở được.** Làn giọng nói gửi thẳng chữ bạn vừa nói sang trình duyệt, nên hễ không phải tên tiếng Anh là bị trả về "trang không tồn tại". Nay chữ được tra trước, và tra không ra thì Javis nói rõ là không có trang đó.
+- **Thanh bên nói tiếng Việt nốt.** Nhóm Năng lực giờ là **Trợ lý**, **Kỹ năng**, **Quy trình**, **Công cụ** (Chatbot giữ nguyên), đúng bộ chữ mà Jarvis 007 Store vẫn dùng. Tiêu đề trang vẫn kèm tên tiếng Anh trong ngoặc nên ai quen chữ cũ vẫn nhận ra ngay.
+- **Ra lệnh bằng giọng theo đúng chữ nhìn thấy.** Nói "mở trang công cụ", "cho xem trang kỹ năng", "mở trang trợ lý" là Jarvis 007 mở đúng tab, không cần đọc tên tiếng Anh nữa.
+- **Sửa lỗi nói tên trang tiếng Việt thì không mở được.** Làn giọng nói gửi thẳng chữ bạn vừa nói sang trình duyệt, nên hễ không phải tên tiếng Anh là bị trả về "trang không tồn tại". Nay chữ được tra trước, và tra không ra thì Jarvis 007 nói rõ là không có trang đó.
 
 ## [0.57.6] - 2026-09-14
 ### Cải thiện
-- **Nói chuyện với Javis mượt hơn hẳn, ở mọi chế độ.** Trước đây khi dùng bộ não chính, mỗi mẩu chữ vài từ vừa sinh ra là bị đọc ngay, thành hàng chục lần gọi giọng đọc nối nhau nên nghe cà nhắc. Nay Javis đọc theo cụm tự nhiên: hết câu, hoặc đến dấu phẩy và liên từ ở cụm đầu cho tiếng ra nhanh, câu dài thì cắt ở chỗ dễ nghe; model chậm mà loa đang im thì đẩy cụm đang có chứ không để bạn chờ.
-- **Vừa nói vừa gõ trong cùng một cuộc trò chuyện.** Đang bật mic mà gõ chữ bổ sung thì tin vẫn đi làn nhanh và Javis vẫn trả lời bằng giọng; ở chế độ Live thì chữ gõ đi thẳng vào phiên đang nói.
-- **Việc lâu thì Javis nói trước một câu** kiểu "để mình xem nhé" rồi mới trả kết quả, thay vì im lặng mấy giây. Bộ não chính cũng được dặn trả lời ngắn như người đang nói khi bạn nghe bằng tai.
-- Hiểu "từ từ đợi đợi đợi chút" hay "thôi thôi dừng lại" dù bạn nói lắp; kết câu bằng "ừm", "kiểu" thì Javis chờ bạn nghĩ tiếp chứ không gửi vội.
+- **Nói chuyện với Jarvis 007 mượt hơn hẳn, ở mọi chế độ.** Trước đây khi dùng bộ não chính, mỗi mẩu chữ vài từ vừa sinh ra là bị đọc ngay, thành hàng chục lần gọi giọng đọc nối nhau nên nghe cà nhắc. Nay Jarvis 007 đọc theo cụm tự nhiên: hết câu, hoặc đến dấu phẩy và liên từ ở cụm đầu cho tiếng ra nhanh, câu dài thì cắt ở chỗ dễ nghe; model chậm mà loa đang im thì đẩy cụm đang có chứ không để bạn chờ.
+- **Vừa nói vừa gõ trong cùng một cuộc trò chuyện.** Đang bật mic mà gõ chữ bổ sung thì tin vẫn đi làn nhanh và Jarvis 007 vẫn trả lời bằng giọng; ở chế độ Live thì chữ gõ đi thẳng vào phiên đang nói.
+- **Việc lâu thì Jarvis 007 nói trước một câu** kiểu "để mình xem nhé" rồi mới trả kết quả, thay vì im lặng mấy giây. Bộ não chính cũng được dặn trả lời ngắn như người đang nói khi bạn nghe bằng tai.
+- Hiểu "từ từ đợi đợi đợi chút" hay "thôi thôi dừng lại" dù bạn nói lắp; kết câu bằng "ừm", "kiểu" thì Jarvis 007 chờ bạn nghĩ tiếp chứ không gửi vội.
 
 ## [0.57.5] - 2026-09-14
 ### Sửa lỗi
@@ -2411,7 +2411,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.57.4] - 2026-09-14
 ### Sửa lỗi
-- **Hết cảnh Javis tự nhiên "nghe" thấy câu mời đăng ký kênh YouTube.** Máy nghe Groq Whisper học từ phụ đề YouTube, nên gặp khoảng lặng hay tiếng ồn là nó bịa ra câu quen thuộc "Hãy subscribe cho kênh Ghiền Mì Gõ...", và câu đó đi thẳng vào khung chat như thể bạn vừa nói. Nay Javis cắt bỏ những câu bịa kiểu đó, giữ nguyên phần bạn nói thật ở trước hoặc sau; nếu cả lượt chỉ toàn câu bịa thì quay về dùng chữ của trình duyệt.
+- **Hết cảnh Jarvis 007 tự nhiên "nghe" thấy câu mời đăng ký kênh YouTube.** Máy nghe Groq Whisper học từ phụ đề YouTube, nên gặp khoảng lặng hay tiếng ồn là nó bịa ra câu quen thuộc "Hãy subscribe cho kênh Ghiền Mì Gõ...", và câu đó đi thẳng vào khung chat như thể bạn vừa nói. Nay Jarvis 007 cắt bỏ những câu bịa kiểu đó, giữ nguyên phần bạn nói thật ở trước hoặc sau; nếu cả lượt chỉ toàn câu bịa thì quay về dùng chữ của trình duyệt.
 - Bộ lọc cố ý để hẹp, nên bạn vẫn nói bình thường được về đăng ký kênh, làm video hay chạy quảng cáo mà không bị cắt mất câu.
 
 ## [0.57.3] - 2026-09-14
@@ -2421,14 +2421,14 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.57.2] - 2026-09-14
 ### Sửa lỗi
-- **Làn nhanh hết nghe giật, cà nhắc.** Trước đây mỗi mẩu chữ vài từ vừa sinh ra là bị đẩy đi đọc ngay, thành hàng chục lần gọi giọng đọc nối nhau, mỗi lần một khoảng chờ mạng nên nghe như cắt từng mẩu và hay hiện "MẠNG CHẬM". Nay Javis chỉ đọc khi câu đã trọn (hết dấu chấm, chấm hỏi, hay xuống dòng), câu dài quá thì cắt ở dấu phẩy.
+- **Làn nhanh hết nghe giật, cà nhắc.** Trước đây mỗi mẩu chữ vài từ vừa sinh ra là bị đẩy đi đọc ngay, thành hàng chục lần gọi giọng đọc nối nhau, mỗi lần một khoảng chờ mạng nên nghe như cắt từng mẩu và hay hiện "MẠNG CHẬM". Nay Jarvis 007 chỉ đọc khi câu đã trọn (hết dấu chấm, chấm hỏi, hay xuống dòng), câu dài quá thì cắt ở dấu phẩy.
 - Trong lúc đang đọc câu này, trình duyệt đã tải sẵn câu kế tiếp nên hết câu là nói liền, không còn khoảng trống giữa hai câu.
 
 ## [0.57.1] - 2026-09-14
 ### Cải thiện
-- **Chế độ Live không còn đứng im khi Javis đi lấy dữ liệu.** Trước đây hỏi một câu cần số liệu là cả cuộc nói chuyện khựng lại tới khi bộ não chính trả lời xong. Nay việc đó chạy nền: Javis nói "để mình xem" rồi vẫn nghe và đáp tiếp, có kết quả thì thuật lại (Gemini dòng 3.1 vẫn im chờ vì Google chưa hỗ trợ, dòng 2.5 và OpenAI thì nói tiếp được).
-- **Thêm OpenAI GPT-Live** (mô hình song công mới, 09/2026) làm nhà cung cấp Live thứ ba, cùng ô cài đặt, dùng key OpenAI đã có. Javis là "bộ não nền" của nó: model tự quyết khi nào giao việc, Javis làm rồi trả kết quả để nó kể lại. Chưa chạy thử thật.
-- Ngắt lời chính xác hơn với OpenAI Realtime: Javis chỉ nhớ đúng phần bạn đã nghe, không nhớ phần chưa kịp đọc. Gemini tự nối lại khi Google đóng kết nối sau khoảng 10 phút, bạn không thấy đứt.
+- **Chế độ Live không còn đứng im khi Jarvis 007 đi lấy dữ liệu.** Trước đây hỏi một câu cần số liệu là cả cuộc nói chuyện khựng lại tới khi bộ não chính trả lời xong. Nay việc đó chạy nền: Jarvis 007 nói "để mình xem" rồi vẫn nghe và đáp tiếp, có kết quả thì thuật lại (Gemini dòng 3.1 vẫn im chờ vì Google chưa hỗ trợ, dòng 2.5 và OpenAI thì nói tiếp được).
+- **Thêm OpenAI GPT-Live** (mô hình song công mới, 09/2026) làm nhà cung cấp Live thứ ba, cùng ô cài đặt, dùng key OpenAI đã có. Jarvis 007 là "bộ não nền" của nó: model tự quyết khi nào giao việc, Jarvis 007 làm rồi trả kết quả để nó kể lại. Chưa chạy thử thật.
+- Ngắt lời chính xác hơn với OpenAI Realtime: Jarvis 007 chỉ nhớ đúng phần bạn đã nghe, không nhớ phần chưa kịp đọc. Gemini tự nối lại khi Google đóng kết nối sau khoảng 10 phút, bạn không thấy đứt.
 - Phiên Live biết bạn đang mở trang nào, bôi đen đoạn nào, giống chế độ chuẩn, nên "tóm tắt đoạn này" nói bằng giọng cũng hiểu.
 
 ## [0.57.0] - 2026-09-14
@@ -2442,8 +2442,8 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.56.0] - 2026-09-14
 ### Thêm mới
-- **Nói chuyện với Javis tự nhiên hơn.** Nói "khoan", "đợi chút" là Javis im chờ bạn; nói "thôi", "dừng lại" là nó ngừng đọc. Câu kết bằng "và", "nhưng" hay dấu phẩy thì Javis tự chờ thêm chứ không gửi vội. Chen ngang khi Javis đang đọc: nó tạm dừng 2 giây xem bạn có nói thật không, nói thật thì dừng hẳn và trả lời tiếp từ chỗ đang đọc dở, còn tiếng ho thì đọc tiếp.
-- **Điều khiển bằng lời.** "Mở trang Việc", "mở file X", "cuộn xuống" là dashboard tự mở. "Mở Chrome", "tắt Excel", "đang mở app nào" là Javis mở hay đóng app trên chính máy đang chạy Javis (chạy trên VPS thì nó nói rõ là không được). Bôi đen một đoạn rồi nói "tóm tắt đoạn này" là Javis biết đoạn nào.
+- **Nói chuyện với Jarvis 007 tự nhiên hơn.** Nói "khoan", "đợi chút" là Jarvis 007 im chờ bạn; nói "thôi", "dừng lại" là nó ngừng đọc. Câu kết bằng "và", "nhưng" hay dấu phẩy thì Jarvis 007 tự chờ thêm chứ không gửi vội. Chen ngang khi Jarvis 007 đang đọc: nó tạm dừng 2 giây xem bạn có nói thật không, nói thật thì dừng hẳn và trả lời tiếp từ chỗ đang đọc dở, còn tiếng ho thì đọc tiếp.
+- **Điều khiển bằng lời.** "Mở trang Việc", "mở file X", "cuộn xuống" là dashboard tự mở. "Mở Chrome", "tắt Excel", "đang mở app nào" là Jarvis 007 mở hay đóng app trên chính máy đang chạy Jarvis 007 (chạy trên VPS thì nó nói rõ là không được). Bôi đen một đoạn rồi nói "tóm tắt đoạn này" là Jarvis 007 biết đoạn nào.
 - **Dòng trạng thái giữa màn hình nói thật:** ĐANG GỌI tên tool, ĐANG CHỜ BẠN, TẠM DỪNG, ĐANG KẾT NỐI LẠI, và hậu tố MẠNG CHẬM hay N VIỆC NỀN chỉ hiện khi đo được thật.
 
 ### Cải thiện
@@ -2451,22 +2451,22 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.55.66] - 2026-09-13
 ### Sửa lỗi
-- **Xem ảnh trên điện thoại giờ thoát ra được.** Bấm vào một tấm ảnh trong chat là kẹt luôn: nút đóng nằm lọt dưới đồng hồ và vạch pin của điện thoại nên bấm không trúng, mà vuốt cạnh trái để lùi lại thì cũng không ăn gì. Nay thanh công cụ lùi xuống dưới thanh trạng thái, và **vuốt cạnh hoặc bấm Back là đóng ảnh** thay vì văng ra khỏi Javis.
+- **Xem ảnh trên điện thoại giờ thoát ra được.** Bấm vào một tấm ảnh trong chat là kẹt luôn: nút đóng nằm lọt dưới đồng hồ và vạch pin của điện thoại nên bấm không trúng, mà vuốt cạnh trái để lùi lại thì cũng không ăn gì. Nay thanh công cụ lùi xuống dưới thanh trạng thái, và **vuốt cạnh hoặc bấm Back là đóng ảnh** thay vì văng ra khỏi Jarvis 007.
 - Đóng bằng nút X, phím Esc hay bấm nền đen cũng dọn sạch bước lùi, nên bạn không phải bấm Back thêm một cái vô nghĩa nữa.
 
 ## [0.55.65] - 2026-09-13
 ### Thêm mới
-- **Javis sửa được skill cũ, thay vì chỉ biết tạo skill mới.** Trước đây một skill lộ ra chỗ sai thì vòng tự học đành bỏ qua, hoặc đẻ thêm một bản gần giống bên cạnh. Nay nó sửa thẳng vào đúng file đó, giữ nguyên tên, nhóm và mọi tuỳ chỉnh của bạn, và ghi một dòng lý do vào mục Lịch sử để bạn đọc lại.
-- Sáu rào chặn: bắt buộc nêu lý do, không tự tạo mới khi không thấy file, không đụng skill bạn đã tắt, không đụng skill hệ thống (Javis tự cập nhật những cái đó theo bản mới), và ghim `learn_lock: true` vào skill nào là cấm tự học sửa nó. Có git nên vẫn hoàn tác được bằng một chạm.
+- **Jarvis 007 sửa được skill cũ, thay vì chỉ biết tạo skill mới.** Trước đây một skill lộ ra chỗ sai thì vòng tự học đành bỏ qua, hoặc đẻ thêm một bản gần giống bên cạnh. Nay nó sửa thẳng vào đúng file đó, giữ nguyên tên, nhóm và mọi tuỳ chỉnh của bạn, và ghi một dòng lý do vào mục Lịch sử để bạn đọc lại.
+- Sáu rào chặn: bắt buộc nêu lý do, không tự tạo mới khi không thấy file, không đụng skill bạn đã tắt, không đụng skill hệ thống (Jarvis 007 tự cập nhật những cái đó theo bản mới), và ghim `learn_lock: true` vào skill nào là cấm tự học sửa nó. Có git nên vẫn hoàn tác được bằng một chạm.
 
 ### Cải thiện
-- **Bộ nhớ dài hạn tự dọn thông tin đã hết hạn.** Khi bạn đổi một thông tin cũ, bản ghi cũ vẫn nằm trong danh mục ký ức và vẫn được đọc vào mỗi câu hỏi. Nay Javis gỡ nó khỏi danh mục, cùng những dòng trỏ vào file bạn đã xoá tay. **File ký ức không bị xoá**, chỉ rời khỏi danh mục.
-- Javis cố ý **không** dọn theo tuổi: một điều đúng từ năm ngoái thì năm nay vẫn đúng.
-- Bỏ hết dấu gạch dài trong các file Javis tự ghi (danh mục ký ức, danh mục wiki, nhật ký học). Dấu này làm phần đọc thành tiếng bị vấp.
+- **Bộ nhớ dài hạn tự dọn thông tin đã hết hạn.** Khi bạn đổi một thông tin cũ, bản ghi cũ vẫn nằm trong danh mục ký ức và vẫn được đọc vào mỗi câu hỏi. Nay Jarvis 007 gỡ nó khỏi danh mục, cùng những dòng trỏ vào file bạn đã xoá tay. **File ký ức không bị xoá**, chỉ rời khỏi danh mục.
+- Jarvis 007 cố ý **không** dọn theo tuổi: một điều đúng từ năm ngoái thì năm nay vẫn đúng.
+- Bỏ hết dấu gạch dài trong các file Jarvis 007 tự ghi (danh mục ký ức, danh mục wiki, nhật ký học). Dấu này làm phần đọc thành tiếng bị vấp.
 
 ## [0.55.64] - 2026-09-13
 ### Thêm mới
-- **Javis học được từ việc nó tự làm, không chỉ từ những gì bạn nói.** Trước đây chỉ hội thoại mới vào vòng tự học, nên mọi việc chạy nền ở trang Việc trôi qua không để lại gì. Nay việc nền xong (hoặc vướng) là được xếp vào cùng hàng đợi học đó. Việc **bị chặn** được ưu tiên nhất, vì nó chỉ đúng chỗ hệ thống còn thiếu.
+- **Jarvis 007 học được từ việc nó tự làm, không chỉ từ những gì bạn nói.** Trước đây chỉ hội thoại mới vào vòng tự học, nên mọi việc chạy nền ở trang Việc trôi qua không để lại gì. Nay việc nền xong (hoặc vướng) là được xếp vào cùng hàng đợi học đó. Việc **bị chặn** được ưu tiên nhất, vì nó chỉ đúng chỗ hệ thống còn thiếu.
 - Vẫn đi qua đủ các bước cũ: gom nhiều việc rồi mới học một lượt, chạy trong phiên chỉ-đọc tách riêng, có vòng kiểm lại trước khi ghi. Việc nào do chính vòng học đẻ ra thì không quay lại làm bài học cho chính nó.
 
 ### Sửa lỗi
@@ -2474,46 +2474,46 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.55.63] - 2026-09-10
 ### Sửa lỗi
-- **Ảnh và file đính kèm không còn rơi mất khi bấm Enter sớm.** Dán ảnh hay một đoạn văn dài rồi gõ câu hỏi và Enter ngay, trước đây tin bay đi tay không: bong bóng không có ảnh, Javis cũng không nhận được file. Nay Javis chờ file tải lên xong rồi mới gửi, có dòng báo trong lúc chờ; file tải hỏng thì nói thẳng để bạn gỡ hoặc đính lại.
+- **Ảnh và file đính kèm không còn rơi mất khi bấm Enter sớm.** Dán ảnh hay một đoạn văn dài rồi gõ câu hỏi và Enter ngay, trước đây tin bay đi tay không: bong bóng không có ảnh, Jarvis 007 cũng không nhận được file. Nay Jarvis 007 chờ file tải lên xong rồi mới gửi, có dòng báo trong lúc chờ; file tải hỏng thì nói thẳng để bạn gỡ hoặc đính lại.
 - **Mở lại hội thoại cũ vẫn thấy mình đã gửi ảnh, file nào.** Trước đây bấm vào một cuộc ở Lịch sử, hay mở lại app sau khi để nền lâu, là mọi ảnh và thẻ file trong bong bóng của bạn biến mất. Nay chúng hiện lại đúng chỗ, ảnh bấm phóng to được như lúc vừa gửi.
 
 ## [0.55.62] - 2026-09-10
 ### Thay đổi lớn
-- **Bỏ luật an toàn cũ "việc chạy nền không bao giờ được tự tiêu tiền, lên đơn, đăng bài, nhắn khách".** Javis giờ tự thao tác: việc lặp và việc Kanban tạo từ chat mặc định ở mức **Toàn quyền**, Javis được tự đặt mức này mà không phải cảnh báo rủi ro. Việc lặp mới vẫn ở trạng thái tắt, bạn bấm Bật ở trang Việc.
+- **Bỏ luật an toàn cũ "việc chạy nền không bao giờ được tự tiêu tiền, lên đơn, đăng bài, nhắn khách".** Jarvis 007 giờ tự thao tác: việc lặp và việc Kanban tạo từ chat mặc định ở mức **Toàn quyền**, Jarvis 007 được tự đặt mức này mà không phải cảnh báo rủi ro. Việc lặp mới vẫn ở trạng thái tắt, bạn bấm Bật ở trang Việc.
 - **Trang Việc gọn hơn**: nút Toàn quyền là mặc định, không còn ô cảnh báo đỏ và hai hộp hỏi "Bạn chắc chứ?" khi lưu hay bật. Nhắc hẹn tạo xong cũng không còn kèm đoạn cảnh báo dài.
 - Hai mức nhẹ **Tự làm (ghi nháp)** và **Đề xuất (chỉ đọc)** vẫn còn để bạn ghìm một việc cụ thể; hub vẫn chặn thật theo mức bạn chọn. Mức quyền của từng kết nối MCP và của bot chuyên trách không đổi.
 
 ## [0.55.61] - 2026-09-09
 ### Sửa lỗi
-- **Link file dạng `file:///brains/...` trong chat giờ bấm là mở.** Antigravity hay viết link kiểu này (kèm %20), trước đây bấm vào chỉ ra khung "Không tìm thấy file". Nay Javis tự gỡ về đường dẫn trong brain, cả ở link, ảnh và chữ trần; link cũ trong lịch sử cũng mở được.
+- **Link file dạng `file:///brains/...` trong chat giờ bấm là mở.** Antigravity hay viết link kiểu này (kèm %20), trước đây bấm vào chỉ ra khung "Không tìm thấy file". Nay Jarvis 007 tự gỡ về đường dẫn trong brain, cả ở link, ảnh và chữ trần; link cũ trong lịch sử cũng mở được.
 - **Tên file có ngoặc tròn không còn bị báo nhầm "không thấy file".** Ví dụ "30 Ngày Làm Chủ Antigravity (CES Global).md" từng bị cắt ở dấu ngoặc đóng đầu tiên.
-- Javis dặn thẳng mọi bộ não không dùng `file://` khi dẫn link, để Telegram và Zalo (không có bước tự sửa) cũng mở được.
+- Jarvis 007 dặn thẳng mọi bộ não không dùng `file://` khi dẫn link, để Telegram và Zalo (không có bước tự sửa) cũng mở được.
 
 ## [0.55.60] - 2026-09-09
 ### Cải thiện
-- Nhãn tác giả ở đáy thanh điều hướng đổi thành **"by Javis Foundation"** (chủ repo đổi ý ngay sau bản 0.55.59).
+- Nhãn tác giả ở đáy thanh điều hướng đổi thành **"by Jarvis 007 Foundation"** (chủ repo đổi ý ngay sau bản 0.55.59).
 
 ## [0.55.59] - 2026-09-09
 ### Cải thiện
-- Nhãn tác giả ở đáy thanh điều hướng đổi từ "by Minh Quý" thành **"by Javis OS team"**.
+- Nhãn tác giả ở đáy thanh điều hướng đổi từ "by Minh Quý" thành **"by Jarvis 007 team"**.
 
 ## [0.55.58] - 2026-09-08
 ### Sửa lỗi
 - **File tạo từ chat nằm đúng trong brain, link bấm là mở.** Trước đây Claude Code trong chat làm việc ở thư mục cài app chứ không phải thư mục brain, nên file "đã viết" nằm lạc chỗ và bay theo lần cập nhật kế tiếp, link trong chat trỏ vào hư không, đếm bài lúc 3 lúc 5. Nay chat chạy ngay trong thư mục brain, như Codex, Antigravity và Grok vẫn làm.
-- **Link file trong câu trả lời được Javis tự sửa về dạng mở được.** Link nào trỏ tới file không có trong brain thì có một dòng nói thẳng ngay dưới, thay vì một cái link câm.
-- **Hội thoại cũ không còn bị kẹt khi phiên Claude Code mất trên máy**: Javis tự mở phiên mới và mồi lại từ lịch sử đã lưu. Lượt đầu tiên sau khi cập nhật sẽ thấy một dòng báo như vậy, đó là bình thường.
+- **Link file trong câu trả lời được Jarvis 007 tự sửa về dạng mở được.** Link nào trỏ tới file không có trong brain thì có một dòng nói thẳng ngay dưới, thay vì một cái link câm.
+- **Hội thoại cũ không còn bị kẹt khi phiên Claude Code mất trên máy**: Jarvis 007 tự mở phiên mới và mồi lại từ lịch sử đã lưu. Lượt đầu tiên sau khi cập nhật sẽ thấy một dòng báo như vậy, đó là bình thường.
 - Máy dọn ảnh cũ không còn xoá file văn bản `.txt` để trong thư mục ảnh.
 
 ## [0.55.57] - 2026-09-08
 ### Sửa lỗi
-- **Google trục trặc một nhịp không còn giết cả lượt chat.** Antigravity gặp lỗi `503 UNAVAILABLE` là Javis chỉ hiện một câu tiếng Anh sáu dòng rồi bỏ đó. Nay Javis tự chờ rồi hỏi lại 2 lần; vẫn không được thì nói thẳng đây là lỗi phía Google chứ không phải cấu hình của bạn. Lượt nào đã gửi tin hay ghi file rồi thì tuyệt đối không chạy lại.
+- **Google trục trặc một nhịp không còn giết cả lượt chat.** Antigravity gặp lỗi `503 UNAVAILABLE` là Jarvis 007 chỉ hiện một câu tiếng Anh sáu dòng rồi bỏ đó. Nay Jarvis 007 tự chờ rồi hỏi lại 2 lần; vẫn không được thì nói thẳng đây là lỗi phía Google chứ không phải cấu hình của bạn. Lượt nào đã gửi tin hay ghi file rồi thì tuyệt đối không chạy lại.
 - **Việc ngầm chạy xong trả về ĐỦ kết quả ngay trong khung chat**, thay vì một mẩu 240 ký tự kèm lời mời sang trang Việc đọc nốt. Telegram và Zalo vẫn nhận bản gọn để liếc trên điện thoại.
-- **Mở file .txt hoặc .md trên điện thoại giờ thoát ra được.** Trước đây vừa mở là bàn phím bật lên che mất nút Đóng, Esc thì điện thoại không có, còn nút Back thì thoát luôn khỏi app. Nay file mở toàn màn hình, không tự bật bàn phím nữa, nút Đóng to hơn và **bấm Back là đóng file** chứ không rời Javis.
+- **Mở file .txt hoặc .md trên điện thoại giờ thoát ra được.** Trước đây vừa mở là bàn phím bật lên che mất nút Đóng, Esc thì điện thoại không có, còn nút Back thì thoát luôn khỏi app. Nay file mở toàn màn hình, không tự bật bàn phím nữa, nút Đóng to hơn và **bấm Back là đóng file** chứ không rời Jarvis 007.
 
 ## [0.55.56] - 2026-09-08
 ### Thêm mới
 - **Cài mới là cập nhật được ngay.** Watchtower, thứ làm cho nút **⬆ Cập nhật ngay** chạy được, nay đi kèm sẵn trong cả compose Hostinger lẫn compose VPS. Trước đây bản Hostinger không có nó còn bản VPS giấu sau một tuỳ chọn, nên máy này có nút mà máy kia không và Hostinger phải vào Docker Manager bấm Redeploy mỗi lần.
-- **Muốn khỏi bấm nút:** đặt `JAVIS_AUTO_UPDATE=true` (Hostinger: ô Environment) là Javis tự tìm bản mới mỗi ngày. Mặc định tắt, vì tự cập nhật nghĩa là app tự khởi động lại bất cứ lúc nào có bản mới, cắt ngang việc đang chạy.
+- **Muốn khỏi bấm nút:** đặt `JAVIS_AUTO_UPDATE=true` (Hostinger: ô Environment) là Jarvis 007 tự tìm bản mới mỗi ngày. Mặc định tắt, vì tự cập nhật nghĩa là app tự khởi động lại bất cứ lúc nào có bản mới, cắt ngang việc đang chạy.
 
 ### Sửa lỗi
 - **Máy nào còn thiếu nút cập nhật thì được chỉ đúng một việc cần làm**: lấy file compose mới rồi dựng lại. Câu cũ bảo máy Hostinger "không bật được" nay không còn đúng.
@@ -2522,59 +2522,59 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.55.55] - 2026-09-08
 ### Sửa lỗi
-- **Model Antigravity kiểu `gemini-3.8-flash-medium` chat được trở lại.** Tên model đó đã kèm sẵn mức nghĩ, nhưng Javis vẫn gửi thêm mức **Độ sâu suy nghĩ** bạn chọn, nên Antigravity từ chối chạy: bạn chỉ nhận hai dòng đỏ rồi câu "không có nội dung trả về". Nay Javis nhận ra loại model này và không gửi phần thừa nữa; độ sâu bạn chọn chuyển thành lời nhắc trong câu hỏi.
-- **Antigravity từ chối vì lý do khác thì Javis tự chạy lại ngay**, thay vì bỏ mặc bạn với một câu lỗi tiếng Anh.
+- **Model Antigravity kiểu `gemini-3.8-flash-medium` chat được trở lại.** Tên model đó đã kèm sẵn mức nghĩ, nhưng Jarvis 007 vẫn gửi thêm mức **Độ sâu suy nghĩ** bạn chọn, nên Antigravity từ chối chạy: bạn chỉ nhận hai dòng đỏ rồi câu "không có nội dung trả về". Nay Jarvis 007 nhận ra loại model này và không gửi phần thừa nữa; độ sâu bạn chọn chuyển thành lời nhắc trong câu hỏi.
+- **Antigravity từ chối vì lý do khác thì Jarvis 007 tự chạy lại ngay**, thay vì bỏ mặc bạn với một câu lỗi tiếng Anh.
 - **Một sự cố chỉ hiện một dòng báo lỗi.** Với hội thoại dài, cùng một lỗi trước đây hiện hai lần y hệt nhau.
 
 ## [0.55.54] - 2026-09-08
 ### Cải thiện
-- **Chuyển sang tiếng Anh giờ là tiếng Anh thật.** Trước đây đổi ngôn ngữ xong vẫn còn nhiều mảng tiếng Việt: Javis Store, trang Chatbot, Mức dùng token, hộp thư thông báo, terminal, lịch sử hội thoại, khung sửa file, dải việc nền và phần lớn trang Cài đặt, Kết nối, Models, Cập nhật. Hơn 1.200 câu chữ nữa đã có bản tiếng Anh.
+- **Chuyển sang tiếng Anh giờ là tiếng Anh thật.** Trước đây đổi ngôn ngữ xong vẫn còn nhiều mảng tiếng Việt: Jarvis 007 Store, trang Chatbot, Mức dùng token, hộp thư thông báo, terminal, lịch sử hội thoại, khung sửa file, dải việc nền và phần lớn trang Cài đặt, Kết nối, Models, Cập nhật. Hơn 1.200 câu chữ nữa đã có bản tiếng Anh.
 - **Đổi ngôn ngữ ăn ngay** ở hộp thư thông báo, thanh chọn model, trang Mức dùng và thẻ tên miền. Trước đây mấy chỗ này vẽ chữ một lần rồi thôi, phải tải lại trang mới thấy đổi.
 
 ### Sửa lỗi
-- **Nhắc hẹn đặt bằng tiếng Anh đã tạo được.** Ô nhập mời bạn gõ "in 30 minutes" nhưng Javis chỉ hiểu "30 phút nữa", nên làm đúng theo gợi ý thì nhắc hẹn lặng lẽ không được tạo. Nay hiểu cả hai thứ tiếng.
+- **Nhắc hẹn đặt bằng tiếng Anh đã tạo được.** Ô nhập mời bạn gõ "in 30 minutes" nhưng Jarvis 007 chỉ hiểu "30 phút nữa", nên làm đúng theo gợi ý thì nhắc hẹn lặng lẽ không được tạo. Nay hiểu cả hai thứ tiếng.
 - **Bấm vào một thẻ việc thì ngăn kéo chi tiết hiện nội dung**, thay vì mở ra rỗng và đứng im.
 - **Menu gõ dấu gạch chéo trong trình sửa lọc lại đúng.** Trước đó gõ chữ nào cũng ra đủ mười lệnh.
 
 ## [0.55.53] - 2026-09-07
 ### Sửa lỗi
-- **Ô tìm trong Javis Store gõ được cả câu, không còn mỗi lần một chữ cái.** Trước đây gõ một chữ là con trỏ văng ra khỏi ô, phải bấm chuột vào lại mới gõ được chữ tiếp theo.
+- **Ô tìm trong Jarvis 007 Store gõ được cả câu, không còn mỗi lần một chữ cái.** Trước đây gõ một chữ là con trỏ văng ra khỏi ô, phải bấm chuột vào lại mới gõ được chữ tiếp theo.
 - Gõ chèn vào giữa chữ đã có cũng đúng chỗ, không bị nhảy xuống cuối nữa.
 - Gõ tiếng Việt có dấu trong ô này không còn rơi mất dấu thanh.
 
 ## [0.55.52] - 2026-09-07
 ### Sửa lỗi
-- Bản Docker mới luôn kiểm tra và cài Codex hiện hành khi phát hành, tránh cập nhật Javis mà danh sách ChatGPT vẫn kẹt ở model cũ do dùng lại bộ cài đã cache.
+- Bản Docker mới luôn kiểm tra và cài Codex hiện hành khi phát hành, tránh cập nhật Jarvis 007 mà danh sách ChatGPT vẫn kẹt ở model cũ do dùng lại bộ cài đã cache.
 - Cài lại bằng `install.sh` hoặc cập nhật bằng `update.sh native` cũng nâng Codex để nhận danh sách model mới theo tài khoản.
 
 ## [0.55.51] - 2026-09-07
 ### Sửa lỗi
-- **Hai brain dùng chung một file bộ nhớ giống hệt nhau không còn làm brain thứ hai mất bộ nhớ dài hạn.** Trước đây Javis đánh số mỗi mẩu ký ức chỉ theo tên file, số dòng và nội dung, nên hai brain cùng có một file như `facts/cach-lam-viec-chuan.md` bị coi là một mẩu. Brain dựng chỉ mục sau bị từ chối lặng lẽ, và ở chế độ tiết kiệm nó trả lời mà không nhớ gì, không một dòng báo lỗi.
-- Nay số hiệu ký ức có thêm dấu riêng của từng brain, nên chép chung file bộ nhớ giữa các brain là chuyện bình thường. Lần chạy đầu sau khi cập nhật, Javis tự dựng lại chỉ mục bộ nhớ của mọi brain; không cần làm gì thêm và không đụng tới file trong brain.
+- **Hai brain dùng chung một file bộ nhớ giống hệt nhau không còn làm brain thứ hai mất bộ nhớ dài hạn.** Trước đây Jarvis 007 đánh số mỗi mẩu ký ức chỉ theo tên file, số dòng và nội dung, nên hai brain cùng có một file như `facts/cach-lam-viec-chuan.md` bị coi là một mẩu. Brain dựng chỉ mục sau bị từ chối lặng lẽ, và ở chế độ tiết kiệm nó trả lời mà không nhớ gì, không một dòng báo lỗi.
+- Nay số hiệu ký ức có thêm dấu riêng của từng brain, nên chép chung file bộ nhớ giữa các brain là chuyện bình thường. Lần chạy đầu sau khi cập nhật, Jarvis 007 tự dựng lại chỉ mục bộ nhớ của mọi brain; không cần làm gì thêm và không đụng tới file trong brain.
 - Nếu bạn đã đổi tên file ở một brain để né lỗi này thì đổi lại tên cũ được rồi.
 
 ## [0.55.50] - 2026-09-06
 ### Sửa lỗi
-- **Mở Javis sau mỗi lần cập nhật nhanh hơn hẳn.** Trước đây bản cập nhật nào cũng bắt trình duyệt tải lại toàn bộ giao diện, khoảng **1.6 MB** không nén. Nay giao diện được nén còn **496 KB**, và chỉ file nào thật sự đổi mới phải tải lại, phần còn lại dùng luôn bản đã lưu trong máy.
-- **Trang Models thôi đứng mãi ở chữ "Đang tải...".** Nó chờ Javis hỏi xem Claude Code đã đăng nhập chưa, mà lượt hỏi đó không có hạn chờ nên chỉ cần Claude trục trặc là cả trang treo. Nay có hạn 2,5 giây, quá thì trang cứ hiện ra bình thường.
-- **Javis bớt tạo trùng trang wiki.** Kho wiki lớn hơn khoảng 60 trang là Javis chỉ còn "nhìn" thấy một phần danh mục, mà phần bị khuất lại đúng là các trang mới nhất, nên nó tưởng chưa có rồi tạo lại. Nay nó thấy đủ cả kho, kể cả trang nằm trong thư mục con, và nhận ra cả tên gọi khác của cùng một chủ đề.
-- **Ký ức Javis vừa ghi không còn biến mất.** Trên máy chủ Linux, brain có thể lỡ đẻ ra hai thư mục bộ nhớ cùng tên nhưng khác chữ hoa thường, và mọi ghi chú rơi vào cái thứ hai thì Javis không bao giờ đọc lại được: ghi xong là mất, không báo lỗi. Nay Javis tự gộp hai thư mục về một ở lần trò chuyện kế tiếp, và nếu hai bên trùng tên file thì giữ lại cả hai chứ không đè.
+- **Mở Jarvis 007 sau mỗi lần cập nhật nhanh hơn hẳn.** Trước đây bản cập nhật nào cũng bắt trình duyệt tải lại toàn bộ giao diện, khoảng **1.6 MB** không nén. Nay giao diện được nén còn **496 KB**, và chỉ file nào thật sự đổi mới phải tải lại, phần còn lại dùng luôn bản đã lưu trong máy.
+- **Trang Models thôi đứng mãi ở chữ "Đang tải...".** Nó chờ Jarvis 007 hỏi xem Claude Code đã đăng nhập chưa, mà lượt hỏi đó không có hạn chờ nên chỉ cần Claude trục trặc là cả trang treo. Nay có hạn 2,5 giây, quá thì trang cứ hiện ra bình thường.
+- **Jarvis 007 bớt tạo trùng trang wiki.** Kho wiki lớn hơn khoảng 60 trang là Jarvis 007 chỉ còn "nhìn" thấy một phần danh mục, mà phần bị khuất lại đúng là các trang mới nhất, nên nó tưởng chưa có rồi tạo lại. Nay nó thấy đủ cả kho, kể cả trang nằm trong thư mục con, và nhận ra cả tên gọi khác của cùng một chủ đề.
+- **Ký ức Jarvis 007 vừa ghi không còn biến mất.** Trên máy chủ Linux, brain có thể lỡ đẻ ra hai thư mục bộ nhớ cùng tên nhưng khác chữ hoa thường, và mọi ghi chú rơi vào cái thứ hai thì Jarvis 007 không bao giờ đọc lại được: ghi xong là mất, không báo lỗi. Nay Jarvis 007 tự gộp hai thư mục về một ở lần trò chuyện kế tiếp, và nếu hai bên trùng tên file thì giữ lại cả hai chứ không đè.
 
 ## [0.55.48] - 2026-09-05
 ### Thêm mới
 - **Khung "Trong cuộc trò chuyện này" giờ tự thêm file và link được**, đúng như khung Project: tìm file trong brain, tải file từ máy lên (hoặc kéo thả vào khung), dán link, gỡ ra khi không cần nữa.
-- Danh sách chia hai phần rõ ràng: phần **bạn thêm** nằm trên, phần Javis tự dò ra từ tin nhắn nằm dưới. File Javis ghi lặng lẽ giữa lượt trước nay không lọt vào danh sách thì nay bạn gắn tay vào là xong.
-- **Ghim một file là Javis đọc sẵn nội dung nó trong mọi lượt của riêng cuộc đó** (tối đa 2000 ký tự mỗi file). Không ghim thì Javis chỉ thấy tên và tự mở khi cần.
+- Danh sách chia hai phần rõ ràng: phần **bạn thêm** nằm trên, phần Jarvis 007 tự dò ra từ tin nhắn nằm dưới. File Jarvis 007 ghi lặng lẽ giữa lượt trước nay không lọt vào danh sách thì nay bạn gắn tay vào là xong.
+- **Ghim một file là Jarvis 007 đọc sẵn nội dung nó trong mọi lượt của riêng cuộc đó** (tối đa 2000 ký tự mỗi file). Không ghim thì Jarvis 007 chỉ thấy tên và tự mở khi cần.
 
 ## [0.55.47] - 2026-09-05
 ### Sửa lỗi
-- **Javis không còn "quên" mất các gói bạn đã cài.** Khi có nhiều nguồn, Javis giấu bớt công cụ đi cho nhẹ và chỉ giữ một bản mục lục. Nhưng mục lục đó gộp hết tool của MỌI gói vào một dòng chung chung, nên Javis không biết là mình đang có gói TTS Dropship, Meta Ads hay Zalo, rồi trả lời thẳng là chưa kết nối dù gói vẫn chạy tốt.
-- **Mục lục giờ gọi đúng tên từng gói** kèm một dòng nói gói đó làm gì, ví dụ "TTS Dropship, 20 tool: bán dropship trên sàn thitruongsi.com". Javis thấy là có thì mới biết đường dùng.
+- **Jarvis 007 không còn "quên" mất các gói bạn đã cài.** Khi có nhiều nguồn, Jarvis 007 giấu bớt công cụ đi cho nhẹ và chỉ giữ một bản mục lục. Nhưng mục lục đó gộp hết tool của MỌI gói vào một dòng chung chung, nên Jarvis 007 không biết là mình đang có gói TTS Dropship, Meta Ads hay Zalo, rồi trả lời thẳng là chưa kết nối dù gói vẫn chạy tốt.
+- **Mục lục giờ gọi đúng tên từng gói** kèm một dòng nói gói đó làm gì, ví dụ "TTS Dropship, 20 tool: bán dropship trên sàn thitruongsi.com". Jarvis 007 thấy là có thì mới biết đường dùng.
 - Vẫn nhẹ như cũ: cách này tiết kiệm 93% chỗ so với phơi hết công cụ ra, gần đúng bằng mức trước khi sửa.
 
 ## [0.55.46] - 2026-09-05
 ### Sửa lỗi
-- **Đăng nhập Antigravity trong tab Code giờ có chỗ dán mã.** Trước đây gõ `agy` là màn hình in ra link Google rồi đứng im: mở link trên máy mình, đăng nhập xong cũng không có ô nào để điền mã về, nên không tài nào đăng nhập nổi. Nay Javis nói đúng với `agy` rằng bạn đang ngồi ở máy khác, nên nó hỏi chỗ dán như khi bạn SSH.
+- **Đăng nhập Antigravity trong tab Code giờ có chỗ dán mã.** Trước đây gõ `agy` là màn hình in ra link Google rồi đứng im: mở link trên máy mình, đăng nhập xong cũng không có ô nào để điền mã về, nên không tài nào đăng nhập nổi. Nay Jarvis 007 nói đúng với `agy` rằng bạn đang ngồi ở máy khác, nên nó hỏi chỗ dán như khi bạn SSH.
 - **Cách làm, gọn trong 3 bước:** gõ `agy` trong tab Code, mở link vừa in ra bằng trình duyệt trên máy bạn, đăng nhập Google. Trình duyệt sẽ nhảy sang một địa chỉ `localhost` **báo không mở được - đó là bước đúng**: copy nguyên địa chỉ đó trên thanh URL, dán ngược vào terminal rồi Enter.
 - Thẻ **Google Antigravity CLI** ở trang Models viết lại theo đúng ba bước này, kèm một dòng cứu hộ bằng `curl` cho bản `agy` cũ không hỏi chỗ dán.
 - Áp dụng cho máy chủ không có màn hình (VPS, Docker, kể cả Docker trên máy Mac của bạn). Máy để bàn chạy thẳng vẫn tự mở trình duyệt như cũ.
@@ -2586,7 +2586,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.55.44] - 2026-09-05
 ### Thêm mới
-- **Hết lượt gói thuê bao thì Javis tự hỏi lại khi hạn mức mở, không cần bạn canh giờ.** Claude Code, ChatGPT (Codex), Grok Build hay Antigravity báo "hết lượt, mở lại lúc 13:01" là dưới câu báo hiện thẻ "Tự chạy lại lúc 13:01 (còn 42 phút)". Đến giờ, Javis tự hỏi lại đúng câu đó và trả lời vào cùng hội thoại, kể cả khi bạn đã đóng tab hay tắt màn hình điện thoại.
+- **Hết lượt gói thuê bao thì Jarvis 007 tự hỏi lại khi hạn mức mở, không cần bạn canh giờ.** Claude Code, ChatGPT (Codex), Grok Build hay Antigravity báo "hết lượt, mở lại lúc 13:01" là dưới câu báo hiện thẻ "Tự chạy lại lúc 13:01 (còn 42 phút)". Đến giờ, Jarvis 007 tự hỏi lại đúng câu đó và trả lời vào cùng hội thoại, kể cả khi bạn đã đóng tab hay tắt màn hình điện thoại.
 - Trên thẻ có ô "Tự tiếp tục khi hạn mức reset" (nhớ lựa chọn cho những lần sau) và nút "Chạy lại ngay" nếu không muốn đợi. Gửi tin mới trong lúc chờ thì lịch tự huỷ.
 - Chỉ hẹn khi nhà cung cấp nói rõ mốc mở lại, và tối đa 3 lần cho một câu hỏi; không biết mốc thì thẻ chỉ có nút chạy lại ngay, không đoán giờ.
 
@@ -2601,14 +2601,14 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.55.42] - 2026-09-05
 ### Sửa lỗi
-- **Mức suy nghĩ giờ có tác dụng thật trên ChatGPT (Codex).** Javis đặt đúng mức mà chính Codex khai là model đó nhận được, nên chọn nấc nào ra nấc đó thay vì chỉ là một chữ nhắc trong câu hỏi.
-- **Grok và Antigravity không còn bị dán chữ lạ vào cuối tin nhắn.** Trước đây Javis chèn từ khoá riêng của Claude Code vào câu hỏi gửi cho hai bộ não này, chúng không hiểu nên chẳng đổi được gì. Nay là một câu tiếng Việt nói rõ độ sâu, và nếu bản CLI có cần gạt thật thì Javis dùng cần gạt đó.
-- Javis chỉ dùng cần gạt khi chính CLI khai là có, nên bản cũ trên máy bạn vẫn chạy bình thường.
+- **Mức suy nghĩ giờ có tác dụng thật trên ChatGPT (Codex).** Jarvis 007 đặt đúng mức mà chính Codex khai là model đó nhận được, nên chọn nấc nào ra nấc đó thay vì chỉ là một chữ nhắc trong câu hỏi.
+- **Grok và Antigravity không còn bị dán chữ lạ vào cuối tin nhắn.** Trước đây Jarvis 007 chèn từ khoá riêng của Claude Code vào câu hỏi gửi cho hai bộ não này, chúng không hiểu nên chẳng đổi được gì. Nay là một câu tiếng Việt nói rõ độ sâu, và nếu bản CLI có cần gạt thật thì Jarvis 007 dùng cần gạt đó.
+- Jarvis 007 chỉ dùng cần gạt khi chính CLI khai là có, nên bản cũ trên máy bạn vẫn chạy bình thường.
 
 ## [0.55.41] - 2026-09-05
 ### Sửa lỗi
-- **Hai mức suy nghĩ cao nhất giờ khác nhau thật.** "Rất cao" và "Tối đa" trước đây ra cùng một kết quả trên mọi bộ não, bấm mức nào cũng như nhau mà không có gì báo. Nay Javis dùng đúng cần gạt của Claude Code và của Anthropic nên chọn mức nào ra mức đó.
-- **Đổi mức suy nghĩ không còn dính thêm chữ vào tin nhắn của bạn.** Trước đây Javis nhét một câu nhắc vào cuối mỗi câu hỏi để ra hiệu cho model; giờ đi bằng cài đặt thật, đỡ tốn token và tin nhắn sạch hơn.
+- **Hai mức suy nghĩ cao nhất giờ khác nhau thật.** "Rất cao" và "Tối đa" trước đây ra cùng một kết quả trên mọi bộ não, bấm mức nào cũng như nhau mà không có gì báo. Nay Jarvis 007 dùng đúng cần gạt của Claude Code và của Anthropic nên chọn mức nào ra mức đó.
+- **Đổi mức suy nghĩ không còn dính thêm chữ vào tin nhắn của bạn.** Trước đây Jarvis 007 nhét một câu nhắc vào cuối mỗi câu hỏi để ra hiệu cho model; giờ đi bằng cài đặt thật, đỡ tốn token và tin nhắn sạch hơn.
 - **Model mới của OpenAI và Google cũng tự hiện ra.** Hai nhà này bị lọc theo tên nên dòng model đặt tên khác kiểu cũ là biến mất khỏi hộp chọn. Đây cùng một lỗi với vụ thiếu Fable 5.1, chỉ khác nhà cung cấp.
 
 ## [0.55.40] - 2026-09-05
@@ -2622,8 +2622,8 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.55.39] - 2026-09-05
 ### Sửa lỗi
-- **Đã có Claude Fable 5.1 trong hộp chọn model.** Danh sách model của gói Claude Code giờ đọc thẳng từ Claude Code đang cài trên máy, nên nhà cung cấp ra bản mới là bạn thấy ngay, không phải đợi Javis lên phiên bản.
-- **Danh sách model cũ không còn che mất model mới.** Máy chạy đã lâu bị kẹt ở dàn model của ngày đầu cài, nâng cấp Javis bao nhiêu lần cũng không thấy dòng model mới. Nay hai danh sách gộp lại, không cái nào xoá cái nào.
+- **Đã có Claude Fable 5.1 trong hộp chọn model.** Danh sách model của gói Claude Code giờ đọc thẳng từ Claude Code đang cài trên máy, nên nhà cung cấp ra bản mới là bạn thấy ngay, không phải đợi Jarvis 007 lên phiên bản.
+- **Danh sách model cũ không còn che mất model mới.** Máy chạy đã lâu bị kẹt ở dàn model của ngày đầu cài, nâng cấp Jarvis 007 bao nhiêu lần cũng không thấy dòng model mới. Nay hai danh sách gộp lại, không cái nào xoá cái nào.
 - **Chọn `fable` hay `opus` là ra đúng bản mới nhất.** Trước đây nó có thể lặng lẽ chạy một bản cũ hơn cùng dòng.
 - **Bật độ sâu suy nghĩ trên Opus 5 và Sonnet 5 không còn lỗi**, và trang Mức dùng tính tiền theo đúng từng bản: Opus từ 4.5 đã rẻ hơn xưa, còn Fable thì đắt hơn Opus.
 
@@ -2632,21 +2632,21 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 - **Agent và Workflow xếp theo nhóm, giống trang Kỹ năng.** Hai trang này giờ có cột nhóm bên trái kèm số đếm và ô tìm kiếm, nên brain có vài chục agent không còn là một danh sách phẳng phải dò bằng mắt.
 - **Đặt nhóm ngay trong form.** Sửa agent hay workflow là có ô Nhóm, gõ vào hoặc chọn từ nhóm đang có. Bỏ trống thì nó nằm ở "Chung".
 - **File cũ không mất đi đâu.** Agent và workflow tạo từ trước chưa có nhóm sẽ tự nằm trong "Chung", vẫn thấy và vẫn chạy như cũ.
-- Javis khi tự tạo agent hay workflow cũng tự xếp nhóm, và chỉ mục năng lực trong brain liệt kê theo nhóm luôn.
+- Jarvis 007 khi tự tạo agent hay workflow cũng tự xếp nhóm, và chỉ mục năng lực trong brain liệt kê theo nhóm luôn.
 
 ### Sửa lỗi
 - **Sửa workflow không còn mất chữ đang gõ.** Trước đây gõ tên hoặc mô tả rồi bấm thêm bước là hai ô đó quay về giá trị cũ, không báo gì.
 
 ## [0.55.37] - 2026-09-05
 ### Cải thiện
-- **Javis Store ra thanh bên.** Nằm ngay dưới Kết nối, không còn phải vào một trang năng lực rồi bấm tab mới tới được. Lý do đổi: từ 0.55.36 phần lớn kết nối nằm trong kho, mà người mới cài thì chưa có trang nào để mà bấm tab.
+- **Jarvis 007 Store ra thanh bên.** Nằm ngay dưới Kết nối, không còn phải vào một trang năng lực rồi bấm tab mới tới được. Lý do đổi: từ 0.55.36 phần lớn kết nối nằm trong kho, mà người mới cài thì chưa có trang nào để mà bấm tab.
 
 ### Sửa lỗi
 - **Nút "Quay lại" không còn trỏ nhầm chỗ.** Vào kho từ tab trang Kỹ năng, rời đi, rồi vào lại từ thanh bên thì nút cũ vẫn còn và dẫn về Kỹ năng - nơi bạn không hề đi ra.
 
 ## [0.55.36] - 2026-09-05
 ### Thêm mới
-- **16 kết nối dọn ra Javis Store.** Pancake POS, Shopify, Meta Ads, Facebook Trang, TikTok Ads, Slack, Lark, n8n, Hostinger, Webcake và vài cái nữa giờ cài từ kho thay vì đi kèm app. Đổi lại, bản cập nhật của chúng tới thẳng qua kho, không phải chờ bản Javis mới.
+- **16 kết nối dọn ra Jarvis 007 Store.** Pancake POS, Shopify, Meta Ads, Facebook Trang, TikTok Ads, Slack, Lark, n8n, Hostinger, Webcake và vài cái nữa giờ cài từ kho thay vì đi kèm app. Đổi lại, bản cập nhật của chúng tới thẳng qua kho, không phải chờ bản Jarvis 007 mới.
 - Ở lại trong app: **Composio**, **bộ Google** (Lịch, Gmail, Drive/Docs, Sheets, Tasks, Keep, Ads, Search Console, NotebookLM), **Zalo**, **Botcake**, **Substack**, và ô **Tự thêm (nâng cao)**.
 - **Kết nối cũ không mất.** Nếu bạn đang dùng một trong 16 cái trên, trang Kết nối hiện một dòng nhắc kèm nút cài lại đúng cái đó. Cài xong là chạy tiếp bằng đăng nhập cũ, không phải đấu lại từ đầu.
 
@@ -2659,7 +2659,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.55.35] - 2026-09-05
 ### Cải thiện
-- **Javis Store trên điện thoại bố trí lại hẳn.** Hàng loại thành một dải phân đoạn với số đếm nằm dưới tên, các nhóm lĩnh vực xuống dòng thành nhiều hàng thay vì một dải phải vuốt ngang, ô tìm kiếm chiếm trọn bề ngang.
+- **Jarvis 007 Store trên điện thoại bố trí lại hẳn.** Hàng loại thành một dải phân đoạn với số đếm nằm dưới tên, các nhóm lĩnh vực xuống dòng thành nhiều hàng thay vì một dải phải vuốt ngang, ô tìm kiếm chiếm trọn bề ngang.
 - **Không còn nhóm nào bị giấu.** Dải cuộn ngang cũ khiến bạn chỉ thấy bốn nhóm đầu trong khi thật ra có mười; giờ thấy hết cùng lúc.
 - Nút bấm trong kho đủ to để bấm bằng ngón tay, và trên màn hẹp thì thẻ xếp một cột.
 - Bớt một dòng tiêu đề lặp trên điện thoại, để phần chọn loại lên cao hơn gần một phần tư màn hình.
@@ -2669,15 +2669,15 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 - **Vài nút trong kho hiện sai phông chữ.** Nút bấm không tự dùng phông của trang, nên hàng tab và cột nhóm hiện bằng phông mặc định của máy giữa một trang Montserrat. Giờ cả trang một phông.
 
 ### Cải thiện
-- **Kho cài đặt đổi tên thành Javis Store**, và chữ trong kho to lên cho dễ đọc.
+- **Kho cài đặt đổi tên thành Jarvis 007 Store**, và chữ trong kho to lên cho dễ đọc.
 - **Có nút quay lại.** Vào kho từ trang Kỹ năng thì bấm một cái là về đúng trang Kỹ năng.
 - **Nút "Cài từ tệp .zip" chuyển lên đầu**, nằm ngay cạnh ô tìm kiếm.
 - **Bỏ khối "Đã cài" ở cuối trang.** Nó lặp lại thứ đã có trên lưới; nút bật/tắt tạm chuyển thẳng lên thẻ của từng món.
 
 ## [0.55.33] - 2026-09-05
 ### Thêm mới
-- **26 kết nối của Javis đã có bản trong kho.** Từ giờ chúng không còn buộc phải đi kèm app: gỡ đi cho gọn rồi lấy lại từ kho bất cứ lúc nào, và bản cập nhật của một kết nối tới thẳng qua kho chứ không phải chờ bản Javis mới.
-- Ba kết nối ở lại trong app vì không đóng gói được: **Zalo** (đăng nhập bằng mã QR có đường riêng), **Botcake** và **Substack** (gọi thẳng vào lõi Javis).
+- **26 kết nối của Jarvis 007 đã có bản trong kho.** Từ giờ chúng không còn buộc phải đi kèm app: gỡ đi cho gọn rồi lấy lại từ kho bất cứ lúc nào, và bản cập nhật của một kết nối tới thẳng qua kho chứ không phải chờ bản Jarvis 007 mới.
+- Ba kết nối ở lại trong app vì không đóng gói được: **Zalo** (đăng nhập bằng mã QR có đường riêng), **Botcake** và **Substack** (gọi thẳng vào lõi Jarvis 007).
 
 ### Cải thiện
 - Kho không hiện hai thẻ cho cùng một dịch vụ. Khi app còn bản của mình thì thẻ của kho ẩn đi; gỡ bản của app là thẻ kho hiện ra và cài được.
@@ -2693,24 +2693,24 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.55.31] - 2026-09-05
 ### Thêm mới
 - **Kho cài đặt dựng lại theo thiết kế mới.** Hàng tab theo loại kèm số đếm ở trên, cột nhóm lĩnh vực bên trái, thẻ có logo thật và nhãn nhóm, và phân trang khi kho dài ra.
-- **Mọi kết nối của Javis giờ nằm luôn trong kho**, đánh dấu sẵn "Đã cài trên máy". Bạn có một chỗ duy nhất để nhìn Javis nối được với những gì, thay vì hai danh sách rời nhau.
+- **Mọi kết nối của Jarvis 007 giờ nằm luôn trong kho**, đánh dấu sẵn "Đã cài trên máy". Bạn có một chỗ duy nhất để nhìn Jarvis 007 nối được với những gì, thay vì hai danh sách rời nhau.
 - **Gỡ và cài lại ngay trên thẻ.** Kết nối không dùng thì gỡ cho gọn màn hình; đổi ý thì bấm Cài lại. Kết nối đã đấu không bị xoá, chỉ dừng lại cho tới khi bạn cài lại.
 - Lọc riêng được hàng do cộng đồng gửi, và lối lọc đó chỉ hiện khi kho thật sự có hàng cộng đồng.
 
 ## [0.55.30] - 2026-09-05
 ### Thêm mới
-- **Kho cài đặt chuyển sang kho riêng: [javis-store](https://github.com/blogminhquy/javis-store).** Từ giờ thêm một món vào kho là mọi máy đang chạy Javis **thấy ngay**, không phải chờ bản cập nhật nào cả.
+- **Kho cài đặt chuyển sang kho riêng: [javis-store](https://github.com/blogminhquy/javis-store).** Từ giờ thêm một món vào kho là mọi máy đang chạy Jarvis 007 **thấy ngay**, không phải chờ bản cập nhật nào cả.
 - **Ai cũng góp được món vào kho.** Repo kho công khai, kèm hướng dẫn gửi bài và danh sách những gì sẽ bị soi khi duyệt. Mọi món đều được đọc mã trước khi vào kho.
 - Mã nguồn từng món nằm ngay cạnh tệp tải về, nên bạn đọc được nó **trước khi** cài chứ không phải tải rồi mới xem.
 
 ### Cải thiện
-- Bản Javis cũ (0.55.24 đến 0.55.29) vẫn xem và cài được món cũ như thường, không ai bị hụt giữa chừng.
+- Bản Jarvis 007 cũ (0.55.24 đến 0.55.29) vẫn xem và cài được món cũ như thường, không ai bị hụt giữa chừng.
 
 ## [0.55.29] - 2026-09-04
 ### Sửa lỗi
-- **Hộp thoại "Bạn cần cấp quyền microphone" hiện liên tục, bấm OK xong lại nổ, không thoát được.** Khi mic bị chặn hoặc máy không có mic, Javis cứ mở lại mic hai lần mỗi giây, mỗi lần một hộp thoại. Giờ gặp lỗi mic là **dừng hẳn** và tự tắt chế độ luôn nghe.
-- **Báo lỗi mic nói đúng nguyên nhân.** Mở Javis qua địa chỉ mạng nội bộ hoặc tên miền chưa có HTTPS thì trình duyệt chặn thẳng và không hề hỏi quyền, nên câu "hãy cấp quyền" là lời khuyên không làm được. Máy không có mic thì trước đây im lặng hoàn toàn, giờ nói rõ.
-- **Cập nhật hỏng thì nói ra hỏng ở bước nào.** Trước đây khi quay về bản cũ thất bại, Javis chỉ nói "xem update.log" - vô dụng nếu bạn không biết log ở đâu, và tệ hơn là không cho biết máy đang chạy mã bản cũ hay bản mới đang lỗi. Giờ nó chỉ rõ bước hỏng kèm lệnh chữa.
+- **Hộp thoại "Bạn cần cấp quyền microphone" hiện liên tục, bấm OK xong lại nổ, không thoát được.** Khi mic bị chặn hoặc máy không có mic, Jarvis 007 cứ mở lại mic hai lần mỗi giây, mỗi lần một hộp thoại. Giờ gặp lỗi mic là **dừng hẳn** và tự tắt chế độ luôn nghe.
+- **Báo lỗi mic nói đúng nguyên nhân.** Mở Jarvis 007 qua địa chỉ mạng nội bộ hoặc tên miền chưa có HTTPS thì trình duyệt chặn thẳng và không hề hỏi quyền, nên câu "hãy cấp quyền" là lời khuyên không làm được. Máy không có mic thì trước đây im lặng hoàn toàn, giờ nói rõ.
+- **Cập nhật hỏng thì nói ra hỏng ở bước nào.** Trước đây khi quay về bản cũ thất bại, Jarvis 007 chỉ nói "xem update.log" - vô dụng nếu bạn không biết log ở đâu, và tệ hơn là không cho biết máy đang chạy mã bản cũ hay bản mới đang lỗi. Giờ nó chỉ rõ bước hỏng kèm lệnh chữa.
 - **Đăng nhập ChatGPT bớt hên xui.** Trước chỉ hỏi OpenAI một lần rồi thôi, bên kia chậm một nhịp là cả lượt đăng nhập hỏng. Giờ thử lại vài lần, và nếu vẫn không được thì nói rõ là do bên kia chậm chứ không phải máy bạn.
 
 ## [0.55.28] - 2026-09-04
@@ -2723,8 +2723,8 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.55.27] - 2026-09-04
 ### Sửa lỗi
-- **Cài gói bị chặn sạch với thông báo "cần Javis >=0.55.25, bản này là " (bỏ trống).** Javis đọc nhầm chỗ chứa số phiên bản của chính nó, nên tưởng mình là bản 0.0.0 và từ chối mọi gói. Lỗi xảy ra trên bản chạy Docker và mọi bản có đổi thư mục dữ liệu, tức gần như mọi máy thật. Giờ cài được, cả từ kho lẫn từ tệp .zip.
-- Nếu vì lý do nào đó Javis vẫn không đọc được số phiên bản của mình, nó **bỏ qua** phép so phiên bản thay vì chặn hết. Lỗi của Javis không nên biến thành cả kho không dùng được.
+- **Cài gói bị chặn sạch với thông báo "cần Jarvis 007 >=0.55.25, bản này là " (bỏ trống).** Jarvis 007 đọc nhầm chỗ chứa số phiên bản của chính nó, nên tưởng mình là bản 0.0.0 và từ chối mọi gói. Lỗi xảy ra trên bản chạy Docker và mọi bản có đổi thư mục dữ liệu, tức gần như mọi máy thật. Giờ cài được, cả từ kho lẫn từ tệp .zip.
+- Nếu vì lý do nào đó Jarvis 007 vẫn không đọc được số phiên bản của mình, nó **bỏ qua** phép so phiên bản thay vì chặn hết. Lỗi của Jarvis 007 không nên biến thành cả kho không dùng được.
 - Trang Kho cài đặt từng mượn nhầm tiêu đề của Trang chủ. Giờ nó có tiêu đề riêng.
 
 ### Cải thiện
@@ -2747,22 +2747,22 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 - **Lưu được mã truy cập cho kho riêng**, mỗi tên máy một mã. Từ đó cài được gói từ repo riêng chứ không chỉ kho công khai.
 
 ### Bảo mật
-- **Javis không bao giờ ghi đè thứ bạn tự viết.** Cài mà bộ não đã có mục trùng tên thì Javis giữ bản của bạn và bỏ qua bản trong gói. Bản cập nhật của gói chỉ ghi đè khi mục còn y nguyên như lúc cài.
+- **Jarvis 007 không bao giờ ghi đè thứ bạn tự viết.** Cài mà bộ não đã có mục trùng tên thì Jarvis 007 giữ bản của bạn và bỏ qua bản trong gói. Bản cập nhật của gói chỉ ghi đè khi mục còn y nguyên như lúc cài.
 - **Gỡ gói chỉ xoá thứ bạn chưa sửa.** Mục nào bạn đã chỉnh thì được giữ lại, và hộp thoại nói rõ giữ lại những gì. Gói cài lại được trong ba giây, còn thứ bạn viết thì không.
 - **Mã truy cập được mã hoá khi ghi xuống đĩa**, đi bằng header chứ không nhét vào địa chỉ, và **bị bỏ khi bị chuyển hướng sang tên máy khác** - đó là cách rò mã truy cập quen thuộc nhất.
 
 ### Cải thiện
-- Đổi kiểu xuống dòng của một tệp không còn bị hiểu nhầm là "bạn đã sửa". Trước đây chỉ cần mở tệp bằng trình soạn thảo Windows rồi lưu là đủ để Javis thôi cập nhật mục đó.
+- Đổi kiểu xuống dòng của một tệp không còn bị hiểu nhầm là "bạn đã sửa". Trước đây chỉ cần mở tệp bằng trình soạn thảo Windows rồi lưu là đủ để Jarvis 007 thôi cập nhật mục đó.
 
 ## [0.55.24] - 2026-09-04
 ### Thêm mới
-- **Kho gói ngay trong Javis.** Trang Năng lực > Gói có thêm lưới danh mục: tìm kiếm, lọc theo nhóm, bấm Cài là Javis tải về, mở ra cho bạn xem rồi mới hỏi. Đúng màn hình xác nhận như khi bạn tự chọn tệp, không có đường tắt nào ngắn hơn.
+- **Kho gói ngay trong Jarvis 007.** Trang Năng lực > Gói có thêm lưới danh mục: tìm kiếm, lọc theo nhóm, bấm Cài là Jarvis 007 tải về, mở ra cho bạn xem rồi mới hỏi. Đúng màn hình xác nhận như khi bạn tự chọn tệp, không có đường tắt nào ngắn hơn.
 - **Gói đã cài hiện "Đã cài"**, và khi kho có bản mới thì nút đổi thành "Có bản mới vX". Bấm vào là đi qua đúng luồng xem trước rồi mới thay.
 - **Cài được từ một địa chỉ**, kể cả dạng viết tắt `owner/repo@nhánh` của GitHub.
 
 ### Bảo mật
-- **Javis không bao giờ tải từ một địa chỉ trỏ vào mạng nội bộ.** Chỉ https cổng 443, và chốt xét theo địa chỉ đã phân giải chứ không theo tên máy, nên một tên miền công khai trỏ ngược về máy chủ vẫn bị chặn. Kiểm lại sau từng lần chuyển hướng, vì đó là đường vòng quen thuộc nhất.
-- **Danh mục kho được coi là dữ liệu không tin được**: mọi trường bị cắt độ dài và ép kiểu, trường lạ bị bỏ. Bậc "có chạy mã" mà kho khai chỉ để hiện nhãn; bậc thật do Javis tự tính từ tệp đã tải về.
+- **Jarvis 007 không bao giờ tải từ một địa chỉ trỏ vào mạng nội bộ.** Chỉ https cổng 443, và chốt xét theo địa chỉ đã phân giải chứ không theo tên máy, nên một tên miền công khai trỏ ngược về máy chủ vẫn bị chặn. Kiểm lại sau từng lần chuyển hướng, vì đó là đường vòng quen thuộc nhất.
+- **Danh mục kho được coi là dữ liệu không tin được**: mọi trường bị cắt độ dài và ép kiểu, trường lạ bị bỏ. Bậc "có chạy mã" mà kho khai chỉ để hiện nhãn; bậc thật do Jarvis 007 tự tính từ tệp đã tải về.
 - **Tệp tải về không khớp dấu vân tay kho công bố thì dừng ngay**, chưa kịp hỏi gì.
 
 ### Cải thiện
@@ -2770,23 +2770,23 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.55.23] - 2026-09-04
 ### Thêm mới
-- **Gói giờ mang được cả công cụ, không chỉ dịch vụ kết nối.** Cài một gói là Javis có thêm tool mới, dùng được ngay trên mọi bộ não. Đây là nửa còn lại của hướng "cài thêm được thì gỡ được".
+- **Gói giờ mang được cả công cụ, không chỉ dịch vụ kết nối.** Cài một gói là Jarvis 007 có thêm tool mới, dùng được ngay trên mọi bộ não. Đây là nửa còn lại của hướng "cài thêm được thì gỡ được".
 - **Không cần bật biến môi trường cho gói.** Gói đi qua trình cài, tức bạn đã xem màn hình liệt kê từng tệp mã rồi mới bấm đồng ý, nên không phải mở thêm một công tắc nào nữa. Plugin bạn tự thả vào thư mục thì vẫn cần như cũ.
 - **Thẻ plugin hiện nhãn nguồn "Từ gói"**, kèm nút dẫn thẳng sang trang Gói để bật tắt hoặc gỡ.
 
 ### Bảo mật
-- **Mã trong gói bị khoá theo nội dung.** Lúc cài, Javis ghi lại dấu vân tay của toàn bộ mã trong gói; mỗi lần nạp nó tính lại và đối chiếu. Lệch một byte là plugin không chạy, kèm dòng nói rõ vì sao và phải làm gì. Kiểm ở lúc nạp chứ không chỉ lúc cài, vì ai sửa được tệp mã thì cũng sửa được sổ ghi.
-- **Gói không được cướp tên công cụ có sẵn của Javis.** Trình cài từ chối ngay và nói tên bị trùng.
-- **Tắt hay gỡ một plugin giờ là DỪNG thật.** Trước đây nó chỉ biến khỏi danh sách, còn thứ plugin mở ra như tiến trình nền vẫn sống tiếp. Nay plugin tự dọn được, và Javis bỏ hẳn mã của nó khỏi bộ nhớ.
-- **Plugin thôi che được mã nguồn của Javis.** Trước đây thư mục plugin được chèn vào đường tìm kiếm module, nên một plugin chứa tệp trùng tên với tệp lõi có thể thay thế nó.
-- **Gói không còn khớp phiên bản Javis sẽ tự tắt lúc khởi động**, kèm lý do, thay vì chạy tiếp trong tình trạng không rõ.
+- **Mã trong gói bị khoá theo nội dung.** Lúc cài, Jarvis 007 ghi lại dấu vân tay của toàn bộ mã trong gói; mỗi lần nạp nó tính lại và đối chiếu. Lệch một byte là plugin không chạy, kèm dòng nói rõ vì sao và phải làm gì. Kiểm ở lúc nạp chứ không chỉ lúc cài, vì ai sửa được tệp mã thì cũng sửa được sổ ghi.
+- **Gói không được cướp tên công cụ có sẵn của Jarvis 007.** Trình cài từ chối ngay và nói tên bị trùng.
+- **Tắt hay gỡ một plugin giờ là DỪNG thật.** Trước đây nó chỉ biến khỏi danh sách, còn thứ plugin mở ra như tiến trình nền vẫn sống tiếp. Nay plugin tự dọn được, và Jarvis 007 bỏ hẳn mã của nó khỏi bộ nhớ.
+- **Plugin thôi che được mã nguồn của Jarvis 007.** Trước đây thư mục plugin được chèn vào đường tìm kiếm module, nên một plugin chứa tệp trùng tên với tệp lõi có thể thay thế nó.
+- **Gói không còn khớp phiên bản Jarvis 007 sẽ tự tắt lúc khởi động**, kèm lý do, thay vì chạy tiếp trong tình trạng không rõ.
 
 ## [0.55.22] - 2026-09-04
 ### Thêm mới
-- **Trang Gói mới: cài thêm dịch vụ cho Javis từ một tệp .zip.** Chọn tệp, Javis mở ra xem bên trong có gì rồi mới hỏi bạn có cài không. Cài xong là dịch vụ hiện ngay ở trang Kết nối, dùng được trên mọi bộ não, không phải chờ bản cập nhật Javis.
+- **Trang Gói mới: cài thêm dịch vụ cho Jarvis 007 từ một tệp .zip.** Chọn tệp, Jarvis 007 mở ra xem bên trong có gì rồi mới hỏi bạn có cài không. Cài xong là dịch vụ hiện ngay ở trang Kết nối, dùng được trên mọi bộ não, không phải chờ bản cập nhật Jarvis 007.
 - **Màn hình xem trước nói thật về gói.** Nó liệt kê dịch vụ sắp thêm, dấu vân tay của tệp, và nếu gói có chạy mã thì hiện khối cảnh báo đỏ kèm tên từng tệp mã, bắt bạn gõ lại mã gói mới cho cài. Ô "bật ngay" mặc định tắt.
 - **Gỡ gói thì sạch:** tệp của gói, dịch vụ nó thêm, và các kết nối bạn đã đấu theo nó đều đi theo. Hộp thoại nêu tên từng kết nối trước khi làm, và chúng vào thùng rác giữ 30 ngày.
-- **Plugin đi kèm Javis giờ gỡ được**, không chỉ tắt. Thẻ rời khỏi danh sách chính và rơi xuống mục "Đã gỡ" có nút Cài lại. Tệp vẫn nằm trong bản cài nên cập nhật Javis không làm nó mọc lại.
+- **Plugin đi kèm Jarvis 007 giờ gỡ được**, không chỉ tắt. Thẻ rời khỏi danh sách chính và rơi xuống mục "Đã gỡ" có nút Cài lại. Tệp vẫn nằm trong bản cài nên cập nhật Jarvis 007 không làm nó mọc lại.
 
 ### Bảo mật
 - **Tệp .zip lạ bị soi kỹ trước khi mở:** chặn đường dẫn leo ra ngoài, liên kết tượng trưng trỏ vào tệp bí mật, tệp nén phồng, và gói mang theo khoá riêng hay tệp .env. Gói không bao giờ được ghi đè một dịch vụ có sẵn.
@@ -2794,27 +2794,27 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.55.21] - 2026-09-04
 ### Thêm mới
-- **Thêm được dịch vụ mới vào Kho mà không cần chờ bản cập nhật Javis.** Thả một thư mục gói vào kho gói của máy chủ là dịch vụ đó hiện ra ở trang Kết nối, dùng được trên mọi bộ não. Đây là nửa còn lại của hướng "Javis giữ phần lõi, còn lại bạn tự chọn": bản trước cho phép GỠ bớt, bản này cho phép THÊM vào.
+- **Thêm được dịch vụ mới vào Kho mà không cần chờ bản cập nhật Jarvis 007.** Thả một thư mục gói vào kho gói của máy chủ là dịch vụ đó hiện ra ở trang Kết nối, dùng được trên mọi bộ não. Đây là nửa còn lại của hướng "Jarvis 007 giữ phần lõi, còn lại bạn tự chọn": bản trước cho phép GỠ bớt, bản này cho phép THÊM vào.
 - **Dịch vụ đến từ gói luôn hiện rõ là của gói nào**, và luôn bắt đầu ở mức Chỉ đọc dù gói khai gì đi nữa. Muốn cho ghi thì bạn tự nâng quyền từng tài khoản như mọi kết nối khác.
 - **Gói không được phép ghi đè dịch vụ có sẵn.** Một gói khai trùng tên với dịch vụ đang có thì phần đó bị từ chối và nói rõ lý do, còn dịch vụ gốc giữ nguyên. Nhờ vậy không ai lén đổi hướng một kết nối bạn đang đăng nhập thật.
 
 ### Sửa lỗi
-- **Chạy bộ kiểm thử không còn làm bẩn kho kết nối của bạn.** Hai bài kiểm tra tưởng đang dùng thư mục tạm nhưng thực ra ghi thẳng vào kho thật, nên mỗi lượt chạy lại thêm vài kết nối rác tên "n8n thử" và "Shop thử". Kho của bạn có sẵn mấy dòng đó thì cứ xoá, Javis không tạo lại nữa.
+- **Chạy bộ kiểm thử không còn làm bẩn kho kết nối của bạn.** Hai bài kiểm tra tưởng đang dùng thư mục tạm nhưng thực ra ghi thẳng vào kho thật, nên mỗi lượt chạy lại thêm vài kết nối rác tên "n8n thử" và "Shop thử". Kho của bạn có sẵn mấy dòng đó thì cứ xoá, Jarvis 007 không tạo lại nữa.
 
 ## [0.55.20] - 2026-09-03
 ### Thêm mới
-- **Gỡ được dịch vụ khỏi Kho kết nối cho gọn.** Kho có 29 dịch vụ mà bình thường bạn chỉ dùng vài cái. Trỏ chuột vào một thẻ, góc phải hiện dấu ×: bấm là nó rời khỏi Kho và khỏi danh sách công cụ của mọi bộ não. Đây là bước đầu của hướng "Javis chỉ giữ phần lõi, còn lại bạn tự chọn cài thêm".
-- **Gỡ rồi cài lại được bằng một cú bấm**, ở khu "Đã gỡ" nằm dưới Kho. File của dịch vụ vẫn nằm trong bản cài nên cập nhật Javis lên bản mới không làm nó mọc lại, mà muốn dùng lại thì có ngay.
-- **Kết nối của bạn không bị xoá khi gỡ dịch vụ.** Javis hỏi lại trước, rồi các kết nối đó dừng chạy nhưng vẫn nằm nguyên ở khu Đã kết nối, kèm một dải nhắc ở đầu trang. Cài lại dịch vụ là chúng chạy tiếp, không phải đấu lại từ đầu.
+- **Gỡ được dịch vụ khỏi Kho kết nối cho gọn.** Kho có 29 dịch vụ mà bình thường bạn chỉ dùng vài cái. Trỏ chuột vào một thẻ, góc phải hiện dấu ×: bấm là nó rời khỏi Kho và khỏi danh sách công cụ của mọi bộ não. Đây là bước đầu của hướng "Jarvis 007 chỉ giữ phần lõi, còn lại bạn tự chọn cài thêm".
+- **Gỡ rồi cài lại được bằng một cú bấm**, ở khu "Đã gỡ" nằm dưới Kho. File của dịch vụ vẫn nằm trong bản cài nên cập nhật Jarvis 007 lên bản mới không làm nó mọc lại, mà muốn dùng lại thì có ngay.
+- **Kết nối của bạn không bị xoá khi gỡ dịch vụ.** Jarvis 007 hỏi lại trước, rồi các kết nối đó dừng chạy nhưng vẫn nằm nguyên ở khu Đã kết nối, kèm một dải nhắc ở đầu trang. Cài lại dịch vụ là chúng chạy tiếp, không phải đấu lại từ đầu.
 
 ### Bảo mật
-- **Kết nối trỏ vào một dịch vụ không còn tồn tại giờ dừng hẳn, thay vì chạy tiếp mà mất cổng chặn.** Trước đây, thiếu dịch vụ thì Javis vẫn gọi kết nối đó nhưng bỏ qua phân quyền, nên một kết nối đang ở mức Chỉ đọc có thể gọi được cả công cụ ghi.
+- **Kết nối trỏ vào một dịch vụ không còn tồn tại giờ dừng hẳn, thay vì chạy tiếp mà mất cổng chặn.** Trước đây, thiếu dịch vụ thì Jarvis 007 vẫn gọi kết nối đó nhưng bỏ qua phân quyền, nên một kết nối đang ở mức Chỉ đọc có thể gọi được cả công cụ ghi.
 
 ## [0.55.19] - 2026-09-03
 ### Bảo mật
 - **Xoá một kết nối giờ mới thật sự xoá sạch.** Trước bản này, xoá kết nối vẫn để lại thư mục chứa phiên đăng nhập của nó trên máy chủ, và không có gì dọn cả. Trên chính máy chủ dự án đang có 5 thư mục kiểu đó nằm lại sau những kết nối Zalo đã xoá từ lâu, một trong số đó vẫn giữ credential đăng nhập.
 - **Chương trình con của kết nối bị tắt ngay, thay vì sống thêm 15 phút.** Nó vẫn chạy nền suốt quãng đó dù kết nối đã biến mất khỏi màn hình.
-- **Link Hướng dẫn của một số nguồn hết chết**, và Javis siết lại đúng chỗ đó để một trang hướng dẫn không thể lén chạy mã trong dashboard của bạn.
+- **Link Hướng dẫn của một số nguồn hết chết**, và Jarvis 007 siết lại đúng chỗ đó để một trang hướng dẫn không thể lén chạy mã trong dashboard của bạn.
 
 ### Cải thiện
 - **Hộp xác nhận khi xoá kết nối nói rõ sẽ mất những gì**, đếm đúng từng thứ, thay vì một câu hỏi cụt. Kết nối quét mã QR như Zalo được cảnh báo riêng là mất phiên thì phải quét lại bằng điện thoại, và mặc định chuyển vào thùng rác giữ 30 ngày để bấm nhầm còn lấy lại được.
@@ -2822,13 +2822,13 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.55.18] - 2026-09-03
 ### Thêm mới
-- **Javis tự phát hiện khi trình duyệt bạn đang chạy bản cũ.** Từ trước tới nay chuyện này hoàn toàn câm: bạn cập nhật xong, mở lên thấy y như cũ, và không có cách nào biết là do trình duyệt giữ file cũ. Nay Javis hiện một dải nhắc ngay đầu màn hình, gọi đúng tên file đang cũ, kèm nút Tải lại.
-- **Tải lại rồi vẫn cũ thì Javis nói thẳng phải làm gì** (bấm Ctrl+Shift+R), thay vì để bạn bấm Tải lại mãi mà không hiểu vì sao không đổi.
-- **Máy chủ cập nhật trong lúc bạn đang mở Javis** thì dải nhắc cũng hiện, mời bạn tải lại để dùng bản mới. Javis không tự tải lại, vì bạn có thể đang gõ dở.
+- **Jarvis 007 tự phát hiện khi trình duyệt bạn đang chạy bản cũ.** Từ trước tới nay chuyện này hoàn toàn câm: bạn cập nhật xong, mở lên thấy y như cũ, và không có cách nào biết là do trình duyệt giữ file cũ. Nay Jarvis 007 hiện một dải nhắc ngay đầu màn hình, gọi đúng tên file đang cũ, kèm nút Tải lại.
+- **Tải lại rồi vẫn cũ thì Jarvis 007 nói thẳng phải làm gì** (bấm Ctrl+Shift+R), thay vì để bạn bấm Tải lại mãi mà không hiểu vì sao không đổi.
+- **Máy chủ cập nhật trong lúc bạn đang mở Jarvis 007** thì dải nhắc cũng hiện, mời bạn tải lại để dùng bản mới. Jarvis 007 không tự tải lại, vì bạn có thể đang gõ dở.
 
 ## [0.55.17] - 2026-09-03
 ### Cải thiện
-- **Brain mới không còn file `Task Inbox.md` nằm sẵn trong Dashboard.** Nó chỉ mọc ra khi bạn bấm "+ Việc" lần đầu, nên ai không dùng tính năng đó thì thư mục Dashboard gọn hơn một file. Brain cũ đang có sẵn mà bạn không dùng thì cứ xoá, Javis không tạo lại.
+- **Brain mới không còn file `Task Inbox.md` nằm sẵn trong Dashboard.** Nó chỉ mọc ra khi bạn bấm "+ Việc" lần đầu, nên ai không dùng tính năng đó thì thư mục Dashboard gọn hơn một file. Brain cũ đang có sẵn mà bạn không dùng thì cứ xoá, Jarvis 007 không tạo lại.
 
 ## [0.55.16] - 2026-09-03
 ### Cải thiện
@@ -2839,52 +2839,52 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Sửa lỗi
 - **Đính kèm nhiều file vào chat thì cuộn xem được hết.** Trước đây dải file dưới ô nhập bị cắt ở hàng thứ hai, mấy file cuối còn nguyên đó nhưng không cách nào bấm **X** bỏ đi.
 - **Kéo thả file vào khung tài liệu của project đã vào đúng chỗ**, không nhảy sang khung chat nữa. Thả xuống chỗ nào trên khung cũng được, cả khung sáng lên báo đã nhận.
-- **Chọn được nhiều file một lượt** khi bấm "Tải từ máy lên", thay vì mỗi lần một file. Javis tải lần lượt và đếm cho bạn xem tới file thứ mấy.
+- **Chọn được nhiều file một lượt** khi bấm "Tải từ máy lên", thay vì mỗi lần một file. Jarvis 007 tải lần lượt và đếm cho bạn xem tới file thứ mấy.
 ### Cải thiện
 - **Tìm trong brain: nút "Đã thêm" đổi thành "Gỡ".** Thêm nhầm thì bấm gỡ ngay tại chỗ, không phải đóng ô tìm rồi đi lần lại trong danh sách.
 
 ## [0.55.14] - 2026-09-03
 ### Sửa lỗi
-- **Kết nối MCP tự nối lại khi máy chủ dịch vụ ngắt phiên.** Đây là gốc của chuyện Pancake POS "lúc được lúc không": máy chủ có quyền huỷ phiên bất cứ lúc nào (họ deploy lại, phiên hết hạn), và đúng ra Javis phải bắt tay lại ngay. Trước đây Javis không nhận ra tín hiệu đó nên coi như nguồn không có công cụ nào, và cứ thế cho tới khi bạn bỏ đi 15 phút.
-- **Trang Kết nối hết báo xanh giả.** Nguồn nối được nhưng không đưa ra công cụ nào giờ hiện chấm đỏ kèm lý do, thay vì chấm xanh ghi "Hoạt động bình thường (0 công cụ)" trong khi Javis không gọi được gì.
-- **Javis nói đúng bệnh hơn khi được hỏi.** Nguồn đang trục trặc thì trả lời thẳng là nguồn hỏng, không còn đoán mò sang chuyện thiếu quyền hay chưa gắn nguồn vào brain.
+- **Kết nối MCP tự nối lại khi máy chủ dịch vụ ngắt phiên.** Đây là gốc của chuyện Pancake POS "lúc được lúc không": máy chủ có quyền huỷ phiên bất cứ lúc nào (họ deploy lại, phiên hết hạn), và đúng ra Jarvis 007 phải bắt tay lại ngay. Trước đây Jarvis 007 không nhận ra tín hiệu đó nên coi như nguồn không có công cụ nào, và cứ thế cho tới khi bạn bỏ đi 15 phút.
+- **Trang Kết nối hết báo xanh giả.** Nguồn nối được nhưng không đưa ra công cụ nào giờ hiện chấm đỏ kèm lý do, thay vì chấm xanh ghi "Hoạt động bình thường (0 công cụ)" trong khi Jarvis 007 không gọi được gì.
+- **Jarvis 007 nói đúng bệnh hơn khi được hỏi.** Nguồn đang trục trặc thì trả lời thẳng là nguồn hỏng, không còn đoán mò sang chuyện thiếu quyền hay chưa gắn nguồn vào brain.
 - Sai API key giờ báo đúng là sai key và hiện nút Kết nối lại, không lẫn với lỗi mất phiên.
 
 ## [0.55.13] - 2026-09-02
 ### Sửa lỗi
-- **Chat bằng model Ollama chạy trên máy nhà đã hoạt động.** Trước đây gõ gì cũng nhận lại "There's an issue with the selected model", vì Javis lặng lẽ đưa lượt chat cho Claude Code kèm tên model của Ollama. Nay lượt chat đi đúng Ollama, đủ tool và MCP như mọi bộ não khác.
+- **Chat bằng model Ollama chạy trên máy nhà đã hoạt động.** Trước đây gõ gì cũng nhận lại "There's an issue with the selected model", vì Jarvis 007 lặng lẽ đưa lượt chat cho Claude Code kèm tên model của Ollama. Nay lượt chat đi đúng Ollama, đủ tool và MCP như mọi bộ não khác.
 - **Thanh model thôi kêu "ghim hỏng"** khi bạn đang dùng model máy nhà chạy bình thường.
 - Ollama đặt sau reverse proxy có mật khẩu thì khoá bạn nhập ở trang Models nay được dùng thật khi chat.
 
 ## [0.55.12] - 2026-09-02
 ### Cải thiện
-- **Mic là công tắc giọng duy nhất.** Bỏ hẳn nút loa trên thanh nhập: bấm mic là Javis đáp bằng giọng, tắt mic là im. Muốn tắt tiếng thủ công vẫn còn công tắc trong Cài đặt nhanh.
+- **Mic là công tắc giọng duy nhất.** Bỏ hẳn nút loa trên thanh nhập: bấm mic là Jarvis 007 đáp bằng giọng, tắt mic là im. Muốn tắt tiếng thủ công vẫn còn công tắc trong Cài đặt nhanh.
 - **Hàng nhãn HỘI THOẠI gọn lại** trên cả điện thoại lẫn máy tính: hai nút nằm cùng hàng với nhãn, chip project chỉ xuống hàng khi thật sự có, không còn dải trống phía trên khung chat.
 - **Điện thoại: nút "≡ 1/3" (nhảy về câu hỏi cũ) dời lên hàng nhãn**, cạnh nút phóng to. Trước nó dính góc khung chat và đè lên bong bóng tin nhắn của bạn khi cuộn.
 ### Sửa lỗi
-- **iPhone: bấm mic không còn rơi vào chế độ ghi âm kéo dài**, nói xong một câu là gửi. **Giọng đọc trên iPhone hết ngập ngừng, ngắt giữa chừng**: Javis phát bằng một kênh âm thanh mở sẵn từ lúc bạn bấm mic thay vì tạo kênh mới cho từng đoạn (thứ iPhone chặn).
+- **iPhone: bấm mic không còn rơi vào chế độ ghi âm kéo dài**, nói xong một câu là gửi. **Giọng đọc trên iPhone hết ngập ngừng, ngắt giữa chừng**: Jarvis 007 phát bằng một kênh âm thanh mở sẵn từ lúc bạn bấm mic thay vì tạo kênh mới cho từng đoạn (thứ iPhone chặn).
 
 ## [0.55.11] - 2026-09-02
 ### Sửa lỗi
-- **Đọc bằng mic trên điện thoại không còn dán chồng câu** kiểu "Ok Ok Ok có Ok có vẻ...". Chrome trên Android giao lại cả câu ở mỗi nhịp nghe, và Javis cộng dồn nên chép câu ấy thêm một lần mỗi nhịp. Nay Javis dựng lại chữ từ đầu mỗi nhịp, và câu đang nói dở không mất khi trình duyệt tự mở lại phiên nghe.
-- **Loa đi theo mic.** Bấm mic để nghe là Javis tự đáp bằng giọng; tắt mic là Javis im. Điện thoại trước đây không có chỗ nào bật tắt giọng cả, nay nút loa cũng quay lại thanh nhập để thấy trạng thái và bấm ngược khi cần.
-- Javis không đọc lại cùng một đoạn hai lần khi kết nối chập chờn giao trùng tin.
+- **Đọc bằng mic trên điện thoại không còn dán chồng câu** kiểu "Ok Ok Ok có Ok có vẻ...". Chrome trên Android giao lại cả câu ở mỗi nhịp nghe, và Jarvis 007 cộng dồn nên chép câu ấy thêm một lần mỗi nhịp. Nay Jarvis 007 dựng lại chữ từ đầu mỗi nhịp, và câu đang nói dở không mất khi trình duyệt tự mở lại phiên nghe.
+- **Loa đi theo mic.** Bấm mic để nghe là Jarvis 007 tự đáp bằng giọng; tắt mic là Jarvis 007 im. Điện thoại trước đây không có chỗ nào bật tắt giọng cả, nay nút loa cũng quay lại thanh nhập để thấy trạng thái và bấm ngược khi cần.
+- Jarvis 007 không đọc lại cùng một đoạn hai lần khi kết nối chập chờn giao trùng tin.
 
 ## [0.55.10] - 2026-09-02
 ### Thêm mới
 - **Ghim được model riêng cho Telegram.** Mặc định Telegram vẫn theo model chính như cũ; ghim rồi thì đổi model trên web không kéo điện thoại theo, và gõ `/model` trên Telegram chỉ đổi cho Telegram. Ghim ngay trên Telegram bằng `/model ghim`, bỏ bằng `/model theo`; `/status` luôn nói đang ghim hay đang theo.
 ### Sửa lỗi
-- **Javis không còn bịa chuyện "nguồn chưa được gắn vào brain này".** Kết nối vốn dùng chung cho mọi brain. Khi một nguồn tắt hoặc đang hỏng, Javis nay nói đúng lý do đó và chỉ bạn tới nút Kiểm tra ở trang Kết nối, thay vì bảo bạn đi tìm một mục gắn nguồn không hề tồn tại.
+- **Jarvis 007 không còn bịa chuyện "nguồn chưa được gắn vào brain này".** Kết nối vốn dùng chung cho mọi brain. Khi một nguồn tắt hoặc đang hỏng, Jarvis 007 nay nói đúng lý do đó và chỉ bạn tới nút Kiểm tra ở trang Kết nối, thay vì bảo bạn đi tìm một mục gắn nguồn không hề tồn tại.
 
 ## [0.55.9] - 2026-09-02
 ### Sửa lỗi
 - **Màn tạo tài khoản lần đầu nay chỉ thẳng vào ô đang trống.** Ô Mã thiết lập nằm ở giữa trang còn nút bấm ở cuối, nên bỏ trống rồi bấm thì bạn chỉ thấy một dòng đỏ ở đáy mà không biết ô nào thiếu. Giờ màn hình tự cuộn tới đúng ô đó và đặt con trỏ vào.
-- **Dán nhầm cả dòng log vẫn vào được.** Mã in ra log nằm cùng dòng với chữ `SETUP TOKEN:`, bôi đen một dòng là dính cả nhãn, và trước đây Javis báo sai mã. Nay Javis tự gọt nhãn, dấu nháy và khoảng trắng thừa.
+- **Dán nhầm cả dòng log vẫn vào được.** Mã in ra log nằm cùng dòng với chữ `SETUP TOKEN:`, bôi đen một dòng là dính cả nhãn, và trước đây Jarvis 007 báo sai mã. Nay Jarvis 007 tự gọt nhãn, dấu nháy và khoảng trắng thừa.
 
 ## [0.55.8] - 2026-09-02
 ### Sửa lỗi
-- **Model không dùng để chat được nay nói rõ vì sao.** Model embedding (như `embeddinggemma`) chỉ sinh vector cho tìm kiếm chứ không trả lời được, nên nó không có nút đặt làm model chính. Trước đây Javis chỉ lặng lẽ bỏ nút đi, không giải thích gì, nên bạn chỉ thấy "cài 2 model mà dùng được 1".
-- **Và Javis hỏi thẳng Ollama xem model nào chat được**, thay vì đoán qua tên. Ba model embedding phổ biến là `all-minilm`, `bge-m3` và `paraphrase-multilingual` đều không có chữ "embed" trong tên, nên trước đây Javis vẫn mời bạn đặt chúng làm model chính rồi mọi lượt chat mới chết.
+- **Model không dùng để chat được nay nói rõ vì sao.** Model embedding (như `embeddinggemma`) chỉ sinh vector cho tìm kiếm chứ không trả lời được, nên nó không có nút đặt làm model chính. Trước đây Jarvis 007 chỉ lặng lẽ bỏ nút đi, không giải thích gì, nên bạn chỉ thấy "cài 2 model mà dùng được 1".
+- **Và Jarvis 007 hỏi thẳng Ollama xem model nào chat được**, thay vì đoán qua tên. Ba model embedding phổ biến là `all-minilm`, `bge-m3` và `paraphrase-multilingual` đều không có chữ "embed" trong tên, nên trước đây Jarvis 007 vẫn mời bạn đặt chúng làm model chính rồi mọi lượt chat mới chết.
 
 ## [0.55.7] - 2026-09-02
 ### Sửa lỗi
@@ -2892,47 +2892,47 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Cải thiện
 - **Tab đổi tên thành Local Model, nhà cung cấp thành Ollama (Local)**, hết chữ "máy nhà" và "chạy trên máy" gây hiểu nhầm.
 - **Tải model xong là bấm "Dùng làm model chính" ngay trong tab Local**, không phải mò sang tab Cloud tìm trong danh sách dài. Model đang là chính có nhãn riêng.
-- **Lệnh mở cổng cho bản Docker nay gắn Ollama vào đúng địa chỉ cầu nối Javis dò được**, chỉ container trên máy đó gọi tới, nên bỏ hẳn bước tường lửa dễ tự khoá SSH. Nối hỏng thì có sẵn một lệnh chẩn đoán kèm cách đọc kết quả.
+- **Lệnh mở cổng cho bản Docker nay gắn Ollama vào đúng địa chỉ cầu nối Jarvis 007 dò được**, chỉ container trên máy đó gọi tới, nên bỏ hẳn bước tường lửa dễ tự khoá SSH. Nối hỏng thì có sẵn một lệnh chẩn đoán kèm cách đọc kết quả.
 - **Máy không GPU được gợi ý bản Qwen3 instruct trước**, còn các bản suy nghĩ dài (qwen3 thường, deepseek-r1) ghi rõ là chạy CPU sẽ rất chậm. Trên VPS 2 nhân, bản thường sinh gần 2.800 chữ suy nghĩ cho một câu chào rồi quá giờ; bản instruct trả lời trong 23 giây.
 
 ## [0.55.6] - 2026-09-02
 ### Sửa lỗi
 - **Tài liệu bạn tải lên trong khung Project nay lưu vào Sources, không còn vào Attachments.** Attachments là vùng tạm bị dọn theo tuổi (mặc định 30 ngày) và theo dung lượng, nên tài liệu của project để ở đó là sẽ mất. Sources thì giữ lâu dài.
 - **Và file đã gắn vào project thì không bao giờ bị dọn nữa**, kể cả file cũ đang nằm trong Attachments. Trước đây dọn xong là project còn lại một dòng trỏ vào file không còn tồn tại.
-- Javis tự tìm đúng thư mục Sources của brain (kể cả khi bạn đặt tên `01 - Sources`) thay vì đoán, nên file không còn lạc vào một thư mục thứ hai trùng tên.
+- Jarvis 007 tự tìm đúng thư mục Sources của brain (kể cả khi bạn đặt tên `01 - Sources`) thay vì đoán, nên file không còn lạc vào một thư mục thứ hai trùng tên.
 
 ## [0.55.5] - 2026-09-02
 ### Sửa lỗi
-- **Điền địa chỉ Ollama mà quên cổng thì Javis tự thêm `11434`.** Trước đây gõ mỗi địa chỉ máy chủ là Javis hiểu thành cổng 80, đi trúng trang web của chính máy đó rồi báo "Máy chủ trả lỗi 301" - một con số không nói lên điều gì và không có đường nào lần ra.
-- **Báo lỗi kết nối Ollama nay chỉ thẳng chỗ sai.** Trỏ nhầm vào một web server thì Javis nói rõ đó là web server chứ không phải Ollama và nhắc lại cổng cần dùng, thay vì đọc ra một mã lỗi trần.
-- **Cảnh báo khi bạn nối Ollama qua một địa chỉ công khai.** Ollama không có mật khẩu, nên địa chỉ Internet nghĩa là ai biết cũng gọi được model của bạn. Javis nói ngay lúc kết nối, kèm việc cần làm.
+- **Điền địa chỉ Ollama mà quên cổng thì Jarvis 007 tự thêm `11434`.** Trước đây gõ mỗi địa chỉ máy chủ là Jarvis 007 hiểu thành cổng 80, đi trúng trang web của chính máy đó rồi báo "Máy chủ trả lỗi 301" - một con số không nói lên điều gì và không có đường nào lần ra.
+- **Báo lỗi kết nối Ollama nay chỉ thẳng chỗ sai.** Trỏ nhầm vào một web server thì Jarvis 007 nói rõ đó là web server chứ không phải Ollama và nhắc lại cổng cần dùng, thay vì đọc ra một mã lỗi trần.
+- **Cảnh báo khi bạn nối Ollama qua một địa chỉ công khai.** Ollama không có mật khẩu, nên địa chỉ Internet nghĩa là ai biết cũng gọi được model của bạn. Jarvis 007 nói ngay lúc kết nối, kèm việc cần làm.
 
 ## [0.55.4] - 2026-09-02
 ### Sửa lỗi
-- **Hai người dùng chung một Javis không còn đá nhau văng kết nối Claude.** Khi cả hai cùng chat đúng lúc phiên đăng nhập Claude hết hạn, hai lượt cùng đi làm mới, và người chậm hơn bị báo mất đăng nhập trong khi người kia vẫn chạy bình thường. Nay Javis xếp hàng đúng khoảnh khắc đó nên chỉ một lượt đi làm mới, lượt còn lại chờ vài giây rồi dùng phiên mới.
-- **Và nếu vẫn lỡ trúng, Javis nói đúng bệnh.** Trước đây nó báo mất đăng nhập rồi bảo bạn vào trang Models kết nối lại - lời khuyên sai, vì phiên chưa hề mất, mà bấm Ngắt còn xoá mất bản sao lưu phiên đăng nhập. Nay nó nói thẳng là gửi lại tin nhắn được ngay, và không bật đèn đỏ báo động nữa.
+- **Hai người dùng chung một Jarvis 007 không còn đá nhau văng kết nối Claude.** Khi cả hai cùng chat đúng lúc phiên đăng nhập Claude hết hạn, hai lượt cùng đi làm mới, và người chậm hơn bị báo mất đăng nhập trong khi người kia vẫn chạy bình thường. Nay Jarvis 007 xếp hàng đúng khoảnh khắc đó nên chỉ một lượt đi làm mới, lượt còn lại chờ vài giây rồi dùng phiên mới.
+- **Và nếu vẫn lỡ trúng, Jarvis 007 nói đúng bệnh.** Trước đây nó báo mất đăng nhập rồi bảo bạn vào trang Models kết nối lại - lời khuyên sai, vì phiên chưa hề mất, mà bấm Ngắt còn xoá mất bản sao lưu phiên đăng nhập. Nay nó nói thẳng là gửi lại tin nhắn được ngay, và không bật đèn đỏ báo động nữa.
 
 ## [0.55.3] - 2026-09-02
 ### Sửa lỗi
-- **Địa chỉ nối tới Ollama nay Javis tự tìm và điền sẵn cho bạn**, chỉ việc bấm Kết nối. Bản trước ghi "điền địa chỉ này" nhưng lại để địa chỉ dưới dạng chữ mờ trong ô nhập, còn bị cắt cụt nên không đọc hết được.
-- **Và địa chỉ đó trước đây sai.** Javis ghi cứng `172.17.0.1`, vốn chỉ đúng với một kiểu cài Docker khác; bản cài theo hướng dẫn của Javis nằm ở mạng khác nên điền y như hướng dẫn vẫn không nối được. Nay Javis đọc địa chỉ thật của máy chủ. Tìm không ra thì nói thẳng và đưa lệnh để bạn tự lấy.
+- **Địa chỉ nối tới Ollama nay Jarvis 007 tự tìm và điền sẵn cho bạn**, chỉ việc bấm Kết nối. Bản trước ghi "điền địa chỉ này" nhưng lại để địa chỉ dưới dạng chữ mờ trong ô nhập, còn bị cắt cụt nên không đọc hết được.
+- **Và địa chỉ đó trước đây sai.** Jarvis 007 ghi cứng `172.17.0.1`, vốn chỉ đúng với một kiểu cài Docker khác; bản cài theo hướng dẫn của Jarvis 007 nằm ở mạng khác nên điền y như hướng dẫn vẫn không nối được. Nay Jarvis 007 đọc địa chỉ thật của máy chủ. Tìm không ra thì nói thẳng và đưa lệnh để bạn tự lấy.
 
 ## [0.55.2] - 2026-09-02
 ### Sửa lỗi
 - **Nhật ký học nay xếp mới nhất lên đầu.** Trước đây trong cùng một ngày nó lại xếp cũ trước, nên với brain học 100-200 mục mỗi ngày thì mục vừa học xong nằm lẫn đâu đó giữa hai chục trang - đúng thứ bạn mở nhật ký ra để tìm.
-- **Thẻ Grok Build trên trang Models không còn báo lỗi đỏ** `unsupported tool prefix: NotebookEdit`. Javis đang gửi cho Grok một tên công cụ của Claude Code, thứ Grok không có; chat vẫn chạy bình thường nên lỗi này chỉ làm bạn lo chứ không hỏng gì.
+- **Thẻ Grok Build trên trang Models không còn báo lỗi đỏ** `unsupported tool prefix: NotebookEdit`. Jarvis 007 đang gửi cho Grok một tên công cụ của Claude Code, thứ Grok không có; chat vẫn chạy bình thường nên lỗi này chỉ làm bạn lo chứ không hỏng gì.
 
 ## [0.55.1] - 2026-09-02
 ### Sửa lỗi
-- **Hướng dẫn cài Ollama cho bản chạy Docker nay nói đủ ba bước.** Bản trước chỉ bảo "cài trên máy thật rồi điền địa chỉ", thiếu mất hai chỗ mà không có thì chắc chắn không nối được: Ollama mặc định chỉ nghe trong máy nên container của Javis không với tới, và không ai đoán được phải điền địa chỉ nào. Nay có sẵn lệnh cho từng bước và ô địa chỉ gợi ý đúng.
+- **Hướng dẫn cài Ollama cho bản chạy Docker nay nói đủ ba bước.** Bản trước chỉ bảo "cài trên máy thật rồi điền địa chỉ", thiếu mất hai chỗ mà không có thì chắc chắn không nối được: Ollama mặc định chỉ nghe trong máy nên container của Jarvis 007 không với tới, và không ai đoán được phải điền địa chỉ nào. Nay có sẵn lệnh cho từng bước và ô địa chỉ gợi ý đúng.
 - **Máy Windows nay đọc được RAM.** Trước đây chỉ đọc được trên Linux và Mac, còn Windows thì trả về 0 nhưng vẫn báo là đọc thành công - hậu quả là máy 64GB chỉ được gợi ý model dưới 8GB mà không có dấu hiệu nào cho thấy sai. Đọc hụt thì nay nói thẳng là chưa biết và mời bạn tự khai.
-- Nói thẳng ngay trong hướng dẫn: **đừng dán lệnh cài vào terminal của Javis** (nó nằm trong container, không có quyền root, và mọi thứ cài vào đó mất sạch ở lần cập nhật kế tiếp), kèm cảnh báo tường lửa vì Ollama không có mật khẩu, và một câu nói trước rằng VPS không GPU thì model sẽ chạy rất chậm.
+- Nói thẳng ngay trong hướng dẫn: **đừng dán lệnh cài vào terminal của Jarvis 007** (nó nằm trong container, không có quyền root, và mọi thứ cài vào đó mất sạch ở lần cập nhật kế tiếp), kèm cảnh báo tường lửa vì Ollama không có mật khẩu, và một câu nói trước rằng VPS không GPU thì model sẽ chạy rất chậm.
 
 ## [0.55.0] - 2026-09-02
 ### Thêm mới
 - **Chạy model AI ngay trên máy bạn.** Trang Models tách làm hai tab: **Cloud Model** như cũ, và **Model chạy trên máy** mới. Cài Ollama, điền địa chỉ, rồi tải model về dùng miễn phí và ngoại tuyến.
-- **Máy chạy Ollama không cần là máy chạy Javis.** Javis trên VPS mà Ollama ở máy để bàn nhà bạn vẫn dùng được - chỉ cần điền địa chỉ máy đó.
-- **Javis gợi ý tối đa 6 model vừa sức máy**, kèm lý do từng cái ("chạy trọn trong GPU, nhanh nhất" hay "phải bù bằng RAM nên chậm hơn"). Máy mạnh được mời model lớn, máy nhẹ chỉ thấy model chạy nổi.
+- **Máy chạy Ollama không cần là máy chạy Jarvis 007.** Jarvis 007 trên VPS mà Ollama ở máy để bàn nhà bạn vẫn dùng được - chỉ cần điền địa chỉ máy đó.
+- **Jarvis 007 gợi ý tối đa 6 model vừa sức máy**, kèm lý do từng cái ("chạy trọn trong GPU, nhanh nhất" hay "phải bù bằng RAM nên chậm hơn"). Máy mạnh được mời model lớn, máy nhẹ chỉ thấy model chạy nổi.
 - Tải model có thanh tiến độ, huỷ giữa chừng được, và bấm tải lại là chạy tiếp từ chỗ dở chứ không tải lại từ đầu.
 
 ## [0.54.1] - 2026-09-01
@@ -2945,7 +2945,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.54.0] - 2026-09-01
 ### Thêm mới
-- **Xem lại mọi file và link của một đoạn chat.** Bấm biểu tượng tập tài liệu ở đầu khung chat: nó liệt kê những tài liệu Javis đã tạo trong cuộc đó và những link đã nhắc tới, mới nhất lên đầu. Khỏi phải cuộn ngược cả cuộc để tìm lại cái kế hoạch viết tuần trước. Chạy được với **cả các đoạn chat cũ**, không phải chờ tạo mới.
+- **Xem lại mọi file và link của một đoạn chat.** Bấm biểu tượng tập tài liệu ở đầu khung chat: nó liệt kê những tài liệu Jarvis 007 đã tạo trong cuộc đó và những link đã nhắc tới, mới nhất lên đầu. Khỏi phải cuộn ngược cả cuộc để tìm lại cái kế hoạch viết tuần trước. Chạy được với **cả các đoạn chat cũ**, không phải chờ tạo mới.
 - File đã bị đổi tên hoặc dời đi vẫn hiện trong danh sách, chỉ mờ đi và gạch ngang, để bạn biết nó từng ở đâu.
 
 ### Cải thiện
@@ -2958,13 +2958,13 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ### Cải thiện
 - **Ghim project để tự xếp thứ tự.** Rê chuột vào một project trong danh sách rồi bấm biểu tượng ghim, nó lên đầu và ở lại đó. Trước đây danh sách chỉ xếp theo lần đụng gần nhất, nên project quan trọng mà lâu lâu mới mở lại trôi xuống đáy.
 - **Điện thoại: chip project hiện đủ tên** thay vì thu về một biểu tượng thư mục nhỏ. Nhìn là biết đang chat trong project nào, khỏi phải bấm vào mới rõ.
-- **Bỏ dòng chữ "Trò chuyện với Javis"** ở đầu trang Trò chuyện. Nó nói lại đúng thứ thanh bên trái đang tô sáng, mà lại chiếm mất một hàng.
+- **Bỏ dòng chữ "Trò chuyện với Jarvis 007"** ở đầu trang Trò chuyện. Nó nói lại đúng thứ thanh bên trái đang tô sáng, mà lại chiếm mất một hàng.
 
 ## [0.53.0] - 2026-09-01
 ### Thêm mới
 - **Project giờ có bộ nhớ riêng.** Bấm cái chip tên project ở đầu khung chat để mở khung **Hướng dẫn - File - Link**. Mọi hội thoại trong project đó sẽ mang theo những gì bạn đặt ở đây.
 - **Hướng dẫn** là câu dặn riêng cho project, ví dụ "luôn trả lời bằng tiếng Anh" hay "tông xanh rừng, tránh xanh dương". Gõ tới đâu tự lưu tới đó, không có nút Lưu.
-- **File ghim thì Javis đọc sẵn nội dung**, không phải chỉ biết tên rồi tự đi mở. Ghim bảng giá vào project là Javis biết bảng giá ngay từ câu hỏi đầu tiên. File không ghim vẫn nằm trong danh sách để Javis tự mở khi cần.
+- **File ghim thì Jarvis 007 đọc sẵn nội dung**, không phải chỉ biết tên rồi tự đi mở. Ghim bảng giá vào project là Jarvis 007 biết bảng giá ngay từ câu hỏi đầu tiên. File không ghim vẫn nằm trong danh sách để Jarvis 007 tự mở khi cần.
 - Thêm file bằng cách **tìm trong brain hoặc kéo thả từ máy**; thêm link bằng cách dán URL. Gỡ khỏi project không xoá file trong brain.
 
 ## [0.52.13] - 2026-09-01
@@ -2973,7 +2973,7 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ### Cải thiện
 - **Tên bộ não và model dời xuống dòng nhỏ dưới từng câu trả lời**, cạnh mức token. Đầu khung hội thoại được trả lại chỗ trống, và thông tin còn đúng hơn: mỗi câu ghi đúng model đã sinh ra nó, thay vì một dòng chung chỉ nói về lượt cuối.
-- **Bỏ nút chạy lại ở dưới câu trả lời của Javis.** Nó nằm ngay cạnh nút sao chép nên rất dễ bấm trượt, mà bấm trượt là Javis chạy lại cả lượt. Muốn hỏi lại thì bấm **Gửi lại câu này** ngay dưới câu hỏi của bạn.
+- **Bỏ nút chạy lại ở dưới câu trả lời của Jarvis 007.** Nó nằm ngay cạnh nút sao chép nên rất dễ bấm trượt, mà bấm trượt là Jarvis 007 chạy lại cả lượt. Muốn hỏi lại thì bấm **Gửi lại câu này** ngay dưới câu hỏi của bạn.
 
 ## [0.52.12] - 2026-09-01
 ### Sửa lỗi
@@ -3003,26 +3003,26 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.52.8] - 2026-09-01
 ### Sửa lỗi
-- **POS thôi rớt giữa lúc đang lên đơn.** Mỗi lượt chat Javis hỏi lại danh sách công cụ của từng nguồn, mà lượt hỏi đó phải xếp hàng sau cái đơn đang chạy. Chờ quá 20 giây là bản cũ **giết cả phiên kết nối**, tức là giết luôn cái đơn đang lên dở, rồi lượt sau báo "chưa đấu POS". Nay nguồn đang chạy việc được để yên và vẫn giữ nguyên danh sách công cụ, nên đơn thứ hai không còn bị cắt ngang.
+- **POS thôi rớt giữa lúc đang lên đơn.** Mỗi lượt chat Jarvis 007 hỏi lại danh sách công cụ của từng nguồn, mà lượt hỏi đó phải xếp hàng sau cái đơn đang chạy. Chờ quá 20 giây là bản cũ **giết cả phiên kết nối**, tức là giết luôn cái đơn đang lên dở, rồi lượt sau báo "chưa đấu POS". Nay nguồn đang chạy việc được để yên và vẫn giữ nguyên danh sách công cụ, nên đơn thứ hai không còn bị cắt ngang.
 - Trang Kết nối cũng thôi bật đèn đỏ oan cho nguồn đang bận chạy việc.
-- **Trang Tệp tin mở nhanh trở lại.** Mỗi lần vào trang, Javis đọc lại toàn bộ file `.md` của brain để dò một lỗi cũ từ bản 0.33.3; brain vài nghìn note là chậm hẳn cả trang lẫn ô tìm kiếm. Nay brain nào sạch thì Javis nhớ và thôi dò lại.
+- **Trang Tệp tin mở nhanh trở lại.** Mỗi lần vào trang, Jarvis 007 đọc lại toàn bộ file `.md` của brain để dò một lỗi cũ từ bản 0.33.3; brain vài nghìn note là chậm hẳn cả trang lẫn ô tìm kiếm. Nay brain nào sạch thì Jarvis 007 nhớ và thôi dò lại.
 
 ## [0.52.7] - 2026-09-01
 ### Sửa lỗi
-- **Javis thôi tự đẻ việc trong lúc bàn kế hoạch.** Đang trò chuyện bình thường mà nó tự giao mấy việc kiểu "áp dụng kế hoạch vừa trình bày" hay "cập nhật lại timeline", rồi mỗi việc lúc xong hoặc lúc kẹt lại bắn một thông báo về chuông và về đúng khung chat đang nói. Việc thì không ai yêu cầu, mà tiếng ồn thì thật.
-- Nay hàng đợi việc chỉ dành cho **việc bạn bảo làm**. Kế hoạch hay bước tiếp theo do Javis tự nghĩ ra thì nó viết ra cho bạn đọc, không tự giao. Không chắc bạn có muốn giao hay không thì nó **hỏi một câu** rồi mới tạo.
+- **Jarvis 007 thôi tự đẻ việc trong lúc bàn kế hoạch.** Đang trò chuyện bình thường mà nó tự giao mấy việc kiểu "áp dụng kế hoạch vừa trình bày" hay "cập nhật lại timeline", rồi mỗi việc lúc xong hoặc lúc kẹt lại bắn một thông báo về chuông và về đúng khung chat đang nói. Việc thì không ai yêu cầu, mà tiếng ồn thì thật.
+- Nay hàng đợi việc chỉ dành cho **việc bạn bảo làm**. Kế hoạch hay bước tiếp theo do Jarvis 007 tự nghĩ ra thì nó viết ra cho bạn đọc, không tự giao. Không chắc bạn có muốn giao hay không thì nó **hỏi một câu** rồi mới tạo.
 - **Chuông chỉ kêu cho việc cần bạn ra tay.** Việc bị chặn hay chờ bạn duyệt thì nổi chấm đỏ như cũ. Việc chạy xong trót lọt thì thôi kêu: kết quả vẫn rơi vào đúng khung chat đã giao việc và vẫn nằm trong danh sách chuông để mở ra xem lại. Đổi lại, lúc bạn đi vắng thì việc xong sẽ không có gì nhắc, phải tự mở chuông xem.
 
 ## [0.52.6] - 2026-09-01
 ### Sửa lỗi
 - **Khung chat không còn tự mọc ra một câu bạn chưa từng gõ.** Thủ phạm là mic: bấm rồi thả phím Cách thật nhanh thì lệnh tắt rơi vào lúc mic chưa kịp mở xong, nên mic ở lại nghe âm thầm. Nghe được tiếng nhạc hay TV trong phòng là nó chép thành chữ rồi gửi đi như tin của bạn.
-- **Javis đang đọc thành tiếng cũng thôi tự bật mic.** Trước đây chỉ cần bạn từng nói một lần trong phiên là mỗi lần Javis đọc, một tiếng động đủ to sẽ mở mic trở lại. Nay chỉ chen ngang được khi mic đang thật sự mở.
-- Nhắc bạn cho yên tâm: việc chạy nền, nhắc hẹn và loop luôn trả lời ở bong bóng bên trái. Không có đường nào để Javis tự gõ vào ô chat thay bạn.
+- **Jarvis 007 đang đọc thành tiếng cũng thôi tự bật mic.** Trước đây chỉ cần bạn từng nói một lần trong phiên là mỗi lần Jarvis 007 đọc, một tiếng động đủ to sẽ mở mic trở lại. Nay chỉ chen ngang được khi mic đang thật sự mở.
+- Nhắc bạn cho yên tâm: việc chạy nền, nhắc hẹn và loop luôn trả lời ở bong bóng bên trái. Không có đường nào để Jarvis 007 tự gõ vào ô chat thay bạn.
 
 ## [0.52.5] - 2026-08-31
 ### Sửa lỗi
-- **Cập nhật xong không còn mất kết nối MCP.** Hay gặp nhất với Pancake POS: vừa cập nhật vào chat hỏi thì Javis bảo chưa có POS, lát sau lại có. Kết nối không hỏng - nó chỉ chưa kịp mở lại phiên trong lúc Javis đã đi hỏi tool, mà mỗi nguồn chỉ được chờ 20 giây.
-- Nay ngay khi khởi động, Javis **mở sẵn phiên cho mọi nguồn đã đấu** và chờ chúng thoải mái, vì lúc đó chưa có ai ngồi chờ. Nguồn nào còn chậm sẽ được gọi lại thêm hai lần nữa và tự hiện lại trong hộp công cụ.
+- **Cập nhật xong không còn mất kết nối MCP.** Hay gặp nhất với Pancake POS: vừa cập nhật vào chat hỏi thì Jarvis 007 bảo chưa có POS, lát sau lại có. Kết nối không hỏng - nó chỉ chưa kịp mở lại phiên trong lúc Jarvis 007 đã đi hỏi tool, mà mỗi nguồn chỉ được chờ 20 giây.
+- Nay ngay khi khởi động, Jarvis 007 **mở sẵn phiên cho mọi nguồn đã đấu** và chờ chúng thoải mái, vì lúc đó chưa có ai ngồi chờ. Nguồn nào còn chậm sẽ được gọi lại thêm hai lần nữa và tự hiện lại trong hộp công cụ.
 - Trường hợp một nguồn vẫn lỡ nhịp, danh sách công cụ thiếu đó **chỉ giữ vài giây thay vì một phút**, nên câu hỏi kế tiếp là thấy đủ.
 
 ## [0.52.4] - 2026-08-31
@@ -3031,19 +3031,19 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.52.3] - 2026-08-30
 ### Sửa lỗi
-- **Chat dài bằng tiếng Việt qua Antigravity CLI không còn báo "Argument list too long".** Javis đo độ dài câu hỏi bằng số chữ, trong khi hệ điều hành đếm theo byte - mà tiếng Việt tốn nhiều byte hơn tiếng Anh, nên hội thoại dài bằng tiếng Việt bị chặn còn tiếng Anh thì không. Nay đo đúng.
-- Nếu vẫn chạm trần vì lý do khác, Javis **tự chuyển sang đường gửi khác và trả lời bình thường**, thay vì ném một câu lỗi kỹ thuật rồi bỏ mất lượt chat.
+- **Chat dài bằng tiếng Việt qua Antigravity CLI không còn báo "Argument list too long".** Jarvis 007 đo độ dài câu hỏi bằng số chữ, trong khi hệ điều hành đếm theo byte - mà tiếng Việt tốn nhiều byte hơn tiếng Anh, nên hội thoại dài bằng tiếng Việt bị chặn còn tiếng Anh thì không. Nay đo đúng.
+- Nếu vẫn chạm trần vì lý do khác, Jarvis 007 **tự chuyển sang đường gửi khác và trả lời bình thường**, thay vì ném một câu lỗi kỹ thuật rồi bỏ mất lượt chat.
 - Grok CLI bản cũ gặp cùng tình huống cũng được báo bằng câu dễ hiểu kèm cách xử lý.
 
 ## [0.52.2] - 2026-08-30
 ### Sửa lỗi
 - **Hết cảnh chữ trên màn hình biến thành mã khoá** kiểu `models.st_connected` sau khi cập nhật. Nguyên nhân: trình duyệt giữ file từ điển ngôn ngữ bản cũ qua bản mới. Nay từ điển luôn được kiểm tra bản mới mỗi lần mở trang.
-- Nếu vì lý do gì đó vẫn thiếu bản dịch, Javis giữ nguyên chữ có sẵn thay vì in mã khoá ra màn hình.
+- Nếu vì lý do gì đó vẫn thiếu bản dịch, Jarvis 007 giữ nguyên chữ có sẵn thay vì in mã khoá ra màn hình.
 - Ai đang gặp lỗi này: cập nhật xong bấm tải lại trang một lần (Ctrl+Shift+R) là sạch hẳn.
 
 ## [0.52.1] - 2026-08-30
 ### Sửa lỗi
-- **Antigravity CLI hỏng/treo không còn kéo cả app đứng hình.** Trước đây mỗi lần mở trang, Javis hỏi thẳng `agy` ngay trên luồng chính - `agy` chưa đăng nhập thì ngồi chờ bàn phím tới 80 giây, thế là mọi nút xám hết, không đổi được model, trang Cập nhật cũng chết. Nay Javis hỏi ở nền, giao diện trả lời ngay.
+- **Antigravity CLI hỏng/treo không còn kéo cả app đứng hình.** Trước đây mỗi lần mở trang, Jarvis 007 hỏi thẳng `agy` ngay trên luồng chính - `agy` chưa đăng nhập thì ngồi chờ bàn phím tới 80 giây, thế là mọi nút xám hết, không đổi được model, trang Cập nhật cũng chết. Nay Jarvis 007 hỏi ở nền, giao diện trả lời ngay.
 - CLI nào rơi vào màn hỏi tương tác (menu đăng nhập, hộp thoại lần đầu chạy) giờ thoát ngay thay vì treo chờ một bàn phím không tồn tại.
 - Binary CLI hỏng chỉ bị thử lại sau vài phút, không thử lại mỗi lượt bấm.
 
@@ -3061,13 +3061,13 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.50.6] - 2026-08-29
 ### Sửa lỗi
-- **Chat với Grok đã trả lời được.** Grok gửi câu trả lời về dưới một cái tên khác thứ Javis chờ, nên Javis nhận đủ chữ mà gom ra rỗng - lượt chạy đúng, model trả lời đúng, bạn thấy ô trống. Nay đọc đúng.
-- **Bảng Mức dùng đếm đúng token của Grok.** Trước đây mọi lượt Grok đều vào bảng với 0 token vì số liệu nằm sâu hơn một tầng so với chỗ Javis đọc.
+- **Chat với Grok đã trả lời được.** Grok gửi câu trả lời về dưới một cái tên khác thứ Jarvis 007 chờ, nên Jarvis 007 nhận đủ chữ mà gom ra rỗng - lượt chạy đúng, model trả lời đúng, bạn thấy ô trống. Nay đọc đúng.
+- **Bảng Mức dùng đếm đúng token của Grok.** Trước đây mọi lượt Grok đều vào bảng với 0 token vì số liệu nằm sâu hơn một tầng so với chỗ Jarvis 007 đọc.
 - **Grok nhớ được mạch hội thoại giữa các lượt** - mã phiên nay được nhận đúng, nên hỏi tiếp "cái đó" là nó vẫn hiểu.
 
 ## [0.50.5] - 2026-08-29
 ### Sửa lỗi
-- **Chat với Grok vẫn ra ô trống - lần này chữa đúng chỗ.** Grok trả lời bằng một kiểu dữ liệu khác hẳn thứ Javis đang chờ, và câu trả lời nằm ở **cuối** luồng, sau một tràng dòng suy nghĩ. Javis nay đọc phần cuối đó, và nếu vẫn không ra thì tự hỏi lại Grok theo một cách khác.
+- **Chat với Grok vẫn ra ô trống - lần này chữa đúng chỗ.** Grok trả lời bằng một kiểu dữ liệu khác hẳn thứ Jarvis 007 đang chờ, và câu trả lời nằm ở **cuối** luồng, sau một tràng dòng suy nghĩ. Jarvis 007 nay đọc phần cuối đó, và nếu vẫn không ra thì tự hỏi lại Grok theo một cách khác.
 - **Phần báo lỗi ở bản trước nhìn nhầm chỗ.** Nó chỉ giữ 40 dòng đầu, mà dòng đầu luôn là bảng liệt kê công cụ - nên nó tả đúng phần mở đầu và mù đúng phần cần nhìn. Nay giữ cả đầu lẫn cuối, và kể đủ các kiểu dữ liệu đã gặp.
 
 ## [0.50.4] - 2026-08-29
@@ -3077,50 +3077,50 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.50.3] - 2026-08-28
 ### Sửa lỗi
-- **Chat với Grok chỉ nhận lại ô trống.** Đăng nhập xong, gõ một câu, và Javis trả lời "Grok CLI chạy xong nhưng không trả về nội dung nào". Javis đưa câu hỏi cho Grok qua một đường mà bản CLI này không nhận, nên nó chạy rồi thoát mà không nói gì. Giờ Javis tự thử lại đường thứ hai và lượt chat có câu trả lời.
-- **Grok trả lời kiểu Javis chưa biết thì vẫn đọc ra được.** Trước đây Javis chỉ hiểu đúng vài dạng dữ liệu; gặp dạng khác là bỏ qua sạch và bạn thấy ô trống. Nay nó vớt lấy phần chữ ở bất kỳ dạng nào.
+- **Chat với Grok chỉ nhận lại ô trống.** Đăng nhập xong, gõ một câu, và Jarvis 007 trả lời "Grok CLI chạy xong nhưng không trả về nội dung nào". Jarvis 007 đưa câu hỏi cho Grok qua một đường mà bản CLI này không nhận, nên nó chạy rồi thoát mà không nói gì. Giờ Jarvis 007 tự thử lại đường thứ hai và lượt chat có câu trả lời.
+- **Grok trả lời kiểu Jarvis 007 chưa biết thì vẫn đọc ra được.** Trước đây Jarvis 007 chỉ hiểu đúng vài dạng dữ liệu; gặp dạng khác là bỏ qua sạch và bạn thấy ô trống. Nay nó vớt lấy phần chữ ở bất kỳ dạng nào.
 - **Và nếu vẫn không ra, câu báo lỗi nói rõ vì sao**: Grok đã in ra mấy dòng, dạng gì, mã thoát bao nhiêu, kèm lệnh để bạn tự chạy thử trên máy chủ. Nội dung câu hỏi của bạn không bao giờ bị đưa vào đó.
 
 ## [0.50.2] - 2026-08-28
 ### Sửa lỗi
-- **Đăng nhập Grok xong mà thẻ vẫn báo chưa đăng nhập.** Bấm **Đăng nhập**, mở link, trang xAI báo "Device Authorized" - nhưng thẻ trên trang **Models** cứ quay "đang chờ bạn xác nhận" mãi. Javis đọc file phiên của Grok theo một khuôn đoán trước, nên file thật viết khác một chút là nó không thấy token đâu. Nay nó đọc được mọi cách viết.
-- **Thẻ hiện luôn Grok đang nói gì.** Trước đây chỉ có một dòng "đang chờ" quay không có tin tức gì, giờ dòng cuối Grok in ra hiện ngay dưới link, và khi hỏng thì nút **Kiểm tra lại** cho biết Javis đã nhìn vào thư mục nào, thấy file gì. Token không bao giờ hiện ra.
-- **Mã đăng nhập hiện ra đầy đủ** kể cả khi nó nằm sẵn trong link, và Javis bắt được link cả khi Grok in đè lên một dòng thay vì xuống dòng mới.
+- **Đăng nhập Grok xong mà thẻ vẫn báo chưa đăng nhập.** Bấm **Đăng nhập**, mở link, trang xAI báo "Device Authorized" - nhưng thẻ trên trang **Models** cứ quay "đang chờ bạn xác nhận" mãi. Jarvis 007 đọc file phiên của Grok theo một khuôn đoán trước, nên file thật viết khác một chút là nó không thấy token đâu. Nay nó đọc được mọi cách viết.
+- **Thẻ hiện luôn Grok đang nói gì.** Trước đây chỉ có một dòng "đang chờ" quay không có tin tức gì, giờ dòng cuối Grok in ra hiện ngay dưới link, và khi hỏng thì nút **Kiểm tra lại** cho biết Jarvis 007 đã nhìn vào thư mục nào, thấy file gì. Token không bao giờ hiện ra.
+- **Mã đăng nhập hiện ra đầy đủ** kể cả khi nó nằm sẵn trong link, và Jarvis 007 bắt được link cả khi Grok in đè lên một dòng thay vì xuống dòng mới.
 
 ## [0.50.1] - 2026-08-28
 ### Sửa lỗi
-- **Telegram không còn quên sạch mỗi lần cập nhật.** Trước đây bấm nút cập nhật (hay khởi động lại máy chủ) là cuộc trò chuyện trên Telegram coi như mất trắng: phải dạy lại từ cách xưng hô tới quy ước đặt tên file, trong khi mở `localhost:7777` thì vẫn bình thường. Lý do: trình duyệt tự nhớ hộ bạn đang ở cuộc nào, còn Telegram thì không ai nhớ hộ. Giờ Javis tự ghi lại, khởi động xong nối tiếp đúng cuộc đang dở.
-- **Và nhớ cả nội dung đã nói, không chỉ nối đúng cuộc.** Sau khi khởi động lại, Javis đọc lại đoạn chat gần nhất đã lưu rồi mới trả lời, nên bạn nhắn tiếp "cái đó làm giúp anh" là nó vẫn hiểu. Đúng với mọi bộ não: Claude Code, ChatGPT, Grok, Antigravity và các model dùng API key.
-- **Lệnh `/reset` giờ reset thật.** Với bộ não Grok và Antigravity, gõ `/reset` xong Javis vẫn nhớ y nguyên cuộc cũ. Nay cả bốn bộ não đều cắt sạch, và lệnh này cũng dùng được ngay sau khi máy chủ vừa khởi động lại.
+- **Telegram không còn quên sạch mỗi lần cập nhật.** Trước đây bấm nút cập nhật (hay khởi động lại máy chủ) là cuộc trò chuyện trên Telegram coi như mất trắng: phải dạy lại từ cách xưng hô tới quy ước đặt tên file, trong khi mở `localhost:7777` thì vẫn bình thường. Lý do: trình duyệt tự nhớ hộ bạn đang ở cuộc nào, còn Telegram thì không ai nhớ hộ. Giờ Jarvis 007 tự ghi lại, khởi động xong nối tiếp đúng cuộc đang dở.
+- **Và nhớ cả nội dung đã nói, không chỉ nối đúng cuộc.** Sau khi khởi động lại, Jarvis 007 đọc lại đoạn chat gần nhất đã lưu rồi mới trả lời, nên bạn nhắn tiếp "cái đó làm giúp anh" là nó vẫn hiểu. Đúng với mọi bộ não: Claude Code, ChatGPT, Grok, Antigravity và các model dùng API key.
+- **Lệnh `/reset` giờ reset thật.** Với bộ não Grok và Antigravity, gõ `/reset` xong Jarvis 007 vẫn nhớ y nguyên cuộc cũ. Nay cả bốn bộ não đều cắt sạch, và lệnh này cũng dùng được ngay sau khi máy chủ vừa khởi động lại.
 
 ## [0.50.0] - 2026-08-28
 ### Thêm mới
-- **Bộ não mới: Grok Build của xAI.** Dùng chính gói **SuperGrok** hoặc **X Premium+** bạn đang trả tiền, không phải mua API key. Vào **Models**, thẻ **xAI Grok Build CLI**, bấm **Đăng nhập** là xong. Nó hiện một link và một mã để mở trên điện thoại hay máy tính của bạn, nên **đăng nhập được cả khi Javis chạy trên VPS** - thẻ CLI đầu tiên làm được việc này.
-- Grok **nhớ được mạch hội thoại** giữa các lượt, chạy được ở chat, Telegram, agent và việc nền, và gọi được đầy đủ tool của Javis (MCP, skill, việc Kanban). Bấm **Kiểm tra lại** ở thẻ để biết chắc tool đã đấu chưa.
+- **Bộ não mới: Grok Build của xAI.** Dùng chính gói **SuperGrok** hoặc **X Premium+** bạn đang trả tiền, không phải mua API key. Vào **Models**, thẻ **xAI Grok Build CLI**, bấm **Đăng nhập** là xong. Nó hiện một link và một mã để mở trên điện thoại hay máy tính của bạn, nên **đăng nhập được cả khi Jarvis 007 chạy trên VPS** - thẻ CLI đầu tiên làm được việc này.
+- Grok **nhớ được mạch hội thoại** giữa các lượt, chạy được ở chat, Telegram, agent và việc nền, và gọi được đầy đủ tool của Jarvis 007 (MCP, skill, việc Kanban). Bấm **Kiểm tra lại** ở thẻ để biết chắc tool đã đấu chưa.
 
 ### Cải thiện
 - **Bỏ hẳn thẻ Google Gemini CLI.** Google đã ngắt nó với mọi tài khoản cá nhân từ 18/06/2026, nên nó chỉ còn là một lựa chọn bấm vào rồi đâm vào tường. Muốn model Gemini thì dùng **Antigravity CLI** (gói Google bạn đang có), **OpenRouter** hoặc thẻ **Google Gemini (API)** - cả ba đều còn nguyên.
-- **Ai đang đặt Gemini CLI làm model chính thì Javis tự chuyển về mặc định khi cập nhật**, và ghi một dòng vào nhật ký máy chủ nói rõ đã chuyển. Không có bước này thì trang Models không thẻ nào sáng nhãn MAIN và câu trả lời ra lạ mà không báo lỗi gì. Mở trang **Models** chọn lại bộ não bạn muốn là xong.
-- **Bản hướng dẫn nội bộ của Javis giờ viết bằng tiếng Anh.** Không có gì đổi với bạn: Javis vẫn trả lời bằng đúng thứ tiếng bạn nhắn, vẫn xưng "bạn/mình" như cũ. Đổi để model hiểu luật rõ hơn và ít hiểu lệch hơn.
+- **Ai đang đặt Gemini CLI làm model chính thì Jarvis 007 tự chuyển về mặc định khi cập nhật**, và ghi một dòng vào nhật ký máy chủ nói rõ đã chuyển. Không có bước này thì trang Models không thẻ nào sáng nhãn MAIN và câu trả lời ra lạ mà không báo lỗi gì. Mở trang **Models** chọn lại bộ não bạn muốn là xong.
+- **Bản hướng dẫn nội bộ của Jarvis 007 giờ viết bằng tiếng Anh.** Không có gì đổi với bạn: Jarvis 007 vẫn trả lời bằng đúng thứ tiếng bạn nhắn, vẫn xưng "bạn/mình" như cũ. Đổi để model hiểu luật rõ hơn và ít hiểu lệch hơn.
 
 ## [0.49.3] - 2026-08-27
 ### Cải thiện
-- **Dải cạnh ô chọn model giờ cho biết Javis vừa gọi tool gì.** Hai đèn "Claude Code CLI" và "Voice" đã bỏ - chúng gần như luôn xanh nên chẳng nói thêm được gì. Thay vào đó là **ba tool vừa gọi, mới nhất đứng đầu**, cái vừa chạy nháy lên một nhịp.
+- **Dải cạnh ô chọn model giờ cho biết Jarvis 007 vừa gọi tool gì.** Hai đèn "Claude Code CLI" và "Voice" đã bỏ - chúng gần như luôn xanh nên chẳng nói thêm được gì. Thay vào đó là **ba tool vừa gọi, mới nhất đứng đầu**, cái vừa chạy nháy lên một nhịp.
 
 ## [0.49.2] - 2026-08-27
 ### Sửa lỗi
-- **Điện thoại không nhận được thông báo đẩy trong khi máy tính vẫn nhận.** Javis tự giới thiệu với dịch vụ đẩy bằng một địa chỉ liên hệ ghi là "localhost" - Google bỏ qua, còn **Apple từ chối thẳng**, nên iPhone im lặng tuyệt đối. Giờ dùng địa chỉ hợp lệ; ai muốn để địa chỉ riêng thì đặt biến `JAVIS_PUSH_CONTACT`.
+- **Điện thoại không nhận được thông báo đẩy trong khi máy tính vẫn nhận.** Jarvis 007 tự giới thiệu với dịch vụ đẩy bằng một địa chỉ liên hệ ghi là "localhost" - Google bỏ qua, còn **Apple từ chối thẳng**, nên iPhone im lặng tuyệt đối. Giờ dùng địa chỉ hợp lệ; ai muốn để địa chỉ riêng thì đặt biến `JAVIS_PUSH_CONTACT`.
 - **Nút Gửi thử nói rõ máy nào nhận được, máy nào không.** Trước đây chỉ cần một thiết bị nhận được là báo "đã gửi", nên máy hỏng nằm im không ai biết. Ô công tắc cũng hiện luôn số thiết bị đang nhận và nêu đích danh thiết bị đang lỗi.
 
 ## [0.49.1] - 2026-08-27
 ### Thêm mới
-- **Nhắc thêm Javis vào Màn hình chính trên điện thoại, mỗi ngày một lần.** Không phải để quảng cáo cài app: trên iPhone, Javis **chỉ gửi được thông báo đẩy khi đã thêm vào Màn hình chính**, nên mở bằng Safari thường là không bao giờ nhận được kết quả việc chạy nền. Popup chỉ ra từng bước đúng theo trình duyệt bạn đang dùng, và có nút **Đừng nhắc nữa** nếu bạn đã quyết định không cài.
+- **Nhắc thêm Jarvis 007 vào Màn hình chính trên điện thoại, mỗi ngày một lần.** Không phải để quảng cáo cài app: trên iPhone, Jarvis 007 **chỉ gửi được thông báo đẩy khi đã thêm vào Màn hình chính**, nên mở bằng Safari thường là không bao giờ nhận được kết quả việc chạy nền. Popup chỉ ra từng bước đúng theo trình duyệt bạn đang dùng, và có nút **Đừng nhắc nữa** nếu bạn đã quyết định không cài.
 
 ## [0.49.0] - 2026-08-27
 ### Thêm mới
-- **Hòm thư trên chuông Thông báo.** Giao việc cho Javis xong không phải ngồi canh nữa: mỗi kết quả chạy nền, báo cáo định kỳ và nhắc hẹn đều để lại một mẩu thư. Bấm vào là **quay về đúng hội thoại đã hỏi**, không mở thread mới. Panel chia hai tab: Của tôi và Tin tức.
-- **Thông báo đẩy trên trình duyệt.** Bật một lần trong hòm thư, sau đó có kết quả là máy báo ngay cả khi bạn đã đóng Javis. Bấm vào thông báo là mở thẳng mẩu thư đó. Cần https (hoặc localhost); trên iPhone phải thêm Javis vào Màn hình chính trước.
-- **Nhắc hẹn không còn bắt buộc phải có Telegram.** Trước đây chưa đấu bot thì Javis chặn không cho tạo, vì kết quả sẽ rơi vào hư không. Giờ hòm thư luôn nhận nên cứ tạo thoải mái; đấu Telegram giờ chỉ để nhận thêm trên điện thoại.
+- **Hòm thư trên chuông Thông báo.** Giao việc cho Jarvis 007 xong không phải ngồi canh nữa: mỗi kết quả chạy nền, báo cáo định kỳ và nhắc hẹn đều để lại một mẩu thư. Bấm vào là **quay về đúng hội thoại đã hỏi**, không mở thread mới. Panel chia hai tab: Của tôi và Tin tức.
+- **Thông báo đẩy trên trình duyệt.** Bật một lần trong hòm thư, sau đó có kết quả là máy báo ngay cả khi bạn đã đóng Jarvis 007. Bấm vào thông báo là mở thẳng mẩu thư đó. Cần https (hoặc localhost); trên iPhone phải thêm Jarvis 007 vào Màn hình chính trước.
+- **Nhắc hẹn không còn bắt buộc phải có Telegram.** Trước đây chưa đấu bot thì Jarvis 007 chặn không cho tạo, vì kết quả sẽ rơi vào hư không. Giờ hòm thư luôn nhận nên cứ tạo thoải mái; đấu Telegram giờ chỉ để nhận thêm trên điện thoại.
 
 ## [0.48.3] - 2026-08-27
 ### Cải thiện
@@ -3133,19 +3133,19 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.48.1] - 2026-08-27
 ### Thêm mới
-- **Đấu được Hostinger vào Javis.** Trang Kết nối có thêm connector chính chủ của Hostinger: hỏi ngay trong chat là ra danh sách tên miền, ngày hết hạn, bản ghi DNS, website WordPress, VPS, hộp thư và hoá đơn. Dán API token lấy từ hPanel là xong.
-- Kết nối này mặc định để mức **Chỉ đọc** vì nó là chìa khoá vào hạ tầng website. Muốn Javis tự sửa DNS hay tạo website thì nâng lên Ghi nháp; các việc xoá, dừng VPS, mua hay gia hạn tên miền chỉ chạy ở mức Toàn quyền.
+- **Đấu được Hostinger vào Jarvis 007.** Trang Kết nối có thêm connector chính chủ của Hostinger: hỏi ngay trong chat là ra danh sách tên miền, ngày hết hạn, bản ghi DNS, website WordPress, VPS, hộp thư và hoá đơn. Dán API token lấy từ hPanel là xong.
+- Kết nối này mặc định để mức **Chỉ đọc** vì nó là chìa khoá vào hạ tầng website. Muốn Jarvis 007 tự sửa DNS hay tạo website thì nâng lên Ghi nháp; các việc xoá, dừng VPS, mua hay gia hạn tên miền chỉ chạy ở mức Toàn quyền.
 - **Agent chọn được thêm Ollama**, đủ 10 nhà cung cấp y như trang Models.
 
 ## [0.48.0] - 2026-08-27
 ### Thêm mới
-- **Gửi thẳng ảnh cho ChatGPT xem khi tạo ảnh.** Trước đây Javis chỉ tả lại ảnh của bạn bằng lời rồi để AI vẽ theo, nên sản phẩm, nhãn hay khuôn mặt không bao giờ giống bản gốc. Giờ đưa ảnh rồi bảo "dựng theo ảnh này" là ChatGPT nhìn thấy chính tấm ảnh đó (tối đa 4 ảnh một lượt).
+- **Gửi thẳng ảnh cho ChatGPT xem khi tạo ảnh.** Trước đây Jarvis 007 chỉ tả lại ảnh của bạn bằng lời rồi để AI vẽ theo, nên sản phẩm, nhãn hay khuôn mặt không bao giờ giống bản gốc. Giờ đưa ảnh rồi bảo "dựng theo ảnh này" là ChatGPT nhìn thấy chính tấm ảnh đó (tối đa 4 ảnh một lượt).
 - **Agent chọn được thêm Antigravity CLI**, đủ 9 nhà cung cấp.
 
 ## [0.47.9] - 2026-08-27
 ### Thêm mới
 - **Agent chọn được model của mọi nhà cung cấp bạn đã kết nối**, không còn kẹt ở Claude và ChatGPT: thêm Gemini CLI, OpenRouter, Anthropic API, OpenAI, Google Gemini, Groq. Danh sách lấy thẳng từ trang Models nên kết nối thêm nhà là có thêm lựa chọn ngay.
-- Agent giờ chạy **đúng nhà bạn chọn** - trước đây chọn nhà khác Claude/ChatGPT thì nó vẫn lặng lẽ chạy bằng Claude. Nhà đang chọn trục trặc giữa chừng thì Javis tự lùi sang bộ não khác thay vì để agent chết lặng.
+- Agent giờ chạy **đúng nhà bạn chọn** - trước đây chọn nhà khác Claude/ChatGPT thì nó vẫn lặng lẽ chạy bằng Claude. Nhà đang chọn trục trặc giữa chừng thì Jarvis 007 tự lùi sang bộ não khác thay vì để agent chết lặng.
 
 ## [0.47.8] - 2026-08-27
 ### Sửa lỗi
@@ -3158,19 +3158,19 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.47.6] - 2026-08-27
 ### Sửa lỗi
-- **Ô nhập chat trải dài toàn bề rộng khi đang sửa file ở trang Trò chuyện.** Bản trước nhét cả cụm nhập vào cột hội thoại 340px nên chật cứng. Giờ đúng như màn Javis: hội thoại đứng cột phải, còn file đang mở + thanh model + ô nhập vắt ngang dưới cùng. Thu cột hội thoại thì ô nhập vẫn nguyên chỗ.
+- **Ô nhập chat trải dài toàn bề rộng khi đang sửa file ở trang Trò chuyện.** Bản trước nhét cả cụm nhập vào cột hội thoại 340px nên chật cứng. Giờ đúng như màn Jarvis 007: hội thoại đứng cột phải, còn file đang mở + thanh model + ô nhập vắt ngang dưới cùng. Thu cột hội thoại thì ô nhập vẫn nguyên chỗ.
 
 ## [0.47.5] - 2026-08-27
 ### Sửa lỗi
-- **Mở file .md ở trang Trò chuyện: bố cục đúng như màn Javis.** Bản trước để khung chat nằm phía TRÊN trình sửa, nhìn ngược. Giờ trình sửa bên trái, hội thoại thành cột bên phải và ô nhập ở dưới đáy cột - y như khi xem file ở màn hình brain.
+- **Mở file .md ở trang Trò chuyện: bố cục đúng như màn Jarvis 007.** Bản trước để khung chat nằm phía TRÊN trình sửa, nhìn ngược. Giờ trình sửa bên trái, hội thoại thành cột bên phải và ô nhập ở dưới đáy cột - y như khi xem file ở màn hình brain.
 ### Thêm mới
-- **Khung hội thoại bên phải thu gọn được** ở cả màn Javis lẫn trang Trò chuyện (khi đang sửa file): bấm nút thu là cột co vào bên phải còn một dải hẹp với nút mở lại, và nhớ trạng thái qua F5.
+- **Khung hội thoại bên phải thu gọn được** ở cả màn Jarvis 007 lẫn trang Trò chuyện (khi đang sửa file): bấm nút thu là cột co vào bên phải còn một dải hẹp với nút mở lại, và nhớ trạng thái qua F5.
 
 ## [0.47.4] - 2026-08-27
 ### Sửa lỗi
 - **Dứt điểm banner "Chưa kết nối Model AI" đỏ oan.** Banner giờ chỉ nói về đúng model chính bạn đang chat: model việc nền chưa đăng nhập không làm banner đỏ nữa (việc nền đã tự chạy bằng bộ não chat khi cần từ 0.43.3). Đổi lại, dùng gói ChatGPT mà mất kết nối thật thì banner giờ báo được - trước đây ca này im lặng.
 ### Cải thiện
-- **Mở file .md trong trang Trò chuyện vẫn giữ khung chat bên dưới**: trình sửa đứng trên, hội thoại rút gọn và ô nhập giữ nguyên - vừa sửa file vừa nhắn Javis về chính file đó. Điện thoại giữ lối cũ vì màn không đủ chỗ.
+- **Mở file .md trong trang Trò chuyện vẫn giữ khung chat bên dưới**: trình sửa đứng trên, hội thoại rút gọn và ô nhập giữ nguyên - vừa sửa file vừa nhắn Jarvis 007 về chính file đó. Điện thoại giữ lối cũ vì màn không đủ chỗ.
 
 ## [0.47.3] - 2026-08-27
 ### Cải thiện
@@ -3185,11 +3185,11 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.47.1] - 2026-08-27
 ### Cải thiện
 - **Hết cảnh câu trả lời dừng giữa chừng vì "đã chạy hết 8 vòng gọi tool".** Trần vòng gọi tool của các bộ não API nâng từ 8 lên 30 (chỉnh được tới 120), đủ cho việc nhiều bước mà không phải chia nhỏ câu hỏi hay đi sửa biến môi trường.
-- Chống đốt token chuyển sang canh đúng bệnh: model gọi lại cùng công cụ với cùng tham số 3 vòng liên tiếp thì bị nhắc dừng, tới vòng thứ 5 thì Javis tự cắt lượt. Việc bình thường không bao giờ dính phanh này.
+- Chống đốt token chuyển sang canh đúng bệnh: model gọi lại cùng công cụ với cùng tham số 3 vòng liên tiếp thì bị nhắc dừng, tới vòng thứ 5 thì Jarvis 007 tự cắt lượt. Việc bình thường không bao giờ dính phanh này.
 
 ## [0.47.0] - 2026-08-27
 ### Thêm mới
-- **Cài Javis thành app trên máy tính, không chỉ điện thoại.** Trên Chrome/Edge, thanh trạng thái có nút "Mở như app" (kèm icon cài trong thanh địa chỉ): bấm một lần là Javis chạy trong cửa sổ riêng, mở từ Desktop/Dock như một ứng dụng thật, không lẫn giữa các tab.
+- **Cài Jarvis 007 thành app trên máy tính, không chỉ điện thoại.** Trên Chrome/Edge, thanh trạng thái có nút "Mở như app" (kèm icon cài trong thanh địa chỉ): bấm một lần là Jarvis 007 chạy trong cửa sổ riêng, mở từ Desktop/Dock như một ứng dụng thật, không lẫn giữa các tab.
 
 ### Sửa lỗi
 - **Hết cảnh báo "Chưa kết nối Model AI" oan khi bạn đã kết nối đủ.** Trước đây banner đỏ vẫn treo nếu bạn chạy Claude bằng API key, nếu model việc nền để "Về mặc định" trên máy dùng bộ não khác, hoặc trong 10 phút đầu sau khi vừa đăng nhập lại. Giờ banner chỉ đỏ khi bộ não bạn thật sự chọn không dùng được, và tắt ngay khi bạn kết nối xong.
@@ -3197,18 +3197,18 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.46.0] - 2026-08-26
 ### Thêm mới
 - **Công tắc "Đồng bộ cả ảnh" trong khối đồng bộ GitHub** (trang Tự học, mặc định tắt). Bật lên thì ảnh jpg/png/gif/webp trong brain (mỗi ảnh tối đa 10MB) cũng lên repo và theo bạn sang máy khác; video và file nặng vẫn không bao giờ lên.
-- Bật đồng bộ ảnh thì Javis ngừng tự dọn ảnh cũ trong attachments, để ảnh đã backup không tự biến mất theo hạn dọn rồi lan lệnh xoá sang máy khác.
+- Bật đồng bộ ảnh thì Jarvis 007 ngừng tự dọn ảnh cũ trong attachments, để ảnh đã backup không tự biến mất theo hạn dọn rồi lan lệnh xoá sang máy khác.
 - An toàn khi các máy lệch cấu hình: máy chưa bật không đẩy, không nhận, và không xoá ảnh máy khác đã đưa lên. UI nói thẳng đánh đổi trước khi bật: git nhớ mãi mãi, tắt sau không lấy lại dung lượng.
 
 ## [0.45.0] - 2026-08-26
 ### Thêm mới
-- **Javis sửa thẳng vai và chuỗi bước đã có, thay vì đẻ bản sao.** Trước đây tự học chỉ biết tạo mới, nên mỗi lần một workflow cần cải tiến lại có thêm một bản gần giống nằm cạnh. Giờ nó sửa đúng file đó: thiếu bước thì thêm, thừa thì bỏ, sai thứ tự thì xếp lại.
+- **Jarvis 007 sửa thẳng vai và chuỗi bước đã có, thay vì đẻ bản sao.** Trước đây tự học chỉ biết tạo mới, nên mỗi lần một workflow cần cải tiến lại có thêm một bản gần giống nằm cạnh. Giờ nó sửa đúng file đó: thiếu bước thì thêm, thừa thì bỏ, sai thứ tự thì xếp lại.
 - Sửa xong vẫn giữ nguyên phần của bạn: tên bạn đặt, trạng thái bật/tắt, model bạn chọn cho agent. Mỗi lần sửa đều ghi ngày và lý do vào cuối file để bạn đọc lại, và vẫn hoàn tác được bằng một chạm.
 - **Khoá được từng file.** Thêm dòng `learn_lock: true` vào phần đầu file agent hoặc workflow là tự học không đụng vào nữa.
 
 ## [0.44.0] - 2026-08-26
 ### Thêm mới
-- **Tự học thêm được Vai (Agent) và Chuỗi bước (Workflow).** Trang Tự học có thêm 2 công tắc: bật lên thì khi bạn nhờ một vai hay một chuỗi việc lặp đi lặp lại trong chat, Javis tự đóng thành agent/workflow mới trong Studio.
+- **Tự học thêm được Vai (Agent) và Chuỗi bước (Workflow).** Trang Tự học có thêm 2 công tắc: bật lên thì khi bạn nhờ một vai hay một chuỗi việc lặp đi lặp lại trong chat, Jarvis 007 tự đóng thành agent/workflow mới trong Studio.
 - An toàn như học skill: mặc định tắt, có vòng kiểm tra thứ hai trước khi ghi, chỉ tạo mới không ghi đè cái đã có, và workflow luôn tạo ở trạng thái tắt để bạn xem trước rồi tự bật.
 
 ## [0.43.3] - 2026-08-26
@@ -3224,48 +3224,48 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 ## [0.43.1] - 2026-08-23
 ### Sửa lỗi
 - **Hội thoại từ Telegram hiện lại ở thanh bên.** Chúng vẫn được lưu đủ từ trước tới nay, chỉ là bị lọc mất khỏi danh sách và khỏi ô tìm kiếm khi bạn đã từng gõ `/brain` trên Telegram. Giờ mở dashboard là thấy, kể cả những cuộc cũ.
-- **File bạn dán hoặc kéo vào khung chat thì Javis đọc thẳng, khỏi phải chép vào thư mục Brain.** Trước đây với các bộ não chạy bằng API key, dán một đoạn văn dài vào chat xong Javis lại bảo bạn tự chuyển file qua Brain rồi mới đọc được. Bộ não Claude Code không dính lỗi này.
-- Vẫn đúng ranh giới cũ: Javis chỉ đọc thêm file bạn vừa đưa vào khung chat, không đọc lung tung trên máy, không ghi ra ngoài bộ não, và chatbot nói chuyện với khách thì không thấy mấy file đó.
+- **File bạn dán hoặc kéo vào khung chat thì Jarvis 007 đọc thẳng, khỏi phải chép vào thư mục Brain.** Trước đây với các bộ não chạy bằng API key, dán một đoạn văn dài vào chat xong Jarvis 007 lại bảo bạn tự chuyển file qua Brain rồi mới đọc được. Bộ não Claude Code không dính lỗi này.
+- Vẫn đúng ranh giới cũ: Jarvis 007 chỉ đọc thêm file bạn vừa đưa vào khung chat, không đọc lung tung trên máy, không ghi ra ngoài bộ não, và chatbot nói chuyện với khách thì không thấy mấy file đó.
 
 ## [0.43.0] - 2026-08-22
 ### Sửa lỗi
-- **Bộ não Antigravity giờ dùng được tool của Javis thật.** Bấy lâu nay nó chat trôi chảy nhưng không gọi được MCP, không giao được việc Kanban, không chạy được skill - mà chẳng báo lỗi gì nên rất khó nhận ra. Javis ghi cấu hình sai chỗ và sai tên trường, tức `agy` chưa từng nhìn thấy trung tâm kết nối lần nào.
-- **Nút Kiểm tra lại ở trang Models nói rõ hai chuyện.** Trước chỉ báo "Dùng được", nghĩa là chat được. Giờ nó nói thêm tool của Javis đã đấu vào chưa - đúng chỗ đã hỏng lặng lẽ suốt mấy bản.
+- **Bộ não Antigravity giờ dùng được tool của Jarvis 007 thật.** Bấy lâu nay nó chat trôi chảy nhưng không gọi được MCP, không giao được việc Kanban, không chạy được skill - mà chẳng báo lỗi gì nên rất khó nhận ra. Jarvis 007 ghi cấu hình sai chỗ và sai tên trường, tức `agy` chưa từng nhìn thấy trung tâm kết nối lần nào.
+- **Nút Kiểm tra lại ở trang Models nói rõ hai chuyện.** Trước chỉ báo "Dùng được", nghĩa là chat được. Giờ nó nói thêm tool của Jarvis 007 đã đấu vào chưa - đúng chỗ đã hỏng lặng lẽ suốt mấy bản.
 - **Bản Docker: kết nối MCP của Antigravity sống qua cập nhật.** Trước đây cứ cập nhật là mất, phải khai báo lại từ đầu.
 
 ### Bảo mật
-- **Khoá kết nối nội bộ không còn lọt vào bản sao lưu Git của bộ não.** Các tệp cấu hình Javis ghi cho hai bộ não Google nằm ngay trong thư mục brain và có chứa khoá. Từ bản này chúng bị loại khỏi sao lưu, và mấy tệp thừa của bản cũ được tự xoá.
+- **Khoá kết nối nội bộ không còn lọt vào bản sao lưu Git của bộ não.** Các tệp cấu hình Jarvis 007 ghi cho hai bộ não Google nằm ngay trong thư mục brain và có chứa khoá. Từ bản này chúng bị loại khỏi sao lưu, và mấy tệp thừa của bản cũ được tự xoá.
 
 ## [0.42.1] - 2026-08-22
 ### Sửa lỗi
-- **Đổi model giữa chừng không còn làm Javis quên cuộc đang nói.** Trước đây đổi sang model khác rồi quay lại Claude Code hoặc Gemini CLI thì nó trả lời như chưa hề có mấy lượt ở giữa, có khi lạc đề hẳn. Giờ đổi qua đổi lại bao nhiêu lần cũng liền mạch.
-- Đổi lại: lượt đầu tiên ngay sau khi đổi model tốn thêm một chút, vì Javis phải gửi lại lịch sử hội thoại cho bộ não mới.
+- **Đổi model giữa chừng không còn làm Jarvis 007 quên cuộc đang nói.** Trước đây đổi sang model khác rồi quay lại Claude Code hoặc Gemini CLI thì nó trả lời như chưa hề có mấy lượt ở giữa, có khi lạc đề hẳn. Giờ đổi qua đổi lại bao nhiêu lần cũng liền mạch.
+- Đổi lại: lượt đầu tiên ngay sau khi đổi model tốn thêm một chút, vì Jarvis 007 phải gửi lại lịch sử hội thoại cho bộ não mới.
 
 ## [0.42.0] - 2026-08-22
 ### Sửa lỗi
-- **Đọc video YouTube: vá ba lỗi khiến bản trước gần như luôn thất bại trên máy chủ.** Danh sách trình phát đã cũ cả năm và còn chứa một cái YouTube đã bỏ; quân dự bị yt-dlp thì bị lỗi cấu hình nên chưa từng chạy được lần nào; và câu từ chối của YouTube bị đọc nhầm nên Javis báo "video riêng tư" cho một video vốn công khai.
-- **Báo đúng bệnh.** Giờ Javis phân biệt rõ "máy chủ bị nghi là robot" với "video riêng tư", "giới hạn tuổi", "video đã bị gỡ", và cả trường hợp **máy chủ mất mạng** (trước đây cũng bị đổ cho YouTube). Khi không chắc thì nói thẳng là không chắc, kèm cách tự kiểm trong một phút, thay vì đoán bừa.
+- **Đọc video YouTube: vá ba lỗi khiến bản trước gần như luôn thất bại trên máy chủ.** Danh sách trình phát đã cũ cả năm và còn chứa một cái YouTube đã bỏ; quân dự bị yt-dlp thì bị lỗi cấu hình nên chưa từng chạy được lần nào; và câu từ chối của YouTube bị đọc nhầm nên Jarvis 007 báo "video riêng tư" cho một video vốn công khai.
+- **Báo đúng bệnh.** Giờ Jarvis 007 phân biệt rõ "máy chủ bị nghi là robot" với "video riêng tư", "giới hạn tuổi", "video đã bị gỡ", và cả trường hợp **máy chủ mất mạng** (trước đây cũng bị đổ cho YouTube). Khi không chắc thì nói thẳng là không chắc, kèm cách tự kiểm trong một phút, thay vì đoán bừa.
 
 ### Thêm mới
 - **Lệnh tự kiểm khi video không đọc được**: chạy `python server/youtube_read.py <link>` ngay trên máy chủ, nó in ra bảng từng đường thử: đường nào sống, đường nào chết, YouTube trả lý do gì, mất bao nhiêu mili giây. Nó còn thử thêm một video đối chứng để tách bạch "riêng video này có vấn đề" với "cả máy chủ bị chặn", rồi kết luận bằng một dòng gọn và lưu báo cáo ra file để bạn gửi đi.
-- **Đổi đường mạng riêng cho YouTube**: nếu máy chủ của bạn bị YouTube đánh dấu, đặt `JAVIS_YOUTUBE_PROXY` là xong, và chỉ mình lưu lượng YouTube đi qua đó chứ không phải cả Javis.
+- **Đổi đường mạng riêng cho YouTube**: nếu máy chủ của bạn bị YouTube đánh dấu, đặt `JAVIS_YOUTUBE_PROXY` là xong, và chỉ mình lưu lượng YouTube đi qua đó chứ không phải cả Jarvis 007.
 
 ## [0.41.0] - 2026-08-20
 ### Sửa lỗi
-- **Đọc được nhiều video YouTube hơn hẳn.** Bản trước hay báo "video đòi đăng nhập" rồi bỏ cuộc, kể cả với video công khai bình thường. Thủ phạm là YouTube nghi địa chỉ máy chủ là robot, hay gặp khi Javis chạy trên VPS. Giờ nó tự đổi lần lượt qua sáu kiểu trình phát rồi mới nhờ tới yt-dlp, nên phần lớn ca đó tự vượt được.
+- **Đọc được nhiều video YouTube hơn hẳn.** Bản trước hay báo "video đòi đăng nhập" rồi bỏ cuộc, kể cả với video công khai bình thường. Thủ phạm là YouTube nghi địa chỉ máy chủ là robot, hay gặp khi Jarvis 007 chạy trên VPS. Giờ nó tự đổi lần lượt qua sáu kiểu trình phát rồi mới nhờ tới yt-dlp, nên phần lớn ca đó tự vượt được.
 - **Báo đúng bệnh.** "Máy chủ bị nghi là robot" không còn bị nói nhầm thành "video riêng tư" nữa, nên bạn khỏi mất công đi mở quyền một video vốn đã công khai sẵn.
 
 ## [0.40.0] - 2026-08-20
 ### Thêm mới
-- **Dán link YouTube là Javis tóm tắt được video.** Trước đây gửi link vào chat thì Javis luôn báo không đọc được; giờ nó đọc phụ đề của video rồi tóm tắt theo lời thoại thật, kèm mốc thời gian cho từng ý để bạn tua lại đúng chỗ. Nhận cả link youtu.be, Shorts, link phát trực tiếp và link dán lẫn trong câu.
+- **Dán link YouTube là Jarvis 007 tóm tắt được video.** Trước đây gửi link vào chat thì Jarvis 007 luôn báo không đọc được; giờ nó đọc phụ đề của video rồi tóm tắt theo lời thoại thật, kèm mốc thời gian cho từng ý để bạn tua lại đúng chỗ. Nhận cả link youtu.be, Shorts, link phát trực tiếp và link dán lẫn trong câu.
 - Chạy được ở **mọi bộ não** (kể cả các bộ não chỉ có API key), không cần khoá API YouTube và không cần đăng nhập.
-- Video không có phụ đề, video riêng tư hay bị chặn thì Javis nói thẳng lý do chứ không đoán nội dung theo tiêu đề. Video dài quá thì nó báo đã đọc tới phút mấy, bạn bảo "đọc tiếp" là nó đọc khúc sau.
+- Video không có phụ đề, video riêng tư hay bị chặn thì Jarvis 007 nói thẳng lý do chứ không đoán nội dung theo tiêu đề. Video dài quá thì nó báo đã đọc tới phút mấy, bạn bảo "đọc tiếp" là nó đọc khúc sau.
 
 ## [0.39.0] - 2026-08-19
 ### Thêm mới
-- **Đấu được cửa hàng Shopify.** Thẻ **Shopify** trong Kho kết nối chỉ hỏi địa chỉ cửa hàng - không API key, không cài app, không cần bạn là chủ shop. Đấu xong là hỏi được sản phẩm, giá, tồn kho, và nhờ Javis dựng sẵn giỏ hàng rồi đưa link cho bạn bấm thanh toán.
-- Mặc định ở mức Chỉ đọc nên Javis chỉ tra cứu. Muốn nó dựng giỏ hàng thật trên shop thì nâng lên Ghi nháp; Javis không bao giờ tự thanh toán được.
-- **Ô nhập kỹ thuật giờ điền sẵn giùm bạn.** Vài kết nối đòi một giá trị mà người thường không thể tự biết; nay Javis điền sẵn, bạn cứ bấm Kết nối, và vẫn sửa được nếu muốn.
+- **Đấu được cửa hàng Shopify.** Thẻ **Shopify** trong Kho kết nối chỉ hỏi địa chỉ cửa hàng - không API key, không cài app, không cần bạn là chủ shop. Đấu xong là hỏi được sản phẩm, giá, tồn kho, và nhờ Jarvis 007 dựng sẵn giỏ hàng rồi đưa link cho bạn bấm thanh toán.
+- Mặc định ở mức Chỉ đọc nên Jarvis 007 chỉ tra cứu. Muốn nó dựng giỏ hàng thật trên shop thì nâng lên Ghi nháp; Jarvis 007 không bao giờ tự thanh toán được.
+- **Ô nhập kỹ thuật giờ điền sẵn giùm bạn.** Vài kết nối đòi một giá trị mà người thường không thể tự biết; nay Jarvis 007 điền sẵn, bạn cứ bấm Kết nối, và vẫn sửa được nếu muốn.
 
 ## [0.38.0] - 2026-08-18
 ### Thêm mới
@@ -3278,22 +3278,22 @@ Cảm ơn người dùng đã gửi báo lỗi kèm bản vá chạy thử trên
 
 ## [0.37.1] - 2026-08-18
 ### Sửa lỗi
-- **Hết cảnh Javis (bộ não Claude Code) đột nhiên quên sạch cuộc đang nói dở.** Đang trao đổi thì bỗng nhiên Javis hỏi lại "bạn muốn nói về cái gì?" như người lạ - xảy ra sau khi một lượt đi đường tắt Tức thì, sau khi một lượt bị lỗi giữa chừng, hoặc sau khi máy chủ cập nhật. Nguyên nhân: ba ca đó làm đứt mạch hội thoại của engine mà chỉ ca "mạch quá dài" mới được khôi phục lịch sử; giờ mạch đứt vì lý do gì cũng được tự nối lại từ hội thoại đã lưu.
+- **Hết cảnh Jarvis 007 (bộ não Claude Code) đột nhiên quên sạch cuộc đang nói dở.** Đang trao đổi thì bỗng nhiên Jarvis 007 hỏi lại "bạn muốn nói về cái gì?" như người lạ - xảy ra sau khi một lượt đi đường tắt Tức thì, sau khi một lượt bị lỗi giữa chừng, hoặc sau khi máy chủ cập nhật. Nguyên nhân: ba ca đó làm đứt mạch hội thoại của engine mà chỉ ca "mạch quá dài" mới được khôi phục lịch sử; giờ mạch đứt vì lý do gì cũng được tự nối lại từ hội thoại đã lưu.
 
 ## [0.37.0] - 2026-08-18
 ### Thêm mới
-- **Windows mở Javis như một app.** Double-click `JAVIS OS.bat` là server tự chạy nền rồi dashboard tự mở thành cửa sổ riêng - không thanh địa chỉ, có ô riêng trên taskbar, không cửa sổ đen. Đang chạy rồi thì bấm lại chỉ mở cửa sổ, không khởi động lại.
+- **Windows mở Jarvis 007 như một app.** Double-click `JAVIS OS.bat` là server tự chạy nền rồi dashboard tự mở thành cửa sổ riêng - không thanh địa chỉ, có ô riêng trên taskbar, không cửa sổ đen. Đang chạy rồi thì bấm lại chỉ mở cửa sổ, không khởi động lại.
 - **Tự chạy khi đăng nhập máy Windows**: `javis-autostart.bat install` (gỡ bằng `uninstall`). Không cần quyền admin.
 
 ## [0.36.1] - 2026-08-18
 ### Sửa lỗi
 - **Chat trên điện thoại giờ xuống dòng được.** Bấm Enter/nhập trên bàn phím điện thoại là xuống dòng như mọi app nhắn tin, muốn gửi thì bấm nút Gửi. Trên máy tính giữ nguyên lối cũ: Enter gửi, Shift+Enter xuống dòng.
-- **App "Thêm vào màn hình chính" hết cảnh mở lại thấy hội thoại cũ đứng im.** iPhone đóng băng app khi xuống nền nên tin nhắn đến trong lúc đó bị lỡ, mà app dạng này lại không có nút tải lại để tự cứu. Giờ mở app lên là Javis tự nối lại kết nối và tự kéo phần hội thoại đã lỡ về, không phải làm gì cả.
+- **App "Thêm vào màn hình chính" hết cảnh mở lại thấy hội thoại cũ đứng im.** iPhone đóng băng app khi xuống nền nên tin nhắn đến trong lúc đó bị lỡ, mà app dạng này lại không có nút tải lại để tự cứu. Giờ mở app lên là Jarvis 007 tự nối lại kết nối và tự kéo phần hội thoại đã lỡ về, không phải làm gì cả.
 
 ## [0.36.0] - 2026-08-18
 Bản này gộp 6 đóng góp từ cộng đồng - cảm ơn @japanvip115 và @mrcong2909-web.
 ### Thêm mới
-- **macOS mở Javis như một app.** Double-click `JAVIS OS.app` trong Finder là server tự chạy và dashboard tự mở, kèm lựa chọn tự khởi động khi đăng nhập máy. Không cần Docker, không cần gõ lệnh.
+- **macOS mở Jarvis 007 như một app.** Double-click `JAVIS OS.app` trong Finder là server tự chạy và dashboard tự mở, kèm lựa chọn tự khởi động khi đăng nhập máy. Không cần Docker, không cần gõ lệnh.
 - **Chó canh cửa cho Mac** (`./watchdog.sh install`): server sống mà đơ không trả lời 3 phút liên tiếp thì tự được khởi động lại, không phải chờ ai phát hiện.
 ### Sửa lỗi
 - **Terminal hết làm treo cả server trên Mac.** Đóng phiên terminal, hoặc dán một khối chữ lớn khi lệnh đang bận, đều có thể làm cả trang đứng hình phải khởi động lại bằng tay - đã sửa tận gốc cả hai đường, kèm test canh không cho tái phát. Cập nhật trên Mac cũng hết cảnh hai tiến trình giành nhau cổng.
@@ -3303,17 +3303,17 @@ Bản này gộp 6 đóng góp từ cộng đồng - cảm ơn @japanvip115 và 
 
 ## [0.35.12] - 2026-08-17
 ### Sửa lỗi
-- **App "Thêm vào màn hình chính" trên iPhone hết cảnh cứ đóng lại là bị đăng nhập lại.** Mỗi lần mở app từ icon là một lần khởi động nguội (khác tab Safari giữ ấm sẵn), nên câu hỏi "đã đăng nhập chưa" gửi đi lúc mạng chưa kịp lên hay bị lỗi - và trước đây hễ lỗi là Javis coi luôn như chưa đăng nhập, bắt gõ lại mật khẩu dù phiên vẫn còn hạn. Giờ hỏi lại vài lần trước khi kết luận, và có lỗi mạng thật thì để nguyên màn hình thay vì ép hiện màn đăng nhập oan.
+- **App "Thêm vào màn hình chính" trên iPhone hết cảnh cứ đóng lại là bị đăng nhập lại.** Mỗi lần mở app từ icon là một lần khởi động nguội (khác tab Safari giữ ấm sẵn), nên câu hỏi "đã đăng nhập chưa" gửi đi lúc mạng chưa kịp lên hay bị lỗi - và trước đây hễ lỗi là Jarvis 007 coi luôn như chưa đăng nhập, bắt gõ lại mật khẩu dù phiên vẫn còn hạn. Giờ hỏi lại vài lần trước khi kết luận, và có lỗi mạng thật thì để nguyên màn hình thay vì ép hiện màn đăng nhập oan.
 
 ## [0.35.11] - 2026-08-17
 ### Sửa lỗi
-- **Thêm vào màn hình chính iPhone giờ luôn ẩn thanh địa chỉ.** Trước đây tuỳ máy tuỳ bản iOS mà có cái ẩn có cái không, vì Javis thiếu khai báo "chạy như app riêng" đầy đủ. Lưu ý: icon đã thêm vào màn hình chính TRƯỚC bản này vẫn giữ hành vi cũ - xoá icon đó rồi bấm "Thêm vào MH chính" lại một lần là hết.
+- **Thêm vào màn hình chính iPhone giờ luôn ẩn thanh địa chỉ.** Trước đây tuỳ máy tuỳ bản iOS mà có cái ẩn có cái không, vì Jarvis 007 thiếu khai báo "chạy như app riêng" đầy đủ. Lưu ý: icon đã thêm vào màn hình chính TRƯỚC bản này vẫn giữ hành vi cũ - xoá icon đó rồi bấm "Thêm vào MH chính" lại một lần là hết.
 ### Cải thiện
-- **Tắt phóng to/thu nhỏ bằng hai ngón tay trên điện thoại.** Giao diện Javis không còn bị lệch khi lỡ chạm hai ngón hoặc double-tap.
+- **Tắt phóng to/thu nhỏ bằng hai ngón tay trên điện thoại.** Giao diện Jarvis 007 không còn bị lệch khi lỡ chạm hai ngón hoặc double-tap.
 
 ## [0.35.10] - 2026-08-16
 ### Sửa lỗi
-- **Claude Code hết "thi thoảng tự đăng xuất".** Thủ phạm: khi Javis dừng một lượt chạy quá lâu, tiến trình claude có thể bị giết đúng lúc đang ghi file đăng nhập - file đứt nửa chừng là lần sau coi như chưa đăng nhập (ChatGPT không bị vì Javis tự giữ token hộ). Hai lớp vá: dừng tiến trình giờ có vài giây ân hạn để nó kịp đóng file, và Javis tự sao lưu file đăng nhập lành mạnh mỗi 5 phút - file hỏng hay biến mất là tự phục hồi ngay, có ghi log rõ ràng. Bấm Ngắt chủ động thì vẫn ngắt thật, không bị "hồi sinh".
+- **Claude Code hết "thi thoảng tự đăng xuất".** Thủ phạm: khi Jarvis 007 dừng một lượt chạy quá lâu, tiến trình claude có thể bị giết đúng lúc đang ghi file đăng nhập - file đứt nửa chừng là lần sau coi như chưa đăng nhập (ChatGPT không bị vì Jarvis 007 tự giữ token hộ). Hai lớp vá: dừng tiến trình giờ có vài giây ân hạn để nó kịp đóng file, và Jarvis 007 tự sao lưu file đăng nhập lành mạnh mỗi 5 phút - file hỏng hay biến mất là tự phục hồi ngay, có ghi log rõ ràng. Bấm Ngắt chủ động thì vẫn ngắt thật, không bị "hồi sinh".
 
 ## [0.35.9] - 2026-08-16
 ### Thêm mới
@@ -3322,7 +3322,7 @@ Bản này gộp 6 đóng góp từ cộng đồng - cảm ơn @japanvip115 và 
 ## [0.35.8] - 2026-08-16
 ### Cải thiện
 - **Terminal trong tab Code giờ là cmd gốc của máy.** Shell mở ở thư mục HOME như mọi terminal bình thường, không còn đứng trong thư mục brain - cài và đăng nhập CLI (như `agy` của Antigravity) hết vướng. Cần vào brain thì gõ `cd "$JAVIS_BRAIN"` là về. Muốn kiểu cũ thì đặt `JAVIS_TERMINAL_CWD`.
-- **Gõ `agy` trong terminal của Javis là thấy lệnh ngay.** Trước đây PATH của server thiếu chỗ chứa lệnh vừa cài nên gõ `agy` báo không tìm thấy, dễ tưởng cài hỏng. Kèm theo: hướng dẫn đăng nhập Antigravity nay nói thẳng lý do hay gặp nhất của cảnh "cài rồi mà Javis không nhận" - đăng nhập qua SSH bằng user khác (như root) thì Javis không thấy; đăng nhập trong trang Code của chính Javis là chắc ăn.
+- **Gõ `agy` trong terminal của Jarvis 007 là thấy lệnh ngay.** Trước đây PATH của server thiếu chỗ chứa lệnh vừa cài nên gõ `agy` báo không tìm thấy, dễ tưởng cài hỏng. Kèm theo: hướng dẫn đăng nhập Antigravity nay nói thẳng lý do hay gặp nhất của cảnh "cài rồi mà Jarvis 007 không nhận" - đăng nhập qua SSH bằng user khác (như root) thì Jarvis 007 không thấy; đăng nhập trong trang Code của chính Jarvis 007 là chắc ăn.
 
 ## [0.35.7] - 2026-08-16
 ### Sửa lỗi
@@ -3331,7 +3331,7 @@ Bản này gộp 6 đóng góp từ cộng đồng - cảm ơn @japanvip115 và 
 
 ## [0.35.6] - 2026-08-16
 ### Bảo mật
-- **2FA hết kiểu "tự tắt" âm thầm sau cập nhật.** Khoá mã hoá trên máy chủ (file .secret_key) mà mất hoặc đổi thì trước đây 2FA lặng lẽ ngừng hỏi mã và giao diện báo "Chưa bật" - ai có mật khẩu là vào thẳng. Giờ Javis nói thẳng "đang bật nhưng khoá bị lỗi", cổng đăng nhập vẫn chặn và nhận mã khôi phục, có nút bật lại với khoá mới ngay trên trang Tài khoản.
+- **2FA hết kiểu "tự tắt" âm thầm sau cập nhật.** Khoá mã hoá trên máy chủ (file .secret_key) mà mất hoặc đổi thì trước đây 2FA lặng lẽ ngừng hỏi mã và giao diện báo "Chưa bật" - ai có mật khẩu là vào thẳng. Giờ Jarvis 007 nói thẳng "đang bật nhưng khoá bị lỗi", cổng đăng nhập vẫn chặn và nhận mã khôi phục, có nút bật lại với khoá mới ngay trên trang Tài khoản.
 - **Không còn mất trắng khoá 2FA vì một lần lưu cài đặt.** Trước đây khi khoá đang lỗi, chỉ cần lưu bất kỳ cài đặt nào là bản mã hoá của khoá 2FA bị ghi đè thành rỗng vĩnh viễn. Giờ nó được giữ nguyên - tìm lại được file khoá cũ là 2FA sống lại, không cần làm gì.
 
 ## [0.35.5] - 2026-08-16
@@ -3340,7 +3340,7 @@ Bản này gộp 6 đóng góp từ cộng đồng - cảm ơn @japanvip115 và 
 
 ## [0.35.4] - 2026-08-16
 ### Cải thiện
-- **Bộ nhớ tự học của agent giờ đặc dần thay vì dài dần.** Agent chỉ đề xuất bài học, Javis cầm bút ghi hộ vào mục riêng: tự loại trùng, giữ đúng 15 dòng mới nhất, và phần bạn viết tay không bao giờ bị chạm. Hết cảnh bài học chất đống làm agent chậm và loãng dần theo thời gian.
+- **Bộ nhớ tự học của agent giờ đặc dần thay vì dài dần.** Agent chỉ đề xuất bài học, Jarvis 007 cầm bút ghi hộ vào mục riêng: tự loại trùng, giữ đúng 15 dòng mới nhất, và phần bạn viết tay không bao giờ bị chạm. Hết cảnh bài học chất đống làm agent chậm và loãng dần theo thời gian.
 - **Thanh model thôi nói dối khi ghim hỏng.** Phiên ghim một model mà provider đó đã bị gỡ key thì trước đây thanh model vẫn khoe "ghim" trong khi thực tế chạy mặc định chung. Giờ nó báo thẳng "ghim hỏng", và gửi tin nhắn là ghim hỏng tự được gỡ.
 
 ## [0.35.3] - 2026-08-16
@@ -3355,80 +3355,80 @@ Bản này gộp 6 đóng góp từ cộng đồng - cảm ơn @japanvip115 và 
 ## [0.35.2] - 2026-08-16
 ### Sửa lỗi
 - **Thẻ Google Sheets và TikTok Ads sống lại.** Hai thẻ này chết ngay lúc kết nối với mọi người - không phải do key của bạn sai, mà do gói bên thứ ba bị thư viện mới làm gãy. Đã ghim đúng phiên bản, đấu lại là chạy. Ai đã tự đấu Google Sheets bằng nguồn tự khai để chữa cháy thì sau khi cập nhật nên quay về thẻ chính chủ và gỡ nguồn tự khai cho đỡ trùng.
-- **Thông báo lỗi kết nối MCP hết giấu bệnh.** Trước đây phần quan trọng nhất của lỗi luôn bị cắt mất và Javis đổ tại key làm bạn đi kiểm key oan nhiều giờ. Giờ nó hiện đúng dòng nguyên nhân, và khi lỗi nằm ở gói chứ không phải ở bạn thì nói thẳng như vậy.
+- **Thông báo lỗi kết nối MCP hết giấu bệnh.** Trước đây phần quan trọng nhất của lỗi luôn bị cắt mất và Jarvis 007 đổ tại key làm bạn đi kiểm key oan nhiều giờ. Giờ nó hiện đúng dòng nguyên nhân, và khi lỗi nằm ở gói chứ không phải ở bạn thì nói thẳng như vậy.
 
 ## [0.35.1] - 2026-08-15
 ### Cải thiện
-- **Javis mặc định im lặng.** Mở lần đầu là chỉ hiện chữ, không tự đọc thành tiếng nữa - đỡ giật mình khi đang ở chỗ đông người hay quên bật loa nhỏ. Muốn nghe thì bấm nút loa ở khung chat hoặc bật **Đọc trả lời bằng giọng** trong Cài đặt nhanh; đã bật rồi thì Javis nhớ, F5 vẫn giữ nguyên. Ai đang bật sẵn từ trước cũng không bị tắt.
+- **Jarvis 007 mặc định im lặng.** Mở lần đầu là chỉ hiện chữ, không tự đọc thành tiếng nữa - đỡ giật mình khi đang ở chỗ đông người hay quên bật loa nhỏ. Muốn nghe thì bấm nút loa ở khung chat hoặc bật **Đọc trả lời bằng giọng** trong Cài đặt nhanh; đã bật rồi thì Jarvis 007 nhớ, F5 vẫn giữ nguyên. Ai đang bật sẵn từ trước cũng không bị tắt.
 
 ## [0.35.0] - 2026-08-14
 ### Thêm mới
-- **Javis trả lời bằng đúng thứ tiếng bạn gõ.** Không chỉ tiếng Việt với tiếng Anh - gõ tiếng Nhật, Thái, Pháp hay bất kỳ thứ tiếng nào thì Javis đáp lại bằng chính thứ tiếng đó, không phải cài gì. Muốn ghim cứng một thứ tiếng thì vào **Cài đặt**, mục ngôn ngữ.
-- **Giao diện có bản tiếng Anh.** Chọn ở **Cài đặt**; phần đã dịch hiện tiếng Anh, phần chưa dịch giữ nguyên tiếng Việt chứ không để trống ô nào. Chữ trên màn hình và ngôn ngữ Javis trả lời là hai lựa chọn riêng.
-- **Múi giờ và tiền tệ tách khỏi ngôn ngữ.** Trước đây Javis luôn tính giờ Việt Nam dù bạn ngồi ở đâu, nên nhắc hẹn "7h sáng" kêu lệch vài tiếng cho người ở múi giờ khác. Giờ nó theo đúng múi giờ bạn đặt.
+- **Jarvis 007 trả lời bằng đúng thứ tiếng bạn gõ.** Không chỉ tiếng Việt với tiếng Anh - gõ tiếng Nhật, Thái, Pháp hay bất kỳ thứ tiếng nào thì Jarvis 007 đáp lại bằng chính thứ tiếng đó, không phải cài gì. Muốn ghim cứng một thứ tiếng thì vào **Cài đặt**, mục ngôn ngữ.
+- **Giao diện có bản tiếng Anh.** Chọn ở **Cài đặt**; phần đã dịch hiện tiếng Anh, phần chưa dịch giữ nguyên tiếng Việt chứ không để trống ô nào. Chữ trên màn hình và ngôn ngữ Jarvis 007 trả lời là hai lựa chọn riêng.
+- **Múi giờ và tiền tệ tách khỏi ngôn ngữ.** Trước đây Jarvis 007 luôn tính giờ Việt Nam dù bạn ngồi ở đâu, nên nhắc hẹn "7h sáng" kêu lệch vài tiếng cho người ở múi giờ khác. Giờ nó theo đúng múi giờ bạn đặt.
 
 ### Cải thiện
-- **Javis gọi bạn là "bạn" và tự xưng "mình".** Trước đây nó mặc định xưng anh/em với mọi người, tức là đoán giới tính ngay từ câu đầu. Khi nào bạn tự xưng anh hoặc chị, Javis theo đúng như vậy và nhớ cho lần sau. Bot trả lời khách của bạn vẫn giữ lối "anh chị" quen thuộc.
+- **Jarvis 007 gọi bạn là "bạn" và tự xưng "mình".** Trước đây nó mặc định xưng anh/em với mọi người, tức là đoán giới tính ngay từ câu đầu. Khi nào bạn tự xưng anh hoặc chị, Jarvis 007 theo đúng như vậy và nhớ cho lần sau. Bot trả lời khách của bạn vẫn giữ lối "anh chị" quen thuộc.
 - **Bản tiếng Anh cho README và trang hướng dẫn đầu tiên.** Các trang còn lại vẫn tiếng Việt; `docs/en/` nói rõ trang nào đã dịch để bạn khỏi đoán.
 
 ## [0.34.1] - 2026-08-14
 ### Sửa lỗi
-- **Chữ trong Terminal trên Windows hết trôi thành bậc thang.** Chạy `git help` là cả màn hình xiên dần sang phải, mỗi dòng bắt đầu ở chỗ dòng trước kết thúc. Windows không có tầng nào lo việc "về đầu dòng" hộ nên Javis phải tự làm, giờ đã làm.
+- **Chữ trong Terminal trên Windows hết trôi thành bậc thang.** Chạy `git help` là cả màn hình xiên dần sang phải, mỗi dòng bắt đầu ở chỗ dòng trước kết thúc. Windows không có tầng nào lo việc "về đầu dòng" hộ nên Jarvis 007 phải tự làm, giờ đã làm.
 
 ### Cải thiện
 - **Code thành một nhóm riêng trên thanh bên, không còn nằm trong Bộ não.** Mở nhóm **Code** là thấy mục **Terminal**; các công cụ lập trình thêm sau sẽ nằm cùng chỗ đó. Bỏ luôn dải tab thừa bên trong trang - điều hướng gom về một tầng.
 
 ## [0.34.0] - 2026-08-13
 ### Thêm mới
-- **Có tab Code, mở ra là một terminal thật.** Nằm cạnh Tệp tin trong nhóm Bộ não, mở sẵn ở thư mục brain. Gõ lệnh thẳng trên máy đang chạy Javis - `git pull`, xem log, cài CLI, đăng nhập `agy` - khỏi phải mở SSH ở cửa sổ khác. Chạy được cả `vim` và `htop`, có màu, có gợi ý Tab, Ctrl+C giết đúng lệnh đang chạy chứ không văng cả phiên.
-- **Bấm sang trang khác không làm chết lệnh đang chạy.** Đang `npm install` mà đi xem chat rồi quay lại thì màn hình còn nguyên, chạy tới đâu hiện tới đó. F5 hay rớt mạng cũng vậy. Bỏ quên 30 phút thì Javis mới đóng phiên.
+- **Có tab Code, mở ra là một terminal thật.** Nằm cạnh Tệp tin trong nhóm Bộ não, mở sẵn ở thư mục brain. Gõ lệnh thẳng trên máy đang chạy Jarvis 007 - `git pull`, xem log, cài CLI, đăng nhập `agy` - khỏi phải mở SSH ở cửa sổ khác. Chạy được cả `vim` và `htop`, có màu, có gợi ý Tab, Ctrl+C giết đúng lệnh đang chạy chứ không văng cả phiên.
+- **Bấm sang trang khác không làm chết lệnh đang chạy.** Đang `npm install` mà đi xem chat rồi quay lại thì màn hình còn nguyên, chạy tới đâu hiện tới đó. F5 hay rớt mạng cũng vậy. Bỏ quên 30 phút thì Jarvis 007 mới đóng phiên.
 - Chỉ trình duyệt **đã đăng nhập** mới mở được terminal, token API không vào được. Muốn khoá hẳn thì đặt `JAVIS_TERMINAL=0` rồi khởi động lại.
 - Windows chạy bản rút gọn: gõ một dòng rồi Enter, không có gợi ý Tab, không chạy được `vim`. Đó là giới hạn của hệ điều hành và giao diện nói thẳng điều đó ngay trên khung, không để bạn ngồi đoán.
 
 ## [0.33.7] - 2026-08-13
 ### Cải thiện
 - **Đổi model Antigravity ngay trên Telegram.** Bảng nút của `/model` giờ hiện đủ nhà cung cấp như trang Models trên dashboard, chứ không còn kẹt ở năm cái cũ - nên bộ não Antigravity đổi được từ điện thoại. Nhà nào chưa liệt kê được model nào (hay gặp: cài rồi nhưng chưa đăng nhập) thì ẩn cho gọn.
-- **Gõ thẳng `/model <tên model>` không còn chọn nhầm nhà.** Javis dò tên đó trong danh sách thật rồi chuyển đúng nơi; tên trùng ở nhiều nhà thì nó hỏi lại thay vì đoán.
+- **Gõ thẳng `/model <tên model>` không còn chọn nhầm nhà.** Jarvis 007 dò tên đó trong danh sách thật rồi chuyển đúng nơi; tên trùng ở nhiều nhà thì nó hỏi lại thay vì đoán.
 
 ## [0.33.6] - 2026-08-13
 ### Sửa lỗi
-- **Chat qua Antigravity hết vỡ dấu tiếng Việt.** Chữ như "gồm", "hạn" hiện thành ô vuông hỏi chấm. Đo ra thì Javis đọc chữ về không hề sai - chỗ vỡ nằm ở lúc `agy` nhận nội dung, nên giờ Javis gửi theo từng mẩu cắt đúng chỗ để bên kia có đọc kiểu gì cũng không vỡ.
-- Nếu chữ vẫn vỡ, Javis tự đổi cách gửi rồi hỏi lại một lần nữa; vẫn vỡ thì nó nói thẳng là lỗi nằm trong `agy` chứ không im lặng trả về chữ sai.
+- **Chat qua Antigravity hết vỡ dấu tiếng Việt.** Chữ như "gồm", "hạn" hiện thành ô vuông hỏi chấm. Đo ra thì Jarvis 007 đọc chữ về không hề sai - chỗ vỡ nằm ở lúc `agy` nhận nội dung, nên giờ Jarvis 007 gửi theo từng mẩu cắt đúng chỗ để bên kia có đọc kiểu gì cũng không vỡ.
+- Nếu chữ vẫn vỡ, Jarvis 007 tự đổi cách gửi rồi hỏi lại một lần nữa; vẫn vỡ thì nó nói thẳng là lỗi nằm trong `agy` chứ không im lặng trả về chữ sai.
 
 ## [0.33.5] - 2026-08-13
 ### Sửa lỗi
-- **Javis tự chữa mấy note .md đã hỏng từ bản cũ.** Vào trang Tệp tin, nếu còn file dính lỗi ở bản trước 0.33.4 (khối thuộc tính đầu note biến thành `* * *`, chữ bị dồn dấu gạch chéo) thì Javis hiện danh sách và bạn bấm một nút là chữa hết. Không file nào hỏng thì không hiện gì cả.
-- Javis chỉ đụng vào đúng dấu vết của lỗi đó, nên đường kẻ ngang giữa bài hay note còn lành đều giữ nguyên.
+- **Jarvis 007 tự chữa mấy note .md đã hỏng từ bản cũ.** Vào trang Tệp tin, nếu còn file dính lỗi ở bản trước 0.33.4 (khối thuộc tính đầu note biến thành `* * *`, chữ bị dồn dấu gạch chéo) thì Jarvis 007 hiện danh sách và bạn bấm một nút là chữa hết. Không file nào hỏng thì không hiện gì cả.
+- Jarvis 007 chỉ đụng vào đúng dấu vết của lỗi đó, nên đường kẻ ngang giữa bài hay note còn lành đều giữ nguyên.
 
 ## [0.33.4] - 2026-08-13
 ### Sửa lỗi
 - **Mở file trong trang Tệp tin giờ dùng đúng trình sửa của khung chat.** Không còn ô soạn thảo trần bật lên giữa màn hình: file .md, .txt, .html mở **ngay trong trang**, có soạn thảo trực quan, thanh định dạng, Lùi/Tiến, đổi tên, xoá, phóng to. Bấm **✕** hoặc `Esc` là về lại danh sách.
 - **Lưu note .md không còn làm hỏng file.** Khối `---` đầu note (status, type, created...) trước đây bị biến thành `* * *` ngay lần lưu đầu, và mỗi lần mở ra sửa lại thêm một lớp dấu gạch chéo vào tiêu đề. Nay khối đó hiện thành mục **Thuộc tính** khoá lại, giữ nguyên từng ký tự. File đã lỡ hỏng thì sửa tay lại một lần là xong.
-- **Bấm link file trong chat không còn rơi vào trang trắng "Không phải thư mục".** Link trỏ vào file thì mở thẳng ra sửa; link trỏ trượt (hay gặp: chat ghi tên có dấu còn file lưu không dấu) thì Javis tự dò cả brain theo tên rồi bày ra file tên gần giống, bấm một phát là mở.
+- **Bấm link file trong chat không còn rơi vào trang trắng "Không phải thư mục".** Link trỏ vào file thì mở thẳng ra sửa; link trỏ trượt (hay gặp: chat ghi tên có dấu còn file lưu không dấu) thì Jarvis 007 tự dò cả brain theo tên rồi bày ra file tên gần giống, bấm một phát là mở.
 
 ## [0.33.3] - 2026-08-13
 ### Sửa lỗi
-- **Hết nháy cửa sổ đen trên Windows.** Thi thoảng đang dùng, một khung terminal đen chớp lên giữa màn hình rồi tắt - do Javis chạy nền không có cửa sổ nên mỗi lệnh phụ nó gọi lại được Windows cấp cho một cửa sổ mới. Đã bịt toàn bộ, và có bài kiểm tự động canh để đừng lọt lại lần nữa.
+- **Hết nháy cửa sổ đen trên Windows.** Thi thoảng đang dùng, một khung terminal đen chớp lên giữa màn hình rồi tắt - do Jarvis 007 chạy nền không có cửa sổ nên mỗi lệnh phụ nó gọi lại được Windows cấp cho một cửa sổ mới. Đã bịt toàn bộ, và có bài kiểm tự động canh để đừng lọt lại lần nữa.
 - Lượt cập nhật trên Windows cũng thôi nháy liên tục vì cùng nguyên nhân.
 
 ## [0.33.2] - 2026-08-13
 ### Sửa lỗi
-- **Antigravity trên Windows: sửa nốt.** Bản 0.33.1 gửi nội dung cho `agy` theo một cú pháp suy ra từ tài liệu, và bản `agy` thật trả lại `Error: empty prompt` rồi thôi. Giờ Javis tự thử vài cách ngay lần chạy đầu, cách nào ăn thì dùng và nhớ luôn; không cách nào ăn thì tự chuyển sang đường dự phòng thay vì ném câu lỗi tiếng Anh cho bạn.
+- **Antigravity trên Windows: sửa nốt.** Bản 0.33.1 gửi nội dung cho `agy` theo một cú pháp suy ra từ tài liệu, và bản `agy` thật trả lại `Error: empty prompt` rồi thôi. Giờ Jarvis 007 tự thử vài cách ngay lần chạy đầu, cách nào ăn thì dùng và nhớ luôn; không cách nào ăn thì tự chuyển sang đường dự phòng thay vì ném câu lỗi tiếng Anh cho bạn.
 
 ## [0.33.1] - 2026-08-13
 ### Sửa lỗi
-- **Bộ não Antigravity CLI chat được trên Windows.** Trước đây mọi lượt đều trả về "hội thoại này đã quá dài", kể cả khi bạn vừa mở chat mới và chỉ gõ "hi" - nên mở bao nhiêu hội thoại mới cũng không thoát. Phần vượt giới hạn là phần cố định của Javis chứ không phải phần bạn gõ, và câu báo lỗi cũ chỉ sai đường.
-- Nay Javis gửi nội dung cho `agy` theo đường khác, không còn dính giới hạn độ dài lệnh của Windows. Bản `agy` nào không nhận được thì Javis tự chuyển sang đường dự phòng ngay trong lượt đó, và nếu đường đó cũng không trọn vẹn thì nó nói thẳng ra thay vì lặng lẽ trả lời thiếu.
-- **Antigravity giờ dùng được tool của Javis.** Đường dẫn cấu hình cũ đoán sai chỗ nên bộ não này chạy mà không có Kanban, không MCP, không skill, mà chẳng báo gì.
+- **Bộ não Antigravity CLI chat được trên Windows.** Trước đây mọi lượt đều trả về "hội thoại này đã quá dài", kể cả khi bạn vừa mở chat mới và chỉ gõ "hi" - nên mở bao nhiêu hội thoại mới cũng không thoát. Phần vượt giới hạn là phần cố định của Jarvis 007 chứ không phải phần bạn gõ, và câu báo lỗi cũ chỉ sai đường.
+- Nay Jarvis 007 gửi nội dung cho `agy` theo đường khác, không còn dính giới hạn độ dài lệnh của Windows. Bản `agy` nào không nhận được thì Jarvis 007 tự chuyển sang đường dự phòng ngay trong lượt đó, và nếu đường đó cũng không trọn vẹn thì nó nói thẳng ra thay vì lặng lẽ trả lời thiếu.
+- **Antigravity giờ dùng được tool của Jarvis 007.** Đường dẫn cấu hình cũ đoán sai chỗ nên bộ não này chạy mà không có Kanban, không MCP, không skill, mà chẳng báo gì.
 - Việc chạy nền qua Antigravity không còn bị cắt ngang ở phút thứ 5.
 
 ## [0.33.0] - 2026-08-13
 ### Thêm mới
-- **Đưa file HTML vào là ra file Webcake sửa được, giống bản gốc.** Javis tự đọc trang HTML rồi dựng thành file `.pke` mở thẳng trong trình dựng trang Webcake: màu, cỡ chữ, ảnh, nút, form và thứ tự các khối lấy nguyên từ bản gốc chứ không phải nhìn rồi gõ lại. Bảo Javis "chuyển file html này sang webcake" là chạy.
-- **Javis soi giúp trước khi giao.** Trang dựng xong được kiểm tự động: chữ đè lên nhau, khối tràn ra ngoài, và **chữ chìm vào nền** - lỗi hay gặp nhất khi bê màu từ HTML sang mà mắt thường khó thấy.
+- **Đưa file HTML vào là ra file Webcake sửa được, giống bản gốc.** Jarvis 007 tự đọc trang HTML rồi dựng thành file `.pke` mở thẳng trong trình dựng trang Webcake: màu, cỡ chữ, ảnh, nút, form và thứ tự các khối lấy nguyên từ bản gốc chứ không phải nhìn rồi gõ lại. Bảo Jarvis 007 "chuyển file html này sang webcake" là chạy.
+- **Jarvis 007 soi giúp trước khi giao.** Trang dựng xong được kiểm tự động: chữ đè lên nhau, khối tràn ra ngoài, và **chữ chìm vào nền** - lỗi hay gặp nhất khi bê màu từ HTML sang mà mắt thường khó thấy.
 
 ### Sửa lỗi
-- **Kỹ năng có kèm công cụ giờ mới thật sự dùng được.** Trước đây Javis chỉ chép mỗi phần hướng dẫn của kỹ năng xuống bộ não, bỏ lại toàn bộ thư mục công cụ đi kèm - nên kỹ năng nào cần chạy công cụ là hỏng ở mọi bộ não. Đây chính là lý do "HTML sang Webcake" từng bị gỡ hẳn ở bản 0.9.291; nay sửa gốc và đưa nó trở lại.
+- **Kỹ năng có kèm công cụ giờ mới thật sự dùng được.** Trước đây Jarvis 007 chỉ chép mỗi phần hướng dẫn của kỹ năng xuống bộ não, bỏ lại toàn bộ thư mục công cụ đi kèm - nên kỹ năng nào cần chạy công cụ là hỏng ở mọi bộ não. Đây chính là lý do "HTML sang Webcake" từng bị gỡ hẳn ở bản 0.9.291; nay sửa gốc và đưa nó trở lại.
 
 ## [0.32.2] - 2026-08-13
 ### Cải thiện
@@ -3446,7 +3446,7 @@ Bản này gộp 6 đóng góp từ cộng đồng - cảm ơn @japanvip115 và 
 ## [0.32.0] - 2026-08-13
 ### Thêm mới
 - **Trang Mức dùng làm lại từ đầu.** Mở ra là một câu tiếng người nói thẳng tháng này ai trả gì cho cái gì, rồi tới ba ô bấm được: tiền mặt so với ngân sách, cửa sổ 5 giờ còn bao nhiêu, và đã tiết kiệm được bao nhiêu token.
-- **Đặt ngân sách tiền API mỗi tháng ngay trên trang.** Chạm 80% Javis nhắn, chạm trần thì (nếu bạn bật) tự đẩy việc chạy nền sang đường không tốn tiền - chat của bạn không bị đụng tới. Kèm ô khai giá gói để biết gói đang lời hay lỗ so với giá API.
+- **Đặt ngân sách tiền API mỗi tháng ngay trên trang.** Chạm 80% Jarvis 007 nhắn, chạm trần thì (nếu bạn bật) tự đẩy việc chạy nền sang đường không tốn tiền - chat của bạn không bị đụng tới. Kèm ô khai giá gói để biết gói đang lời hay lỗ so với giá API.
 - **Báo cáo token tự gửi về chat sáng thứ Hai**, bật bằng một ô tick. Biểu đồ theo ngày giờ có gạch mốc ngày bạn đổi chế độ hay đổi bộ não, nhìn phát hiểu vì sao cột tụt.
 
 ### Sửa lỗi
@@ -3455,21 +3455,21 @@ Bản này gộp 6 đóng góp từ cộng đồng - cảm ơn @japanvip115 và 
 
 ## [0.31.0] - 2026-08-13
 ### Sửa lỗi
-- **Đổi model xong không còn bị đòi đăng nhập lại Claude.** Trước đây chỉ cần một lần Javis hỏi không kịp là thẻ Claude hiện "chưa đăng nhập" kèm nút đăng nhập, dù tài khoản chẳng mất gì. Giờ nó nói rõ "chưa kiểm được, không phải bạn bị đăng xuất", và nhớ trạng thái nên đỡ hỏi lại liên tục.
-- **Bộ não Antigravity CLI dùng được trở lại.** Javis đọc nhầm danh sách model của bản `agy` mới nên gửi sai tên model, lượt chat nào cũng lỗi; và khi chạy được thì bong bóng trả lời lại rỗng. Cả hai đã sửa, kèm dòng "Fetching available models..." không còn hiện như một model trong trình chọn.
-- **Máy nhân Linux đời cũ (NAS, VPS cũ) chat được bằng Claude Code.** Trước đây mọi lượt chết ngay vì Javis chạy nhầm bản Claude đóng gói sẵn, giờ nó dùng đúng bản đã cài trên máy.
+- **Đổi model xong không còn bị đòi đăng nhập lại Claude.** Trước đây chỉ cần một lần Jarvis 007 hỏi không kịp là thẻ Claude hiện "chưa đăng nhập" kèm nút đăng nhập, dù tài khoản chẳng mất gì. Giờ nó nói rõ "chưa kiểm được, không phải bạn bị đăng xuất", và nhớ trạng thái nên đỡ hỏi lại liên tục.
+- **Bộ não Antigravity CLI dùng được trở lại.** Jarvis 007 đọc nhầm danh sách model của bản `agy` mới nên gửi sai tên model, lượt chat nào cũng lỗi; và khi chạy được thì bong bóng trả lời lại rỗng. Cả hai đã sửa, kèm dòng "Fetching available models..." không còn hiện như một model trong trình chọn.
+- **Máy nhân Linux đời cũ (NAS, VPS cũ) chat được bằng Claude Code.** Trước đây mọi lượt chết ngay vì Jarvis 007 chạy nhầm bản Claude đóng gói sẵn, giờ nó dùng đúng bản đã cài trên máy.
 - Trên Windows, hội thoại quá dài cho Antigravity giờ báo rõ và mách hai cách đi tiếp, thay cho một lỗi khó hiểu về "tên tệp quá dài".
 
 Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá cho bốn lỗi trên.
 
 ## [0.30.3] - 2026-08-13
 ### Sửa lỗi
-- **Đăng nhập Antigravity CLI chạy thật rồi.** Bản trước đứng im vì `agy` hỏi "chọn cách đăng nhập" trước khi đưa link, mà Javis lại ngồi chờ link. Giờ Javis tự chọn giúp đúng mục **Google OAuth** rồi mới lấy link ra cho bạn.
+- **Đăng nhập Antigravity CLI chạy thật rồi.** Bản trước đứng im vì `agy` hỏi "chọn cách đăng nhập" trước khi đưa link, mà Jarvis 007 lại ngồi chờ link. Giờ Jarvis 007 tự chọn giúp đúng mục **Google OAuth** rồi mới lấy link ra cho bạn.
 - Nút **Kiểm tra lại** khi chưa đăng nhập cũng nói đúng việc phải làm, thay vì báo "không trả lời kịp" rồi để bạn ngồi đoán.
 
 ## [0.30.2] - 2026-08-13
 ### Sửa lỗi
-- **Bấm vào link file trong chat giờ mở thẳng ra sửa, không còn lúc được lúc không.** File .html Javis vừa xuất ra, file .md, .css, .json... bấm phát là vào trình sửa; trước đây có lúc lại quăng bạn về thư mục trong trang Tệp tin.
+- **Bấm vào link file trong chat giờ mở thẳng ra sửa, không còn lúc được lúc không.** File .html Jarvis 007 vừa xuất ra, file .md, .css, .json... bấm phát là vào trình sửa; trước đây có lúc lại quăng bạn về thư mục trong trang Tệp tin.
 - Lý do cũ: cùng một link có hai đường đi (bấm thường, và mở tab mới hoặc F5) mà hai đường lại xử khác nhau. Nay đi chung một luật.
 - Chữ hiện khi rê chuột cũng nói đúng việc: **Mở ra sửa** với file, **Mở vị trí trong Tệp tin** với thư mục. Ảnh, PDF, file nén vẫn là tải về như cũ.
 
@@ -3480,7 +3480,7 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 ## [0.30.0] - 2026-08-13
 ### Thêm mới
 - **Đăng nhập Google cho Antigravity CLI ngay trên trang Models, không phải mở terminal nữa.** Bấm **Đăng nhập Google**, mở link, đăng nhập, dán mã Google đưa lại là xong - giống hệt cách đăng nhập Claude Code và ChatGPT đang có.
-- Chạy được cả khi Javis nằm trên VPS: Javis tự lo phần terminal. Tiện thể chữa luôn một lỗi của CLI làm đường link bị đứt đoạn khi đăng nhập qua SSH, dán sang trình duyệt là báo lỗi.
+- Chạy được cả khi Jarvis 007 nằm trên VPS: Jarvis 007 tự lo phần terminal. Tiện thể chữa luôn một lỗi của CLI làm đường link bị đứt đoạn khi đăng nhập qua SSH, dán sang trình duyệt là báo lỗi.
 - Trên Windows thẻ nói thẳng là phải gõ `agy` một lần trong PowerShell, chứ không bày ra một cái nút bấm vào không chạy.
 
 ### Cải thiện
@@ -3489,19 +3489,19 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 ## [0.29.1] - 2026-08-13
 ### Cải thiện
 - **Thẻ Google Gemini CLI tự ẩn đi nếu máy bạn không có nó**, nên sẽ không còn ai vấp vào một lựa chọn Google đã ngắt rồi loay hoay đăng nhập. Ai đang đặt nó làm bộ não chính thì vẫn thấy thẻ để còn đổi sang cái khác.
-- **Javis thôi tự cài Gemini CLI lúc cài đặt.** Bản cài nhẹ hơn và nhanh hơn một chút. Vẫn dùng được nếu bạn có giấy phép doanh nghiệp hoặc chạy bằng API key: tự cài `npm i -g @google/gemini-cli` là thẻ hiện lại.
+- **Jarvis 007 thôi tự cài Gemini CLI lúc cài đặt.** Bản cài nhẹ hơn và nhanh hơn một chút. Vẫn dùng được nếu bạn có giấy phép doanh nghiệp hoặc chạy bằng API key: tự cài `npm i -g @google/gemini-cli` là thẻ hiện lại.
 - Bộ não Google cho tài khoản cá nhân giờ là **Antigravity CLI** (bản 0.29.0).
 
 ## [0.29.0] - 2026-08-13
 ### Thêm mới
 - **Bộ não thứ 10: Antigravity CLI - dùng gói Google của bạn, và chọn được đúng dàn model như trong Antigravity IDE**, gồm cả model không phải của Google. Đây là đường Google chỉ định sau khi họ ngắt Gemini CLI với tài khoản cá nhân.
-- Cài một lần trên máy chạy Javis rồi gõ `agy` để đăng nhập Google, vào trang **Models** bấm **Kiểm tra lại** là xong. Chạy trên VPS cũng được: nó tự in ra một đường link cho bạn mở trên máy mình.
-- Danh sách model **hỏi thẳng CLI** chứ Javis không giữ bảng chép tay, nên tài khoản bạn được cấp model nào là thấy đúng model đó.
+- Cài một lần trên máy chạy Jarvis 007 rồi gõ `agy` để đăng nhập Google, vào trang **Models** bấm **Kiểm tra lại** là xong. Chạy trên VPS cũng được: nó tự in ra một đường link cho bạn mở trên máy mình.
+- Danh sách model **hỏi thẳng CLI** chứ Jarvis 007 không giữ bảng chép tay, nên tài khoản bạn được cấp model nào là thấy đúng model đó.
 - Ngang hàng Claude Code và ChatGPT: chạy được lệnh máy, gọi được mọi kết nối đã đấu, dùng skill, nhận việc nền và trả lời qua Telegram.
 
 ## [0.28.9] - 2026-08-13
 ### Sửa lỗi
-- **Google đã ngắt Gemini CLI với mọi tài khoản cá nhân từ 18/06/2026** - gói miễn phí, AI Pro lẫn Ultra. Trước bản này chat bằng nó chỉ ra dòng trống khó hiểu; giờ Javis nói thẳng chuyện gì đã xảy ra và chỉ sang đường còn dùng được. Đây là chặn từ phía Google, không phải lỗi máy bạn.
+- **Google đã ngắt Gemini CLI với mọi tài khoản cá nhân từ 18/06/2026** - gói miễn phí, AI Pro lẫn Ultra. Trước bản này chat bằng nó chỉ ra dòng trống khó hiểu; giờ Jarvis 007 nói thẳng chuyện gì đã xảy ra và chỉ sang đường còn dùng được. Đây là chặn từ phía Google, không phải lỗi máy bạn.
 - Thẻ **Google Gemini CLI** ở trang Models hết mời đăng nhập như thể vẫn dùng được. Muốn model Gemini thì dùng **OpenRouter** (nhiều model một chỗ, có cả Gemini lẫn Claude) hoặc **Google Gemini (API)**.
 
 ## [0.28.8] - 2026-08-12
@@ -3509,27 +3509,27 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 - **Ô dán mã khi đăng nhập Google đã gõ được.** Nút "Xong" bị giãn ra chiếm hết hàng làm ô nhập teo lại còn vài chục pixel, không dán nổi mã vào. Màn hình hẹp thì nút tự rơi xuống dòng dưới cho ô nhập đủ rộng.
 
 ### Cải thiện
-- **Cài Javis là có sẵn cả ba bộ não chạy bằng gói đăng nhập: Claude Code, ChatGPT (Codex) và Gemini CLI.** Không phải tự mở terminal gõ `npm i -g` từng cái nữa, mở trang Models ra là chỉ còn việc đăng nhập.
+- **Cài Jarvis 007 là có sẵn cả ba bộ não chạy bằng gói đăng nhập: Claude Code, ChatGPT (Codex) và Gemini CLI.** Không phải tự mở terminal gõ `npm i -g` từng cái nữa, mở trang Models ra là chỉ còn việc đăng nhập.
 - Áp cho cả ba đường cài: Docker, `install.sh` trên VPS, và `setup.bat` trên Windows (trước đây file này không cài bộ não nào).
-- Bản đang chạy thì **cập nhật Javis** một lần là có. Cái nào cài lỗi cũng không sao: các bộ não còn lại vẫn chạy như thường, thẻ ở trang Models chỉ báo cách cài tay.
+- Bản đang chạy thì **cập nhật Jarvis 007** một lần là có. Cái nào cài lỗi cũng không sao: các bộ não còn lại vẫn chạy như thường, thẻ ở trang Models chỉ báo cách cài tay.
 
 ## [0.28.7] - 2026-08-12
 ### Sửa lỗi
-- **Mở lại hội thoại cũ không còn thấy một đống chữ máy trong bong bóng câu hỏi của mình.** Khi bạn đang mở một file trong trình sửa, Javis kèm một khối hướng dẫn vào tin nhắn để nó biết đang làm việc trên file nào. Khối đó lẽ ra chỉ dành cho máy đọc, nhưng lúc tải lại trang thì nó hiện ra thay cho câu bạn đã gõ.
+- **Mở lại hội thoại cũ không còn thấy một đống chữ máy trong bong bóng câu hỏi của mình.** Khi bạn đang mở một file trong trình sửa, Jarvis 007 kèm một khối hướng dẫn vào tin nhắn để nó biết đang làm việc trên file nào. Khối đó lẽ ra chỉ dành cho máy đọc, nhưng lúc tải lại trang thì nó hiện ra thay cho câu bạn đã gõ.
 - **Thanh mốc hội thoại đọc được trở lại.** Trước đây hội thoại càng dài thì danh sách càng toàn những dòng giống hệt nhau, vì dòng nào cũng là khối hướng dẫn đó - không nhìn ra câu nào với câu nào.
 - **Tên hội thoại trong Lịch sử cũng hết bị đặt theo khối đó.** Nút gửi lại và sửa câu hỏi giờ dùng đúng câu bạn gõ, không kèm rác.
 
 ## [0.28.6] - 2026-08-12
 ### Thêm mới
 - **Đăng nhập Google cho Gemini CLI ngay trên trang Models, không phải mở terminal nữa.** Bấm **Đăng nhập Google**, đăng nhập, Google hiện ra một mã, dán mã đó lại là xong - giống hệt cách đăng nhập Claude Code và ChatGPT đang có.
-- Chạy được cả khi Javis nằm trên VPS còn trình duyệt ở máy bạn, vì không có localhost nào ở giữa. Màn hình đồng ý của Google ghi đúng tên **Gemini CLI**.
-- Có nút **Ngắt** để gỡ tài khoản Google khỏi Javis. Ai thích đăng nhập bằng terminal thì vẫn dùng được như cũ.
+- Chạy được cả khi Jarvis 007 nằm trên VPS còn trình duyệt ở máy bạn, vì không có localhost nào ở giữa. Màn hình đồng ý của Google ghi đúng tên **Gemini CLI**.
+- Có nút **Ngắt** để gỡ tài khoản Google khỏi Jarvis 007. Ai thích đăng nhập bằng terminal thì vẫn dùng được như cũ.
 
 ## [0.28.5] - 2026-08-12
 ### Thêm mới
 - **Bộ não thứ 9: Gemini CLI, chạy bằng tài khoản Google của bạn - không cần mua API key.** Ngang hàng Claude Code và ChatGPT: chạy được lệnh máy, gọi được mọi kết nối đã đấu, dùng skill, nhận việc nền. Cài `npm install -g @google/gemini-cli`, chạy `gemini` một lần để đăng nhập Google, rồi vào trang Models bấm **Kiểm tra lại**.
 - Thẻ mới nằm riêng, không lẫn với **Google Gemini (API)** cũ: thẻ cũ trả tiền theo lượt gọi, thẻ mới dùng gói miễn phí gắn với tài khoản Google.
-- Việc chạy nền giao cho nó cũng được, và ba mức quyền của Javis xuống thẳng chế độ duyệt của CLI - mức **Chỉ đọc** là do chính Gemini CLI chặn, không phải một lời dặn trong prompt.
+- Việc chạy nền giao cho nó cũng được, và ba mức quyền của Jarvis 007 xuống thẳng chế độ duyệt của CLI - mức **Chỉ đọc** là do chính Gemini CLI chặn, không phải một lời dặn trong prompt.
 
 ### Cải thiện
 - Hết lượt gói Google giờ báo bằng tiếng Việt kèm mốc dùng lại được, thay cho câu tiếng Anh của Google.
@@ -3538,10 +3538,10 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 ### Sửa lỗi
 - **Kết nối ChatGPT xong không còn đứng ở "0 model".** Danh sách model của gói ChatGPT do Codex cấp, mà trước đây không ai đi hỏi cho tới khi bạn tự mở hộp chọn model. Nay đăng nhập xong là trang Models tự hỏi và điền con số thật. Máy mới cài (hay máy Mac vừa dựng) là chỗ lộ rõ nhất vì chưa có danh sách cũ để hiện tạm.
 - **Không lấy được model thì nói rõ vì sao.** Thay cho câu chung chung "provider chưa kết nối hoặc không có model", giờ là câu chỉ đúng việc phải làm: chưa đăng nhập, chưa cài Codex CLI, hay thiếu API key.
-- **Trên máy Mac, Javis tự tìm thấy `claude` và `codex` cài bằng Homebrew hoặc nvm.** Chạy nền thì hệ điều hành chỉ đưa cho Javis một danh sách thư mục rất ngắn, nên hai lệnh này gõ trong Terminal vẫn chạy mà Javis lại báo chưa cài.
+- **Trên máy Mac, Jarvis 007 tự tìm thấy `claude` và `codex` cài bằng Homebrew hoặc nvm.** Chạy nền thì hệ điều hành chỉ đưa cho Jarvis 007 một danh sách thư mục rất ngắn, nên hai lệnh này gõ trong Terminal vẫn chạy mà Jarvis 007 lại báo chưa cài.
 
 ### Cải thiện
-- **Gõ `/` trong Telegram sổ ra danh sách lệnh đáng tin hơn.** Javis đặt menu cho cả chat riêng lẫn nhóm, và nếu Telegram từ chối thì báo hẳn lý do ở trang Cài đặt thay vì im lặng như trước.
+- **Gõ `/` trong Telegram sổ ra danh sách lệnh đáng tin hơn.** Jarvis 007 đặt menu cho cả chat riêng lẫn nhóm, và nếu Telegram từ chối thì báo hẳn lý do ở trang Cài đặt thay vì im lặng như trước.
 
 ## [0.28.3] - 2026-08-12
 ### Sửa lỗi
@@ -3616,7 +3616,7 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 
 ## [0.26.24] - 2026-08-12
 ### Cải thiện
-- **Thẻ Token API có link sang tài liệu.** Trước đây tạo token xong là hết đường: cầm chuỗi `jvs_...` trong tay mà không biết dùng ở đâu. Nay có link hướng dẫn ngay dưới thẻ và trong khối token vừa tạo, kèm câu lệnh cài Javis CLI.
+- **Thẻ Token API có link sang tài liệu.** Trước đây tạo token xong là hết đường: cầm chuỗi `jvs_...` trong tay mà không biết dùng ở đâu. Nay có link hướng dẫn ngay dưới thẻ và trong khối token vừa tạo, kèm câu lệnh cài Jarvis 007 CLI.
 
 ## [0.26.23] - 2026-08-12
 ### Sửa lỗi
@@ -3626,20 +3626,20 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 - **CSS ép ảnh QR xuống 200px trong khi ảnh gốc 265px**, tức mỗi ô còn 3,77 pixel. Đây là thủ phạm nặng nhất: người dùng soi điện thoại vào MÀN HÌNH máy tính chứ không phải tờ giấy, nên cỡ mỗi ô quyết định tất cả. Nay để ảnh ra đúng cỡ server tính (8 pixel mỗi ô, hơn gấp đôi).
 - **Tên workspace dài làm QR phình lại.** Tên nằm HAI chỗ trong chuỗi otpauth nên mỗi ký tự tốn gấp đôi; đo thật thì tên 48 ký tự đẩy QR lên phiên bản 11 (69 ô). Nay cắt tên ở 24 ký tự, nên đặt tên kiểu gì QR cũng giữ được 8 pixel mỗi ô.
 - **Nền QR nay là trắng thật**, không còn trong suốt dựa vào màu nền của thẻ bọc - ai dùng tông tối trước đây sẽ thấy mã đen nằm trên nền tối.
-- **Tên trong app Authenticator lấy theo workspace và theo NGƯỜI.** Trước đây hiện "Javis OS: admin" - đúng về kỹ thuật nhưng vô nghĩa khi nằm giữa chục tài khoản 2FA trên điện thoại. Nay lấy tên workspace thật cộng tên người dùng (`USER_NAME`), rơi về tên đăng nhập khi chưa đặt: "Javis OS: Minh Quý".
+- **Tên trong app Authenticator lấy theo workspace và theo NGƯỜI.** Trước đây hiện "Jarvis 007: admin" - đúng về kỹ thuật nhưng vô nghĩa khi nằm giữa chục tài khoản 2FA trên điện thoại. Nay lấy tên workspace thật cộng tên người dùng (`USER_NAME`), rơi về tên đăng nhập khi chưa đặt: "Jarvis 007: Minh Quý".
 - **Nhãn GIỮ nguyên dấu tiếng Việt.** Bản đầu bóc sạch dấu ("Minh Quý" thành "Minh Quy") vì sợ app hiện chuỗi hỏng; nỗi sợ đó lỗi thời - Key Uri Format cho phép nhãn UTF-8 phần trăm-mã-hoá và các app phổ biến đọc đúng từ lâu. Chỉ còn bỏ ký tự điều khiển và dấu ':' (nó là dấu ngăn giữa tên workspace và tên tài khoản, lọt vào là vỡ nhãn). Đã đo: kể cả tên có dấu dài hết mức thì QR vẫn giữ 8 pixel mỗi ô.
 - Thêm canary đo bằng SỐ chứ không đọc chữ: mỗi ô phải >= 7 pixel ở cỡ tự nhiên, viền phải 4 ô, nền không được trong suốt, và CSS không được ép ảnh về một cỡ pixel cố định. Vế cuối là cách âm thầm nhất để phá lại mọi thứ ở trên - server trả ảnh đúng cỡ, trình duyệt nén lại, và không test phía server nào thấy được.
 
 ## [0.26.22] - 2026-08-12
 ### Thêm mới
-- **Cài được NHIỀU bản Javis trên cùng một VPS, mỗi bản một link riêng.** Trước bản này thì không: bản thứ hai dựng lên là chết ngay. Bản thân app đã đa-bản-được từ lâu (`JAVIS_PORT`, `JAVIS_STATE_DIR` đều đọc từ biến môi trường); chỗ chặn nằm hết ở file cài đặt, và đều là cùng một loại lỗi - một cái tên bị đóng cứng ở nơi Docker/Traefik/systemd định danh theo phạm vi TOÀN MÁY. Năm cái tên đó: `container_name: javis`, cổng máy chủ `7777`, tên router/service Traefik `javis`, `/etc/systemd/system/javis.service`, và `~/.codex/javis.config.toml`.
+- **Cài được NHIỀU bản Jarvis 007 trên cùng một VPS, mỗi bản một link riêng.** Trước bản này thì không: bản thứ hai dựng lên là chết ngay. Bản thân app đã đa-bản-được từ lâu (`JAVIS_PORT`, `JAVIS_STATE_DIR` đều đọc từ biến môi trường); chỗ chặn nằm hết ở file cài đặt, và đều là cùng một loại lỗi - một cái tên bị đóng cứng ở nơi Docker/Traefik/systemd định danh theo phạm vi TOÀN MÁY. Năm cái tên đó: `container_name: javis`, cổng máy chủ `7777`, tên router/service Traefik `javis`, `/etc/systemd/system/javis.service`, và `~/.codex/javis.config.toml`.
 - **Ba biến là đủ để tách một bản:** `JAVIS_NAME` (tên container + tên router Traefik + tên dịch vụ systemd), `JAVIS_HOST_PORT` (cổng máy chủ), `DOMAIN_NAME` (link). Bỏ trống cả ba = `javis` + cổng `7777`, tức **y hệt cách cài cũ** - ai đang chạy một bản không phải sửa gì.
 - **Proxy dùng chung cho VPS tự quản** (`docker-compose.proxy.yml` + `docker-compose.multi.yml`). Một máy chỉ có một cổng 443, nên Caddy phải đứng NGOÀI mọi bản: chạy proxy một lần cho cả máy, rồi mỗi bản một thư mục riêng. Proxy tự phát hiện bản mới qua nhãn Docker và tự xin Let's Encrypt, nên thêm hay bớt một bản KHÔNG phải sửa gì ở proxy, cũng không phải khởi động lại nó. Đúng cách Traefik của Hostinger đang làm. Socket Docker chỉ mount `:ro`.
 - **Hostinger:** deploy `docker-compose.hostinger.yml` thành stack thứ hai rồi điền ba ô đó. Ô Environment vì vậy có thêm hai trường `JAVIS_NAME` + `JAVIS_HOST_PORT`; cả hai đều có mặc định nên người cài bản đầu vẫn bỏ trống. Không có cách nào suy chúng ra từ ba trường cũ vì Traefik và Docker đều định danh theo phạm vi toàn máy.
 - **Native:** `JAVIS_NAME=javis-shop JAVIS_PORT=7778 ./install.sh` cho ra `javis-shop.service` thay vì ghi đè `javis.service` của bản trước. `install.sh` chặn tên có ký tự lạ trước khi ghi vào `/etc/systemd`.
 
 ### Sửa lỗi
-- **Hai bản Javis native chạy chung một user ghi đè profile Codex của nhau.** `~/.codex/javis.config.toml` là tên cố định, mà file đó chứa URL + token của hub, nên bản khởi động sau đè bản trước và Codex của bản A quay sang gọi hub của bản B - sai im lặng, không lỗi nào hiện ra ở đâu. Nay tên profile gắn cổng khi cổng khác mặc định (`javis-7778.config.toml`); cổng 7777 giữ nguyên tên `javis` nên máy đang chạy không phải sinh file mới. Hai nơi ghi profile (hub bật / hub tắt) nay dùng chung một hàm đặt tên.
+- **Hai bản Jarvis 007 native chạy chung một user ghi đè profile Codex của nhau.** `~/.codex/javis.config.toml` là tên cố định, mà file đó chứa URL + token của hub, nên bản khởi động sau đè bản trước và Codex của bản A quay sang gọi hub của bản B - sai im lặng, không lỗi nào hiện ra ở đâu. Nay tên profile gắn cổng khi cổng khác mặc định (`javis-7778.config.toml`); cổng 7777 giữ nguyên tên `javis` nên máy đang chạy không phải sinh file mới. Hai nơi ghi profile (hub bật / hub tắt) nay dùng chung một hàm đặt tên.
 - **`update.sh` của bản này đi restart bản khác.** Script dò container và dịch vụ bằng tên `javis` đóng cứng. Nay nó đọc `JAVIS_NAME` từ `.env` của đúng thư mục đang đứng, và giữ nguyên override `docker-compose.multi.yml` khi phát hiện proxy dùng chung - thiếu chỗ này thì một lượt cập nhật là gỡ mất nhãn Caddy và bản đó rơi khỏi proxy.
 - **Watchtower theo dõi đúng container của bản mình** thay vì luôn nhắm vào container tên `javis`.
 
@@ -3650,18 +3650,18 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 
 ## [0.26.21] - 2026-08-11
 ### Sửa lỗi
-- **Xác thực 2 lớp không tìm thấy được từ trang Cài đặt.** Javis có HAI bề mặt cài đặt tài khoản - trang **Tài khoản** (đủ thứ, gồm luồng bật 2FA có QR) và khối "Tài khoản đăng nhập" cũ nhúng trong trang **Cài đặt** (chỉ đổi mật khẩu). 0.26.20 thêm 2FA vào chỗ đầu mà quên chỗ sau. Hậu quả không phải "thiếu một nút": người dùng mở trang Cài đặt, thấy khối tài khoản không nhắc gì tới 2FA, rồi kết luận Javis chưa có tính năng đó - trong khi nó đã chạy được cả ngày. Một tính năng bảo mật mà người ta không tìm ra thì bằng không.
+- **Xác thực 2 lớp không tìm thấy được từ trang Cài đặt.** Jarvis 007 có HAI bề mặt cài đặt tài khoản - trang **Tài khoản** (đủ thứ, gồm luồng bật 2FA có QR) và khối "Tài khoản đăng nhập" cũ nhúng trong trang **Cài đặt** (chỉ đổi mật khẩu). 0.26.20 thêm 2FA vào chỗ đầu mà quên chỗ sau. Hậu quả không phải "thiếu một nút": người dùng mở trang Cài đặt, thấy khối tài khoản không nhắc gì tới 2FA, rồi kết luận Jarvis 007 chưa có tính năng đó - trong khi nó đã chạy được cả ngày. Một tính năng bảo mật mà người ta không tìm ra thì bằng không.
 - Nay khối đó có thêm một dòng trạng thái: chưa bật thì mời bật, đang bật thì khoe còn mấy mã khôi phục (kèm cảnh báo khi sắp hết), chưa đặt mật khẩu thì nói thẳng phải đặt mật khẩu trước chứ không đưa ra một nút bấm vào không ăn.
 - **Cố ý chỉ là lối đi, không nhân đôi luồng bật.** Màn quét QR vẫn nằm đúng một chỗ ở trang Tài khoản; nút ở đây dùng chung đường chuyển trang sẵn có. Hai bản sao của một luồng bảo mật là hai chỗ phải sửa mỗi lần đổi, và chỗ nào quên sửa thì chỗ đó thành lỗ - `test_2fa_loi_vao.js` có canary cấm nhân đôi.
 
 ## [0.26.20] - 2026-08-11
 ### Thêm mới
-- **Xác thực 2 lớp (2FA) bằng app Authenticator.** Bật ở Dashboard → Tài khoản: quét QR bằng Google Authenticator / Microsoft Authenticator / 1Password / Bitwarden (cái nào cũng được), nhập một mã 6 số để xác nhận, xong. Từ đó mỗi lần đăng nhập hỏi thêm mã. Javis chạy full quyền và có Bash, nên mật khẩu lộ ra ngoài mà vẫn vào được là một rủi ro không nên chấp nhận.
+- **Xác thực 2 lớp (2FA) bằng app Authenticator.** Bật ở Dashboard → Tài khoản: quét QR bằng Google Authenticator / Microsoft Authenticator / 1Password / Bitwarden (cái nào cũng được), nhập một mã 6 số để xác nhận, xong. Từ đó mỗi lần đăng nhập hỏi thêm mã. Jarvis 007 chạy full quyền và có Bash, nên mật khẩu lộ ra ngoài mà vẫn vào được là một rủi ro không nên chấp nhận.
 - **10 mã khôi phục, hiện đúng một lần lúc bật.** Không có chúng thì bật 2FA là tự đặt bẫy: mất điện thoại là mất luôn đường vào, và lối ra duy nhất là SSH vào server sửa tay `settings.json` - đúng thứ người ta bật 2FA để khỏi phải làm. Mã dùng một lần rồi tiêu; sinh lại bộ mới được (bộ cũ hết hiệu lực ngay).
 - **`install.sh` hỏi có bật 2FA không.** Cố ý KHÔNG làm trọn trong terminal: vẽ QR ra terminal thì nửa số máy hiện sai và người dùng phải soi điện thoại vào cửa sổ SSH, trong khi vài giây nữa họ sẽ mở trình duyệt - chỗ hiện QR đúng đắn. Nên bước này chỉ ghi ý định vào `.env`, còn Dashboard mở sẵn màn quét QR ở trang Tài khoản.
 
 ### Bảo mật
-- **Chống dùng lại mã.** Một mã TOTP sống 30 giây, cộng cửa sổ bù lệch đồng hồ là tới 90. Javis ghi lại bước thời gian của lần đăng nhập thành công gần nhất và từ chối mọi bước nhỏ hơn hoặc bằng, nên một mã bị nhìn trộm qua vai cũng không xài lại được. Đây là lỗ mà phần lớn bản TOTP tự viết mắc phải, vì nó không lộ ra trong lúc dùng thử.
+- **Chống dùng lại mã.** Một mã TOTP sống 30 giây, cộng cửa sổ bù lệch đồng hồ là tới 90. Jarvis 007 ghi lại bước thời gian của lần đăng nhập thành công gần nhất và từ chối mọi bước nhỏ hơn hoặc bằng, nên một mã bị nhìn trộm qua vai cũng không xài lại được. Đây là lỗ mà phần lớn bản TOTP tự viết mắc phải, vì nó không lộ ra trong lúc dùng thử.
 - **Chỉ bật SAU khi người dùng chứng minh app sinh đúng mã.** Secret mới nằm trong RAM cho tới lúc xác nhận, không ghi vào cấu hình. Bật trước là tự khoá chính chủ ra ngoài khi app lệch giờ hoặc quét hụt.
 - **Mật khẩu kiểm TRƯỚC, mã kiểm SAU.** Đảo lại là biến ô mã thành máy dò xem tài khoản nào đã bật 2FA, cho người còn chưa biết mật khẩu. Sai mật khẩu thì phản hồi không hề nhắc tới 2FA.
 - **Secret TOTP và mã khôi phục không nằm nguyên văn trên đĩa.** Secret đi vào danh sách trường được mã hoá at rest như API key; mã khôi phục lưu dạng băm PBKDF2 như mật khẩu, nên không có đường nào đọc lại chúng.
@@ -3670,7 +3670,7 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 
 ## [0.26.19] - 2026-08-11
 ### Cải thiện
-- **Cài xong là đăng nhập được luôn, hết cảnh đi đọc MÃ THIẾT LẬP trong log.** Trước bản này, mở Javis ra công khai mà chưa có tài khoản thì server sinh một chuỗi ngẫu nhiên và chỉ in nó vào log lúc khởi động; người dùng phải SSH vào máy, `docker compose logs javis`, chép mã, dán vào trình duyệt. Cái mã đó chặn người lạ chỉ-có-URL chiếm quyền admin trước chủ máy nên nó có lý do tồn tại, nhưng bắt người ta đọc log là trải nghiệm tệ, và tệ đúng lúc họ vừa cài xong và chưa quen gì cả. Nay `install.sh` hỏi thẳng tên đăng nhập và mật khẩu rồi ghi vào `.env`: người đang chạy script vốn đã ngồi trên máy chủ, nên hỏi một câu KHÔNG thêm bước nào, mà server boot lên đã có admin nên mã thiết lập không bao giờ hiện ra.
+- **Cài xong là đăng nhập được luôn, hết cảnh đi đọc MÃ THIẾT LẬP trong log.** Trước bản này, mở Jarvis 007 ra công khai mà chưa có tài khoản thì server sinh một chuỗi ngẫu nhiên và chỉ in nó vào log lúc khởi động; người dùng phải SSH vào máy, `docker compose logs javis`, chép mã, dán vào trình duyệt. Cái mã đó chặn người lạ chỉ-có-URL chiếm quyền admin trước chủ máy nên nó có lý do tồn tại, nhưng bắt người ta đọc log là trải nghiệm tệ, và tệ đúng lúc họ vừa cài xong và chưa quen gì cả. Nay `install.sh` hỏi thẳng tên đăng nhập và mật khẩu rồi ghi vào `.env`: người đang chạy script vốn đã ngồi trên máy chủ, nên hỏi một câu KHÔNG thêm bước nào, mà server boot lên đã có admin nên mã thiết lập không bao giờ hiện ra.
 - **Enter một cái là có mật khẩu mạnh.** Bỏ trống ô mật khẩu thì script tự sinh 20 ký tự chữ-số và in ra ĐÚNG MỘT LẦN ở cuối màn hình cài. Chạy không có bàn phím (`curl | bash`, CI) cũng tự sinh chứ không bỏ trống, vì bỏ trống là đẩy người dùng về đúng cái màn đọc-log vừa xoá đi.
 - **Chạy lại `install.sh` không đổi mật khẩu đang dùng.** Đã có trong `.env` thì giữ nguyên và nói rõ là giữ nguyên. Cài lại hoặc chạy lại script là chuyện thường, không được biến nó thành lần đổi mật khẩu ngoài ý muốn.
 - **`docker-compose.yml` nhận `JAVIS_ADMIN_USER` / `JAVIS_ADMIN_PASSWORD`.** Bản Hostinger đã có hai trường này từ lâu, riêng compose thường thì không, nên ai deploy bằng nó LUÔN phải đi đọc log - không có đường nào khác. Nay điền hai dòng vào `.env` cạnh compose là xong.
@@ -3681,26 +3681,26 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 
 ## [0.26.18] - 2026-08-11
 ### Sửa lỗi
-- **Chat chạy rất lâu rồi chết bằng `Control request timeout: initialize`.** Chủ repo gõ một câu nhờ tạo 2 trang checkout trên Webcake, ngồi chờ, rồi nhận đúng hai dòng: một chuỗi lỗi tiếng Anh trần trụi và "(không có nội dung trả về)". Nguyên nhân nằm ở chỗ không ai nghĩ tới - danh sách tool của MCP nằm trên ĐƯỜNG GĂNG của mọi lượt chat. Lúc khởi động, `claude` phải đấu xong mọi MCP server rồi mới nhận việc; nó đấu vào hub Javis; hub trả tool bằng cách **dò tuần tự từng nguồn**, mỗi nguồn được chờ hết trần riêng của transport (http 60s, stdio 90s lúc init). Máy đấu chục connector mà có một nguồn chết là tổng thời gian tính bằng phút, trong khi Agent SDK chỉ chờ đúng 60 giây rồi bỏ cuộc. Cả lượt chat mất trắng vì một nguồn không liên quan.
+- **Chat chạy rất lâu rồi chết bằng `Control request timeout: initialize`.** Chủ repo gõ một câu nhờ tạo 2 trang checkout trên Webcake, ngồi chờ, rồi nhận đúng hai dòng: một chuỗi lỗi tiếng Anh trần trụi và "(không có nội dung trả về)". Nguyên nhân nằm ở chỗ không ai nghĩ tới - danh sách tool của MCP nằm trên ĐƯỜNG GĂNG của mọi lượt chat. Lúc khởi động, `claude` phải đấu xong mọi MCP server rồi mới nhận việc; nó đấu vào hub Jarvis 007; hub trả tool bằng cách **dò tuần tự từng nguồn**, mỗi nguồn được chờ hết trần riêng của transport (http 60s, stdio 90s lúc init). Máy đấu chục connector mà có một nguồn chết là tổng thời gian tính bằng phút, trong khi Agent SDK chỉ chờ đúng 60 giây rồi bỏ cuộc. Cả lượt chat mất trắng vì một nguồn không liên quan.
 - **Dò MCP nay chạy song song, mỗi nguồn có trần riêng 20 giây.** Tổng thời gian xấp xỉ nguồn chậm nhất chứ không còn là tổng của mọi nguồn, và một nguồn treo bị bỏ qua ở vòng đó thay vì kéo cả lượt chờ theo (cache hub hết hạn sau 60s là dò lại, nên không mất gì lâu dài). Phiên bị cắt giữa chừng bị vứt hẳn chứ không tái dùng - cắt ngang một request NDJSON là ống stdio lệch pha vĩnh viễn. Chỉnh bằng `JAVIS_MCP_DISCOVER_TIMEOUT=<giây>`, đặt 0 để bỏ trần.
-- **Trần chờ `claude` khởi động nới từ 60 lên 300 giây.** Agent SDK chỉ nhận trần này qua biến môi trường `CLAUDE_CODE_STREAM_CLOSE_TIMEOUT` chứ không có tham số nào trong options, nên Javis tự đặt hộ; ai đã tự đặt biến đó thì Javis không đè. Chỉnh bằng `JAVIS_CLAUDE_INIT_TIMEOUT=<giây>` (sàn cứng 60s là của SDK).
+- **Trần chờ `claude` khởi động nới từ 60 lên 300 giây.** Agent SDK chỉ nhận trần này qua biến môi trường `CLAUDE_CODE_STREAM_CLOSE_TIMEOUT` chứ không có tham số nào trong options, nên Jarvis 007 tự đặt hộ; ai đã tự đặt biến đó thì Jarvis 007 không đè. Chỉnh bằng `JAVIS_CLAUDE_INIT_TIMEOUT=<giây>` (sàn cứng 60s là của SDK).
 - **Lỗi hết giờ khởi động nay nói ra việc phải làm.** Thay cho `SDK engine: Exception: Control request timeout: initialize`, người dùng đọc được rằng thủ phạm gần như luôn là một nguồn dữ liệu chết, và mở trang Kết nối bấm Kiểm tra để tìm nó. Lỗi nào không khớp mẫu thì vẫn giữ nguyên chuỗi gốc - đoán bừa nguyên nhân còn tệ hơn tiếng Anh trần.
 - Thêm `test_khoi_dong_cham.py` khoá cả ba chỗ: dò song song có trần từng nguồn, nới trần khởi động, và câu báo lỗi chỉ được chỗ bấm.
 
 ## [0.26.17] - 2026-08-11
 ### Bảo mật
-- **Javis không còn tự đọc token đăng nhập Claude Code của bạn.** Từ 0.18.2 tới bản này, Javis mở `~/.claude/.credentials.json` (hoặc Keychain trên macOS), lấy access token OAuth ra rồi gửi thẳng `Authorization: Bearer <token>` tới `api.anthropic.com/v1/messages`. Anthropic cấm đúng việc đó: token của gói Free/Pro/Max chỉ được dùng trong Claude Code và Claude.ai, họ nói rõ chuyện này trong tài liệu Legal & compliance từ tháng 2/2026 và chặn hẳn các công cụ bên thứ ba từ 04/04/2026. Cách họ phát hiện là soi dấu vân tay request - thiếu telemetry và heartbeat mà CLI chính chủ mới phát - mà request Javis tự dựng thì không có gì trong số đó. Có người dùng Javis đã bị khoá tài khoản.
+- **Jarvis 007 không còn tự đọc token đăng nhập Claude Code của bạn.** Từ 0.18.2 tới bản này, Jarvis 007 mở `~/.claude/.credentials.json` (hoặc Keychain trên macOS), lấy access token OAuth ra rồi gửi thẳng `Authorization: Bearer <token>` tới `api.anthropic.com/v1/messages`. Anthropic cấm đúng việc đó: token của gói Free/Pro/Max chỉ được dùng trong Claude Code và Claude.ai, họ nói rõ chuyện này trong tài liệu Legal & compliance từ tháng 2/2026 và chặn hẳn các công cụ bên thứ ba từ 04/04/2026. Cách họ phát hiện là soi dấu vân tay request - thiếu telemetry và heartbeat mà CLI chính chủ mới phát - mà request Jarvis 007 tự dựng thì không có gì trong số đó. Có người dùng Jarvis 007 đã bị khoá tài khoản.
 - **Ba chỗ moi token đều đã gỡ**, và mỗi chỗ có một canary chống hồi quy: đường chat tiết kiệm (`main._api_stream_goc`), vòng gọi tool của bot chuyên trách (`main._bot_stream_co_tool`), và danh sách model live (`claude_models`). Hai tham số `oauth_token` trong `engine.py` gỡ theo. Module `claude_models` nay chỉ còn hai hàm và không đụng vào file nào của người dùng.
 - **Không mất tính năng nào.** Cả ba đường chạy lại qua đúng binary `claude`, tức để chính sản phẩm của Anthropic lo phần đăng nhập. Mức Siêu tiết kiệm giữ nguyên phần tiết kiệm nhờ gửi system prompt trần thay vì preset của Claude Code - để preset vào là nó tự nhét lại prompt đầy đủ và ăn sạch phần tiết kiệm. Danh sách model live nay hỏi bằng API key nếu máy có; không có key thì giữ bốn alias `opus/sonnet/haiku/fable`, mà alias thì luôn trỏ bản mới nhất nên không lạc hậu.
 
 ### Thêm mới
-- **Trang Models có ô "Chạy bằng" cho Claude Code**: giữ gói đang đăng nhập, hoặc dùng API key Anthropic. Hai lựa chọn giữ NGUYÊN năng lực - Bash, WebFetch, MCP, nối lại phiên cũ - chỉ khác ai trả tiền và ai chịu rủi ro. Chọn API key thì Javis truyền `ANTHROPIC_API_KEY` xuống tiến trình `claude`; chọn API key mà bỏ trống ô key thì lui về phiên đăng nhập sẵn có chứ không làm chết lượt chat.
+- **Trang Models có ô "Chạy bằng" cho Claude Code**: giữ gói đang đăng nhập, hoặc dùng API key Anthropic. Hai lựa chọn giữ NGUYÊN năng lực - Bash, WebFetch, MCP, nối lại phiên cũ - chỉ khác ai trả tiền và ai chịu rủi ro. Chọn API key thì Jarvis 007 truyền `ANTHROPIC_API_KEY` xuống tiến trình `claude`; chọn API key mà bỏ trống ô key thì lui về phiên đăng nhập sẵn có chứ không làm chết lượt chat.
 - **Cảnh báo hiện đúng lúc đáng lo**, không phải lúc nào cũng nhá: chỉ khi máy đang để gói subscription gánh việc nền (model việc nền trỏ vào Claude Code) thì thẻ Claude Code mới hiện dải vàng nói rõ rủi ro và hai lối ra. Server tự ghép hai điều kiện đó rồi trả kèm dữ liệu, dashboard không tự đoán.
-- **Việc nền chạy bằng gói subscription vẫn là một LỰA CHỌN, không bị tắt cứng.** Chủ máy tự cân rủi ro, Javis chỉ bảo đảm họ cân khi đã biết. README, trang web và system prompt đều nói thẳng chuyện này thay vì chỉ quảng cáo "0đ tiền API".
+- **Việc nền chạy bằng gói subscription vẫn là một LỰA CHỌN, không bị tắt cứng.** Chủ máy tự cân rủi ro, Jarvis 007 chỉ bảo đảm họ cân khi đã biết. README, trang web và system prompt đều nói thẳng chuyện này thay vì chỉ quảng cáo "0đ tiền API".
 
 ### Sửa lỗi
-- **Mức Toàn quyền của việc Kanban chưa từng là toàn quyền.** `_lane_tools` đọc `execution_mode` rồi vứt đi: mọi việc đều bị rào allowlist, kể cả việc chủ đã chủ động đặt Toàn quyền. Hậu quả không phải "hơi chặt hơn" mà là mất hẳn một lớp công cụ. Gmail, Google Drive, Google Calendar đấu vào TÀI KHOẢN Claude chứ không nằm trong registry MCP của Javis, nên chúng chỉ gọi được bằng tool native `mcp__<tên>__*` - mà tool native chỉ tồn tại khi phiên chạy KHÔNG có allowlist. Nay `full` trả về allowlist rỗng thật, giống hệt nhánh full của loop và nhắc hẹn. Ba mức dưới giữ nguyên rào.
-- **Bật `mcp.strict` là âm thầm khoá cửa sau của mức Toàn quyền.** Cờ này nghĩa là "chỉ dùng MCP của Javis", mà connector ambient thì nằm ngoài registry của Javis, nên ở mức full nó mở allowlist ra rồi lại chặn đúng nhóm vừa mở. Nay `full` bỏ qua cờ này. Người bật strict muốn siết mấy mức DƯỚI; ai đã chọn Toàn quyền cho một việc thì việc đó phải thật sự toàn quyền, không thì "Toàn quyền" là một cái nhãn nói dối.
+- **Mức Toàn quyền của việc Kanban chưa từng là toàn quyền.** `_lane_tools` đọc `execution_mode` rồi vứt đi: mọi việc đều bị rào allowlist, kể cả việc chủ đã chủ động đặt Toàn quyền. Hậu quả không phải "hơi chặt hơn" mà là mất hẳn một lớp công cụ. Gmail, Google Drive, Google Calendar đấu vào TÀI KHOẢN Claude chứ không nằm trong registry MCP của Jarvis 007, nên chúng chỉ gọi được bằng tool native `mcp__<tên>__*` - mà tool native chỉ tồn tại khi phiên chạy KHÔNG có allowlist. Nay `full` trả về allowlist rỗng thật, giống hệt nhánh full của loop và nhắc hẹn. Ba mức dưới giữ nguyên rào.
+- **Bật `mcp.strict` là âm thầm khoá cửa sau của mức Toàn quyền.** Cờ này nghĩa là "chỉ dùng MCP của Jarvis 007", mà connector ambient thì nằm ngoài registry của Jarvis 007, nên ở mức full nó mở allowlist ra rồi lại chặn đúng nhóm vừa mở. Nay `full` bỏ qua cờ này. Người bật strict muốn siết mấy mức DƯỚI; ai đã chọn Toàn quyền cho một việc thì việc đó phải thật sự toàn quyền, không thì "Toàn quyền" là một cái nhãn nói dối.
 - **Việc nền mức Toàn quyền thôi tự rơi sang engine dự phòng.** Chuỗi *engine phụ → Claude → OpenRouter free* đúng cho việc nhẹ, nhưng sai hẳn ở mức full vì ba lý do: engine API không có tool native nên việc cần Google Drive dừng giữa chừng; model không biết mình vừa bị đổi engine nên tự dựng một lý do nghe hợp lý mà sai; và mắt trước có thể đã làm xong MỘT PHẦN việc (đăng được 1 trong 3 bài) rồi mới gãy, chạy lại nguyên prompt là đăng lại từ đầu. Nay mức full dừng hẳn và báo lý do thật. Mức auto/suggest giữ nguyên chuỗi dự phòng.
 - **Engine API khai thật là nó thiếu tool gì.** Không có lời khai này thì model chỉ thấy "gọi tool không được" rồi đổ cho quyền - đúng cái đã xảy ra: một nhắc hẹn đăng Fanpage báo về Telegram "phiên này bị chặn quyền" trong khi chủ đã bật Toàn quyền, làm người ta đi sửa nhầm chỗ suốt buổi sáng. Nay system prompt của engine API nói rõ nó không có Bash, không có WebFetch, không có connector của tài khoản Claude, và cấm thẳng chuyện mô tả điều đó là thiếu quyền.
 
@@ -3718,21 +3718,21 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 - Vệt đường đi sống qua lần đóng trình sửa (đóng ra chat về chính note đó rồi mở lại là luồng thường gặp nhất), tự xoá khi đổi brain, tự sửa theo khi đổi tên file và tự rút khi xoá file - ba ca đều dẫn tới "bấm Lùi rơi vào đường dẫn không còn tồn tại". Đang đứng giữa vệt mà mở note mới thì nhánh tiến bị cắt, y như trình duyệt.
 
 ### Sửa lỗi
-- **Rời một file đang sửa dở thì thôi mất chữ.** Bấm `[[wikilink]]`, bấm file khác trong cây, hay bấm Lùi/Tiến: nếu có sửa mà chưa bấm Lưu thì Javis lưu trước rồi mới đi. Lỗi này có từ trước, nhưng nút Lùi/Tiến làm chuyện rời file xảy ra thường xuyên hơn hẳn nên không vá thì nó thành cái bẫy.
+- **Rời một file đang sửa dở thì thôi mất chữ.** Bấm `[[wikilink]]`, bấm file khác trong cây, hay bấm Lùi/Tiến: nếu có sửa mà chưa bấm Lưu thì Jarvis 007 lưu trước rồi mới đi. Lỗi này có từ trước, nhưng nút Lùi/Tiến làm chuyện rời file xảy ra thường xuyên hơn hẳn nên không vá thì nó thành cái bẫy.
 - **Lưu hỏng thì Ở LẠI**, không đi tiếp, và lỗi hiện ngay trên nút Lưu. Đi tiếp lúc đó là vứt bài người ta vừa viết mà không nói một câu nào.
-- **Chỉ ĐỌC rồi rời đi thì không ghi lại gì.** Mốc so sánh "đã sửa gì chưa" lấy từ chính khung soạn lúc vừa mở, không phải chữ thô đọc từ đĩa: bản render WYSIWYG đổi ngược thành markdown luôn lệch đôi chỗ so với file gốc (chuẩn hoá dấu, xuống dòng), nên so với file gốc thì mở ra đọc một cái cũng bị tính là có sửa và Javis sẽ âm thầm ghi đè định dạng của file đó.
+- **Chỉ ĐỌC rồi rời đi thì không ghi lại gì.** Mốc so sánh "đã sửa gì chưa" lấy từ chính khung soạn lúc vừa mở, không phải chữ thô đọc từ đĩa: bản render WYSIWYG đổi ngược thành markdown luôn lệch đôi chỗ so với file gốc (chuẩn hoá dấu, xuống dòng), nên so với file gốc thì mở ra đọc một cái cũng bị tính là có sửa và Jarvis 007 sẽ âm thầm ghi đè định dạng của file đó.
 
 ### Cải thiện
 - Tài liệu: [Quản lý tệp tin](docs/05-quan-ly-tep-tin.md) thêm mục "Lùi về / Tiến lên giữa các note".
 
 ## [0.26.15] - 2026-08-10
 ### Thêm mới
-- **Ra lệnh bằng ghi âm trên Zalo**, y như Telegram ở bản trước. Bấm giữ micro nói một câu, Javis nghe thành chữ rồi làm như bạn gõ tay. **Dùng chung một key Groq**: đã đấu cho Telegram thì Zalo chạy luôn, không phải làm gì thêm.
+- **Ra lệnh bằng ghi âm trên Zalo**, y như Telegram ở bản trước. Bấm giữ micro nói một câu, Jarvis 007 nghe thành chữ rồi làm như bạn gõ tay. **Dùng chung một key Groq**: đã đấu cho Telegram thì Zalo chạy luôn, không phải làm gì thêm.
 - Việc có tác động ra ngoài (gửi tin, đăng bài, đặt lịch, tiêu tiền, sửa file) vẫn đọc lại "Em nghe: ..." rồi hỏi xác nhận. File ghi âm không lưu vào `inbox/`.
 - Phần nghe nằm ở `server/stt.py` từ bản trước, không biết Telegram hay Zalo là gì, nên bản này chỉ nối dây chứ không viết bản thứ hai. Dòng dặn engine cũng chuyển hẳn vào đó để hai kênh không trôi lệch câu chữ.
 
 ### Sửa lỗi
-- **Khác Telegram đúng một khâu, và đó là khâu rủi ro nhất: Zalo KHÔNG có `getFile`.** Cả bộ method Zalo công bố không có cái nào tải file, nên đường duy nhất tới file ghi âm là một URL nằm sẵn trong dữ liệu tin nhắn - mà khuôn dữ liệu của `message.voice.received` thì Zalo bỏ trống trong tài liệu. Nên Javis thử một loạt tên trường (`voice_url`, `voice`, `audio_url`, `audio`, `file_url`, `url`, kể cả dạng lồng `{"url": ...}`) thay vì cược vào một cái rồi im lặng bỏ hết tin thoại khi cược sai.
+- **Khác Telegram đúng một khâu, và đó là khâu rủi ro nhất: Zalo KHÔNG có `getFile`.** Cả bộ method Zalo công bố không có cái nào tải file, nên đường duy nhất tới file ghi âm là một URL nằm sẵn trong dữ liệu tin nhắn - mà khuôn dữ liệu của `message.voice.received` thì Zalo bỏ trống trong tài liệu. Nên Jarvis 007 thử một loạt tên trường (`voice_url`, `voice`, `audio_url`, `audio`, `file_url`, `url`, kể cả dạng lồng `{"url": ...}`) thay vì cược vào một cái rồi im lặng bỏ hết tin thoại khi cược sai.
 - **Trượt hết thì kêu ra, không im.** Bot nói thẳng với người gửi là không tải được file ghi âm, và server ghi MỘT dòng `[zalo voice] không tìm ra đường dẫn file thoại trong payload` kèm mẫu dữ liệu thật - lần chạy đầu tiên tự nói cho biết trường tên gì. Kêu một lần cho mỗi phiên bot, không spam log mỗi tin.
 - Hàm moi URL này dùng chung với phần ảnh (trước đây viết lồng trong nhánh ảnh), nên hai loại file không còn hai bản logic trôi lệch nhau.
 
@@ -3741,12 +3741,12 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 
 ## [0.26.14] - 2026-08-10
 ### Thêm mới
-- **Ra lệnh bằng ghi âm trên Telegram.** Bấm giữ micro nói một câu, Javis nghe thành chữ rồi làm y như bạn gõ tay. Trước đây gửi tin thoại chỉ nhận lại một câu "Javis chưa đọc được loại này, nhờ anh gõ chữ" - tức là cái nút micro to nhất trong Telegram không dùng được, đúng lúc người ta cần nó nhất (đang lái xe, tay bận).
-- **Chạy bằng Whisper của Groq, tận dụng key có sẵn.** Groq vốn đã là một trong tám bộ não của Javis và phục vụ Whisper trên cùng endpoint với model chat, nên ai đã đấu Groq để chat thì tin thoại chạy luôn, không phải đăng ký thêm nhà cung cấp nào. Ngược lại, đấu key chỉ để nghe giọng cũng được - không bắt buộc đổi model chính sang Groq.
+- **Ra lệnh bằng ghi âm trên Telegram.** Bấm giữ micro nói một câu, Jarvis 007 nghe thành chữ rồi làm y như bạn gõ tay. Trước đây gửi tin thoại chỉ nhận lại một câu "Jarvis 007 chưa đọc được loại này, nhờ anh gõ chữ" - tức là cái nút micro to nhất trong Telegram không dùng được, đúng lúc người ta cần nó nhất (đang lái xe, tay bận).
+- **Chạy bằng Whisper của Groq, tận dụng key có sẵn.** Groq vốn đã là một trong tám bộ não của Jarvis 007 và phục vụ Whisper trên cùng endpoint với model chat, nên ai đã đấu Groq để chat thì tin thoại chạy luôn, không phải đăng ký thêm nhà cung cấp nào. Ngược lại, đấu key chỉ để nghe giọng cũng được - không bắt buộc đổi model chính sang Groq.
 - **Chưa đấu key thì nói rõ phải làm gì**, không im lặng và cũng không nói lấp lửng "chưa đọc được": bot chỉ thẳng vào trang Models, mục Groq (API), dán key lấy ở console.groq.com. Key đọc TẠI THỜI ĐIỂM NGHE nên dán xong là tin thoại tiếp theo chạy được ngay, không phải tắt bật lại bot.
-- **Việc có tác động ra ngoài thì hỏi lại trước.** Gửi tin, đăng bài, đặt lịch, tiêu tiền, sửa file: Javis mở đầu bằng một dòng "Em nghe: ..." rồi chờ xác nhận. Máy vẫn nghe nhầm được, mà mấy việc đó lỡ làm rồi thì không rút lại. Hỏi số liệu, tra cứu, tóm tắt thì làm thẳng.
+- **Việc có tác động ra ngoài thì hỏi lại trước.** Gửi tin, đăng bài, đặt lịch, tiêu tiền, sửa file: Jarvis 007 mở đầu bằng một dòng "Em nghe: ..." rồi chờ xác nhận. Máy vẫn nghe nhầm được, mà mấy việc đó lỡ làm rồi thì không rút lại. Hỏi số liệu, tra cứu, tóm tắt thì làm thẳng.
 - **Mọi ngả hỏng đều quay lại thành một câu nói**: file quá dài, nghe không ra chữ, Groq trả lỗi, hàm nghe ném ngoại lệ. Tin thoại là loại tin mà "hỏng" và "chạy" nhìn giống hệt nhau ở phía người gửi (bấm giữ, thả ra, thấy đã gửi), nên im lặng ở đây là kiểu hỏng tệ nhất.
-- File ghi âm KHÔNG lưu vào `inbox/`: nghe xong lấy chữ là xong, người ta ghi âm để ra lệnh chứ không phải để gửi Javis một file `.ogg`.
+- File ghi âm KHÔNG lưu vào `inbox/`: nghe xong lấy chữ là xong, người ta ghi âm để ra lệnh chứ không phải để gửi Jarvis 007 một file `.ogg`.
 - Gửi tin thoại kèm caption `/notes` vẫn chạy đúng lệnh với nội dung là câu vừa nói (khối thoại nhiều dòng đi nguyên vẹn, không bị cắt như marker file đính kèm).
 - Video và video note vẫn chưa xem được, nhưng câu từ chối thôi gộp chung với voice.
 - Kênh Zalo chưa nghe được tin thoại. Phần nghe nằm ở `server/stt.py`, không biết gì về Telegram, nên đấu Zalo vào sau này là nối dây chứ không viết lại.
@@ -3757,15 +3757,15 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 - **Thẻ "file đang mở" dưới khung chat nay bấm được: bấm vào là quay lại sửa đúng file đó.** Trước đây thẻ chỉ để nhìn. Mở một note ra sửa, đóng trình sửa lại rồi chat vài lượt, muốn sửa tiếp thì phải đi tìm lại file trong cây vault - đúng cái việc mà thẻ ghim sinh ra để khỏi phải làm. Nay bấm thẻ (hoặc chọn bằng phím Tab rồi Enter) là file mở lại trong trình sửa, cây vault tự xổ tới đúng nhánh chứa nó.
 - **File đang mở sẵn thì chỉ đưa mắt về, KHÔNG nạp lại.** Đây là phần dễ làm hỏng nhất: mở lại một file đang mở nghĩa là đọc lại nội dung từ đĩa, tức là đoạn chữ vừa gõ mà chưa bấm Lưu sẽ bay sạch. Nên trình sửa nhớ file nào đang mở, trùng thì chỉ cuộn về và đặt con trỏ vào chỗ đang soạn.
 - **Nút ✕ trên thẻ vẫn chỉ là bỏ ghim**, không bị lây cú bấm mở file. Trên điện thoại (màn dưới 860px, nơi trình sửa đính bị tắt) thẻ mở file trong khung sửa bung giữa màn hình.
-- Thẻ nay có cây bút bên phải và đổi viền khi rê chuột - không có dấu hiệu nhìn thấy được thì tính năng coi như không tồn tại. Dòng phụ đổi từ "đang mở - Javis làm việc trên file này" thành "đang mở - bấm để sửa tiếp"; ý "Javis đang làm việc trên file này" chuyển vào tooltip cùng đường dẫn đầy đủ.
+- Thẻ nay có cây bút bên phải và đổi viền khi rê chuột - không có dấu hiệu nhìn thấy được thì tính năng coi như không tồn tại. Dòng phụ đổi từ "đang mở - Jarvis 007 làm việc trên file này" thành "đang mở - bấm để sửa tiếp"; ý "Jarvis 007 đang làm việc trên file này" chuyển vào tooltip cùng đường dẫn đầy đủ.
 - Tài liệu: cập nhật [Quản lý tệp tin](docs/05-quan-ly-tep-tin.md) và [Trò chuyện & giọng nói](docs/02-tro-chuyen-va-giong-noi.md).
 
 ## [0.26.12] - 2026-08-09
 ### Sửa lỗi
 - **"Tự khởi động cùng Windows" báo Bật trong khi mở máy lên không có gì chạy.** Cả tính năng nằm gọn trong một dòng registry `HKCU\...\Run`, và dashboard đọc đúng dòng đó rồi kết luận "Bật". Nhưng dòng đó **còn nguyên** trong ít nhất ba cảnh mà lúc đăng nhập vẫn không có gì chạy, và không cảnh nào để lại lỗi ở đâu để lần ra. Người dùng chỉ thấy `ERR_CONNECTION_REFUSED` và một cái thẻ nói dối.
-- **Cảnh im lặng nhất: Task Manager tắt hộ.** Thẻ **Startup** không xoá mục trong Run key khi bấm Disable, nó ghi một cờ 12 byte vào `Explorer\StartupApproved\Run` rồi Explorer bỏ qua mục đó. Mấy phần mềm "dọn máy, tăng tốc khởi động" cũng tắt bằng đúng cờ này, thường là không hỏi. Javis nay đọc cờ đó, và **bấm Bật tự khởi động sẽ gỡ cờ thật** thay vì chỉ ghi lại Run key (ghi lại Run key không đụng gì tới cờ, nên trước đây cái nút đó là một cái nút không làm gì trong đúng ca này).
+- **Cảnh im lặng nhất: Task Manager tắt hộ.** Thẻ **Startup** không xoá mục trong Run key khi bấm Disable, nó ghi một cờ 12 byte vào `Explorer\StartupApproved\Run` rồi Explorer bỏ qua mục đó. Mấy phần mềm "dọn máy, tăng tốc khởi động" cũng tắt bằng đúng cờ này, thường là không hỏi. Jarvis 007 nay đọc cờ đó, và **bấm Bật tự khởi động sẽ gỡ cờ thật** thay vì chỉ ghi lại Run key (ghi lại Run key không đụng gì tới cờ, nên trước đây cái nút đó là một cái nút không làm gì trong đúng ca này).
 - **Cảnh thứ hai: thư mục cài đặt đổi chỗ.** Cờ `stale` đã được tính từ lâu nhưng **trang Cài đặt bỏ qua hẳn nó**, chỉ trang Tổng quan mới hiện. Cùng một máy hỏng mà mở hai trang thì đọc được hai câu trả lời khác nhau. Nay lý do do server tính một lần và cả hai trang cùng hiện, nên không còn cửa cho hai bản trôi lệch.
-- **Cảnh thứ ba: mảnh của dây chuyền biến mất** (`start-javis.vbs` hoặc `.venv\Scripts\python.exe`). `wscript` không thấy file .vbs thì im hoàn toàn, còn `cmd` thì ghi lỗi vào `javis.log`, một file không ai mở ra xem bao giờ. Nay Javis kiểm ngay lúc đọc trạng thái và gọi tên đúng file đang thiếu.
+- **Cảnh thứ ba: mảnh của dây chuyền biến mất** (`start-javis.vbs` hoặc `.venv\Scripts\python.exe`). `wscript` không thấy file .vbs thì im hoàn toàn, còn `cmd` thì ghi lỗi vào `javis.log`, một file không ai mở ra xem bao giờ. Nay Jarvis 007 kiểm ngay lúc đọc trạng thái và gọi tên đúng file đang thiếu.
 - **Nhãn trên thẻ nói thật:** bật mà có vấn đề thì ghi "Bật nhưng không chạy" kèm một câu chỉ rõ phải sửa gì, thay vì chữ "Bật" trơn. Trạng thái cũng trả kèm đường dẫn `server\javis.log` để còn chỗ mà soi khi server có chạy nhưng chết giữa chừng.
 - Tài liệu: thêm mục "Khi thẻ ghi Bật nhưng không chạy" vào [Bắt đầu & thiết lập](docs/01-bat-dau-thiet-lap.md).
 
@@ -3774,14 +3774,14 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 - **Thẻ bot Zalo thôi đỏ vì một vòng poll gãy lẻ.** Bản 0.26.10 chữa được ca "Request timeout" lúc bot rảnh, nhưng nó dựa trên một PHỎNG ĐOÁN chưa kiểm chứng: rằng nhịp hết giờ chờ của Zalo không gắn `error_code`. Tài liệu Zalo không nói gì về chuyện đó. Đoán sai theo hướng ấy thì bản vá im lặng không chạy, và người dùng lại thấy đúng cái thẻ đỏ cũ mà không hiểu vì sao. Nay nhận cả hai khuôn: có mã hết giờ (408, 504) kèm chữ timeout vẫn là nhịp rảnh.
 - **Lỗi không rõ nguyên nhân chỉ đỏ thẻ khi gãy 3 vòng LIÊN TIẾP.** Một vòng gãy lẻ là chuyện của đường truyền chứ không phải chuyện người chủ phải ra tay, mà đỏ thẻ vì nó thì cái thẻ mất giá trị đúng như hồi nó đỏ vì mỗi vòng rảnh. Vòng chạy được hoặc vòng rảnh đều xoá bộ đếm, nên hai lần gãy cách nhau một tiếng không bị cộng dồn thành "đang hỏng".
 - **Nhóm lỗi CẦN NGƯỜI vẫn đỏ thẻ ngay lập tức** (401 sai token, 403 bị chặn, 404 bot đã xoá, 429 gọi quá dày). Chỉ nhóm này mới nói được cho chủ một việc cụ thể để làm, nên nó không bị hoãn theo ngưỡng 3 vòng.
-- Vì sao cả hai chuyện trên hay bị bắt gặp khi hỏi câu KHÓ: lúc Javis nghĩ lâu thì vòng poll chạy không mà không có tin nào, nên mọi vòng trong khoảng đó đều rơi vào đúng nhánh này. Chat qua lại nhanh thì các vòng poll đều có tin và thẻ sạch, nên lỗi chỉ ló ra đúng lúc người ta ngồi chờ một câu trả lời dài.
+- Vì sao cả hai chuyện trên hay bị bắt gặp khi hỏi câu KHÓ: lúc Jarvis 007 nghĩ lâu thì vòng poll chạy không mà không có tin nào, nên mọi vòng trong khoảng đó đều rơi vào đúng nhánh này. Chat qua lại nhanh thì các vòng poll đều có tin và thẻ sạch, nên lỗi chỉ ló ra đúng lúc người ta ngồi chờ một câu trả lời dài.
 
 ## [0.26.10] - 2026-08-09
 ### Sửa lỗi
 - **Bot Zalo đang RẢNH không còn bị báo là đang LỖI.** Thẻ bot ở trang Chatbot đỏ chấm "Lỗi" kèm dòng "Request timeout" trong khi con bot vẫn sống và vẫn trả lời được. Nguyên nhân: `getUpdates` của Zalo không cư xử như Telegram. Telegram hết giờ chờ thì trả `ok: true` với danh sách rỗng, còn Zalo trả `ok: false` kèm `description: "Request timeout"`. Đó là nhịp bình thường của long polling, 25 giây không ai nhắn thì đúng là không có gì để trả về.
 - **Và bot thôi bị ĐIẾC 10 giây mỗi vòng rảnh.** Đây mới là phần nặng, nhưng nó nấp sau phần trên nên không ai nhìn ra: nhánh lỗi ngủ 10 giây rồi mới poll lại, nên cứ mỗi vòng không có tin là bot không nghe gì trong 10 giây. Tin nhắn rơi vào khoảng đó không mất, chỉ là phải chờ tới vòng sau mới được đọc. Nay vòng rảnh poll lại ngay, và chỉ tự ghìm một nhịp ngắn nếu Zalo đáp gần như tức thì (không tôn trọng tham số `timeout`), để vòng lặp không nện API vài lần mỗi giây rồi ăn 429 thật.
 - **Thẻ đỏ thường trực là loại hỏng tệ hơn vẻ ngoài của nó:** rảnh là trạng thái bình thường của một con bot chăm sóc khách, nên thẻ gần như luôn đỏ, và tới lần bot hỏng THẬT thì không còn ai nhìn ra nữa.
-- **Ranh giới của bản sửa nằm ở chỗ ai đang nói, không phải ở chữ "timeout".** Máy chủ Javis mất mạng cũng đẻ ra một chuỗi có chữ timeout, và đó là hỏng thật. Nay `_api` gắn dấu `loi_mang` cho dict sinh từ ngoại lệ, còn nhịp rảnh thì phải do chính Zalo đáp bằng body JSON và không mang mã lỗi nào. Lỗi thật (401, 429, mất mạng) giữ nguyên hành vi cũ: đỏ thẻ, ghi lý do, nghỉ dài rồi thử lại.
+- **Ranh giới của bản sửa nằm ở chỗ ai đang nói, không phải ở chữ "timeout".** Máy chủ Jarvis 007 mất mạng cũng đẻ ra một chuỗi có chữ timeout, và đó là hỏng thật. Nay `_api` gắn dấu `loi_mang` cho dict sinh từ ngoại lệ, còn nhịp rảnh thì phải do chính Zalo đáp bằng body JSON và không mang mã lỗi nào. Lỗi thật (401, 429, mất mạng) giữ nguyên hành vi cũ: đỏ thẻ, ghi lý do, nghỉ dài rồi thử lại.
 
 ### Cải thiện
 - **429 của Anthropic nay được chờ theo nhịp của hạn mức, không phải nhịp của một cú vấp mạng.** Bản trước thử lại theo 1 giây, 2 giây, 4 giây, nên cả ba lần hỏi lại gói gọn trong bảy giây, trong khi cửa sổ hạn mức tính bằng phút. Ba lần hỏi trong bảy giây chỉ là ăn đúng cú 429 đó ba lần, rồi báo "đã thử lại 3 lần" và bỏ cuộc. Nay 429 chờ theo nhịp riêng, đủ dài để một đợt nghẽn ngắn kịp trôi qua.
@@ -3790,20 +3790,20 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 
 ## [0.26.9] - 2026-08-09
 ### Cải thiện
-- **Javis thôi trả lời bằng những bức tường văn xuôi trên khung chat web.** Câu trả lời dài nay có hình khối để mắt bám: đoạn 2-4 câu, gạch đầu dòng khi liệt kê từ 3 ý trở lên, in đậm con số và kết luận, tiêu đề `###` khi câu trả lời có nhiều phần rõ rệt, và bảng khi so sánh cùng một bộ trường giữa nhiều mục.
+- **Jarvis 007 thôi trả lời bằng những bức tường văn xuôi trên khung chat web.** Câu trả lời dài nay có hình khối để mắt bám: đoạn 2-4 câu, gạch đầu dòng khi liệt kê từ 3 ý trở lên, in đậm con số và kết luận, tiêu đề `###` khi câu trả lời có nhiều phần rõ rệt, và bảng khi so sánh cùng một bộ trường giữa nhiều mục.
 - **Vì sao trước đó nó viết như vậy: đó là một luật có thật, viết cho thời dùng bằng GIỌNG NÓI.** CLAUDE.md cấm thẳng "bảng markdown, dấu gạch ngang dày, hay header khi báo cáo trong chat". Luật đó đúng cho thời nghe, nhưng nó cấm nguyên cả bộ công cụ trình bày trên một kênh vẽ được đủ markdown. Chuyển sang chủ yếu đọc bằng mắt thì cùng một luật đó trở thành lỗi hiển thị nặng nhất của khung chat.
-- **Nỗi lo hỏng giọng đọc thì không còn cơ sở.** Nút loa của dashboard vốn đã bóc markdown (tiêu đề, in đậm, gạch đầu dòng, link, khối mã) trước khi đọc thành tiếng, nên định dạng đẹp cho mắt không hề làm hỏng phần nghe. Nay Javis được nói thẳng điều đó để nó khỏi tự siết mình về văn xuôi.
+- **Nỗi lo hỏng giọng đọc thì không còn cơ sở.** Nút loa của dashboard vốn đã bóc markdown (tiêu đề, in đậm, gạch đầu dòng, link, khối mã) trước khi đọc thành tiếng, nên định dạng đẹp cho mắt không hề làm hỏng phần nghe. Nay Jarvis 007 được nói thẳng điều đó để nó khỏi tự siết mình về văn xuôi.
 - **Cấu trúc phục vụ độ dài, không phải ngược lại.** Câu hỏi đáp được bằng một câu thì vẫn trả lời một câu. Bẻ một ý nhỏ thành ba gạch đầu dòng cho ra vẻ báo cáo còn khó đọc hơn văn xuôi, nên luật mới chặn luôn chiều ngược lại.
 - **Kênh chữ thuần KHÔNG bị nới theo.** Telegram và Zalo vẫn cấm bảng, terminal vẫn cấm bảng lẫn ảnh nhúng lẫn link markdown. Ba kênh này chỉ được thêm đúng một thứ dùng được ở đâu cũng đọc rõ là gạch đầu dòng khi liệt kê.
 - Sửa ở cả ba lớp vì thiếu một lớp là hành vi quay về cũ ở đúng đường đó: luật gốc trong `CLAUDE.md`, khối kênh trong `channel_context.py` (đứng cuối system prompt nên nó là tiếng nói to nhất), và capsule của `context_compiler.py` (đường tiết kiệm token không đọc CLAUDE.md, bỏ quên nó thì bật "Siêu tiết kiệm" là văn xuôi quay lại mà không ai đoán ra vì sao). `tests/python/test_chat_de_doc.py` canh cả ba, kèm canary cho câu cấm cũ và cho ranh giới của kênh chữ thuần.
 
 ### Cần biết
-- Nếu bộ nhớ dài hạn của brain còn một ký ức cũ kiểu "không thích bảng markdown, thích văn nói ngắn" thì ký ức đó được nạp vào mọi lượt và sẽ kéo hành vi về cũ. Javis nay được dặn là luật mới thắng ký ức đó, nhưng dọn hẳn ký ức trong `Memory/facts/` vẫn sạch hơn.
+- Nếu bộ nhớ dài hạn của brain còn một ký ức cũ kiểu "không thích bảng markdown, thích văn nói ngắn" thì ký ức đó được nạp vào mọi lượt và sẽ kéo hành vi về cũ. Jarvis 007 nay được dặn là luật mới thắng ký ức đó, nhưng dọn hẳn ký ức trong `Memory/facts/` vẫn sạch hơn.
 
 ## [0.26.8] - 2026-08-08
 ### Thêm mới
-- **Kênh Zalo cho CHỦ: hỏi Javis ngay trên Zalo, không cần cài Telegram.** Thẻ Zalo mới ở trang **Kênh** (nhóm Kết nối). Dùng API chính thức của Zalo nên không có rủi ro khoá tài khoản. Xem [Kênh Zalo Bot](docs/26-kenh-zalo-bot.md).
-- **Ghép nối bằng MỘT cú bấm, không phải đi tra id.** Zalo không có công cụ nào để bạn tự tra id Zalo của mình, và id đó là chuỗi hex như `6ede9afa66b88fe6d6a9` chứ không phải con số dễ đọc. Nên Javis đảo chiều: bật bot với ô Chat ID để TRỐNG, nhắn cho bot một câu, bot đáp lại kèm mã ghép nối 4 số, rồi bạn bấm **Cho phép** ngay trên dashboard. Người chờ hiện ra kèm **tên Zalo thật** để không bấm nhầm.
+- **Kênh Zalo cho CHỦ: hỏi Jarvis 007 ngay trên Zalo, không cần cài Telegram.** Thẻ Zalo mới ở trang **Kênh** (nhóm Kết nối). Dùng API chính thức của Zalo nên không có rủi ro khoá tài khoản. Xem [Kênh Zalo Bot](docs/26-kenh-zalo-bot.md).
+- **Ghép nối bằng MỘT cú bấm, không phải đi tra id.** Zalo không có công cụ nào để bạn tự tra id Zalo của mình, và id đó là chuỗi hex như `6ede9afa66b88fe6d6a9` chứ không phải con số dễ đọc. Nên Jarvis 007 đảo chiều: bật bot với ô Chat ID để TRỐNG, nhắn cho bot một câu, bot đáp lại kèm mã ghép nối 4 số, rồi bạn bấm **Cho phép** ngay trên dashboard. Người chờ hiện ra kèm **tên Zalo thật** để không bấm nhầm.
 - **Việc giao từ Zalo báo kết quả VỀ Zalo.** Loop, việc Kanban và nhắc hẹn đặt qua Zalo mang tiền tố `zalo:` nên kết quả rơi đúng khung chat đó, không lạc sang Telegram của chủ.
 - **Cửa "đủ điều kiện mới tạo lịch" nay chấp nhận Zalo.** Trước đó chỉ đấu Zalo mà tạo nhắc hẹn thì bị chặn với lý do "bot Telegram chưa bật" - một câu vừa sai vừa không sửa được, và nó đẩy người dùng đi cài một app họ không cần.
 
@@ -3813,7 +3813,7 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 
 ### Cần biết
 - Zalo không sửa và không xoá được tin, nên kênh này **không có tin trạng thái**: trong lúc chờ chỉ có chấm "đang nhập", và dòng vết công cụ đi kèm cuối câu trả lời.
-- Zalo Bot **chưa có API gửi tài liệu**, nên PDF và bảng tính không gửi qua kênh này được. Javis nói thẳng và đưa đường dẫn trong brain thay vì im lặng nuốt file.
+- Zalo Bot **chưa có API gửi tài liệu**, nên PDF và bảng tính không gửi qua kênh này được. Jarvis 007 nói thẳng và đưa đường dẫn trong brain thay vì im lặng nuốt file.
 - Trần một tin là **2000 ký tự**, và Zalo **không hiện menu lệnh** nên các lệnh `/...` phải gõ tay.
 
 ## [0.26.7] - 2026-08-08
@@ -3830,7 +3830,7 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 ## [0.26.5] - 2026-08-08
 ### Thêm mới
 - **Bot chuyên trách chạy được trên Zalo, bằng API CHÍNH THỨC.** Đây là thay đổi có giá trị kinh doanh lớn nhất của bản này: khách hàng Việt Nam không ai cài Telegram, còn Zalo thì đã nằm sẵn trên máy họ. Tạo bot ở trang **Chatbot**, chọn kênh Zalo, dán token lấy từ Official Account "Zalo Bot Manager" trong app Zalo. Không có rủi ro khoá tài khoản như đường Zalo cá nhân.
-- **Zalo Bot KHÔNG thay Zalo Agent MCP**, hai thứ khác bản chất và cùng tồn tại. Bot là một danh tính riêng, chính thức, chỉ thấy thứ người ta nhắn thẳng cho nó; còn `zalo-agent-cli` đăng nhập chính tài khoản của bạn, đọc được hội thoại thật và nhắn được cho bất kỳ ai, đổi lại có rủi ro bị khoá. Cái đầu để **khách nói chuyện với Javis**, cái sau để **Javis thao tác thay bạn**.
+- **Zalo Bot KHÔNG thay Zalo Agent MCP**, hai thứ khác bản chất và cùng tồn tại. Bot là một danh tính riêng, chính thức, chỉ thấy thứ người ta nhắn thẳng cho nó; còn `zalo-agent-cli` đăng nhập chính tài khoản của bạn, đọc được hội thoại thật và nhắn được cho bất kỳ ai, đổi lại có rủi ro bị khoá. Cái đầu để **khách nói chuyện với Jarvis 007**, cái sau để **Jarvis 007 thao tác thay bạn**.
 - **Chọn kênh là ô ĐẦU TIÊN trong form tạo bot**, dạng hai thẻ bấm có logo chứ không phải một ô chọn trơn. Nó đứng đầu vì nó đổi cả phần còn lại: token lấy ở đâu, có dùng được nhóm không, có gửi được tài liệu không. Mỗi thẻ nói luôn ưu và nhược ngay trên nút.
 - **Dấu hiệu kênh cho từng bot**, vẽ tay theo mô tả của chủ repo: Telegram là máy bay giấy trắng trên nền xanh, Zalo là chữ Z trắng trong bong bóng trò chuyện xanh. Hiện ở hai chỗ với hai khoảng cách nhìn khác nhau: huy hiệu nhỏ đè góc icon bot (liếc qua là biết), và chip có logo trong phần thông tin (đọc lướt). Hai con bot khác nền tảng nằm cạnh nhau mà chỉ khác một chữ nhỏ thì sẽ có ngày sửa nhầm con đang nói chuyện với khách.
 - **Hàng lọc Tất cả / Telegram / Zalo** ở đầu trang Chatbot, chỉ hiện khi thật sự có từ hai kênh trở lên. Người mới chỉ có bot Telegram mà đã phải nhìn một hàng nút lọc thì đó là trả lời một câu họ chưa từng hỏi.
@@ -3839,17 +3839,17 @@ Cảm ơn người dùng đã gửi báo cáo rất kỹ kèm log và bản vá 
 - **Giao diện tự giấu những thứ Zalo không làm được**, thay vì hiện ra rồi để chúng vô tác dụng. Chọn Zalo thì cả khối khai nhóm biến mất kèm một dòng nói rõ vì sao (gói bot cơ bản của Zalo không cho bot vào nhóm), và id nhóm đã gõ cũng không bị gửi lên máy chủ. Cảnh báo "chế độ riêng tư Telegram" cũng thôi hiện trên thẻ bot Zalo, vì nó dạy người ta đi tìm một cài đặt không tồn tại.
 - **Nút Kiểm tra token hỏi ĐÚNG nền tảng đã chọn.** Dán token Zalo vào đường Telegram chỉ ra lỗi 401, và câu "token không hợp lệ" khi token hoàn toàn hợp lệ là chỗ người dùng mắc kẹt lâu nhất. Chặn trùng token cũng xét theo từng kênh, vì tên tài khoản là không gian tên riêng của mỗi nền tảng.
 - **Kênh KHÔNG đổi được sau khi tạo bot**, và form Sửa nói thẳng điều đó thay vì cho bấm rồi báo lỗi token ở bước sau. Đổi kênh là đổi sang một con bot khác hẳn: token khác, danh tính khác, khách khác, và mọi id nhóm đang lưu lập tức vô nghĩa.
-- **Phần dùng chung của mọi cổng bot tách ra `server/bot_gateway.py`**: hàng đợi lượt, luật `/stop`, cổng chặn trước khi tốn một lượt, dòng vết công cụ. Đó là luật hành vi của Javis chứ không phải chi tiết của một nhà cung cấp, nên hai kênh dùng chung một bản. Chép sang bản thứ hai là bảo đảm hai bản trôi lệch, và chỗ lệch sẽ nằm đúng ở nơi ít được nhìn nhất: bot đang nói chuyện với người lạ.
+- **Phần dùng chung của mọi cổng bot tách ra `server/bot_gateway.py`**: hàng đợi lượt, luật `/stop`, cổng chặn trước khi tốn một lượt, dòng vết công cụ. Đó là luật hành vi của Jarvis 007 chứ không phải chi tiết của một nhà cung cấp, nên hai kênh dùng chung một bản. Chép sang bản thứ hai là bảo đảm hai bản trôi lệch, và chỗ lệch sẽ nằm đúng ở nơi ít được nhìn nhất: bot đang nói chuyện với người lạ.
 
 ### Cần biết
-- Zalo Bot **chưa có API gửi tài liệu** (chỉ có gửi ảnh), nên file Javis tạo ra không gửi qua kênh này được. Javis nói thẳng lý do thay vì im lặng nuốt file.
+- Zalo Bot **chưa có API gửi tài liệu** (chỉ có gửi ảnh), nên file Jarvis 007 tạo ra không gửi qua kênh này được. Jarvis 007 nói thẳng lý do thay vì im lặng nuốt file.
 - Zalo **không sửa và không xoá được tin đã gửi**, nên bot Zalo không có tin trạng thái nào: chỉ có chấm "đang nhập" trong lúc chờ, và dòng vết công cụ đi kèm ngay trong câu trả lời.
 - Trần một tin nhắn Zalo là **2000 ký tự** (Telegram là 4096), câu trả lời dài tự chia nhỏ.
-- Zalo chưa công bố hạn mức gọi API. Gặp lỗi 429 thì Javis tự nghỉ rồi thử lại, và phơi lỗi ra dòng trạng thái chứ không nuốt.
+- Zalo chưa công bố hạn mức gọi API. Gặp lỗi 429 thì Jarvis 007 tự nghỉ rồi thử lại, và phơi lỗi ra dòng trạng thái chứ không nuốt.
 
 ## [0.26.4] - 2026-08-08
 ### Cải thiện
-- **Bot Telegram không còn gửi tin rồi xoá tin.** Trước đây mỗi lượt hỏi, bot gửi tin "🤔 Javis đang xử lý…", cập nhật nó theo tiến trình, rồi **xoá hẳn** và gửi câu trả lời. Người dùng thấy một tin nhấp nháy rồi biến mất, đọc như lỗi, và ai đang đọc dở thì mất chữ giữa chừng. Nay tin đó **ở lại**: lần cập nhật cuối biến nó thành một dòng vết gọn, còn câu trả lời là một tin mới bên dưới. Không tin nào biến mất nữa.
+- **Bot Telegram không còn gửi tin rồi xoá tin.** Trước đây mỗi lượt hỏi, bot gửi tin "🤔 Jarvis 007 đang xử lý…", cập nhật nó theo tiến trình, rồi **xoá hẳn** và gửi câu trả lời. Người dùng thấy một tin nhấp nháy rồi biến mất, đọc như lỗi, và ai đang đọc dở thì mất chữ giữa chừng. Nay tin đó **ở lại**: lần cập nhật cuối biến nó thành một dòng vết gọn, còn câu trả lời là một tin mới bên dưới. Không tin nào biến mất nữa.
 - **Điện thoại chỉ rung một lần cho mỗi lượt, và rung đúng lúc đáng rung.** Tin trạng thái nay gửi im lặng (`disable_notification`), nên thông báo duy nhất là lúc câu trả lời thật tới, hiện đúng nội dung trả lời. Trước đây nó rung hai lần mà lần đầu chỉ nói "đang xử lý", tức là gọi người ta ra xem một câu không có thông tin nào.
 - **Dòng vết nói được lượt đó đã chạm vào cái gì**, ví dụ `⚙ pos_statistics · Read · 8s`. Lượt không gọi công cụ nào thì ghi `✓ Trả lời trực tiếp · 3s`. Đây không phải chi tiết trang trí: nó là cách phân biệt một con số vừa lấy từ POS thật với một câu trả lời chay, và nó nằm lại trong lịch sử chat để tra lại được.
 - **Gõ `/stop` giữa chừng thì tin trạng thái đổi thành "⏹ Đã dừng"** thay vì biến mất không dấu vết, nên câu hỏi bị cắt vẫn còn chỗ đứng trong mạch chat.
@@ -3872,18 +3872,18 @@ Git chỉ giữ CHỮ, không giữ media. Cỡ chữ khung chat lên 16px.
 ### Thay đổi
 - **Đồng bộ GitHub chỉ đưa file chữ lên repo.** Ghi chú, Wiki, ký ức, skill, cấu hình việc định kỳ, script (`.md .txt .html .csv .json .yaml .canvas .py .svg`…). Ảnh, video, âm thanh, PDF và mọi file nhị phân khác **không lên** - chúng vẫn nằm nguyên trên máy và dùng bình thường, chỉ là không đi vào lịch sử git. Danh sách là **CHO PHÉP** chứ không phải danh sách cấm, nên định dạng media mới ra đời tự động nằm ngoài, khỏi chạy theo vá.
 - Vì sao là luật cứng chứ không phải tuỳ chọn: git được thiết kế để nhớ mãi mãi. Nội dung mỗi file commit vào thành một blob nằm vĩnh viễn trong `.git/objects`; xoá file về sau chỉ ghi thêm một dòng "từ đây không còn file này", còn blob vẫn phải giữ để quay ngược về commit cũ được, và `git gc` cũng không dọn được vì nó vẫn có chủ. Với chữ thì đó là ưu điểm (git nén + lưu chênh lệch, sửa cả trăm lượt vẫn nhẹ). Với media thì ngược hẳn: mp4/jpg đã nén sẵn bằng codec nên git không nén thêm được, và hai bản render của cùng một clip là hai file khác hẳn nhau chứ không phải một file sửa nhẹ. Vài trăm MB media cộng thói quen render vài lượt sẽ đẩy repo lên nhiều GB trong ít tháng, và cách duy nhất rút xuống là viết lại toàn bộ lịch sử - việc đó làm mọi bản sao ở máy khác thành không tương thích.
-- **Trang Đồng bộ nói thẳng điều này**, kèm lý do và chỗ nên để media (Drive, ổ ngoài: lưu theo trạng thái hiện tại, xoá là đòi lại được dung lượng thật). Sau mỗi lượt đồng bộ, nếu có media bị bỏ qua thì Javis ghi rõ bao nhiêu file và bao nhiêu MB. Bỏ qua lặng lẽ thì có ngày người dùng tưởng ảnh của mình cũng đã được sao lưu.
+- **Trang Đồng bộ nói thẳng điều này**, kèm lý do và chỗ nên để media (Drive, ổ ngoài: lưu theo trạng thái hiện tại, xoá là đòi lại được dung lượng thật). Sau mỗi lượt đồng bộ, nếu có media bị bỏ qua thì Jarvis 007 ghi rõ bao nhiêu file và bao nhiêu MB. Bỏ qua lặng lẽ thì có ngày người dùng tưởng ảnh của mình cũng đã được sao lưu.
 ### Sửa lỗi
-- **Luật `.gitignore` nay được ghi theo KHỐI, không nối thêm vào cuối.** Luật allowlist chỉ đúng khi đúng thứ tự (chặn hết → mở cho chữ → chặn lại thư mục cấm). Bản trước chỉ nối dòng còn thiếu vào cuối file, nên với một brain cũ thì mấy dòng "chặn lại" nằm trước dòng "mở cho chữ" và git hiểu ngược: `Javis/learn-log/*.json` được mở lại. Log thô có thể chứa secret nên đó không phải lỗi thẩm mỹ. Luật riêng người dùng tự thêm vẫn được giữ nguyên và vẫn nằm sau khối của Javis để đè lên được.
+- **Luật `.gitignore` nay được ghi theo KHỐI, không nối thêm vào cuối.** Luật allowlist chỉ đúng khi đúng thứ tự (chặn hết → mở cho chữ → chặn lại thư mục cấm). Bản trước chỉ nối dòng còn thiếu vào cuối file, nên với một brain cũ thì mấy dòng "chặn lại" nằm trước dòng "mở cho chữ" và git hiểu ngược: `Javis/learn-log/*.json` được mở lại. Log thô có thể chứa secret nên đó không phải lỗi thẩm mỹ. Luật riêng người dùng tự thêm vẫn được giữ nguyên và vẫn nằm sau khối của Jarvis 007 để đè lên được.
 - **Máy khác không bị xoá mất media thật.** Máy nào cập nhật trước sẽ dọn media khỏi bản sao rồi đẩy việc xoá đó lên repo; máy thứ hai kéo về mà cứ thế áp là mất file trên đĩa. Cả hai chiều nay đi qua đúng một hàm lọc, nên lệnh xoá media từ remote bị bỏ qua thay vì thi hành.
 ### Cải thiện
-- **Cỡ chữ khung chat 15px lên 16px** (cả tin của Javis lẫn tin người dùng). Trần độ dài dòng tính bằng `ch` nên tự giãn theo, giữ nguyên số ký tự mỗi dòng.
+- **Cỡ chữ khung chat 15px lên 16px** (cả tin của Jarvis 007 lẫn tin người dùng). Trần độ dài dòng tính bằng `ch` nên tự giãn theo, giữ nguyên số ký tự mỗi dòng.
 ### Kiểm thử
 - Thêm `tests/python/test_git_chi_giu_chu.py`: 45 phép thử, trong đó có **dựng repo git THẬT** rồi hỏi git xem nó định commit những gì - đây là cách duy nhất chắc chắn về thứ tự luật, vì suy luận trên chuỗi `.gitignore` rất dễ sai. Có cả ca nâng cấp một brain cũ đang có luật riêng của người dùng.
 - **Sửa một dương tính giả của bộ quét `test_bien_chua_gan.py`**: nó đi xuyên vào comprehension để nhặt tên bị gán, nên một dòng `X = [f(n) for n in ...]` ở mức module bị coi là "module có biến `n`", rồi mọi hàm đếm bằng `n += 1` đều bị báo là quên `nonlocal`. Ở Python 3 biến chạy comprehension không rò ra ngoài. Đã khoá bằng phép thử riêng.
 
 ## [0.26.1] - 2026-08-07
-Chủ repo gửi ảnh một câu trả lời dài: *"muốn cải thiện lại cách hiển thị của Javis cho dễ đọc, xuống cách dòng nhiều hơn chứ đọc khó quá."* Ba nguyên nhân khác nhau cùng dồn vào một bức tường chữ, sửa thiếu cái nào cũng vẫn khó đọc.
+Chủ repo gửi ảnh một câu trả lời dài: *"muốn cải thiện lại cách hiển thị của Jarvis 007 cho dễ đọc, xuống cách dòng nhiều hơn chứ đọc khó quá."* Ba nguyên nhân khác nhau cùng dồn vào một bức tường chữ, sửa thiếu cái nào cũng vẫn khó đọc.
 ### Cải thiện
 - **Giãn dòng 1.6 lên 1.75.** Đây là thứ dễ gọi tên nhất, và với tiếng Việt thì nó còn đáng hơn: dấu chồng lên chữ nên dòng chật thì các dấu gần như chạm nhau.
 - **Khoảng cách giữa hai đoạn từ 6px lên 14px.** Đây là nguyên nhân âm thầm hơn: 6px gần bằng khoảng cách giữa hai DÒNG trong cùng một đoạn, nên mắt không tách được đâu là hết đoạn và cả khối dính thành một mảng. Danh sách, tiêu đề và trích dẫn cũng được nới theo cùng nguyên tắc; riêng danh sách lồng nhau thì siết lại vì nó thuộc về mục cha, giãn bằng đoạn văn là gãy mạch đọc.
@@ -3896,20 +3896,20 @@ Nhắc hẹn kiểu "tự làm rồi báo" giờ **làm được đúng việc b
 ### Thêm mới
 - **Ba mức quyền cho nhắc hẹn**, cùng bộ từ với việc lặp: **Chỉ đọc** (đọc MCP và file rồi báo lại), **Ghi file** (thêm quyền ghi nháp trong brain), **Toàn quyền** (dùng được mọi công cụ đã đấu, gồm cả hành động ra ngoài). Đổi được ở form trên trang Việc định kỳ, và hiện thành nhãn ngay trên thẻ việc.
 - **Mặc định là Toàn quyền, và đây là quyết định có chủ ý.** Nhắc hẹn khác việc lặp ở chỗ căn bản: việc lặp tự nghĩ ra việc để làm mỗi vòng, còn nhắc hẹn làm ĐÚNG một việc bạn đã viết ra và hẹn giờ, tức là một câu lệnh trong chat được dời sang giờ khác. Trói nó chặt hơn lúc bạn đang ngồi chat là tự mâu thuẫn.
-- **Cảnh báo đi kèm ở đúng lúc bạn đang nhìn.** Chọn Toàn quyền trên form thì hiện ô cảnh báo đỏ; tạo qua chat thì tool `javis_schedule` trả kèm câu cảnh báo và Javis phải đọc lại nguyên văn. Nội dung nói ba điều: việc chạy một mình, không có ai duyệt lại, và phần lớn hành động ra ngoài không rút lại được.
+- **Cảnh báo đi kèm ở đúng lúc bạn đang nhìn.** Chọn Toàn quyền trên form thì hiện ô cảnh báo đỏ; tạo qua chat thì tool `javis_schedule` trả kèm câu cảnh báo và Jarvis 007 phải đọc lại nguyên văn. Nội dung nói ba điều: việc chạy một mình, không có ai duyệt lại, và phần lớn hành động ra ngoài không rút lại được.
 ### Sửa lỗi
 - **Nhắc hẹn cũ (tạo trước bản này) tự chạy ở mức mặc định mới** thay vì rơi vào chỉ-đọc, nên những lời hẹn đang chờ trong hàng đợi làm được việc ngay mà không phải tạo lại.
 - Prompt của nhắc hẹn nay nói đúng mức quyền của chính nó. Bản cũ dán cứng câu "tuyệt đối không gửi tin ra ngoài" cho mọi nhắc hẹn, nên kể cả khi mở quyền ở tầng công cụ thì model vẫn tự từ chối. Mức toàn quyền còn được dặn thêm một điều nó không tự suy ra được: lúc đó không có ai ngồi cạnh, nên hỏi lại là hỏi vào hư không - làm được thì làm rồi thuật lại, không làm được thì nói thẳng.
 ### Kiểm thử
 - Thêm `tests/python/test_nhac_hen_muc_quyen.py`: 39 phép thử, trong đó phần đáng canh nhất là **ba mức dựng engine khác nhau THẬT** (allowlist, mức của hub, brain truyền xuống, và câu ràng buộc trong prompt) chứ không phải chỉ đổi cái nhãn. Có cả ca bản ghi cũ thiếu trường và giá trị rác.
-- Khoá luôn yêu cầu **cảnh báo phải trung tính**: test bác bỏ nếu trong câu cảnh báo xuất hiện tên một kênh hay một ngành cụ thể. Javis là công cụ cho nhiều người, mỗi người đấu một bộ công cụ khác nhau.
+- Khoá luôn yêu cầu **cảnh báo phải trung tính**: test bác bỏ nếu trong câu cảnh báo xuất hiện tên một kênh hay một ngành cụ thể. Jarvis 007 là công cụ cho nhiều người, mỗi người đấu một bộ công cụ khác nhau.
 
 ## [0.25.9] - 2026-08-07
 Chủ repo gửi ảnh Telegram: loop "[CK] Tin Hot Chứng Khoán" chạy bằng ChatGPT thay vì Claude, mọi lệnh đọc/ghi file đều trả `bwrap: Failed to make / slave: Permission denied`, và bản báo cáo về máy là một bài dài model tự kể lại nỗi bối rối của nó.
 ### Sửa lỗi
-- **Việc nền chạy bằng ChatGPT không đọc nổi một file nào trong Docker.** Codex bọc mọi lệnh đọc/ghi file của nó bằng bubblewrap, mà bubblewrap cần tạo được user namespace và đổi propagation của `/`. Container Javis chạy user thường, không có `CAP_SYS_ADMIN`, và Ubuntu 24.04 còn chặn user namespace không đặc quyền bằng AppArmor. Nên trong Docker, hai mức rào `read-only` (mode suggest) và `workspace-write` (mode auto) của Codex **không bao giờ khởi động được** - rào đó không phải chặt hơn mà là chết hẳn. Loop tạo từ chat mặc định là `suggest`, nên mọi việc nền chạy bằng ChatGPT trong Docker đều câm theo đúng kiểu này. Chạy bằng Claude thì không sao vì Javis chặn theo từng tool qua chính SDK, không cần bubblewrap.
+- **Việc nền chạy bằng ChatGPT không đọc nổi một file nào trong Docker.** Codex bọc mọi lệnh đọc/ghi file của nó bằng bubblewrap, mà bubblewrap cần tạo được user namespace và đổi propagation của `/`. Container Jarvis 007 chạy user thường, không có `CAP_SYS_ADMIN`, và Ubuntu 24.04 còn chặn user namespace không đặc quyền bằng AppArmor. Nên trong Docker, hai mức rào `read-only` (mode suggest) và `workspace-write` (mode auto) của Codex **không bao giờ khởi động được** - rào đó không phải chặt hơn mà là chết hẳn. Loop tạo từ chat mặc định là `suggest`, nên mọi việc nền chạy bằng ChatGPT trong Docker đều câm theo đúng kiểu này. Chạy bằng Claude thì không sao vì Jarvis 007 chặn theo từng tool qua chính SDK, không cần bubblewrap.
 - **Ảnh Docker nay đặt sẵn `JAVIS_CODEX_SANDBOX=off`**, để chính container làm rào. Cập nhật lên bản này là việc nền bằng ChatGPT chạy được ngay, không phải đụng gì trên VPS. Đánh đổi được ghi thẳng trong Dockerfile chứ không giấu: Codex không có allowlist per-call như Claude, nên với cờ này thì loop mức `suggest` mất thứ chặn nó ghi file trong container. Các rào về tiền, đơn hàng, đăng bài, gửi tin KHÔNG bị ảnh hưởng vì chúng nằm ở MCP Hub chứ không ở sandbox. Ai muốn giữ rào thì đặt `JAVIS_CODEX_SANDBOX=auto` rồi cấp quyền cho container (vd `security_opt: [apparmor:unconfined]`).
-- **Javis nhận ra dấu vết `bwrap` và tự giải thích trong chính bản báo cáo.** Trước đây thứ tới tay chủ là một bài model tự kể chuyện, đọc xong không ai biết phải đi sửa ở tầng container. Nay cuối lượt có một dòng nói đúng thủ phạm, khẳng định đây không phải lỗi của lượt chạy, và chỉ đúng hai lối ra. Cần cho cả người tự dựng container riêng.
+- **Jarvis 007 nhận ra dấu vết `bwrap` và tự giải thích trong chính bản báo cáo.** Trước đây thứ tới tay chủ là một bài model tự kể chuyện, đọc xong không ai biết phải đi sửa ở tầng container. Nay cuối lượt có một dòng nói đúng thủ phạm, khẳng định đây không phải lỗi của lượt chạy, và chỉ đúng hai lối ra. Cần cho cả người tự dựng container riêng.
 ### Kiểm thử
 - Thêm `tests/python/test_codex_sandbox_docker.py`: 24 phép thử phủ bản đồ mức quyền sang cờ sandbox (kể cả giá trị lạ và mức lạ), đường dây thật qua `aux_engine._build_codex` tới argv, ảnh Docker có đặt cờ và có ghi lý do lẫn đánh đổi hay không, và việc nhận diện dấu vết `bwrap` không bắt nhầm lượt chạy bình thường.
 - Khoá luôn một bẫy dựng ảnh: chú thích không được chen vào giữa khối `ENV` nối dòng bằng `\`, vì hỏng Dockerfile thì VPS không cập nhật được nữa.
@@ -3931,7 +3931,7 @@ Chủ repo gửi ảnh nhóm "Cười Sóng AI": *"chat bất kỳ điều gì t
 - `test_bot_noi_nhu_nguoi.py` thêm 7 phép thử cho cổng precheck: `{}` thì không gọi engine, không "đang nhập…", không gửi gì; `{"reply": ...}` thì nói đúng một câu mà vẫn không gọi engine; `None` mới là ca duy nhất được chạy lượt; và precheck nổ thì vẫn trả lời chứ không nuốt câu của khách.
 
 ## [0.25.6] - 2026-08-07
-Chủ repo bảo Javis *"thiết kế cho anh file .md nhé"*, Javis đáp *"có một chỗ va nhau giữa lựa chọn của anh và tài liệu chiến lược, em xử lý thẳng trong file. Viết file luôn."* rồi lượt chết ở giây thứ 180 với dòng *"Claude đang trả lời rồi im 180s - đã dừng để tránh treo server."* Cái chết oan: engine đang soạn nội dung file để đưa vào tool Write, mọi thứ chạy đúng, chỉ là không có gì để phát ra.
+Chủ repo bảo Jarvis 007 *"thiết kế cho anh file .md nhé"*, Jarvis 007 đáp *"có một chỗ va nhau giữa lựa chọn của anh và tài liệu chiến lược, em xử lý thẳng trong file. Viết file luôn."* rồi lượt chết ở giây thứ 180 với dòng *"Claude đang trả lời rồi im 180s - đã dừng để tránh treo server."* Cái chết oan: engine đang soạn nội dung file để đưa vào tool Write, mọi thứ chạy đúng, chỉ là không có gì để phát ra.
 ### Sửa lỗi
 - **Bỏ hẳn trần 180s và trần 600s.** Vấn đề không nằm ở con số mà ở PHÉP ĐO: watchdog đếm "bao lâu rồi chưa nhận được message từ SDK" rồi coi đó là treo, trong khi SDK chỉ phát message khi model kết thúc một khối. Model suy nghĩ ở mức nỗ lực cao, hoặc soạn nội dung một file dài để đưa vào tool ghi, đều làm kênh im hàng phút dù không có gì hỏng. Nay hai trần đo-sự-im-lặng (`JAVIS_CLAUDE_IDLE_TIMEOUT`, `JAVIS_CLAUDE_FIRST_TIMEOUT`) mặc định **không giới hạn**. Cắt một lượt đang chạy tốt là mất trắng cả công lẫn token, tệ hơn hẳn để nó chạy lâu.
 - **Trần chờ TOOL giữ nguyên 1 tiếng.** Trần này đo một thứ có thật: tool đã khởi động mà chưa trả kết quả, tức có một tiến trình con đang sống ngoài kia và nó có thể treo thật (chờ nhập liệu, kẹt khoá file). Đây là khác biệt bản chất với hai trần trên.
@@ -3943,9 +3943,9 @@ Chủ repo bảo Javis *"thiết kế cho anh file .md nhé"*, Javis đáp *"có
 - `test_watchdog_treo.py` khoá hành vi của `tran_watchdog` (0/âm/rác/số dương) và khoá luôn việc chốt trần kèm lý do ở cả hai engine.
 
 ## [0.25.5] - 2026-08-07
-Chủ repo gửi ảnh chụp một nhóm Telegram: bot chuyên trách đang nói chuyện như người, rồi giữa cuộc hiện ra *"⏳ Đang xử lý câu trước. Gửi /stop để dừng rồi hỏi lại."* trước mặt cả nhóm. Một câu như vậy khai ngay đây là máy, và còn dạy người lạ một lệnh quản trị. Yêu cầu: *"các phần trạng thái của Javis anh không muốn để lộ ra như vậy, anh muốn ẩn đi để như cảm giác người thật nói chứ ko phải bot."* Gốc rễ: bot chuyên trách và bot Javis của chủ dùng chung lớp `TelegramBot`, mà lớp đó nói trạng thái ra ngoài như đang nói với người vận hành máy.
+Chủ repo gửi ảnh chụp một nhóm Telegram: bot chuyên trách đang nói chuyện như người, rồi giữa cuộc hiện ra *"⏳ Đang xử lý câu trước. Gửi /stop để dừng rồi hỏi lại."* trước mặt cả nhóm. Một câu như vậy khai ngay đây là máy, và còn dạy người lạ một lệnh quản trị. Yêu cầu: *"các phần trạng thái của Jarvis 007 anh không muốn để lộ ra như vậy, anh muốn ẩn đi để như cảm giác người thật nói chứ ko phải bot."* Gốc rễ: bot chuyên trách và bot Jarvis 007 của chủ dùng chung lớp `TelegramBot`, mà lớp đó nói trạng thái ra ngoài như đang nói với người vận hành máy.
 ### Sửa lỗi
-- **Bot chuyên trách không còn để lộ một dòng trạng thái nào.** Thêm cờ `giau_trang_thai` cho `TelegramBot`, bật sẵn cho mọi bot khách. Bốn chỗ rò bị bịt: tin "🤔 Javis đang xử lý…" cùng các bản cập nhật "⏳ ⚙ Đang gọi công cụ…" của nó, câu "Đang xử lý câu trước, gửi /stop", dòng "⚠ Lỗi: TênLớpNgoạiLệ: …" khi một lượt gãy, và chữ "(không có nội dung)" khi lượt trả về rỗng. Bot Javis của CHỦ giữ nguyên tất cả: người vận hành máy thì cần nhìn thấy Javis đang chạy tới đâu.
+- **Bot chuyên trách không còn để lộ một dòng trạng thái nào.** Thêm cờ `giau_trang_thai` cho `TelegramBot`, bật sẵn cho mọi bot khách. Bốn chỗ rò bị bịt: tin "🤔 Jarvis 007 đang xử lý…" cùng các bản cập nhật "⏳ ⚙ Đang gọi công cụ…" của nó, câu "Đang xử lý câu trước, gửi /stop", dòng "⚠ Lỗi: TênLớpNgoạiLệ: …" khi một lượt gãy, và chữ "(không có nội dung)" khi lượt trả về rỗng. Bot Jarvis 007 của CHỦ giữ nguyên tất cả: người vận hành máy thì cần nhìn thấy Jarvis 007 đang chạy tới đâu.
 - **Thay tin trạng thái bằng chấm "đang nhập…" của chính Telegram**, giữ sáng đều suốt lượt trả lời. Đây đúng là thứ một người thật để lại khi họ đang gõ, và nó không phải một tin nhắn nên không nằm lại trong lịch sử nhóm.
 - **Lượt gãy thì xin lỗi bằng một câu bình thường** rồi mời nhắn lại, thay vì đọc tên lớp ngoại lệ ra miệng. Lý do kỹ thuật vẫn vào stderr, vẫn vào nhật ký bot, vẫn báo người trực nếu chủ có đặt.
 ### Cải thiện
@@ -3985,13 +3985,13 @@ Chủ repo gửi ảnh chụp iPhone kèm câu: *"Ở điện thoại khi não t
 ## [0.25.2] - 2026-08-06
 Chủ repo gửi ảnh chụp khung chat kèm câu: *"anh đang bật chức năng siêu tiết kiệm, nhiều khi nó trả lời như này nhưng không hề báo lại chút nào cả. Và có agent chạy ngầm thì anh cũng không biết là nó đang chạy thật hay không? Không giống như claude nếu đang chạy ngầm thì vẫn có báo ở đầu hội thoại. Đây là không thấy gì luôn và không chạy luôn."*
 
-Câu Javis nói trong ảnh: *"Em đang dò code để xem trong nhóm bot có lọc tin nhắn (theo mention, reply, hay AI tự quyết định) trước khi trả lời hay không, có kết quả em báo ngay."* Rồi hết. Không có gì về nữa.
+Câu Jarvis 007 nói trong ảnh: *"Em đang dò code để xem trong nhóm bot có lọc tin nhắn (theo mention, reply, hay AI tự quyết định) trước khi trả lời hay không, có kết quả em báo ngay."* Rồi hết. Không có gì về nữa.
 
 Ba nguyên nhân khác nhau chồng lên nhau cho ra đúng một triệu chứng, và không cái nào để lại một dòng lỗi nào.
 ### Sửa lỗi
 - **Cảnh báo "điều phối đang TẮT" của tool giao việc CHƯA TỪNG in ra một lần nào.** Cổng viết là `not view.get("orchestration")`, mà giá trị trả về là CHUỖI `"off"` - luôn truthy, nên nhánh cảnh báo chết từ lúc được viết. Đây là "không chạy luôn": điều phối Kanban mặc định `off` ở mọi brain mới, việc giao từ chat nằm xếp hàng vô thời hạn, và chỗ duy nhất có thể nói ra chuyện đó thì im. Cổng nay so đúng với `"auto"` - mức duy nhất có dispatcher lấy việc ra chạy.
 - **`javis_task` op=add hứa hộ "Việc chạy nền. Kết quả tự về" trong MỌI trường hợp**, kể cả khi điều phối tắt và việc chắc chắn không chạy. Model không có cách nào biết câu đó sai nên nó chuyển tiếp nguyên văn cho người dùng. Nay câu này chỉ xuất hiện khi điều phối THẬT SỰ chạy; còn lại tool nói thẳng việc đang nằm xếp hàng và dặn model đừng hứa là nó đang chạy.
-- **Hứa "xong em báo" rồi im vĩnh viễn.** Luật cũ chỉ cấm đúng một câu mẫu ("em sẽ đợi các agent chạy xong rồi tổng hợp"), nên kiểu "đang làm, có kết quả em báo ngay" lọt thẳng. Chặn bằng cách liệt kê chữ cấm là trò đuổi bắt, nên nay Javis **tự kiểm bằng sự thật**: cuối mỗi lượt server dò lời hứa trong câu trả lời rồi đối chiếu với việc nền đang có thật (việc Kanban, loop, nhắc hẹn). Hứa mà không có gì chạy thì nó tự dán một dòng đính chính ngay dưới câu trả lời, nói rõ là sẽ không có báo cáo nào tự về và anh cần làm gì tiếp. Chạy ở cả dashboard lẫn Telegram; không chặn và không sửa câu của model, chỉ nói thêm sự thật.
+- **Hứa "xong em báo" rồi im vĩnh viễn.** Luật cũ chỉ cấm đúng một câu mẫu ("em sẽ đợi các agent chạy xong rồi tổng hợp"), nên kiểu "đang làm, có kết quả em báo ngay" lọt thẳng. Chặn bằng cách liệt kê chữ cấm là trò đuổi bắt, nên nay Jarvis 007 **tự kiểm bằng sự thật**: cuối mỗi lượt server dò lời hứa trong câu trả lời rồi đối chiếu với việc nền đang có thật (việc Kanban, loop, nhắc hẹn). Hứa mà không có gì chạy thì nó tự dán một dòng đính chính ngay dưới câu trả lời, nói rõ là sẽ không có báo cáo nào tự về và anh cần làm gì tiếp. Chạy ở cả dashboard lẫn Telegram; không chặn và không sửa câu của model, chỉ nói thêm sự thật.
 ### Thêm mới
 - **Dải "đang chạy ngầm" ngay trên khung nhập.** Đây là vế "không thấy gì luôn": việc nền sống ở ba kho khác nhau (Kanban trong sqlite, loop là file .md, nhắc hẹn trong json) và không kho nào lộ ra ở khung chat, nên muốn biết phải tự nghĩ ra việc mở trang Việc. Dải mới trả lời đúng một câu hỏi "ngay lúc này có cái gì đang chạy cho tôi không", với ba tông rõ ràng: xanh có việc **đang chạy thật**, vàng là **đã giao nhưng KHÔNG tự chạy** (kèm cách bật), xám là loop/nhắc đang chờ tới giờ. Không có gì thì dải ẩn hẳn. Việc giao từ chính hội thoại này được viền riêng và đếm riêng, vì "máy đang bận" với "việc CỦA TÔI đang chạy" là hai chuyện khác nhau.
 - **`GET /background?brain=&chat_id=`**: gom việc nền còn sống của một khung chat từ cả ba kho. Dải trên hỏi endpoint này mỗi 6 giây khi tab đang mở (30 giây khi tab ẩn), và hỏi lại ngay mỗi khi một lượt chat kết thúc hoặc một việc nền vừa báo kết quả về.
@@ -4002,7 +4002,7 @@ Ba nguyên nhân khác nhau chồng lên nhau cho ra đúng một triệu chứn
 - `test_giao_viec_moi_engine.py`: kiểm cả hai chiều của cổng điều phối, mức `off` cấm hứa "chạy nền" còn mức `auto` bắt buộc phải nói - một chiều thì không phân biệt được cổng đang đọc mức thật với việc dán cứng một câu.
 
 ## [0.25.1] - 2026-08-06
-Chủ repo cập nhật 0.25.0 rồi báo lại: *"chat trong nhóm vẫn im re, còn chat riêng thì vẫn được"*. Nghĩa là 0.25.0 mới vá đúng MỘT trong ba nguyên nhân cho ra cùng một triệu chứng đó, và hai nguyên nhân còn lại đều nằm ở chỗ Javis không nhìn thấy tin nào.
+Chủ repo cập nhật 0.25.0 rồi báo lại: *"chat trong nhóm vẫn im re, còn chat riêng thì vẫn được"*. Nghĩa là 0.25.0 mới vá đúng MỘT trong ba nguyên nhân cho ra cùng một triệu chứng đó, và hai nguyên nhân còn lại đều nằm ở chỗ Jarvis 007 không nhìn thấy tin nào.
 
 Ba nguyên nhân, sửa khác nhau hoàn toàn, và đứng trong nhóm thì không phân biệt được cái nào: **nhóm chưa được bật**, **chế độ riêng tư của Telegram còn bật**, **bot chưa hỏi được danh tính của chính nó**.
 ### Sửa lỗi
@@ -4030,14 +4030,14 @@ Ba việc, và cả ba đều là **hỏng lặng lẽ** chứ không phải h�
 
   Nay từ chối vẫn từ chối, nhưng nó **nói**: bot đáp đúng một câu cho người đang gọi biết phải làm gì, và nhóm đó **hiện lên thẻ bot** kèm nút **Cho phép nhóm này**. Một cú bấm thay cho đường cũ dài bảy bước (gõ /id, chép id, mở dashboard, bấm Sửa, kéo xuống đáy form, dán, Lưu) mà sót một bước là quay lại đúng chỗ im lặng.
 - **Ô "Nhóm được phép" chỉ có trong form Sửa, không có trong form Tạo.** Nghĩa là đường đi tự nhiên nhất - tạo bot xong thả thẳng vào nhóm - bảo đảm lần thử đầu tiên của mọi người dùng gặp một con bot im lặng. Nay khai được ngay lúc tạo, và ô chọn "trong nhóm thì khi nào bot lên tiếng" cũng lên mặt giao diện (trước đây chỉ tồn tại trong kho, không có đường nào để đổi).
-- **Nhóm thường lên siêu nhóm thì Telegram đổi id** (thêm tiền tố `-100`), không báo ai cả. Id chủ khai hôm trước lập tức trỏ vào một nhóm không còn tồn tại, và bot im trong đúng nhóm nó vừa trả lời được hôm qua. Nay hai dạng id khớp nhau, và Javis nghe tin nâng cấp để tự cập nhật danh sách.
+- **Nhóm thường lên siêu nhóm thì Telegram đổi id** (thêm tiền tố `-100`), không báo ai cả. Id chủ khai hôm trước lập tức trỏ vào một nhóm không còn tồn tại, và bot im trong đúng nhóm nó vừa trả lời được hôm qua. Nay hai dạng id khớp nhau, và Jarvis 007 nghe tin nâng cấp để tự cập nhật danh sách.
 - **Gọi tên bot mà Telegram không kèm `entities` thì cờ "được gọi" tắt.** `entities` là thứ Telegram gắn thêm, không phải một bảo đảm. Thêm nhánh so chuỗi thô làm lưới đỡ.
 - **Thẻ bot đứng nguyên ở "Đang khởi động".** Bấm Bật thì server trả về `starting` - poller vừa được tạo, chưa kịp bắt tay với Telegram - rồi vài giây sau nó thành `polling`. Nhưng trang chỉ nạp lại khi người dùng bấm cái gì đó, nên thẻ đứng ở "Đang khởi động" cho tới lúc rời trang rồi quay lại, trong khi bot đã trả lời thật từ lâu. Nay trang tự làm mới 5 giây một nhịp; nhịp đó cũng là thứ DUY NHẤT phát hiện được một con bot vừa chết.
 - **Icon mức Toàn quyền vẽ ra ô trống.** `shield-alert` không có trong bộ icon đã vendor. Test icon không bắt được vì nó chỉ dò tên viết thẳng trong lời gọi, còn chỗ này là một biểu thức ba ngôi.
 ### Cải thiện
 - **Mức quyền hiện trên thẻ ở CẢ BA mức, kể cả Chỉ đọc.** Bản trước bỏ trống nhãn cho mức mặc định với lý do "mặc định thì không cần dán nhãn". Nhưng một ô trống đọc ra được hai nghĩa ngược nhau: bot đang chỉ đọc, hay trang này không nói cho biết? Xám cho Chỉ đọc, vàng cho Được ghi, đỏ cho Toàn quyền.
 - **Thẻ nói rõ trong nhóm bot lên tiếng khi nào** ("3 nhóm, khi được gọi tên") chứ không chỉ đếm số nhóm.
-- **Cảnh báo khi cấu hình đòi thứ Telegram không cho.** Đặt bot "trả lời mọi tin trong nhóm" mà chế độ riêng tư của Telegram còn bật thì Telegram chặn từ phía nó, Javis không bao giờ nhìn thấy những tin đó, và mọi dấu hiệu trên trang vẫn xanh. Nay `getMe` đọc `can_read_all_group_messages` và thẻ nói thẳng phải vào @BotFather gõ `/setprivacy` → Disable.
+- **Cảnh báo khi cấu hình đòi thứ Telegram không cho.** Đặt bot "trả lời mọi tin trong nhóm" mà chế độ riêng tư của Telegram còn bật thì Telegram chặn từ phía nó, Jarvis 007 không bao giờ nhìn thấy những tin đó, và mọi dấu hiệu trên trang vẫn xanh. Nay `getMe` đọc `can_read_all_group_messages` và thẻ nói thẳng phải vào @BotFather gõ `/setprivacy` → Disable.
 ### Bảo mật
 - **Im lặng có chủ ý nay là im lặng THẬT.** Trước bản này, bot từ chối một tin trong nhóm lạ vẫn đi hết đường: gửi tin "🤔 đang xử lý…", xoá nó, rồi gửi **"(không có nội dung)"** vào mặt người ngoài. Chốt chặn mới nằm ở tầng kênh, chạy TRƯỚC khi tốn một lượt engine và trước cả tin trạng thái. Câu trả lời rỗng vì engine gãy vẫn hiện ra như cũ - hai thứ đó không được lẫn vào nhau.
 - Lệnh `/...` cố ý KHÔNG đi qua chốt chặn: `/id` là đường chính thức để lấy id nhóm, chặn nó thì chủ không còn cách nào khai nhóm cho bot.
@@ -4094,10 +4094,10 @@ Chủ repo gửi ảnh một con bot chuyên trách đang trực: người ta nh
 - `test_thu_lai_tam_thoi.py` mới, canh cả ba tầng, và mục cuối dựng lại ĐÚNG ảnh chụp của chủ: bot gặp 429 một nhịp thì vẫn trả lời người đang hỏi và **không** gọi người trực dậy; 429 mãi thì vẫn phải báo hỏng chứ không nuốt lỗi.
 - Canary "cả tám bộ não": sửa cho Anthropic rồi bỏ bảy đường kia lại đúng là kiểu hỏng vừa sửa, nên test chạy thẳng qua từng provider trong `PROVIDER_DEFS`.
 ### Tài liệu
-- `docs/17-khac-phuc-su-co.md` thêm mục **Nhà cung cấp gãy một nhịp thì Javis tự hỏi lại**; `docs/25-chatbot.md` nói rõ trường hợp thứ ba khiến người trực bị gọi (bot gãy) và việc đã thử lại trước đó.
+- `docs/17-khac-phuc-su-co.md` thêm mục **Nhà cung cấp gãy một nhịp thì Jarvis 007 tự hỏi lại**; `docs/25-chatbot.md` nói rõ trường hợp thứ ba khiến người trực bị gọi (bot gãy) và việc đã thử lại trước đó.
 
 ## [0.24.5] - 2026-08-06
-Hai chỗ vướng khi Javis đưa một file HTML vào chat: bấm vào link thì file rơi xuống máy, và mở ra sửa thì code một màu xám đọc mỏi mắt.
+Hai chỗ vướng khi Jarvis 007 đưa một file HTML vào chat: bấm vào link thì file rơi xuống máy, và mở ra sửa thì code một màu xám đọc mỏi mắt.
 ### Cải thiện
 - **Bấm link `.html` trong chat giờ mở thẳng trình sửa, không tải về nữa.** Đó là file NGUỒN, mà ép một cú bấm phải rơi file xuống máy là đường vòng dài nhất: muốn xem thì phải mở bằng app khác, muốn sửa một chữ thì phải sửa ngoài rồi tải lên lại. Trình sửa đã có sẵn cả nút **Mở tab mới** lẫn nút **Tải về**, nên mở trình sửa là đường ngắn hơn cho CẢ hai ý định. Ảnh, video, pdf, docx, zip vẫn tải về như cũ.
 - **Khung sửa bung giữa màn hình có thêm nút "Mở tab mới"** (↗), trước chỉ có nút tải. Trình sửa đính đã có đôi nút này từ trước, giờ hai chỗ giống nhau.
@@ -4111,15 +4111,15 @@ Hai chỗ vướng khi Javis đưa một file HTML vào chat: bấm vào link th
 - File lớn hơn 300 nghìn ký tự thì bỏ tô màu (mỗi lần gõ là dựng lại cả cây HTML). Sửa vẫn bình thường, chỉ là chữ một màu.
 
 ## [0.24.4] - 2026-08-06
-Chủ repo báo: *"khi yêu cầu Javis thêm mcp nào đó thì nó đang không hiện ra phần kết nối"*. Đúng, và lý do không phải giao diện quên vẽ - **Javis chưa từng có đường nào ghi vào kho kết nối của chính mình.**
+Chủ repo báo: *"khi yêu cầu Jarvis 007 thêm mcp nào đó thì nó đang không hiện ra phần kết nối"*. Đúng, và lý do không phải giao diện quên vẽ - **Jarvis 007 chưa từng có đường nào ghi vào kho kết nối của chính mình.**
 ### Thêm mới
-- **Plugin đi kèm `javis-connect`, tool `javis_add_mcp`.** Nhờ Javis đấu một MCP ngay trong chat, và nó hiện ở khu **"Đã kết nối"** trang Kết nối như tài khoản bạn tự thêm bằng tay, mọi bộ não dùng chung qua hub.
+- **Plugin đi kèm `javis-connect`, tool `javis_add_mcp`.** Nhờ Jarvis 007 đấu một MCP ngay trong chat, và nó hiện ở khu **"Đã kết nối"** trang Kết nối như tài khoản bạn tự thêm bằng tay, mọi bộ não dùng chung qua hub.
 
-  Kho kết nối trước nay chỉ ghi được qua `/connect/add`, mà endpoint đó nằm sau lớp đăng nhập nên chỉ trang web gọi được. Javis còn đúng hai lối, cả hai đều hỏng: chạy `claude mcp add` bằng Bash - server rơi vào cấu hình riêng của Claude Code, sáu bộ não còn lại không thấy, và trên trang Kết nối nó không nằm ở khu "Đã kết nối" mà lọt xuống khu gập *"Kết nối sẵn của Claude Code và Codex"* (mặc định ĐÓNG, chỉ tải khi bấm mở); hoặc nói suông "anh vào trang Kết nối tự thêm nhé". Người dùng nhìn trang Kết nối thấy y như cũ, và kết luận Javis nói dối - hợp lý.
+  Kho kết nối trước nay chỉ ghi được qua `/connect/add`, mà endpoint đó nằm sau lớp đăng nhập nên chỉ trang web gọi được. Jarvis 007 còn đúng hai lối, cả hai đều hỏng: chạy `claude mcp add` bằng Bash - server rơi vào cấu hình riêng của Claude Code, sáu bộ não còn lại không thấy, và trên trang Kết nối nó không nằm ở khu "Đã kết nối" mà lọt xuống khu gập *"Kết nối sẵn của Claude Code và Codex"* (mặc định ĐÓNG, chỉ tải khi bấm mở); hoặc nói suông "anh vào trang Kết nối tự thêm nhé". Người dùng nhìn trang Kết nối thấy y như cũ, và kết luận Jarvis 007 nói dối - hợp lý.
 
   `op=find` tra Kho kết nối trước, `op=add` đấu nguồn mới. Tool đi thẳng vào `mcp_store`, cùng một kho mà `/connect/catalog` đọc.
 ### Bảo mật
-- **Ba rào cứng, không tham số nào mở được.** Mức quyền mặc định là **chỉ đọc** (luật `CLAUDE.md`: Javis không tự nâng quyền, người dùng tự nâng ở trang Kết nối). Nguồn chạy bằng **lệnh trên máy** (stdio) được thêm ở trạng thái **tắt** và không dial thử, vì chỉ riêng việc thử kết nối đã là chạy lệnh đó - cho engine API đẻ một stdio tự chạy là mở cửa hậu đúng bằng Bash mà chúng vốn không có. Dịch vụ đã có sẵn trong Kho kết nối (Gmail, Lịch, POS...) thì tool chỉ tay sang đúng card chứ không đẻ bản tự khai song song, vì một connection rỗng token nằm lại trang Kết nối trông y hệt tài khoản thật mà không chạy được.
+- **Ba rào cứng, không tham số nào mở được.** Mức quyền mặc định là **chỉ đọc** (luật `CLAUDE.md`: Jarvis 007 không tự nâng quyền, người dùng tự nâng ở trang Kết nối). Nguồn chạy bằng **lệnh trên máy** (stdio) được thêm ở trạng thái **tắt** và không dial thử, vì chỉ riêng việc thử kết nối đã là chạy lệnh đó - cho engine API đẻ một stdio tự chạy là mở cửa hậu đúng bằng Bash mà chúng vốn không có. Dịch vụ đã có sẵn trong Kho kết nối (Gmail, Lịch, POS...) thì tool chỉ tay sang đúng card chứ không đẻ bản tự khai song song, vì một connection rỗng token nằm lại trang Kết nối trông y hệt tài khoản thật mà không chạy được.
 ### Sửa lỗi
 - **Thử kết nối hỏng thì mục đó vẫn nằm lại trang Kết nối** kèm nguyên văn lý do, ở trạng thái tắt. Khác `/connect/add` (xoá sạch khi validate lỗi) - hợp lý cho form vì người dùng đang nhìn thẳng vào nó, nhưng sai hoàn toàn cho chat: thứ họ cần là NHÌN THẤY nó nằm đó và biết vì sao chưa chạy.
 - **`server/chatbots.json` và `server/chatbot-logs/` vào `.gitignore`.** Hai artifact chạy của trang Chatbot (0.19.0) vừa không track vừa không ignore từ đó tới nay, nên một cú `git add -A` là commit thẳng **token bot** vào repo. `test_ignore_files.py` bắt được.
@@ -4165,11 +4165,11 @@ Lỗi của bản 0.24.0, và đáng ghi lại vì nó là một kiểu ẩu có
 ## [0.24.1] - 2026-08-05
 Chủ repo đọc lại chữ nghĩa của 0.24.0: *"em chỉnh sửa lại các text đừng có dùng tiền, đơn, đăng bài. nó cá nhân hóa với anh quá. Các hướng dẫn ở mức chung nhất cho nhiều trường hợp thôi."*
 
-Đúng. Javis không gắn với ngành nào, nhưng chữ trên màn hình thì đang gắn.
+Đúng. Jarvis 007 không gắn với ngành nào, nhưng chữ trên màn hình thì đang gắn.
 ### Thay đổi
 - **Cảnh báo mức quyền tả theo LOẠI THAO TÁC, không kể tên việc của một ngành.** "tạo đơn, tiêu tiền quảng cáo, đăng bài" thành "gửi đi, thanh toán, đặt/huỷ, xoá, công bố ra ngoài" - đúng cách `mcp_catalog` phân loại, và đúng cho mọi nguồn dữ liệu đấu vào.
 
-  Không phải chuyện thẩm mỹ: người dùng Javis để quản lý dự án, chăm sức khoẻ hay dạy học đọc bản cũ xong **tưởng cảnh báo không áp cho mình**, rồi bật Toàn quyền vì nghĩ mình không có gì để mất. Cảnh báo trượt mục tiêu còn tệ hơn không có cảnh báo.
+  Không phải chuyện thẩm mỹ: người dùng Jarvis 007 để quản lý dự án, chăm sức khoẻ hay dạy học đọc bản cũ xong **tưởng cảnh báo không áp cho mình**, rồi bật Toàn quyền vì nghĩ mình không có gì để mất. Cảnh báo trượt mục tiêu còn tệ hơn không có cảnh báo.
 - **"khách / khách hàng" thành "người nhắn cho bot"** trong mọi chữ hiện ra màn hình. Bot chuyên trách trực cho lớp học, cộng đồng, đội nội bộ đều được; chăm sóc khách hàng chỉ là MỘT ca dùng.
 - **"nhân viên" thành "người trực"** ở nhãn ô, thẻ bot, nhật ký và menu lệnh Telegram của bot (`/nhanvien` giữ nguyên tên lệnh - đổi tên lệnh là phá thói quen người đang dùng).
 - **`docs/25-chatbot.md` bỏ khung cửa hàng**: ví dụ "bảng giá, chính sách đổi trả, mô tả sản phẩm" thay bằng một nguyên tắc dùng được cho mọi việc - *nếu một câu trong file này lọt ra ngoài mà bạn thấy phiền thì file đó không thuộc về brain của bot*. Đầu trang thêm một dòng kể các ca dùng khác nhau.
@@ -4240,7 +4240,7 @@ Dọn form tạo bot theo góp ý dùng thật, và sửa một câu hướng d�
 
   Nay **brain hỏi trước Agent**, và đổi brain là nạp lại danh sách Agent của đúng brain đó. `agent_brain` cũng bằng luôn brain của bot - Agent và tài liệu đi cùng một chỗ.
 - **Ô chọn Agent tràn ngang ra khỏi form** khi tên Agent kèm vai trò quá dài. Thẻ `<option>` thì trình duyệt không cho tạo kiểu, nên cắt chuỗi ở JS (vai trò tối đa 34 ký tự, tên Agent luôn giữ đủ) và thêm `min-width:0` + `text-overflow` cho chính thẻ `<select>`.
-- **Câu hướng dẫn ô "Chat ID nhân viên" mô tả hành vi đã không còn đúng**: nó viết "bỏ trống thì bot chỉ nói chưa có thông tin rồi dừng". Từ 0.21.0 Javis không chèn luật nào vào prompt nữa, nên bỏ trống thì bot **vẫn trả lời bình thường** theo Agent, chỉ là không có ai để chuyển tiếp. Câu cũ dạy người dùng sợ một hành vi không tồn tại.
+- **Câu hướng dẫn ô "Chat ID nhân viên" mô tả hành vi đã không còn đúng**: nó viết "bỏ trống thì bot chỉ nói chưa có thông tin rồi dừng". Từ 0.21.0 Jarvis 007 không chèn luật nào vào prompt nữa, nên bỏ trống thì bot **vẫn trả lời bình thường** theo Agent, chỉ là không có ai để chuyển tiếp. Câu cũ dạy người dùng sợ một hành vi không tồn tại.
 - **`/nhanvien` khi chưa đặt người nhận trả lời sai chuyện.** Câu cũ ("Cái này em chưa có thông tin ạ, anh chị chờ phản hồi") vừa lạc đề - khách xin gặp người chứ có hỏi thông tin gì đâu - vừa đóng cửa cuộc trò chuyện. Nay nói thật là chưa nối máy sang người trực được, và mời hỏi tiếp.
 ### Thêm mới
 - **Nút "Tạo Agent"** ngay cạnh ô chọn Agent, bấm là sang thẳng trang Agents. Trước đó form chỉ nói "tạo ở trang Agents" bằng chữ, người dùng phải tự đi tìm.
@@ -4275,7 +4275,7 @@ Bot báo lỗi mà **không ai đọc được lý do**. Chủ repo gặp đúng
 ## [0.22.0] - 2026-08-04
 Chủ repo bác cách làm ở 0.21.0: **"anh muốn dù là claude hay codex hay dùng api thì trải nghiệm nói chuyện với bot cũng vẫn giống nhau, em không nghĩ cách làm sao để có thể đổi các bộ não mà không ảnh hưởng đến chất lượng trả lời của bot à?"**
 
-Đúng, và bản 0.21.0 đã phá chính lời hứa gốc của Javis: đổi bộ não thì năng lực không đổi. Chặn Codex là thừa nhận thua ở đúng chỗ không được phép thua.
+Đúng, và bản 0.21.0 đã phá chính lời hứa gốc của Jarvis 007: đổi bộ não thì năng lực không đổi. Chặn Codex là thừa nhận thua ở đúng chỗ không được phép thua.
 
 Lời giải hoá ra đơn giản hơn cả hai bản chắp vá trước: **bot không cần tool nào cả.**
 ### Thay đổi hành vi
@@ -4295,7 +4295,7 @@ Lời giải hoá ra đơn giản hơn cả hai bản chắp vá trước: **bot
 - Test `test_chatbot_cach_ly.py` giờ kiểm bằng **hành vi thật**: chạy một lượt bot qua cả tám provider rồi đối chiếu payload từng con phải giống hệt nhau, thay vì chỉ đọc mã nguồn.
 
 ## [0.21.0] - 2026-08-04
-Chủ repo chốt lại phạm vi của Bot chuyên trách: **"Anh có Agent và quy định của nó rồi, em đừng tự thêm vào quy định của nó. Chỉ có làm việc chống chỉ định xem các brain khác ngoài brain agent đang ở thôi."** Bản này bỏ hết luật Javis tự chèn, và đi kiểm tra lại rào cách ly brain - hoá ra nó hở thật.
+Chủ repo chốt lại phạm vi của Bot chuyên trách: **"Anh có Agent và quy định của nó rồi, em đừng tự thêm vào quy định của nó. Chỉ có làm việc chống chỉ định xem các brain khác ngoài brain agent đang ở thôi."** Bản này bỏ hết luật Jarvis 007 tự chèn, và đi kiểm tra lại rào cách ly brain - hoá ra nó hở thật.
 ### Bảo mật
 - **Bot chạy trên Claude Code có TOÀN QUYỀN máy, không chỉ brain của nó.** Lượt bot dựng engine với `cwd=CLAUDE_CWD` (gốc project) và không đặt `allowed_tools`, nên engine chạy `permission_mode="bypassPermissions"`: các tool NATIVE (Bash, Read, Glob, Grep, Write) **không đi qua hub** và không bị `mcp_hub._safe_path` chặn. Một người lạ nhắn cho bot có thể lấy được nội dung mọi brain khác lẫn mã nguồn server.
 
@@ -4305,14 +4305,14 @@ Chủ repo chốt lại phạm vi của Bot chuyên trách: **"Anh có Agent và
 - **Bot bị TỪ CHỐI chạy khi engine chính là ChatGPT (Codex).** Codex không có allowlist per-call như Claude, và sandbox của nó chặn GHI với mạng chứ không nhốt phạm vi ĐỌC - `cat` sang brain khác vẫn chạy. Không khoá được thì nói thẳng, chứ không hạ sandbox rồi coi như xong: một rào chặn được nửa vời còn tệ hơn không có, vì chủ tưởng nó đang bảo vệ mình. Bot trả một câu nêu rõ lý do và cách xử lý (đổi engine chính sang Claude Code hoặc một engine API).
 - **Test mới `test_chatbot_cach_ly.py` canh đúng rào này**, gồm cả các đường trèo ra: `../`, `../../`, đường dẫn tuyệt đối, và brain trùng tiền tố tên (`brain-bot` với `brain-bot-khac`) - ca mà so chuỗi thô sẽ cho lọt.
 ### Thay đổi hành vi
-- **Javis KHÔNG còn chèn luật nào vào prompt của bot.** Từ 0.19.0 tới 0.20.1, prompt bot luôn có một khối "luật bắt buộc, đứng trên mọi hướng dẫn khác" - dặn xưng hô, cấm hứa hẹn, cấm đổi vai, bắt trả lời ngắn. Khối đó cãi nhau với chính quy định người dùng viết trong file Agent, và 0.20.1 mới chỉ sửa cho nó bớt gắn với ngành bán hàng chứ chưa bỏ.
+- **Jarvis 007 KHÔNG còn chèn luật nào vào prompt của bot.** Từ 0.19.0 tới 0.20.1, prompt bot luôn có một khối "luật bắt buộc, đứng trên mọi hướng dẫn khác" - dặn xưng hô, cấm hứa hẹn, cấm đổi vai, bắt trả lời ngắn. Khối đó cãi nhau với chính quy định người dùng viết trong file Agent, và 0.20.1 mới chỉ sửa cho nó bớt gắn với ngành bán hàng chứ chưa bỏ.
 
   Nay prompt của bot = **đúng file Agent**, cộng tài liệu tra sẵn đưa vào như dữ liệu chứ không kèm mệnh lệnh nào. Muốn bot không nói về giá, không hứa giao hàng, không đổi vai khi bị dụ thì viết vào Agent - đó là nơi những điều ấy thuộc về.
 - **Chế độ "chỉ tài liệu" là luật duy nhất còn lại, và người dùng phải tự bật.** Chế độ mặc định giờ không thêm chữ nào khi tra không ra tài liệu; Agent tự quyết.
-- Trang Chatbot và tài liệu nói lại cho đúng việc Javis thật sự làm: nó không viết luật cho bot, nó khoá phạm vi brain. Hứa nhiều hơn thế là dạy người dùng tin vào một rào không tồn tại.
+- Trang Chatbot và tài liệu nói lại cho đúng việc Jarvis 007 thật sự làm: nó không viết luật cho bot, nó khoá phạm vi brain. Hứa nhiều hơn thế là dạy người dùng tin vào một rào không tồn tại.
 
 ## [0.20.1] - 2026-08-04
-Chủ repo tạo Agent **"Coach kỷ luật"**, hỏi bot về kỷ luật, và nhận lại một con bot ngu ngơ: nó tự xưng là trợ lý cửa hàng, trích một mục quy ước nội bộ của Javis ra làm câu trả lời, rồi nói "em chưa có thông tin" cho đúng câu thuộc chuyên môn của Agent. Bốn lỗi chồng lên nhau, đều do bản Chatbot đầu tiên mặc định rằng mọi bot đều là bot bán hàng.
+Chủ repo tạo Agent **"Coach kỷ luật"**, hỏi bot về kỷ luật, và nhận lại một con bot ngu ngơ: nó tự xưng là trợ lý cửa hàng, trích một mục quy ước nội bộ của Jarvis 007 ra làm câu trả lời, rồi nói "em chưa có thông tin" cho đúng câu thuộc chuyên môn của Agent. Bốn lỗi chồng lên nhau, đều do bản Chatbot đầu tiên mặc định rằng mọi bot đều là bot bán hàng.
 ### Sửa lỗi
 - **Prompt đóng khung MỌI bot là nhân viên bán hàng, đè lên chính Agent người dùng vừa chọn.** Bản cũ viết thẳng "trợ lý trả lời khách của cửa hàng", "không chốt giá ngoài bảng giá", "không hứa giao hàng". Agent coach nào rơi vào đó cũng thành nhân viên bán hàng từ chối tư vấn.
 
@@ -4320,7 +4320,7 @@ Chủ repo tạo Agent **"Coach kỷ luật"**, hỏi bot về kỷ luật, và 
 - **Bot bị bịt miệng khi brain không có tài liệu.** Bản 0.20.0 ép mọi bot vào chế độ chỉ-trả-lời-theo-tài-liệu, nên một Agent coach viết rất kỹ vẫn trả lời "em chưa có thông tin" cho câu thuộc đúng chuyên môn của nó - chuyên môn ấy nằm trong hướng dẫn vai, không nằm ở file nào trong brain.
 
   Nay bot có **hai chế độ**, chọn khi tạo hoặc sửa: *chuyên môn của Agent + tài liệu* (mặc định) và *chỉ tài liệu*. Khác biệt CHỈ nằm ở lúc không tìm thấy gì; tìm thấy thì hai chế độ hành xử y hệt. Cả hai đều vẫn bắt buộc phải có tài liệu mới được nói về giá, chính sách, tồn kho, lịch, liên hệ. Bot tạo trước bản này tự đọc thành chế độ mặc định, không cần di trú.
-- **Bot trích quy ước nội bộ của Javis ra trả lời khách.** `meta_tools` seed `CLAUDE.md` + `AGENTS.md` vào GỐC mọi brain, mà danh sách loại trừ chỉ chặn theo thư mục. Hỏi "sao lại kỷ luật cửa hàng" thì bot tra ra mục "Ba kỷ luật chống Wiki rỗng/sai" rồi giải thích cho khách rằng đó là "quy tắc nội bộ vận hành hệ thống của cửa hàng" - vừa vô nghĩa, vừa khai ruột hệ thống, đúng thứ luật trong prompt cấm mà chính phần tra cứu lại dâng tận tay. Nay loại cả `CLAUDE.md`, `AGENTS.md`, `index.md`, `log.md`, `_open-questions.md`, `_session-handoff.md`; note Wiki thật của người dùng vẫn dùng bình thường.
+- **Bot trích quy ước nội bộ của Jarvis 007 ra trả lời khách.** `meta_tools` seed `CLAUDE.md` + `AGENTS.md` vào GỐC mọi brain, mà danh sách loại trừ chỉ chặn theo thư mục. Hỏi "sao lại kỷ luật cửa hàng" thì bot tra ra mục "Ba kỷ luật chống Wiki rỗng/sai" rồi giải thích cho khách rằng đó là "quy tắc nội bộ vận hành hệ thống của cửa hàng" - vừa vô nghĩa, vừa khai ruột hệ thống, đúng thứ luật trong prompt cấm mà chính phần tra cứu lại dâng tận tay. Nay loại cả `CLAUDE.md`, `AGENTS.md`, `index.md`, `log.md`, `_open-questions.md`, `_session-handoff.md`; note Wiki thật của người dùng vẫn dùng bình thường.
 - **Gọi nhân viên vì một câu hỏi vu vơ.** Bản 0.20.0 báo ngay từ lượt bí đầu tiên. Nhân viên bị đánh thức vì câu không ai cần xử lý thì vài lần là họ tắt thông báo, rồi lúc có người thật cần giúp thì không ai đọc nữa. Nay chỉ gọi khi khách gõ `/nhanvien`, hoặc bot bí **hai câu liên tiếp** với cùng một người; trả lời được một câu là đếm về 0.
 ### Cải thiện
 - **Phân biệt khớp đúng dấu với khớp nhờ bỏ dấu.** Bỏ dấu là con dao hai lưỡi: nó cho khách gõ "gia si bao nhieu" mà vẫn ra "giá sỉ" (rất cần), nhưng cũng làm những cặp từ khác hẳn nghĩa đụng nhau, và tiếng Việt đụng rất nhiều. Ca thật: "có bán cà phê không" khớp vào note "Kỷ luật bản thân" có câu "kể cả khi hết hứng" - "bán" gặp "bản", "cà" gặp "cả", trúng hai chữ, đủ qua mọi ngưỡng.
@@ -4359,7 +4359,7 @@ Ba giai đoạn còn lại của Bot chuyên trách: **trả lời có căn cứ
 ## [0.19.0] - 2026-08-04
 Trang **Chatbot**: đem một Agent bạn đã tạo ra đứng trước KHÁCH HÀNG, qua bot Telegram riêng, brain riêng, gặp câu ngoài tầm thì chuyển nhân viên thật. Spec đầy đủ ở `docs/dev/2026-08-bot-chuyen-trach-spec.md`, hướng dẫn dùng ở [docs/25-chatbot.md](docs/25-chatbot.md).
 ### Thêm mới
-- **Bot chuyên trách.** Javis đã có Agent, Skill, Workflow, nhưng tất cả đều chỉ phục vụ CHỦ. Nay một Agent đem ra trả lời khách được: mỗi bot là bộ ba **Agent + brain riêng + token Telegram riêng**. Khách nhắn riêng cho bot, hoặc bạn thả bot vào nhóm chăm sóc khách hàng.
+- **Bot chuyên trách.** Jarvis 007 đã có Agent, Skill, Workflow, nhưng tất cả đều chỉ phục vụ CHỦ. Nay một Agent đem ra trả lời khách được: mỗi bot là bộ ba **Agent + brain riêng + token Telegram riêng**. Khách nhắn riêng cho bot, hoặc bạn thả bot vào nhóm chăm sóc khách hàng.
 
   Bot **trỏ tới** Agent chứ không chép lại nó: sửa Agent ở trang Agents là bot đổi theo ngay, không phải sửa hai chỗ. Agent bị xoá thì bot vẫn chạy (không sập) nhưng thẻ trên trang Chatbot báo động, và prompt tự dặn nó thận trọng hơn.
 
@@ -4369,11 +4369,11 @@ Trang **Chatbot**: đem một Agent bạn đã tạo ra đứng trước KHÁCH 
 
 - **Chuyển cho nhân viên thật.** Đặt Chat ID nhân viên là bot có hai đường chuyển: tự chuyển khi gặp câu ngoài phạm vi, và khách chủ động gõ `/nhanvien`. Nhân viên nhận được tin có tên bot, id khách và lý do. Bỏ trống thì bot chỉ nói chưa có thông tin rồi dừng, không đoán tiếp.
 
-- **Kiểm tra token trước khi lưu.** Nút Kiểm tra hỏi thẳng Telegram, trả về đúng tên bot, và **chặn nếu token đó đã có bot khác trong Javis đang dùng** (so theo @username từ getMe chứ không so chuỗi token, vì cùng một token dán hai lần với khoảng trắng khác nhau vẫn là hai chuỗi khác nhau). Một token chỉ chạy được MỘT tiến trình long-polling; hai poller cùng token thì Telegram trả 409 và cả hai cùng chết, hỏng ở chỗ không ai ngờ và không ai báo.
+- **Kiểm tra token trước khi lưu.** Nút Kiểm tra hỏi thẳng Telegram, trả về đúng tên bot, và **chặn nếu token đó đã có bot khác trong Jarvis 007 đang dùng** (so theo @username từ getMe chứ không so chuỗi token, vì cùng một token dán hai lần với khoảng trắng khác nhau vẫn là hai chuỗi khác nhau). Một token chỉ chạy được MỘT tiến trình long-polling; hai poller cùng token thì Telegram trả 409 và cả hai cùng chết, hỏng ở chỗ không ai ngờ và không ai báo.
 ### Bảo mật
 - **Rào của bot nằm ở MÃ NGUỒN, không phải ở prompt.** Đây là điểm thiết kế quan trọng nhất của tính năng, vì người ở đầu bên kia là người lạ:
   - Lượt của bot chạy ở mức quyền **suggest** (chỉ đọc), hạ bằng mã trong `_tg_answer_engine`. Không ghi file, không tạo đơn, không tiêu tiền, không đăng bài, không giao việc, không gọi được nguồn dữ liệu chủ đã đấu. Câu dặn trong prompt có thể bị lời lẽ khôn khéo lách qua; mức quyền thì không, vì công cụ đơn giản là không được cấp cho lượt đó.
-  - Bot **không** dùng system prompt của Javis (prompt đó dạy điều phối, ghi vault, giao việc, toàn thứ bot khách hàng không được làm) mà dùng prompt riêng: vai trò của Agent nó trỏ tới, cộng luật trả lời khách.
+  - Bot **không** dùng system prompt của Jarvis 007 (prompt đó dạy điều phối, ghi vault, giao việc, toàn thứ bot khách hàng không được làm) mà dùng prompt riêng: vai trò của Agent nó trỏ tới, cộng luật trả lời khách.
   - Lệnh là danh sách **TRẮNG**: chỉ `/start`, `/help`, `/id`, `/nhanvien`. Mọi lệnh khác trả lời chung chung. Bot chủ có `/brain`, `/model`, `/status`; kế thừa được một lệnh trong số đó là khách đổi được brain của cửa hàng.
   - **Bot mới LUÔN tắt**, kể cả khi lời gọi tạo gửi `enabled: true`. Bật là một cú bấm có ý thức, không phải tác dụng phụ của việc tạo. Bật mà chưa có token thì từ chối kèm lý do, chứ không bật rồi để nó chết lặng lẽ trong bộ giám sát.
   - Token mã hoá qua `secrets_store`, **không bao giờ** trả ra giao diện kể cả dạng đã mã hoá; giao diện chỉ nhận cờ `token_set`. Bản vá từ giao diện đi qua danh sách **TRẮNG** các trường được sửa, nên `id`, `created_at`, `token_enc`, `channel` không ghi đè được.
@@ -4420,11 +4420,11 @@ Dọn một loạt ý trong sổ tay phát triển: **ghim và gom nhóm hội t
 
   **Xoá project KHÔNG xoá hội thoại**: các cuộc bên trong chỉ được gỡ khỏi nhóm. Hộp xác nhận nói rõ điều đó kèm số cuộc sẽ được gỡ, vì không có đường hoàn tác nào cho một cú bấm nhầm cuốn theo cả tháng trò chuyện.
 
-  Icon lấy từ **chính bộ icon của Javis**, không phải emoji: icon Javis tự đổi màu theo tông sáng/tối và vẽ giống hệt nhau trên mọi máy, còn emoji thì mỗi hệ điều hành một kiểu và màu cứng nên nền tối nhìn chói. Bảng chọn hiện toàn bộ icon đang có kèm ô lọc theo tên.
+  Icon lấy từ **chính bộ icon của Jarvis 007**, không phải emoji: icon Jarvis 007 tự đổi màu theo tông sáng/tối và vẽ giống hệt nhau trên mọi máy, còn emoji thì mỗi hệ điều hành một kiểu và màu cứng nên nền tối nhìn chói. Bảng chọn hiện toàn bộ icon đang có kèm ô lọc theo tên.
 - **Kho kết nối có Google NotebookLM.** Liệt kê notebook, đọc nguồn, hỏi đáp ngay trong notebook, thêm nguồn, tạo tóm tắt hay audio ở Studio.
 
-  Sổ tay ghi việc này là "viết MCP server wrapper", nhưng đào ra thì `notebooklm-py` đã đóng gói sẵn một MCP server, nên phần Javis làm chỉ là một mục trong kho connector - không một dòng Python nào. Mặc định **Chỉ đọc**; đăng nhập bằng phiên trình duyệt (xem phần Bảo mật bên dưới).
-- **Gửi ẢNH và FILE qua Zalo** (plugin bundled `zalo-image`, tool `zalo_send_image`). `zalo_send_message` của MCP chuẩn chỉ nhận chữ, nên Javis tạo được ảnh mà vẫn không gửi cho ai được. Trong khi thư viện bên dưới (`zca-js`) làm được từ lâu, và chính CLI đó đã có lệnh `msg send-image`.
+  Sổ tay ghi việc này là "viết MCP server wrapper", nhưng đào ra thì `notebooklm-py` đã đóng gói sẵn một MCP server, nên phần Jarvis 007 làm chỉ là một mục trong kho connector - không một dòng Python nào. Mặc định **Chỉ đọc**; đăng nhập bằng phiên trình duyệt (xem phần Bảo mật bên dưới).
+- **Gửi ẢNH và FILE qua Zalo** (plugin bundled `zalo-image`, tool `zalo_send_image`). `zalo_send_message` của MCP chuẩn chỉ nhận chữ, nên Jarvis 007 tạo được ảnh mà vẫn không gửi cho ai được. Trong khi thư viện bên dưới (`zca-js`) làm được từ lâu, và chính CLI đó đã có lệnh `msg send-image`.
 
   Bản 1.6.2 đã là bản mới nhất trên npm nên chờ upstream phơi thêm tham số là chờ vô hạn. Cách làm: gọi lại chính CLI đó với `HOME` trỏ vào đúng thư mục phiên của kết nối Zalo đang đăng nhập - không fork package Node, không bắt quét QR lần hai.
 ### Cải thiện
@@ -4436,10 +4436,10 @@ Dọn một loạt ý trong sổ tay phát triển: **ghim và gom nhóm hội t
 - **Khung chọn skill khi sửa Agent có tìm kiếm và gom nhóm.** Brain thật đang có 55+ skill mà khung này là một mớ checkbox phẳng, nên tick đúng cái muốn là dò bằng mắt qua cả danh sách. Nay có ô tìm (không dấu, quét cả tên, slug, nhóm và mô tả), gom nhóm theo đúng field `group` mà trang Skills đang dùng, nhóm nào có skill đã tick thì mở sẵn, kèm ô đếm và nút Bỏ chọn hết.
 - **Phân trang cho nhật ký tự học, commit học và bảng Lượt gần nhất.** Trang Tự học trước chỉ hiện 10 dòng nhật ký và 12 commit rồi hết, không có đường xem xa hơn. Nguồn cũng nới theo: nhật ký học đọc tới khi đủ số mục thay vì cắt cứng ở 3 tệp - nhật ký ghi mỗi ngày một tệp, nên cắt ở 3 nghĩa là phân trang cũng chỉ lật quanh 3 ngày.
 
-  Khối phân trang được tách thành một hàm dùng chung thay vì chép ra bản thứ hai và thứ ba, đúng bài học đã học ở cây Vault (0.15.1) và Javis CLI (0.17.0).
+  Khối phân trang được tách thành một hàm dùng chung thay vì chép ra bản thứ hai và thứ ba, đúng bài học đã học ở cây Vault (0.15.1) và Jarvis 007 CLI (0.17.0).
 ### Bảo mật
 - **Gửi ảnh Zalo chỉ gửi được file NẰM TRONG bộ não đang dùng.** Tool nhận đường dẫn từ chính câu chat và đầu ra là gửi ra ngoài, không thu hồi được; thiếu rào này thì một câu khéo léo là tuồn được tệp khoá hay `/etc/passwd` ra một cuộc chat Zalo bất kỳ. Đường dẫn tuyệt đối ngoài bộ não cũng bị chặn, không riêng dạng `../`.
-- **Đấu nhiều tài khoản Zalo thì Javis hỏi lại, không đoán.** Gửi nhầm tài khoản là gửi dưới danh tính người khác. Tool cũng ở mức `full` như `zalo_send_message`, nên chế độ suggest và các việc nền chạy giới hạn không tự gửi được.
+- **Đấu nhiều tài khoản Zalo thì Jarvis 007 hỏi lại, không đoán.** Gửi nhầm tài khoản là gửi dưới danh tính người khác. Tool cũng ở mức `full` như `zalo_send_message`, nên chế độ suggest và các việc nền chạy giới hạn không tự gửi được.
 - **NotebookLM nói thẳng đây là cookie phiên Google, không phải OAuth giới hạn phạm vi.** Ai cầm được chuỗi đó thì vào được tài khoản Google, nên connector mặc định **Chỉ đọc** và cảnh báo ngay ở bước đầu của trình hướng dẫn. Các tool CHIA SẺ notebook ra ngoài được xếp nhóm nguy hiểm dù thư viện tự đánh dấu chúng là không phá huỷ: gỡ chia sẻ lại được, nhưng không rút lại được việc người ta đã đọc. Connector cố ý KHÔNG xếp vào nhóm Google một cửa - nhóm đó là các kết nối đi chung một key OAuth client, cách đăng nhập và rủi ro khác hẳn.
 
 ## [0.17.1] - 2026-08-04
@@ -4449,27 +4449,27 @@ Giao việc Kanban nay làm được từ **mọi bộ não**, không chỉ hai 
 ### Sửa lỗi
 - **Tài liệu hứa một thứ mã không làm được, suốt nhiều bản.** `CLAUDE.md` và `docs/10-models-va-engine.md` đều ghi mọi bộ não được cấp cùng bộ đồ nghề, trong đó có "giao việc Kanban". Thực tế đường duy nhất để giao việc là `POST /kanban/task`, mà gọi được nó thì phải có Bash và curl - tức là chỉ Claude Code với Codex. Năm engine API đứng ngoài.
 
-  Tệ hơn cả việc thiếu: `CLAUDE.md` còn dặn Javis "đừng bao giờ nói mình không làm task được, sai sự thật". Nên một engine API sẽ TỰ TIN nhận lời rồi im lặng không làm gì. Người dùng ngồi đợi một việc không bao giờ chạy, và không có một dòng lỗi nào ở đâu cả.
+  Tệ hơn cả việc thiếu: `CLAUDE.md` còn dặn Jarvis 007 "đừng bao giờ nói mình không làm task được, sai sự thật". Nên một engine API sẽ TỰ TIN nhận lời rồi im lặng không làm gì. Người dùng ngồi đợi một việc không bao giờ chạy, và không có một dòng lỗi nào ở đâu cả.
 
   Sửa theo hướng nâng MÃ lên cho khớp tài liệu, chứ không hạ tài liệu xuống: giao việc là thứ dùng thật, và để nó chỉ chạy trên hai engine thì lời hứa "đổi não thoải mái không mất chức năng" thủng đúng chỗ đáng tiếc nhất.
 - **Câu "khác biệt DUY NHẤT là chạy lệnh máy" cũng sai, nay nói đủ.** Hai engine CLI còn có thêm **WebFetch/WebSearch** (tự mở URL lạ ra đọc, tự tra web), **Task** (đẻ agent con chạy song song), và nối lại được phiên cũ. Engine API còn hai giới hạn thực dụng chưa từng ghi ở đâu: mỗi lượt tối đa **8 vòng gọi tool**, và khi lượt có gọi tool thì câu trả lời hiện một cục ở cuối chứ không chạy dần từng chữ.
 ### Bảo mật
 - **Tool `javis_task` KHÔNG tạo được việc mức `full`.** Mức full cho việc tự thao tác thật ra ngoài (tạo đơn, tiêu tiền, chạy quảng cáo, gửi tin) và không hoàn tác được, nên phải do chính người dùng đặt ở trang Việc. Mặc định là `suggest`; mode lạ kẹp về `suggest` chứ không trôi thành `auto`.
-- **Gọi thẳng hàng đợi in-process, không mở thêm cửa HTTP.** Cách dễ hơn là cho plugin POST `/kanban/task` như `javis-schedule` vẫn POST `/reminders`, nhưng route đó đòi đăng nhập và cách duy nhất để mở là thêm vào danh sách miễn auth cho localhost - nghĩa là bất kỳ tiến trình nào trên cùng máy chủ cũng giao được việc cho Javis mà không cần credential. Không đáng, khi plugin vốn đã chạy trong tiến trình server.
+- **Gọi thẳng hàng đợi in-process, không mở thêm cửa HTTP.** Cách dễ hơn là cho plugin POST `/kanban/task` như `javis-schedule` vẫn POST `/reminders`, nhưng route đó đòi đăng nhập và cách duy nhất để mở là thêm vào danh sách miễn auth cho localhost - nghĩa là bất kỳ tiến trình nào trên cùng máy chủ cũng giao được việc cho Jarvis 007 mà không cần credential. Không đáng, khi plugin vốn đã chạy trong tiến trình server.
 - **Không nuốt thiếu sót.** Chưa biết brain nào thì từ chối chứ không âm thầm rơi về Brain Default (giao việc nhầm brain là chạy trên dữ liệu của người khác). Thiếu người nhận thì cảnh báo ngay trong kết quả, vì đó là lý do số một khiến người dùng "giao việc rồi không thấy gì".
 
 ## [0.17.0] - 2026-08-04
-**Javis CLI**: gõ `javis "doanh thu tuần này thế nào"` ngay trong terminal. Kênh thứ ba, cùng một Javis.
+**Jarvis 007 CLI**: gõ `javis "doanh thu tuần này thế nào"` ngay trong terminal. Kênh thứ ba, cùng một Jarvis 007.
 ### Thêm mới
-- **`pip install javis-cli` rồi gõ thẳng câu hỏi.** Không cần lệnh con, không cần mở trình duyệt. Câu trả lời vẫn đến từ chính Javis của bạn: cùng brain, cùng bộ nhớ, cùng MCP đã đấu, cùng lịch sử hội thoại ở trang Phiên.
+- **`pip install javis-cli` rồi gõ thẳng câu hỏi.** Không cần lệnh con, không cần mở trình duyệt. Câu trả lời vẫn đến từ chính Jarvis 007 của bạn: cùng brain, cùng bộ nhớ, cùng MCP đã đấu, cùng lịch sử hội thoại ở trang Phiên.
 
-  Có cả `javis chat` (phiên hỏi đáp liên tục, giữ mạch), `javis status`, `javis task add`, `javis tasks`, `javis brain ls|cat`, `javis loops`, và `javis up` để bật Javis đã cài trên chính máy đó.
-- **CLI là CLIENT MỎNG, không phải Javis thứ hai.** Nó không chứa server bên trong và nói thẳng điều đó ở dòng đầu tài liệu lẫn trong thông báo lỗi. Lý do: gần như mọi thứ làm nên Javis đều đòi một tiến trình sống dài (loop theo chu kỳ, nhắc hẹn chờ tới giờ, MCP Hub giữ kết nối, kho capability, runtime tiết kiệm token học dần), mà một lệnh gõ xong là thoát thì không phải chỗ cho chúng.
+  Có cả `javis chat` (phiên hỏi đáp liên tục, giữ mạch), `javis status`, `javis task add`, `javis tasks`, `javis brain ls|cat`, `javis loops`, và `javis up` để bật Jarvis 007 đã cài trên chính máy đó.
+- **CLI là CLIENT MỎNG, không phải Jarvis 007 thứ hai.** Nó không chứa server bên trong và nói thẳng điều đó ở dòng đầu tài liệu lẫn trong thông báo lỗi. Lý do: gần như mọi thứ làm nên Jarvis 007 đều đòi một tiến trình sống dài (loop theo chu kỳ, nhắc hẹn chờ tới giờ, MCP Hub giữ kết nối, kho capability, runtime tiết kiệm token học dần), mà một lệnh gõ xong là thoát thì không phải chỗ cho chúng.
 
-  Nên CLI đi qua ĐÚNG cái lõi dashboard và Telegram đang dùng (`_tg_answer`, nay nhận thêm tham số kênh). Đổi lại: tính năng mới vào Javis là CLI thấy ngay, không phải sửa hai chỗ. Đây cũng là bài học 0.15.0 - dựng bản thứ hai của thứ đã có rồi để hai bản trôi lệch - áp dụng ở quy mô lớn hơn nhiều.
-- **Javis biết mình đang nói qua terminal nên trả lời khác.** Kênh `cli` có khối ngữ cảnh và hợp đồng đầu ra riêng: không bảng markdown, không nhúng ảnh, không link markdown, đường dẫn file in TUYỆT ĐỐI để copy chạy được luôn.
+  Nên CLI đi qua ĐÚNG cái lõi dashboard và Telegram đang dùng (`_tg_answer`, nay nhận thêm tham số kênh). Đổi lại: tính năng mới vào Jarvis 007 là CLI thấy ngay, không phải sửa hai chỗ. Đây cũng là bài học 0.15.0 - dựng bản thứ hai của thứ đã có rồi để hai bản trôi lệch - áp dụng ở quy mô lớn hơn nhiều.
+- **Jarvis 007 biết mình đang nói qua terminal nên trả lời khác.** Kênh `cli` có khối ngữ cảnh và hợp đồng đầu ra riêng: không bảng markdown, không nhúng ảnh, không link markdown, đường dẫn file in TUYỆT ĐỐI để copy chạy được luôn.
 - **Luật Unix, để ghép được vào script.** Câu trả lời ra stdout, mọi thứ khác (tiến độ, tên tool, lỗi) ra stderr. Nên `javis "tóm tắt tuần này" > bao-cao.md` cho ra file sạch. Lỗi thì thoát khác 0 và không in gì ra stdout, nên `&&` trong script hành xử đúng. Có test canh đúng MỘT chỗ trong cả gói được ghi stdout.
-- **Nối được nhiều Javis cùng lúc**: một hồ sơ cho máy nhà, một cho VPS, đổi bằng `--profile`. Cấu hình ở `~/.javis/config.json` quyền `600`, và bốn biến môi trường (`JAVIS_URL`, `JAVIS_TOKEN`, `JAVIS_BRAIN`, `JAVIS_PROFILE`) đè lên file cho CI/Docker.
+- **Nối được nhiều Jarvis 007 cùng lúc**: một hồ sơ cho máy nhà, một cho VPS, đổi bằng `--profile`. Cấu hình ở `~/.javis/config.json` quyền `600`, và bốn biến môi trường (`JAVIS_URL`, `JAVIS_TOKEN`, `JAVIS_BRAIN`, `JAVIS_PROFILE`) đè lên file cho CI/Docker.
 - **Trang Tài khoản có mục Token API.** Tạo token, chọn phạm vi, xem lần dùng cuối của từng cái, thu hồi. Chuỗi thô hiện đúng MỘT lần kèm sẵn câu lệnh `javis login` để dán sang máy kia.
 ### Bảo mật
 - **Không có token nào sẵn.** Chưa ai bấm tạo thì không token nào tồn tại, và không cửa nào vào ngoài trình duyệt. Đây là điểm quan trọng nhất của cả tính năng: mở cổng mới ra Internet phải là một hành động CÓ Ý THỨC, không phải mặc định.
@@ -4481,7 +4481,7 @@ Giao việc Kanban nay làm được từ **mọi bộ não**, không chỉ hai 
 ## [0.16.1] - 2026-08-03
 Ollama gọn lại còn đúng bản **Cloud** - dán API key là chạy, như mọi nhà cung cấp khác.
 ### Cải thiện
-- **Gỡ đường chạy trên máy nhà, chỉ giữ Ollama Cloud.** Javis phần đông chạy trên VPS trong Docker, nơi "localhost" là chính cái container chứ không phải máy người dùng - nên đường máy nhà gần như không ai dùng được, mà lại kéo theo nguyên một ca đặc biệt: ô địa chỉ riêng (`host_field`, thứ duy nhất trong cả lớp nhà cung cấp có), một nhánh riêng để tính "đã kết nối chưa", một nhánh giao diện riêng, và một hàm chọn-đường-theo-key.
+- **Gỡ đường chạy trên máy nhà, chỉ giữ Ollama Cloud.** Jarvis 007 phần đông chạy trên VPS trong Docker, nơi "localhost" là chính cái container chứ không phải máy người dùng - nên đường máy nhà gần như không ai dùng được, mà lại kéo theo nguyên một ca đặc biệt: ô địa chỉ riêng (`host_field`, thứ duy nhất trong cả lớp nhà cung cấp có), một nhánh riêng để tính "đã kết nối chưa", một nhánh giao diện riêng, và một hàm chọn-đường-theo-key.
 
   Nay Ollama đúng hình dạng của Groq hay Gemini: dán key, xong. Thẻ nhà cung cấp cũng về đúng một ô như các thẻ còn lại.
 - Lấy danh sách model vẫn hỏi hai đường (`/v1/models` chuẩn OpenAI trước, `/api/tags` gốc Ollama sau) vì tài liệu của họ không nói rõ đường nào là chính cho bản Cloud. Thà thừa một request còn hơn báo "chưa thấy model" với một key hoàn toàn đúng.
@@ -4490,9 +4490,9 @@ Ollama gọn lại còn đúng bản **Cloud** - dán API key là chạy, như m
 Thêm bộ não thứ tám: **Ollama** - chạy model ngay trên máy bạn, hoặc qua Ollama Cloud.
 ### Thêm mới
 - **Nhà cung cấp Ollama, hai đường chạy trong một thẻ.**
-  - **Máy nhà**: để trống cả hai ô. Miễn phí, không hạn mức token, và dữ liệu không ra khỏi máy - thứ chưa provider nào trong Javis làm được. Cần cài Ollama rồi tải model về (`ollama pull llama3.1`).
+  - **Máy nhà**: để trống cả hai ô. Miễn phí, không hạn mức token, và dữ liệu không ra khỏi máy - thứ chưa provider nào trong Jarvis 007 làm được. Cần cài Ollama rồi tải model về (`ollama pull llama3.1`).
   - **Ollama Cloud**: dán API key lấy ở ollama.com. Chạy được model to mà máy nhà không kham nổi.
-  - Để trống địa chỉ thì Javis tự chọn đường: có key thì đi Cloud, không key thì máy này. Khai địa chỉ rõ thì luôn theo địa chỉ đó, kể cả máy khác trong mạng.
+  - Để trống địa chỉ thì Jarvis 007 tự chọn đường: có key thì đi Cloud, không key thì máy này. Khai địa chỉ rõ thì luôn theo địa chỉ đó, kể cả máy khác trong mạng.
 - **Ollama là agent đủ đồ nghề như mọi bộ não khác**: gọi MCP đã đấu, đọc/ghi brain, chạy skill, nhận việc Kanban. Không phải chat suông. Model cần biết gọi tool (llama3.1 trở lên, qwen2.5, mistral-nemo, gpt-oss... đều biết).
 - **Nút Kiểm tra hỏi thẳng máy đó xem có model gì.** Lấy được model tức là địa chỉ đúng và Ollama đang chạy - nên nó vừa là danh sách model vừa là đèn báo kết nối, không cần nút thử riêng. Không thấy gì thì báo rõ nên kiểm tra cái nào, và lời nhắc phân biệt máy nhà với Cloud.
 ### Sửa lỗi
@@ -4509,7 +4509,7 @@ Mở file từ tab Thư mục thì trình sửa CHIẾM CHỖ khung chat, không
 ## [0.15.1] - 2026-08-03
 Tab Thư mục dùng ĐÚNG cây Vault sẵn có, thay vì cây thứ hai tự dựng ở bản trước.
 ### Sửa lỗi
-- **Bản 0.15.0 dựng một cây thư mục thứ hai thay vì dùng cây đã có.** Chủ repo chỉ ra ngay: "sao không bê nguyên cái cây y hệt bên Javis sang mà phải dựng lại phức tạp thế, lại còn lỗi nữa chứ". Đúng vậy - Javis đã có cây Vault ở cột trái màn chính, kèm tìm theo tên và theo nội dung, tạo file, tạo thư mục, làm mới, tô sáng file đang mở. Viết bản thứ hai là chép lại từng đó thứ rồi để hai bản trôi lệch nhau, mà bản mới thì chưa ai dùng thật nên lỗi cứ nằm im ở đó.
+- **Bản 0.15.0 dựng một cây thư mục thứ hai thay vì dùng cây đã có.** Chủ repo chỉ ra ngay: "sao không bê nguyên cái cây y hệt bên Jarvis 007 sang mà phải dựng lại phức tạp thế, lại còn lỗi nữa chứ". Đúng vậy - Jarvis 007 đã có cây Vault ở cột trái màn chính, kèm tìm theo tên và theo nội dung, tạo file, tạo thư mục, làm mới, tô sáng file đang mở. Viết bản thứ hai là chép lại từng đó thứ rồi để hai bản trôi lệch nhau, mà bản mới thì chưa ai dùng thật nên lỗi cứ nằm im ở đó.
 
   Nay tab Thư mục **mượn đúng panel Vault** đó, y như cách trang Trò chuyện vẫn mượn khung chat của màn chính. Cùng một cây, chỉ đổi chỗ đứng. Module tự dựng đã gỡ bỏ hoàn toàn.
 ### Thêm mới
@@ -4545,11 +4545,11 @@ Mức Siêu tiết kiệm chưa chạy lần nào trên máy đấu nhiều MCP.
 - **Trang Tiết kiệm nói thẳng vì sao lượt chat chưa đi được đường tắt**, gộp theo lý do và xếp theo số lần. Bảng "Lượt gần nhất" đã ghi lý do từng dòng, nhưng một lý do chiếm 18 trên 20 lượt là một cái hỏng còn xuất hiện 2 lần thì bình thường, mà nhìn từng dòng không phân biệt nổi hai ca đó. Chính vì thiếu con số này mà lỗi ở trên phải chờ chủ repo nói bằng lời mới lộ ra.
 
 ## [0.14.6] - 2026-08-03
-Javis biết bây giờ mấy giờ trên mọi đường, thôi bịa lý do khi không biết.
+Jarvis 007 biết bây giờ mấy giờ trên mọi đường, thôi bịa lý do khi không biết.
 ### Sửa lỗi
-- **Hỏi mấy giờ thì Javis nói "MCP server đang mất kết nối".** Không có server nào mất kết nối cả. Sự thật là lượt đó đi đường tắt của mức Siêu tiết kiệm, mà đường tắt gửi gói tin KHÔNG kèm tool nào - đó chính là chỗ nó tiết kiệm. Model thì không có đồng hồ sẵn trong đầu, nên khi bị hỏi giờ mà không có tool để gọi, nó làm cái tệ nhất: bịa ra một lý do nghe hợp lý.
+- **Hỏi mấy giờ thì Jarvis 007 nói "MCP server đang mất kết nối".** Không có server nào mất kết nối cả. Sự thật là lượt đó đi đường tắt của mức Siêu tiết kiệm, mà đường tắt gửi gói tin KHÔNG kèm tool nào - đó chính là chỗ nó tiết kiệm. Model thì không có đồng hồ sẵn trong đầu, nên khi bị hỏi giờ mà không có tool để gọi, nó làm cái tệ nhất: bịa ra một lý do nghe hợp lý.
 
-  Bộ lọc câu hỏi có chặn "bây giờ", "hôm nay" và bắt những câu đó đi đường đầy đủ, nhưng chặn theo từ khoá là trò đuổi bắt: "giờ Việt Nam là mấy giờ" lọt qua ngay. Nay chữa ở gốc - mọi gói tin Javis gửi đi, đường tắt lẫn đường đầy đủ, đều mang sẵn một dòng giờ thật theo múi giờ Việt Nam. Khoảng 30 token mỗi lượt, đổi lấy việc không còn cửa nào để bịa, và bật hay tắt tiết kiệm thì Javis cũng biết giờ y như nhau.
+  Bộ lọc câu hỏi có chặn "bây giờ", "hôm nay" và bắt những câu đó đi đường đầy đủ, nhưng chặn theo từ khoá là trò đuổi bắt: "giờ Việt Nam là mấy giờ" lọt qua ngay. Nay chữa ở gốc - mọi gói tin Jarvis 007 gửi đi, đường tắt lẫn đường đầy đủ, đều mang sẵn một dòng giờ thật theo múi giờ Việt Nam. Khoảng 30 token mỗi lượt, đổi lấy việc không còn cửa nào để bịa, và bật hay tắt tiết kiệm thì Jarvis 007 cũng biết giờ y như nhau.
 
   Múi giờ là UTC+7 cố định chứ không đọc múi giờ của máy chủ, vì VPS gần như luôn chạy giờ UTC.
 ### Cải thiện
@@ -4558,7 +4558,7 @@ Javis biết bây giờ mấy giờ trên mọi đường, thôi bịa lý do kh
 ## [0.14.5] - 2026-08-03
 Dọn đường để sau này nâng được mức tiết kiệm mặc định, mà không giẫm lên ai đã tự chọn.
 ### Sửa lỗi
-- **Đổi mức tiết kiệm mặc định sẽ không bao giờ tới được máy đã cài.** Cái bẫy nằm ở chỗ Javis lưu cấu hình: mỗi lần ghi là ghi lại TOÀN BỘ config đã trộn, nên ngay lần đầu người dùng bấm bất cứ nút nào ở trang Cài đặt, giá trị mặc định của đúng ngày hôm đó bị đóng băng vào settings.json. Lúc đọc thì file lại đè lên mặc định. Hệ quả: về sau nâng mặc định lên mức Tối ưu hay Siêu tiết kiệm thì chỉ máy cài mới tinh mới thấy, còn máy đang chạy thì không, và không có lỗi nào báo ra cả. Đây đúng là con bệnh đã cắn `provider_kinds` hồi 0.12.4, lần này rơi vào thứ quyết định mỗi lượt chat tốn bao nhiêu token.
+- **Đổi mức tiết kiệm mặc định sẽ không bao giờ tới được máy đã cài.** Cái bẫy nằm ở chỗ Jarvis 007 lưu cấu hình: mỗi lần ghi là ghi lại TOÀN BỘ config đã trộn, nên ngay lần đầu người dùng bấm bất cứ nút nào ở trang Cài đặt, giá trị mặc định của đúng ngày hôm đó bị đóng băng vào settings.json. Lúc đọc thì file lại đè lên mặc định. Hệ quả: về sau nâng mặc định lên mức Tối ưu hay Siêu tiết kiệm thì chỉ máy cài mới tinh mới thấy, còn máy đang chạy thì không, và không có lỗi nào báo ra cả. Đây đúng là con bệnh đã cắn `provider_kinds` hồi 0.12.4, lần này rơi vào thứ quyết định mỗi lượt chat tốn bao nhiêu token.
 
   Chỗ khó riêng: số 0 nằm trong file có hai nghĩa ngược nhau, "đã cân nhắc và cố ý chọn Tắt" và "chưa ai chọn gì cả". Không phân biệt được thì hoặc là giẫm lên quyết định của người dùng, hoặc là mặc định mới không bao giờ tới nơi. Nay mọi lần tự đổi mức đều để lại chữ ký, và có chữ ký thì bản cập nhật không đụng vào. Máy chưa từng chọn thì đi theo mặc định của bản đang chạy, kể cả máy đã cài từ lâu.
 ### Cải thiện
@@ -4571,11 +4571,11 @@ Dọn đường để sau này nâng được mức tiết kiệm mặc định,
 ## [0.14.4] - 2026-08-03
 Gói Claude Code dùng được mức Siêu tiết kiệm. Trước đó nó là bộ não duy nhất bị đứng ngoài.
 ### Thêm mới
-- **Đường tắt cho câu hỏi đơn giản giờ chạy trên cả gói Claude Code.** Bản 0.14.0 chặn cứng nó vì lúc đó không có cách nào gọi thẳng model mà không cần API key, thứ gói thuê bao không có. Nhưng Javis vốn đã mượn chính access token của Claude Code để hỏi danh sách model, và cùng token đó gọi được cả đường trả lời. Nay cả ba loại bộ não đều ăn được mức này.
+- **Đường tắt cho câu hỏi đơn giản giờ chạy trên cả gói Claude Code.** Bản 0.14.0 chặn cứng nó vì lúc đó không có cách nào gọi thẳng model mà không cần API key, thứ gói thuê bao không có. Nhưng Jarvis 007 vốn đã mượn chính access token của Claude Code để hỏi danh sách model, và cùng token đó gọi được cả đường trả lời. Nay cả ba loại bộ não đều ăn được mức này.
 - **Có lưới an toàn.** Token của CLI có thể hết hạn hoặc bị từ chối. Khi đó lượt tự lui về Claude Code đầy đủ ngay trong lượt, không ném lỗi ra và không để lại bong bóng rỗng. Chậm hơn một chút, nhưng anh vẫn có câu trả lời.
 ### Sửa lỗi
 - **Lượt lui về engine đầy đủ vẫn đeo nhãn "Tức thì".** Đường tắt ghim nhãn ngay lúc nhận lượt, nên khi nó về tay không thì nhãn vẫn còn nguyên: dòng dưới câu trả lời nói sai, bảng đo 24 giờ xếp nhầm cột, và con số tiết kiệm bị thổi lên bằng đúng những lượt không hề tiết kiệm. Nay ghim được trả lại khi tầng đó không giao được hàng, và một tầng không gỡ được cam kết của tầng khác.
-- **Alias model của Claude Code được dịch sang tên thật.** Claude Code hiểu "haiku" và tự chọn bản mới nhất, nhưng đường gọi thẳng thì không: gửi "haiku" là báo không tìm thấy model. Nay Javis tra danh sách model đang có và dịch sang đúng bản mới nhất cùng dòng.
+- **Alias model của Claude Code được dịch sang tên thật.** Claude Code hiểu "haiku" và tự chọn bản mới nhất, nhưng đường gọi thẳng thì không: gửi "haiku" là báo không tìm thấy model. Nay Jarvis 007 tra danh sách model đang có và dịch sang đúng bản mới nhất cùng dòng.
 
 ## [0.14.3] - 2026-08-03
 Trang thôi dán nhãn sai lên mức Siêu tiết kiệm, và mỗi lượt nói được VÌ SAO nó không đi đường tắt.
@@ -4589,7 +4589,7 @@ Trang thôi dán nhãn sai lên mức Siêu tiết kiệm, và mỗi lượt nó
 ## [0.14.2] - 2026-08-03
 Mở mạch mới thôi làm mất ngữ cảnh: bản mồi lại dày lên năm lần và mang theo tóm tắt.
 ### Cải thiện
-- **Khi Javis mở mạch hội thoại mới, nó mang theo nhiều gấp năm lần so với trước.** Chủ repo lo mất ngữ cảnh khi giao việc nặng chạy lâu, và soi lại thì chỗ đau không nằm ở cái ngưỡng như tưởng, mà ở bản mồi lại. Hai con số đó đi ngược nhau theo cách phản trực giác: ngưỡng càng cao thì xoay mạch càng hiếm, nhưng mỗi lần xoay lại **rơi càng sâu**. Ở ngưỡng 120.000, rơi xuống bản mồi 60.000 ký tự là mất sáu lần. Ở ngưỡng 1 triệu vừa nâng, cùng cái trần đó thành mất năm mươi lần.
+- **Khi Jarvis 007 mở mạch hội thoại mới, nó mang theo nhiều gấp năm lần so với trước.** Chủ repo lo mất ngữ cảnh khi giao việc nặng chạy lâu, và soi lại thì chỗ đau không nằm ở cái ngưỡng như tưởng, mà ở bản mồi lại. Hai con số đó đi ngược nhau theo cách phản trực giác: ngưỡng càng cao thì xoay mạch càng hiếm, nhưng mỗi lần xoay lại **rơi càng sâu**. Ở ngưỡng 120.000, rơi xuống bản mồi 60.000 ký tự là mất sáu lần. Ở ngưỡng 1 triệu vừa nâng, cùng cái trần đó thành mất năm mươi lần.
 
   Nay bản mồi lại rộng 300.000 ký tự, khoảng 100.000 token. Đo trên một hội thoại 120 lượt: trước giữ được 16 lượt, nay giữ được 86.
 - **Và nó mang theo cả bản tóm tắt đã nén của phần đầu hội thoại**, đặt trước phần lịch sử thô và không bị cắt. Một dòng tóm tắt đại diện cho hàng chục lượt đã rơi khỏi ngân sách, nên bỏ nó để nhét thêm hai lượt thô là đổi sai chiều.
@@ -4598,17 +4598,17 @@ Mở mạch mới thôi làm mất ngữ cảnh: bản mồi lại dày lên nă
 ## [0.14.1] - 2026-08-03
 Ngưỡng xoay mạch nâng lên 1 triệu token theo số dùng thật, và dọn rác trích dẫn lọt vào câu trả lời.
 ### Sửa lỗi
-- **Câu trả lời hiện ra kèm mấy ô vuông trống và chữ `citeturn4view0`.** Đó là dấu trích dẫn nội bộ của OpenAI, viết bằng ba ký tự vô hình mà trình duyệt vẽ thành ô vuông. Phần khó chịu hơn nằm ở chỗ không nhìn thấy: nó đi thẳng vào lịch sử hội thoại, nên lượt sau chính Javis đọc lại rồi tưởng `turn4view0` là một nguồn có thật. Hỏi "em lấy thông tin ở đâu" thì nó trả lời "mình chỉ còn mã tham chiếu `turn4view0`, không có URL nguồn gốc". Nay dấu đó được bóc ngay tại nguồn, ở cả đường Codex lẫn đường gọi thẳng.
+- **Câu trả lời hiện ra kèm mấy ô vuông trống và chữ `citeturn4view0`.** Đó là dấu trích dẫn nội bộ của OpenAI, viết bằng ba ký tự vô hình mà trình duyệt vẽ thành ô vuông. Phần khó chịu hơn nằm ở chỗ không nhìn thấy: nó đi thẳng vào lịch sử hội thoại, nên lượt sau chính Jarvis 007 đọc lại rồi tưởng `turn4view0` là một nguồn có thật. Hỏi "em lấy thông tin ở đâu" thì nó trả lời "mình chỉ còn mã tham chiếu `turn4view0`, không có URL nguồn gốc". Nay dấu đó được bóc ngay tại nguồn, ở cả đường Codex lẫn đường gọi thẳng.
 ### Cải thiện
 - **Ngưỡng tự mở mạch hội thoại mới nâng từ 120.000 lên 1.000.000 token mỗi lượt**, theo yêu cầu chủ repo sau khi dùng thật. Số đo ủng hộ: ba lượt liên tiếp trong cùng một hội thoại là 83.000, rồi 552.000 (lượt đi tra thời tiết, Codex chạy cả vòng lặp tìm kiếm), rồi 36.000. Nghĩa là một lượt nặng thường nặng vì **công việc của chính lượt đó**, không phải vì mạch dài, và mạch tự co lại ngay lượt sau. Để 120.000 thì gần như lượt nào cũng vượt, tức xoay mạch liên tục: mỗi lần xoay là một lần vứt phần ngữ cảnh mà engine đang giữ, đổi lấy gần như không gì.
 
 ## [0.14.0] - 2026-08-03
-Số đo thật cho thấy phần Javis gọt được chỉ là 13%, còn 87% token nằm ở chỗ khác. Bản này đi lấy chỗ đó.
+Số đo thật cho thấy phần Jarvis 007 gọt được chỉ là 13%, còn 87% token nằm ở chỗ khác. Bản này đi lấy chỗ đó.
 ### Thêm mới
 - **Câu hỏi đơn giản trên gói ChatGPT giờ đi thẳng, không qua vòng lặp công cụ.** Số đo trên máy chủ repo: mỗi lượt Codex đọc vào 35.000 tới 412.000 token trong khi model chỉ viết ra 266 tới 1.496. Tỉ lệ đó không phải một lần gọi, mà là cả một vòng lặp: Codex nhận câu hỏi rồi tự gọi model nhiều vòng, mỗi vòng gửi lại toàn bộ ngữ cảnh đã tích. Với câu không cần tra cứu gì - "entropy là gì", "viết giúp em một tiêu đề" - cả vòng lặp đó là thừa. Nay những câu như vậy đi thẳng một vòng. Đây chính là thứ mức **Siêu tiết kiệm** hứa mà trước nay chưa từng làm được cho người dùng gói thuê bao.
-- **Javis tự mở mạch hội thoại mới khi mạch cũ phình quá 120.000 token mỗi lượt.** Claude Code và Codex tự quản mạch của chúng, nên phần to nhất của mỗi lượt vốn nằm ngoài tầm với: gọt bộ luật xuống vài trăm token thì mạch cũ vẫn kéo theo hàng trăm nghìn. Số đo thật: lượt đầu một hội thoại 36.000 token, vài lượt sau đã 191.000. Nay khi vượt ngưỡng, Javis mở mạch mới và **mang theo tóm tắt lịch sử**, có báo cho anh biết ngay trong khung chat. Có mốc chống xoay liên tục: phải có thêm ít nhất hai lượt hỏi-đáp mới được xoay lần nữa, để một lượt nặng vì công việc không kéo theo việc phá mạch mỗi lượt.
+- **Jarvis 007 tự mở mạch hội thoại mới khi mạch cũ phình quá 120.000 token mỗi lượt.** Claude Code và Codex tự quản mạch của chúng, nên phần to nhất của mỗi lượt vốn nằm ngoài tầm với: gọt bộ luật xuống vài trăm token thì mạch cũ vẫn kéo theo hàng trăm nghìn. Số đo thật: lượt đầu một hội thoại 36.000 token, vài lượt sau đã 191.000. Nay khi vượt ngưỡng, Jarvis 007 mở mạch mới và **mang theo tóm tắt lịch sử**, có báo cho anh biết ngay trong khung chat. Có mốc chống xoay liên tục: phải có thêm ít nhất hai lượt hỏi-đáp mới được xoay lần nữa, để một lượt nặng vì công việc không kéo theo việc phá mạch mỗi lượt.
 ### Sửa lỗi
-- **Javis đoán trước mỗi lượt tốn bao nhiêu, và đoán thấp hơn thật gần bảy lần.** Trang ghi lệch âm 86%, có lượt âm 96%. Con số đó không chỉ để xem: nó chính là thứ Javis dùng để chặn TRƯỚC khi vượt hạn mức, nên đoán thấp bảy lần nghĩa là hàng rào đó gần như không tồn tại. Nguyên nhân: bộ đoán đếm đúng những gì Javis gói lại, nhưng không thấy được các vòng lặp mà engine tự chạy sau đó. Nay Javis **học từ chính các lượt đã chạy** của từng bộ não: thật gấp mấy lần đoán thì nhân lại bấy nhiêu. Chỉ nới lên chứ không bao giờ thu nhỏ, và có kẹp trần để một lượt bất thường không kéo lệch cả hệ số.
+- **Jarvis 007 đoán trước mỗi lượt tốn bao nhiêu, và đoán thấp hơn thật gần bảy lần.** Trang ghi lệch âm 86%, có lượt âm 96%. Con số đó không chỉ để xem: nó chính là thứ Jarvis 007 dùng để chặn TRƯỚC khi vượt hạn mức, nên đoán thấp bảy lần nghĩa là hàng rào đó gần như không tồn tại. Nguyên nhân: bộ đoán đếm đúng những gì Jarvis 007 gói lại, nhưng không thấy được các vòng lặp mà engine tự chạy sau đó. Nay Jarvis 007 **học từ chính các lượt đã chạy** của từng bộ não: thật gấp mấy lần đoán thì nhân lại bấy nhiêu. Chỉ nới lên chứ không bao giờ thu nhỏ, và có kẹp trần để một lượt bất thường không kéo lệch cả hệ số.
 - **Lượt đi đường tắt là lượt duy nhất không có dòng "đi đường nào, tốn bao nhiêu".** Bản 0.13.0 gắn dòng đó vào ba nhánh mà quên nhánh này, nên đúng những lượt tiết kiệm nhất lại là những lượt không khoe được gì.
 - **Lượt đi đường tắt không đi qua Codex, nên mạch của Codex không biết nó đã xảy ra.** Cứ nối tiếp mạch cũ ở lượt sau là Codex trả lời với một bản ghi thiếu: không thấy câu vừa hỏi lẫn câu vừa đáp, rồi nói lại hoặc nói mâu thuẫn. Nay sau mỗi lượt đường tắt, mạch được dựng lại từ lịch sử đã lưu.
 - Đường tắt bị **chặn cứng** với gói Claude Code, không phụ thuộc cấu hình: nó chạy bằng đường gọi thẳng cần API key, thứ gói Claude Code không có. Nới cấu hình bằng tay tới đó là mọi câu hỏi đơn giản báo lỗi đăng nhập.
@@ -4616,21 +4616,21 @@ Số đo thật cho thấy phần Javis gọt được chỉ là 13%, còn 87% t
 - **Test mới `test_ba_don_bay_token.py` chạy lượt chat thật qua cả ba đường** và canh cả chiều nguy hiểm: câu cần dữ liệu thật thì TUYỆT ĐỐI không được đi tắt, vì đi tắt một câu cần tra cứu là trả lời bịa. Kiểm ngược 10 đột biến, cả 10 đều bị bắt.
 
 ## [0.13.4] - 2026-08-03
-Máy đã cài Javis từ trước thì bật tiết kiệm cũng không ăn: cấu hình cũ trong máy đè lên mặc định mới, và nó đè im lặng.
+Máy đã cài Jarvis 007 từ trước thì bật tiết kiệm cũng không ăn: cấu hình cũ trong máy đè lên mặc định mới, và nó đè im lặng.
 ### Sửa lỗi
-- **Bật mức tiết kiệm rồi mà dòng dưới mỗi câu trả lời vẫn ghi "Đầy đủ".** Đúng lỗi chủ repo chụp lại. Nguyên nhân nằm ở chỗ không ai ngờ: **mọi máy đã chạy Javis từ trước bản 0.12.4 đều dính**, còn máy cài mới thì không, nên mọi thử nghiệm trước đó đều xanh.
+- **Bật mức tiết kiệm rồi mà dòng dưới mỗi câu trả lời vẫn ghi "Đầy đủ".** Đúng lỗi chủ repo chụp lại. Nguyên nhân nằm ở chỗ không ai ngờ: **mọi máy đã chạy Jarvis 007 từ trước bản 0.12.4 đều dính**, còn máy cài mới thì không, nên mọi thử nghiệm trước đó đều xanh.
 
-  Javis ghi lại **toàn bộ** cấu hình vào `settings.json` ngay lần đầu người dùng bấm bất cứ thứ gì, và khi đọc thì lấy file đè lên mặc định. Nghĩa là mặc định của ngày hôm đó bị đóng băng vĩnh viễn: sau này Javis có sửa mặc định cho tốt hơn thì máy đã cài rồi **không bao giờ thấy**. Trước 0.12.4, hai mảng tiết kiệm quan trọng nhất (bộ nhớ chọn lọc và skill nạp khi cần) chỉ chạy trên bộ não dùng API key. Máy cũ ghim cứng con số đó. Nâng cấp lên, bấm "Tối ưu", trang báo xanh "đã bật, có hiệu lực ngay", rồi mọi lượt trên gói ChatGPT hay gói Claude vẫn gửi nguyên bộ luật vì cả ba nguồn bị loại lặng lẽ.
+  Jarvis 007 ghi lại **toàn bộ** cấu hình vào `settings.json` ngay lần đầu người dùng bấm bất cứ thứ gì, và khi đọc thì lấy file đè lên mặc định. Nghĩa là mặc định của ngày hôm đó bị đóng băng vĩnh viễn: sau này Jarvis 007 có sửa mặc định cho tốt hơn thì máy đã cài rồi **không bao giờ thấy**. Trước 0.12.4, hai mảng tiết kiệm quan trọng nhất (bộ nhớ chọn lọc và skill nạp khi cần) chỉ chạy trên bộ não dùng API key. Máy cũ ghim cứng con số đó. Nâng cấp lên, bấm "Tối ưu", trang báo xanh "đã bật, có hiệu lực ngay", rồi mọi lượt trên gói ChatGPT hay gói Claude vẫn gửi nguyên bộ luật vì cả ba nguồn bị loại lặng lẽ.
 
-  Nay khi đọc cấu hình, Javis **nới** phạm vi bộ não của các mảng tiết kiệm về ít nhất bằng mặc định hiện tại, và chỉ nới chứ không bao giờ thu hẹp. Mảng nào cố ý chỉ chạy trên bộ não API key (phần gửi lại lịch sử hội thoại: Claude Code và ChatGPT tự nhớ mạch của chúng rồi, gửi thêm là gửi hai lần) vẫn giữ đúng phạm vi của nó. Bấm mức một lần nữa thì chính file cấu hình cũng được chữa luôn.
+  Nay khi đọc cấu hình, Jarvis 007 **nới** phạm vi bộ não của các mảng tiết kiệm về ít nhất bằng mặc định hiện tại, và chỉ nới chứ không bao giờ thu hẹp. Mảng nào cố ý chỉ chạy trên bộ não API key (phần gửi lại lịch sử hội thoại: Claude Code và ChatGPT tự nhớ mạch của chúng rồi, gửi thêm là gửi hai lần) vẫn giữ đúng phạm vi của nó. Bấm mức một lần nữa thì chính file cấu hình cũng được chữa luôn.
 ### Cải thiện
 - **Test mới `test_cauhinh_cu_khong_ket.py` dựng đúng một máy cài từ trước** rồi bấm mức như người dùng bấm. Đây là lớp lỗi mà test chạy trên máy sạch không bao giờ thấy được. Gỡ bản vá ra thì nó đỏ đúng năm chỗ.
 
 ## [0.13.3] - 2026-08-03
 Rà lại xem bật mức tiết kiệm thì có tiết kiệm thật không. Thủng bốn chỗ, và cả bốn đều im lặng: trang vẫn báo xanh, token vẫn tốn như cũ.
 ### Sửa lỗi
-- **Bốn trên năm bộ não dùng API key bấm "Tối ưu" xong không tiết kiệm được gì.** OpenRouter, OpenAI, Gemini và Anthropic API đều rơi vào đây. Lý do: phần chọn lọc ngữ cảnh đòi phải biết trước hạn mức token, mà bảng hạn mức có sẵn trong máy hiện **chỉ có Groq**. Không biết hạn mức thì nó lặng lẽ quay về gửi nguyên bộ luật mỗi lượt, trong khi trang vẫn ghi "đã bật, giảm 89%". Nay khi chưa biết hạn mức thật, Javis dùng một **trần ngữ cảnh mặc định** để gói ghém. Trần đó chỉ để biên soạn, không bao giờ dùng để từ chối câu hỏi của anh: vượt thì lui về cách cũ chứ không chặn. Và ngay lần đầu nhà cung cấp báo vượt hạn mức, Javis dùng đúng con số thật của họ thay cho trần này.
-- **Đổi bộ não là mức tiết kiệm lặng lẽ ngừng chạy.** Hạn mức chỉ được khai đúng một lần, lần sau thấy "đã có gì đó" là bỏ qua. Nên bấm mức khi đang dùng Groq, sau đổi sang bộ não khác, thì Javis vẫn cầm hạn mức của Groq, không khớp bộ não mới, và mọi lượt về đường cũ mà không báo gì. Nay hạn mức được **bổ sung** cho bộ não đang dùng, giữ nguyên phần người dùng tự khai, và không đẻ bản sao khi bấm lại.
+- **Bốn trên năm bộ não dùng API key bấm "Tối ưu" xong không tiết kiệm được gì.** OpenRouter, OpenAI, Gemini và Anthropic API đều rơi vào đây. Lý do: phần chọn lọc ngữ cảnh đòi phải biết trước hạn mức token, mà bảng hạn mức có sẵn trong máy hiện **chỉ có Groq**. Không biết hạn mức thì nó lặng lẽ quay về gửi nguyên bộ luật mỗi lượt, trong khi trang vẫn ghi "đã bật, giảm 89%". Nay khi chưa biết hạn mức thật, Jarvis 007 dùng một **trần ngữ cảnh mặc định** để gói ghém. Trần đó chỉ để biên soạn, không bao giờ dùng để từ chối câu hỏi của anh: vượt thì lui về cách cũ chứ không chặn. Và ngay lần đầu nhà cung cấp báo vượt hạn mức, Jarvis 007 dùng đúng con số thật của họ thay cho trần này.
+- **Đổi bộ não là mức tiết kiệm lặng lẽ ngừng chạy.** Hạn mức chỉ được khai đúng một lần, lần sau thấy "đã có gì đó" là bỏ qua. Nên bấm mức khi đang dùng Groq, sau đổi sang bộ não khác, thì Jarvis 007 vẫn cầm hạn mức của Groq, không khớp bộ não mới, và mọi lượt về đường cũ mà không báo gì. Nay hạn mức được **bổ sung** cho bộ não đang dùng, giữ nguyên phần người dùng tự khai, và không đẻ bản sao khi bấm lại.
 - **Lượt đã tiết kiệm vẫn bị ghi là "Đầy đủ".** Một lượt đi qua nhiều tầng; tầng nào không nhận thì đánh dấu "đường cũ", mà cách cũ là ai đánh dấu trước thì thắng. Phần tiết kiệm ngữ cảnh chạy sau cùng nên có nhận lượt cũng không đổi được nhãn. Hệ quả: dòng dưới câu trả lời ghi "Đầy đủ", bảng đo 24 giờ xếp lượt đó vào cột chưa tiết kiệm, và trang bảo anh chưa tiết kiệm được gì trong khi đang tiết kiệm. Toàn bộ bộ não API key dính, tức đúng những người trả tiền theo token. Nay "đường cũ" chỉ là mặc định khi chưa ai nhận, tầng nào nhận thật thì nhãn theo tầng đó. Vẫn giữ nguyên hai luật cũ: đường thật không ghi đè đường thật, và chỉnh mức giữa lượt không đổi lượt đang chạy.
 - **Mức "Siêu tiết kiệm" khoe giảm 96% cho cả bộ não không dùng được nó.** Mức này hơn "Tối ưu" ở đúng đường tắt cho câu hỏi đơn giản, mà đường tắt chỉ chạy trên bộ não dùng API key. Ai đang chạy gói Claude hay gói ChatGPT thì bấm vào cũng chỉ bằng mức Tối ưu. Nay nút đó hiện đúng con số của bộ não đang chạy, kèm dấu **"không áp cho bộ não đang dùng"** và một câu nói rõ vì sao.
 - **Cảnh báo của máy chủ bị nuốt.** Máy chủ có trả lời "mảng này chưa chạy được đâu" khi bấm mức, nhưng giao diện chưa bao giờ hiện nó, nên anh chỉ thấy một dòng xanh "đã bật, có hiệu lực ngay". Nay cảnh báo hiện thẳng trong thông báo.
@@ -4675,19 +4675,19 @@ Bật tiết kiệm token không còn biến câu trả lời thành khối JSON
 ### Sửa lỗi
 - **Bật mức Tiết kiệm xong, câu trả lời hiện ra thành một khối JSON.** Chỗ đáng lẽ là lời chào thì khung chat in nguyên `{"channel":"dashboard","language":"match_user",...,"content":"Chào anh"}`. Nguyên nhân: phần dặn cách trả lời được nhét vào prompt dưới dạng một object JSON. Đặt object ngay trước chỗ model phải trả lời thì model yếu hiểu là "hãy phát ra object này", và nó phát thật. Nay phần đó viết thành lời, cấm đích danh việc bọc câu trả lời trong JSON. Đây là lỗi nặng nhất trong nhóm: nó làm chính tính năng tiết kiệm token sinh ra rác, bật lên là hỏng.
 - **Badge góc phải ghi "CLI" cho mọi bộ não dùng API key.** Chọn Groq mà badge ghi "CLI", trong khi thanh model ngay bên cạnh ghi "Groq". Chỗ nhận diện chỉ có hai nhánh: OpenRouter, hoặc CLI. Nay biết đủ bảy bộ não và đọc model chính theo đúng thứ tự máy chủ dùng.
-- **Khung chat vỡ trên điện thoại.** Tiêu đề "Trò chuyện với Javis" xuống bốn dòng, chữ "Thu nhỏ" xuống hai dòng, đẩy khung chat tụt hẳn xuống. Hồi quy từ chính nút Thu nhỏ thêm ở 0.12.4. Nay màn hẹp thì nút chỉ còn icon, tiêu đề và nhãn bộ não tự cắt gọn trong một dòng.
+- **Khung chat vỡ trên điện thoại.** Tiêu đề "Trò chuyện với Jarvis 007" xuống bốn dòng, chữ "Thu nhỏ" xuống hai dòng, đẩy khung chat tụt hẳn xuống. Hồi quy từ chính nút Thu nhỏ thêm ở 0.12.4. Nay màn hẹp thì nút chỉ còn icon, tiêu đề và nhãn bộ não tự cắt gọn trong một dòng.
 - Panel Mức dùng thôi hiện trần mã provider cho Groq và Gemini.
 
 ## [0.12.5] - 2026-08-03
-Groq siết bốn chiều cùng lúc, Javis từng gộp cả bốn thành "request quá lớn". Nay nói đúng loại và khuyên đúng việc.
+Groq siết bốn chiều cùng lúc, Jarvis 007 từng gộp cả bốn thành "request quá lớn". Nay nói đúng loại và khuyên đúng việc.
 ### Sửa lỗi
-- **"groq báo request quá lớn... lượt này cần khoảng 0 token".** Ba thứ sai trong đúng một câu. Gói Groq siết **bốn** thứ song song: token mỗi phút, **số lượt** mỗi phút, token mỗi **ngày**, số lượt mỗi ngày. Cả bốn đều mở đầu bằng "Rate limit reached", mà Javis lại lấy đúng cụm đó làm dấu hiệu "vượt kích thước", nên ba chiều kia bị gán nhãn sai. Số 0 là vì không đọc được gì từ câu lỗi, còn con 12.000 thì lấy từ **bảng tra sẵn trong code** chứ không phải từ Groq. Ghép hai thứ đó thành một câu nghe như đã hiểu chuyện vừa sai vừa che mất bằng chứng.
+- **"groq báo request quá lớn... lượt này cần khoảng 0 token".** Ba thứ sai trong đúng một câu. Gói Groq siết **bốn** thứ song song: token mỗi phút, **số lượt** mỗi phút, token mỗi **ngày**, số lượt mỗi ngày. Cả bốn đều mở đầu bằng "Rate limit reached", mà Jarvis 007 lại lấy đúng cụm đó làm dấu hiệu "vượt kích thước", nên ba chiều kia bị gán nhãn sai. Số 0 là vì không đọc được gì từ câu lỗi, còn con 12.000 thì lấy từ **bảng tra sẵn trong code** chứ không phải từ Groq. Ghép hai thứ đó thành một câu nghe như đã hiểu chuyện vừa sai vừa che mất bằng chứng.
 - **Nay mỗi loại hạn mức được khuyên đúng việc.** Lượt quá to thì rút gọn rồi thử lại. Cửa sổ phút đã đầy thì chờ đúng số giây nhà cung cấp nói. **Hết hạn mức theo ngày thì nói thẳng là rút gọn không giúp gì**, phải chờ sang ngày hoặc đổi bộ não hoặc nâng gói, thay vì để anh ngồi cắt câu hỏi cho ngắn rồi vẫn lỗi.
 - **Không hiểu lỗi thì đưa nguyên văn lời nhà cung cấp ra, không bịa câu cho tròn.** Trước đây câu lỗi thật bị nuốt mất nên không ai lần ra được nguyên nhân.
 - **Hạn mức đếm LƯỢT không còn bị dùng làm ngân sách token.** "30 lượt mỗi phút" mà đem nhân hệ số an toàn thì thành "co ngữ cảnh xuống 22 token", đủ để hỏng lượt chat.
 - **Thôi thử lại khi thử lại chắc chắn vô ích.** Hết hạn mức ngày mà gửi lại chỉ tốn thêm một lượt để ăn đúng lỗi đó lần nữa.
 ### Cải thiện
-- **Bộ định tuyến tự dùng hạn mức nó đã học được, khỏi chờ ai khai.** Thứ tự cũ bị ngược: cơ chế an toàn đòi khai hạn mức trước mới cho chạy, nên đúng lúc bị siết lại là đúng lúc phần tiết kiệm ngữ cảnh không hoạt động. Nay sau **một lần** bị nhà cung cấp từ chối là Javis có ngay con số thật của tài khoản đó và dùng luôn làm ngân sách. Người vận hành khai tay vẫn được ưu tiên trên hết.
+- **Bộ định tuyến tự dùng hạn mức nó đã học được, khỏi chờ ai khai.** Thứ tự cũ bị ngược: cơ chế an toàn đòi khai hạn mức trước mới cho chạy, nên đúng lúc bị siết lại là đúng lúc phần tiết kiệm ngữ cảnh không hoạt động. Nay sau **một lần** bị nhà cung cấp từ chối là Jarvis 007 có ngay con số thật của tài khoản đó và dùng luôn làm ngân sách. Người vận hành khai tay vẫn được ưu tiên trên hết.
 - Rút gọn ngữ cảnh khi không đọc được hạn mức lần này thì lấy con số đã học từ lần trước, thay vì bỏ trống rồi chỉ cắt được mỗi lịch sử hội thoại.
 
 ## [0.12.4] - 2026-08-03
@@ -4695,30 +4695,30 @@ Phần tiết kiệm token nay dùng được cho **gói Claude và gói ChatGPT
 ### Thêm mới
 - **Tiết kiệm token cho gói thuê bao.** Trước đây toàn bộ phần chọn lọc ngữ cảnh chỉ chạy trên bộ não dùng API key: Claude Code và ChatGPT/Codex bị loại ngay từ đầu vì hệ thống đòi biết "hạn mức token mỗi phút", thứ gói thuê bao không công bố. Nay hai bộ não đó dùng **trần ngữ cảnh** thay cho hạn mức thương mại, và ăn được hai mảng: **nhớ có chọn lọc** và **skill nạp khi cần**.
 - **Trang Tiết kiệm token có khối "Bộ não đang dùng".** Nói thẳng bộ não hiện tại là loại gì, đang ăn được mấy mảng, mảng nào không áp cho nó và vì sao. Trước đây muốn biết phải đọc file cấu hình trên máy chủ.
-- **Hết lượt gói thuê bao thì nói bằng tiếng Việt.** Claude Code và Codex in nguyên văn câu tiếng Anh, có khi là dạng máy đọc. Nay Javis dịch thành câu nói rõ: hết lượt gói nào, còn bao lâu nữa, bộ não nào đang sẵn sàng chạy tạm. Không tự đổi bộ não hộ - đó là tiêu hạn mức của một tài khoản khác, có khi mất tiền thật.
+- **Hết lượt gói thuê bao thì nói bằng tiếng Việt.** Claude Code và Codex in nguyên văn câu tiếng Anh, có khi là dạng máy đọc. Nay Jarvis 007 dịch thành câu nói rõ: hết lượt gói nào, còn bao lâu nữa, bộ não nào đang sẵn sàng chạy tạm. Không tự đổi bộ não hộ - đó là tiêu hạn mức của một tài khoản khác, có khi mất tiền thật.
 ### Sửa lỗi
 - **Bấm mức "Tiết kiệm" xong vẫn không có gì đổi.** Hạn mức được khai theo tên từng mảng, trong khi ba mảng chọn lọc ngữ cảnh lại đọc hạn mức ở một chỗ dùng chung. Kết quả: công tắc bật, con số lên, mà mọi lượt vẫn đi đường cũ. Nay khai vào đúng chỗ chúng đọc.
 - **Hover vào một hội thoại thì nút xoá và đổi tên bấm không ăn.** Nút có hiện, bấm vào lại mở hội thoại đó. Vùng bấm thật chỉ còn viền mỏng quanh icon. Nay bấm đâu trong nút cũng ăn.
 - Bật tiết kiệm token cho Claude Code không còn vô tình tắt phần skill native của nó.
 ### Cải thiện
-- **Bỏ hẳn khung chat phóng to.** Nút phóng to nay **chuyển thẳng sang trang Trò chuyện**, và trang đó có nút **Thu nhỏ** để về lại màn Javis. Trước đây có hai khung chat trông gần giống nhau mà hành xử khác nhau, và cả hai giành chung một bộ thành phần nên hay sinh lỗi khi chuyển tab.
+- **Bỏ hẳn khung chat phóng to.** Nút phóng to nay **chuyển thẳng sang trang Trò chuyện**, và trang đó có nút **Thu nhỏ** để về lại màn Jarvis 007. Trước đây có hai khung chat trông gần giống nhau mà hành xử khác nhau, và cả hai giành chung một bộ thành phần nên hay sinh lỗi khi chuyển tab.
 
 ## [0.12.3] - 2026-08-02
 Cập nhật thất bại thì nói rõ vì sao và phải làm gì, thay vì bảo đi đọc file log.
 ### Sửa lỗi
-- **"Server lên nhưng phiên bản chưa đổi (pull chưa áp?). Xem update.log."** Câu này biết có chuyện bất thường mà không nói ra chuyện gì, rồi đẩy người dùng đi đọc một file log mà bản Windows/Docker gần như không với tới được. Nay Javis tự chẩn đoán và nói thẳng: đang đứng ở nhánh nào, theo dõi nhánh nào, và **lệnh cụ thể để sửa**. Nguyên nhân hay gặp nhất là máy đang theo dõi một nhánh khác nhánh có bản mới, nên `git` báo "đã mới nhất" một cách hoàn toàn hợp lệ. Cũng nhận ra trường hợp bản đóng gói sẵn (Docker) không cập nhật được từ mã nguồn, và trường hợp không đứng trên nhánh nào.
+- **"Server lên nhưng phiên bản chưa đổi (pull chưa áp?). Xem update.log."** Câu này biết có chuyện bất thường mà không nói ra chuyện gì, rồi đẩy người dùng đi đọc một file log mà bản Windows/Docker gần như không với tới được. Nay Jarvis 007 tự chẩn đoán và nói thẳng: đang đứng ở nhánh nào, theo dõi nhánh nào, và **lệnh cụ thể để sửa**. Nguyên nhân hay gặp nhất là máy đang theo dõi một nhánh khác nhánh có bản mới, nên `git` báo "đã mới nhất" một cách hoàn toàn hợp lệ. Cũng nhận ra trường hợp bản đóng gói sẵn (Docker) không cập nhật được từ mã nguồn, và trường hợp không đứng trên nhánh nào.
 - Thông báo lỗi giờ nêu cả phiên bản đang chạy lẫn phiên bản đích, để nhìn là biết ngay đã lên hay chưa.
 
 ## [0.12.2] - 2026-08-02
-Model yếu bịa sai cú pháp gọi công cụ thì Javis tự gỡ, thay vì hiện khối JSON lỗi rồi im lặng.
+Model yếu bịa sai cú pháp gọi công cụ thì Jarvis 007 tự gỡ, thay vì hiện khối JSON lỗi rồi im lặng.
 ### Sửa lỗi
-- **Llama đôi khi trả lời được, đôi khi hiện lỗi JSON rồi "(không có nội dung trả về)".** Nguyên nhân: model yếu thỉnh thoảng tự bịa cú pháp gọi công cụ thay vì đúng định dạng, nhà cung cấp từ chối. Nay Javis gỡ theo hai nấc: thử lại một lần (model sinh chữ có yếu tố ngẫu nhiên nên lần sau thường trúng), vẫn hỏng thì **bỏ công cụ và trả lời bằng lời** kèm một dòng báo. Trả lời thiếu công cụ vẫn hơn hẳn không trả lời gì.
+- **Llama đôi khi trả lời được, đôi khi hiện lỗi JSON rồi "(không có nội dung trả về)".** Nguyên nhân: model yếu thỉnh thoảng tự bịa cú pháp gọi công cụ thay vì đúng định dạng, nhà cung cấp từ chối. Nay Jarvis 007 gỡ theo hai nấc: thử lại một lần (model sinh chữ có yếu tố ngẫu nhiên nên lần sau thường trúng), vẫn hỏng thì **bỏ công cụ và trả lời bằng lời** kèm một dòng báo. Trả lời thiếu công cụ vẫn hơn hẳn không trả lời gì.
 - Chỉ áp cho đúng lỗi này, nhận theo mã lỗi riêng chứ không theo mã trạng thái, vì cùng mã đó còn dùng cho cả chục lỗi khác mà thử lại chỉ tổ tốn thêm một lượt.
 
 ## [0.12.1] - 2026-08-02
 Groq/Llama: xử được cả trường hợp hạn mức phút đã đầy. Ba lỗi giao diện.
 ### Sửa lỗi
-- **Groq báo lỗi hạn mức kiểu thứ hai mà Javis không nhận ra.** Nhà cung cấp có hai câu báo khác nhau: một là "lượt này quá lớn", hai là "phút này đã dùng hết hạn mức". Javis mới chỉ đọc được câu đầu, nên sau khi đã tự rút gọn thành công thì lại vấp câu thứ hai và trả lỗi thô. Nay đọc được cả hai, và với trường hợp thứ hai thì **chờ đúng số giây nhà cung cấp bảo chờ rồi tự gửi lại** thay vì cắt bớt ngữ cảnh vô ích. Vòng gọi công cụ vốn không có cơ chế thử lại nào nên đây cũng là lần đầu nó biết chờ.
+- **Groq báo lỗi hạn mức kiểu thứ hai mà Jarvis 007 không nhận ra.** Nhà cung cấp có hai câu báo khác nhau: một là "lượt này quá lớn", hai là "phút này đã dùng hết hạn mức". Jarvis 007 mới chỉ đọc được câu đầu, nên sau khi đã tự rút gọn thành công thì lại vấp câu thứ hai và trả lỗi thô. Nay đọc được cả hai, và với trường hợp thứ hai thì **chờ đúng số giây nhà cung cấp bảo chờ rồi tự gửi lại** thay vì cắt bớt ngữ cảnh vô ích. Vòng gọi công cụ vốn không có cơ chế thử lại nào nên đây cũng là lần đầu nó biết chờ.
 - **Phóng to khung chat rồi chuyển tab thì khung phóng to vẫn nằm đè lên trang mới.** Nay chuyển tab là tự thu lại.
 - **Trên điện thoại, chạm vào note mở trình sửa rồi không thoát được** vì thanh nút tràn khỏi màn hình hẹp. Theo yêu cầu, đã **tắt hẳn việc chạm note để sửa trên điện thoại** (node quá nhỏ nên gần như luôn chạm nhầm), kèm một dòng nhắc mở trên máy tính. Thanh nút của trình sửa cũng đã biết xuống dòng để nút Đóng luôn với tới được nếu vào bằng đường khác.
 - **Đổi model ở trang Models thì thanh model dưới khung chat và dòng trạng thái trên hội thoại không đổi theo.** Hai chỗ đó đọc cấu hình ở hai thời điểm khác nhau và không ai báo cho ai. Nay mọi đường đổi model đều làm mới cả hai ngay lập tức.
@@ -4726,29 +4726,29 @@ Groq/Llama: xử được cả trường hợp hạn mức phút đã đầy. Ba
 ## [0.12.0] - 2026-08-02
 Trang Chẩn đoán đổi thành **Tiết kiệm token**: ba nút thay cho bảng mười dòng. Sửa lỗi Llama vẫn vượt hạn mức.
 ### Sửa lỗi
-- **Llama/Groq vẫn báo vượt hạn mức dù 0.11.0 nói là đã tự xử.** Phần tự học hạn mức đặt nhầm chỗ: nó nằm ở các hàm gửi đơn giản, trong khi mọi lượt chat thật đều đi qua vòng gọi công cụ (Javis luôn có công cụ nội bộ nên vòng đó luôn được dùng). Code chạy đúng, test xanh, và không bao giờ được gọi tới. Nay đã đặt đúng chỗ, phủ cả năm nhà cung cấp cùng ChatGPT.
+- **Llama/Groq vẫn báo vượt hạn mức dù 0.11.0 nói là đã tự xử.** Phần tự học hạn mức đặt nhầm chỗ: nó nằm ở các hàm gửi đơn giản, trong khi mọi lượt chat thật đều đi qua vòng gọi công cụ (Jarvis 007 luôn có công cụ nội bộ nên vòng đó luôn được dùng). Code chạy đúng, test xanh, và không bao giờ được gọi tới. Nay đã đặt đúng chỗ, phủ cả năm nhà cung cấp cùng ChatGPT.
 - **Bấm nút "Đặt" không thấy gì xảy ra.** Ô số hiện sẵn giá trị đang dùng, nên bấm mà không sửa số là đặt lại đúng giá trị cũ - một thao tác rỗng, lại không có thông báo nào. Nay mọi thao tác đều hiện một dòng xác nhận nói rõ vừa đổi cái gì.
 ### Cải thiện
 - **Đổi tên trang thành "Tiết kiệm token".** Tên cũ "Chẩn đoán" không nói được trang dùng để làm gì.
-- **Ba nút thay cho bảng mười dòng.** Chọn **Tắt**, **Tiết kiệm** hoặc **Tối đa**, mỗi nút có một dòng nói rõ đánh đổi. Javis tự lo phần bên dưới: bật đúng những mảng cần, tự bật công tắc trùm, tự khai hạn mức cho nhà cung cấp đang dùng. Không còn phải hiểu "canary", "allocation" hay "basis point" mới dùng được.
+- **Ba nút thay cho bảng mười dòng.** Chọn **Tắt**, **Tiết kiệm** hoặc **Tối đa**, mỗi nút có một dòng nói rõ đánh đổi. Jarvis 007 tự lo phần bên dưới: bật đúng những mảng cần, tự bật công tắc trùm, tự khai hạn mức cho nhà cung cấp đang dùng. Không còn phải hiểu "canary", "allocation" hay "basis point" mới dùng được.
 - Mức chỉ gồm những mảng **chạy được thật**. Mảng nào cần danh sách cho phép mà chưa khai thì không đưa vào, vì bật lên chỉ tạo cảm giác đã bật trong khi mọi lượt vẫn đi đường cũ.
 - Bảng chi tiết cùng công tắc trùm chuyển vào mục **Nâng cao** gập sẵn, cho ai muốn thử nghiệm.
 - Hạ mức thì tắt hẳn phần dư, không cộng dồn. Chỉnh tay lệch chuẩn thì trang báo là "custom" chứ không im lặng nhận bừa.
 
 ## [0.11.0] - 2026-08-02
-Javis tự học hạn mức của mọi nhà cung cấp từ chính câu báo lỗi, tự rút gọn rồi chạy tiếp. Trang Chẩn đoán viết lại bằng tiếng người.
+Jarvis 007 tự học hạn mức của mọi nhà cung cấp từ chính câu báo lỗi, tự rút gọn rồi chạy tiếp. Trang Chẩn đoán viết lại bằng tiếng người.
 ### Sửa lỗi
 - **Dải báo đỏ trên thanh trạng thái nói sai và chỉ sai chỗ.** Nó ghi "Bộ não claude mất đăng nhập... Mở terminal chạy claude rồi gõ /login" - hướng dẫn đã lỗi thời vì giờ kết nối ở trang **Models**. Chuỗi lại dài hơn cả thanh trạng thái nên bị cắt cụt giữa chừng, mà phần bị cắt đúng là phần nói phải làm gì. Nay chỉ còn một câu ngắn **"Chưa kết nối Model AI - bấm để kết nối"**, bấm vào là sang thẳng trang Models. Chi tiết kỹ thuật chuyển vào tooltip, vẫn còn khi cần đi tra.
 - Thông báo cùng nội dung gửi qua Telegram cũng viết lại theo góc người dùng, không mở đầu bằng tên bộ não nữa.
 
 ### Tính năng mới
-- **Vượt hạn mức thì tự xử, không bắt anh đọc lỗi kỹ thuật.** Khi nhà cung cấp từ chối vì request quá lớn, câu báo lỗi của họ có nêu hạn mức thật của tài khoản. Javis đọc lấy con số đó, tự bỏ lịch sử hội thoại cho nhẹ, rồi gửi lại. Anh chỉ thấy một dòng "đang rút gọn ngữ cảnh rồi thử lại" và sau đó là câu trả lời.
-- **Áp dụng cho MỌI nhà cung cấp, không riêng ai.** Nhận diện được câu báo lỗi của Groq, OpenAI, Anthropic, Gemini và OpenRouter, kể cả khi họ viết hai con số theo thứ tự ngược nhau. Cắm nhà cung cấp mới cũng không phải khai gì trước: Javis học từ lần từ chối đầu tiên và nhớ để không đâm vào nữa.
+- **Vượt hạn mức thì tự xử, không bắt anh đọc lỗi kỹ thuật.** Khi nhà cung cấp từ chối vì request quá lớn, câu báo lỗi của họ có nêu hạn mức thật của tài khoản. Jarvis 007 đọc lấy con số đó, tự bỏ lịch sử hội thoại cho nhẹ, rồi gửi lại. Anh chỉ thấy một dòng "đang rút gọn ngữ cảnh rồi thử lại" và sau đó là câu trả lời.
+- **Áp dụng cho MỌI nhà cung cấp, không riêng ai.** Nhận diện được câu báo lỗi của Groq, OpenAI, Anthropic, Gemini và OpenRouter, kể cả khi họ viết hai con số theo thứ tự ngược nhau. Cắm nhà cung cấp mới cũng không phải khai gì trước: Jarvis 007 học từ lần từ chối đầu tiên và nhớ để không đâm vào nữa.
 - **Chỉ thử lại một lần.** Rút gọn rồi mà vẫn vượt thì báo cho anh kèm con số cụ thể, vì lúc đó vấn đề không còn nằm ở kích thước ngữ cảnh.
 - Câu hỏi hiện tại của anh **không bao giờ** bị cắt khi rút gọn. Thứ tự hy sinh là lịch sử cũ trước, rồi mới tới phần đuôi của hướng dẫn hệ thống.
 ### Cải thiện
 - **Trang Chẩn đoán viết lại cho dễ hiểu.** Thêm phần giải thích trang này để làm gì, đường cũ khác đường mới ra sao, và "bật thử từng phần" nghĩa là gì. Mọi nhãn kỹ thuật đổi sang tiếng thường: "Token đã gửi đi" thay cho "Token vào (thật)", "Vì sao vẫn đi đường cũ" thay cho "Lý do không vào đường mới". Mỗi mục có một dòng nói rõ nhìn số đó để làm gì.
-- Thêm mục **Hạn mức Javis tự học được**, cho thấy nhà cung cấp nào đã nói ra hạn mức thật của tài khoản anh.
+- Thêm mục **Hạn mức Jarvis 007 tự học được**, cho thấy nhà cung cấp nào đã nói ra hạn mức thật của tài khoản anh.
 - Lỗi vượt kích thước không còn bị thử lại y nguyên như lỗi quá tải tạm thời. Thử lại mà không rút gọn thì chỉ tốn thêm một lượt để nhận đúng lỗi đó.
 
 ## [0.10.1] - 2026-08-02
@@ -4757,22 +4757,22 @@ Sửa lỗi làm không bật được đường chạy mới, phát hiện ngay
 - **Bật đường mới xong vẫn không có gì đổi.** Có một công tắc trùm (`mode`) mà 0.10.0 không hề phơi ra: mọi đường chỉ chạy khi nó ở `canary` hoặc `on`, còn mặc định là `shadow`. Đặt tỉ lệ lên bao nhiêu cũng vô nghĩa, mà màn hình lại báo thành công. Nay trang Chẩn đoán có ô chọn mode, và bật tỉ lệ khi mode chưa đúng thì bị chặn kèm lý do rõ ràng thay vì báo thành công giả.
 - **Ba đường của tầng ngữ cảnh bị chặn nhầm.** Chúng dùng chung hạn mức khai ở chỗ khác nên không có mục hạn mức riêng, nhưng bộ kiểm tra lại đòi và từ chối với lý do sai là "chưa khai hạn mức". Lý do sai còn khó lần ra hơn là không chặn.
 ### Lưu ý
-- Sau khi cập nhật, muốn Javis chạy nhẹ với model bị siết hạn mức (Groq) thì vào **Chẩn đoán**: đổi mode sang `canary`, bấm **Khai** hạn mức cho groq, rồi đặt tỉ lệ 10000 cho `memory_canary`, `lazy_skill_canary`, `conversation_state_canary`. Đo trên cấu hình thật: phần cố định gửi đi giảm từ khoảng 15.400 xuống khoảng 4.100 token.
+- Sau khi cập nhật, muốn Jarvis 007 chạy nhẹ với model bị siết hạn mức (Groq) thì vào **Chẩn đoán**: đổi mode sang `canary`, bấm **Khai** hạn mức cho groq, rồi đặt tỉ lệ 10000 cho `memory_canary`, `lazy_skill_canary`, `conversation_state_canary`. Đo trên cấu hình thật: phần cố định gửi đi giảm từ khoảng 15.400 xuống khoảng 4.100 token.
 
 ## [0.10.0] - 2026-08-02
 Nền tảng Adaptive Context Runtime: ngữ cảnh gửi cho model co theo việc cần làm, không phình theo số thứ đã cắm.
 ### Cải thiện
 - **Tool không còn nhồi hết vào mỗi lượt.** Trước đây mọi schema tool đi thẳng vào request, cho mọi model, mọi câu hỏi. Tầng "nạp theo nhu cầu" đã có sẵn nhưng chưa từng chạy: nó chỉ giấu tool của connector ngoài, còn tool nội bộ và plugin thì luôn hiện, mà ngưỡng bật lại đếm theo SỐ LƯỢNG tool trong khi cái tốn tiền là KÍCH THƯỚC. Nay ngưỡng xét cả hai, và chỉ giữ lại vài tool hạt nhân. Đo trên cấu hình 26 tool + 30 skill: schema mỗi lượt giảm **83%** (11.994 xuống 2.001 ký tự). Có tác dụng ngay, không cần bật gì.
-- **Javis biết trước là sẽ vượt hạn mức, và nói ra.** Trước đây gặp model bị siết token mỗi phút (như gói Groq miễn phí 12.000 TPM), Javis vẫn gửi request rồi để nhà cung cấp trả lỗi khó hiểu. Tệ hơn: khi phát hiện request quá to, nó lại rơi về đường gửi NHIỀU token hơn. Nay nó dừng trước, nêu rõ cần bao nhiêu token so với hạn mức, và gợi ý provider anh đang có mà chưa bị siết.
+- **Jarvis 007 biết trước là sẽ vượt hạn mức, và nói ra.** Trước đây gặp model bị siết token mỗi phút (như gói Groq miễn phí 12.000 TPM), Jarvis 007 vẫn gửi request rồi để nhà cung cấp trả lỗi khó hiểu. Tệ hơn: khi phát hiện request quá to, nó lại rơi về đường gửi NHIỀU token hơn. Nay nó dừng trước, nêu rõ cần bao nhiêu token so với hạn mức, và gợi ý provider anh đang có mà chưa bị siết.
 - **Loop nền, việc Kanban và nhắc hẹn không còn âm thầm ăn hết hạn mức.** Hạn mức token mỗi phút là của TÀI KHOẢN, nhưng trước đây chỉ vài đường được kế toán, còn chat thường, loop, việc nền và Telegram thì đốt vô hình. Nay gom về một sổ chung, nên khi bị chặn thì con số nhìn thấy được đúng như thực tế.
 - **Trang Chẩn đoán** ở mục Hệ thống: token vào ra thật, sai số ước lượng, đường chạy từng lượt, lý do bị chặn, và token 60 giây qua gộp mọi nguồn. Chỉ số liệu, không có nội dung hội thoại hay tham số tool.
 ### Bảo mật
-- **Chặn trang web lạ kích hoạt lệnh của Javis.** `/workflows/run` và `/workflows/resume` là địa chỉ dạng GET nên lớp chống giả mạo cũ không phủ tới, trong khi cookie đăng nhập vẫn đi kèm khi bị điều hướng. Một trang bất kỳ chỉ cần đẩy trình duyệt sang địa chỉ đó là workflow chạy trên máy anh, kể cả khi đã đặt mật khẩu. Nay chỉ chạy khi lệnh xuất phát từ chính dashboard; công cụ dòng lệnh không bị ảnh hưởng.
+- **Chặn trang web lạ kích hoạt lệnh của Jarvis 007.** `/workflows/run` và `/workflows/resume` là địa chỉ dạng GET nên lớp chống giả mạo cũ không phủ tới, trong khi cookie đăng nhập vẫn đi kèm khi bị điều hướng. Một trang bất kỳ chỉ cần đẩy trình duyệt sang địa chỉ đó là workflow chạy trên máy anh, kể cả khi đã đặt mật khẩu. Nay chỉ chạy khi lệnh xuất phát từ chính dashboard; công cụ dòng lệnh không bị ảnh hưởng.
 - **Sửa cấu hình lồng nhau không còn xoá nhầm phần bên cạnh.** Trước đây sửa một mục con là thay trọn cả nhóm, làm mất các thiết lập anh em mà không báo gì.
 ### Tính năng mới
 - **Bật/tắt và khai hạn mức ngay trên trang Chẩn đoán.** Không phải sửa tay file cấu hình nữa. Bật một đường mà chưa khai hạn mức thì bị chặn kèm lý do, thay vì bật xong ngồi đợi một thứ không bao giờ chạy. Tắt thì luôn có hiệu lực ngay, không cần khởi động lại.
 ### Lưu ý
-- **Bản này chưa đổi cách Javis trả lời.** Toàn bộ đường chạy mới vẫn ở chế độ quan sát, mọi tỉ lệ bằng 0. Phần thấy được ngay là tool nhẹ đi, trang Chẩn đoán, và hai bản vá bảo mật. Việc bật đường mới để sau, khi đã có số liệu nền để so.
+- **Bản này chưa đổi cách Jarvis 007 trả lời.** Toàn bộ đường chạy mới vẫn ở chế độ quan sát, mọi tỉ lệ bằng 0. Phần thấy được ngay là tool nhẹ đi, trang Chẩn đoán, và hai bản vá bảo mật. Việc bật đường mới để sau, khi đã có số liệu nền để so.
 
 ## [0.9.293] - 2026-08-01
 Trang Models xếp nhà cung cấp đã kết nối lên đầu.
@@ -4783,7 +4783,7 @@ Trang Models xếp nhà cung cấp đã kết nối lên đầu.
 ## [0.9.292] - 2026-08-01
 Thêm Groq làm nhà cung cấp model thứ bảy.
 ### Tính năng mới
-- **Đấu thêm Groq (API).** Trang Models có thêm card **Groq (API)**: dán API key là dùng được, danh sách model nạp LIVE từ Groq (đã lọc bỏ model whisper/guard/embedding vì chúng không chat được). Groq đi đường OpenAI-compatible nên dùng chung vòng gọi tool với OpenAI/Gemini - tức là **đủ MCP Javis + tool file brain + skill** ngay từ đầu, không phải chat suông.
+- **Đấu thêm Groq (API).** Trang Models có thêm card **Groq (API)**: dán API key là dùng được, danh sách model nạp LIVE từ Groq (đã lọc bỏ model whisper/guard/embedding vì chúng không chat được). Groq đi đường OpenAI-compatible nên dùng chung vòng gọi tool với OpenAI/Gemini - tức là **đủ MCP Jarvis 007 + tool file brain + skill** ngay từ đầu, không phải chat suông.
 - Chọn được cả cho **model việc nền**. Groq suy luận rất nhanh và rẻ nên hợp với loop, việc Kanban, nhắc hẹn - những thứ đốt hạn mức âm thầm nhất.
 - `reasoning_effort` chỉ gửi cho dòng model suy luận (qwen3, deepseek-r1, gpt-oss, kimi thinking). Gửi cho llama/mixtral/gemma là Groq trả 400, nên phải lọc theo tên model y như cách đang làm với OpenAI o-series và Gemini 2.5.
 - Khoá Groq nằm trong danh sách **mã hoá trước khi ghi** `settings.json`, giống các khoá provider khác.
@@ -4808,9 +4808,9 @@ Gõ `/` gọi skill được ở giữa câu, không phải chỉ ở đầu ô 
 ## [0.9.289] - 2026-07-31
 Giao việc nền trong chat web xong là im lặng tuyệt đối - giờ kết quả tự về đúng khung chat đó.
 ### Sửa lỗi
-- **Chạy agent/việc nền trên dashboard: không trạng thái, không hồi âm.** Đường báo cáo của việc Kanban, loop và nhắc hẹn CHỈ biết gửi Telegram. Máy chưa đấu Telegram thì `_notify_owner` trả về thất bại và `TaskRunner._report` nuốt luôn - kết quả bay vào hư không, người ngồi web không có kênh nào nhận. Giờ chat web là kênh nhận báo thật: việc giao trong chat mang theo mã phiên (`chat_id: "web:<mã phiên>"`, mượn field có sẵn nên không phải đổi lược đồ CSDL), xong việc thì kết quả hiện thẳng thành một tin của Javis trong đúng cuộc trò chuyện đó. Server ghi vào lịch sử phiên TRƯỚC rồi mới đẩy WebSocket, nên đóng tab hay F5 vẫn còn; đang xem cuộc trò chuyện khác thì phiên gốc nổi lên trong Lịch sử.
-- **Javis hứa "em sẽ đợi các agent chạy nền hoàn tất rồi tổng hợp cho anh" - lời hứa không thể giữ.** Lượt trả lời kết thúc ngay khi nó nói xong, không cơ chế nào đánh thức nó dậy. System prompt và khối kênh dashboard nay cấm hẳn kiểu hứa đó, và chỉ hai đường thay thế: giao thêm một việc chuyên tổng hợp (dùng `deps` trỏ vào các việc trước), hoặc bảo user nhắn lại một câu khi kết quả đã về.
-- Javis giờ biết mã phiên chat hiện tại (khối "KÊNH HỘI THOẠI HIỆN TẠI" của bản web) nên tự gắn được người nhận. Nhánh Telegram giữ nguyên đường cũ, hai kênh độc lập.
+- **Chạy agent/việc nền trên dashboard: không trạng thái, không hồi âm.** Đường báo cáo của việc Kanban, loop và nhắc hẹn CHỈ biết gửi Telegram. Máy chưa đấu Telegram thì `_notify_owner` trả về thất bại và `TaskRunner._report` nuốt luôn - kết quả bay vào hư không, người ngồi web không có kênh nào nhận. Giờ chat web là kênh nhận báo thật: việc giao trong chat mang theo mã phiên (`chat_id: "web:<mã phiên>"`, mượn field có sẵn nên không phải đổi lược đồ CSDL), xong việc thì kết quả hiện thẳng thành một tin của Jarvis 007 trong đúng cuộc trò chuyện đó. Server ghi vào lịch sử phiên TRƯỚC rồi mới đẩy WebSocket, nên đóng tab hay F5 vẫn còn; đang xem cuộc trò chuyện khác thì phiên gốc nổi lên trong Lịch sử.
+- **Jarvis 007 hứa "em sẽ đợi các agent chạy nền hoàn tất rồi tổng hợp cho anh" - lời hứa không thể giữ.** Lượt trả lời kết thúc ngay khi nó nói xong, không cơ chế nào đánh thức nó dậy. System prompt và khối kênh dashboard nay cấm hẳn kiểu hứa đó, và chỉ hai đường thay thế: giao thêm một việc chuyên tổng hợp (dùng `deps` trỏ vào các việc trước), hoặc bảo user nhắn lại một câu khi kết quả đã về.
+- Jarvis 007 giờ biết mã phiên chat hiện tại (khối "KÊNH HỘI THOẠI HIỆN TẠI" của bản web) nên tự gắn được người nhận. Nhánh Telegram giữ nguyên đường cũ, hai kênh độc lập.
 - Thêm `test_bao_viec_ve_chat_web.py` canh cả đường báo (đẩy WebSocket + lưu phiên + không bịa thành công khi thiếu kênh) lẫn lời văn trong prompt. Đặt lại lỗi cũ thì đỏ đúng 6 dòng.
 
 ## [0.9.288] - 2026-07-31
@@ -4822,9 +4822,9 @@ Giao việc nền trong chat web xong là im lặng tuyệt đối - giờ kết
 - Thêm `test_hang_nhap_ngang.py` canh luật: hàng ngang trong Cài đặt nhanh thì ô nhập phải grow từ basis auto, nút phải `width:auto`, và ngoại lệ trong style.css phải đủ 3 lớp class để thắng bất kể thứ tự nạp (CSS khối tên miền do branding.js tiêm lúc chạy).
 
 ## [0.9.287] - 2026-07-31
-Mở file nào trong trình sửa thì Javis làm việc trên file đó - khỏi dán đường dẫn hay tả lại.
+Mở file nào trong trình sửa thì Jarvis 007 làm việc trên file đó - khỏi dán đường dẫn hay tả lại.
 ### Tính năng mới
-- **File đang mở tự ghim vào khung chat.** Mở một file văn bản trong trình sửa là Javis ghim ngay file đó thành thẻ màu cam phía trên thanh nhập ("đang mở - Javis làm việc trên file này"). Từ đó bảo "dọn lại phần quá hạn" hay "viết thêm mục kết luận" mà không nhắc tên file thì Javis vẫn ghi thẳng vào đúng file đó. Mở file khác thì thẻ đổi theo, không cộng dồn.
+- **File đang mở tự ghim vào khung chat.** Mở một file văn bản trong trình sửa là Jarvis 007 ghim ngay file đó thành thẻ màu cam phía trên thanh nhập ("đang mở - Jarvis 007 làm việc trên file này"). Từ đó bảo "dọn lại phần quá hạn" hay "viết thêm mục kết luận" mà không nhắc tên file thì Jarvis 007 vẫn ghi thẳng vào đúng file đó. Mở file khác thì thẻ đổi theo, không cộng dồn.
 - Thẻ ghim khác thẻ đính kèm ở chỗ **không mất sau khi gửi**: đính kèm là dữ liệu một lượt, còn file đang mở là đầu vào của cả cuộc trò chuyện. Ghim sống qua F5 (cùng lý do với khôi phục hội thoại ở 0.9.268), tự bỏ khi đổi brain hoặc xoá chính file đó, và bấm nút đóng trên thẻ để bỏ tay. Đóng cửa sổ sửa KHÔNG bỏ ghim - đóng ra để quay sang chat về chính file đó là luồng thường gặp nhất.
 - `/files/read` trả thêm khoá `abs` (đường dẫn thật của file). Cần nó vì đường dẫn tương đối trên giao diện tính theo trần duyệt, còn engine cần đường dẫn hệ thống - hai cái lệch nhau khi trần duyệt nằm cao hơn gốc brain, client tự ghép là ghép sai.
 - System prompt học cách đọc khối `[FILE ĐANG MỞ ...]`: đọc file trước khi trả lời, và mặc định ghi vào chính file đó khi user không nói rõ file nào.
@@ -4839,7 +4839,7 @@ Trang Models gọn lại, thang độ sâu suy nghĩ thêm hai nấc.
 - Card cài đặt thôi nhún khi rê chuột - nó là bảng cài đặt đứng yên, không phải thẻ bấm được.
 ### Sửa lỗi
 - **Đường lưu và đường đọc mức suy nghĩ có hai danh sách hợp lệ riêng.** Thêm nấc mới mà chỉ sửa một bên thì giao diện cho chọn nhưng server lặng lẽ hạ về "Tắt" - đã đo được đúng lỗi này trong trình duyệt khi làm. Nay cả hai soi chung `engine.REASONING_LEVELS`.
-- **Nấc mới không được gửi thẳng lên API.** Nhà cung cấp chỉ nhận `low|medium|high`; gửi `ultra` là ăn 400 và hỏng cả lượt chat. Thêm một cửa ải dịch mức Javis sang giá trị API an toàn, và toàn bộ 9 chỗ nhét effort vào payload đều đi qua nó. Hai nấc trên cùng khác nhau thật ở chỗ Javis tự điều khiển được: từ khoá think của Claude Code và budget token của model Anthropic đời cũ (20k so với 32k).
+- **Nấc mới không được gửi thẳng lên API.** Nhà cung cấp chỉ nhận `low|medium|high`; gửi `ultra` là ăn 400 và hỏng cả lượt chat. Thêm một cửa ải dịch mức Jarvis 007 sang giá trị API an toàn, và toàn bộ 9 chỗ nhét effort vào payload đều đi qua nó. Hai nấc trên cùng khác nhau thật ở chỗ Jarvis 007 tự điều khiển được: từ khoá think của Claude Code và budget token của model Anthropic đời cũ (20k so với 32k).
 - Ghi chú dưới thanh chọn nói thẳng rằng nhiều nhà cung cấp chỉ nhận 3 nấc nên hai nấc trên cùng có thể như nhau ở đó - thà nói trước còn hơn để người dùng tưởng đã chọn sâu hơn.
 - Thêm `tests/python/test_do_sau_suy_nghi.py`: 33 phép thử, trong đó 5 canary, có kiểm chứng ngược.
 
@@ -4873,12 +4873,12 @@ Hội thoại có file đính kèm thôi trùng tên, đặt tên theo nội dun
 ## [0.9.283] - 2026-07-31
 Đấu được n8n qua MCP chính chủ, và catalog học được kiểu connector tự dựng.
 ### Tính năng mới
-- **Connector n8n.** Đấu vào trang Kết nối bằng địa chỉ n8n của bạn + MCP Access Token, dùng được cả n8n cloud lẫn n8n tự dựng. Javis tìm và đọc workflow, xem lịch sử chạy, tạo và sửa workflow, và chạy workflow nếu được cấp quyền.
+- **Connector n8n.** Đấu vào trang Kết nối bằng địa chỉ n8n của bạn + MCP Access Token, dùng được cả n8n cloud lẫn n8n tự dựng. Jarvis 007 tìm và đọc workflow, xem lịch sử chạy, tạo và sửa workflow, và chạy workflow nếu được cấp quyền.
 - **Catalog hỗ trợ URL động (`url_template`).** n8n là connector đầu tiên mà địa chỉ server nằm trên tên miền của **chính người dùng**, không phải một địa chỉ dùng chung ghi cứng trong app. Địa chỉ ở đây là một phần thông tin đăng nhập, nên catalog cho khai template rồi ghép từ ô người dùng gõ. Không có nó thì n8n phải rơi sang connector "custom", mất hướng dẫn, mất phân loại quyền đọc/ghi và mất cảnh báo rủi ro.
 - Địa chỉ gõ kiểu nào cũng nhận: thiếu `https://`, thừa gạch chéo cuối, hay dán nguyên URL đang mở kèm đường dẫn và tham số đều được cắt về đúng tên miền. Giữ nguyên `http` và cổng cho bản tự dựng trong mạng nội bộ. Đầu vào không phải địa chỉ thì trả rỗng để báo thiếu, thay vì đẻ ra URL cụt rồi để người dùng ngồi đoán vì sao Test đỏ.
 - URL được dựng lại **mỗi lần resolve** chứ không chỉ lúc thêm, nên sửa địa chỉ n8n là kết nối đi theo ngay, giống cách headers vốn đã hoạt động.
 ### An toàn
-- **`execute_workflow` xếp vào nhóm NGUY HIỂM**, không phải nhóm ghi thường. Tên nghe hiền nhưng nó chạy thật một workflow: gửi mail, đăng bài, gọi API tính tiền, đẩy dữ liệu ra ngoài. Javis không nhìn được bên trong workflow làm gì và chạy rồi thì không hoàn tác được. Kết quả: mức **Ghi nháp** tạo và sửa được workflow nhưng **không chạy được**, phải lên Toàn quyền mới chạy. Loop nền ở chế độ gợi ý vẫn bị ép về chỉ đọc kể cả khi kết nối để Toàn quyền.
+- **`execute_workflow` xếp vào nhóm NGUY HIỂM**, không phải nhóm ghi thường. Tên nghe hiền nhưng nó chạy thật một workflow: gửi mail, đăng bài, gọi API tính tiền, đẩy dữ liệu ra ngoài. Jarvis 007 không nhìn được bên trong workflow làm gì và chạy rồi thì không hoàn tác được. Kết quả: mức **Ghi nháp** tạo và sửa được workflow nhưng **không chạy được**, phải lên Toàn quyền mới chạy. Loop nền ở chế độ gợi ý vẫn bị ép về chỉ đọc kể cả khi kết nối để Toàn quyền.
 - Mặc định mức **Chỉ đọc**. Cảnh báo rủi ro nói rõ token này thấy mọi workflow và cả danh sách credential mà tài khoản n8n của bạn thấy.
 ### Cải thiện
 - Thêm `tests/python/test_n8n_connector.py`: 59 phép thử gồm chuẩn hoá địa chỉ, phân loại 12 tool, cổng quyền ở cả ba mức, và đường thật thêm kết nối rồi resolve. Có kiểm chứng ngược.
@@ -4933,9 +4933,9 @@ Chat mở rộng thôi làm popup: nó choán đúng khung nội dung, dán tệ
 - Thêm `tests/js/test_chat_zoom_khung.js`: 24 phép thử khoá hợp đồng này cho CI (vốn chỉ có `node`, không có trình duyệt) - hết dấu vết popup, toạ độ lấy từ biến đo, và hai canary giữ `ResizeObserver` cùng thứ tự đo sau khi gắn `.chat-zoomed`.
 
 ## [0.9.278] - 2026-07-30
-Ảnh trong khung chat quay đi quay lại là mất: không phải Javis xoá, mà là ghép sai brain rồi bị thay bằng ô xám.
+Ảnh trong khung chat quay đi quay lại là mất: không phải Jarvis 007 xoá, mà là ghép sai brain rồi bị thay bằng ô xám.
 ### Sửa lỗi
-- **Ảnh và tài liệu trong chat biến mất khi mở lại hội thoại (báo từ người dùng thật).** Đường dẫn ảnh trong tin nhắn là đường dẫn TƯƠNG ĐỐI (`attachments/x.png`), không mang thông tin brain. Mỗi lần vẽ lại, bộ render ghép nó với **brain đang chọn trên thanh công cụ** chứ không phải brain của chính hội thoại đó. Mở một hội thoại cũ trong khi đang đứng ở brain khác là URL trỏ sai chỗ, `/files/raw` trả 404, thẻ `img` chạy `onerror` và **bị thay bằng ô xám** - nhìn hệt như Javis vừa gửi ảnh xong tự xoá đi. File vẫn nguyên trong vault. Nay mỗi tin nhắn mang theo brain của hội thoại chứa nó: `mdToHtml` nhận thêm tham số brain, đường khôi phục từ Lịch sử lấy `sess.brain` mà server **vốn đã lưu sẵn** (cột `brain` bảng `sessions`) nhưng trước giờ vứt đi, đường khôi phục từ localStorage lấy brain lưu kèm phiên. Tin lưu từ trước bản này không có trường đó thì rơi về hành vi cũ, không hỏng thêm gì.
+- **Ảnh và tài liệu trong chat biến mất khi mở lại hội thoại (báo từ người dùng thật).** Đường dẫn ảnh trong tin nhắn là đường dẫn TƯƠNG ĐỐI (`attachments/x.png`), không mang thông tin brain. Mỗi lần vẽ lại, bộ render ghép nó với **brain đang chọn trên thanh công cụ** chứ không phải brain của chính hội thoại đó. Mở một hội thoại cũ trong khi đang đứng ở brain khác là URL trỏ sai chỗ, `/files/raw` trả 404, thẻ `img` chạy `onerror` và **bị thay bằng ô xám** - nhìn hệt như Jarvis 007 vừa gửi ảnh xong tự xoá đi. File vẫn nguyên trong vault. Nay mỗi tin nhắn mang theo brain của hội thoại chứa nó: `mdToHtml` nhận thêm tham số brain, đường khôi phục từ Lịch sử lấy `sess.brain` mà server **vốn đã lưu sẵn** (cột `brain` bảng `sessions`) nhưng trước giờ vứt đi, đường khôi phục từ localStorage lấy brain lưu kèm phiên. Tin lưu từ trước bản này không có trường đó thì rơi về hành vi cũ, không hỏng thêm gì.
 - **Ô xám đổ oan cho "hết hạn".** Nó ghi "Ảnh đã hết hạn" cho MỌI lỗi tải, kể cả khi ảnh còn nguyên và chỉ là ghép sai đường, nên người dùng đi tìm nhầm hướng. Nay ghi trung tính kèm tên file, chú thích rõ hai khả năng: file bị xoá thật, hoặc hội thoại thuộc brain khác với brain đang chọn.
 ### Cải thiện
 - Thêm `tests/js/test_chat_anh_theo_brain.js`: 11 phép thử khoá cả ba cú pháp đường dẫn trong vault (ảnh markdown, ảnh `![[...]]`, link tài liệu) đều theo brain của hội thoại, URL ngoài không bị đụng, và hai canary chống rò rỉ - brain của lượt render trước không được dính sang lượt sau, kể cả khi lượt giữa ném lỗi.
@@ -4952,43 +4952,43 @@ Chat dài hay bị chém ngang bởi "Claude không phản hồi 180s": im lặn
 - `test_sdk_engine.py` thay ca kiểm chứng cũ bằng bốn ca chạy thật qua engine giả: tool chạy lâu thì sống, đã có chữ rồi mới im thì ngắt ở IDLE, chờ chữ đầu lâu hơn IDLE nhưng dưới FIRST thì sống, im quá cả FIRST thì vẫn ngắt. Ca cuối quan trọng nhất: nới trần mà quên chặn là đổi lỗi này lấy lỗi treo vô hạn.
 
 ## [0.9.276] - 2026-07-30
-Lỗi của dịch vụ trả về giữa lúc gọi tool nay được Javis chẩn đoán tại chỗ, thay vì để model tự đoán rồi đoán sai.
+Lỗi của dịch vụ trả về giữa lúc gọi tool nay được Jarvis 007 chẩn đoán tại chỗ, thay vì để model tự đoán rồi đoán sai.
 ### Sửa lỗi
-- **Bộ chẩn đoán lỗi Google chỉ cắm vào nút Test, không cắm vào chỗ gọi tool thật.** Đây là chỗ 99% người dùng gặp lỗi, mà ở đó `_guard` trả về nguyên văn tiếng Anh của Google. Hậu quả có thật: Google trả `The caller does not have permission` khi gọi `list_calendars` và `create_event`, Javis đọc xong kết luận là **hub của Javis đang chặn quyền** và đòi đi sửa tầng permission. Sai hoàn toàn: kết nối đang ở mức Toàn quyền nên `allowed()` cho qua ngay từ dòng đầu, và khi Javis thật sự chặn thì nó báo bằng tiếng Việt kèm chữ "bị chặn", không bao giờ là một câu tiếng Anh. Nay mọi lỗi tool đi qua hub đều được soi, nhận ra họ lỗi quen mặt thì **gắn thêm** một dòng `[Javis chẩn đoán]` ngay dưới nguyên văn lỗi. Gắn thêm chứ không thay thế, để nguyên văn còn đó mà lần manh mối.
-- **Thêm nhận diện 403 PERMISSION_DENIED không kèm chữ scope.** Với server MCP của Google, họ lỗi này gần như luôn là chưa ghi danh Developer Preview cho đúng tài khoản đang đăng nhập, hoặc project chưa bật API MCP riêng. Thông báo nói rõ ba điều người dùng cần biết: đây không phải Javis chặn, ghi danh tính theo TỪNG tài khoản Google nên vừa đổi tài khoản là phải ghi danh lại, và email theo tên miền riêng còn cần quản trị viên của miền cho phép. Lỗi thiếu scope cũng mang status `PERMISSION_DENIED` nên nhánh mới đặt SAU nhánh scope, có test canh đúng thứ tự đó.
+- **Bộ chẩn đoán lỗi Google chỉ cắm vào nút Test, không cắm vào chỗ gọi tool thật.** Đây là chỗ 99% người dùng gặp lỗi, mà ở đó `_guard` trả về nguyên văn tiếng Anh của Google. Hậu quả có thật: Google trả `The caller does not have permission` khi gọi `list_calendars` và `create_event`, Jarvis 007 đọc xong kết luận là **hub của Jarvis 007 đang chặn quyền** và đòi đi sửa tầng permission. Sai hoàn toàn: kết nối đang ở mức Toàn quyền nên `allowed()` cho qua ngay từ dòng đầu, và khi Jarvis 007 thật sự chặn thì nó báo bằng tiếng Việt kèm chữ "bị chặn", không bao giờ là một câu tiếng Anh. Nay mọi lỗi tool đi qua hub đều được soi, nhận ra họ lỗi quen mặt thì **gắn thêm** một dòng `[Jarvis 007 chẩn đoán]` ngay dưới nguyên văn lỗi. Gắn thêm chứ không thay thế, để nguyên văn còn đó mà lần manh mối.
+- **Thêm nhận diện 403 PERMISSION_DENIED không kèm chữ scope.** Với server MCP của Google, họ lỗi này gần như luôn là chưa ghi danh Developer Preview cho đúng tài khoản đang đăng nhập, hoặc project chưa bật API MCP riêng. Thông báo nói rõ ba điều người dùng cần biết: đây không phải Jarvis 007 chặn, ghi danh tính theo TỪNG tài khoản Google nên vừa đổi tài khoản là phải ghi danh lại, và email theo tên miền riêng còn cần quản trị viên của miền cho phép. Lỗi thiếu scope cũng mang status `PERMISSION_DENIED` nên nhánh mới đặt SAU nhánh scope, có test canh đúng thứ tự đó.
 ### Cải thiện
 - Tách `chan_doan_loi()` khỏi `_friendly_tool_error()`: hàm nhận diện trả rỗng khi không nhận ra, chỗ gọi tự quyết định nói gì. Nút Test giữ nguyên hành vi cũ (không nhận ra thì vẫn câu "Key chưa đúng hoặc chưa đủ quyền" kèm nguyên văn), còn đường gọi tool thì im lặng khi không chắc chứ không bịa chẩn đoán.
 - `test_loi_ket_noi_google.py` thêm 10 phép thử: nội dung thông báo mới, thứ tự nhánh scope so với nhánh permission, canary "lỗi lạ thì phải im", và soát cho chắc `_guard` thật sự có gắn chẩn đoán mà vẫn giữ nguyên văn.
 
 ## [0.9.275] - 2026-07-30
-Đổi tài khoản Google mà Javis vẫn chạy bằng tài khoản cũ: đổi ô đăng nhập giờ vứt luôn token cũ.
+Đổi tài khoản Google mà Jarvis 007 vẫn chạy bằng tài khoản cũ: đổi ô đăng nhập giờ vứt luôn token cũ.
 ### Sửa lỗi
-- **Đăng nhập lại bằng email khác mà mọi tool vẫn trả về tài khoản cũ (báo từ người dùng thật).** Người dùng xoá kết nối rồi đăng nhập lại bằng `hi@minhquy.vn`, nhưng tool Google vẫn báo tài khoản `blogminhquy@gmail.com`. Nguyên nhân nối tiếp đúng vụ 0.9.274: `workspace-mcp` cache token theo email, còn ô "Email Google của bạn" chỉ CHỌN dùng credential nào chứ không ép đăng nhập lại. Token cũ nằm nguyên trên đĩa nên nó cứ chọn đúng cái cũ. Nay đổi bất kỳ ô đăng nhập nào (email, Client ID, Client Secret) trên nguồn tự giữ token là Javis vứt luôn kho token của tài khoản cũ, lần gọi tool sau bắt buộc đăng nhập lại. Nhập lại y hệt giá trị cũ, hoặc chỉ đổi tên gợi nhớ, thì KHÔNG đụng gì - không bắt ai đăng nhập lại vô cớ.
+- **Đăng nhập lại bằng email khác mà mọi tool vẫn trả về tài khoản cũ (báo từ người dùng thật).** Người dùng xoá kết nối rồi đăng nhập lại bằng `hi@minhquy.vn`, nhưng tool Google vẫn báo tài khoản `blogminhquy@gmail.com`. Nguyên nhân nối tiếp đúng vụ 0.9.274: `workspace-mcp` cache token theo email, còn ô "Email Google của bạn" chỉ CHỌN dùng credential nào chứ không ép đăng nhập lại. Token cũ nằm nguyên trên đĩa nên nó cứ chọn đúng cái cũ. Nay đổi bất kỳ ô đăng nhập nào (email, Client ID, Client Secret) trên nguồn tự giữ token là Jarvis 007 vứt luôn kho token của tài khoản cũ, lần gọi tool sau bắt buộc đăng nhập lại. Nhập lại y hệt giá trị cũ, hoặc chỉ đổi tên gợi nhớ, thì KHÔNG đụng gì - không bắt ai đăng nhập lại vô cớ.
 ### Cải thiện
 - `test_cred_dir_rieng.py` thêm 7 phép thử, trong đó 4 phép chạy THẬT `update_connection` trên kho giả rồi soi thư mục token trên đĩa: nhập lại y hệt thì giữ, đổi tên thì giữ, đổi email thì vứt, đổi Client ID thì vứt. Đây là loại lỗi soi mã nguồn không thấy, phải chạy mới lộ.
 
 ## [0.9.274] - 2026-07-30
-Đây mới là chỗ hỏng thật của vụ "Lịch báo thiếu quyền, xoá đi cài lại chục lần vẫn vậy": kết nối Google Workspace giữ token ở ngoài Javis, xoá kết nối không dọn được gì.
+Đây mới là chỗ hỏng thật của vụ "Lịch báo thiếu quyền, xoá đi cài lại chục lần vẫn vậy": kết nối Google Workspace giữ token ở ngoài Jarvis 007, xoá kết nối không dọn được gì.
 ### Sửa lỗi
-- **Kết nối Google Workspace (và Google Tasks) xoá đi cài lại KHÔNG hề đăng nhập lại.** Hai thẻ này chạy `workspace-mcp`, một server TỰ lo luồng OAuth của nó và cache token ra `~/.google_workspace_mcp/credentials` - nằm ngoài tầm với của Javis. Xoá kết nối trong Javis chỉ xoá bản ghi của Javis; thêm lại là tiến trình con đọc đúng file token cũ, không mở lại màn đăng nhập Google. Token cấp thiếu quyền thì thiếu vĩnh viễn, và người dùng có cài lại bao nhiêu lần cũng vô ích. Đây chính là vòng lặp mà bản 0.9.271 KHÔNG chạm tới: bản đó sửa danh sách phạm vi quyền của hai thẻ **Google Calendar** và **Gmail** rời (loại OAuth do Javis tự giữ token), không phải thẻ Workspace gộp. Ai đang đi qua thẻ Workspace thì phải chờ đúng bản này.
-- **Mỗi tài khoản một kho token riêng.** Trước đây mọi connection của hai thẻ đó dùng chung một thư mục mặc định, nên hai tài khoản Google giẫm lên nhau. Nay Javis trỏ từng connection vào `connector-cred/<connector>-<slug>` riêng qua biến `WORKSPACE_MCP_CREDENTIALS_DIR`, và **xoá kết nối là xoá token theo** - từ bản này, "xoá đi cài lại" làm đúng cái người dùng tưởng nó làm.
+- **Kết nối Google Workspace (và Google Tasks) xoá đi cài lại KHÔNG hề đăng nhập lại.** Hai thẻ này chạy `workspace-mcp`, một server TỰ lo luồng OAuth của nó và cache token ra `~/.google_workspace_mcp/credentials` - nằm ngoài tầm với của Jarvis 007. Xoá kết nối trong Jarvis 007 chỉ xoá bản ghi của Jarvis 007; thêm lại là tiến trình con đọc đúng file token cũ, không mở lại màn đăng nhập Google. Token cấp thiếu quyền thì thiếu vĩnh viễn, và người dùng có cài lại bao nhiêu lần cũng vô ích. Đây chính là vòng lặp mà bản 0.9.271 KHÔNG chạm tới: bản đó sửa danh sách phạm vi quyền của hai thẻ **Google Calendar** và **Gmail** rời (loại OAuth do Jarvis 007 tự giữ token), không phải thẻ Workspace gộp. Ai đang đi qua thẻ Workspace thì phải chờ đúng bản này.
+- **Mỗi tài khoản một kho token riêng.** Trước đây mọi connection của hai thẻ đó dùng chung một thư mục mặc định, nên hai tài khoản Google giẫm lên nhau. Nay Jarvis 007 trỏ từng connection vào `connector-cred/<connector>-<slug>` riêng qua biến `WORKSPACE_MCP_CREDENTIALS_DIR`, và **xoá kết nối là xoá token theo** - từ bản này, "xoá đi cài lại" làm đúng cái người dùng tưởng nó làm.
 ### Thêm mới
 - **Nút "Đăng nhập lại Google (xoá quyền cũ)"** trong menu của từng tài khoản, chỉ hiện với nguồn tự giữ token kiểu này. Nó vứt token mà GIỮ nguyên kết nối, quyền, tên và danh sách tool chặn; lần gọi tool kế tiếp server tự mở trình duyệt xin lại quyền theo đúng bộ hiện hành. Trước đây nút "Kết nối lại" chỉ lưu lại Client ID/Secret nên không bao giờ đụng được tới token, và người dùng bấm mãi mà Google không hiện lại ô tick quyền nào.
 ### Cải thiện
 - Thêm `test_cred_dir_rieng.py`: 27 phép thử khoá cả chuỗi - catalog khai kho token, hai tài khoản ra hai thư mục khác nhau, xoá thật sự xoá, `delete_connection` có dọn theo, endpoint đăng nhập lại không lỡ tay xoá connection, nút chỉ mọc đúng nguồn có kho riêng, và canary cho nguồn không khai thì không đẻ thư mục thừa.
-- **Sau khi cập nhật, ai đang dùng Google Workspace hoặc Google Tasks phải đăng nhập Google lại một lần** (kho token đổi chỗ). Lần gọi tool đầu tiên trình duyệt sẽ tự mở trên máy chạy Javis.
+- **Sau khi cập nhật, ai đang dùng Google Workspace hoặc Google Tasks phải đăng nhập Google lại một lần** (kho token đổi chỗ). Lần gọi tool đầu tiên trình duyệt sẽ tự mở trên máy chạy Jarvis 007.
 
 ## [0.9.273] - 2026-07-30
 Đăng nhập lại Google mà không thấy ô tick quyền nào: nói cho người dùng biết đó là bình thường và cách bắt Google hỏi lại.
 ### Cải thiện
-- **"Re-auth mà nó không hiện ra checkbox các quyền" (báo từ người dùng thật) không phải lỗi, mà là cơ chế của Google.** Màn hình tick từng quyền chỉ bật cho quyền CHƯA từng cấp, và chỉ khi ứng dụng xin từ hai quyền trở lên; quyền đã cấp rồi thì Google cho qua thẳng. Bản trước 0.9.271 lại chỉ xin đúng một phạm vi `auth/calendar`, tức là chưa bao giờ có ô tick nào để mà hiện. Sau bản này Javis xin 5 phạm vi Lịch, 4 cái trong đó chưa từng được cấp nên màn tick sẽ hiện ra.
-- **Chỉ luôn đường thoát khi vẫn không thấy ô tick**: gỡ Javis khỏi trang quyền của tài khoản Google rồi bấm Kết nối lại, khi đó Google hỏi lại từ đầu. Câu này gắn vào cả ba chỗ người dùng sẽ đọc: bước cuối trong hướng dẫn của thẻ Lịch và Gmail (kèm nút mở thẳng trang gỡ quyền), thông báo lỗi thiếu quyền lúc gọi tool, và dòng trạng thái ở vòng check sức khoẻ.
+- **"Re-auth mà nó không hiện ra checkbox các quyền" (báo từ người dùng thật) không phải lỗi, mà là cơ chế của Google.** Màn hình tick từng quyền chỉ bật cho quyền CHƯA từng cấp, và chỉ khi ứng dụng xin từ hai quyền trở lên; quyền đã cấp rồi thì Google cho qua thẳng. Bản trước 0.9.271 lại chỉ xin đúng một phạm vi `auth/calendar`, tức là chưa bao giờ có ô tick nào để mà hiện. Sau bản này Jarvis 007 xin 5 phạm vi Lịch, 4 cái trong đó chưa từng được cấp nên màn tick sẽ hiện ra.
+- **Chỉ luôn đường thoát khi vẫn không thấy ô tick**: gỡ Jarvis 007 khỏi trang quyền của tài khoản Google rồi bấm Kết nối lại, khi đó Google hỏi lại từ đầu. Câu này gắn vào cả ba chỗ người dùng sẽ đọc: bước cuối trong hướng dẫn của thẻ Lịch và Gmail (kèm nút mở thẳng trang gỡ quyền), thông báo lỗi thiếu quyền lúc gọi tool, và dòng trạng thái ở vòng check sức khoẻ.
 - `test_scope_google.py` thêm 6 phép thử canh cả ba đường đó, để câu hướng dẫn này không rơi rụng ở lần sửa sau.
 
 ## [0.9.272] - 2026-07-30
 Hướng dẫn đấu Google Workspace viết lại cho làm theo được, và vá biến môi trường thiếu khiến đăng nhập không bao giờ xong.
 ### Sửa lỗi
-- **Thiếu `OAUTHLIB_INSECURE_TRANSPORT=1` nên đấu Google Workspace/Google Tasks bấm đồng ý xong vẫn không đăng nhập được.** Hai connector này chạy `workspace-mcp`, nhận Client ID + Secret nên đi luồng OAuth confidential, mà chỗ nó hứng kết quả là `http://localhost:8000/oauth2callback` - HTTP trần. Thư viện oauthlib mặc định ném `InsecureTransportError` với http, và README upstream khai biến này là bắt buộc. Javis chưa từng đặt nó, hướng dẫn cũng không có chữ nào cứu được. Nay khai vào khối `env` tĩnh của cả hai connector, user không phải biết tới nó. An toàn vì callback chỉ chạy trên loopback của chính máy đó.
+- **Thiếu `OAUTHLIB_INSECURE_TRANSPORT=1` nên đấu Google Workspace/Google Tasks bấm đồng ý xong vẫn không đăng nhập được.** Hai connector này chạy `workspace-mcp`, nhận Client ID + Secret nên đi luồng OAuth confidential, mà chỗ nó hứng kết quả là `http://localhost:8000/oauth2callback` - HTTP trần. Thư viện oauthlib mặc định ném `InsecureTransportError` với http, và README upstream khai biến này là bắt buộc. Jarvis 007 chưa từng đặt nó, hướng dẫn cũng không có chữ nào cứu được. Nay khai vào khối `env` tĩnh của cả hai connector, user không phải biết tới nó. An toàn vì callback chỉ chạy trên loopback của chính máy đó.
 - **Hướng dẫn bảo bật đúng 4 API trong khi thẻ hứa nhiều hơn thế.** Tier `core` của workspace-mcp phục vụ cả Sheets, Slides, Forms, Tasks, Danh bạ - mô tả thẻ ghi rõ những thứ đó nhưng làm đúng theo hướng dẫn thì chúng chết lặng, không ai hiểu vì sao. Bước bật API nay chia hai nhóm: bốn cái cơ bản và những cái bật thêm nếu cần, kèm câu nói rõ quên cái nào thì chỉ nhóm công cụ đó lỗi chứ không hỏng cả kết nối.
 - **Cảnh báo "phải có máy màn hình" nằm ở bước CUỐI.** Người cài trên VPS đọc tới đó là đã bỏ 10 phút tạo project, bật API, tạo OAuth client rồi mới biết đường này không đi được. Nay là bước ĐẦU TIÊN, và chỉ thẳng sang hai thẻ Google Calendar/Gmail vốn đăng nhập gọn trong dashboard.
 ### Cải thiện
@@ -4998,31 +4998,31 @@ Hướng dẫn đấu Google Workspace viết lại cho làm theo được, và 
 - Thêm `test_google_workspace_setup.py`: 33 phép thử khoá biến môi trường (soát cả `build_env` thật sự đẩy được xuống tiến trình con), thứ tự bước cảnh báo phải đứng trước bước bắt tay vào làm, đủ danh sách API, nhãn ô email, và luật "mọi connector chạy workspace-mcp đều phải có đủ hai thứ đó" để lần sau không vá nửa con bug.
 
 ## [0.9.271] - 2026-07-30
-Lịch Google báo "thiếu quyền" mãi không hết dù xoá đi cài lại: chính danh sách quyền Javis xin mới là chỗ sai.
+Lịch Google báo "thiếu quyền" mãi không hết dù xoá đi cài lại: chính danh sách quyền Jarvis 007 xin mới là chỗ sai.
 ### Sửa lỗi
-- **Google Calendar trả `ACCESS_TOKEN_SCOPE_INSUFFICIENT` ở bước tìm giờ trống, cài lại bao nhiêu lần cũng dính (báo từ người dùng thật).** Javis chỉ xin đúng một phạm vi gộp `auth/calendar`, nhưng server MCP chính chủ của Google đòi các phạm vi HẠT NHỎ: `calendar.calendarlist.readonly`, `calendar.events.readonly` và nhất là `calendar.events.freebusy` cho `suggest_time`. Thiếu freebusy thì đăng nhập vẫn xanh, `list_calendars` vẫn chạy, chỉ đúng lúc kiểm tra rảnh bận mới chết - nên xoá kết nối tạo lại chẳng đổi được gì, lần nào cũng xin lại đúng bộ quyền thiếu đó. Connector Lịch nay xin đủ 5 phạm vi (giữ cả `calendar` + `calendar.events` cho nhóm tool ghi); Gmail xin thêm `gmail.readonly`, `gmail.compose`, `gmail.labels` cho cùng lý do (ba cái này nằm trong `gmail.modify` nên không nới quyền). **Ai đang đấu Lịch/Gmail phải bấm Đăng nhập lại một lần** - token cũ chỉ mang những quyền xin ở bản trước.
-- **Nút Test báo xanh trong khi kết nối thiếu quyền.** Tool validate của Lịch là `list_calendars`, chỉ cần phạm vi danh sách lịch, nên nó chạy ngon lành và cả trang Kết nối lẫn vòng check sức khoẻ đều báo ổn. Giờ Javis LƯU danh sách phạm vi thật được cấp (đọc từ token response, cả lúc đăng nhập lẫn lúc refresh) và đối chiếu với phạm vi catalog đang xin: thiếu là báo đỏ ngay, gọi đích danh quyền còn thiếu, kèm nút Kết nối lại. Token lưu từ bản cũ chưa có thông tin này thì coi là "chưa biết" và im lặng, không bắt ai đăng nhập lại vô cớ.
+- **Google Calendar trả `ACCESS_TOKEN_SCOPE_INSUFFICIENT` ở bước tìm giờ trống, cài lại bao nhiêu lần cũng dính (báo từ người dùng thật).** Jarvis 007 chỉ xin đúng một phạm vi gộp `auth/calendar`, nhưng server MCP chính chủ của Google đòi các phạm vi HẠT NHỎ: `calendar.calendarlist.readonly`, `calendar.events.readonly` và nhất là `calendar.events.freebusy` cho `suggest_time`. Thiếu freebusy thì đăng nhập vẫn xanh, `list_calendars` vẫn chạy, chỉ đúng lúc kiểm tra rảnh bận mới chết - nên xoá kết nối tạo lại chẳng đổi được gì, lần nào cũng xin lại đúng bộ quyền thiếu đó. Connector Lịch nay xin đủ 5 phạm vi (giữ cả `calendar` + `calendar.events` cho nhóm tool ghi); Gmail xin thêm `gmail.readonly`, `gmail.compose`, `gmail.labels` cho cùng lý do (ba cái này nằm trong `gmail.modify` nên không nới quyền). **Ai đang đấu Lịch/Gmail phải bấm Đăng nhập lại một lần** - token cũ chỉ mang những quyền xin ở bản trước.
+- **Nút Test báo xanh trong khi kết nối thiếu quyền.** Tool validate của Lịch là `list_calendars`, chỉ cần phạm vi danh sách lịch, nên nó chạy ngon lành và cả trang Kết nối lẫn vòng check sức khoẻ đều báo ổn. Giờ Jarvis 007 LƯU danh sách phạm vi thật được cấp (đọc từ token response, cả lúc đăng nhập lẫn lúc refresh) và đối chiếu với phạm vi catalog đang xin: thiếu là báo đỏ ngay, gọi đích danh quyền còn thiếu, kèm nút Kết nối lại. Token lưu từ bản cũ chưa có thông tin này thì coi là "chưa biết" và im lặng, không bắt ai đăng nhập lại vô cớ.
 - **Lỗi thiếu quyền lúc gọi tool nay nói thẳng thiếu quyền nào** và nói rõ xoá kết nối tạo lại không chữa được, phải Đăng nhập lại sau khi cập nhật - thay vì câu chung chung "tick chọn đầy đủ các quyền" khiến người dùng đi soát lại màn hình đồng ý mà không thấy gì sai.
-- **Tool bị mức quyền ẩn giờ được KỂ RA thay vì biến mất im lặng.** Kết nối Lịch mặc định mức Chỉ đọc nên `create_event` không có trong danh sách tool, model đi tìm không thấy rồi kết luận sai là kết nối hỏng (đúng vệt hỏi "tạo lịch sáng mai 9h" của người dùng). `javis_connections` nay trả thêm `tool_bi_an_do_quyen` + cách mở, và `javis_search_tools` kèm lưu ý khi nguồn vừa tìm thấy còn tool đang bị che - để Javis nói đúng câu "kết nối đang ở mức Chỉ đọc, anh nâng lên Ghi nháp thì em tạo được", chứ không tự nâng quyền.
+- **Tool bị mức quyền ẩn giờ được KỂ RA thay vì biến mất im lặng.** Kết nối Lịch mặc định mức Chỉ đọc nên `create_event` không có trong danh sách tool, model đi tìm không thấy rồi kết luận sai là kết nối hỏng (đúng vệt hỏi "tạo lịch sáng mai 9h" của người dùng). `javis_connections` nay trả thêm `tool_bi_an_do_quyen` + cách mở, và `javis_search_tools` kèm lưu ý khi nguồn vừa tìm thấy còn tool đang bị che - để Jarvis 007 nói đúng câu "kết nối đang ở mức Chỉ đọc, anh nâng lên Ghi nháp thì em tạo được", chứ không tự nâng quyền.
 ### Cải thiện
 - Hướng dẫn đấu Lịch/Gmail bổ sung hai bước hay bị bỏ sót: bật **People API** (server MCP dùng khi tìm giờ trống có người tham dự) và khai đủ phạm vi ở trang **Quyền dữ liệu** của Google Auth Platform, kèm nút mở thẳng hai trang đó. Guide cũng nói hẳn vì sao phải đủ 5 phạm vi và nhắc TICK HẾT các ô ở màn hình đồng ý.
 - Thêm `test_scope_google.py`: 33 phép thử khoá danh sách scope trong catalog, phép so scope được cấp (kể cả bẫy Google trả `email` dưới dạng URL `userinfo.email`), canary "chưa biết thì không đoán bừa là thiếu", nội dung ba đường báo lỗi, và soát cho chắc validate/health thật sự có đi qua bộ kiểm scope.
 
 ## [0.9.270] - 2026-07-30
-Javis hết thiên về Claude: bộ não nào cũng đủ năng lực như nhau, và banner đỏ đòi đăng nhập Claude không còn làm phiền máy chạy OpenRouter.
+Jarvis 007 hết thiên về Claude: bộ não nào cũng đủ năng lực như nhau, và banner đỏ đòi đăng nhập Claude không còn làm phiền máy chạy OpenRouter.
 ### Sửa lỗi
 - **Banner đỏ "Bộ não claude mất đăng nhập" treo trên máy chưa từng cài Claude.** Đèn báo não giữ trạng thái trong RAM và không ai dọn, nên đèn thắp hồi Claude còn là Main Model treo vĩnh viễn sau khi người dùng đổi sang OpenRouter - đúng lỗi khách gặp. Giờ đèn chỉ tính bộ não người dùng THẬT SỰ chọn (Main Model, cộng model việc nền khi đặt rõ provider), tự dọn ở vòng quét và lọc ngay lúc trả `/connect/health` nên đổi provider là banner tắt liền, không phải chờ 10 phút. Provider API (OpenRouter, OpenAI, Gemini, Anthropic API) không có đèn vì chúng chạy bằng API key, không có phiên đăng nhập nào để mất.
 - **Trang Kết nối báo nhầm "Google Gemini chưa hỗ trợ gọi công cụ".** Gemini bị sót khỏi danh sách `MCP_PROVIDERS` trên giao diện dù `_api_stream_mcp` ở server đã phục vụ nó từ lâu. Giờ cả năm provider hiện thẻ xanh; dòng vàng chỉ còn để chặn provider lạ.
 ### Cải thiện
-- **Javis tự mô tả đúng năng lực của mình.** System prompt trước đây ghi "ngoài ra hỗ trợ chat thuần qua OpenRouter / OpenAI / Anthropic API", nên khi khách hỏi thì Javis trả lời "không có Claude Code thì chỉ chat chơi thôi, không điều phối, không làm task được" - sai. Viết lại mục Bản chất: Javis là AI agentic ĐỔI ĐƯỢC BỘ NÃO, sáu nhà cung cấp dùng chung một bộ đồ nghề qua MCP Hub (kho Kết nối, tool file brain, skill, việc Kanban, agent/workflow/loop/nhắc hẹn), khác biệt duy nhất là hai engine CLI chạy thêm được lệnh máy. Kèm lệnh cấm tự nhận "chỉ chat được" / "phải cài Claude Code mới làm được".
-- **Nhãn trên giao diện nói đúng sự thật.** Nhãn kiểu của bốn provider API đổi từ **chat** sang **MCP Javis**. Dòng Main Model đổi từ "Gọi API thẳng - chat thuần (không MCP)" sang "Gọi API thẳng - MCP Javis + skill + loop (không chạy lệnh máy)", và có thêm dòng riêng cho Codex. Thẻ OpenRouter trong wizard, mục Engine ở trang Tổng quan, mô tả lệnh `/cli` `/or` của Telegram cũng sửa theo. Mục Engine ở Tổng quan trước đây đọc trường `model.engine` cũ nên máy chạy Gemini/OpenAI vẫn bị ghi là "Claude CLI" - giờ đọc `model.main` như trang Models.
+- **Jarvis 007 tự mô tả đúng năng lực của mình.** System prompt trước đây ghi "ngoài ra hỗ trợ chat thuần qua OpenRouter / OpenAI / Anthropic API", nên khi khách hỏi thì Jarvis 007 trả lời "không có Claude Code thì chỉ chat chơi thôi, không điều phối, không làm task được" - sai. Viết lại mục Bản chất: Jarvis 007 là AI agentic ĐỔI ĐƯỢC BỘ NÃO, sáu nhà cung cấp dùng chung một bộ đồ nghề qua MCP Hub (kho Kết nối, tool file brain, skill, việc Kanban, agent/workflow/loop/nhắc hẹn), khác biệt duy nhất là hai engine CLI chạy thêm được lệnh máy. Kèm lệnh cấm tự nhận "chỉ chat được" / "phải cài Claude Code mới làm được".
+- **Nhãn trên giao diện nói đúng sự thật.** Nhãn kiểu của bốn provider API đổi từ **chat** sang **MCP Jarvis 007**. Dòng Main Model đổi từ "Gọi API thẳng - chat thuần (không MCP)" sang "Gọi API thẳng - MCP Jarvis 007 + skill + loop (không chạy lệnh máy)", và có thêm dòng riêng cho Codex. Thẻ OpenRouter trong wizard, mục Engine ở trang Tổng quan, mô tả lệnh `/cli` `/or` của Telegram cũng sửa theo. Mục Engine ở Tổng quan trước đây đọc trường `model.engine` cũ nên máy chạy Gemini/OpenAI vẫn bị ghi là "Claude CLI" - giờ đọc `model.main` như trang Models.
 - **Tài liệu giới thiệu đổi trục.** README, `docs/README.md`, `docs/01-bat-dau-thiet-lap.md` và `docs/10-models-va-engine.md` viết lại theo hướng "AI agentic đổi được bộ não" thay vì "xây trên CLI của Claude": bảng so sánh engine tách riêng cột chạy lệnh máy, bỏ các ghi chú kiểu "dòng này đã cũ, đừng tin nhãn trên màn hình" vì nhãn đã đúng.
 - Thêm `test_engine_ngang_quyen.py` canh cả hai vế: logic đèn báo não theo bộ não đang dùng, và luật không chỗ nào (system prompt, giao diện, tài liệu) được nói provider API "chỉ chat, không MCP". Danh sách provider có MCP trên giao diện được đối chiếu thẳng với danh sách thật trong `main.py` để lần sau thêm provider mà quên UI là test đỏ ngay.
 
 ## [0.9.269] - 2026-07-30
 Khung nhập ở tab Trò chuyện lòi dải xám đen, và nút phụ ở trang Model mất chữ khi rê chuột.
 ### Sửa lỗi
-- **Khung nhập ở tab Trò chuyện không cùng màu với khung nhập ở màn Javis.** CSS của tab gõ cứng `background: rgba(24,24,34,.6)` thay vì lấy token nền, nên tông sáng lòi ra một dải xám đen giữa nền giấy trắng, còn tông tối thì lệch nhẹ so với bản gốc. Giờ dùng `var(--bg2)` và bo góc 18px đúng như thanh nhập ở màn Javis. Lớp phóng to chat cũng chỉnh theo, nên cả ba chỗ đặt chat (cockpit, tab Trò chuyện, lớp phóng to) trông như một. Nhân tiện đổi nốt hai chỗ gõ cứng còn lại trong cùng khối: nền cột lịch sử dùng `var(--surface-1)`, bóng ngăn kéo mobile dùng `var(--shadow-veil)`.
+- **Khung nhập ở tab Trò chuyện không cùng màu với khung nhập ở màn Jarvis 007.** CSS của tab gõ cứng `background: rgba(24,24,34,.6)` thay vì lấy token nền, nên tông sáng lòi ra một dải xám đen giữa nền giấy trắng, còn tông tối thì lệch nhẹ so với bản gốc. Giờ dùng `var(--bg2)` và bo góc 18px đúng như thanh nhập ở màn Jarvis 007. Lớp phóng to chat cũng chỉnh theo, nên cả ba chỗ đặt chat (cockpit, tab Trò chuyện, lớp phóng to) trông như một. Nhân tiện đổi nốt hai chỗ gõ cứng còn lại trong cùng khối: nền cột lịch sử dùng `var(--surface-1)`, bóng ngăn kéo mobile dùng `var(--shadow-veil)`.
 - **Nút phụ ở trang Model mất chữ khi rê chuột, cả tông tối lẫn tông sáng.** Năm nút (Qua trình duyệt, Ngắt x3, Kiểm tra lại) viết `style="background:transparent"` thẳng trên thẻ. Style inline thắng mọi rule `:hover`, nên khi rê chuột chỉ nửa hiệu ứng chạy: nền vẫn trong suốt còn chữ đã đổi sang `var(--on-accent)` - vốn là màu dành cho chữ ĐẶT TRÊN nền cam đặc. Tông tối thì `--on-accent` gần đen nằm trên nền tối, tông sáng thì nó trắng nằm trên nền trắng: hai bên đều tàng hình. Chuyển cả năm sang class `.gcard-btn.ghost` sẵn có, hover ra nền mờ + chữ đậm lên.
 ### Cải thiện
 - Nút `disabled` không còn tô cam khi rê chuột (tô cam xong chữ đổi màu trong khi độ mờ hạ xuống là đọc không ra) - giữ nguyên bộ mặt thường.
@@ -5034,7 +5034,7 @@ Tải lại trang hoặc mở thêm tab giờ vào lại đúng hội thoại đ
 - **Tải lại trang không còn văng vào hội thoại mới.** Bản 0.9.88 đổi mặc định thành mỗi lần tải trang là mở khung trống; dùng thật thì mỗi lần F5, mỗi lần mở thêm tab là mất mạch chuyện đang nói, phải vào Lịch sử bấm lại. Giờ quay về khôi phục đúng hội thoại đang dở. Muốn khung trống thì bấm nút + như cũ. Khôi phục đọc từ localStorage nên hiện tức thì và giữ nguyên cả ảnh đính kèm lẫn chip chọn đáp án - thứ mà tải lại từ server không có. Mã phiên sống lại theo, nên lượt đang chạy nền vẫn stream tiếp vào đúng khung sau khi tải lại.
 
 ## [0.9.267] - 2026-07-30
-Bong bóng lỗi trong chat in nguyên thẻ svg, và Javis không nhận ra Codex mất đăng nhập.
+Bong bóng lỗi trong chat in nguyên thẻ svg, và Jarvis 007 không nhận ra Codex mất đăng nhập.
 ### Sửa lỗi
 - **Tin báo lỗi trong chat hiện nguyên `<svg ...>` và chữ bị escape hai lần.** Lối lọt thứ tư của đợt đổi sang icon Lucide, cơ chế khác hẳn ba lần trước: `appendJavisMessage` chạy nội dung qua `markdownToHtml`, mà bộ render escape HTML, nên thẻ icon thành chữ. Tệ hơn, chỗ gọi còn `escapeHtml` sẵn trước khi truyền vào nên chữ bị escape lần hai, user đọc ra `&quot;` giữa câu log. Tách riêng `appendJavisError`: phần chữ vẫn đi đúng đường markdown như mọi tin khác, icon gắn vào bong bóng bằng HTML thật.
 - **Codex mất đăng nhập mà đèn báo não không sáng.** Codex CLI báo "Your access token could not be refreshed because your refresh token was already used. Please log out and sign in again." Bộ mẫu nhận diện chỉ biết cách nói của Claude ("OAuth session expired", "failed to authenticate") nên không câu nào khớp: user hỏi ba lần, nhận ba bong bóng lỗi khó hiểu, không ai nói cho biết phải đăng nhập lại - đúng thứ tính năng đèn báo não sinh ra để tránh. Thêm ba cách nói của Codex vào bộ mẫu.
@@ -5088,12 +5088,12 @@ Lịch tự động giờ NÓI RÕ nó chạy lúc nào, sửa được, và kh�
 ### Sửa lỗi
 - **Nhìn thẻ nhắc hẹn không biết bao giờ nó chạy.** Thẻ cron chỉ in đúng biểu thức thô `cron 0 7 * * *` rồi hết. Giờ đọc thành lời (`7:00 mỗi ngày`) kèm lần chạy kế tiếp và còn bao lâu nữa (`kế tiếp mai 07:00 (còn 14 giờ)`), biểu thức thô vẫn giữ bên cạnh cho ai cần. Thẻ việc lặp cũng nói rõ ngày chứ không chỉ giờ trần, và nói thẳng "đang tắt nên chưa có lần chạy kế tiếp" thay vì bỏ trống.
 - **Không sửa/xoá được lịch cron.** Nhắc hẹn tạo xong là bất động: chỉ có Huỷ và Chuyển brain, muốn đổi giờ phải xoá đi tạo lại. Thêm nút **Sửa** (đổi tên, nội dung, kiểu, và giờ - sửa cron xong tính lại ngay lần chạy kế tiếp) và nút **Xoá** (mất hẳn, khác Huỷ là vẫn giữ trong lịch sử). Hai endpoint mới `POST /reminders/update` và `POST /reminders/delete`; tool `javis_schedule` thêm `op=update` để sửa được bằng chat luôn.
-- **Javis tạo cron quá dễ, thiếu điều kiện vẫn tạo rồi im lặng.** Khách dựng job "sáng nào cũng báo email + lịch qua Telegram" trong khi Telegram còn chưa đấu: job chạy đúng giờ, kết quả rơi vào hư không, không ai nói cho họ biết thiếu gì. Giờ server chặn ngay lúc tạo, nói rõ thiếu gì và chỉ chỗ sửa; người dùng vẫn có quyền bấm "Vẫn tạo". Trang Việc định kỳ hiện cảnh báo ở đầu trang khi chưa có kênh báo, và thẻ nào lần chạy trước lỗi thì hiện luôn lỗi đó. Job script không bị chặn - loại đó vốn cố ý im lặng.
+- **Jarvis 007 tạo cron quá dễ, thiếu điều kiện vẫn tạo rồi im lặng.** Khách dựng job "sáng nào cũng báo email + lịch qua Telegram" trong khi Telegram còn chưa đấu: job chạy đúng giờ, kết quả rơi vào hư không, không ai nói cho họ biết thiếu gì. Giờ server chặn ngay lúc tạo, nói rõ thiếu gì và chỉ chỗ sửa; người dùng vẫn có quyền bấm "Vẫn tạo". Trang Việc định kỳ hiện cảnh báo ở đầu trang khi chưa có kênh báo, và thẻ nào lần chạy trước lỗi thì hiện luôn lỗi đó. Job script không bị chặn - loại đó vốn cố ý im lặng.
 - **"Vòng lặp tự cải thiện" mọc lại sau mỗi lần xoá.** Bản di trú cũ dựng lại loop legacy mỗi lần khởi động nếu thư mục `Javis/loops` trống - mà xoá cái cuối cùng thì đúng là trống, nên xoá bao nhiêu lần cũng vô ích. Thêm ba rào: đóng dấu đã-di-trú vào `loop_config.json` (chạy một lần là xong vĩnh viễn); config rỗng thì không có gì để di trú, nên bản fork sạch không còn tự mọc ra một loop trắng; và vault cũ ghi trong config mà không còn trên máy thì bỏ qua luôn, thay vì dồn loop cũ sang brain mặc định - đó chính là đường một "Vòng lặp tự cải thiện" lạ đi vào Brain Default trên máy khách. Bản cũ có nội dung thật, vault còn nguyên, vẫn được chuyển đầy đủ.
 - Trang Việc định kỳ cũng báo khi **kênh đã đấu nhưng đang lỗi thật** (token bị thu hồi, 409 trùng poll): việc vẫn chạy nhưng tin không tới. Lỗi loại này không chặn tạo việc mới vì có thể chỉ thoáng qua, nhưng phải nói ra.
 ### Cải thiện
-- **Mở app là vào màn Javis**, kể cả màn hẹp hoặc khi tắt khoang não. Bản 0.9.182 cho lite-mode tự nhảy sang Trò chuyện; dùng thật thì rối hơn vì mỗi lần tải lại rơi vào một trang khác. Màn Javis đã có sẵn ô chat, chỉ khác là không vẽ khoang não. Co giãn cửa sổ qua ngưỡng mobile cũng không còn tự đẩy sang trang khác.
-- Luật **"đủ điều kiện mới tạo lịch"** vào CLAUDE.md + chỉ dẫn kênh + mô tả tool: trước khi tạo, Javis phải tự soát nguồn dữ liệu đã đấu chưa và có chỗ báo kết quả chưa; thiếu thì nói thẳng rồi hỏi, không tạo cho xong.
+- **Mở app là vào màn Jarvis 007**, kể cả màn hẹp hoặc khi tắt khoang não. Bản 0.9.182 cho lite-mode tự nhảy sang Trò chuyện; dùng thật thì rối hơn vì mỗi lần tải lại rơi vào một trang khác. Màn Jarvis 007 đã có sẵn ô chat, chỉ khác là không vẽ khoang não. Co giãn cửa sổ qua ngưỡng mobile cũng không còn tự đẩy sang trang khác.
+- Luật **"đủ điều kiện mới tạo lịch"** vào CLAUDE.md + chỉ dẫn kênh + mô tả tool: trước khi tạo, Jarvis 007 phải tự soát nguồn dữ liệu đã đấu chưa và có chỗ báo kết quả chưa; thiếu thì nói thẳng rồi hỏi, không tạo cho xong.
 
 ## [0.9.259] - 2026-07-30
 Dọn hai test đỏ tồn từ trước, giờ cả 93 test đều xanh.
@@ -5134,7 +5134,7 @@ Bỏ hết emoji khỏi giao diện, thay bằng bộ icon Lucide vẽ nét. Emo
 ## [0.9.256] - 2026-07-30
 Webcake có thêm cách đấu dễ hơn: bấm Kết nối rồi đăng nhập, không dán JWT, không cần Node.js.
 ### Thêm mới
-- **Webcake Landing (đăng nhập web)**: connector mới trỏ vào máy chủ hosted `https://mcp.toolvn.io.vn/mcp`. Máy chủ này công bố OAuth đúng chuẩn (RFC 9728 discovery + RFC 7591 đăng ký ứng dụng động, PKCE S256, scope `landing:read` và `landing:write`), nên Javis tự đăng ký ứng dụng và user chỉ cần bấm Kết nối, y như Higgsfield. Hai cách đấu Webcake gom về CÙNG một thẻ trong kho kết nối, mỗi cách một dòng mô tả để chọn.
+- **Webcake Landing (đăng nhập web)**: connector mới trỏ vào máy chủ hosted `https://mcp.toolvn.io.vn/mcp`. Máy chủ này công bố OAuth đúng chuẩn (RFC 9728 discovery + RFC 7591 đăng ký ứng dụng động, PKCE S256, scope `landing:read` và `landing:write`), nên Jarvis 007 tự đăng ký ứng dụng và user chỉ cần bấm Kết nối, y như Higgsfield. Hai cách đấu Webcake gom về CÙNG một thẻ trong kho kết nối, mỗi cách một dòng mô tả để chọn.
 - Thẻ nói thẳng đánh đổi: cách web đi qua máy chủ trung gian do tác giả công cụ vận hành (Pancake dẫn link trong tài liệu chứ không phải hạ tầng chính chủ), nên quyền vào tài khoản Webcake nằm ở máy chủ đó; cách chạy trên máy thì token nằm lại máy và đi thẳng tới Webcake.
 ### Bảo mật
 - **KHÔNG dùng kiểu link kèm token mà tài liệu Webcake gợi ý** (`...?jwt=<token>`). `mcp_store` lưu `url` KHÔNG mã hoá và `_public()` trả nguyên `url` ra frontend, chỉ headers/env/secrets mới được che, nên token nhét vào URL là rơi thẳng ra dashboard và log. Dùng OAuth thay thế.
@@ -5144,9 +5144,9 @@ Webcake có thêm cách đấu dễ hơn: bấm Kết nối rồi đăng nhập,
 - Test buộc hai cách Webcake CÙNG `tool_meta`, CÙNG tool validate và CÙNG `default_perm`, tránh một đường cho qua thứ đường kia chặn.
 
 ## [0.9.255] - 2026-07-30
-Đấu Webcake trong Javis xong là hỏng ngay: mọi tool tạo, sửa hay đăng trang đều trả `missing_env WEBCAKE_API_BASE`, vì catalog chưa hề cấp base URL của API.
+Đấu Webcake trong Jarvis 007 xong là hỏng ngay: mọi tool tạo, sửa hay đăng trang đều trả `missing_env WEBCAKE_API_BASE`, vì catalog chưa hề cấp base URL của API.
 ### Sửa lỗi
-- **Connector Webcake thiếu base URL API**: package `webcake-landing-mcp` giải base theo thứ tự `WEBCAKE_API_BASE` > preset của `WEBCAKE_ENV` > file `auth.json` do lệnh `login` ghi. Catalog Javis chỉ map `WEBCAKE_JWT` và `WEBCAKE_ORG_ID` từ ô đăng nhập nên không cấp gì trong ba đường đó, khiến cả 9 tool lưu trữ (`list_organizations`, `create_page`, `list_pages`, `find_pages`, `get_page`, `update_page`, `add_section`, `patch_page`, `publish_page`) chết ngay. Tool validate cũng nằm trong nhóm đó nên thẻ kết nối đỏ luôn từ lúc vừa đấu. Nay catalog cấp `WEBCAKE_ENV=prod`: dán JWT là chạy, khỏi bắt user gõ lệnh `login` ngoài Javis.
+- **Connector Webcake thiếu base URL API**: package `webcake-landing-mcp` giải base theo thứ tự `WEBCAKE_API_BASE` > preset của `WEBCAKE_ENV` > file `auth.json` do lệnh `login` ghi. Catalog Jarvis 007 chỉ map `WEBCAKE_JWT` và `WEBCAKE_ORG_ID` từ ô đăng nhập nên không cấp gì trong ba đường đó, khiến cả 9 tool lưu trữ (`list_organizations`, `create_page`, `list_pages`, `find_pages`, `get_page`, `update_page`, `add_section`, `patch_page`, `publish_page`) chết ngay. Tool validate cũng nằm trong nhóm đó nên thẻ kết nối đỏ luôn từ lúc vừa đấu. Nay catalog cấp `WEBCAKE_ENV=prod`: dán JWT là chạy, khỏi bắt user gõ lệnh `login` ngoài Jarvis 007.
 ### Thêm mới
 - **Khối `env` tĩnh mức connector trong catalog**: chỗ khai hằng số kỹ thuật KHÔNG phải secret (base URL, preset môi trường) để khỏi đẻ thêm ô nhập bắt user gõ URL. Thứ hạng: env user tự đặt ở connection > ô đăng nhập > env tĩnh catalog, nên bản staging hay self-hosted vẫn đè được bằng `WEBCAKE_API_BASE` riêng. Dùng preset thay vì ghi cứng URL để Webcake đổi tên miền thì package tự lo.
 ### Kiểm thử
@@ -5171,7 +5171,7 @@ Bản trước sửa đồ thị 3D nhưng làm nó tệ hơn: cả tối lẫn 
 - Sương mù giảm từ 0.26 xuống 0.17 (tối) và 0.30 xuống 0.13 (sáng); bụi vành giảm từ 620 hạt xuống 260 và mờ đi một nửa. Cả hai đang góp phần làm mờ thay vì tạo chiều sâu.
 - Sàn cỡ hạt nâng từ 2.4 lên 3.2: dưới mức đó note ít liên kết nhỏ tới mức coi như không tồn tại.
 ### Cải thiện
-- **Lõi mang hơi ấm của Javis**: đổi từ trắng-tím sang đốm than cam thương hiệu loang ra tím. Tông sáng thành vệt ửng đào-lavender nhạt, đọc như chỗ mực thấm đậm nhất giữa trang giấy.
+- **Lõi mang hơi ấm của Jarvis 007**: đổi từ trắng-tím sang đốm than cam thương hiệu loang ra tím. Tông sáng thành vệt ửng đào-lavender nhạt, đọc như chỗ mực thấm đậm nhất giữa trang giấy.
 ### Kiểm thử
 - Dựng bộ mô phỏng dựng hình bằng PIL, chồng lớp đúng thứ tự và đúng phép trộn của app, để đối chiếu được bằng mắt trước khi sửa code. Đã kiểm ở 150, 220 và 400 note - màu giữ nguyên, không bệt lại ở mật độ dày.
 - `test_graph3d_nebula.js` đổi từ khoá hằng số sang khoá QUAN HỆ (sương tỉ lệ nghịch bán kính, dải cỡ có sàn và trần) để còn vặn được thẩm mỹ mà test không vỡ oan.
@@ -5195,7 +5195,7 @@ Bản trước sửa đồ thị 3D nhưng làm nó tệ hơn: cả tối lẫn 
 ## [0.9.251] - 2026-07-30
 Zalo được rút về đúng một đường MCP: nối tài khoản xong là tìm cuộc chat và gửi trực tiếp, không cần bật nghe hay chọn danh sách theo dõi.
 ### Cải thiện
-- **Gửi Zalo trực tiếp bằng MCP upstream**: Javis dùng `zalo_search_threads` để tìm đúng người/nhóm rồi gọi `zalo_send_message`; bỏ chốt phụ thuộc danh sách cuộc chat đang nghe và bỏ tool `javis_zalo_send`.
+- **Gửi Zalo trực tiếp bằng MCP upstream**: Jarvis 007 dùng `zalo_search_threads` để tìm đúng người/nhóm rồi gọi `zalo_send_message`; bỏ chốt phụ thuộc danh sách cuộc chat đang nghe và bỏ tool `javis_zalo_send`.
 - **Gỡ toàn bộ menu “Nghe tin liên tục”**: không còn chọn tài khoản nghe, cuộc chat theo dõi, báo Telegram theo từ khoá hay giờ im lặng.
 - **Một tiến trình Zalo duy nhất**: bỏ sidecar listener, webhook, luật theo từng cuộc chat và hai plugin Zalo cũ; dùng thẳng `zalo-agent-cli` 1.6.2 qua stdio với đủ 7 tool MCP.
 - Thẻ kết nối Zalo có link mở tài liệu hướng dẫn trên GitHub.
@@ -5214,10 +5214,10 @@ Nút đổi tông trước giờ chỉ lật từ đen sang xám, không phải 
 - Mọi chữ trong tông sáng đạt tối thiểu 4.5:1 theo WCAG AA. Cam thương hiệu tách làm hai vai: `--accent` giữ nguyên độ rực cho chấm/viền/gạch, còn nút cam đặc mang chữ trắng dùng bản sẫm hơn - vì tương phản là đối xứng, một màu vừa nổi trên nền trắng vừa đỡ được chữ trắng là bất khả.
 
 ## [0.9.249] - 2026-07-29
-Muốn giao thêm một fanpage cho Javis mà bấm Kết nối lại thì Facebook không hỏi lại gì cả.
+Muốn giao thêm một fanpage cho Jarvis 007 mà bấm Kết nối lại thì Facebook không hỏi lại gì cả.
 ### Sửa lỗi
 - **Kết nối lại Facebook giờ hiện lại màn chọn Trang**: đã cấp quyền một lần rồi thì Facebook đi đường tắt "Tiếp tục với tên X" và bỏ qua màn "Chọn nội dung bạn cho phép", nên không có chỗ nào tick thêm fanpage mới - người dùng kẹt với đúng bộ Trang đã chọn lần đầu, xoá tài khoản đi đấu lại cũng vậy. Nay đường đăng nhập Meta luôn kèm `auth_type=rerequest` (tham số Meta khai đúng cho việc hỏi lại), nên mỗi lần Kết nối lại là hộp thoại quyền hiện đầy đủ, tick thêm Trang được. Áp dụng cho cả Facebook Trang lẫn Meta Ads (chọn lại tài khoản quảng cáo).
-- Lưu ý khi tick: **giữ nguyên các Trang cũ**, bỏ tick Trang nào là Javis mất quyền Trang đó. Hướng dẫn trong hộp Kết nối và mục Sự cố thường gặp đã ghi thêm bước này.
+- Lưu ý khi tick: **giữ nguyên các Trang cũ**, bỏ tick Trang nào là Jarvis 007 mất quyền Trang đó. Hướng dẫn trong hộp Kết nối và mục Sự cố thường gặp đã ghi thêm bước này.
 ### Kiểm thử
 - `test_meta_graph.py` chốt đường authorize của Meta phải mang `auth_type=rerequest`, để lần sau ai dọn tham số không lỡ tay gỡ mất.
 
@@ -5237,7 +5237,7 @@ Dọn nốt đường phình media bị bỏ sót ở bản trước, và nó l�
 Nối Telegram vào kho phiên ở 0.9.244 để lộ vấn đề ngược lại: phiên Telegram không có gì chặn nó dài vô tận.
 ### Cải thiện
 - **Phiên Telegram tự XOAY.** Trên dashboard người dùng tự bấm "＋ Hội thoại mới" nên phiên không bao giờ dài mãi; trên Telegram thì gần như KHÔNG AI gõ `/reset`, nên một Chat ID dính vào một phiên là phiên đó dài vô tận chừng nào server chưa restart. Mở ra đọc là kéo về cả nghìn tin, vì `openStoredSession` vẽ TOÀN BỘ `sess.messages` không phân trang - nút "Xem thêm" ở thanh bên chỉ phân trang DANH SÁCH hội thoại chứ không phân trang tin trong một cuộc. Nay `_tg_conv_sid` sang phiên mới khi nghỉ quá 12 tiếng hoặc chạm 200 tin (`/reset`, đổi brain và restart vốn đã mở phiên mới từ 0.9.244).
-- **Xoay chỉ xoay BẢN GHI, không đụng ngữ cảnh engine.** `sess['cli']`, thread Codex và `sess['or']` (vốn đã có `compact_mem` lo cửa sổ) đều giữ nguyên, nên người dùng Telegram không hề thấy Javis quên gì; chỉ dashboard là thấy hội thoại chia thành khúc đọc được. Đây là lý do cách này chấp nhận được, và có test riêng chốt lại ràng buộc đó.
+- **Xoay chỉ xoay BẢN GHI, không đụng ngữ cảnh engine.** `sess['cli']`, thread Codex và `sess['or']` (vốn đã có `compact_mem` lo cửa sổ) đều giữ nguyên, nên người dùng Telegram không hề thấy Jarvis 007 quên gì; chỉ dashboard là thấy hội thoại chia thành khúc đọc được. Đây là lý do cách này chấp nhận được, và có test riêng chốt lại ràng buộc đó.
 - **Không phải sửa gì ở phần đọc.** Xoay biến một phiên vô hạn thành nhiều phiên hữu hạn, nên cái tăng lên là SỐ hội thoại - đúng thứ nút "Xem thêm" của thanh bên đã lo sẵn. Không đụng `app.js`.
 ### Thêm mới
 - **Cột `channel` trong bảng `sessions`** (`web` mặc định, tự migrate cho DB cũ qua vòng ALTER sẵn có) + nhãn **TG** trong danh sách hội thoại, để phân biệt cuộc đến từ bot với cuộc tự mở trên dashboard. Không có nó thì xoay phiên chỉ làm thanh bên đầy những cuộc không rõ từ đâu ra.
@@ -5251,11 +5251,11 @@ Nối Telegram vào kho phiên ở 0.9.244 để lộ vấn đề ngược lại
 ### Sửa lỗi
 - **Telegram mất sạch ngữ cảnh khi phiên Codex cũ không còn trên máy**: rollout của Codex nằm ở máy, bị dọn hoặc mất sau nâng cấp là lượt đó chết hẳn, không dựng lại được gì. Nay bắt đúng lỗi resume hỏng, mở thread mới và nạp lại ngữ cảnh từ lịch sử đã lưu, rồi các lượt sau resume thread mới. Chữa được là nhờ 0.9.244 đã cho Telegram một kho phiên để mà dựng lại.
 - **Đổi model rồi quay lại Codex thì nó mù các lượt ở giữa**: chuyển sang Claude nói vài câu rồi quay về ChatGPT, Codex vẫn resume đúng luồng cũ vốn chưa hề thấy mấy câu đó. Nay provider khác chen một lượt là liên kết luồng Codex bị xoá, lượt Codex kế tiếp dựng lại ngữ cảnh từ kho phiên.
-- **Một lỗi vặt giữa lượt huỷ luôn cả câu trả lời trên Telegram**: một tool hỏng là Javis trả về mỗi dòng "⚠", trong khi luồng thường vẫn chạy tiếp và vẫn ra câu trả lời tử tế. Nay lỗi giữa lượt không chí mạng: có câu trả lời thì gửi câu trả lời, kèm một dòng báo có lỗi ở cuối; không có chữ nào mới báo lỗi như cũ. Đây vốn là cách dashboard xử lý.
+- **Một lỗi vặt giữa lượt huỷ luôn cả câu trả lời trên Telegram**: một tool hỏng là Jarvis 007 trả về mỗi dòng "⚠", trong khi luồng thường vẫn chạy tiếp và vẫn ra câu trả lời tử tế. Nay lỗi giữa lượt không chí mạng: có câu trả lời thì gửi câu trả lời, kèm một dòng báo có lỗi ở cuối; không có chữ nào mới báo lỗi như cũ. Đây vốn là cách dashboard xử lý.
 - **Bong bóng chat trên web treo mãi khi luồng đứt giữa chừng**: khung `response` của nhánh Claude nằm trong nhánh xử lý `final`, nên engine chết trước khi kịp phát `final` là client không nhận được `response` nào cả, dù chữ đã hiện ra rồi. Nay khung `response` nằm ngoài vòng lặp và lấy phần đã stream làm phương án dự phòng. Nhánh Telegram cũng vậy.
 - **Phiên Telegram dài phải chờ tóm tắt xong mới thấy câu trả lời**: `compact_mem` là một request LLM nữa nhưng lại chạy thẳng trong đường request. Nay chạy nền, và chỉ áp kết quả khi lịch sử chưa đổi kể từ lúc bắt đầu nén (có lượt chen vào giữa mà đè lên là nuốt mất lượt vừa nói).
 - **File Codex ghi ra không được gửi kèm**: nhánh Codex truyền danh sách rỗng cho bộ thu file, nên file chỉ về tay anh nếu đường dẫn tình cờ được nhắc trong câu trả lời. Codex không có trường `file_path` chuẩn hoá như Claude - đường dẫn nằm rải trong `changes[]`, trong `arguments`, hay lẫn trong lệnh shell, tuỳ loại việc. Nay `CodexCLI` đẩy nguyên payload thô lên và bộ gom mới đi hết payload nhặt mọi thứ trông giống đường dẫn; thu rộng vô hại vì bộ lọc phía sau vốn chỉ giữ tệp có thật và vừa đổi trong lượt.
-- **Model bị ép về bản hợp lệ mà không ai nói gì**: chọn `gpt-4o` cho tài khoản ChatGPT thì Codex không chạy được, Javis lặng lẽ đổi sang model khác và anh cứ tưởng vẫn đang chạy model mình chọn. Nay ghi lại model đúng vào Settings và báo ngay trong câu trả lời. Báo trong câu trả lời chứ không phải dòng trạng thái, vì dòng trạng thái bị thay bằng câu trả lời nên không ai đọc được.
+- **Model bị ép về bản hợp lệ mà không ai nói gì**: chọn `gpt-4o` cho tài khoản ChatGPT thì Codex không chạy được, Jarvis 007 lặng lẽ đổi sang model khác và anh cứ tưởng vẫn đang chạy model mình chọn. Nay ghi lại model đúng vào Settings và báo ngay trong câu trả lời. Báo trong câu trả lời chứ không phải dòng trạng thái, vì dòng trạng thái bị thay bằng câu trả lời nên không ai đọc được.
 ### Thay đổi
 - **`_tg_ket`** gói câu trả lời Telegram (cảnh báo hệ thống lên đầu, lỗi giữa lượt xuống cuối) và **`_tg_compact_bg`** đẩy vòng nén sang nền. Vẫn KHÔNG gộp luồng dispatch: mỗi lỗi sửa tại chỗ, đúng khuyến nghị trong spec.
 - **`channel_context.candidate_paths_from_tool`**: bộ gom đường dẫn từ payload tool call, cố tình thu rộng vì tầng lọc phía sau đã chặt sẵn.
@@ -5267,7 +5267,7 @@ Nối Telegram vào kho phiên ở 0.9.244 để lộ vấn đề ngược lại
 ## [0.9.244] - 2026-07-29
 Hội thoại Telegram từ nay được LƯU và được HỌC như hội thoại trên web, token Telegram được tính vào bảng Mức dùng, và khối nút bấm thôi lọt vào kho phiên.
 ### Sửa lỗi
-- **Hội thoại Telegram không được lưu vào đâu cả**: không vào `/sessions`, không vào `brain/Memory/conversations`, không vào vòng tự học. Nói chuyện với Javis qua Telegram bao lâu cũng vậy, mở trang Lịch sử ra là trống, và bộ não không dày lên được một chút nào. Nay mỗi lượt Telegram mở/khớp một phiên trong kho như dashboard, lưu cả lượt hỏi lẫn lượt trả lời, tự đặt tiêu đề, ghi nhật ký hội thoại vào Memory của brain đang dùng, và đẩy vào hàng đợi tự học.
+- **Hội thoại Telegram không được lưu vào đâu cả**: không vào `/sessions`, không vào `brain/Memory/conversations`, không vào vòng tự học. Nói chuyện với Jarvis 007 qua Telegram bao lâu cũng vậy, mở trang Lịch sử ra là trống, và bộ não không dày lên được một chút nào. Nay mỗi lượt Telegram mở/khớp một phiên trong kho như dashboard, lưu cả lượt hỏi lẫn lượt trả lời, tự đặt tiêu đề, ghi nhật ký hội thoại vào Memory của brain đang dùng, và đẩy vào hàng đợi tự học.
 - **Token Telegram không được tính, trừ khi chạy qua Codex**: nhánh Claude Code và nhánh API (OpenRouter/OpenAI/Anthropic/Gemini) đều thiếu `usage_store.record`, nên bảng Mức dùng báo thiếu mọi cuộc trò chuyện Telegram. Nhánh API còn bám model THẬT do sự kiện `meta` báo về, chứ không phải model đã đặt trong Settings (OpenRouter tính tiền theo model thật).
 - **Khối nút bấm thô lọt vào kho phiên và vào nhật ký hội thoại**: dashboard ghi thẳng `<!-- JAVIS_ASK ... -->` vào SQLite và vào `brain/Memory/conversations`, tức rác lọt vào chính corpus dùng để tự học. Nay bóc khối trước khi lưu ở CẢ HAI kênh. Nút bấm vẫn vẽ bình thường vì dashboard dựng nút từ sự kiện WebSocket sống, còn lịch sử thì vốn đã không dựng lại nút.
 - **Chỗ thứ 9 gọi route handler như hàm thường**: `bench_hotpath.py` gọi `asyncio.run(main.list_brains())`. Lưới dựng ở 0.9.243 bỏ sót vì nó chỉ soi `main.py` + `routes/` và chỉ bắt lời gọi trần, không bắt dạng `module.handler()`.
@@ -5342,7 +5342,7 @@ Giai đoạn 1 của đợt tái cấu trúc: gỡ hết các chỗ chặn event
 - **Kho usage thiếu WAL**: sau khi chuyển sang chạy trong thread, `summary`/`insights` đọc SONG SONG với `refresh()` đang ghi. Chế độ journal mặc định làm hai bên khoá nhau và ném "database is locked" đúng lúc user mở trang Mức dùng. `sessions.py` và `task_store.py` đã làm đúng từ lâu, riêng kho này thì chưa.
 - **Snapshot Kanban N+1**: lấy `list_tasks(limit=5000)` rồi gọi `list_events` cho TỪNG việc. Thêm `list_events_bulk` dùng một truy vấn `ROW_NUMBER() OVER (PARTITION BY task_id)`: snapshot 120 việc từ 120 truy vấn xuống 1. Kèm khoá asyncio theo từng brain, vì đẩy ra thread mà quên khoá là tự tạo bug mới - hai snapshot song song đều ghi file hợp lệ nhưng lần CŨ có thể hạ cánh sau lần MỚI và để lại mirror thiu.
 ### Thay đổi
-- **Số note trên dropdown chọn brain giảm** (vd 623 -> 579): nay đếm bằng `_count_md` nên bỏ qua thư mục hệ thống. Chênh lệch đúng bằng số file trong `.claude/` - tức bản mirror skill do CHÍNH Javis sinh ra, không phải note của người dùng. Số mới đúng hơn số cũ. Chạm trần đếm thì nhãn hiện dấu "+" để không nói dối là con số chính xác.
+- **Số note trên dropdown chọn brain giảm** (vd 623 -> 579): nay đếm bằng `_count_md` nên bỏ qua thư mục hệ thống. Chênh lệch đúng bằng số file trong `.claude/` - tức bản mirror skill do CHÍNH Jarvis 007 sinh ra, không phải note của người dùng. Số mới đúng hơn số cũ. Chạm trần đếm thì nhãn hiện dấu "+" để không nói dối là con số chính xác.
 ### Kiểm thử
 - 6 file test mới, tất cả đều khoá phần dễ hỏng ngầm chứ không chỉ phần dễ đo: `test_fastyaml` đối chiếu 295 frontmatter THẬT trong repo cộng 14 góc hiểm hai bộ nạp hay lệch; `test_prompt_scan_once` ĐẾM số lần quét đúng bằng 1 và đối chiếu nội dung sinh ra phải y hệt đường cũ; `test_plugins_cache` kiểm cả "thiu" lẫn "bẩn" (dict bị nơi gọi sửa tại chỗ rồi ghi ngược ra file); `test_usage_hotpath` đối chiếu 27 model x 4 mức token với thuật toán gốc vì rủi ro là im lặng trả sai TIỀN, và chạy thật 200 lần ghi song song 60 lần đọc; `test_brains_dem` và `test_kanban_snapshot` ĐO ĐỘ TRỄ NHỊP TIM của event loop chứ không chỉ đo thời gian hàm.
 - `test_brains_dem.py` có chốt chặn khẳng định `BRAINS_DIR` trỏ vào thư mục tạm trước khi ghi. Chốt này sinh ra từ một tai nạn thật lúc viết: đặt nhầm tên biến môi trường làm 3019 file rác rơi vào `brains/` thật, đã dọn sạch và xác nhận 4 brain thật nguyên vẹn.
@@ -5377,7 +5377,7 @@ Vá lỗi treo cả server khi duyệt thư mục, dọn trắng bảng Việc, 
 - `test_tasks_autonomous.py` thêm case cho `clear_board`; `test_graph_tooltip_cleanup.js` chạy bằng node cho phần tooltip.
 
 ## [0.9.233] - 2026-07-28
-Javis thôi tự đẻ việc: chỉ tạo việc khi được bảo thẳng, kèm nút dọn bảng.
+Jarvis 007 thôi tự đẻ việc: chỉ tạo việc khi được bảo thẳng, kèm nút dọn bảng.
 ### Thay đổi
 - **Vòng học KHÔNG còn tự tạo việc nền** (`capabilities.task` mặc định `false`). Lý do từ số liệu thật: 33 việc trên 4 bảng thì 33 đều do máy tự suy ra từ hội thoại, không cái nào chủ trực tiếp giao, và phần lớn chết yểu vì worker headless không làm nổi. Từ nay việc chỉ sinh khi được BẢO THẲNG trong chat (`POST /kanban/task`) - đúng mức 2 của thang điều phối. Công tắc vẫn còn trong Cài đặt cho ai muốn bật lại.
 - **Migration `task_autocreate_off`**: đổi mặc định thôi không đủ vì `read_config` để giá trị đã lưu đè lên default, máy đang chạy vẫn giữ `task: true`. Nay có cơ chế migration chạy ĐÚNG MỘT LẦN rồi ghi cờ `_migrations`, nên vừa hạ được cấu hình cũ vừa không biến công tắc thành nút chết khi chủ tự bật lại.
@@ -5532,7 +5532,7 @@ Task tick được ngay trên note + khối dataview chạy thật, lấy cảm 
 - `dashboard/test_dataview.js` (27 case): parse truy vấn, FROM/WHERE/SORT/LIMIT, bảng, escape XSS. `test_chat_render.js` thêm case checkbox không disabled + fence dataview.
 
 ## [0.9.215] - 2026-07-28
-Thêm công tắc tự chọn: giữ hay gỡ dấu nguồn gốc AI trên ảnh Javis tạo.
+Thêm công tắc tự chọn: giữ hay gỡ dấu nguồn gốc AI trên ảnh Jarvis 007 tạo.
 ### Thêm mới
 - **Công tắc "Dấu nguồn gốc ảnh AI"** ở Cài đặt, nhóm Giao diện & Brain. Ảnh sinh ra mang sẵn Content Credentials (C2PA) ghi rằng ảnh do AI tạo, và Facebook đọc dấu đó để gắn nhãn "Nội dung do AI tạo" lên bài. Công tắc cho chọn **Giữ dấu** (mặc định) hoặc **Gỡ dấu**.
 - **Mặc định là GIỮ**, và có test khoá mặc định đó lại: bản fork nào cũng khởi đầu ở trạng thái an toàn, muốn gỡ thì chủ workspace phải tự bật. Lúc bật có hộp xác nhận nói rõ nghĩa vụ công bố nội dung AI vẫn thuộc về người đăng.
@@ -5542,18 +5542,18 @@ Thêm công tắc tự chọn: giữ hay gỡ dấu nguồn gốc AI trên ảnh
 - `test_image_gen.py` thêm 8 case: gỡ đúng chunk caBX và không đụng phần còn lại, ảnh không có dấu thì trả nguyên xi, mặc định phải là False, và hai nhánh bật/tắt cho ra file khác nhau đúng như mong đợi.
 
 ## [0.9.214] - 2026-07-28
-Ảnh Javis tạo ra tự mang nhãn tác giả javisos.com.
+Ảnh Jarvis 007 tạo ra tự mang nhãn tác giả javisos.com.
 ### Thêm mới
-- **Gắn nhãn tác giả vào ảnh**: mọi ảnh sinh bằng `javis_generate_image` nay được ghi sẵn metadata `Software = Javis OS`, `Source = https://javisos.com` và thời điểm tạo, dưới dạng chunk tEXt chuẩn PNG. Ai mở file bằng công cụ xem metadata sẽ thấy ảnh do Javis tạo.
+- **Gắn nhãn tác giả vào ảnh**: mọi ảnh sinh bằng `javis_generate_image` nay được ghi sẵn metadata `Software = Jarvis 007`, `Source = https://javisos.com` và thời điểm tạo, dưới dạng chunk tEXt chuẩn PNG. Ai mở file bằng công cụ xem metadata sẽ thấy ảnh do Jarvis 007 tạo.
 - Việc gắn nhãn **chỉ THÊM chunk, không gỡ gì**: phần Content Credentials (C2PA) mà nhà cung cấp ảnh nhúng sẵn vẫn nằm nguyên trong file, pixel không bị đụng vào. File không phải PNG hợp lệ thì trả nguyên xi, không làm hỏng ảnh.
 ### Kiểm thử
 - `test_image_gen.py` thêm 8 case, trong đó có case khoá hành vi "KHÔNG gỡ chunk C2PA có sẵn" để sau này không ai lặng lẽ đổi thành gỡ nguồn gốc rồi ghi đè tên mình.
 
 ## [0.9.213] - 2026-07-28
-Javis xoá được bài trên Trang, nên đổi ảnh bài đã đăng giờ làm trọn được bằng lời.
+Jarvis 007 xoá được bài trên Trang, nên đổi ảnh bài đã đăng giờ làm trọn được bằng lời.
 ### Thêm mới
-- **Tool `fb_page_delete`**: xoá hẳn một bài đã đăng trên Trang bằng lời ("xoá bài này giúp anh"). Trước giờ Javis đăng và sửa chữ được nhưng không xoá được, nên tình huống hay gặp nhất là muốn ĐỔI ẢNH của bài đã đăng thì kẹt: Meta không cho thay ảnh bài cũ, phải đăng bài mới rồi xoá bài cũ, mà bước xoá lại phải tự làm tay. Giờ đi trọn được.
-- Tool chạy ở mức **Toàn quyền**, khai trong nhóm nguy hiểm. Trước khi xoá, Javis **đọc lại bài** để chắc đúng bài và giữ nội dung: bài không đọc được thì dừng, KHÔNG xoá mù theo id sai; xoá xong trả lại đoạn nội dung vừa xoá để đối chiếu (và có cái dán lại nếu lỡ tay).
+- **Tool `fb_page_delete`**: xoá hẳn một bài đã đăng trên Trang bằng lời ("xoá bài này giúp anh"). Trước giờ Jarvis 007 đăng và sửa chữ được nhưng không xoá được, nên tình huống hay gặp nhất là muốn ĐỔI ẢNH của bài đã đăng thì kẹt: Meta không cho thay ảnh bài cũ, phải đăng bài mới rồi xoá bài cũ, mà bước xoá lại phải tự làm tay. Giờ đi trọn được.
+- Tool chạy ở mức **Toàn quyền**, khai trong nhóm nguy hiểm. Trước khi xoá, Jarvis 007 **đọc lại bài** để chắc đúng bài và giữ nội dung: bài không đọc được thì dừng, KHÔNG xoá mù theo id sai; xoá xong trả lại đoạn nội dung vừa xoá để đối chiếu (và có cái dán lại nếu lỡ tay).
 - **Cảnh báo rủi ro của connector Facebook Trang** viết lại cho đúng bán kính thiệt hại: nói thẳng Toàn quyền là xoá được bài và xoá thì KHÔNG hoàn tác được, Trang không có thùng rác.
 ### Sửa lỗi
 - **Khai báo plugin Trang bị thiếu 4 tool**: `plugin.yaml` mới liệt kê 5 tool trong khi plugin đăng ký 9 (thiếu ảnh, album, video, sửa bài). Đã khai đủ 10.
@@ -5564,7 +5564,7 @@ Javis xoá được bài trên Trang, nên đổi ảnh bài đã đăng giờ l
 Sửa lại cho đúng: bảng "Invalid Scopes" KHÔNG chặn đăng nhập, đừng bắt người dùng đi vòng.
 ### Sửa lỗi
 - **Hạ "Invalid Scopes" từ lỗi chặn xuống cảnh báo bỏ qua được**: bản 0.9.211 mô tả bảng này như lỗi bắt buộc phải đi thêm quyền mới kết nối được. Sai. Chính thông báo của Meta ghi "This message is only shown to developers" và luồng đăng nhập vẫn chạy tiếp; app ở Chế độ phát triển với người bấm là Quản trị viên thì Facebook vẫn cấp đủ quyền (kiểm chứng thực tế: token lấy về có đủ `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`, `pages_manage_engagement`, không quyền nào bị từ chối). Hướng dẫn hai connector Facebook Trang và Meta Ads nay bảo bấm OK đi tiếp, chỉ khi kết nối xong mà không thấy Trang/tài khoản quảng cáo nào mới quay lại thêm quyền.
-- **Thêm cách tự kiểm chứng** trong tài liệu: kết nối xong hỏi Javis "liệt kê các Trang của tôi", thấy đủ là xong, không phải mò cấu hình app.
+- **Thêm cách tự kiểm chứng** trong tài liệu: kết nối xong hỏi Jarvis 007 "liệt kê các Trang của tôi", thấy đủ là xong, không phải mò cấu hình app.
 
 ## [0.9.211] - 2026-07-27
 Hướng dẫn đấu Trang và Quảng cáo thêm bước bật quyền cho app, hết lỗi "Invalid Scopes".
@@ -5584,9 +5584,9 @@ Sửa bước sai trong hướng dẫn Meta Ads: bản chạy máy cá nhân KH�
 Hướng dẫn đấu Meta Ads giờ đi được cả hai giao diện app của Meta, hết cảnh "không thấy mục Sản phẩm".
 ### Cải thiện
 - **Hướng dẫn tạo Facebook App nhận biết 2 giao diện**: Meta đang chuyển trang quản lý ứng dụng từ bản cũ (menu "Sản phẩm") sang bản mới (menu "Trường hợp sử dụng"), nên mỗi người mở ra thấy một kiểu và ai ở bản mới thì tìm mãi không ra bước "thêm sản phẩm Đăng nhập bằng Facebook". Hướng dẫn trong hộp thoại Kết nối và tài liệu giờ mở đầu bằng cách tự nhận biết mình đang ở bản nào, rồi tách đường đi riêng cho từng bản (bản mới: Trường hợp sử dụng > Tùy chỉnh > Cài đặt).
-- **Nói rõ được phép bỏ qua xác minh và xét duyệt**: bảng "Việc cần làm" của app dụ người ta tick hết cả "Xác minh doanh nghiệp" lẫn "Xét duyệt ứng dụng", trong khi cách đấu của Javis (app giữ Chế độ phát triển, tự làm Admin) không cần hai bước đó. Hướng dẫn nay nói thẳng bỏ qua, tránh mất nhiều ngày chờ duyệt vô ích.
+- **Nói rõ được phép bỏ qua xác minh và xét duyệt**: bảng "Việc cần làm" của app dụ người ta tick hết cả "Xác minh doanh nghiệp" lẫn "Xét duyệt ứng dụng", trong khi cách đấu của Jarvis 007 (app giữ Chế độ phát triển, tự làm Admin) không cần hai bước đó. Hướng dẫn nay nói thẳng bỏ qua, tránh mất nhiều ngày chờ duyệt vô ích.
 - **Địa chỉ callback cho bản chạy VPS**: trước chỉ hướng dẫn `localhost`, ai cài trên VPS/tên miền riêng phải tự đoán. Nay ghi rõ cả hai trường hợp và nhắc ngoài localhost thì Meta bắt buộc https.
-- **Khắc phục sự cố** thêm 2 mục: không thấy menu "Sản phẩm" (do đang ở giao diện mới), và không thấy "Đăng nhập bằng Facebook cho doanh nghiệp" (chỉ có ở app tạo đúng loại Doanh nghiệp, nhưng Javis dùng bản thường nên không cần).
+- **Khắc phục sự cố** thêm 2 mục: không thấy menu "Sản phẩm" (do đang ở giao diện mới), và không thấy "Đăng nhập bằng Facebook cho doanh nghiệp" (chỉ có ở app tạo đúng loại Doanh nghiệp, nhưng Jarvis 007 dùng bản thường nên không cần).
 
 ## [0.9.208] - 2026-07-27
 Nút "Cập nhật ngay" chạy được trên Mac (và Linux không có systemd).
@@ -5616,7 +5616,7 @@ Kết nối OAuth bỏ dở không còn hiện như tài khoản thật và khô
 ## [0.9.205] - 2026-07-27
 Dán văn bản siêu dài vào khung chat tự thành file .txt đính kèm, kiểu Claude.
 ### Thêm mới
-- **Dán dài thành file**: dán quá 1500 ký tự hoặc quá 25 dòng vào ô chat thì thay vì nhồi hết vào ô nhập, Javis biến đoạn đó thành file van-ban-dan-*.txt đính kèm dạng chip gọn. Hội thoại dễ đọc hẳn, Javis vẫn đọc trọn nội dung khi trả lời, và hỏi đáp tiếp trên tài liệu đó thoải mái. Chỉ áp dụng cho ô chat - dán vào các ô khác (form Kết nối, đặt tên...) vẫn như cũ; đoạn ngắn dán vào chat cũng như cũ.
+- **Dán dài thành file**: dán quá 1500 ký tự hoặc quá 25 dòng vào ô chat thì thay vì nhồi hết vào ô nhập, Jarvis 007 biến đoạn đó thành file van-ban-dan-*.txt đính kèm dạng chip gọn. Hội thoại dễ đọc hẳn, Jarvis 007 vẫn đọc trọn nội dung khi trả lời, và hỏi đáp tiếp trên tài liệu đó thoải mái. Chỉ áp dụng cho ô chat - dán vào các ô khác (form Kết nối, đặt tên...) vẫn như cũ; đoạn ngắn dán vào chat cũng như cũ.
 
 ## [0.9.204] - 2026-07-27
 Ảnh video dán vào khung chat đăng thẳng lên Facebook được, không phải chép vào vault trước.
@@ -5653,7 +5653,7 @@ Facebook Trang đăng được cả ảnh và video.
 ## [0.9.200] - 2026-07-27
 Redirect URI theo đúng tên miền đang mở và hướng dẫn Facebook viết lại khớp giao diện tiếng Việt.
 ### Sửa lỗi
-- **Redirect URI hết ghi cứng localhost**: người chạy Javis trên VPS (vd Hostinger) mở form Facebook thấy ô sao chép hiện http://localhost:7777 - dán vào Meta là đăng nhập xong trả về sai chỗ, hỏng cả luồng. Giờ ô này lấy đúng địa chỉ đang mở (https://tên-miền/connect/oauth/callback); riêng 127.0.0.1 vẫn ép về localhost vì Meta chỉ miễn HTTP cho host localhost.
+- **Redirect URI hết ghi cứng localhost**: người chạy Jarvis 007 trên VPS (vd Hostinger) mở form Facebook thấy ô sao chép hiện http://localhost:7777 - dán vào Meta là đăng nhập xong trả về sai chỗ, hỏng cả luồng. Giờ ô này lấy đúng địa chỉ đang mở (https://tên-miền/connect/oauth/callback); riêng 127.0.0.1 vẫn ép về localhost vì Meta chỉ miễn HTTP cho host localhost.
 ### Cải thiện
 - **Hướng dẫn Facebook thành wizard từng bước khớp giao diện tiếng Việt của Meta**: chỉ đúng menu 'Đăng nhập bằng Facebook > Cài đặt' và ô 'URI chuyển hướng OAuth hợp lệ', kèm cảnh báo đừng lạc vào 'Cài đặt ứng dụng > Nâng cao' (chỗ người dùng hay lạc nhất). Facebook Trang nhắc rõ dùng lại được app của Meta Ads.
 ### Kiểm thử
@@ -5677,7 +5677,7 @@ Nút Thông báo trên tablet gọn như bản mobile.
 ## [0.9.196] - 2026-07-27
 Huỷ lịch nói tự nhiên cũng hiểu, huỷ nhầm khó hơn, và tin nhắc hẹn không còn lộ chỉ dẫn máy.
 ### Sửa lỗi
-- **"Huỷ lịch Làm việc tại cafe" giờ vào đúng cổng huỷ**: trước đây phải nói kèm chữ cron, nhắc hẹn hay reminder thì cổng huỷ mới nhận, nói gọn kiểu tự nhiên là lọt ra ngoài để model tự đoán cách xoá (có thể sửa thẳng file reminders.json và huỷ nhầm). Giờ chữ "lịch" độc lập là đủ, nhưng lịch ngoài Javis (Google Calendar, cuộc họp, sự kiện) vẫn được nhường cho tool Calendar.
+- **"Huỷ lịch Làm việc tại cafe" giờ vào đúng cổng huỷ**: trước đây phải nói kèm chữ cron, nhắc hẹn hay reminder thì cổng huỷ mới nhận, nói gọn kiểu tự nhiên là lọt ra ngoài để model tự đoán cách xoá (có thể sửa thẳng file reminders.json và huỷ nhầm). Giờ chữ "lịch" độc lập là đủ, nhưng lịch ngoài Jarvis 007 (Google Calendar, cuộc họp, sự kiện) vẫn được nhường cho tool Calendar.
 - **Tin Telegram của nhắc hẹn dạng tự-làm chỉ gửi kết quả**: trước đây ghép cả prompt nội bộ (vai trò, quy trình, đường dẫn) vào tin nhắn - vừa rối vừa lộ chỉ dẫn máy như ca Coach Mục Tiêu & Kỷ Luật. Giờ chỉ gửi phần việc đã làm ra; lỗi thì báo ngắn gọn, cũng không lộ prompt.
 ### Cải thiện
 - **Luật huỷ an toàn cho agent**: khi tool javis_schedule lỗi, hướng dẫn kênh nói rõ đường lui duy nhất là POST /reminders/cancel bằng form-data với id thật lấy từ danh sách; cấm gọi DELETE, cấm đoán body JSON, cấm sửa trực tiếp file reminders.json.
@@ -5689,7 +5689,7 @@ Huỷ lịch nói tự nhiên cũng hiểu, huỷ nhầm khó hơn, và tin nh�
 ### Thêm mới
 - **Đèn báo não**: khi bộ não Claude hết phiên đăng nhập, thanh trạng thái hiện dải đỏ nói rõ chuyện gì và sửa thế nào (chạy claude rồi gõ /login), kèm MỘT tin Telegram - không spam lại mỗi vòng, hồi sinh rồi chết lại mới báo tiếp. Hai nguồn tín hiệu: server tự soi hạn token định kỳ trong vòng health sẵn có, và bất cứ lượt chạy nào của engine trả lỗi đăng nhập thì bật đèn ngay. Bài học từ vụ 2026-07-27: não chết âm thầm, 3 việc nền chạy ra rác mà không ai hay - não chết thì chính não không tự báo được, phải có đèn ngoài.
 ### Cải thiện
-- **Thanh trạng thái dọn gọn**: bỏ chữ Javis OS và dòng thứ ngày tháng theo yêu cầu chủ - thanh đang quá tải; tên workspace vẫn hiện trong Cài đặt. Chỗ trống dành cho chuông Thông báo và đèn báo não.
+- **Thanh trạng thái dọn gọn**: bỏ chữ Jarvis 007 và dòng thứ ngày tháng theo yêu cầu chủ - thanh đang quá tải; tên workspace vẫn hiện trong Cài đặt. Chỗ trống dành cho chuông Thông báo và đèn báo não.
 ### Kiểm thử
 - `test_connect_health.py` thêm 5 test đèn báo: bật đèn với chuỗi lỗi thật, không bật với kết quả thường, báo Telegram đúng một lần mỗi đợt chết, probe không đè đèn đỏ do lượt chạy thật, đọc hạn token đủ nhánh.
 
@@ -5705,7 +5705,7 @@ Mọi dịch vụ Google gom về một cửa, kèm wizard từng bước, kéo 
 ### Thêm mới
 - **Card Google một cửa trong Kho kết nối**: 6 dịch vụ Google (Lịch, Gmail, Tasks, Workspace, Sheets, Keep) gom về MỘT card. Bấm vào hiện màn chọn dịch vụ: mỗi dòng một câu nói rõ dịch vụ làm được gì và cách đăng nhập, kèm nhãn đã nối bao nhiêu tài khoản. Người dùng không còn phải hiểu sự khác nhau kỹ thuật giữa các đường kết nối.
 - **Wizard từng bước thay tường chữ**: hướng dẫn tạo key Google giờ là các bước đánh số, mỗi bước có nút mở thẳng đúng trang cần tới trên Google Cloud (tạo project, bật API, màn hình đồng ý, tạo client) và ô sao chép Redirect URI một chạm ngay tại bước cần dán. Redirect URI tự lấy theo địa chỉ đang mở nên chạy đúng cả trên VPS có tên miền.
-- **Kéo thả file JSON key**: tải file client từ Google xong kéo thả thẳng vào form (hoặc bấm chọn file), Javis tự bóc Client ID và Secret, nhận cả loại Ứng dụng web lẫn Desktop. Hết cảnh copy nhầm thiếu ký tự.
+- **Kéo thả file JSON key**: tải file client từ Google xong kéo thả thẳng vào form (hoặc bấm chọn file), Jarvis 007 tự bóc Client ID và Secret, nhận cả loại Ứng dụng web lẫn Desktop. Hết cảnh copy nhầm thiếu ký tự.
 - **Dùng lại key giữa các dịch vụ Google**: đã tạo key cho một dịch vụ thì dịch vụ sau chỉ cần bấm "Dùng lại key này" - server tự sao chép nội bộ, key không bao giờ đi qua trình duyệt.
 ### Kiểm thử
 - `test_connect_group.py` mới: đủ thành viên nhóm, schema các bước wizard, bước Redirect URI, dùng lại key không đè giá trị tự nhập và không copy key ngoài danh sách connector đích.
@@ -5741,16 +5741,16 @@ Việc nền dùng lại được các nguồn dữ liệu (MCP): sửa lỗi ch
 ## [0.9.188] - 2026-07-27
 Bỏ nút bấm không làm gì ở tin chỉ có ảnh.
 ### Sửa lỗi
-- **Tin chỉ có ảnh không còn nút chết**: tin gửi kèm ảnh mà không có lời nhắn thì chẳng có chữ nào để gửi lại, nên hai nút gửi lại và sửa lại được ẩn hẳn thay vì bấm vào không ra gì. Câu trả lời của Javis cho tin dạng đó cũng ẩn nút gửi lại theo. Tin có cả chữ lẫn ảnh vẫn giữ đủ nút và gửi lại phần chữ như cũ.
+- **Tin chỉ có ảnh không còn nút chết**: tin gửi kèm ảnh mà không có lời nhắn thì chẳng có chữ nào để gửi lại, nên hai nút gửi lại và sửa lại được ẩn hẳn thay vì bấm vào không ra gì. Câu trả lời của Jarvis 007 cho tin dạng đó cũng ẩn nút gửi lại theo. Tin có cả chữ lẫn ảnh vẫn giữ đủ nút và gửi lại phần chữ như cũ.
 
 ## [0.9.187] - 2026-07-27
 Mỗi tin nhắn trong khung chat có thêm hàng nút nhỏ bên dưới: giờ gửi, gửi lại, sửa lại và sao chép.
 ### Thêm mới
 - **Hàng nút dưới mỗi tin**: rê chuột vào tin (hoặc chạm vào tin trên điện thoại) là hiện giờ gửi cùng các nút gửi lại, sửa lại, sao chép. Hàng nút luôn chiếm chỗ sẵn nên hiện ra không làm nhảy khung chat.
 - **Giờ gửi từng tin**: hiện dạng `HH:mm`, rê chuột vào xem đủ thứ và ngày. Hội thoại mở lại từ Lịch sử lấy đúng giờ đã lưu trong SQLite; tin cũ lưu từ trước bản này chưa có mốc giờ thì ẩn phần giờ thay vì đoán bừa.
-- **Gửi lại và sửa lại**: gửi lại đưa đúng câu hỏi cũ thành một lượt mới ở cuối hội thoại, không xoá gì của lượt trước; ở tin của Javis thì nút này chạy lại câu hỏi ngay phía trên nó. Sửa lại đổ câu cũ vào ô nhập để sửa rồi tự bấm gửi. Đang chạy một lượt thì nút gửi lại bị khoá.
+- **Gửi lại và sửa lại**: gửi lại đưa đúng câu hỏi cũ thành một lượt mới ở cuối hội thoại, không xoá gì của lượt trước; ở tin của Jarvis 007 thì nút này chạy lại câu hỏi ngay phía trên nó. Sửa lại đổ câu cũ vào ô nhập để sửa rồi tự bấm gửi. Đang chạy một lượt thì nút gửi lại bị khoá.
 ### Cải thiện
-- Nút sao chép cũ của tin Javis gộp vào hàng nút chung cho đồng bộ hai phía.
+- Nút sao chép cũ của tin Jarvis 007 gộp vào hàng nút chung cho đồng bộ hai phía.
 ### Kiểm thử
 - Thêm `dashboard/test_chat_acts.js` phủ định dạng giờ, tin thiếu mốc giờ, thành phần hàng nút theo từng phía và việc dò ngược lên câu hỏi gần nhất.
 
@@ -5827,7 +5827,7 @@ Navbar có hộp thư Thông báo nổi bật, hợp nhất nhật ký phiên b�
 ### Thêm mới
 - **Chuông Thông báo trên navbar**: có huy hiệu số chưa đọc, hiệu ứng nhấn vừa đủ nổi bật và panel dạng hộp thư; hỗ trợ đọc từng tin, đọc tất cả, làm mới và đi thẳng tới Nhật ký cập nhật.
 - **Hai nguồn trong một luồng**: mọi release trong `CHANGELOG.md` tự trở thành thông báo cập nhật; tin cộng đồng/marketing lấy từ `ANNOUNCEMENTS.json` trên GitHub `main`.
-- **Phát tin không cần release ứng dụng**: thông báo trung tâm trên GitHub ghi đè bản local cùng ID, được Javis làm mới định kỳ và cache phía server trong hai phút để giảm tải.
+- **Phát tin không cần release ứng dụng**: thông báo trung tâm trên GitHub ghi đè bản local cùng ID, được Jarvis 007 làm mới định kỳ và cache phía server trong hai phút để giảm tải.
 - **Ghi nhớ đã đọc trên từng trình duyệt**: lần đầu không biến toàn bộ lịch sử release thành tin chưa đọc; các thông báo mới về sau tự xuất hiện trong badge.
 - **Responsive**: desktop hiển thị nút có nhãn `Thông báo`; mobile dùng chuông gọn cạnh menu và panel gần toàn màn hình.
 ### Bảo mật
@@ -5845,9 +5845,9 @@ Brain trên điện thoại tự canh camera sau khi mô phỏng neuron ổn đ�
 - **Không ảnh hưởng desktop**: auto-fit mới chỉ chạy ở viewport tối đa 860px; trải nghiệm co tự nhiên hiện tại trên máy tính được giữ nguyên.
 
 ## [0.9.177] - 2026-07-26
-Trang Tệp tin có khung tìm kiếm đồng bộ với Vault Explorer của Javis, giúp tìm và mở file mà không cần nhớ nó nằm trong thư mục nào.
+Trang Tệp tin có khung tìm kiếm đồng bộ với Vault Explorer của Jarvis 007, giúp tìm và mở file mà không cần nhớ nó nằm trong thư mục nào.
 ### Thêm mới
-- **Tìm theo tên file trên toàn brain**: ô tìm dùng cùng giao diện kính lúp, nút xoá và chip chế độ như màn Javis; so khớp không phân biệt hoa thường và hỗ trợ gõ tiếng Việt không dấu.
+- **Tìm theo tên file trên toàn brain**: ô tìm dùng cùng giao diện kính lúp, nút xoá và chip chế độ như màn Jarvis 007; so khớp không phân biệt hoa thường và hỗ trợ gõ tiếng Việt không dấu.
 - **Tìm trong nội dung**: chế độ Nội dung quét file text dưới 1 MB, trả đoạn trích và số dòng khớp; chế độ Tên không đọc thân file nên phản hồi nhanh hơn.
 - **Mở ngay hoặc tìm tới vị trí**: mỗi kết quả cho phép xem/sửa file trực tiếp hoặc chuyển File Manager tới đúng thư mục và tô sáng file đó.
 - **Responsive**: khung tìm tự xuống dòng trên mobile, kết quả giữ đường dẫn/đoạn trích gọn và các nút thao tác luôn hiện trên màn cảm ứng.
@@ -5855,7 +5855,7 @@ Trang Tệp tin có khung tìm kiếm đồng bộ với Vault Explorer của Ja
 - Mở rộng `server/test_files_root.py` để phủ tìm tên không dấu, tìm nội dung, tách hai chế độ, hợp đồng UI và khả năng tương thích của endpoint cũ.
 
 ## [0.9.176] - 2026-07-26
-Tối ưu cockpit Javis trên điện thoại để neuron vẫn nhận diện được nhưng không đẩy khung chat và ô nhập ra ngoài màn hình.
+Tối ưu cockpit Jarvis 007 trên điện thoại để neuron vẫn nhận diện được nhưng không đẩy khung chat và ô nhập ra ngoài màn hình.
 ### Cải thiện
 - **Khung chat luôn nằm trong màn hình iPhone**: thay chiều cao `100vh` bằng dynamic viewport (`100dvh` có fallback), hỗ trợ safe area và bỏ `min-height` desktop khỏi transcript mobile; thanh địa chỉ/bàn phím Safari hoặc Chrome không còn che ô nhập.
 - **Neuron gọn hơn trên mobile**: vùng graph giảm từ 34% xuống khoảng 27% chiều cao khả dụng, có trần/sàn cho màn hình ngắn; nhãn concept, trạng thái và lời thoại tạm thu nhỏ riêng ở breakpoint mobile.
@@ -5866,7 +5866,7 @@ Tối ưu cockpit Javis trên điện thoại để neuron vẫn nhận diện �
 Xoá cron/nhắc hẹn trực tiếp từ chat hoạt động nhất quán với ChatGPT/Codex và mọi model OpenRouter, không còn đẩy người dùng sang UI tự xoá.
 ### Sửa lỗi
 - **Nhận đúng từ “xoá”**: intent router trước đây chỉ có `huỷ/tắt` nên câu “xoá cron…” không bị ép gọi `javis_schedule`; bổ sung đầy đủ biến thể xoá/huỷ/dừng và chặn nhầm sang đường chỉ đọc (`server/engine.py`).
-- **Gateway xoá lịch không phụ thuộc function-calling của model**: Javis tự gọi `op=list`, chỉ khớp và `op=cancel` khi có đúng một mục chắc chắn. Nhiều mục gần giống thì trả danh sách thật để hỏi lại; kho trống báo đúng là trống, tuyệt đối không đoán hoặc xác nhận xoá giả.
+- **Gateway xoá lịch không phụ thuộc function-calling của model**: Jarvis 007 tự gọi `op=list`, chỉ khớp và `op=cancel` khi có đúng một mục chắc chắn. Nhiều mục gần giống thì trả danh sách thật để hỏi lại; kho trống báo đúng là trống, tuyệt đối không đoán hoặc xác nhận xoá giả.
 - **ChatGPT trên Telegram có MCP như dashboard**: nhánh OpenAI OAuth được chuyển từ Responses chat-thuần sang Codex CLI có MCP native, đúng brain và giữ session riêng theo chat (`server/main.py`).
 - **OpenRouter không còn tự nhận là “không MCP”**: thao tác xoá lịch đi qua gateway chung nên cả model không hỗ trợ function-calling vẫn xoá được mục khớp chắc chắn; các thao tác tool khác tiếp tục dùng vòng MCP đa-model hiện có.
 - **Luật kênh rõ cho mọi provider**: tạo/sửa/xoá/huỷ/tắt lịch bắt buộc dùng `javis_schedule`; xoá chưa có ID phải list trước, không hướng dẫn người dùng tự vào trang Việc định kỳ (`server/channel_context.py`).
@@ -5877,7 +5877,7 @@ Xoá cron/nhắc hẹn trực tiếp từ chat hoạt động nhất quán với
 Bản vá cho hàng đợi AI: Codex chạy lại bình thường, task lỗi được phục hồi có kiểm soát và màn chi tiết Kanban thao tác được đầy đủ.
 ### Sửa lỗi
 - **Codex CLI không còn chặn hàng loạt task**: các cờ toàn cục `--sandbox`, `--ask-for-approval`, model, profile và config được đặt trước subcommand `exec`, tương thích cú pháp Codex đang cài trên VPS (`server/claude_cli.py`).
-- **Tự phục hồi đúng nhóm task bị lỗi tham số**: khi khởi động sau nâng cấp, Javis đưa về hàng đợi đúng một lần các task bị chặn bởi lỗi `unexpected argument '--ask-for-approval'`; các ngoại lệ khác vẫn giữ nguyên để không chạy nhầm (`server/task_store.py`, `server/tasks.py`).
+- **Tự phục hồi đúng nhóm task bị lỗi tham số**: khi khởi động sau nâng cấp, Jarvis 007 đưa về hàng đợi đúng một lần các task bị chặn bởi lỗi `unexpected argument '--ask-for-approval'`; các ngoại lệ khác vẫn giữ nguyên để không chạy nhầm (`server/task_store.py`, `server/tasks.py`).
 - **Drawer chi tiết luôn đóng được**: chuyển drawer lên `document.body` để không bị vùng nội dung cắt mất thanh đầu; có nút đóng cố định, phím `Esc` và bấm vùng nền (`dashboard/console.js`).
 - **Task có thể xóa khỏi bảng**: mọi task không chạy đều có nút **Xóa khỏi bảng** ở card và trong drawer; dữ liệu được archive thay vì xóa cứng để còn lịch sử. Task đang chạy phải dừng trước.
 ### Kiểm thử
@@ -5895,7 +5895,7 @@ Kanban trở thành hàng đợi vận hành dành cho AI, thay vì một bảng
 - **Task nền không chặn cron và lịch thuốc**: dispatcher có vòng lặp riêng, mỗi worker là một asyncio task độc lập; scheduler 30 giây chỉ đánh thức dispatcher và trả ngay.
 - **Task Learn không dừng review thủ công hàng loạt**: task nội bộ mặc định tự hoàn thành; chỉ thiếu input, thiếu capability, hành động bên ngoài hoặc cờ duyệt tường minh mới cần người xử lý.
 ### Tương thích
-- `Javis/kanban.json` cũ được import đúng một lần, task `running` từ tiến trình cũ được thu hồi về `ready`. SQLite là nguồn lifecycle chính nhưng Javis vẫn xuất snapshot JSON để brain backup và phiên bản cũ đọc được.
+- `Javis/kanban.json` cũ được import đúng một lần, task `running` từ tiến trình cũ được thu hồi về `ready`. SQLite là nguồn lifecycle chính nhưng Jarvis 007 vẫn xuất snapshot JSON để brain backup và phiên bản cũ đọc được.
 - Worker tiếp tục đi qua `aux_engine`, nên Claude Code, Codex/ChatGPT và OpenAI/OpenRouter API dùng cùng queue, brain context và policy MCP hiện có.
 ### Kiểm thử
 - Thêm `server/test_tasks_autonomous.py`: phủ migration JSON, atomic claim, dependency promotion, dispatcher đa brain và chạy đúng task được chọn.
@@ -5905,7 +5905,7 @@ ChatGPT nhớ đúng mạch hội thoại, và mọi model đọc cron/lịch th
 ### Sửa lỗi
 - **ChatGPT/Codex không còn quên ngữ cảnh giữa các lượt**: mỗi hội thoại lưu riêng `codex_thread_id` và dùng `codex exec resume`; phiên cũ bị mất rollout thì tự dựng lại mạch từ lịch sử SQLite. Khi đổi qua provider khác, liên kết Codex cũ được xoá để tránh resume một nhánh hội thoại đã stale (`server/claude_cli.py`, `server/sessions.py`, `server/compaction.py`, `server/main.py`).
 - **Codex đọc cron đúng brain đang chat**: MCP hub nhận `X-Javis-Vault` theo từng tiến trình Codex rồi truyền xuống plugin. Trước đây Codex nhìn thấy `javis_schedule` nhưng context thiếu `vault_root`, nên tool dừng ở lỗi “không xác định được brain đang làm việc” (`server/mcp_hub.py`, `server/main.py`, `server/aux_engine.py`).
-- **OpenRouter không còn báo “không có tool” hoặc đoán lịch từ memory**: câu hỏi chỉ xem cron/nhắc hẹn/lịch thuốc được server gọi thẳng `javis_schedule(op=list)` trước khi model trả lời, nên vẫn hoạt động khi `openrouter/free` route tới model không có function calling. Tạo/sửa/hủy lịch vẫn bắt buộc gọi tool; model bỏ qua hai lần thì Javis chặn câu trả lời có nguy cơ bịa (`server/engine.py`).
+- **OpenRouter không còn báo “không có tool” hoặc đoán lịch từ memory**: câu hỏi chỉ xem cron/nhắc hẹn/lịch thuốc được server gọi thẳng `javis_schedule(op=list)` trước khi model trả lời, nên vẫn hoạt động khi `openrouter/free` route tới model không có function calling. Tạo/sửa/hủy lịch vẫn bắt buộc gọi tool; model bỏ qua hai lần thì Jarvis 007 chặn câu trả lời có nguy cơ bịa (`server/engine.py`).
 ### Cải thiện
 - **Một nguyên tắc dữ liệu thật cho mọi provider và mọi kênh**: Claude, ChatGPT/Codex, OpenAI-compatible và OpenRouter đều được nhắc bắt buộc gọi tool khi user hỏi trạng thái đang chạy hoặc dữ liệu tài khoản ngoài; lỗi tool phải được báo đúng, không thay bằng ký ức cũ (`server/channel_context.py`).
 - **Plugin nội bộ vẫn có trên Codex khi chưa đấu connector ngoài**: profile hub không còn bị xoá chỉ vì danh sách MCP bên ngoài rỗng; các tool hệ thống như `javis_schedule` và `datetime-vn` vẫn dùng được.
@@ -5919,7 +5919,7 @@ Gọt phần đầu cố định của mỗi lượt chat, KHÔNG động tới 
 - **Chỉ mục bộ nhớ có TRẦN, hạ dần theo bậc**: `JAVIS_MEMORY_INDEX_MAX` mặc định 20.000 ký tự. Vượt trần thì rút mô tả còn 100 ký tự, rồi 60, rồi chỉ còn tiêu đề kèm link - **bỏ hẳn dòng là bậc CUỐI**, và khi buộc phải bỏ thì nói rõ còn bao nhiêu ký ức cùng đường đọc tiếp. Rút mô tả không làm mất trí nhớ: tiêu đề và đường dẫn file vẫn còn, chi tiết đầy đủ vẫn nằm trong `Memory/facts/`. Hôm nay chưa cắt gì (18.363 < 20.000) - đây là chặn đường dốc trước khi nó thành vấn đề, đúng bệnh curator vừa mắc (`server/main.py`).
 - **CLAUDE.md thôi ôm mẫu file dài**: các bản mẫu frontmatter của loop, agent, workflow, skill và cả `plugin.yaml`/`plugin.py` đã có sẵn trong skill `javis-builder`, nạp theo nhu cầu khi thật sự đi tạo. Gỡ bản trùng khỏi system prompt, **giữ nguyên toàn bộ luật an toàn và luật hành vi** (mặc định `mode: suggest` + `enabled: false`, env gate plugin, trần 150 ký tự, bắt buộc có `group`, `owner_chat`, `notify: false`). Bổ sung `tools_profile` và `notify` vào `javis-builder` cho khỏi hụt thông tin.
 ### Đo được
-- Phần đầu mỗi lượt chat giảm khoảng **9.328 ký tự (~2,9k token)**: system prompt Javis từ 46.056 xuống 42.979, mô tả skill từ 10.095 xuống 3.844.
+- Phần đầu mỗi lượt chat giảm khoảng **9.328 ký tự (~2,9k token)**: system prompt Jarvis 007 từ 46.056 xuống 42.979, mô tả skill từ 10.095 xuống 3.844.
 - **Không cắt bộ nhớ**, và đó là quyết định có đo: MEMORY.md chỉ chiếm 5,7k trong prefix 85k (7%); thử rút mô tả xuống 60 ký tự chỉ tiết kiệm 1,4k token, đổi khả năng nhớ lấy chừng đó là lỗ.
 ### Kiểm thử
 - `server/test_prefix_slim.py`: cắt được cả 4 kiểu viết description (trần, nháy kép, gấp `>-`, khối `|`) mà thân skill và `group` nguyên vẹn; canonical không bị đụng; chỉ mục bộ nhớ giữ đủ ký ức qua nhiều mức trần và chỉ bỏ dòng ở bậc cuối kèm lời chỉ đường; CLAUDE.md đã gỡ mẫu nhưng còn đủ 8 luật, và `javis-builder` phủ đủ 10 trường đã dời sang.
@@ -5962,10 +5962,10 @@ Việc nền chạy được bằng model NGOÀI Claude, và curator thôi quét
 - `server/test_curator_targets.py`: bỏ brain mất thư mục, bỏ brain nguội, giữ brain vừa chat, và chốt rằng learn-log mới KHÔNG cứu được brain đã nguội.
 
 ## [0.9.166] - 2026-07-25
-Gỡ hẳn bảng thẻ SỐ LIỆU KINH DOANH. Muốn xem số thì hỏi thẳng, Javis gọi MCP lấy về.
+Gỡ hẳn bảng thẻ SỐ LIỆU KINH DOANH. Muốn xem số thì hỏi thẳng, Jarvis 007 gọi MCP lấy về.
 ### Gỡ bỏ
 - **Bảng thẻ số liệu ở cột trái**: bảng này đã bỏ khỏi giao diện từ trước (thay bằng Vault explorer), nhưng toàn bộ máy móc phía sau vẫn chạy để nuôi một stub ẩn không ai nhìn thấy - mỗi lần mở dashboard là một phiên Claude đầy đủ kèm MCP. Nay gỡ sạch: endpoint `/metrics` cùng lớp cache vừa thêm ở 0.9.165 (`server/main.py`), toàn bộ phần dựng thẻ trong `dashboard/app.js` (`loadMetrics`, `renderMetrics`, `agenticFallbackCards`, `extractMetrics`, `pushMetricsToPanel`, biến `savedMetrics` và phần lưu/khôi phục nó theo phiên), stub ẩn trong `index.html`, và các lớp `.metric-*` trong `style.css`.
-- **Chỉ thị nhúng khối `JAVIS_METRICS`**: gỡ khỏi system prompt (`CLAUDE.md`), nên Javis không còn tự đính khối ẩn vào cuối câu trả lời có số liệu nữa. Bộ bóc khối điều khiển cho kênh chữ thuần thì GIỮ nguyên và vẫn bóc chung mọi `JAVIS_*` - ký ức cũ trong brain còn nhắc tên khối này, để đó cho chắc kẻo lọt nguyên xi ra Telegram.
+- **Chỉ thị nhúng khối `JAVIS_METRICS`**: gỡ khỏi system prompt (`CLAUDE.md`), nên Jarvis 007 không còn tự đính khối ẩn vào cuối câu trả lời có số liệu nữa. Bộ bóc khối điều khiển cho kênh chữ thuần thì GIỮ nguyên và vẫn bóc chung mọi `JAVIS_*` - ký ức cũ trong brain còn nhắc tên khối này, để đó cho chắc kẻo lọt nguyên xi ra Telegram.
 ### Cải thiện
 - **Loop `goal: business` tự lấy số qua MCP**: trước đây vòng này mồi sẵn chỉ số từ chính job thẻ dashboard, không có số là bỏ qua cả vòng kèm lời nhắc "bấm ⟳ tải số liệu" - nút giờ không còn. Nay bước đầu mỗi vòng là loop tự gọi MCP lấy 3-6 chỉ số theo thứ tự ưu tiên POS → kênh → quảng cáo → nguồn khác, và báo cáo phải nêu rõ số kèm nguồn. Bỏ luôn tham số `metrics` khỏi `LoopDeps` (`server/self_improve.py`).
 ### Kiểm thử
@@ -5975,14 +5975,14 @@ Gỡ hẳn bảng thẻ SỐ LIỆU KINH DOANH. Muốn xem số thì hỏi thẳ
 Chặn khoản hao token âm thầm: mở dashboard không còn spawn agent mới mỗi vài phút.
 ### Sửa lỗi
 - **Thẻ số liệu dashboard đốt hạn mức mà không ai dùng**: đo trên log phiên thật của bản VPS, dự án "app" tốn 22M token thì 402/502 phiên là đúng một job lặp - "tạo các thẻ SỐ LIỆU KINH DOANH cho dashboard" (~16k token mỗi lần, cộng dồn ~6.5M). Gốc rễ ở `/metrics`: cache chỉ 180 giây, chỉ nằm trong RAM, không nhớ lần lỗi và không gộp request trùng, nên gần như mỗi lần MỞ dashboard là một phiên Claude đầy đủ kèm MCP. Nay cache mặc định 15 phút (`METRICS_TTL`), **ghi ra đĩa** nên restart hay tự cập nhật không làm mất, **nhớ cả kết quả lỗi** 2 phút (`METRICS_ERR_TTL`) để MCP hỏng không thành spawn lại mỗi lần F5, và **gộp request trùng** bằng một khoá chung - mở dashboard trên điện thoại lẫn máy tính cùng lúc chỉ tính một lần (`server/main.py`).
-- **Trang Token gọi sai tên dự án**: mọi engine Claude đều chạy với `cwd` = gốc project chứ không phải thư mục brain, mà log thô của Claude Code chỉ ghi `cwd`, nên chat Telegram, việc nền và job dashboard bị gộp hết vào một dự án ("Javis-OS" khi chạy ở máy, "app" khi chạy trong Docker) - nhìn vào tưởng đang code Javis mà thật ra là hội thoại của chủ trên brain khác. Nay engine ghi riêng phiên nào thuộc brain nào (`server/session_brain.py`) và bộ index token lấy tên brain làm nhãn, nên số liệu về đúng "My Bullet Journal", "Brain Default"... Không đụng vào `cwd` vì đổi nó sẽ phá dò `.claude/skills` và `vault_root` của plugin. Chỉ có tác dụng với phiên chạy từ bản này trở đi; phiên cũ giữ nhãn như trước.
+- **Trang Token gọi sai tên dự án**: mọi engine Claude đều chạy với `cwd` = gốc project chứ không phải thư mục brain, mà log thô của Claude Code chỉ ghi `cwd`, nên chat Telegram, việc nền và job dashboard bị gộp hết vào một dự án ("Javis-OS" khi chạy ở máy, "app" khi chạy trong Docker) - nhìn vào tưởng đang code Jarvis 007 mà thật ra là hội thoại của chủ trên brain khác. Nay engine ghi riêng phiên nào thuộc brain nào (`server/session_brain.py`) và bộ index token lấy tên brain làm nhãn, nên số liệu về đúng "My Bullet Journal", "Brain Default"... Không đụng vào `cwd` vì đổi nó sẽ phá dò `.claude/skills` và `vault_root` của plugin. Chỉ có tác dụng với phiên chạy từ bản này trở đi; phiên cũ giữ nhãn như trước.
 ### Kiểm thử
 - Thêm `server/test_metrics_cache.py`: phủ TTL dài/ngắn theo chất lượng kết quả, cache sống qua khởi động lại, hết hạn thì tính lại, và nhãn dự án theo brain (kèm trường hợp không tra được brain thì vẫn giữ nhãn cũ).
 
 ## [0.9.164] - 2026-07-25
 Đổi model Claude giờ lấy DANH SÁCH SỐNG từ Anthropic, ra bản mới là thấy ngay.
 ### Cải thiện
-- **Provider "Anthropic OAuth (Claude Code)" list model động**: trước đây provider này không hỏi được API nên picker rơi về 4 alias tĩnh trong code (opus/sonnet/haiku/fable) và thiếu hẳn Opus 4.8, 4.7, 4.6, Sonnet 4.6... Giờ Javis mượn chính access token OAuth mà Claude Code đã lưu (`~/.claude/.credentials.json`, hoặc `CLAUDE_CONFIG_DIR`, hoặc biến `CLAUDE_CODE_OAUTH_TOKEN`) để gọi `GET /v1/models`, nên Anthropic ra model mới là danh sách tự có, khỏi sửa code (`server/claude_models.py`).
+- **Provider "Anthropic OAuth (Claude Code)" list model động**: trước đây provider này không hỏi được API nên picker rơi về 4 alias tĩnh trong code (opus/sonnet/haiku/fable) và thiếu hẳn Opus 4.8, 4.7, 4.6, Sonnet 4.6... Giờ Jarvis 007 mượn chính access token OAuth mà Claude Code đã lưu (`~/.claude/.credentials.json`, hoặc `CLAUDE_CONFIG_DIR`, hoặc biến `CLAUDE_CODE_OAUTH_TOKEN`) để gọi `GET /v1/models`, nên Anthropic ra model mới là danh sách tự có, khỏi sửa code (`server/claude_models.py`).
 - **Alias tự suy từ danh sách sống**: 4 tên "luôn bản mới nhất" đứng đầu picker được rút từ chính các dòng model API trả về, nên có dòng model mới thì alias cũng tự xuất hiện.
 - **Nhớ danh sách mới nhất vào catalog**: mỗi lần lấy live thành công, `/provider/models` ghi lại vào `settings.json` (tối đa 50 mục). Khi mất mạng hoặc token OAuth hết hạn thì fallback vẫn là danh sách MỚI từng thấy chứ không tụt về alias cũ hardcode.
 - Không tự refresh token OAuth (tránh xoay `refresh_token` làm Claude Code của người dùng bị đăng xuất): token hết hạn thì lặng lẽ dùng fallback, chạy Claude Code một lượt là tươi lại.
@@ -5994,14 +5994,14 @@ Trang Kết nối: ghim card "Tự thêm (nâng cao)" lên ĐẦU kho với icon
 - **Composio đứng đầu danh sách connector trong kho**: chuyển entry lên đầu system/mcp-catalog.json (grid vẽ theo thứ tự file), một kết nối mở 500+ app nên đáng thấy đầu tiên.
 
 ## [0.9.162] - 2026-07-24
-Thêm connector Composio: MỘT kết nối mở ra hơn 500 app đã có sẵn MCP (Gmail, Notion, Sheets, GitHub, Linear...), Javis khỏi viết connector riêng cho từng app.
+Thêm connector Composio: MỘT kết nối mở ra hơn 500 app đã có sẵn MCP (Gmail, Notion, Sheets, GitHub, Linear...), Jarvis 007 khỏi viết connector riêng cho từng app.
 ### Thêm mới
-- **Connector Composio (nhóm mới "Kho ứng dụng")**: đấu connect.composio.dev/mcp bằng API key (header x-consumer-api-key), đi qua hub và chịu phân quyền như mọi connector khác. 7 tool phân loại tường minh: tìm và xem mô tả tool là Chỉ đọc; nối app mới (COMPOSIO_MANAGE_CONNECTIONS - Composio đưa link, người dùng tự đăng nhập) là Ghi nháp; COMPOSIO_MULTI_EXECUTE_TOOL cùng 2 tool remote bash/workbench xếp NGUY HIỂM vì mọi hành động app thật (kể cả lệnh đọc) chạy qua MỘT tool chung nên Javis không tách được đọc với ghi bên trong - muốn Javis thao tác thật phải chủ động nâng kết nối lên Toàn quyền, guide và cảnh báo rủi ro nói rõ điều này. Loop nền vẫn bị mode ép trần như thường lệ (suggest ép Chỉ đọc, auto ép Ghi nháp).
+- **Connector Composio (nhóm mới "Kho ứng dụng")**: đấu connect.composio.dev/mcp bằng API key (header x-consumer-api-key), đi qua hub và chịu phân quyền như mọi connector khác. 7 tool phân loại tường minh: tìm và xem mô tả tool là Chỉ đọc; nối app mới (COMPOSIO_MANAGE_CONNECTIONS - Composio đưa link, người dùng tự đăng nhập) là Ghi nháp; COMPOSIO_MULTI_EXECUTE_TOOL cùng 2 tool remote bash/workbench xếp NGUY HIỂM vì mọi hành động app thật (kể cả lệnh đọc) chạy qua MỘT tool chung nên Jarvis 007 không tách được đọc với ghi bên trong - muốn Jarvis 007 thao tác thật phải chủ động nâng kết nối lên Toàn quyền, guide và cảnh báo rủi ro nói rõ điều này. Loop nền vẫn bị mode ép trần như thường lệ (suggest ép Chỉ đọc, auto ép Ghi nháp).
 
 ## [0.9.161] - 2026-07-24
 Google Keep có đường lui oauth_token khi Google từ chối App Password (BadAuthentication).
 ### Sửa lỗi
-- **Kết nối Google Keep báo 'Google từ chối đăng nhập' dù App Password đúng**: Google đang siết dần đường đổi App Password lấy master token (perform_master_login trả BadAuthentication tuỳ tài khoản, kể cả trên máy cá nhân). Thêm đường lui chuẩn của cộng đồng gkeepapi: ô oauth_token mới trong form - người dùng mở accounts.google.com/EmbeddedSetup trong tab ẩn danh (có nút mở thẳng), đăng nhập, lấy cookie oauth_token dán vào, Javis đổi qua gpsoauth.exchange_token thành master token. Cookie dùng một lần, bị drop không lưu, không map ra env. Thông báo BadAuthentication giờ chỉ đủ 3 khả năng kèm đường lui này, và guide có hướng dẫn lấy cookie từng bước.
+- **Kết nối Google Keep báo 'Google từ chối đăng nhập' dù App Password đúng**: Google đang siết dần đường đổi App Password lấy master token (perform_master_login trả BadAuthentication tuỳ tài khoản, kể cả trên máy cá nhân). Thêm đường lui chuẩn của cộng đồng gkeepapi: ô oauth_token mới trong form - người dùng mở accounts.google.com/EmbeddedSetup trong tab ẩn danh (có nút mở thẳng), đăng nhập, lấy cookie oauth_token dán vào, Jarvis 007 đổi qua gpsoauth.exchange_token thành master token. Cookie dùng một lần, bị drop không lưu, không map ra env. Thông báo BadAuthentication giờ chỉ đủ 3 khả năng kèm đường lui này, và guide có hướng dẫn lấy cookie từng bước.
 ### Cải thiện
 - **cred_exchange.run cho phép input tuỳ chọn bỏ trống**: input khai optional trong auth.fields không còn bị chặn "Thiếu" từ ngoài - handler tự kiểm tổ hợp (Keep cần App Password HOẶC oauth_token, không bắt cả hai).
 ### Kiểm thử
@@ -6028,13 +6028,13 @@ Kho kết nối có thêm Google Tasks, kèm vá phân quyền các tool gộp m
 ### Thêm mới
 - **Connector Google Tasks**: đọc và quản việc cần làm trong Google Tasks (xem danh sách, thêm việc, đặt hạn, đánh dấu xong). Chạy chung server `workspace-mcp` với connector Google Workspace nhưng chỉ nạp service tasks ở tier complete - vì `list_task_lists` (tra ID danh sách việc, thứ mọi tool tasks khác cần) chỉ có ở tier complete, connector Google Workspace tier core dùng Tasks sẽ cụt đường. Chỉ xin đúng quyền Google Tasks, không đụng Gmail/Drive/Lịch; đã có OAuth client của Google Workspace thì dùng lại được, chỉ cần bật thêm Google Tasks API. Cân nhắc và KHÔNG chọn gtasks-mcp (zcaceres): server đó vỡ đường dẫn credential trên Windows (`new URL(...).pathname` ra `\D:\...`), token không tự refresh (chết sau ~1 giờ phải auth lại bằng tay), không có trên npm phải tự clone build, và bắt chạy lệnh auth thủ công - trái nguyên tắc đấu nối trên UI.
 ### Bảo mật
-- **Vá lỗ phân loại tool `manage_*` của Google Workspace**: `manage_task`, `manage_event`, `manage_gmail_label`... không khớp mẫu write/danger nào và chữ "manage" cũng không nằm trong heuristic, nên bị xếp nhầm là "đọc" - kết nối đặt mức Chỉ đọc (hay loop suggest) vẫn cho Javis sửa/xoá lịch và việc thật. Thêm mẫu `*manage*` vào nhóm ghi và nói rõ trong cảnh báo rủi ro.
+- **Vá lỗ phân loại tool `manage_*` của Google Workspace**: `manage_task`, `manage_event`, `manage_gmail_label`... không khớp mẫu write/danger nào và chữ "manage" cũng không nằm trong heuristic, nên bị xếp nhầm là "đọc" - kết nối đặt mức Chỉ đọc (hay loop suggest) vẫn cho Jarvis 007 sửa/xoá lịch và việc thật. Thêm mẫu `*manage*` vào nhóm ghi và nói rõ trong cảnh báo rủi ro.
 
 ## [0.9.157] - 2026-07-23
 ChatGPT (Codex) dùng được kho MCP gốc của chính nó, ngang hàng cách engine Claude dùng MCP gốc của Claude Code.
 ### Thêm mới
-- **Trang Kết nối có thêm khu "MCP từ Codex (ChatGPT)"**: liệt kê các server trong kho MCP gốc của Codex CLI (những gì bạn tự đăng ký bằng `codex mcp add`, nằm trong config gốc của Codex), song song khu "MCP từ Claude Code" sẵn có. Engine ChatGPT vốn tự nạp kho này khi chạy (profile javis chỉ phủ THÊM MCP của Javis lên config gốc, không đè), nhưng trước đây Javis không nhìn thấy và không quản được nó nên người dùng khó biết ChatGPT đang có công cụ gì. Endpoint `/mcp/ambient` trả thêm `codex_servers`; hỗ trợ cả bản codex cũ chưa có `mcp list --json` (đọc bảng text).
-- **Server MCP kiểu OAuth giờ đăng ký cho CẢ HAI CLI**: server OAuth không đi qua hub được (CLI phải tự giữ token), nên trước đây thêm ở form "Tự thêm (nâng cao)" chỉ đăng ký vào Claude Code (`claude mcp add`) - engine ChatGPT hoàn toàn không thấy nhóm này. Nay Javis đăng ký thêm vào kho gốc của Codex (best-effort, máy chưa cài codex thì bỏ qua, không chặn flow), xoá server thì gỡ ở cả hai. Xác thực một lần bằng `codex mcp login <tên>`; endpoint `/mcp/oauth-auth` nhận `{"engine":"codex","name":...}` để mở terminal chạy sẵn lệnh đó (máy local có màn hình), `/mcp/native-status` nhận `engine=codex` để kiểm tra trạng thái đăng nhập.
+- **Trang Kết nối có thêm khu "MCP từ Codex (ChatGPT)"**: liệt kê các server trong kho MCP gốc của Codex CLI (những gì bạn tự đăng ký bằng `codex mcp add`, nằm trong config gốc của Codex), song song khu "MCP từ Claude Code" sẵn có. Engine ChatGPT vốn tự nạp kho này khi chạy (profile javis chỉ phủ THÊM MCP của Jarvis 007 lên config gốc, không đè), nhưng trước đây Jarvis 007 không nhìn thấy và không quản được nó nên người dùng khó biết ChatGPT đang có công cụ gì. Endpoint `/mcp/ambient` trả thêm `codex_servers`; hỗ trợ cả bản codex cũ chưa có `mcp list --json` (đọc bảng text).
+- **Server MCP kiểu OAuth giờ đăng ký cho CẢ HAI CLI**: server OAuth không đi qua hub được (CLI phải tự giữ token), nên trước đây thêm ở form "Tự thêm (nâng cao)" chỉ đăng ký vào Claude Code (`claude mcp add`) - engine ChatGPT hoàn toàn không thấy nhóm này. Nay Jarvis 007 đăng ký thêm vào kho gốc của Codex (best-effort, máy chưa cài codex thì bỏ qua, không chặn flow), xoá server thì gỡ ở cả hai. Xác thực một lần bằng `codex mcp login <tên>`; endpoint `/mcp/oauth-auth` nhận `{"engine":"codex","name":...}` để mở terminal chạy sẵn lệnh đó (máy local có màn hình), `/mcp/native-status` nhận `engine=codex` để kiểm tra trạng thái đăng nhập.
 ### Kiểm thử
 - Thêm `test_codex_native_mcp.py`: parse output `codex mcp list --json` (3 hình dạng JSON khác nhau giữa các bản codex + trạng thái tắt/cần-đăng-nhập), fallback bảng text, và dựng argv `codex mcp add` (HTTP, bearer env, stdio). Toàn bộ hàm parse là hàm thuần nên test không cần cài Codex.
 
@@ -6064,7 +6064,7 @@ Mở rộng plugin Facebook cá nhân (cookie/mbasic) thêm loạt thao tác cơ
 ## [0.9.152] - 2026-07-22
 Điều hướng kiểu Wikipedia trong vault: bấm được đường dẫn file .md trong chat để mở đọc/sửa ngay, và bấm được wikilink [[..]] khi đọc note để nhảy sang note đích.
 ### Thêm mới
-- **Đường dẫn file trong chat bấm mở được**: khi Javis nhắc tới một file kiểu `Javis/loops/x.md` trong khung chat (dạng inline code), giờ bấm thẳng vào là bung khung đọc/sửa file giữa màn hình, không phải tự dò trong trang Tệp tin. Chỉ nhận chuỗi trông đúng là đường dẫn file (có đuôi file, có thư mục hoặc là file .md); lệnh, URL và code thường không bị nhận nhầm.
+- **Đường dẫn file trong chat bấm mở được**: khi Jarvis 007 nhắc tới một file kiểu `Javis/loops/x.md` trong khung chat (dạng inline code), giờ bấm thẳng vào là bung khung đọc/sửa file giữa màn hình, không phải tự dò trong trang Tệp tin. Chỉ nhận chuỗi trông đúng là đường dẫn file (có đuôi file, có thư mục hoặc là file .md); lệnh, URL và code thường không bị nhận nhầm.
 - **Wikilink [[..]] thành link điều hướng**: mọi chỗ render markdown (chat, khung sửa file, trình đọc note ở trang Bộ não/Tệp tin) giờ hiện `[[note]]` và `[[note|tên đẹp]]` thành link. Bấm vào là tự TÌM file đích trong vault (khớp đuôi đường dẫn kiểu Obsidian, hoặc khớp tên note ở bất kỳ thư mục nào, ưu tiên .md) rồi mở ngay tại chỗ: đang đọc trong editor cây thì chuyển note trong editor đó như Wikipedia, đang ở chat thì bung khung sửa. Không thấy note thì link báo đỏ nhẹ chứ không mở lung tung.
 ### Cải thiện
 - **Tìm file không phân biệt dấu tiếng Việt ở máy chủ** (`/files/search`): gõ "chi nga" vẫn tìm ra "Chị Nga...". Ô tìm kiếm theo Nội dung ở trang Tệp tin hưởng lợi luôn.
@@ -6079,30 +6079,30 @@ Cải thiện trang Việc định kỳ và khung Hội thoại trên dashboard:
 ### Cải thiện
 - **Nhật ký gần đây phân trang 10 mục mỗi trang**: trước đây đổ nhiều dòng ra cùng lúc gây dài và nặng trang; nay chia trang 10 mục, có nút Trước/Sau và số trang. Phần đọc nhật ký ở máy chủ cũng sửa lại để xếp mới nhất lên đầu và gom đủ tin qua nhiều ngày (không còn giới hạn cứng 3 tệp gần nhất).
 ### Sửa lỗi
-- **Link dài trong tin nhắn tràn ra ngoài khung chat**: đường link không có khoảng trắng (vd link Google Docs, Google Drive) trước đây kéo dài quá mép phải của bong bóng tin nhắn. Nay link tự xuống dòng gói gọn trong khung, cho cả tin của Javis lẫn tin người dùng.
+- **Link dài trong tin nhắn tràn ra ngoài khung chat**: đường link không có khoảng trắng (vd link Google Docs, Google Drive) trước đây kéo dài quá mép phải của bong bóng tin nhắn. Nay link tự xuống dòng gói gọn trong khung, cho cả tin của Jarvis 007 lẫn tin người dùng.
 
 ## [0.9.150] - 2026-07-21
-Sửa lỗi Javis (chạy bằng Claude) báo "chưa đấu" các nguồn kết nối vào tài khoản Claude (Google Drive, Gmail, Lịch...) khi đang bật chế độ tool gọn, dù thực ra vẫn gọi được.
+Sửa lỗi Jarvis 007 (chạy bằng Claude) báo "chưa đấu" các nguồn kết nối vào tài khoản Claude (Google Drive, Gmail, Lịch...) khi đang bật chế độ tool gọn, dù thực ra vẫn gọi được.
 ### Sửa lỗi
-- **Không thấy MCP của tài khoản Claude khi bật tool gọn (lazy)**: các connector đấu thẳng vào tài khoản Claude (Google Drive, Gmail, Lịch... đồng bộ từ claude.ai) vốn là công cụ native của engine Claude, KHÔNG đi qua hub của Javis. Nhưng bảng liệt kê nguồn (javis_connections) và ô tìm công cụ của chế độ tool gọn chỉ biết các nguồn do Javis quản lý (POS, Substack...), nên Javis tra danh sách thấy "chỉ có POS và Substack" rồi kết luận nhầm là "chưa đấu Drive" dù người dùng đã kết nối. Nay hub tự đọc danh sách MCP của tài khoản Claude (các cái đang "Connected") và kèm vào cả javis_connections lẫn kết quả tìm công cụ, chỉ rõ đây là công cụ gọi THẲNG (mcp__<tên>__...), không bọc qua tool chạy của hub. Javis không còn phủ nhận nguồn đã đấu sẵn trong tài khoản.
+- **Không thấy MCP của tài khoản Claude khi bật tool gọn (lazy)**: các connector đấu thẳng vào tài khoản Claude (Google Drive, Gmail, Lịch... đồng bộ từ claude.ai) vốn là công cụ native của engine Claude, KHÔNG đi qua hub của Jarvis 007. Nhưng bảng liệt kê nguồn (javis_connections) và ô tìm công cụ của chế độ tool gọn chỉ biết các nguồn do Jarvis 007 quản lý (POS, Substack...), nên Jarvis 007 tra danh sách thấy "chỉ có POS và Substack" rồi kết luận nhầm là "chưa đấu Drive" dù người dùng đã kết nối. Nay hub tự đọc danh sách MCP của tài khoản Claude (các cái đang "Connected") và kèm vào cả javis_connections lẫn kết quả tìm công cụ, chỉ rõ đây là công cụ gọi THẲNG (mcp__<tên>__...), không bọc qua tool chạy của hub. Jarvis 007 không còn phủ nhận nguồn đã đấu sẵn trong tài khoản.
 ### Cải thiện
 - Danh sách nguồn tài khoản Claude được đọc ở luồng nền và nhớ tạm (cache) vì lệnh liệt kê hơi chậm, nên không làm chậm câu trả lời. Chỉ engine Claude mới được kèm gợi ý này (Codex và các engine API không có công cụ native đó nên không kèm, tránh chỉ nhầm sang tool không tồn tại). Tắt được ở settings `mcp.ambient_hint` nếu không muốn.
 ### Kiểm thử
 - Thêm test cho việc đọc danh sách MCP tài khoản (chỉ lấy cái đang "Connected"), khớp nguồn theo tên/tiền tố, kèm đúng vào javis_connections và ô tìm công cụ, và chốt rằng engine API (đường in-process) không bị kèm nhầm gợi ý tài khoản.
 
 ## [0.9.149] - 2026-07-21
-Sửa lỗi việc lặp không khai mục tiêu bị chạy nhầm thành phân tích kinh doanh, và gỡ việc lặp mặc định "Tự cải tiến Javis" khỏi app.
+Sửa lỗi việc lặp không khai mục tiêu bị chạy nhầm thành phân tích kinh doanh, và gỡ việc lặp mặc định "Tự cải tiến Jarvis 007" khỏi app.
 ### Sửa lỗi
 - **Việc lặp thiếu khai mục tiêu bị chạy nhầm thành báo cáo kinh doanh**: một việc lặp (loop) mà file định nghĩa không ghi rõ dòng mục tiêu thì bị mặc định thành "cải thiện chỉ số kinh doanh", nên nó bỏ qua hẳn nội dung việc đã viết và quay sang đọc số liệu bán hàng. Ví dụ việc "nhắc uống thuốc" lại đi đọc doanh thu POS rồi bàn chuyện đơn hàng thay vì nhắc thuốc. Nay mặc định là chạy đúng nội dung việc viết trong file; muốn việc lặp tự bơm số liệu kinh doanh mỗi vòng thì phải khai rõ mục tiêu kinh doanh. Hai đường tạo việc lặp (qua chat và qua trang Việc) vốn đã đặt đúng, chỉ khâu đọc lại file là còn lệch nên mới lọt.
 ### Cải thiện
-- **Gỡ việc lặp mặc định "Tự cải tiến Javis"**: bỏ hẳn loop hệ thống tự cải tiến khỏi app, không còn tự cài vào brain nào nữa. Brain nào đang có sẵn bản cũ thì vào trang Việc xoá một lần là dứt, từ bản này nó không tự mọc lại.
+- **Gỡ việc lặp mặc định "Tự cải tiến Jarvis 007"**: bỏ hẳn loop hệ thống tự cải tiến khỏi app, không còn tự cài vào brain nào nữa. Brain nào đang có sẵn bản cũ thì vào trang Việc xoá một lần là dứt, từ bản này nó không tự mọc lại.
 ### Kiểm thử
 - Thêm test chốt mặc định mục tiêu việc lặp là chạy đúng nội dung file (không rơi về kinh doanh), và test xác nhận app không còn loop hệ thống thì cơ chế đồng bộ vẫn chạy đúng.
 
 ## [0.9.148] - 2026-07-21
 Sửa lỗi nhắc hẹn tạo qua chat khi đang dùng brain khác (vd My Bullet Journal) lại rơi vào Brain Default.
 ### Sửa lỗi
-- **Nhắc hẹn rơi nhầm Brain Default dù đang chat ở brain khác**: khi đặt nhắc hẹn từ Telegram hoặc dashboard, Javis hay dùng lệnh curl mẫu có sẵn trong hướng dẫn để gọi kho nhắc hẹn, mà lệnh mẫu đó lại KHÔNG kèm brain đang chọn. Lệnh curl chạy từ sandbox nên không mang phiên đăng nhập, brain chỉ đi được qua nội dung lệnh; thiếu nó thì kho nhắc hẹn âm thầm dùng Brain Default. Hậu quả: đang chọn brain My Bullet Journal, đặt nhắc hẹn, nhưng nhắc lại nằm ở Default. Nay lệnh mẫu tự kèm brain của phiên, và ưu tiên gọi thẳng tool javis_schedule (vốn luôn gắn đúng brain). Kho nhắc hẹn cũng ghi log khi nhận nhắc thiếu brain để dễ soi nếu tái diễn.
+- **Nhắc hẹn rơi nhầm Brain Default dù đang chat ở brain khác**: khi đặt nhắc hẹn từ Telegram hoặc dashboard, Jarvis 007 hay dùng lệnh curl mẫu có sẵn trong hướng dẫn để gọi kho nhắc hẹn, mà lệnh mẫu đó lại KHÔNG kèm brain đang chọn. Lệnh curl chạy từ sandbox nên không mang phiên đăng nhập, brain chỉ đi được qua nội dung lệnh; thiếu nó thì kho nhắc hẹn âm thầm dùng Brain Default. Hậu quả: đang chọn brain My Bullet Journal, đặt nhắc hẹn, nhưng nhắc lại nằm ở Default. Nay lệnh mẫu tự kèm brain của phiên, và ưu tiên gọi thẳng tool javis_schedule (vốn luôn gắn đúng brain). Kho nhắc hẹn cũng ghi log khi nhận nhắc thiếu brain để dễ soi nếu tái diễn.
 
 ## [0.9.147] - 2026-07-21
 Thêm lệnh /notes trên Telegram để lưu nhanh tin nhắn (kèm ảnh) vào Sources của brain, giống bản chat web.
@@ -6113,9 +6113,9 @@ Thêm lệnh /notes trên Telegram để lưu nhanh tin nhắn (kèm ảnh) vào
 - Thêm test cho danh sách lệnh Telegram và cho việc tách lệnh từ chú thích ảnh (giữ đường dẫn ảnh cho skill dùng).
 
 ## [0.9.146] - 2026-07-21
-Thêm chế độ "tool gọn" cho MCP: khi đấu nhiều nguồn, Javis không còn nạp sẵn hàng trăm công cụ vào mỗi câu nữa mà chỉ mở đúng công cụ khi ngữ cảnh cần, tiết kiệm token đáng kể.
+Thêm chế độ "tool gọn" cho MCP: khi đấu nhiều nguồn, Jarvis 007 không còn nạp sẵn hàng trăm công cụ vào mỗi câu nữa mà chỉ mở đúng công cụ khi ngữ cảnh cần, tiết kiệm token đáng kể.
 ### Thêm mới
-- **Chế độ tool gọn (lazy tools) cho MCP**: trước đây mỗi câu hỏi, kể cả câu chẳng liên quan bán hàng hay quảng cáo, đều phải gánh toàn bộ mô tả công cụ của MỌI nguồn đang đấu (POS, Meta Ads, Systeme.io, Webcake...), tốn rất nhiều token dù không dùng tới. Nay khi tổng số công cụ vượt ngưỡng, Javis chỉ đưa cho model một thực đơn gọn liệt kê đang có những nguồn nào, kèm hai công cụ máy móc: một để TÌM công cụ theo nhu cầu, một để GỌI công cụ tìm được. Model tự quyết mỗi câu là có cần đụng nguồn nào không rồi mới mở đúng nhóm công cụ đó. Câu tán gẫu, dịch, viết bài gần như không tốn token công cụ; câu cần số liệu thì tự mở đúng nguồn. Không phải bật tắt tay gì cả.
+- **Chế độ tool gọn (lazy tools) cho MCP**: trước đây mỗi câu hỏi, kể cả câu chẳng liên quan bán hàng hay quảng cáo, đều phải gánh toàn bộ mô tả công cụ của MỌI nguồn đang đấu (POS, Meta Ads, Systeme.io, Webcake...), tốn rất nhiều token dù không dùng tới. Nay khi tổng số công cụ vượt ngưỡng, Jarvis 007 chỉ đưa cho model một thực đơn gọn liệt kê đang có những nguồn nào, kèm hai công cụ máy móc: một để TÌM công cụ theo nhu cầu, một để GỌI công cụ tìm được. Model tự quyết mỗi câu là có cần đụng nguồn nào không rồi mới mở đúng nhóm công cụ đó. Câu tán gẫu, dịch, viết bài gần như không tốn token công cụ; câu cần số liệu thì tự mở đúng nguồn. Không phải bật tắt tay gì cả.
 ### Cải thiện
 - Chế độ này tự bật khi đông công cụ (mặc định trên 40) và tự tắt khi ít; chỉnh được ở settings `mcp.lazy_tools` (auto/bật/tắt), `mcp.lazy_threshold` (ngưỡng số công cụ), `mcp.lazy_top_k` (số công cụ trả về mỗi lần tìm). Các công cụ nội bộ nhỏ và hay dùng (đọc ghi file, tạo ảnh, nhắc hẹn, gửi Zalo...) vẫn hiện thẳng như cũ, chỉ nhóm công cụ nguồn ngoài đông đúc mới được gom sau thực đơn.
 - Lớp phân quyền, ghi nhật ký và giới hạn tần suất giữ nguyên vì mọi lời gọi công cụ vẫn đi qua đúng đường cũ. Thêm kiểm thử cho xếp hạng tìm công cụ, việc giấu/hiện đúng nhóm, và các nhánh lỗi khi gọi.
@@ -6135,31 +6135,31 @@ Sửa lỗi tick chọn cuộc chat theo dõi trên Zalo cứ mất sau khi tả
 Sửa lỗi bảng nghe Zalo cứ hiện "Mất kết nối, đang thử lại" dù thực ra vẫn đang nghe bình thường.
 ### Sửa lỗi
 - **Kẹt ở trạng thái "Mất kết nối" dù kết nối vẫn sống**: mỗi khi mạng chớp một cái, thư viện Zalo tự nối lại ngay ở bên dưới mà KHÔNG in ra dòng thông báo nào, nên bảng điều khiển không có gì để biết là đã nối lại và cứ đứng ở "đang thử lại" mãi. Thêm nữa, dòng báo nối lại thành công của nhánh đăng nhập lại có kèm chữ "events:" nên bị bộ lọc dòng khởi động nuốt mất. Kết quả là chỉ cần rớt mạng một lần là nhãn đỏ nằm lì, chỉ tạm hết khi có tin mới về trong vòng ba phút, dù tiến trình nghe vẫn sống và tin vẫn về.
-- Nay Javis nhận đúng các dòng hồi phục để kéo trạng thái về đang nghe. Với trường hợp nối lại im lặng (không in dòng nào), nếu tiến trình nghe vẫn còn sống và đã qua một khoảng lặng không thấy dòng rớt mới thì tự coi là đã nối lại. Rớt thật thì thư viện in dòng rớt đều đặn nên vẫn báo đúng là đang thử lại; còn tiến trình chết hẳn thì vẫn để cơ chế dựng lại lo, không nhận nhầm.
+- Nay Jarvis 007 nhận đúng các dòng hồi phục để kéo trạng thái về đang nghe. Với trường hợp nối lại im lặng (không in dòng nào), nếu tiến trình nghe vẫn còn sống và đã qua một khoảng lặng không thấy dòng rớt mới thì tự coi là đã nối lại. Rớt thật thì thư viện in dòng rớt đều đặn nên vẫn báo đúng là đang thử lại; còn tiến trình chết hẳn thì vẫn để cơ chế dựng lại lo, không nhận nhầm.
 - Thêm kiểm thử chốt cho cả hai đường hồi phục và cho trường hợp nối lại im lặng.
 
 ## [0.9.143] - 2026-07-21
-Bỏ hẳn tính năng Javis tự trả lời khách trên Zalo. Nay Javis chỉ đọc và báo, mọi tin gửi đi đều do chủ yêu cầu trực tiếp.
+Bỏ hẳn tính năng Jarvis 007 tự trả lời khách trên Zalo. Nay Jarvis 007 chỉ đọc và báo, mọi tin gửi đi đều do chủ yêu cầu trực tiếp.
 ### Cải thiện
-- **Zalo chỉ đọc và báo, không còn tự phản hồi**: gỡ bỏ chế độ "Tự phản hồi" (chatbot) cùng toàn bộ phần engine hộp cát soạn tin tự động cho khách. Listener giờ chỉ nghe rồi báo về Telegram theo luật từng cuộc chat, gồm bốn chế độ giữ nguyên: im lặng, báo hết, báo theo từ khoá, và nhắc khi quá lâu chưa ai trả lời. Muốn gửi tin cho ai thì chủ bảo thẳng trong chat, Javis dùng công cụ gửi an toàn javis_zalo_send.
+- **Zalo chỉ đọc và báo, không còn tự phản hồi**: gỡ bỏ chế độ "Tự phản hồi" (chatbot) cùng toàn bộ phần engine hộp cát soạn tin tự động cho khách. Listener giờ chỉ nghe rồi báo về Telegram theo luật từng cuộc chat, gồm bốn chế độ giữ nguyên: im lặng, báo hết, báo theo từ khoá, và nhắc khi quá lâu chưa ai trả lời. Muốn gửi tin cho ai thì chủ bảo thẳng trong chat, Jarvis 007 dùng công cụ gửi an toàn javis_zalo_send.
 - Panel "Nghe tin liên tục" gọn lại: mỗi cuộc chat chỉ còn tick theo dõi là đọc và báo, bỏ ô chọn chế độ hai lựa chọn và hộp thoại xác nhận cho tự nhắn.
 - Dọn sạch mã phần Zalo: bỏ hàm soạn tin của bot, các hằng hộp cát, giới hạn tin mỗi giờ, và phụ thuộc model phụ mà chỉ chế độ tự trả lời mới cần.
 ### An toàn
-- Không còn đường nào để Javis tự gửi tin cho khách khi đọc được tin nhắn của họ. File luật cũ để chế độ chatbot tự hạ về im lặng khi đọc, nên sau khi cập nhật không nhóm nào còn tự trả lời.
+- Không còn đường nào để Jarvis 007 tự gửi tin cho khách khi đọc được tin nhắn của họ. File luật cũ để chế độ chatbot tự hạ về im lặng khi đọc, nên sau khi cập nhật không nhóm nào còn tự trả lời.
 
 ## [0.9.142] - 2026-07-21
-Sửa lỗi nghiêm trọng: bảo Javis gửi tin Zalo cho một người thì nó nhắn nhầm sang người khác không trong danh sách theo dõi.
+Sửa lỗi nghiêm trọng: bảo Jarvis 007 gửi tin Zalo cho một người thì nó nhắn nhầm sang người khác không trong danh sách theo dõi.
 ### Sửa lỗi
 - **Gửi tin Zalo qua chat có thể ra nhầm tài khoản và nhầm người**: khi bật nghe một tài khoản, listener tự tắt connector của tài khoản đó, nên khi chủ bảo gửi tin, engine lặng lẽ rơi sang một tài khoản Zalo khác đang bật, tra tên người nhận trong danh bạ của tài khoản sai rồi gửi từ tài khoản sai. Không có bước xác nhận nên tin bay đi luôn, không thu hồi được. Đây là hệ quả của cơ chế tự tắt connector thêm việc engine được tự do gửi mà không phải chắc đúng người.
 - Thêm công cụ gửi Zalo an toàn riêng, khoá cứng vào tài khoản đang nghe và chỉ gửi được cho cuộc chat trong danh sách đang theo dõi, nên về mặt cấu trúc không thể gửi nhầm tài khoản hay nhầm người. Tên khớp nhiều thì công cụ từ chối và bắt hỏi lại, không đoán. Không có trong danh sách theo dõi thì từ chối.
-- Dặn Javis trong hướng dẫn hệ thống dùng công cụ an toàn này khi được yêu cầu gửi tin, tuyệt đối không dùng công cụ thô.
+- Dặn Jarvis 007 trong hướng dẫn hệ thống dùng công cụ an toàn này khi được yêu cầu gửi tin, tuyệt đối không dùng công cụ thô.
 ### An toàn
 - Công cụ gửi ở mức quyền an toàn, nên vòng lặp nền chạy chế độ chỉ đọc không thể tự gửi tin. Chỉ khi chủ yêu cầu trực tiếp trong chat mới gửi.
 
 ## [0.9.141] - 2026-07-20
-Sửa lỗi ảnh Javis tạo trong lúc chat Telegram cứ gửi về tài khoản Telegram đầu tiên thay vì người đang hỏi.
+Sửa lỗi ảnh Jarvis 007 tạo trong lúc chat Telegram cứ gửi về tài khoản Telegram đầu tiên thay vì người đang hỏi.
 ### Sửa lỗi
-- **Ảnh gửi nhầm về chủ bot khi hai người cùng chat**: khi Javis tạo ảnh, ảnh được lưu vào thư mục attachments của brain và nhúng vào câu trả lời bằng đường dẫn tương đối như `![](attachments/anh.png)`. Cơ chế tự đính kèm file về Telegram trước đây chỉ nhận đường dẫn TUYỆT ĐỐI hoặc file viết bằng công cụ Write, nên ảnh tạo ra không được tự đính kèm. Engine đành gửi ảnh bằng lệnh curl, mà lệnh này thiếu mã người nhận thì rơi về tài khoản Telegram đầu tiên trong danh sách. Kết quả là người thứ hai đang chat vẫn thấy ảnh của mình bay về máy người đầu.
+- **Ảnh gửi nhầm về chủ bot khi hai người cùng chat**: khi Jarvis 007 tạo ảnh, ảnh được lưu vào thư mục attachments của brain và nhúng vào câu trả lời bằng đường dẫn tương đối như `![](attachments/anh.png)`. Cơ chế tự đính kèm file về Telegram trước đây chỉ nhận đường dẫn TUYỆT ĐỐI hoặc file viết bằng công cụ Write, nên ảnh tạo ra không được tự đính kèm. Engine đành gửi ảnh bằng lệnh curl, mà lệnh này thiếu mã người nhận thì rơi về tài khoản Telegram đầu tiên trong danh sách. Kết quả là người thứ hai đang chat vẫn thấy ảnh của mình bay về máy người đầu.
 - Nay cơ chế tự đính kèm hiểu luôn đường dẫn tương đối trong vault (ví dụ `attachments/...`), giải về gốc brain của đúng phiên đang chat và gửi thẳng cho người đang hỏi, không cần curl nữa. Có chặn thoát vault (không cho `../` ra ngoài) và bỏ qua liên kết web. Gateway cũng nhắc engine rằng ảnh vừa tạo chỉ cần nhúng là đủ, khỏi curl (curl dễ gửi nhầm chủ bot).
 - Thêm kiểm thử chốt cho việc thu file: ảnh nhúng tương đối được bắt đúng, đường dẫn tuyệt đối vẫn chạy, URL không bị nhầm là file, chặn thoát vault, và file cũ không bị gửi lại.
 
@@ -6190,22 +6190,22 @@ Sửa lỗi báo chưa chọn tài khoản Zalo trong khi ô chọn rõ ràng đ
 - **Thông báo lỗi cũ nằm lì trên màn hình**: từ bản 0.9.132 giao diện hiện lỗi kể cả khi đang tắt, nhưng lệnh dừng lại không xoá lỗi cũ, nên một lần bật hụt từ lúc nào đó cứ hiện mãi và làm tưởng đang hỏng. Nay dừng nghe là xoá luôn.
 
 ## [0.9.136] - 2026-07-20
-Mỗi cuộc chat Zalo giờ chỉ có hai trạng thái dễ hiểu, và Javis tự quyết khi nào nên lên tiếng.
+Mỗi cuộc chat Zalo giờ chỉ có hai trạng thái dễ hiểu, và Jarvis 007 tự quyết khi nào nên lên tiếng.
 ### Thay đổi
 - **Hai trạng thái thay cho năm chế độ**: mỗi cuộc chat trong danh sách có một ô chọn với hai lựa chọn là Chỉ đọc và Tự phản hồi. Đơn giản hơn hẳn cách cũ, và mọi thứ tinh vi hơn thì dặn thẳng trong chat.
 ### Thêm mới
-- **Javis được quyền im lặng**: ở chế độ tự phản hồi, nó tự quyết có nên lên tiếng hay không chứ không phải cứ có tin là trả lời. Người ta đang nói chuyện với nhau, tán gẫu, hay chuyện chẳng liên quan thì nó im. Trước đây bot luôn phải sinh ra một câu trả lời, mà một con bot xen vào mọi câu chuyện trong nhóm còn phiền hơn là không có bot.
+- **Jarvis 007 được quyền im lặng**: ở chế độ tự phản hồi, nó tự quyết có nên lên tiếng hay không chứ không phải cứ có tin là trả lời. Người ta đang nói chuyện với nhau, tán gẫu, hay chuyện chẳng liên quan thì nó im. Trước đây bot luôn phải sinh ra một câu trả lời, mà một con bot xen vào mọi câu chuyện trong nhóm còn phiền hơn là không có bot.
 - **Được tự do diễn đạt theo ngữ cảnh** thay vì bám câu chữ có sẵn, và nói theo phong cách riêng của từng nhóm nếu chủ đã dặn trong luật.
 - **Bật tự phản hồi phải xác nhận một lần**, vì tin gửi đi không thu hồi được.
 ### Bảo mật
-- Vẫn giữ nguyên hộp cát: bot không có công cụ nào, không thấy dữ liệu kinh doanh, chỉ sinh ra chữ còn gửi đi đâu là do mã Javis quyết.
+- Vẫn giữ nguyên hộp cát: bot không có công cụ nào, không thấy dữ liệu kinh doanh, chỉ sinh ra chữ còn gửi đi đâu là do mã Jarvis 007 quyết.
 - Giữ một rào cứng dù chủ cho tự do sáng tạo: không được bịa giá, tồn kho, thời gian giao hàng hay cam kết với khách. Sai một câu ở đó là mất tiền thật, nên gặp là hỏi lại chủ.
 
 ## [0.9.135] - 2026-07-20
-Javis tự dọn đống luật ồn do chính mặc định hỏng của nó sinh ra, thay vì bắt chủ đi sửa tay từng cái.
+Jarvis 007 tự dọn đống luật ồn do chính mặc định hỏng của nó sinh ra, thay vì bắt chủ đi sửa tay từng cái.
 ### Sửa lỗi
-- **Đổi mặc định không cứu được luật đã tạo**: bản 0.9.131 chuyển mặc định sang im lặng nhưng chỉ áp cho luật mới, còn những cuộc chat đã tick từ bản 0.9.130 vẫn mang chế độ báo mọi tin nên vẫn dội về Telegram. Ba lần trước Javis chỉ bảo chủ bấm Lưu lại, tức là đẩy việc dọn hậu quả sang cho người dùng. Nay khi khởi động Javis tự chuyển chúng về im lặng đúng một lần, và nhắn cho chủ biết đã sửa cái gì.
-- Chỉ đụng vào luật báo mọi tin mà không có từ khoá, vì đó đúng là dấu vết của mặc định hỏng. Luật có từ khoá, luật nhắc khi quên trả lời, và luật để Javis tự trả lời đều là chủ cố ý đặt nên giữ nguyên.
+- **Đổi mặc định không cứu được luật đã tạo**: bản 0.9.131 chuyển mặc định sang im lặng nhưng chỉ áp cho luật mới, còn những cuộc chat đã tick từ bản 0.9.130 vẫn mang chế độ báo mọi tin nên vẫn dội về Telegram. Ba lần trước Jarvis 007 chỉ bảo chủ bấm Lưu lại, tức là đẩy việc dọn hậu quả sang cho người dùng. Nay khi khởi động Jarvis 007 tự chuyển chúng về im lặng đúng một lần, và nhắn cho chủ biết đã sửa cái gì.
+- Chỉ đụng vào luật báo mọi tin mà không có từ khoá, vì đó đúng là dấu vết của mặc định hỏng. Luật có từ khoá, luật nhắc khi quên trả lời, và luật để Jarvis 007 tự trả lời đều là chủ cố ý đặt nên giữ nguyên.
 - Việc dọn chạy đúng một lần, những lần khởi động sau không đè lên luật chủ tự đặt lại.
 
 ## [0.9.134] - 2026-07-20
@@ -6216,9 +6216,9 @@ Hết cảnh cập nhật xong là báo đỏ trùng phiên và phải xoá kế
 - **Dọn tiến trình cũ cũng ngắt nhẹ trước**: chính chúng đang giữ phiên Zalo, giết thẳng thì phiên lại treo, đúng cái vòng luẩn quẩn vừa gỡ.
 
 ## [0.9.133] - 2026-07-20
-Javis giờ biết đặt luật Zalo khi được dặn bằng lời, thay vì chỉ ghi vào bộ nhớ rồi thôi.
+Jarvis 007 giờ biết đặt luật Zalo khi được dặn bằng lời, thay vì chỉ ghi vào bộ nhớ rồi thôi.
 ### Sửa lỗi
-- **Dặn bằng lời chỉ được ghi nhớ chứ không thành hành động**: chủ nói với nick này cứ trả lời thoải mái, Javis đáp đã ghi nhớ và tạo một file sở thích trong bộ nhớ, nhưng không hề tạo luật nào nên hành vi không đổi. Nguyên nhân là hướng dẫn hệ thống không hề nhắc tới Zalo, nên Javis không biết có công cụ đặt luật mà dùng, và rơi về thói quen mặc định là ghi nhớ sở thích.
+- **Dặn bằng lời chỉ được ghi nhớ chứ không thành hành động**: chủ nói với nick này cứ trả lời thoải mái, Jarvis 007 đáp đã ghi nhớ và tạo một file sở thích trong bộ nhớ, nhưng không hề tạo luật nào nên hành vi không đổi. Nguyên nhân là hướng dẫn hệ thống không hề nhắc tới Zalo, nên Jarvis 007 không biết có công cụ đặt luật mà dùng, và rơi về thói quen mặc định là ghi nhớ sở thích.
 - Bổ sung việc đặt luật Zalo vào danh sách các cách xử lý khi nhận yêu cầu qua chat, kèm luật chọn nói thẳng rằng ghi nhớ không làm đổi hành vi, phải có file luật thì listener mới thật sự im lặng, báo, hay tự trả lời.
 - Mô tả công cụ được viết lại bằng đúng những câu người dùng hay nói, ví dụ đừng báo nữa, im lặng thôi, báo hết tin nhóm này, ba mươi phút chưa ai trả lời thì nhắc, với nick này cứ trả lời thoải mái.
 
@@ -6228,13 +6228,13 @@ Sửa lỗi đặt luật Zalo bằng lời trong chat nhưng listener không h�
 - **Ghi một nơi, đọc một nẻo**: khi chủ dặn bằng lời, công cụ ghi file luật vào brain đang mở, ví dụ My Bullet Journal. Nhưng listener là dịch vụ chạy nền nên chỉ đọc brain mặc định là Brain Default. Luật đặt bằng lời rơi vào chỗ không ai đọc, nên dặn đừng báo nữa mà vẫn báo. Nay listener gom luật từ mọi brain, hết luôn lớp lỗi này.
 - Cùng một cuộc chat mà có luật ở hai brain khác nhau thì lấy bản sửa gần nhất, thay vì chọn bừa một cái.
 ### Ghi chú
-- Luật cũ tạo ở bản 0.9.130 vẫn là báo mọi tin, vì đổi mặc định ở bản 0.9.131 chỉ áp cho luật tạo mới. Muốn im lặng thì bấm Lưu theo dõi lại một lần với ô từ khoá để trống, hoặc dặn Javis trong chat.
+- Luật cũ tạo ở bản 0.9.130 vẫn là báo mọi tin, vì đổi mặc định ở bản 0.9.131 chỉ áp cho luật tạo mới. Muốn im lặng thì bấm Lưu theo dõi lại một lần với ô từ khoá để trống, hoặc dặn Jarvis 007 trong chat.
 
 ## [0.9.131] - 2026-07-20
-Mặc định Javis im lặng khi theo dõi cuộc chat Zalo, không còn dội mọi tin về Telegram.
+Mặc định Jarvis 007 im lặng khi theo dõi cuộc chat Zalo, không còn dội mọi tin về Telegram.
 ### Thay đổi
-- **Tick theo dõi giờ mặc định là im lặng**: chỉ ghi nhận cuộc chat chứ không báo Telegram. Trước đây tick vào là báo mọi tin, mà theo dõi vài nhóm đông thì điện thoại nổ tung và cuối cùng chẳng ai đọc nữa. Nghe là để Javis biết chuyện, còn báo phải là thứ chủ chủ động yêu cầu cho từng nhóm.
-- **Muốn được báo thì nói rõ**: nhập từ khoá vào ô bên dưới để chỉ báo khi tin có chứa những chữ đó, hoặc dặn Javis trong chat cho từng nhóm, ví dụ báo hết tin của nhóm này, hay nhắc khi ba mươi phút chưa ai trả lời.
+- **Tick theo dõi giờ mặc định là im lặng**: chỉ ghi nhận cuộc chat chứ không báo Telegram. Trước đây tick vào là báo mọi tin, mà theo dõi vài nhóm đông thì điện thoại nổ tung và cuối cùng chẳng ai đọc nữa. Nghe là để Jarvis 007 biết chuyện, còn báo phải là thứ chủ chủ động yêu cầu cho từng nhóm.
+- **Muốn được báo thì nói rõ**: nhập từ khoá vào ô bên dưới để chỉ báo khi tin có chứa những chữ đó, hoặc dặn Jarvis 007 trong chat cho từng nhóm, ví dụ báo hết tin của nhóm này, hay nhắc khi ba mươi phút chưa ai trả lời.
 - Dòng xác nhận sau khi lưu nói rõ đang im lặng hay đang báo theo từ khoá nào, để không hiểu nhầm là sẽ được báo.
 
 ## [0.9.130] - 2026-07-20
@@ -6274,7 +6274,7 @@ Sửa lỗi mù của bộ dò tiến trình Zalo trên máy chủ: nó luôn b�
 ## [0.9.126] - 2026-07-20
 Dứt điểm trùng phiên Zalo: listener tự tắt connector của chính tài khoản đó khi bật, và dọn cả tiến trình của connector chứ không riêng tiến trình nghe.
 ### Sửa lỗi
-- **Connector Zalo chính là thứ đá listener**: nó giữ một kết nối lâu dài cho cùng tài khoản, mà Zalo chỉ cho một kết nối mỗi tài khoản. Bản trước mới chỉ đổi đường gửi tin, còn bản thân connector vẫn bật nên vẫn tranh chỗ. Nay bật nghe là Javis tự tắt connector của đúng tài khoản đó, dừng nghe thì bật lại như cũ, và nói rõ cho chủ biết chứ không im lặng làm mất công cụ.
+- **Connector Zalo chính là thứ đá listener**: nó giữ một kết nối lâu dài cho cùng tài khoản, mà Zalo chỉ cho một kết nối mỗi tài khoản. Bản trước mới chỉ đổi đường gửi tin, còn bản thân connector vẫn bật nên vẫn tranh chỗ. Nay bật nghe là Jarvis 007 tự tắt connector của đúng tài khoản đó, dừng nghe thì bật lại như cũ, và nói rõ cho chủ biết chứ không im lặng làm mất công cụ.
 - **Bộ dọn tiến trình cũ bỏ sót**: bản trước chỉ tìm tiến trình nghe, không đụng tới tiến trình của connector, nên thứ đang giữ kết nối vẫn sống. Nay quét cả hai.
 ### Ghi chú
 - Từ bản 0.9.124 listener không cần connector nữa, cả nghe lẫn gửi đều tự lo, nên việc tạm tắt connector không mất chức năng gì.
@@ -6282,12 +6282,12 @@ Dứt điểm trùng phiên Zalo: listener tự tắt connector của chính tà
 ## [0.9.125] - 2026-07-20
 Tự dọn tiến trình nghe cũ còn sót, và thêm đường xoá hẳn phiên đăng nhập Zalo khi bị trùng phiên mà đăng xuất không ăn thua.
 ### Thêm mới
-- **Bật nghe tự dọn trước khi khởi động**: tiến trình nghe mồ côi từ các bản trước vẫn giữ kết nối sống và đá listener mới ra ngay. Đăng xuất ở nơi khác không giết được nó vì kết nối đã mở thì cứ sống. Nay mỗi lần bật là Javis tự tìm và dọn sạch trước, chủ không phải đi tìm tiến trình trên máy chủ.
+- **Bật nghe tự dọn trước khi khởi động**: tiến trình nghe mồ côi từ các bản trước vẫn giữ kết nối sống và đá listener mới ra ngay. Đăng xuất ở nơi khác không giết được nó vì kết nối đã mở thì cứ sống. Nay mỗi lần bật là Jarvis 007 tự tìm và dọn sạch trước, chủ không phải đi tìm tiến trình trên máy chủ.
 - **Nút xoá phiên đăng nhập**: chỉ hiện khi đang trùng phiên. Cần vì lệnh đăng xuất của công cụ cố ý giữ lại thông tin đăng nhập để tự vào lại lần sau, nên đăng xuất không hề gỡ được phiên đang kẹt. Xoá xong quét QR lại là sạch.
 - **Nói rõ tìm thấy bao nhiêu tiến trình cũ** thay vì để chủ đoán tại sao trùng phiên.
 ### Bảo mật
 - **Chặn một lỗi phá hoại trước khi phát hành**: bản đầu của bộ dò tiến trình lọc theo dòng lệnh, mà chính câu truy vấn lại chứa những chữ đang tìm nên nó tự bắt chính mình, và lệnh dọn thì giết cả cây tiến trình. Nay chỉ soi đúng tiến trình node và loại trừ chính câu dò. Có kiểm thử chốt lại.
-- **Xoá phiên bị rào trong đúng thư mục phiên của connector**, nên một mã kết nối bị sửa bậy không thể khiến Javis xoá thư mục khác.
+- **Xoá phiên bị rào trong đúng thư mục phiên của connector**, nên một mã kết nối bị sửa bậy không thể khiến Jarvis 007 xoá thư mục khác.
 
 ## [0.9.124] - 2026-07-20
 Xử lý va chạm một kết nối mỗi tài khoản Zalo, thứ đã ghi là chưa kiểm chứng từ bản đầu và nay xảy ra thật trên máy chủ.
@@ -6298,14 +6298,14 @@ Xử lý va chạm một kết nối mỗi tài khoản Zalo, thứ đã ghi là
 - **Nhóm hiện đúng tên nhóm**: trước đây sổ cuộc chat lấy tên người gửi làm tên nhóm nên hai nhóm khác nhau cùng hiện một tên và không phân biệt được. Nay ưu tiên tên nhóm, và người nhắn sau không ghi đè mất tên đã biết.
 
 ## [0.9.123] - 2026-07-20
-Zalo chuyển từ một bộ lọc thông báo dùng chung sang chính sách riêng cho từng cuộc chat, đặt bằng lời qua chat. Thêm chế độ Javis tự trả lời khách như một chatbot, chạy trong hộp cát.
+Zalo chuyển từ một bộ lọc thông báo dùng chung sang chính sách riêng cho từng cuộc chat, đặt bằng lời qua chat. Thêm chế độ Jarvis 007 tự trả lời khách như một chatbot, chạy trong hộp cát.
 ### Thêm mới
 - **Mỗi cuộc chat một luật riêng**, ghi ở `Javis/zalo/<slug>.md` trong brain nên có git, xem lại và sửa tay được. Năm chế độ: chỉ ghi nhận, báo mọi tin, báo theo từ khoá, nhắc khi quá N phút chưa ai trả lời, và tự trả lời khách theo kịch bản.
 - **Đặt luật bằng lời**: tool `javis_zalo_rule` để nói thẳng trong chat hoặc Telegram, ví dụ nhóm này nếu 30 phút chưa ai trả lời thì nhắc. Giao diện chỉ hiển thị luật, không có form nhập. Gọi tên nhóm mà khớp nhiều hơn một thì tool từ chối kèm danh sách chứ không đoán, vì gắn kịch bản nhầm nhóm là bot đi trả lời khách của nhóm khác.
-- **Nhắc khi quên trả lời**: khách nhắn mà quá N phút không ai đáp thì báo Telegram đúng một lần. Làm được là nhờ Javis có tài khoản Zalo riêng, nên chủ trả lời bằng tài khoản của mình sẽ là một thành viên khác trong nhóm và tin của chủ về đầy đủ.
-- **Chế độ chatbot**: Javis tự trả lời khách theo kịch bản riêng của từng nhóm, có trần số tin mỗi giờ, và tự đẩy về cho chủ khi gặp việc ngoài kịch bản.
+- **Nhắc khi quên trả lời**: khách nhắn mà quá N phút không ai đáp thì báo Telegram đúng một lần. Làm được là nhờ Jarvis 007 có tài khoản Zalo riêng, nên chủ trả lời bằng tài khoản của mình sẽ là một thành viên khác trong nhóm và tin của chủ về đầy đủ.
+- **Chế độ chatbot**: Jarvis 007 tự trả lời khách theo kịch bản riêng của từng nhóm, có trần số tin mỗi giờ, và tự đẩy về cho chủ khi gặp việc ngoài kịch bản.
 ### Bảo mật
-- **Hộp cát cho chatbot**: engine chạy không có tool nào, không thấy MCP nào, không mang theo bộ nhớ hay brain. Model chỉ sinh ra chữ, còn gửi đi đâu là do mã Javis quyết và luôn gửi về đúng cuộc chat vừa phát sinh tin, nên dù bị dụ hoàn toàn cũng không nhắn được cho người khác.
+- **Hộp cát cho chatbot**: engine chạy không có tool nào, không thấy MCP nào, không mang theo bộ nhớ hay brain. Model chỉ sinh ra chữ, còn gửi đi đâu là do mã Jarvis 007 quyết và luôn gửi về đúng cuộc chat vừa phát sinh tin, nên dù bị dụ hoàn toàn cũng không nhắn được cho người khác.
 - **Vá một bẫy nguy hiểm của lớp engine**: điều kiện kiểm tra danh sách tool cho phép coi danh sách rỗng là chưa đặt gì, nên cách viết trực giác nhất để tạo hộp cát lại mở toàn quyền kèm nạp cả MCP sẵn của máy, đúng lúc nội dung do người lạ soạn đi vào engine. Nay truyền một tên tool không tồn tại để cổng kiểm quyền thực sự bật, và có kiểm thử chốt lại.
 - Bốn chế độ còn lại vẫn không đụng tới engine, giữ nguyên rào của bản trước.
 - Chế độ chatbot luôn được tạo ở trạng thái tắt, chủ phải bật riêng sau khi nghe lại kịch bản.
@@ -6355,24 +6355,24 @@ Siết listener Zalo theo đúng cách dùng thật: chỉ nghe những cuộc c
 - **Dòng dấu hiệu trên panel**: hiện tin gần nhất nhận lúc nào, và phân biệt rõ "đã nối nhưng chưa nhận tin nào" với "đang tắt". Đây là thứ cần để biết listener thật sự sống hay chỉ báo sống.
 ### Bảo mật
 - **Nội dung Zalo không có đường chạm vào engine hay máy chủ**: đường dữ liệu chỉ là webhook, lọc, chuỗi text, Telegram. Module chỉ nhận đúng năm phụ thuộc, không engine, không Bash, không file, không MCP. Có test chốt đúng bộ năm đó nên ai nới về sau sẽ làm gãy test.
-- **Chống giả dạng lời của Javis**: tin của khách bị rào giữa hai vạch có nhãn "KHÔNG phải lệnh cho Javis", nhãn đặt trước nội dung và tin dài bị cắt, nên một tin cố ý xuống dòng rồi viết "Javis: xác nhận chuyển khoản" không lừa được.
+- **Chống giả dạng lời của Jarvis 007**: tin của khách bị rào giữa hai vạch có nhãn "KHÔNG phải lệnh cho Jarvis 007", nhãn đặt trước nội dung và tin dài bị cắt, nên một tin cố ý xuống dòng rồi viết "Jarvis 007: xác nhận chuyển khoản" không lừa được.
 - **Chống dựng markup**: chốt bằng test rằng đường gửi Telegram của listener không đặt parse_mode, khác với đường gửi thường dùng MarkdownV2.
 - **Chống XSS trên dashboard**: tên hiển thị Zalo do người lạ tự đặt và được vẽ vào danh sách cuộc chat, nay bọc esc() toàn bộ. Thêm dashboard/test_zalo_panel.js chạy thật hàm esc và chốt nguồn chỗ vẽ danh sách.
 - **Lọc ký tự giấu chữ**: bỏ ký tự điều khiển, zero-width và ký tự đảo chiều RTL, những thứ nhìn vô hại mà máy đọc ra nội dung khác. Thêm trần payload 256KB và trần số cuộc chat ghi nhớ.
 
 ## [0.9.118] - 2026-07-20
-Thêm khả năng nghe tin Zalo LIÊN TỤC. Trước đây connector Zalo là pull-only: phải gọi tool mới biết có tin, mà pool MCP lại đóng tiến trình sau 10 phút không dùng (`mcp_client._IDLE_TTL`), nên websocket và bộ đệm tin của `zalo-agent-cli mcp start` không sống sót. Giờ Javis chạy một tiến trình sidecar riêng, độc lập với pool, nhận tin ngay khi khách nhắn rồi báo về Telegram.
+Thêm khả năng nghe tin Zalo LIÊN TỤC. Trước đây connector Zalo là pull-only: phải gọi tool mới biết có tin, mà pool MCP lại đóng tiến trình sau 10 phút không dùng (`mcp_client._IDLE_TTL`), nên websocket và bộ đệm tin của `zalo-agent-cli mcp start` không sống sót. Giờ Jarvis 007 chạy một tiến trình sidecar riêng, độc lập với pool, nhận tin ngay khi khách nhắn rồi báo về Telegram.
 ### Thêm mới
-- **Listener Zalo chạy nền**: sidecar `zalo-agent-cli listen --webhook` đẩy từng sự kiện về `/hook/zalo`, Javis lọc rồi bắn Telegram. Bật tắt ngay trong thẻ Zalo ở trang Kết nối, có hiện trạng thái thật (đang nghe, mất kết nối đang thử lại, trùng phiên). Tự dựng lại khi đứt với backoff 5s rồi 30s rồi 120s rồi 300s, và tự bật lại sau khi khởi động lại app.
+- **Listener Zalo chạy nền**: sidecar `zalo-agent-cli listen --webhook` đẩy từng sự kiện về `/hook/zalo`, Jarvis 007 lọc rồi bắn Telegram. Bật tắt ngay trong thẻ Zalo ở trang Kết nối, có hiện trạng thái thật (đang nghe, mất kết nối đang thử lại, trùng phiên). Tự dựng lại khi đứt với backoff 5s rồi 30s rồi 120s rồi 300s, và tự bật lại sau khi khởi động lại app.
 - **Lọc mặc định chặt**: chỉ báo tin nhắn riêng có chứa từ khoá, không báo nhóm. Khớp từ khoá bỏ dấu và không phân biệt hoa thường nên khách gõ "gia" vẫn khớp "giá". Có danh sách cuộc chat theo dõi riêng, giờ im lặng, khử trùng msgId, và trần 20 thông báo mỗi 10 phút để nhóm đông không làm nổ Telegram.
 ### Bảo mật
 - **`/hook/zalo` hai tầng rào**: chỉ nhận từ loopback (`_AUTH_LOCAL_EXACT`), cộng shared secret sinh tự động. Secret đi trong query chứ không phải header, vì `--webhook` của CLI chỉ POST JSON trần và không đặt được header tuỳ ý; gác bằng header sẽ chặn sạch tin. Loopback một mình không đủ vì tiến trình khác trên cùng VPS cũng là loopback. Secret không bao giờ trả ra frontend.
-- **Javis vẫn không tự trả lời khách**: listener chỉ đọc và báo. Gửi tin Zalo vẫn phải do chủ yêu cầu trực tiếp trong chat.
+- **Jarvis 007 vẫn không tự trả lời khách**: listener chỉ đọc và báo. Gửi tin Zalo vẫn phải do chủ yêu cầu trực tiếp trong chat.
 ### Đã biết
 - Zalo chỉ cho MỘT socket mỗi tài khoản, nên connector `zalo` và sidecar có thể đá nhau nếu dùng chung tài khoản. Chưa kiểm chứng được nên thiết kế chọn làm va chạm hiện rõ: bắt chuỗi trùng phiên trong log, đẩy lên giao diện và dừng hẳn thay vì quay vòng vô ích.
 
 ## [0.9.117] - 2026-07-20
-Sửa lỗi báo nhầm "Chưa cài Codex CLI" khiến không chat được bằng gói ChatGPT dù đã đăng nhập thành công. Nguyên nhân: binary codex không nằm trong PATH nên Javis phải dò nó trong thư mục home, mà home lại lấy mỗi từ biến môi trường USERPROFILE; khi server được bật lại bởi tự-cập-nhật hay tác vụ nền thì biến này có thể trống, home thành rỗng nên mọi đường dẫn ~/.codex/... hoá ra tương đối và không khớp, dù binary vẫn nằm nguyên chỗ cũ.
+Sửa lỗi báo nhầm "Chưa cài Codex CLI" khiến không chat được bằng gói ChatGPT dù đã đăng nhập thành công. Nguyên nhân: binary codex không nằm trong PATH nên Jarvis 007 phải dò nó trong thư mục home, mà home lại lấy mỗi từ biến môi trường USERPROFILE; khi server được bật lại bởi tự-cập-nhật hay tác vụ nền thì biến này có thể trống, home thành rỗng nên mọi đường dẫn ~/.codex/... hoá ra tương đối và không khớp, dù binary vẫn nằm nguyên chỗ cũ.
 ### Sửa lỗi
 - **Dò Codex CLI không còn phụ thuộc mỗi USERPROFILE**: thêm các đường lùi lần lượt là HOME, HOMEDRIVE cộng HOMEPATH, rồi Path.home(). Đã kiểm bằng cách bỏ lần lượt cả ba biến môi trường, vẫn dò ra đúng binary.
 - **Thêm biến JAVIS_CODEX_BIN**: trỏ thẳng tới file codex nếu máy cài ở chỗ lạ; trỏ sai đường dẫn thì bỏ qua và dò tiếp như thường.
@@ -6381,7 +6381,7 @@ Sửa lỗi báo nhầm "Chưa cài Codex CLI" khiến không chat được bằ
 Rà soát toàn bộ cảnh báo rủi ro của 23 connector. Từ khi viết ra tới nay chưa ai kiểm lại, mà chúng lại không hiện trên giao diện (sửa ở 0.9.115) nên lỗi tích lại không ai thấy. Tìm được ba connector có tool nguy hiểm mà không một chữ cảnh báo, một chỗ xếp loại mâu thuẫn, và một chỗ mô tả nhẹ hơn thực tế.
 ### Bảo mật
 - **Ba connector có tool nguy hiểm mà KHÔNG có cảnh báo, nay đã có**: `pancake-pos` (tạo đơn hàng, ghi giao dịch thu chi, sửa công nợ, xuất hoá đơn điện tử, chạy quảng cáo, tạo voucher), `botcake` (gửi tin thật tới khách qua chatbot), `webcake-landing` (đăng trang công khai, lại đang mặc định ở mức Ghi nháp).
-- **Siết `*share*` của `google-sheets` từ mức Ghi lên mức NGUY HIỂM**: connector này mặc định ở mức Ghi nháp, nghĩa là trước đây Javis chia sẻ được bảng tính chứa số liệu kinh doanh ra người ngoài ngay từ mặc định. Nay thống nhất một chuẩn với `google-keep` (đã xếp `add_note_collaborator` là nguy hiểm): đẩy dữ liệu ra người ngoài luôn là mức Toàn quyền.
+- **Siết `*share*` của `google-sheets` từ mức Ghi lên mức NGUY HIỂM**: connector này mặc định ở mức Ghi nháp, nghĩa là trước đây Jarvis 007 chia sẻ được bảng tính chứa số liệu kinh doanh ra người ngoài ngay từ mặc định. Nay thống nhất một chuẩn với `google-keep` (đã xếp `add_note_collaborator` là nguy hiểm): đẩy dữ liệu ra người ngoài luôn là mức Toàn quyền.
 ### Sửa lỗi
 - **`google-workspace` mô tả nhẹ hơn thực tế**: cảnh báo viết mức Ghi nháp "chỉ soạn nháp, tạo lịch, tạo tài liệu", trong khi danh sách ghi có cả `*modify*` và `*move*`, tức sửa tài liệu có sẵn và di chuyển file Drive cũng được. Đã viết đúng lại.
 - **`zalo` là connector DUY NHẤT mặc định Toàn quyền** (17 cái Chỉ đọc, 5 cái Ghi nháp, 1 cái Toàn quyền) mà cảnh báo cũ không nói rõ điều đó. Giữ nguyên mức mặc định vì đấu Zalo vào chủ yếu để nhắn tin, nhưng cảnh báo nay nói thẳng là quyền gửi tin đang bật sẵn và chỉ cách hạ xuống.
@@ -6397,15 +6397,15 @@ Sửa một lỗ hổng trình bày nghiêm trọng: **15 trong 16 connector có
 ### Sửa lỗi
 - **Cảnh báo rủi ro hiện ở CẢ ba luồng đấu nối**: `openApikeyFlow` và `openOauthFlow` giờ vẽ khối `conn-risk` như `openQrFlow` vẫn làm, đặt NGAY TRÊN phần hướng dẫn để đọc trước. Ảnh hưởng 15 connector, trong đó có `facebook-personal` (dán cookie tài khoản thật), `google-workspace`, `slack`, `gmail`, `google-keep`.
 ### Cải thiện
-- **Mô tả thẻ `google-keep` nói thẳng về bán kính thiệt hại**: Keep không có API chính chủ nên phải dùng master token có TOÀN QUYỀN tài khoản Google, khác hẳn `gmail` / `google-calendar` / `google-ads` vốn xin đúng một scope. Javis chỉ thao tác được ghi chú, nhưng token thì mở cả tài khoản nếu bị lộ. Nói ngay trên thẻ để thấy trước khi bấm vào.
+- **Mô tả thẻ `google-keep` nói thẳng về bán kính thiệt hại**: Keep không có API chính chủ nên phải dùng master token có TOÀN QUYỀN tài khoản Google, khác hẳn `gmail` / `google-calendar` / `google-ads` vốn xin đúng một scope. Jarvis 007 chỉ thao tác được ghi chú, nhưng token thì mở cả tài khoản nếu bị lộ. Nói ngay trên thẻ để thấy trước khi bấm vào.
 ### Thêm mới
 - Test `server/test_canh_bao_rui_ro.py` (12 kiểm tra, không mạng): cắt thân từng hàm JS để xác nhận cả ba luồng đều vẽ `conn-risk` và chỉ vẽ khi thật sự có cảnh báo; kiểm mô tả thẻ Keep có nêu rủi ro; kiểm `google-keep` vẫn chỉ khai tool Keep chứ không lan sang Gmail/Drive. Có canary chứng minh phép cắt thân hàm đang soi đúng một hàm.
 ### Ghi chú
 - Giữ nguyên tên "Google Keep" vì đó đúng với NĂNG LỰC (server chỉ phơi 23 tool Keep, đã bắt tay MCP đếm thật). Vấn đề nằm ở CREDENTIAL chứ không ở năng lực, nên xử bằng cảnh báo thay vì đổi tên.
-- KHÔNG mở rộng `google-keep` thành connector kiểu Workspace. Javis đã có `gmail`, `google-calendar`, `google-workspace` dùng OAuth có scope, an toàn hơn hẳn. Master token nên bị nhốt vào đúng chỗ duy nhất không có đường thay thế.
+- KHÔNG mở rộng `google-keep` thành connector kiểu Workspace. Jarvis 007 đã có `gmail`, `google-calendar`, `google-workspace` dùng OAuth có scope, an toàn hơn hẳn. Master token nên bị nhốt vào đúng chỗ duy nhất không có đường thay thế.
 
 ## [0.9.114] - 2026-07-20
-Đấu **Google Ads** cũng không còn phải chạy lệnh. Trước đây phải cài Google Cloud CLI, chạy `gcloud auth application-default login` với một chuỗi scope rất dài, rồi đi tìm file JSON trong `%APPDATA%` mà dán vào. Giờ điền Client ID/Secret rồi bấm đăng nhập như Gmail và Lịch, Javis tự dựng file đăng nhập.
+Đấu **Google Ads** cũng không còn phải chạy lệnh. Trước đây phải cài Google Cloud CLI, chạy `gcloud auth application-default login` với một chuỗi scope rất dài, rồi đi tìm file JSON trong `%APPDATA%` mà dán vào. Giờ điền Client ID/Secret rồi bấm đăng nhập như Gmail và Lịch, Jarvis 007 tự dựng file đăng nhập.
 ### Thêm mới
 - **`oauth_mcp.credentials_file(conn_id, fmt)`**: dựng nội dung file credential cho connector STDIO đăng nhập bằng OAuth. Ghép refresh_token trong kho oauth với client_id/secret trong `mcp_store` thành đúng khuôn ADC mà gcloud vẫn sinh ra (`{type: authorized_user, client_id, client_secret, refresh_token}`). Đồng bộ, không gọi mạng.
 - **`oauth_file` trong catalog**: connector khai `{format, env, ext}` thì `mcp_store.resolved()` ghi file 0600 vào `connector-files/` rồi trỏ biến môi trường vào. Tái dùng đúng khuôn sẵn có của field `file`.
@@ -6421,9 +6421,9 @@ Sửa một lỗ hổng trình bày nghiêm trọng: **15 trong 16 connector có
 - Chưa nghiệm thu với tài khoản Google Ads thật (cần developer token + tài khoản quảng cáo), nên bước đăng nhập phải thử tại chỗ.
 
 ## [0.9.113] - 2026-07-20
-Bỏ hẳn bước bắt người dùng mở terminal để đấu **Google Keep**. Trước đây phải chạy một lệnh dài đổi App Password lấy master token rồi dán vào; giờ dán thẳng App Password vào Javis, server tự đổi. Hai bước còn lại (bật xác minh 2 bước, tạo App Password) là giao diện của chính Google nên không tự động hoá được, nhưng đã có nút mở thẳng tới đó.
+Bỏ hẳn bước bắt người dùng mở terminal để đấu **Google Keep**. Trước đây phải chạy một lệnh dài đổi App Password lấy master token rồi dán vào; giờ dán thẳng App Password vào Jarvis 007, server tự đổi. Hai bước còn lại (bật xác minh 2 bước, tạo App Password) là giao diện của chính Google nên không tự động hoá được, nhưng đã có nút mở thẳng tới đó.
 ### Thêm mới
-- **Bước đổi credential khai báo từ catalog** (`server/cred_exchange.py`): connector khai `auth.exchange` gồm `handler` / `inputs` / `output` / `drop`; khi đấu, Javis tự đổi rồi XOÁ các field trong `drop` trước khi lưu. Làm tổng quát thay vì nhét cứng cho Keep, vì `google-ads` sẽ cần đúng cơ chế này.
+- **Bước đổi credential khai báo từ catalog** (`server/cred_exchange.py`): connector khai `auth.exchange` gồm `handler` / `inputs` / `output` / `drop`; khi đấu, Jarvis 007 tự đổi rồi XOÁ các field trong `drop` trước khi lưu. Làm tổng quát thay vì nhét cứng cho Keep, vì `google-ads` sẽ cần đúng cơ chế này.
 - **Handler `google_master_token`**: gọi `gpsoauth.perform_master_login`, tự bỏ dấu cách trong App Password (Google hiển thị thành 4 nhóm 4 ký tự), kiểm đủ 16 ký tự, và dịch mã lỗi Google sang tiếng Việt (sai mật khẩu, chưa bật 2 bước, đòi xác minh trình duyệt, bị chặn vì chạy trên VPS).
 - **Nút mở trang ngoài cho connector dạng apikey**: `openApikeyFlow` giờ gọi `oauthWizard(con)` nên mọi connector khai `auth.setup.links` đều hiện được nút, không riêng luồng OAuth. Google Keep có nút "Tạo App Password".
 - Test `server/test_cred_exchange.py` (25 kiểm tra, không mạng): phủ đổi thành công/thất bại, bỏ qua khi đã dán sẵn token, thiếu đầu vào, handler lạ, và kiểm ĐẦU-CUỐI rằng App Password không lọt xuống đĩa lẫn env. Có canary chứng minh check xoá là thật.
@@ -6457,12 +6457,12 @@ Viết lại hướng dẫn đăng nhập của TẤT CẢ 23 connector cho dễ
 - Test `server/test_catalog_guides.py` (10 kiểm tra, không mạng): guide dài phải có xuống dòng, không dòng nào quá 200 ký tự, bước đánh số phải mở đầu dòng, CSS phải thật sự khai `pre-line` + `overflow-wrap`, và cấm em dash / en dash trong cả file. Có canary chứng minh luật bắt được chuỗi kiểu cũ.
 
 ## [0.9.110] - 2026-07-20
-Thêm connector **Google Keep** để Javis đọc và thao tác ghi chú Keep. Google Keep không có API chính chủ cho tài khoản gmail thường nên connector này đi qua thư viện không chính thức và đòi Google master token, loại token có TOÀN QUYỀN tài khoản Google chứ không giới hạn phạm vi như OAuth. Rủi ro này được ghi thẳng vào phần cảnh báo của connector.
+Thêm connector **Google Keep** để Jarvis 007 đọc và thao tác ghi chú Keep. Google Keep không có API chính chủ cho tài khoản gmail thường nên connector này đi qua thư viện không chính thức và đòi Google master token, loại token có TOÀN QUYỀN tài khoản Google chứ không giới hạn phạm vi như OAuth. Rủi ro này được ghi thẳng vào phần cảnh báo của connector.
 
 > **Đính chính (0.9.112):** bản 0.9.110 ban đầu có thêm `pip install uv` vào `Dockerfile` kèm khẳng định "image thiếu uv nên 4 connector uvx khác đang hỏng trên VPS". Khẳng định đó SAI: `uv>=0.5` đã nằm trong `requirements.txt` từ v0.9.0 và Dockerfile vẫn chạy `pip install -r requirements.txt`, nên image luôn có `uv`. Dòng thừa đã được gỡ ở 0.9.112.
 ### Thêm mới
 - **Connector `google-keep`** (apikey, 3 ô: `google_email`, `master_token`, `unsafe_mode`): chạy local qua `uvx` với server cộng đồng `keep-mcp`. Phủ 23 tool: tìm/đọc note, tạo note và danh sách việc, sửa, gắn nhãn, ghim, lưu trữ, vứt, xoá, chia sẻ. Khai trong `system/mcp-catalog.json`, mặc định `readonly`.
-- **`UNSAFE_MODE` là opt-in, mặc định TẮT**: để trống thì Javis chỉ sửa được note do chính nó tạo (gắn nhãn `keep-mcp`); gõ `true` mới cho đụng note người dùng viết tay. Giữ bản fork sạch đúng nguyên tắc năng lực chạm dữ liệu cá nhân phải tự bật.
+- **`UNSAFE_MODE` là opt-in, mặc định TẮT**: để trống thì Jarvis 007 chỉ sửa được note do chính nó tạo (gắn nhãn `keep-mcp`); gõ `true` mới cho đụng note người dùng viết tay. Giữ bản fork sạch đúng nguyên tắc năng lực chạm dữ liệu cá nhân phải tự bật.
 - **Phân loại quyền có chủ ý**: `restore_note` ở mức Ghi nháp nhưng `trash_note` ở mức Toàn quyền, nên mức Ghi nháp luôn gỡ lại được note bị vứt nhầm mà không tự vứt được. Hai tool collaborator xếp mức nguy hiểm vì chúng chia sẻ note ra người khác, khác chất với sửa nội dung trong nhà.
 - Test `server/test_google_keep.py` (40 kiểm tra, không mạng, không cần token): map env, luật opt-in của `UNSAFE_MODE`, lớp chặn theo 3 mức quyền và trần của mode, kèm canary chứng minh lớp chặn có quyền lực thật.
 ### Ghi chú
@@ -6479,12 +6479,12 @@ Thêm connector **Theo dõi Facebook (Apify)** và plugin `fb-monitor-apify`: th
 ### Ghi chú
 - V1 chỉ Trang + Nhóm CÔNG KHAI (actor chính chủ Apify không vào nhóm kín). Nhóm KÍN là bước sau: cần actor nhận cookie + cookie tài khoản là thành viên, vẫn có chút rủi ro khoá.
 ### Cải thiện
-- **Đăng nhập ChatGPT qua trình duyệt báo lỗi rõ khi backend chưa sẵn**: nếu server đang chạy bản cũ (chưa có route browser OAuth), nút "Qua trình duyệt" trước đây mở một tab trắng (about:blank) không rõ vì sao. Giờ nó báo thẳng "Máy chủ chưa có chức năng này - khởi động lại Javis rồi tải lại trang" thay vì mở tab trắng.
+- **Đăng nhập ChatGPT qua trình duyệt báo lỗi rõ khi backend chưa sẵn**: nếu server đang chạy bản cũ (chưa có route browser OAuth), nút "Qua trình duyệt" trước đây mở một tab trắng (about:blank) không rõ vì sao. Giờ nó báo thẳng "Máy chủ chưa có chức năng này - khởi động lại Jarvis 007 rồi tải lại trang" thay vì mở tab trắng.
 
 ## [0.9.107] - 2026-07-19
-Thêm cách đăng nhập ChatGPT thứ hai qua trình duyệt (OAuth Authorization Code + PKCE), dành cho tài khoản Workspace bị chặn xác thực device-code. Trước đây Javis chỉ có một cách là device-code (nhập mã tại auth.openai.com/codex/device); Workspace nào tắt device-code thì không đăng nhập được. Cách mới dùng đúng luồng `codex login` mặc định.
+Thêm cách đăng nhập ChatGPT thứ hai qua trình duyệt (OAuth Authorization Code + PKCE), dành cho tài khoản Workspace bị chặn xác thực device-code. Trước đây Jarvis 007 chỉ có một cách là device-code (nhập mã tại auth.openai.com/codex/device); Workspace nào tắt device-code thì không đăng nhập được. Cách mới dùng đúng luồng `codex login` mặc định.
 ### Thêm mới
-- **Đăng nhập ChatGPT qua trình duyệt**: nút "Qua trình duyệt" ở card ChatGPT (trang Model) mở trang đăng nhập OpenAI; đăng nhập xong dán lại đường dẫn callback trên thanh địa chỉ để Javis tách mã và đổi lấy token. Chạy được cả bản trên máy cá nhân lẫn VPS headless vì không cần server tự bắt cổng localhost. Dùng chung client_id và endpoint đổi token với device-code nên token tương thích, vẫn bắc cầu sang ~/.codex/auth.json như cũ.
+- **Đăng nhập ChatGPT qua trình duyệt**: nút "Qua trình duyệt" ở card ChatGPT (trang Model) mở trang đăng nhập OpenAI; đăng nhập xong dán lại đường dẫn callback trên thanh địa chỉ để Jarvis 007 tách mã và đổi lấy token. Chạy được cả bản trên máy cá nhân lẫn VPS headless vì không cần server tự bắt cổng localhost. Dùng chung client_id và endpoint đổi token với device-code nên token tương thích, vẫn bắc cầu sang ~/.codex/auth.json như cũ.
 - Kèm test offline `server/test_openai_oauth.py` phủ PKCE, dựng URL /oauth/authorize, tách mã từ URL callback dán lại, kiểm state, và redirect_uri đúng cho từng luồng. (Bước bấm nút đăng nhập thật với OpenAI cần kiểm tại chỗ vì đụng mạng.)
 
 ## [0.9.106] - 2026-07-19
@@ -6514,14 +6514,14 @@ Phần Skills trong Studio trên điện thoại giờ dễ đọc, dễ bấm. 
 - **Nút thao tác skill luôn hiện trên điện thoại**: Sửa/Xuất/Xoá tách xuống một hàng riêng dưới mỗi thẻ và luôn hiển thị (bỏ kiểu chỉ hiện khi hover), vùng chạm to hơn, ô chọn bật/tắt cũng lớn hơn. Ô tìm skill dùng cỡ chữ 16px để iOS không tự phóng to khi focus.
 
 ## [0.9.102] - 2026-07-19
-Màn Javis (cockpit) trên điện thoại giờ là một khung cố định không trôi: quả cầu thu nhỏ ở trên, khung chat cuộn được ngay dưới để đọc kết quả. Chỉ đổi bản điện thoại.
+Màn Jarvis 007 (cockpit) trên điện thoại giờ là một khung cố định không trôi: quả cầu thu nhỏ ở trên, khung chat cuộn được ngay dưới để đọc kết quả. Chỉ đổi bản điện thoại.
 ### Cải thiện
 - **Cockpit điện thoại thành 1 khung cố định**: khoá cuộn cả trang trên điện thoại (không còn cảnh trôi lên trôi xuống lộ quả cầu), quả cầu não thu về khoảng 34% màn hình ở trên, phần chat chiếm khoảng còn lại và tự cuộn bên trong để đọc hội thoại. Header cố định + ô nhập bám đáy như cũ.
 
 ## [0.9.101] - 2026-07-19
 Facebook cá nhân: nhận diện đúng trang ĐĂNG NHẬP mbasic trả về khi cookie bị từ chối, thay vì đọc nhầm trang login thành feed. Trước đó fix User-Agent (0.9.99) đã hết lỗi "không hỗ trợ", nhưng nếu cookie hết hạn/bị Facebook chặn thì mbasic trả trang đăng nhập (URL vẫn là mbasic, không redirect) nên không bị bắt.
 ### Sửa lỗi
-- **fb-personal đọc nhầm trang đăng nhập thành feed**: thêm `_is_login()` (trang có cả ô email lẫn ô mật khẩu) vào lớp `_fetch`; gặp trang đăng nhập (theo NỘI DUNG, không chỉ theo URL redirect) thì trả lỗi rõ nêu 3 nguyên nhân thường gặp (cookie hết hạn/đã logout; Javis chạy ở IP/máy khác nơi đăng nhập nên Facebook chặn phiên lạ; tài khoản bị checkpoint) kèm cách sửa, thay vì trả nội dung trang login. Test lên 31 kiểm tra.
+- **fb-personal đọc nhầm trang đăng nhập thành feed**: thêm `_is_login()` (trang có cả ô email lẫn ô mật khẩu) vào lớp `_fetch`; gặp trang đăng nhập (theo NỘI DUNG, không chỉ theo URL redirect) thì trả lỗi rõ nêu 3 nguyên nhân thường gặp (cookie hết hạn/đã logout; Jarvis 007 chạy ở IP/máy khác nơi đăng nhập nên Facebook chặn phiên lạ; tài khoản bị checkpoint) kèm cách sửa, thay vì trả nội dung trang login. Test lên 31 kiểm tra.
 Trang Việc định kỳ giờ gộp MỌI brain, mỗi việc gắn nhãn brain và chuyển được sang brain khác; tạo việc qua chat báo rõ brain; lựa chọn /brain trên Telegram được nhớ bền qua khởi động lại. Gỡ cái rối "tạo việc qua Telegram vào brain mặc định, tìm ở brain đang làm không thấy" - hai khái niệm brain (phiên Telegram vs brain đang xem trên dashboard) vốn tách rời, việc vẫn chạy nhưng người dùng không nhìn thấy.
 ### Thêm mới
 - **Trang Việc gộp mọi brain**: endpoint `GET /viec/all` trả loop + nhắc hẹn của TẤT CẢ brain, nhóm theo brain (brain đang xem lên đầu, gắn "đang xem"), mỗi thẻ có nhãn brain. Nút bật/tắt/xoá/chạy/huỷ nhắm ĐÚNG brain của chính việc đó thay vì brain ở sidebar.
@@ -6555,7 +6555,7 @@ Vá nút + (hội thoại mới) trên header điện thoại: hết lệch kh�
 Thêm connector **Facebook cá nhân (cookie - thử nghiệm)** và plugin `fb-personal`: tự động hoá tài khoản Facebook CÁ NHÂN bằng cookie phiên (Facebook đã đóng API cá nhân) - lướt/đọc feed, đăng bài lên tường, bình luận. Đi đường cookie + mbasic bằng httpx nên chạy được trên VPS headless, không cần Chromium. CẢNH BÁO: vi phạm điều khoản Facebook, rủi ro khoá tài khoản; mặc định TẮT, cookie mã hoá at rest. Đây là bước 2 nối tiếp connector Trang (0.9.90) cho nhu cầu lướt feed cá nhân.
 ### Thêm mới
 - **Connector `facebook-personal`** (apikey, field `cookie` mã hoá): dán cookie phiên Facebook (kèm hướng dẫn lấy an toàn từ DevTools). Mặc định Chỉ đọc; đăng/bình luận chỉ chạy khi nâng Toàn quyền. Khai trong `system/mcp-catalog.json`.
-- **Plugin `fb-personal`** (bundled) - 3 tool: `fb_feed_read` (readonly, trả văn bản feed đã làm sạch + link bài để Javis tóm tắt) và `fb_personal_post`, `fb_personal_comment` (min_mode full). Engine gọi `mbasic.facebook.com` bằng httpx + cookie, tự bóc `fb_dtsg` và tìm form soạn bài/bình luận (best-effort, chỉnh selector khi Facebook đổi). Chặn rõ khi cookie bị đẩy về login/checkpoint.
+- **Plugin `fb-personal`** (bundled) - 3 tool: `fb_feed_read` (readonly, trả văn bản feed đã làm sạch + link bài để Jarvis 007 tóm tắt) và `fb_personal_post`, `fb_personal_comment` (min_mode full). Engine gọi `mbasic.facebook.com` bằng httpx + cookie, tự bóc `fb_dtsg` và tìm form soạn bài/bình luận (best-effort, chỉnh selector khi Facebook đổi). Chặn rõ khi cookie bị đẩy về login/checkpoint.
 - **`validate_connection` nhận connector ẢO**: connector plugin-backed không có URL/command (Meta/Facebook gọi qua plugin) nay qua cửa thêm-kết-nối mà không dial MCP (đếm tool theo `tool_meta`). Trước đây connector apikey không URL sẽ bị xoá khi thêm. Sửa trong `mcp_hub.py` + bơm không đổi.
 - Test `server/test_fb_personal.py` (24 kiểm tra, không mạng): catalog hợp lệ, min_mode đúng, gate chưa-có-cookie, bóc fb_dtsg/tìm form, đọc feed + chặn login, đăng/bình luận build đúng POST, và nhánh validate connector ẢO.
 
@@ -6564,7 +6564,7 @@ Thêm connector **Facebook cá nhân (cookie - thử nghiệm)** và plugin `fb-
 Đổi font chữ toàn app sang **Montserrat** cho sạch, dễ đọc (thay font monospace cũ trông "lỗi lỗi" ở các nhãn). Code vẫn giữ font monospace. Và vá header màn cockpit trên điện thoại.
 ### Cải thiện
 - **Font Montserrat**: nạp Montserrat (Google Fonts) và dùng làm font chính cho toàn giao diện (nhãn, tiêu đề, chữ thân, thanh bên). Khối mã và mã inline giữ font monospace riêng (`--mono`) cho dễ đọc code. Tải lại trang là thấy (đã bump ?v).
-- **Header cockpit điện thoại hết lệch**: ẩn nút "Lịch sử" trên điện thoại để header màn "Javis" (buồng lái) khỏi bị chồng dòng, gọn còn ☰ + chip model + nút hội thoại mới. (Lịch sử vẫn xem được ở khung chat phóng to trên máy tính.)
+- **Header cockpit điện thoại hết lệch**: ẩn nút "Lịch sử" trên điện thoại để header màn "Jarvis 007" (buồng lái) khỏi bị chồng dòng, gọn còn ☰ + chip model + nút hội thoại mới. (Lịch sử vẫn xem được ở khung chat phóng to trên máy tính.)
 
 ## [0.9.93] - 2026-07-19
 Chỉnh tiếp giao diện chat điện thoại theo phản hồi: header hết chồng lên nhau, bấm chip model là sổ ra danh sách được, và mục Hệ thống trong ngăn kéo gọn lại. Chỉ đổi bản điện thoại.
@@ -6580,7 +6580,7 @@ Wizard cài đặt cho các connector tự-tạo-app (Facebook Trang, Meta Ads):
 - **Nút mở trang + copy Redirect URI khi kết nối**: modal đăng nhập OAuth giờ đọc thêm `auth.setup` từ catalog để vẽ dãy nút "Bước 1: Tạo App mới / App của tôi" (mở tab mới) và một ô Redirect URI chỉ-đọc kèm nút Sao chép (tự lấy đúng cổng đang chạy). Hướng dẫn bằng chữ được rút gọn theo, trỏ vào các nút này. Áp cho connector `facebook-pages` và `meta-ads-graph`; connector không khai `setup` thì không đổi. Thêm trường `setup` vào `public_catalog()`, hàm `oauthWizard()` trong `console.js`, style `.conn-wizard/.wiz-*` trong `console.css`. Bump `console.js?v=72`, `console.css?v=21`.
 Vá tiếp giao diện chat điện thoại (0.9.89): rút gọn dòng gợi ý trong ô nhập cho khỏi xuống dòng, và đưa "phần Hệ thống" trở lại. Chỉ đổi bản điện thoại.
 ### Sửa lỗi
-- **Dòng gợi ý ô nhập bị xuống dòng trên điện thoại**: đổi placeholder mobile thành câu ngắn "Nói hoặc gõ cho Javis…" cho vừa một dòng (bản máy tính giữ câu đầy đủ).
+- **Dòng gợi ý ô nhập bị xuống dòng trên điện thoại**: đổi placeholder mobile thành câu ngắn "Nói hoặc gõ cho Jarvis 007…" cho vừa một dòng (bản máy tính giữ câu đầy đủ).
 - **Mất phần Hệ thống trên điện thoại**: chọn brain, Cài đặt, Đổi tông, Studio, bật/tắt loa và dải trạng thái HỆ THỐNG/MCP nay gom vào mục "Hệ thống" ở đáy ngăn kéo ☰ (trước đó bị ẩn mất). Dùng lại đúng nút cũ nên bấm là chạy như thường.
 
 ## [0.9.90] - 2026-07-19
@@ -6596,7 +6596,7 @@ Giao diện chat trên điện thoại gọn hẳn: ô nhập thành viên bo tr
 - **Khung chat điện thoại gọn tối đa**: ô nhập nở to thành một viên (đính kèm bên trái, ô gõ chiếm gần hết bề ngang và tự cao lên, mic và nút gửi bên phải); bỏ hai hàng điều khiển chật (dải HỆ THỐNG/MCP và thanh công cụ ở đáy). Header rút còn ☰ (mở ngăn kéo công cụ) + chip model (bấm đổi model/engine như cũ) + nút hội thoại mới. Nút đọc tiếng dời khỏi thanh nhập. Bản máy tính không đổi.
 
 ## [0.9.88] - 2026-07-18
-Mỗi lần tải lại Javis giờ vào thẳng hội thoại mới thay vì mở lại phiên cũ. Chỉ đổi frontend, tải lại trang là có.
+Mỗi lần tải lại Jarvis 007 giờ vào thẳng hội thoại mới thay vì mở lại phiên cũ. Chỉ đổi frontend, tải lại trang là có.
 ### Cải thiện
 - **Tải trang = hội thoại mới**: trước đây F5 khôi phục phiên gần nhất vào khung chat; nay mặc định mở khung trống cho hội thoại mới. Hội thoại cũ KHÔNG mất - vẫn nằm trong panel Lịch sử (lưu ở server), bấm để mở lại. Bỏ gọi `restoreSession()` lúc load + xoá phiên tạm trong localStorage. Bump `app.js?v=70`.
 
@@ -6626,7 +6626,7 @@ Bản đánh dấu để kiểm tra luồng tự cập nhật 1-click (nút "C�
 Dashboard Token: nâng trang **Mức dùng** thành bảng theo dõi tiêu thụ token thật, đọc từ log của Claude Code và Codex trên máy (không cần API riêng). CẦN KHỞI ĐỘNG LẠI SERVER (thêm module `usage_index` + route `/usage/*`); sau đó tải lại trang.
 ### Thêm mới
 - **Lọc theo kỳ**: hôm nay, hôm qua, tuần này, tuần trước, tháng này, tháng trước, 3 tháng gần nhất, năm nay - mỗi kỳ tự so với kỳ tương đương liền trước (delta %).
-- **Bóc tách nguồn tiêu**: theo provider (Claude Code / ChatGPT-Codex / API), theo nguồn (bạn gõ tay vs Javis tự chạy qua SDK), theo hoạt động (chat / nền loop-lịch / subagent), theo model, theo dự án. Phát hiện nhanh chỗ ngốn token nhất.
+- **Bóc tách nguồn tiêu**: theo provider (Claude Code / ChatGPT-Codex / API), theo nguồn (bạn gõ tay vs Jarvis 007 tự chạy qua SDK), theo hoạt động (chat / nền loop-lịch / subagent), theo model, theo dự án. Phát hiện nhanh chỗ ngốn token nhất.
 - **Chỉ số hiệu quả**: tổng token, token/ngày, cache hit (tái dùng ngữ cảnh), số phiên + token trung bình mỗi phiên, và chi phí QUY ĐỔI theo giá API (với gói thuê bao là "tiết kiệm được bao nhiêu", chỉ OpenRouter là tiền thật).
 - **Đề xuất tự động**: cache thấp gợi ý /compact, hoạt động nền ngốn nhiều gợi ý giảm loop, opus dùng nhiều gợi ý hạ model, phiên phình gợi ý tách, spike bất thường cảnh báo sớm.
 - Backend: `usage_index.py` quét tăng dần `~/.claude/projects` + `~/.codex/sessions` (bỏ file chưa đổi), phân loại chat/nền qua `conversations.db`, gộp vào SQLite. Nhánh API ghi log tiến tới qua `usage_store`. Route `/usage/summary|insights|refresh`. Bump `console.js?v=71`, thêm `usage.js?v=1`.
@@ -6658,7 +6658,7 @@ Nút "Cập nhật ngay" làm chắc lại toàn diện: kiểm tra sức khoẻ
 Trong khung chat giờ bấm được link, và file .md/text bấm là bung ngay khung sửa giữa màn hình để xem và chỉnh sửa. Thuần giao diện, KHÔNG cần khởi động lại server (chỉ tải lại trang - đã bump `?v` để nạp bản mới). Có brainstorm + spec ở `docs/superpowers/specs/2026-07-18-chat-link-va-sua-md-design.md`.
 ### Thêm mới
 - **Bấm file .md/text trong chat bung khung sửa giữa màn hình**: thêm `dashboard/file-editor.js` dựng một modal độc lập gắn thẳng vào `<body>` nên chạy được từ mọi trang. Với `.md` và file text hiện `<textarea>` sửa được (riêng `.md` có nút gạt "Nguồn / Xem", bản Xem render bằng `mdToHtml` sẵn có); ảnh/PDF xem trước; file khác cho tải. Lưu qua `/files/write` có ghép sẵn tiền tố "nhà" của brain nên ghi ĐÚNG chỗ kể cả trên localhost (trần duyệt = cả ổ đĩa). Đóng bằng Esc / ✕ / bấm nền mờ, lưu nhanh Ctrl+S. Bấm link thư mục vẫn nhảy trang Tệp tin như cũ; ảnh inline giữ nguyên.
-- **URL trần trong chat tự thành link mở tab mới**: URL `http(s)://...` Javis gõ thẳng (không bọc markdown) nay tự nhận thành link bấm được. Chạy sau khi code block / inline code / ảnh / link markdown đã cất vào placeholder nên không đụng vào chúng; dấu câu ở đuôi URL nằm ngoài link.
+- **URL trần trong chat tự thành link mở tab mới**: URL `http(s)://...` Jarvis 007 gõ thẳng (không bọc markdown) nay tự nhận thành link bấm được. Chạy sau khi code block / inline code / ảnh / link markdown đã cất vào placeholder nên không đụng vào chúng; dấu câu ở đuôi URL nằm ngoài link.
 ### Sửa lỗi
 - **Link file có khoảng trắng hoặc dấu ngoặc bị cắt cụt đường dẫn**: regex link/ảnh markdown cũ (`[chữ](đường-dẫn)`) chỉ bắt tới khoảng trắng đầu tiên rồi dừng ở dấu `)` đầu tiên, nên đường dẫn kiểu `06 - Sources/Tên (Tư Duy Ngược).md` bị cắt còn `06` và phần đuôi rớt ra thành chữ. Nay bắt cả cặp ngoặc cân bằng 1 tầng và cho phép khoảng trắng, đồng thời cắt title markdown tùy chọn (`( "tiêu đề" )`). Nhờ vậy bấm đúng file cần mở.
 
@@ -6669,7 +6669,7 @@ Trong khung chat giờ bấm được link, và file .md/text bấm là bung nga
 ## [0.9.77] - 2026-07-18
 Xoá não giờ LAN sang mọi máy đồng bộ (không còn bị "hồi sinh"), và giữ bản sao trong thùng rác cục bộ 30 ngày. **Cần khởi động lại server** (đổi luồng sync + endpoint xoá); giao diện tự nạp lại nhờ bump `?v=7`. Có brainstorm + spec + plan ở `docs/superpowers/specs/2026-07-18-brain-delete-sync-propagation-design.md` và `docs/superpowers/plans/2026-07-18-brain-delete-sync-propagation.md`.
 ### Thêm mới
-- **Giấy báo tử (tombstone) đồng bộ để lan việc xoá não**: khi xoá 1 não (đã gõ đúng tên xác nhận), Javis ghi một file nhỏ `<BRAINS_DIR>/.javis-tombstones/<tên>.json` đồng bộ theo repo. Bước `_apply_tombstones` mới trong sync đọc tombstone và xoá dứt khoát não đó ở mọi máy, ghi đè đúng chính sách "xoá không thắng bản còn sống" - NHƯNG chỉ cho lần xoá cố ý. Có chốt thời gian: não được tạo/sửa lại sau khi xoá thì không bị giết oan (tombstone tự gỡ, và tạo lại não cùng tên qua `/brains/new` cũng gỡ tombstone). Não mặc định miễn nhiễm.
+- **Giấy báo tử (tombstone) đồng bộ để lan việc xoá não**: khi xoá 1 não (đã gõ đúng tên xác nhận), Jarvis 007 ghi một file nhỏ `<BRAINS_DIR>/.javis-tombstones/<tên>.json` đồng bộ theo repo. Bước `_apply_tombstones` mới trong sync đọc tombstone và xoá dứt khoát não đó ở mọi máy, ghi đè đúng chính sách "xoá không thắng bản còn sống" - NHƯNG chỉ cho lần xoá cố ý. Có chốt thời gian: não được tạo/sửa lại sau khi xoá thì không bị giết oan (tombstone tự gỡ, và tạo lại não cùng tên qua `/brains/new` cũng gỡ tombstone). Não mặc định miễn nhiễm.
 - **Thùng rác cục bộ 30 ngày**: xoá não giờ CHUYỂN dữ liệu vào `<STATE_DIR>/brain-trash/<tên>__<thời-gian>/` (ngoài vùng đồng bộ, mỗi máy một thùng riêng) thay vì xoá cứng; tự dọn mục quá 30 ngày ở đầu mỗi lần sync. Lời xác nhận khi xoá báo rõ điều này. Khôi phục bằng tay (chuyển folder từ thùng rác về `brains/`). Endpoint xoá là nguyên tử: ghi tombstone lỗi thì hoàn tác việc chuyển thùng rác.
 ### Sửa lỗi
 - **Não đã xoá bị "hồi sinh" khi sync/update**: chính sách sync cũ cố tình không cho việc xoá thắng bản còn sống (chống mất dữ liệu), nên một não xoá ở máy này bị máy/remote khác đẩy ngược lại. Nay lần xoá cố ý lan đi qua tombstone; lá chắn chống mất dữ liệu chung vẫn nguyên vẹn cho mọi trường hợp KHÔNG có tombstone (folder biến mất do volume chưa mount, engine ghi dở... được `_restore_missing_brains` khôi phục, không bị lan xoá).
@@ -6693,7 +6693,7 @@ Sửa lỗi dropdown chọn não giữ lại "folder ngoài" (📁) đã xoá kh
 ## [0.9.74] - 2026-07-18
 Gom phần "mức dùng" thành một trang riêng có đồ thị, bỏ widget nổi vướng víu, và tinh chỉnh nốt nút thu/mở rail. **Cần khởi động lại server** để đồ thị mức dùng có dữ liệu (thêm field ở endpoint `/usage`); phần còn lại chỉ cần tải lại trang.
 ### Thêm mới
-- **Trang "Mức dùng" trong rail (nhóm Hệ thống) có đồ thị 14 ngày**: thay cho hộp mức dùng nhỏ trước đây, giờ là một trang đầy đủ gồm 3 thẻ tổng (hôm nay, tổng tích luỹ, số dư OpenRouter), đồ thị cột token/ngày 14 ngày gần nhất, và bảng chi tiết theo nhà cung cấp/model (token vào/ra, số lượt, chi phí). Endpoint `/usage` thêm field `daily` (hàm `usage_store.daily(14)` gộp per-day, lấp cả ngày trống cho trục liền mạch). Số liệu vẫn do Javis tự đo, giữ 30 ngày.
+- **Trang "Mức dùng" trong rail (nhóm Hệ thống) có đồ thị 14 ngày**: thay cho hộp mức dùng nhỏ trước đây, giờ là một trang đầy đủ gồm 3 thẻ tổng (hôm nay, tổng tích luỹ, số dư OpenRouter), đồ thị cột token/ngày 14 ngày gần nhất, và bảng chi tiết theo nhà cung cấp/model (token vào/ra, số lượt, chi phí). Endpoint `/usage` thêm field `daily` (hàm `usage_store.daily(14)` gộp per-day, lấp cả ngày trống cho trục liền mạch). Số liệu vẫn do Jarvis 007 tự đo, giữ 30 ngày.
 ### Cải thiện
 - **Bỏ widget "MỨC DÙNG" nổi ở góc dưới khung giữa**: user thấy vướng. Gỡ khối HTML + CSS; hàm `refreshUsage`/`initUsageToggle` trong app.js tự thành no-op (đã có guard khi không thấy element) nên không cần đụng tới, không còn fetch `/usage` mỗi lượt chat.
 - **Nút thu/mở rail dời sang PHẢI, version/tác giả sang trái**: `.rail-foot` xếp `space-between` (dùng `order`), icon nút to lên chút (18px) cho cân với icon nav; khi thu gọn chỉ còn nút, căn giữa.
@@ -6721,7 +6721,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 ### Sửa lỗi
 - **[Critical] `httpx` ĐỒNG BỘ gọi ngược vào chính server đang chạy nó → treo CẢ SERVER**: handler `javis_schedule` (`plugin.py`) là `def` thuần, và 3 hàm `_post_reminder`/`_get_reminders`/`_cancel_reminder` gọi `httpx.post`/`httpx.get` ĐỒNG BỘ tới `http://127.0.0.1:<port>/reminders`. `plugins_host._make_call` gọi handler plugin bằng `res = handler(args, ctx)` rồi mới `await` - KHÔNG bọc `asyncio.to_thread` - nên lệnh `httpx.post` chặn NGUYÊN event loop của uvicorn (1 worker duy nhất, `main.py:5037`) trong lúc nó tự chờ CHÍNH request đó được trả lời → deadlock, `ReadTimeout` sau ~5-10s, và trong lúc đó server không trả lời được BẤT KỲ ai (mọi user, mọi tool). Tệ hơn: nhắc hẹn vẫn được tạo thật (đã vào hàng đợi trước khi treo), tool trả lỗi nên model retry → tạo THÊM 1 nhắc trùng + treo thêm 1 lần. Vá: cả 4 hàm chuyển `async def` + `httpx.AsyncClient`, đúng khuôn `system/plugins/meta-ads-graph/plugin.py` (`_get()`) và `system/plugins/image-chatgpt/plugin.py` (`_gen()`) - 2 plugin bundled còn lại vốn đã làm đúng từ đầu, `javis-schedule` là ngoại lệ duy nhất phá quy ước.
 - **[Critical] Loop tạo qua tool KHÔNG BAO GIỜ làm việc user yêu cầu**: `_create_loop_file` ghi frontmatter thiếu hẳn field `goal`. `self_improve.py:250` `goal = fm.get("goal", "business")` mặc định `"business"` khi thiếu, và nhánh `goal == "business"` (`self_improve.py:546`) không đọc `loop["body"]` một chữ nào (thân file - đúng chỗ chứa prompt user vừa gõ qua chat). Hai kiểu hỏng: chưa đấu MCP số liệu kinh doanh → `skip_reason` khiến loop bỏ qua VÔ HẠN mọi vòng; có POS/ads → loop âm thầm chạy "phân tích chỉ số kinh doanh" (nhiệm vụ mặc định) thay vì việc user thật sự yêu cầu, rồi vẫn báo Telegram như đã làm đúng việc. Form web tạo loop vốn làm đúng (`self_improve.py:914` `goal = goal or (old["goal"] if old else "custom")`) - tool là nơi DUY NHẤT sai. Vá: `_create_loop_file` ghi cứng `goal: custom` vào frontmatter, kèm comment giải thích tại sao dòng này bắt buộc để không ai vô tình xoá.
-- **`notify_only` không có tác dụng gì - mọi nhắc đều dựng nguyên engine Claude + MCP để "làm hộ"**: `_do_create` hard-code `"mode": "task"` trong payload gửi `POST /reminders`, bất kể `notify_only`. Hậu quả: "30 phút nữa nhắc anh gọi khách" (chỉ muốn 1 câu nhắc) tới giờ lại chạy `reminders.py:418 _run_task` (dựng CLI, đọc MCP, `max_wall_s=300`) rồi gửi "⏰ Nhắc hẹn (Javis đã làm): ..." thay vì đúng "⏰ Nhắc anh: ..." (`reminders.py:342`) - ngược hẳn mô tả tool tự khai và ngược CLAUDE.md ("notify_only=true nếu chỉ nhắc"). Vá: `"mode": "notify" if notify_only else "task"`.
+- **`notify_only` không có tác dụng gì - mọi nhắc đều dựng nguyên engine Claude + MCP để "làm hộ"**: `_do_create` hard-code `"mode": "task"` trong payload gửi `POST /reminders`, bất kể `notify_only`. Hậu quả: "30 phút nữa nhắc anh gọi khách" (chỉ muốn 1 câu nhắc) tới giờ lại chạy `reminders.py:418 _run_task` (dựng CLI, đọc MCP, `max_wall_s=300`) rồi gửi "⏰ Nhắc hẹn (Jarvis 007 đã làm): ..." thay vì đúng "⏰ Nhắc anh: ..." (`reminders.py:342`) - ngược hẳn mô tả tool tự khai và ngược CLAUDE.md ("notify_only=true nếu chỉ nhắc"). Vá: `"mode": "notify" if notify_only else "task"`.
 - **Lịch "mỗi tuần"/"mỗi ngày"/"mỗi tháng"/"mỗi sáng" đều bị hiểu thành chạy MỖI 5 PHÚT**: `_UNIT_ALT` trước đó chỉ biết phút/giờ (VN + tắt tiếng Anh), không có ngày/tuần/tháng; các chuỗi này không match được số+đơn vị nên `_interval_min` rơi về sàn cứng 5 phút - "việc mỗi tuần tổng kết doanh thu" thành ra chạy 5 phút/lần (cộng lỗi goal ở trên = spam Telegram + đốt phí LLM thật). Ca nặng hơn: "mỗi sáng 7h" bị hiểu thành "mỗi 7 TIẾNG" (`interval_min=420`) vì regex chỉ thấy số "7" + đơn vị "h", không phân biệt được đó là MỐC GIỜ TRONG NGÀY chứ không phải khoảng cách lặp. Vá 3 lớp: (1) thêm `ngay=1440`/`tuan=10080`/`thang=43200` vào bảng quy đổi, và cho phép đơn vị đứng một mình ngầm định số lượng 1 ("mỗi ngày" = "mỗi 1 ngày"); (2) hàm `_daily_cron` mới dò tín hiệu LẶP HẰNG NGÀY (`mỗi` + buổi sáng/trưa/chiều/tối, hoặc từ "ngày", hoặc cụm "hằng ngày") CỘNG một mốc giờ đồng hồ (`7h`, `07:00`) → route sang kho reminders dạng cron 5 trường thay vì loop interval; (3) **luật an toàn**: lịch mơ hồ không rút được đơn vị/mốc giờ nào (vd "mỗi sáng" trơ, "mỗi khi rảnh") → `_interval_min` trả `None`, `_create_loop_file` trả `"ERROR: ..."` yêu cầu nói rõ hơn - KHÔNG còn âm thầm rơi về 5 phút trong bất kỳ trường hợp nào.
 - **Skill `javis-builder` dạy gõ YAML tay, thắng cả chỉ dẫn "ưu tiên gọi tool" của CLAUDE.md**: `CLAUDE.md` (mục "Tự tạo năng lực") nói dùng skill `javis-builder`; skill này nạp SAU nên cụ thể hơn thắng - mà mục Loop của nó (trước bản này) chỉ có mẫu YAML để tự ghi file, không nhắc một chữ `javis_schedule`, nên model vẫn gõ tay dù tool đã có sẵn (và thiếu cả `owner_chat` trong mẫu → loop viết tay báo nhầm người). Vá: mục Loop giờ dạy ưu tiên gọi tool `javis_schedule` (op=create) trước, chỉ ghi file tay khi SỬA loop đã có hoặc cần trường nâng cao tool chưa nhận (`quiet_hours`/`max_runs_per_day`/`workspace`/`ambient_mcp`/`goal` khác `custom`); mẫu YAML còn lại thêm `goal: custom` + `owner_chat` cho đúng chuẩn tool đang tạo ra. Kèm hash bản cũ vào `system_sync.py:LEGACY_HASHES["skills/javis-builder"]` để brain user tự nhận bản vá này qua sync (không bị coi là "đã sửa tay").
 - **`apply_mcp` không truyền `brain` ở vài đường UNGATED, plugin in-process vẫn có thể mù brain**: những nơi tạo CLI với `allowed_tools=None` (ungated) đều nạp plugin in-process (`claude_sdk_engine._plugins_server`, đọc `cli.javis_vault`) - thiếu `brain` là tái diễn đúng bug 0.9.70 vừa vá ở đường chat (`image-chatgpt` lưu nhầm `brains/Brain Default`). Vá `self_improve._make_cli` nhận thêm tham số `brain`, truyền xuống cả 3 lần gọi `apply_mcp` bên trong (nhánh `mode=full`, nhánh `ambient_mcp`, và nhánh mặc định - nhánh này thật ra GATED nên plugin không nạp, nhưng vẫn truyền cho nhất quán/phòng hờ); 2 điểm gọi `_make_cli` trong `run_cycle`/kiểm chứng nay truyền `brain=brain` có sẵn trong scope. Thêm `else` nhánh ungated của `execute_workflow` (`main.py`, Studio "chạy full quyền") gắn thẳng `c.javis_vault = vault_root` - KHÔNG gọi `_apply_mcp()` ở đây vì nhánh này cố ý dựa `setting_sources` để kế thừa MCP máy như phiên `claude` tương tác thật, gọi `_apply_mcp` sẽ đổi hành vi ngoài phạm vi bug đang vá. **2 đường còn lại KHÔNG sửa được** vì không có biến brain/vault nào trong scope để truyền (không bịa biến): `/metrics` (`main.py:1451`) không nhận tham số brain (endpoint dùng chung mọi brain); `/ingest-upload` (`main.py:1733`) chỉ nhận `staged`/`sources`/`attachments` đã resolve sẵn, không có brain gốc.
@@ -6777,22 +6777,22 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.64] - 2026-07-17
 ### Sửa lỗi
-- **Javis tốn tới ~52ms mỗi lượt chat chỉ để đồng bộ skill, và nó chặn cả tiến trình**: hàm mirror skill đọc và băm lại `SKILL.md` của MỌI skill (cả bản nguồn lẫn bản đích) mỗi lần dựng system prompt, tức mỗi lượt chat, mỗi tin Telegram, mỗi task Kanban, mỗi vòng loop, mỗi nhắc hẹn. Đo thật trên 3 brain đang chạy, trước khi sửa: My Bullet Journal (27 skill/41 file) 52,48ms/lượt, Ngọc Thu Phạm (16 skill/30 file) 44,23ms/lượt, Brain Default (6 skill/9 file) 11,62ms/lượt - chạy đồng bộ trên event loop nên làm đứng luôn các kết nối khác. Nay thay bằng cổng chữ ký chỉ dùng `stat` (không đọc nội dung file nào), chỉ copy thật khi cây skill có thay đổi. Đo lại đúng 3 brain đó sau khi sửa: còn 8,30ms, 6,05ms, 2,28ms/lượt theo cùng thứ tự - nhanh hơn khoảng 5 tới 7 lần tuỳ brain (5,1x / 6,3x / 7,3x), không phải một con số cố định. Lỗi có sẵn, không ai biết cho tới khi đo.
+- **Jarvis 007 tốn tới ~52ms mỗi lượt chat chỉ để đồng bộ skill, và nó chặn cả tiến trình**: hàm mirror skill đọc và băm lại `SKILL.md` của MỌI skill (cả bản nguồn lẫn bản đích) mỗi lần dựng system prompt, tức mỗi lượt chat, mỗi tin Telegram, mỗi task Kanban, mỗi vòng loop, mỗi nhắc hẹn. Đo thật trên 3 brain đang chạy, trước khi sửa: My Bullet Journal (27 skill/41 file) 52,48ms/lượt, Ngọc Thu Phạm (16 skill/30 file) 44,23ms/lượt, Brain Default (6 skill/9 file) 11,62ms/lượt - chạy đồng bộ trên event loop nên làm đứng luôn các kết nối khác. Nay thay bằng cổng chữ ký chỉ dùng `stat` (không đọc nội dung file nào), chỉ copy thật khi cây skill có thay đổi. Đo lại đúng 3 brain đó sau khi sửa: còn 8,30ms, 6,05ms, 2,28ms/lượt theo cùng thứ tự - nhanh hơn khoảng 5 tới 7 lần tuỳ brain (5,1x / 6,3x / 7,3x), không phải một con số cố định. Lỗi có sẵn, không ai biết cho tới khi đo.
 - **File phụ trong skill đổi nội dung mà bản mirror không bao giờ nhận**: cổng cũ chỉ băm `SKILL.md`, nên sửa một file ảnh hay tài liệu ngang hàng trong thư mục skill thì bản Claude Code nạp native vẫn giữ bản cũ mãi. Chữ ký mới phủ mọi file (đường dẫn tương đối, thời gian sửa, kích thước) nên hết lỗi này.
 ### Thêm mới
 - **Skill mang theo được `references/` và `scripts/`**: bản mirror sang `.claude/skills` nay copy cả cây con, nên skill có tài liệu tách riêng hay script đi kèm chạy được cả trên đường Claude Code nạp native, không chỉ đường router. 10 skill trong các brain hiện có đã dùng `references/` từ trước và tới giờ vẫn chưa tới được đường native; đã xác nhận cả 10 tới nơi sau bản này.
 ### Đã biết, chưa sửa
 - **Skill hệ thống vẫn chưa ship được cây con**: `html-to-webcake` ship kèm `tools/` và `examples/` nhưng cơ chế cài skill hệ thống chỉ chuyển mỗi `SKILL.md`, nên cây con chưa bao giờ tới brain nào. Bản này KHÔNG sửa lỗi đó: nó nằm ở tầng cài đặt, phía trên tầng mirror.
-- **Bản mirror bị phá từ bên ngoài sẽ không tự lành cho tới khi khởi động lại**: cổng chữ ký tính trên cây nguồn và nhớ trong bộ nhớ, nên nếu ai đó xoá tay file trong `.claude/skills` mà không đụng vào skill gốc thì Javis sẽ không nhận ra. Đánh đổi có chủ đích để lấy tốc độ; tắt/bật skill hay khởi động lại đều đưa nó về đúng.
+- **Bản mirror bị phá từ bên ngoài sẽ không tự lành cho tới khi khởi động lại**: cổng chữ ký tính trên cây nguồn và nhớ trong bộ nhớ, nên nếu ai đó xoá tay file trong `.claude/skills` mà không đụng vào skill gốc thì Jarvis 007 sẽ không nhận ra. Đánh đổi có chủ đích để lấy tốc độ; tắt/bật skill hay khởi động lại đều đưa nó về đúng.
 
 ## [0.9.63] - 2026-07-17
 ### Sửa lỗi
-- **Skill Javis TỰ HỌC mất sạch frontmatter khi mô tả có dấu hai chấm**: `learn.py` ghi `description: <giá trị>` không bọc nháy kép. Mô tả tiếng Việt rất hay có dấu hai chấm (chính bản 0.9.62 phải bọc nháy kép cho 2 trong 5 skill hệ thống, tức khoảng 40%), và khi đó PyYAML ném lỗi trên CẢ KHỐI frontmatter chứ không riêng một dòng: `name`, `group`, `origin`, `status` mất theo, `split_frontmatter` nuốt lỗi trả về rỗng, và skill đó im lặng không bao giờ route được. Nay mọi giá trị do model sinh (`name`, `description`, `group`) đều đi qua `_yaml_scalar` (bọc nháy kép + escape đúng), kèm test round-trip gọi thẳng mã thật.
+- **Skill Jarvis 007 TỰ HỌC mất sạch frontmatter khi mô tả có dấu hai chấm**: `learn.py` ghi `description: <giá trị>` không bọc nháy kép. Mô tả tiếng Việt rất hay có dấu hai chấm (chính bản 0.9.62 phải bọc nháy kép cho 2 trong 5 skill hệ thống, tức khoảng 40%), và khi đó PyYAML ném lỗi trên CẢ KHỐI frontmatter chứ không riêng một dòng: `name`, `group`, `origin`, `status` mất theo, `split_frontmatter` nuốt lỗi trả về rỗng, và skill đó im lặng không bao giờ route được. Nay mọi giá trị do model sinh (`name`, `description`, `group`) đều đi qua `_yaml_scalar` (bọc nháy kép + escape đúng), kèm test round-trip gọi thẳng mã thật.
 - **`learn.py` chưa hề ép trần 150 ký tự**: bản 0.9.62 chỉ chặn ở `POST /skills`. Đường tự học vẫn ghi thẳng mô tả quá dài xuống đĩa rồi để runtime cắt cụt. Nay `_promote_sync` gọi `validate_description` và đưa vi phạm vào danh sách bị chặn, cùng khuôn với quét secret và quét injection sẵn có.
 - **`javis-builder` vẫn dạy đúng cái lỗi mà 0.9.62 sinh ra để diệt**: mẫu file trong skill đó, nằm dưới tiêu đề "ghi CHÍNH XÁC theo đây", vẫn ghi `description: <mô tả NGẮN nêu rõ KHI NÀO kích hoạt - đây là trigger, viết kỹ>` trong khi bộ chuẩn ngay 14 dòng dưới nói ngược lại. **CHANGELOG 0.9.62 tuyên bố "cả hai" tài liệu đã sửa là SAI**: `CLAUDE.md` sửa rồi, `javis-builder` thì chưa. Vì skill viết qua chat ghi thẳng ra đĩa nên không lớp chặn nào bắt được, và người viết theo mẫu sẽ tạo ra skill không route được mà không có lỗi nào báo. Nay đã sửa mẫu và một chỗ thứ hai cùng loại.
 - **Sidecar đếm lượt dùng bị hỏng KIỂU dữ liệu làm sập cả trang Skill**: `GET /skills` và `is_stale` ép kiểu số mà không phòng thủ, nên một bản ghi bị sửa tay hỏng sẽ trả lỗi 500 cho toàn trang, trái đúng cam kết "sidecar hỏng không bao giờ được làm gãy". Nặng hơn: nó không tự lành, vì `bump` cũng vấp đúng chỗ đó rồi nuốt lỗi, nên bản ghi hỏng tồn tại vĩnh viễn và cả brain ngừng đếm. Nay cả ba chỗ đều phòng thủ, và `bump` ghi đè để tự lành ở lượt dùng kế tiếp.
 ### Thêm mới
-- **Javis biết skill nào THẬT SỰ được dùng**: mỗi lần nạp skill qua `javis_use_skill` được ghi vào `Javis/skill-usage.json` của brain. Trang Skill hiện "đã dùng N lần, gần nhất ..." hoặc "chưa thấy dùng" cho skill đủ già mà chưa có tín hiệu. **Đây là tín hiệu MỘT CHIỀU và cần hiểu đúng**: Claude Code còn nạp skill NATIVE qua bản mirror `.claude/skills`, đường đó không đi qua bộ đếm. Nên "đã dùng" là chắc chắn, còn "chưa thấy dùng" chỉ có nghĩa **chưa có bằng chứng**, KHÔNG có nghĩa skill vô dụng. Không có gì tự tắt, tự archive hay tự dọn skill dựa trên con số này; mọi quyết định vẫn là của người dùng.
+- **Jarvis 007 biết skill nào THẬT SỰ được dùng**: mỗi lần nạp skill qua `javis_use_skill` được ghi vào `Javis/skill-usage.json` của brain. Trang Skill hiện "đã dùng N lần, gần nhất ..." hoặc "chưa thấy dùng" cho skill đủ già mà chưa có tín hiệu. **Đây là tín hiệu MỘT CHIỀU và cần hiểu đúng**: Claude Code còn nạp skill NATIVE qua bản mirror `.claude/skills`, đường đó không đi qua bộ đếm. Nên "đã dùng" là chắc chắn, còn "chưa thấy dùng" chỉ có nghĩa **chưa có bằng chứng**, KHÔNG có nghĩa skill vô dụng. Không có gì tự tắt, tự archive hay tự dọn skill dựa trên con số này; mọi quyết định vẫn là của người dùng.
 - **Chuẩn viết skill trong prompt của vòng tự học**: 9 điểm bắt buộc (trần 150 nội suy từ hằng số chứ không viết cứng, cấm mở đầu sáo rỗng, bọc nháy kép khi có dấu hai chấm, thứ tự mục thân file, cấm bịa flag và đường dẫn, trần độ dài thân, cấm skill kiểu router), kèm `group` thành trường bắt buộc trong schema.
 - **Sidecar không lọt vào lịch sử học**: `Javis/skill-usage.json` là state runtime nên được thêm vào `.gitignore` của brain và loại khỏi bản backup. Brain cũ trước đây không bao giờ nhận được cập nhật `.gitignore` (hàm khởi tạo repo trả về sớm, và cả nhánh init cũng bỏ qua nếu file đã tồn tại); nay được hợp nhất thêm dòng còn thiếu ở lần bật tự học hoặc bấm học tiếp theo, giữ nguyên các dòng người dùng tự thêm. Việc này tạo một commit `chore:` một lần trong repo của brain, cố ý tách khỏi tiền tố `learn:` để không hiện ở trang Duyệt và không bị hoàn tác nhầm.
 ### Đã biết, chưa sửa
@@ -6802,7 +6802,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.62] - 2026-07-16
 ### Sửa lỗi
-- **Mô tả skill bị cắt cụt âm thầm nên skill không route được**: Javis cắt `description` của skill ở BA nơi với BA hạn mức khác nhau mà không ai biết: 60 ký tự ở mô tả tool `javis_use_skill`, 100 ký tự ở khối router trong system prompt, 140 ký tự ở đường dự phòng khi frontmatter thiếu `description`. Người viết skill không có cách nào biết mình đang bị chấm theo thước nào. Đo bằng chính `skill_router` trên brain đang chạy: **6/6 skill đang bật đều bị cắt**, mất từ 79 tới 316 ký tự mỗi cái, và phần bị vứt đúng là các ví dụ trigger, tức là thứ khiến routing hoạt động. Nay gom cả ba về một hằng số duy nhất `skill_router.SKILL_DESC_MAX = 150`, và gộp luôn hai hạn mức số-skill-liệt-kê (15 ở system prompt, 20 ở hub) về `SKILL_LIST_MAX = 20`.
+- **Mô tả skill bị cắt cụt âm thầm nên skill không route được**: Jarvis 007 cắt `description` của skill ở BA nơi với BA hạn mức khác nhau mà không ai biết: 60 ký tự ở mô tả tool `javis_use_skill`, 100 ký tự ở khối router trong system prompt, 140 ký tự ở đường dự phòng khi frontmatter thiếu `description`. Người viết skill không có cách nào biết mình đang bị chấm theo thước nào. Đo bằng chính `skill_router` trên brain đang chạy: **6/6 skill đang bật đều bị cắt**, mất từ 79 tới 316 ký tự mỗi cái, và phần bị vứt đúng là các ví dụ trigger, tức là thứ khiến routing hoạt động. Nay gom cả ba về một hằng số duy nhất `skill_router.SKILL_DESC_MAX = 150`, và gộp luôn hai hạn mức số-skill-liệt-kê (15 ở system prompt, 20 ở hub) về `SKILL_LIST_MAX = 20`.
 - **Tài liệu đang dạy viết sai**: `CLAUDE.md` bảo `description` phải "viết rõ trigger" và `javis-builder` bảo "viết kỹ", trong khi runtime cắt cụt. Nay cả hai nêu rõ trần 150 KÈM LÝ DO (viết dài hơn là mất im lặng, skill không route được, viết xong phải tự đếm) và chỉ rõ ví dụ trigger đầy đủ thuộc về mục `## Khi nào dùng` trong thân file, nơi không bị cắt. Kiến trúc: index để TÌM, thân file để LÀM.
 - **`javis-builder` trỏ sai chỗ ghi skill**: skill builder dạy ghi vào `.claude/skills/<slug>/SKILL.md` ở ba chỗ khác nhau, nhưng đó là bản MIRROR phái sinh. Canonical là `skills/<slug>/SKILL.md`. Đã sửa cả ba.
 ### Thêm mới
@@ -6813,7 +6813,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.61] - 2026-07-16
 ### Thêm mới
-- **Khối hỏi-lại có lựa chọn trong khung chat**: Javis hỏi lại được bằng nút bấm ngay trong chat, kiểu Claude Code: nhúng khối ẩn `JAVIS_ASK` ở cuối câu trả lời, dashboard vẽ thành hàng chip dưới bong bóng. Bấm một nút là gửi đi như gõ tay, cùng phiên. Chỉ tin nhắn cuối mới bấm được; cuộn lên lịch sử thì chip đã đông cứng.
+- **Khối hỏi-lại có lựa chọn trong khung chat**: Jarvis 007 hỏi lại được bằng nút bấm ngay trong chat, kiểu Claude Code: nhúng khối ẩn `JAVIS_ASK` ở cuối câu trả lời, dashboard vẽ thành hàng chip dưới bong bóng. Bấm một nút là gửi đi như gõ tay, cùng phiên. Chỉ tin nhắn cuối mới bấm được; cuộn lên lịch sử thì chip đã đông cứng.
 - **Chạy trên mọi engine**: Claude Agent SDK, Codex CLI, các engine API đều dùng được vì chỉ dựa vào system prompt, không đụng MCP hub.
 ### Sửa lỗi
 - **Khối điều khiển không còn lọt sang Telegram**: khối `JAVIS_METRICS` trước đây lọt nguyên xi sang Telegram. Nay mọi khối điều khiển đều bị bóc trước khi ra kênh chữ ở cả 4 đường trả lời Telegram (chat, báo cáo Loop, báo cáo Việc Kanban, nhắc hẹn kiểu task); riêng `JAVIS_ASK` hạ xuống danh sách đánh số để nhắn lại "1" là chọn.
@@ -6857,7 +6857,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.54] - 2026-07-15
 ### Cải thiện
-- **Bấm link/ảnh/thư mục Javis chèn trong chat giờ mở thẳng trang Tệp tin ĐÚNG vị trí (thay vì tải file thô)**: trước đây bấm ảnh hoặc link file mà Javis đính trong chat sẽ mở file thô trong tab mới - thấy nội dung nhưng không biết nó nằm ở đâu trong brain. Nay mọi link trỏ vào file/thư mục trong vault (đường dẫn tương đối gốc brain, vd `attachments/anh.jpg`, `videos/`) khi bấm sẽ nhảy sang trang **Tệp tin** mở đúng thư mục chứa, cuộn tới và tô sáng file mục tiêu để tìm thấy ngay. Link ra ngoài (http, mailto) vẫn mở tab trình duyệt mới như cũ. Ảnh vẫn hiện inline trong chat như trước, chỉ đổi hành vi khi bấm. Giữ deep-link `#open=<đường-dẫn>` trên thẻ link nên Ctrl/Cmd+bấm hoặc chuột giữa vẫn mở TAB TRÌNH DUYỆT MỚI và tab đó cũng tự vào đúng vị trí trong Tệp tin (chat ở tab cũ không mất). Khớp ngữ nghĩa đường dẫn với server: path trong chat tính theo gốc brain, còn File Manager duyệt theo trần (trên localhost là cả ổ đĩa) nên tự ghép tiền tố brain (`home` từ `/files/list`) để ra đúng thư mục. Nếu chat đang mở dạng phóng to (overlay) thì tự thu lại để thấy trang Tệp tin. Đã test trong trình duyệt: render ra đúng thẻ link mở-vị-trí cho ảnh/file/thư mục vault (link ngoài không đổi), bấm điều hướng sang trang Tệp tin, và deep-link `#open=` khi nạp tab mới cũng vào thẳng trang Tệp tin.
+- **Bấm link/ảnh/thư mục Jarvis 007 chèn trong chat giờ mở thẳng trang Tệp tin ĐÚNG vị trí (thay vì tải file thô)**: trước đây bấm ảnh hoặc link file mà Jarvis 007 đính trong chat sẽ mở file thô trong tab mới - thấy nội dung nhưng không biết nó nằm ở đâu trong brain. Nay mọi link trỏ vào file/thư mục trong vault (đường dẫn tương đối gốc brain, vd `attachments/anh.jpg`, `videos/`) khi bấm sẽ nhảy sang trang **Tệp tin** mở đúng thư mục chứa, cuộn tới và tô sáng file mục tiêu để tìm thấy ngay. Link ra ngoài (http, mailto) vẫn mở tab trình duyệt mới như cũ. Ảnh vẫn hiện inline trong chat như trước, chỉ đổi hành vi khi bấm. Giữ deep-link `#open=<đường-dẫn>` trên thẻ link nên Ctrl/Cmd+bấm hoặc chuột giữa vẫn mở TAB TRÌNH DUYỆT MỚI và tab đó cũng tự vào đúng vị trí trong Tệp tin (chat ở tab cũ không mất). Khớp ngữ nghĩa đường dẫn với server: path trong chat tính theo gốc brain, còn File Manager duyệt theo trần (trên localhost là cả ổ đĩa) nên tự ghép tiền tố brain (`home` từ `/files/list`) để ra đúng thư mục. Nếu chat đang mở dạng phóng to (overlay) thì tự thu lại để thấy trang Tệp tin. Đã test trong trình duyệt: render ra đúng thẻ link mở-vị-trí cho ảnh/file/thư mục vault (link ngoài không đổi), bấm điều hướng sang trang Tệp tin, và deep-link `#open=` khi nạp tab mới cũng vào thẳng trang Tệp tin.
 
 ## [0.9.53] - 2026-07-15
 ### Sửa lỗi
@@ -6866,7 +6866,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.52] - 2026-07-15
 ### Sửa lỗi
-- **Bấm "Open" file (video/ảnh/tài liệu) do Javis đính trong chat báo "Không tìm thấy file" dù file có thật**: link và ảnh Javis chèn vào chat dùng đường dẫn tương đối GỐC VAULT (vd `videos/tin-tuc.mp4`, `attachments/anh.jpg`) đúng theo quy ước trong CLAUDE.md, nhưng endpoint phục vụ file (`/files/raw`, `/files/read`, `/files/download`) lại resolve đường dẫn theo TRẦN duyệt của File Manager. Khi chạy localhost (không bắt đăng nhập) trần duyệt mở tới cả Ổ ĐĨA, nên `videos/tin-tuc.mp4` bị hiểu thành `D:\videos\tin-tuc.mp4` và luôn 404. Lỗi chỉ hiện trên bản localhost; bản public/login (trần = gốc brain) thì trùng nên không dính. Sửa: thêm resolver `_safe_serve_path` cho các endpoint CHỈ-ĐỌC, chấp nhận CẢ HAI quy ước - thử tương đối trần trước (giữ nguyên hành vi File Manager), không thấy thì thử tương đối gốc vault (link/ảnh trong chat). Cả hai nhánh vẫn khoá trong trần duyệt, nhánh vault còn siết chặt trong gốc brain nên không nới rộng phạm vi truy cập, không đụng các endpoint ghi/xoá/đổi tên. Đã test bằng cách gọi thẳng hàm thật của server: đường dẫn vault trước đây 404 nay phục vụ đúng file, đường dẫn kiểu File Manager vẫn chạy, thử `../` ra ngoài vault không bị nới. Cần khởi động lại server Javis để bản vá có hiệu lực.
+- **Bấm "Open" file (video/ảnh/tài liệu) do Jarvis 007 đính trong chat báo "Không tìm thấy file" dù file có thật**: link và ảnh Jarvis 007 chèn vào chat dùng đường dẫn tương đối GỐC VAULT (vd `videos/tin-tuc.mp4`, `attachments/anh.jpg`) đúng theo quy ước trong CLAUDE.md, nhưng endpoint phục vụ file (`/files/raw`, `/files/read`, `/files/download`) lại resolve đường dẫn theo TRẦN duyệt của File Manager. Khi chạy localhost (không bắt đăng nhập) trần duyệt mở tới cả Ổ ĐĨA, nên `videos/tin-tuc.mp4` bị hiểu thành `D:\videos\tin-tuc.mp4` và luôn 404. Lỗi chỉ hiện trên bản localhost; bản public/login (trần = gốc brain) thì trùng nên không dính. Sửa: thêm resolver `_safe_serve_path` cho các endpoint CHỈ-ĐỌC, chấp nhận CẢ HAI quy ước - thử tương đối trần trước (giữ nguyên hành vi File Manager), không thấy thì thử tương đối gốc vault (link/ảnh trong chat). Cả hai nhánh vẫn khoá trong trần duyệt, nhánh vault còn siết chặt trong gốc brain nên không nới rộng phạm vi truy cập, không đụng các endpoint ghi/xoá/đổi tên. Đã test bằng cách gọi thẳng hàm thật của server: đường dẫn vault trước đây 404 nay phục vụ đúng file, đường dẫn kiểu File Manager vẫn chạy, thử `../` ra ngoài vault không bị nới. Cần khởi động lại server Jarvis 007 để bản vá có hiệu lực.
 
 ## [0.9.51] - 2026-07-15
 ### Sửa lỗi
@@ -6884,19 +6884,19 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.48] - 2026-07-15
 ### Cải thiện
-- **Substack: hướng dẫn riêng trong Docs của Javis (không trỏ ra GitHub nữa)**: thêm trang hướng dẫn tự chứa `dashboard/docs/substack.html` (khớp giao diện tối của Javis, phục vụ tại `/static/docs/substack.html`) và đổi link "Hướng dẫn" của connector Substack trỏ vào trang này thay vì repo GitHub gốc. Trang gồm các bước lấy 3 thông tin đăng nhập (publication URL, cookie `substack.sid`, User ID), giới thiệu 3 tool, bảng mức quyền và cách bật quyền đăng bài, các lớp an toàn (loop không tự đăng, mặc định không gửi email), và bảng markdown gọn dựng nội dung.
+- **Substack: hướng dẫn riêng trong Docs của Jarvis 007 (không trỏ ra GitHub nữa)**: thêm trang hướng dẫn tự chứa `dashboard/docs/substack.html` (khớp giao diện tối của Jarvis 007, phục vụ tại `/static/docs/substack.html`) và đổi link "Hướng dẫn" của connector Substack trỏ vào trang này thay vì repo GitHub gốc. Trang gồm các bước lấy 3 thông tin đăng nhập (publication URL, cookie `substack.sid`, User ID), giới thiệu 3 tool, bảng mức quyền và cách bật quyền đăng bài, các lớp an toàn (loop không tự đăng, mặc định không gửi email), và bảng markdown gọn dựng nội dung.
 
 ## [0.9.47] - 2026-07-15
 ### Thêm mới
-- **Substack: thêm quyền ĐĂNG BÀI (không chỉ tạo nháp)**: server MCP cộng đồng `substack-mcp` chỉ có đúng 1 tool tạo nháp và không đăng được, nên Javis thay bằng cầu nối Substack tự dựng (`server/substack_mcp.py`, transport `internal` giống Botcake) gọi thẳng API Substack. Ưu điểm kèm theo: chạy Python thuần, KHÔNG cần cài Node/npx nữa. Bộ tool mới: `substack_list_drafts` (liệt kê nháp - đọc), `substack_create_draft` (tạo nháp - ghi), `substack_publish` (đăng bài - nguy hiểm). Tool đăng tạo mới rồi đăng (title+body) hoặc đăng một nháp có sẵn (draft_id); có bộ chuyển markdown gọn sang định dạng thân bài của Substack (tiêu đề #, danh sách, trích dẫn, **đậm**, *nghiêng*, [link], `code`). An toàn: đăng bài xếp loại NGUY HIỂM nên mức mặc định (Ghi nháp) CHẶN - phải nâng kết nối lên Toàn quyền mới đăng được, và ngay cả khi Toàn quyền thì loop chạy nền vẫn không bao giờ tự đăng (chỉ đăng khi bạn yêu cầu trực tiếp trong chat). Đăng mặc định chỉ lên web, KHÔNG gửi email cho người đăng ký; chỉ khi bạn nói rõ mới bật cờ gửi mail (đã gửi thì không hoàn tác). Nút Test kết nối giờ kiểm tra token thật qua danh sách nháp.
+- **Substack: thêm quyền ĐĂNG BÀI (không chỉ tạo nháp)**: server MCP cộng đồng `substack-mcp` chỉ có đúng 1 tool tạo nháp và không đăng được, nên Jarvis 007 thay bằng cầu nối Substack tự dựng (`server/substack_mcp.py`, transport `internal` giống Botcake) gọi thẳng API Substack. Ưu điểm kèm theo: chạy Python thuần, KHÔNG cần cài Node/npx nữa. Bộ tool mới: `substack_list_drafts` (liệt kê nháp - đọc), `substack_create_draft` (tạo nháp - ghi), `substack_publish` (đăng bài - nguy hiểm). Tool đăng tạo mới rồi đăng (title+body) hoặc đăng một nháp có sẵn (draft_id); có bộ chuyển markdown gọn sang định dạng thân bài của Substack (tiêu đề #, danh sách, trích dẫn, **đậm**, *nghiêng*, [link], `code`). An toàn: đăng bài xếp loại NGUY HIỂM nên mức mặc định (Ghi nháp) CHẶN - phải nâng kết nối lên Toàn quyền mới đăng được, và ngay cả khi Toàn quyền thì loop chạy nền vẫn không bao giờ tự đăng (chỉ đăng khi bạn yêu cầu trực tiếp trong chat). Đăng mặc định chỉ lên web, KHÔNG gửi email cho người đăng ký; chỉ khi bạn nói rõ mới bật cờ gửi mail (đã gửi thì không hoàn tác). Nút Test kết nối giờ kiểm tra token thật qua danh sách nháp.
 
 ## [0.9.46] - 2026-07-15
 ### Thêm mới
-- **Đấu được Substack vào kho Kết nối**: thêm connector `substack` (dùng server MCP cộng đồng `substack-mcp` của marcomoauro, chạy local qua `npx`). Javis soạn tiêu đề, phụ đề và nội dung rồi đẩy vào Substack ở dạng BẢN NHÁP để bạn tự vào bấm Publish - không tự xuất bản, không gửi email cho người đăng ký. Đăng nhập bằng 3 thông tin dán ở trang Kết nối: địa chỉ trang (publication URL), session token (cookie `substack.sid`) và User ID (dãy số trong URL trang Hồ sơ); form kèm hướng dẫn lấy từng thứ. Phân quyền: tool `create_draft_post` xếp loại "ghi", mặc định mức Ghi nháp để tạo nháp chạy được trong chat, nhưng bị chặn ở mức Chỉ đọc và với loop chạy nền (không bao giờ tự tạo nháp). Kèm logo Substack chính chủ. Connector nạp thẳng từ `system/mcp-catalog.json`, dùng chung đường ống stdio sẵn có nên mọi engine (Claude Code, Codex, API) đều gọi được.
+- **Đấu được Substack vào kho Kết nối**: thêm connector `substack` (dùng server MCP cộng đồng `substack-mcp` của marcomoauro, chạy local qua `npx`). Jarvis 007 soạn tiêu đề, phụ đề và nội dung rồi đẩy vào Substack ở dạng BẢN NHÁP để bạn tự vào bấm Publish - không tự xuất bản, không gửi email cho người đăng ký. Đăng nhập bằng 3 thông tin dán ở trang Kết nối: địa chỉ trang (publication URL), session token (cookie `substack.sid`) và User ID (dãy số trong URL trang Hồ sơ); form kèm hướng dẫn lấy từng thứ. Phân quyền: tool `create_draft_post` xếp loại "ghi", mặc định mức Ghi nháp để tạo nháp chạy được trong chat, nhưng bị chặn ở mức Chỉ đọc và với loop chạy nền (không bao giờ tự tạo nháp). Kèm logo Substack chính chủ. Connector nạp thẳng từ `system/mcp-catalog.json`, dùng chung đường ống stdio sẵn có nên mọi engine (Claude Code, Codex, API) đều gọi được.
 
 ## [0.9.45] - 2026-07-14
 ### Sửa lỗi
-- **Hết lỗi "CLINotFoundError: Claude Code not found at ...\_bundled\claude.exe" khi làm việc nặng (system prompt dài)**: engine Claude báo không tìm thấy Claude Code dù đã cài và đăng nhập bình thường. Thủ phạm KHÔNG phải thiếu Claude Code, mà là giới hạn độ dài dòng lệnh của Windows (32767 ký tự): thư viện Agent SDK nhét cả system prompt của Javis vào THAM SỐ dòng lệnh khi khởi chạy Claude, và với brain nhiều note/bộ nhớ thì system prompt vượt ngưỡng, Windows từ chối tạo tiến trình, Python báo lỗi "file not found" và SDK dán nhãn nhầm thành "Claude Code not found" (trỏ vào bản bundled). Đã dò và tái hiện đúng ngưỡng: prompt ~32k chạy được, ~33k trở lên là vỡ. Cách sửa: đẩy system prompt qua FILE (`--append-system-prompt-file`) thay vì nhét vào dòng lệnh, nên độ dài prompt không còn giới hạn (đã kiểm chứng chạy trơn ở 48k-60k ký tự). File tạm được dọn sau mỗi lượt, kèm quét dọn file sót nếu tiến trình bị kill giữa chừng. Lỗi này ảnh hưởng mọi tác vụ chat/edit trên brain lớn, không riêng gì làm video. Kèm test trong `test_sdk_engine.py`.
+- **Hết lỗi "CLINotFoundError: Claude Code not found at ...\_bundled\claude.exe" khi làm việc nặng (system prompt dài)**: engine Claude báo không tìm thấy Claude Code dù đã cài và đăng nhập bình thường. Thủ phạm KHÔNG phải thiếu Claude Code, mà là giới hạn độ dài dòng lệnh của Windows (32767 ký tự): thư viện Agent SDK nhét cả system prompt của Jarvis 007 vào THAM SỐ dòng lệnh khi khởi chạy Claude, và với brain nhiều note/bộ nhớ thì system prompt vượt ngưỡng, Windows từ chối tạo tiến trình, Python báo lỗi "file not found" và SDK dán nhãn nhầm thành "Claude Code not found" (trỏ vào bản bundled). Đã dò và tái hiện đúng ngưỡng: prompt ~32k chạy được, ~33k trở lên là vỡ. Cách sửa: đẩy system prompt qua FILE (`--append-system-prompt-file`) thay vì nhét vào dòng lệnh, nên độ dài prompt không còn giới hạn (đã kiểm chứng chạy trơn ở 48k-60k ký tự). File tạm được dọn sau mỗi lượt, kèm quét dọn file sót nếu tiến trình bị kill giữa chừng. Lỗi này ảnh hưởng mọi tác vụ chat/edit trên brain lớn, không riêng gì làm video. Kèm test trong `test_sdk_engine.py`.
 
 ## [0.9.44] - 2026-07-13
 ### Sửa lỗi
@@ -6904,7 +6904,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.43] - 2026-07-13
 ### Sửa lỗi
-- **Chat engine API (OpenAI/OpenRouter/Gemini/Anthropic API) không còn mất ngữ cảnh giữa chừng**: khi phiên dài hoặc khi vừa đổi từ engine Claude (Claude Code) sang một engine API, Javis hay quên sạch phần đầu hội thoại và trả lời lạc mục đích (vd đang bàn edit video mà hỏi "viết lại kế hoạch" thì lại đi viết kế hoạch sản phẩm Javis OS). Nguyên nhân: mỗi lượt chat engine API dựng lại lịch sử từ database rồi cắt cứng còn 12 message gần nhất - phần cũ hơn lẽ ra phải thay bằng bản tóm tắt nén, nhưng bản tóm tắt CHỈ được tạo khi các lượt trước cũng chạy bằng engine API. Nếu trước đó dùng Claude Code (engine này tự quản trí nhớ, không tạo tóm tắt) thì phần đầu bị cắt CÂM không tóm tắt, model chỉ còn system prompt + câu hỏi cuối nên bịa nội dung theo system prompt. Nay thay bước cắt cứng bằng `prepare_history`: phần cũ CHỈ rời khỏi payload khi đã nằm trong tóm tắt nén; nếu đuôi hội thoại chưa nén quá dài (đổi engine giữa chừng, hoặc nén nền chưa kịp) thì nén ĐỒNG BỘ ngay một nhịp trước khi gửi để gấp phần cũ vào tóm tắt. Đảm bảo không bao giờ bỏ câm một message nào. Kèm test hành vi trong `test_compaction.py` (phủ cả ca đổi engine Claude→API và ca phiên ngắn giữ nguyên văn).
+- **Chat engine API (OpenAI/OpenRouter/Gemini/Anthropic API) không còn mất ngữ cảnh giữa chừng**: khi phiên dài hoặc khi vừa đổi từ engine Claude (Claude Code) sang một engine API, Jarvis 007 hay quên sạch phần đầu hội thoại và trả lời lạc mục đích (vd đang bàn edit video mà hỏi "viết lại kế hoạch" thì lại đi viết kế hoạch sản phẩm Jarvis 007). Nguyên nhân: mỗi lượt chat engine API dựng lại lịch sử từ database rồi cắt cứng còn 12 message gần nhất - phần cũ hơn lẽ ra phải thay bằng bản tóm tắt nén, nhưng bản tóm tắt CHỈ được tạo khi các lượt trước cũng chạy bằng engine API. Nếu trước đó dùng Claude Code (engine này tự quản trí nhớ, không tạo tóm tắt) thì phần đầu bị cắt CÂM không tóm tắt, model chỉ còn system prompt + câu hỏi cuối nên bịa nội dung theo system prompt. Nay thay bước cắt cứng bằng `prepare_history`: phần cũ CHỈ rời khỏi payload khi đã nằm trong tóm tắt nén; nếu đuôi hội thoại chưa nén quá dài (đổi engine giữa chừng, hoặc nén nền chưa kịp) thì nén ĐỒNG BỘ ngay một nhịp trước khi gửi để gấp phần cũ vào tóm tắt. Đảm bảo không bao giờ bỏ câm một message nào. Kèm test hành vi trong `test_compaction.py` (phủ cả ca đổi engine Claude→API và ca phiên ngắn giữ nguyên văn).
 
 ## [0.9.42] - 2026-07-13
 ### Sửa lỗi
@@ -6913,15 +6913,15 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.41] - 2026-07-13
 ### Sửa lỗi
-- **Giọng Javis không còn bị thu ngược vào khung chat**: trước đây khi Javis đọc câu trả lời (TTS), micro nhận dạng giọng nói vẫn mở và nghe lại chính giọng Javis phát ra loa, chép thành chữ rồi sau 1.5 giây im lặng tự gửi vào khung chat như tin nhắn của người dùng (hay gặp nhất khi bật chế độ rảnh tay rồi gõ phím gửi tin - mic mở suốt lúc Javis nói). Nguyên nhân: bộ nhận dạng (SpeechRecognition) thu âm bằng luồng riêng KHÔNG được khử vọng, và không có cơ chế loại trừ lẫn nhau giữa nghe với nói. Nay sửa 2 lớp trong voice.js: (1) Javis bắt đầu đọc mà mic đang nghe thì tạm NGỪNG nhận dạng ngay (bỏ cả phần lỡ nghe dở), đọc xong toàn bộ tự mở nghe lại sau một nhịp ngắn bằng phiên nhận dạng mới sạch; (2) mọi kết quả nhận dạng lọt về trong lúc đang phát tiếng đều bị bỏ (chắc chắn đó là giọng Javis, không phải người dùng). Ngắt lời bằng giọng (barge-in) vẫn hoạt động bình thường vì nó đo mức âm qua luồng mic đã khử vọng, không dựa vào nhận dạng. Người dùng chủ động tắt mic (Esc/bấm nút) thì không bị tự mở lại.
+- **Giọng Jarvis 007 không còn bị thu ngược vào khung chat**: trước đây khi Jarvis 007 đọc câu trả lời (TTS), micro nhận dạng giọng nói vẫn mở và nghe lại chính giọng Jarvis 007 phát ra loa, chép thành chữ rồi sau 1.5 giây im lặng tự gửi vào khung chat như tin nhắn của người dùng (hay gặp nhất khi bật chế độ rảnh tay rồi gõ phím gửi tin - mic mở suốt lúc Jarvis 007 nói). Nguyên nhân: bộ nhận dạng (SpeechRecognition) thu âm bằng luồng riêng KHÔNG được khử vọng, và không có cơ chế loại trừ lẫn nhau giữa nghe với nói. Nay sửa 2 lớp trong voice.js: (1) Jarvis 007 bắt đầu đọc mà mic đang nghe thì tạm NGỪNG nhận dạng ngay (bỏ cả phần lỡ nghe dở), đọc xong toàn bộ tự mở nghe lại sau một nhịp ngắn bằng phiên nhận dạng mới sạch; (2) mọi kết quả nhận dạng lọt về trong lúc đang phát tiếng đều bị bỏ (chắc chắn đó là giọng Jarvis 007, không phải người dùng). Ngắt lời bằng giọng (barge-in) vẫn hoạt động bình thường vì nó đo mức âm qua luồng mic đã khử vọng, không dựa vào nhận dạng. Người dùng chủ động tắt mic (Esc/bấm nút) thì không bị tự mở lại.
 
 ## [0.9.40] - 2026-07-12
 ### Thêm mới
-- **Kết nối Meta Ads bằng cách CHẠY ĐƯỢC ngay: tự tạo Facebook App, gọi thẳng Marketing API (như Composio)**: vì MCP chính chủ của Meta đang beta khóa allowlist (không tự nối được), Javis thêm connector mới "Meta Ads (tự tạo app - Graph API)" đi đường vòng đã được chứng minh - bạn tạo một Facebook App của riêng mình (~10 phút, có hướng dẫn từng bước trong app và trong tài liệu), dán App ID + App Secret, Javis đọc thẳng số liệu quảng cáo của bạn qua Graph API. Có sẵn công cụ: liệt kê tài khoản quảng cáo, hiệu suất (chi tiêu/hiển thị/click/CTR/CPC/reach/chuyển đổi) theo kỳ, danh sách chiến dịch, và một công cụ đọc Graph API tùy ý. TẤT CẢ CHỈ ĐỌC - không tạo/sửa chiến dịch, không tiêu tiền. Token Facebook (~60 ngày) được Javis tự gia hạn; hết hạn thì bấm Kết nối lại. Đây đúng là mô hình các nền tảng như Composio dùng cho Meta Ads. Kèm hướng dẫn tạo app đầy đủ trong [MCP & số liệu](docs/09-mcp-va-so-lieu.md) và test tự động (`test_meta_graph.py`).
+- **Kết nối Meta Ads bằng cách CHẠY ĐƯỢC ngay: tự tạo Facebook App, gọi thẳng Marketing API (như Composio)**: vì MCP chính chủ của Meta đang beta khóa allowlist (không tự nối được), Jarvis 007 thêm connector mới "Meta Ads (tự tạo app - Graph API)" đi đường vòng đã được chứng minh - bạn tạo một Facebook App của riêng mình (~10 phút, có hướng dẫn từng bước trong app và trong tài liệu), dán App ID + App Secret, Jarvis 007 đọc thẳng số liệu quảng cáo của bạn qua Graph API. Có sẵn công cụ: liệt kê tài khoản quảng cáo, hiệu suất (chi tiêu/hiển thị/click/CTR/CPC/reach/chuyển đổi) theo kỳ, danh sách chiến dịch, và một công cụ đọc Graph API tùy ý. TẤT CẢ CHỈ ĐỌC - không tạo/sửa chiến dịch, không tiêu tiền. Token Facebook (~60 ngày) được Jarvis 007 tự gia hạn; hết hạn thì bấm Kết nối lại. Đây đúng là mô hình các nền tảng như Composio dùng cho Meta Ads. Kèm hướng dẫn tạo app đầy đủ trong [MCP & số liệu](docs/09-mcp-va-so-lieu.md) và test tự động (`test_meta_graph.py`).
 
 ## [0.9.39] - 2026-07-12
 ### Sửa lỗi
-- **Kết nối Meta Ads báo lỗi trung thực, hết ngõ cụt "cần client_id thủ công"**: sau khi điều tra sâu (probe thật endpoint của Meta + đối chiếu tài liệu chính chủ và báo cáo cộng đồng), xác định `mcp.facebook.com/ads` là MCP chính chủ của Meta đang ở beta GIỚI HẠN: máy chủ chỉ chấp nhận vài ứng dụng được Meta cấp phép sẵn (trợ lý của ChatGPT, Claude, Perplexity) và đã TẮT tự đăng ký ứng dụng (DCR) - nên Javis, và cả các công cụ khác, chưa nối tự phục vụ được. Đây là giới hạn phía Meta, không phải lỗi máy người dùng. Thông báo lỗi cũ ("Server không hỗ trợ tự đăng ký client (DCR) - cần client_id thủ công") gây hiểu nhầm rằng chỉ cần dán client_id là xong, giờ đổi thành giải thích rõ + hiện nguyên văn thông báo của Meta. Mô tả và hướng dẫn của connector Meta Ads cũng viết lại đúng thực tế (bỏ câu "đăng nhập 1 chạm, không cần tạo app").
+- **Kết nối Meta Ads báo lỗi trung thực, hết ngõ cụt "cần client_id thủ công"**: sau khi điều tra sâu (probe thật endpoint của Meta + đối chiếu tài liệu chính chủ và báo cáo cộng đồng), xác định `mcp.facebook.com/ads` là MCP chính chủ của Meta đang ở beta GIỚI HẠN: máy chủ chỉ chấp nhận vài ứng dụng được Meta cấp phép sẵn (trợ lý của ChatGPT, Claude, Perplexity) và đã TẮT tự đăng ký ứng dụng (DCR) - nên Jarvis 007, và cả các công cụ khác, chưa nối tự phục vụ được. Đây là giới hạn phía Meta, không phải lỗi máy người dùng. Thông báo lỗi cũ ("Server không hỗ trợ tự đăng ký client (DCR) - cần client_id thủ công") gây hiểu nhầm rằng chỉ cần dán client_id là xong, giờ đổi thành giải thích rõ + hiện nguyên văn thông báo của Meta. Mô tả và hướng dẫn của connector Meta Ads cũng viết lại đúng thực tế (bỏ câu "đăng nhập 1 chạm, không cần tạo app").
 
 ## [0.9.38] - 2026-07-12
 ### Thêm mới
@@ -6945,20 +6945,20 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.34] - 2026-07-12
 ### Thêm mới
-- **Chat engine API hết "mất trí nhớ" trong phiên dài (nén hội thoại)**: trước đây phiên chat dài trên engine API (OpenRouter/OpenAI/Anthropic API/Gemini) chỉ giữ 12 message gần nhất, phần cũ bị cắt bỏ - hỏi lại chuyện đầu phiên là Javis quên sạch. Nay phần lịch sử cũ rơi khỏi cửa sổ được TÓM TẮT tự động (chạy nền sau mỗi lượt, gộp dồn với tóm tắt trước) và bơm lại vào đầu phiên - Javis vẫn nhớ mạch cũ (quyết định, con số, việc dang dở) mà payload không phình. Tóm tắt lưu bền trong SQLite theo phiên, DB cũ tự migrate. Port ý tưởng session_memory_compaction của cookbook Anthropic. Kèm test `test_compaction.py` chạy trong CI.
+- **Chat engine API hết "mất trí nhớ" trong phiên dài (nén hội thoại)**: trước đây phiên chat dài trên engine API (OpenRouter/OpenAI/Anthropic API/Gemini) chỉ giữ 12 message gần nhất, phần cũ bị cắt bỏ - hỏi lại chuyện đầu phiên là Jarvis 007 quên sạch. Nay phần lịch sử cũ rơi khỏi cửa sổ được TÓM TẮT tự động (chạy nền sau mỗi lượt, gộp dồn với tóm tắt trước) và bơm lại vào đầu phiên - Jarvis 007 vẫn nhớ mạch cũ (quyết định, con số, việc dang dở) mà payload không phình. Tóm tắt lưu bền trong SQLite theo phiên, DB cũ tự migrate. Port ý tưởng session_memory_compaction của cookbook Anthropic. Kèm test `test_compaction.py` chạy trong CI.
 ### Cải thiện
-- **Workflow tự cải thiện đúng kiểu evaluator-optimizer**: bước có `verify_agent` khi bị chấm CHƯA ĐẠT giờ được xem lại KẾT QUẢ LẦN TRƯỚC kèm phản hồi để sửa tiếp (giữ phần tốt, sửa chỗ bị chê) thay vì làm lại mù từ đầu - đỡ lặp đúng lỗi cũ, hội tụ nhanh hơn. Mẫu workflow trong tài liệu hệ thống bổ sung 2 khoá tuỳ chọn `verify_agent`/`max_retries` để Javis tạo workflow qua chat biết dùng vòng kiểm chứng.
+- **Workflow tự cải thiện đúng kiểu evaluator-optimizer**: bước có `verify_agent` khi bị chấm CHƯA ĐẠT giờ được xem lại KẾT QUẢ LẦN TRƯỚC kèm phản hồi để sửa tiếp (giữ phần tốt, sửa chỗ bị chê) thay vì làm lại mù từ đầu - đỡ lặp đúng lỗi cũ, hội tụ nhanh hơn. Mẫu workflow trong tài liệu hệ thống bổ sung 2 khoá tuỳ chọn `verify_agent`/`max_retries` để Jarvis 007 tạo workflow qua chat biết dùng vòng kiểm chứng.
 - **Kế hoạch chuyển engine Claude sang Agent SDK chính chủ**: viết bản kế hoạch chi tiết ở `docs/dev/2026-07-ke-hoach-agent-sdk.md` - vì sao (lớp Popen tự chế là ổ bug WinError 206, quyền tool tĩnh), kiến trúc adapter giữ nguyên giao diện ClaudeCLI, map 3 mức quyền suggest/auto/full vào callback `can_use_tool` từng tool call, lộ trình 4 phase + spike go/no-go, rủi ro và tiêu chí thành công. Chưa code - chờ duyệt.
 
 ## [0.9.33] - 2026-07-12
 ### Thêm mới
 - **Prompt caching cho engine API**: học từ cookbook chính chủ của Anthropic. Nhánh Anthropic API có tool MCP (nhánh chạy nhiều request nhất - mỗi vòng gọi tool là một request chở lại nguyên system prompt ~26k ký tự + schema tool + hội thoại) giờ được cache system + tools + hội thoại, các vòng sau chỉ trả ~10% giá input cho phần đã cache. Cách đánh dấu mới không mutate hội thoại gốc nên không còn nguy cơ tích luỹ marker vượt trần 4 breakpoint của API (lý do trước đây nhánh này phải tắt cache). Model Claude chạy qua OpenRouter cũng được cache system prompt. Kèm test mới `test_engine_cache.py` chạy trong CI.
 - **Second Brain: trang wiki tự đủ ngữ cảnh (contextual retrieval)**: skill `ingest-source` giờ yêu cầu mỗi trang wiki mở đầu bằng 1-2 câu định vị (khái niệm gì, thuộc nguồn/chủ đề nào, dùng khi nào) và khai `aliases` (tên gọi khác, thuật ngữ tiếng Anh) trong frontmatter - để sau này hỏi bằng từ khác thì tìm kiếm vẫn trúng trang, và đọc trang lẻ tách khỏi source vẫn hiểu. Ý tưởng lấy từ công thức contextual retrieval của Anthropic, áp cho search dạng file không cần vector DB.
-- **javis-builder viết system prompt theo khung metaprompt**: khi tạo agent qua chat, Javis giờ dựng system prompt theo khung 6 phần rút từ metaprompt của Anthropic (vai + mục tiêu, bối cảnh nghiệp vụ, quy trình đánh số, định dạng đầu ra kèm ví dụ, cách xử lý trường hợp khó, điều cấm cụ thể) thay vì 1-2 câu chung chung - agent tạo ra làm việc được ngay, đỡ phải sửa đi sửa lại. Hai skill hệ thống tự cập nhật vào mọi brain chưa chỉnh tay (brain đã chỉnh giữ nguyên bản riêng).
+- **javis-builder viết system prompt theo khung metaprompt**: khi tạo agent qua chat, Jarvis 007 giờ dựng system prompt theo khung 6 phần rút từ metaprompt của Anthropic (vai + mục tiêu, bối cảnh nghiệp vụ, quy trình đánh số, định dạng đầu ra kèm ví dụ, cách xử lý trường hợp khó, điều cấm cụ thể) thay vì 1-2 câu chung chung - agent tạo ra làm việc được ngay, đỡ phải sửa đi sửa lại. Hai skill hệ thống tự cập nhật vào mọi brain chưa chỉnh tay (brain đã chỉnh giữ nguyên bản riêng).
 
 ## [0.9.32] - 2026-07-12
 ### Sửa lỗi
-- **Kết nối Meta Ads hết báo "Server này không khai OAuth chuẩn MCP"**: Meta khai issuer OAuth có path (`mcp.facebook.com/ads`) và đặt metadata theo đúng chuẩn RFC 8414 dạng chèn giữa (`/.well-known/oauth-authorization-server/ads`), trong khi Javis chỉ tìm dạng nối đuôi và gốc domain nên không thấy. Nay bước discovery thử đủ cả hai dạng (chèn giữa trước, nối đuôi fallback) cho issuer lẫn URL MCP có path - bấm Kết nối là ra trang đăng nhập Facebook như thiết kế. Các connector OAuth khác không đổi hành vi.
+- **Kết nối Meta Ads hết báo "Server này không khai OAuth chuẩn MCP"**: Meta khai issuer OAuth có path (`mcp.facebook.com/ads`) và đặt metadata theo đúng chuẩn RFC 8414 dạng chèn giữa (`/.well-known/oauth-authorization-server/ads`), trong khi Jarvis 007 chỉ tìm dạng nối đuôi và gốc domain nên không thấy. Nay bước discovery thử đủ cả hai dạng (chèn giữa trước, nối đuôi fallback) cho issuer lẫn URL MCP có path - bấm Kết nối là ra trang đăng nhập Facebook như thiết kế. Các connector OAuth khác không đổi hành vi.
 
 ## [0.9.31] - 2026-07-11
 ### Sửa lỗi
@@ -6966,24 +6966,24 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.30] - 2026-07-11
 ### Thêm mới
-- **Key ElevenLabs trong Cài đặt dùng chung cho chỉnh sửa video**: Javis giờ biết dựng và cắt sửa video qua hai bộ công cụ ngoài (HyperFrames tạo video mới từ HTML, video-use cắt từ thừa / chèn phụ đề / chỉnh màu footage quay thật - cài dạng skill cho engine CLI). Phần phiên âm của video-use cần key ElevenLabs: chỉ cần nhập key một chỗ ở **Cài đặt > Giọng đọc (ElevenLabs)** như lâu nay, server tự bơm biến môi trường `ELEVENLABS_API_KEY` cho engine và tool con lúc khởi động và ngay khi lưu Cài đặt (không cần restart, không phải sửa file .env). Key vẫn được mã hóa at rest như các secret khác.
+- **Key ElevenLabs trong Cài đặt dùng chung cho chỉnh sửa video**: Jarvis 007 giờ biết dựng và cắt sửa video qua hai bộ công cụ ngoài (HyperFrames tạo video mới từ HTML, video-use cắt từ thừa / chèn phụ đề / chỉnh màu footage quay thật - cài dạng skill cho engine CLI). Phần phiên âm của video-use cần key ElevenLabs: chỉ cần nhập key một chỗ ở **Cài đặt > Giọng đọc (ElevenLabs)** như lâu nay, server tự bơm biến môi trường `ELEVENLABS_API_KEY` cho engine và tool con lúc khởi động và ngay khi lưu Cài đặt (không cần restart, không phải sửa file .env). Key vẫn được mã hóa at rest như các secret khác.
 ### Sửa lỗi
 - **Tiến trình Python con hết crash Unicode trên Windows**: server tự đặt `PYTHONUTF8=1` cho tiến trình con (tôn trọng giá trị user đã đặt sẵn), tránh lỗi UnicodeEncodeError khi tool như video-use in ký tự đặc biệt ra console cp1252.
 - **Giá trị che "••••" không còn đè được key ElevenLabs thật**: client lạ lấy cài đặt từ GET /settings (key hiển thị dạng che) rồi POST nguyên object về sẽ không làm mất key đã lưu nữa.
 
 ## [0.9.29] - 2026-07-10
 ### Thêm mới
-- **Nút tắt/bật giọng đọc ngay trên khung chat**: thêm một nút loa cạnh nút mic và đính kèm ở thanh nhập chat (hiện ở cả màn 3D lẫn tab Trò chuyện). Bấm để tắt/bật việc Javis đọc câu trả lời bằng giọng mà không phải lên góc trên hay vào Cài đặt. Khi tắt, nút chuyển màu đỏ kèm gạch chéo cho dễ thấy; trạng thái đồng bộ hai chiều với nút loa ở header và công tắc "Đọc trả lời bằng giọng" trong Cài đặt nhanh, và nhớ qua các lần tải lại.
+- **Nút tắt/bật giọng đọc ngay trên khung chat**: thêm một nút loa cạnh nút mic và đính kèm ở thanh nhập chat (hiện ở cả màn 3D lẫn tab Trò chuyện). Bấm để tắt/bật việc Jarvis 007 đọc câu trả lời bằng giọng mà không phải lên góc trên hay vào Cài đặt. Khi tắt, nút chuyển màu đỏ kèm gạch chéo cho dễ thấy; trạng thái đồng bộ hai chiều với nút loa ở header và công tắc "Đọc trả lời bằng giọng" trong Cài đặt nhanh, và nhớ qua các lần tải lại.
 
 ## [0.9.28] - 2026-07-09
 ### Thêm mới
-- **Telegram hiện trạng thái trung gian khi chờ**: trước đây nhắn cho Javis qua Telegram rồi phải chờ im lặng tới khi có câu trả lời, dễ tưởng bị treo. Nay bot gửi một tin trạng thái ("🤔 Javis đang xử lý…") rồi tự cập nhật theo tiến trình thật của lượt (đang gọi công cụ nào, đã nhận dữ liệu, đang soạn câu trả lời); soạn xong thì xoá tin trạng thái và gửi câu trả lời. Có tiết chế nhịp cập nhật (~2.5s) để không spam / dính giới hạn của Telegram. Áp dụng cho cả engine Claude Code lẫn engine API.
+- **Telegram hiện trạng thái trung gian khi chờ**: trước đây nhắn cho Jarvis 007 qua Telegram rồi phải chờ im lặng tới khi có câu trả lời, dễ tưởng bị treo. Nay bot gửi một tin trạng thái ("🤔 Jarvis 007 đang xử lý…") rồi tự cập nhật theo tiến trình thật của lượt (đang gọi công cụ nào, đã nhận dữ liệu, đang soạn câu trả lời); soạn xong thì xoá tin trạng thái và gửi câu trả lời. Có tiết chế nhịp cập nhật (~2.5s) để không spam / dính giới hạn của Telegram. Áp dụng cho cả engine Claude Code lẫn engine API.
 
 ## [0.9.27] - 2026-07-09
 ### Thêm mới
 - **Click node trên graph 3D mở popup đọc/sửa note**: trước đây bấm một node trên biểu đồ là gửi thẳng một câu hỏi vào khung chat (gây nhầm lẫn). Nay bấm node mở một cửa sổ hiện nội dung note để đọc và sửa trực tiếp rồi Lưu (đọc/ghi qua đúng API Tệp tin), kèm nút mở tab mới; nhấn Esc hoặc ✕ để đóng.
 ### Cải thiện
-- **Esc không còn dừng câu trả lời / ngắt Javis đang nói**: trước đây nhấn Esc vừa tạm dừng giọng đọc vừa ngắt luôn lượt đang chạy, rất dễ lỡ tay mất câu trả lời. Nay Esc chỉ thoát chế độ rảnh tay, tắt mic và đóng popup. Muốn dừng thì dùng nút Dừng (ô đỏ) hoặc nút bật/tắt tiếng.
+- **Esc không còn dừng câu trả lời / ngắt Jarvis 007 đang nói**: trước đây nhấn Esc vừa tạm dừng giọng đọc vừa ngắt luôn lượt đang chạy, rất dễ lỡ tay mất câu trả lời. Nay Esc chỉ thoát chế độ rảnh tay, tắt mic và đóng popup. Muốn dừng thì dùng nút Dừng (ô đỏ) hoặc nút bật/tắt tiếng.
 
 ## [0.9.26] - 2026-07-09
 ### Thêm mới
@@ -6993,15 +6993,15 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.25] - 2026-07-09
 ### Thêm mới
-- **Tab "Trò chuyện" - màn chat riêng, rộng rãi**: thêm tab mới trên thanh bên trái (ngay dưới "Javis") mở khung chat toàn màn hình kiểu Claude, tiện hơn hẳn khung chat chật ở cạnh màn hình 3D. Cột trái là lịch sử hội thoại (nút tạo mới, ô tìm trong mọi hội thoại, nhóm theo Hôm nay / 7 ngày qua / Cũ hơn, đổi tên và xoá, phiên đang mở được tô sáng); giữa là khung chat lớn dễ đọc kèm tiêu đề và badge engine thật (vd "CLI · opus"); ngay trên ô nhập là thanh chọn model + effort, dưới cùng là ô gõ kèm nút mic và đính kèm file. Tab này KHÔNG viết lại bộ máy chat mà dùng lại chính khung chat của màn 3D (mượn rồi trả về khi rời tab) nên cùng một cuộc trò chuyện hiện ở cả hai nơi, giữ nguyên WebSocket, stream, phiên, giọng nói và đính kèm; rời tab thì màn 3D vẫn chat bình thường. Vào tab chat, đồ hoạ 3D tự tắt cho nhẹ máy. Màn hẹp (điện thoại) thì cột lịch sử thu thành ngăn kéo, bấm nút 🕘 để mở.
+- **Tab "Trò chuyện" - màn chat riêng, rộng rãi**: thêm tab mới trên thanh bên trái (ngay dưới "Jarvis 007") mở khung chat toàn màn hình kiểu Claude, tiện hơn hẳn khung chat chật ở cạnh màn hình 3D. Cột trái là lịch sử hội thoại (nút tạo mới, ô tìm trong mọi hội thoại, nhóm theo Hôm nay / 7 ngày qua / Cũ hơn, đổi tên và xoá, phiên đang mở được tô sáng); giữa là khung chat lớn dễ đọc kèm tiêu đề và badge engine thật (vd "CLI · opus"); ngay trên ô nhập là thanh chọn model + effort, dưới cùng là ô gõ kèm nút mic và đính kèm file. Tab này KHÔNG viết lại bộ máy chat mà dùng lại chính khung chat của màn 3D (mượn rồi trả về khi rời tab) nên cùng một cuộc trò chuyện hiện ở cả hai nơi, giữ nguyên WebSocket, stream, phiên, giọng nói và đính kèm; rời tab thì màn 3D vẫn chat bình thường. Vào tab chat, đồ hoạ 3D tự tắt cho nhẹ máy. Màn hẹp (điện thoại) thì cột lịch sử thu thành ngăn kéo, bấm nút 🕘 để mở.
 ### Sửa lỗi
 - **Chống mất nội dung khi đổi trang nhanh**: mỗi lần chuyển trang quản lý, khung nội dung (`#cviewBody`) được thay bằng một vùng mới, nên nếu một trang tải chậm (Tổng quan, Models, Kết nối...) trả kết quả về TRỄ sau khi bạn đã sang trang khác thì cú ghi đó rơi vào vùng cũ đã bỏ, không đè lên trang đang xem. Trước đây chuyển thật nhanh từ một trang tải-chậm sang tab Trò chuyện có thể xoá mất khung chat vừa mở; nay đã an toàn, đồng thời hết luôn hiện tượng thoáng thấy nội dung trang cũ khi đổi trang.
 
 ## [0.9.20] - 2026-07-09
 ### Thêm mới
-- **Loop và Việc tự báo kết quả về Telegram người yêu cầu**: giờ là hành vi mặc định của Javis - mỗi vòng loop chạy nền chạy xong, và mỗi việc (Kanban task) hoàn tất, đều tự nhắn kết quả về Telegram của đúng người đã yêu cầu (kèm tóm tắt, dòng kiểm chứng, và cảnh báo nếu loop tự tạm dừng). Loop hoặc việc tạo trên bản web (không rõ chủ) thì báo về ID Telegram đầu tiên trong whitelist. Loop lưu thêm `owner_chat` (chat_id người tạo) trong frontmatter; việc lưu `chat_id` tương ứng - Javis tự gắn khi bạn tạo qua chat. Vòng bị bỏ qua vì chưa có số liệu thì không nhắn để khỏi làm phiền; muốn một loop ngừng báo mỗi vòng thì đặt `notify: false` trong frontmatter loop đó.
+- **Loop và Việc tự báo kết quả về Telegram người yêu cầu**: giờ là hành vi mặc định của Jarvis 007 - mỗi vòng loop chạy nền chạy xong, và mỗi việc (Kanban task) hoàn tất, đều tự nhắn kết quả về Telegram của đúng người đã yêu cầu (kèm tóm tắt, dòng kiểm chứng, và cảnh báo nếu loop tự tạm dừng). Loop hoặc việc tạo trên bản web (không rõ chủ) thì báo về ID Telegram đầu tiên trong whitelist. Loop lưu thêm `owner_chat` (chat_id người tạo) trong frontmatter; việc lưu `chat_id` tương ứng - Jarvis 007 tự gắn khi bạn tạo qua chat. Vòng bị bỏ qua vì chưa có số liệu thì không nhắn để khỏi làm phiền; muốn một loop ngừng báo mỗi vòng thì đặt `notify: false` trong frontmatter loop đó.
 
-- **Khung chat render chân thật như Claude, xem được Artifact**: câu trả lời của AI giờ hiện đầy đủ như trên khung chat Claude. Khi trả về một trang HTML tự chứa, ảnh SVG, sơ đồ mermaid hoặc một file code dài, Javis hiện một thẻ artifact gọn trong luồng chat; bấm vào mở một panel bên phải có tab Xem trước / Mã nguồn cùng nút Copy và Tải về. HTML chạy trong iframe sandbox cô lập (không đụng được trang cha), SVG render không cho script, mermaid vẽ thành sơ đồ (offline thì tự hạ xuống hiện mã nguồn kèm ghi chú). Nhấn Esc để đóng panel, không thu nhỏ luôn khung chat đang phóng to.
+- **Khung chat render chân thật như Claude, xem được Artifact**: câu trả lời của AI giờ hiện đầy đủ như trên khung chat Claude. Khi trả về một trang HTML tự chứa, ảnh SVG, sơ đồ mermaid hoặc một file code dài, Jarvis 007 hiện một thẻ artifact gọn trong luồng chat; bấm vào mở một panel bên phải có tab Xem trước / Mã nguồn cùng nút Copy và Tải về. HTML chạy trong iframe sandbox cô lập (không đụng được trang cha), SVG render không cho script, mermaid vẽ thành sơ đồ (offline thì tự hạ xuống hiện mã nguồn kèm ghi chú). Nhấn Esc để đóng panel, không thu nhỏ luôn khung chat đang phóng to.
 ### Cải thiện
 - **Markdown và code block đầy đủ hơn**: thêm heading nhiều cấp, danh sách đánh số + lồng nhau + checkbox, blockquote, đường kẻ ngang, in nghiêng, gạch ngang; code block có nhãn ngôn ngữ và tô màu cú pháp, giữ nút Copy. Lúc đang stream, đoạn code chưa đóng vẫn hiện gọn dạng khối code đang gõ thay vì chữ thô. Bộ render tách sang file riêng `dashboard/chat-render.js`, giữ nguyên số liệu panel trái, ảnh vault và link như cũ.
 
@@ -7015,9 +7015,9 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.16] - 2026-07-07
 ### Thêm mới
-- **Tự khởi động cùng máy (Windows)**: thêm mục "Khởi động cùng máy" ở trang Tổng quan để bật/tắt việc Javis tự chạy khi mở máy. Bật lên là Javis chạy nền ẩn ngay sau khi bạn đăng nhập Windows (không cửa sổ đen, mở `localhost:7777` để dùng), và tự tắt bản cũ trước khi chạy nên không mở trùng. Cơ chế dùng khóa registry theo tài khoản (`HKCU...\Run`, không cần quyền admin) trỏ tới `start-javis.vbs` sẵn có; kèm 2 endpoint `/autostart` để xem trạng thái và bật/tắt, có cờ nhận biết khi bạn dời thư mục cài đặt. Mục này tự ẩn trên bản Docker/Linux.
-- **Nhắc hẹn từ chat**: nói kiểu "30 phút nữa nhắc anh...", "8h30 sáng mai nhắc...", "mỗi sáng 7h nhắc uống thuốc" là Javis tự đặt lịch, tới giờ tự thức dậy bắn nhắc qua Telegram cho đúng người đang nói. Hẹn được theo số phút, theo giờ trong ngày, theo ngày cụ thể, hoặc lịch định kỳ bằng biểu thức cron; server tự tính giờ Việt Nam nên chỉ cần nói bằng lời. Ba chế độ: chỉ nhắc lại (notify), tự làm việc rồi gửi kết quả về (task), hoặc chạy một script giám sát KHÔNG cần AI cho rẻ (script, chỉ chạy file bạn đã bỏ sẵn trong `Javis/scripts`). Nhắc hẹn hiện luôn ở trang Việc/Lịch, gạt công tắc để huỷ.
-- **Thêm nhà cung cấp Google Gemini**: cắm API key Gemini là dùng được các model 2.5 Flash/Pro và 2.0 Flash để chat, kể cả chế độ agent dùng MCP của Javis y như OpenAI. Đi qua endpoint tương thích OpenAI nên tận dụng lại đúng luồng stream + tool-calling; danh sách model nạp động theo tài khoản, và bật "Suy nghĩ" áp cho model 2.5 trở lên.
+- **Tự khởi động cùng máy (Windows)**: thêm mục "Khởi động cùng máy" ở trang Tổng quan để bật/tắt việc Jarvis 007 tự chạy khi mở máy. Bật lên là Jarvis 007 chạy nền ẩn ngay sau khi bạn đăng nhập Windows (không cửa sổ đen, mở `localhost:7777` để dùng), và tự tắt bản cũ trước khi chạy nên không mở trùng. Cơ chế dùng khóa registry theo tài khoản (`HKCU...\Run`, không cần quyền admin) trỏ tới `start-javis.vbs` sẵn có; kèm 2 endpoint `/autostart` để xem trạng thái và bật/tắt, có cờ nhận biết khi bạn dời thư mục cài đặt. Mục này tự ẩn trên bản Docker/Linux.
+- **Nhắc hẹn từ chat**: nói kiểu "30 phút nữa nhắc anh...", "8h30 sáng mai nhắc...", "mỗi sáng 7h nhắc uống thuốc" là Jarvis 007 tự đặt lịch, tới giờ tự thức dậy bắn nhắc qua Telegram cho đúng người đang nói. Hẹn được theo số phút, theo giờ trong ngày, theo ngày cụ thể, hoặc lịch định kỳ bằng biểu thức cron; server tự tính giờ Việt Nam nên chỉ cần nói bằng lời. Ba chế độ: chỉ nhắc lại (notify), tự làm việc rồi gửi kết quả về (task), hoặc chạy một script giám sát KHÔNG cần AI cho rẻ (script, chỉ chạy file bạn đã bỏ sẵn trong `Javis/scripts`). Nhắc hẹn hiện luôn ở trang Việc/Lịch, gạt công tắc để huỷ.
+- **Thêm nhà cung cấp Google Gemini**: cắm API key Gemini là dùng được các model 2.5 Flash/Pro và 2.0 Flash để chat, kể cả chế độ agent dùng MCP của Jarvis 007 y như OpenAI. Đi qua endpoint tương thích OpenAI nên tận dụng lại đúng luồng stream + tool-calling; danh sách model nạp động theo tài khoản, và bật "Suy nghĩ" áp cho model 2.5 trở lên.
 - **Skill HTML → Webcake (.pke)**: chuyển một file hoặc đoạn HTML thành file Webcake mở sửa được trên trình dựng landing - đọc HTML, tái dựng thành `page_source` đúng khuôn Webcake rồi xuất `.pke` để tải lên chỉnh tiếp.
 
 ## [0.9.15] - 2026-07-06
@@ -7028,16 +7028,16 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.14] - 2026-07-06
 ### Thêm mới
-- **Panel "Mức dùng" - đo token đa nhà cung cấp**: sidebar giờ hiện lượng token Javis **tự đo** qua từng nhà cung cấp/model trong ngày (vào ↑ / ra ↓ + ước tính chi phí ở nơi provider trả về, vd Claude Code), cộng tổng. Đồng nhất cho mọi engine (Claude Code, ChatGPT/Codex, OpenRouter, OpenAI API, Anthropic API) vì Javis đọc usage trong mọi phản hồi. Kèm **số dư THẬT của OpenRouter** nếu đã cắm key (provider duy nhất lộ số dư qua API). Đây là lượng Javis dùng, KHÔNG phải hạn mức gói thuê bao - đa số nhà cung cấp không cho lấy hạn mức tài khoản qua API nên xem trong app của họ.
+- **Panel "Mức dùng" - đo token đa nhà cung cấp**: sidebar giờ hiện lượng token Jarvis 007 **tự đo** qua từng nhà cung cấp/model trong ngày (vào ↑ / ra ↓ + ước tính chi phí ở nơi provider trả về, vd Claude Code), cộng tổng. Đồng nhất cho mọi engine (Claude Code, ChatGPT/Codex, OpenRouter, OpenAI API, Anthropic API) vì Jarvis 007 đọc usage trong mọi phản hồi. Kèm **số dư THẬT của OpenRouter** nếu đã cắm key (provider duy nhất lộ số dư qua API). Đây là lượng Jarvis 007 dùng, KHÔNG phải hạn mức gói thuê bao - đa số nhà cung cấp không cho lấy hạn mức tài khoản qua API nên xem trong app của họ.
 
 ## [0.9.13] - 2026-07-06
 ### Thêm mới
-- **Chia sẻ agent / skill / workflow qua file**: mỗi agent, skill, workflow giờ có nút **⤓ Xuất** để tải về một gói `.zip`, và mỗi trang (Agents / Skills / Workflows) có nút **⤒ Nhập** để tải gói lên - trao đổi năng lực với người khác dễ dàng. Gói workflow tự **kèm các agent nó dùng + skill của agent** (skill của bạn, KHÔNG kèm skill hệ thống) để bên nhận chạy được ngay; gói agent kèm skill của nó. Nhập chấp nhận `.zip`, file `.md` lẻ (agent/workflow), và **cả gói skill `.skill` của Claude** (Javis tự nhận diện `SKILL.md` trong gói và đưa vào đúng thư mục skill). Có rào an toàn (chống zip-slip, giới hạn dung lượng) và trùng tên thì bỏ qua trừ khi bạn chọn ghi đè.
+- **Chia sẻ agent / skill / workflow qua file**: mỗi agent, skill, workflow giờ có nút **⤓ Xuất** để tải về một gói `.zip`, và mỗi trang (Agents / Skills / Workflows) có nút **⤒ Nhập** để tải gói lên - trao đổi năng lực với người khác dễ dàng. Gói workflow tự **kèm các agent nó dùng + skill của agent** (skill của bạn, KHÔNG kèm skill hệ thống) để bên nhận chạy được ngay; gói agent kèm skill của nó. Nhập chấp nhận `.zip`, file `.md` lẻ (agent/workflow), và **cả gói skill `.skill` của Claude** (Jarvis 007 tự nhận diện `SKILL.md` trong gói và đưa vào đúng thư mục skill). Có rào an toàn (chống zip-slip, giới hạn dung lượng) và trùng tên thì bỏ qua trừ khi bạn chọn ghi đè.
 
 ## [0.9.12] - 2026-07-06
 ### Bảo mật
 - **Vá 2 lỗ hổng DoS trong thư viện nền** (CVE-2024-47874 Starlette, CVE-2024-53981 python-multipart): nâng fastapi lên 0.115.6 (kéo Starlette lên 0.41.3) và python-multipart lên 0.0.18. Trước đây kẻ tấn công CHƯA đăng nhập có thể gửi multipart form dị dạng vào endpoint công khai (đăng nhập / thiết lập) để làm quá tải server VPS.
-- **Chặn XSS trong dashboard**: các hàm escape giờ escape cả dấu nháy (`"` và `'`), tránh nội dung do AI/MCP sinh ra (tên file, nội dung task...) thoát khỏi thuộc tính HTML và chạy JavaScript same-origin điều khiển Javis. Ngoài ra link ngoài (kết quả tìm kiếm, URL xác thực) chỉ được render khi là http/https, chặn scheme `javascript:`.
+- **Chặn XSS trong dashboard**: các hàm escape giờ escape cả dấu nháy (`"` và `'`), tránh nội dung do AI/MCP sinh ra (tên file, nội dung task...) thoát khỏi thuộc tính HTML và chạy JavaScript same-origin điều khiển Jarvis 007. Ngoài ra link ngoài (kết quả tìm kiếm, URL xác thực) chỉ được render khi là http/https, chặn scheme `javascript:`.
 
 ## [0.9.11] - 2026-07-06
 ### Thêm mới
@@ -7047,27 +7047,27 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.10] - 2026-07-06
 ### Thêm mới
-- **Higgsfield vào kho Kết nối** (MCP chính chủ, remote): tạo và chỉnh ảnh/video bằng AI - sinh ảnh, sinh video, nâng nét (upscale), mở rộng khung hình, xoá nền, cắt nhân vật, điều khiển chuyển động. Đăng nhập Higgsfield 1 chạm: Javis tự đăng ký ứng dụng theo chuẩn OAuth của MCP (tự dò metadata + DCR + PKCE, không cần tạo app hay dán key), dùng được trên mọi engine. Mặc định mức Ghi nháp để Javis tạo được nội dung ngay và chặn thao tác xoá/thanh toán; mỗi lần tạo tiêu credit Higgsfield trả trước của bạn.
+- **Higgsfield vào kho Kết nối** (MCP chính chủ, remote): tạo và chỉnh ảnh/video bằng AI - sinh ảnh, sinh video, nâng nét (upscale), mở rộng khung hình, xoá nền, cắt nhân vật, điều khiển chuyển động. Đăng nhập Higgsfield 1 chạm: Jarvis 007 tự đăng ký ứng dụng theo chuẩn OAuth của MCP (tự dò metadata + DCR + PKCE, không cần tạo app hay dán key), dùng được trên mọi engine. Mặc định mức Ghi nháp để Jarvis 007 tạo được nội dung ngay và chặn thao tác xoá/thanh toán; mỗi lần tạo tiêu credit Higgsfield trả trước của bạn.
 
 ## [0.9.9] - 2026-07-06
 ### Thêm mới
-- **Xem ảnh và mở file ngay trong chat + trang Tệp tin**: Javis nhúng được ảnh vào câu trả lời (hiện luôn trong khung chat, bấm là mở full ở tab mới) và đính link mở/tải file như PDF, DOCX, XLSX. Trang Tệp tin xem trước được ảnh và PDF ngay trong app; file khác có nút "Mở" ra tab mới bằng đường dẫn tĩnh. Thêm endpoint `/files/raw` phục vụ file inline (khác `/files/download` luôn ép tải).
+- **Xem ảnh và mở file ngay trong chat + trang Tệp tin**: Jarvis 007 nhúng được ảnh vào câu trả lời (hiện luôn trong khung chat, bấm là mở full ở tab mới) và đính link mở/tải file như PDF, DOCX, XLSX. Trang Tệp tin xem trước được ảnh và PDF ngay trong app; file khác có nút "Mở" ra tab mới bằng đường dẫn tĩnh. Thêm endpoint `/files/raw` phục vụ file inline (khác `/files/download` luôn ép tải).
 ### Sửa lỗi
 - **Ảnh/file trong chat bấm vào không xem được; trang Tệp tin không xem được ảnh và không mở được PDF/DOCX** (chỉ tải về): do khung chat chưa render ảnh/link markdown và chưa có URL phục vụ file inline. Nay hiển thị ảnh, mở PDF trong app, và mọi file đều có đường dẫn tĩnh để mở/tải.
 
 ## [0.9.8] - 2026-07-06
 ### Thêm mới
-- **Skill chạy trên MỌI engine, hết phụ thuộc cấu trúc của Claude**: trước đây skill chỉ hoạt động ngon trên Claude Code (đọc native từ `.claude/skills`), còn ChatGPT/Codex thì gọi không ra. Nay Javis có một **skill router riêng** dùng chung cho mọi engine: danh sách skill (tên + mô tả) được bơm thẳng vào system prompt, kèm tool `javis_use_skill` để nạp nội dung skill và làm theo. Claude Code, ChatGPT/Codex, OpenRouter, OpenAI API và Anthropic API giờ đều dùng được skill như nhau.
-- **Nơi lưu skill chuyển sang `skills/` (phẳng, do Javis sở hữu)**: đồng bộ với `agents/`, `workflows/`, `memory/`. Brain cũ để skill ở `.claude/skills` được **tự dời sang `skills/`** một lần (an toàn, không mất dữ liệu, giữ nguyên skill đang tắt). Javis vẫn tự **mirror** sang `.claude/skills` để Claude Code nạp native như một điểm cộng - nhưng router chính không còn phụ thuộc thư mục đó nữa.
+- **Skill chạy trên MỌI engine, hết phụ thuộc cấu trúc của Claude**: trước đây skill chỉ hoạt động ngon trên Claude Code (đọc native từ `.claude/skills`), còn ChatGPT/Codex thì gọi không ra. Nay Jarvis 007 có một **skill router riêng** dùng chung cho mọi engine: danh sách skill (tên + mô tả) được bơm thẳng vào system prompt, kèm tool `javis_use_skill` để nạp nội dung skill và làm theo. Claude Code, ChatGPT/Codex, OpenRouter, OpenAI API và Anthropic API giờ đều dùng được skill như nhau.
+- **Nơi lưu skill chuyển sang `skills/` (phẳng, do Jarvis 007 sở hữu)**: đồng bộ với `agents/`, `workflows/`, `memory/`. Brain cũ để skill ở `.claude/skills` được **tự dời sang `skills/`** một lần (an toàn, không mất dữ liệu, giữ nguyên skill đang tắt). Jarvis 007 vẫn tự **mirror** sang `.claude/skills` để Claude Code nạp native như một điểm cộng - nhưng router chính không còn phụ thuộc thư mục đó nữa.
 ### Cải thiện
-- **Skill do Javis tự học giờ BẬT sẵn** (thay vì để nháp tắt chờ duyệt), đánh dấu `origin: javis-learned` để nhận diện; vẫn tuyệt đối KHÔNG ghi đè skill bạn đã có và KHÔNG hồi sinh skill bạn cố ý tắt.
+- **Skill do Jarvis 007 tự học giờ BẬT sẵn** (thay vì để nháp tắt chờ duyệt), đánh dấu `origin: javis-learned` để nhận diện; vẫn tuyệt đối KHÔNG ghi đè skill bạn đã có và KHÔNG hồi sinh skill bạn cố ý tắt.
 ### Sửa lỗi
-- **ChatGPT/Codex không tìm thấy skill**: nhánh chat qua Codex trước đây không được nạp system prompt của Javis và chạy sai thư mục làm việc nên không thấy skill nào. Nay Codex chạy đúng thư mục brain và nhận đủ router skill, gọi được skill người dùng đã tạo.
+- **ChatGPT/Codex không tìm thấy skill**: nhánh chat qua Codex trước đây không được nạp system prompt của Jarvis 007 và chạy sai thư mục làm việc nên không thấy skill nào. Nay Codex chạy đúng thư mục brain và nhận đủ router skill, gọi được skill người dùng đã tạo.
 - **Sửa skill đang tắt bị rỗng nội dung**: nút Sửa trước đây chỉ đọc skill ở vị trí bật nên skill đang tắt mở ra form trống. Nay đọc được cả skill trong `.disabled`; và Lưu khi sửa giữ nguyên trạng thái bật/tắt (không tự bật skill đang tắt, không để lại bản nháp mồ côi).
 
 ## [0.9.7] - 2026-07-05
 ### Cải thiện
-- **Giọng nói mượt hơn, hết chèn giọng lạ, biết dừng khi bạn nói**: (1) audio đầu tiên phát NHANH hơn - tách câu đầu ra đoạn nhỏ để tổng hợp + tải tức thì, bớt cảnh khựng vài giây sau khi chữ đã hiện; (2) khi một đoạn đọc lỗi mạng, Javis thử lại đúng giọng Việt và TUYỆT ĐỐI không rơi về giọng mặc định trình duyệt (thường là tiếng Anh) - hết cảnh "giọng Anh lạ chèn giữa chừng"; (3) ngắt lời (barge-in) khi rảnh tay: đang đọc mà nghe bạn nói đủ rõ thì tự dừng và mở nghe ngay, kèm bật khử vọng/khử ồn mic để đỡ nghe lại chính giọng mình.
+- **Giọng nói mượt hơn, hết chèn giọng lạ, biết dừng khi bạn nói**: (1) audio đầu tiên phát NHANH hơn - tách câu đầu ra đoạn nhỏ để tổng hợp + tải tức thì, bớt cảnh khựng vài giây sau khi chữ đã hiện; (2) khi một đoạn đọc lỗi mạng, Jarvis 007 thử lại đúng giọng Việt và TUYỆT ĐỐI không rơi về giọng mặc định trình duyệt (thường là tiếng Anh) - hết cảnh "giọng Anh lạ chèn giữa chừng"; (3) ngắt lời (barge-in) khi rảnh tay: đang đọc mà nghe bạn nói đủ rõ thì tự dừng và mở nghe ngay, kèm bật khử vọng/khử ồn mic để đỡ nghe lại chính giọng mình.
 ### Sửa lỗi
 - Một đoạn đọc lỗi trước đây bị xử lý 2 lần (Chrome bắn cả sự kiện error lẫn play() reject cho cùng audio) gây 2 luồng đọc chồng nhau và audio không dừng được; nay mỗi đoạn lỗi chỉ xử lý đúng một lần.
 
@@ -7080,7 +7080,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.5] - 2026-07-04
 ### Thêm mới
-- **Lark** vào kho Kết nối (MCP chính chủ của Lark/LarkSuite, chạy local qua `@larksuiteoapi/lark-mcp`): nhắn tin, tài liệu (Docs), bảng dữ liệu (Base/Bitable), wiki, danh bạ. Tạo một Lark app rồi dán App ID + App Secret; Javis chỉ làm được đúng quyền bạn cấp cho app. Cần Node.js 18+. Mặc định Chỉ đọc; gửi tin nhắn và cấp quyền file là hành động nguy hiểm (phải Toàn quyền). Phân loại quyền theo 19 tool thật đã kiểm chứng.
+- **Lark** vào kho Kết nối (MCP chính chủ của Lark/LarkSuite, chạy local qua `@larksuiteoapi/lark-mcp`): nhắn tin, tài liệu (Docs), bảng dữ liệu (Base/Bitable), wiki, danh bạ. Tạo một Lark app rồi dán App ID + App Secret; Jarvis 007 chỉ làm được đúng quyền bạn cấp cho app. Cần Node.js 18+. Mặc định Chỉ đọc; gửi tin nhắn và cấp quyền file là hành động nguy hiểm (phải Toàn quyền). Phân loại quyền theo 19 tool thật đã kiểm chứng.
 - **Logo Zalo và Google Sheets**: hai connector này giờ hiện logo thật thay cho emoji.
 
 ## [0.9.4] - 2026-07-04
@@ -7093,7 +7093,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.3] - 2026-07-04
 ### Thêm mới
-- **Kho Kết nối có Google Calendar và Gmail** (MCP chính chủ của Google, remote - chạy được cả trên VPS): Calendar xem lịch, tìm chỗ trống, tạo/sửa/xoá sự kiện; Gmail đọc/tìm thư, soạn NHÁP, gắn nhãn. Gmail bản chính chủ KHÔNG có tool gửi thẳng nên Javis luôn dừng ở bản nháp để bạn tự bấm gửi. Đăng nhập Google ngay trong dashboard; cần tạo OAuth client 1 lần (~10 phút, hướng dẫn từng bước trong cửa sổ kết nối, dùng chung 1 client cho cả hai). Mặc định Chỉ đọc; nâng lên Ghi nháp để tạo sự kiện/soạn nháp, Toàn quyền mới xoá được sự kiện.
+- **Kho Kết nối có Google Calendar và Gmail** (MCP chính chủ của Google, remote - chạy được cả trên VPS): Calendar xem lịch, tìm chỗ trống, tạo/sửa/xoá sự kiện; Gmail đọc/tìm thư, soạn NHÁP, gắn nhãn. Gmail bản chính chủ KHÔNG có tool gửi thẳng nên Jarvis 007 luôn dừng ở bản nháp để bạn tự bấm gửi. Đăng nhập Google ngay trong dashboard; cần tạo OAuth client 1 lần (~10 phút, hướng dẫn từng bước trong cửa sổ kết nối, dùng chung 1 client cho cả hai). Mặc định Chỉ đọc; nâng lên Ghi nháp để tạo sự kiện/soạn nháp, Toàn quyền mới xoá được sự kiện.
 ### Cải thiện
 - Hub OAuth giờ nhận **client tự khai (BYO client_id/secret)** cho nhà cung cấp không hỗ trợ tự đăng ký client như Google (trước đây chỉ chạy với server có DCR). Tự xin `access_type=offline` để giữ kết nối lâu dài (tự làm mới token), gửi kèm client secret khi đổi/làm mới token, và tự đặt tên tài khoản bằng email Google sau khi đăng nhập.
 
@@ -7109,16 +7109,16 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.9.0] - 2026-07-04
 ### Thêm mới
-- **Trang "Kết nối" thay trang MCP**: kho connector cài sẵn (Pancake POS, Zalo cá nhân, Webcake Landing, Botcake) - bấm Kết nối, dán key (hoặc quét QR với Zalo) là xong, không còn tự gõ URL/transport/header. Javis tự kiểm tra key và tự đặt tên tài khoản (lấy đúng tên cửa hàng từ POS). Form kỹ thuật cũ vẫn còn ở card "Tự thêm (nâng cao)".
+- **Trang "Kết nối" thay trang MCP**: kho connector cài sẵn (Pancake POS, Zalo cá nhân, Webcake Landing, Botcake) - bấm Kết nối, dán key (hoặc quét QR với Zalo) là xong, không còn tự gõ URL/transport/header. Jarvis 007 tự kiểm tra key và tự đặt tên tài khoản (lấy đúng tên cửa hàng từ POS). Form kỹ thuật cũ vẫn còn ở card "Tự thêm (nâng cao)".
 - **Đa tài khoản chính thức**: một dịch vụ nối NHIỀU tài khoản (nhiều shop POS, nhiều số Zalo) - mỗi tài khoản một chip có tên + quyền + dấu mặc định, thêm/tắt/xoá từng cái. Zalo mỗi tài khoản chạy cô lập (home riêng) nên nhiều số chạy song song không giẫm nhau.
 - **MCP HUB**: mọi bộ não (Claude Code, ChatGPT/Codex, OpenRouter, OpenAI API, Anthropic API) đấu qua MỘT điểm - Codex và engine API giờ dùng được cả MCP local dạng stdio (Zalo, Webcake) chứ không chỉ http như trước.
 - **Anthropic API có vòng gọi tool** - hết cảnh "chat thuần không MCP". Engine API còn được thêm tool đọc/ghi file trong vault, `javis_use_skill` (kích hoạt skill của brain) và `javis_connections` - engine nào cũng là agent thực thụ.
 - **Phân quyền 3 mức mỗi kết nối** (Chỉ đọc / Ghi nháp / Toàn quyền) chặn CỨNG tại hub theo từng lời gọi, hiểu cả tool đa hành động kiểu Pancake (`action=list` cho qua, `action=create` chặn). Loop nền mode suggest/auto bị hub chặn hành động ghi/tiền-đơn bất kể prompt nói gì. Bật Toàn quyền phải tick xác nhận rủi ro; Zalo có cảnh báo riêng về nguy cơ bị khoá tài khoản (API không chính thức).
 - **Nhật ký gọi tool (audit)** xem theo từng kết nối, nút Test lại, rate limit chống spam cho Zalo.
-- **Đăng nhập Zalo bằng quét QR ngay trong dashboard**: Javis tự chạy zalo-agent-cli, hiện mã QR trong modal, quét xong tự tạo kết nối (cần Node.js 20+).
-- **OAuth chuẩn MCP** (PKCE + tự đăng ký client): server nào theo chuẩn thì bấm Kết nối là xong ngay trên VPS, Javis tự giữ và tự refresh token - bỏ cảnh mở terminal gõ /mcp.
+- **Đăng nhập Zalo bằng quét QR ngay trong dashboard**: Jarvis 007 tự chạy zalo-agent-cli, hiện mã QR trong modal, quét xong tự tạo kết nối (cần Node.js 20+).
+- **OAuth chuẩn MCP** (PKCE + tự đăng ký client): server nào theo chuẩn thì bấm Kết nối là xong ngay trên VPS, Jarvis 007 tự giữ và tự refresh token - bỏ cảnh mở terminal gõ /mcp.
 - Cầu nối **Botcake** tự viết qua Public API v1 (13 tool: khách hàng, tag, flow, gửi flow, keyword...) - không cần cài gì thêm.
-- **3 card Google cho kinh doanh**: Google Sheets (đổ báo cáo doanh thu/tồn kho ra bảng tính - dán service account JSON là chạy, không cần đăng nhập), Google Search Console (số liệu SEO: khách tìm gì ra website), Google Workspace (Gmail + Lịch + Drive + Docs trong 1 kết nối, OAuth tự tạo có hướng dẫn từng bước; mặc định Ghi nháp - soạn nháp được nhưng KHÔNG tự gửi mail/xoá, bật Toàn quyền phải xác nhận). Kho hỗ trợ field dạng file (dán JSON, Javis tự lo phần còn lại) và tự kèm sẵn uv/uvx để chạy connector Python.
+- **3 card Google cho kinh doanh**: Google Sheets (đổ báo cáo doanh thu/tồn kho ra bảng tính - dán service account JSON là chạy, không cần đăng nhập), Google Search Console (số liệu SEO: khách tìm gì ra website), Google Workspace (Gmail + Lịch + Drive + Docs trong 1 kết nối, OAuth tự tạo có hướng dẫn từng bước; mặc định Ghi nháp - soạn nháp được nhưng KHÔNG tự gửi mail/xoá, bật Toàn quyền phải xác nhận). Kho hỗ trợ field dạng file (dán JSON, Jarvis 007 tự lo phần còn lại) và tự kèm sẵn uv/uvx để chạy connector Python.
 ### Cải thiện
 - MCP client có **session pool sống lâu** (giữ kết nối giữa các tin nhắn) + hỗ trợ stdio/internal: hết cảnh "mỗi tin nhắn kết nối MCP lại nên hơi chậm". Hub tự làm nóng lúc khởi động.
 - Registry MCP chuyển sang STATE_DIR (Docker ghi được) và **tự migrate** từ bản cũ: server cũ thành connection, backup nguyên bản ở `mcp_servers.v1.bak.json`, không mất dữ liệu.
@@ -7141,22 +7141,22 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 - Telegram **đa phiên theo tài khoản**: mỗi chat ID giờ có ngữ cảnh hội thoại RIÊNG, không còn lẫn lộn khi nhiều người dùng chung 1 bot. Trước đây tất cả người dùng dùng chung một session (người sau nối tiếp mạch của người trước, và chỉ 1 người được trả lời tại một thời điểm). Nay mỗi tài khoản có session Claude riêng (giữ `--resume` độc lập), lịch sử OpenRouter riêng, câu `/retry` riêng.
 - Các tài khoản **chạy song song**: A đang được trả lời thì B hỏi vẫn được xử lý ngay, không phải xếp hàng chờ. Trong CÙNG một tài khoản vẫn tuần tự 1 lượt/lúc (gửi câu mới khi đang bận sẽ báo "đang xử lý câu trước").
 - `/reset` và `/stop` chỉ tác động **phiên của chính người gõ**: reset xoá đúng ngữ cảnh của họ, stop chỉ giết đúng tiến trình Claude của họ (không đụng người khác đang chat). `/status` hiển thị mã phiên.
-- File Javis tạo ra gửi về **đúng người đang hỏi**: endpoint `POST /telegram/send-file` nhận thêm `chat_id`, và gateway nhắc engine luôn gắn chat_id của người hỏi vào lệnh gửi (thiếu thì rơi về chủ bot như cũ). Whitelist vẫn chặn ID lạ.
+- File Jarvis 007 tạo ra gửi về **đúng người đang hỏi**: endpoint `POST /telegram/send-file` nhận thêm `chat_id`, và gateway nhắc engine luôn gắn chat_id của người hỏi vào lệnh gửi (thiếu thì rơi về chủ bot như cũ). Whitelist vẫn chặn ID lạ.
 ### Sửa lỗi
 - Dashboard web: nút **Stop không còn giết nhầm lượt của người khác** đang chat song song. Mỗi kết nối WebSocket giờ có tag phiên riêng (server phát qua message hello, frontend gửi kèm khi POST `/stop`) - web vốn đã đa phiên (mỗi tab/kết nối một session, lưu SQLite resume được), đây là lỗ hổng chéo duy nhất còn lại.
 - Khung chat **phóng to (chat workspace) trước đây KHÔNG hiện trạng thái** "đang suy nghĩ / đang gọi tool": thanh trạng thái cũ nằm ngoài `#chatArea` nên bị bỏ lại khi phóng to. Đã thay bằng chip hoạt động ngay trong khung chat.
 ### Cải thiện
-- **Chip hoạt động trong khung chat** (cả thường lẫn phóng to): bong bóng 3 chấm nhún + dòng trạng thái sống ("Javis đang suy nghĩ...", "⚙ Đang gọi: pos_statistics", "✍ Đang soạn câu trả lời...") + đồng hồ đếm giây khi đợi lâu (hiện từ giây thứ 3). Chip hiện NGAY khi bấm gửi, luôn nằm dưới cùng kể cả dưới bubble đang stream, tự biến mất khi xong lượt.
+- **Chip hoạt động trong khung chat** (cả thường lẫn phóng to): bong bóng 3 chấm nhún + dòng trạng thái sống ("Jarvis 007 đang suy nghĩ...", "⚙ Đang gọi: pos_statistics", "✍ Đang soạn câu trả lời...") + đồng hồ đếm giây khi đợi lâu (hiện từ giây thứ 3). Chip hiện NGAY khi bấm gửi, luôn nằm dưới cùng kể cả dưới bubble đang stream, tự biến mất khi xong lượt.
 
 ## [0.8.10] - 2026-07-03
 ### Thêm mới
-- Telegram hỗ trợ **NHIỀU chat ID** dùng chung 1 bot: ô "Chat ID được phép dùng" giờ nhận nhiều ID cách nhau dấu phẩy (vd `123456789, 987654321`) - thêm người thân/nhân viên nhắn với Javis mà không phải dựng bot riêng. Whitelist chặn đúng theo danh sách; ID nhóm (số âm) cũng dùng được.
+- Telegram hỗ trợ **NHIỀU chat ID** dùng chung 1 bot: ô "Chat ID được phép dùng" giờ nhận nhiều ID cách nhau dấu phẩy (vd `123456789, 987654321`) - thêm người thân/nhân viên nhắn với Jarvis 007 mà không phải dựng bot riêng. Whitelist chặn đúng theo danh sách; ID nhóm (số âm) cũng dùng được.
 - Nút **Gửi test** gửi tin thử tới TẤT CẢ ID và báo rõ ID nào lỗi (thường do người đó chưa bấm Start bot); thông báo nền (loop tự tạm dừng...) cũng gửi tới tất cả ID; dòng trạng thái hiện số ID được phép, cảnh báo rõ khi đang để trống (mọi người nhắn được). File tự gửi về Telegram không kèm chat cụ thể sẽ về ID ĐẦU TIÊN (chủ bot).
 - Tương thích ngược hoàn toàn: cấu hình 1 ID cũ giữ nguyên, không phải làm lại gì.
 
 ## [0.8.9] - 2026-07-03
 ### Thêm mới
-- **Trang chủ giới thiệu** (`website/index.html`): landing page 1 file HTML/CSS/JS thuần, phong cách dark nebula đồng bộ dashboard - hero gõ chữ tự động, nền đồ thị hạt sao canvas, bảng so sánh chatbot vs Javis, bento 8 tính năng, mockup Telegram có bong bóng chạy, timeline 3 bước deploy, section giới thiệu tác giả Nguyễn Minh Quý, FAQ accordion, nút copy lệnh. Mọi link tài liệu trỏ về GitHub; KHÔNG hiển thị số phiên bản trên trang. Dùng ảnh thật: screenshot đồ thị tri thức trong ô tính năng lớn (kiêm og:image khi share) + chân dung tác giả (fallback chữ MQ nếu ảnh lỗi).
+- **Trang chủ giới thiệu** (`website/index.html`): landing page 1 file HTML/CSS/JS thuần, phong cách dark nebula đồng bộ dashboard - hero gõ chữ tự động, nền đồ thị hạt sao canvas, bảng so sánh chatbot vs Jarvis 007, bento 8 tính năng, mockup Telegram có bong bóng chạy, timeline 3 bước deploy, section giới thiệu tác giả Nguyễn Minh Quý, FAQ accordion, nút copy lệnh. Mọi link tài liệu trỏ về GitHub; KHÔNG hiển thị số phiên bản trên trang. Dùng ảnh thật: screenshot đồ thị tri thức trong ô tính năng lớn (kiêm og:image khi share) + chân dung tác giả (fallback chữ MQ nếu ảnh lỗi).
 
 ## [0.8.8] - 2026-07-03
 ### Sửa lỗi
@@ -7165,18 +7165,18 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 ## [0.8.7] - 2026-07-03
 ### Thêm mới
 - **Telegram thành kênh làm việc đầy đủ** (port ý tưởng gateway của hermes-agent):
-  - Javis giờ **biết mình đang trả lời qua kênh nào**: gateway chèn block "Kênh hội thoại hiện tại" (Telegram DM/nhóm với ai, chat_id, các nền tảng đang kết nối) vào system prompt mỗi lượt - hỏi "em đang chat với anh qua đâu" là khai đúng, không đoán.
-  - **Tự gửi file về Telegram**: file Javis tạo trong lượt (tool Write) hoặc file có đường dẫn tuyệt đối nhắc trong câu trả lời được tự động đính kèm gửi ngay sau câu trả lời (tối đa 10 file/lượt, mỗi file dưới 50MB; ảnh gửi dạng photo có preview, còn lại gửi dạng document).
+  - Jarvis 007 giờ **biết mình đang trả lời qua kênh nào**: gateway chèn block "Kênh hội thoại hiện tại" (Telegram DM/nhóm với ai, chat_id, các nền tảng đang kết nối) vào system prompt mỗi lượt - hỏi "em đang chat với anh qua đâu" là khai đúng, không đoán.
+  - **Tự gửi file về Telegram**: file Jarvis 007 tạo trong lượt (tool Write) hoặc file có đường dẫn tuyệt đối nhắc trong câu trả lời được tự động đính kèm gửi ngay sau câu trả lời (tối đa 10 file/lượt, mỗi file dưới 50MB; ảnh gửi dạng photo có preview, còn lại gửi dạng document).
   - Endpoint nội bộ `POST /telegram/send-file` (CHỈ nhận từ localhost - bên ngoài qua proxy vẫn bị chặn đăng nhập): agent chủ động gửi file bất kỳ có sẵn trên máy giữa lượt bằng curl.
-  - **Nhận file/ảnh từ Telegram**: gửi file/ảnh (kèm caption) cho bot là Javis tự tải về `inbox/telegram/` trong brain rồi đọc như file đính kèm trong chat (trần tải 20MB của bot API). Voice/video chưa hỗ trợ - Javis sẽ nói rõ.
+  - **Nhận file/ảnh từ Telegram**: gửi file/ảnh (kèm caption) cho bot là Jarvis 007 tự tải về `inbox/telegram/` trong brain rồi đọc như file đính kèm trong chat (trần tải 20MB của bot API). Voice/video chưa hỗ trợ - Jarvis 007 sẽ nói rõ.
   - Tin nhắn trả lời render **MarkdownV2** (đậm/nghiêng/code/link hiện đẹp), tự fallback plain text nếu Telegram từ chối parse - không mất tin.
 ### Cải thiện
-- Dashboard web cũng có block kênh riêng: Javis phân biệt đang nói chuyện qua web hay Telegram, và biết cách đẩy file sang Telegram khi user yêu cầu (nếu bot đang chạy).
+- Dashboard web cũng có block kênh riêng: Jarvis 007 phân biệt đang nói chuyện qua web hay Telegram, và biết cách đẩy file sang Telegram khi user yêu cầu (nếu bot đang chạy).
 
 ## [0.8.6] - 2026-07-02
 ### Thêm mới
 - **Chat workspace**: phóng to chat (nút ⛶ hoặc 🕘 Lịch sử) giờ mở thành không gian làm việc gần full màn hình kiểu Claude/Cowork - cột trái là **sidebar Lịch sử hội thoại** (＋ Hội thoại mới, tìm toàn văn, danh sách nhóm Hôm nay/Hôm qua/7 ngày/Cũ hơn, badge engine + số tin, đổi tên/xoá khi rê chuột, phiên đang mở tô sáng, bấm phát mở lại ngay), cột phải là nội dung chat căn giữa rộng tối đa ~980px. Sidebar ẩn/hiện được (nhớ trạng thái); màn hẹp tự chuyển thành ngăn kéo nổi, Esc đóng ngăn kéo trước rồi mới thu nhỏ chat. Panel Lịch sử trượt bên phải cũ được gỡ, nút 🕘 góc phải mở thẳng workspace.
-- Tiện ích đọc/soạn trong chat: nút **⧉ Copy** cho từng khối code + copy cả tin nhắn Javis (hiện khi rê chuột); tin nhắn dài của bạn tự thu gọn sau 10 dòng kèm "Xem thêm"; đang cuộn đọc phía trên thì tin mới KHÔNG kéo giật xuống - hiện nút **↓ Tin mới** ở đáy khung; chip file đính kèm hiển thị ngay trong workspace khi phóng to.
+- Tiện ích đọc/soạn trong chat: nút **⧉ Copy** cho từng khối code + copy cả tin nhắn Jarvis 007 (hiện khi rê chuột); tin nhắn dài của bạn tự thu gọn sau 10 dòng kèm "Xem thêm"; đang cuộn đọc phía trên thì tin mới KHÔNG kéo giật xuống - hiện nút **↓ Tin mới** ở đáy khung; chip file đính kèm hiển thị ngay trong workspace khi phóng to.
 ### Sửa lỗi
 - Tin nhắn nhiều dòng của bạn (Shift+Enter) trước đây hiển thị dính thành một dòng - giờ giữ nguyên xuống dòng.
 - Copy hoạt động cả khi trình duyệt chặn Clipboard API (tự fallback), vd truy cập qua HTTP LAN.
@@ -7193,7 +7193,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.8.4] - 2026-07-02
 ### Thay đổi
-- Tách 2 tầng rõ ràng: **tầng hệ thống** (chức năng mặc định của Javis OS - skill javis-builder / ingest-source / query-wiki / lint-wiki + loop tự-cải-tiến) giờ đi theo mã nguồn app tại `.claude/skills/` và `system/loops/`, cập nhật cùng phiên bản khi update app; **tầng brain** chỉ còn dữ liệu của bạn (ký ức, sources, wiki, agent/skill/workflow/loop tự tạo). Đổi brain không còn mất chức năng mặc định.
+- Tách 2 tầng rõ ràng: **tầng hệ thống** (chức năng mặc định của Jarvis 007 - skill javis-builder / ingest-source / query-wiki / lint-wiki + loop tự-cải-tiến) giờ đi theo mã nguồn app tại `.claude/skills/` và `system/loops/`, cập nhật cùng phiên bản khi update app; **tầng brain** chỉ còn dữ liệu của bạn (ký ức, sources, wiki, agent/skill/workflow/loop tự tạo). Đổi brain không còn mất chức năng mặc định.
 - Đồng bộ có manifest (`.javis/system-manifest.json` trong mỗi brain): app lên bản mới thì bản skill/loop hệ thống trong brain được cập nhật theo, NHƯNG file bạn đã sửa thì giữ nguyên bản của bạn (user override); loop giữ nguyên trạng thái bật/tắt, chế độ, chu kỳ bạn đã chỉnh. Lỡ xoá file hệ thống thì tự cài lại (muốn ngừng dùng hãy TẮT skill - trạng thái tắt được tôn trọng qua mọi lần update).
 - Lúc khởi động đồng bộ cho MỌI brain trong thư mục brains (trước đây chỉ Brain Default được seed lúc boot, brain tạo ở bản cũ không bao giờ nhận skill mới); brain ngoài chọn qua `path:` được đồng bộ ngay lượt dùng đầu. Nút "Tạo cấu trúc" (vault init) giờ seed đầy đủ như brain mới tạo.
 - Skill hệ thống được nạp NATIVE cho chat ở mọi brain (nguồn chuẩn nằm trong thư mục app - engine Claude Code đọc trực tiếp), không còn phụ thuộc bản sao trong brain.
@@ -7202,7 +7202,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.8.3] - 2026-07-02
 ### Thêm mới
-- Javis Index (`Javis/index.md`): chỉ mục tầng vận hành - liệt kê MỌI agent/skill/workflow/loop/lịch trong brain, tự sinh từ file (không sửa tay), kèm dòng tổng quan + cờ sức khoẻ (workflow trỏ agent không tồn tại, agent mồ côi, skill tắt, loop tự tạm dừng). Song song wiki/index.md để bất kỳ AI/engine đọc 1 chỗ là hiểu Javis có năng lực gì.
+- Jarvis 007 Index (`Javis/index.md`): chỉ mục tầng vận hành - liệt kê MỌI agent/skill/workflow/loop/lịch trong brain, tự sinh từ file (không sửa tay), kèm dòng tổng quan + cờ sức khoẻ (workflow trỏ agent không tồn tại, agent mồ côi, skill tắt, loop tự tạm dừng). Song song wiki/index.md để bất kỳ AI/engine đọc 1 chỗ là hiểu Jarvis 007 có năng lực gì.
 - Bản gọn (live) được chèn vào system prompt mọi engine (Claude/Codex/OpenRouter) → giải bài toán "đổi model là mất nhận biết skill", và giúp không tạo trùng năng lực. Endpoint GET /javis/index. Tự dựng lại khi khởi động + theo nhịp nền (chỉ ghi khi đổi, không churn git).
 
 ## [0.8.2] - 2026-07-02
@@ -7221,19 +7221,19 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 - Sao lưu GitHub giờ đồng bộ **TOÀN BỘ thư mục brains** (mọi brain) trong MỘT lần thay vì từng brain (sửa lỗi các brain đè nhau khi tự động backup vào cùng repo). Mỗi brain là một thư mục con trong repo; xoá brain khỏi máy thì backup sau cũng bỏ. Khuyến nghị để mọi brain trong thư mục brains (tạo brain mới bằng nút ➕ là tự vào đó) để chuyển máy dễ.
 - Cơ chế mới dùng bản sao sạch (mirror): bỏ hội thoại gốc/log/khoá + git thô của từng brain (tránh lỗi nested-repo), token không lọt .git/config.
 ### Thêm mới
-- Đổi avatar/logo mặc định của Javis.
+- Đổi avatar/logo mặc định của Jarvis 007.
 
 ## [0.7.9] - 2026-07-02
 ### Thêm mới
-- Bộ "meta-capabilities" khởi đầu, tự seed vào mỗi brain: skill **javis-builder** (dạy Javis tự tạo agent/skill/workflow/loop đúng chuẩn, có chống trùng + rào an toàn) và loop **tự-cải-tiến-javis** (mặc định TẮT, chế độ đề xuất - mỗi vòng rà hệ thống, đề xuất 1 cải tiến nhỏ an toàn, ghi báo cáo vào 05 - Projects). Tạo dạng create-if-missing, không đè file bạn đã sửa.
-- Quy tắc "Làm rõ trước khi trả lời" trong system prompt: câu hỏi phức tạp/mơ hồ thì Javis tự diễn đạt lại cách hiểu + nêu giả định rồi mới làm, chỉ hỏi lại khi thực sự tắc.
+- Bộ "meta-capabilities" khởi đầu, tự seed vào mỗi brain: skill **javis-builder** (dạy Jarvis 007 tự tạo agent/skill/workflow/loop đúng chuẩn, có chống trùng + rào an toàn) và loop **tự-cải-tiến-javis** (mặc định TẮT, chế độ đề xuất - mỗi vòng rà hệ thống, đề xuất 1 cải tiến nhỏ an toàn, ghi báo cáo vào 05 - Projects). Tạo dạng create-if-missing, không đè file bạn đã sửa.
+- Quy tắc "Làm rõ trước khi trả lời" trong system prompt: câu hỏi phức tạp/mơ hồ thì Jarvis 007 tự diễn đạt lại cách hiểu + nêu giả định rồi mới làm, chỉ hỏi lại khi thực sự tắc.
 
 ## [0.7.8] - 2026-07-02
 ### Thêm mới
 - Agent chọn được model của ChatGPT/Codex (GPT-5.x) bên cạnh Claude (Sonnet/Opus/Haiku/Fable). Agent model Codex chạy qua Codex CLI - vẫn đọc/ghi file vault + dùng MCP. Dropdown model trong Studio chia 2 nhóm Claude / ChatGPT.
 - An toàn: workflow chạy nền tự động (dispatcher, file-only) luôn dùng Claude Code để giữ giới hạn công cụ, kể cả khi agent chọn Codex; model Codex chỉ áp khi chạy workflow trực tiếp ở Studio.
 ### Thay đổi
-- Tài liệu mô tả lại: Javis xây trên CLI dạng agent của nhà cung cấp (Claude Code + Codex) và tận dụng gói subscription, không còn xoay quanh chỉ Claude. Cập nhật README, docs 07/10, nhãn Docker và system prompt.
+- Tài liệu mô tả lại: Jarvis 007 xây trên CLI dạng agent của nhà cung cấp (Claude Code + Codex) và tận dụng gói subscription, không còn xoay quanh chỉ Claude. Cập nhật README, docs 07/10, nhãn Docker và system prompt.
 
 ## [0.7.7] - 2026-07-02
 ### Sửa lỗi
@@ -7265,7 +7265,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 - Loop có thêm chế độ "Toàn quyền" (mode full): loop tự thao tác THẬT ra ngoài qua MCP không cần hỏi (tạo/sửa đơn, chạy quảng cáo tiêu tiền, gửi tin, đăng bài). Dành cho ai muốn loop tự làm hết. Kèm cảnh báo rủi ro đỏ trong form + hộp xác nhận khi lưu và khi bật; tab Lịch đánh dấu "⚠ TOÀN QUYỀN".
 - 3 mức quyền rõ ràng: Đề xuất (chỉ đọc) · Tự làm an toàn (ghi nháp + đọc MCP, KHÔNG tiền/đơn) · Toàn quyền (làm mọi thứ). Mặc định vẫn là mức an toàn; chế độ toàn quyền phải tự bật.
 ### An toàn
-- Loop toàn quyền vẫn tôn trọng cài đặt "chặn tool" (deny_tools) của từng MCP server; bước tự kiểm chứng chuyển sang soi "đúng phạm vi nhiệm vụ" thay vì cấm hành động. Javis khi chat KHÔNG bao giờ tự đặt loop sang toàn quyền - chỉ khi người dùng yêu cầu rõ.
+- Loop toàn quyền vẫn tôn trọng cài đặt "chặn tool" (deny_tools) của từng MCP server; bước tự kiểm chứng chuyển sang soi "đúng phạm vi nhiệm vụ" thay vì cấm hành động. Jarvis 007 khi chat KHÔNG bao giờ tự đặt loop sang toàn quyền - chỉ khi người dùng yêu cầu rõ.
 
 ## [0.7.2] - 2026-07-02
 ### Thay đổi
@@ -7284,7 +7284,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 - API mới `/loops` (list/tạo/sửa/toggle/xoá/run-now/log lọc theo loop). `/loop/*` cũ giữ nguyên, trỏ về loop legacy `vong-lap-goc`.
 - Trang "Tự cải thiện" thành DANH SÁCH loop: trạng thái, lần chạy cuối + kết quả kiểm chứng, next run, nút bật/tắt - chạy ngay - sửa - xoá, form tạo loop đầy đủ, nhật ký lọc theo loop.
 - Tab Lịch hiện MỌI loop như routine builtin (id `__loop__:<slug>`): bật/tắt ngay tại đó; xoá thì phải sang trang Tự cải thiện.
-- Javis chat = ĐIỀU PHỐI VIÊN: system prompt thêm quy trình chọn công cụ nhỏ nhất đủ hoàn thành (trả lời → task Kanban → skill → agent → workflow → lịch → loop), kiểm tra trùng trước khi tạo, loop tạo qua chat mặc định suggest + tắt.
+- Jarvis 007 chat = ĐIỀU PHỐI VIÊN: system prompt thêm quy trình chọn công cụ nhỏ nhất đủ hoàn thành (trả lời → task Kanban → skill → agent → workflow → lịch → loop), kiểm tra trùng trước khi tạo, loop tạo qua chat mặc định suggest + tắt.
 ### Cải thiện
 - Migrate 1 lần: `loop_config.json` cũ tự sinh `Javis/loops/vong-lap-goc.md` (giữ nguyên toàn bộ custom_goal), json cũ giữ làm backup.
 
@@ -7327,9 +7327,9 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.5.0] - 2026-07-01
 ### Thay đổi
-- Đổi thương hiệu hiển thị sang Javis (giao diện, tài liệu, README, system prompt).
+- Đổi thương hiệu hiển thị sang Jarvis 007 (giao diện, tài liệu, README, system prompt).
 ### Thêm mới
-- docker-compose.hostinger.yml dùng ${COMPOSE_PROJECT_NAME} cho tên router/service Traefik: chạy được nhiều bản Javis trên cùng 1 VPS mà không đụng nhau (giống đuôi ngẫu nhiên -efxd của Hermes).
+- docker-compose.hostinger.yml dùng ${COMPOSE_PROJECT_NAME} cho tên router/service Traefik: chạy được nhiều bản Jarvis 007 trên cùng 1 VPS mà không đụng nhau (giống đuôi ngẫu nhiên -efxd của Hermes).
 
 ## [0.4.7] - 2026-07-01
 ### Sửa lỗi
@@ -7347,7 +7347,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.4.4] - 2026-07-01
 ### Thêm mới
-- File docker-compose.hostinger.yml: chạy Javis trên Hostinger với tên miền riêng + HTTPS qua Traefik có sẵn của Hostinger, bỏ cổng :7777.
+- File docker-compose.hostinger.yml: chạy Jarvis 007 trên Hostinger với tên miền riêng + HTTPS qua Traefik có sẵn của Hostinger, bỏ cổng :7777.
 ### Sửa lỗi
 - Tài liệu Hostinger nói đúng thực tế: compose gốc chỉ vào bằng IP:7777; muốn tên miền và SSL phải dùng bản có nhãn Traefik (docker-compose.hostinger.yml).
 
@@ -7383,7 +7383,7 @@ Bản 0.9.70 ship tool `javis_schedule` ra ngoài trong tình trạng KHÔNG dù
 
 ## [0.3.0] - 2026-06-29
 ### Thêm mới
-- Chạy ChatGPT qua Codex CLI trên VPS: đăng nhập bằng gói subscription, dùng được cả MCP của Javis.
+- Chạy ChatGPT qua Codex CLI trên VPS: đăng nhập bằng gói subscription, dùng được cả MCP của Jarvis 007.
 - Đăng nhập Claude bằng OAuth device-code ngay trong giao diện (không cần terminal).
 - Kiến trúc đa Second Brain: quản lý nhiều brain trong thư mục `brains/`, tạo và xoá brain trong app.
 ### Sửa lỗi

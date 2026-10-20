@@ -1,9 +1,9 @@
 <!-- translated-from: README.md sha256:2e10ad3d2a86 -->
 <div align="center">
 
-<img src="../../../dashboard/logo.svg" width="88" alt="Logotipo de Javis OS">
+<img src="../../../dashboard/logo.svg" width="88" alt="Logotipo de Jarvis 007">
 
-# Javis OS
+# Jarvis 007
 
 ### Tu agente de IA autoalojado con un cerebro intercambiable y un Second Brain que se vuelve más listo cada día.
 
@@ -36,21 +36,21 @@ Ejecútalo en tu portátil o en un VPS pequeño. Háblale con la voz. Conecta Cl
 
 [🇬🇧 English](../../../README.md) · [🇻🇳 Tiếng Việt](../vi/README.md) · [🇨🇳 简体中文](../zh/README.md) · 🇪🇸 **Español** · [🇯🇵 日本語](../ja/README.md) · [🇮🇳 हिन्दी](../hi/README.md) · [🇧🇷 Português](../pt-BR/README.md) · [🇰🇷 한국어](../ko/README.md) · [🇷🇺 Русский](../ru/README.md) · [🇩🇪 Deutsch](../de/README.md) · [🇫🇷 Français](../fr/README.md) · [🇮🇩 Bahasa Indonesia](../id/README.md) · [🌍 Ayuda a traducir](../../../CONTRIBUTING.md#translations)
 
-[Inicio rápido](#-inicio-rápido) · [Por qué Javis](#-por-qué-javis) · [Cerebros](#-12-cerebros-un-solo-kit-de-herramientas) · [Funciones](#-funciones) · [Instalación](#-instalación) · [Documentación](../../../docs/en/README.md) · [Apoyo](#-apoya-a-javis-os)
+[Inicio rápido](#-inicio-rápido) · [Por qué Jarvis 007](#-por-qué-javis) · [Cerebros](#-12-cerebros-un-solo-kit-de-herramientas) · [Funciones](#-funciones) · [Instalación](#-instalación) · [Documentación](../../../docs/en/README.md) · [Apoyo](#-apoya-a-javis-os)
 
 <br>
 
-<img src="../../../docs/assets/screenshots/graph.jpg" alt="El panel de Javis OS sobre un Brain real de 1.633 notas y 2.413 enlaces: el árbol de archivos a la izquierda, el grafo de conocimiento en el centro y la barra de chat abajo" width="100%">
+<img src="../../../docs/assets/screenshots/graph.jpg" alt="El panel de Jarvis 007 sobre un Brain real de 1.633 notas y 2.413 enlaces: el árbol de archivos a la izquierda, el grafo de conocimiento en el centro y la barra de chat abajo" width="100%">
 
 </div>
 
-> 🌍 Esta es una traducción automática del README en inglés. Javis responde en el idioma en el que le escribas; la interfaz, por ahora, está disponible en inglés y vietnamita. La documentación completa está en inglés ([docs/en](../../../docs/en/README.md)). Las correcciones son bienvenidas ([CONTRIBUTING](../../../CONTRIBUTING.md#translations)).
+> 🌍 Esta es una traducción automática del README en inglés. Jarvis 007 responde en el idioma en el que le escribas; la interfaz, por ahora, está disponible en inglés y vietnamita. La documentación completa está en inglés ([docs/en](../../../docs/en/README.md)). Las correcciones son bienvenidas ([CONTRIBUTING](../../../CONTRIBUTING.md#translations)).
 
 ---
 
 ## ⚡ Inicio rápido
 
-**La forma fácil: deja que tu propia IA lo instale.** Pásale el enlace de este repositorio a Claude Code o Codex en tu máquina y dile *"instálame Javis OS"*. Solo necesita ejecutar un comando:
+**La forma fácil: deja que tu propia IA lo instale.** Pásale el enlace de este repositorio a Claude Code o Codex en tu máquina y dile *"instálame Jarvis 007"*. Solo necesita ejecutar un comando:
 
 | Máquina | Un solo comando lo instala todo |
 |---|---|
@@ -61,17 +61,17 @@ Ejecútalo en tu portátil o en un VPS pequeño. Háblale con la voz. Conecta Cl
 Después abre **http://localhost:7777**. El instalador configura Python, los cuatro cerebros CLI de suscripción (`claude`, `codex`, `agy`, `grok`) y un `.env`, y luego arranca el servidor. Inicias sesión en cada cerebro **desde la página Models del panel**, sin tener que escribir más comandos.
 
 > [!NOTE]
-> ¿Instalaste otra CLI **después** de que Javis ya estuviera en marcha? **Reinicia Javis.** Un proceso en ejecución conserva el PATH con el que arrancó, así que no puede ver una CLI instalada más tarde.
+> ¿Instalaste otra CLI **después** de que Jarvis 007 ya estuviera en marcha? **Reinicia Jarvis 007.** Un proceso en ejecución conserva el PATH con el que arrancó, así que no puede ver una CLI instalada más tarde.
 
 <p align="center">
-<img src="../../../docs/assets/diagrams/install-terminal.svg" width="100%" alt="Terminal animada: el instalador de una línea prepara Python, los cuatro cerebros CLI por suscripción y un .env, y luego avisa que Javis está funcionando en http://localhost:7777">
+<img src="../../../docs/assets/diagrams/install-terminal.svg" width="100%" alt="Terminal animada: el instalador de una línea prepara Python, los cuatro cerebros CLI por suscripción y un .env, y luego avisa que Jarvis 007 está funcionando en http://localhost:7777">
 </p>
 
 ---
 
-## 🤔 ¿Por qué Javis?
+## 🤔 ¿Por qué Jarvis 007?
 
-Javis OS **no** es un chatbot. Es una **IA agéntica autoalojada** que se ejecuta en tu propia máquina o VPS: lee y escribe archivos, llama a herramientas mediante MCP, ejecuta skills, encola trabajo en segundo plano y se programa a sí misma. Todo eso está detrás de un **panel controlado por voz** con un **Second Brain** (memoria + wiki) que acumula conocimiento con el tiempo.
+Jarvis 007 **no** es un chatbot. Es una **IA agéntica autoalojada** que se ejecuta en tu propia máquina o VPS: lee y escribe archivos, llama a herramientas mediante MCP, ejecuta skills, encola trabajo en segundo plano y se programa a sí misma. Todo eso está detrás de un **panel controlado por voz** con un **Second Brain** (memoria + wiki) que acumula conocimiento con el tiempo.
 
 ### El encierro del que nadie te avisa
 
@@ -86,9 +86,9 @@ Todo eso está en los servidores del proveedor, en el formato del proveedor. Y u
 
 Así que te quedas. No porque el modelo de siempre siga siendo el mejor, sino porque irte significa empezar de cero. Y cuando el proveedor sube los precios, endurece los límites, retira un modelo o bloquea tu cuenta, no hay plan B.
 
-### Javis le da la vuelta: alquila el modelo, sé dueño del Brain
+### Jarvis 007 le da la vuelta: alquila el modelo, sé dueño del Brain
 
-En Javis el modelo es una pieza que puedes cambiar. Todo lo que construyes se queda contigo, en archivos que puedes abrir:
+En Jarvis 007 el modelo es una pieza que puedes cambiar. Todo lo que construyes se queda contigo, en archivos que puedes abrir:
 
 | Lo que construyes | Dónde vive | Formato |
 |---|---|---|
@@ -103,13 +103,13 @@ Lo que ganas con eso:
 
 - **¿Sale un modelo nuevo? Cámbialo en la página Models y sigue trabajando.** Lee la misma memoria, ejecuta las mismas skills, agents y workflows, y llama a las mismas conexiones a través del MCP Hub. Nada que migrar, nada que reconstruir.
 - **Usa varios cerebros a la vez.** Un modelo potente para la conversación, otro más barato para el trabajo en segundo plano, un modelo local de Ollama para las notas privadas, todos trabajando sobre el mismo Brain.
-- **Legible sin Javis.** Tu Brain es una carpeta de markdown. Ábrela en Obsidian o en cualquier editor. Si Javis desapareciera mañana, tu conocimiento seguiría ahí, en texto plano.
+- **Legible sin Jarvis 007.** Tu Brain es una carpeta de markdown. Ábrela en Obsidian o en cualquier editor. Si Jarvis 007 desapareciera mañana, tu conocimiento seguiría ahí, en texto plano.
 - **Versionado y portátil.** Cada pasada de aprendizaje es un commit de git que deshaces con un toque, y todo el Brain puede sincronizarse con tu propio repositorio privado de GitHub, compartido entre tu portátil y tu VPS.
-- **Tus datos se quedan en tu hardware.** No hay ninguna nube de Javis de por medio. Cada petición va solo al proveedor de modelos que elegiste para ella, y con un modelo local de Ollama nunca sale de tu máquina.
+- **Tus datos se quedan en tu hardware.** No hay ninguna nube de Jarvis 007 de por medio. Cada petición va solo al proveedor de modelos que elegiste para ella, y con un modelo local de Ollama nunca sale de tu máquina.
 
-### Javis frente a un chatbot corriente
+### Jarvis 007 frente a un chatbot corriente
 
-| | Un chatbot corriente | **Javis OS** |
+| | Un chatbot corriente | **Jarvis 007** |
 |---|---|---|
 | **Cerebro** | Atado a un solo modelo, una llamada a la API sin estado por mensaje | **Intercambiable**: 12 proveedores, cada uno con el conjunto completo de herramientas, MCP, skills y sesiones, incluidos modelos que se ejecutan en tu propia máquina con Ollama |
 | **Memoria** | Lo olvida todo tras cada sesión | **Un Second Brain vivo** que te recuerda y se enriquece con cada conversación |
@@ -119,20 +119,20 @@ Lo que ganas con eso:
 | **Tu trabajo** | Se queda en los servidores del proveedor, en el formato del proveedor | **Archivos planos en tu máquina**: historial, memoria, skills, agents y workflows pasan tal cual a cualquier modelo nuevo |
 | **Despliegue** | La nube de otra persona | **Autoalojado**: [Hostinger](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN) en un clic, Docker o cualquier VPS |
 
-> 💡 **La filosofía: la capacidad vive en Javis, no en el modelo.** Todos los cerebros reciben la misma caja de herramientas a través de un único hub de conexiones compartido (el MCP Hub). Cambiar de Claude a Gemini no te cuesta nada salvo el acceso a la shell, que solo tienen los motores CLI.
+> 💡 **La filosofía: la capacidad vive en Jarvis 007, no en el modelo.** Todos los cerebros reciben la misma caja de herramientas a través de un único hub de conexiones compartido (el MCP Hub). Cambiar de Claude a Gemini no te cuesta nada salvo el acceso a la shell, que solo tienen los motores CLI.
 
 <p align="center">
-<img src="../../../docs/assets/diagrams/chat-to-action.svg" width="100%" alt="Diagrama animado: un mensaje de chat entra en Javis, que elige la herramienta más pequeña que resuelve la tarea, desde responder directamente hasta encolar una tarea o crear un agent, un workflow, un recordatorio o un loop">
+<img src="../../../docs/assets/diagrams/chat-to-action.svg" width="100%" alt="Diagrama animado: un mensaje de chat entra en Jarvis 007, que elige la herramienta más pequeña que resuelve la tarea, desde responder directamente hasta encolar una tarea o crear un agent, un workflow, un recordatorio o un loop">
 </p>
 
 ---
 
 ## 🧠 12 cerebros, un solo kit de herramientas
 
-Elige el cerebro en la página **Models** (Modelos) y cámbialo cuando quieras. Javis admite hoy **12 proveedores**.
+Elige el cerebro en la página **Models** (Modelos) y cámbialo cuando quieras. Jarvis 007 admite hoy **12 proveedores**.
 
 <p align="center">
-<img src="../../../docs/assets/diagrams/swappable-brain.svg" width="100%" alt="Diagrama animado: el núcleo de Javis en el centro con sus herramientas (MCP Hub, Skills, Second Brain, Tasks, Schedules, Plugins) alrededor, mientras los 12 cerebros se conectan por turnos y todas las herramientas siguen encendidas">
+<img src="../../../docs/assets/diagrams/swappable-brain.svg" width="100%" alt="Diagrama animado: el núcleo de Jarvis 007 en el centro con sus herramientas (MCP Hub, Skills, Second Brain, Tasks, Schedules, Plugins) alrededor, mientras los 12 cerebros se conectan por turnos y todas las herramientas siguen encendidas">
 </p>
 
 | Cerebro | Cómo pagas | Shell, web, subagentes |
@@ -141,15 +141,15 @@ Elige el cerebro en la página **Models** (Modelos) y cámbialo cuando quieras. 
 | **ChatGPT** (mediante Codex) | Tu plan de ChatGPT | ✅ |
 | **Grok Build** | Tu plan SuperGrok o X Premium+ | ✅ |
 | **Antigravity CLI** | Tu plan de Google (la misma oferta de modelos que el IDE Antigravity, Claude incluido) | Shell ✅ |
-| **OpenRouter** | API key (cientos de modelos con una sola clave) | con las herramientas de Javis |
-| **OpenAI API** · **Anthropic API** · **Google Gemini** · **Groq** | API key | con las herramientas de Javis |
-| **Ollama Cloud** · **Ollama en esta máquina** | API key, o gratis en tu propio hardware | con las herramientas de Javis |
-| **Cualquier endpoint compatible con OpenAI** | Lo que pida ese endpoint | con las herramientas de Javis |
+| **OpenRouter** | API key (cientos de modelos con una sola clave) | con las herramientas de Jarvis 007 |
+| **OpenAI API** · **Anthropic API** · **Google Gemini** · **Groq** | API key | con las herramientas de Jarvis 007 |
+| **Ollama Cloud** · **Ollama en esta máquina** | API key, o gratis en tu propio hardware | con las herramientas de Jarvis 007 |
+| **Cualquier endpoint compatible con OpenAI** | Lo que pida ese endpoint | con las herramientas de Jarvis 007 |
 
 Todos los cerebros pueden llamar a tus servidores MCP conectados, leer y escribir en el Brain, ejecutar skills, encolar trabajo en Kanban y crear agents, workflows, loops y recordatorios. Los motores CLI, además, ejecutan **comandos de shell**, **consultan y buscan en la web** y **lanzan subagentes en paralelo**.
 
 > [!WARNING]
-> **Lee esto antes de dejar que una suscripción ejecute trabajo en segundo plano.** Anthropic limita Claude Pro/Max al **uso personal ordinario** de Claude Code. La ejecución continua en segundo plano (loops, recordatorios, trabajos de Kanban, chatbots), ejecutarlo en un VPS o que varias personas compartan una misma cuenta quedan fuera de ese ámbito, y **ya se han suspendido cuentas** por ello. Javis nunca lee tu token de inicio de sesión: ejecuta el binario real de `claude`, pero eso no hace legítimo un uso en segundo plano las 24 horas. Para ir sobre seguro, configura Claude Code para que funcione con una **API key** en la página Models, o apunta el **modelo de trabajo en segundo plano** a otro proveedor. La misma precaución se aplica al plan de xAI. Consulta `server/claude_auth.py`.
+> **Lee esto antes de dejar que una suscripción ejecute trabajo en segundo plano.** Anthropic limita Claude Pro/Max al **uso personal ordinario** de Claude Code. La ejecución continua en segundo plano (loops, recordatorios, trabajos de Kanban, chatbots), ejecutarlo en un VPS o que varias personas compartan una misma cuenta quedan fuera de ese ámbito, y **ya se han suspendido cuentas** por ello. Jarvis 007 nunca lee tu token de inicio de sesión: ejecuta el binario real de `claude`, pero eso no hace legítimo un uso en segundo plano las 24 horas. Para ir sobre seguro, configura Claude Code para que funcione con una **API key** en la página Models, o apunta el **modelo de trabajo en segundo plano** a otro proveedor. La misma precaución se aplica al plan de xAI. Consulta `server/claude_auth.py`.
 
 ---
 
@@ -164,15 +164,15 @@ Todos los cerebros pueden llamar a tus servidores MCP conectados, leer y escribi
 <td width="50%" valign="top">
 
 ### 🗣️ Háblale
-- **Voz manos libres**: hablas, Javis escucha y responde en voz alta (Edge TTS gratis por defecto, u OpenAI y ElevenLabs).
+- **Voz manos libres**: hablas, Jarvis 007 escucha y responde en voz alta (Edge TTS gratis por defecto, u OpenAI y ElevenLabs).
 - **Sesiones de chat** que puedes guardar, reabrir y buscar a texto completo. Las sesiones largas se compactan en resúmenes en lugar de cortarse.
-- **Telegram, Slack, WhatsApp, Zalo, una CLI y un panel web**, todos hablando con el mismo Javis ([configuración de Slack y WhatsApp](../../../docs/en/29-slack-whatsapp.md)).
-- **Cualquier idioma**: Javis responde en el idioma en el que escribes. La interfaz viene en inglés y vietnamita.
+- **Telegram, Slack, WhatsApp, Zalo, una CLI y un panel web**, todos hablando con el mismo Jarvis 007 ([configuración de Slack y WhatsApp](../../../docs/en/29-slack-whatsapp.md)).
+- **Cualquier idioma**: Jarvis 007 responde en el idioma en el que escribes. La interfaz viene en inglés y vietnamita.
 
 ### 🧠 Recuérdalo todo
 - **Second Brain**: un vault de markdown (compatible con Obsidian) con memoria a largo plazo, una Wiki y las Sources en bruto.
 - **Grafo de conocimiento** de tus notas unidas por `[[wikilink]]`, sobre un lienzo claro que funciona sin conexión.
-- **Autoaprendizaje**: después de cada conversación Javis destila recuerdos, conocimiento para la wiki y skills. Cada pasada de aprendizaje es un commit de git, así que **se deshace con un toque**.
+- **Autoaprendizaje**: después de cada conversación Jarvis 007 destila recuerdos, conocimiento para la wiki y skills. Cada pasada de aprendizaje es un commit de git, así que **se deshace con un toque**.
 - **Copia de seguridad en GitHub**: sincronización bidireccional de cada Brain con un repositorio privado, compartido entre tu portátil y tu VPS.
 
 </td>
@@ -185,7 +185,7 @@ Todos los cerebros pueden llamar a tus servidores MCP conectados, leer y escribi
 - **Chatbots**: pon un agent delante de tus clientes en su propio bot de Telegram, Slack, WhatsApp o Zalo, con una bandeja de entrada compartida en la que puedes tomar el control.
 
 ### 🔌 Conecta lo que quieras
-- **Tienda de conexiones MCP** con varias cuentas por servicio y tres niveles de permisos que Javis **aplica de forma estricta**.
+- **Tienda de conexiones MCP** con varias cuentas por servicio y tres niveles de permisos que Jarvis 007 **aplica de forma estricta**.
 - **Skills y plugins**: suelta una carpeta para añadir conocimiento práctico (skill) o una herramienta nativa de Python (plugin) para todos los motores.
 - **Generación de imágenes** con el plan de ChatGPT en el que ya tienes la sesión iniciada.
 - **Seguimiento del uso**: tokens y coste por día y por proveedor, separando lo que escribiste tú de lo que se ejecutó por su cuenta.
@@ -212,10 +212,10 @@ flowchart LR
     subgraph You
         W[Web dashboard<br>voice + graph]
         T[Telegram]
-        C[Javis CLI]
+        C[Jarvis 007 CLI]
         Z[Zalo / bot channels]
     end
-    subgraph Javis["Javis OS (FastAPI, self-hosted)"]
+    subgraph Jarvis 007["Jarvis 007 (FastAPI, self-hosted)"]
         R[Engine router]
         H[MCP Hub<br>shared toolbox]
         B[(Second Brain<br>Memory + Wiki + Sources)]
@@ -242,12 +242,12 @@ flowchart LR
 ## 🚀 Instalación
 
 > [!IMPORTANT]
-> Javis ejecuta un cerebro de IA con **permisos completos** en la máquina. Cuando se ejecuta de forma pública (Docker, VPS, Hostinger), Javis **obliga a iniciar sesión por sí solo**: al abrir la app aparece una pantalla para crear una cuenta o iniciar sesión, y nadie puede manejarlo sin contraseña.
+> Jarvis 007 ejecuta un cerebro de IA con **permisos completos** en la máquina. Cuando se ejecuta de forma pública (Docker, VPS, Hostinger), Jarvis 007 **obliga a iniciar sesión por sí solo**: al abrir la app aparece una pantalla para crear una cuenta o iniciar sesión, y nadie puede manejarlo sin contraseña.
 
 <details open>
 <summary><b>Opción 1: Hostinger Docker Manager (dominio + HTTPS, en un clic)</b></summary>
 
-> 🛒 **¿Aún no tienes VPS?** [Consigue un VPS de Hostinger aquí](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN). Trae Docker Manager integrado, así que Javis se instala en un clic. Cuando esté listo, vuelve a los pasos de abajo.
+> 🛒 **¿Aún no tienes VPS?** [Consigue un VPS de Hostinger aquí](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN). Trae Docker Manager integrado, así que Jarvis 007 se instala en un clic. Cuando esté listo, vuelve a los pasos de abajo.
 
 VPS de Hostinger → **Docker Manager → Compose → URL** → pega el archivo de Hostinger y pulsa **Deploy**:
 
@@ -255,7 +255,7 @@ VPS de Hostinger → **Docker Manager → Compose → URL** → pega el archivo 
 https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.hostinger.yml
 ```
 
-El cuadro **Environment** solo necesita tres campos: `DOMAIN_NAME`, `JAVIS_ADMIN_USER`, `JAVIS_ADMIN_PASSWORD`, más un `JAVIS_AUTO_UPDATE` opcional (ponlo en `true` y Javis se actualiza solo cada día).
+El cuadro **Environment** solo necesita tres campos: `DOMAIN_NAME`, `JAVIS_ADMIN_USER`, `JAVIS_ADMIN_PASSWORD`, más un `JAVIS_AUTO_UPDATE` opcional (ponlo en `true` y Jarvis 007 se actualiza solo cada día).
 
 Configura `DOMAIN_NAME` para que el Traefik de Hostinger emita el certificado HTTPS:
 - **Enlace gratuito** (sin comprar dominio): `DOMAIN_NAME=javis.<vps-hostname>.hstgr.cloud` (el hostname está en hPanel → VPS, p. ej. `javis.srv1562015.hstgr.cloud`).
@@ -328,7 +328,7 @@ Dashboard:                             http://localhost:7777
 </details>
 
 <details>
-<summary><b>Varias instancias de Javis en un mismo VPS</b></summary>
+<summary><b>Varias instancias de Jarvis 007 en un mismo VPS</b></summary>
 
 Los Brains, los ajustes y las cuentas se mantienen totalmente separados por instancia. Solo cambian tres valores entre ellas: `JAVIS_NAME`, `JAVIS_HOST_PORT`, `DOMAIN_NAME`.
 
@@ -342,16 +342,16 @@ Paso a paso: [DEPLOY.en.md](../../../DEPLOY.en.md).
 
 ### 🎬 Primer arranque
 
-Abre Javis y el asistente de configuración te guía, en el idioma de tu navegador:
+Abre Jarvis 007 y el asistente de configuración te guía, en el idioma de tu navegador:
 
 1. **Cuenta de administrador**: obligatoria cuando se ejecuta de forma pública, para mantener fuera a los desconocidos.
 2. **Elige un cerebro**: inicia sesión una vez con una suscripción o pega una API key. La tarjeta de Claude Code tiene un interruptor **"Runs on"** para elegir entre tu plan con sesión iniciada y una API key de Anthropic.
 3. **Elige un modelo**: cambiar de proveedor más adelante no te hace perder funciones (salvo los comandos de shell, que solo tienen los motores CLI).
-4. **Configura las conexiones** (opcional): abre **Connections** (Conexiones), elige un servicio y pega una clave o escanea un código QR. A partir de ahí Javis informa con cifras reales de ese servicio.
+4. **Configura las conexiones** (opcional): abre **Connections** (Conexiones), elige un servicio y pega una clave o escanea un código QR. A partir de ahí Jarvis 007 informa con cifras reales de ese servicio.
 
 ---
 
-## 📖 Usar Javis
+## 📖 Usar Jarvis 007
 
 La barra lateral izquierda agrupa las páginas en **6 grupos**. Cada página tiene una guía en [docs/en/](../../../docs/en/README.md).
 
@@ -361,21 +361,21 @@ La barra lateral izquierda agrupa las páginas en **6 grupos**. Cada página tie
 | **Code** | Terminal, Coding | [Terminal de código](../../../docs/en/27-code-terminal.md) |
 | **Capabilities** | Partners (agents y workflows), Chatbot, Skills, Plugins | [Agents y workflows](../../../docs/en/07-agents-and-workflows.md) · [Chatbots](../../../docs/en/25-chatbots.md) · [Conversaciones con clientes](../../../docs/en/28-customer-conversations.md) · [Skills](../../../docs/en/06-skills.md) · [Plugins](../../../docs/en/20-plugins.md) |
 | **Work** | Tasks, Scheduled | [Tareas (Kanban)](../../../docs/en/21-kanban-work.md) · [Trabajos periódicos y recordatorios](../../../docs/en/08-recurring-jobs.md) |
-| **Connections** | Connections, Javis Store, Channels, Models | [Conexiones y datos del negocio](../../../docs/en/09-connections-and-business-data.md) · [Telegram](../../../docs/en/11-telegram.md) · [Zalo](../../../docs/en/12-zalo-agent-mcp.md) · [Modelos y motores](../../../docs/en/10-models-and-engines.md) |
-| **System** | Settings, Share links, Account | [Primeros pasos](../../../docs/en/01-getting-started.md) · [Seguridad y cuentas](../../../docs/en/14-security-and-accounts.md) · [Uso y coste](../../../docs/en/23-usage-and-cost.md) · [Javis CLI](../../../docs/en/24-cli.md) |
+| **Connections** | Connections, Jarvis 007 Store, Channels, Models | [Conexiones y datos del negocio](../../../docs/en/09-connections-and-business-data.md) · [Telegram](../../../docs/en/11-telegram.md) · [Zalo](../../../docs/en/12-zalo-agent-mcp.md) · [Modelos y motores](../../../docs/en/10-models-and-engines.md) |
+| **System** | Settings, Share links, Account | [Primeros pasos](../../../docs/en/01-getting-started.md) · [Seguridad y cuentas](../../../docs/en/14-security-and-accounts.md) · [Uso y coste](../../../docs/en/23-usage-and-cost.md) · [Jarvis 007 CLI](../../../docs/en/24-cli.md) |
 
 Más: [Second Brain: memoria, Wiki e INGEST](../../../docs/en/13-second-brain.md) · [Copia de seguridad en GitHub](../../../docs/en/18-github-backup.md) · [Tareas y Dataview en las notas](../../../docs/en/19-tasks-and-dataview.md) · [Marca y dominios propios](../../../docs/en/15-branding-and-domains.md) · [Solución de problemas](../../../docs/en/17-troubleshooting.md)
 
 ### Algunas cosas para probar
 
-- **Pide cifras:** *"¿Cómo van las ventas hoy comparadas con ayer?"* Javis llama a la conexión adecuada y responde con cifras reales y sugerencias.
-- **Digiere conocimiento:** suelta un archivo o una nota. Javis lo resume, extrae ideas clave, lo escribe en la Wiki y propone tareas.
+- **Pide cifras:** *"¿Cómo van las ventas hoy comparadas con ayer?"* Jarvis 007 llama a la conexión adecuada y responde con cifras reales y sugerencias.
+- **Digiere conocimiento:** suelta un archivo o una nota. Jarvis 007 lo resume, extrae ideas clave, lo escribe en la Wiki y propone tareas.
 - **Delega trabajo en segundo plano:** **Tasks** → **+ Assign goal** → *"resume las ventas de esta semana, encuentra el stock que rota poco y redacta tres textos para impulsarlo"*. La IA lo especifica, lo ejecuta y te informa del resultado.
 - **Programa algo:** *"recuérdame cada día laborable a las 8:30 que revise el presupuesto de anuncios"*, en el chat o en la página **Scheduled** (Programados).
-- **Usa la voz:** pulsa el micrófono (o activa el modo manos libres), habla y Javis responde en voz alta.
+- **Usa la voz:** pulsa el micrófono (o activa el modo manos libres), habla y Jarvis 007 responde en voz alta.
 
 <div align="center">
-<img src="../../../docs/assets/screenshots/mobile.jpg" alt="Javis OS en un teléfono: el grafo de conocimiento arriba, la conversación debajo y la barra de chat abajo del todo" width="300">
+<img src="../../../docs/assets/screenshots/mobile.jpg" alt="Jarvis 007 en un teléfono: el grafo de conocimiento arriba, la conversación debajo y la barra de chat abajo del todo" width="300">
 <br><sub>También funciona en tu teléfono: añádelo a la pantalla de inicio y se abre como una app.</sub>
 </div>
 
@@ -383,7 +383,7 @@ Más: [Second Brain: memoria, Wiki e INGEST](../../../docs/en/13-second-brain.md
 
 ## ⚙️ Configuración (`.env`)
 
-Todas las líneas pueden quedarse vacías y Javis sigue funcionando. Copia `env.example` → `.env` y añade lo que necesites. La lista completa, con una explicación de cada variable, está en [docs/en/16-env-configuration.md](../../../docs/en/16-env-configuration.md).
+Todas las líneas pueden quedarse vacías y Jarvis 007 sigue funcionando. Copia `env.example` → `.env` y añade lo que necesites. La lista completa, con una explicación de cada variable, está en [docs/en/16-env-configuration.md](../../../docs/en/16-env-configuration.md).
 
 | Variable | Significado | Valor por defecto |
 |---|---|---|
@@ -422,7 +422,7 @@ En la app: **Settings → Updates → Update now**, con una barra de progreso y 
 
 | Síntoma | Qué hacer |
 |---|---|
-| La página Models dice que una CLI no está instalada, pero sí lo está | **Reinicia Javis**: el proceso en ejecución conserva el PATH del momento en que arrancó. |
+| La página Models dice que una CLI no está instalada, pero sí lo está | **Reinicia Jarvis 007**: el proceso en ejecución conserva el PATH del momento en que arrancó. |
 | El puerto 7777 está ocupado y la nueva versión no arranca | Detén primero el proceso antiguo (`stop-javis.bat`, o mata el PID) y vuelve a arrancar. |
 | Hostinger no puede descargar la imagen | Pon el paquete de GHCR en **Public** y espera a que termine la compilación de GitHub Actions. |
 | Un cerebro dice que no tiene la sesión iniciada | **Models** → la tarjeta de ese proveedor → iniciar sesión. |
@@ -444,7 +444,7 @@ javis-os/
 ├── tests/           # Python + JS test suite (python tests/run.py)
 ├── install.sh · install.ps1 · update.sh
 ├── Dockerfile · docker-compose*.yml
-└── CLAUDE.md        # The system prompt Javis runs on
+└── CLAUDE.md        # The system prompt Jarvis 007 runs on
 ```
 
 ---
@@ -453,7 +453,7 @@ javis-os/
 
 | Qué | Idiomas disponibles hoy |
 |---|---|
-| **Respuestas de Javis** | Cualquier idioma: responde en el idioma en el que escribes, o en el que fijes en Settings |
+| **Respuestas de Jarvis 007** | Cualquier idioma: responde en el idioma en el que escribes, o en el que fijes en Settings |
 | **Panel y mensajes del servidor** | 🇬🇧 English · 🇻🇳 Tiếng Việt, por dispositivo: cada navegador tiene su propio idioma hasta que eliges uno |
 | **Tienda de conexiones, plugins, archivos iniciales de un Brain nuevo** | 🇬🇧 English · 🇻🇳 Tiếng Việt |
 | **README y guía de inicio rápido** | 🇬🇧 English · 🇻🇳 Tiếng Việt · 🇨🇳 简体中文 · 🇪🇸 Español · 🇯🇵 日本語 · 🇮🇳 हिन्दी · 🇧🇷 Português · 🇰🇷 한국어 · 🇷🇺 Русский · 🇩🇪 Deutsch · 🇫🇷 Français · 🇮🇩 Bahasa Indonesia |
@@ -472,12 +472,12 @@ Los informes de errores, las ideas, las traducciones y los pull requests son bie
 | [CONTRIBUTING.md](../../../CONTRIBUTING.md) | Preparar el entorno, ejecutar los tests (`python tests/run.py`) y las convenciones de código |
 | [ARCHITECTURE.md](../../../ARCHITECTURE.md) | Cómo encajan las piezas y un mapa de los módulos del servidor |
 | [docs/dev/GLOSSARY.md](../../../docs/dev/GLOSSARY.md) | El código se escribió en vietnamita: aquí se descifran nombres como `nhac_hen` (recordatorio) |
-| [docs/dev/adding-a-language.md](../../../docs/dev/adding-a-language.md) | Traducir Javis a tu idioma, paso a paso |
+| [docs/dev/adding-a-language.md](../../../docs/dev/adding-a-language.md) | Traducir Jarvis 007 a tu idioma, paso a paso |
 | [Plantillas de issues](https://github.com/blogminhquy/javis-os/issues/new/choose) | Informe de error, petición de función, oferta de traducción |
 
 Sigue el [Código de conducta](../../../CODE_OF_CONDUCT.md) e informa de los problemas de seguridad en privado, como se describe en [SECURITY.md](../../../SECURITY.md).
 
-Si Javis te resulta útil, una ⭐ en el repositorio ayuda a que otras personas lo encuentren.
+Si Jarvis 007 te resulta útil, una ⭐ en el repositorio ayuda a que otras personas lo encuentren.
 
 [![Star History Chart](https://api.star-history.com/svg?repos=blogminhquy/javis-os&type=Date)](https://star-history.com/#blogminhquy/javis-os&Date)
 
@@ -486,7 +486,7 @@ Si Javis te resulta útil, una ⭐ en el repositorio ayuda a que otras personas 
 ## 🙏 Créditos
 
 - **Cerebros:** [Claude Code](https://claude.com/claude-code) y el [Claude Agent SDK](https://docs.claude.com/en/api/agent-sdk/overview) (Anthropic), [Codex CLI](https://developers.openai.com/codex/cli) (OpenAI), [Grok Build](https://x.ai) (xAI), [Antigravity](https://antigravity.google) (Google), además de las API de [OpenRouter](https://openrouter.ai), OpenAI, [Google Gemini](https://ai.google.dev), Anthropic, [Groq](https://groq.com) y [Ollama](https://ollama.com).
-- **Estándar de herramientas:** [Model Context Protocol](https://modelcontextprotocol.io). Toda la tienda de conexiones de Javis funciona sobre él.
+- **Estándar de herramientas:** [Model Context Protocol](https://modelcontextprotocol.io). Toda la tienda de conexiones de Jarvis 007 funciona sobre él.
 - Los patrones del Second Brain y del Bullet Journal digital.
 
 ## 📄 Licencia
@@ -495,15 +495,15 @@ Código abierto bajo la **licencia MIT**: úsalo, modifícalo y distribúyelo li
 
 ---
 
-## ☕ Apoya a Javis OS
+## ☕ Apoya a Jarvis 007
 
-Javis OS es gratuito y de código abierto, y sigue siendo una sola persona la que escribe el código y paga los servidores de pruebas. Si Javis te ayuda en el trabajo o en la vida, una pequeña donación compra más tiempo para corregir errores y añadir funciones nuevas.
+Jarvis 007 es gratuito y de código abierto, y sigue siendo una sola persona la que escribe el código y paga los servidores de pruebas. Si Jarvis 007 te ayuda en el trabajo o en la vida, una pequeña donación compra más tiempo para corregir errores y añadir funciones nuevas.
 
 - 🌍 **PayPal**: [paypal.me/quy01](https://paypal.me/quy01)
 - 🏦 **MB Bank** (Vietnam): `6636966369`
 - 📱 **Monedero MoMo** (Vietnam): `0372752740`
 
-¿No puedes donar? Usar Javis, enviar comentarios o abrir un pull request también cuenta como apoyo.
+¿No puedes donar? Usar Jarvis 007, enviar comentarios o abrir un pull request también cuenta como apoyo.
 
 <div align="center">
 <br>

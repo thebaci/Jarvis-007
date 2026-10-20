@@ -1,9 +1,9 @@
 @echo off
 chcp 65001 >nul
-title Javis OS
+title Jarvis 007
 echo.
 echo  ==========================================
-echo   JAVIS OS
+echo   JARVIS 007
 echo  ==========================================
 echo   Muon cai MOT LUOT ca 4 bo nao CLI
 echo   (claude, codex, agy, grok) thi chay:
@@ -36,7 +36,7 @@ call .venv\Scripts\activate.bat
 pip install -r requirements.txt -q
 if errorlevel 1 (
   echo.
-  echo  [LOI] Cai thu vien Python THAT BAI - Javis se thieu claude-agent-sdk va khong chay duoc.
+  echo  [LOI] Cai thu vien Python THAT BAI - Jarvis 007 se thieu claude-agent-sdk va khong chay duoc.
   echo        Chay tay de doc loi day du:
   echo          .venv\Scripts\python.exe -m pip install -r requirements.txt
   echo.
@@ -47,7 +47,7 @@ if errorlevel 1 (
 REM ---- BON bo nao CLI chay bang GOI DANG DANG NHAP (khong can mua API key) ----
 REM Bon engine nay can binary tren may moi hien o trang Models, va trong app KHONG cai ho duoc.
 REM Hai cai dau cai bang npm, hai cai sau bang script cua nha cung cap.
-REM BEST-EFFORT het: chua co Node thi bo qua hai cai dau, Javis van chay bang engine dung API key.
+REM BEST-EFFORT het: chua co Node thi bo qua hai cai dau, Jarvis 007 van chay bang engine dung API key.
 echo [3/4] Kiem tra cac bo nao CLI...
 where npm >nul 2>&1
 if errorlevel 1 (
@@ -72,7 +72,7 @@ for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":7777" ^| findstr "LISTENING
 
 echo.
 echo  ==========================================
-echo   Javis OS dang chay tai: http://localhost:7777
+echo   Jarvis 007 dang chay tai: http://localhost:7777
 echo   (Chon bo nao o trang Models - khong bat buoc mua API key)
 echo   Nhan Ctrl+C de dung.
 echo  ==========================================
@@ -121,6 +121,6 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "try { irm %3 -UseBasicPa
 if errorlevel 1 (
   echo       [!] Chua cai duoc. Cai tay: irm %3 ^| iex
 ) else (
-  echo       Da chay script cai. Neu trang Models van bao chua cai thi khoi dong lai Javis.
+  echo       Da chay script cai. Neu trang Models van bao chua cai thi khoi dong lai Jarvis 007.
 )
 goto :eof

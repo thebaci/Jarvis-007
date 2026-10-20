@@ -151,7 +151,7 @@
     },
     {
       "type": "tool_result",
-      "content": "# B\u1ed9 nh\u1edb Javis - Index\r\n\r\n> Ch\u1ec9 m\u1ee5c b\u1ed9 nh\u1edb d\u00e0i h\u1ea1n c\u1ee7a Javis. M\u1ed7i d\u00f2ng = 1 k\u00fd \u1ee9c, tr\u1ecf t\u1edbi file trong `facts/`.\r\n> N\u1ed9i dung file n\u00e0y \u0111\u01b0\u1ee3c n\u1ea1p v\u00e0o \u0111\u1ea7u m\u1ed7i c\u00e2u h\u1ecfi \u0111\u1ec3 Javis nh\u1edb ng\u1eef c\u1ea3nh.\r\n\r\n_(Ch\u01b0a c\u00f3 k\u00fd "
+      "content": "# B\u1ed9 nh\u1edb Jarvis 007 - Index\r\n\r\n> Ch\u1ec9 m\u1ee5c b\u1ed9 nh\u1edb d\u00e0i h\u1ea1n c\u1ee7a Jarvis 007. M\u1ed7i d\u00f2ng = 1 k\u00fd \u1ee9c, tr\u1ecf t\u1edbi file trong `facts/`.\r\n> N\u1ed9i dung file n\u00e0y \u0111\u01b0\u1ee3c n\u1ea1p v\u00e0o \u0111\u1ea7u m\u1ed7i c\u00e2u h\u1ecfi \u0111\u1ec3 Jarvis 007 nh\u1edb ng\u1eef c\u1ea3nh.\r\n\r\n_(Ch\u01b0a c\u00f3 k\u00fd "
     },
     {
       "type": "tool_call",

@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# JAVIS OS - macOS launcher (stop)
+# JARVIS 007 - macOS launcher (stop)
 # ============================================================
 set -u
 
@@ -14,4 +14,4 @@ if [ -f "${PIDF}" ]; then
 fi
 # Fallback: kill whatever holds the port
 lsof -ti "tcp:${PORT}" 2>/dev/null | xargs kill 2>/dev/null || true
-echo "JAVIS OS stopped."
+echo "JARVIS 007 stopped."

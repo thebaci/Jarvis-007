@@ -1,5 +1,5 @@
 # ============================================================
-# JAVIS OS - CAI MOT LAN TREN WINDOWS
+# JARVIS 007 - CAI MOT LAN TREN WINDOWS
 #
 #   powershell -ExecutionPolicy Bypass -File install.ps1
 #
@@ -16,8 +16,8 @@
 #   2. Cai CLI xong ma PATH cua PHIEN HIEN TAI chua co -> buoc tong ket bao "chua cai" cho
 #      mot CLI vua cai xong. Refresh-Path doc lai PATH tu registry sau moi lan cai.
 #
-# QUAN TRONG: Javis doc PATH LUC NO BAT. Cai them CLI sau khi server dang chay thi phai
-# khoi dong lai Javis moi thay (stop-javis.bat roi start-javis.vbs).
+# QUAN TRONG: Jarvis 007 doc PATH LUC NO BAT. Cai them CLI sau khi server dang chay thi phai
+# khoi dong lai Jarvis 007 moi thay (stop-javis.bat roi start-javis.vbs).
 #
 # KHONG dung ky tu co dau trong file .ps1: PowerShell tren Windows doc file khong BOM bang
 # ANSI codepage, chu co dau se thanh rac ngay tren man hinh nguoi dung.
@@ -50,7 +50,7 @@ function Have($cmd) { return [bool](Get-Command $cmd -ErrorAction SilentlyContin
 
 Line ""
 Line " =========================================="
-Line "  JAVIS OS - cai dat tren Windows"
+Line "  JARVIS 007 - cai dat tren Windows"
 Line " =========================================="
 
 # ---------------------------------------------------------------- [1] Python
@@ -175,7 +175,7 @@ foreach ($it in @(
 }
 Line ""
 Line "  Dang nhap tung bo nao NGAY TRONG trang Models cua dashboard - khong can go lenh."
-Line "  Cai them CLI sau nay thi phai KHOI DONG LAI Javis (stop-javis.bat roi start-javis.vbs),"
+Line "  Cai them CLI sau nay thi phai KHOI DONG LAI Jarvis 007 (stop-javis.bat roi start-javis.vbs),"
 Line "  vi tien trinh dang chay giu PATH cua luc no bat."
 Line ""
 
@@ -184,7 +184,7 @@ if ($NoStart) {
   Line "  Cai xong. Bat server: start-javis.vbs (chay nen) hoac setup.bat (hien cua so)."
   exit 0
 }
-Step 6 "Bat Javis"
+Step 6 "Bat Jarvis 007"
 $vbs = Join-Path $Root "start-javis.vbs"
 if (Test-Path $vbs) {
   Start-Process "wscript.exe" -ArgumentList "//nologo `"$vbs`"" -WorkingDirectory $Root

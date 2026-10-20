@@ -5,7 +5,7 @@
 #   sudo systemctl daemon-reload && sudo systemctl enable --now javis
 #   journalctl -u javis -f
 [Unit]
-Description=Javis OS
+Description=Jarvis 007
 After=network-online.target
 Wants=network-online.target
 StartLimitIntervalSec=0

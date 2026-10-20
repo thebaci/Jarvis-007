@@ -1,12 +1,12 @@
 name: Translation
-description: Offer or request a translation of Javis into a language.
+description: Offer or request a translation of Jarvis 007 into a language.
 title: "[Translation] "
 labels: ["translation"]
 body:
   - type: markdown
     attributes:
       value: |
-        Javis already replies in any language you write in. A translation adds the interface, the docs and the voice in that language.
+        Jarvis 007 already replies in any language you write in. A translation adds the interface, the docs and the voice in that language.
         The step-by-step guide is docs/dev/adding-a-language.md, and half-finished translations are welcome: anything not yet translated shows in English.
   - type: input
     id: language

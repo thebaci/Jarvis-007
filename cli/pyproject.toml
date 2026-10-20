@@ -5,15 +5,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "javis-cli"
 version = "0.17.0"
-description = "Javis CLI - nói chuyện với Javis OS từ terminal"
+description = "Jarvis 007 CLI - nói chuyện với Jarvis 007 từ terminal"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
-authors = [{ name = "Javis OS" }]
+authors = [{ name = "Jarvis 007" }]
 keywords = ["javis", "cli", "ai", "agent", "second-brain"]
 
 # CHỈ httpx. Đây là một luật, không phải sự tình cờ: gói này phải cài được trên máy chưa từng
-# có Javis, và mọi thứ kéo thêm (fastapi, uvicorn, rich...) đều là thứ người dùng phải tải về
+# có Jarvis 007, và mọi thứ kéo thêm (fastapi, uvicorn, rich...) đều là thứ người dùng phải tải về
 # chỉ để gõ một câu hỏi. Có test canh đúng danh sách này.
 dependencies = ["httpx>=0.24"]
 

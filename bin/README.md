@@ -1,6 +1,6 @@
-# JAVIS OS - macOS launchers
+# JARVIS 007 - macOS launchers
 
-Portable helpers to run JAVIS OS natively on macOS (no Docker), so you can
+Portable helpers to run JARVIS 007 natively on macOS (no Docker), so you can
 start it like a normal app.
 
 ## Prereqs (once)

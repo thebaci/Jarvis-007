@@ -1,10 +1,10 @@
 @echo off
 chcp 65001 >nul
-title JAVIS OS
+title JARVIS 007
 cd /d "%~dp0"
 
 REM ============================================================
-REM  JAVIS OS - mo nhu mot app tren Windows (ban sao cua "JAVIS OS.app" ben Mac).
+REM  JARVIS 007 - mo nhu mot app tren Windows (ban sao cua "JAVIS OS.app" ben Mac).
 REM  Double-click: server tu chay nen (khong cua so den) roi dashboard tu mo
 REM  thanh CUA SO RIENG (Edge/Chrome che do --app: khong thanh dia chi, co o
 REM  rieng tren taskbar). Tu khoi dong cung may: javis-autostart.bat install.
@@ -19,7 +19,7 @@ REM Chi mo cua so.
 curl -sf -m 2 -o nul %URL%/health 2>nul
 if %errorlevel%==0 goto :open
 
-echo Dang bat Javis OS (chay nen, log o server\javis.log)...
+echo Dang bat Jarvis 007 (chay nen, log o server\javis.log)...
 wscript //nologo start-javis.vbs
 
 REM Cho server len (toi da ~45 giay) roi moi mo - mo som chi thay trang trang.

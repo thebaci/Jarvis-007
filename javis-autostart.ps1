@@ -1,5 +1,5 @@
 # ============================================================
-# JAVIS OS - tu khoi dong cung Windows (ban sao cua bin/javis-autostart.sh ben Mac).
+# JARVIS 007 - tu khoi dong cung Windows (ban sao cua bin/javis-autostart.sh ben Mac).
 # Goi qua javis-autostart.bat, dung goi truc tiep tru khi biet minh dang lam gi.
 #
 # Cach lam: dat mot shortcut trong thu muc Startup cua USER (khong can quyen admin)
@@ -10,13 +10,13 @@ param([string]$Action = "status")
 
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Startup = [Environment]::GetFolderPath("Startup")
-$Lnk = Join-Path $Startup "JAVIS OS.lnk"
+$Lnk = Join-Path $Startup "JARVIS 007.lnk"
 
 switch ($Action.ToLower()) {
   "install" {
     $vbs = Join-Path $Root "start-javis.vbs"
     if (-not (Test-Path $vbs)) {
-      Write-Host "Khong thay start-javis.vbs canh script nay - dat javis-autostart.ps1 o goc thu muc Javis."
+      Write-Host "Khong thay start-javis.vbs canh script nay - dat javis-autostart.ps1 o goc thu muc Jarvis 007."
       exit 1
     }
     $ws = New-Object -ComObject WScript.Shell
@@ -24,7 +24,7 @@ switch ($Action.ToLower()) {
     $s.TargetPath = "wscript.exe"
     $s.Arguments = "//nologo `"$vbs`""
     $s.WorkingDirectory = $Root
-    $s.Description = "JAVIS OS - tu chay nen khi dang nhap may"
+    $s.Description = "JARVIS 007 - tu chay nen khi dang nhap may"
     $s.Save()
     Write-Host "Da bat tu khoi dong cung Windows."
     Write-Host "Shortcut: $Lnk"

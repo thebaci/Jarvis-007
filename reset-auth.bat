@@ -1,9 +1,9 @@
 @echo off
 chcp 65001 >nul
-title Reset dang nhap Javis
+title Reset dang nhap Jarvis 007
 cd /d "%~dp0"
 echo ==========================================
-echo   RESET DANG NHAP JAVIS
+echo   RESET DANG NHAP JARVIS 007
 echo   (Xoa tai khoan/mat khau -> ve bo cai dat)
 echo ==========================================
 echo.

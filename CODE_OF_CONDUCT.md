@@ -2,7 +2,7 @@
 
 ## Our pledge
 
-We want the Javis OS community to be a welcoming place for everyone, whatever their age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, sexual identity or orientation, and whatever language they write in.
+We want the Jarvis 007 community to be a welcoming place for everyone, whatever their age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, sexual identity or orientation, and whatever language they write in.
 
 ## Our standards
 
@@ -12,7 +12,7 @@ Examples of behaviour that helps:
 - Respecting different opinions, viewpoints and experiences.
 - Giving and gracefully accepting constructive feedback.
 - Taking responsibility for our mistakes, apologising to those affected and learning from them.
-- Focusing on what is best for the people who use Javis.
+- Focusing on what is best for the people who use Jarvis 007.
 
 Examples of unacceptable behaviour:
 
