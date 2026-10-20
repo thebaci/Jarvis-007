@@ -41,7 +41,7 @@ def tin_cuoi(sid):
 ok = asyncio.run(main._bao_ve_khung_goc(goc, "brain", "workflow", "viet-bai", phien_wf, "BÀI 1"))
 cuoi = tin_cuoi(goc)
 check("day duoc tin ve khung goc", ok is True and bool(cuoi))
-check("co ten loai va ket qua", "Quy trình" in cuoi and cuoi.rstrip().endswith("BÀI 1"))
+check("co ten loai va ket qua", "Workflow" in cuoi and cuoi.rstrip().endswith("BÀI 1"))
 check("co link mo dung cong su VA dung phien",
       f"(#cs=workflow:viet-bai:{phien_wf})" in cuoi)
 
@@ -60,7 +60,7 @@ dai = "x" * (main.TRAN_BAO_KHUNG_GOC + 500)
 asyncio.run(main._bao_ve_khung_goc(goc, "brain", "workflow", "viet-bai", phien_wf, dai))
 cuoi = tin_cuoi(goc)
 check("ket qua dai bi cat va noi ra la da cat",
-      len(cuoi) < len(dai) and "còn nữa" in cuoi)
+      len(cuoi) < len(dai) and "more - open the conversation" in cuoi)
 
 if fails:
     print("\nFAIL:", len(fails), fails)
