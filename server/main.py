@@ -2290,13 +2290,13 @@ def _resonance_turn_agent(conv_sid, brain, get_session):
 # trợ lý (_agent_chat_prompt). Chỉ nối khi lượt thuộc một trợ lý đang bật (_resonance_turn_enabled); review A1 tích
 # hợp P1-1: trước đó chỉ build_system_prompt có dòng này, mà phiên trợ lý lại không dùng hàm đó.
 _RESONANCE_GOAL_HINT = (
-    "GOALS (the resonance system is on): if the work finishes within this turn, just do it; for a one-off background job where "
-    "you are done once it finishes, use javis_task; for a reminder at a fixed time, use javis_schedule. When the user hands over "
-    "responsibility for pursuing a result AFTER the chat turn (do it, self-check, fix from feedback, maintain, wait for an event, "
-    "keep the work open until achieved), call the tool javis_goal op=create; to add detail to an open goal use "
-    "op=update. If the tool is not loaded, look for it: Claude Code uses ToolSearch (mcp__javis-plugins__javis_goal), "
-    "other engines use javis_search_tools. Questions and advice: do NOT set a goal. Deliverables: submit the full text via "
-    "javis_submit_deliverable."
+    "GOALS (resonance is on): finish in this turn when you can; a one-off background job (done when it finishes): "
+    "javis_task; a reminder at a fixed time: javis_schedule. When the user hands "
+    "you responsibility for pursuing a result AFTER the chat turn (do it, self-check, fix from feedback, "
+    "maintain, wait for an event, keep it open until achieved), call javis_goal op=create; to add detail to "
+    "an open goal use op=update. If not loaded: Claude Code uses ToolSearch "
+    "(mcp__javis-plugins__javis_goal), other engines use javis_search_tools. Questions and advice: NO goal. "
+    "Deliverables: submit the full text via javis_submit_deliverable."
 )
 
 
