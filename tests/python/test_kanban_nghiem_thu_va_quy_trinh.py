@@ -309,15 +309,15 @@ def test_javis_task_route(tmp_path, monkeypatch):
 
     out = m._them({"title": "Chạy S07", "route": "wf:quy-trinh-chuan-bai-dang-va-anh",
                    "chat_id": "web:s"}, Ctx())
-    assert "Chạy quy trình: wf:quy-trinh-chuan-bai-dang-va-anh" in out
-    tid = out.split("Mã việc: ")[1].split("\n")[0]
+    assert "Runs workflow: wf:quy-trinh-chuan-bai-dang-va-anh" in out
+    tid = out.split("Task id: ")[1].split("\n")[0]
     assert feature.store.get_task(tid)["route"] == "wf:quy-trinh-chuan-bai-dang-va-anh"
 
     out = m._them({"title": "Chạy nháp", "route": "wf:ban-nhap", "chat_id": "web:s"}, Ctx())
     assert "đang TẮT" in out
 
     out = m._them({"title": "S07 theo Quy trình chuẩn bài đăng và ảnh", "chat_id": "web:s"}, Ctx())
-    assert "CẢNH BÁO" in out and "wf:quy-trinh-chuan-bai-dang-va-anh" in out
+    assert "WARNING" in out and "wf:quy-trinh-chuan-bai-dang-va-anh" in out
 
 
 def test_kanban_turns_a_needs_input_workflow_error_into_needs_input(tmp_path):

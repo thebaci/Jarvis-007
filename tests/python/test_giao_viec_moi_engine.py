@@ -194,7 +194,7 @@ async def _chay():
     else:
         out = await (_r2.get("javis_task") or {}).get("call")({"op": "add", "title": "lén giao việc"})
     check("CANARY: chế độ chỉ-đọc CHẶN giao việc ở tầng quyền",
-          "ERROR" in out and "quyền" in out)
+          "ERROR" in out and "permission" in out)
     check("số việc trong kho không đổi sau lần bị chặn",
           len([t for c in (feat.board_view(str(_VAULT)).get("columns") or {}).values() for t in c]) == 5)
 

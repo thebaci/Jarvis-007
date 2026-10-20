@@ -104,7 +104,7 @@ async def chay():
 
     # ── 2. Có header -> chạy, và KHÔNG kèm dòng ghi chú brain ──
     ra = await goi(MAC_DINH, "javis_task", {"op": "list"})
-    check("có header -> qua được cổng brain", not ra.startswith("ERROR: chưa biết"))
+    check("có header -> qua được cổng brain", not ra.startswith("ERROR: it is not known"))
     check("có header -> không thêm dòng ghi chú thừa", "brain đang mở" not in ra)
 
     # ── 3. Không header, đã có phiên chat -> lấy brain của phiên gần nhất ──
@@ -126,13 +126,13 @@ async def chay():
     # ── 4. op=add cũng phải chạy (tiêu chí nghiệm thu của sự cố) ──
     ra = await goi(None, "javis_task", {"op": "add", "title": "việc thử từ phiên Codex"})
     check("op=add chạy được mà không cần người dùng tự chèn header",
-          "Mã việc:" in ra or "Đã giao việc" in ra)
+          "Task id:" in ra or "Task added" in ra)
     check("op=add cũng nói rõ brain", "Brain Default" in ra)
 
     # ── 5. Header trỏ vào thư mục không tồn tại -> vẫn rơi về, và nói rõ header hỏng ──
     ra = await goi(str(_TMP / "khong-co-that"), "javis_task", {"op": "list"})
     check("header trỏ đường dẫn không có thật -> không chết câm",
-          not ra.startswith("ERROR: chưa biết"))
+          not ra.startswith("ERROR: it is not known"))
     check("báo rõ header có gửi nhưng không dùng được", "không có thật" in ra or "không dùng được" in ra)
 
 

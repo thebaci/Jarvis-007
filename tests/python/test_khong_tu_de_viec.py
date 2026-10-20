@@ -83,9 +83,9 @@ except TypeError:
 desc = mo_ta.get("javis_task", "")
 check("tool javis_task có mô tả", bool(desc))
 check("mô tả tool nêu cổng 'chỉ khi NGƯỜI DÙNG bảo làm'",
-      "CHỈ op=add khi NGƯỜI DÙNG bảo làm" in desc)
+      "ONLY use op=add when the USER asks for" in desc)
 check("mô tả tool cấm giao việc cho 'bước tiếp theo' tự nghĩ ra",
-      "bước tiếp theo" in desc and "chưa" in desc)
+      "next step" in desc and "has not approved" in desc)
 check("mô tả tool vẫn dạy kèm chat_id (đường kết quả về đúng người)",
       "chat_id" in desc)
 

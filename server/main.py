@@ -21981,23 +21981,23 @@ async def _tg_callback(data, chat=None):
     data = data or ""
     chat_key = str(chat or "default")
     if data == "mx":
-        return {"text": "Đã đóng bảng chọn model.", "alert": "Đã đóng"}
+        return {"text": "Model picker closed.", "alert": "Closed"}
     # ---- nút chọn brain (bs:<idx> | bx) - tác động PHIÊN của người bấm ----
     if data == "bx":
-        return {"text": "Đã đóng bảng chọn brain.", "alert": "Đã đóng"}
+        return {"text": "Brain picker closed.", "alert": "Closed"}
     if data.startswith("bs:"):
         try:
             i = int(data.split(":", 1)[1])
         except ValueError:
-            return {"alert": "Dữ liệu nút lỗi"}
+            return {"alert": "Bad button data"}
         d = await asyncio.to_thread(_list_brains_sync); brains = d.get("brains") or []
         if i < 0 or i >= len(brains):
-            return {"alert": "Danh sách brain đã đổi - gõ /brain lại"}
+            return {"alert": "The brain list changed - type /brain again"}
         hit = brains[i]
         _tg_set_brain(chat_key, hit["path"])
-        return {"text": f"🧠 Đã chuyển phiên này sang brain: {hit.get('label') or hit['name']}\n"
-                        "(hội thoại reset để nạp đúng bộ nhớ/skill của brain mới)",
-                "alert": "Đã đổi brain"}
+        return {"text": f"🧠 Switched this session to brain: {hit.get('label') or hit['name']}\n"
+                        "(the conversation was reset to load the new brain's memory/skills)",
+                "alert": "Brain changed"}
     if data == "noop":
         return None   # nút chỉ-hiển-thị (số trang) - answer callback cho tắt spinner, không sửa tin
     if data in ("mp:back", "model"):
@@ -22005,9 +22005,9 @@ async def _tg_callback(data, chat=None):
     if data.startswith("mp:"):
         pid = data.split(":", 1)[1]
         if pid not in dict(_tg_providers()):
-            return {"alert": "Provider không hợp lệ - gõ /model lại"}
+            return {"alert": "Invalid provider - type /model again"}
         if not _tg_prov_ready(pid, cfgmod.read_settings().get("model", {})):
-            return {"alert": f"{_tg_prov_label(pid)} chưa kết nối - vào dashboard trang Models"}
+            return {"alert": f"{_tg_prov_label(pid)} is not connected - open the Models page on the dashboard"}
         await _tg_models_for(pid)   # nạp danh sách mới nhất trước khi vẽ trang 1
         return {"text": _tg_model_list_text(pid), "reply_markup": _model_list_kb(pid, 0)}
     if data.startswith("ml:"):
@@ -22016,7 +22016,7 @@ async def _tg_callback(data, chat=None):
             _, pid, pg = data.split(":")
             page = int(pg)
         except ValueError:
-            return {"alert": "Dữ liệu nút lỗi"}
+            return {"alert": "Bad button data"}
         if pid not in _TG_MODEL_LISTS:
             await _tg_models_for(pid)   # server vừa restart → nạp lại rồi vẽ tiếp
         return {"text": _tg_model_list_text(pid), "reply_markup": _model_list_kb(pid, page)}
@@ -22025,23 +22025,23 @@ async def _tg_callback(data, chat=None):
             _, pid, idx = data.split(":")
             i = int(idx)
         except ValueError:
-            return {"alert": "Dữ liệu nút lỗi"}
+            return {"alert": "Bad button data"}
         ids = _TG_MODEL_LISTS.get(pid) or []
         if i < 0 or i >= len(ids):
-            return {"alert": "Danh sách đã đổi - gõ /model lại"}
+            return {"alert": "The list changed - type /model again"}
         mdl = ids[i]
         s = cfgmod.read_settings(); m = s["model"]
         if not _tg_prov_ready(pid, m):
-            return {"alert": f"{_tg_prov_label(pid)} chưa kết nối - vào dashboard trang Models"}
+            return {"alert": f"{_tg_prov_label(pid)} is not connected - open the Models page on the dashboard"}
         if pid == "anthropic-cli":
             mdl = mdl.lower()   # alias opus/sonnet/haiku/fable
         _tg_dat_model(s, pid, mdl); cfgmod.write_settings(s)
-        note = {"anthropic-cli": "Claude Code - đầy đủ MCP/skill",
-                "openai-oauth": "ChatGPT qua Codex CLI - có MCP",
-                "openrouter": "OpenRouter - chat + MCP đa-model",
-                "anthropic-api": "Claude API - chat + MCP đa-model",
-                "openai": "OpenAI API - chat + MCP đa-model"}.get(pid, pid)
-        return {"text": f"✅ {note}\nModel: {mdl}", "alert": "Đã đổi model"}
+        note = {"anthropic-cli": "Claude Code - full MCP/skills",
+                "openai-oauth": "ChatGPT via Codex CLI - with MCP",
+                "openrouter": "OpenRouter - chat + multi-model MCP",
+                "anthropic-api": "Claude API - chat + multi-model MCP",
+                "openai": "OpenAI API - chat + multi-model MCP"}.get(pid, pid)
+        return {"text": f"✅ {note}\nModel: {mdl}", "alert": "Model changed"}
     return None
 
 
@@ -22053,7 +22053,7 @@ async def _tg_command(cmd, arg, chat=None, meta=None):
     if cmd == "stop":
         # Chỉ giết subprocess Claude của CHÍNH chat này (tag telegram:<chat>), không đụng người khác.
         cancel_all(f"telegram:{chat_key}")
-        return {"reply": "⏹ Đã dừng lệnh đang chạy."}
+        return {"reply": "⏹ Stopped the running command."}
     if cmd in ("reset", "new", "clear"):
         # `_tg_session` chứ không `_TG_SESS.get`: sau restart phiên RAM chưa tồn tại nhưng liên
         # kết BỀN chat -> sid thì còn, và /reset phải cắt được đúng cái đó. Tạo phiên rỗng ở đây
@@ -22067,18 +22067,18 @@ async def _tg_command(cmd, arg, chat=None, meta=None):
         sess["last"] = None
         sess["sid"] = None     # hội thoại mới → phiên mới trong kho, khỏi nối vào mạch cũ
         _tg_quen_sid(sess)
-        return {"reply": "🔄 Đã reset hội thoại (chỉ phiên của bạn)."}
+        return {"reply": "🔄 Conversation reset (your session only)."}
     if cmd in ("cli", "claude"):
         s = cfgmod.read_settings()
         _tg_dat_model(s, "anthropic-cli", (s["model"].get("main") or {}).get("model") or s["model"].get("claude_model") or "opus")
         cfgmod.write_settings(s)
-        return {"reply": "✅ Provider: Anthropic (Claude Code) - đầy đủ MCP, hỏi POS/Ads/vault được."}
+        return {"reply": "✅ Provider: Anthropic (Claude Code) - full MCP, can query POS/Ads/vault."}
     if cmd in ("or", "openrouter"):
         s = cfgmod.read_settings()
         if not s["model"].get("openrouter_key"):
-            return {"reply": "⚠ Chưa có OpenRouter key - đặt trong Models trên dashboard trước."}
+            return {"reply": "⚠ No OpenRouter key yet - set it in Models on the dashboard first."}
         _tg_dat_model(s, "openrouter", s["model"].get("openrouter_model")); cfgmod.write_settings(s)
-        return {"reply": f"✅ Provider: OpenRouter ({s['model'].get('openrouter_model')}) - chat + MCP đa-model."}
+        return {"reply": f"✅ Provider: OpenRouter ({s['model'].get('openrouter_model')}) - chat + multi-model MCP."}
     if cmd in ("help", "menu", "start"):
         return {"reply": await _tg_help_text(brain)}
     if cmd == "skills":
@@ -22087,13 +22087,13 @@ async def _tg_command(cmd, arg, chat=None, meta=None):
         prov, model, ghim = _tg_model_hieu_luc()
         busy = _tg_chat_busy(chat_key)
         bname = brain_label.display(_brain_root(brain))
-        return {"reply": ("📊 Trạng thái Javis\n"
+        return {"reply": ("📊 Jarvis 007 status\n"
                           f"Provider: {prov}\n"
                           f"Model: {model}"
-                          + (" (📌 ghim riêng cho Telegram)" if ghim else " (theo model chính)") + "\n"
-                          f"Brain: {bname} (đổi bằng /brain)\n"
-                          f"Phiên: {chat_key} (ngữ cảnh riêng)\n"
-                          f"Đang xử lý: {'có (gửi /stop để dừng)' if busy else 'rảnh'}")}
+                          + (" (📌 pinned separately for Telegram)" if ghim else " (follows the main model)") + "\n"
+                          f"Brain: {bname} (change with /brain)\n"
+                          f"Session: {chat_key} (separate context)\n"
+                          f"Busy: {'yes (send /stop to stop)' if busy else 'idle'}")}
     if cmd == "model":
         s = cfgmod.read_settings(); m = s["model"]
         a = arg.strip()
@@ -22102,15 +22102,15 @@ async def _tg_command(cmd, arg, chat=None, meta=None):
         if a.lower() in ("ghim", "pin"):
             em = _effective_main(s)
             _set_telegram_model(s, em["provider"], em["model"]); cfgmod.write_settings(s)
-            return {"reply": (f"📌 Đã ghim Telegram vào {_tg_prov_label(em['provider'])}: "
-                              f"{em['model'] or 'mặc định'}.\nĐổi model trên web không còn kéo "
-                              "Telegram theo. Gõ /model <tên> để đổi riêng cho Telegram, "
-                              "/model theo để bỏ ghim.")}
+            return {"reply": (f"📌 Pinned Telegram to {_tg_prov_label(em['provider'])}: "
+                              f"{em['model'] or 'default'}.\nChanging the model on the web no longer drags "
+                              "Telegram along. Type /model <name> to change it for Telegram only, "
+                              "/model theo to unpin.")}
         if a.lower() in ("theo", "bo-ghim", "unpin"):
             _set_telegram_model(s, "", ""); cfgmod.write_settings(s)
             em = _effective_main(s)
-            return {"reply": (f"🔗 Đã bỏ ghim. Telegram theo model chính: "
-                              f"{_tg_prov_label(em['provider'])} {em['model'] or 'mặc định'}.")}
+            return {"reply": (f"🔗 Unpinned. Telegram follows the main model: "
+                              f"{_tg_prov_label(em['provider'])} {em['model'] or 'default'}.")}
         if a:
             # HỎI DANH SÁCH THẬT TRƯỚC, đoán sau. Mấy luật đoán bên dưới ra đời khi Telegram chỉ
             # biết 3 provider, và giờ chúng gán nhầm một cách im lặng: gõ tên model của
@@ -22122,8 +22122,8 @@ async def _tg_command(cmd, arg, chat=None, meta=None):
                 return {"reply": f"✅ {_tg_prov_label(_pid)}: {a}."}
             if len(_ung_vien) > 1:
                 _ten = ", ".join(_tg_prov_label(p) for p in _ung_vien)
-                return {"reply": f"⚠ '{a}' có ở nhiều nhà cung cấp ({_ten}) nên không đoán "
-                                 f"được ý bạn. Gõ /model rồi chọn bằng nút cho chắc."}
+                return {"reply": f"⚠ '{a}' exists at several providers ({_ten}), so I cannot guess "
+                                 f"what you mean. Type /model and pick with the buttons to be sure."}
             # Không provider nào khai model này (danh sách hỏng, hoặc tên mới tinh) → về mấy
             # luật đoán cũ: id chứa "/" = OpenRouter; gpt*/*-codex = ChatGPT; còn lại = Claude.
             if "/" in a:
@@ -22131,11 +22131,11 @@ async def _tg_command(cmd, arg, chat=None, meta=None):
                 return {"reply": f"✅ OpenRouter model: {a}."}
             if _is_codex_model(a):
                 if not _tg_prov_ready("openai-oauth", m):
-                    return {"reply": "⚠ Chưa kết nối ChatGPT (OpenAI OAuth) - nối ở dashboard trang Models trước."}
+                    return {"reply": "⚠ ChatGPT (OpenAI OAuth) is not connected - connect it on the Models page of the dashboard first."}
                 _tg_dat_model(s, "openai-oauth", a); cfgmod.write_settings(s)
                 return {"reply": f"✅ ChatGPT (Codex) model: {a}."}
             _tg_dat_model(s, "anthropic-cli", a.lower()); cfgmod.write_settings(s)
-            return {"reply": f"✅ Model Claude: {a.lower()}. Nếu CLI chưa hỗ trợ tên này, query sẽ báo lỗi."}
+            return {"reply": f"✅ Claude model: {a.lower()}. If the CLI does not support this name, the query will report an error."}
         # Không tham số → mở menu nút bấm (chọn provider → chọn model, phân trang)
         return {"reply": _model_header(), "reply_markup": await _model_provider_kb()}
     if cmd == "usage":
@@ -22148,7 +22148,7 @@ async def _tg_command(cmd, arg, chat=None, meta=None):
         try:
             _view = await asyncio.to_thread(tasks_feature.board_view, brain)
         except Exception as _e:
-            return {"reply": f"⚠ Không đọc được bảng việc: {type(_e).__name__}."}
+            return {"reply": f"⚠ Could not read the task board: {type(_e).__name__}."}
         return {"reply": lenh_he_thong.dinh_dang_viec(_view)}
     if cmd == "memory":
         _bn = await asyncio.to_thread(_doc_muc_luc_bo_nho, brain, 3000)
@@ -22157,31 +22157,31 @@ async def _tg_command(cmd, arg, chat=None, meta=None):
         # Cùng khối chỉ dẫn với web (lenh_he_thong.khoi_ke_hoach). Ở Telegram chỉ có lời dặn, chưa
         # có cổng chặn ở hub: lượt Telegram chưa mang mức quyền riêng từng lượt.
         if not arg.strip():
-            return {"reply": "Gõ /plan kèm việc cần lên kế hoạch, ví dụ: /plan dọn lại kho hàng "
-                             "cuối tháng. Javis chỉ đọc và đề xuất, chưa làm gì ra ngoài."}
+            return {"reply": "Type /plan followed by the task to plan, for example: /plan tidy up the warehouse "
+                             "at the end of the month. Jarvis 007 only reads and proposes, it does not do anything outside yet."}
         return {"ask": lenh_he_thong.khoi_ke_hoach() + arg.strip()}
     if cmd == "agents":
         ags = agents_index(brain, kem_prompt=False)   # lệnh này chỉ in tên + vai trò
         busy = _tg_chat_busy(chat_key)
         if not ags:
-            return {"reply": "Chưa có agent nào (tạo trong Studio trên dashboard)."}
+            return {"reply": "No agents yet (create them in Studio on the dashboard)."}
         lines = [f"• {a.get('name')} - {(a.get('role') or '')[:50]}" for a in ags[:20]]
-        return {"reply": f"🤖 Agents ({len(ags)}):\n" + "\n".join(lines) + f"\n\nĐang chạy lượt: {'có' if busy else 'không'}"}
+        return {"reply": f"🤖 Agents ({len(ags)}):\n" + "\n".join(lines) + f"\n\nRunning a turn: {'yes' if busy else 'no'}"}
     if cmd == "workflows":
         wfs = workflows_index(brain)
         if not wfs:
-            return {"reply": "Chưa có workflow (tạo trong Studio trên dashboard)."}
+            return {"reply": "No workflows yet (create them in Studio on the dashboard)."}
         lines = [f"• {w.get('name')} ({w.get('status')})" for w in wfs[:20]]
-        return {"reply": "⚡ Workflows:\n" + "\n".join(lines) + "\n\n(Hiện chạy trên dashboard; chạy qua Telegram sẽ thêm sau.)"}
+        return {"reply": "⚡ Workflows:\n" + "\n".join(lines) + "\n\n(Currently runs on the dashboard; running through Telegram will be added later.)"}
     if cmd == "retry":
         last = (_TG_SESS.get(chat_key) or {}).get("last")
         if not last:
-            return {"reply": "Chưa có câu nào để gửi lại."}
+            return {"reply": "There is no message to resend yet."}
         return {"ask": last}
     if cmd in ("brain", "vault"):
         d = await asyncio.to_thread(_list_brains_sync); brains = d.get("brains") or []
         if not brains:
-            return {"reply": "Chưa có brain nào (tạo trong dashboard, nút + cạnh dropdown brain)."}
+            return {"reply": "No brains yet (create one on the dashboard, the + button next to the brain dropdown)."}
         a = arg.strip()
         if a:
             # match theo tên: khớp đúng trước, khớp một phần sau (không phân biệt hoa thường)
@@ -22192,26 +22192,26 @@ async def _tg_command(cmd, arg, chat=None, meta=None):
                    or next((b for b in brains if any(a.lower() in t for t in _ten(b))), None))
             if not hit:
                 names = ", ".join(b.get("label") or b["name"] for b in brains[:15])
-                return {"reply": f"⚠ Không thấy brain '{a}'. Có: {names}"}
+                return {"reply": f"⚠ Brain '{a}' not found. Available: {names}"}
             _tg_set_brain(chat_key, hit["path"])
-            return {"reply": f"🧠 Đã chuyển phiên này sang brain: {hit.get('label') or hit['name']}\n"
-                             "(hội thoại reset để nạp đúng bộ nhớ/skill của brain mới)"}
+            return {"reply": f"🧠 Switched this session to brain: {hit.get('label') or hit['name']}\n"
+                             "(the conversation was reset to load the new brain's memory/skills)"}
         # Không tham số → menu nút bấm chọn brain
         return {"reply": _tg_brain_header(chat_key), "reply_markup": _tg_brain_kb(brains, chat_key)}
     # /<slug> khác → coi là gọi skill (cần CLI)
     if cfgmod.read_settings().get("model", {}).get("engine") == "openrouter":
-        return {"reply": f"⚠ Skill cần engine Claude CLI. Gửi /cli để đổi, rồi /{cmd} lại."}
+        return {"reply": f"⚠ Skills need the Claude CLI engine. Send /cli to switch, then /{cmd} again."}
     # KHỐI NGỮ CẢNH đặt trước câu người dùng, KHÔNG viết lại câu đó. Phải khớp đúng mẫu của
     # dashboard (chat-slash.js: buildSkillInvocation) để hai kênh nói cùng một thứ - chuỗi cũ
     # nhồi câu của người dùng vào giữa một câu của máy rồi lưu nguyên thế làm tin của họ, nên
     # mở lại hội thoại là đọc được một câu mình chưa từng gõ (khách báo 16/09).
-    dan = "Hãy dùng skill này để làm việc dưới đây."
+    dan = "Use this skill to do the work below."
     try:
         co_that = any((x or {}).get("slug") == cmd for x in skills_index(_tg_brain(chat)))
     except Exception:
         co_that = False
     if not co_that:
-        dan += " Brain không có skill tên này thì cứ xử lý yêu cầu bên dưới như bình thường."
+        dan += " If the brain has no skill with this name, just handle the request below as usual."
     return {"ask": f"[SKILL: {cmd}\n{dan}]\n\n" + (arg.strip() if arg else f"/{cmd}")}
 
 
@@ -22303,9 +22303,9 @@ def _zalo_ghi_cho(meta) -> str:
 
 
 def _zalo_cau_tu_choi(ma: str) -> str:
-    return ("Bạn chưa được cấp quyền dùng Javis này.\n"
-            f"Mã ghép nối của bạn: {ma}\n"
-            "Đưa mã này cho chủ máy để họ cho phép ở trang Kênh.")
+    return ("You have not been granted access to this Jarvis 007.\n"
+            f"Your pairing code: {ma}\n"
+            "Give this code to the machine owner so they can approve it on the Channels page.")
 
 
 def _zalo_inbox_dir(chat=None):
@@ -22881,7 +22881,7 @@ def _rp_sau_khi_luu(bot_id: str) -> None:
             chatbot_runtime._RP_CHECKED.pop(bot_id, None)
             chatbot_runtime._rp_schedule_profile(bot)
     except Exception as e:      # noqa: BLE001 - soạn hồ sơ hỏng không được làm hỏng việc lưu bot
-        print(f"[reply_policy] lên lịch soạn hồ sơ sau khi lưu lỗi: {type(e).__name__}", file=__import__('sys').stderr)
+        print(f"[reply_policy] scheduling the profile draft after a save error: {type(e).__name__}", file=__import__('sys').stderr)
 
 
 @app.post("/chatbots/{bot_id}/update")
@@ -23042,7 +23042,7 @@ async def telegram_test():
             for cid in ids:
                 try:
                     r = await c.post(f"https://api.telegram.org/bot{t['token']}/sendMessage",
-                                     json={"chat_id": cid, "text": "✅ Javis Telegram đã kết nối. Nhắn câu hỏi bất kỳ nhé."})
+                                     json={"chat_id": cid, "text": "✅ Jarvis 007 Telegram is connected. Send any question."})
                     d = r.json()
                     if d.get("ok"):
                         sent += 1
@@ -23180,9 +23180,9 @@ async def telegram_send_file(payload: dict = Body(...)):
     caption = str((payload or {}).get("caption", "")).strip()
     chat_id = str((payload or {}).get("chat_id", "")).strip()
     if not (_TG_BOT and _TG_BOT._task and not _TG_BOT._task.done()):
-        return {"ok": False, "error": "Bot Telegram chưa chạy (bật ở Settings → Telegram)."}
+        return {"ok": False, "error": "The Telegram bot is not running (turn it on in Settings → Telegram)."}
     if not path:
-        return {"ok": False, "error": "Thiếu path"}
+        return {"ok": False, "error": "Missing path"}
     # chỉ nhận chat_id nằm trong whitelist (chống gửi tới ID lạ); ngoài whitelist → về chủ bot
     target = chat_id if (chat_id and chat_id in (_TG_BOT.chat_ids or [])) else None
     ok, err = await _TG_BOT.send_file(path, caption, chat=target)
@@ -23448,11 +23448,11 @@ async def _soat_secret_hong():
     try:
         hong = cfgmod.secret_paths_hong()
         if hong:
-            print("=" * 68 + f"\n[secrets] {len(hong)} secret MÃ HOÁ KHÔNG GIẢI MÃ ĐƯỢC "
-                  f"(file .secret_key trong {cfgmod.STATE_DIR} bị mất/đổi?):\n"
+            print("=" * 68 + f"\n[secrets] {len(hong)} ENCRYPTED secrets CANNOT BE DECRYPTED "
+                  f"(was the .secret_key file in {cfgmod.STATE_DIR} lost or changed?):\n"
                   + "\n".join(f"  - {p}" for p in hong)
-                  + "\nCác giá trị này cần nhập lại (2FA: đăng nhập bằng mã khôi phục rồi "
-                    "bật lại).\n" + "=" * 68,
+                  + "\nThese values need to be entered again (2FA: sign in with a recovery code, then "
+                    "turn it on again).\n" + "=" * 68,
                   file=__import__('sys').stderr)
     except Exception:
         pass
@@ -23481,7 +23481,7 @@ async def _don_the_viec_giong_mo_coi():
                 if str(t.get("created_by")) == "voice" and str(t.get("status")) == "running":
                     try:
                         store.block(str(t["id"]), "", "voice_bg",
-                                    "server khởi động lại nên việc nền không còn chạy")
+                                    "the server restarted so the background job is no longer running")
                         dem += 1
                     except Exception:
                         pass
@@ -23489,9 +23489,9 @@ async def _don_the_viec_giong_mo_coi():
     try:
         so_the = await asyncio.to_thread(_don)
         if so_the:
-            print(f"[voice bg] dọn {so_the} thẻ Việc mồ côi sau khi khởi động lại", file=sys.stderr)
+            print(f"[voice bg] cleaned {so_the} orphaned job cards after the restart", file=sys.stderr)
     except Exception as e:
-        print(f"[voice bg] dọn thẻ mồ côi lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[voice bg] cleaning orphaned cards failed: {type(e).__name__}: {e}", file=sys.stderr)
 
 
 @app.on_event("startup")
@@ -23520,7 +23520,7 @@ async def _warm_mcp_hub():
             # kết luận. Chạy trước khi nhận lượt chat đầu tiên.
             stale = await asyncio.to_thread(_CONTEXT_RUNTIME.sweep_stale_writes)
             if stale:
-                print(f"[write ledger] {len(stale)} write chuyển UNKNOWN sau restart",
+                print(f"[write ledger] {len(stale)} writes became UNKNOWN after restart",
                       file=__import__('sys').stderr)
             await asyncio.sleep(3)
             if not _hub_enabled():
@@ -23543,8 +23543,8 @@ async def _warm_mcp_hub():
                 _, lanh = await mcp_client.warm_pool(con_lai)
                 await mcp_hub.discover_all("full", force_refresh=True)
             if lanh:
-                print(f"[hub warmup] {len(lanh)} nguồn MCP vẫn chưa nóng sau 3 lượt - "
-                      "vòng kiểm sức khoẻ sẽ thử tiếp", file=__import__('sys').stderr)
+                print(f"[hub warmup] {len(lanh)} MCP sources are still not warm after 3 rounds - "
+                      "the health check loop will try again", file=__import__('sys').stderr)
         except Exception as e:
             print(f"[hub warmup] {e}", file=__import__('sys').stderr)
     asyncio.create_task(_w())
@@ -23660,16 +23660,16 @@ def _team_gate_support(provider):
         from claude_sdk_engine import ClaudeSDK
         if not ClaudeSDK.pre_tool_hooks_supported():
             return {"ok": False, "approved_actions": False,
-                    "reason": "bản claude-agent-sdk đang cài chưa có móc PreToolUse nên Javis không chặn được công cụ trước khi chạy"}
+                    "reason": "the installed claude-agent-sdk has no PreToolUse hook, so Jarvis 007 cannot block tools before they run"}
     if prov == aux_engine.CODEX:
         if not _hub_enabled():
             return {"ok": False, "approved_actions": False,
-                    "reason": "MCP Hub đang tắt nên Codex gọi thẳng các kết nối, không qua cổng duyệt của Javis"}
+                    "reason": "the MCP Hub is off, so Codex calls the connections directly, bypassing Jarvis 007's approval gate"}
         extra = _codex_user_mcp_servers()
         if extra:
             return {"ok": False, "approved_actions": False,
-                    "reason": ("Codex trên máy này có MCP riêng ngoài Javis (" + ", ".join(extra[:5]) + ") mà Javis không "
-                               "chặn được trước khi chạy")}
+                    "reason": ("Codex on this machine has its own MCPs outside Jarvis 007 (" + ", ".join(extra[:5]) + ") that Jarvis 007 cannot "
+                               "block before they run")}
     deny = True
     if prov == aux_engine.GROK_CLI:
         try:
@@ -23711,7 +23711,7 @@ def _team_engine_for(team, agent_key, role):
         # natives at `auto` (Codex sandbox, Grok deny), a PreToolUse hook on Claude. A provider that cannot stop its own
         # tools before they run is refused here, before the engine starts, with the reason.
         if os.environ.get("JAVIS_NO_REAL_TEAM_ENGINE") == "1" and team_engine.build_tools is _TEAM_ENGINE_BUILD_TOOLS_REAL:
-            raise team_runner.EngineUnavailable("JAVIS_NO_REAL_TEAM_ENGINE: không dựng engine nhóm thật")
+            raise team_runner.EngineUnavailable("JAVIS_NO_REAL_TEAM_ENGINE: not building the real team engine")
         prov = str(tool_spec.get("provider") or aux_engine.CLAUDE)
         if gate_id:
             sup = _team_gate_support(prov)
@@ -23755,14 +23755,14 @@ def _team_engine_for(team, agent_key, role):
                 pass
         avail = getattr(eng, "is_available", None)
         if callable(avail) and not avail():
-            raise team_runner.EngineUnavailable(f"engine {tool_spec['provider']} chưa sẵn sàng (kiểm tra trang Models)")
+            raise team_runner.EngineUnavailable(f"engine {tool_spec['provider']} is not ready (check the Models page)")
         return eng
 
     def _build(system, tag):
         if os.environ.get("JAVIS_NO_REAL_TEAM_ENGINE") == "1" and team_engine.build is _TEAM_ENGINE_BUILD_REAL:
             # Chốt của bộ test (review T3 vòng 2 P3): test quên thay engine thì lượt nhóm (và lượt quét, lượt học, cùng
             # nhà máy này) dừng ở đây, không dựng CLI thật. Test thay `team_engine.build` bằng engine giả thì qua.
-            raise team_runner.EngineUnavailable("JAVIS_NO_REAL_TEAM_ENGINE: không dựng engine nhóm thật")
+            raise team_runner.EngineUnavailable("JAVIS_NO_REAL_TEAM_ENGINE: not building the real team engine")
         base = _reply_policy_sandbox_engine(system, tag, cwd_name="team_cwd")
         try:
             eng = team_engine.build(spec, base, tag, settings)
@@ -23770,7 +23770,7 @@ def _team_engine_for(team, agent_key, role):
             raise team_runner.EngineUnavailable(ex.reason)
         avail = getattr(eng, "is_available", None)
         if callable(avail) and not avail():
-            raise team_runner.EngineUnavailable(f"engine {spec['provider']} chưa sẵn sàng (kiểm tra trang Models)")
+            raise team_runner.EngineUnavailable(f"engine {spec['provider']} is not ready (check the Models page)")
         return eng
 
     async def run(req):
@@ -23814,7 +23814,7 @@ def _team_engine_for(team, agent_key, role):
         def commit():
             now = _team_agent_info(root, agent_key) or {}
             if not slug or now.get("slug") != slug:
-                raise RuntimeError("agent đã đổi danh tính, không ghi bài học")
+                raise RuntimeError("the agent changed identity, not writing the lesson")
             if lessons and team.get("session_id"):
                 # T3 phần L (thiết kế 8.1): bài học của lượt nhóm vào kho bài học phạm vi NHÓM NÀY (nguồn self, gắn lượt,
                 # việc, bước), không còn vào MEMORY.md (không rò sang nhóm khác hay chat riêng).
@@ -23873,7 +23873,7 @@ class _TeamAdmin:
                 raise FileNotFoundError(slug)
             meta, body = _read_md(path)
             if not meta:
-                raise ValueError("file trợ lý không có frontmatter đọc được, không sửa")
+                raise ValueError("the assistant file has no readable frontmatter, not editing")
             meta["model"] = str(model or "").strip()
             mp = str(model_provider or "").strip()
             if meta["model"] and mp in AGENT_PROVIDERS:
@@ -23896,7 +23896,7 @@ class _TeamAdmin:
             meta, _old = _read_md(path)
             if not meta:
                 # Frontmatter hỏng hay không có: ghi lại sẽ xoá tên, vai, model, tag của trợ lý (review T3).
-                raise ValueError("file trợ lý không có frontmatter đọc được, không sửa")
+                raise ValueError("the assistant file has no readable frontmatter, not editing")
             meta["updated"] = _today()
             _write_md(path, meta, prompt)
 
@@ -23971,13 +23971,13 @@ async def _agent_judge_ask(prompt: str, purpose: str = "", started=None) -> str:
     if os.environ.get("JAVIS_NO_REAL_JUDGE_ENGINE") == "1":
         # Chốt của bộ test (tests/run.py, tests/python/_paths.py): không dựng model thật; lượt được hoàn, ứng viên im có
         # lý do. Cùng phép so `== "1"` với `agent_judge.real_engine_blocked` và `_learn_engine_for`.
-        raise agent_judge.EngineUnavailable("JAVIS_NO_REAL_JUDGE_ENGINE: không dựng engine phán xử thật")
-    cli = _reply_policy_sandbox_engine("Bạn là bộ phán xử nói/chờ/im của một nhóm trợ lý. Chỉ trả về đúng khuôn JSON "
-                                       "được yêu cầu, không thêm lời dẫn.", "agent-judge", cwd_name="agent_judge_cwd")
+        raise agent_judge.EngineUnavailable("JAVIS_NO_REAL_JUDGE_ENGINE: not building the real judge engine")
+    cli = _reply_policy_sandbox_engine("You are the speak/wait/stay-silent judge of a group of assistants. Return only the requested JSON format, "
+                                       "with no preamble.", "agent-judge", cwd_name="agent_judge_cwd")
     base = cli
     cli = aux_engine.strip_tools(_aux_swap(cli, mode="suggest", tag="agent-judge"), base)
     if not cli.is_available():
-        raise agent_judge.EngineUnavailable("engine việc nền chưa sẵn sàng (kiểm tra trang Models)")
+        raise agent_judge.EngineUnavailable("the background engine is not ready (check the Models page)")
     if callable(started):
         started()
     final = ""
@@ -23985,7 +23985,7 @@ async def _agent_judge_ask(prompt: str, purpose: str = "", started=None) -> str:
         if ev.get("type") == "final":
             final = ev.get("content", "") or ""
         elif ev.get("type") == "error":
-            raise RuntimeError(str(ev.get("content") or "lỗi engine")[:200])
+            raise RuntimeError(str(ev.get("content") or "engine error")[:200])
     return final
 
 
@@ -24033,7 +24033,7 @@ def _agent_judge_history(context_ref):
         if not mine:
             return []
         page = ss.get_messages_page(mine[0]["id"], limit=12)
-        return [{"who": "Chủ" if m.get("role") == "user" else (a["slug"]), "text": m.get("content") or ""}
+        return [{"who": "Owner" if m.get("role") == "user" else (a["slug"]), "text": m.get("content") or ""}
                 for m in (page.get("messages") or [])]
     except Exception as _e:  # noqa: BLE001
         print(f"[agent judge history] {type(_e).__name__}: {_e}", file=sys.stderr)
@@ -24339,7 +24339,7 @@ class _MandateDeps:
         tid, created = tasks_feature.store.enqueue_team(
             team["brain_id"], team["team_id"], title, intent, source_ref=source_ref,
             chat_id=f"team:{team['team_id']}", created_by=f"mandate:{team['team_id']}",
-            blocked_kind=blocked_kind, blocked_reason="Chờ chủ nhóm duyệt" if blocked_kind else "")
+            blocked_kind=blocked_kind, blocked_reason="Waiting for the team owner's approval" if blocked_kind else "")
         if created:
             _TEAM_API.teams().log_event(team["team_id"], "job_opened", "mandate", None,
                                         {"task_id": tid, "title": title, "source_ref": source_ref, "via": "mandate"})
@@ -24668,8 +24668,8 @@ def _agent_persona(root, slug, agent_key=None):
         if not reg or reg.get("slug") != slug or reg.get("status") != "active":
             return ""
     name, sysprompt, _model, _prov = _workflow_agent_helpers(root, None)[1](slug)
-    return (f"# VAI CỦA VIỆC NÀY\nViệc này được giao cho trợ lý \"{name}\". Làm đúng vai dưới đây, báo kết quả bằng "
-            f"giọng của trợ lý đó.\n\n{sysprompt}")
+    return (f"# ROLE FOR THIS JOB\nThis job was assigned to the assistant \"{name}\". Act in the role below and report the result in "
+            f"that assistant's voice.\n\n{sysprompt}")
 
 
 tasks_feature.deps.agent_persona = _agent_persona
@@ -25157,8 +25157,8 @@ def _pulse_enqueue(key, ctx, item, src):
         try:
             _TEAM_API.teams().log_event(team["team_id"], "job_opened", f"pulse:{key}", None,
                                         {"task_id": tid, "title": item["title"], "source_ref": src, "via": "pulse"})
-            runner._system(team, f"Trưởng nhóm {runner._name(team, key)} đã mở việc \"{item['title']}\" (lượt tự rà "
-                                 "soát định kỳ).", "job_opened")
+            runner._system(team, f"Team lead {runner._name(team, key)} opened the job \"{item['title']}\" (periodic self-review "
+                                 "turn).", "job_opened")
         except Exception as _e:  # noqa: BLE001
             print(f"[pulse enqueue audit] {type(_e).__name__}: {_e}", file=sys.stderr)
         _TEAM_API.kick()
@@ -25224,7 +25224,7 @@ def _pulse_proposal_action(prop, decision):
     if team is not None:
         runner = _TEAM_API.runner()
         if prop.get("message_id") is None:
-            raise ValueError("đề xuất không gắn tin của nhóm")
+            raise ValueError("the proposal is not attached to a team message")
         try:
             if decision == "accepted":
                 tid = runner.accept_proposal(team["team_id"], int(prop["message_id"]))
@@ -25239,7 +25239,7 @@ def _pulse_proposal_action(prop, decision):
         return agent_pulse.decide_proposal(st, prop["id"], "rejected", by="owner") and {"rejected": True}
     reg = _pulse_sql("SELECT brain_id, slug FROM resonance_agents WHERE agent_key=?", (prop["agent_key"],))
     if not reg:
-        raise ValueError("trợ lý không còn")
+        raise ValueError("the assistant no longer exists")
     root, slug = reg[0]["brain_id"], reg[0]["slug"]
     sid = prop.get("session_id") or _pulse_dm_session(prop["agent_key"])[0]
     name = (_team_agent_info(root, prop["agent_key"]) or {}).get("name") or slug
@@ -25547,7 +25547,7 @@ def _learn_engine_for(key, ctx, purpose):
     JAVIS_NO_REAL_JUDGE_ENGINE=1 (tests/python/_paths.py đặt cho MỌI test) hay JAVIS_NO_REAL_REVIEW_ENGINE=1 thì ném lỗi
     TRƯỚC khi dựng engine (lượt được hoàn, không lời gọi model nào). Test cần lượt học tự tiêm engine giả vào ReviewHost."""
     if "1" in (os.environ.get("JAVIS_NO_REAL_JUDGE_ENGINE"), os.environ.get("JAVIS_NO_REAL_REVIEW_ENGINE")):
-        raise RuntimeError("engine thật của lượt học bị chặn (môi trường test)")
+        raise RuntimeError("the real engine of the learning turn is blocked (test environment)")
     return _pulse_engine_for(key, ctx, purpose)
 
 

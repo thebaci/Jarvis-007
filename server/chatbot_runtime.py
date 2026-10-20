@@ -181,8 +181,8 @@ _CO_TAI_LIEU = """
 _KHONG_TAI_LIEU_CHAT = """
 ## Documents in your brain
 
-I searched and found no section that covers this question. The owner put this bot in ANSWER FROM DOCUMENTS ONLY
-mode, so in this turn say you do not have the information instead of answering from general knowledge.
+I searched and found no section that covers this question. The owner put this bot in
+ANSWER FROM DOCUMENTS ONLY mode, so in this turn say you do not have the information instead of answering from general knowledge.
 """
 
 

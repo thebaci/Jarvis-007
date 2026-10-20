@@ -246,7 +246,7 @@ p = chatbot_runtime.build_bot_prompt(_bot_ql)
 check("Zalo cá nhân vẫn có đoạn mặc định (im khi không chắc)", "[IM_LANG]" in p)
 check("đoạn mặc định nói thẳng hướng dẫn vai của chủ THẮNG nó", "ALWAYS win over this section" in p)
 check("đoạn mặc định đứng TRƯỚC file Agent (luật chủ đọc sau cùng)",
-      0 <= p.index("Zalo CÁ NHÂN của chủ") < p.index("Học sinh kể chuyện riêng"), p)
+      0 <= p.index("PERSONAL Zalo") < p.index("Học sinh kể chuyện riêng"), p)
 check("lệnh im chuyện riêng chỉ áp cho loại tin hướng dẫn vai KHÔNG nói tới",
       p.index("hướng dẫn vai KHÔNG nói tới") < p.index("chuyện riêng tư, chuyện gia đình"))
 check("Telegram không có đoạn này",
