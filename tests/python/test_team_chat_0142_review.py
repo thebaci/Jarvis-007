@@ -175,7 +175,7 @@ try:
     r.retry_reply(t["team_id"], sub["message_id"], TR.LEADER_SLOT)
     check("Thử lại khi vẫn chưa có điều phối: báo rõ", False)
 except team_store.TeamError as ex:
-    check("Thử lại khi vẫn chưa có điều phối: báo rõ", "điều phối" in str(ex))
+    check("Thử lại khi vẫn chưa có điều phối: báo rõ", "coordinator" in str(ex))
 tm.set_leader(t["team_id"], "agent-two")
 s1 = r.retry_reply(t["team_id"], sub["message_id"], TR.LEADER_SLOT)
 s2 = r.retry_reply(t["team_id"], sub["message_id"], TR.LEADER_SLOT)
@@ -277,7 +277,7 @@ for prov in ("grok-cli", "antigravity-cli"):
     sp = team_engine.choose_spec("grok-4" if prov == "grok-cli" else "gemini-3", prov, MAIN, lambda m, p: p,
                                  lambda s: (True, ""))
     check(f"{prov}: chạy bằng model chính và NÓI RÕ trên tin", sp["source"] == "main" and sp["provider"] == "anthropic-cli"
-          and prov in sp["note"] and "model chính" in sp["note"], sp)
+          and prov in sp["note"] and "main model" in sp["note"], sp)
 check("Codex và Claude vẫn dùng đúng model riêng", team_engine.choose_spec(
     "gpt-6.1-sol", "openai-oauth", MAIN, lambda m, p: p, lambda s: (True, ""))["source"] == "agent")
 

@@ -314,7 +314,7 @@ def test_javis_task_route(tmp_path, monkeypatch):
     assert feature.store.get_task(tid)["route"] == "wf:quy-trinh-chuan-bai-dang-va-anh"
 
     out = m._them({"title": "Chạy nháp", "route": "wf:ban-nhap", "chat_id": "web:s"}, Ctx())
-    assert "đang TẮT" in out
+    assert "is OFF" in out
 
     out = m._them({"title": "S07 theo Quy trình chuẩn bài đăng và ảnh", "chat_id": "web:s"}, Ctx())
     assert "WARNING" in out and "wf:quy-trinh-chuan-bai-dang-va-anh" in out

@@ -252,7 +252,7 @@ run(r.dispatch_once(wait=True))
 helpmsg = [m for m in msgs(ss, T) if m["task_id"] == j["task_id"] and m["meta"].get("role") == "help"][0]
 check("TC12 B nhờ ngược A bị chặn, có ghi chú, không thêm lượt", [(c["agent_key"], c["role"]) for c in fake.calls] == [
     ("ag_minh", "work"), ("ag_hoa", "help"), ("ag_minh", "work")]
-      and any("ngược" in n for n in helpmsg["meta"].get("notes", [])))
+      and any("reverse" in n for n in helpmsg["meta"].get("notes", [])))
 fake.calls.clear()
 fake.say("ag_minh", "work", "Hỏi Hoa." + directive(op="request_help", agent="ag_hoa", question="q1"), "A xong")
 fake.say("ag_hoa", "help", "Hỏi Tú." + directive(op="request_help", agent="ag_tu", question="q2"), "B xong")
@@ -316,7 +316,7 @@ n0 = len(inbox)
 n_blocked = len(ts.team_queue(T["team_id"])["blocked"])
 check("TC18 nhắc sau 24 giờ: mỗi việc bị chặn một lần", r.remind_blocked(now=time.time() + 25 * 3600) == n_blocked
       and r.remind_blocked(now=time.time() + 26 * 3600) == 0 and len(inbox) == n0 + n_blocked and n_blocked >= 1)
-check("tin nhắc xưng hô trung tính (bạn), không cố định anh", all("chờ bạn" in x[1] and " anh " not in x[1]
+check("tin nhắc xưng hô trung tính (bạn), không cố định anh", all("waiting for you" in x[1] and " anh " not in x[1]
                                                                 for x in inbox[n0:]), str(inbox[n0:]))
 fake.say("ag_minh", "work", "Lần này được")
 r.unblock(ja["task_id"], "retry")
@@ -679,7 +679,7 @@ fake.say("ag_minh", "work", "Hỏi Hoa." + directive(op="request_help", agent="a
          + directive(op="request_help", agent="ag_hoa", question="q"), "Lần này có kết quả")
 j = r.submit(TID, "Minh lặp", mentions=["ag_minh"], as_job=True, client_msg_id="v7")
 run(r.dispatch_once(wait=True))
-np_step = [s for s in tm.steps(j["task_id"]) if s["note"] and "tiến triển" in s["note"]]
+np_step = [s for s in tm.steps(j["task_id"]) if s["note"] and "no progress" in s["note"]]
 check("review: bước không tiến triển không được áp dụng, thành bước lỗi để Chạy lại",
       ts.get_task(j["task_id"])["block_kind"] == "no_progress" and np_step and np_step[0]["status"] == "failed"
       and np_step[0]["applied"] is False, str(np_step))

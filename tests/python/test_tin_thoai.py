@@ -270,8 +270,8 @@ check("Zalo + caption lệnh -> lệnh lên đầu mà vẫn giữ câu đã ngh
 # Zalo chưa công bố khuôn payload của tin thoại).
 b = _zbot(_stt_ok)
 out = chay(b._ingest_attachment(_ZClient(), zb.SK_VOICE, {"message_id": "m", "chat": {"id": "z"}}))
-check("Zalo thiếu đường dẫn file -> nói thẳng chứ không im", "không tải về nghe được" in out
-      or "không kèm đường dẫn" in out)
+check("Zalo thiếu đường dẫn file -> nói thẳng chứ không im", "could not download it to listen" in out
+      or "did not include a path" in out)
 check("kêu khuôn lạ đúng MỘT lần (không spam log mỗi tin)", b._da_bao_khuon_thoai is True)
 
 # Ảnh Zalo vẫn đi đường cũ (tải về đĩa, báo path) - không được sửa lây.

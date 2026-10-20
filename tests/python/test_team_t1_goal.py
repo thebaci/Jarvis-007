@@ -156,7 +156,7 @@ def reply(r, t, text, cid):
 FULL = {"caps": {"task_turns": {"unlimited": True}},
         "ceilings": {"task_turns": {"unlimited": True}, "daily_turns": 200, "task_steps": 20, "help_depth": 3},
         "can_interrupt": False, "providers_unlimited": ["aux"], "billing": "subscription"}
-PIN_NOTE = "đã đổi sau khi lượt này bắt đầu"
+PIN_NOTE = "changed after this turn started"
 
 # ═════ G1: ghim quyền theo lượt (GOAL 9 "lượt cũ không hưởng quyền cấp lại", 12.12) ═════
 # (a) Toàn quyền lúc lượt bắt đầu; giữa lượt chủ thu hồi rồi cấp lại: lệnh của lượt cũ bị từ chối kèm ghi chú.
@@ -217,7 +217,7 @@ check("G1c đối chứng: Toàn quyền không đổi thì set_cap và add_memb
 check("G1c lượt của thành viên không phải trưởng nhóm không mang ghim quyền",
       all(t.get("authority_id") is None for t in tm.turns(T["team_id"]) if t["agent_key"] != "ag_lan"))
 # Prompt của lượt có ghim còn hiệu lực vẫn có khối Toàn quyền.
-check("G1c lời nhắc của lượt có ghim còn hiệu lực có khối Toàn quyền", "## Toàn quyền" in fake.calls[-1]["prompt"])
+check("G1c lời nhắc của lượt có ghim còn hiệu lực có khối Toàn quyền", "## Full authority" in fake.calls[-1]["prompt"])
 
 # (d) Bước lập kế hoạch của việc nhóm (vai plan, đường _job_tick/_apply_step): cùng luật.
 r, tm, ts, ss, fake, admin, T, _ = world("planpin")
@@ -465,7 +465,7 @@ reply(r, T, "Bật Auto cho Minh", "r1")
 m = last_agent(ss, T)
 check("G6 trợ lý chỉ tham gia (nhóm không quản lý), chủ đã tắt: trưởng nhóm Toàn quyền KHÔNG bật lại được",
       admin.resonance["minh"] == (False, "owner") and not [x for x in admin.calls if x[0] == "resonance"]
-      and any("do nhóm này quản lý" in n for n in m["meta"]["notes"]), (admin.resonance, m["meta"]["notes"]))
+      and any("managed by this team" in n for n in m["meta"]["notes"]), (admin.resonance, m["meta"]["notes"]))
 OTHER = new_team("resonance-khac", mem=("hoa", "tu"), leader="ag_tu")
 tm.set_managed(OTHER["team_id"], "ag_hoa", True)
 fake.say("ag_lan", "leader_reply", "Bật Auto." + directive(op="set_resonance", agent="hoa", on=True))

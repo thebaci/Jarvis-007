@@ -351,8 +351,8 @@ def chuan_hoa_tin(conn: dict, msg: dict, ten: Dict[str, dict]) -> Optional[dict]
     text = str(text or "")
     if loai != "text" and not text.strip():
         # The account's own photo (isSelf, from the owner's phone) is not "the customer sent".
-        text = (f"[{conversations.KENH_NHAN[KENH]}: sent {loai}]" if _la_cua_minh(msg)
-                else f"[{conversations.KENH_NHAN[KENH]}: customer sent {loai}]")
+        text = (f"[{conversations.KENH_NHAN[KENH]}: gửi {loai}]" if _la_cua_minh(msg)
+                else f"[{conversations.KENH_NHAN[KENH]}: khách gửi {loai}]")
     vao_nhom = _su_kien_vao_nhom(msg) if nhom else None
     if vao_nhom is not None:
         ten_moi = sender_name or sender_id

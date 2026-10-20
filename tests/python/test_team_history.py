@@ -120,8 +120,8 @@ check("review #3: tìm đọc theo lô nhỏ vẫn ra đủ, mới trước", [m
     "lặp lại số 73", "lặp lại số 63", "lặp lại số 53", "lặp lại số 43", "lặp lại số 39"], [m["content"] for m in found])
 asyncio.run(r.run_replies(r.submit(A["team_id"], "Hỏi tiếp", client_msg_id="c9")))
 p = rec.reqs[-1]["prompt"]
-check("review #4: tóm tắt chỉ đúng hướng (lịch sử ở dưới)", "phần lịch sử ở dưới" in p and "ở trên" not in p.split(
-    "## Tóm tắt phần cũ")[1].split("\n## ")[0], p[-2000:])
+check("review #4: tóm tắt chỉ đúng hướng (lịch sử ở dưới)", "the history below" in p and "above" not in p.split(
+    "## Summary of the team's older history")[1].split("\n## ")[0], p[-2000:])
 
 # ═════ Mở nhóm chỉ tải trang đầu ═════
 page = ss.get_team_messages_page(A["session_id"])

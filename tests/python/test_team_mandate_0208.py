@@ -126,8 +126,8 @@ def touch(p, text, clock):
 # ═════ 1. Off by default, owner-only, validated ═════
 r, tm, ts, ss, st, eng, deps, clock, T, brain = world("off")
 check("no mandate: nothing observed", eng.tick() == [] and st.get(T["team_id"]) is None)
-for bad, why in (({}, "outcome"), (dict(BASE, sources=[]), "nguồn"), (dict(BASE, sources=["folder:../x"]), "nguồn"),
-                 (dict(BASE, sources=["http://x"]), "nguồn")):
+for bad, why in (({}, "outcome"), (dict(BASE, sources=[]), "source"), (dict(BASE, sources=["folder:../x"]), "source"),
+                 (dict(BASE, sources=["http://x"]), "source")):
     try:
         st.put(T["team_id"], bad)
         got = None
@@ -152,7 +152,7 @@ check("the opportunity carries source, ref, data version, reason tied to the out
       and opp["benefit"] and any("tuan-2.md" in e for e in opp["evidence"]), opp)
 check("the job was opened with the trace in its source ref and intent", deps.opened and
       deps.opened[0][3] == f"mandate:{opp['opp_id']}" and opp["opp_id"] in deps.opened[0][2]
-      and "mục tiêu v1" in deps.opened[0][2], deps.opened)
+      and "goal v1" in deps.opened[0][2], deps.opened)
 job = opp["task_id"]
 run(r.dispatch_once())
 check("the mandate job runs like any team job and finishes", ts.get_task(job)["status"] == "done", ts.get_task(job)["status"])

@@ -74,8 +74,8 @@ job = r.submit(T["team_id"], "Viết bài", mentions=["minh"], as_job=True, clie
 run(r.dispatch_once())
 t = ts.get_task(job)
 check("việc chặn vì hết lượt trong ngày, lý do bằng lời thường (không có chữ 'trần')",
-      t["status"] == "team_blocked" and t["block_kind"] == "cap_reached" and "trần" not in t["block_reason"]
-      and "hôm nay" in t["block_reason"], t["block_reason"])
+      t["status"] == "team_blocked" and t["block_kind"] == "cap_reached" and "cap" not in t["block_reason"]
+      and "today" in t["block_reason"], t["block_reason"])
 out = r.extend_job(job)
 check("Cho thêm lượt: nâng đúng trần ngày (+20), việc về hàng chờ", out and out["cap"] == "daily_turns"
       and out["value"] == 21 and tm.get(T["team_id"])["caps"]["daily_turns"] == 21
@@ -196,8 +196,8 @@ r, tm, ts, ss, fake, T = world("authmsg")
 r.grant_authority(T["team_id"], {"ceilings": {"daily_turns": 50}})
 r.revoke_authority(T["team_id"])
 sys_msgs = [m["content"] for m in ss.get_team_messages_page(T["session_id"], limit=50)["messages"] if m["author_kind"] == "system"]
-check("bật rồi thu quyền tự quyết: hai tin hệ thống nói rõ", any("tự quyết" in s for s in sys_msgs)
-      and any("thu lại" in s for s in sys_msgs), sys_msgs)
+check("bật rồi thu quyền decide on their own: hai tin hệ thống nói rõ", any("tự quyết" in s for s in sys_msgs)
+      and any("took back" in s for s in sys_msgs), sys_msgs)
 
 # ═════ Review b93c46bd #3: bản ghi chặn bị đẩy khỏi 500 sự kiện cuối của nhóm vẫn được tìm thấy theo việc ═════
 r, tm, ts, ss, fake, T = world("cap500")
@@ -241,8 +241,8 @@ check("lượt trả lời có đoạn chỉ chữ, đặt SAU lời nhắc củ
 check("lượt Làm của việc có đoạn CÓ công cụ thay đoạn chỉ chữ, đặt SAU lời nhắc của trợ lý",
       TR.WORK_TOOLS_NOTE in roles["work"] and TR.TEXT_ONLY_NOTE not in roles["work"]
       and roles["work"].index(TR.WORK_TOOLS_NOTE) > 0, roles["work"][-300:])
-check("đoạn chỉ chữ nói rõ không có công cụ và gọi công cụ làm hỏng lượt", "không có công cụ" in TR.TEXT_ONLY_NOTE
-      and "hỏng" in TR.TEXT_ONLY_NOTE)
+check("đoạn chỉ chữ nói rõ không có công cụ và gọi công cụ làm hỏng lượt", "has no tools" in TR.TEXT_ONLY_NOTE
+      and "break the turn" in TR.TEXT_ONLY_NOTE)
 
 # ═════ Review tích hợp 0.140.0: nhắc việc chặn quá 24 giờ chỉ một lần, kể cả khi nhóm có hơn 500 sự kiện sau đó ═════
 r, tm, ts, ss, fake, T = world("remind")

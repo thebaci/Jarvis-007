@@ -80,13 +80,13 @@ check("floor: read_tokens count as a read command",
 # ============================================================
 ok, why = mcp_catalog.allowed(GH, "readonly", "full", "label_write", {"method": "create"})
 check("Read-only blocks create", not ok)
-check("message names the command and the tool", "Lệnh create qua 'label_write'" in why, why)
+check("message names the command and the tool", "Command create via 'label_write'" in why, why)
 ok, _ = mcp_catalog.allowed(GH, "safe", "full", "label_write", {"method": "create"})
 check("Draft runs create", ok)
 ok, why = mcp_catalog.allowed(GH, "safe", "full", "label_write", {"method": "delete"})
 check("Draft blocks delete", not ok)
 check("Draft message names delete and says plain writes still run",
-      "Lệnh delete qua 'label_write'" in why and "lệnh ghi thường vẫn chạy" in why, why)
+      "Command delete via 'label_write'" in why and "ordinary write commands still work" in why, why)
 ok, _ = mcp_catalog.allowed(GH, "full", "full", "label_write", {"method": "delete"})
 check("Full access runs delete", ok)
 ok, _ = mcp_catalog.allowed(GH, "full", "auto", "label_write", {"method": "delete"})

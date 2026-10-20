@@ -109,7 +109,7 @@ check("lượt kế tiếp của B trong nhóm 1 có mục góp ý đúng tiêu 
       ALS.PEER_HEADER in p and "Thiếu nguồn số liệu ở đoạn hai" in p and "Trưởng" in p and "team lead" in p
       and f"#{mB}" in p, p[-1200:])
 check("khối nói rõ không phải yêu cầu của chủ, nhiều trợ lý đồng ý không là bằng chứng độc lập",
-      "không phải yêu cầu của chủ" in p and "không phải bằng chứng độc lập" in p)
+      "request from the team owner" in p and "not independent evidence" in p)
 say(T1, B)
 check("đã giao thì lượt sau không hiện lại", "Thiếu nguồn số liệu" not in box["prompts"][B][-1])
 say(T2, B)

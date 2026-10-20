@@ -279,7 +279,7 @@ check("lệnh react của trưởng nhóm: lưu với source_kind leader do host
 check("agent không thả lên tin của chính mình", tm.reaction_of(sid, ml, f"agent:{lan['agent_key']}") is None)
 reply = [x for x in ss.get_team_messages_page(sid, 50)["messages"] if x["author_ref"] == lan["agent_key"]][-1]
 check("thả lên tin của chính mình: ghi chú trên tin, không lọt khối JAVIS_TEAM",
-      any("chính mình" in n for n in reply["meta"].get("notes") or []) and "JAVIS_TEAM" not in reply["content"],
+      any("your own message" in n for n in reply["meta"].get("notes") or []) and "JAVIS_TEAM" not in reply["content"],
       reply["meta"])
 check("reaction của agent không làm mất reaction của chủ (người phản hồi khác nhau)",
       tm.reaction_of(sid, mm) is None)

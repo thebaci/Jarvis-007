@@ -174,7 +174,7 @@ check("F1a khoá bận đã sang lượt khác: lệnh add_member của đầu r
 check("F1a không ghi bài học của lượt đã mất quyền giữ", committed == [], committed)
 check("F1a tin vẫn đăng làm bằng chứng, trạng thái lease_lost, nói rõ lý do",
       m is not None and m["meta"]["status"] == "lease_lost" and m["meta"]["applied"] is False
-      and m["meta"].get("lease_lost") == "busy_taken" and any("mất quyền giữ" in n for n in m["meta"]["notes"]),
+      and m["meta"].get("lease_lost") == "busy_taken" and any("lost its hold" in n for n in m["meta"]["notes"]),
       m and m["meta"])
 row = tm.busy_turn("ag_lan")
 check("F1a lượt cũ không nhả hay ghi đè khoá của lượt khác", row == "tu_other", row)
@@ -369,7 +369,7 @@ wake_ev = [e for e in tm.events(T["team_id"]) if e["kind"] == "agent_wake_failed
 check("F4 sự kiện lỗi đánh thức ghi trợ lý và nguyên nhân",
       wake_ev and wake_ev[-1]["after"]["agent_key"] == "ag_minh" and "locked" in wake_ev[-1]["after"]["error"], wake_ev)
 check("F4 ghi chú nói Auto ĐÃ bật, chỉ chưa đánh thức ngay (không báo cả lệnh thất bại)",
-      any("Auto đã bật" in n for n in m["meta"]["notes"]) and not any("không áp" in n.lower() for n in m["meta"]["notes"]),
+      any("Auto is on" in n for n in m["meta"]["notes"]) and not any("could not be applied" in n.lower() for n in m["meta"]["notes"]),
       m["meta"]["notes"])
 sysmsgs = [x for x in msgs(ss, T) if x["author_kind"] == "system"]
 check("F4 tin hệ thống báo trưởng nhóm đã bật Auto", any("turned Auto on for" in x["content"] for x in sysmsgs),

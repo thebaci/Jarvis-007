@@ -204,8 +204,8 @@ check("H8 nhật ký nhóm có agent_set_resonance và agent_wake_failed kèm ng
       and "locked" in next(e for e in evs if e["kind"] == "agent_wake_failed")["after"]["error"],
       [(e["kind"], e.get("after")) for e in evs[:4]])
 check("H8 ghi chú trên tin nói Auto đã bật, không báo lệnh thất bại",
-      any("Auto đã bật" in n for n in last_lan["meta"]["notes"])
-      and not any("Không áp được lệnh" in n or "lỗi" == n for n in last_lan["meta"]["notes"]), last_lan["meta"]["notes"])
+      any("Auto is on" in n for n in last_lan["meta"]["notes"])
+      and not any("could not be applied" in n or "lỗi" == n for n in last_lan["meta"]["notes"]), last_lan["meta"]["notes"])
 
 # ═════ H9 (review T1 #7): NaN và vô cực qua route caps trả 4xx, không lưu, JSON trả về hợp lệ ═════
 caps0 = c.get(f"/teams/{TID}{Q}").json()["team"]["caps"]

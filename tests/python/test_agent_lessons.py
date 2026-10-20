@@ -75,7 +75,7 @@ check("loại, nguồn sai bị từ chối",
       raises(lambda: AL.add(st, agent_key=K, scope="*", kind="xx", text="x", source="self"), ValueError)
       and raises(lambda: AL.add(st, agent_key=K, scope="*", kind="method", text="x", source="boss"), ValueError))
 blk = AL.prompt_block(st, K, "team:A")
-check("khối lời nhắc nhóm có mã, phạm vi và nguồn", f"[L{a}]" in blk and "nhóm này" in blk and "turn:t1" in blk
+check("khối lời nhắc nhóm có mã, phạm vi và nguồn", f"[L{a}]" in blk and "this team" in blk and "turn:t1" in blk
       and "everywhere" in blk and "Nhóm B" not in blk, blk)
 check("khối lời nhắc chat riêng không có bài học nhóm",
       "Nhóm B" not in AL.prompt_block(st, K, f"dm:{K}") and "hỏi lại" in AL.prompt_block(st, K, f"dm:{K}"))

@@ -64,7 +64,7 @@ def call(args, root=BR):
 check("one tool, javis_memory, at level safe", name == "javis_memory" and kw.get("min_mode") == "safe")
 check("owner only: a customer-facing bot never sees it", "javis_memory" in mcp_hub.OWNER_ONLY_TOOLS)
 check("description is plain and says the person has no other screen for this",
-      "không có màn hình nào" in desc and "\u2014" not in desc and "\u2013" not in desc)
+      "no other screen for this" in desc and "\u2014" not in desc and "\u2013" not in desc)
 man = (ROOT / "system" / "plugins" / "javis-memory" / "plugin.yaml").read_text(encoding="utf-8")
 check("manifest: bundled, on, lists the tool", "enabled: true" in man and "- javis_memory" in man)
 
