@@ -120,16 +120,16 @@ if ! command -v claude >/dev/null 2>&1; then
 fi
 ok "Claude CLI $(claude --version 2>/dev/null || echo installed)"
 
-# --- 4b. Codex CLI (gói ChatGPT) ---
+# --- 4b. Codex CLI (ChatGPT plan) ---
 #
-# BEST-EFFORT, cố ý khác Claude ở trên: thiếu Claude thì Jarvis 007 không còn bộ não mặc định nào
-# để chạy, còn thiếu cái này chỉ mất đúng một engine. Nên lỗi ở đây chỉ cảnh báo chứ không cho
-# `set -e` giết cả lần cài.
+# BEST-EFFORT, deliberately different from Claude above: without Claude, Jarvis 007 has no default brain left
+# to run, while a missing Codex only loses exactly one engine. So a failure here only warns and does not let
+# `set -e` kill the whole install.
 #
-# Bộ não Google cho tài khoản cá nhân hiện nay là Antigravity CLI (`agy`), KHÔNG cài ở đây:
-# trình cài của Google là một script tải về chạy thẳng, để chủ máy tự quyết. Trang Models có
-# sẵn lệnh cài trên thẻ.
-cai_them_cli() {   # <gói npm> <tên binary> <tên hiển thị>
+# The Google brain for a personal account is now Antigravity CLI (`agy`), NOT installed here:
+# Google's installer is a download-and-run script, left for the machine owner to decide. The Models page has
+# the install command ready on its card.
+cai_them_cli() {   # <npm package> <binary name> <display name>
   # Codex supplies the live model catalog; an installed old CLI must be upgraded.
   if [ "$2" != "codex" ] && command -v "$2" >/dev/null 2>&1; then return 0; fi
   log "Installing $3 globally via npm (best-effort)..."
@@ -139,22 +139,22 @@ cai_them_cli() {   # <gói npm> <tên binary> <tên hiển thị>
     warn "Could not install $3 - that engine will not show on the Models page. Install it by hand: npm i -g $1"
   fi
 }
-# Engine Gemini CLI đã GỠ HẲN ở 0.50.0 (Google ngắt mọi tài khoản cá nhân từ 18/06/2026).
+# The Gemini CLI engine was REMOVED entirely in 0.50.0 (Google cut off every personal account from 2026-06-18).
 cai_them_cli @openai/codex@latest codex "Codex CLI"
 
-# --- 4c. agy (Antigravity CLI, đường Google) + grok (Grok Build, đường xAI) ---
+# --- 4c. agy (Antigravity CLI, the Google route) + grok (Grok Build, the xAI route) ---
 #
-# Hai engine này KHÔNG cài bằng npm: mỗi nhà một script tải về chạy thẳng. Trước 0.59.13 cài
-# xong Jarvis 007 là người dùng còn phải tự mở terminal gõ hai dòng của hai nhà khác nhau, và chủ
-# dự án báo đúng chỗ đó làm người không quen kỹ thuật tắc ở màn Models với hai thẻ "CLI chưa
-# cài" (16/09). Nay cài luôn một lượt.
+# These two engines are NOT installed with npm: each vendor ships a download-and-run script. Before 0.59.13, after
+# installing Jarvis 007 the user still had to open a terminal and type two lines from two different vendors, and the owner
+# of the project reported that exact spot as where non-technical people got stuck on the Models screen with two "CLI not
+# installed" cards (16/09). Now both are installed in one go.
 #
-# BEST-EFFORT tuyệt đối: chạy script của nhà thứ ba nên hỏng là chuyện bình thường (mạng, máy
-# lạ, nhà cung cấp đổi URL) - hỏng thì nói một dòng rồi đi tiếp, không được giết lần cài.
-# ĐĂNG NHẬP thì vẫn là việc của người dùng, làm ở trang Models sau khi Jarvis 007 chạy.
-cai_cli_script() {   # <tên binary> <tên hiển thị> <URL script cài>
-  if command -v "$1" >/dev/null 2>&1; then ok "$2 da co san"; return 0; fi
-  log "Installing $2 (best-effort, script cua nha cung cap)..."
+# Absolutely BEST-EFFORT: this runs a third party's script, so failure is normal (network, unusual machine,
+# vendor changed the URL) - on failure say one line and move on, never kill the install.
+# SIGN-IN is still the user's job, done on the Models page after Jarvis 007 is running.
+cai_cli_script() {   # <binary name> <display name> <install script URL>
+  if command -v "$1" >/dev/null 2>&1; then ok "$2 already installed"; return 0; fi
+  log "Installing $2 (best-effort, the vendor script)..."
   if curl -fsSL "$3" | bash >/dev/null 2>&1; then
     export PATH="$HOME/.local/bin:$PATH"
     if command -v "$1" >/dev/null 2>&1; then ok "$2"; else
@@ -192,26 +192,26 @@ if [ -t 0 ]; then
 fi
 grep -q '^JAVIS_HOST=' .env || echo "JAVIS_HOST=127.0.0.1" >> .env
 
-# --- 7b. Tài khoản quản trị: ĐẶT SẴN ngay lúc cài ---
+# --- 7b. Admin account: PRESET right at install time ---
 #
-# Trước đây bước này không tồn tại, nên ai mở Jarvis 007 ra công khai đều đụng "MÃ THIẾT LẬP":
-# server in một chuỗi ngẫu nhiên vào log lúc khởi động, và người dùng phải SSH vào VPS đọc log
-# rồi dán vào trình duyệt mới tạo được tài khoản. Cái mã đó có lý do tồn tại - nó chặn người
-# lạ chỉ-có-URL chiếm quyền admin lần đầu - nhưng bắt người ta đi đọc log là một trải nghiệm
-# tệ, và tệ ĐÚNG LÚC họ mới cài xong và chưa quen gì cả.
+# Before, this step did not exist, so anyone who opened Jarvis 007 publicly ran into the "SETUP CODE":
+# the server printed a random string to the log at startup, and the user had to SSH into the VPS, read the log
+# and paste it into the browser before they could create an account. That code exists for a reason - it stops a
+# stranger who only has the URL from taking over admin on first run - but making people go read logs is a bad
+# experience, and bad at EXACTLY the moment they have just finished installing and know nothing yet.
 #
-# Đặt sẵn tài khoản ở đây giải quyết cả hai đầu: người đang chạy script này vốn ĐÃ ngồi trên
-# máy chủ rồi, nên hỏi họ một câu không thêm bước nào; mà server thì boot lên đã có admin nên
-# `setup_token_required()` trả về false và MÃ THIẾT LẬP không bao giờ hiện ra.
+# Presetting the account here solves both ends: the person running this script is ALREADY sitting at the
+# server, so asking them one question adds no step; and the server boots with an admin already in place, so
+# `setup_token_required()` returns false and the SETUP CODE never shows up.
 #
-# KHÔNG bỏ hẳn cơ chế mã: nó vẫn là lưới cho ai deploy bằng cách khác (compose tay, image trần).
-# Bỏ nó đi là mở toang `/auth/setup` cho bất kỳ ai gõ trúng URL trước chủ máy - mà thứ họ chiếm
-# được là một máy có Bash, chạy full quyền, cắm sẵn vào POS/quảng cáo/email của chủ.
+# Do NOT drop the code mechanism entirely: it is still the safety net for anyone deploying another way (manual compose, bare image).
+# Removing it would leave `/auth/setup` wide open to anyone who hits the URL before the machine owner - and what they would take
+# over is a machine with Bash, running with full rights, plugged into the owner's POS/ads/email.
 _gen_pw() { python3 -c "import secrets,string; a=string.ascii_letters+string.digits; print(''.join(secrets.choice(a) for _ in range(20)))"; }
 
-# Ghi .env bằng python chứ không bằng sed: mật khẩu người dùng tự gõ có thể chứa | & \ " '
-# và mọi ký tự đó đều làm vỡ một lệnh sed viết theo lối thường gặp. Giá trị đi qua argv nên
-# không qua tay shell lần nào; ghi ra dạng nháy kép có escape để python-dotenv đọc lại đúng.
+# Write .env with python, not sed: a password the user types can contain | & \ " '
+# and every one of those characters breaks a sed command written the usual way. The value goes through argv so
+# it never passes through the shell; it is written in escaped double quotes so python-dotenv reads it back correctly.
 _env_set() {
   python3 - "$1" "$2" <<'PY'
 import pathlib, sys
@@ -235,7 +235,7 @@ PY
 
 _env_has() { grep -qE "^[[:space:]]*$1=[\"']?[^\"'[:space:]]" .env 2>/dev/null; }
 
-ADMIN_PW_SINH=""      # chỉ có giá trị khi script TỰ SINH - để in ra đúng một lần ở cuối
+ADMIN_PW_SINH=""      # only set when the script GENERATED it - so it is printed exactly once at the end
 if _env_has JAVIS_ADMIN_PASSWORD; then
   ok "Admin account already set in .env - keeping it"
 else
@@ -249,16 +249,16 @@ else
     while :; do
       read -rsp "  Password (Enter = generate a strong one): " AP || true; echo ""
       if [ -z "${AP:-}" ]; then ADMIN_PW="$(_gen_pw)"; ADMIN_PW_SINH="$ADMIN_PW"; break; fi
-      # Server cũng chặn dưới 8 ký tự (main.py /auth/setup). Chặn luôn ở đây để người ta biết
-      # ngay lúc gõ, thay vì lúc đăng nhập lần đầu mới phát hiện .env có mật khẩu không xài được.
+      # The server also rejects under 8 characters (main.py /auth/setup). Reject it here too so people know
+      # at typing time, instead of discovering at first login that .env holds a password that cannot be used.
       if [ "${#AP}" -lt 8 ]; then warn "  At least 8 characters."; continue; fi
       read -rsp "  Repeat it: " AP2 || true; echo ""
       if [ "$AP" = "${AP2:-}" ]; then ADMIN_PW="$AP"; break; fi
       warn "  The two entries do not match, try again."
     done
   else
-    # Chạy không có bàn phím (curl | bash, CI, script khác gọi vào). Tự sinh chứ KHÔNG bỏ trống:
-    # bỏ trống là đẩy người dùng về đúng cái màn đọc-log mà bước này sinh ra để xoá đi.
+    # Running without a keyboard (curl | bash, CI, another script calling in). Generate one, do NOT leave it empty:
+    # leaving it empty sends the user back to the exact read-the-log screen this step exists to remove.
     ADMIN_PW="$(_gen_pw)"; ADMIN_PW_SINH="$ADMIN_PW"
   fi
   _env_set JAVIS_ADMIN_USER "$ADMIN_USER"
@@ -267,16 +267,16 @@ else
   ok "Admin account saved in .env"
 fi
 
-# --- 7c. Xác thực 2 lớp: HỎI ở đây, BẬT ở trình duyệt ---
+# --- 7c. Two-factor authentication: ASK here, TURN ON in the browser ---
 #
-# Cố ý không làm trọn vẹn trong terminal. Bật 2FA cần quét một mã QR, mà vẽ QR ra terminal thì
-# nửa số máy hiện sai (font, tỉ lệ ô, nền sáng/tối) và người dùng phải soi điện thoại vào cửa
-# sổ SSH. Trong khi vài giây nữa họ sẽ mở trình duyệt để đăng nhập - chỗ hiện QR đúng đắn.
+# Deliberately not done fully in the terminal. Turning on 2FA needs scanning a QR code, and drawing a QR in a terminal
+# renders wrong on half of machines (font, cell ratio, light/dark background) and the user would have to hold their phone up to the
+# SSH window. Meanwhile in a few seconds they will open the browser to sign in - the right place to show a QR.
 #
-# Nên bước này chỉ ghi Ý ĐỊNH vào .env. Server đọc cờ đó rồi mở sẵn màn bật 2FA ở trang Tài
-# khoản. Cờ này KHÔNG phải rào bảo mật và không tự bật gì cả: 2FA chỉ thật sự bật sau khi
-# người dùng quét QR và nhập đúng một mã, vì bật trước lúc họ chứng minh app sinh đúng mã là
-# tự khoá họ ra ngoài chính máy vừa cài.
+# So this step only writes the INTENT into .env. The server reads that flag and opens the 2FA setup screen ready on the
+# Account page. The flag is NOT a security barrier and turns nothing on by itself: 2FA is only really on after the
+# user scans the QR and enters one correct code, because turning it on before they prove the app generates the right code is
+# locking them out of the very machine they just installed.
 if ! _env_has JAVIS_SETUP_2FA && [ -t 0 ]; then
   read -rp "  Turn on two-factor sign-in (Google Authenticator)? [y/N]: " TFA || true
   case "${TFA:-}" in
@@ -336,9 +336,9 @@ echo ""
 ok "Jarvis 007 is up at: http://127.0.0.1:$PORT"
 log "Remote access (SSH tunnel): ssh -L $PORT:localhost:$PORT $(whoami)@<vps-ip>"
 
-# Mật khẩu tự sinh chỉ in ra ĐÚNG chỗ này, đúng một lần. Không ghi vào log service, không in
-# lại ở lần chạy sau - `.env` (chmod 600) là nơi giữ nó. In sau phần khởi động để nó nằm ở
-# cuối màn hình, chỗ người ta chắc chắn còn nhìn.
+# The generated password is printed ONLY here, exactly once. It is not written to the service log and not printed
+# again on later runs - `.env` (chmod 600) is where it is kept. It is printed after the startup output so it sits at the
+# bottom of the screen, where people are sure to still be looking.
 if [ -n "${ADMIN_PW_SINH:-}" ]; then
   echo ""
   echo "=================================================================="

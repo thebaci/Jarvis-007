@@ -1,127 +1,142 @@
-# Thiết kế: Khung lệnh `/` cho dashboard + skill `/notes`
+# Design: a `/` command panel for the dashboard + the `/notes` skill
 
-Ngày: 2026-07-18
-Trạng thái: đã duyệt, chuẩn bị triển khai
+Date: 2026-07-18
+Status: approved, preparing to implement
 
-## Mục tiêu
+## Goals
 
-Trang bị cho khung chat web của Jarvis 007 khả năng dùng lệnh `/` (giống Claude/Telegram),
-và làm lệnh đầu tiên là `/notes`: gõ lệnh thì lưu nội dung tin nhắn vào `sources/` nguyên
-văn (kèm ảnh/file), rồi tự chưng cất lên wiki nếu note đó đáng.
+Equip Jarvis 007's web chat panel with `/` commands (like Claude/Telegram), and make the first
+command `/notes`: typing the command saves the message content verbatim into `sources/`
+(including images/files), then automatically distills it into the wiki if that note is worth it.
 
-## Bối cảnh (phát hiện từ code)
+## Background (findings from the code)
 
-- Telegram ĐÃ có hệ lệnh `/` đầy đủ trong `server/telegram_bot.py` + handler `_tg_command`
-  ở `server/main.py:4981`. Bất kỳ `/<slug>` lạ nào Telegram tự hiểu thành "gọi skill tên
-  đó" (`server/main.py:5076-5081`). Nên `/notes` chạy trên Telegram gần như miễn phí một khi
-  skill `notes` tồn tại.
-- Dashboard (web) CHƯA có cơ chế lệnh `/`. `sendMessage()` ở `dashboard/app.js:196` gửi
-  nguyên chuỗi qua WebSocket, kể cả khi bắt đầu bằng `/`.
-- Skill hệ thống nằm ở `<project>/.claude/skills/<slug>/SKILL.md`
-  (`system_sync.SYSTEM_SKILLS_DIR`), được `system_sync.py` rải xuống mọi brain
-  (`<brain>/skills/<slug>/SKILL.md` canonical + mirror `.claude/skills`). Manifest hash bảo
-  vệ bản user đã sửa khỏi bị update ghi đè.
-- Endpoint `GET /skills?brain=...` (`server/main.py:2193`) trả danh sách skill của brain
-  gồm `slug`, `name`, `description`, `group`, `system`... dùng làm nguồn cho menu `/`.
-- Skill `ingest-source` (`.claude/skills/ingest-source/SKILL.md`) đã có sẵn quy trình lưu
-  source + chưng cất wiki theo 3 kỷ luật của vault. `/notes` tái dùng phán đoán và kỷ luật
-  này cho bước distill.
-- Đính kèm file trên web: `sendMessage()` đã tự thêm khối ngữ cảnh liệt kê đường dẫn file
-  trong `Sources`/`Attachments` (`dashboard/app.js:210-221`). `/notes` bám vào đây để giữ
-  ảnh/file.
+- Telegram ALREADY has a full `/` command system in `server/telegram_bot.py` + the handler
+  `_tg_command` in `server/main.py:4981`. Any unknown `/<slug>` is interpreted by Telegram as
+  "call the skill with that name" (`server/main.py:5076-5081`). So `/notes` on Telegram is almost
+  free once the `notes` skill exists.
+- The dashboard (web) does NOT yet have a `/` command mechanism. `sendMessage()` at
+  `dashboard/app.js:196` sends the string verbatim over the WebSocket, even when it starts with `/`.
+- System skills live at `<project>/.claude/skills/<slug>/SKILL.md`
+  (`system_sync.SYSTEM_SKILLS_DIR`), which `system_sync.py` spreads into every brain
+  (`<brain>/skills/<slug>/SKILL.md` canonical + a `.claude/skills` mirror). The manifest hash
+  protects a user-edited copy from being overwritten by an update.
+- The endpoint `GET /skills?brain=...` (`server/main.py:2193`) returns the brain's skill list
+  with `slug`, `name`, `description`, `group`, `system`... used as the source for the `/` menu.
+- The `ingest-source` skill (`.claude/skills/ingest-source/SKILL.md`) already has a procedure for
+  saving a source + distilling the wiki per the vault's 3 disciplines. `/notes` reuses this
+  judgment and discipline for the distill step.
+- File attachments on the web: `sendMessage()` already adds a context block listing the file
+  paths in `Sources`/`Attachments` (`dashboard/app.js:210-221`). `/notes` hooks into this to
+  keep images/files.
 
-## Quyết định đã chốt
+## Decisions made
 
-1. Phạm vi: làm CẢ khung lệnh `/` cho web VÀ skill `/notes`.
-2. `/notes` chộp: chỉ tin nhắn hiện tại (chữ sau `/notes` + file đính kèm cùng tin), nguyên văn.
-3. Chỗ ở skill: skill HỆ THỐNG bundled (`.claude/skills/notes/SKILL.md`), tự có ở mọi brain.
-4. Menu `/` web đợt đầu: danh sách skill của brain + vài lệnh phiên (`/reset`, `/stop`, `/new`).
-5. Note không đáng wiki: VẪN lưu vào `sources/`, chỉ báo nhẹ, không đụng wiki (không hỏi lại).
+1. Scope: build BOTH the `/` command panel for the web AND the `/notes` skill.
+2. `/notes` captures: only the current message (the text after `/notes` + files attached in the
+   same message), verbatim.
+3. Where the skill lives: a bundled SYSTEM skill (`.claude/skills/notes/SKILL.md`), present in
+   every brain automatically.
+4. The first web `/` menu: the brain's skill list + a few session commands (`/reset`, `/stop`,
+   `/new`).
+5. A note not worth the wiki: STILL saved into `sources/`, with only a light notice, wiki
+   untouched (no asking back).
 
-## Kiến trúc
+## Architecture
 
-Nguyên tắc hợp nhất: trên Jarvis 007, `/<slug>` = gọi skill `<slug>` (đúng ngữ nghĩa Telegram đang
-dùng). Web sẽ áp cùng luật đó, cộng một nhúm lệnh phiên xử lý tại chỗ.
+Unifying principle: on Jarvis 007, `/<slug>` = call the skill `<slug>` (exactly the semantics
+Telegram uses). The web will apply the same rule, plus a handful of session commands handled in
+place.
 
-### Phần A - Khung lệnh `/` cho dashboard
+### Part A - The `/` command panel for the dashboard
 
-Frontend, không cần đổi backend.
+Frontend, no backend change needed.
 
-- Module mới `dashboard/chat-slash.js`: quản menu lệnh nổi trên ô chat.
-  - Khi `chatInput` bắt đầu bằng `/` và con trỏ ở token lệnh đầu, hiện menu.
-  - Nguồn mục:
-    - Lệnh phiên tĩnh: `/new` (hội thoại mới), `/reset` (reset phiên), `/stop` (dừng lượt đang chạy).
-    - Skill động: fetch `GET /skills?brain=<brain hiện tại>`, lấy `slug` + `name` + `description`.
-      Cache theo brain; nạp lại khi đổi brain.
-  - Lọc theo chữ sau `/`. Điều hướng bàn phím: mũi tên lên/xuống, Enter/Tab chọn, Esc đóng.
-    Chọn skill = điền `/slug ` vào ô để anh gõ tiếp nội dung; chọn lệnh phiên = chạy ngay.
-- Chặn lệnh trong `sendMessage()` (`dashboard/app.js`):
-  - Nếu `msg` bắt đầu bằng `/`, tách `cmd` (token đầu, bỏ dấu `/`) và `arg` (phần còn lại).
-  - `cmd` thuộc lệnh phiên (`new|reset|stop`) → gọi hàm tương ứng có sẵn của app, KHÔNG gửi
-    engine. (Tận dụng logic mint session mới / dừng lượt đã có.)
-  - Còn lại → coi là skill: dựng `outMsg` = lời gọi skill giống Telegram
-    (`Hãy dùng skill \`<cmd>\`` + (` với yêu cầu: <arg>` nếu có) + câu an toàn "nếu không có
-    skill tên này thì cứ xử lý bình thường"). Nếu có file đính kèm, GIỮ khối ngữ cảnh path
-    hiện có và ghép vào. Gửi qua WebSocket như chat thường.
-  - Vẫn `appendUserMessage` hiển thị đúng những gì anh gõ (`/notes ...`), không lộ chuỗi bung.
-- CSS menu trong `dashboard/style.css`; nối `<script>` trong `dashboard/index.html`.
+- New module `dashboard/chat-slash.js`: manages a floating command menu above the chat box.
+  - When `chatInput` starts with `/` and the cursor is in the first command token, show the menu.
+  - Item sources:
+    - Static session commands: `/new` (new conversation), `/reset` (reset the session), `/stop`
+      (stop the running turn).
+    - Dynamic skills: fetch `GET /skills?brain=<current brain>`, take `slug` + `name` +
+      `description`. Cache per brain; reload when the brain changes.
+  - Filter by the text after `/`. Keyboard navigation: up/down arrows, Enter/Tab to pick, Esc to
+    close. Picking a skill = fill `/slug ` into the box so the user can keep typing the content;
+    picking a session command = run immediately.
+- Intercept commands in `sendMessage()` (`dashboard/app.js`):
+  - If `msg` starts with `/`, split into `cmd` (the first token, minus the `/`) and `arg` (the rest).
+  - `cmd` is a session command (`new|reset|stop`) → call the app's existing matching function, do
+    NOT send to the engine. (Reuse the existing logic for minting a new session / stopping a turn.)
+  - Otherwise → treat it as a skill: build `outMsg` = a skill invocation like Telegram's
+    (`Hãy dùng skill \`<cmd>\`` + (` với yêu cầu: <arg>` if present) + a safety sentence "nếu không
+    có skill tên này thì cứ xử lý bình thường"). These are Vietnamese literals sent to the model,
+    mirroring the Telegram handler; in English they read "Please use skill `<cmd>`", " with the
+    request: <arg>", and "if there is no skill with this name, just handle it normally". If there
+    is an attached file, KEEP the existing path context block and splice it in. Send over the
+    WebSocket like a normal chat.
+  - Still `appendUserMessage` showing exactly what the user typed (`/notes ...`), without
+    exposing the expanded string.
+- Menu CSS in `dashboard/style.css`; hook the `<script>` in `dashboard/index.html`.
 
-Ranh giới: `chat-slash.js` chỉ lo hiển thị + chọn mục và báo cho `app.js` biết đã chọn gì;
-`app.js` giữ toàn quyền gửi/không gửi. Không nhét logic engine vào module menu.
+Boundary: `chat-slash.js` only handles display + picking an item and tells `app.js` what was
+picked; `app.js` keeps full authority over sending/not sending. No engine logic goes into the
+menu module.
 
-### Phần B - Skill hệ thống `notes`
+### Part B - The `notes` system skill
 
-File `.claude/skills/notes/SKILL.md`. Frontmatter: `name`, `description` (<=150 ký tự,
-nêu thẳng năng lực), `group` (chọn nhóm sát nhất trong các skill hiện có, dự kiến "Năng suất"
-hoặc "AI"). Thân skill hướng dẫn engine mỗi lần chạy:
+File `.claude/skills/notes/SKILL.md`. Frontmatter: `name`, `description` (<=150 characters,
+stating the capability directly), `group` (pick the closest group among existing skills,
+expected to be "Năng suất" (Productivity) or "AI"). The skill body tells the engine, on each run:
 
-1. Xác định vault đang làm việc (brain hiện tại) và các thư mục `sources/`, `attachments/`,
-   `wiki/`. Đọc `CLAUDE.md`/`AGENTS.md` gốc brain trước (schema vault).
-2. Lấy nội dung note = chữ anh gõ sau `/notes` (nguyên văn) + file/ảnh đính kèm nếu có.
-   Chỉ tin nhắn hiện tại. TUYỆT ĐỐI không biên tập lại câu chữ.
-3. Tạo `sources/note-YYYY-MM-DD-HHmm-<vài-chữ-đầu-không-dấu>.md`:
+1. Identify the working vault (the current brain) and the `sources/`, `attachments/`, `wiki/`
+   folders. Read the brain-root `CLAUDE.md`/`AGENTS.md` first (the vault schema).
+2. Take the note content = the text the user typed after `/notes` (verbatim) + the attached
+   file/image if any. Only the current message. ABSOLUTELY do not re-edit the wording.
+3. Create `sources/note-YYYY-MM-DD-HHmm-<first-few-words-without-diacritics>.md`:
    - Frontmatter: `type: source`, `source_kind: own-note`, `status: unprocessed`,
-     `created: <ngày giờ>`, `tags: [note]`.
-   - Thân: văn bản gốc nguyên văn. Ảnh: chuyển file vào `attachments/`, nhúng `![[tên-ảnh]]`.
-   - Nếu đã có file đính kèm nằm sẵn trong `Sources` (web upload) thì dùng chính nó/di chuyển,
-     không nhân đôi.
-4. Đánh giá đáng-wiki: có khái niệm/framework/nguyên lý/quy trình tái dùng được → đáng; tâm
-   sự, việc vặt, nhắc nhất thời → không đáng. (Cùng tiêu chí ingest-source.)
-5. Nếu đáng: áp phép INGEST của `ingest-source` cho note này - viết/cập nhật trang wiki đủ 3
-   kỷ luật (citation `[[Nguồn]]`, mục tiêu vs thực tế, mâu thuẫn giữ rõ), cập nhật
-   `wiki/index.md`, append `wiki/log.md`, set source `status: processed` + `processed_at` +
-   `wiki_links: [...]`.
-6. Nếu không đáng: giữ source `status: unprocessed` (hoặc `skipped` + `note` lý do), KHÔNG
-   đụng wiki.
-7. Báo ngắn bằng văn nói (không bảng, không gạch ngang dài): đã lưu note vào `[[...]]`, có/không
-   lên wiki, trang nào. Nếu có ảnh nhúng thì hiện lại cho anh xem.
+     `created: <date time>`, `tags: [note]`.
+   - Body: the original text verbatim. Image: move the file into `attachments/`, embed `![[image-name]]`.
+   - If the attached file is already sitting in `Sources` (web upload), use it/move it, do not
+     duplicate.
+4. Assess wiki-worthiness: a reusable concept/framework/principle/procedure → worth it; venting,
+   chores, transient reminders → not worth it. (Same criteria as ingest-source.)
+5. If worth it: apply the INGEST operation of `ingest-source` to this note - write/update a wiki
+   page following the full 3 disciplines (citation `[[Source]]`, goal vs reality, contradictions
+   kept explicit), update `wiki/index.md`, append `wiki/log.md`, set the source
+   `status: processed` + `processed_at` + `wiki_links: [...]`.
+6. If not worth it: keep the source `status: unprocessed` (or `skipped` + a `note` with the
+   reason), do NOT touch the wiki.
+7. Report briefly in spoken prose (no tables, no long dashes): the note was saved to `[[...]]`,
+   whether it went to the wiki, and which page. If an image is embedded, show it again to the user.
 
-An toàn: ghi `sources/`+`wiki/` là mức `safe`, do chính người gõ lệnh nên tự chạy. Không tiền,
-không đơn, không đăng bài, không gửi tin.
+Safety: writing `sources/`+`wiki/` is level `safe`, and since the person typing the command is
+the one asking, it runs on its own. No money, no orders, no posting, no sending messages.
 
-## Kiểm thử
+## Testing
 
-- Web: gõ `/` thấy menu; gõ `/no` lọc ra `notes`; chọn điền `/notes `; gõ nội dung + gửi →
-  file xuất hiện trong `sources/`, nội dung nguyên văn; note có khái niệm thì thấy trang wiki
-  mới + `wiki/index.md` cập nhật; note vặt thì chỉ có source, báo nhẹ.
-- Web đính ảnh + `/notes` → ảnh vào `attachments/`, source nhúng `![[...]]`.
-- Lệnh phiên: `/new` mở hội thoại mới, `/stop` dừng lượt, không gửi cho engine.
-- Telegram: gửi `/notes <nội dung>` → chạy skill `notes`, lưu source (kênh này vốn đã route,
-  chỉ kiểm còn chạy sau khi thêm skill).
-- `system_sync`: brain khác cũng thấy skill `notes` sau khi sync (không phải chỉ brain default).
+- Web: type `/` and see the menu; type `/no` and it filters to `notes`; picking fills `/notes `;
+  type content + send → a file appears in `sources/`, content verbatim; a note with a concept
+  gets a new wiki page + `wiki/index.md` updated; a trivial note only gets a source, with a
+  light notice.
+- Web attach an image + `/notes` → the image goes into `attachments/`, the source embeds `![[...]]`.
+- Session commands: `/new` opens a new conversation, `/stop` stops the turn, neither is sent to
+  the engine.
+- Telegram: send `/notes <content>` → runs the `notes` skill, saves a source (this channel
+  already routes this, just verify it still works after adding the skill).
+- `system_sync`: other brains also see the `notes` skill after sync (not only the default brain).
 
-## Ngoài phạm vi (đợt sau)
+## Out of scope (later round)
 
-- Menu `/` web đầy đủ như Telegram (`/model`, `/brain`, `/status`, `/agents`, `/workflows`)
-  cần handler lệnh riêng cho phiên web - để sau.
-- `/notes` chộp câu trả lời gần nhất của Jarvis 007 khi gõ trơ - để sau.
-- Chộp cả đoạn hội thoại nhiều lượt - để sau.
+- A full web `/` menu like Telegram's (`/model`, `/brain`, `/status`, `/agents`, `/workflows`)
+  needs its own command handlers for the web session - later.
+- `/notes` capturing Jarvis 007's most recent reply when typed bare - later.
+- Capturing a multi-turn stretch of conversation - later.
 
-## File chạm vào
+## Files touched
 
-- Thêm: `.claude/skills/notes/SKILL.md` (system_sync tự rải xuống mọi brain).
-- Thêm: `dashboard/chat-slash.js`.
-- Sửa: `dashboard/app.js` (chặn `/` trong `sendMessage`, expose vài hàm phiên cho module menu).
-- Sửa: `dashboard/style.css` (CSS menu), `dashboard/index.html` (nối script).
-- Có thể đụng: cập nhật `LEGACY_HASHES`/manifest trong `server/system_sync.py` nếu quy trình
-  seed yêu cầu đóng dấu hash skill mới (kiểm khi làm).
+- Add: `.claude/skills/notes/SKILL.md` (system_sync spreads it into every brain automatically).
+- Add: `dashboard/chat-slash.js`.
+- Edit: `dashboard/app.js` (intercept `/` in `sendMessage`, expose a few session functions to the
+  menu module).
+- Edit: `dashboard/style.css` (menu CSS), `dashboard/index.html` (hook the script).
+- Possibly touched: update `LEGACY_HASHES`/the manifest in `server/system_sync.py` if the seed
+  procedure requires stamping the new skill's hash (check while doing the work).

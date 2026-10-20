@@ -1,468 +1,468 @@
-# Jarvis 007 Resonance thiết kế và lộ trình thực thi mục tiêu
+# Jarvis 007 Resonance: design and goal execution roadmap
 
-Ngày 06 tháng 10 năm 2026. Bản thiết kế để triển khai theo giai đoạn.
+Date: 6 October 2026. A design to be implemented in phases.
 
-**Bản hiện hành:** xem [danh mục tài liệu chốt](../README-RESONANCE.md). Trước M1 phải kiểm main mới nhất, chốt commit nền và dò lại các tham chiếu mã ở mục 14; khảo sát trên checkout cũ không thay thế kiểm chứng tích hợp.
+**Current version:** see the [index of finalized documents](../README-RESONANCE.md). Before M1, check the latest main, pin the base commit and re-verify the code references in section 14; a survey on an old checkout does not replace integration verification.
 
-**Phạm vi ưu tiên sau phản biện vòng 2:** triển khai [MVP một agent](../plans/2026-10-06-resonance-00-mvp.md) trước. Tài liệu này mô tả kiến trúc đích; các thành phần mở rộng không phải danh sách phải xây ngay. Ba kế hoạch Foundation/Runtime/Evolution là tài liệu tham chiếu cho giai đoạn sau, không thực hiện song song với MVP.
+**Priority scope after round 2 review:** implement the [single-agent MVP](../plans/2026-10-06-resonance-00-mvp.md) first. This document describes the target architecture; the extension components are not a list of things to build right away. The three Foundation/Runtime/Evolution plans are reference documents for a later phase and are not to be run in parallel with the MVP.
 
-Jarvis 007 Resonance giúp một agent, một nhóm hoặc toàn bộ hệ thống nhận nhu cầu bằng ngôn ngữ tự nhiên, tự hình thành mục tiêu phù hợp, tự chọn phương pháp, thu thập bằng chứng và cải thiện cả cách hiểu lẫn cách làm trong phạm vi người dùng đã ủy quyền. Người dùng không phải biết cách đặt mục tiêu hoặc chọn chỉ số. Lõi dùng chung cho mọi lĩnh vực; tri thức chuyên môn nằm trong công cụ, bộ thu thập bằng chứng và bộ đánh giá có thể thay thế.
+Jarvis 007 Resonance helps one agent, one team or the whole system take a need in natural language, form a suitable goal by itself, choose a method, gather evidence and improve both its understanding and its way of working within the scope the user has delegated. The user does not have to know how to set a goal or pick a metric. The core is shared across all domains; domain knowledge lives in replaceable tools, evidence collectors and evaluators.
 
-**Quyết định trung tâm:** nhu cầu người dùng định hướng; agent hình thành mục tiêu như một giả thuyết có thể điều chỉnh; bằng chứng xác định tiến triển; sự ủy quyền xác định phạm vi. Agent chịu trách nhiệm tìm đúng đích và tìm cách đạt đích. Beat là thời điểm hoạt động tiếp theo có ích. Reaction không quyết định hiệu suất, quyền hạn hoặc mức tồn tại của agent.
+**Central decision:** the user's need sets the direction; the agent forms the goal as an adjustable hypothesis; evidence determines progress; delegation determines scope. The agent is responsible for finding the right destination and finding a way to reach it. A beat is the next moment when activity is useful. Reactions do not decide an agent's performance, authority or whether it continues to exist.
 
-## 1 Những quyết định giữ lại và cải tiến
+## 1 Decisions kept and improved
 
-| Nội dung | Quyết định cuối cùng | Lý do |
+| Topic | Final decision | Reason |
 |---|---|---|
-| Mục tiêu tối thượng | Mỗi lần thực thi có một mục tiêu chính, gắn với ý định và điều kiện thành công | Tập trung nhưng vẫn cho một agent phục vụ nhiều mục tiêu ở các phiên khác nhau |
-| Hình thành mục tiêu | Agent tự suy ra từ yêu cầu, ngữ cảnh được phép đọc và bằng chứng; người dùng có thể sửa cách hiểu | Không yêu cầu người dùng chọn mục tiêu hay biết trước giải pháp |
-| Yêu cầu mơ hồ | Hỏi khi câu trả lời có thể đổi quyết định đáng kể; nếu người dùng chưa biết, tự khảo sát hoặc thử nhỏ trong quyền | Sự chưa rõ trở thành công việc cần giải quyết |
-| Agent và nhóm | Dùng cùng hợp đồng mục tiêu; nhóm phân rã thành mục tiêu con | Mở rộng theo cùng cấu trúc |
-| Quyền tự chủ | Được tự lập kế hoạch, cộng tác và sửa mình trong sự ủy quyền có hiệu lực | Không yêu cầu duyệt lại từng hành động đã được cấp quyền |
-| Đánh giá | Dựa trên kết quả và bằng chứng, có trạng thái chưa đủ thông tin | Không biến thiếu dữ liệu thành thất bại hay thành công |
-| Beat | Theo sự kiện, khả năng hành động và thời điểm có bằng chứng mới | Không thưởng bằng cách buộc agent chạy nhiều hơn |
-| Phản hồi người dùng | Chỉ dẫn cập nhật ý định; nút Đúng ý/Hiểu chưa đúng cung cấp bằng chứng về cách hiểu; xác nhận kết quả gắn sản phẩm; emoji chung phục vụ giao tiếp | Tách người dùng xác nhận điều gì, tránh dùng một lượt bấm cho mọi kết luận |
-| Tự cải thiện | Tạo biến thể, thử có đối chứng, kiểm chứng rồi áp dụng | Tự thay đổi phải chứng minh được cải thiện |
-| Điểm utility duy nhất | Không dùng làm bộ điều khiển toàn hệ thống | Năng lực, tiến độ, nhu cầu hoạt động và sở thích giao tiếp là thông tin khác nhau |
-| Quy công | Lưu đóng góp và mức chắc chắn, không mặc định leader nhận nhiều nhất | Lineage không tự chứng minh quan hệ nhân quả |
-| Ngủ đông | Dừng thức theo giờ khi không còn lý do hoạt động, giữ trạng thái và khả năng nhận sự kiện | Không cần thời hạn 90 ngày chung cho mọi nhiệm vụ |
-| Tạo sản phẩm đầu ra | Được ghi nhận là hành động; chỉ thành kết quả đạt khi tiêu chí xác nhận | Chống nhầm hoạt động với hiệu quả |
-| Mở rộng ngành nghề | Thêm adapter có giao diện chung | Không viết điều kiện theo lĩnh vực trong lõi |
+| Supreme goal | Each execution has one primary goal, tied to an intent and success conditions | Focused, yet one agent can still serve several goals in different sessions |
+| Goal formation | The agent infers it from the request, the context it is allowed to read and evidence; the user can correct the understanding | Does not require the user to choose a goal or know the solution in advance |
+| Ambiguous requests | Ask when the answer could change a decision significantly; if the user does not know, investigate or try something small within authority | Uncertainty becomes work to be resolved |
+| Agent and team | Use the same goal contract; a team decomposes into sub-goals | Scales with the same structure |
+| Autonomy | May plan, collaborate and modify itself within the delegation in force | Does not require re-approving every action that has been authorized |
+| Evaluation | Based on results and evidence, with a not-enough-information state | Missing data is not turned into failure or success |
+| Beat | Driven by events, ability to act and the moment new evidence appears | Does not reward by forcing the agent to run more |
+| User feedback | Instructions update the intent; the That's right/Not quite buttons provide evidence about understanding; result confirmation is tied to the product; shared emoji serve communication | Separates what the user confirms, avoids using one click for every conclusion |
+| Self-improvement | Create variants, test with a control, verify, then apply | A self-change must prove it is an improvement |
+| A single utility score | Not used as the control for the whole system | Capability, progress, activity need and communication preference are different information |
+| Attribution | Store the contribution and the confidence level; do not assume the leader receives the most | Lineage does not prove causation by itself |
+| Hibernation | Stop waking on a schedule when there is no longer a reason to act, keep state and the ability to receive events | No need for a common 90-day limit for every task |
+| Producing an output | Recorded as an action; counts as a success only when the criteria confirm it | Prevents mistaking activity for effectiveness |
+| Expanding to new domains | Add an adapter with a common interface | No domain-specific conditions in the core |
 
-Các lựa chọn triển khai dưới đây là chính sách có phiên bản hoặc cấu hình của hợp đồng. Chỉ ba bất biến ở mục 2 là luật nền. Không biến một con số thử nghiệm thành nguyên lý cố định.
+The implementation choices below are versioned policy or contract configuration. Only the three invariants in section 2 are base law. Do not turn an experimental number into a fixed principle.
 
-## 2 Ba bất biến
+## 2 Three invariants
 
-### 2.1 Sự ủy quyền được kế thừa và không tự mở rộng
+### 2.1 Delegation is inherited and does not expand itself
 
-Người dùng diễn đạt nhu cầu ở mức họ có thể, cùng những ràng buộc hoặc quyền đã cấp. Agent tự suy ra mục tiêu, tiêu chí và phương pháp từ đầu vào ấy; không bắt người dùng xác định đủ trước khi giúp. Agent con chỉ nhận một phần quyền và tài nguyên của cha. Tổng phân bổ đang sử dụng và đã tiêu không vượt phần gốc được cấp. Điểm hiệu suất không tự sinh thêm quyền.
+The user states the need at the level they can, together with the constraints or authority already granted. The agent infers the goal, criteria and method from that input; it does not make the user define everything before helping. A child agent receives only part of its parent's authority and resources. The total allocated in use and already spent does not exceed the original amount granted. A performance score does not generate extra authority.
 
-Hình thành và điều chỉnh mục tiêu suy ra là trách nhiệm mặc định của agent khi xử lý yêu cầu, không phải một quyền cần người dùng bật riêng. Agent được sửa giả thuyết về đích đến, tiêu chí suy ra và phương pháp theo bằng chứng, có ghi phiên bản và lý do. Chỉ dẫn rõ và ràng buộc người dùng đã nêu vẫn có hiệu lực; agent không tự bỏ chúng hoặc mở rộng quyền, phạm vi và ngân sách. Khi đầu vào có mâu thuẫn hoặc đích yêu cầu không khả thi, agent giải thích và tìm bước tiến có ích trong phạm vi còn hợp lệ; chỉ người dùng có thể sửa ràng buộc do chính họ đặt.
+Forming and adjusting an inferred goal is the agent's default responsibility when handling a request, not a permission the user must turn on separately. The agent may revise its hypothesis about the destination, the inferred criteria and the method based on evidence, with the version and reason recorded. Clear instructions and constraints the user has stated remain in force; the agent does not drop them or expand authority, scope and budget by itself. When the input contradicts itself or the requested destination is infeasible, the agent explains and looks for useful progress within the scope that is still valid; only the user can change constraints that they set themselves.
 
-### 2.2 Thành công phải có bằng chứng theo tiêu chí đã xác lập
+### 2.2 Success must have evidence against criteria already established
 
-Mỗi kết luận gắn với phiên bản hợp đồng, bộ đánh giá và tập bằng chứng. Agent không tự sửa dữ liệu gốc, kết quả phép thử hoặc thước đo của chính phép thử để tuyên bố thắng. Nhận xét của agent khác có nguồn gốc rõ nhưng không tự trở thành sự thật.
+Every conclusion is tied to a contract version, an evaluator and a set of evidence. The agent does not edit source data, test results or the measure of the test itself in order to declare a win. A comment from another agent has a clear origin but does not become fact by itself.
 
-Hệ thống chấp nhận kết luận chưa biết. Thay đổi tiêu chí tạo phiên bản mới, không viết lại lịch sử. Phiên bản bị thay ghi superseded cùng kết quả thực tế đã có, không tự biến thành thành công hoặc xóa thất bại. Tiêu chí phép thử đang chạy được giữ cố định; việc tìm mục tiêu phù hợp hơn là một kết luận riêng với việc làm tốt hơn trên cùng mục tiêu. Mục tiêu con hoàn thành không tự làm mục tiêu cha thành công; kết quả cuối vẫn phải được đánh giá theo hợp đồng cha.
+The system accepts an unknown conclusion. Changing the criteria creates a new version and does not rewrite history. A replaced version is marked superseded together with the actual results it already had, and does not turn into success or erase failure by itself. The criteria of a running test are held fixed; finding a more suitable goal is a separate conclusion from doing better on the same goal. A completed sub-goal does not make its parent goal succeed by itself; the final result must still be evaluated against the parent contract.
 
-### 2.3 Quyền can thiệp của người dùng và lịch sử luôn có hiệu lực
+### 2.3 The user's right to intervene and the history always hold
 
-Người dùng có thể dừng, đổi hướng hoặc thu hồi quyền. Mọi phiên bản agent chịu các thao tác này. Lưu được quyết định, tác động, bằng chứng, thay đổi và lý do. Khôi phục phần mềm không được mô tả là đã hoàn tác những tác động bên ngoài chưa được đảo ngược.
+The user can stop, redirect or revoke authority. Every agent version is subject to these operations. Decisions, impacts, evidence, changes and reasons are all stored. Restoring software is not described as having undone external effects that have not been reversed.
 
-Với chế độ sửa code Jarvis 007, bộ phận thực thi quyền, giữ bằng chứng và dừng worker phải có ranh giới quyền truy cập thực sự. File nằm ngoài repo nhưng cùng tài khoản có toàn quyền ghi không tạo ra ranh giới đó.
+For the mode that edits Jarvis 007's own code, the component that enforces authority, keeps evidence and stops workers must have a real access boundary. A file that sits outside the repo but belongs to an account with full write access does not create that boundary.
 
-## 3 Mục tiêu và tiêu chí thành công của sản phẩm
+## 3 Product goals and success criteria
 
-Người dùng mô tả điều họ muốn, vấn đề đang gặp hoặc điều chưa hài lòng bằng ngôn ngữ tự nhiên. Agent tự hình thành mục tiêu, cho thấy cách mình đang hiểu và tiến hành phần việc có thể làm trong quyền hiện có. Không có bước bắt buộc chọn mục tiêu, điền chỉ số hoặc duyệt bản hợp đồng trước mỗi lần bắt đầu. Hệ thống xử lý được cả kết quả định lượng, sản phẩm cần hoàn thành và tiêu chí chất lượng.
+The user describes what they want, the problem they have or what they are unhappy about in natural language. The agent forms the goal by itself, shows how it currently understands it and carries out the part it can do within existing authority. There is no mandatory step to choose a goal, fill in a metric or approve a contract before each start. The system handles quantitative results, products that must be completed and quality criteria.
 
-Thành công của Resonance được đánh giá bằng các nhiệm vụ đại diện có đối chứng: mục tiêu có bám sát đầu vào và ràng buộc hay không, tỷ lệ đạt tiêu chí, công người dùng phải bỏ ra để sửa/điều phối, thời gian hoàn thành, mức gây phiền và chi phí thực. Đo riêng chất lượng hình thành mục tiêu và hiệu quả thực thi. Không dùng số tin nhắn, số agent, số tool call hoặc số reaction làm thước đo thành công chính.
+Resonance's success is evaluated through representative tasks with a control: whether the goal stays close to the input and constraints, the pass rate against criteria, the effort the user must spend to correct or coordinate, completion time, the level of annoyance and real cost. Goal formation quality and execution effectiveness are measured separately. The number of messages, agents, tool calls or reactions is not used as the main success measure.
 
-Không hứa hẹn tự cải thiện vô hạn. Mỗi tuyên bố cải thiện chỉ có giá trị trong phạm vi mục tiêu, dữ liệu và phép thử đã thực hiện.
+Unlimited self-improvement is not promised. Each claim of improvement is only valid within the scope of the goal, data and tests that were run.
 
-## 4 Hợp đồng mục tiêu
+## 4 Goal contract
 
-### 4.0 Khi nào cần một mục tiêu được lưu và theo đuổi
+### 4.0 When a goal needs to be stored and pursued
 
-Đầu tiên tận dụng bộ định tuyến hội thoại hiện có để chọn answer_now, task_now, continue_goal hoặc create_goal. Câu hỏi, tư vấn, lập kế hoạch và việc có thể hoàn tất trong lượt hiện tại dùng đường trả lời/làm ngay, không tạo goal bền, lịch hoặc Kanban chỉ vì cần nhiều bước suy nghĩ. Câu trả lời cho một mục tiêu đang mở nối vào đúng mục tiêu đó, không tạo bản trùng.
+First reuse the existing conversation router to choose answer_now, task_now, continue_goal or create_goal. Questions, advice, planning and work that can be finished in the current turn use the answer/do-now path, and do not create a durable goal, schedule or Kanban item just because many steps of thinking are needed. An answer to an open goal attaches to that goal and does not create a duplicate.
 
-Chỉ tạo goal bền khi yêu cầu thực sự cần tiếp tục sau lượt chat, theo dõi kết quả về sau, chờ sự kiện hoặc giữ trạng thái để thực hiện công việc đã được giao. “Làm cho xong” là tín hiệu ý định hoàn thành, không phải từ khóa luôn tạo background job. Một việc hẹn giờ đơn giản tiếp tục dùng reminder hiện có. Nếu chưa rõ có cần chạy nền, làm phần có thể hoàn thành ngay; không suy quyền hoạt động dài hạn từ câu hỏi mơ hồ.
+Create a durable goal only when the request truly needs to continue after the chat turn, track results later, wait for an event or hold state to carry out work that was assigned. "Get it done" is a signal of intent to complete, not a keyword that always creates a background job. A simple timed job keeps using the existing reminder. If it is unclear whether background running is needed, do the part that can be completed right away; do not infer long-running authority from an ambiguous question.
 
-Quyết định này dùng ngữ cảnh và kết quả định tuyến của lượt đang có, không gọi thêm một model cho mọi tin nhắn. Chỉ gọi Goal framer khi thật sự cần tạo/điều chỉnh mục tiêu. Cổng này là chính sách phân luồng, không phải bước yêu cầu người dùng chọn mục tiêu.
+This decision uses the context and routing result of the current turn, and does not call one more model for every message. Call the Goal framer only when a goal really needs to be created or adjusted. This gate is a routing policy, not a step that asks the user to choose a goal.
 
-### 4.1 Các trường chung
+### 4.1 Common fields
 
-| Trường | Nội dung |
+| Field | Content |
 |---|---|
-| identity | goal_id, brain_id, revision, owner_id, tên dễ đọc |
-| intent_ref | Bản ghi nhu cầu và chỉ dẫn gốc có nguồn, phiên bản; tách khỏi phần agent suy ra |
-| intent | Cách agent hiện diễn giải kết quả cần tạo và lý do |
-| framing | Stage discovery/delivery, giả thuyết mục tiêu, giả định, căn cứ, điều chưa biết, mâu thuẫn chưa giải quyết, lý do chọn và điều kiện xem lại |
-| owner | Agent hoặc nhóm chịu trách nhiệm, độc lập với người có thẩm quyền |
-| mode | achieve để hoàn thành một mục tiêu, maintain để duy trì một điều kiện |
-| success | Danh sách CriterionSpec, cách kết hợp all hoặc any, điều kiện kết thúc |
-| evidence | Nguồn được dùng, độ mới cần thiết, cách nhận diện tài nguyên và phiên bản |
-| evaluation | Bộ đánh giá và phiên bản; lịch/cửa sổ kiểm tra; chính sách khi thiếu dữ liệu |
-| authority | Grant tham chiếu quyền thực hiện, tài nguyên, quyền phân công và quyền sửa mình |
-| resources | Hạn mức, đơn vị đo, cách giữ chỗ trước khi chạy, cách đối soát chi phí |
-| stop | Điều kiện dừng, phạm vi ảnh hưởng, người nhận thông báo, cách tiếp tục |
-| timing | Deadline hoặc lý do không có deadline, các sự kiện cần nghe, chính sách thời gian |
-| relations | parent_goal_id, dependencies, vai trò đóng góp vào mục tiêu cha |
-| communication | Kênh báo, sự kiện cần báo, yêu cầu báo cáo định kỳ nếu có |
+| identity | goal_id, brain_id, revision, owner_id, readable name |
+| intent_ref | The original record of the need and instructions, with source and version; kept apart from what the agent inferred |
+| intent | How the agent currently interprets the result to be produced, and why |
+| framing | Stage discovery/delivery, goal hypothesis, assumptions, grounds, unknowns, unresolved contradictions, reason for the choice and conditions for revisiting |
+| owner | The agent or team responsible, independent of the person with authority |
+| mode | achieve to complete a goal, maintain to keep a condition true |
+| success | A list of CriterionSpec, how they combine (all or any), end conditions |
+| evidence | Sources used, required freshness, how resources and versions are identified |
+| evaluation | Evaluator and version; check schedule/window; policy when data is missing |
+| authority | A grant reference to the authority to act, resources, authority to assign work and to modify itself |
+| resources | Limits, units of measure, how to reserve before running, how to reconcile cost |
+| stop | Stop conditions, scope of impact, who is notified, how to resume |
+| timing | Deadline or the reason for having none, events to listen for, time policy |
+| relations | parent_goal_id, dependencies, role of the contribution to the parent goal |
+| communication | Reporting channel, events to report, periodic report requirement if any |
 
-CriterionSpec gồm id, mô tả, evaluator_ref, evaluator_revision, parameters, evidence_selector và acceptance. Parameters thuộc bộ đánh giá; lõi không cần hiểu đó là số, văn bản, trạng thái hay cấu trúc tài liệu.
+A CriterionSpec has id, description, evaluator_ref, evaluator_revision, parameters, evidence_selector and acceptance. Parameters belong to the evaluator; the core does not need to know whether they are a number, text, a state or a document structure.
 
-Điều kiện dừng dùng cùng giao diện đánh giá nhưng được kiểm tra độc lập với điều kiện thành công. Dừng có thể áp dụng cho một hành động, mục tiêu và hậu duệ, một nhóm, hoặc toàn bộ tầng tự chủ. Phạm vi toàn cục cần quyền tương ứng.
+Stop conditions use the same evaluation interface but are checked independently of success conditions. A stop can apply to one action, a goal and its descendants, a team, or the whole autonomy layer. A global scope needs the corresponding authority.
 
-### 4.2 Tạo và thay đổi hợp đồng
+### 4.2 Creating and changing a contract
 
-1. Lưu yêu cầu gốc, nguồn và ràng buộc đã nêu vào IntentRecord. Người dùng bổ sung hoặc sửa chỉ dẫn tạo bản ghi mới liên kết bản trước; agent không viết lại lời người dùng.
-2. Goal framer đọc ngữ cảnh được phép, phân biệt nhu cầu, giải pháp người dùng gợi ý, điều kiện bắt buộc và giả định. Khi chỉ có một cách hiểu đủ rõ thì dùng ngay; chỉ tạo vài giả thuyết khi có khác biệt đáng kể, không mở cây tìm kiếm vô hạn.
-3. Chọn mục tiêu làm việc phù hợp nhất với bằng chứng hiện có: bám nhu cầu và ràng buộc, tạo lợi ích có thể quan sát, khả thi trong nguồn lực, tránh cam kết lớn khi còn mơ hồ. Không dùng sự tự tin của model làm bằng chứng rằng đã hiểu đúng.
-4. Tự đề xuất tiêu chí và nguồn kiểm chứng. Nếu chưa đủ căn cứ xác định đích cuối, chọn một bước khám phá hữu ích như xem hiện trạng, tạo mẫu hoặc thử nhỏ, đồng thời ghi rõ kết quả người dùng vẫn chưa được xác định/đạt. Không biến hoàn thành khảo sát thành đã giải quyết nhu cầu gốc.
-5. Hỏi ngắn khi câu trả lời có thể đổi quyết định đáng kể và không thể suy ra từ ngữ cảnh. Nếu người dùng nói chưa biết, agent tiếp tục bằng khảo sát hoặc thử nhỏ có thể đảo ngược trong quyền; không yêu cầu họ tự nghĩ ra mục tiêu. Không trả lời không được hiểu là cấp thêm quyền.
-6. Tự kích hoạt phần việc hợp lệ từ yêu cầu đã giao, thông báo ngắn cách đang hiểu khi hữu ích. Việc đặt mục tiêu không có cổng duyệt riêng; lời hỏi làm rõ tùy chọn không khóa các bước độc lập. Chỉ chờ phần phụ thuộc khi thiếu thông tin không thể thay thế hoặc quyền thực sự cần thiết.
-7. Xem lại giả thuyết khi có dữ liệu trái với giả định, người dùng sửa ý, kết quả không giúp giải quyết nhu cầu, hoặc bước khám phá tạo hiểu biết mới. Không đổi chỉ để dễ đạt hay vì tới một nhịp timer. Mỗi lần sửa lưu revision, diff, căn cứ và liên kết IntentRecord; run, evidence, assessment đang chạy vẫn mang revision đã ghim.
-8. Ngừng cấp hành động theo revision cũ; đối soát tác động đã gửi và chuyển tiếp tại checkpoint phù hợp. Run cũ không tự đóng phiên bản mới. Ngân sách đã tiêu, guard đang kích hoạt, pause và quyền bị thu hồi vẫn còn hiệu lực sau đổi mục tiêu.
+1. Store the original request, its source and the stated constraints in an IntentRecord. When the user adds to or corrects an instruction, a new record is created that links to the previous one; the agent does not rewrite the user's words.
+2. The Goal framer reads the allowed context and distinguishes the need, the solution the user suggested, the mandatory conditions and the assumptions. When there is only one sufficiently clear interpretation, use it right away; create several hypotheses only when there is a significant difference, and do not open an endless search tree.
+3. Choose the working goal that best fits the current evidence: stay close to the need and constraints, create an observable benefit, be feasible within the resources, and avoid a large commitment while things are still vague. The model's confidence is not used as evidence that it understood correctly.
+4. Propose the criteria and the verification sources by itself. If there are not enough grounds to determine the final destination, choose a useful discovery step such as looking at the current state, making a sample or a small trial, and state clearly that the result the user wants is still undetermined/not reached. Completing a survey is not turned into having solved the original need.
+5. Ask briefly when the answer could change a decision significantly and cannot be inferred from context. If the user says they do not know, the agent continues with a survey or a small reversible trial within authority; it does not make them invent a goal. No answer is not read as granting extra authority.
+6. Activate the valid part of the work from the assigned request by itself, and briefly say how it is understood when helpful. Setting a goal has no separate approval gate; an optional clarifying question does not block independent steps. Wait on a dependency only when irreplaceable information is missing or authority is truly required.
+7. Revisit the hypothesis when data contradicts an assumption, the user corrects the intent, a result does not help resolve the need, or a discovery step produces new understanding. Do not change it just to make it easier to achieve or because a timer tick arrived. Each change stores the revision, diff, grounds and the IntentRecord link; runs, evidence and assessments in progress still carry the pinned revision.
+8. Stop issuing actions under the old revision; reconcile the effects already sent and move over at a suitable checkpoint. An old run does not close the new version by itself. Budget already spent, active guards, pauses and revoked authority remain in force after a goal change.
 
-V1 hỗ trợ một parent sở hữu mỗi mục tiêu, dependencies là đồ thị không chu trình. Hợp tác chéo mục tiêu dùng liên kết đóng góp, không tạo hai chủ sở hữu ngân sách cho cùng một run. Mục tiêu gốc đóng vai trò cấp tổ chức; không cần một loại đối tượng công ty riêng.
+V1 supports one owning parent per goal, and dependencies form an acyclic graph. Cross-goal collaboration uses contribution links and does not create two budget owners for the same run. The root goal plays the organization-level role; a separate company object type is not needed.
 
-### 4.3 Mục tiêu đạt và mục tiêu duy trì
+### 4.3 Achieve goals and maintain goals
 
-Achieve chuyển sang succeeded khi tiêu chí đã được xác nhận và không có mâu thuẫn chưa giải quyết với nhu cầu/ràng buộc đã biết. Nếu mục tiêu gốc còn ở stage discovery để tìm hiểu đích cuối, đạt tiêu chí khám phá chuyển sang xem lại mục tiêu, chưa đóng nhu cầu gốc. Mục tiêu con khám phá có thể hoàn thành riêng. Một yêu cầu chỉ nhằm nghiên cứu hoặc khảo sát có thể thuộc delivery vì chính kết quả nghiên cứu là điều người dùng yêu cầu. Nếu muốn theo dõi sau hoàn thành, tạo mục tiêu maintain đã được ủy quyền, hoặc thực hiện chính sách tiếp nối đã ghi trong hợp đồng. Không tự tăng chỉ tiêu sau khi thắng.
+Achieve moves to succeeded when the criteria are confirmed and there is no unresolved contradiction with the known need/constraints. If the root goal is still at the discovery stage to find the final destination, meeting the discovery criteria moves it to a goal review and does not close the original need. A discovery sub-goal can complete on its own. A request that is only for research or a survey can belong to delivery because the research result itself is what the user asked for. To keep tracking after completion, create an authorized maintain goal, or carry out the follow-on policy recorded in the contract. Do not raise the target by itself after a win.
 
-Maintain ở trạng thái active, ghi healthy/degraded/unknown qua assessment và tiếp tục quan sát tới khi bị kết thúc. Không đóng vĩnh viễn ngay lần đầu điều kiện đạt.
+Maintain stays active, records healthy/degraded/unknown through assessments and keeps observing until it is ended. It is not closed permanently the first time the condition is met.
 
-### 4.4 Làm rõ và khám phá có giới hạn
+### 4.4 Bounded clarification and discovery
 
-Agent chịu trách nhiệm lựa chọn bước tiếp theo; người dùng không phải chọn giữa một danh sách mục tiêu. Khi cần hỏi, ưu tiên điều gần trải nghiệm của họ, ví dụ điều gì đang gây khó khăn hoặc kết quả nào có ích, thay vì yêu cầu đặt KPI. Agent có thể đưa ví dụ để giúp hiểu, nhưng không biến việc chọn ví dụ thành điều kiện mặc định để làm việc.
+The agent is responsible for choosing the next step; the user does not have to choose from a list of goals. When it needs to ask, prefer something close to their experience, for example what is causing difficulty or which result would be useful, rather than asking them to set a KPI. The agent may give examples to help understanding, but does not turn choosing an example into a default condition for working.
 
-Nếu người dùng chưa rõ, ghi giả định có thể kiểm tra và làm bước ít tốn kém, dễ sửa, có khả năng phân biệt các cách hiểu. Tài nguyên khám phá dùng chung hạn mức của yêu cầu; giới hạn câu hỏi, thời gian và thử nghiệm là chính sách cấu hình theo bối cảnh. Không hỏi lại cùng một điều đã được trả lời là chưa biết khi chưa có thông tin mới.
+If the user is unclear, record a testable assumption and take a step that is cheap, easy to correct and able to tell the interpretations apart. Discovery resources share the request's limit; limits on questions, time and trials are policy configured by context. Do not ask again about something already answered as unknown when there is no new information.
 
-Nếu không có hành động hợp lệ giúp giảm bất định, trả phần kết quả đã có, nêu đúng điều còn thiếu và chờ sự kiện có ích. Không gọi model hoặc đổi mục tiêu liên tục chỉ để tỏ ra chủ động. Với yêu cầu có ràng buộc mâu thuẫn, giữ các ràng buộc và làm phần tương thích; sự bất định về mong muốn khác với thiếu quyền thực hiện.
+If there is no valid action that reduces uncertainty, return the result already produced, state exactly what is missing and wait for a useful event. Do not call a model or change goals continuously just to look proactive. For a request with contradictory constraints, keep the constraints and do the compatible part; uncertainty about what is wanted is different from lacking authority to act.
 
-Ví dụ: người dùng nói “giúp anh làm việc đỡ rối”. Agent xem ngữ cảnh công việc đã được cấp quyền, chọn giả thuyết về điểm gây rối và tạo một cách sắp xếp thử có thể sửa. Nếu người dùng cũng chưa biết mình cần gì, mẫu thử tạo cơ sở để quan sát và điều chỉnh. Agent không tự coi nhu cầu này là quyền xóa công việc, gửi tin thay người dùng hoặc tối ưu số việc hoàn thành bất kể chất lượng.
+Example: the user says "help me get less tangled up at work" (in Vietnamese: "giúp anh làm việc đỡ rối"). The agent looks at the work context it has been authorized to see, picks a hypothesis about what is causing the tangle and creates a trial arrangement that can be corrected. If the user also does not know what they need, the sample creates a basis for observing and adjusting. The agent does not treat this need as authority to delete tasks, send messages on the user's behalf or optimize the number of finished tasks regardless of quality.
 
-### 4.5 Tách chất lượng mục tiêu khỏi kết quả thực thi
+### 4.5 Separating goal quality from execution results
 
-Đánh giá hai câu riêng: “mục tiêu có phù hợp với nhu cầu và ràng buộc đã biết không?” và “kết quả có đạt tiêu chí của mục tiêu đó không?”. Việc vế thứ hai đạt không chứng minh vế thứ nhất đúng. Khi thông tin chưa đủ, mức phù hợp vẫn là giả thuyết, không gắn nhãn đã hiểu trọn ý người dùng.
+Evaluate two separate questions: "does the goal fit the known need and constraints?" and "does the result meet that goal's criteria?". The second passing does not prove the first is right. When information is insufficient, fit remains a hypothesis and is not labeled as having fully understood the user.
 
-Không có một hàm lợi ích chung xác định điều tốt nhất cho mọi người. Chính sách mặc định ưu tiên bằng chứng từ đầu vào, ràng buộc rõ và bước tiến hữu ích trong nguồn lực. Chỉ dẫn sửa sai của người dùng có giá trị định hướng; reaction đơn lẻ không đủ để đổi mục tiêu hoặc kết luận hiệu suất. Các nguyên tắc này triển khai ba bất biến, không thêm bộ luật riêng theo ngành.
+There is no general utility function that determines what is best for everyone. The default policy prefers evidence from the input, clear constraints and useful progress within the resources. The user's corrective instruction has directional value; a single reaction is not enough to change the goal or a performance conclusion. These principles implement the three invariants and add no separate domain-specific rulebook.
 
-### 4.6 SMART giúp agent làm rõ mục tiêu
+### 4.6 SMART helps the agent clarify a goal
 
-Agent dùng SMART để rà soát mục tiêu sau bước phân luồng: Specific, Measurable, Achievable, Relevant, Time-bound, theo cách diễn giải phổ biến trong [hướng dẫn SMART của CDC](https://www.cdc.gov/youth-advisory-councils/action-plans/smart-framework.html). Ánh xạ vào Jarvis 007 dưới đây là đề xuất thiết kế, không phải yêu cầu người dùng điền biểu mẫu.
+The agent uses SMART to review a goal after routing: Specific, Measurable, Achievable, Relevant, Time-bound, in the commonly used interpretation in the [CDC SMART guide](https://www.cdc.gov/youth-advisory-councils/action-plans/smart-framework.html). The mapping into Jarvis 007 below is a design proposal, not a form the user must fill in.
 
-| Thành phần | Cách agent áp dụng |
+| Component | How the agent applies it |
 |---|---|
-| Specific | Nêu kết quả cụ thể và người/đối tượng được phục vụ |
-| Measurable | Chọn bằng chứng nhận biết đạt; có thể là sản phẩm hoặc xác nhận cụ thể, không ép thành phần trăm |
-| Achievable | Kiểm quyền, công cụ và nguồn lực; thiếu căn cứ thì khảo sát, không âm thầm hạ yêu cầu |
-| Relevant | Giải thích mục tiêu phục vụ nhu cầu gốc ra sao |
-| Time-bound | Dùng hạn người dùng đã nêu; nếu chưa có thì đặt mốc xem lại nội bộ có lý do, chưa coi là deadline người dùng |
+| Specific | State the concrete result and the person/audience being served |
+| Measurable | Choose the evidence that recognizes success; it can be a product or a specific confirmation, not forced into a percentage |
+| Achievable | Check authority, tools and resources; if grounds are missing, investigate, and do not quietly lower the requirement |
+| Relevant | Explain how the goal serves the original need |
+| Time-bound | Use the deadline the user stated; if there is none, set an internal review milestone with a reason, not yet treated as a user deadline |
 
-Mục tiêu discovery có thể chỉ SMART ở bước tìm hiểu tiếp theo. Không tự bịa số nền, chỉ tiêu hoặc hạn chót để lấp đủ năm ô. SMART hỗ trợ chất lượng mục tiêu; không chứng minh đã hiểu đúng mong muốn và không quyết định câu chat nào cần goal bền.
+A discovery goal may be SMART only at the next step of finding out. Do not invent baseline numbers, targets or deadlines to fill all five boxes. SMART supports goal quality; it does not prove the wish was understood correctly and does not decide which chat messages need a durable goal.
 
-### 4.7 Phản hồi nhanh có ý nghĩa rõ ràng
+### 4.7 Quick feedback with clear meaning
 
-Thẻ Em đang hướng tới có Đúng ý và Hiểu chưa đúng, tùy chọn kèm biểu tượng. Nút gửi ý nghĩa tường minh goal_fit_confirmed/goal_fit_rejected, gắn người xác nhận, goal_id và revision. Bấm vào thẻ cũ không xác nhận phiên bản mới; im lặng giữ unknown. Bác cách hiểu làm xem lại phần liên quan trước tác động tiếp theo, không tự biến thành lệnh dừng toàn hệ thống hoặc tăng quyền. Không bắt bấm mới được bắt đầu.
+The What Jarvis 007 is working toward card has That's right and Not quite, optionally with an icon. The buttons send the explicit meanings goal_fit_confirmed/goal_fit_rejected, tied to the confirming person, goal_id and revision. Clicking on an old card does not confirm a new version; silence keeps unknown. Rejecting an interpretation triggers a review of the related part before the next impact, and does not turn by itself into a stop command for the whole system or an increase in authority. Clicking is never required in order to start.
 
-Ở sản phẩm đầu ra, Đạt yêu cầu/Cần chỉnh là loại bằng chứng khác, gắn artifact revision và criterion. Xác nhận mục tiêu không đồng nghĩa đầu ra đạt; xác nhận gu viết có thể đủ cho tiêu chí sở thích nếu hợp đồng cho phép, nhưng không ghi đè kiểm tra khách quan đã thất bại hoặc guard. Emoji dưới tin nhắn chung không được tự diễn giải thành các xác nhận này.
+On a product output, Meets the bar/Needs changes is a different kind of evidence, tied to the artifact revision and criterion. Confirming the goal does not mean the output passes; confirming a writing taste can be enough for a preference criterion if the contract allows it, but it does not override an objective check that failed, or a guard. An emoji under a shared message is not to be interpreted by itself as any of these confirmations.
 
-Như vậy phản hồi con người vẫn được dùng ở nơi nó có ý nghĩa. Hệ thống không phụ thuộc phản hồi để duy trì năng lực, tăng nhịp hoặc chứng minh mọi loại hiệu quả.
+This way human feedback is still used where it has meaning. The system does not depend on feedback to maintain capability, raise its tempo or prove every kind of effectiveness.
 
-## 5 Kiến trúc tổng thể
+## 5 Overall architecture
 
-| Thành phần | Trách nhiệm | Được thay đổi bởi agent |
+| Component | Responsibility | Changeable by the agent |
 |---|---|---|
-| Goal framer | Từ nhu cầu hình thành mục tiêu, chọn điều cần làm rõ hoặc khám phá, xem lại giả thuyết theo bằng chứng | Có, qua revision; không viết lại chỉ dẫn gốc hoặc quyền |
-| Goal service | Lưu hợp đồng, revision, quan hệ và trạng thái | Qua API và đúng grant |
-| Authority service | Kiểm quyền, thu hồi, giữ chỗ tài nguyên | Không tự mở rộng quyền của bên gọi |
-| Planner | Chọn hành động, phương pháp, phân công và thời điểm tiếp theo | Có, theo quyền sửa mình |
-| Executor | Thực thi qua engine, workflow, MCP và công cụ đã có | Phương pháp/công cụ được cấp; không bỏ cổng quyền |
-| Evidence bridge | Thu receipt, lưu nguồn và liên kết bằng chứng | Worker được gửi quan sát, không ghi đè xác nhận của host |
-| Evaluator registry | Chạy các bộ đánh giá có phiên bản | Được đề xuất biến thể; không tự thay thước đo của phép thử hiện tại |
-| Beat scheduler | Nhận sự kiện, đặt lịch, chống chạy trùng và đánh thức | Chính sách trong giới hạn được cấp |
-| Experiment service | So sánh biến thể và quản lý áp dụng/khôi phục | Có thể cải thiện phương pháp thử trong cùng quy tắc chứng minh |
-| Supervisor | Dừng worker, thực thi quyền và khôi phục bản phần mềm | Ngoài phạm vi tự sửa đang được thử |
+| Goal framer | Form a goal from the need, choose what to clarify or explore, revisit the hypothesis based on evidence | Yes, through revisions; does not rewrite original instructions or authority |
+| Goal service | Store the contract, revisions, relations and state | Through the API and the correct grant |
+| Authority service | Check authority, revoke, reserve resources | Does not expand the caller's authority by itself |
+| Planner | Choose actions, methods, assignments and the next time | Yes, per the authority to modify itself |
+| Executor | Execute through the existing engine, workflow, MCP and tools | Granted methods/tools; does not bypass the authority gate |
+| Evidence bridge | Collect receipts, store sources and link evidence | Workers may submit observations, but do not overwrite host confirmation |
+| Evaluator registry | Run versioned evaluators | May propose variants; does not replace the measure of the current test by itself |
+| Beat scheduler | Receive events, schedule, prevent duplicate runs and wake | Policy within the granted limits |
+| Experiment service | Compare variants and manage apply/restore | May improve the trial method under the same proof rules |
+| Supervisor | Stop workers, enforce authority and restore the software build | Outside the scope of the self-modification being tested |
 
-V1 tiếp tục Python, FastAPI, SQLite và dashboard JavaScript hiện có. Không dựng message broker, cơ sở dữ liệu graph, thị trường agent hoặc framework model mới. Dùng transaction và outbox trong SQLite để phối hợp chắc chắn.
+V1 keeps Python, FastAPI, SQLite and the existing JavaScript dashboard. Do not build a message broker, a graph database, an agent marketplace or a new model framework. Use transactions and an outbox in SQLite for reliable coordination.
 
-Giai đoạn đầu chỉ tự thực thi qua backend có khả năng cưỡng chế phạm vi đã được kiểm tra. Tool native của CLI có thể đi ngoài MCP Hub; không xem allowlist trong prompt là sandbox. Shell và plugin tùy ý chạy cùng quyền host không được mang nhãn đã cô lập. Quyền tự sửa code live chỉ mở sau giai đoạn supervisor.
+In the first phase, execute by itself only through a backend that can enforce a scope that has been verified. The CLI's native tools may go outside the MCP Hub; do not treat an allowlist in a prompt as a sandbox. A shell and arbitrary plugins running with host authority must not carry an isolated label. Authority to modify live code opens only after the supervisor phase.
 
-Ngữ cảnh chạy phải đi xuyên tiến trình: host cấp thông tin xác thực ngắn hạn gắn brain/goal/revision/run/actor và grant cho worker gọi Hub qua HTTP; engine trong tiến trình dùng cùng context đã được host xác nhận. Header tên actor chỉ là nhãn nếu chưa được đối chiếu với ngữ cảnh đó. ContextVar được set/reset bằng token trong try/finally, không được rò sang yêu cầu khác. Cache danh sách tool không giữ context của run trước. Từng invocation có id riêng liên kết action, run và nguồn bằng chứng; slug hoặc khoảng thời gian gần nhau không đủ để quy công.
+The run context must cross processes: the host issues short-lived credentials tied to brain/goal/revision/run/actor and the grant for the worker to call the Hub over HTTP; an in-process engine uses the same context confirmed by the host. A header carrying an actor name is only a label unless it is matched against that context. A ContextVar is set/reset with a token in try/finally and must not leak into another request. The tool list cache does not keep the previous run's context. Each invocation has its own id linking action, run and evidence source; a slug or closeness in time is not enough for attribution.
 
-## 6 Bằng chứng và đánh giá
+## 6 Evidence and evaluation
 
-### 6.1 Định dạng bằng chứng
+### 6.1 Evidence format
 
-EvidenceEnvelope chứa evidence_id, brain_id, goal_id, contract_revision, action_id nếu biết, nguồn, source_event_id, resource_ref, resource_version, observed_at, received_at, content_hash, evidence_ref, trust_class, freshness và supersedes_id nếu là đính chính.
+An EvidenceEnvelope holds evidence_id, brain_id, goal_id, contract_revision, action_id if known, source, source_event_id, resource_ref, resource_version, observed_at, received_at, content_hash, evidence_ref, trust_class, freshness and supersedes_id if it is a correction.
 
-Phân biệt nguồn xác nhận: tool receipt do host ghi, dữ liệu từ adapter, đánh giá model, xác nhận người dùng và lời tự báo của worker. Content hash xác nhận nội dung được giữ nguyên, không chứng minh nội dung đúng. Nhiều bản sao từ cùng một nguồn không tạo thêm bằng chứng độc lập.
+Distinguish the confirming sources: a tool receipt written by the host, data from an adapter, a model evaluation, a user confirmation and a worker's self-report. A content hash confirms the content was kept intact, but does not prove the content is correct. Many copies from the same source do not create more independent evidence.
 
-Ghi bằng chứng mới để đính chính, không xóa bản cũ. Mọi đọc/ghi phải kiểm tra brain_id và người có quyền; đường dẫn hoặc id do model đưa ra không đủ làm quyền truy cập.
+Record new evidence to correct, and do not delete the old one. Every read/write must check brain_id and the person with authority; a path or id supplied by a model is not enough to serve as access authority.
 
-### 6.2 Kết quả đánh giá
+### 6.2 Evaluation results
 
-Assessment gồm goal/revision, evaluator/revision, criterion_results, evidence_ids, verdict, confidence, rationale, evaluated_at và next_observation_at.
+An Assessment has goal/revision, evaluator/revision, criterion_results, evidence_ids, verdict, confidence, rationale, evaluated_at and next_observation_at.
 
-Verdict của tiêu chí: met, not_met hoặc unknown. Lỗi chạy evaluator được ghi riêng là error; không ép thành not_met. Guard báo triggered, clear hoặc unknown. V1 dùng confidence low/medium/high có giải thích, không hiển thị xác suất giả từ sự tự tin của model.
+A criterion's verdict is met, not_met or unknown. An evaluator run failure is recorded separately as error; it is not forced into not_met. A guard reports triggered, clear or unknown. V1 uses confidence low/medium/high with an explanation, and does not display a fake probability derived from the model's confidence.
 
-Điều kiện all đạt khi mọi tiêu chí đều met. Điều kiện any đạt khi có tiêu chí met, nhưng mọi guard và ràng buộc bắt buộc vẫn phải được thỏa. Thiếu evaluator, dữ liệu quá hạn, sai revision hoặc không đọc được bằng chứng đều ngăn xác nhận thành công.
+An all condition is met when every criterion is met. An any condition is met when some criterion is met, but every guard and mandatory constraint must still be satisfied. A missing evaluator, stale data, a wrong revision or unreadable evidence each prevent success from being confirmed.
 
-### 6.3 Bộ đánh giá mở rộng
+### 6.3 Extensible evaluators
 
-Giao diện chung Evaluator.evaluate(contract, evidence, now) trả Assessment. Adapter mô tả id, version, input schema, loại bằng chứng, khả năng đọc/ghi, thời gian chờ và điều kiện lỗi. Evaluator mặc định không có quyền tạo tác động ngoài việc ghi assessment.
+The common interface Evaluator.evaluate(contract, evidence, now) returns an Assessment. An adapter describes its id, version, input schema, evidence types, read/write capability, timeout and failure conditions. By default an evaluator has no authority to create impact beyond writing an assessment.
 
-Các adapter đầu tiên:
+The first adapters:
 
-- artifact_contract: kiểm tra tài nguyên có tồn tại và đáp ứng cấu trúc/tiêu chí đã khai.
-- state_predicate: đánh giá biểu thức dữ liệu khai báo, không chạy mã tùy ý hoặc eval chuỗi từ model.
-- rubric: đánh giá chất lượng theo tiêu chí ghim phiên bản, chỉ được xác nhận đạt nếu hợp đồng chấp nhận phương pháp này.
-- human_confirmation: dùng cho phần kết quả chỉ người dùng mới có thể xác nhận.
+- artifact_contract: checks that a resource exists and meets the declared structure/criteria.
+- state_predicate: evaluates a declarative data expression, and does not run arbitrary code or eval a string from a model.
+- rubric: evaluates quality against version-pinned criteria, and may only confirm success if the contract accepts this method.
+- human_confirmation: used for the part of a result that only the user can confirm.
 
-Trong MVP ưu tiên artifact_contract và human_confirmation; rubric model hoãn tới khi cần. Về sau, rubric chỉ chấm sản phẩm có bằng chứng nguồn, bằng phiên bản và tiêu chí đã ghim, không nhận lời tự báo của worker làm sản phẩm đã hoàn thành. Không bắt mọi việc định tính phải chờ người dùng: hợp đồng có thể chấp nhận đánh giá model độc lập cho tiêu chí phù hợp, kèm kiểm tra các điều kiện khách quan. Kết luận cần ghi rõ phương pháp và giới hạn, không giả đó là phép đo chắc chắn.
+In the MVP, prioritize artifact_contract and human_confirmation; the model rubric is deferred until needed. Later, a rubric only scores products that have source evidence, using a pinned version and criteria, and does not accept a worker's self-report as a completed product. Not every qualitative task must wait for the user: the contract may accept an independent model evaluation for a suitable criterion, together with checks of the objective conditions. A conclusion must state its method and limits, and must not pretend to be a certain measurement.
 
-Tài liệu và MCP trả về là dữ liệu, không có quyền thay hợp đồng hoặc cấp thêm quyền. MCP annotations chỉ là gợi ý về công cụ, không tự xác định chất lượng kết quả hay ý định hoàn tác.
+Returned documents and MCP output are data; they have no authority to change the contract or grant extra authority. MCP annotations are only hints about a tool and do not by themselves determine result quality or the intent to undo.
 
-Nhãn read/write/danger của catalog dùng hỗ trợ phân quyền, không chứng minh khả năng hoàn tác. Tool đa hành động phải được phân loại theo arguments thực tế, không lấy effect lúc liệt kê làm kết luận cho mọi invocation. Kết quả ERROR:, isError hoặc lỗi cấu trúc phải được adapter giữ là lỗi; việc hàm trả về bình thường không đồng nghĩa tool thực hiện thành công. Các lần đọc dùng để đánh giá cũng phải lưu nguồn và thời điểm, dù không cần ghi toàn bộ nội dung đọc vào nhật ký hoạt động.
+The catalog's read/write/danger labels are used to support authorization and do not prove the ability to undo. A multi-action tool must be classified by its actual arguments, and the effect at listing time must not be taken as the conclusion for every invocation. A result of ERROR:, isError or a structural error must be kept as an error by the adapter; a function returning normally does not mean the tool succeeded. Reads used for evaluation must also store their source and time, even though the full content read need not go into the activity log.
 
-### 6.4 Chỉ số dẫn dắt và quy công
+### 6.4 Leading indicators and attribution
 
-Agent được đề xuất hành động có thể tác động và giả thuyết vì sao chúng giúp đạt mục tiêu. Đây là giả thuyết để kiểm tra, không phải cách tự nhận thưởng bằng số lượng hoạt động. Định kỳ đối chiếu hành động với kết quả, đổi phương pháp khi giả thuyết không còn được hỗ trợ.
+The agent may propose actions that can have an impact, and a hypothesis for why they help reach the goal. This is a hypothesis to test, not a way to award itself credit through the volume of activity. Periodically reconcile actions with results, and change the method when the hypothesis is no longer supported.
 
-Lineage lưu đóng góp, phản biện, bằng chứng và quyết định. V1 ghi nhận hiệu quả ở mức phương pháp và nhóm khi không có đủ căn cứ tách từng người. Không nhân một kết quả thành nhiều phần thưởng độc lập; không mặc định người tổng hợp nhận nhiều nhất.
+Lineage stores contributions, critiques, evidence and decisions. V1 records effectiveness at the method and team level when there are not enough grounds to separate individuals. Do not multiply one result into several independent rewards; do not assume the synthesizer receives the most.
 
-### 6.5 Phép đo số và chất lượng dữ liệu
+### 6.5 Numeric measurement and data quality
 
-Khi cần so sánh chỉ số theo thời gian, dùng adapter metric_series có schema: source, selector, unit, observed_at, window, aggregation, baseline, direction, acceptance và missing_data_policy. Lấy trường được chỉ định từ dữ liệu cấu trúc; không lấy số đầu tiên của văn bản. Văn bản chỉ được chuyển thành số qua parser theo nguồn đã kiểm thử; không khớp schema thì unknown. Agent tự đề xuất cấu hình, người dùng không phải viết frontmatter hoặc chọn metric.
+When metrics need to be compared over time, use the metric_series adapter with the schema: source, selector, unit, observed_at, window, aggregation, baseline, direction, acceptance and missing_data_policy. Take the specified field from structured data; do not take the first number in a piece of text. Text may be turned into a number only through a parser tested for that source; if it does not match the schema, it is unknown. The agent proposes the configuration itself; the user does not have to write frontmatter or choose a metric.
 
-Phân biệt chỉ số là trạng thái tại thời điểm, lượng phát sinh trong kỳ hay bộ đếm tích lũy để chọn last/sum/delta/time_weighted_mean thích hợp. Cửa sổ, múi giờ và baseline có phiên bản. Mẫu dùng observed_at của nguồn; received_at phục vụ theo dõi độ trễ. Gọi nguồn nhiều lần không tạo thêm mẫu độc lập hoặc làm thay đổi cách tính cùng một chuỗi sự kiện. Đánh giá sau khi nhận mẫu phải dùng thời điểm bao phủ mẫu mới; dữ liệu đến muộn được xử lý theo cửa sổ và chính sách đã khai.
+Distinguish whether a metric is a state at a point in time, an amount arising in a period or a cumulative counter, so as to choose the appropriate last/sum/delta/time_weighted_mean. The window, time zone and baseline are versioned. A sample uses the source's observed_at; received_at serves delay tracking. Calling a source several times does not create extra independent samples or change how the same event series is computed. An evaluation after receiving a sample must use the time that covers the new sample; late-arriving data is handled according to the declared window and policy.
 
-Theo dõi riêng khả năng đọc, độ mới, mức bao phủ, tính tương thích và mức chắc chắn khi quy công. Dữ liệu ổn định vẫn có thể rất đáng tin; có hành động xảy ra không chứng minh hành động gây ra thay đổi. Không trộn các đại lượng này thành trọng số chuyển sang reaction khi kết quả không biến động. Chỉ có ba mẫu không đủ làm quy tắc chung xác nhận độ tin cậy; số mẫu và điều kiện bao phủ thuộc adapter và hợp đồng.
+Track readability, freshness, coverage, compatibility and the level of confidence in attribution separately. Stable data can still be very trustworthy; an action happening does not prove the action caused the change. Do not mix these quantities into a weight that shifts to reaction when the result does not move. Three samples alone are not enough to serve as a general rule confirming reliability; the number of samples and the coverage conditions belong to the adapter and the contract.
 
-Guard bảo vệ trạng thái mong muốn độc lập với việc quy trách nhiệm: khi điều kiện dừng đã được xác nhận, dừng phạm vi đã quy định dù chưa biết ai gây ra. Guard unknown khác clear; chính sách thiếu dữ liệu xác định phần nào còn được làm. Baseline bằng không, số không hữu hạn, đổi đơn vị hoặc thiếu nguồn không được tự coi là 0% thay đổi hay mọi việc bình thường.
+A guard protects the desired state independently of assigning responsibility: once a stop condition is confirmed, stop the specified scope even if it is not known who caused it. An unknown guard is different from clear; the missing-data policy determines which part may still be done. A zero baseline, a non-finite number, a change of unit or a missing source must not be treated by itself as 0% change or as everything being normal.
 
-## 7 Trạng thái và vòng vận hành
+## 7 State and operating loop
 
-Tách GoalStatus khỏi RunState:
+Separate GoalStatus from RunState:
 
 - GoalStatus: draft, active, succeeded, failed, cancelled.
 - RunState: ready, running, waiting, blocked, paused, dormant.
 
-Framing lưu mức chắc chắn có giải thích và các giả định chưa kiểm chứng, độc lập với GoalStatus. Một mục tiêu active vẫn có thể dựa trên giả thuyết tạm thời. Superseded mô tả revision đã được thay, không thêm một kết quả thành công vào lịch sử goal. Bước khám phá có tiêu chí riêng; hoàn thành bước này không tự hoàn thành nhu cầu gốc.
+Framing stores a level of confidence with an explanation and the unverified assumptions, independent of GoalStatus. An active goal may still rest on a provisional hypothesis. Superseded describes a revision that has been replaced, and does not add a success result to the goal's history. A discovery step has its own criteria; completing it does not complete the original need by itself.
 
-Failed chỉ khi có kết luận không đạt theo điều kiện kết thúc hợp đồng. Deadline tới mà chưa có dữ liệu phải ghi rõ unknown và áp dụng chính sách deadline đã chốt, không gọi nhầm là đã chứng minh thất bại. Paused là người dùng tạm dừng. Blocked là có điều kiện cản trở, giữ mã lý do và điều kiện mở lại.
+Failed only when there is a not-met conclusion under the contract's end conditions. When a deadline arrives with no data yet, record it clearly as unknown and apply the agreed deadline policy; do not wrongly call it proven failure. Paused means the user paused it. Blocked means a condition is in the way; keep the reason code and the condition to reopen.
 
-Vòng điều khiển:
+The control loop:
 
-1. Nhận sự kiện hoặc lịch tới hạn, kiểm tra hợp đồng vẫn active.
-2. Kiểm tra quyền hiện hành, guard, nguồn lực và phiên bản.
-3. Thu dữ liệu cần thiết, đánh giá bằng chứng hiện có.
-4. Nếu có bằng chứng cách hiểu không còn phù hợp, chuyển Goal framer xem lại trước khi kết luận. Nếu tiêu chí đã đạt và không có mâu thuẫn chưa giải quyết với nhu cầu/ràng buộc đã biết, xác nhận và kết thúc hoặc duy trì theo mode.
-5. Nếu cần bước mới, planner trả Decision: act, delegate, experiment, clarify, reframe, wait, escalate hoặc finish. Clarify mở câu hỏi; reframe yêu cầu xem lại hợp đồng có căn cứ. Cả hai đi qua goal service, không phải quyền tự sửa state hoặc grant.
-6. Authority service kiểm tra Decision, giữ chỗ tài nguyên, ghi action intent trước khi thực thi.
-7. Executor chạy; receipt và kết quả được lưu; đánh giá lại khi có bằng chứng phù hợp.
-8. Ghi bài học đủ căn cứ, báo sự kiện có ý nghĩa, đặt lần quan sát tiếp theo.
+1. Receive an event or a due schedule, and check that the contract is still active.
+2. Check current authority, guards, resources and version.
+3. Collect the needed data and evaluate the existing evidence.
+4. If there is evidence that the understanding no longer fits, hand it to the Goal framer to revisit before concluding. If the criteria are met and there is no unresolved contradiction with the known need/constraints, confirm it and end or maintain according to the mode.
+5. If a new step is needed, the planner returns a Decision: act, delegate, experiment, clarify, reframe, wait, escalate or finish. Clarify opens a question; reframe requests a grounded revisit of the contract. Both go through the goal service, and are not authority to modify state or a grant by itself.
+6. The Authority service checks the Decision, reserves resources and records the action intent before execution.
+7. The Executor runs; the receipt and result are stored; re-evaluate when suitable evidence arrives.
+8. Record lessons that have enough grounds, report meaningful events and set the next observation.
 
-Finish là yêu cầu kiểm chứng hoàn thành, không có quyền tự set succeeded. Một task hoặc workflow có status done/COMPLETED không tự hoàn thành mục tiêu.
+Finish is a request to verify completion, and has no authority to set succeeded by itself. A task or workflow with status done/COMPLETED does not complete the goal by itself.
 
-## 8 Beat và giao tiếp
+## 8 Beat and communication
 
-Beat là WakePlan gồm lý do, earliest_at, wake_on, observation_due_at, expires_at và policy_revision. Không gắn tần suất hoạt động trực tiếp với điểm khen/chê.
+A beat is a WakePlan consisting of a reason, earliest_at, wake_on, observation_due_at, expires_at and policy_revision. Do not tie activity frequency directly to praise/criticism scores.
 
-Ưu tiên sự kiện từ tác vụ, tài nguyên, deadline, nguồn dữ liệu và người dùng. Timer là đường dự phòng khi không có sự kiện phù hợp. Tick của scheduler chỉ làm kiểm tra rẻ bằng code; chỉ gọi model khi có thông tin mới hoặc quyết định cần suy luận.
+Prefer events from tasks, resources, deadlines, data sources and the user. A timer is the fallback when there is no suitable event. A scheduler tick only does cheap checks in code; call a model only when there is new information or a decision that needs reasoning.
 
-Waiting có điều kiện mở lại rõ. Dormant không gọi model theo giờ, nhưng giữ subscription cần thiết và nhận lệnh người dùng. Sự kiện phù hợp được đánh thức agent ngủ đông; sự kiện không được tự bỏ user pause hoặc mở lại guard yêu cầu người dùng.
+Waiting has a clear condition to reopen. Dormant does not call a model on a schedule, but keeps the subscriptions it needs and receives user commands. A suitable event can wake a hibernating agent; an event must not by itself drop a user pause or reopen a guard that requires the user.
 
-Lịch quan sát guard tách khỏi lịch gọi agent nhưng dùng chung scheduler: một loop giãn nhịp hoặc worker đang bận không được kéo dài khoảng mù của điều kiện dừng. Chỉ đọc để giám sát trong quyền và nguồn lực còn hiệu lực; người dùng thu hồi cả quan sát thì ngừng đọc và báo mất khả năng giám sát. Guard đã nhảy không tự mở lại do một mẫu tốt; điều kiện phục hồi, chống dao động và thông báo lặp thuộc chính sách có phiên bản. Nếu chính sách cho phép phục hồi tự động thì host thực hiện, còn user pause luôn giữ hiệu lực.
+The guard observation schedule is separate from the agent invocation schedule but shares the same scheduler: a stretched-out loop or a busy worker must not lengthen the blind interval of a stop condition. It reads only for monitoring within authority and resources still in force; if the user revokes even observation, stop reading and report the loss of monitoring ability. A guard that has fired does not reopen by itself on one good sample; the recovery conditions, anti-oscillation and repeat notices belong to the versioned policy. If the policy allows automatic recovery, the host carries it out, and a user pause always stays in force.
 
-Agent đề xuất thời điểm tiếp theo dựa trên thời gian có bằng chứng và khả năng tác động. Host chuẩn hóa timestamp, gom sự kiện trùng, giới hạn theo ngân sách và khả năng phục vụ. Không tự chạy lại liên tục vì nhận chính thông báo do mình tạo.
+The agent proposes the next time based on when evidence is available and the ability to have an impact. The host normalizes timestamps, merges duplicate events, and limits by budget and serving capacity. It does not rerun continuously by receiving a notification that it created itself.
 
-Mục tiêu không có nguồn sự kiện dùng lần xem lại hữu ích hoặc polling nguồn đã được phép với giới hạn tài nguyên. Chỉ dẫn như “hỏi lại vào thứ Sáu” điều chỉnh WakePlan trực tiếp. Phản hồi về tần suất chỉ sửa chính sách giao tiếp/lịch trong phạm vi yêu cầu; emoji hài lòng không làm worker thức dày. Không có dữ liệu mới hoặc hành động có ích thì ngủ, không gọi model định kỳ chỉ để hỏi người dùng đã hài lòng chưa.
+A goal with no event source uses a useful review or polling of an authorized source with resource limits. An instruction like "ask me again on Friday" adjusts the WakePlan directly. Feedback about frequency only edits the communication/schedule policy within the scope of the request; a satisfied emoji does not make a worker wake more often. With no new data or useful action, sleep; do not call a model periodically just to ask whether the user is satisfied.
 
-Thông báo mặc định của mục tiêu mới: đạt mốc có ý nghĩa, hoàn thành, chạm guard, lỗi cần can thiệp hoặc cần quyết định. Chi tiết từng hành động có trong nhật ký. Yêu cầu báo định kỳ được ghi riêng. Loop/cron cũ giữ hành vi báo hiện có nếu chưa được chuyển sang mục tiêu.
+Default notifications for a new goal: reaching a meaningful milestone, completion, hitting a guard, an error that needs intervention, or needing a decision. The detail of each action is in the log. A request for periodic reports is recorded separately. An old loop/cron keeps its existing reporting behavior until it is moved to a goal.
 
-Khi người dùng nhắn lại, agent tiếp tục hoặc lập mục tiêu mới từ trạng thái và ý định hiện tại, không phục hồi quyền đã hết hạn. Không xóa năng lực vì lâu không nhận reaction.
+When the user messages again, the agent continues or sets up a new goal from the current state and intent, and does not restore authority that has expired. Capability is not deleted because no reaction has been received for a long time.
 
-## 9 Nhóm có người chốt
+## 9 Teams with a decider
 
-Mỗi group gắn goal_id, leader_id, membership và epoch điều phối. Chỉ leader đang giữ epoch có quyền chốt kế hoạch thực thi; leader không có quyền bỏ guard hoặc sửa quyền gốc. Nếu leader gián đoạn, host chuyển quyền điều phối có ghi nhận và ngăn leader cũ cùng chốt.
+Each group is tied to a goal_id, leader_id, membership and a coordination epoch. Only the leader holding the epoch has the authority to finalize the execution plan; the leader has no authority to drop a guard or edit the root authority. If the leader is interrupted, the host transfers coordination authority with a record and prevents the old leader from also finalizing.
 
-Thành viên tự chọn nói, phản biện, làm việc hoặc im trong phạm vi nhiệm vụ. Không ép round-robin; cũng không đánh thức toàn bộ thành viên cho mọi tin. Subscription theo vai trò và thay đổi liên quan giúp giảm lượt gọi vô ích. Thảo luận tự do vẫn được hỗ trợ trong một run được cấp tài nguyên.
+Members choose for themselves to speak, critique, work or stay silent within the scope of the task. No forced round-robin; nor is every member woken for every message. Subscriptions by role and by relevant change help reduce useless invocations. Free discussion is still supported within a run that has been granted resources.
 
-Kết luận cần giữ lý do, bằng chứng và phản biện chưa giải quyết. Bất đồng về phương pháp có thể tạo hai thử nghiệm nhỏ nếu còn nguồn lực. Leader quyết định dùng kết quả nào theo hợp đồng, không đồng nhất đa số đồng ý với bằng chứng đúng.
+A conclusion must keep its reasons, evidence and unresolved critiques. A disagreement about method can create two small experiments if resources remain. The leader decides which result to use according to the contract, and does not equate majority agreement with correct evidence.
 
-Leader được phân bổ lại công việc và tăng/giảm nhịp trong grant khi người dùng vắng. Khi cần quyết định ngoài quyền, nhóm chờ và gửi một yêu cầu tổng hợp. Các bước độc lập vẫn có thể chạy nếu phạm vi chờ cho phép; nếu hợp đồng yêu cầu dừng cả cây, toàn bộ hậu duệ dừng.
+The leader may reassign work and raise/lower the tempo within the grant when the user is away. When a decision outside authority is needed, the team waits and sends one consolidated request. Independent steps may still run if the scope of the wait allows; if the contract requires stopping the whole tree, all descendants stop.
 
-Leader chịu trách nhiệm thống nhất cách hiểu nhu cầu và tự điều chỉnh mục tiêu suy ra trong ràng buộc gốc. Thành viên được phản biện cách đặt mục tiêu bằng bằng chứng; không cần chờ người dùng tự chọn mục tiêu cho từng agent. Đổi mục tiêu cha làm các con liên quan kiểm tra lại trước tác động tiếp theo; một câu hỏi tổng hợp thay cho nhiều agent hỏi lặp.
+The leader is responsible for unifying the understanding of the need and for adjusting the inferred goal by itself within the root constraints. Members may challenge how the goal is set, using evidence; there is no need to wait for the user to choose a goal for each agent. Changing a parent goal makes the related children re-check before their next impact; one consolidated question replaces many agents asking repeatedly.
 
-V1 không xây chat mạng xã hội giữa agent. Trao đổi phải thuộc một mục tiêu hoặc một phép thử được cấp tài nguyên. Việc khám phá ý tưởng mới là mục tiêu con hợp lệ khi nằm trong sự ủy quyền khám phá.
+V1 does not build a social chat between agents. Exchanges must belong to a goal or to a test that has been granted resources. Exploring new ideas is a valid sub-goal when it is within the delegation to explore.
 
-## 10 Quyền và tài nguyên
+## 10 Authority and resources
 
-Giữ tên và nghĩa suggest, auto, full hiện có. Tự chủ và quyền sửa mình là trục riêng, không gom thành một bậc thứ tư mặc nhiên có mọi quyền:
+Keep the existing names and meanings suggest, auto, full. Autonomy and authority to modify itself are separate axes, and are not folded into a fourth level that implicitly has every authority:
 
-- chủ động: có được tự chọn công việc trong mục tiêu hay chỉ chạy khi được giao;
-- sửa phương pháp: memory đề xuất, prompt, skill, workflow;
-- phân công: gọi agent sẵn có hoặc tạo agent con;
-- sửa code: workspace/phạm vi code được cho phép;
-- áp dụng phiên bản: có được tự đưa bản đã kiểm chứng vào chạy hay chỉ chuẩn bị bản đề xuất.
+- proactivity: whether it may choose work by itself within the goal or only run when assigned;
+- method modification: memory proposals, prompt, skill, workflow;
+- assignment: calling an existing agent or creating a child agent;
+- code modification: the workspace/code scope that is allowed;
+- version application: whether it may put a verified build into operation by itself or only prepare a proposed build.
 
-Đây là các capability trong grant, UI có thể cung cấp preset dễ hiểu. Full không tự mang quyền sửa code Jarvis 007. Người dùng có thể bật quyền đó một lần cho đúng agent/nhóm/phạm vi và không bị hỏi lại mỗi thay đổi hợp lệ.
+These are capabilities in the grant, and the UI may provide easy-to-understand presets. Full does not automatically carry authority to modify Jarvis 007's code. The user can turn that authority on once for exactly one agent/team/scope and is not asked again for every valid change.
 
-Mỗi grant có principal, brain_id, scope, capability revisions, expires_at nếu có, parent_grant_id và generation thu hồi. Kiểm tra ở lúc quyết định và ngay trước tác động. Quyền ghi qua shell/API khác phải nằm trong cùng biên thực thi, không chỉ qua MCP.
+Each grant has a principal, brain_id, scope, capability revisions, expires_at if any, parent_grant_id and a revocation generation. Check at decision time and again right before the impact. Write authority through a shell/API other than MCP must sit within the same execution boundary, not only through MCP.
 
-ResourceEnvelope dùng map tên tài nguyên và đơn vị, không bắt buộc tiền. V1 đo lượt gọi, token và thời gian worker; chi phí tiền chỉ ghi khi provider cung cấp dữ liệu đáng tin. Giữ chỗ trước run, đối soát sau run. Khi giá/usage chưa rõ, thể hiện unknown và dùng trần tài nguyên thay thế đã chốt, không coi là miễn phí.
+A ResourceEnvelope uses a map of resource names and units, and does not require money. V1 measures calls, tokens and worker time; monetary cost is recorded only when the provider supplies reliable data. Reserve before a run, reconcile after a run. When price/usage is unclear, show unknown and use the agreed substitute resource cap, and do not treat it as free.
 
-Tác vụ và experiment kế thừa engine, model và hạn mức chung đã cấu hình; không bắt khai lại mỗi goal. Ghi số lượt gọi, thời gian và usage nhà cung cấp thực sự trả về; quota gói thuê bao không đọc được thì unknown. Khi gặp giới hạn, lưu checkpoint và chờ đúng điều kiện, không vòng retry vô hạn, tự chuyển sang API trả phí hoặc dùng tài khoản khác. Kiểm khả năng chạy nền và điều kiện dịch vụ của engine được chọn ở lúc triển khai; không giả mọi gói thuê bao đều hỗ trợ cùng cách tự động hóa.
+Tasks and experiments inherit the configured shared engine, model and limits; no need to declare them again per goal. Record the number of calls, the time and the usage the provider actually returns; a subscription plan quota that cannot be read is unknown. On hitting a limit, store a checkpoint and wait for the right condition, and do not loop with infinite retries, switch to a paid API by itself or use another account. Check the background-running capability and the service terms of the chosen engine at deployment time; do not pretend every subscription plan supports automation in the same way.
 
-Thu hồi chặn cấp run mới và hủy run đang chạy bằng supervisor. Tác động đã gửi ra ngoài có thể không thu hồi được; ghi nhận kết quả chưa chắc chắn và đối soát trước khi retry. Hành động không hỗ trợ idempotency không được chạy lại mù sau crash.
+Revocation blocks issuing new runs and cancels running runs through the supervisor. An impact that has already gone out may not be revocable; record the uncertain result and reconcile before retrying. An action that does not support idempotency must not be blindly rerun after a crash.
 
-## 11 Tự cải thiện bằng thử nghiệm
+## 11 Self-improvement through experiments
 
-### 11.1 Vòng thử nghiệm
+### 11.1 The experiment loop
 
-Mỗi Experiment lưu mục tiêu liên quan, giả thuyết, baseline_revision, candidate_revision, evaluation_revision, tập tình huống, ngân sách, phạm vi sửa, điều kiện áp dụng và bản khôi phục.
+Each Experiment stores the related goal, hypothesis, baseline_revision, candidate_revision, evaluation_revision, the set of scenarios, the budget, the scope of modification, the conditions to apply and the restore build.
 
-Các bước: phát hiện điểm yếu cụ thể; tạo biến thể; chạy baseline và candidate trên tình huống tương đương; thu receipt độc lập; so sánh thành công, lỗi, công người dùng và chi phí; áp dụng nếu đủ bằng chứng. Unknown giữ candidate ở trạng thái chưa kết luận.
+The steps: find a concrete weakness; create a variant; run the baseline and the candidate on equivalent scenarios; collect independent receipts; compare success, errors, user effort and cost; apply if there is enough evidence. Unknown keeps the candidate in an inconclusive state.
 
-Có tập tình huống giữ riêng để kiểm tra khả năng khái quát, không cho candidate đọc đáp án hoặc sửa kết quả chấm. Agent có thể đề xuất thêm phép thử nhưng không tự thay tập kiểm chứng đang dùng để áp dụng chính nó.
+There is a held-out set of scenarios to check generalization, and the candidate may not read the answers or edit the scoring results. The agent may propose extra tests but does not replace, by itself, the verification set being used to apply itself.
 
-Không buộc mọi mục tiêu có một hàm điểm cộng dồn. Acceptance có thể yêu cầu đạt chất lượng tối thiểu và giảm chi phí, hoặc tốt hơn trên tiêu chí chính mà không vi phạm điều kiện khác. Tiêu chí được ghim trước khi so sánh.
+Not every goal is forced to have a cumulative score function. Acceptance may require reaching a minimum quality and reducing cost, or doing better on the main criterion without violating other conditions. The criteria are pinned before the comparison.
 
-Phân biệt vòng điều chỉnh mục tiêu với vòng so sánh phương pháp. Nếu hợp đồng thay đổi trong khi experiment đang chạy, kết quả cũ giữ nguyên phạm vi; experiment không còn phù hợp ghi inconclusive với lý do goal_reframed. Muốn áp dụng cho mục tiêu mới phải kiểm tra lại tính áp dụng và tạo phép so sánh trên cùng revision mới. Không thưởng cho việc đổi đề để thắng. Cải thiện Goal framer được thử trên cùng đầu vào và ràng buộc giữ riêng, đánh giá cả độ phù hợp lẫn kết quả công việc.
+Distinguish the goal-adjustment loop from the method-comparison loop. If the contract changes while an experiment is running, the old results keep their scope; an experiment that no longer fits is recorded as inconclusive with the reason goal_reframed. To apply it to a new goal, re-check applicability and create a comparison on the same new revision. Do not reward changing the question in order to win. Improvement of the Goal framer is tested on the same inputs and held-out constraints, evaluating both fit and work results.
 
-### 11.2 Quyền khám phá
+### 11.2 Exploration authority
 
-Người dùng có thể dành một phần nguồn lực cho khám phá trong grant. Agent tự chọn phép thử đáng làm; không phải có reaction tích cực mới được thử. Phân bổ khám phá nằm trong tổng hạn mức, không sinh ví tài nguyên riêng vô hạn.
+The user may set aside part of the resources for exploration in the grant. The agent chooses worthwhile tests itself; a positive reaction is not required before trying. The exploration allocation sits within the total limit and does not create a separate unlimited resource wallet.
 
-Giữ số lượng biến thể theo ngân sách lưu trữ đã cấp. Có thể giữ biến thể khác biệt dù chưa thắng, kèm lý do, để tiếp tục tìm kiếm sau. Không cố giữ mọi phiên bản hoặc tạo agent vô hạn.
+Keep the number of variants within the storage budget granted. A distinct variant may be kept even though it has not won, with a reason, to continue searching later. Do not try to keep every version or create unlimited agents.
 
-### 11.3 Trí nhớ và bài học
+### 11.3 Memory and lessons
 
-Quan sát mới vào sổ bằng chứng trước. Bài học có status proposed/validated/superseded, phạm vi áp dụng và evidence_ids. Chỉ bài học validated được đưa vào phần tự học của memory; chỉ dẫn rõ của người dùng có thể xác nhận trực tiếp.
+New observations go into the evidence ledger first. A lesson has a status proposed/validated/superseded, a scope of application and evidence_ids. Only validated lessons are put into the self-learned part of memory; an explicit user instruction may confirm directly.
 
-Tận dụng đường JAVIS_LESSON đang có nhưng bổ sung xác nhận cho nguồn từ Resonance. Không biến mỗi emoji thành một bài học. Bài học bị bằng chứng mới bác bỏ được rút khỏi ngữ cảnh sử dụng, giữ lịch sử để giải thích.
+Reuse the existing JAVIS_LESSON path but add confirmation for sources from Resonance. Do not turn every emoji into a lesson. A lesson refuted by new evidence is removed from the context in use, keeping the history to explain.
 
-### 11.4 Sửa chính Jarvis 007
+### 11.4 Modifying Jarvis 007 itself
 
-Code candidate chạy trong checkout và worker riêng. Supervisor ngoài candidate giữ quyền cấp run, kiểm chứng, áp dụng và khôi phục. Bản thử không ghi được evaluator được bảo vệ, bằng chứng gốc, grant hoặc thông tin xác thực của supervisor.
+A code candidate runs in its own checkout and worker. A supervisor outside the candidate holds the authority to issue runs, verify, apply and restore. A trial build cannot write the protected evaluator, the original evidence, the grant or the supervisor's credentials.
 
-Cho phép tự áp dụng khi grant có quyền deploy và kiểm chứng đạt: kiểm tra chức năng, tương thích dữ liệu, build/CI theo repo, kiểm tra khởi động, chạy thử hạn chế rồi mở rộng. Health endpoint chỉ chứng minh một phần liveness; phải có kiểm tra hành vi đại diện trước khi xác nhận bản tốt.
+Self-application is allowed when the grant has deploy authority and verification passes: functional checks, data compatibility, build/CI per the repo, a startup check, a limited trial run and then expansion. A health endpoint only proves part of liveness; a representative behavior check is required before confirming a good build.
 
-Triển khai code và khôi phục dữ liệu là hai việc khác nhau. Migration đầu tiên phải tương thích ngược hoặc có snapshot và đường phục hồi đã kiểm thử. Không chỉ reset Git rồi tuyên bố rollback hoàn chỉnh.
+Deploying code and restoring data are two different things. The first migration must be backward compatible or have a snapshot and a tested recovery path. Do not just reset Git and declare a complete rollback.
 
-Nếu môi trường chưa tạo được ranh giới quyền thật, chỉ hỗ trợ thử trong workspace cô lập và chuẩn bị candidate; UI ghi rõ chưa hỗ trợ tự cập nhật live có kiểm soát. Không tuyên bố file cờ cùng tài khoản là kill switch bất khả sửa.
+If the environment cannot yet create a real authority boundary, only support trials in an isolated workspace and preparing a candidate; the UI states clearly that controlled live self-update is not yet supported. Do not claim that a flag file under the same account is an unmodifiable kill switch.
 
-## 12 Dữ liệu và khả năng phục hồi
+## 12 Data and recoverability
 
-Lưu hợp đồng và runtime ở JAVIS_STATE_DIR/resonance.sqlite3, phân vùng theo brain_id. Các bảng dự kiến: intent_records, goals, goal_revisions, goal_events, goal_evidence_links, assessments, actions, wakeups, reservations, grants, group_memberships, experiments, variants và outbox. IntentRecord lưu tham chiếu đầu vào, ràng buộc và nguồn; framing nằm trong goal_revisions; câu hỏi và câu trả lời nằm trong goal_events có id liên kết. Payload bằng chứng dùng EvidenceStore có sẵn, không sao chép secret vào JSONL hoặc prompt.
+Store the contract and runtime in JAVIS_STATE_DIR/resonance.sqlite3, partitioned by brain_id. The planned tables: intent_records, goals, goal_revisions, goal_events, goal_evidence_links, assessments, actions, wakeups, reservations, grants, group_memberships, experiments, variants and outbox. An IntentRecord stores references to the input, the constraints and the source; framing lives in goal_revisions; questions and answers live in goal_events with a linking id. Evidence payloads use the existing EvidenceStore, and do not copy secrets into JSONL or a prompt.
 
-SQLite là nguồn chuẩn cho revision/quyền/trạng thái. Có thể xuất bản hợp đồng Markdown cho người dùng đọc và mang đi; chỉnh bản xuất chỉ tạo draft khi nhập lại, không tự cấp quyền. Không thêm folder goals vào prompt toàn cục.
+SQLite is the canonical source for revisions/authority/state. A Markdown contract can be exported for the user to read and take away; editing the export only creates a draft when imported again, and does not grant authority by itself. Do not add a goals folder to the global prompt.
 
-Sự kiện có source_event_id chống trùng và thời gian xảy ra/nhận riêng. Transaction ghi trạng thái và outbox cùng lúc. Consumer được nhận lại sự kiện nhưng idempotent. Unique key chống nhận hai run cho cùng logical action; worker lease có hạn và kiểm tra generation thu hồi.
+Events with a source_event_id are deduplicated, with the time of occurrence and the time of receipt kept apart. A transaction writes the state and the outbox at the same time. A consumer may receive an event again but must be idempotent. A unique key prevents accepting two runs for the same logical action; a worker lease is time-limited and checks the revocation generation.
 
-EvidenceStore hiện có retention hữu hạn. Bằng chứng dùng cho mục tiêu hoặc experiment chưa đóng phải được pin hoặc giữ snapshot phù hợp; sau khi kết thúc, giữ theo chính sách lưu trữ được cấp. Người dùng vẫn có quyền xóa dữ liệu; nếu dữ liệu bị xóa, assessment lịch sử ghi unavailable và không được giả vờ tái kiểm chứng được.
+The existing EvidenceStore has finite retention. Evidence used for a goal or an experiment that is not yet closed must be pinned or have a suitable snapshot kept; after it ends, keep it according to the retention policy granted. The user still has the right to delete data; if data is deleted, the historical assessment records unavailable and must not pretend it can be re-verified.
 
-Hash chain/log append không thay thế ranh giới hệ điều hành. Bản ghi không thể sửa chỉ được cam kết trong phạm vi quyền truy cập đã kiểm tra.
+A hash chain/append log does not replace an operating system boundary. A record that cannot be edited is only guaranteed within the access scope that has been verified.
 
-Phân biệt log giao tiếp tùy chọn với sổ bắt buộc để tự hành động: mất log phụ không làm hỏng chat; không lưu được action intent/quyền/reservation trước tác động thì chặn tác động đó. Nếu tác động đã gửi nhưng chưa lưu được receipt, đối soát trước khi cấp tiếp hoặc retry. Không tạo id rồi báo đã ghi thành công khi thao tác lưu thất bại. Xuất JSONL phục vụ đọc lại được, nhưng không dùng file xoay có thể mất lịch sử làm nguồn chuẩn cho hoàn tác hoặc quyền.
+Distinguish the optional communication log from the mandatory ledger needed for self-directed action: losing a secondary log does not break chat; if the action intent/authority/reservation cannot be stored before an impact, block that impact. If an impact has gone out but the receipt could not be stored, reconcile before issuing anything further or retrying. Do not create an id and then report a successful write when the save operation failed. A JSONL export serves re-reading, but a rotating file that can lose history is not used as the canonical source for undo or authority.
 
-Mỗi EvidenceEnvelope được liên kết với assessment và thời gian quan sát, không chỉ với lần tool trả dữ liệu. Pin giữ được bản ghi không làm dữ liệu cũ trở thành dữ liệu mới; độ mới luôn do hợp đồng và evaluator kiểm tra.
+Each EvidenceEnvelope is linked to an assessment and an observation time, not only to the moment a tool returned data. A pin that keeps the record does not make old data into new data; freshness is always checked by the contract and the evaluator.
 
-Liên kết tin nhắn lưu bền bằng brain_id, session_id, message_id, run_id và các action_id thực sự thuộc lượt đó; bảng message_links nối với sổ actions. Lưu tin trước khi phát WebSocket và trả cùng định danh trên API đọc lịch sử. Tải lại trang khôi phục được liên kết kết quả và trạng thái hoàn tác; lưu/phát thành công không tự chứng minh người dùng đã đọc hoặc sử dụng kết quả. Không gắn các file của cùng actor trong mười phút gần nhất vào một tin bất kỳ.
+Message links are stored durably with brain_id, session_id, message_id, run_id and the action_ids that truly belong to that turn; the message_links table connects to the actions ledger. Store the message before emitting on WebSocket and return the same identifiers on the history-reading API. Reloading the page restores the result links and the undo state; a successful store/emit does not by itself prove the user read or used the result. Do not attach the same actor's files from the last ten minutes to an arbitrary message.
 
-### 12.1 Hoàn tác có điều kiện
+### 12.1 Conditional undo
 
-Hoàn tác là tiện ích riêng để người dùng kiểm soát tác động, không phải tín hiệu phạt hiệu suất mặc định. Chỉ hiện khi adapter có khả năng và tiền điều kiện còn đúng. Với file, host giữ bản trước được mã hóa, hash/phiên bản sau ghi, phạm vi đường dẫn được phép và action id. Khi hoàn tác phải kiểm quyền hiện tại và so trạng thái file hiện tại với trạng thái sau ghi; nếu người dùng hoặc tác vụ khác đã sửa thì trả conflict, không ghi đè hoặc xóa bản mới.
+Undo is a separate utility so the user can control impacts, not a default performance-penalty signal. It is shown only when the adapter has the capability and the preconditions still hold. For files, the host keeps an encrypted previous copy, the hash/version after the write, the allowed path scope and the action id. When undoing, check the current authority and compare the file's current state with the state after the write; if the user or another task has edited it, return a conflict, and do not overwrite or delete the newer copy.
 
-Hoàn tác tạo một action mới trỏ tới action gốc, có idempotency, giữ chỗ và receipt; crash hoặc hai yêu cầu cùng lúc không tạo hai tác động bù. Kiểm tra đường dẫn sau resolve, symlink/junction và khóa/CAS theo khả năng backend. Nếu không bảo đảm phát hiện thay đổi xen giữa kiểm tra và ghi, chỉ tạo bản phục hồi riêng để xem và so sánh. Bản chụp hết hạn hoặc không tồn tại thì không quảng bá là có thể hoàn tác. Không suy ra khả năng hoàn tác của dịch vụ ngoài từ nhãn write; việc phục hồi code cũng không thay thế hoàn tác tác động ngoài.
+An undo creates a new action pointing to the original action, with idempotency, a reservation and a receipt; a crash or two simultaneous requests do not create two compensating impacts. Check the path after resolve, symlinks/junctions, and locks/CAS as far as the backend allows. If detecting a change between the check and the write cannot be guaranteed, only create a separate recovery copy to view and compare. A snapshot that has expired or does not exist is not advertised as undoable. Do not infer the undoability of an external service from a write label; restoring code also does not replace undoing an external impact.
 
-## 13 Giao diện người dùng
+## 13 User interface
 
-Điểm vào là hội thoại “Anh muốn em giúp điều gì?” trong Cộng sự hoặc nhóm. Người dùng mô tả nhu cầu; agent tự tạo mục tiêu và bắt đầu phần việc hợp lệ. Bỏ màn hình bắt chọn mục tiêu, biểu mẫu chỉ số và bước xác nhận mục tiêu mặc định. Trang Việc hiển thị mục tiêu agent đang theo đuổi và liên kết đến tác vụ thực thi. Không tạo một hệ Kanban thứ hai.
+The entry point is the conversation "How can I help?" (in Vietnamese: "Anh muốn em giúp điều gì?") in Partners or a team. The user describes the need; the agent creates the goal by itself and starts the valid part of the work. Remove the screen that forces choosing a goal, the metric form and the default goal confirmation step. The Tasks page shows the goal the agent is pursuing and links to the execution tasks. Do not create a second Kanban system.
 
-Thẻ “Em đang hướng tới” hiển thị: cách hiểu hiện tại, tình trạng, giả định quan trọng chưa rõ, bằng chứng mới nhất, việc đang làm, điều đang chờ và lý do lần hoạt động tiếp theo. Chỉ giải thích khi đổi hướng có ý nghĩa; không xin duyệt lại mỗi revision. Không hiển thị phần trăm tiến độ nếu tiêu chí không có cách tính có nghĩa.
+The "What Jarvis 007 is working toward" card shows: the current understanding, the status, the important unclear assumptions, the latest evidence, what is being done, what is being waited on and the reason for the next activity. It only explains a change of direction when it is meaningful; it does not ask for re-approval on every revision. Do not show a progress percentage if the criteria have no meaningful way to compute it.
 
-Các thao tác: mô tả thêm hoặc sửa cách hiểu bằng lời, tạm dừng, tiếp tục, xem bằng chứng, xem lịch sử, điều chỉnh quyền, dừng cây mục tiêu. Chi tiết mục tiêu và tiêu chí có thể mở để kiểm tra, không phải biểu mẫu bắt điền. Câu trả lời “anh chưa biết” được chấp nhận và chuyển sang khám phá trong quyền hiện có. Thao tác dừng nói rõ phạm vi và những tác động đã xảy ra. Kết quả và yêu cầu can thiệp gửi về đúng người/kênh đã giao việc.
+The actions: add a description or correct the understanding in words, pause, resume, view evidence, view history, adjust authority, stop the goal tree. The goal and criteria details can be opened for inspection, and are not a form that must be filled in. The answer "I don't know yet" (in Vietnamese: "anh chưa biết") is accepted and moves to discovery within existing authority. A stop action states the scope and the impacts that have already happened. Results and requests for intervention are sent to the person/channel that assigned the work.
 
-Nút hoàn tác file chỉ thêm sau khi adapter ở mục 12.1 đạt kiểm chứng; không phải điều kiện để ra mắt vòng mục tiêu đầu tiên. Không gán biểu tượng cảm xúc thành lệnh dừng ngầm. Lệnh dừng và sửa ý có thao tác hoặc ngôn ngữ rõ, tách khỏi reaction giao tiếp.
+The file undo button is only added after the adapter in section 12.1 passes verification; it is not a condition for launching the first goal loop. Do not map an emoji to an implicit stop command. Stop and intent-correction commands have a clear action or wording, separate from communication reactions.
 
-Giao diện dùng nhãn tiếng Việt dễ hiểu; chuỗi mới có vi/en theo cấu trúc i18n hiện tại. Tham số evaluator, token, revision chỉ nằm trong phần chi tiết khi hữu ích. Reaction có thể giữ như tính năng giao tiếp độc lập, không phải phụ thuộc để bật Resonance.
+The UI uses easy-to-understand labels in the user's language; new strings have vi/en following the existing i18n structure. Evaluator parameters, tokens and revisions appear only in the detail section when useful. Reactions may stay as an independent communication feature, not a dependency for turning on Resonance.
 
-## 14 Những thành phần có thể dùng lại
+## 14 Components that can be reused
 
-Ảnh chụp mã nguồn ban đầu dùng để lập kế hoạch: HEAD 5b4a9be1, nhánh codex/restore-chat-colors. Đối chiếu remote ngày 06 tháng 10 năm 2026 xác nhận origin/main tại 7d264236 (0.83.2), có 121 commit checkout cũ chưa có; checkout cũ có 3 commit riêng. Trên main này có _reply_policy_sandbox_engine và _reply_policy_ask. Trước M1 phải kiểm main mới nhất, ghi commit nền và dò lại toàn bộ bảng dưới cùng các điểm nối trong kế hoạch trên commit đó. Các mô tả sau là khảo sát lịch sử, không phải xác nhận đường chạy live hay hợp đồng tích hợp đã được nghiệm thu trên main.
+The initial source snapshot used for planning: HEAD 5b4a9be1, branch codex/restore-chat-colors. A remote comparison on 6 October 2026 confirmed origin/main at 7d264236 (0.83.2), with 121 commits the old checkout lacks; the old checkout has 3 commits of its own. On this main there are _reply_policy_sandbox_engine and _reply_policy_ask. Before M1, check the latest main, record the base commit and re-verify the entire table below along with the integration points in the plan on that commit. The descriptions that follow are a historical survey, not a confirmation of the live execution path or of an integration contract that has been accepted on main.
 
-AgentPolicy trong server/agent_runtime.py mặc định off/allocation 0 khi thiếu cấu hình. Main có đường nối và đường cũ tiếp tục hoạt động; việc file tồn tại không chứng minh canary đã chạy live. MVP phải có phép thử end-to-end với engine được chọn và dữ liệu mô phỏng trên host trước khi đặt phụ thuộc vào runtime này. Không bật toàn bộ canary chỉ để làm demo; tái sử dụng đường chạy hiện có đã được kiểm chứng cho phạm vi hẹp.
+AgentPolicy in server/agent_runtime.py defaults to off/allocation 0 when configuration is missing. Main has both a wired path and the old path continuing to work; the existence of a file does not prove the canary has run live. The MVP must have an end-to-end test with the chosen engine and simulated data on the host before depending on this runtime. Do not turn on the whole canary just for a demo; reuse the existing execution path that has been verified for a narrow scope.
 
-| Thành phần hiện có | Dùng lại | Phần cần bổ sung |
+| Existing component | Reuse | What needs to be added |
 |---|---|---|
-| server/self_improve.py | LoopFeature.tick, run_cycle, scheduler, mode, báo kết quả | Adapter gắn goal_id, một chủ sở hữu lịch, không dùng utility EMA để đóng mục tiêu |
-| server/agent_runtime.py | AgentRunner, CapabilityGrant, replan trong quyền | Nhận GoalRunContext và grant được host xác nhận; quyền phân công linh hoạt có kiểm tra |
-| server/workflow_runtime.py | Checkpoint, revision, resume, lịch sử node | Nhận authorization đã cấp; workflow legacy tiếp tục hỏi ở write như hiện tại |
-| server/workflow_runs.py | Lịch sử các lần chạy | Liên kết run với goal/revision; done của run không thay verdict mục tiêu |
-| server/task_store.py và server/tasks.py | Kanban, transaction, claim, dependency | Metadata mục tiêu và chống enqueue trùng qua outbox |
-| server/evidence_store.py | Evidence có hash, mã hóa, redaction và retention | Pin theo mục tiêu/experiment; liên kết provenance và thời gian quan sát |
-| server/capability_executor.py | Lease, invocation, idempotency/resource lock helpers | Adapter quyền mục tiêu; không coi executor read-only này đã hỗ trợ mọi write |
-| server/context_runtime.py | Trace, checkpoint, audit và runtime event | Kết nối các id mục tiêu, không phụ thuộc trạng thái canary để ghi bằng chứng bắt buộc |
-| server/updater.py và server/update_state.py | Khởi động, health check, lùi mã nguồn | Bao bằng supervisor được bảo vệ, kiểm chứng hành vi và tương thích dữ liệu |
-| dashboard/workspace.js và dashboard/console.js | Cộng sự, nhóm hiển thị, Việc, loop | Goal panel và scoreboard; group hiển thị hiện tại không tự là group runtime |
+| server/self_improve.py | LoopFeature.tick, run_cycle, scheduler, mode, result reporting | An adapter that attaches goal_id, a single schedule owner, no use of the utility EMA to close a goal |
+| server/agent_runtime.py | AgentRunner, CapabilityGrant, replan within authority | Receive GoalRunContext and a host-confirmed grant; flexible assignment authority with checks |
+| server/workflow_runtime.py | Checkpoint, revision, resume, node history | Receive an authorization already granted; legacy workflows keep asking at write as they do now |
+| server/workflow_runs.py | History of runs | Link a run to goal/revision; a run's done does not replace the goal verdict |
+| server/task_store.py and server/tasks.py | Kanban, transaction, claim, dependency | Goal metadata and prevention of duplicate enqueue through the outbox |
+| server/evidence_store.py | Evidence with hash, encryption, redaction and retention | Pin by goal/experiment; link provenance and observation time |
+| server/capability_executor.py | Lease, invocation, idempotency/resource lock helpers | A goal authority adapter; do not assume this read-only executor already supports every write |
+| server/context_runtime.py | Trace, checkpoint, audit and runtime event | Connect the goal ids, without depending on canary state to record mandatory evidence |
+| server/updater.py and server/update_state.py | Startup, health check, source rollback | Wrap in a protected supervisor, behavior verification and data compatibility |
+| dashboard/workspace.js and dashboard/console.js | Partners, visible team, Tasks, loop | Goal panel and scoreboard; the current visible group is not by itself a runtime group |
 
-Không dùng tỷ lệ phần trăm sẵn sàng để ước lượng công việc. Các đường ghi qua workflow, bảo vệ shell, retention bằng chứng và self-update là các hạng mục phải kiểm thử riêng.
+Do not use a readiness percentage to estimate the work. The paths that write through workflows, shell protection, evidence retention and self-update are items that must be tested separately.
 
-## 15 Lộ trình triển khai
+## 15 Implementation roadmap
 
-**Ưu tiên hiện tại:** [kế hoạch MVP](../plans/2026-10-06-resonance-00-mvp.md), một agent/một goal, ba module lõi mới và hai evaluator nhỏ. Hoãn nhóm, module tự học tổng quát, metric chuỗi thời gian, supervisor và self-update. Bảng dưới là hướng mở rộng sau khi có một vòng chạy thật, không phải yêu cầu đầu vào của MVP.
+**Current priority:** the [MVP plan](../plans/2026-10-06-resonance-00-mvp.md), one agent/one goal, three new core modules and two small evaluators. Defer teams, the general self-learning module, time-series metrics, the supervisor and self-update. The table below is the direction of expansion after one real run exists, and is not an entry requirement of the MVP.
 
-| Giai đoạn | Đầu ra sử dụng được | Điều kiện qua giai đoạn |
+| Phase | Usable output | Condition to pass the phase |
 |---|---|---|
-| A Lõi mục tiêu và bằng chứng | Từ nhu cầu suy ra hợp đồng, làm rõ, nhập bằng chứng, đánh giá, xem scoreboard | Đầu vào mơ hồ không đòi người dùng chọn mục tiêu; hai loại mục tiêu dùng cùng lõi; quyền/revision/unknown đúng |
-| B1 Một agent thực thi | Thực hiện mục tiêu qua runner hiện có, tiếp tục sau gián đoạn | Không chạy trùng, thu hồi có hiệu lực, task done không tự thành công |
-| C1 Phép thử cải thiện nhỏ | So sánh hai phương pháp trên fixture, áp dụng cấu hình trong quyền | Cải thiện được xác nhận bằng receipt độc lập, candidate không sửa được phép chấm |
-| B2 Nhóm và beat thích nghi | Phân công, chốt, chờ sự kiện, ngủ đông, tiếp tục | Leader failover không chốt trùng; con không vượt quyền/ngân sách cha |
-| C2 Tự sửa phương pháp | Bài học, skill/workflow, thư viện biến thể có giới hạn | Bản kém không được áp dụng; rút được bài học sai |
-| C3 Tự sửa và cập nhật Jarvis 007 | Candidate code, supervisor, thử hạn chế, khôi phục | Test ranh giới thực và phục hồi qua crash/migration đạt |
+| A Goal and evidence core | Infer a contract from a need, clarify, ingest evidence, evaluate, view the scoreboard | An ambiguous input does not make the user choose a goal; two kinds of goals use the same core; authority/revision/unknown are correct |
+| B1 One executing agent | Carry out a goal through the existing runner, continue after an interruption | No duplicate runs, revocation takes effect, task done does not become success by itself |
+| C1 Small improvement experiment | Compare two methods on a fixture, apply configuration within authority | The improvement is confirmed by independent receipts, the candidate cannot edit the scoring |
+| B2 Teams and adaptive beat | Assign, finalize, wait for events, hibernate, resume | Leader failover does not finalize twice; a child does not exceed its parent's authority/budget |
+| C2 Method self-modification | Lessons, skill/workflow, a bounded variant library | A worse build is not applied; a wrong lesson can be withdrawn |
+| C3 Self-modification and updating Jarvis 007 | Code candidate, supervisor, limited trial, restore | The real boundary test and recovery through crash/migration pass |
 
-Thứ tự là A -> B1 -> C1 -> B2 -> C2 -> C3. Không chờ làm xong cảm xúc hoặc nhiều tuần sử dụng mới kiểm tra tự cải thiện. Không ấn định thời gian lịch trước khi hoàn thành giai đoạn A và đo điểm nghẽn tích hợp.
+The order is A -> B1 -> C1 -> B2 -> C2 -> C3. Do not wait to finish emotion handling or weeks of use before testing self-improvement. Do not fix calendar time before phase A is complete and the integration bottlenecks have been measured.
 
-Kế hoạch triển khai chi tiết:
+Detailed implementation plans:
 
-1. [Lõi mục tiêu và bằng chứng](../plans/2026-10-06-resonance-01-foundation.md).
-2. [Thực thi mục tiêu và cộng tác](../plans/2026-10-06-resonance-02-runtime.md).
-3. [Tự cải thiện và áp dụng phiên bản](../plans/2026-10-06-resonance-03-evolution.md).
+1. [Goal and evidence core](../plans/2026-10-06-resonance-01-foundation.md).
+2. [Goal execution and collaboration](../plans/2026-10-06-resonance-02-runtime.md).
+3. [Self-improvement and version application](../plans/2026-10-06-resonance-03-evolution.md).
 
-Mốc trình diễn đầu tiên chỉ cần một yêu cầu tự nhiên, một agent, một adapter đầu ra và một phép thử cải thiện trên tài nguyên mô phỏng. Chọn lần lượt các phần cần thiết từ A, B1 đến B3 và C1/C2 để chứng minh vòng khép kín; chưa gọi toàn bộ giai đoạn hoàn thành nếu các tiêu chí còn lại chưa đạt. Nhóm, reaction và nút hoàn tác không nằm trên đường bắt buộc của mốc này. Quan sát guard đã chọn và liên kết bằng chứng vẫn phải hoạt động từ đầu.
+The first demo milestone needs only one natural-language request, one agent, one output adapter and one improvement experiment on simulated resources. Choose the needed parts in turn from A, B1 through B3 and C1/C2 to prove the closed loop; do not yet call the whole phase complete if the remaining criteria are not met. Teams, reactions and the undo button are not on the required path of this milestone. The chosen guard observation and the evidence links must still work from the start.
 
-## 16 Thử nghiệm và nghiệm thu toàn hệ thống
+## 16 System-wide testing and acceptance
 
-Ba nhóm fixture không phụ thuộc nghiệp vụ: tạo một tài liệu đúng cấu trúc và nguồn dẫn; duy trì một chỉ mục khớp với bộ file thay đổi; cải thiện cách xử lý một tập yêu cầu trên tài nguyên mô phỏng. Việc thêm bộ fixture thứ ba không được thêm nhánh if theo ngành vào lõi.
+Three fixture groups that do not depend on the business domain: create a document with the correct structure and cited sources; maintain an index that matches a set of changing files; improve how a set of requests is handled on simulated resources. Adding a third fixture set must not add a domain-specific if branch to the core.
 
-Đối chứng gồm cùng runner không học, runner Resonance có học, và nhóm khi cần so hiệu quả cộng tác. Dùng mục tiêu tương đương, cùng ngân sách, tách dữ liệu phát triển với dữ liệu giữ lại, đảo thứ tự thử để giảm tác động thời gian. Ghi cả lần không thành công và tiêu chí chưa đo được. Không suy ra hiệu quả dài hạn từ vài ví dụ thắng.
+The controls are the same runner without learning, the Resonance runner with learning, and a team when collaboration effectiveness needs comparing. Use equivalent goals and the same budget, separate development data from held-out data, and reverse the test order to reduce time effects. Record unsuccessful runs and criteria that could not be measured. Do not infer long-term effectiveness from a few winning examples.
 
-| Tình huống bắt buộc | Kết quả mong muốn |
+| Required scenario | Expected result |
 |---|---|
-| Worker nói xong nhưng không có bằng chứng | Mục tiêu chưa được xác nhận đạt |
-| Yêu cầu mơ hồ, người dùng không biết đặt mục tiêu | Agent tự hình thành giả thuyết, chọn bước khám phá hữu ích trong quyền |
-| Câu hỏi tùy chọn không được trả lời hoặc trả lời chưa biết | Không hỏi lặp vô ích; tiếp tục phần độc lập; không coi im lặng là cấp quyền |
-| Mục tiêu suy ra đạt nhưng có bằng chứng lệch nhu cầu | Xem lại mục tiêu, không tuyên bố đã giải quyết nhu cầu chỉ vì đạt chỉ số |
-| Agent sửa mục tiêu hoặc tiêu chí giữa phép thử | Revision cũ giữ kết quả; không tính đổi đề là cải thiện; kiểm chứng lại trước áp dụng |
-| Đổi mục tiêu khi hết ngân sách, paused hoặc guard kích hoạt | Không reset chi phí hoặc tự mở lại hoạt động bị chặn |
-| Yêu cầu có ràng buộc mâu thuẫn hoặc đích không khả thi | Giải thích giới hạn, làm phần hữu ích tương thích; không tự bỏ ràng buộc người dùng |
-| Dữ liệu đến muộn, đính chính hoặc lặp | Cập nhật đúng revision, không nhân điểm hoặc hành động |
-| Người dùng sửa mục tiêu khi worker đang chạy | Không áp kết quả cũ để đóng mục tiêu mới |
-| Hai worker cùng claim hoặc cùng phân ngân sách | Một hành động hợp lệ, tổng tài nguyên không vượt |
-| Tool timeout sau khi có thể đã ghi ra ngoài | Trạng thái uncertain, đối soát trước retry |
-| Người dùng dừng cả cây | Không cấp run mới cho hậu duệ, hủy run trong khả năng host |
-| Mất dữ liệu đánh giá hoặc hết hạn bằng chứng | Unknown, không dùng tóm tắt để giả chứng minh |
-| Maintain đạt một lần rồi điều kiện thay đổi | Tiếp tục theo dõi và ghi degraded/unknown đúng |
-| Agent con thắng nhưng cha không tiến triển | Cha vẫn chưa đạt; xem lại cách phân rã |
-| Candidate sửa evaluator hoặc giả log test | Không được công nhận hoặc áp dụng |
-| Update khởi động được nhưng hành vi sai | Không mở rộng triển khai, khôi phục bản trước theo kế hoạch |
-| Reaction thay đổi, kết quả giữ nguyên | Không đổi đánh giá hiệu suất |
-| Hai brain có loop trùng slug hoặc hai run cùng actor | Không trộn mẫu, quyền, bằng chứng hay liên kết tin nhắn |
-| Công cụ trả lỗi dạng nội dung hoặc chứa nhiều số | Không coi mã lỗi/ngày tháng/id là kết quả mục tiêu |
-| Tool đa hành động được liệt kê là read nhưng invocation ghi | Kiểm quyền và ghi receipt theo arguments thực tế |
-| Guard vượt ngưỡng khi chưa có hành động agent hoặc worker đang ngủ | Dừng theo hợp đồng; không đợi quy công hoặc đợi worker thức |
-| Mất kho audit trước hoặc sau tác động | Trước: chặn tác động; sau: uncertain và đối soát, không retry mù |
-| File đã được người dùng sửa sau action cần hoàn tác | Conflict hoặc bản phục hồi riêng, không mất thay đổi mới |
-| Refresh chat hoặc WebSocket nhận lại sự kiện | Giữ đúng liên kết message/run/action, không nhân tin hoặc hoàn tác |
+| A worker says it is done but there is no evidence | The goal is not confirmed as met |
+| An ambiguous request, the user does not know how to set a goal | The agent forms a hypothesis by itself and chooses a useful discovery step within authority |
+| An optional question is not answered or is answered "don't know" | No pointless repeat asking; continue the independent part; silence is not treated as granting authority |
+| An inferred goal is met but evidence deviates from the need | Revisit the goal; do not claim the need is solved just because a metric was met |
+| The agent changes the goal or criteria in the middle of a test | The old revision keeps its result; changing the question is not counted as improvement; re-verify before applying |
+| A goal changes when the budget is exhausted, paused or a guard has fired | Do not reset cost or reopen blocked activity by itself |
+| A request with contradictory constraints or an infeasible destination | Explain the limit, do the compatible useful part; do not drop the user's constraints by itself |
+| Data arriving late, corrected or duplicated | Update the correct revision, do not multiply scores or actions |
+| The user corrects the goal while a worker is running | Do not apply an old result to close the new goal |
+| Two workers claim the same item or allocate the same budget | One valid action, the total resources do not exceed the limit |
+| A tool times out after it may have written externally | State uncertain, reconcile before retrying |
+| The user stops the whole tree | No new run is issued to descendants, cancel runs within the host's ability |
+| Evaluation data lost or evidence expired | Unknown, do not use a summary to pretend to prove |
+| Maintain is met once and then the condition changes | Keep monitoring and record degraded/unknown correctly |
+| A child agent wins but the parent does not progress | The parent is still not met; revisit the decomposition |
+| A candidate edits the evaluator or fakes the test log | Not recognized or applied |
+| An update starts but behaves wrongly | Do not expand the rollout, restore the previous build per the plan |
+| A reaction changes, the result stays the same | No change to the performance evaluation |
+| Two brains have a loop with the same slug or two runs by the same actor | Do not mix samples, authority, evidence or message links |
+| A tool returns an error as content or contains many numbers | Do not treat an error code/date/id as the goal result |
+| A multi-action tool is listed as read but the invocation writes | Check authority and record the receipt by the actual arguments |
+| A guard crosses its threshold when there has been no agent action or the worker is asleep | Stop per the contract; do not wait for attribution or for the worker to wake |
+| The audit store is lost before or after an impact | Before: block the impact; after: uncertain and reconcile, no blind retry |
+| A file was edited by the user after the action that needs undoing | Conflict or a separate recovery copy, no loss of the new change |
+| Chat refresh or WebSocket redelivers an event | Keep the correct message/run/action links, do not duplicate messages or undo |
 
-## 17 Quy tắc triển khai và chuyển đổi
+## 17 Implementation and transition rules
 
-Feature mới mặc định off cho cài đặt mới và bản fork. Bật theo goal/brain được chọn, không tự chuyển loop đang chạy sang mục tiêu. Không thay đổi giá trị mặc định full của loop legacy chỉ vì thêm Resonance.
+A new feature is off by default for new installs and forks. Turn it on per chosen goal/brain; do not move a running loop to a goal by itself. Do not change the default full value of legacy loops just because Resonance was added.
 
-Mỗi giai đoạn có migration tương thích, kiểm thử hồi quy và đường tắt tính năng. Theo docs/quy-uoc-dev.md khi bắt đầu code: nhánh riêng, đặt chỗ phiên bản và PR nháp trước khi viết code, CI xanh mới tích hợp. Việc viết bộ tài liệu này chưa tạo runtime, chưa cấp quyền tự chủ và chưa khởi chạy mục tiêu.
+Each phase has a compatible migration, regression tests and a feature kill switch. Per docs/quy-uoc-dev.md when starting to code: a separate branch, a version reservation and a draft PR before writing code, and integrate only on green CI. Writing this document set does not yet create a runtime, grant autonomous authority or launch a goal.
 
-Những lựa chọn hoãn: reward market giữa agent; một chỉ số xếp hạng tất cả agent; học trọng số emoji; bộ máy retrain model; graph database; tự sửa supervisor trong cùng experiment. Chỉ thêm khi có vấn đề thực tế và phép thử chứng minh cần thiết.
+Deferred choices: a reward market between agents; a single metric that ranks all agents; learning emoji weights; a model retraining engine; a graph database; self-modification of the supervisor within the same experiment. Add them only when a real problem exists and a test proves them necessary.
 
-Đối chiếu phần mã tham khảo với [bản review mới nhất](2026-10-06-resonance-revised-package-review.md), gồm các lỗi đã tái hiện và đính chính về nhánh mã. Các phản biện cũ đã lưu trong [gói lịch sử](../../../exports/archive/Javis-Resonance-LICH-SU-2026-10-06.zip). Danh mục và thứ tự sử dụng hiện hành nằm trong [README Resonance](../README-RESONANCE.md).
+Cross-check the reference code against the [latest review](2026-10-06-resonance-revised-package-review.md), including the bugs that were reproduced and the corrections about the code branch. The older critiques are archived in the [historical package](../../../exports/archive/Javis-Resonance-LICH-SU-2026-10-06.zip). The index and the current order of use are in the [Resonance README](../README-RESONANCE.md).
 
-## 18 Nguồn tham khảo
+## 18 References
 
-- [FranklinCovey về bốn nguyên tắc thực thi](https://www.franklincovey.com/courses/the-4-disciplines/): tập trung mục tiêu, chỉ số dẫn dắt, bảng điểm và nhịp trách nhiệm. Ánh xạ vào agent trong tài liệu này là thiết kế của Jarvis 007.
-- [FranklinCovey về mục tiêu có điểm xuất phát và thời hạn](https://www.franklincovey.com/blog/strategic-execution-in-uncertainty-and-complexity/).
-- [FranklinCovey về chỉ số dẫn dắt và kết quả](https://www.franklincovey.com/courses/the-4-disciplines/discipline-2-act/).
-- [FranklinCovey về nhịp trách nhiệm](https://www.franklincovey.com/courses/the-4-disciplines/discipline-4-accountability/).
-- [Sakana AI về Darwin Gödel Machine](https://sakana.ai/dgm/): nghiên cứu tự sửa code, đánh giá và giữ các biến thể; không phải bảo đảm Resonance tự cải thiện vô hạn.
-- [MCP về giới hạn của tool annotations](https://blog.modelcontextprotocol.io/posts/2026-03-16-tool-annotations/).
+- [FranklinCovey on the four disciplines of execution](https://www.franklincovey.com/courses/the-4-disciplines/): focus on the goal, leading indicators, a scoreboard and a cadence of accountability. The mapping onto agents in this document is Jarvis 007's design.
+- [FranklinCovey on goals with a starting point and a deadline](https://www.franklincovey.com/blog/strategic-execution-in-uncertainty-and-complexity/).
+- [FranklinCovey on leading and lagging indicators](https://www.franklincovey.com/courses/the-4-disciplines/discipline-2-act/).
+- [FranklinCovey on the cadence of accountability](https://www.franklincovey.com/courses/the-4-disciplines/discipline-4-accountability/).
+- [Sakana AI on the Darwin Gödel Machine](https://sakana.ai/dgm/): research on self-modifying code, evaluating and keeping variants; not a guarantee that Resonance improves itself without limit.
+- [MCP on the limits of tool annotations](https://blog.modelcontextprotocol.io/posts/2026-03-16-tool-annotations/).

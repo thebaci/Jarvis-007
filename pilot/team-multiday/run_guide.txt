@@ -1,53 +1,53 @@
-HƯỚNG DẪN CHẠY PILOT (chưa chạy; người chạy làm theo khi chủ cho phép)
+PILOT RUN GUIDE (not run yet; whoever runs it follows this once the owner allows it)
 
-1. Chuẩn bị máy
-   - Một bản Jarvis 007 RIÊNG cho pilot: thư mục cài riêng, JAVIS_STATE_DIR riêng (ví dụ ~/javis-pilot-state), bộ não riêng
-     brain-pilot. Không trỏ vào state hay bộ não đang dùng thật.
-   - Sao lưu trước khi bắt đầu: tar toàn bộ JAVIS_STATE_DIR và bộ não pilot. Ghi đường dẫn bản sao vào báo cáo.
-   - Lấy đúng commit ghim: git fetch origin claude/openmausbot-jarvis-research-ewnzc6 && git checkout <SHA đã ghi>.
-   - Chạy test nhanh trên máy đó: python tests/python/test_team_multiday_0210.py (phải in ALL OK, chỉ dùng engine giả).
+1. Prepare the machine
+   - A SEPARATE Jarvis 007 install for the pilot: its own install folder, its own JAVIS_STATE_DIR (for example ~/javis-pilot-state),
+     its own brain brain-pilot. Do not point at the state or brain in real use.
+   - Back up before starting: tar the whole JAVIS_STATE_DIR and the pilot brain. Write the backup path in the report.
+   - Get the pinned commit: git fetch origin claude/openmausbot-jarvis-research-ewnzc6 && git checkout <the recorded SHA>.
+   - Run the quick test on that machine: python tests/python/test_team_multiday_0210.py (must print ALL OK, uses fake engines only).
 
-2. Cấu hình
-   - Trang Models: chọn provider/model theo limits.txt. Đặt giới hạn chi tiêu ở trang nhà cung cấp.
-   - Đặt JAVIS_RESONANCE_CALL_CEILING (trần lượt chung) trong .env của bản pilot.
-   - Tạo cộng sự và 3 nhóm theo config/teams.json; giữ "Cần chủ duyệt" cho cả 3.
-   - Đặt mục tiêu từng nhóm (tab Nhóm > Mục tiêu phòng ban), bấm Bật.
+2. Configuration
+   - Models page: pick the provider/model per limits.txt. Set the spending limit on the provider's page.
+   - Set JAVIS_RESONANCE_CALL_CEILING (the shared call ceiling) in the pilot's .env.
+   - Create the assistants and the 3 teams per config/teams.json; keep "Needs your approval" for all 3.
+   - Set each team's goal (Teams tab > Department mandate), click Turn on.
 
-   - Nghiệm thu: khi thẻ "Mở việc theo mục tiêu" hiện, bấm Nghiệm thu trên việc đó và dán tiêu chí theo
-     acceptance_template của nhóm, RỒI mới Duyệt. Việc giao tay cũng đặt tiêu chí trước khi việc chạy xong.
-   - Trước ngày 1: node pilot/team-multiday/ui_narrow_check.mjs <thư mục ảnh> (phải ALL OK), rồi mở dashboard trên
-     một điện thoại thật xem thẻ duyệt, mục tiêu, nghiệm thu.
+   - Acceptance: when the "Open job from mandate" card shows, click Acceptance on that job and paste the criteria per the team's
+     acceptance_template, THEN Approve. Jobs assigned by hand also get their criteria set before the job finishes.
+   - Before day 1: node pilot/team-multiday/ui_narrow_check.mjs <screenshot folder> (must be ALL OK), then open the dashboard on
+     a real phone and look at the approval card, mandate and acceptance.
 
-3. Theo dõi hằng ngày (5 phút)
-   - Mở tab Việc của từng nhóm: thẻ duyệt đang chờ, việc dừng vì nghiệm thu.
-   - Xuất dấu vết (chạy bằng đúng user của dịch vụ Jarvis 007):
+3. Daily monitoring (5 minutes)
+   - Open each team's Work tab: pending approval cards, jobs stopped by acceptance.
+   - Export the trace (run as the exact user of the Jarvis 007 service):
      python pilot/team-multiday/trace_export.py <STATE_DIR> --out trace-ngay-N.jsonl
-   - Kiểm 4 chỉ số an toàn S1 tới S4 trong metrics.txt. Một chỉ số khác 0 là DỪNG KHẨN.
-   - Ghi chi phí ngày từ trang nhà cung cấp và lượt engine từ trace (C1).
+   - Check the 4 safety metrics S1 to S4 in metrics.txt. Any metric other than 0 means EMERGENCY STOP.
+   - Record the daily cost from the provider's page and the engine calls from the trace (C1).
 
-3b. Khởi động lại theo kịch bản (ngày 3)
-   - Cài kiểu systemd: sudo systemctl restart <tên dịch vụ Jarvis 007 pilot>. Cài kiểu Docker: docker restart <tên container>.
-     Chạy tay: dừng tiến trình (Ctrl+C) rồi chạy lại đúng lệnh khởi động cũ.
-   - Sau khi lên lại: thẻ duyệt đang chờ phải còn nguyên; việc đang kiểm nghiệm thu được kiểm lại tự động; không bước
-     nào tự chạy lại tác động cũ (đối chiếu mcp_audit.jsonl trước và sau).
+3b. Scripted restart (day 3)
+   - systemd install: sudo systemctl restart <pilot Jarvis 007 service name>. Docker install: docker restart <container name>.
+     Manual run: stop the process (Ctrl+C) and run the same start command again.
+   - After it is back up: pending approval cards must still be there; jobs in acceptance checking are re-checked automatically; no
+     step re-runs an earlier effect (compare mcp_audit.jsonl before and after).
 
-4. Dừng khẩn (bất kỳ điều kiện dừng nào trong limits.txt)
-   a. Tab Nhóm của từng nhóm: Tạm dừng nhóm (việc đang chạy dừng ở điểm điều phối kế tiếp).
-   b. Mục tiêu phòng ban: Tạm dừng (hoặc Thu hồi nếu nghi mục tiêu hành động sai).
-   c. Nhóm nào đang "Nhóm tự làm": đổi về "Cần chủ duyệt".
-   d. Huỷ việc đang chờ duyệt nếu không chắc. Không bấm Duyệt cho tới khi đọc xong dấu vết.
-   e. Xuất dấu vết ngay, lưu kèm mcp_audit.jsonl để đối chiếu.
+4. Emergency stop (any stop condition in limits.txt)
+   a. Each team's Teams tab: Pause team (running jobs stop at the next orchestration point).
+   b. Department mandate: Pause (or Revoke if you suspect the mandate is acting wrongly).
+   c. Any team on "The team acts without asking": switch back to "Needs your approval".
+   d. Cancel jobs waiting for approval if unsure. Do not click Approve until you have read the trace.
+   e. Export the trace right away and keep it with mcp_audit.jsonl for comparison.
 
-5. Quay về bản cũ (rollback)
-   - Dừng Jarvis 007 pilot. git checkout <bản trước pilot, ví dụ tag/commit 0.206.0>.
-   - Kho nhóm: bảng mới (team_approvals, team_mandates, mandate_*, team_acceptance*) và cột teams.work_mode bị bản cũ bỏ
-     qua, không cần xoá. Muốn trả kho về đúng như trước: dùng bản chụp tự động team.sqlite3.pre-0.207.0 cạnh team.sqlite3
-     (tạo lần đầu bản mới mở kho cũ), hoặc bản sao lưu ở bước 1.
-   - Bản cũ không biết các lý do dừng mới (waiting_user, rejected, approval_expired, acceptance_review,
-     acceptance_failed, acceptance_checking) và có thể hiện nút "Cho chạy tiếp" cho chúng: KHÔNG bấm. Trước khi quay
-     về, huỷ hay xử lý xong mọi việc đang dừng vì các lý do đó trên bản mới.
-   - kanban.sqlite3 có thêm việc tạo sẵn ở trạng thái chặn (cột có sẵn từ trước), bản cũ đọc được.
+5. Roll back
+   - Stop the pilot Jarvis 007. git checkout <pre-pilot version, for example tag/commit 0.206.0>.
+   - Team store: the new tables (team_approvals, team_mandates, mandate_*, team_acceptance*) and the teams.work_mode column are
+     ignored by the old version and need no deletion. To return the store exactly as before: use the automatic snapshot
+     team.sqlite3.pre-0.207.0 next to team.sqlite3 (created the first time the new version opens an old store), or the backup from step 1.
+   - The old version does not know the new stop reasons (waiting_user, rejected, approval_expired, acceptance_review,
+     acceptance_failed, acceptance_checking) and may show a "Continue" button for them: do NOT click it. Before rolling
+     back, cancel or finish every job stopped for those reasons on the new version.
+   - kanban.sqlite3 has extra pre-created jobs in the blocked state (a column that existed before), so the old version can read it.
 
-6. Kết thúc
-   - Xuất dấu vết cuối, điền report_template.txt bằng số từ dấu vết. Không điền số đoán.
-   - Giữ bản sao state pilot ít nhất 14 ngày để đối chiếu.
+6. Finish
+   - Export the final trace, fill in report_template.txt with numbers from the trace. Do not fill in guessed numbers.
+   - Keep a copy of the pilot state for at least 14 days for comparison.

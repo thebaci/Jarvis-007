@@ -1,74 +1,77 @@
-# Update triệt để cho Jarvis 007 - Thiết kế
+# Thorough update for Jarvis 007 - Design
 
-Ngày: 2026-07-18
-Trạng thái: đã duyệt thiết kế, chuẩn bị lập kế hoạch.
+Date: 2026-07-18
+Status: design approved, preparing the plan.
 
-## Mục tiêu
+## Goal
 
-Làm cho tính năng cập nhật của Jarvis 007 chắc chắn và an toàn: người dùng bấm một nút
-"Cập nhật ngay" là lên được bản mới trên mọi môi trường, trong lúc chạy hiện tiến
-trình rõ ràng, và nếu bản mới lỗi thì có đường quay về bản cũ.
+Make Jarvis 007's update feature solid and safe: a user clicks one "Update now" button and
+reaches the new version in every environment, sees clear step-by-step progress while it runs,
+and if the new version is broken there is a way back to the old one.
 
-Phạm vi đã chốt với chủ dự án:
-- KHÔNG làm tự động update nền (đã cân nhắc và loại).
-- KHÔNG viết updater sidecar cho Docker (để dành cho VPS tự quản sau này).
-- Môi trường ưu tiên: Docker (Hostinger/VPS).
-- Rollback Docker theo Hướng B (có hướng dẫn), không phải rollback tự động trong container.
+Scope settled with the project owner:
+- Do NOT build background auto-update (considered and rejected).
+- Do NOT write an updater sidecar for Docker (saved for self-managed VPS later).
+- Priority environment: Docker (Hostinger/VPS).
+- Docker rollback follows Option B (guided), not automatic rollback inside the container.
 
-## Bối cảnh hiện trạng
+## Current state
 
-Đã có sẵn (không làm lại từ đầu):
-- `GET /version` (server/main.py ~3688): đọc `VERSION` local, so với
-  `raw.githubusercontent.com/blogminhquy/javis-os/main/VERSION`, so kiểu semver,
-  trả `{current, latest, update_available, mode, can_self_update, error}`.
-- `POST /update` (~3712): theo mode. Docker gọi Watchtower `http://watchtower:8080/v1/update`
-  (chỉ khi Watchtower đang chạy); Windows ghi `_selfupdate.bat` (git pull + relaunch)
-  chạy tách rời; Native chạy `bash update.sh native`.
-- `GET /changelog` (~3859): parse CHANGELOG.md local + đối chiếu GitHub.
-- `GET /health` (~1436): trả 200 khi server sống (kèm trạng thái Claude CLI).
-- Frontend `dashboard/console.js`: `ovLoadVersion()` (~1379) + handler nút cập nhật
-  (~1411) poll `/version` tới khi đổi phiên bản rồi reload; trang changelog (~336).
-- Autostart Windows (HKCU Run key) + `start-javis.vbs` (kill bản cũ + chạy nền
-  `.venv\Scripts\python.exe server\main.py`).
-- CI `.github/workflows/docker-publish.yml`: push main -> build + đẩy GHCR tag
-  `:latest` và `:<git-sha>`.
-- Docker: app KHÔNG mount docker socket (bảo mật). Hostinger dùng
-  `docker-compose.hostinger.yml` (KHÔNG có Watchtower, cập nhật bằng Redeploy).
-  `docker-compose.yml` có service Watchtower nằm trong profile `update` (mặc định tắt).
-  Dockerfile + compose đều có HEALTHCHECK gọi `/health`.
+Already in place (not redone from scratch):
+- `GET /version` (server/main.py ~3688): reads the local `VERSION`, compares with
+  `raw.githubusercontent.com/blogminhquy/javis-os/main/VERSION`, semver-style compare,
+  returns `{current, latest, update_available, mode, can_self_update, error}`.
+- `POST /update` (~3712): by mode. Docker calls Watchtower `http://watchtower:8080/v1/update`
+  (only when Watchtower is running); Windows writes `_selfupdate.bat` (git pull + relaunch) run
+  detached; Native runs `bash update.sh native`.
+- `GET /changelog` (~3859): parses the local CHANGELOG.md + cross-checks GitHub.
+- `GET /health` (~1436): returns 200 when the server is alive (with Claude CLI status).
+- Frontend `dashboard/console.js`: `ovLoadVersion()` (~1379) + the update button handler
+  (~1411) poll `/version` until the version changes and then reload; the changelog page (~336).
+- Windows autostart (HKCU Run key) + `start-javis.vbs` (kill the old instance + run in the
+  background `.venv\Scripts\python.exe server\main.py`).
+- CI `.github/workflows/docker-publish.yml`: push main -> build + push GHCR tags `:latest` and
+  `:<git-sha>`.
+- Docker: the app does NOT mount the docker socket (security). Hostinger uses
+  `docker-compose.hostinger.yml` (NO Watchtower, updates by Redeploy). `docker-compose.yml` has a
+  Watchtower service in the `update` profile (off by default). The Dockerfile + compose both
+  have a HEALTHCHECK calling `/health`.
 
-## Bốn lỗ hổng cần vá
+## Four gaps to patch
 
-1. Windows updater THIẾU `pip install`. `_selfupdate.bat` chỉ git pull + relaunch.
-   Bản mới thêm thư viện Python là app bật lại sẽ crash. (Bản native `update.sh` có cài.)
-2. Cây git bẩn làm `git pull --ff-only` abort im lặng -> update thất bại mà UI chỉ
-   báo mơ hồ "server lên lại nhưng phiên bản chưa đổi".
-3. Không có kiểm tra sức khoẻ + rollback. Bản mới lỗi boot thì app chết, không tự quay lại.
-4. Trải nghiệm update nghèo: không hiện tiến trình theo bước, không hiện changelog bản
-   mới trước khi bấm, không có đường lùi rõ ràng khi hỏng.
+1. The Windows updater LACKS `pip install`. `_selfupdate.bat` only does git pull + relaunch. If
+   the new version adds a Python library the app crashes when it comes back up. (The native
+   `update.sh` does install.)
+2. A dirty git tree makes `git pull --ff-only` abort silently -> the update fails while the UI
+   only says vaguely "the server came back but the version did not change".
+3. No health check + rollback. If the new version fails to boot, the app is dead and does not go
+   back on its own.
+4. A poor update experience: no step-by-step progress, no changelog of the new version shown
+   before clicking, no clear way back when it breaks.
 
-Sự thật kỹ thuật định hình thiết kế: Watchtower KHÔNG tự rollback (chủ dự án xác nhận
-không thêm tính năng này). App trong Docker không có quyền Docker nên không tự đổi/lùi
-image. Do đó rollback tự động thật chỉ khả thi ở bản git checkout (Windows/native);
-Docker dùng rollback có hướng dẫn.
+The technical fact shaping the design: Watchtower does NOT roll back by itself (the project
+owner confirmed no such feature will be added). The app inside Docker has no Docker permission
+so it cannot swap/revert the image by itself. Therefore a truly automatic rollback is only
+feasible for the git-checkout installs (Windows/native); Docker uses a guided rollback.
 
-## Kiến trúc giải pháp
+## Solution architecture
 
-Chia theo bốn khối, giao tiếp qua các file trạng thái trên STATE_DIR và các endpoint HTTP.
+Split into four blocks, communicating through state files on STATE_DIR and HTTP endpoints.
 
-### Khối 1 - CI: tag phiên bản (nền của Hướng B)
+### Block 1 - CI: version tag (the foundation of Option B)
 
-`docker-publish.yml` thêm tag `${IMAGE}:<version>` (đọc từ file VERSION) cạnh `:latest`
-và `:<sha>`. Kết quả: GHCR luôn có một tag phiên bản cố định, dễ đọc, để pin khi lùi bản.
+`docker-publish.yml` adds the tag `${IMAGE}:<version>` (read from the VERSION file) next to
+`:latest` and `:<sha>`. Result: GHCR always has a fixed, readable version tag to pin when
+rolling back.
 
-- Đầu vào: file VERSION ở gốc repo.
-- Đầu ra: thêm dòng tag trong step "Build & push".
-- Phụ thuộc: không.
+- Input: the VERSION file at the repo root.
+- Output: an added tag line in the "Build & push" step.
+- Depends on: nothing.
 
-### Khối 2 - Trạng thái update (nguồn sự thật dùng chung)
+### Block 2 - Update state (the shared source of truth)
 
-File `STATE_DIR/update_state.json` là nguồn sự thật, SỐNG QUA restart/recreate container
-(nằm trên volume /data ở Docker). Schema:
+The file `STATE_DIR/update_state.json` is the source of truth, SURVIVING restart/recreate of the
+container (it sits on the /data volume in Docker). Schema:
 
 ```json
 {
@@ -76,133 +79,139 @@ File `STATE_DIR/update_state.json` là nguồn sự thật, SỐNG QUA restart/r
   "result": "success|rolled_back|pull_failed|rollback_failed|error|null",
   "old_version": "0.9.78",
   "target_version": "0.9.79",
-  "old_sha": "<git sha trước khi pull, chỉ mode git>",
+  "old_sha": "<git sha before the pull, git mode only>",
   "previous_version": "0.9.78",
   "last_good_version": "0.9.79",
   "stashed": false,
   "started_at": "<iso>",
   "finished_at": "<iso|null>",
-  "error": "<chuỗi lỗi ngắn|null>"
+  "error": "<short error string|null>"
 }
 ```
 
-- `last_good_version` / `previous_version` do một hook lúc KHỞI ĐỘNG server duy trì:
-  đọc file; nếu `last_good_version` khác `current` và `current` mới hơn thì đặt
-  `previous_version = last_good_version` cũ, rồi `last_good_version = current`. Nhờ vậy
-  mọi mode (kể cả Docker) đều biết "lùi về đâu".
-- `phase`/`result`/`error` do updater (Windows/native) hoặc luồng `/update` (Docker) ghi
-  trong quá trình cập nhật.
-- Helper Python thuần: `_read_update_state()`, `_write_update_state(patch)`,
-  `_record_boot_version(current)`. Đây là phần dễ test nhất.
+- `last_good_version` / `previous_version` are maintained by a hook at server STARTUP: read the
+  file; if `last_good_version` differs from `current` and `current` is newer, set
+  `previous_version` = the old `last_good_version`, then `last_good_version = current`. This
+  way every mode (Docker included) knows "where to roll back to".
+- `phase`/`result`/`error` are written by the updater (Windows/native) or the `/update` flow
+  (Docker) during the update.
+- Pure Python helpers: `_read_update_state()`, `_write_update_state(patch)`,
+  `_record_boot_version(current)`. This is the easiest part to test.
 
-### Khối 3 - Backend: /update, /update/status, /version
+### Block 3 - Backend: /update, /update/status, /version
 
-`POST /update` viết lại theo mode:
+`POST /update` is rewritten by mode:
 
-- Windows (git checkout): server ghi `update_state` (preparing, old_version, old_sha
-  từ `git rev-parse HEAD`, target=latest), rồi spawn TÁCH RỜI script
-  `server/updater/win_update.ps1` (PowerShell, dễ làm HTTP poll + logic hơn .bat)
-  với tham số: root, đường dẫn python .venv, port, old_sha, target, logfile, statefile.
-  Không còn sinh .bat inline.
-- Native (git checkout): spawn `bash update.sh native` như cũ nhưng update.sh được nâng.
-- Docker có Watchtower: trigger như cũ, ghi update_state (phase=restarting,
-  target=latest). Container mới bật -> hook boot chốt success.
-- Docker không Watchtower (Hostinger): trả `ok:false` kèm hướng dẫn Redeploy GIÀU hơn:
-  nêu `current`, `latest`, và tag phiên bản cũ `previous_version` để pin khi cần lùi.
-- Chống chạy trùng: nếu `phase` đang dở và `started_at` gần đây thì trả "đang cập nhật rồi".
+- Windows (git checkout): the server writes `update_state` (preparing, old_version, old_sha from
+  `git rev-parse HEAD`, target=latest), then spawns the script `server/updater/win_update.ps1`
+  DETACHED (PowerShell, easier for HTTP polling + logic than .bat) with parameters: root, path
+  of the .venv python, port, old_sha, target, logfile, statefile. No more generating an inline .bat.
+- Native (git checkout): spawn `bash update.sh native` as before but update.sh is upgraded.
+- Docker with Watchtower: trigger as before, write update_state (phase=restarting,
+  target=latest). The new container boots -> the boot hook seals success.
+- Docker without Watchtower (Hostinger): return `ok:false` with RICHER Redeploy instructions:
+  state `current`, `latest`, and the old version tag `previous_version` to pin if a rollback is
+  needed.
+- Duplicate-run guard: if `phase` is in progress and `started_at` is recent, return "already updating".
 
-`GET /update/status` (mới): trả nội dung `update_state.json` + ~50 dòng cuối `update.log`.
-UI poll cái này để vẽ tiến trình và hiện kết quả (kể cả sau khi server restart xong).
+`GET /update/status` (new): returns the contents of `update_state.json` + the last ~50 lines of
+`update.log`. The UI polls this to draw progress and show the result (even after the server has
+finished restarting).
 
-`GET /version`: thêm trường `previous_version` (từ update_state) để UI biết đích lùi.
-Giữ nguyên các trường cũ.
+`GET /version`: add the field `previous_version` (from update_state) so the UI knows the
+rollback target. Keep the old fields.
 
-Script updater (Windows ps1 và native update.sh) làm chung một chuỗi:
+The updater scripts (Windows ps1 and native update.sh) do the same sequence:
 
-1. preparing: đảm bảo đã có old_sha, target.
-2. pulling: xử lý cây git bẩn an toàn - `git stash push -u? KHÔNG` (u kéo cả file rác);
-   dùng `git stash` (chỉ tracked), đặt `stashed=true` nếu có cất; `git pull --ff-only`.
-   KHÔNG tự `stash pop` (tránh xung đột với code mới) - để lại stash cho user tự khôi
-   phục, ghi `stashed=true` để UI báo. Pull lỗi -> result=pull_failed, relaunch bản CŨ
-   (code chưa đổi), dừng.
-3. installing: `pip install -r requirements.txt` vào .venv (Windows: đây là bước đang thiếu).
-4. restarting: dừng bản đang chạy rồi bật bản mới (Windows dùng stop-javis.bat +
-   start-javis.vbs; native dùng systemctl restart javis nếu có).
-5. health_check: poll `http://127.0.0.1:<port>/health` tới ~90s. Thành công =
-   /health trả 200 VÀ `/version.current == target`. Nếu /health không lên trong 90s -> lỗi.
-6. Kết luận:
-   - Khoẻ + đúng bản: phase=done, result=success.
-   - /health không lên (bản mới hỏng): phase=rolling_back, `git reset --hard <old_sha>`,
-     pip install (bản cũ), restart, poll lại. Lên được -> result=rolled_back; vẫn hỏng ->
-     result=rollback_failed (ghi log để cứu tay).
-   - /health lên nhưng version chưa đổi (pull không áp được dù báo ok): coi là cảnh báo,
-     server vẫn sống (bản cũ), không rollback; result=error kèm ghi chú.
+1. preparing: make sure old_sha and target are present.
+2. pulling: handle a dirty git tree safely - `git stash push -u? NO` (u drags in junk files);
+   use `git stash` (tracked only), set `stashed=true` if something was stashed; `git pull --ff-only`.
+   Do NOT `stash pop` automatically (avoids conflicts with the new code) - leave the stash for
+   the user to restore, record `stashed=true` so the UI can say so. Pull fails ->
+   result=pull_failed, relaunch the OLD version (code unchanged), stop.
+3. installing: `pip install -r requirements.txt` into .venv (Windows: this is the missing step).
+4. restarting: stop the running version then start the new one (Windows uses stop-javis.bat +
+   start-javis.vbs; native uses systemctl restart javis if present).
+5. health_check: poll `http://127.0.0.1:<port>/health` for up to ~90s. Success = /health
+   returns 200 AND `/version.current == target`. If /health does not come up within 90s -> failure.
+6. Conclusion:
+   - Healthy + right version: phase=done, result=success.
+   - /health does not come up (the new version is broken): phase=rolling_back,
+     `git reset --hard <old_sha>`, pip install (old version), restart, poll again. Comes up ->
+     result=rolled_back; still broken -> result=rollback_failed (write the log for manual rescue).
+   - /health comes up but the version did not change (the pull did not apply even though it
+     reported ok): treat as a warning, the server is still alive (old version), no rollback;
+     result=error with a note.
 
-Script chạy DETACHED để sống độc lập khi server bị kill. Mọi bước đều ghi update_state
-+ append update.log.
+The script runs DETACHED so it survives independently when the server is killed. Every step
+writes update_state + appends to update.log.
 
-### Khối 4 - Frontend: trải nghiệm update
+### Block 4 - Frontend: update experience
 
-Trang Tổng quan: panel phiên bản mở rộng.
+Overview page: an expanded version panel.
 
-- Trạng thái thường: hiện `current`, `latest`, mode. Có bản mới thì hiện thêm CHANGELOG
-  các bản giữa current và latest (dùng dữ liệu `/changelog`, lọc bản chưa cài) để user
-  thấy sắp nhận gì trước khi bấm.
-- Nút "Cập nhật ngay": hiện khi `update_available && can_self_update`. Docker không
-  Watchtower thì thay bằng khối hướng dẫn Redeploy (giàu hơn: kèm lệnh + tag để lùi).
-- Khi bấm: confirm -> POST /update -> vào màn tiến trình.
-- Màn tiến trình: thanh bước Chuẩn bị -> Tải code -> Cài thư viện -> Khởi động lại ->
-  Kiểm tra sức khoẻ -> Xong. Đổ dữ liệu từ poll `/update/status` (trường `phase`) kết
-  hợp `/version`. Có sẵn dòng trấn an: "nếu bản mới lỗi hệ thống sẽ tự quay về bản cũ"
-  (mode git) hoặc "có thể lùi về bản cũ theo hướng dẫn" (Docker).
-- Trạng thái kết thúc:
-  - success -> "Đã cập nhật lên vX" -> tự reload.
-  - rolled_back -> "Bản mới vX lỗi, đã tự quay về vY. Xem update.log." (không reload).
-  - pull_failed / error -> hiện lỗi + đuôi log + lệnh thủ công.
-  - Docker bản mới không lên (version không tới sau lâu) -> panel lùi bản có hướng dẫn:
-    pin tag `:<previous_version>` + nút copy lệnh (`docker compose ... pull && up -d`
-    hoặc đổi tag rồi Redeploy trên Hostinger).
+- Normal state: show `current`, `latest`, mode. When a new version exists, additionally show the
+  CHANGELOG of the versions between current and latest (using the `/changelog` data, filtered to
+  versions not yet installed) so the user sees what they are about to get before clicking.
+- The "Update now" button: shown when `update_available && can_self_update`. For Docker without
+  Watchtower, replace it with a Redeploy instructions block (richer: with the command + the tag
+  to roll back).
+- On click: confirm -> POST /update -> go to the progress screen.
+- Progress screen: a step bar Preparing -> Downloading code -> Installing libraries ->
+  Restarting -> Health check -> Done. Fed from polling `/update/status` (the `phase` field)
+  combined with `/version`. It has a built-in reassurance line: "if the new version fails, the
+  system will go back to the old one on its own" (git mode) or "you can roll back to the old
+  version following the instructions" (Docker).
+- Final states:
+  - success -> "Updated to vX" -> auto reload.
+  - rolled_back -> "The new version vX failed, rolled back to vY on its own. See update.log."
+    (no reload).
+  - pull_failed / error -> show the error + the log tail + the manual command.
+  - Docker where the new version does not come up (the version does not arrive after a long
+    time) -> a guided rollback panel: pin the tag `:<previous_version>` + a copy-command button
+    (`docker compose ... pull && up -d`, or change the tag then Redeploy on Hostinger).
 
-Giữ nguyên trang changelog hiện có.
+Keep the existing changelog page as is.
 
-## Xử lý lỗi (tóm tắt)
+## Error handling (summary)
 
-- Cây git bẩn: stash tracked trước khi pull, không auto-pop, báo user đã cất vào stash.
-- Thiếu dep mới: bước pip install bắt buộc ở mọi mode git.
-- Bản mới crash boot: git mode tự `git reset --hard` về old_sha + restart. Docker: hướng
-  dẫn pin previous_version.
-- Update chạy trùng: guard theo phase + started_at.
-- Mất mạng khi kiểm bản mới: `/version`/`/changelog` vẫn trả phần local.
-- Rollback cũng hỏng: giữ nguyên log, báo rõ, để cứu tay (không xoá gì).
+- Dirty git tree: stash tracked files before the pull, no auto-pop, tell the user it was stashed.
+- Missing new dependency: the pip install step is mandatory in every git mode.
+- The new version crashes at boot: git mode automatically does `git reset --hard` to old_sha +
+  restart. Docker: instructions to pin previous_version.
+- Duplicate update run: guard by phase + started_at.
+- Network lost when checking for a new version: `/version`/`/changelog` still return the local part.
+- The rollback also fails: keep the log intact, report clearly, leave it for manual rescue
+  (delete nothing).
 
-## Kiểm thử
+## Testing
 
-- Hàm thuần: `_ver_tuple`, `_ver_newer` (thêm ca), so sánh phiên bản edge cases.
-- update_state: round-trip read/write; suy ra `previous_version` khi boot lên bản mới hơn.
-- `/update/status`: trả đúng cấu trúc khi có/không có file trạng thái.
-- Quyết định rollback: tách helper (vd `_health_ok(port)` + hàm quyết định) và test với
-  health giả (mock) -> health đỏ thì báo cần rollback.
-- Guard chạy trùng của `/update`.
-- Script ps1/sh khó unit-test trên CI: ít nhất lint + kiểm JSON chúng sinh; smoke test tay
-  trên máy Windows của chủ dự án.
+- Pure functions: `_ver_tuple`, `_ver_newer` (add cases), version compare edge cases.
+- update_state: round-trip read/write; deriving `previous_version` when booting into a newer version.
+- `/update/status`: returns the right structure with/without a state file.
+- Rollback decision: split out a helper (e.g. `_health_ok(port)` + a decision function) and test
+  with a fake (mock) health -> red health reports that rollback is needed.
+- The duplicate-run guard of `/update`.
+- The ps1/sh scripts are hard to unit-test in CI: at least lint + check the JSON they produce;
+  manual smoke test on the project owner's Windows machine.
 
-Chạy test bằng .venv (python hệ thống thiếu lib). Xong test + xanh mới bump VERSION +
-CHANGELOG + commit + push origin/main (đúng nếp auto-push của chủ dự án).
+Run tests with .venv (the system Python lacks libs). Only when tests are done and green: bump
+VERSION + CHANGELOG + commit + push origin/main (following the project owner's auto-push habit).
 
-## File dự kiến đụng tới
+## Files expected to be touched
 
-- `.github/workflows/docker-publish.yml` - thêm tag phiên bản.
-- `server/main.py` - viết lại `POST /update`; thêm `GET /update/status`; thêm
-  `previous_version` vào `/version`; hook boot ghi version; helper update_state; bỏ sinh
-  `_selfupdate.bat` inline.
-- `server/updater/win_update.ps1` - script updater Windows mới (nhận tham số).
-- `update.sh` - thêm lưu SHA + health poll + git reset rollback.
-- `dashboard/console.js` (+ CSS liên quan) - panel update + màn tiến trình + panel lùi bản.
-- `server/tests/test_update.py` - test như trên.
-- `VERSION` + `CHANGELOG.md` - bump khi hoàn tất.
+- `.github/workflows/docker-publish.yml` - add the version tag.
+- `server/main.py` - rewrite `POST /update`; add `GET /update/status`; add `previous_version` to
+  `/version`; the boot hook that records the version; update_state helpers; drop generating the
+  inline `_selfupdate.bat`.
+- `server/updater/win_update.ps1` - the new Windows updater script (takes parameters).
+- `update.sh` - add SHA saving + health poll + git reset rollback.
+- `dashboard/console.js` (+ related CSS) - the update panel + progress screen + rollback panel.
+- `server/tests/test_update.py` - tests as above.
+- `VERSION` + `CHANGELOG.md` - bump when done.
 
-## Ngoài phạm vi (không làm lần này)
+## Out of scope (not this time)
 
-- Tự động update nền (poller + công tắc bật/tắt + kênh + quiet hours).
-- Updater sidecar có socket cho Docker (rollback tự động trong container).
-- Đổi mô hình deploy Hostinger khỏi Redeploy.
+- Background auto-update (poller + on/off switch + channel + quiet hours).
+- An updater sidecar with a socket for Docker (automatic rollback inside the container).
+- Changing the Hostinger deploy model away from Redeploy.

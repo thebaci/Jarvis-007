@@ -1,53 +1,53 @@
-# Khung gõ mới (PR 1: giao diện) Implementation Plan
+# New Composer (PR 1: UI) Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Gộp khung gõ thành một khung bo tròn có nút "+" (menu mở rộng được), chip model và chip mức suy nghĩ tách riêng (thanh trượt cam lấp lánh), nút tia sét Fast mode lưu được trạng thái, mic nhỏ bên phải.
+**Goal:** Merge the composer into a single rounded box with a "+" button (an expandable menu), a separate model chip and thinking-level chip (an orange sparkling slider), a Fast mode lightning button that persists its state, and a small mic on the right.
 
-**Architecture:** Giữ nguyên các id mà app.js, pet.js, console.js và test đang dựa vào (`hudVoice`, `chatInput`, `voiceBtn`, `sendBtn`, `stopBtn`, `fileInput`, `attachBar`, `modelBar`, `mbOpen`, `mbPop`), chỉ đổi chỗ đặt và CSS. Logic mới nằm trong hai file mới không phụ thuộc DOM ở phần thuần (test bằng node): `composer-plus.js` (sổ đăng ký menu "+") và `effort-slider.js` (thanh trượt + hiệu ứng canvas). model-picker.js lo chip mức suy nghĩ và tia sét vì nó đang giữ `state.reasoning` và `saveModel`. Server thêm khoá `settings.model.fast` và endpoint `GET /files/resolve`.
+**Architecture:** Keep the ids that app.js, pet.js, console.js and the tests rely on (`hudVoice`, `chatInput`, `voiceBtn`, `sendBtn`, `stopBtn`, `fileInput`, `attachBar`, `modelBar`, `mbOpen`, `mbPop`), and only change where they sit plus the CSS. The new logic lives in two new files whose pure parts do not depend on the DOM (tested with node): `composer-plus.js` (the registry for the "+" menu) and `effort-slider.js` (the slider plus the canvas effect). model-picker.js handles the thinking-level chip and the lightning button because it already holds `state.reasoning` and `saveModel`. The server adds the `settings.model.fast` key and the `GET /files/resolve` endpoint.
 
-**Tech Stack:** HTML/CSS/vanilla JS (dashboard, không build step), FastAPI (server/main.py), test node `tests/js/*.js` và Python `tests/python/*.py` chạy bằng `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/run.py`.
+**Tech Stack:** HTML/CSS/vanilla JS (dashboard, no build step), FastAPI (server/main.py), node tests `tests/js/*.js` and Python tests `tests/python/*.py` run with `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/run.py`.
 
 **Spec:** `docs/superpowers/specs/2026-10-15-composer-plus-fast-mode-design.md`
 
 ## Global Constraints
 
-- Màu hiệu ứng: cam Jarvis 007 `var(--accent)` (#ff7a3c); không màu cứng trong cp-css của console.js (test_theme_tokens).
-- Bo góc khung: **24px** (đổi từ 18px, sửa có chủ ý test_theme_tokens dòng 51-58 và cp-css).
-- Nhãn mức suy nghĩ tiếng Anh ở cả vi và en: Off, Light, Medium, High, Extra, Ultra. Giá trị lưu giữ nguyên `off/low/medium/high/xhigh/ultra` và các chuỗi có ngoặc kép đó phải còn trong model-picker.js.
-- Tia sét: không có chữ bật/tắt bên cạnh; chỉ tooltip (`title`) "Fast mode" + một dòng lưu ý.
-- Không dấu gạch dài (U+2014) ở bất cứ đâu. File .js MỚI không có chữ Việt trong mã chạy (chữ qua `window.t`). app.js giữ đúng 12 dòng mã chạy có chữ Việt (test_i18n), nên mọi dòng mới thêm vào app.js không chứa chữ Việt.
-- Mọi nhãn mới trong index.html có `data-i18n`/`data-i18n-title`/`data-i18n-aria`, khoá có ở cả `dashboard/i18n/vi.json` và `en.json`; en không chứa chữ Việt.
-- `<textarea id="chatInput" ...>`: `id` là thuộc tính đầu tiên, giữ `rows="1"`.
-- Không đặt thuộc tính `disabled` lên `#voiceBtn` (pet.js gọi `.click()`).
-- Không thêm thẻ script giữa `call-bar.js` và `app.js`; `model-list.js` trước `model-picker.js`.
-- Cache-bust `?v=` của style.css, console.css, app.js, model-picker.js, mobile-chat.js, console.js chỉ tăng.
-- Commit kết thúc bằng `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+- Effect color: Jarvis 007 orange `var(--accent)` (#ff7a3c); no hard-coded colors in the cp-css of console.js (test_theme_tokens).
+- Box corner radius: **24px** (changed from 18px, with a deliberate edit to test_theme_tokens lines 51-58 and to cp-css).
+- Thinking-level labels are in English in both vi and en: Off, Light, Medium, High, Extra, Ultra. The stored values stay `off/low/medium/high/xhigh/ultra` and those quoted strings must remain in model-picker.js.
+- Lightning button: no on/off text next to it; only a tooltip (`title`) "Fast mode" plus one note line.
+- No em dash (U+2014) anywhere. NEW .js files have no Vietnamese text in running code (text goes through `window.t`). app.js keeps exactly 12 lines of running code containing Vietnamese text (test_i18n), so every line newly added to app.js contains no Vietnamese text.
+- Every new label in index.html has `data-i18n`/`data-i18n-title`/`data-i18n-aria`, and the key exists in both `dashboard/i18n/vi.json` and `en.json`; en contains no Vietnamese text.
+- `<textarea id="chatInput" ...>`: `id` is the first attribute, keep `rows="1"`.
+- Do not put a `disabled` attribute on `#voiceBtn` (pet.js calls `.click()`).
+- Do not add a script tag between `call-bar.js` and `app.js`; `model-list.js` comes before `model-picker.js`.
+- The `?v=` cache-busters of style.css, console.css, app.js, model-picker.js, mobile-chat.js and console.js only go up.
+- Commits end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
 
 ## Review Focus
 
-- Trang Coding trên máy tính: coding.js chèn `#cdChips` vào `#modelBar`; hàng chip ngữ cảnh phải vẫn hiện phía trên khung (`#modelBar` không còn `:empty`). Test ở Task 2.
-- Đổi cỡ cửa sổ điện thoại -> máy tính: chip model phải về lại `#cpChips` (trước `#effBtn`), không kẹt trên đầu trang. Test ở Task 2.
-- Đính kèm thư mục toàn file ẩn hoặc rỗng: không gửi gì, báo rõ, không treo. Test ở Task 5.
-- `/files/resolve` với `../`, đường dẫn tuyệt đối, symlink ra ngoài brain: từ chối 400. Test ở Task 1.
-- Model đã gắn sẵn mức suy nghĩ (Antigravity `gemini-3.8-flash-high`): thanh trượt không cho kéo, hiện câu giải thích; chip vẫn đọc được. Test ở Task 3.
+- Coding page on desktop: coding.js inserts `#cdChips` into `#modelBar`; the context chip row must still show above the box (`#modelBar` is no longer `:empty`). Tested in Task 2.
+- Resizing the window from phone to desktop: the model chip must return to `#cpChips` (before `#effBtn`), not stay stuck at the top of the page. Tested in Task 2.
+- Attaching a folder whose files are all hidden or empty: send nothing, say so clearly, do not hang. Tested in Task 5.
+- `/files/resolve` with `../`, an absolute path, or a symlink pointing outside the brain: reject with 400. Tested in Task 1.
+- A model that already carries a thinking level (Antigravity `gemini-3.8-flash-high`): the slider cannot be dragged and shows an explanation; the chip is still readable. Tested in Task 3.
 
 ---
 
-### Task 1: Server: khoá `fast` và endpoint `/files/resolve`
+### Task 1: Server: the `fast` key and the `/files/resolve` endpoint
 
 **Files:**
-- Modify: `server/main.py` (nhánh section `model` của POST /settings, cạnh `if "reasoning" in patch:` ~dòng 5129; thêm route sau `files_search` ~dòng 7367)
-- Modify: `server/config.py` (mặc định `model`, ~dòng 112 nơi có `"reasoning": "off"`)
-- Test: `tests/python/test_khung_go_server.py` (mới)
+- Modify: `server/main.py` (the `model` section branch of POST /settings, next to `if "reasoning" in patch:` ~line 5129; add the route after `files_search` ~line 7367)
+- Modify: `server/config.py` (the `model` defaults, ~line 112 where `"reasoning": "off"` is)
+- Test: `tests/python/test_khung_go_server.py` (new)
 
 **Interfaces:**
-- Produces: `settings.model.fast: bool` (mặc định `False`, GET /settings trả về). `GET /files/resolve?brain=<b>&path=<rel>` -> `{"ok": true, "path": "<abs>", "name": "<basename>", "size": <int>, "kind": "image"|"file"}`; lỗi -> HTTP 400 `{"ok": false, "error": "..."}`.
+- Produces: `settings.model.fast: bool` (default `False`, returned by GET /settings). `GET /files/resolve?brain=<b>&path=<rel>` -> `{"ok": true, "path": "<abs>", "name": "<basename>", "size": <int>, "kind": "image"|"file"}`; on error -> HTTP 400 `{"ok": false, "error": "..."}`.
 
-- [ ] **Step 1: Viết test hỏng**
+- [ ] **Step 1: Write the failing test**
 
 ```python
-"""Khung gõ mới (0.148.0): khoá Fast mode trong settings và đường gắn file có sẵn trong brain.
+"""New composer (0.148.0): the Fast mode key in settings and the path for attaching files already in the brain.
 
     python tests/run.py khung_go_server
 """
@@ -72,15 +72,15 @@ def check(name, cond, them=""):
         fails.append(name)
 
 
-client = TestClient(main.app, base_url="http://localhost")   # STATE_DIR mới tinh: chưa có tài khoản nên không cần đăng nhập (như test_messenger)
+client = TestClient(main.app, base_url="http://localhost")   # brand-new STATE_DIR: no account yet so no login is needed (like test_messenger)
 
-# 1. fast lưu được và chỉ nhận boolean
+# 1. fast can be saved and only accepts a boolean
 s = cfgmod.read_settings()
-check("mặc định fast tắt", (s.get("model") or {}).get("fast") is False, s.get("model"))
+check("fast is off by default", (s.get("model") or {}).get("fast") is False, s.get("model"))
 r = client.post("/settings", data={"section": "model", "data": json.dumps({"fast": True})})
-check("POST /settings lưu fast=true", r.status_code == 200 and cfgmod.read_settings()["model"]["fast"] is True, r.text)
+check("POST /settings saves fast=true", r.status_code == 200 and cfgmod.read_settings()["model"]["fast"] is True, r.text)
 client.post("/settings", data={"section": "model", "data": json.dumps({"fast": "yes"})})
-check("giá trị không phải boolean bị đọc thành false", cfgmod.read_settings()["model"]["fast"] is False)
+check("a non-boolean value is read as false", cfgmod.read_settings()["model"]["fast"] is False)
 
 # 2. /files/resolve
 brain = Path(main._brain_root("brain"))
@@ -91,55 +91,55 @@ root = Path(main._files_root("brain")).resolve()
 rel = f.resolve().relative_to(root).as_posix()
 r = client.get("/files/resolve", params={"brain": "brain", "path": rel})
 d = r.json()
-check("resolve trả đường dẫn tuyệt đối trong brain", r.status_code == 200 and d.get("ok")
+check("resolve returns an absolute path inside the brain", r.status_code == 200 and d.get("ok")
       and Path(d["path"]) == f.resolve() and d["name"] == "bao-cao.md" and d["kind"] == "file", d)
 for bad in ("../../etc/passwd", str(f.resolve()), "", "ghi-chu/khong-co.md"):
     r = client.get("/files/resolve", params={"brain": "brain", "path": bad})
-    check(f"resolve từ chối {bad!r}", r.status_code == 400 and r.json().get("ok") is False, r.text)
+    check(f"resolve rejects {bad!r}", r.status_code == 400 and r.json().get("ok") is False, r.text)
 outside = Path(tempfile.mkdtemp(prefix="ngoai-")) / "x.txt"
 outside.write_text("x", encoding="utf-8")
 try:
     (brain / "link-ra-ngoai.txt").symlink_to(outside)
     r = client.get("/files/resolve", params={"brain": "brain", "path": (brain / "link-ra-ngoai.txt").relative_to(root).as_posix()})
-    check("resolve từ chối symlink trỏ ra ngoài brain", r.status_code == 400, r.text)
+    check("resolve rejects a symlink pointing outside the brain", r.status_code == 400, r.text)
 except OSError:
-    print("skip symlink (máy không tạo được symlink)")
+    print("skip symlink (this machine cannot create symlinks)")
 
 if fails:
     print("\nFAIL - test_khung_go_server: " + ", ".join(fails))
     sys.exit(1)
-print("\nOK - test_khung_go_server: tất cả pass")
+print("\nOK - test_khung_go_server: all pass")
 ```
 
-- [ ] **Step 2: Chạy, thấy hỏng**
+- [ ] **Step 2: Run it and watch it fail**
 
 Run: `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/python/test_khung_go_server.py`
-Expected: FAIL ở "mặc định fast tắt" (khoá chưa có) và các check resolve (route chưa có).
+Expected: FAIL at "fast is off by default" (the key does not exist yet) and at the resolve checks (the route does not exist yet).
 
-- [ ] **Step 3: Viết code**
+- [ ] **Step 3: Write the code**
 
-`server/config.py`, trong dict mặc định của `model` cạnh `"reasoning": "off",` thêm:
+`server/config.py`, in the default `model` dict next to `"reasoning": "off",` add:
 
 ```python
-        "fast": False,   # Fast mode (tia sét ở khung gõ, 0.148.0): chạy nhanh hơn, tốn hơn
+        "fast": False,   # Fast mode (lightning button in the composer, 0.148.0): runs faster, costs more
 ```
 
-`server/main.py`, ngay sau khối `if "reasoning" in patch:`:
+`server/main.py`, right after the `if "reasoning" in patch:` block:
 
 ```python
-        # Fast mode (tia sét ở khung gõ, 0.148.0). Đường POST này nuốt khoá lạ nên phải có nhánh riêng.
+        # Fast mode (lightning button in the composer, 0.148.0). This POST path swallows unknown keys so it needs its own branch.
         if "fast" in patch:
             m["fast"] = patch["fast"] is True
 ```
 
-`server/main.py`, sau hàm `files_search`:
+`server/main.py`, after the `files_search` function:
 
 ```python
 @app.get("/files/resolve")
 async def files_resolve(brain: str = Query("brain"), path: str = Query("")):
-    """Đường dẫn TUYỆT ĐỐI của một file có sẵn trong brain, cho mục "Chọn file trong brain" của
-    menu "+" ở khung gõ (0.148.0). `path` tính theo trần như /files/search trả về. Chỉ nhận file
-    thật nằm trong gốc brain (chặn `..`, đường tuyệt đối, symlink trỏ ra ngoài)."""
+    """ABSOLUTE path of a file that already exists in the brain, for the "Pick a file in the brain" item of the
+    composer's "+" menu (0.148.0). `path` is relative to the root, as /files/search returns it. Only accepts a
+    real file inside the brain root (blocks `..`, absolute paths, and symlinks pointing outside)."""
     rel = (path or "").strip().replace("\\", "/")
     if not rel or rel.startswith("/") or re.match(r"^[A-Za-z]:", rel):
         return JSONResponse({"ok": False, "error": "path"}, status_code=400)
@@ -155,13 +155,13 @@ async def files_resolve(brain: str = Query("brain"), path: str = Query("")):
     return {"ok": True, "path": str(p), "name": p.name, "size": p.stat().st_size, "kind": kind}
 ```
 
-(`re`, `Path`, `JSONResponse`, `Query` đã được import ở đầu main.py; kiểm bằng `grep -n "^import re\|^from pathlib\|JSONResponse,\|Query" server/main.py | head`.)
+(`re`, `Path`, `JSONResponse` and `Query` are already imported at the top of main.py; check with `grep -n "^import re\|^from pathlib\|JSONResponse,\|Query" server/main.py | head`.)
 
-- [ ] **Step 4: Chạy, thấy qua**
+- [ ] **Step 4: Run it and watch it pass**
 
 Run: `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/python/test_khung_go_server.py` -> `OK - test_khung_go_server`
-Run: `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/python/test_route_table.py --update` (route mới), rồi chạy lại không `--update` -> `bảng route khớp`.
-Run: `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/run.py settings` -> xanh.
+Run: `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/python/test_route_table.py --update` (new route), then run again without `--update` -> `route table matches`.
+Run: `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/run.py settings` -> green.
 
 - [ ] **Step 5: Commit**
 
@@ -172,25 +172,25 @@ git commit -m "Composer: settings.model.fast and GET /files/resolve for brain fi
 
 ---
 
-### Task 2: Khung gõ một khối: HTML, CSS, chỗ mượn khung, điện thoại
+### Task 2: Single-block composer: HTML, CSS, borrowed box, phone
 
 **Files:**
-- Modify: `dashboard/index.html:490-528` (khối `#attachBar`, `#modelBar`, `#hudVoice`)
-- Modify: `dashboard/style.css:1346-1433` (khung, mic, ô gõ, nút gửi/dừng, mobile)
+- Modify: `dashboard/index.html:490-528` (the `#attachBar`, `#modelBar`, `#hudVoice` block)
+- Modify: `dashboard/style.css:1346-1433` (box, mic, input, send/stop buttons, mobile)
 - Modify: `dashboard/console.js:7489` (`CHAT_NODE_IDS`), `:7599` (cp-css 24px)
-- Modify: `dashboard/mobile-chat.js:12-41` (chỗ trả chip model trên máy tính)
-- Modify: `dashboard/app.js:3547` (bỏ `#attachBtn`), `:1604` (thư mục Sources lấy từ file đầu tiên CÓ `sources`)
-- Modify: `dashboard/workspace.js:38-46` (`chatReady` khoá thêm "+" và gửi)
-- Modify: `tests/python/test_theme_tokens.py:51-58` (18px -> 24px, có chủ ý)
-- Test: `tests/js/test_khung_go.js` (mới)
+- Modify: `dashboard/mobile-chat.js:12-41` (where the model chip is returned on desktop)
+- Modify: `dashboard/app.js:3547` (remove `#attachBtn`), `:1604` (the Sources folder comes from the first file that HAS `sources`)
+- Modify: `dashboard/workspace.js:38-46` (`chatReady` also locks "+" and send)
+- Modify: `tests/python/test_theme_tokens.py:51-58` (18px -> 24px, deliberate)
+- Test: `tests/js/test_khung_go.js` (new)
 
 **Interfaces:**
-- Produces (DOM, các task sau dựa vào): `#hudVoice` chứa theo thứ tự `#voiceFocusResume`, `#attachBar`, `#fileInput`, `#folderInput`, `#chatInput`, `.cp-row#cpRow` (gồm `#plusBtn`, `.cp-chips#cpChips` [`#mbOpen`, `#effBtn` > `#effTxt`, `#fastBtn`], `.cp-gap`, `#voiceBtn`, `#stopBtn`, `#sendBtn`), rồi các popover `#mbPop`, `#effPop`, `#plusMenu` (đều `hidden`). `#modelBar` rỗng, đứng ngay trước `#hudVoice`.
+- Produces (DOM, later tasks depend on it): `#hudVoice` contains, in order, `#voiceFocusResume`, `#attachBar`, `#fileInput`, `#folderInput`, `#chatInput`, `.cp-row#cpRow` (holding `#plusBtn`, `.cp-chips#cpChips` [`#mbOpen`, `#effBtn` > `#effTxt`, `#fastBtn`], `.cp-gap`, `#voiceBtn`, `#stopBtn`, `#sendBtn`), then the popovers `#mbPop`, `#effPop`, `#plusMenu` (all `hidden`). `#modelBar` is empty and sits right before `#hudVoice`.
 
-- [ ] **Step 1: Viết test hỏng** `tests/js/test_khung_go.js`
+- [ ] **Step 1: Write the failing test** `tests/js/test_khung_go.js`
 
 ```js
-/* Khung gõ một khối (0.148.0): mọi thứ nằm trong #hudVoice, các id cũ còn nguyên.
+/* Single-block composer (0.148.0): everything sits inside #hudVoice, the old ids are intact.
 
        node tests/js/test_khung_go.js
 */
@@ -207,78 +207,78 @@ let fails = [];
 function check(name, cond) { console.log((cond ? "ok   " : "FAIL ") + name); if (!cond) fails.push(name); }
 
 const card = (html.match(/<div class="hud-voice" id="hudVoice">[\s\S]*?<!-- \/hudVoice -->/) || [""])[0];
-check("tìm thấy khung #hudVoice (kết thúc bằng dấu <!-- /hudVoice -->)", !!card);
+check("found the #hudVoice box (ending with the <!-- /hudVoice --> marker)", !!card);
 ["voiceFocusResume", "attachBar", "fileInput", "folderInput", "chatInput", "cpRow", "plusBtn", "cpChips",
  "mbOpen", "effBtn", "effTxt", "fastBtn", "voiceBtn", "stopBtn", "sendBtn", "mbPop", "effPop", "plusMenu"].forEach(id => {
-  check("trong khung có #" + id, card.indexOf('id="' + id + '"') !== -1);
+  check("the box contains #" + id, card.indexOf('id="' + id + '"') !== -1);
 });
 const order = ["attachBar", "chatInput", "cpRow"].map(id => card.indexOf('id="' + id + '"'));
-check("ảnh đính kèm ở trên, ô gõ giữa, hàng nút dưới", order[0] < order[1] && order[1] < order[2]);
+check("attachments on top, input in the middle, button row at the bottom", order[0] < order[1] && order[1] < order[2]);
 const row = card.slice(card.indexOf('id="cpRow"'));
-check("hàng nút: + trước chip, mic và gửi ở cuối",
+check("button row: + before the chips, mic and send at the end",
   row.indexOf('id="plusBtn"') < row.indexOf('id="cpChips"') && row.indexOf('id="cpChips"') < row.indexOf('id="voiceBtn"')
   && row.indexOf('id="voiceBtn"') < row.indexOf('id="sendBtn"'));
-check("#attachBtn đã bỏ khỏi trang", html.indexOf('id="attachBtn"') === -1);
-check("#modelBar còn, rỗng, đứng ngay trước khung", /<div class="model-bar" id="modelBar"><\/div>\s*(<!--[\s\S]*?-->\s*)*<div class="hud-voice" id="hudVoice">/.test(html));
-check("#folderInput chọn thư mục", /id="folderInput"[^>]*webkitdirectory/.test(card));
-check("textarea giữ id đầu tiên và rows=1", /<textarea id="chatInput"[^>]*rows="1"/.test(card));
-check("không có disabled trên #voiceBtn", !/id="voiceBtn"[^>]*disabled/.test(card));
+check("#attachBtn is gone from the page", html.indexOf('id="attachBtn"') === -1);
+check("#modelBar remains, empty, right before the box", /<div class="model-bar" id="modelBar"><\/div>\s*(<!--[\s\S]*?-->\s*)*<div class="hud-voice" id="hudVoice">/.test(html));
+check("#folderInput picks a folder", /id="folderInput"[^>]*webkitdirectory/.test(card));
+check("textarea keeps id first and rows=1", /<textarea id="chatInput"[^>]*rows="1"/.test(card));
+check("no disabled on #voiceBtn", !/id="voiceBtn"[^>]*disabled/.test(card));
 
-check("CSS: khung xếp dọc, bo 24px trước nền --bg2",
+check("CSS: the box stacks vertically, 24px radius before the --bg2 background",
   /\.hud-voice \{[^}]*flex-direction: column[^}]*align-items: flex-end[^}]*border-radius: 24px;[^}]*background: var\(--bg2\)/s.test(css));
-check("CSS: #modelBar rỗng thì ẩn", css.indexOf(".model-bar:empty { display: none; }") !== -1);
-check("CSS: không còn luật order kiểu cũ trên điện thoại", css.indexOf(".hud-voice .attach-btn { order: 1;") === -1);
+check("CSS: an empty #modelBar is hidden", css.indexOf(".model-bar:empty { display: none; }") !== -1);
+check("CSS: no old-style order rule left on phones", css.indexOf(".hud-voice .attach-btn { order: 1;") === -1);
 
-check("CHAT_NODE_IDS bỏ attachBar (đã nằm trong khung)",
+check("CHAT_NODE_IDS drops attachBar (it now sits inside the box)",
   consoleJs.indexOf('const CHAT_NODE_IDS = ["callBar", "chatArea", "bgStrip", "modelBar", "hudVoice"];') !== -1);
-check("cp-css trang Trò chuyện bo 24px", consoleJs.indexOf(".chatpage-slot .hud-voice{ background:var(--bg2); border:1px solid var(--border); border-radius:24px; }") !== -1);
+check("cp-css of the Chat page uses a 24px radius", consoleJs.indexOf(".chatpage-slot .hud-voice{ background:var(--bg2); border:1px solid var(--border); border-radius:24px; }") !== -1);
 
-check("điện thoại -> máy tính: chip model về lại #cpChips trước #effBtn",
+check("phone -> desktop: the model chip returns to #cpChips before #effBtn",
   mobile.indexOf('chipHost.insertBefore(mbOpen, document.getElementById("effBtn"))') !== -1
   && mobile.indexOf("mbPopHome.appendChild(mbPop)") !== -1);
-check("app.js không còn gọi thẳng #attachBtn", app.indexOf('document.getElementById("attachBtn").addEventListener') === -1);
-check("Sources lấy từ file đầu tiên có sources (file brain không có)",
+check("app.js no longer calls #attachBtn directly", app.indexOf('document.getElementById("attachBtn").addEventListener') === -1);
+check("Sources comes from the first file that has sources (brain files do not)",
   app.indexOf("(atts.find(a => a.sources) || {}).sources") !== -1);
-check("workspace khoá cả + và gửi khi phiên chưa sẵn", /\["plusBtn", "sendBtn"\]\.forEach/.test(ws));
+check("workspace locks both + and send while the session is not ready", /\["plusBtn", "sendBtn"\]\.forEach/.test(ws));
 const coding = fs.readFileSync(path.join(ROOT, "dashboard/coding.js"), "utf8");
-check("trang Coding vẫn chèn hàng chip ngữ cảnh vào #modelBar (hiện vì không còn rỗng)",
+check("the Coding page still inserts its context chip row into #modelBar (it shows because it is no longer empty)",
   coding.indexOf('getElementById("modelBar")') !== -1 && css.indexOf(".model-bar:empty { display: none; }") !== -1);
 
-if (fails.length) { console.log("\nFAIL - test_khung_go: " + fails.length + " lỗi"); process.exit(1); }
-console.log("\nOK - test_khung_go: tất cả pass");
+if (fails.length) { console.log("\nFAIL - test_khung_go: " + fails.length + " failures"); process.exit(1); }
+console.log("\nOK - test_khung_go: all pass");
 ```
 
-- [ ] **Step 2: Chạy, thấy hỏng**: `node tests/js/test_khung_go.js` -> FAIL (khung chưa đổi).
+- [ ] **Step 2: Run it and watch it fail**: `node tests/js/test_khung_go.js` -> FAIL (the box has not changed yet).
 
-- [ ] **Step 3: index.html**: thay toàn bộ từ dòng `<!-- Attachment chips -->` (trước `#attachBar`) tới thẻ đóng `</div>` của `#hudVoice` bằng:
+- [ ] **Step 3: index.html**: replace everything from the `<!-- Attachment chips -->` line (before `#attachBar`) to the closing `</div>` of `#hudVoice` with:
 
 ```html
-    <!-- Hàng chip riêng của trang Coding (coding.js chèn vào đây trên máy tính). Ở trang chủ rỗng
-         nên ẩn (.model-bar:empty). Chip model đã dời vào khung gõ từ 0.148.0. -->
+    <!-- The Coding page's own chip row (coding.js inserts into it on desktop). On the home page it is empty
+         so it is hidden (.model-bar:empty). The model chip moved into the composer box in 0.148.0. -->
     <div class="model-bar" id="modelBar"></div>
 
-    <!-- ===== Khung gõ: MỘT khung bo tròn kiểu Claude (0.148.0) =====
-         Trên: ảnh và file đính kèm. Giữa: ô gõ. Dưới: nút "+", chip model, chip mức suy nghĩ,
-         tia sét Fast mode, rồi mic và gửi. Popover mở lên trên khung. -->
+    <!-- ===== Composer: ONE Claude-style rounded box (0.148.0) =====
+         Top: attached images and files. Middle: the input. Bottom: the "+" button, model chip, thinking-level chip,
+         Fast mode lightning, then mic and send. Popovers open upward from the box. -->
     <div class="hud-voice" id="hudVoice">
       <button id="voiceFocusResume" class="voice-focus-resume" hidden></button>
       <div class="attach-bar" id="attachBar"></div>
       <input type="file" id="fileInput" multiple style="display:none">
       <input type="file" id="folderInput" webkitdirectory multiple style="display:none">
-      <textarea id="chatInput" class="voice-input" placeholder="Bạn muốn tôi làm điều gì?" data-i18n-ph="bar.input_ph" rows="1"></textarea>
+      <textarea id="chatInput" class="voice-input" placeholder="What would you like me to do?" data-i18n-ph="bar.input_ph" rows="1"></textarea>
       <div class="cp-row" id="cpRow">
         <button type="button" class="cp-plus" id="plusBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="plusMenu"
-                title="Thêm file, lệnh, kết nối" data-i18n-title="cp.plus" aria-label="Thêm file, lệnh, kết nối" data-i18n-aria="cp.plus">
+                title="Add files, commands, connections" data-i18n-title="cp.plus" aria-label="Add files, commands, connections" data-i18n-aria="cp.plus">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         </button>
         <div class="cp-chips" id="cpChips">
-          <button type="button" class="mb-chip" id="mbOpen" title="Đổi model / nhà cung cấp" data-i18n-title="mb.open">
+          <button type="button" class="mb-chip" id="mbOpen" title="Change model / provider" data-i18n-title="mb.open">
             <span class="mb-dot"></span>
             <span id="mbModelTxt">Model</span>
             <span class="mb-caret">▾</span>
           </button>
           <button type="button" class="cp-eff" id="effBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="effPop"
-                  title="Mức suy nghĩ" data-i18n-title="eff.title">
+                  title="Thinking level" data-i18n-title="eff.title">
             <span id="effTxt">Off</span><span class="mb-caret">▾</span>
           </button>
           <button type="button" class="cp-fast" id="fastBtn" aria-pressed="false" title="Fast mode" aria-label="Fast mode">
@@ -286,16 +286,16 @@ console.log("\nOK - test_khung_go: tất cả pass");
           </button>
         </div>
         <span class="cp-gap"></span>
-        <button type="button" class="mic-big" id="voiceBtn" title="Bấm để gọi Jarvis 007" data-i18n-title="bar.mic">
+        <button type="button" class="mic-big" id="voiceBtn" title="Click to call Jarvis 007" data-i18n-title="bar.mic">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
           </svg>
         </button>
-        <button type="button" class="stop-btn" id="stopBtn" title="Ngắt lệnh / dừng đọc (Esc)" data-i18n-title="bar.stop" style="display:none">
+        <button type="button" class="stop-btn" id="stopBtn" title="Interrupt command / stop reading (Esc)" data-i18n-title="bar.stop" style="display:none">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
         </button>
-        <button type="button" class="send-btn" id="sendBtn" aria-label="Gửi" data-i18n-aria="bar.send">
+        <button type="button" class="send-btn" id="sendBtn" aria-label="Send" data-i18n-aria="bar.send">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
         </button>
       </div>
@@ -305,16 +305,16 @@ console.log("\nOK - test_khung_go: tất cả pass");
     </div><!-- /hudVoice -->
 ```
 
-Lưu ý: nếu `bar.send` chưa có trong vi.json/en.json thì thêm (`"bar.send": "Gửi"` / `"Send"`). Thêm khoá `cp.plus` (`"Thêm file, lệnh, kết nối"` / `"Add files, commands, connections"`) và `eff.title` (`"Mức suy nghĩ"` / `"Effort"`) ở Task này; các khoá khác ở Task 3-5.
+Note: if `bar.send` is not yet in vi.json/en.json, add it (`"bar.send": "Gửi"` / `"Send"`; the vi value `Gửi` means "Send"). Add the key `cp.plus` (`"Thêm file, lệnh, kết nối"` / `"Add files, commands, connections"`) and `eff.title` (`"Mức suy nghĩ"` / `"Effort"`) in this task; the vi values are Vietnamese on purpose (they are the Vietnamese UI strings: "Add files, commands, connections" and "Thinking level"). The other keys come in Tasks 3-5.
 
-- [ ] **Step 4: style.css**: thay khối từ `.hud-voice {` (dòng ~1353) tới hết luật `.attach-btn:hover` (dòng ~1433) bằng:
+- [ ] **Step 4: style.css**: replace the block from `.hud-voice {` (line ~1353) through the end of the `.attach-btn:hover` rule (line ~1433) with:
 
 ```css
 .hud-voice {
   position: relative;
-  /* Một khung bo tròn kiểu Claude (0.148.0): ảnh đính kèm, ô gõ, hàng nút xếp dọc. Từng con tự
-     giãn hết bề ngang (align-self: stretch bên dưới); flex-end giữ các con không co về giữa khi
-     khung cao lên. */
+  /* One Claude-style rounded box (0.148.0): attached images, the input and the button row stack vertically. Each
+     child stretches to the full width (align-self: stretch below); flex-end keeps the children from shrinking
+     toward the middle when the box grows taller. */
   display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
   margin: 4px 16px 16px; padding: 10px 12px 8px;
   border: 1px solid var(--border); border-radius: 24px; background: var(--bg2);
@@ -343,7 +343,7 @@ Lưu ý: nếu `bar.send` chưa có trong vi.json/en.json thì thêm (`"bar.send
   color: var(--accent-ink); font-family: var(--font); font-weight: 600; cursor: pointer; white-space: nowrap;
 }
 .cp-eff:hover, .cp-eff[aria-expanded="true"] { border-color: var(--accent); }
-/* Tia sét Fast mode: tắt thì đứng yên, bật thì nền cam có dải sáng chạy ngang và tia sét đập nhẹ. */
+/* Fast mode lightning: still when off; when on, an orange background with a light band sweeping across and a gently pulsing bolt. */
 .cp-fast[aria-pressed="true"] {
   color: var(--on-accent); border-color: var(--accent);
   background: linear-gradient(110deg, var(--accent) 0%, var(--accent-ink) 25%, var(--accent) 50%, var(--accent-solid) 75%, var(--accent) 100%);
@@ -368,7 +368,7 @@ Lưu ý: nếu `bar.send` chưa có trong vi.json/en.json thì thêm (`"bar.send
 }
 @keyframes micpulse { 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); } }
 .mic-big.focus-waiting { animation: none; opacity: .65; }
-/* Hands-free: luôn nghe - vòng cam cố định */
+/* Hands-free: always listening - a fixed orange ring */
 .mic-big.handsfree {
   border-color: var(--accent); color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-line), 0 0 10px rgba(255,107,43,0.35);
@@ -382,9 +382,9 @@ Lưu ý: nếu `bar.send` chưa có trong vi.json/en.json thì thêm (`"bar.send
 .voice-input {
   flex: none; background: transparent; border: none; border-radius: 0;
   color: var(--text); font-size: 16px; padding: 6px 6px 8px; resize: none; outline: none;
-  /* max-height 45vh chỉ là lưới đỡ - chiều cao thật do app.js đặt theo scrollHeight
-     (nở theo chữ, xuống dòng là thấy toàn bộ văn bản). Trần cũ 90px từng chặn cứng
-     autosize ở ~3 dòng trên desktop dù JS đã tính đúng - chủ báo 27/08. */
+  /* max-height 45vh is only a safety net - the real height is set by app.js from scrollHeight
+     (it grows with the text, and a line break shows the whole text). The old 90px ceiling once
+     hard-capped autosize at ~3 lines on desktop even though the JS computed it correctly - the owner reported it on 27/08. */
   line-height: 1.4; max-height: 45vh; font-family: var(--font-chat);
 }
 .voice-input:focus { border-color: transparent; }
@@ -397,7 +397,7 @@ Lưu ý: nếu `bar.send` chưa có trong vi.json/en.json thì thêm (`"bar.send
 .send-btn:hover { opacity: 0.85; }
 .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ===== Mobile: cùng khung, chỉ thu khoảng đệm; chip model lên đầu trang (mobile-chat.js) ===== */
+/* ===== Mobile: same box, only the padding shrinks; the model chip moves to the top of the page (mobile-chat.js) ===== */
 @media (max-width: 860px) {
   .hud-voice {
     margin: 6px 10px 8px; padding: 8px 8px 6px; gap: 2px;
@@ -417,7 +417,7 @@ Lưu ý: nếu `bar.send` chưa có trong vi.json/en.json thì thêm (`"bar.send
 @keyframes stoppulse { 50% { box-shadow: 0 0 0 5px var(--danger-wash); } }
 ```
 
-Rồi trong khối `.mb-pop {` (~dòng 2122) đổi `left: 12px` thành `left: 8px` (popover giờ neo vào khung). Thêm sau khối `.mb-pop[hidden]`:
+Then in the `.mb-pop {` block (~line 2122) change `left: 12px` to `left: 8px` (the popover now anchors to the box). After the `.mb-pop[hidden]` block add:
 
 ```css
 .eff-pop, .cp-menu {
@@ -427,19 +427,19 @@ Rồi trong khối `.mb-pop {` (~dòng 2122) đổi `left: 12px` thành `left: 8
 .eff-pop[hidden], .cp-menu[hidden] { display: none; }
 ```
 
-- [ ] **Step 5: console.js**: dòng 7489 đổi thành
+- [ ] **Step 5: console.js**: change line 7489 to
 `  const CHAT_NODE_IDS = ["callBar", "chatArea", "bgStrip", "modelBar", "hudVoice"];`
-(thêm một dòng chú thích phía trên: `// attachBar nằm TRONG #hudVoice từ 0.148.0 nên không mượn riêng nữa.`). Dòng 7599 đổi `border-radius:18px;` thành `border-radius:24px;`.
+(add a comment line above it: `// attachBar sits INSIDE #hudVoice since 0.148.0 so it is no longer borrowed separately.`). Change `border-radius:18px;` to `border-radius:24px;` on line 7599.
 
-- [ ] **Step 6: mobile-chat.js**: sau `var modelBar = document.getElementById("modelBar");` thêm
+- [ ] **Step 6: mobile-chat.js**: after `var modelBar = document.getElementById("modelBar");` add
 
 ```js
-    // Từ 0.148.0 chip model sống trong hàng nút của khung gõ (#cpChips), bảng chọn (#mbPop) là con của khung.
+    // Since 0.148.0 the model chip lives in the composer's button row (#cpChips), and the picker panel (#mbPop) is a child of the box.
     var chipHost = document.getElementById("cpChips");
     var mbPopHome = mbPop ? mbPop.parentElement : null;
 ```
 
-và thay nhánh desktop
+and replace the desktop branch
 
 ```js
         if (mbOpen && modelBar && mbOpen.parentElement !== modelBar) {
@@ -448,7 +448,7 @@ và thay nhánh desktop
         }
 ```
 
-bằng
+with
 
 ```js
         if (mbOpen && chipHost && mbOpen.parentElement !== chipHost) {
@@ -457,34 +457,34 @@ bằng
         }
 ```
 
-- [ ] **Step 7: app.js**: dòng 3547 thay bằng (không chữ Việt):
+- [ ] **Step 7: app.js**: replace line 3547 with (no Vietnamese text):
 
 ```js
 const attachBtn = document.getElementById("attachBtn");
 if (attachBtn) attachBtn.addEventListener("click", () => fileInput.click());
 ```
 
-Dòng ~1604 `const src = atts[0].sources || "", attDir = atts[0].attachments || "";` thay bằng
+Replace line ~1604 `const src = atts[0].sources || "", attDir = atts[0].attachments || "";` with
 
 ```js
     const src = (atts.find(a => a.sources) || {}).sources || "", attDir = (atts.find(a => a.attachments) || {}).attachments || "";
 ```
 
-- [ ] **Step 8: workspace.js** trong `chatReady`, sau dòng `if (input) input.disabled = !value;` thêm
+- [ ] **Step 8: workspace.js** in `chatReady`, after the line `if (input) input.disabled = !value;` add
 
 ```js
     ["plusBtn", "sendBtn"].forEach(function (id) { var b = document.getElementById(id); if (b) b.disabled = !value; });
 ```
 
-- [ ] **Step 9: test_theme_tokens.py** dòng 51-58: đổi `18px` thành `24px` trong hai regex và hai câu mô tả (`"...bo góc bằng bản gốc (24px)"`, `"...vẫn là --bg2 + bo 24px"`); thêm chú thích `# 0.148.0: chủ repo duyệt khung gõ bo tròn hơn (18px -> 24px).`
+- [ ] **Step 9: test_theme_tokens.py** lines 51-58: change `18px` to `24px` in the two regexes and the two description sentences (`"...corner radius matches the original (24px)"`, `"...is still --bg2 + 24px radius"`); add the comment `# 0.148.0: the repo owner approved a rounder composer box (18px -> 24px).`
 
-- [ ] **Step 10: Bump cache-bust** trong index.html cho `style.css?v=`, `console.js?v=`, `mobile-chat.js?v=`, `app.js?v=`, `workspace.js?v=` (mỗi cái +1).
+- [ ] **Step 10: Bump the cache-buster** in index.html for `style.css?v=`, `console.js?v=`, `mobile-chat.js?v=`, `app.js?v=`, `workspace.js?v=` (+1 each).
 
-- [ ] **Step 11: Chạy test**
+- [ ] **Step 11: Run the tests**
 
 Run: `node tests/js/test_khung_go.js` -> OK.
-Run: `grep -rln "hudVoice\|hud-voice\|voiceBtn\|attachBtn\|modelBar\|CHAT_NODE_IDS\|chatpage-slot .hud-voice\|attach-bar" tests/` rồi chạy từng file trong danh sách (`node tests/js/<f>` hoặc python). Mọi file xanh, trừ `test_model_theo_phien.py` (đỏ sẵn trên máy này vì WinError 32).
-Run: `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/run.py --js` -> toàn bộ xanh.
+Run: `grep -rln "hudVoice\|hud-voice\|voiceBtn\|attachBtn\|modelBar\|CHAT_NODE_IDS\|chatpage-slot .hud-voice\|attach-bar" tests/` and then run each file in the list (`node tests/js/<f>` or python). Every file green, except `test_model_theo_phien.py` (already red on this machine because of WinError 32).
+Run: `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/run.py --js` -> everything green.
 
 - [ ] **Step 12: Commit**
 
@@ -495,24 +495,24 @@ git commit -m "Composer: one rounded card with attachments, input and a single c
 
 ---
 
-### Task 3: Chip mức suy nghĩ và thanh trượt cam
+### Task 3: Thinking-level chip and the orange slider
 
 **Files:**
 - Create: `dashboard/effort-slider.js`
-- Modify: `dashboard/model-picker.js` (bỏ `#mbEffortTxt` và `.mb-eff-row`; thêm chip `#effBtn`, popover `#effPop`; outside-click)
-- Modify: `dashboard/index.html` (thẻ `<script src="effort-slider.js?v=1"></script>` ngay TRƯỚC `model-picker.js`)
-- Modify: `dashboard/style.css` (luật `.eff-*`)
+- Modify: `dashboard/model-picker.js` (remove `#mbEffortTxt` and `.mb-eff-row`; add the `#effBtn` chip and the `#effPop` popover; outside-click)
+- Modify: `dashboard/index.html` (the tag `<script src="effort-slider.js?v=1"></script>` right BEFORE `model-picker.js`)
+- Modify: `dashboard/style.css` (`.eff-*` rules)
 - Modify: `dashboard/i18n/vi.json`, `en.json`
-- Test: `tests/js/test_thanh_truot_effort.js` (mới)
+- Test: `tests/js/test_thanh_truot_effort.js` (new)
 
 **Interfaces:**
-- Consumes: DOM từ Task 2 (`#effBtn`, `#effTxt`, `#effPop`).
-- Produces: `window.JavisEffortSlider = { LEVELS, levelFromRatio(r), ratioFromLevel(i), isLocked(provider, model), mount(el, {value, locked, onChange}) -> {set(v), destroy()} }`; node: `module.exports` cùng các hàm thuần. model-picker.js thêm `window.JavisModelBar.effortLabel()` trả nhãn đang hiện.
+- Consumes: the DOM from Task 2 (`#effBtn`, `#effTxt`, `#effPop`).
+- Produces: `window.JavisEffortSlider = { LEVELS, levelFromRatio(r), ratioFromLevel(i), isLocked(provider, model), mount(el, {value, locked, onChange}) -> {set(v), destroy()} }`; in node: `module.exports` with the same pure functions. model-picker.js adds `window.JavisModelBar.effortLabel()` returning the label currently shown.
 
-- [ ] **Step 1: Test hỏng** `tests/js/test_thanh_truot_effort.js`
+- [ ] **Step 1: Failing test** `tests/js/test_thanh_truot_effort.js`
 
 ```js
-/* Thanh trượt mức suy nghĩ (0.148.0): 6 nấc, nhãn tiếng Anh, model gắn sẵn mức thì khoá.
+/* Thinking-level slider (0.148.0): 6 steps, English labels, a model with a built-in level is locked.
 
        node tests/js/test_thanh_truot_effort.js
 */
@@ -525,35 +525,35 @@ const vi = require("../../dashboard/i18n/vi.json"), en = require("../../dashboar
 let fails = [];
 function check(name, cond) { console.log((cond ? "ok   " : "FAIL ") + name); if (!cond) fails.push(name); }
 
-check("6 nấc đúng thứ tự giá trị server", JSON.stringify(S.LEVELS) === JSON.stringify(["off", "low", "medium", "high", "xhigh", "ultra"]));
-check("vị trí 0 -> off, 1 -> ultra", S.levelFromRatio(0) === "off" && S.levelFromRatio(1) === "ultra");
-check("vị trí giữa làm tròn về nấc gần nhất", S.levelFromRatio(0.41) === "medium" && S.levelFromRatio(0.49) === "medium");
-check("vị trí ngoài thanh bị kẹp", S.levelFromRatio(-3) === "off" && S.levelFromRatio(9) === "ultra");
-check("ratioFromLevel ngược lại", S.ratioFromLevel("medium") === 0.4 && S.ratioFromLevel("lạ") === 0);
-check("Antigravity tên đuôi -high là model khoá mức", S.isLocked("antigravity-cli", "gemini-3.8-flash-high") === true);
-check("Antigravity không đuôi mức thì không khoá", S.isLocked("antigravity-cli", "claude-sonnet-4-6") === false);
-check("nhà khác không bao giờ khoá", S.isLocked("openai-oauth", "gpt-6.1-sol-high") === false);
+check("6 steps in the server's value order", JSON.stringify(S.LEVELS) === JSON.stringify(["off", "low", "medium", "high", "xhigh", "ultra"]));
+check("position 0 -> off, 1 -> ultra", S.levelFromRatio(0) === "off" && S.levelFromRatio(1) === "ultra");
+check("a middle position rounds to the nearest step", S.levelFromRatio(0.41) === "medium" && S.levelFromRatio(0.49) === "medium");
+check("a position outside the bar is clamped", S.levelFromRatio(-3) === "off" && S.levelFromRatio(9) === "ultra");
+check("ratioFromLevel is the inverse", S.ratioFromLevel("medium") === 0.4 && S.ratioFromLevel("unknown") === 0);
+check("an Antigravity model with a -high suffix is a level-locked model", S.isLocked("antigravity-cli", "gemini-3.8-flash-high") === true);
+check("an Antigravity model without a level suffix is not locked", S.isLocked("antigravity-cli", "claude-sonnet-4-6") === false);
+check("other providers are never locked", S.isLocked("openai-oauth", "gpt-6.1-sol-high") === false);
 const labels = { off: "Off", low: "Light", medium: "Medium", high: "High", xhigh: "Extra", ultra: "Ultra" };
-Object.keys(labels).forEach(k => check("nhãn " + k + " = " + labels[k] + " ở cả vi và en", vi["eff." + k] === labels[k] && en["eff." + k] === labels[k]));
-check("model-picker.js giữ đủ 6 chữ giá trị có ngoặc kép", ["off", "low", "medium", "high", "xhigh", "ultra"].every(v => picker.indexOf('"' + v + '"') !== -1));
-check("chip model không còn chữ 'Effort:'", picker.indexOf('"Effort: "') === -1 && picker.indexOf("mb-eff-row") === -1);
-check("bấm ra ngoài: bảng model đóng cả khi bấm trong hàng nút (+, mic, gửi)", picker.indexOf('e.target.closest("#modelBar")') === -1);
+Object.keys(labels).forEach(k => check("label " + k + " = " + labels[k] + " in both vi and en", vi["eff." + k] === labels[k] && en["eff." + k] === labels[k]));
+check("model-picker.js keeps all 6 quoted value strings", ["off", "low", "medium", "high", "xhigh", "ultra"].every(v => picker.indexOf('"' + v + '"') !== -1));
+check("the model chip no longer has the text 'Effort:'", picker.indexOf('"Effort: "') === -1 && picker.indexOf("mb-eff-row") === -1);
+check("click outside: the model panel closes even when clicking in the button row (+, mic, send)", picker.indexOf('e.target.closest("#modelBar")') === -1);
 const srcSlider = fs.readFileSync(path.join(ROOT, "dashboard/effort-slider.js"), "utf8");
-check("thanh trượt có role=slider và phím mũi tên", srcSlider.indexOf('"slider"') !== -1 && srcSlider.indexOf("ArrowRight") !== -1);
-check("tôn trọng giảm chuyển động", srcSlider.indexOf("prefers-reduced-motion") !== -1);
-check("không chữ Việt trong effort-slider.js", !/[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i.test(srcSlider.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "")));
+check("the slider has role=slider and arrow keys", srcSlider.indexOf('"slider"') !== -1 && srcSlider.indexOf("ArrowRight") !== -1);
+check("respects reduced motion", srcSlider.indexOf("prefers-reduced-motion") !== -1);
+check("no Vietnamese text in effort-slider.js", !/[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i.test(srcSlider.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "")));
 
-if (fails.length) { console.log("\nFAIL - test_thanh_truot_effort: " + fails.length + " lỗi"); process.exit(1); }
-console.log("\nOK - test_thanh_truot_effort: tất cả pass");
+if (fails.length) { console.log("\nFAIL - test_thanh_truot_effort: " + fails.length + " failures"); process.exit(1); }
+console.log("\nOK - test_thanh_truot_effort: all pass");
 ```
 
-- [ ] **Step 2: Chạy, thấy hỏng**: `node tests/js/test_thanh_truot_effort.js` -> lỗi require (file chưa có).
+- [ ] **Step 2: Run it and watch it fail**: `node tests/js/test_thanh_truot_effort.js` -> require error (the file does not exist yet).
 
-- [ ] **Step 3: Tạo `dashboard/effort-slider.js`**
+- [ ] **Step 3: Create `dashboard/effort-slider.js`**
 
 ```js
-/* effort-slider.js - thanh trượt mức suy nghĩ ở khung gõ (0.148.0).
- * Phần thuần (nấc, vị trí, khoá) test bằng node; phần vẽ (canvas hạt cam) chỉ chạy trong trình duyệt.
+/* effort-slider.js - the thinking-level slider in the composer (0.148.0).
+ * The pure parts (steps, position, lock) are tested with node; the drawing part (the orange particle canvas) only runs in the browser.
  */
 (function () {
   "use strict";
@@ -563,7 +563,7 @@ console.log("\nOK - test_thanh_truot_effort: tất cả pass");
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
   function levelFromRatio(r) { return LEVELS[clamp(Math.round(clamp(Number(r) || 0, 0, 1) * 5), 0, 5)]; }
   function ratioFromLevel(v) { var i = LEVELS.indexOf(v); return i < 0 ? 0 : i / 5; }
-  // Model Antigravity mang sẵn mức trong tên (agy từ chối nhận thêm --effort): thanh trượt khoá.
+  // An Antigravity model carries its level in its name (agy refuses an extra --effort): the slider is locked.
   function isLocked(provider, model) { return provider === "antigravity-cli" && LOCKED_SUFFIX.test(String(model || "")); }
 
   var api = { LEVELS: LEVELS, levelFromRatio: levelFromRatio, ratioFromLevel: ratioFromLevel, isLocked: isLocked };
@@ -672,18 +672,18 @@ console.log("\nOK - test_thanh_truot_effort: tất cả pass");
 ```
 
 - [ ] **Step 4: model-picker.js**:
-  1. Trong `renderBar()` thay dòng `if (et) et.textContent = "Effort: " + ...` và biến `et` bằng:
+  1. In `renderBar()` replace the line `if (et) et.textContent = "Effort: " + ...` and the variable `et` with:
 
 ```js
     const eb = $("effTxt");
     if (eb) eb.textContent = window.t("eff." + (EFFORT.find((e) => e[0] === state.reasoning) || EFFORT[0])[0]);
 ```
-   (giữ mảng `EFFORT` và các chữ `"off"`..`"ultra"`; xoá `$("mbEffortTxt")`).
-  2. Trong `renderPop()` xoá ba dòng nối `html += \`<div class="mb-eff-row">...` và chú thích "Ở đây chỉ nối thêm hàng Effort".
-  3. Thêm sau hàm `isOpen()`:
+   (keep the `EFFORT` array and the `"off"`..`"ultra"` strings; delete `$("mbEffortTxt")`).
+  2. In `renderPop()` delete the three lines that append `html += \`<div class="mb-eff-row">...` and the comment "Only the Effort row is appended here" (the original comment is in Vietnamese).
+  3. Add after the `isOpen()` function:
 
 ```js
-  // Chip mức suy nghĩ (0.148.0): tách khỏi bảng chọn model, mở một khung nhỏ có thanh trượt.
+  // Thinking-level chip (0.148.0): split off from the model picker panel, opens a small box with a slider.
   let effSlider = null;
   function effOpen() {
     const pop = $("effPop"), btn = $("effBtn");
@@ -710,8 +710,8 @@ console.log("\nOK - test_thanh_truot_effort: tất cả pass");
   function closePlus() { try { if (window.JavisComposerMenu) window.JavisComposerMenu.close(); } catch (e) {} }
 ```
 
-  4. Trong `open()` (bảng model) thêm `effClose(); closePlus();` ngay đầu hàm.
-  5. Trong listener `click` của document: thay hai dòng đầu bằng
+  4. In `open()` (the model panel) add `effClose(); closePlus();` at the very start of the function.
+  5. In the document `click` listener: replace the first two lines with
 
 ```js
     if (e.target.closest("#mbOpen")) { isOpen() ? close() : open(); return; }
@@ -719,12 +719,12 @@ console.log("\nOK - test_thanh_truot_effort: tất cả pass");
     if (!e.target.closest("#effPop") && effIsOpen()) effClose();
     if (!e.target.closest("#mbPop") && !e.target.closest("#mbOpen")) { if (isOpen()) close(); return; }
 ```
-   và xoá khối `const eff = e.target.closest(".mb-eff-btn"); if (eff) {...}`.
-  6. Listener Escape: `if (e.key === "Escape") { if (isOpen()) close(); if (effIsOpen()) { effClose(); const b = $("effBtn"); if (b) b.focus(); } }`.
-  7. Trong `window.JavisModelBar` thêm `effortLabel: function () { return window.t("eff." + state.reasoning); },`.
-  8. Sau `chonModel` gọi `renderBar()` như cũ (chip mức đổi theo); nếu `effIsOpen()` thì `effClose(); effOpen();` để thanh trượt cập nhật khoá theo model mới.
+   and delete the block `const eff = e.target.closest(".mb-eff-btn"); if (eff) {...}`.
+  6. Escape listener: `if (e.key === "Escape") { if (isOpen()) close(); if (effIsOpen()) { effClose(); const b = $("effBtn"); if (b) b.focus(); } }`.
+  7. In `window.JavisModelBar` add `effortLabel: function () { return window.t("eff." + state.reasoning); },`.
+  8. After `chonModel`, call `renderBar()` as before (the level chip changes with it); if `effIsOpen()` then `effClose(); effOpen();` so the slider updates its lock for the new model.
 
-- [ ] **Step 5: style.css** thêm sau luật `.eff-pop[hidden]`:
+- [ ] **Step 5: style.css** add after the `.eff-pop[hidden]` rule:
 
 ```css
 .eff-pop { padding: 14px 16px; width: min(330px, calc(100vw - 32px)); }
@@ -743,14 +743,14 @@ console.log("\nOK - test_thanh_truot_effort: tất cả pass");
 @media (prefers-reduced-motion: reduce) { .eff-thumb { transition: none; } }
 ```
 
-(Nếu `--shadow-1` không tồn tại trong style.css thì dùng `0 1px 3px rgba(0,0,0,.25)`; kiểm bằng `grep -n "\-\-shadow-1" dashboard/style.css`.)
+(If `--shadow-1` does not exist in style.css, use `0 1px 3px rgba(0,0,0,.25)`; check with `grep -n "\-\-shadow-1" dashboard/style.css`.)
 
-- [ ] **Step 6: i18n** thêm vào vi.json và en.json (cùng chữ tiếng Anh cho nhãn):
-`eff.off` Off, `eff.low` Light, `eff.medium` Medium, `eff.high` High, `eff.xhigh` Extra, `eff.ultra` Ultra, `eff.head` Effort, `eff.faster` Faster, `eff.smarter` Smarter, `eff.recommended` Recommended, `eff.ultra_hint` "max effort"; `eff.locked`: vi "Model này đã gắn sẵn mức suy nghĩ trong tên. Đổi model để đổi mức.", en "This model has its effort built into its name. Pick another model to change it."
+- [ ] **Step 6: i18n** add to vi.json and en.json (the same English text for the labels):
+`eff.off` Off, `eff.low` Light, `eff.medium` Medium, `eff.high` High, `eff.xhigh` Extra, `eff.ultra` Ultra, `eff.head` Effort, `eff.faster` Faster, `eff.smarter` Smarter, `eff.recommended` Recommended, `eff.ultra_hint` "max effort"; `eff.locked`: vi "Model này đã gắn sẵn mức suy nghĩ trong tên. Đổi model để đổi mức." (Vietnamese on purpose, it is the vi.json value), en "This model has its effort built into its name. Pick another model to change it."
 
-- [ ] **Step 7: index.html**: thêm `<script src="effort-slider.js?v=1"></script>` ngay trước dòng `model-picker.js`; bump `model-picker.js?v=` và `style.css?v=`.
+- [ ] **Step 7: index.html**: add `<script src="effort-slider.js?v=1"></script>` right before the `model-picker.js` line; bump `model-picker.js?v=` and `style.css?v=`.
 
-- [ ] **Step 8: Chạy test**: `node tests/js/test_thanh_truot_effort.js` -> OK; `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/python/test_do_sau_suy_nghi.py`, `test_mobile_layout.py`, `node tests/js/test_i18n.mjs`, `node tests/js/test_studio_chon_model_agent.js` -> xanh.
+- [ ] **Step 8: Run the tests**: `node tests/js/test_thanh_truot_effort.js` -> OK; `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/python/test_do_sau_suy_nghi.py`, `test_mobile_layout.py`, `node tests/js/test_i18n.mjs`, `node tests/js/test_studio_chon_model_agent.js` -> green.
 
 - [ ] **Step 9: Commit**
 
@@ -761,21 +761,21 @@ git commit -m "Composer: separate effort chip with an orange sparkle slider (Off
 
 ---
 
-### Task 4: Tia sét Fast mode (lưu trạng thái, tooltip theo bộ não)
+### Task 4: Fast mode lightning button (saved state, tooltip per brain)
 
 **Files:**
 - Modify: `dashboard/model-picker.js`
 - Modify: `dashboard/i18n/vi.json`, `en.json`
-- Test: `tests/js/test_tia_set_fast.js` (mới)
+- Test: `tests/js/test_tia_set_fast.js` (new)
 
 **Interfaces:**
 - Consumes: `settings.model.fast` (Task 1), `#fastBtn` (Task 2).
-- Produces: `window.JavisModelBar.fastNote(provider, model)` -> `{supported: bool, note: "i18n.key"}` (hàm thuần, cũng xuất cho node qua `window.JavisFast` không cần; test đọc bằng vm). Hằng `FAST_NOTE` trong model-picker.js.
+- Produces: `window.JavisModelBar.fastNote(provider, model)` -> `{supported: bool, note: "i18n.key"}` (a pure function; it does not need exporting to node through `window.JavisFast`, the test reads it with vm). The `FAST_NOTE` constant in model-picker.js.
 
-- [ ] **Step 1: Test hỏng** `tests/js/test_tia_set_fast.js`
+- [ ] **Step 1: Failing test** `tests/js/test_tia_set_fast.js`
 
 ```js
-/* Tia sét Fast mode (0.148.0): tooltip theo bộ não, nút mờ khi bộ não không có, lưu settings.model.fast.
+/* Fast mode lightning (0.148.0): tooltip per brain, the button is dimmed when the brain has none, saves settings.model.fast.
 
        node tests/js/test_tia_set_fast.js
 */
@@ -788,7 +788,7 @@ let fails = [];
 function check(name, cond) { console.log((cond ? "ok   " : "FAIL ") + name); if (!cond) fails.push(name); }
 
 const m = src.match(/\/\/ FAST_NOTE_BEGIN[\s\S]*?\/\/ FAST_NOTE_END/);
-check("có khối FAST_NOTE tách được để test", !!m);
+check("there is a FAST_NOTE block that can be extracted for testing", !!m);
 const fastNote = new Function(m[0] + "\nreturn fastNote;")();
 const cases = [
   ["anthropic-cli", "", true, "fast.claude"], ["anthropic-cli", "claude-opus-5-5", true, "fast.claude"],
@@ -800,26 +800,26 @@ const cases = [
 ];
 cases.forEach(([p, mo, sup, note]) => {
   const r = fastNote(p, mo);
-  check(p + " " + (mo || "(mặc định)") + " -> " + (sup ? "có" : "không") + ", " + note, r.supported === sup && r.note === note);
+  check(p + " " + (mo || "(default)") + " -> " + (sup ? "supported" : "not supported") + ", " + note, r.supported === sup && r.note === note);
 });
 ["fast.claude", "fast.codex", "fast.api", "fast.none", "fast.model_none"].forEach(k =>
-  check("khoá " + k + " có ở vi và en", !!vi[k] && !!en[k]));
-check("tooltip mở đầu bằng 'Fast mode', không có chữ bật/tắt hiện trên trang", src.indexOf('"Fast mode\\n" + window.t(') !== -1);
-check("bấm tia sét lưu settings.model.fast", src.indexOf("saveModel({ fast: state.fast })") !== -1);
-check("nút mờ dùng aria-disabled, không disabled", src.indexOf('setAttribute("aria-disabled"') !== -1 && src.indexOf("fb.disabled") === -1);
+  check("key " + k + " exists in vi and en", !!vi[k] && !!en[k]));
+check("the tooltip starts with 'Fast mode', with no on/off text shown on the page", src.indexOf('"Fast mode\\n" + window.t(') !== -1);
+check("clicking the lightning saves settings.model.fast", src.indexOf("saveModel({ fast: state.fast })") !== -1);
+check("the dimmed button uses aria-disabled, not disabled", src.indexOf('setAttribute("aria-disabled"') !== -1 && src.indexOf("fb.disabled") === -1);
 
-if (fails.length) { console.log("\nFAIL - test_tia_set_fast: " + fails.length + " lỗi"); process.exit(1); }
-console.log("\nOK - test_tia_set_fast: tất cả pass");
+if (fails.length) { console.log("\nFAIL - test_tia_set_fast: " + fails.length + " failures"); process.exit(1); }
+console.log("\nOK - test_tia_set_fast: all pass");
 ```
 
-- [ ] **Step 2: Chạy, thấy hỏng**: `node tests/js/test_tia_set_fast.js` -> FAIL "có khối FAST_NOTE".
+- [ ] **Step 2: Run it and watch it fail**: `node tests/js/test_tia_set_fast.js` -> FAIL "there is a FAST_NOTE block".
 
-- [ ] **Step 3: model-picker.js**: thêm sau khai báo `EFFORT`:
+- [ ] **Step 3: model-picker.js**: add after the `EFFORT` declaration:
 
 ```js
   // FAST_NOTE_BEGIN
-  // Fast mode theo bộ não (nghiên cứu 15/10/2026, xem docs/superpowers/specs/2026-10-15-composer-plus-fast-mode-design.md).
-  // Claude chỉ Opus 5.5, Opus 5, Opus 4.8; model rỗng = mặc định của Claude Code (Opus) nên coi là có.
+  // Fast mode per brain (research of 15/10/2026, see docs/superpowers/specs/2026-10-15-composer-plus-fast-mode-design.md).
+  // Claude only Opus 5.5, Opus 5, Opus 4.8; an empty model = the Claude Code default (Opus), so it counts as supported.
   function fastNote(provider, model) {
     const m = String(model || "").toLowerCase();
     const opusOk = !m || /opus-(5-5|5|4-8)(?![0-9])/.test(m);
@@ -832,7 +832,7 @@ console.log("\nOK - test_tia_set_fast: tất cả pass");
   // FAST_NOTE_END
 ```
 
-Trong `state` thêm `fast: false`; trong `loadState()` thêm `state.fast = m.fast === true;`. Thêm hàm và gọi nó cuối `renderBar()`:
+In `state` add `fast: false`; in `loadState()` add `state.fast = m.fast === true;`. Add the function and call it at the end of `renderBar()`:
 
 ```js
   function renderFast() {
@@ -846,7 +846,7 @@ Trong `state` thêm `fast: false`; trong `loadState()` thêm `state.fast = m.fas
   }
 ```
 
-Trong listener `click`, ngay sau dòng xử lý `#effBtn`:
+In the `click` listener, right after the line that handles `#effBtn`:
 
 ```js
     if (e.target.closest("#fastBtn")) {
@@ -859,16 +859,16 @@ Trong listener `click`, ngay sau dòng xử lý `#effBtn`:
     }
 ```
 
-Trong `window.JavisModelBar` thêm `fastNote: fastNote,`.
+In `window.JavisModelBar` add `fastNote: fastNote,`.
 
-- [ ] **Step 4: i18n** (vi / en):
+- [ ] **Step 4: i18n** (vi / en; the vi values are Vietnamese on purpose, they are the Vietnamese UI strings):
   - `fast.claude`: "Tính vào usage credits, giá gấp đôi, không trừ hạn mức gói." / "Billed to usage credits at twice the price, not to your plan limits."
   - `fast.codex`: "Tiêu hạn mức gói nhanh gấp 2,5 lần." / "Uses your plan limits 2.5 times faster."
   - `fast.api`: "Giá token cao hơn, khoảng gấp đôi." / "Higher token price, about twice the standard rate."
   - `fast.none`: "Bộ não này không có Fast mode." / "This brain has no Fast mode."
   - `fast.model_none`: "Model này không có Fast mode, chỉ Opus 5.5, Opus 5 và Opus 4.8." / "This model has no Fast mode; only Opus 5.5, Opus 5 and Opus 4.8 do."
 
-- [ ] **Step 5: Chạy test**: `node tests/js/test_tia_set_fast.js` -> OK; `node tests/js/test_i18n.mjs` -> xanh.
+- [ ] **Step 5: Run the tests**: `node tests/js/test_tia_set_fast.js` -> OK; `node tests/js/test_i18n.mjs` -> green.
 
 - [ ] **Step 6: Commit**
 
@@ -879,24 +879,24 @@ git commit -m "Composer: Fast mode bolt saves settings.model.fast, tooltip per b
 
 ---
 
-### Task 5: Menu "+" mở rộng được (6 mục, Ctrl+U, thư mục, file trong brain)
+### Task 5: Expandable "+" menu (6 items, Ctrl+U, folders, files in the brain)
 
 **Files:**
 - Create: `dashboard/composer-plus.js`
-- Modify: `dashboard/app.js` (lộ `window.JavisAttach`, sau listener `fileInput` ~dòng 3550)
-- Modify: `dashboard/index.html` (`<script src="composer-plus.js?v=1"></script>` sau `model-picker.js`)
-- Modify: `dashboard/style.css` (luật `.cp-menu*`)
+- Modify: `dashboard/app.js` (expose `window.JavisAttach`, after the `fileInput` listener ~line 3550)
+- Modify: `dashboard/index.html` (`<script src="composer-plus.js?v=1"></script>` after `model-picker.js`)
+- Modify: `dashboard/style.css` (`.cp-menu*` rules)
 - Modify: `dashboard/i18n/vi.json`, `en.json`
-- Test: `tests/js/test_menu_cong.js` (mới)
+- Test: `tests/js/test_menu_cong.js` (new)
 
 **Interfaces:**
 - Consumes: `#plusBtn`, `#plusMenu`, `#folderInput`, `#chatInput` (Task 2); `GET /files/search`, `GET /files/resolve` (Task 1); `GET /connect/catalog`, `GET /connect/health`, `GET /agents`, `GET /workflows`.
 - Produces: `window.JavisComposerMenu = { register(item), list(), open(), close(), isOpen() }`, item = `{ id, order, icon (svg string), label (i18n key), hint?: () => string, run?: (ctx) => void, submenu?: (ctx) => Promise<Array<{label, hint?, dot?: "ok"|"bad"|"unknown", run}>> }`. Node: `module.exports = { createRegistry, pickFolderFiles, runQueue, MAX_FOLDER_FILES }`. app.js: `window.JavisAttach = { pick(), upload(file) -> Promise, addBrainFile({name, path, size, kind}), note(text) }`.
 
-- [ ] **Step 1: Test hỏng** `tests/js/test_menu_cong.js`
+- [ ] **Step 1: Failing test** `tests/js/test_menu_cong.js`
 
 ```js
-/* Menu "+" của khung gõ (0.148.0): sổ đăng ký, lọc thư mục, hàng đợi tải lên.
+/* The composer's "+" menu (0.148.0): registry, folder filtering, upload queue.
 
        node tests/js/test_menu_cong.js
 */
@@ -914,45 +914,45 @@ const reg = P.createRegistry();
 reg.register({ id: "b", order: 20, label: "x.b" });
 reg.register({ id: "a", order: 10, label: "x.a" });
 reg.register({ id: "b", order: 5, label: "x.b2" });
-check("sổ đăng ký xếp theo order, đăng ký lại cùng id thì thay", reg.list().map(i => i.id + ":" + i.label).join(",") === "b:x.b2,a:x.a");
+check("the registry sorts by order, and registering the same id again replaces it", reg.list().map(i => i.id + ":" + i.label).join(",") === "b:x.b2,a:x.a");
 
 const f = (rel) => ({ name: rel.split("/").pop(), webkitRelativePath: rel });
 let r = P.pickFolderFiles([f("du-an/a.md"), f("du-an/.env"), f("du-an/.git/config"), f("du-an/node_modules/x/i.js"), f("du-an/con/b.csv")]);
-check("thư mục: bỏ file ẩn, .git, node_modules", r.files.map(x => x.name).join(",") === "a.md,b.csv" && r.skipped === 3 && r.over === 0);
+check("folder: skips hidden files, .git, node_modules", r.files.map(x => x.name).join(",") === "a.md,b.csv" && r.skipped === 3 && r.over === 0);
 const many = []; for (let i = 0; i < 61; i++) many.push(f("d/" + i + ".txt"));
 r = P.pickFolderFiles(many);
-check("thư mục: trần " + P.MAX_FOLDER_FILES + " file, báo số dư", r.files.length === P.MAX_FOLDER_FILES && r.over === 11);
+check("folder: cap of " + P.MAX_FOLDER_FILES + " files, reports the overflow", r.files.length === P.MAX_FOLDER_FILES && r.over === 11);
 r = P.pickFolderFiles([f("d/.DS_Store")]);
-check("thư mục toàn file ẩn: không còn file nào", r.files.length === 0 && r.skipped === 1);
+check("a folder of only hidden files: no files left", r.files.length === 0 && r.skipped === 1);
 
 (async () => {
-  let dang = 0, max = 0, xong = [];
+  let running = 0, max = 0, done = [];
   await P.runQueue([1, 2, 3, 4, 5, 6, 7, 8, 9], async (x) => {
-    dang++; max = Math.max(max, dang); await new Promise(res => setTimeout(res, 5)); dang--; xong.push(x);
-    if (x === 3) throw new Error("hỏng");
+    running++; max = Math.max(max, running); await new Promise(res => setTimeout(res, 5)); running--; done.push(x);
+    if (x === 3) throw new Error("broken");
   }, 4);
-  check("hàng đợi: tối đa 4 file cùng lúc, file hỏng không chặn file sau", max === 4 && xong.length === 9);
+  check("queue: at most 4 files at once, a failed file does not block the next ones", max === 4 && done.length === 9);
 
   ["attach", "folder", "brain_file", "commands", "connections", "partners"].forEach(id =>
-    check("mục mặc định có id " + id, src.indexOf('id: "' + id + '"') !== -1));
-  check("Ctrl+U chặn mặc định của trình duyệt (xem mã nguồn)", /key === "u"[\s\S]{0,200}preventDefault/.test(src));
-  check("mục lệnh mở menu / bằng sự kiện input", src.indexOf('new Event("input"') !== -1);
-  check("gọi trợ lý chèn đúng token của menu /", src.indexOf('"/agent-" + ') !== -1 && src.indexOf('"/workflow-" + ') !== -1);
-  check("app.js lộ JavisAttach (pick, upload, addBrainFile, note)", /window\.JavisAttach = \{[\s\S]*pick[\s\S]*upload[\s\S]*addBrainFile[\s\S]*note/.test(app));
-  check("composer-plus.js nạp sau model-picker.js", html.indexOf("model-picker.js") < html.indexOf("composer-plus.js"));
-  check("không chữ Việt trong mã chạy của composer-plus.js",
+    check("default item has id " + id, src.indexOf('id: "' + id + '"') !== -1));
+  check("Ctrl+U blocks the browser default (view source)", /key === "u"[\s\S]{0,200}preventDefault/.test(src));
+  check("the commands item opens the / menu through an input event", src.indexOf('new Event("input"') !== -1);
+  check("calling an assistant inserts the right token of the / menu", src.indexOf('"/agent-" + ') !== -1 && src.indexOf('"/workflow-" + ') !== -1);
+  check("app.js exposes JavisAttach (pick, upload, addBrainFile, note)", /window\.JavisAttach = \{[\s\S]*pick[\s\S]*upload[\s\S]*addBrainFile[\s\S]*note/.test(app));
+  check("composer-plus.js loads after model-picker.js", html.indexOf("model-picker.js") < html.indexOf("composer-plus.js"));
+  check("no Vietnamese text in the running code of composer-plus.js",
     !/[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i.test(src.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "")));
-  if (fails.length) { console.log("\nFAIL - test_menu_cong: " + fails.length + " lỗi"); process.exit(1); }
-  console.log("\nOK - test_menu_cong: tất cả pass");
+  if (fails.length) { console.log("\nFAIL - test_menu_cong: " + fails.length + " failures"); process.exit(1); }
+  console.log("\nOK - test_menu_cong: all pass");
 })();
 ```
 
-- [ ] **Step 2: Chạy, thấy hỏng**: `node tests/js/test_menu_cong.js` -> lỗi require.
+- [ ] **Step 2: Run it and watch it fail**: `node tests/js/test_menu_cong.js` -> require error.
 
-- [ ] **Step 3: app.js**: ngay sau khối `fileInput.addEventListener("change", ...)` thêm (không chữ Việt trong mã chạy):
+- [ ] **Step 3: app.js**: right after the `fileInput.addEventListener("change", ...)` block add (no Vietnamese text in running code):
 
 ```js
-// Menu "+" của khung gõ (composer-plus.js, 0.148.0) dùng chung đường tải lên và danh sách đính kèm.
+// The composer's "+" menu (composer-plus.js, 0.148.0) shares the upload path and the attachment list.
 window.JavisAttach = {
   pick: () => fileInput.click(),
   upload: (f) => uploadFile(f),
@@ -966,12 +966,12 @@ window.JavisAttach = {
 };
 ```
 
-- [ ] **Step 4: Tạo `dashboard/composer-plus.js`**
+- [ ] **Step 4: Create `dashboard/composer-plus.js`**
 
 ```js
-/* composer-plus.js - menu "+" của khung gõ (0.148.0).
- * Một sổ đăng ký: tính năng mới chỉ cần JavisComposerMenu.register({...}), không sửa khung gõ.
- * Phần thuần (sổ, lọc thư mục, hàng đợi) test bằng node.
+/* composer-plus.js - the composer's "+" menu (0.148.0).
+ * One registry: a new feature only needs JavisComposerMenu.register({...}), with no change to the composer.
+ * The pure parts (registry, folder filter, queue) are tested with node.
  */
 (function () {
   "use strict";
@@ -1036,7 +1036,7 @@ window.JavisAttach = {
     el.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
-  // ---- khung menu ----
+  // ---- menu box ----
   var menu = null, btn = null, view = [], active = 0;
   function isOpen() { return !!menu && !menu.hidden; }
   function close() {
@@ -1088,7 +1088,7 @@ window.JavisAttach = {
     if (run) { close(); run(); }
   }
 
-  // ---- mục mặc định ----
+  // ---- default items ----
   var ICON = {
     clip: '<svg class="cp-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>',
     folder: '<svg class="cp-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
@@ -1140,7 +1140,7 @@ window.JavisAttach = {
 
   function goPage(id) { try { window.Alpine.store("nav").go(id); } catch (e) { location.hash = "#" + id; } }
 
-  // ---- chọn file trong brain: ô tìm ngay trong menu ----
+  // ---- pick a file in the brain: a search box right in the menu ----
   var brainSeq = 0;
   function brainSearchRows(q) {
     setTimeout(function () { mountBrainSearch(q); }, 0);
@@ -1180,7 +1180,7 @@ window.JavisAttach = {
     if (q) search();
   }
 
-  // ---- thư mục ----
+  // ---- folder ----
   function onFolder(e) {
     var r = pickFolderFiles(e.target.files);
     e.target.value = "";
@@ -1193,7 +1193,7 @@ window.JavisAttach = {
     if (r.files.length && window.JavisAttach) runQueue(r.files, function (f) { return window.JavisAttach.upload(f); }, UPLOAD_PARALLEL);
   }
 
-  // ---- gắn sự kiện ----
+  // ---- wire up events ----
   function init() {
     menu = $("plusMenu"); btn = $("plusBtn");
     if (!menu || !btn) return;
@@ -1222,7 +1222,7 @@ window.JavisAttach = {
         if (window.JavisAttach) window.JavisAttach.pick();
       }
     });
-    // Đếm kết nối cần làm lại cho dòng "Kết nối" (đọc lúc mở trang, không quấy máy chủ).
+    // Count the connections that need redoing for the "Connections" row (read when the page opens, so it does not bother the server).
     getJson("/connect/health").then(function (d) {
       var h = (d && d.health) || {};
       badConn = Object.keys(h).filter(function (k) { return h[k] && h[k].ok === false; }).length;
@@ -1234,9 +1234,9 @@ window.JavisAttach = {
 })();
 ```
 
-(Kiểm hình dạng trả về của `GET /agents` và `GET /workflows` bằng `grep -n '@app.get("/agents")' -A30 server/main.py` và tương tự cho `/workflows`; nếu khoá danh sách khác `agents`/`workflows` thì sửa hai dòng `res[0].agents`/`res[1].workflows` cho đúng. Tương tự trường nhãn của một kết nối trong `/connect/catalog` `connections[]`: xem `grep -n '"connections"' server/main.py` quanh dòng 4498.)
+(Check the return shape of `GET /agents` and `GET /workflows` with `grep -n '@app.get("/agents")' -A30 server/main.py` and similarly for `/workflows`; if the list key differs from `agents`/`workflows`, fix the two lines `res[0].agents`/`res[1].workflows` accordingly. Likewise the label field of one connection in `/connect/catalog` `connections[]`: see `grep -n '"connections"' server/main.py` around line 4498.)
 
-- [ ] **Step 5: style.css** thêm sau `.cp-menu[hidden]`:
+- [ ] **Step 5: style.css** add after `.cp-menu[hidden]`:
 
 ```css
 .cp-menu { left: 8px; width: min(320px, calc(100vw - 32px)); max-height: min(60vh, 440px); overflow: auto; padding: 6px; }
@@ -1260,12 +1260,12 @@ window.JavisAttach = {
 .cp-empty { padding: 8px 10px; font-size: 13px; color: var(--text3); }
 ```
 
-- [ ] **Step 6: i18n** (vi / en):
+- [ ] **Step 6: i18n** (vi / en; the vi values are Vietnamese on purpose, they are the Vietnamese UI strings, so each is given with its en value):
 `cp.attach` "Đính kèm file hoặc ảnh" / "Add files or photos"; `cp.folder` "Đính kèm thư mục" / "Add a folder"; `cp.brain_file` "Chọn file trong brain" / "Pick a file from the brain"; `cp.commands` "Lệnh và kỹ năng" / "Commands and skills"; `cp.connections` "Kết nối" / "Connections"; `cp.conn_bad` "{n} cần kết nối lại" / "{n} need reconnecting"; `cp.conn_open` "Mở trang Kết nối" / "Open the Connections page"; `cp.conn_none` "Chưa có kết nối nào" / "No connections yet"; `cp.partners` "Gọi trợ lý hoặc quy trình" / "Call an assistant or workflow"; `cp.partners_none` "Chưa có trợ lý hay quy trình nào" / "No assistants or workflows yet"; `cp.workflow` "quy trình" / "workflow"; `cp.loading` "Đang tải..." / "Loading..."; `cp.empty` "Không có mục nào" / "Nothing here"; `cp.brain_search_ph` "Gõ tên file" / "Type a file name"; `cp.brain_search_hint` "Gõ tên file để tìm" / "Type a file name to search"; `cp.brain_empty` "Không thấy file nào" / "No matching file"; `cp.folder_skipped` "Đã bỏ {n} file ẩn hoặc file hệ thống." / "Skipped {n} hidden or system files."; `cp.folder_over` "Thư mục có hơn {max} file, chỉ gửi {max} file đầu." / "The folder has more than {max} files; only the first {max} were added."; `cp.folder_empty` "Thư mục không có file nào gửi được." / "The folder has no files to add."; `cp.folder_flat` "File được gửi phẳng, không giữ cấu trúc thư mục." / "Files are added flat; the folder structure is not kept."
 
-- [ ] **Step 7: index.html**: `<script src="composer-plus.js?v=1"></script>` ngay sau dòng `model-picker.js`; bump `app.js?v=`, `style.css?v=`.
+- [ ] **Step 7: index.html**: `<script src="composer-plus.js?v=1"></script>` right after the `model-picker.js` line; bump `app.js?v=`, `style.css?v=`.
 
-- [ ] **Step 8: Chạy test**: `node tests/js/test_menu_cong.js` -> OK; `node tests/js/test_i18n.mjs` (app.js vẫn đúng 12 dòng chữ Việt) -> xanh; `node tests/js/test_keo_tha_anh_iphone.js` và các test JS khác có `uploadFile`/`fileInput` (`grep -rln "uploadFile\|fileInput" tests/js`) -> xanh.
+- [ ] **Step 8: Run the tests**: `node tests/js/test_menu_cong.js` -> OK; `node tests/js/test_i18n.mjs` (app.js still has exactly 12 lines with Vietnamese text) -> green; `node tests/js/test_keo_tha_anh_iphone.js` and the other JS tests that touch `uploadFile`/`fileInput` (`grep -rln "uploadFile\|fileInput" tests/js`) -> green.
 
 - [ ] **Step 9: Commit**
 
@@ -1276,27 +1276,27 @@ git commit -m "Composer: extensible plus menu (files, folder, brain file, comman
 
 ---
 
-### Task 6: Menu "/" neo vào khung, không che ảnh đính kèm
+### Task 6: The "/" menu anchors to the box, does not cover the attachments
 
 **Files:**
 - Modify: `dashboard/chat-slash.js:252-257` (`positionBox`)
-- Test: `tests/js/test_khung_go.js` (thêm một check)
+- Test: `tests/js/test_khung_go.js` (add one check)
 
-- [ ] **Step 1: Thêm check vào test_khung_go.js** (trước dòng `if (fails.length)`):
+- [ ] **Step 1: Add a check to test_khung_go.js** (before the `if (fails.length)` line):
 
 ```js
 const slash = fs.readFileSync(path.join(ROOT, "dashboard/chat-slash.js"), "utf8");
-check("menu / neo vào khung gõ (#hudVoice), không che ảnh đính kèm",
+check("the / menu anchors to the composer box (#hudVoice), not covering the attachments",
   slash.indexOf('input.closest(".hud-voice") || input') !== -1);
 ```
 
-- [ ] **Step 2: Chạy, thấy hỏng**: `node tests/js/test_khung_go.js` -> FAIL check mới.
+- [ ] **Step 2: Run it and watch it fail**: `node tests/js/test_khung_go.js` -> the new check FAILS.
 
-- [ ] **Step 3: chat-slash.js** thay thân `positionBox`:
+- [ ] **Step 3: chat-slash.js** replace the body of `positionBox`:
 
 ```js
     function positionBox(input) {
-      // Từ 0.148.0 ô gõ nằm trong một khung có ảnh đính kèm phía trên; neo vào khung để không che ảnh.
+      // Since 0.148.0 the input sits inside a box that has the attachments above it; anchor to the box so the attachments are not covered.
       var anchor = input.closest(".hud-voice") || input;
       var rect = anchor.getBoundingClientRect();
       box.style.left = rect.left + "px";
@@ -1305,7 +1305,7 @@ check("menu / neo vào khung gõ (#hudVoice), không che ảnh đính kèm",
     }
 ```
 
-- [ ] **Step 4: Chạy**: `node tests/js/test_khung_go.js` -> OK; `node tests/js/test_chat_slash.js` (nếu có, `ls tests/js | grep slash`) -> xanh. Bump `chat-slash.js?v=`.
+- [ ] **Step 4: Run**: `node tests/js/test_khung_go.js` -> OK; `node tests/js/test_chat_slash.js` (if it exists, `ls tests/js | grep slash`) -> green. Bump `chat-slash.js?v=`.
 
 - [ ] **Step 5: Commit**
 
@@ -1316,28 +1316,28 @@ git commit -m "Composer: slash menu anchors to the card instead of the textarea"
 
 ---
 
-### Task 7: Kiểm bằng mắt, toàn bộ test, phiên bản, PR
+### Task 7: Visual check, full test run, version, PR
 
 **Files:**
 - Modify: `VERSION`, `CHANGELOG.md`, `CHANGELOG.en.md`
-- Modify: `docs/02-tro-chuyen-va-giong-noi.md`, `docs/en/02-*.md` (đoạn mô tả khung gõ: nút "+", chip mức suy nghĩ, tia sét)
+- Modify: `docs/02-tro-chuyen-va-giong-noi.md`, `docs/en/02-*.md` (the paragraph describing the composer: the "+" button, the thinking-level chip, the lightning)
 
-- [ ] **Step 1: Xem bằng mắt**: chạy sandbox server worktree (cổng 7788, state tạm; theo ghi nhớ "Sandbox soi UI") hoặc dựng trang xem thử dùng CSS/JS thật như đã làm ở #655. Kiểm: máy tính sáng và tối; điện thoại 375px (chip model lên đầu trang, hàng còn "+", chip mức, tia sét, mic, gửi); trang Trò chuyện, Coding (hàng chip ngữ cảnh vẫn hiện), Workspace; mở và đóng từng popover; kéo thanh trượt; bật tia sét; dán ảnh, kéo thả file; Ctrl+U; gọi giọng nói một lần.
+- [ ] **Step 1: Visual check**: run the worktree sandbox server (port 7788, temporary state; per the "Sandbox UI inspection" note) or build a preview page that uses the real CSS/JS as was done in #655. Check: desktop light and dark; phone at 375px (the model chip goes to the top of the page; the row keeps "+", the level chip, the lightning, mic, send); the Chat page, Coding (the context chip row still shows), Workspace; open and close each popover; drag the slider; turn the lightning on; paste an image, drag and drop a file; Ctrl+U; make one voice call.
 
-- [ ] **Step 2: Toàn bộ test**: `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/run.py --js` (tất cả xanh) và `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/run.py --py` (chỉ còn 14 file đỏ sẵn của máy này; so danh sách với ghi nhớ "Test đỏ giả trên máy này").
+- [ ] **Step 2: Full test run**: `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/run.py --js` (all green) and `/d/Project/Javis-OS/.venv/Scripts/python.exe tests/run.py --py` (only the 14 files that are already red on this machine remain; compare the list with the "Fake red tests on this machine" note).
 
-- [ ] **Step 3: Phiên bản**: `git fetch origin`, đọc `git show origin/main:VERSION` và số các PR đang mở (`gh pr list --state open --json title`), lấy số kế tiếp chưa ai giữ (dự kiến 0.148.0). Ghi VERSION; thêm khối CHANGELOG.md (tiếng Việt, ngắn, cho màn hình điện thoại) và CHANGELOG.en.md (không chữ Việt):
+- [ ] **Step 3: Version**: `git fetch origin`, read `git show origin/main:VERSION` and the numbers of the open PRs (`gh pr list --state open --json title`), take the next number nobody holds (expected 0.148.0). Write VERSION; add a block to CHANGELOG.md and CHANGELOG.en.md (short, for a phone screen):
 
 ```markdown
 ## [0.148.0] - 2026-10-15
-### Cải thiện
-- **Khung gõ gọn thành một khối như Claude.** Ảnh đính kèm, ô gõ và một hàng nút nằm chung một khung bo tròn; mic nhỏ lại, đứng cạnh nút gửi.
-- **Nút "+" gom mọi thứ thêm vào tin nhắn:** file hoặc ảnh (Ctrl+U), cả thư mục, file có sẵn trong brain, lệnh và kỹ năng, kết nối (báo cái nào cần kết nối lại), gọi trợ lý hoặc quy trình.
-- **Mức suy nghĩ có chip riêng**, bấm là ra thanh trượt Off, Light, Medium, High, Extra, Ultra; không phải mở danh sách model nữa.
-- **Tia sét Fast mode** cạnh đó, rê chuột để xem lưu ý chi phí. Bản này lưu lựa chọn; bản kế tiếp nối vào từng bộ não.
+### Improved
+- **The composer is now one block, like Claude.** Attached images, the input and one row of buttons share a single rounded box; the mic is smaller and sits next to the send button.
+- **The "+" button gathers everything you can add to a message:** a file or photo (Ctrl+U), a whole folder, a file already in the brain, commands and skills, connections (it shows which one needs reconnecting), and calling an assistant or workflow.
+- **The thinking level has its own chip**, and clicking it opens an Off, Light, Medium, High, Extra, Ultra slider; you no longer have to open the model list.
+- **A Fast mode lightning button** next to it; hover to see the cost note. This version saves the choice; the next one wires it into each brain.
 ```
 
-- [ ] **Step 4: Commit, đẩy, mở PR, bật tự merge**
+- [ ] **Step 4: Commit, push, open the PR, turn on auto-merge**
 
 ```bash
 git add VERSION CHANGELOG.md CHANGELOG.en.md docs/
@@ -1347,4 +1347,4 @@ gh pr create --title "0.148.0: one-card composer with a plus menu, effort slider
 gh pr merge --auto --rebase
 ```
 
-`$SCRATCH` là thư mục scratchpad của phiên. Viết `pr-composer-plus.md` ở đó trước khi chạy lệnh: mô tả PR tóm tắt theo spec, ghi các test đã sửa có chủ ý (test_theme_tokens 18px -> 24px) và lý do, kết thúc bằng dòng `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
+`$SCRATCH` is the session's scratchpad folder. Write `pr-composer-plus.md` there before running the commands: the PR description summarizes the spec, lists the tests that were changed on purpose (test_theme_tokens 18px -> 24px) and why, and ends with the line `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.

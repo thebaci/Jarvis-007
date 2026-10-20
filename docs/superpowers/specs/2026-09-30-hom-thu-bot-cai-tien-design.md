@@ -1,66 +1,66 @@
-# Cải tiến Hộp thư bot: lọc theo bot, trả lời ngay trong hòm thư (thiết kế)
+# Bot Inbox improvements: filter by bot, reply right inside the inbox (design)
 
-Ngày 30/09/2026. Người yêu cầu: chủ dự án ("đề xuất cải tiến hòm thư, cần lọc hội thoại của nhiều bot, thêm nút trả lời
-ngay trong chatbot để nhanh chóng chọn tự động trả lời nếu đang đúng chế độ; muốn dropdown chứ không phải hàng nút bấm").
-Giao làm ba lát, mỗi lát một PR nhỏ. Lát 1 đã giao ở 0.65.3.
+30 Sep 2026. Requested by: the project owner ("propose improvements for the inbox, need to filter conversations of multiple bots, add a reply
+button right inside the chatbot to quickly choose auto-reply if it is in the right mode; want a dropdown, not a row of buttons").
+Delivered as three slices, one small PR each. Slice 1 shipped in 0.65.3.
 
-## 1. Vấn đề
+## 1. Problem
 
-- Chạy ba bot khác lĩnh vực (Jarvis 007 Vũ, Nhi Mai, Ngọc Thu) thì hòm thư lẫn vào nhau: mỗi dòng chỉ có logo kênh, không có tên bot.
-- Bộ lọc cũ chỉ có chip kênh (chỉ hiện khi có từ hai kênh) và một ô chọn bot bị ẩn khi có dưới hai bot có tài khoản.
-  Không lọc được theo chưa đọc, cần trả lời, đang tiếp quản, nhóm hay chat riêng. Hàng chip lại tốn diện tích.
-- Trả lời: gửi tay là tiếp quản ngầm (bot im), nút Tiếp quản nhỏ ở góc. Chưa có cách nhờ bot trả lời một tin nó đã im, chưa có
-  cách nhờ bot soạn nháp cho chủ duyệt.
+- Running three bots in different fields (Jarvis 007 Vũ, Nhi Mai, Ngọc Thu) makes the inbox blend together: each row has only the channel logo, no bot name.
+- The old filter had only channel chips (shown only when there are two or more channels) and a bot picker hidden when fewer than two bots have accounts.
+  No filtering by unread, needs a reply, taken over, group or private chat. And the row of chips costs space.
+- Replying: sending by hand is an implicit takeover (the bot goes silent), with a small Takeover button in the corner. There was no way to ask the bot to answer a message it stayed silent on, and no
+  way to ask the bot to draft something for the owner to approve.
 
-## 2. Quyết định (chủ chốt trong buổi thiết kế)
+## 2. Decisions (key points from the design session)
 
-- **Dropdown, không phải chip.** Một hàng chung với ô tìm: Bot, Tình trạng, Loại; Kênh chỉ khi có từ hai kênh. Dùng ô chọn gốc của
-  trình duyệt (trên điện thoại mở bộ chọn của máy). Số đếm nằm trong lựa chọn, tính trên TOÀN hòm thư nên không nhảy khi lọc.
-  Chọn một giá trị mỗi ô. Đánh đổi đã nhận: không có chấm màu trong dropdown (mỗi dòng danh sách vẫn có thẻ tên bot cùng màu).
-- **"Cần trả lời" phải có nghĩa thật.** Khách nhắn cuối, chưa ai đáp, chưa có người tiếp quản, VÀ (chat riêng, hoặc nhóm mà bot vừa
-  cân nhắc nói rồi im). Đếm mọi nhóm có khách nhắn cuối thì bộ lọc đầy rác, vì bot chỉ nói khi được gọi là chuyện bình thường.
-  "Bot cân nhắc rồi im" lấy từ kho bộ phán xử: quyết định `silent`, là ứng viên, mã `judge_silent` / `below_threshold` /
-  `rate_limited` / `rate_limited_user` / `policy_error`, chưa có nhãn, trong 24 giờ. `agent_silent` (Agent chọn im có chủ ý) không tính.
-- Mặc định của phần còn lại (chưa hỏi lại chủ, làm theo khuyến nghị): có cả hai "Trả lời giúp tin này" và công tắc tự động cho
-  từng cuộc chat; có "Gợi ý câu trả lời".
+- **Dropdowns, not chips.** One row shared with the search box: Bot, Status, Type; Channel only when there are two or more channels. Use the browser's native select (on phones it opens the device's
+  picker). Counts sit inside the options, computed over the WHOLE inbox so they do not jump when filtering.
+  One value per select. The trade-off accepted: no colored dot inside the dropdown (each list row still has a bot name tag in the same color).
+- **"Needs a reply" must mean something real.** The customer messaged last, nobody has answered, nobody has taken over, AND (a private chat, or a group where the bot just
+  considered speaking and then stayed silent). Counting every group where a customer messaged last fills the filter with junk, because the bot speaking only when called is normal.
+  "The bot considered it and stayed silent" comes from the arbiter store: decision `silent`, a candidate, code `judge_silent` / `below_threshold` /
+  `rate_limited` / `rate_limited_user` / `policy_error`, unlabeled, within 24 hours. `agent_silent` (the Agent chose silence deliberately) does not count.
+- Defaults for the rest (the owner was not asked again, following the recommendation): both "Reply for me" and a per-chat auto switch exist for
+  each chat; and "Suggest a reply" exists.
 
-## 3. Lát 1 (0.65.3, đã giao): bộ lọc và thẻ tên bot
+## 3. Slice 1 (0.65.3, shipped): filters and the bot name tag
 
-- `conversations.danh_sach(status, chat_type, hesitant)`, `dem_bo_loc(hesitant)`; `bot_id="-"` = cuộc chat không có bot.
-  Giá trị lạ của `status` / `chat_type` thì BỎ QUA bộ lọc đó (giá trị cũ còn lưu ở trình duyệt không được làm hòm thư trống).
-- `GET /conversations` trả thêm `bot_name` và `need_reply` từng dòng, `facets`, và `bots` (bot có hội thoại, kèm tên; bot đã xoá
-  hiện "Bot đã xoá", không lòi id thô). Kho bộ phán xử chưa có thì phần nhóm rỗng, không tạo file.
-- Giao diện: `conversations-filters.js` (phần thuần: trạng thái, lưu trình duyệt, dựng `<option>`, màu bot) và vẽ ở `conversations.js`.
-  Dropdown đang mở thì không dựng lại giữa nhịp tự làm mới 5 giây (đóng nó giữa chừng). Điện thoại: ô tìm và Bot mỗi cái một hàng,
-  Tình trạng và Loại chia đôi một hàng. Thẻ tên bot chỉ khi có từ hai bot.
+- `conversations.danh_sach(status, chat_type, hesitant)`, `dem_bo_loc(hesitant)`; `bot_id="-"` = a chat with no bot.
+  An unknown value of `status` / `chat_type` makes that filter be IGNORED (an old value still stored in the browser must not make the inbox empty).
+- `GET /conversations` additionally returns `bot_name` and `need_reply` per row, `facets`, and `bots` (bots that have conversations, with names; a deleted bot
+  shows "Deleted bot", with no raw id leaking). If the arbiter store does not exist yet the groups part is empty, and no file is created.
+- UI: `conversations-filters.js` (the pure part: state, browser persistence, building `<option>`s, bot colors) and drawing in `conversations.js`.
+  An open dropdown is not rebuilt in the middle of the 5-second auto-refresh beat (that would close it mid-use). Phone: the search box and Bot each get a row,
+  Status and Type split one row in half. The bot name tag appears only when there are two or more bots.
 
-## 4. Lát 2 (0.65.4, đã giao): công tắc Tự động / Tôi trả lời và thanh trạng thái
+## 4. Slice 2 (0.65.4, shipped): the Automatic / I reply switch and the status bar
 
-- Đầu khung hội thoại: công tắc hai nấc **Tự động | Tôi trả lời** thay nút Tiếp quản nhỏ (gọi `POST /conversations/{id}/mode`, không API mới).
-- Đáy khung: MỘT dòng trạng thái ("Nhi Mai đang trực cuộc này" / "Bạn đang tiếp quản, bot im") rồi hàng hai nút cùng cao, chia đôi bề ngang,
-  không bao giờ rớt dòng (bản mẫu đầu bị lệch vì thẻ trạng thái nhỏ hơn nút và nút thứ hai rớt xuống); ô nhập và nút gửi cùng một hàng.
-- Dòng "Bot im: <lý do>" ngay trong khung tin, lấy từ nhật ký bộ phán xử, khỏi mở menu. `GET /conversations/{id}/messages` trả thêm
-  `bot_silence` (mã, điểm, ngưỡng) và `bot_name`. Điều kiện hiện, cố ý chặt vì hiện sai còn tệ hơn không hiện: cuộc chat ở chế độ AI, tin cuối là của
-  khách, quyết định gần nhất là `silent` và lệch giờ với tin cuối không quá 60 giây. Người thật đang tiếp quản, bot đã đáp, quyết định là `reply`,
-  hay kho bộ phán xử chưa có (không tạo file) thì không hiện. Nút "Vì sao" mở bảng Bộ phán xử của bot.
-- Điện thoại: công tắc xuống hàng riêng rộng hết chiều ngang, hai nấc chia đôi, thay vì chèn tiêu đề còn vài chục điểm ảnh.
+- Top of the conversation pane: a two-position switch **Automatic | I reply** replacing the small Takeover button (it calls `POST /conversations/{id}/mode`, no new API).
+- Bottom of the pane: ONE status line ("Nhi Mai is on duty for this chat" / "You have taken over, the bot is silent") then a row of two buttons of equal height, splitting the width in half,
+  never wrapping (the first mockup was misaligned because the status tag was smaller than the buttons and the second button dropped down); the input box and the send button share one row.
+- A "Bot stayed silent: <reason>" line right in the message pane, taken from the arbiter log, with no need to open a menu. `GET /conversations/{id}/messages` additionally returns
+  `bot_silence` (code, score, threshold) and `bot_name`. The conditions for showing it are deliberately strict because showing it wrongly is worse than not showing it: the chat is in AI mode, the last message is the
+  customer's, the latest decision is `silent`, and its time differs from the last message by no more than 60 seconds. A real person has taken over, the bot has answered, the decision is `reply`,
+  or the arbiter store does not exist yet (no file is created): it does not show. The "Why" button opens the bot's Reply judge panel.
+- Phone: the switch moves to its own row spanning the full width, two positions splitting it in half, instead of squeezing into a title that has only a few dozen pixels left.
 
-## 5. Lát 3 (0.65.5, đã giao): Trả lời giúp tin này và Gợi ý câu trả lời
+## 5. Slice 3 (0.65.5, shipped): Reply for me and Suggest a reply
 
-- `POST /conversations/{id}/ai-reply` với `mode=send|draft`. Dùng đường trả lời sẵn có của CHÍNH bot đó (Agent của nó), bỏ qua cổng
-  "có nên nói" nhưng giữ rào quyền và hạn mức an toàn. `send`: gửi qua kênh dưới danh nghĩa bot, cuộc chat vẫn ở Tự động, ghi Hộp thư là tin bot,
-  và nếu tin đó từng bị bộ phán xử chọn im thì tính là nhãn "im nhầm" nặng nhất để bot học. `draft`: chỉ trả chữ để đổ vào ô nhập, KHÔNG ghi vào
-  phiên Agent (dùng `phien_kho` / `ghi_kho=False` của `_tg_answer`) và không ghi Hộp thư.
-- Chỉ bật khi đúng chế độ: bot đang chạy, cuộc chat đang ở Tự động, kênh gửi được. Không thì nút vẫn hiện, chạm vào nói lý do (không ẩn, không xám câm).
-- Rủi ro đã canh (đều có test): không ghi trùng tin khách vào Hộp thư; không cho hai lượt chạy chồng trên một cuộc chat (`busy`); tin nhóm Zalo gửi đúng kiểu nhóm;
-  bản nháp luôn dọn dấu vết kể cả khi engine ném lỗi; gửi hỏng thì trả chữ đã soạn; kênh của lượt lấy từ CHÍNH hội thoại (`meta._kenh`) để câu bot
-  ghi ngược vào đúng hội thoại (test đầu tiên bắt được lỗi nó rơi sang kênh mặc định).
-- **Tiếng vọng trên Zalo cá nhân**: đường gửi của kênh không nhớ câu vừa gửi (chỉ `Transport._gui` làm việc đó), nên câu bot gửi từ Hộp thư phải gọi
-  `ghi_da_gui` trước khi gửi, không thì vòng đọc thấy nó quay về như tin của chính chủ (bot tưởng chủ nhắn tay nên im cả quãng) hoặc như tin khách
-  (bot tự đáp chính mình). Đường gửi tay của chủ giữ nguyên hành vi cũ.
-- Dòng trạng thái nói thật khi bot đang tắt ("đang tắt nên không tự trả lời"), không ghi "đang trực".
+- `POST /conversations/{id}/ai-reply` with `mode=send|draft`. It uses the existing reply path of THAT bot itself (its Agent), skips the
+  "should it speak" gate but keeps the permission guard and the safety limits. `send`: sends through the channel in the bot's name, the chat stays Automatic, the Inbox records it as a bot message,
+  and if that message was once chosen silent by the arbiter, it counts as the heaviest "wrongly silent" label so the bot learns. `draft`: only returns text to fill into the input box, does NOT write to the
+  Agent session (uses `phien_kho` / `ghi_kho=False` of `_tg_answer`) and does not write the Inbox.
+- Enabled only in the right mode: the bot is running, the chat is Automatic, the channel can send. Otherwise the button still shows, and touching it says why (not hidden, not silently grayed out).
+- Risks watched (all have tests): the customer's message is not recorded twice in the Inbox; two runs cannot overlap on one chat (`busy`); a Zalo group message is sent in the group way;
+  a draft always cleans up its traces even when the engine throws; if sending fails, the composed text is returned; the turn's channel is taken from the conversation ITSELF (`meta._kenh`) so the sentence the bot
+  writes back lands in the right conversation (the first test caught a bug where it fell onto the default channel).
+- **Echo on personal Zalo**: the channel's send path does not remember the sentence just sent (only `Transport._gui` does that), so a sentence the bot sends from the Inbox must call
+  `ghi_da_gui` before sending, otherwise the read loop sees it come back as the owner's own message (the bot thinks the owner messaged by hand and stays silent for a stretch) or as a customer message
+  (the bot answers itself). The owner's manual send path keeps its old behavior.
+- The status line tells the truth when the bot is off ("it is off so it does not reply on its own"), and does not say "on duty".
 
-## 6. Không làm (cố ý)
+## 6. Not doing (deliberately)
 
-- Không lọc nhiều bot cùng lúc, không nhóm theo bot, không dropdown tự vẽ (chưa cần).
-- Không gộp Hòm thư với trang Trò chuyện.
+- No filtering by several bots at once, no grouping by bot, no custom-drawn dropdown (not needed yet).
+- No merging the Inbox with the Chat page.

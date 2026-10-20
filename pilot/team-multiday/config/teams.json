@@ -1,5 +1,5 @@
 {
-  "_doc": "Config of the 3 teams for the multi-day pilot (0.210.0). Create the teams and assistants on the dashboard exactly as in this table, then paste the mandate through the Group tab > Department mandate (or PUT /teams/{id}/mandate). Not run yet. acceptance_template is NOT applied automatically: the person running the pilot sets criteria for EACH job (the Acceptance button) before approving the job; so every mandate here uses the approve or propose level, never act.",
+  "_doc": "Config of the 3 teams for the multi-day pilot (0.210.0). Create the teams and assistants on the dashboard exactly as in this table, then paste the mandate through the Team tab > Department mandate (or PUT /teams/{id}/mandate). Not run yet. acceptance_template is NOT applied automatically: the person running the pilot sets criteria for EACH job (the Acceptance button) before approving the job; so every mandate here uses the approve or propose level, never act.",
   "teams": [
     {
       "key": "noi-dung",

@@ -14,7 +14,7 @@ Models page before the run and records it in the report)
     with tools on these two engines (it cannot block them before they run). To use them you must turn on "The team acts
     without asking", and then there is no approval gate.
 
-Default budget for each team (set in the Group tab > Advanced and in the Department mandate section). config/teams.json sets
+Default budget for each team (set in the Team tab > Advanced and in the Department mandate section). config/teams.json sets
 its own values per team and WINS over the numbers below when they differ.
   daily_turns (replies per day)                    40
   task_turns (replies per job)                     12

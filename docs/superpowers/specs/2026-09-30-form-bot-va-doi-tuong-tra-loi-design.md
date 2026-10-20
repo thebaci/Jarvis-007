@@ -1,105 +1,105 @@
-# Form bot gọn hơn và chọn "bot trả lời ai"
+# A leaner bot form and choosing "who the bot answers"
 
-Ngày: 2026-09-30
-Trạng thái: đã chốt thiết kế (chủ duyệt bản phác trong chat), đang thực thi ở 0.64.85
-Tiếp nối: [2026-08-bot-chuyen-trach-spec.md](../../dev/2026-08-bot-chuyen-trach-spec.md), 0.64.82 (bot trong nhóm Zalo, Tự đánh giá)
+Date: 2026-09-30
+Status: design settled (the owner approved the sketch in chat), being implemented in 0.64.85
+Continues: [2026-08-bot-chuyen-trach-spec.md](../../dev/2026-08-bot-chuyen-trach-spec.md), 0.64.82 (bot in Zalo groups, Auto-judge)
 
-## Vấn đề
+## Problem
 
-Chủ dự án nhận xét form Sửa bot "phức tạp, nhiều phần thừa", và thiếu đúng thứ quan trọng
-nhất: **chọn bot trả lời ai**. Cụ thể:
+The project owner commented that the Edit bot form is "complicated, with a lot of surplus", and that it is missing exactly the most important
+thing: **choosing who the bot answers**. Specifically:
 
-- Form dài hơn hai màn hình, mỗi ô kèm một đoạn giải thích dài hơn cả nhãn.
-- Chat riêng luôn trả lời tất cả mọi người. Nhóm thì chỉ có một ô dán id, giấu trong "Cài đặt
-  thêm". Không có cách chọn từng người, và không có cách nói "trả lời mọi thứ trên kênh".
-- Thuật ngữ rối ("Bot trả lời dựa trên gì", "Agent", "brain"); cảnh báo rủi ro chiếm cả màn hình.
-- 0.64.83 bỏ ô người trực nhưng thẻ bot vẫn hiện nhãn "chưa đặt người nhận".
+- The form is longer than two screens, and every field comes with an explanation longer than its label.
+- A private chat always answers everyone. For groups there is only one box for pasting ids, hidden in "More settings". There is no
+  way to pick individual people, and no way to say "answer everything on the channel".
+- The terminology is confusing ("What the bot answers from", "Agent", "brain"); the risk warning takes up a whole screen.
+- 0.64.83 removed the on-duty person field but the bot card still shows the label "no recipient set".
 
-## Quyết định
+## Decisions
 
-### 1. Mô hình "bot trả lời ai" (`audience`)
+### 1. The "who the bot answers" model (`audience`)
 
-Ba giá trị, một danh sách người (`people`) song song với danh sách nhóm (`groups`) đã có:
+Three values, and a list of people (`people`) parallel to the existing list of groups (`groups`):
 
-| `audience` | Chat riêng | Nhóm |
+| `audience` | Private chat | Groups |
 |---|---|---|
-| `all` "Mọi cuộc chat trên kênh" | mọi người | mọi nhóm bot có mặt |
-| `nhom` "Ai nhắn riêng cũng được, nhóm thì tôi chọn" (**mặc định**) | mọi người | chỉ nhóm trong `groups` |
-| `chon` "Chỉ người và nhóm tôi chọn" | chỉ người trong `people` | chỉ nhóm trong `groups` |
+| `all` "Every chat on the channel" | everyone | every group the bot is in |
+| `nhom` "Anyone in private, groups I choose" (**default**) | everyone | only groups in `groups` |
+| `chon` "Only people and groups I choose" | only people in `people` | only groups in `groups` |
 
-- `nhom` chính là hành vi từ trước tới nay, nên **bản ghi cũ không có trường `audience` được đọc
-  là `nhom`** và không đổi gì.
-- Ba trường hợp còn lại đều fail-closed: đặt một giá trị lạ thì **giữ giá trị cũ** (cùng luật với
-  `muc_quyen`); một bản ghi CÓ trường `audience` nhưng giá trị hỏng thì đọc là `chon` (hẹp nhất);
-  người và nhóm chưa nằm trong danh sách thì im. Sai về phía im lặng thì chủ thấy bot im và sửa;
-  sai về phía mở thì bot nói với người lạ dưới tên người thật.
-- Trong nhóm được phép (mọi nhóm với `all`), bot vẫn theo `reply_when` (gọi tên / Tự đánh giá /
-  mọi tin). `audience` trả lời câu "được nói ở đâu", `reply_when` trả lời câu "khi nào lên tiếng".
-- Cuộc chat CHƯA được chọn thì bot im tuyệt đối (không nói câu cố định nào: nick Zalo là người
-  thật), nhưng hiện lên **danh sách chờ duyệt** ngay trong form và trên thẻ, kèm nút Cho phép.
-  Danh sách chờ hiện chứa cả nhóm lẫn người (trước đây chỉ nhóm).
-- Chọn `all` phải qua xác nhận: trên nick cá nhân nó trả lời cả bạn bè, người nhà.
+- `nhom` is exactly the behavior up to now, so **an old record without an `audience` field is read
+  as `nhom`** and nothing changes.
+- The remaining cases are all fail-closed: setting an unknown value **keeps the old value** (same rule as
+  `muc_quyen`); a record that HAS an `audience` field but with a corrupt value is read as `chon` (the narrowest);
+  people and groups not in the list stay silent. Erring toward silence means the owner sees the bot silent and fixes it;
+  erring toward open means the bot talks to strangers under a real person's name.
+- In allowed groups (every group with `all`), the bot still follows `reply_when` (mentioned / Auto-judge /
+  every message). `audience` answers "where it may speak", `reply_when` answers "when it speaks up".
+- A chat that is NOT yet chosen gets absolute silence from the bot (no canned sentence: a personal Zalo account is a real
+  person), but it shows up in a **pending-approval list** right inside the form and on the card, with an Allow button.
+  The pending list now contains both groups and people (previously only groups).
+- Choosing `all` must go through a confirmation: on a personal account it would answer friends and family too.
 
-### 2. Chọn người và nhóm từ Hộp thư
+### 2. Picking people and groups from the Inbox
 
-Không bắt dán id. `GET /chatbots/chats?account_ids=..&q=..` trả các cuộc chat đã biết của tài
-khoản kênh (lấy từ kho `conversations`), mỗi dòng: id, tên hiển thị, loại (nhóm / người), lần nhắn
-cuối, và cờ "chờ duyệt" nếu bot đã thấy mà chưa được cho phép. Form vẽ hai tab Nhóm / Người, ô
-tìm, tick để chọn. Cuộc chat chưa có trong Hộp thư (nhóm mới vào, chưa ai nhắn) thì vẫn khai được
-bằng id ở ô "Thêm bằng id" gấp gọn dưới danh sách.
+No pasting ids. `GET /chatbots/chats?account_ids=..&q=..` returns the known chats of the channel
+account (taken from the `conversations` store), each row: id, display name, kind (group / person), last message
+time, and a "pending approval" flag if the bot has seen it but it is not yet allowed. The form draws two tabs Groups / People, a search
+box, and ticks to choose. A chat not yet in the Inbox (a newly joined group, nobody has messaged) can still be declared
+by id in the "Add by id" box folded under the list.
 
-### 3. Form: một cuộn, bốn phần
+### 3. The form: one scroll, four sections
 
-1. **Bot là ai**: tên bot, Agent (+ Tạo Agent). Kênh hiện thành chip "Trả lời ở ..." kèm Đổi.
-2. **Bot trả lời ai**: ba thẻ chọn (radio card) + danh sách chọn + ô "Trong nhóm, bot lên tiếng khi"
-   (Được gọi tên / Tự đánh giá / Mọi tin). Ô lên tiếng chỉ hiện khi có nhóm trong cuộc chơi.
-3. **Bot dựa vào đâu để trả lời**: nút bấm hai lựa chọn (Agent và tài liệu / Chỉ tài liệu), một dòng.
-4. **Bot được làm gì**: nút bấm ba mức, một dòng mô tả. Cảnh báo chỉ hiện khi nâng mức, gọn hai dòng
-   kèm "Xem đủ rủi ro"; ô xác nhận rủi ro giữ nguyên.
+1. **Who the bot is**: bot name, Agent (+ New Agent). The channel shows as a "Answers on ..." chip with Change.
+2. **Who the bot answers**: three selection cards (radio cards) + a pick list + a "In groups, the bot speaks when" field
+   (Mentioned / Auto-judge / Every message). The speaks-when field shows only when groups are in play.
+3. **What the bot answers from**: a two-choice button (Agent and documents / Documents only), one line.
+4. **What the bot can do**: a three-level button, one description line. The warning shows only when raising the level, kept to two lines
+   with "Show all risks"; the risk confirmation box stays as it is.
 
-"Nâng cao" (gấp): ngôn ngữ trả lời. Bỏ bước 1/2 rời khi đã có tài khoản (giữ khi tạo bot mới chưa
-chọn kênh). Mọi đoạn giải thích dài rút thành một dòng; phần giải thích dài chuyển sang tài liệu.
+"Advanced" (folded): reply language. The separate step 1/2 is dropped once an account exists (kept when creating a new bot with no
+channel chosen). Every long explanation is cut to one line; the long explanations move to the docs.
 
-### 4. Thẻ bot
+### 4. The bot card
 
-Một dòng "Trả lời: <tóm tắt audience>", chip kênh/Agent/mức quyền; cảnh báo chỉ hiện khi có vấn đề
-thật; Bật/Tắt và Sửa nằm ngoài, Nhật ký / Hội thoại / Xoá vào menu "...". Bỏ nhãn "chưa đặt người
-nhận" (hết chỗ đặt), bỏ dòng model.
+One line "Answers: <audience summary>", chips for channel/Agent/permission level; a warning shows only when there is a real
+problem; On/Off and Edit stay outside, Log / Conversations / Delete go into the "..." menu. The label "no recipient set"
+is dropped (nowhere left to set it), and so is the model line.
 
-## Kiến trúc
+## Architecture
 
-- `chatbot_store`: trường `audience` (`AUDIENCE = ("all", "nhom", "chon")`, mặc định `nhom`) và
-  `people` (danh sách id như `groups`, cùng `_clean_groups`). Vào `_PATCHABLE`.
-- `chatbot_runtime._ly_do_im`: chat riêng theo `audience`; nhóm theo `audience` rồi `reply_when`.
-  Thêm mã im `nguoi_chua_chon`. `_NHOM_CHO` giữ thêm `chat_type`; precheck ghi cả người chưa chọn.
-- `main.py`: `POST /chatbots/{id}/people` (cho phép/gỡ một người, như `/groups`),
-  `GET /chatbots/chats`. `nhom_cho` trả kèm `chat_type`.
-- `dashboard/chatbots.js` + `style.css` + i18n: dựng lại `moForm`, `the`.
+- `chatbot_store`: the `audience` field (`AUDIENCE = ("all", "nhom", "chon")`, default `nhom`) and
+  `people` (a list of ids like `groups`, same `_clean_groups`). Added to `_PATCHABLE`.
+- `chatbot_runtime._ly_do_im`: private chat follows `audience`; groups follow `audience` then `reply_when`.
+  Adds the silence code `nguoi_chua_chon`. `_NHOM_CHO` additionally keeps `chat_type`; the precheck also records people not yet chosen.
+- `main.py`: `POST /chatbots/{id}/people` (allow/remove one person, like `/groups`),
+  `GET /chatbots/chats`. `nhom_cho` returns `chat_type` too.
+- `dashboard/chatbots.js` + `style.css` + i18n: rebuild `moForm`, `the`.
 
-## Kiểm thử
+## Testing
 
-Python: `_ly_do_im` cho cả 9 ô của bảng trên, bản ghi cũ vẫn là `nhom`, giá trị lạ, danh sách chờ có
-người, API chats/people, gõ thử end-to-end với Zalo cá nhân (người ngoài danh sách im, người trong
-danh sách được trả lời). JS: canary cấu trúc form (bốn phần, ba thẻ, không còn ô cũ), i18n đủ vi/en.
-Chạy server thật ở cổng riêng để soi bằng mắt.
+Python: `_ly_do_im` for all 9 cells of the table above, an old record is still `nhom`, an unknown value, the pending list including
+people, the chats/people API, an end-to-end try with personal Zalo (a person outside the list stays silent, a person in the
+list gets an answer). JS: a structural canary for the form (four sections, three cards, no old fields), complete vi/en i18n.
+Run the real server on a separate port to inspect it by eye.
 
-## Thẻ thứ tư: Tự động hóa tất cả (0.65.2)
+## The fourth card: Automate everything (0.65.2)
 
-Chủ dự án muốn một lựa chọn "tự động hóa tất cả" ở phần Bot trả lời ai. Nó là **một cú chọn gộp hai cài đặt**, không phải giá trị
-lưu mới: `audience = all` cộng `reply_when = auto` (Tự đánh giá do bộ phán xử quyết). Hệ quả thiết kế:
+The project owner wanted an "automate everything" choice in the Who the bot answers section. It is **a single pick that bundles two settings**, not a new
+stored value: `audience = all` plus `reply_when = auto` (Auto-judge decided by the arbiter). Design consequences:
 
-- Không đổi server, không đổi bản ghi. Thẻ đang chọn suy ra từ bản ghi (`all` + `auto` thì hiện thẻ này), nên bot cài như vậy
-  từ trước tự hiện đúng thẻ khi mở lại.
-- Chọn thẻ này thì ẨN nút "Trong nhóm, bot lên tiếng khi" (đã quyết sẵn, không để hai chỗ nói hai điều). Thẻ "Mọi cuộc chat" bỏ
-  nút Tự đánh giá khỏi nút đó, vì Tự đánh giá cho mọi cuộc chat chính là thẻ mới. Hai thẻ nhóm/người giữ đủ ba lựa chọn.
-- Cùng cổng xác nhận rủi ro của `all` (`can_xac_nhan_doi_tuong` ở kho vẫn chặn lần nữa). Đang lưu `all` rồi thì đổi sang thẻ này
-  không hỏi lại. Câu xác nhận nói thêm chuyện ghi chữ chat để học, khớp với dòng giải thích của bộ phán xử.
-- Kênh không có nhóm (Zalo Bot): thẻ ẩn như thẻ "Mọi cuộc chat", vì bộ phán xử chỉ có nghĩa trong nhóm.
-- Thẻ bot ghi "tự động hóa tất cả" thay cho "mọi cuộc chat · tự đánh giá tin trong nhóm".
-- Mặc định giữ nguyên "Ai nhắn riêng cũng được, nhóm thì tôi chọn".
+- No server change, no record change. The selected card is derived from the record (`all` + `auto` shows this card), so a bot set up like this
+  earlier shows the right card again when reopened.
+- Choosing this card HIDES the "In groups, the bot speaks when" button (already decided, so two places do not say two things). The "Every chat" card drops
+  the Auto-judge option from that button, because Auto-judge for every chat is exactly the new card. The groups/people cards keep all three choices.
+- The same risk-confirmation gate as `all` (`can_xac_nhan_doi_tuong` in the store still blocks a second time). If `all` is already saved, switching to this card
+  does not ask again. The confirmation text also mentions that chat text is recorded for learning, matching the arbiter's explanation line.
+- A channel with no groups (Zalo Bot): the card is hidden like the "Every chat" card, because the arbiter only makes sense in groups.
+- The bot card says "automate everything" in place of "every chat · auto-judge group messages".
+- The default stays "Anyone in private, groups I choose".
 
-## Không làm (cố ý)
+## Not doing (deliberately)
 
-- Không đổi cơ chế `reply_when`, hạn mức, Tự đánh giá.
-- Không gỡ code chuyển người trực phía sau (bot đã đặt vẫn chạy), chỉ gỡ khỏi giao diện.
-- Chọn theo nhãn/tag người (nhóm khách VIP...) để sau.
+- No change to the `reply_when` mechanism, limits, or Auto-judge.
+- The on-duty-person switching code behind the scenes is not removed (bots already set keep running), only removed from the UI.
+- Choosing by people labels/tags (a VIP customer group...) comes later.

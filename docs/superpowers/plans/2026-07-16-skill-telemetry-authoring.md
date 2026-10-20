@@ -1,75 +1,75 @@
-# Đo skill + Chuẩn viết skill (A+B) Implementation Plan
+# Skill telemetry + skill authoring standard (A+B) Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Vá lỗi cắt cụt description đang âm thầm phá routing của mọi skill, và cho Jarvis 007 biết skill nào thực sự được dùng.
+**Goal:** Fix the description truncation bug that is silently breaking routing for every skill, and let Jarvis 007 know which skills are actually used.
 
-**Architecture:** Gom ba điểm cắt description rời rạc về một hằng số duy nhất ở `skill_router.py` rồi ép hằng số đó ở mọi chỗ GHI (API, learn). Thêm một sidecar telemetry `Javis/skill-usage.json` do `skill_usage.py` sở hữu, bump tại một điểm nghẽn duy nhất là handler `_skill` trong `mcp_hub.py`. Không máy trạng thái, không job nền: `stale` là hàm thuần tính lúc đọc.
+**Architecture:** Gather the three scattered description cut points into a single constant in `skill_router.py`, then enforce that constant at every WRITE point (API, learn). Add a telemetry sidecar `Javis/skill-usage.json` owned by `skill_usage.py`, bumped at a single choke point, the `_skill` handler in `mcp_hub.py`. No state machine, no background job: `stale` is a pure function computed at read time.
 
-**Tech Stack:** Python 3.12, FastAPI, PyYAML, stdlib (`hashlib`, `shutil`, `tempfile`). Không pytest. Vanilla JS cho dashboard.
+**Tech Stack:** Python 3.12, FastAPI, PyYAML, stdlib (`hashlib`, `shutil`, `tempfile`). No pytest. Vanilla JS for the dashboard.
 
 ## Global Constraints
 
-- **Ngôn ngữ:** mọi comment, docstring, thông báo lỗi hướng tới người dùng viết tiếng Việt.
-- **TUYỆT ĐỐI không dùng ký tự em dash (U+2014)** trong bất kỳ file nào. Dùng "-".
-- **KHÔNG dùng pytest.** Test là script chạy thẳng, dùng `check(name, cond)` + `_fails` + `sys.exit(1)`. Mẫu chuẩn: `server/test_loop_ambient.py:23-30` và `:117-120`.
-- **Lệnh chạy test:** `cd server && ../.venv/Scripts/python.exe test_<name>.py`. Venv ở GỐC repo, KHÔNG phải `server/.venv`.
-- **Test mới phải đặt tên `server/test_*.py`** thì CI (`.github/workflows/ci.yml:29-39`) mới glob thấy. Đặt chỗ khác là CI bỏ qua.
-- **Preamble test, thứ tự load-bearing** (env TRƯỚC import, vì module đọc `JAVIS_STATE_DIR` lúc import):
+- **Language:** every comment, docstring and user-facing error message is written in English.
+- **NEVER use the em dash character (U+2014)** in any file. Use "-".
+- **Do NOT use pytest.** Tests are plain scripts that run directly, using `check(name, cond)` + `_fails` + `sys.exit(1)`. Standard template: `server/test_loop_ambient.py:23-30` and `:117-120`.
+- **Test command:** `cd server && ../.venv/Scripts/python.exe test_<name>.py`. The venv is at the repo ROOT, NOT `server/.venv`.
+- **New tests must be named `server/test_*.py`** so the CI glob (`.github/workflows/ci.yml:29-39`) picks them up. Put anywhere else and CI skips them.
+- **Test preamble, order is load-bearing** (env BEFORE import, because the module reads `JAVIS_STATE_DIR` at import time):
   ```python
   os.environ.setdefault("JAVIS_STATE_DIR", tempfile.mkdtemp(prefix="javis-<x>test-"))
   sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
   import <module>  # noqa: E402
   ```
 - `SKILL_DESC_MAX = 150`, `SKILL_LIST_MAX = 20`, `SKILL_STALE_AFTER_DAYS = 30`.
-- **`skill_router.py` là READ-ONLY** (hợp đồng ở docstring dòng 16). Chỉ thêm hằng số và hàm THUẦN. Mọi thao tác ghi thuộc `system_sync.py`.
-- **`use_count` là tín hiệu dương một chiều.** `use=0` KHÔNG BAO GIỜ được hiểu là vô dụng, không bao giờ tự tắt/archive.
-- Spec đầy đủ: `docs/superpowers/specs/2026-07-16-skill-telemetry-authoring-design.md`.
+- **`skill_router.py` is READ-ONLY** (contract in the docstring at line 16). Only add constants and PURE functions. Every write operation belongs to `system_sync.py`.
+- **`use_count` is a one-way positive signal.** `use=0` must NEVER be read as useless, and a skill is never auto-disabled/archived.
+- Full spec: `docs/superpowers/specs/2026-07-16-skill-telemetry-authoring-design.md`.
 
 ---
 
 ## File Structure
 
-**Tạo mới:**
-- `server/skill_usage.py` - sidecar telemetry. Sở hữu đọc/ghi `<brain>/Javis/skill-usage.json`, `SKILL_STALE_AFTER_DAYS`, hàm `is_stale`. KHÔNG import `main`.
-- `server/test_skill_caps.py` - trần description, validator, lint skill hệ thống.
-- `server/test_skill_usage.py` - sidecar.
-- `server/test_mirror_tree.py` - mirror đệ quy.
+**Create:**
+- `server/skill_usage.py` - telemetry sidecar. Owns reading/writing `<brain>/Javis/skill-usage.json`, `SKILL_STALE_AFTER_DAYS`, and the `is_stale` function. Does NOT import `main`.
+- `server/test_skill_caps.py` - description cap, validator, system skill lint.
+- `server/test_skill_usage.py` - the sidecar.
+- `server/test_mirror_tree.py` - recursive mirror.
 
-**Sửa:**
-- `server/skill_router.py` - thêm hằng số + `validate_description`; `_meta_of:90` dùng trần chung.
+**Modify:**
+- `server/skill_router.py` - add constants + `validate_description`; `_meta_of:90` uses the shared cap.
 - `server/main.py` - `_skill_router_block:3464,3470,3471,3473,3474`; `POST /skills:2213-2238`; `GET /skills:2151`.
 - `server/mcp_hub.py` - `listing:256-258`; `_skill:237-245`.
-- `server/learn.py` - schema prompt `:356-359`; chuẩn authoring trong `_build_prompt`; ép trần trong `_promote_sync:544-568`.
-- `server/system_sync.py` - `mirror_skills:235-264` thành đệ quy + tree hash.
+- `server/learn.py` - prompt schema `:356-359`; authoring standard in `_build_prompt`; enforce the cap in `_promote_sync:544-568`.
+- `server/system_sync.py` - `mirror_skills:235-264` becomes recursive + tree hash.
 - `server/git_brain.py` - `_GITIGNORE:62-72`; `_BACKUP_SKIP_SUBSTR:267-268`; `ensure_git_repo:75-99`.
 - `dashboard/studio.js` - `renderSkillList:463-477`.
-- `CLAUDE.md:249` - mẫu description.
+- `CLAUDE.md:249` - description template.
 - `.claude/skills/{html-to-webcake,ingest-source,javis-builder,lint-wiki,query-wiki}/SKILL.md`.
 
 ---
 
-### Task 1: Hằng số + validator ở skill_router
+### Task 1: Constants + validator in skill_router
 
 **Files:**
-- Modify: `server/skill_router.py:21-31` (import + hằng số), `:90` (fallback `[:140]`)
-- Test: `server/test_skill_caps.py` (tạo mới)
+- Modify: `server/skill_router.py:21-31` (import + constants), `:90` (the `[:140]` fallback)
+- Test: `server/test_skill_caps.py` (create)
 
 **Interfaces:**
-- Produces: `skill_router.SKILL_DESC_MAX: int`, `skill_router.SKILL_LIST_MAX: int`, `skill_router.validate_description(desc: str) -> Optional[str]` (None = hợp lệ, chuỗi = lý do từ chối bằng tiếng Việt). Task 2, 4, 5 dùng.
+- Produces: `skill_router.SKILL_DESC_MAX: int`, `skill_router.SKILL_LIST_MAX: int`, `skill_router.validate_description(desc: str) -> Optional[str]` (None = valid, string = rejection reason in English). Used by Tasks 2, 4, 5.
 
-- [ ] **Step 1: Viết test thất bại**
+- [ ] **Step 1: Write the failing test**
 
-Tạo `server/test_skill_caps.py`:
+Create `server/test_skill_caps.py`:
 
 ```python
-"""Test trần description skill + hằng số router. Chạy tay / CI:
+"""Test the skill description cap + router constants. Run by hand / CI:
 
     cd server && ../.venv/Scripts/python.exe test_skill_caps.py
 
-Không cần pytest, không chạm mạng.
-Phủ: hằng số SKILL_DESC_MAX/SKILL_LIST_MAX, validate_description (quá dài, boilerplate,
-hợp lệ, rỗng), fallback _meta_of dùng chung trần.
+No pytest needed, no network.
+Covers: the constants SKILL_DESC_MAX/SKILL_LIST_MAX, validate_description (too long,
+boilerplate, valid, empty), the _meta_of fallback sharing the cap.
 """
 import os
 import sys
@@ -90,70 +90,79 @@ def check(name, cond):
         _fails.append(name)
 
 
-# ---- hằng số ----
+# ---- constants ----
 check("SKILL_DESC_MAX = 150", getattr(skill_router, "SKILL_DESC_MAX", None) == 150)
 check("SKILL_LIST_MAX = 20", getattr(skill_router, "SKILL_LIST_MAX", None) == 20)
 
 # ---- validate_description ----
 v = skill_router.validate_description
-check("description hợp lệ → None", v("Chuyển HTML sang file Webcake .pke.") is None)
-check("description rỗng → None (body-fallback lo)", v("") is None)
-check("description None → None", v(None) is None)
+check("valid description -> None", v("Turn HTML into a Webcake .pke file.") is None)
+check("empty description -> None (the body fallback handles it)", v("") is None)
+check("None description -> None", v(None) is None)
 
 long_desc = "x" * 151
 r = v(long_desc)
-check("description 151 ký tự → bị từ chối", isinstance(r, str))
-check("lý do từ chối có nêu số ký tự thật", r is not None and "151" in r)
-check("lý do từ chối có nêu trần", r is not None and "150" in r)
-check("description đúng 150 ký tự → lọt", v("x" * 150) is None)
+check("151-character description -> rejected", isinstance(r, str))
+check("rejection reason states the real character count", r is not None and "151" in r)
+check("rejection reason states the cap", r is not None and "150" in r)
+check("exactly 150-character description -> passes", v("x" * 150) is None)
 
-check("bắt boilerplate 'Kích hoạt khi'",
+# The boilerplate lexicon is Vietnamese on purpose (it matches how Vietnamese skills open):
+# "Kích hoạt khi" = "Activates when", "Sử dụng skill này khi" = "Use this skill when",
+# "Dùng khi cần" = "Use when you need" (a legitimate short opening).
+check("catches boilerplate 'Kích hoạt khi' (Activates when)",
       isinstance(v("Kích hoạt khi người dùng muốn tạo ảnh"), str))
-check("bắt boilerplate 'Sử dụng skill này khi'",
+check("catches boilerplate 'Sử dụng skill này khi' (Use this skill when)",
       isinstance(v("Sử dụng skill này khi cần vẽ"), str))
-check("KHÔNG bắt 'Dùng khi cần' (mở đầu hợp lệ, ngắn)",
+check("catches English boilerplate 'Activate when'",
+      isinstance(v("Activate when the user wants to draw"), str))
+check("does NOT catch 'Dùng khi cần' (Use when you need; a valid, short opening)",
       v("Dùng khi cần tạo ảnh minh hoạ phong cách flat 2D") is None)
 
-# ---- _meta_of fallback dùng chung trần ----
+# ---- _meta_of fallback shares the cap ----
 tmp = Path(tempfile.mkdtemp(prefix="javis-capsbrain-"))
-d = tmp / "skills" / "khong-co-desc"
+d = tmp / "skills" / "no-desc"
 d.mkdir(parents=True)
-(d / "SKILL.md").write_text("---\nname: Không mô tả\n---\n" + ("y" * 400) + "\n",
+(d / "SKILL.md").write_text("---\nname: No description\n---\n" + ("y" * 400) + "\n",
                             encoding="utf-8")
 metas = skill_router.list_enabled_meta(tmp)
-got = next((m for m in metas if m["slug"] == "khong-co-desc"), None)
-check("_meta_of fallback trả về skill", got is not None)
-check("fallback cắt theo SKILL_DESC_MAX chứ không phải 140",
+got = next((m for m in metas if m["slug"] == "no-desc"), None)
+check("_meta_of fallback returns the skill", got is not None)
+check("fallback cuts at SKILL_DESC_MAX, not 140",
       got is not None and len(got["description"]) == skill_router.SKILL_DESC_MAX)
 
 if _fails:
-    print(f"\nFAIL - test_skill_caps: {len(_fails)} lỗi: {_fails}")
+    print(f"\nFAIL - test_skill_caps: {len(_fails)} failures: {_fails}")
     sys.exit(1)
-print("\nOK - test_skill_caps: tất cả pass")
+print("\nOK - test_skill_caps: all pass")
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận nó FAIL**
+- [ ] **Step 2: Run the test, confirm it FAILS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_caps.py`
-Expected: FAIL. `SKILL_DESC_MAX = 150` fail (hằng số chưa tồn tại, `getattr` trả None), và `validate_description` ném `AttributeError: module 'skill_router' has no attribute 'validate_description'`.
+Expected: FAIL. `SKILL_DESC_MAX = 150` fails (the constant does not exist yet, `getattr` returns None), and `validate_description` raises `AttributeError: module 'skill_router' has no attribute 'validate_description'`.
 
-- [ ] **Step 3: Thêm hằng số + validator**
+- [ ] **Step 3: Add the constants + validator**
 
-Trong `server/skill_router.py`, sau dòng 31 (`_READ_BASES = ...`), TRƯỚC hai dòng trắng dẫn tới `def skills_base`, chèn:
+In `server/skill_router.py`, after line 31 (`_READ_BASES = ...`), BEFORE the two blank lines leading to `def skills_base`, insert:
 
 ```python
 
-# Trần độ dài description khi bơm vào router (system prompt + mô tả tool javis_use_skill).
-# Dài hơn là BỊ CẮT IM LẶNG → phần đuôi không tới engine, skill không route được. Vì vậy
-# trần này được ÉP ở mọi chỗ GHI (POST /skills, learn.py), không chỉ cắt lúc hiển thị.
-# Ví dụ trigger đầy đủ thuộc về mục '## Khi nào dùng' trong thân file, nơi không bị cắt.
+# Cap on description length when injected into the router (system prompt + the javis_use_skill
+# tool description). Longer is CUT SILENTLY -> the tail never reaches the engine, and the skill
+# cannot be routed. So this cap is ENFORCED at every WRITE point (POST /skills, learn.py), not
+# just truncated at display time. Full trigger examples belong in the '## When to use' section in
+# the body, which is never cut.
 SKILL_DESC_MAX = 150
 
-# Số skill tối đa liệt kê trong router. Nhiều hơn → trỏ sang Javis/index.md.
+# Maximum number of skills listed in the router. More than this -> point to Javis/index.md.
 SKILL_LIST_MAX = 20
 
-# Cụm mở đầu sáo rỗng: mọi skill đều mở y hệt nhau nên nó đốt ngân sách ký tự mà không
-# phân biệt được skill nào với skill nào. Cấm ở chỗ ghi.
+# Filler opening phrases: every skill opens identically, so they burn the character budget
+# without telling one skill from another. Banned at write time. The lexicon is Vietnamese on
+# purpose (it matches how Vietnamese skills open): "kích hoạt khi" = "activates when",
+# "sử dụng skill này khi" / "dùng skill này khi" = "use this skill when",
+# "skill này dùng / được dùng" = "this skill is used".
 _DESC_BOILERPLATE_RE = re.compile(
     r"^\s*(kích\s+hoạt\s+khi"
     r"|sử\s+dụng\s+skill\s+này\s+khi"
@@ -166,50 +175,51 @@ _DESC_BOILERPLATE_RE = re.compile(
 
 
 def validate_description(desc) -> Optional[str]:
-    """None = hợp lệ. Chuỗi = lý do từ chối (tiếng Việt, hiện thẳng cho user).
-    Hàm THUẦN (không I/O) nên vẫn đúng hợp đồng read-only của module."""
+    """None = valid. A string = rejection reason (English, shown straight to the user).
+    A PURE function (no I/O) so it still honors the module's read-only contract."""
     d = (desc or "").strip()
     if not d:
-        return None    # rỗng là hợp lệ: POST /skills có body-fallback lo
+        return None    # empty is valid: POST /skills has a body fallback
     if len(d) > SKILL_DESC_MAX:
-        return (f"description dài {len(d)} ký tự, vượt trần {SKILL_DESC_MAX}. Router cắt "
-                f"đúng ở {SKILL_DESC_MAX} nên phần dư MẤT IM LẶNG và skill không route "
-                "được. Đưa ví dụ trigger xuống mục '## Khi nào dùng' trong thân file.")
+        return (f"description is {len(d)} characters, over the {SKILL_DESC_MAX} limit. The router "
+                f"cuts at exactly {SKILL_DESC_MAX}, so the rest is LOST SILENTLY and the skill "
+                "cannot be routed. Move trigger examples into a '## When to use' section in the "
+                "body.")
     if _DESC_BOILERPLATE_RE.match(d):
-        return ("description mở đầu bằng cụm sáo rỗng (vd 'Kích hoạt khi ...'). Mọi skill "
-                "đều mở như vậy nên nó đốt ngân sách mà không phân biệt gì. Nêu thẳng "
-                "năng lực, vd 'Chuyển HTML sang file Webcake .pke.'")
+        return ("description opens with filler (e.g. 'Activates when ...'). Every skill opens "
+                "that way, so it burns the budget without telling skills apart. State the "
+                "capability directly, e.g. 'Turn HTML into a Webcake .pke file.'")
     return None
 ```
 
-- [ ] **Step 4: Sửa fallback `[:140]` dùng chung trần**
+- [ ] **Step 4: Make the `[:140]` fallback share the cap**
 
-Trong `server/skill_router.py:90`, đổi:
+In `server/skill_router.py:90`, change:
 
 ```python
     desc = meta.get("description", "") or (body.split("\n")[0][:140] if body else "")
 ```
 
-thành:
+to:
 
 ```python
     desc = meta.get("description", "") or (body.split("\n")[0][:SKILL_DESC_MAX] if body else "")
 ```
 
-- [ ] **Step 5: Cập nhật docstring cho khỏi nói dối**
+- [ ] **Step 5: Update the docstring so it stops lying**
 
-Trong `server/skill_router.py`, sau dòng 16-17 (đoạn "Mọi hàm ở đây CHỈ ĐỌC..."), thêm một dòng:
+In `server/skill_router.py`, after lines 16-17 (the "Every function here ONLY READS..." paragraph), add one line:
 
 ```
-Module này cũng sở hữu TRẦN HIỂN THỊ (SKILL_DESC_MAX / SKILL_LIST_MAX) - trước đây mỗi nơi
-tự cắt một kiểu (60 ở hub, 100 ở system prompt, 140 ở fallback) nên người viết skill không
-biết mình bị chấm theo thước nào.
+This module also owns the DISPLAY CAPS (SKILL_DESC_MAX / SKILL_LIST_MAX) - previously each place
+cut its own way (60 in the hub, 100 in the system prompt, 140 in the fallback) so whoever wrote a
+skill did not know which ruler they were being measured against.
 ```
 
-- [ ] **Step 6: Chạy test, xác nhận PASS**
+- [ ] **Step 6: Run the test, confirm PASS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_caps.py`
-Expected: PASS, in ra `OK - test_skill_caps: tất cả pass`.
+Expected: PASS, prints `OK - test_skill_caps: all pass`.
 
 - [ ] **Step 7: Commit**
 
@@ -220,27 +230,27 @@ git commit -m "feat(skill): mot thuoc do duy nhat cho description (SKILL_DESC_MA
 
 ---
 
-### Task 2: main.py và mcp_hub dùng chung hằng số
+### Task 2: main.py and mcp_hub share the constants
 
 **Files:**
 - Modify: `server/main.py:3464` (docstring), `:3470`, `:3471`, `:3473`, `:3474`
 - Modify: `server/mcp_hub.py:256`, `:257`, `:258`
-- Test: `server/test_skill_caps.py` (thêm vào file Task 1)
+- Test: `server/test_skill_caps.py` (add to the Task 1 file)
 
 **Interfaces:**
 - Consumes: `skill_router.SKILL_DESC_MAX`, `skill_router.SKILL_LIST_MAX` (Task 1).
 
-- [ ] **Step 1: Viết test thất bại**
+- [ ] **Step 1: Write the failing test**
 
-Thêm vào `server/test_skill_caps.py`, TRƯỚC khối `if _fails:` ở cuối:
+Add to `server/test_skill_caps.py`, BEFORE the `if _fails:` block at the end:
 
 ```python
-# ---- không còn hằng số cắt nào nằm rải rác (chống mọc lại 'thước thứ hai') ----
+# ---- no scattered cut constants remain (guards against a "second ruler" growing back) ----
 _SRC = Path(os.path.dirname(os.path.abspath(__file__)))
 
 
 def _region(path, start_marker, end_marker):
-    """Lấy đoạn mã giữa hai mốc để chỉ soi đúng vùng render router."""
+    """Take the code between two markers so we only inspect the router render region."""
     text = (_SRC / path).read_text(encoding="utf-8")
     i = text.index(start_marker)
     j = text.index(end_marker, i)
@@ -249,74 +259,74 @@ def _region(path, start_marker, end_marker):
 
 hub = _region("mcp_hub.py", "metas = skill_router.list_enabled_meta(vault_root)",
               'add("javis_use_skill"')
-check("mcp_hub không còn literal [:60]", "[:60]" not in hub)
-check("mcp_hub không còn literal 20", "20" not in hub)
-check("mcp_hub dùng SKILL_DESC_MAX", "SKILL_DESC_MAX" in hub)
-check("mcp_hub dùng SKILL_LIST_MAX", "SKILL_LIST_MAX" in hub)
+check("mcp_hub no longer has the literal [:60]", "[:60]" not in hub)
+check("mcp_hub no longer has the literal 20", "20" not in hub)
+check("mcp_hub uses SKILL_DESC_MAX", "SKILL_DESC_MAX" in hub)
+check("mcp_hub uses SKILL_LIST_MAX", "SKILL_LIST_MAX" in hub)
 
 blk = _region("main.py", "def _skill_router_block", "@app.get(\"/javis/index\")")
-check("main không còn literal [:100]", "[:100]" not in blk)
-check("main không còn literal 15", "15" not in blk)
-check("main dùng SKILL_DESC_MAX", "SKILL_DESC_MAX" in blk)
-check("main dùng SKILL_LIST_MAX", "SKILL_LIST_MAX" in blk)
+check("main no longer has the literal [:100]", "[:100]" not in blk)
+check("main no longer has the literal 15", "15" not in blk)
+check("main uses SKILL_DESC_MAX", "SKILL_DESC_MAX" in blk)
+check("main uses SKILL_LIST_MAX", "SKILL_LIST_MAX" in blk)
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [ ] **Step 2: Run the test, confirm FAIL**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_caps.py`
-Expected: FAIL với 6 lỗi: `mcp_hub không còn literal [:60]`, `mcp_hub không còn literal 20`, `mcp_hub dùng SKILL_DESC_MAX`, `mcp_hub dùng SKILL_LIST_MAX`, `main không còn literal [:100]`, `main không còn literal 15`.
+Expected: FAIL with 6 failures: `mcp_hub no longer has the literal [:60]`, `mcp_hub no longer has the literal 20`, `mcp_hub uses SKILL_DESC_MAX`, `mcp_hub uses SKILL_LIST_MAX`, `main no longer has the literal [:100]`, `main no longer has the literal 15`.
 
-- [ ] **Step 3: Sửa mcp_hub**
+- [ ] **Step 3: Fix mcp_hub**
 
-Trong `server/mcp_hub.py`, đổi khối dòng 254-258 từ:
+In `server/mcp_hub.py`, change the block at lines 254-258 from:
 
 ```python
-    # Mô tả tool = router thu nhỏ: liệt kê slug + mô tả ngắn để engine biết KHI NÀO gọi skill nào.
+    # Tool description = a miniature router: list slug + short description so the engine knows WHEN to call which skill.
     metas = skill_router.list_enabled_meta(vault_root)
     listing = "; ".join(f"{s['slug']}: {(s['description'] or '')[:60]}" for s in metas[:20])
     if len(metas) > 20:
-        listing += f"; …(+{len(metas) - 20} skill nữa)"
+        listing += f"; …(+{len(metas) - 20} more skills)"
 ```
 
-thành:
+to:
 
 ```python
-    # Mô tả tool = router thu nhỏ: liệt kê slug + mô tả ngắn để engine biết KHI NÀO gọi skill nào.
-    # Trần lấy từ skill_router (CHUNG với system prompt) - trước đây hub tự cắt 60, system prompt
-    # cắt 100 → người viết skill không biết mình bị chấm theo thước nào.
+    # Tool description = a miniature router: list slug + short description so the engine knows WHEN to call which skill.
+    # The cap comes from skill_router (SHARED with the system prompt) - previously the hub cut at
+    # 60 and the system prompt at 100, so whoever wrote a skill did not know which ruler applied.
     metas = skill_router.list_enabled_meta(vault_root)
     _cap = skill_router.SKILL_LIST_MAX
     listing = "; ".join(f"{s['slug']}: {(s['description'] or '')[:skill_router.SKILL_DESC_MAX]}"
                         for s in metas[:_cap])
     if len(metas) > _cap:
-        listing += f"; …(+{len(metas) - _cap} skill nữa)"
+        listing += f"; …(+{len(metas) - _cap} more skills)"
 ```
 
-- [ ] **Step 4: Sửa main.py**
+- [ ] **Step 4: Fix main.py**
 
-Trong `server/main.py`, đổi dòng 3464 (dòng cuối docstring của `_skill_router_block`) từ:
+In `server/main.py`, change line 3464 (the last line of the `_skill_router_block` docstring) from:
 
 ```python
-    Cap 15 skill để không phình context (nhiều hơn → trỏ Javis/index.md)."""
+    Cap 15 skills so the context does not bloat (more than that → point to Javis/index.md)."""
 ```
 
-thành:
+to:
 
 ```python
-    Cap skill_router.SKILL_LIST_MAX để không phình context (nhiều hơn → trỏ Javis/index.md)."""
+    Cap skill_router.SKILL_LIST_MAX so the context does not bloat (more than that → point to Javis/index.md)."""
 ```
 
-Đổi khối dòng 3470-3474 từ:
+Change the block at lines 3470-3474 from:
 
 ```python
     for s in metas[:15]:
         desc = (s.get("description") or "").replace("\n", " ")[:100]
         lines.append(f"- {s['slug']} ({s['name']}): {desc}")
     if len(metas) > 15:
-        lines.append(f"…(+{len(metas) - 15} skill nữa - xem `Javis/index.md`)")
+        lines.append(f"…(+{len(metas) - 15} more skills - see `Javis/index.md`)")
 ```
 
-thành:
+to:
 
 ```python
     cap = skill_router.SKILL_LIST_MAX
@@ -324,10 +334,10 @@ thành:
         desc = (s.get("description") or "").replace("\n", " ")[:skill_router.SKILL_DESC_MAX]
         lines.append(f"- {s['slug']} ({s['name']}): {desc}")
     if len(metas) > cap:
-        lines.append(f"…(+{len(metas) - cap} skill nữa - xem `Javis/index.md`)")
+        lines.append(f"…(+{len(metas) - cap} more skills - see `Javis/index.md`)")
 ```
 
-- [ ] **Step 5: Chạy test, xác nhận PASS**
+- [ ] **Step 5: Run the test, confirm PASS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_caps.py`
 Expected: PASS.
@@ -341,120 +351,124 @@ git commit -m "fix(skill): gom 3 diem cat description ve mot hang so chung"
 
 ---
 
-### Task 3: Lint CI + viết lại 5 description hệ thống
+### Task 3: CI lint + rewrite the 5 system descriptions
 
 **Files:**
-- Test: `server/test_skill_caps.py` (thêm phần lint)
+- Test: `server/test_skill_caps.py` (add the lint part)
 - Modify: `.claude/skills/html-to-webcake/SKILL.md`, `.claude/skills/javis-builder/SKILL.md`, `.claude/skills/ingest-source/SKILL.md`, `.claude/skills/query-wiki/SKILL.md`, `.claude/skills/lint-wiki/SKILL.md`
 
 **Interfaces:**
 - Consumes: `skill_router.validate_description` (Task 1), `system_sync.SYSTEM_SKILLS_DIR` (`system_sync.py:52`).
 
-**Lưu ý:** KHÔNG đụng `brains/Brain Default/skills/tao-anh-minh-hoa-2d/SKILL.md`. Nó 139 ký tự, đã dưới trần, và mở đầu "Dùng khi cần" không phải boilerplate bị cấm.
+**Note:** do NOT touch `brains/Brain Default/skills/tao-anh-minh-hoa-2d/SKILL.md`. It is 139 characters, already under the cap, and its opening "Dùng khi cần" ("Use when you need") is not the banned boilerplate.
 
-- [ ] **Step 1: Viết lint thất bại**
+- [ ] **Step 1: Write the failing lint**
 
-Thêm `import system_sync  # noqa: E402` cạnh `import skill_router` ở đầu `server/test_skill_caps.py`, rồi thêm khối này TRƯỚC `if _fails:`:
+Add `import system_sync  # noqa: E402` next to `import skill_router` at the top of `server/test_skill_caps.py`, then add this block BEFORE `if _fails:`:
 
 ```python
-# ---- LINT: mọi skill HỆ THỐNG phải lọt trần + sạch boilerplate ----
-# Đây là rào chặn tái phát: bug cắt cụt description không được quay lại qua skill ship kèm app.
-# Dùng system_sync.SYSTEM_SKILLS_DIR chứ không hardcode đường dẫn; và KHÔNG rglob toàn repo
-# (sẽ dính bản mirror trong brains/ và .claude/worktrees/).
+# ---- LINT: every SYSTEM skill must fit the cap + be free of boilerplate ----
+# This is the guard against recurrence: the description truncation bug must not come back through
+# a skill that ships with the app.
+# Use system_sync.SYSTEM_SKILLS_DIR rather than hardcoding the path; and do NOT rglob the whole
+# repo (it would hit the mirror copies in brains/ and .claude/worktrees/).
 _sys_dir = system_sync.SYSTEM_SKILLS_DIR
-check("tìm thấy thư mục skill hệ thống", _sys_dir.is_dir())
+check("found the system skills directory", _sys_dir.is_dir())
 for _slug in sorted(system_sync.system_skill_slugs()):
     _f = _sys_dir / _slug / "SKILL.md"
     _meta, _ = skill_router.split_frontmatter(_f.read_text(encoding="utf-8"))
     _desc = _meta.get("description", "") or ""
     _err = skill_router.validate_description(_desc)
-    check(f"skill hệ thống '{_slug}' description hợp lệ ({len(_desc)} ký tự)"
-          + (f" → {_err}" if _err else ""), _err is None)
+    check(f"system skill '{_slug}' has a valid description ({len(_desc)} characters)"
+          + (f" -> {_err}" if _err else ""), _err is None)
 ```
 
-- [ ] **Step 2: Chạy lint, xác nhận nó bắt đúng 5 skill**
+- [ ] **Step 2: Run the lint, confirm it catches exactly 5 skills**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_caps.py`
-Expected: FAIL, liệt kê ĐỦ 5 dòng (không dừng ở cái đầu, vì dùng `check` chứ không dùng bare assert): `html-to-webcake` (376 ký tự), `javis-builder` (333), `ingest-source` (266), `query-wiki` (249), `lint-wiki` (213).
+Expected: FAIL, listing ALL 5 lines (not stopping at the first, since it uses `check` rather than a bare assert): `html-to-webcake` (376 characters), `javis-builder` (333), `ingest-source` (266), `query-wiki` (249), `lint-wiki` (213).
 
-- [ ] **Step 3: Viết lại description + thêm mục "Khi nào dùng"**
+- [ ] **Step 3: Rewrite the descriptions + add a "When to use" section**
 
-Với MỖI file dưới đây: thay dòng `description:` trong frontmatter, rồi chèn mục `## Khi nào dùng` vào thân file ngay SAU tiêu đề H1, chứa đúng các ví dụ trigger vừa bị lấy ra khỏi description. Không mất thông tin, chỉ đổi chỗ.
+For EACH file below: replace the `description:` line in the frontmatter, then insert a `## When to use` section into the body right AFTER the H1 heading, holding exactly the trigger examples that were just taken out of the description. No information is lost, it only moves.
 
-`.claude/skills/html-to-webcake/SKILL.md` (69 ký tự):
+`.claude/skills/html-to-webcake/SKILL.md` (the Vietnamese trigger phrases stay verbatim below because they are example user input; each is glossed in English):
 ```yaml
-description: Chuyển HTML sang file Webcake .pke để tải lên Webcake chỉnh sửa tiếp.
+description: Turn an HTML page into a .pke file the Webcake builder can open, keeping the original colours, type sizes, images and layout.
 ```
 ```markdown
-## Khi nào dùng
+## When to use
 
-Kích hoạt khi người dùng nói những câu như: "chuyển file html này sang webcake",
-"đổi html thành pke", "tạo file webcake từ html", "làm landing này thành file sửa được
-trên webcake", "html to webcake", "convert html sang webcake".
+Activate when the user says things like: "chuyển file html này sang webcake" (convert this
+html file to webcake), "đổi html thành pke" (turn html into pke), "tạo file webcake từ html"
+(make a webcake file from html), "làm landing này thành file sửa được trên webcake" (turn this
+landing page into a file editable on webcake), "html to webcake", "convert html sang webcake".
 
-Việc skill làm: đọc HTML, tái dựng thành page_source đúng khuôn Webcake rồi xuất .pke.
+What the skill does: read the HTML, rebuild it as a page_source in the exact Webcake mold, then
+export a .pke.
 ```
 
-`.claude/skills/javis-builder/SKILL.md` (110 ký tự):
+`.claude/skills/javis-builder/SKILL.md`:
 ```yaml
-description: Tạo hoặc sửa năng lực của Jarvis 007: agent, skill, workflow, loop, plugin. Kèm mẫu file chuẩn và luật chống trùng.
+description: Create or edit a Jarvis 007 capability: agent, skill, workflow, loop, plugin. Ships file templates and the rules against duplicates.
 ```
 ```markdown
-## Khi nào dùng
+## When to use
 
-Kích hoạt khi người dùng nói những câu như: "tạo agent chuyên X", "thêm kỹ năng Y",
-"dựng workflow nghiên cứu rồi viết", "tạo loop mỗi 2 tiếng làm Z", "viết tool/plugin
-tính ...", "làm cho Jarvis 007 biết làm ...".
+Activate when the user says things like: "create an agent specialized in X", "add a skill for Y",
+"build a research-then-write workflow", "create a loop that does Z every 2 hours", "write a
+tool/plugin that computes ...", "make Jarvis 007 able to do ...".
 ```
-LƯU Ý: `description` này chứa dấu hai chấm. YAML sẽ hiểu nhầm thành mapping. PHẢI bọc cả giá trị trong nháy kép:
+NOTE: this `description` contains a colon. YAML will misread it as a mapping. You MUST wrap the whole value in double quotes:
 ```yaml
-description: "Tạo hoặc sửa năng lực của Jarvis 007: agent, skill, workflow, loop, plugin. Kèm mẫu file chuẩn và luật chống trùng."
+description: "Create or edit a Jarvis 007 capability: agent, skill, workflow, loop, plugin. Ships file templates and the rules against duplicates."
 ```
 
-`.claude/skills/ingest-source/SKILL.md` (81 ký tự):
+`.claude/skills/ingest-source/SKILL.md`:
 ```yaml
-description: Tiêu hoá một source thô vào Second Brain, chưng cất thành tri thức wiki tích luỹ.
+description: Digest one raw source into the Second Brain and distil it into wiki knowledge that compounds.
 ```
 ```markdown
-## Khi nào dùng
+## When to use
 
-Kích hoạt khi người dùng nói những câu như: "tiêu hoá source này", "xử lý bài này vào
-wiki", "đọc file này rồi ghi lại kiến thức", hoặc khi có file mới thả vào `sources/`.
+Activate when the user says things like: "digest this source", "process this article into the
+wiki", "read this file and write down the knowledge", or when a new file is dropped into
+`sources/`.
 
-Skill làm theo đúng 3 kỷ luật của vault.
+The skill follows the vault's 3 disciplines exactly.
 ```
 
-`.claude/skills/query-wiki/SKILL.md` (91 ký tự) - nhớ bọc nháy kép vì có dấu hai chấm:
+`.claude/skills/query-wiki/SKILL.md` - remember the double quotes because of the colon:
 ```yaml
-description: "Khai thác tri thức trong Second Brain: tổng hợp, so sánh, giả thuyết. Trả lời có trích dẫn."
+description: "Mine the knowledge held in the Second Brain: synthesis, comparison, hypotheses. Every answer carries citations."
 ```
 ```markdown
-## Khi nào dùng
+## When to use
 
-Kích hoạt khi người dùng hỏi/khai thác tri thức trong Second Brain, vd "tổng hợp các
-framework về X", "so sánh A vs B vs C", "wiki có gì về Y".
+Activate when the user asks about or mines the knowledge in the Second Brain, e.g. "synthesize
+the frameworks about X", "compare A vs B vs C", "what does the wiki have on Y".
 
-Năm kiểu khai thác: tổng hợp, so sánh, giả thuyết, liệt kê, trực quan hoá. Luôn trả lời
-có trích dẫn và lưu lại kết quả giá trị.
+Five kinds of mining: synthesis, comparison, hypothesis, listing, visualization. Always answer
+with citations and save results that are worth keeping.
 ```
 
-`.claude/skills/lint-wiki/SKILL.md` (88 ký tự):
+`.claude/skills/lint-wiki/SKILL.md`:
 ```yaml
-description: Rà soát sức khoẻ wiki của Second Brain, trả về danh sách vấn đề. Không tự sửa hàng loạt.
+description: Audit the health of the Second Brain wiki and hand back a list of problems. Never mass-edits on its own.
 ```
 ```markdown
-## Khi nào dùng
+## When to use
 
-Kích hoạt khi người dùng nói những câu như: "health check wiki", "lint wiki", "wiki có
-lỗi gì không", "rà soát bộ não".
+Activate when the user says things like: "health check the wiki", "lint wiki", "is anything
+wrong with the wiki", "audit the brain".
 ```
 
-- [ ] **Step 4: Chạy lint, xác nhận PASS**
+- [ ] **Step 4: Run the lint, confirm PASS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_caps.py`
-Expected: PASS. Cả 5 dòng `skill hệ thống '<slug>' description hợp lệ` đều `ok`.
+Expected: PASS. All 5 lines `system skill '<slug>' has a valid description` are `ok`.
 
-- [ ] **Step 5: Xác minh YAML không vỡ vì dấu hai chấm**
+- [ ] **Step 5: Verify YAML does not break because of the colon**
 
 Run:
 ```bash
@@ -467,7 +481,7 @@ for s in sorted(system_sync.system_skill_slugs()):
     print(s, '|', type(m.get('description')).__name__, '|', (m.get('description') or '')[:50])
 "
 ```
-Expected: mọi dòng in `str` (KHÔNG phải `dict`). Nếu ra `dict` thì description có dấu hai chấm chưa được bọc nháy kép.
+Expected: every line prints `str` (NOT `dict`). If `dict` shows up, a description with a colon has not been wrapped in double quotes.
 
 - [ ] **Step 6: Commit**
 
@@ -478,91 +492,94 @@ git commit -m "fix(skill): viet lai 5 description he thong cho lot tran 150 + li
 
 ---
 
-### Task 4: javis-builder - sửa đường dẫn canonical + nhúng chuẩn viết skill
+### Task 4: javis-builder - fix the canonical path + embed the skill authoring standard
 
 **Files:**
-- Modify: `.claude/skills/javis-builder/SKILL.md:23-24`, `:38`, `:54`, chèn sau `:62`
+- Modify: `.claude/skills/javis-builder/SKILL.md:23-24`, `:38`, `:54`, insert after `:62`
 
-**Interfaces:** không có. Task này thuần tài liệu, nhưng nó là NỬA CÒN LẠI của spec mục B3 (nửa kia là prompt learn ở Task 7). Thiếu nó thì skill tạo qua chat vẫn vô định hình.
+**Interfaces:** none. This task is pure documentation, but it is the OTHER HALF of spec item B3 (the other half is the learn prompt in Task 7). Without it, skills created through chat remain shapeless.
 
-**Phụ thuộc:** làm SAU Task 3 (Task 3 đã viết lại `description` của chính file này).
+**Depends on:** do AFTER Task 3 (Task 3 rewrote this very file's `description`).
 
-`javis-builder` đang dạy ghi skill vào `.claude/skills/`, nhưng đó là bản MIRROR phái sinh. Canonical là `skills/<slug>/SKILL.md` (xem `skill_router.py:6` và `CLAUDE.md:245`). Sai ở 3 chỗ, phải sửa cả ba kẻo file tự mâu thuẫn.
+`javis-builder` currently teaches writing skills into `.claude/skills/`, but that is the derived MIRROR copy. The canonical location is `skills/<slug>/SKILL.md` (see `skill_router.py:6` and `CLAUDE.md:245`). It is wrong in 3 places, and all three must be fixed or the file contradicts itself.
 
-- [ ] **Step 1: Sửa dòng 54**
+- [ ] **Step 1: Fix line 54**
 
-Đổi:
+Change:
 ```markdown
 ### Skill -> `.claude/skills/<slug>/SKILL.md`
 ```
-thành:
+to:
 ```markdown
 ### Skill -> `skills/<slug>/SKILL.md`
 ```
-(canonical phẳng; Jarvis 007 tự mirror sang `.claude/skills` cho Claude Code nạp native)
+(flat canonical; Jarvis 007 mirrors it into `.claude/skills` on its own for Claude Code to load natively)
 
-- [ ] **Step 2: Sửa dòng 23-24**
+- [ ] **Step 2: Fix lines 23-24**
 
-Đổi:
+Change:
 ```markdown
-3. **Chống trùng.** TRƯỚC khi tạo, đọc folder tương ứng (agents/ workflows/ .claude/skills/
-   loops/). Nếu đã có cái gần giống -> cập nhật cái cũ, đừng đẻ bản sao.
+3. **Check for duplicates.** BEFORE creating, read the matching folder (agents/ workflows/ .claude/skills/
+   loops/). If something close already exists -> update the old one, do not spawn a copy.
 ```
-thành:
+to:
 ```markdown
-3. **Chống trùng.** TRƯỚC khi tạo, đọc folder tương ứng (agents/ workflows/ skills/
-   loops/). Nếu đã có cái gần giống -> cập nhật cái cũ, đừng đẻ bản sao.
-```
-
-- [ ] **Step 3: Sửa dòng 38**
-
-Đổi:
-```markdown
-skills: [slug-skill]      # [] nếu chưa gán; chỉ gán skill đã có trong .claude/skills
-```
-thành:
-```markdown
-skills: [slug-skill]      # [] nếu chưa gán; chỉ gán skill đã có trong skills/
+3. **Check for duplicates.** BEFORE creating, read the matching folder (agents/ workflows/ skills/
+   loops/). If something close already exists -> update the old one, do not spawn a copy.
 ```
 
-- [ ] **Step 4: Nhúng CHUẨN VIẾT SKILL vào javis-builder**
+- [ ] **Step 3: Fix line 38**
 
-Spec mục B3 yêu cầu bộ chuẩn có ở CẢ HAI nơi sinh skill: prompt learn (Task 7) và javis-builder (đây). Thiếu một nơi thì skill tạo qua chat vẫn ra vô định hình.
-
-Trong `.claude/skills/javis-builder/SKILL.md`, ngay SAU khối template Skill (kết thúc ở dòng 62 với dấu ``` đóng), chèn:
-
+Change:
 ```markdown
-#### Chuẩn viết skill (bắt buộc, server sẽ CHẶN nếu vi phạm)
-
-1. `description` **TỐI ĐA 150 ký tự**. Router cắt đúng ở đó (`skill_router.SKILL_DESC_MAX`)
-   ở cả system prompt lẫn mô tả tool, nên viết dài hơn là phần đuôi MẤT IM LẶNG và skill
-   không route được. Viết xong hãy ĐẾM, đừng ước lượng. `POST /skills` trả 400 nếu vượt.
-2. `description` nêu THẲNG năng lực. KHÔNG mở đầu bằng "Kích hoạt khi...", "Sử dụng skill
-   này khi..." - mọi skill đều mở như vậy nên nó đốt 29 ký tự mà không phân biệt gì.
-   Tốt: `Chuyển HTML sang file Webcake .pke.` Xấu: `Kích hoạt khi người dùng muốn chuyển...`
-3. `description` có dấu hai chấm thì phải bọc cả giá trị trong nháy kép, kẻo YAML hiểu
-   nhầm thành mapping.
-4. Ví dụ trigger đầy đủ đưa vào THÂN file, mục `## Khi nào dùng` - nơi không bị cắt và chỉ
-   đọc khi skill đã nạp. Index để TÌM, thân file để LÀM.
-5. Thứ tự mục trong thân: `## Khi nào dùng` / `## Chuẩn bị` / `## Cách chạy` /
-   `## Quy trình` / `## Bẫy` / `## Kiểm chứng`. Mục nào không có nội dung thật thì bỏ,
-   đừng bịa cho đủ.
-6. KHÔNG bịa flag, đường dẫn, API chưa thấy trong nguồn. Không thấy thì đừng viết.
-7. Thân file khoảng 100 dòng cho skill đơn giản, 200 cho skill phức tạp. Dài hơn thì tách
-   nội dung xuống `skills/<slug>/references/<chủ-đề>.md`, script xuống
-   `skills/<slug>/scripts/`, và trỏ tới bằng đường dẫn tương đối.
-8. KHÔNG viết skill kiểu router chỉ trỏ sang skill khác.
+skills: [slug-skill]      # [] if none assigned yet; only assign skills that already exist in .claude/skills
+```
+to:
+```markdown
+skills: [slug-skill]      # [] if none assigned yet; only assign skills that already exist in skills/
 ```
 
-- [ ] **Step 5: Xác minh không còn tham chiếu sai**
+- [ ] **Step 4: Embed the SKILL AUTHORING STANDARD in javis-builder**
+
+Spec item B3 requires the standard to exist in BOTH places that produce skills: the learn prompt (Task 7) and javis-builder (this task). Miss either one and skills created through chat still come out shapeless.
+
+In `.claude/skills/javis-builder/SKILL.md`, right AFTER the Skill template block (which ends at line 62 with the closing ``` fence), insert:
+
+```markdown
+#### Skill authoring standard (mandatory, the server will BLOCK violations)
+
+1. `description` is **AT MOST 150 characters**. The router cuts at exactly that point
+   (`skill_router.SKILL_DESC_MAX`) in both the system prompt and the tool description, so
+   anything longer has its tail LOST SILENTLY and the skill cannot be routed. After writing,
+   COUNT, do not estimate. `POST /skills` returns 400 if it is over.
+2. `description` states the capability DIRECTLY. Do NOT open with "Activate when...", "Use this
+   skill when..." - every skill opens that way, so it burns 29 characters and distinguishes
+   nothing. Good: `Turn HTML into a Webcake .pke file.` Bad: `Activate when the user wants to convert...`
+3. If `description` contains a colon, the whole value must be wrapped in double quotes, or YAML
+   reads it as a mapping.
+4. Put the full trigger examples in the BODY, in the `## When to use` section - where nothing is
+   cut and which is only read once the skill is loaded. The index is for FINDING, the body is for
+   DOING.
+5. Order of sections in the body: `## When to use` / `## Preparation` / `## How to run` /
+   `## Procedure` / `## Pitfalls` / `## Verification`. Drop any section with no real content,
+   do not invent filler.
+6. Do NOT invent flags, paths or APIs you have not seen in the source. If you did not see it, do
+   not write it.
+7. Keep the body around 100 lines for a simple skill, 200 for a complex one. Longer than that,
+   move the content down to `skills/<slug>/references/<topic>.md`, scripts down to
+   `skills/<slug>/scripts/`, and point to them by relative path.
+8. Do NOT write a router-style skill that only points to another skill.
+```
+
+- [ ] **Step 5: Verify no wrong references remain**
 
 Run: `grep -n "\.claude/skills" .claude/skills/javis-builder/SKILL.md`
-Expected: chỉ còn các dòng NÓI VỀ mirror (nếu có), không còn dòng nào bảo GHI vào đó. Nếu grep trả rỗng thì cũng đạt.
+Expected: only lines that TALK ABOUT the mirror (if any), no line that tells you to WRITE there. An empty grep result also passes.
 
-- [ ] **Step 6: Chạy lint để chắc không vỡ frontmatter**
+- [ ] **Step 6: Run the lint to make sure the frontmatter is not broken**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_caps.py`
-Expected: PASS. Đặc biệt dòng `skill hệ thống 'javis-builder' description hợp lệ` phải `ok` - Task 3 đã viết lại description của chính file này, Step 4 ở đây chỉ thêm vào THÂN nên không được làm nó vượt trần trở lại.
+Expected: PASS. In particular the line `system skill 'javis-builder' has a valid description` must be `ok` - Task 3 rewrote this very file's description, and Step 4 here only adds to the BODY, so it must not push it back over the cap.
 
 - [ ] **Step 7: Commit**
 
@@ -573,39 +590,40 @@ git commit -m "fix(docs): javis-builder tro dung canonical skills/ + nhung chuan
 
 ---
 
-### Task 5: CLAUDE.md thôi dạy viết description dài
+### Task 5: CLAUDE.md stops teaching long descriptions
 
 **Files:**
-- Modify: `CLAUDE.md:249`, chèn thêm 1 bullet sau `:253`
+- Modify: `CLAUDE.md:249`, insert 1 more bullet after `:253`
 
-**Interfaces:** không có. Thuần tài liệu.
+**Interfaces:** none. Pure documentation.
 
-- [ ] **Step 1: Sửa mẫu frontmatter**
+- [ ] **Step 1: Fix the frontmatter template**
 
-Trong `CLAUDE.md:249`, đổi:
+In `CLAUDE.md:249`, change:
 ```yaml
-description: <mô tả NGẮN, quyết định KHI NÀO skill được kích hoạt - viết rõ trigger>
+description: <SHORT description, decides WHEN the skill is activated - write the trigger clearly>
 ```
-thành:
+to:
 ```yaml
-description: <nêu THẲNG năng lực, TỐI ĐA 150 ký tự - vd "Chuyển HTML sang file Webcake .pke.">
+description: <state the capability DIRECTLY, AT MOST 150 characters - e.g. "Turn HTML into a Webcake .pke file.">
 ```
 
-- [ ] **Step 2: Thêm bullet luật trần**
+- [ ] **Step 2: Add the cap rule bullet**
 
-Ngay SAU dòng 253 (dấu ``` đóng khối) và TRƯỚC bullet "Tự phân nhóm (group)" ở dòng 254, chèn:
+Right AFTER line 253 (the closing ``` of the block) and BEFORE the "Classify it yourself (group)" bullet at line 254, insert:
 
 ```markdown
-- **`description` TỐI ĐA 150 ký tự - đây KHÔNG phải chuyện thẩm mỹ.** Router cắt đúng ở 150
-  (`skill_router.SKILL_DESC_MAX`) ở cả system prompt lẫn mô tả tool, nên viết dài hơn là phần
-  đuôi MẤT IM LẶNG và skill không route được. Viết xong hãy ĐẾM. Nêu thẳng năng lực, KHÔNG mở
-  đầu bằng cụm sáo rỗng kiểu "Kích hoạt khi người dùng muốn..." (mọi skill đều mở như vậy nên
-  nó đốt 29 ký tự mà không phân biệt gì). Ví dụ trigger đầy đủ đưa xuống mục `## Khi nào dùng`
-  trong THÂN file, nơi không bị cắt và chỉ được đọc khi skill đã nạp. Index để TÌM, thân file
-  để LÀM.
+- **`description` is AT MOST 150 characters - this is not cosmetic.** The router truncates at
+  exactly 150 (`skill_router.SKILL_DESC_MAX`) in both the system prompt and the tool
+  description, so writing longer means the tail is LOST SILENTLY and the skill cannot be
+  routed. COUNT after writing. State the capability directly; do NOT open with filler like
+  "Activates when the user wants to..." (every skill opens that way, so it burns 29 characters
+  without distinguishing anything). Put full trigger examples in a `## When to use` section in
+  the BODY, where nothing is truncated and which is only read once the skill is loaded. The
+  index is for FINDING, the body is for DOING.
 ```
 
-- [ ] **Step 3: Xác minh không có em dash lọt vào**
+- [ ] **Step 3: Verify no em dash slipped in**
 
 Run: `cd "D:/Project/Javis-OS" && ./.venv/Scripts/python.exe -c "import pathlib; t=pathlib.Path('CLAUDE.md').read_text(encoding='utf-8'); print('em dash:', t.count(chr(8212)))"`
 Expected: `em dash: 0`
@@ -619,7 +637,7 @@ git commit -m "docs(claude): neu ro tran 150 ky tu cho description skill kem ly 
 
 ---
 
-### Task 6: POST /skills ép chuẩn lúc ghi
+### Task 6: POST /skills enforces the standard at write time
 
 **Files:**
 - Modify: `server/main.py:2213-2238`
@@ -628,51 +646,51 @@ git commit -m "docs(claude): neu ro tran 150 ky tu cho description skill kem ly 
 **Interfaces:**
 - Consumes: `skill_router.validate_description` (Task 1).
 
-- [ ] **Step 1: Viết test thất bại**
+- [ ] **Step 1: Write the failing test**
 
-Thêm vào `server/test_skill_caps.py` trước `if _fails:`:
+Add to `server/test_skill_caps.py` before `if _fails:`:
 
 ```python
-# ---- POST /skills phải ép trần TRƯỚC khi tạo thư mục ----
-# Mốc kết thúc là /skills/delete (main.py:2241) chứ KHÔNG phải /skills/toggle: toggle nằm ở
-# dòng 2161, TRƯỚC save_skill (2214), nên dùng nó làm mốc sau sẽ ném ValueError.
+# ---- POST /skills must enforce the cap BEFORE creating the directory ----
+# The end marker is /skills/delete (main.py:2241) and NOT /skills/toggle: toggle sits at line
+# 2161, BEFORE save_skill (2214), so using it as the later marker would raise ValueError.
 _save = _region("main.py", "async def save_skill", '@app.post("/skills/delete")')
-check("POST /skills gọi validate_description", "validate_description" in _save)
-check("POST /skills ép TRƯỚC khi mkdir",
+check("POST /skills calls validate_description", "validate_description" in _save)
+check("POST /skills enforces BEFORE mkdir",
       _save.index("validate_description") < _save.index("d.mkdir("))
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [ ] **Step 2: Run the test, confirm FAIL**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_caps.py`
-Expected: FAIL với `POST /skills gọi validate_description`.
+Expected: FAIL with `POST /skills calls validate_description`.
 
-- [ ] **Step 3: Thêm kiểm tra vào endpoint**
+- [ ] **Step 3: Add the check to the endpoint**
 
-Trong `server/main.py`, ngay SAU khối kiểm tra slug (dòng 2219-2220):
+In `server/main.py`, right AFTER the slug check (lines 2219-2220):
 
 ```python
     if not skill_router.valid_slug(slug):
-        return JSONResponse({"error": "Tên skill không hợp lệ"}, status_code=400)
+        return JSONResponse({"error": "Invalid skill name"}, status_code=400)
 ```
 
-chèn:
+insert:
 
 ```python
-    # Ép trần description NGAY, trước khi tạo bất cứ thư mục nào → request bị từ chối không
-    # để lại folder skill rỗng trên đĩa. Router cắt ở SKILL_DESC_MAX nên vượt trần = mất chữ
-    # im lặng; chặn ở đây tốt hơn là ghi bừa rồi để runtime cắt.
+    # Enforce the description cap RIGHT NOW, before creating any directory -> a rejected request
+    # leaves no empty skill folder on disk. The router cuts at SKILL_DESC_MAX so going over means
+    # silently lost text; blocking here beats writing blindly and letting the runtime cut.
     desc_err = skill_router.validate_description(description)
     if desc_err:
         return JSONResponse({"error": desc_err}, status_code=400)
 ```
 
-- [ ] **Step 4: Chạy test, xác nhận PASS**
+- [ ] **Step 4: Run the test, confirm PASS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_caps.py`
 Expected: PASS.
 
-- [ ] **Step 5: Xác minh thủ công không tạo folder rác khi bị từ chối**
+- [ ] **Step 5: Manually verify no stray folder is created on rejection**
 
 Run:
 ```bash
@@ -680,10 +698,10 @@ cd server && ../.venv/Scripts/python.exe -c "
 import sys; sys.path.insert(0,'.')
 import skill_router
 print(skill_router.validate_description('x'*200)[:60])
-print('rong ->', skill_router.validate_description(''))
+print('empty ->', skill_router.validate_description(''))
 "
 ```
-Expected: dòng 1 in lý do từ chối có chứa `200`; dòng 2 in `rong -> None`.
+Expected: line 1 prints a rejection reason containing `200`; line 2 prints `empty -> None`.
 
 - [ ] **Step 6: Commit**
 
@@ -694,37 +712,40 @@ git commit -m "feat(skill): POST /skills tu choi description vuot tran hoac sao 
 
 ---
 
-### Task 7: learn.py ép chuẩn + nhúng bộ chuẩn vào prompt
+### Task 7: learn.py enforces the standard + embeds the standard in the prompt
 
 **Files:**
-- Modify: `server/learn.py:156` (hằng số), `:356-359` (schema), `_build_prompt` (chèn khối chuẩn), `:544-568` (ép trần)
+- Modify: `server/learn.py:156` (constant), `:356-359` (schema), `_build_prompt` (insert the standard block), `:544-568` (enforce the cap)
 - Test: `server/test_skill_caps.py`
 
 **Interfaces:**
-- Consumes: `skill_router.SKILL_DESC_MAX`, `skill_router.validate_description` (Task 1). `learn.py:35` đã có `import skill_router`.
+- Consumes: `skill_router.SKILL_DESC_MAX`, `skill_router.validate_description` (Task 1). `learn.py:35` already has `import skill_router`.
 
-- [ ] **Step 1: Viết test thất bại**
+**Note on language:** the prompt text below is sent to the model and is matched by the tests, like the existing `khoi_prompt` blocks in `learn.py`, so it stays Vietnamese on purpose (the header `CHUẨN VIẾT SKILL` means "SKILL AUTHORING STANDARD"). Each prompt block is glossed in English right after it. Code, names and comments are English.
 
-Thêm vào `server/test_skill_caps.py` trước `if _fails:`:
+- [ ] **Step 1: Write the failing test**
+
+Add to `server/test_skill_caps.py` before `if _fails:`:
 
 ```python
-# ---- learn.py: chuẩn viết skill vào prompt + ép trần lúc promote ----
+# ---- learn.py: skill authoring standard in the prompt + cap enforced at promote time ----
+# "CHUẨN VIẾT SKILL" = "SKILL AUTHORING STANDARD" (the machine token the prompt carries)
 _learn = (_SRC / "learn.py").read_text(encoding="utf-8")
-check("learn.py nhúng chuẩn viết skill vào prompt", "CHUẨN VIẾT SKILL" in _learn)
-check("learn.py nội suy SKILL_DESC_MAX vào prompt (không hardcode số)",
+check("learn.py embeds the skill authoring standard in the prompt", "CHUẨN VIẾT SKILL" in _learn)
+check("learn.py interpolates SKILL_DESC_MAX into the prompt (no hardcoded number)",
       "SKILL_DESC_MAX" in _learn)
-check("learn.py ép trần description khi promote",
+check("learn.py enforces the description cap on promote",
       "validate_description" in _learn)
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [ ] **Step 2: Run the test, confirm FAIL**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_caps.py`
-Expected: FAIL cả 3 dòng `learn.py ...`.
+Expected: FAIL on all 3 `learn.py ...` lines.
 
-- [ ] **Step 3: Mở rộng schema skill trong `_build_prompt`**
+- [ ] **Step 3: Extend the skill schema in `_build_prompt`**
 
-Trong `server/learn.py`, đổi khối dòng 356-359 từ:
+In `server/learn.py`, change the block at lines 356-359 from:
 
 ```python
         if caps.get("skill"):
@@ -733,7 +754,7 @@ Trong `server/learn.py`, đổi khối dòng 356-359 từ:
                 '"self_observed":true|false,"confidence":0..3}]')
 ```
 
-thành:
+to the following (in the schema the model sees, "năng lực, TỐI ĐA N ký tự" means "capability, AT MOST N characters", "tên nhóm" means "group name", and "markdown theo CHUẨN VIẾT SKILL bên dưới" means "markdown following the SKILL AUTHORING STANDARD below"):
 
 ```python
         if caps.get("skill"):
@@ -744,11 +765,10 @@ thành:
                 '"self_observed":true|false,"confidence":0..3}]')
 ```
 
-- [ ] **Step 4: Chèn khối CHUẨN VIẾT SKILL vào prompt**
+- [ ] **Step 4: Insert the SKILL AUTHORING STANDARD block into the prompt**
 
-Trong `server/learn.py`, trong `return (...)` của `_build_prompt`, chèn NGAY TRƯỚC dòng
-`+ ("TASK (chống spam backlog): ...` (dòng 386), theo đúng thành ngữ fragment-có-điều-kiện
-đã dùng ở đó:
+In `server/learn.py`, inside the `return (...)` of `_build_prompt`, insert it RIGHT BEFORE the line
+`+ ("TASK (chống spam backlog): ...` (line 386), using the same conditional-fragment idiom used there:
 
 ```python
             + (f"CHUẨN VIẾT SKILL (bắt buộc, Python sẽ CHẶN nếu vi phạm):\n"
@@ -771,16 +791,30 @@ Trong `server/learn.py`, trong `return (...)` của `_build_prompt`, chèn NGAY 
                if caps.get("skill") else "")
 ```
 
-- [ ] **Step 5: Ép trần lúc promote**
+English gloss of that prompt block (the model-facing text stays Vietnamese like the neighbouring blocks):
 
-Trong `server/learn.py`, trong khối SKILLS của `_promote_sync`, đổi dòng 549-550 từ:
+```
+SKILL AUTHORING STANDARD (mandatory, Python will BLOCK violations):
+  1. description AT MOST {SKILL_DESC_MAX} characters. The router cuts exactly there so the excess is LOST SILENTLY and the skill cannot be routed. COUNT after writing, do not estimate.
+  2. description states the capability DIRECTLY. Do NOT open with 'Activates when...', 'Use this skill when...' - every skill opens that way so it burns budget without distinguishing anything. Good: 'Turn HTML into a Webcake .pke file.'
+  3. Put the full trigger examples in the body, in the '## When to use' section (the heading text is Vietnamese in the prompt) - do NOT cram them into the description.
+  4. body in section order: '## When to use' / '## Preparation' / '## How to run' / '## Procedure' / '## Pitfalls' / '## Verification'. Drop any section with no real content, do not invent.
+  5. Do NOT invent flags, paths or APIs not seen in the conversation. If you did not see it, do not write it.
+  6. body about 100 lines for a simple skill, 200 for a complex one.
+  7. Do NOT create a router-style skill that only points to another skill.
+  8. group is MANDATORY, pick the group closest to the existing skills.
+```
+
+- [ ] **Step 5: Enforce the cap at promote time**
+
+In `server/learn.py`, in the SKILLS block of `_promote_sync`, change lines 549-550 from:
 
 ```python
                     slug = _slugify(s.get("slug") or s.get("name") or "")
                     body = (s.get("body") or "").strip()
 ```
 
-thành:
+to:
 
 ```python
                     slug = _slugify(s.get("slug") or s.get("name") or "")
@@ -788,31 +822,31 @@ thành:
                     desc = (s.get("description") or "").strip()
 ```
 
-Rồi NGAY SAU khối secret/injection (dòng 553-554):
+Then RIGHT AFTER the secret/injection block (lines 553-554):
 
 ```python
                     if secret_hits(body) or injection_in_output(body):
-                        rep["blocked"].append(f"skill '{slug}': nội dung không an toàn"); continue
+                        rep["blocked"].append(f"skill '{slug}': unsafe content"); continue
 ```
 
-chèn:
+insert:
 
 ```python
-                    # Ép CHUẨN VIẾT SKILL: prompt đã dặn, nhưng fork có thể phớt lờ → chặn ở
-                    # Python (người ghi tin cậy duy nhất), cùng thành ngữ với secret/injection.
+                    # Enforce the SKILL AUTHORING STANDARD: the prompt already says so, but the fork may
+                    # ignore it -> block in Python (the only trusted writer), same idiom as secret/injection.
                     desc_err = skill_router.validate_description(desc)
                     if desc_err:
                         rep["blocked"].append(f"skill '{slug}': {desc_err}"); continue
 ```
 
-Và đổi dòng 564-565 (frontmatter) từ:
+And change lines 564-565 (frontmatter) from:
 
 ```python
                     fm = (f"---\nname: {s.get('name', slug)}\ndescription: {s.get('description','')}\n"
                           f"origin: javis-learned\nstatus: active\ncreated: {today}\n---\n")
 ```
 
-thành:
+to:
 
 ```python
                     fm = (f"---\nname: {s.get('name', slug)}\ndescription: {desc}\n"
@@ -820,12 +854,14 @@ thành:
                           f"origin: javis-learned\nstatus: active\ncreated: {today}\n---\n")
 ```
 
-- [ ] **Step 6: Chạy test, xác nhận PASS**
+(`'Chung'` is the default group name, the `NHOM_MAC_DINH` constant; it means "General" and is kept verbatim because the code matches it.)
+
+- [ ] **Step 6: Run the test, confirm PASS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_caps.py`
 Expected: PASS.
 
-- [ ] **Step 7: Xác minh learn.py vẫn import được (bắt lỗi cú pháp f-string)**
+- [ ] **Step 7: Verify learn.py still imports (catches f-string syntax errors)**
 
 Run: `cd server && ../.venv/Scripts/python.exe -c "import py_compile; py_compile.compile('learn.py', doraise=True); print('learn.py compile OK')"`
 Expected: `learn.py compile OK`
@@ -839,33 +875,33 @@ git commit -m "feat(learn): nhung chuan viet skill vao prompt + chan description
 
 ---
 
-### Task 8: skill_usage.py - sidecar telemetry
+### Task 8: skill_usage.py - telemetry sidecar
 
 **Files:**
 - Create: `server/skill_usage.py`
-- Test: `server/test_skill_usage.py` (tạo mới)
+- Test: `server/test_skill_usage.py` (create)
 
 **Interfaces:**
 - Produces:
   - `skill_usage.SKILL_STALE_AFTER_DAYS: int` = 30
   - `skill_usage.usage_path(brain_root) -> Path` = `<brain_root>/Javis/skill-usage.json`
-  - `skill_usage.read_usage(brain_root) -> dict` - `{slug: {use_count, last_used_at, first_used_at, created_at, created_by, pinned}}`. Lỗi/thiếu/hỏng → `{}`.
-  - `skill_usage.bump(brain_root, slug) -> None` - best-effort, không bao giờ raise.
+  - `skill_usage.read_usage(brain_root) -> dict` - `{slug: {use_count, last_used_at, first_used_at, created_at, created_by, pinned}}`. Error/missing/corrupt -> `{}`.
+  - `skill_usage.bump(brain_root, slug) -> None` - best-effort, never raises.
   - `skill_usage.is_stale(rec: dict, skill_md_mtime: Optional[float], now: float) -> bool`
-- Task 9 (bump ở hub) và Task 10 (GET /skills) dùng.
+- Used by Task 9 (bump in the hub) and Task 10 (GET /skills).
 
-- [ ] **Step 1: Viết test thất bại**
+- [ ] **Step 1: Write the failing test**
 
-Tạo `server/test_skill_usage.py`:
+Create `server/test_skill_usage.py`:
 
 ```python
-"""Test sidecar telemetry skill (skill_usage). Chạy tay / CI:
+"""Test the skill telemetry sidecar (skill_usage). Run by hand / CI:
 
     cd server && ../.venv/Scripts/python.exe test_skill_usage.py
 
-Không cần pytest, không chạm mạng. Tự cô lập sang thư mục tạm.
-Phủ: bump tăng đúng, ghi atomic, file thiếu, file JSON hỏng, gọi song song,
-is_stale (pinned / có use_count / chưa đủ già / đủ già).
+No pytest needed, no network. Isolates itself into a temp directory.
+Covers: bump increments correctly, atomic write, missing file, corrupt JSON file, parallel
+calls, is_stale (pinned / has use_count / not old enough / old enough).
 """
 import json
 import os
@@ -890,48 +926,48 @@ def check(name, cond):
 
 _ROOT = Path(tempfile.mkdtemp(prefix="javis-usagebrain-"))
 
-# ---- file thiếu ----
-check("brain chưa có sidecar → read_usage trả {}", skill_usage.read_usage(_ROOT) == {})
+# ---- missing file ----
+check("brain has no sidecar yet -> read_usage returns {}", skill_usage.read_usage(_ROOT) == {})
 
 # ---- bump ----
 skill_usage.bump(_ROOT, "viet-email")
 u = skill_usage.read_usage(_ROOT)
-check("bump lần 1 tạo bản ghi", "viet-email" in u)
-check("bump lần 1 → use_count = 1", u.get("viet-email", {}).get("use_count") == 1)
-check("bump lần 1 đặt created_at", u.get("viet-email", {}).get("created_at"))
-check("bump lần 1 đặt first_used_at", u.get("viet-email", {}).get("first_used_at"))
+check("first bump creates a record", "viet-email" in u)
+check("first bump -> use_count = 1", u.get("viet-email", {}).get("use_count") == 1)
+check("first bump sets created_at", u.get("viet-email", {}).get("created_at"))
+check("first bump sets first_used_at", u.get("viet-email", {}).get("first_used_at"))
 
 skill_usage.bump(_ROOT, "viet-email")
 u = skill_usage.read_usage(_ROOT)
-check("bump lần 2 → use_count = 2", u.get("viet-email", {}).get("use_count") == 2)
+check("second bump -> use_count = 2", u.get("viet-email", {}).get("use_count") == 2)
 
-skill_usage.bump(_ROOT, "skill-khac")
+skill_usage.bump(_ROOT, "other-skill")
 u = skill_usage.read_usage(_ROOT)
-check("bump slug khác không đè slug cũ", u.get("viet-email", {}).get("use_count") == 2)
-check("bump slug khác tạo bản ghi riêng", u.get("skill-khac", {}).get("use_count") == 1)
+check("bumping another slug does not overwrite the old slug", u.get("viet-email", {}).get("use_count") == 2)
+check("bumping another slug creates its own record", u.get("other-skill", {}).get("use_count") == 1)
 
-# ---- đúng vị trí ----
-check("sidecar nằm ở Javis/skill-usage.json",
-      skill_usage.usage_path(_ROOT) == _ROOT / "Jarvis 007" / "skill-usage.json")
-check("sidecar thật sự tồn tại trên đĩa", skill_usage.usage_path(_ROOT).is_file())
+# ---- right location ----
+check("sidecar lives at Javis/skill-usage.json",
+      skill_usage.usage_path(_ROOT) == _ROOT / "Javis" / "skill-usage.json")
+check("sidecar really exists on disk", skill_usage.usage_path(_ROOT).is_file())
 
-# ---- file hỏng: KHÔNG được làm gãy ----
-skill_usage.usage_path(_ROOT).write_text("{ day khong phai json", encoding="utf-8")
-check("sidecar hỏng → read_usage trả {} chứ không raise", skill_usage.read_usage(_ROOT) == {})
+# ---- corrupt file: must NOT break ----
+skill_usage.usage_path(_ROOT).write_text("{ this is not json", encoding="utf-8")
+check("corrupt sidecar -> read_usage returns {} instead of raising", skill_usage.read_usage(_ROOT) == {})
 try:
     skill_usage.bump(_ROOT, "viet-email")
-    check("sidecar hỏng → bump không raise", True)
+    check("corrupt sidecar -> bump does not raise", True)
 except Exception as e:
-    check(f"sidecar hỏng → bump không raise (raised {e!r})", False)
+    check(f"corrupt sidecar -> bump does not raise (raised {e!r})", False)
 
-# ---- không có quyền ghi / đường dẫn vô lý: vẫn không raise ----
+# ---- no write permission / nonsensical path: still does not raise ----
 try:
-    skill_usage.bump(Path("/khong/ton/tai/o/dau/ca"), "x")
-    check("brain không tồn tại → bump không raise", True)
+    skill_usage.bump(Path("/does/not/exist/anywhere"), "x")
+    check("brain does not exist -> bump does not raise", True)
 except Exception as e:
-    check(f"brain không tồn tại → bump không raise (raised {e!r})", False)
+    check(f"brain does not exist -> bump does not raise (raised {e!r})", False)
 
-# ---- gọi song song ----
+# ---- parallel calls ----
 import threading  # noqa: E402
 
 _R2 = Path(tempfile.mkdtemp(prefix="javis-usagepar-"))
@@ -939,67 +975,68 @@ _R2 = Path(tempfile.mkdtemp(prefix="javis-usagepar-"))
 
 def _hammer():
     for _ in range(20):
-        skill_usage.bump(_R2, "dua-xe")
+        skill_usage.bump(_R2, "race-car")
 
 
 _ts = [threading.Thread(target=_hammer) for _ in range(4)]
 [t.start() for t in _ts]
 [t.join() for t in _ts]
-_n = skill_usage.read_usage(_R2).get("dua-xe", {}).get("use_count", 0)
-check(f"4 luồng x 20 bump → sidecar còn đọc được, use_count={_n} (>0, <=80)", 0 < _n <= 80)
+_n = skill_usage.read_usage(_R2).get("race-car", {}).get("use_count", 0)
+check(f"4 threads x 20 bumps -> sidecar still readable, use_count={_n} (>0, <=80)", 0 < _n <= 80)
 
 # ---- is_stale ----
 _now = time.time()
 _old = _now - 40 * 86400
 _new = _now - 3 * 86400
 
-check("pinned → không bao giờ stale",
+check("pinned -> never stale",
       skill_usage.is_stale({"use_count": 0, "created_at": _old, "pinned": True}, None, _now) is False)
-check("có use_count > 0 → không bao giờ stale",
+check("use_count > 0 -> never stale",
       skill_usage.is_stale({"use_count": 5, "created_at": _old, "pinned": False}, None, _now) is False)
-check("use=0 nhưng mới tạo → chưa stale",
+check("use=0 but newly created -> not stale yet",
       skill_usage.is_stale({"use_count": 0, "created_at": _new, "pinned": False}, None, _now) is False)
-check("use=0 + đủ già → stale",
+check("use=0 + old enough -> stale",
       skill_usage.is_stale({"use_count": 0, "created_at": _old, "pinned": False}, None, _now) is True)
-check("không có bản ghi + mtime cũ → stale (fallback mtime)",
+check("no record + old mtime -> stale (mtime fallback)",
       skill_usage.is_stale({}, _old, _now) is True)
-check("không có bản ghi + mtime mới → chưa stale",
+check("no record + new mtime -> not stale yet",
       skill_usage.is_stale({}, _new, _now) is False)
-check("không có bản ghi + không có mtime → không stale (không đủ căn cứ)",
+check("no record + no mtime -> not stale (not enough grounds)",
       skill_usage.is_stale({}, None, _now) is False)
 
 if _fails:
-    print(f"\nFAIL - test_skill_usage: {len(_fails)} lỗi: {_fails}")
+    print(f"\nFAIL - test_skill_usage: {len(_fails)} failures: {_fails}")
     sys.exit(1)
-print("\nOK - test_skill_usage: tất cả pass")
+print("\nOK - test_skill_usage: all pass")
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [ ] **Step 2: Run the test, confirm FAIL**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_usage.py`
-Expected: FAIL với `ModuleNotFoundError: No module named 'skill_usage'`.
+Expected: FAIL with `ModuleNotFoundError: No module named 'skill_usage'`.
 
-- [ ] **Step 3: Viết module**
+- [ ] **Step 3: Write the module**
 
-Tạo `server/skill_usage.py`:
+Create `server/skill_usage.py`:
 
 ```python
 """
-skill_usage.py - Sidecar TELEMETRY cho skill: đo skill nào THẬT SỰ được dùng.
+skill_usage.py - TELEMETRY sidecar for skills: measures which skills are ACTUALLY used.
 
-Vị trí: <brain>/Javis/skill-usage.json. Đặt cạnh Javis/loop-state.json theo đúng quy ước
-đã có của Jarvis 007 ("STATE runtime tách riêng, server sở hữu" - xem self_improve.py). KHÔNG
-nhét vào frontmatter SKILL.md: brain là git repo, mỗi lần dùng skill sẽ đẻ một commit rác
-và tạo áp lực xung đột lên file do người viết.
+Location: <brain>/Javis/skill-usage.json. Placed next to Javis/loop-state.json following the
+existing Jarvis 007 convention ("runtime STATE kept separate, owned by the server" - see
+self_improve.py). NOT stuffed into the SKILL.md frontmatter: the brain is a git repo, so every
+skill use would spawn a junk commit and put conflict pressure on a file the author owns.
 
-⚠ TÍN HIỆU DƯƠNG MỘT CHIỀU. Bộ đếm chỉ bump ở tool javis_use_skill (mcp_hub). Claude Code
-nạp skill NATIVE qua bản mirror <brain>/.claude/skills KHÔNG đi qua đó, nên:
-  - use_count > 0  → skill CHẮC CHẮN có dùng.
-  - use_count == 0 → KHÔNG có bằng chứng. TUYỆT ĐỐI không suy ra "vô dụng", không tự tắt,
-    không tự archive. Nhãn stale chỉ để hiển thị tham khảo cho người, người tự quyết.
+One-way POSITIVE SIGNAL. The counter is bumped only in the javis_use_skill tool (mcp_hub).
+Claude Code loads skills NATIVELY through the mirror <brain>/.claude/skills, which does NOT go
+through there, so:
+  - use_count > 0  -> the skill is DEFINITELY used.
+  - use_count == 0 -> NO evidence. NEVER infer "useless", never auto-disable, never
+    auto-archive. The stale label is only a reference display for the person, who decides.
 
-Mọi hàm BEST-EFFORT: sidecar thiếu/hỏng/không ghi được thì trả rỗng và đi tiếp. Sidecar
-hỏng KHÔNG BAO GIỜ được làm gãy lời gọi skill.
+Every function is BEST-EFFORT: a sidecar that is missing/corrupt/unwritable yields empty and
+moves on. A broken sidecar must NEVER break a skill call.
 """
 from __future__ import annotations
 
@@ -1012,19 +1049,19 @@ import time
 from pathlib import Path
 from typing import Optional
 
-# Skill chưa có tín hiệu dùng nào và đã quá ngần này ngày thì gắn nhãn "chưa thấy dùng".
-# Ngưỡng rộng tay có chủ đích: skill mới đơn giản là chưa gặp trigger (luật của Hermes).
+# A skill with no usage signal that is older than this many days gets the "not seen used" label.
+# The threshold is deliberately generous: a new skill has simply not met its trigger yet (Hermes rule).
 SKILL_STALE_AFTER_DAYS = 30
 
-_LOCK = threading.Lock()   # serialize read-modify-write trong process
+_LOCK = threading.Lock()   # serializes read-modify-write within the process
 
 
 def usage_path(brain_root) -> Path:
-    return Path(brain_root) / "Jarvis 007" / "skill-usage.json"
+    return Path(brain_root) / "Javis" / "skill-usage.json"
 
 
 def read_usage(brain_root) -> dict:
-    """{slug: {...}}. Thiếu file / JSON hỏng / lỗi đọc → {} (không raise)."""
+    """{slug: {...}}. Missing file / corrupt JSON / read error -> {} (never raises)."""
     try:
         p = usage_path(brain_root)
         if not p.is_file():
@@ -1036,7 +1073,7 @@ def read_usage(brain_root) -> dict:
 
 
 def _write_atomic(p: Path, text: str) -> None:
-    """Ghi atomic: .tmp cạnh đích rồi os.replace (cùng ổ đĩa → rename nguyên tử)."""
+    """Atomic write: a .tmp next to the target, then os.replace (same drive -> atomic rename)."""
     p.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp = tempfile.mkstemp(dir=str(p.parent), prefix=".skill-usage-", suffix=".tmp")
     try:
@@ -1054,8 +1091,8 @@ def _write_atomic(p: Path, text: str) -> None:
 
 
 def bump(brain_root, slug: str, created_by: str = "") -> None:
-    """Đếm 1 lần dùng skill. BEST-EFFORT: nuốt mọi lỗi, chỉ log stderr.
-    Gọi ở ĐIỂM THÀNH CÔNG của handler _skill (mcp_hub) - không gọi khi slug sai."""
+    """Count 1 use of a skill. BEST-EFFORT: swallows every error, only logs to stderr.
+    Called at the SUCCESS point of the _skill handler (mcp_hub) - not called for a wrong slug."""
     slug = str(slug or "").strip()
     if not slug:
         return
@@ -1081,14 +1118,14 @@ def bump(brain_root, slug: str, created_by: str = "") -> None:
 
 
 def is_stale(rec: dict, skill_md_mtime: Optional[float], now: Optional[float] = None) -> bool:
-    """Hàm THUẦN. True = "chưa thấy dùng và đã đủ già" - CHỈ để hiển thị, KHÔNG để tự tắt.
+    """PURE function. True = "not seen used and old enough" - for DISPLAY only, NOT for auto-disabling.
 
-    Luật:
-      - pinned → không bao giờ stale.
-      - use_count > 0 → không bao giờ stale, BẤT KỂ last_used_at cũ đến đâu (điểm mù native
-        khiến last_used_at không đủ tin làm căn cứ phủ định).
-      - Không có created_at (skill có từ trước khi có tính năng này) → fallback mtime của
-        SKILL.md. Không có cả mtime → False (không đủ căn cứ thì không phán).
+    Rules:
+      - pinned -> never stale.
+      - use_count > 0 -> never stale, NO MATTER how old last_used_at is (the native blind spot
+        makes last_used_at unreliable as grounds for a negative).
+      - No created_at (a skill that existed before this feature) -> fall back to the mtime of
+        SKILL.md. No mtime either -> False (without grounds, do not judge).
     """
     now = time.time() if now is None else now
     rec = rec if isinstance(rec, dict) else {}
@@ -1102,10 +1139,10 @@ def is_stale(rec: dict, skill_md_mtime: Optional[float], now: Optional[float] = 
     return (now - float(born)) > SKILL_STALE_AFTER_DAYS * 86400
 ```
 
-- [ ] **Step 4: Chạy test, xác nhận PASS**
+- [ ] **Step 4: Run the test, confirm PASS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_usage.py`
-Expected: PASS, in `OK - test_skill_usage: tất cả pass`.
+Expected: PASS, prints `OK - test_skill_usage: all pass`.
 
 - [ ] **Step 5: Commit**
 
@@ -1116,7 +1153,7 @@ git commit -m "feat(skill): sidecar telemetry Javis/skill-usage.json (tin hieu d
 
 ---
 
-### Task 9: Bump ở điểm nghẽn duy nhất trong mcp_hub
+### Task 9: Bump at the single choke point in mcp_hub
 
 **Files:**
 - Modify: `server/mcp_hub.py:237-245`
@@ -1125,61 +1162,63 @@ git commit -m "feat(skill): sidecar telemetry Javis/skill-usage.json (tin hieu d
 **Interfaces:**
 - Consumes: `skill_usage.bump` (Task 8).
 
-**Ràng buộc:** `_skill` là `async` và chạy TRÊN event loop. `bump` có I/O đĩa. Skill dir nhỏ và ghi rất thưa (chỉ khi nạp skill) nên chấp nhận ghi đồng bộ; KHÔNG được để `bump` raise (nó đã nuốt lỗi).
+**Constraint:** `_skill` is `async` and runs ON the event loop. `bump` does disk I/O. The skill dir is small and writes are very sparse (only when a skill is loaded), so a synchronous write is acceptable; `bump` must NEVER raise (it already swallows errors).
 
-- [ ] **Step 1: Viết test thất bại**
+- [ ] **Step 1: Write the failing test**
 
-Thêm vào `server/test_skill_usage.py` trước `if _fails:`:
+Add to `server/test_skill_usage.py` before `if _fails:`:
 
 ```python
-# ---- mcp_hub bump đúng chỗ: CHỈ ở đường thành công ----
+# ---- mcp_hub bumps in the right place: ONLY on the success path ----
 _hub = (Path(os.path.dirname(os.path.abspath(__file__))) / "mcp_hub.py").read_text(encoding="utf-8")
-check("mcp_hub import skill_usage", "import skill_usage" in _hub)
-check("mcp_hub gọi skill_usage.bump", "skill_usage.bump" in _hub)
+check("mcp_hub imports skill_usage", "import skill_usage" in _hub)
+check("mcp_hub calls skill_usage.bump", "skill_usage.bump" in _hub)
+# 'ERROR: không có skill đó' = "ERROR: no such skill" (the exact marker string mcp_hub returns)
 _i_err = _hub.index('ERROR: không có skill đó')
 _i_bump = _hub.index("skill_usage.bump")
-check("bump nằm SAU nhánh trả lỗi slug sai (không đếm gõ nhầm)", _i_bump > _i_err)
+check("bump sits AFTER the wrong-slug error branch (typos are not counted)", _i_bump > _i_err)
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [ ] **Step 2: Run the test, confirm FAIL**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_usage.py`
-Expected: FAIL với `mcp_hub import skill_usage` và `mcp_hub gọi skill_usage.bump`.
+Expected: FAIL with `mcp_hub imports skill_usage` and `mcp_hub calls skill_usage.bump`.
 
-- [ ] **Step 3: Thêm import**
+- [ ] **Step 3: Add the import**
 
-Trong `server/mcp_hub.py`, cạnh `import skill_router` (dòng 27), thêm:
+In `server/mcp_hub.py`, next to `import skill_router` (line 27), add:
 
 ```python
 import skill_usage
 ```
 
-- [ ] **Step 4: Bump ở điểm thành công**
+- [ ] **Step 4: Bump at the success point**
 
-Trong `server/mcp_hub.py`, đổi dòng 245 từ:
+In `server/mcp_hub.py`, change line 245 from:
 
 ```python
         return f.read_text(encoding="utf-8", errors="replace")[:60_000]
 ```
 
-thành:
+to:
 
 ```python
         text = f.read_text(encoding="utf-8", errors="replace")[:60_000]
-        # ĐIỂM ĐẾM DUY NHẤT: mọi engine nạp skill qua tool này đều đi ngang đây. Chỉ đếm ở
-        # đường THÀNH CÔNG - nhánh trên đã lọc slug sai/skill tắt nên không đếm gõ nhầm.
-        # Dùng f.parent.name (slug canonical trên đĩa) chứ không dùng `name` thô từ engine.
-        # bump tự nuốt lỗi → sidecar hỏng không bao giờ làm gãy việc nạp skill.
+        # THE ONLY COUNTING POINT: every engine that loads a skill through this tool passes here.
+        # Count only on the SUCCESS path - the branch above already filtered wrong slugs/disabled
+        # skills so typos are not counted. Use f.parent.name (the canonical slug on disk), not the
+        # raw `name` from the engine. bump swallows errors on its own -> a broken sidecar never
+        # breaks skill loading.
         skill_usage.bump(vault_root, f.parent.name)
         return text
 ```
 
-- [ ] **Step 5: Chạy test, xác nhận PASS**
+- [ ] **Step 5: Run the test, confirm PASS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_usage.py`
 Expected: PASS.
 
-- [ ] **Step 6: Xác minh mcp_hub vẫn import được**
+- [ ] **Step 6: Verify mcp_hub still imports**
 
 Run: `cd server && ../.venv/Scripts/python.exe -c "import py_compile; py_compile.compile('mcp_hub.py', doraise=True); print('mcp_hub compile OK')"`
 Expected: `mcp_hub compile OK`
@@ -1193,7 +1232,7 @@ git commit -m "feat(skill): dem luot dung tai handler javis_use_skill"
 
 ---
 
-### Task 10: GET /skills lộ usage + dashboard hiển thị
+### Task 10: GET /skills exposes usage + dashboard displays it
 
 **Files:**
 - Modify: `server/main.py:2144-2152`
@@ -1202,50 +1241,50 @@ git commit -m "feat(skill): dem luot dung tai handler javis_use_skill"
 
 **Interfaces:**
 - Consumes: `skill_usage.read_usage`, `skill_usage.is_stale` (Task 8).
-- Produces: mỗi item của `GET /skills` có thêm `use_count: int`, `last_used_at: float|None`, `stale: bool`.
+- Produces: each item of `GET /skills` gains `use_count: int`, `last_used_at: float|None`, `stale: bool`.
 
-- [ ] **Step 1: Viết test thất bại**
+- [ ] **Step 1: Write the failing test**
 
-Thêm vào `server/test_skill_usage.py` trước `if _fails:`:
+Add to `server/test_skill_usage.py` before `if _fails:`:
 
 ```python
-# ---- GET /skills lộ usage ----
+# ---- GET /skills exposes usage ----
 _main = (Path(os.path.dirname(os.path.abspath(__file__))) / "main.py").read_text(encoding="utf-8")
 _list = _main[_main.index('@app.get("/skills")'):_main.index('def _skills_dir')]
-check("GET /skills đọc usage", "read_usage" in _list)
-check("GET /skills tính stale", "is_stale" in _list)
+check("GET /skills reads usage", "read_usage" in _list)
+check("GET /skills computes stale", "is_stale" in _list)
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [ ] **Step 2: Run the test, confirm FAIL**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_usage.py`
-Expected: FAIL cả 2 dòng `GET /skills ...`.
+Expected: FAIL on both `GET /skills ...` lines.
 
-- [ ] **Step 3: Thêm import vào main.py**
+- [ ] **Step 3: Add the import to main.py**
 
-Trong `server/main.py`, cạnh `import skill_router` (dòng 43), thêm:
+In `server/main.py`, next to `import skill_router` (line 43), add:
 
 ```python
 import skill_usage
 ```
 
-- [ ] **Step 4: Mở rộng endpoint**
+- [ ] **Step 4: Extend the endpoint**
 
-Trong `server/main.py`, đổi thân `GET /skills` (dòng 2149-2152) từ:
+In `server/main.py`, change the body of `GET /skills` (lines 2149-2152) from:
 
 ```python
     root = _brain_root(brain)
-    sys_slugs = system_sync.system_skill_slugs()   # skill HỆ THỐNG (đi theo phiên bản app)
+    sys_slugs = system_sync.system_skill_slugs()   # SYSTEM skills (follow the app version)
     out = [{**s, "system": s["slug"] in sys_slugs} for s in skill_router.list_skills(root)]
     return {"skills": out}
 ```
 
-thành:
+to:
 
 ```python
     root = _brain_root(brain)
-    sys_slugs = system_sync.system_skill_slugs()   # skill HỆ THỐNG (đi theo phiên bản app)
-    usage = skill_usage.read_usage(root)           # telemetry (tín hiệu DƯƠNG một chiều)
+    sys_slugs = system_sync.system_skill_slugs()   # SYSTEM skills (follow the app version)
+    usage = skill_usage.read_usage(root)           # telemetry (one-way POSITIVE signal)
     now = time.time()
 
     def _mtime(p):
@@ -1262,60 +1301,61 @@ thành:
                     "use_count": int(rec.get("use_count", 0) or 0),
                     "last_used_at": rec.get("last_used_at"),
                     "pinned": bool(rec.get("pinned", False)),
-                    # stale = "chưa thấy dùng + đủ già". CHỈ để hiển thị tham khảo: skill nạp
-                    # native qua .claude/skills không đi qua bộ đếm nên use=0 KHÔNG có nghĩa
-                    # là vô dụng. Không có gì tự tắt dựa trên cờ này.
+                    # stale = "not seen used + old enough". For reference display ONLY: skills
+                    # loaded natively through .claude/skills do not pass through the counter, so
+                    # use=0 does NOT mean useless. Nothing is auto-disabled based on this flag.
                     "stale": skill_usage.is_stale(rec, _mtime(s["path"]), now)})
     return {"skills": out}
 ```
 
-- [ ] **Step 5: Chạy test, xác nhận PASS**
+- [ ] **Step 5: Run the test, confirm PASS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_usage.py`
 Expected: PASS.
 
-- [ ] **Step 6: Hiển thị ở dashboard**
+- [ ] **Step 6: Display in the dashboard**
 
-Trong `dashboard/studio.js`, trong `renderSkillList()`, ngay SAU dòng khai báo `sysBadge` và TRƯỚC `div.innerHTML = ...`, chèn:
+In `dashboard/studio.js`, inside `renderSkillList()`, right AFTER the `sysBadge` declaration and BEFORE `div.innerHTML = ...`, insert:
 
 ```javascript
-      // Telemetry: use_count là tín hiệu DƯƠNG một chiều. Skill nạp native qua .claude/skills
-      // không đi qua bộ đếm, nên "chưa thấy dùng" là tham khảo, KHÔNG phải phán quyết.
+      // Telemetry: use_count is a one-way POSITIVE signal. Skills loaded natively through
+      // .claude/skills do not pass through the counter, so "not seen used" is a reference,
+      // NOT a verdict.
       let usageHtml = "";
       if (s.use_count > 0) {
         const when = s.last_used_at ? new Date(s.last_used_at * 1000).toLocaleDateString("vi-VN") : "";
-        usageHtml = ` · <span class="sk-usage">đã dùng ${s.use_count} lần${when ? ", gần nhất " + when : ""}</span>`;
+        usageHtml = ` · <span class="sk-usage">used ${s.use_count} times${when ? ", most recently " + when : ""}</span>`;
       } else if (s.stale) {
-        usageHtml = ` · <span class="sk-usage sk-stale" title="Jarvis 007 chỉ đếm được skill nạp qua tool javis_use_skill. Claude Code nạp native qua .claude/skills thì không đếm được, nên đây chỉ là tham khảo - không có nghĩa skill vô dụng.">chưa thấy dùng</span>`;
+        usageHtml = ` · <span class="sk-usage sk-stale" title="Jarvis 007 can only count skills loaded through the javis_use_skill tool. Skills Claude Code loads natively through .claude/skills cannot be counted, so this is only a reference - it does not mean the skill is useless.">not seen used</span>`;
       }
 ```
 
-Rồi trong `div.innerHTML`, đổi dòng `gp` từ:
+Then in `div.innerHTML`, change the `gp` line from:
 
 ```javascript
 <div class="gp">📂 ${esc(s.group || "Chung")} · ${esc(s.slug)}${s.source === ".agents" ? " · .agents" : ""}</div>
 ```
 
-thành:
+to (`"Chung"` is the default group name, "General", the same constant the server uses; it stays verbatim):
 
 ```javascript
 <div class="gp">📂 ${esc(s.group || "Chung")} · ${esc(s.slug)}${s.source === ".agents" ? " · .agents" : ""}${usageHtml}</div>
 ```
 
-LƯU Ý: `usageHtml` KHÔNG bọc `esc()` vì nó là HTML mình tự dựng. Mọi giá trị nội suy vào nó (`s.use_count`, `s.last_used_at`) đều là số do server sinh, không phải chuỗi người dùng nhập, nên không có đường XSS. Đừng nhét `s.name` hay `s.description` vào đây mà không `esc()`.
+NOTE: `usageHtml` is NOT wrapped in `esc()` because it is HTML we build ourselves. Every value interpolated into it (`s.use_count`, `s.last_used_at`) is a number generated by the server, not a string typed by a user, so there is no XSS path. Do not put `s.name` or `s.description` in here without `esc()`.
 
-- [ ] **Step 7: Thêm CSS**
+- [ ] **Step 7: Add the CSS**
 
-Trong `dashboard/studio.js`, trong chuỗi CSS của `_injectSkillCss()` (dòng 384-409), thêm:
+In `dashboard/studio.js`, in the CSS string of `_injectSkillCss()` (lines 384-409), add:
 
 ```css
 .sk-usage { font-size: 11px; color: var(--muted, #888); margin-left: 8px; }
 .sk-stale { opacity: .75; font-style: italic; cursor: help; }
 ```
 
-- [ ] **Step 8: Kiểm mắt thường**
+- [ ] **Step 8: Check by eye**
 
-Mở trang Skill trên dashboard. Expected: skill chưa dùng bao giờ và mới tạo thì không có nhãn gì; skill đã dùng hiện `Đã dùng N lần`. Rê chuột vào `Chưa thấy dùng` thấy tooltip giải thích điểm mù.
+Open the Skill page on the dashboard. Expected: a skill that has never been used and is newly created shows no label; a skill that has been used shows `used N times`. Hover over `not seen used` and a tooltip explains the blind spot.
 
 - [ ] **Step 9: Commit**
 
@@ -1326,36 +1366,37 @@ git commit -m "feat(skill): GET /skills tra use_count/stale, dashboard hien so l
 
 ---
 
-### Task 11: mirror_skills copy cả cây con
+### Task 11: mirror_skills copies the whole subtree
 
 **Files:**
 - Modify: `server/system_sync.py:235-264`
-- Test: `server/test_mirror_tree.py` (tạo mới)
+- Test: `server/test_mirror_tree.py` (create)
 
 **Interfaces:**
 - Produces: `system_sync.skill_tree_hash(d: Path, rel_paths=None) -> str`.
 
-**Ràng buộc phải giữ (đây là task rủi ro cao nhất của plan):**
-1. `mirror_skills` KHÔNG được tự lấy `_LOCK`. `sync_brain:356` gọi nó khi ĐANG giữ lock, mà `threading.Lock` (`:280`) không reentrant → deadlock.
-2. Add/update-only. KHÔNG xoá gì ở `mirror/<slug>` mà nguồn không có. Việc gỡ mirror do `main.py:2186-2188` (`rmtree`) lo.
-3. Bỏ qua `.disabled`.
-4. Giữ `(p / "SKILL.md").is_file()` làm cổng vào.
-5. **Bẫy digest tập-con:** mirror là add-only nên đích có file THỪA sẽ không bao giờ khớp digest nguồn → copy lại vô hạn mỗi lần gọi (mà hàm này được gọi ở 7 hot path). Digest của ĐÍCH phải tính CHỈ trên tập rel path có ở NGUỒN.
-6. **KHÔNG** đưa file nhị phân qua `read_text`/`skill_hash`: `errors="replace"` làm hỏng thầm lặng, và `_norm_text` chuẩn hoá ngày. Dùng sha256 raw bytes cho file không phải `.md`.
-7. KHÔNG đổi chữ ký hay ngữ nghĩa của `skill_hash`: `sync_brain:303`, `LEGACY_HASHES:388-405` và CLI `--hash:409-414` phụ thuộc output chính xác của nó.
+**Constraints that must hold (this is the highest-risk task of the plan):**
+1. `mirror_skills` must NOT take `_LOCK` itself. `sync_brain:356` calls it while HOLDING the lock, and `threading.Lock` (`:280`) is not reentrant -> deadlock.
+2. Add/update-only. Delete NOTHING in `mirror/<slug>` that the source does not have. Removing the mirror is handled by `main.py:2186-2188` (`rmtree`).
+3. Skip `.disabled`.
+4. Keep `(p / "SKILL.md").is_file()` as the entry gate.
+5. **Subset-digest trap:** the mirror is add-only so a destination with EXTRA files will never match the source digest -> infinite re-copy on every call (and this function is called from 7 hot paths). The digest of the DESTINATION must be computed ONLY over the set of rel paths that exist in the SOURCE.
+6. **Do NOT** pass binary files through `read_text`/`skill_hash`: `errors="replace"` corrupts silently, and `_norm_text` normalizes dates. Use sha256 of raw bytes for non-`.md` files.
+7. Do NOT change the signature or semantics of `skill_hash`: `sync_brain:303`, `LEGACY_HASHES:388-405` and the CLI `--hash:409-414` depend on its exact output.
 
-- [ ] **Step 1: Viết test thất bại**
+- [ ] **Step 1: Write the failing test**
 
-Tạo `server/test_mirror_tree.py`:
+Create `server/test_mirror_tree.py`:
 
 ```python
-"""Test mirror_skills copy cả cây con (references/, scripts/). Chạy tay / CI:
+"""Test mirror_skills copying the whole subtree (references/, scripts/). Run by hand / CI:
 
     cd server && ../.venv/Scripts/python.exe test_mirror_tree.py
 
-Không cần pytest, không chạm mạng. Tự dựng brain giả trong thư mục tạm.
-Phủ: copy thư mục con, đổi references/ thì mirror nhận, bỏ qua .disabled, add-only
-(không xoá file lạ ở mirror), không copy lại khi không đổi (chống loop vô hạn).
+No pytest needed, no network. Builds a fake brain in a temp directory.
+Covers: copying subfolders, changing references/ so the mirror picks it up, skipping .disabled,
+add-only (stray files in the mirror are not deleted), no re-copy when nothing changed (guards
+against an infinite loop).
 """
 import os
 import sys
@@ -1377,47 +1418,48 @@ def check(name, cond):
 
 
 _ROOT = Path(tempfile.mkdtemp(prefix="javis-mirrorbrain-"))
-_sk = _ROOT / "skills" / "co-tai-lieu"
+_sk = _ROOT / "skills" / "has-docs"
 (_sk / "references").mkdir(parents=True)
 (_sk / "scripts").mkdir(parents=True)
-(_sk / "SKILL.md").write_text("---\nname: Có tài liệu\ndescription: Thử cây con.\n---\nthân\n",
+(_sk / "SKILL.md").write_text("---\nname: Has docs\ndescription: Subtree test.\n---\nbody\n",
                               encoding="utf-8")
-(_sk / "references" / "chi-tiet.md").write_text("chi tiết v1\n", encoding="utf-8")
-(_sk / "scripts" / "chay.py").write_text("print('hi')\n", encoding="utf-8")
-(_sk / "anh.png").write_bytes(b"\x89PNG\r\n\x1a\n binary")
+(_sk / "references" / "details.md").write_text("details v1\n", encoding="utf-8")
+(_sk / "scripts" / "run.py").write_text("print('hi')\n", encoding="utf-8")
+(_sk / "image.png").write_bytes(b"\x89PNG\r\n\x1a\n binary")
 
-# skill đã TẮT thì không được mirror
-_dis = _ROOT / "skills" / ".disabled" / "da-tat"
+# a DISABLED skill must not be mirrored
+_dis = _ROOT / "skills" / ".disabled" / "turned-off"
 _dis.mkdir(parents=True)
-(_dis / "SKILL.md").write_text("---\nname: Đã tắt\n---\nx\n", encoding="utf-8")
+(_dis / "SKILL.md").write_text("---\nname: Turned off\n---\nx\n", encoding="utf-8")
 
-_mir = _ROOT / ".claude" / "skills" / "co-tai-lieu"
+_mir = _ROOT / ".claude" / "skills" / "has-docs"
 
 system_sync.mirror_skills(_ROOT)
-check("mirror có SKILL.md", (_mir / "SKILL.md").is_file())
-check("mirror có references/chi-tiet.md", (_mir / "references" / "chi-tiet.md").is_file())
-check("mirror có scripts/chay.py", (_mir / "scripts" / "chay.py").is_file())
-check("mirror giữ nguyên file nhị phân",
-      (_mir / "anh.png").is_file() and (_mir / "anh.png").read_bytes() == b"\x89PNG\r\n\x1a\n binary")
-check("KHÔNG mirror skill đã tắt",
-      not (_ROOT / ".claude" / "skills" / "da-tat").exists())
+check("mirror has SKILL.md", (_mir / "SKILL.md").is_file())
+check("mirror has references/details.md", (_mir / "references" / "details.md").is_file())
+check("mirror has scripts/run.py", (_mir / "scripts" / "run.py").is_file())
+check("mirror keeps the binary file intact",
+      (_mir / "image.png").is_file() and (_mir / "image.png").read_bytes() == b"\x89PNG\r\n\x1a\n binary")
+check("does NOT mirror the disabled skill",
+      not (_ROOT / ".claude" / "skills" / "turned-off").exists())
 
-# đổi references/ mà KHÔNG đổi SKILL.md → mirror vẫn phải nhận (bug hash-skip cũ)
-(_sk / "references" / "chi-tiet.md").write_text("chi tiết v2\n", encoding="utf-8")
+# change references/ WITHOUT changing SKILL.md -> the mirror must still pick it up (old hash-skip bug)
+(_sk / "references" / "details.md").write_text("details v2\n", encoding="utf-8")
 system_sync.mirror_skills(_ROOT)
-check("đổi references/ (SKILL.md không đổi) → mirror nhận bản mới",
-      (_mir / "references" / "chi-tiet.md").read_text(encoding="utf-8") == "chi tiết v2\n")
+check("references/ changed (SKILL.md unchanged) -> mirror gets the new version",
+      (_mir / "references" / "details.md").read_text(encoding="utf-8") == "details v2\n")
 
-# add-only: file lạ ở mirror KHÔNG bị xoá
-(_mir / "nguoi-dung-them.md").write_text("giữ tôi lại\n", encoding="utf-8")
+# add-only: a stray file in the mirror is NOT deleted
+(_mir / "user-added.md").write_text("keep me\n", encoding="utf-8")
 system_sync.mirror_skills(_ROOT)
-check("add-only: không xoá file lạ ở mirror", (_mir / "nguoi-dung-them.md").is_file())
+check("add-only: stray file in the mirror is not deleted", (_mir / "user-added.md").is_file())
 
-# không đổi gì → KHÔNG copy lại (chống copy lại vô hạn dù mirror có file thừa)
-# KHÔNG kiểm bằng mtime: shutil.copy2 giữ nguyên mtime của NGUỒN, nên đích luôn có cùng
-# mtime dù có copy lại hay không → test kiểu đó xanh kể cả khi code sai. Phải ĐẾM số lần
-# copy2 thật sự được gọi. Ở thời điểm này mirror đang có file thừa (nguoi-dung-them.md), nên
-# đây đồng thời là test cho bẫy digest-tập-con: digest đích phải tính CHỈ trên rel của nguồn.
+# nothing changed -> NO re-copy (guards against an infinite re-copy even though the mirror has an extra file)
+# Do NOT check with mtime: shutil.copy2 keeps the SOURCE mtime, so the destination always has the
+# same mtime whether or not it was re-copied -> a test like that is green even when the code is
+# wrong. We must COUNT how many times copy2 is really called. At this moment the mirror holds an
+# extra file (user-added.md), so this is also the test for the subset-digest trap: the destination
+# digest must be computed ONLY over the source's rel paths.
 import shutil as _sh  # noqa: E402
 
 _copies = []
@@ -1435,36 +1477,38 @@ try:
     system_sync.mirror_skills(_ROOT)
 finally:
     _sh.copy2 = _orig_copy2
-check(f"không đổi gì → KHÔNG copy lại lần nào (đếm được {len(_copies)} lượt copy)",
+check(f"nothing changed -> NO re-copy at all (counted {len(_copies)} copies)",
       len(_copies) == 0)
 
 if _fails:
-    print(f"\nFAIL - test_mirror_tree: {len(_fails)} lỗi: {_fails}")
+    print(f"\nFAIL - test_mirror_tree: {len(_fails)} failures: {_fails}")
     sys.exit(1)
-print("\nOK - test_mirror_tree: tất cả pass")
+print("\nOK - test_mirror_tree: all pass")
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [ ] **Step 2: Run the test, confirm FAIL**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_mirror_tree.py`
-Expected: FAIL với `mirror có references/chi-tiet.md`, `mirror có scripts/chay.py`, và `đổi references/ ... → mirror nhận bản mới`.
+Expected: FAIL with `mirror has references/details.md`, `mirror has scripts/run.py`, and `references/ changed ... -> mirror gets the new version`.
 
-Dòng `không đổi gì → KHÔNG copy lại lần nào` có thể XANH ngay ở bước này dù code chưa sửa (bản cũ skip theo hash SKILL.md nên cũng không copy). Đó là bình thường: dòng đó không phải để bắt lỗi hiện tại, nó là lưới chặn regression cho bản đệ quy ở Step 4, nơi digest sai sẽ gây copy lại vô hạn trên 7 hot path.
+The line `nothing changed -> NO re-copy at all` may be GREEN already at this step even though the code is unfixed (the old version skips by the SKILL.md hash so it does not copy either). That is normal: that line is not meant to catch the current bug, it is a regression net for the recursive version in Step 4, where a wrong digest would cause infinite re-copying on 7 hot paths.
 
-- [ ] **Step 3: Thêm `skill_tree_hash`**
+- [ ] **Step 3: Add `skill_tree_hash`**
 
-Trong `server/system_sync.py`, ngay SAU `skill_hash` (dòng 97-99), thêm:
+In `server/system_sync.py`, right AFTER `skill_hash` (lines 97-99), add:
 
 ```python
 def skill_tree_hash(d: Path, rel_paths=None) -> str:
-    """Digest CẢ CÂY của 1 thư mục skill (SKILL.md + asset + references/ + scripts/...).
+    """Digest of the WHOLE TREE of a skill folder (SKILL.md + assets + references/ + scripts/...).
 
-    rel_paths=None → băm mọi file có trong d. rel_paths=<list> → CHỈ băm đúng các đường dẫn
-    đó (dùng cho bên ĐÍCH: mirror là add-only nên đích có file THỪA là chuyện bình thường;
-    băm cả đích sẽ không bao giờ khớp nguồn → copy lại vô hạn mỗi lần gọi).
+    rel_paths=None -> hash every file present in d. rel_paths=<list> -> hash ONLY exactly those
+    paths (used for the DESTINATION side: the mirror is add-only so extra files at the
+    destination are normal; hashing the whole destination would never match the source -> infinite
+    re-copy on every call).
 
-    File .md băm qua skill_hash (chuẩn hoá CRLF/BOM/ngày như bản gốc). File khác băm sha256
-    RAW BYTES - KHÔNG đưa file nhị phân qua read_text (errors='replace' làm hỏng thầm lặng).
+    .md files are hashed through skill_hash (normalizing CRLF/BOM/dates like the original). Other
+    files are hashed with sha256 of RAW BYTES - do NOT pass binary files through read_text
+    (errors='replace' corrupts silently).
     """
     h = hashlib.sha256()
     if rel_paths is None:
@@ -1483,14 +1527,14 @@ def skill_tree_hash(d: Path, rel_paths=None) -> str:
             else:
                 h.update(hashlib.sha256(f.read_bytes()).hexdigest().encode())
         except OSError:
-            h.update(b"<missing>")   # thiếu ở đích → digest khác nguồn → sẽ copy
+            h.update(b"<missing>")   # missing at the destination -> digest differs from the source -> will copy
         h.update(b"\x00")
     return h.hexdigest()
 ```
 
-- [ ] **Step 4: Viết lại `mirror_skills` cho đệ quy**
+- [ ] **Step 4: Rewrite `mirror_skills` to be recursive**
 
-Trong `server/system_sync.py`, đổi thân vòng lặp (dòng 249-260) từ:
+In `server/system_sync.py`, change the loop body (lines 249-260) from:
 
 ```python
             try:
@@ -1500,28 +1544,29 @@ Trong `server/system_sync.py`, đổi thân vòng lặp (dòng 249-260) từ:
                 if dst.is_file():
                     cur = dst.read_text(encoding="utf-8", errors="replace")
                     if skill_hash(cur) == skill_hash(src_text):
-                        continue   # đã trùng nội dung → khỏi ghi lại
+                        continue   # content already identical -> no need to rewrite
                 dst_dir.mkdir(parents=True, exist_ok=True)
-                for f in d.iterdir():   # SKILL.md + file phụ (asset) cùng thư mục skill
+                for f in d.iterdir():   # SKILL.md + side files (assets) in the same skill folder
                     if f.is_file():
                         shutil.copy2(str(f), str(dst_dir / f.name))
             except Exception as e:
                 print(f"[skill mirror] {d.name}: {type(e).__name__}: {e}", file=sys.stderr)
 ```
 
-thành:
+to:
 
 ```python
             try:
                 dst_dir = mirror / d.name
-                # Tập file NGUỒN, đệ quy (SKILL.md + asset + references/ + scripts/ + templates/).
+                # The SOURCE file set, recursive (SKILL.md + assets + references/ + scripts/ + templates/).
                 rels = sorted(p.relative_to(d).as_posix() for p in d.rglob("*") if p.is_file())
                 if not rels:
                     continue
-                # So digest CẢ CÂY. Đích chỉ băm trên ĐÚNG tập rel của nguồn → file lạ ở mirror
-                # (add-only) không làm digest lệch vĩnh viễn gây copy lại vô hạn.
+                # Compare the digest of the WHOLE TREE. The destination is hashed only over EXACTLY the
+                # source's rel paths -> a stray file in the mirror (add-only) does not leave the digest
+                # permanently different and cause infinite re-copying.
                 if dst_dir.is_dir() and skill_tree_hash(d, rels) == skill_tree_hash(dst_dir, rels):
-                    continue   # trùng cả cây → khỏi ghi lại
+                    continue   # whole tree identical -> no need to rewrite
                 for rel in rels:
                     dst_f = dst_dir / rel
                     dst_f.parent.mkdir(parents=True, exist_ok=True)
@@ -1530,30 +1575,30 @@ thành:
                 print(f"[skill mirror] {d.name}: {type(e).__name__}: {e}", file=sys.stderr)
 ```
 
-- [ ] **Step 5: Cập nhật docstring `mirror_skills`**
+- [ ] **Step 5: Update the `mirror_skills` docstring**
 
-Trong `server/system_sync.py`, đổi dòng 236 từ:
-
-```python
-    """Mirror MỘT CHIỀU <root>/skills → <root>/.claude/skills (CHỈ skill đang BẬT).
-```
-
-thành:
+In `server/system_sync.py`, change line 236 from:
 
 ```python
-    """Mirror MỘT CHIỀU <root>/skills → <root>/.claude/skills (CHỈ skill đang BẬT), ĐỆ QUY
-    cả references/ scripts/ templates/ (skill là PACKAGE, không phải một file).
+    """ONE-WAY mirror <root>/skills → <root>/.claude/skills (ONLY skills that are ENABLED).
 ```
 
-- [ ] **Step 6: Chạy test, xác nhận PASS**
+to:
+
+```python
+    """ONE-WAY mirror <root>/skills → <root>/.claude/skills (ONLY skills that are ENABLED), RECURSIVE
+    over references/ scripts/ templates/ (a skill is a PACKAGE, not a single file).
+```
+
+- [ ] **Step 6: Run the test, confirm PASS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_mirror_tree.py`
 Expected: PASS.
 
-- [ ] **Step 7: Chạy toàn bộ test cho chắc không phá gì**
+- [ ] **Step 7: Run every test to make sure nothing broke**
 
 Run: `cd server && for f in test_*.py; do echo "==== $f ===="; ../.venv/Scripts/python.exe "$f" || echo "^^ FAIL"; done`
-Expected: mọi file in `OK - ...`. Đặc biệt để mắt `test_loop_ambient.py` và `test_security.py`.
+Expected: every file prints `OK - ...`. Pay special attention to `test_loop_ambient.py` and `test_security.py`.
 
 - [ ] **Step 8: Commit**
 
@@ -1564,54 +1609,54 @@ git commit -m "fix(sync): mirror_skills copy ca cay con + hash theo cay (referen
 
 ---
 
-### Task 12: gitignore cho sidecar + reconcile brain cũ
+### Task 12: gitignore for the sidecar + reconcile old brains
 
 **Files:**
 - Modify: `server/git_brain.py:62-72` (`_GITIGNORE`), `:267-268` (`_BACKUP_SKIP_SUBSTR`), `:75-99` (`ensure_git_repo`)
 - Test: `server/test_skill_usage.py`
 
 **Interfaces:**
-- Produces: `git_brain._ensure_gitignore_lines(root) -> bool` (True = có thay đổi).
+- Produces: `git_brain._ensure_gitignore_lines(root) -> bool` (True = something changed).
 
-**Ràng buộc:** hai chỗ ở **hai không gian đường dẫn KHÁC NHAU**. `.gitignore` tương đối gốc BRAIN → `Javis/skill-usage.json`. `_BACKUP_SKIP_SUBSTR` so khớp chuỗi con trên rel tương đối thư mục CHA của brain và `_backup_skip` bọc rel trong hai slash → phải viết `"/Javis/skill-usage.json/"` (cả slash đầu lẫn cuối), giống mọi mục hiện có.
+**Constraint:** the two places live in **two DIFFERENT path spaces**. `.gitignore` is relative to the BRAIN root -> `Javis/skill-usage.json`. `_BACKUP_SKIP_SUBSTR` does substring matching on the rel path relative to the PARENT directory of the brain, and `_backup_skip` wraps the rel path in two slashes -> it must be written `"/Javis/skill-usage.json/"` (both the leading and the trailing slash), like every existing entry.
 
-- [ ] **Step 1: Viết test thất bại**
+- [ ] **Step 1: Write the failing test**
 
-Thêm vào `server/test_skill_usage.py` trước `if _fails:`:
+Add to `server/test_skill_usage.py` before `if _fails:`:
 
 ```python
-# ---- sidecar là state runtime → phải bị gitignore + không lên mirror backup ----
+# ---- the sidecar is runtime state -> must be gitignored + kept off the backup mirror ----
 import git_brain  # noqa: E402
 
-check("_GITIGNORE có Javis/skill-usage.json", "Javis/skill-usage.json" in git_brain._GITIGNORE)
-check("_backup_skip bỏ qua sidecar", git_brain._backup_skip("brain/Javis/skill-usage.json") is True)
-check("_backup_skip KHÔNG bỏ nhầm skill thật",
+check("_GITIGNORE has Javis/skill-usage.json", "Javis/skill-usage.json" in git_brain._GITIGNORE)
+check("_backup_skip skips the sidecar", git_brain._backup_skip("brain/Javis/skill-usage.json") is True)
+check("_backup_skip does NOT wrongly skip a real skill",
       git_brain._backup_skip("brain/skills/viet-email/SKILL.md") is False)
 
-# reconcile brain cũ: .gitignore có sẵn thiếu dòng mới → phải được append, KHÔNG ghi đè
+# reconcile an old brain: an existing .gitignore missing the new line must get it appended, NOT overwritten
 _gi_root = Path(tempfile.mkdtemp(prefix="javis-gitest-"))
-(_gi_root / ".gitignore").write_text("# cua toi\nrieng-cua-toi/\n", encoding="utf-8")
+(_gi_root / ".gitignore").write_text("# mine\nmy-own-folder/\n", encoding="utf-8")
 _changed = git_brain._ensure_gitignore_lines(_gi_root)
 _txt = (_gi_root / ".gitignore").read_text(encoding="utf-8")
-check("reconcile báo có thay đổi", _changed is True)
-check("reconcile GIỮ dòng user tự thêm", "rieng-cua-toi/" in _txt)
-check("reconcile thêm dòng sidecar", "Javis/skill-usage.json" in _txt)
-check("reconcile lần 2 là no-op", git_brain._ensure_gitignore_lines(_gi_root) is False)
+check("reconcile reports a change", _changed is True)
+check("reconcile KEEPS the line the user added", "my-own-folder/" in _txt)
+check("reconcile adds the sidecar line", "Javis/skill-usage.json" in _txt)
+check("reconcile run a second time is a no-op", git_brain._ensure_gitignore_lines(_gi_root) is False)
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [ ] **Step 2: Run the test, confirm FAIL**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_usage.py`
-Expected: FAIL với `_GITIGNORE có Javis/skill-usage.json`, `_backup_skip bỏ qua sidecar`, và `AttributeError` ở `_ensure_gitignore_lines`.
+Expected: FAIL with `_GITIGNORE has Javis/skill-usage.json`, `_backup_skip skips the sidecar`, and an `AttributeError` at `_ensure_gitignore_lines`.
 
-- [ ] **Step 3: Thêm dòng vào `_GITIGNORE`**
+- [ ] **Step 3: Add the line to `_GITIGNORE`**
 
-Trong `server/git_brain.py`, đổi khối 62-72 thành (chèn 1 dòng sau `Javis/loop-log/`, giữ nhóm `Javis/` liền nhau; mỗi mục PHẢI tự mang `\n` vì đây là các literal nối chuỗi):
+In `server/git_brain.py`, change the block 62-72 to (insert 1 line after `Javis/loop-log/`, keeping the `Javis/` group together; each entry MUST carry its own `\n` because these are concatenated string literals):
 
 ```python
 _GITIGNORE = (
-    "# Jarvis 007 brain - KHÔNG commit: khoá, log thô (có thể chứa secret), nhật ký nền.\n"
-    "# Git chỉ version TRI THỨC ĐÃ CHƯNG CẤT (facts/wiki/skills/MEMORY.md) → undo sạch, an toàn.\n"
+    "# Jarvis 007 brain - do NOT commit: locks, raw logs (may contain secrets), background journals.\n"
+    "# Git only versions DISTILLED KNOWLEDGE (facts/wiki/skills/MEMORY.md) -> clean, safe undo.\n"
     ".javis-learn.lock\n"
     "Javis/learn-staging/\n"
     "Javis/learn-log/\n"
@@ -1623,16 +1668,16 @@ _GITIGNORE = (
 )
 ```
 
-- [ ] **Step 4: Thêm vào `_BACKUP_SKIP_SUBSTR`**
+- [ ] **Step 4: Add to `_BACKUP_SKIP_SUBSTR`**
 
-Trong `server/git_brain.py`, đổi dòng 267-268 từ:
+In `server/git_brain.py`, change lines 267-268 from:
 
 ```python
 _BACKUP_SKIP_SUBSTR = ("/memory/conversations/", "/Memory/conversations/",
                        "/Javis/loop-log/", "/Javis/learn-log/", "/Javis/learn-staging/")
 ```
 
-thành:
+to:
 
 ```python
 _BACKUP_SKIP_SUBSTR = ("/memory/conversations/", "/Memory/conversations/",
@@ -1640,16 +1685,16 @@ _BACKUP_SKIP_SUBSTR = ("/memory/conversations/", "/Memory/conversations/",
                        "/Javis/skill-usage.json/")
 ```
 
-- [ ] **Step 5: Thêm helper reconcile**
+- [ ] **Step 5: Add the reconcile helper**
 
-Trong `server/git_brain.py`, ngay TRƯỚC `def ensure_git_repo` (dòng 75), thêm:
+In `server/git_brain.py`, right BEFORE `def ensure_git_repo` (line 75), add:
 
 ```python
 def _ensure_gitignore_lines(root) -> bool:
-    """Merge các dòng của _GITIGNORE vào <root>/.gitignore, CHỈ THÊM dòng còn thiếu.
-    Trả True nếu có thay đổi. TUYỆT ĐỐI không ghi đè: brain cũ có thể đã có dòng user tự
-    thêm. Cần thiết vì ensure_git_repo return sớm ở nhánh brain-đã-là-repo → brain cũ sẽ
-    đông cứng mãi ở template lúc nó ra đời."""
+    """Merge the lines of _GITIGNORE into <root>/.gitignore, ONLY ADDING lines that are missing.
+    Returns True if something changed. NEVER overwrites: an old brain may already hold lines the
+    user added. Needed because ensure_git_repo returns early on the brain-is-already-a-repo branch
+    -> old brains would stay frozen forever at the template from when they were born."""
     try:
         gi = Path(root) / ".gitignore"
         cur = gi.read_text(encoding="utf-8") if gi.exists() else ""
@@ -1666,29 +1711,30 @@ def _ensure_gitignore_lines(root) -> bool:
         return False
 ```
 
-- [ ] **Step 6: Gọi reconcile ở nhánh brain-cũ**
+- [ ] **Step 6: Call reconcile on the old-brain branch**
 
-Trong `server/git_brain.py`, đổi dòng 81-82 từ:
+In `server/git_brain.py`, change lines 81-82 from:
 
 ```python
     if is_git_checkout(root):
         return {"ok": True, "created": False}
 ```
 
-thành:
+to:
 
 ```python
     if is_git_checkout(root):
-        # Brain ĐÃ là repo: trước đây return thẳng ở đây nên template .gitignore mới không
-        # bao giờ tới được brain cũ. Merge dòng còn thiếu rồi commit riêng bằng prefix
-        # 'chore:' - KHÔNG dùng 'learn:'/'curator:' (xem LEARN_COMMIT_PREFIXES dòng 31) để
-        # một lần vá .gitignore không bị hiện ở UI Review hay bị revert_last_learn undo.
+        # The brain IS already a repo: this used to return straight from here so the new .gitignore
+        # template never reached old brains. Merge the missing lines, then commit separately with
+        # the 'chore:' prefix - do NOT use 'learn:'/'curator:' (see LEARN_COMMIT_PREFIXES at line
+        # 31) so a one-time .gitignore patch does not show up in the Review UI or get undone by
+        # revert_last_learn.
         if _ensure_gitignore_lines(root):
-            commit_paths(root, [".gitignore"], "chore: cập nhật .gitignore brain")
+            commit_paths(root, [".gitignore"], "chore: update brain .gitignore")
         return {"ok": True, "created": False}
 ```
 
-Và đổi dòng 91-93 từ:
+And change lines 91-93 from:
 
 ```python
         gi = Path(root) / ".gitignore"
@@ -1696,21 +1742,21 @@ Và đổi dòng 91-93 từ:
             gi.write_text(_GITIGNORE, encoding="utf-8")
 ```
 
-thành:
+to:
 
 ```python
-        _ensure_gitignore_lines(root)   # merge chứ không ghi đè (brain có thể đã có .gitignore)
+        _ensure_gitignore_lines(root)   # merge rather than overwrite (the brain may already have a .gitignore)
 ```
 
-- [ ] **Step 7: Chạy test, xác nhận PASS**
+- [ ] **Step 7: Run the test, confirm PASS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_skill_usage.py`
 Expected: PASS.
 
-- [ ] **Step 8: Chạy toàn bộ test**
+- [ ] **Step 8: Run every test**
 
 Run: `cd server && for f in test_*.py; do echo "==== $f ===="; ../.venv/Scripts/python.exe "$f" || echo "^^ FAIL"; done`
-Expected: mọi file `OK`.
+Expected: every file `OK`.
 
 - [ ] **Step 9: Commit**
 
@@ -1721,17 +1767,17 @@ git commit -m "fix(git): gitignore sidecar telemetry + reconcile .gitignore cho 
 
 ---
 
-### Task 13: Chạy thật đầu-cuối + bump phiên bản
+### Task 13: Real end-to-end run + version bump
 
 **Files:**
 - Modify: `VERSION`, `CHANGELOG.md`
 
-- [ ] **Step 1: Chạy toàn bộ test như CI chạy**
+- [ ] **Step 1: Run every test the way CI runs them**
 
 Run: `cd server && status=0; for f in test_*.py; do echo "==== $f ===="; ../.venv/Scripts/python.exe "$f" || status=1; done; echo "EXIT=$status"`
 Expected: `EXIT=0`.
 
-- [ ] **Step 2: Đo lại thiệt hại cắt cụt, xác nhận đã hết**
+- [ ] **Step 2: Re-measure the truncation damage, confirm it is gone**
 
 Run:
 ```bash
@@ -1744,24 +1790,24 @@ for s in skill_router.list_enabled_meta(root):
     e = skill_router.validate_description(s['description'])
     print(('CUT ' if e else 'ok  '), len(s['description'] or ''), s['slug'])
     bad += 1 if e else 0
-print('vi pham:', bad)
+print('violations:', bad)
 "
 ```
-Expected: `vi pham: 0`. Mọi skill in `ok` với độ dài <= 150. Trước khi làm plan này con số là 6/6 vi phạm.
+Expected: `violations: 0`. Every skill prints `ok` with length <= 150. Before this plan the number was 6/6 violations.
 
-- [ ] **Step 3: Chạy app, xác nhận skill vẫn route được**
+- [ ] **Step 3: Run the app, confirm skills still route**
 
-Khởi động server, mở chat, hỏi một câu khớp trigger của một skill (vd "chuyển file html này sang webcake"). Expected: Jarvis 007 nạp đúng skill `html-to-webcake`. Sau đó mở trang Skill, expected: `html-to-webcake` hiện `Đã dùng 1 lần`, chứng minh telemetry chạy end-to-end.
+Start the server, open chat, and ask something that matches a skill's trigger (e.g. "convert this html file to webcake"). Expected: Jarvis 007 loads the `html-to-webcake` skill. Then open the Skill page, expected: `html-to-webcake` shows `used 1 times`, proving the telemetry works end-to-end.
 
 - [ ] **Step 4: Bump VERSION + CHANGELOG**
 
-`VERSION` hiện là `0.9.61`. Ghi `0.9.62`.
+`VERSION` is currently `0.9.61`. Write `0.9.62`.
 
 ```bash
 echo "0.9.62" > VERSION
 ```
 
-Thêm mục vào đầu `CHANGELOG.md` theo đúng định dạng các mục đã có trong file, nội dung phủ: gom 3 điểm cắt description (60 ở hub, 100 ở system prompt, 140 ở fallback) về một hằng số `SKILL_DESC_MAX = 150`; ép trần ở `POST /skills` và learn.py; viết lại 5 description skill hệ thống (6/6 skill đang bị cắt, mất 79 tới 316 ký tự); thêm telemetry `Javis/skill-usage.json` đếm ở `javis_use_skill`; `mirror_skills` copy cả cây con và hash theo cây; gitignore sidecar + reconcile `.gitignore` cho brain cũ.
+Add an entry at the top of `CHANGELOG.md` in the same format as the existing entries, covering: the 3 description cut points (60 in the hub, 100 in the system prompt, 140 in the fallback) gathered into one constant `SKILL_DESC_MAX = 150`; the cap enforced at `POST /skills` and in learn.py; the 5 system skill descriptions rewritten (6/6 skills were being cut, losing 79 to 316 characters); telemetry `Javis/skill-usage.json` added, counted in `javis_use_skill`; `mirror_skills` copies the whole subtree and hashes by tree; the sidecar gitignored + `.gitignore` reconciled for old brains.
 
 - [ ] **Step 5: Commit + push**
 
@@ -1773,20 +1819,20 @@ git push origin main
 
 ---
 
-## Ghi chú cho người thực thi
+## Notes for the executor
 
-**Thứ tự phụ thuộc:**
+**Dependency order:**
 
-- Task 1 (hằng số + validator) chặn Task 2, 3, 6, 7.
-- Task 3 (viết lại description) chặn Task 4 (cùng đụng `javis-builder/SKILL.md`, Task 3 sửa frontmatter, Task 4 sửa thân).
-- Task 8 (sidecar) chặn Task 9, 10.
-- Task 5 (CLAUDE.md), Task 11 (mirror), Task 12 (gitignore) độc lập, chen vào đâu cũng được.
-- Task 13 làm cuối.
+- Task 1 (constants + validator) blocks Tasks 2, 3, 6, 7.
+- Task 3 (rewriting descriptions) blocks Task 4 (both touch `javis-builder/SKILL.md`: Task 3 edits the frontmatter, Task 4 edits the body).
+- Task 8 (sidecar) blocks Tasks 9, 10.
+- Task 5 (CLAUDE.md), Task 11 (mirror), Task 12 (gitignore) are independent and can be slotted in anywhere.
+- Task 13 goes last.
 
-**Spec mục B3 nằm ở HAI task, đừng làm nửa vời:** bộ chuẩn viết skill phải có ở cả prompt learn (Task 7) lẫn javis-builder (Task 4 Step 4). Chỉ làm một nơi thì đường sinh skill còn lại vẫn đẻ ra skill vô định hình.
+**Spec item B3 lives in TWO tasks, do not do it halfway:** the skill authoring standard must be in both the learn prompt (Task 7) and javis-builder (Task 4 Step 4). Do only one place and the other skill-producing path keeps spawning shapeless skills.
 
-**Task rủi ro nhất là 11** (`mirror_skills` đệ quy). Nếu bí, đọc lại mục B4 trong spec: bẫy digest tập-con và bẫy deadlock `_LOCK` là hai chỗ dễ chết nhất.
+**The riskiest task is 11** (recursive `mirror_skills`). If stuck, re-read section B4 of the spec: the subset-digest trap and the `_LOCK` deadlock trap are the two easiest places to die.
 
-**Nếu một test đỏ mà tưởng là không liên quan:** `mirror_skills` được gọi ở 7 hot path (`main.py:184`, `:2186`, `:2235`, `:2277`, `:2651`, `:2703`, `system_sync.py:356`). Sửa nó có thể vọng ra xa.
+**If a test goes red and you think it is unrelated:** `mirror_skills` is called from 7 hot paths (`main.py:184`, `:2186`, `:2235`, `:2277`, `:2651`, `:2703`, `system_sync.py:356`). Changing it can echo far away.
 
-**Không mở rộng phạm vi.** Curator gộp ô dù, `/learn` từ nguồn, auto-archive, `related_skills` thành graph đều CỐ Ý nằm ngoài. Thấy chỗ đáng làm thì ghi lại, đừng làm.
+**Do not widen the scope.** The curator merging umbrella skills, `/learn` from a source, auto-archive, and `related_skills` as a graph are all INTENTIONALLY out of scope. If you see something worth doing, write it down, do not do it.

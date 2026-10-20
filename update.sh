@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Jarvis 007 - cập nhật lên bản mới nhất từ GitHub.
-#   ./update.sh            (tự nhận Docker hay native)
-#   ./update.sh docker     (ép chế độ Docker)
-#   ./update.sh native     (ép chế độ native/systemd)
+# Jarvis 007 - update to the latest version from GitHub.
+#   ./update.sh            (auto-detects Docker or native)
+#   ./update.sh docker     (force Docker mode)
+#   ./update.sh native     (force native/systemd mode)
 # ============================================================================
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 MODE="${1:-auto}"
 SUDO=""; [ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null 2>&1 && SUDO="sudo"
 
-# Tên bản Jarvis 007 Ở THƯ MỤC NÀY. Nhiều bản trên cùng VPS thì mỗi bản một .env riêng; không đọc
-# .env ở đây thì `./update.sh` của bản này đi restart container/dịch vụ của bản khác.
+# Name of the Jarvis 007 instance IN THIS FOLDER. With several instances on one VPS, each has its own .env; if
+# we do not read the .env here, this instance's `./update.sh` restarts another instance's container/service.
 if [ -z "${JAVIS_NAME:-}" ] && [ -f .env ]; then
   JAVIS_NAME="$(sed -n 's/^[[:space:]]*JAVIS_NAME[[:space:]]*=[[:space:]]*//p' .env | tail -1)"
 fi
@@ -27,14 +27,14 @@ is_docker() {
 
 if [ "$MODE" = "docker" ] || { [ "$MODE" = "auto" ] && is_docker; }; then
   echo "==> Docker → pulling the new image from GHCR and restarting..."
-  # Đang bật HTTPS (Caddy)? Giữ nguyên override để cập nhật KHÔNG gỡ mất Caddy.
+  # HTTPS (Caddy) enabled? Keep the override so the update does NOT remove Caddy.
   HTTPS_ARGS=""
   if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qx "$NAME-caddy"; then
     HTTPS_ARGS="-f docker-compose.yml -f docker-compose.https.yml"
     echo "==> Caddy (HTTPS) detected → keeping the HTTPS setup."
   fi
-  # Đứng sau proxy dùng chung (nhiều bản, mỗi bản một tên miền) thì giữ luôn override multi,
-  # không thì lượt cập nhật này gỡ mất nhãn Caddy và bản đó rơi khỏi proxy.
+  # Behind a shared proxy (several instances, one domain each)? Keep the multi override too,
+  # otherwise this update drops the Caddy label and that instance falls off the proxy.
   if [ -f docker-compose.multi.yml ] && docker network inspect javis-web >/dev/null 2>&1; then
     HTTPS_ARGS="-f docker-compose.yml -f docker-compose.multi.yml"
     echo "==> Shared proxy (javis-web) detected → keeping the multi-instance setup."
@@ -58,14 +58,14 @@ else
     echo "==> Restarted. Follow the logs:  journalctl -u $NAME -f"
   elif [ "$(uname)" = "Darwin" ] && \
        launchctl print "gui/$(id -u)/${JAVIS_LAUNCHD_LABEL:-com.javis.os}" >/dev/null 2>&1; then
-    # Mac chạy dưới launchd (KeepAlive): kill PID rồi tự chạy nohup là đua bind cổng với bản
-    # launchd respawn ([Errno 48], vụ 14/08/2026). Để launchd tự đổi ca bằng kickstart -k.
+    # Mac running under launchd (KeepAlive): killing the PID and starting nohup ourselves races the
+    # launchd respawn for the port ([Errno 48], incident of 14/08/2026). Let launchd swap shifts with kickstart -k.
     TARGET="gui/$(id -u)/${JAVIS_LAUNCHD_LABEL:-com.javis.os}"
     echo "==> launchd ($TARGET) detected → kickstart -k..."
     launchctl kickstart -k "$TARGET"
     echo "==> Asked launchd to restart Jarvis 007. Logs: server/javis.log"
   else
-    # Mac / Linux không systemd: kill tiến trình đang giữ cổng rồi chạy lại nền (như install.sh)
+    # Mac / Linux without systemd: kill the process holding the port, then restart in the background (like install.sh)
     PORT="${JAVIS_PORT:-7777}"
     PIDS="$(lsof -ti tcp:"$PORT" 2>/dev/null || true)"
     if [ -n "$PIDS" ]; then
