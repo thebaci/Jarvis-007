@@ -442,7 +442,7 @@
                   <label class="js-lbl" for="vcElKey">ElevenLabs API key <span class="dim" id="vcElKeySet" data-i18n="settings.key_set" hidden>(saved - leave blank to keep)</span></label>
                   <input class="js-input" id="vcElKey" type="password" autocomplete="off" data-i18n-ph="settings.eleven_ph" placeholder="Paste your ElevenLabs API key">
                   <label class="js-lbl" for="vcElVoice">Voice ID <span class="dim" data-i18n="settings.voice_id_hint">(from ElevenLabs → Voices)</span></label>
-                  <input class="js-input" id="vcElVoice" data-i18n-ph="settings.eleven_voice_ph" placeholder="e.g. 21m00Tcm4TlvDq8ikWAM (Rachel)">
+                  <input class="js-input" id="vcElVoice" data-i18n-ph="settings.eleven_voice_ph" placeholder="E.g. 21m00Tcm4TlvDq8ikWAM (Rachel)">
                 </div>
                 <div class="qs-hint" id="vcOpenaiNote" data-i18n="settings.vc_openai_note" hidden>For OpenAI voices, paste an OpenAI API key on the Models page.</div>
               </details>
@@ -486,11 +486,11 @@
             </div>
 
             <div class="qs-block" data-settings-section="general">
-              <div class="popover-label" data-i18n="qs.domain">DOMAIN & SSL</div>
+              <div class="popover-label" data-i18n="qs.domain">DOMAIN &amp; SSL</div>
               <div class="opt-sub dom-intro" data-i18n="qs.domain_intro">Enter a domain and Javis checks DNS and walks you through enabling HTTPS for your environment.</div>
               <div class="dom-field">
-                <input id="setDomain" placeholder="e.g. javis.yourdomain.com" data-i18n-ph="qs.domain_ph" autocomplete="off" spellcheck="false">
-                <button class="gcard-btn" id="saveDomain" data-i18n="qs.domain_save">Save & check</button>
+                <input id="setDomain" placeholder="E.g. javis.yourdomain.com" data-i18n-ph="qs.domain_ph" autocomplete="off" spellcheck="false">
+                <button class="gcard-btn" id="saveDomain" data-i18n="qs.domain_save">Save &amp; check</button>
               </div>
               <div class="dom-status" id="domStatusRow" style="display:none">
                 <span class="dom-badge" id="dnsBadge" data-i18n="qs.dns_checking">DNS: checking</span>
@@ -709,7 +709,7 @@
         <div class="set-sec">
           <h4><span data-i18n="wz.s2">2. Admin account</span> <span class="dim" data-i18n="wz.s2_rec">(recommended)</span></h4>
           <div class="set-note" data-i18n="wz.pass_note">Set a password to keep strangers out - important on a VPS. Leave blank if this machine is yours alone.</div>
-          <label data-i18n="common.account">Username</label><input id="wzUser" placeholder="e.g. admin" data-i18n-ph="wz.user_ph">
+          <label data-i18n="common.account">Username</label><input id="wzUser" placeholder="E.g. admin" data-i18n-ph="wz.user_ph">
           <label data-i18n="common.password">Password</label><input id="wzPass" type="password" placeholder="Leave blank for no password" data-i18n-ph="wz.pass_ph">
         </div>
         <div class="set-sec">
@@ -734,7 +734,7 @@
           </div>
           <div id="wzOrKey" style="display:none">
             <label>OpenRouter API key <span class="dim" data-i18n="wz.or_key_later">(you can paste it later in Models)</span></label>
-            <input id="wzOrKeyInput" placeholder="e.g. sk-or-v1-… (optional)" data-i18n-ph="wz.or_key_ph">
+            <input id="wzOrKeyInput" placeholder="E.g. sk-or-v1-… (optional)" data-i18n-ph="wz.or_key_ph">
           </div>
           <div id="wzProvHint"></div>
         </div>
@@ -769,7 +769,7 @@
              thoại bật bàn phím số; autocomplete=one-time-code để iOS/Android tự điền từ SMS/app. -->
         <div id="authCodeWrap" style="display:none">
           <input id="authCode" inputmode="numeric" autocomplete="one-time-code"
-                 placeholder="6-digit code, or a recovery code" data-i18n-ph="auth.code_ph">
+                 placeholder="Six-digit code, or a recovery code" data-i18n-ph="auth.code_ph">
           <div class="auth-hint" data-i18n="auth.code_hint">Open your Authenticator app and enter the current code. Lost your phone? Enter one of the recovery codes you saved when enabling it.</div>
         </div>
         <button class="fm-use" id="authSubmit" data-i18n="auth.submit">Sign in</button>
@@ -809,10 +809,10 @@
             <option value="" data-i18n="common.default">Default</option>
           </select>
           <label>OpenRouter API key <span class="dim" id="setKeyHint"></span></label>
-          <input id="setOrKey" type="password" placeholder="e.g. sk-or-... (leave blank to keep)" data-i18n-ph="setm.or_key_ph">
+          <input id="setOrKey" type="password" placeholder="E.g. sk-or-... (leave blank to keep)" data-i18n-ph="setm.or_key_ph">
           <label>OpenRouter model <button type="button" class="set-mini" id="loadModelsBtn" data-i18n="setm.load_models">↻ Load list</button></label>
           <select id="setOrModelSel"><option value="__custom__" data-i18n="setm.custom_model">Type another model name (custom)…</option></select>
-          <input id="setOrModel" placeholder="e.g. openai/gpt-4o-mini" data-i18n-ph="setm.or_model_ph" style="display:none">
+          <input id="setOrModel" placeholder="E.g. openai/gpt-4o-mini" data-i18n-ph="setm.or_model_ph" style="display:none">
           <button class="s-btn" id="saveModel" data-i18n="common.save">Save</button>
         </div>
         <div class="set-sec">
@@ -821,12 +821,12 @@
           <label class="loop-row" style="padding:0"><span data-i18n="setm.tg_on">Enable Telegram bot</span>
             <label class="toggle"><input type="checkbox" id="setTgEnabled"><span></span></label></label>
           <label>Bot token <span class="dim" id="setTgHint"></span></label>
-          <input id="setTgToken" type="password" placeholder="e.g. 123456:ABC... (leave blank to keep)" data-i18n-ph="setm.tg_token_ph">
+          <input id="setTgToken" type="password" placeholder="E.g. 123456:ABC... (leave blank to keep)" data-i18n-ph="setm.tg_token_ph">
           <label><span data-i18n="setm.tg_chat">Allowed chat IDs</span> <span class="dim" data-i18n="setm.tg_chat_dim">(separate multiple IDs with commas)</span></label>
-          <input id="setTgChat" placeholder="e.g. 123456789, 987654321" data-i18n-ph="setm.tg_chat_ph">
+          <input id="setTgChat" placeholder="E.g. 123456789, 987654321" data-i18n-ph="setm.tg_chat_ph">
           <div class="set-note" id="setTgStatus">-</div>
           <div class="set-actions">
-            <button class="s-btn" id="saveTelegram" data-i18n="setm.tg_save">Save & enable</button>
+            <button class="s-btn" id="saveTelegram" data-i18n="setm.tg_save">Save &amp; enable</button>
             <button class="s-btn-ghost" id="testTelegram" data-i18n="setm.tg_test">Send test</button>
           </div>
         </div>
@@ -834,7 +834,7 @@
           <h4><span data-i18n="setm.auth">Sign-in account</span> <button type="button" class="info-i" aria-expanded="false" aria-label="Show explanation" title="Show explanation" data-i18n-aria="info.more" data-i18n-title="info.more"><i data-ic="info"></i></button></h4>
           <div class="info-body" hidden data-i18n="setm.auth_note">Set a password to keep strangers out when Javis goes on a VPS. Note: on a VPS, run it behind HTTPS (reverse proxy).</div>
           <div class="set-note" id="setAuthState"></div>
-          <label data-i18n="common.account">Username</label><input id="setAuthUser" placeholder="e.g. admin" data-i18n-ph="wz.user_ph">
+          <label data-i18n="common.account">Username</label><input id="setAuthUser" placeholder="E.g. admin" data-i18n-ph="wz.user_ph">
           <!-- Mật khẩu hiện tại: chỉ hiện khi ĐÃ có tài khoản (app.js refreshAuthRow bật lên).
                Server đòi nó để một phiên bị mượn không đổi được mật khẩu rồi khoá chính chủ. -->
           <label id="setAuthCurLbl" hidden data-i18n="setm.cur_pass">Current password</label>
@@ -851,7 +851,7 @@
                Nội dung do console.js đổ vào (renderTfaRow) vì nó cần hỏi /auth/status. -->
           <div class="set-tfa" id="setTfaRow" hidden></div>
         </div>
-        <div class="set-note" style="opacity:.7" data-i18n="setm.more">Avatar, domain, voice & speed live on the Settings page.</div>
+        <div class="set-note" style="opacity:.7" data-i18n="setm.more">Avatar, domain, voice &amp; speed live on the Settings page.</div>
       </div>
     </div>
   </div>

@@ -142,7 +142,7 @@ for i in range(1400):
     note(f"Chu de nghiep vu chi tiet so {i:04d}.md")
 idx2 = feat._read_index(BRAIN)
 check("vượt trần thì NÓI RA là đã lược bớt, không im lặng cắt",
-      "còn" in idx2 and "không liệt kê hết" in idx2, idx2[-200:])
+      "more pages" in idx2 and "not listed" in idx2, idx2[-200:])
 check(f"tôn trọng trần {learn.LearnFeature.WIKI_INDEX_MAX} ký tự",
       len(idx2) <= learn.LearnFeature.WIKI_INDEX_MAX + 200, len(idx2))
 # Chỉ chứa TÊN nên cùng ngân sách chứa được nhiều hơn hẳn bản có kèm mô tả.

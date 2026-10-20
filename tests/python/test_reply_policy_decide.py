@@ -224,7 +224,7 @@ check("nhãn đã ghi vào nhật ký", st.get_decision(d1.decision_id)["label"]
 class Learner(Judge):
     async def __call__(self, prompt, purpose=""):
         self.prompts.append(prompt)
-        seen = "-> reply" in prompt and "cổng 7777" in prompt.split("## Ca tương tự")[1].split("## Cuộc trò chuyện")[0]
+        seen = "-> reply" in prompt and "cổng 7777" in prompt.split("## Similar past cases")[1].split("## Recent conversation")[0]
         return json.dumps({"verdict": "reply" if seen else "silent", "score": 0.9 if seen else 0.3, "reason": "học"})
 
 
@@ -239,7 +239,7 @@ check("ngưỡng thấp hơn gốc sau khi học", abs(d2.threshold - 0.55) < 1e
 jl2 = Learner()
 run(rp.decide(ev("cho mình hỏi cách đổi bộ não khác với", bot_id="bot_learn", sender="u4", name="Mai", ts=NOW + 310),
               A, store=st, ask=jl2, doc_search=docs_yes, now=NOW + 310))
-check("tin khác chủ đề không kéo ca cũ vào prompt", "cổng 7777" not in jl2.prompts[0].split("## Ca tương tự")[1].split("## Cuộc trò chuyện")[0])
+check("tin khác chủ đề không kéo ca cũ vào prompt", "cổng 7777" not in jl2.prompts[0].split("## Similar past cases")[1].split("## Recent conversation")[0])
 
 # Ca dương giống làm tin không giống câu hỏi vẫn thành ứng viên.
 st.add_case("bot_pos", "g1", "cổng 7777 đang bị dùng bởi tiến trình khác", {"address_level": "none", "follow_up": False,

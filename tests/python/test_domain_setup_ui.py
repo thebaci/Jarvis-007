@@ -41,7 +41,7 @@ check("UI ghi đúng tên giọng Hoài My và giữ mã Edge",
       "Hoài My" in VI.get("qs.voice_opt_hoaimy", "") and 'value="vi-VN-HoaiMyNeural"' in INDEX)
 check("UI đổi NamMinh thành Nam Minh nhưng giữ mã Edge",
       "Nam Minh" in VI.get("qs.voice_opt_namminh", "") and 'value="vi-VN-NamMinhNeural"' in INDEX)
-check("card tên miền có hành động lưu và kiểm tra rõ ràng", "Lưu &amp; kiểm tra" in INDEX)
+check("card tên miền có hành động lưu và kiểm tra rõ ràng", "Save &amp; check" in INDEX)
 check("card có hai link tài liệu", "docs/15-thuong-hieu-ten-mien.md" in INDEX and "DEPLOY.md" in INDEX)
 # Chữ trong wizard đã vào từ điển i18n ở 0.55.14: branding.js dựng số bước rồi gọi khoá,
 # câu tiếng Việt nằm trong vi.json. Kiểm CẢ HAI vế (giao diện gọi đúng khoá + khoá mang

@@ -53,7 +53,7 @@ deps = self_improve.LoopDeps(
 )
 feat = self_improve.LoopFeature(deps)
 
-_BIZ_MARKER = "CẢI THIỆN CHỈ SỐ KINH DOANH"
+_BIZ_MARKER = "IMPROVE BUSINESS METRICS"
 _MED_BODY = "Nhắc anh uống thuốc và kiểm tra đã xác nhận uống chưa."
 
 

@@ -270,7 +270,7 @@ def rows_to_markdown(tab: str, rows: List[List[str]]) -> str:
     if not rows:
         return ""
     head = rows[0]
-    lines = [f"## {tab}" if tab else "## Bảng"]
+    lines = [f"## {tab}" if tab else "## Table"]
     if len(rows) == 1:
         lines.append("- " + " | ".join(c for c in head if c))
         return "\n".join(lines)

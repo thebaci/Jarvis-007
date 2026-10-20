@@ -96,7 +96,7 @@ class StatusLineTests(unittest.TestCase):
         self.assertIn("Viết spec slide HTML", text)
         self.assertIn("Thêm câu hỏi tự nhận thức", text)
         self.assertIn(voice_live.FOLLOWUP_NOOP, text)
-        self.assertIn("SONG SONG", text, "the brain must know the other job has NOT finished")
+        self.assertIn("IN PARALLEL", text, "the brain must know the other job has NOT finished")
 
 
 class StatusSpeechTests(unittest.IsolatedAsyncioTestCase):

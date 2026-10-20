@@ -304,7 +304,7 @@ def compile_legacy_workflow(meta: dict, slug: str) -> WorkflowGraph:
             "required": ["output"],
             "additionalProperties": False,
             "derived": True,
-            "note": "Chỉ output của node cuối, đúng như runner cũ.",
+            "note": "Only the output of the last node, same as the old runner.",
         },
         output_node_id=nodes[-1].id,
         revision=_sha(payload),

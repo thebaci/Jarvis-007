@@ -141,8 +141,8 @@ def _make_router() -> APIRouter:
     async def graph(
         request: Request,
         source: str = Query("all", description="all | brain | vault"),
-        path: str = Query(None, description="Đường dẫn folder tùy ý (ưu tiên nếu có)"),
-        orphans: int = Query(0, description="1 = hiện cả note cô đơn (0 kết nối), như graph view Obsidian"),
+        path: str = Query(None, description="Arbitrary folder path (takes priority if set)"),
+        orphans: int = Query(0, description="1 = also show orphan notes (0 connections), like the Obsidian graph view"),
     ):
         """Lớp Graphify - dựng đồ thị kết nối note từ wikilink.
         Dựng đồ thị đụng tới đĩa (quét + đọc file đã đổi) - phải đẩy sang thread, chạy sync trên event loop là đứng cả
@@ -186,7 +186,7 @@ def _make_router() -> APIRouter:
             try:
                 from watchfiles import awatch, Change
             except ImportError:   # môi trường thiếu watchfiles → còn mỗi quét thưa, vẫn chạy được
-                print("[ws_graph] thiếu watchfiles - node mọc theo nhịp quét thưa", file=__import__('sys').stderr)
+                print("[ws_graph] watchfiles missing - nodes only appear on the sparse scan cycle", file=__import__('sys').stderr)
                 return
             try:
                 async for changes in awatch(*live, stop_event=stop,
@@ -282,7 +282,7 @@ def _make_router() -> APIRouter:
                     # cả thời gian dọn sau cancel để WebSocket đóng được.
                     done, pending = await asyncio.wait({watcher}, timeout=2.0)
                 if pending:
-                    print("[ws_graph watcher] không dừng sau khi hủy; đóng WebSocket",
+                    print("[ws_graph watcher] did not stop after cancel; closing the WebSocket",
                           file=__import__('sys').stderr)
                 for task in done:
                     if not task.cancelled():

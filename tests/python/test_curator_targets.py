@@ -94,8 +94,8 @@ check("bo brain co thu muc khong ton tai", b_missing not in run)
 check("learn-log moi KHONG cuu duoc brain da nguoi", b_stale_freshlog not in run)
 check("chi con dung 1 brain duoc chay", len(run) == 1)
 check("neu ro ly do bo qua (3 muc)", len(skip) == 3)
-check("ly do 'khong con' cho brain thieu", any("không còn" in s for s in skip))
-check("ly do 'im lang' cho brain nguoi", any("im lặng" in s for s in skip))
+check("ly do 'khong con' cho brain thieu", any("no longer exists" in s for s in skip))
+check("ly do 'im lang' cho brain nguoi", any("silent" in s for s in skip))
 
 # stale_days = 0 → tắt lọc theo thời gian, nhưng brain không tồn tại vẫn bị bỏ
 run0, skip0 = feat._curator_targets({"brains": [b_active, b_stale, b_missing],

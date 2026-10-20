@@ -500,7 +500,7 @@ def assign_key(agent_key: str, slug: str, nonce: str, kind: str = "task", link: 
     chống gửi trùng khi bấm hai lần hay gửi lại sau rớt mạng."""
     n = clean_nonce(nonce)
     if not n:
-        raise ValueError("nonce rỗng sau khi lọc")
+        raise ValueError("nonce is empty after filtering")
     if kind == "verify":
         lk = clean_link(link)
         mid = "v:" + (lk.replace(":", ".", 1) + ":" if lk else "")

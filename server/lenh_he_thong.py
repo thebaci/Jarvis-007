@@ -54,13 +54,13 @@ def khoi_ke_hoach() -> str:
     (`la_luot_ke_hoach`), nên cổng chặn thật chứ không chỉ dựa vào lời dặn.
     """
     return (
-        f"{PLAN_MARK} chỉ đọc và đề xuất.\n"
-        "Lượt này CHƯA được làm gì ra bên ngoài: không ghi hay xoá file, không gửi tin, không "
-        "đăng bài, không tạo đơn, không chạy hay sửa quảng cáo, không xếp việc nền, không đặt "
-        "lịch nhắc. Được đọc dữ liệu và dùng công cụ chỉ đọc để hiểu tình hình.\n"
-        "Trả lời bằng một kế hoạch ngắn: mục tiêu, các bước, việc nào cần người dùng duyệt, "
-        "rủi ro chính. Kết thúc bằng một câu hỏi xem người dùng có muốn làm theo kế hoạch "
-        "không. Chỉ khi họ đồng ý ở tin sau mới bắt đầu làm thật.]\n\n"
+        f"{PLAN_MARK} read-only, propose only.\n"
+        "This turn must NOT YET do anything outside: do not write or delete files, send messages, "
+        "publish posts, create orders, run or edit ads, queue background work, or set "
+        "reminders. You may read data and use read-only tools to understand the situation.\n"
+        "Reply with a short plan: the goal, the steps, which steps need the user's approval, "
+        "and the main risks. End with a question asking whether the user wants to go ahead with the plan. "
+        "Only if they agree in the next message do you start doing the real work.]\n\n"
     )
 
 
@@ -95,19 +95,19 @@ def khoi_muc_tieu(dieu_kien: str, vong: int = 1, toi_da: int = GOAL_MAX_ROUNDS, 
     round_line = ""
     if int(vong) >= 2:
         info = json.dumps({"v": int(vong), "n": int(toi_da), "left": left}, ensure_ascii=False)
-        round_line = ((f"Vòng trước còn: {left}\n" if left else "") + f"<!-- {GOAL_ROUND_TAG}: {info} -->\n")
+        round_line = ((f"Left over from the previous round: {left}\n" if left else "") + f"<!-- {GOAL_ROUND_TAG}: {info} -->\n")
     return (
         f"{GOAL_MARK} {dk}\n"
-        f"Chế độ làm tới khi đạt, vòng {int(vong)}/{int(toi_da)}. Làm tiếp phần còn thiếu bằng "
-        "công cụ sẵn có, rồi tự kiểm tra bằng dữ liệu thật xem điều kiện trên đã đúng chưa.\n"
+        f"Work-until-done mode, round {int(vong)}/{int(toi_da)}. Continue with the missing part using "
+        "the available tools, then check against real data whether the condition above is now true.\n"
         + round_line +
-        "Cuối câu trả lời LUÔN thêm đúng MỘT dòng ẩn: "
-        f'<!-- {GOAL_TAG}: {{"done":true}} --> nếu điều kiện đã đúng và đã kiểm chứng, hoặc '
-        f'<!-- {GOAL_TAG}: {{"done":false,"left":"tình trạng và phần còn lại, một câu ngắn"}} --> nếu chưa, hoặc '
-        f'<!-- {GOAL_TAG}: {{"done":false,"blocked":"lý do, một câu ngắn"}} --> nếu KHÔNG THỂ làm tiếp vì '
-        "thiếu quyền, thiếu công cụ, thiếu kết nối hay thiếu dữ liệu mà chỉ người dùng gỡ được (khi đó đừng "
-        "thử lại vô ích). Không báo đã đạt khi chưa kiểm chứng. Cần người dùng quyết định điều gì thì hỏi rõ "
-        "rồi dừng.]\n\n"
+        "At the end of the answer ALWAYS add exactly ONE hidden line: "
+        f'<!-- {GOAL_TAG}: {{"done":true}} --> if the condition is true and verified, or '
+        f'<!-- {GOAL_TAG}: {{"done":false,"left":"status and what remains, one short sentence"}} --> if not, or '
+        f'<!-- {GOAL_TAG}: {{"done":false,"blocked":"reason, one short sentence"}} --> if you CANNOT continue because of '
+        "missing permission, tools, connection or data that only the user can fix (then do not "
+        "retry in vain). Do not report it as done before verifying. If the user must decide something, ask clearly "
+        "and stop.]\n\n"
     )
 
 
@@ -159,7 +159,7 @@ async def nen_phien(store, sid, *, kind, prov, api_key, model, api_stream, giu=G
         msgs = [m for m in store.get_messages(sid)
                 if m.get("role") in ("user", "assistant") and (m.get("content") or "").strip()]
     except Exception as e:  # noqa: BLE001 - kho phiên hỏng: báo lỗi chứ không ném lên
-        print(f"[nen_phien] đọc tin lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[nen_phien] failed to read messages: {type(e).__name__}: {e}", file=sys.stderr)
         return {"ok": False, "ly_do": "loi_doc", "so_tin": 0}
     n = len(msgs)
     if n < MIN_TIN_NEN:

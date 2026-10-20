@@ -64,11 +64,11 @@ _SHELL_CHARS = set(">|&;<`$\n")
 _READ_VERBS = ("get", "list", "search", "read", "fetch", "query", "find", "describe", "lookup", "view", "count",
                "download", "export", "suggest")
 
-BLOCK_NOTE = ("ERROR: Hành động này ra ngoài phạm vi nên cần chủ nhóm duyệt trước (nhóm đang ở quyền 'cần duyệt'). "
-              "Javis đã ghi lại ĐÚNG lời gọi này thành yêu cầu duyệt, chưa có gì được thực hiện. Đừng tìm cách khác để làm "
-              "cùng việc. Làm xong phần trong phạm vi rồi kết thúc bước, nêu ngắn gọn vì sao cần hành động này.")
-NO_GATE_NOTE = ("ERROR: Hành động ra ngoài của nhóm cần chủ nhóm duyệt, mà lời gọi này không gắn với bước nào đang mở nên "
-                "Javis không ghi được yêu cầu. Chưa có gì được thực hiện.")
+BLOCK_NOTE = ("ERROR: This action is outside the allowed scope, so the team owner must approve it first (the team is on the 'needs approval' permission). "
+              "Jarvis 007 has recorded EXACTLY this call as an approval request; nothing has been done yet. Do not look for another way to do "
+              "the same thing. Finish the in-scope part, then end the step and briefly say why this action is needed.")
+NO_GATE_NOTE = ("ERROR: An outside action of the team needs the team owner's approval, but this call is not tied to any open step, so "
+                "Jarvis 007 could not record the request. Nothing has been done.")
 
 
 class Gate:
@@ -122,7 +122,7 @@ def close_gate(gate_id: str) -> dict:
             fp = team_approval.fingerprint("protected", "write", {"path": path})
             if not any(b["fp"] == fp for b in g.blocked):
                 g.blocked.append({"fp": fp, "kind": "protected", "name": "write", "args": {"path": path},
-                                  "label": f"đã sửa file chạy mã hay cấu hình: {path} (kiểm tra trước khi cho làm tiếp)"})
+                                  "label": f"edited a file that runs code or holds configuration: {path} (check it before letting the work continue)"})
         return {"blocked": list(g.blocked), "passed": list(g.passed), "protected_changed": changed}
 
 
@@ -348,8 +348,8 @@ def provider_support(provider: str, *, codex_sandbox: Optional[str] = "workspace
     if p == CODEX:
         if codex_sandbox != "workspace-write":
             return {"ok": False, "approved_actions": False,
-                    "reason": ("Codex đang chạy không có sandbox riêng (JAVIS_CODEX_SANDBOX=off) nên Javis không chặn "
-                               "được lệnh máy của nó trước khi chạy")}
+                    "reason": ("Codex is running without its own sandbox (JAVIS_CODEX_SANDBOX=off), so Jarvis 007 cannot block "
+                               "its machine commands before they run")}
         return {"ok": True, "approved_actions": True, "reason": ""}
     if p in api_providers:
         return {"ok": True, "approved_actions": True, "reason": ""}
@@ -357,14 +357,14 @@ def provider_support(provider: str, *, codex_sandbox: Optional[str] = "workspace
         # Review 0.207.0: Grok reads its hub level from a config file shared by the whole brain, which another Grok
         # turn can rewrite to full while this step runs, and its own Write is not limited to the step folders.
         return {"ok": False, "approved_actions": False,
-                "reason": ("Grok Build đọc mức quyền từ một file cấu hình dùng chung cho cả bộ não và ghi file không giới "
-                           "hạn thư mục, nên Javis không bảo đảm chặn được trước khi chạy")}
+                "reason": ("Grok Build reads its permission level from a config file shared by the whole brain and writes files without a "
+                           "folder limit, so Jarvis 007 cannot guarantee blocking before it runs")}
     if p == ANTIGRAVITY:
         return {"ok": False, "approved_actions": False,
-                "reason": "Antigravity CLI không có cách chặn công cụ của chính nó trước khi chạy ở mức này"}
-    return {"ok": False, "approved_actions": False, "reason": f"{p} chưa được kiểm là chặn được công cụ trước khi chạy"}
+                "reason": "Antigravity CLI has no way to block its own tools before they run at this level"}
+    return {"ok": False, "approved_actions": False, "reason": f"{p} has not been verified to block tools before they run"}
 
 
 def unsupported_text(reason: str) -> str:
-    return (f"Nhóm đang ở quyền 'cần duyệt' mà {reason}. Đổi trợ lý làm bước này sang Claude, Codex hay một model API, "
-            "hoặc bật 'Nhóm tự làm hành động ra ngoài' trong cài đặt nhóm nếu anh tin nhóm này.")
+    return (f"The team is on the 'needs approval' permission, but {reason}. Switch the assistant doing this step to Claude, Codex or an API model, "
+            "or turn on \"The team's outside actions\" in the team settings if you trust this team.")

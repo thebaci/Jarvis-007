@@ -58,7 +58,7 @@ def hoi(args, cau: str, session: str = "") -> int:
         # Mọi `type` lạ: BỎ QUA im lặng. Server thêm loại gói mới là chuyện thường và một CLI
         # cũ không được vỡ vì điều đó.
     if cuoi is None:
-        r.loi("Máy chủ đóng luồng mà chưa trả câu nào.")
+        r.loi("The server closed the stream without sending an answer.")
         return 1
     return _in_ket_qua(cuoi)
 
@@ -66,7 +66,7 @@ def hoi(args, cau: str, session: str = "") -> int:
 def _in_ket_qua(d: dict) -> int:
     chu = d.get("text") or ""
     if not d.get("ok", True):
-        r.loi(chu or "Lượt chat thất bại.")
+        r.loi(chu or "The chat turn failed.")
         return 1
     r.tra_loi(chu)
     for f in d.get("files") or []:
@@ -78,7 +78,7 @@ def _in_ket_qua(d: dict) -> int:
 def chat(args) -> int:
     """Phiên tương tác. Giữ NGUYÊN một mã phiên cho cả phiên terminal, nên Javis nhớ mạch."""
     sid = getattr(args, "session", "") or "t" + uuid.uuid4().hex[:8]
-    r.tieu_de("Javis - gõ câu hỏi, Ctrl+D hoặc /thoat để ra. Phiên: " + sid)
+    r.tieu_de("Jarvis 007 - type a question, Ctrl+D or /quit to exit. Session: " + sid)
     while True:
         try:
             cau = input("› ").strip()
@@ -103,7 +103,7 @@ def login(args) -> int:
         url = "https://" + url
     token = args.token or ""
     if not token:
-        r.tieu_de("Tạo token ở dashboard: Tài khoản > Token API, rồi dán vào đây.")
+        r.tieu_de("Create a token in the dashboard: Account > API token, then paste it here.")
         try:
             token = input("Token: ").strip()
         except (EOFError, KeyboardInterrupt):
@@ -113,42 +113,42 @@ def login(args) -> int:
     d = c.get("/version")           # thử thật, không lưu một cấu hình chưa bao giờ chạy được
     ten = args.name or "mac-dinh"
     cfgmod.luu(ten, url, token, args.brain or "")
-    r.tieu_de(f"Đã lưu hồ sơ '{ten}' -> {url} (Javis v{d.get('current', '?')})")
-    r.trang_thai("Cấu hình: " + str(cfgmod.DUONG_DAN))
+    r.tieu_de(f"Saved profile '{ten}' -> {url} (Jarvis 007 v{d.get('current', '?')})")
+    r.trang_thai("Config: " + str(cfgmod.DUONG_DAN))
     return 0
 
 
 def status(args) -> int:
     c = _client(args)
     v = c.get("/version")
-    r.tieu_de(f"Javis v{v.get('current', '?')} · {v.get('mode', '?')}")
+    r.tieu_de(f"Jarvis 007 v{v.get('current', '?')} · {v.get('mode', '?')}")
     if v.get("update_available"):
-        r.nhac(f"Có bản mới: v{v.get('latest')}")
+        r.nhac(f"New version available: v{v.get('latest')}")
     try:
         d = c.get("/runtime/diagnostics", {"hours": 24, "limit": 20})
         eng = d.get("engine_hien_tai") or {}
         if eng.get("label"):
-            r.tieu_de("Bộ não: " + str(eng.get("label")))
-        muc = {"off": "Tắt", "saving": "Tối ưu", "max": "Siêu tiết kiệm"}.get(d.get("preset"), "")
+            r.tieu_de("Brain: " + str(eng.get("label")))
+        muc = {"off": "Off", "saving": "Optimized", "max": "Ultra saving"}.get(d.get("preset"), "")
         if muc:
-            r.tieu_de("Mức tiết kiệm: " + muc)
+            r.tieu_de("Saving level: " + muc)
         do = d.get("do_duoc") or {}
         if do.get("du_du_lieu"):
-            r.trang_thai(f"24 giờ qua giảm {do.get('phan_tram')}% token mỗi lượt")
+            r.trang_thai(f"Over the last 24 hours tokens per turn dropped {do.get('phan_tram')}%")
     except LoiJavis:
         # Token scope `chat` không vào được trang chẩn đoán. Không phải lỗi, chỉ là ít thông tin.
-        r.trang_thai("(token này không xem được chẩn đoán)")
+        r.trang_thai("(this token cannot view diagnostics)")
     return 0
 
 
 def profiles(args) -> int:
     d = cfgmod.danh_sach()
     if not d["profiles"]:
-        r.nhac("Chưa có hồ sơ nào. Chạy: javis login <địa-chỉ>")
+        r.nhac("No profiles yet. Run: javis login <address>")
         return 1
     for ten, p in d["profiles"].items():
         dau = "*" if ten == d["default"] else " "
-        r.tra_loi(f"{dau} {ten}\t{p.get('url', '')}\t{p.get('brain') or '(brain mặc định)'}")
+        r.tra_loi(f"{dau} {ten}\t{p.get('url', '')}\t{p.get('brain') or '(default brain)'}")
     return 0
 
 
@@ -159,10 +159,10 @@ def task_add(args) -> int:
     d = c.post("/kanban/task", {"title": args.title, "brain": _brain(args),
                                 "mode": args.mode or "suggest"})
     if not d.get("ok", True):
-        r.loi(str(d.get("error") or "Không giao được việc."))
+        r.loi(str(d.get("error") or "Could not assign the task."))
         return 1
     r.tra_loi(str(d.get("id") or ""))
-    r.trang_thai("Đã giao. Xem tiến độ: javis tasks")
+    r.trang_thai("Assigned. Check progress with: javis tasks")
     return 0
 
 
@@ -196,7 +196,7 @@ def brain_cat(args) -> int:
     c = _client(args)
     d = c.get("/files/read", {"brain": _brain(args) or "brain", "path": args.path})
     if d.get("error") or d.get("content") is None:
-        r.loi(str(d.get("error") or "Không đọc được file."))
+        r.loi(str(d.get("error") or "Could not read the file."))
         return 1
     r.tra_loi(d["content"])
     return 0
@@ -251,18 +251,18 @@ def up(args) -> int:
     """
     url = (getattr(args, "url", "") or "http://127.0.0.1:7777").rstrip("/")
     if _dang_chay(url):
-        r.tieu_de("Javis đã chạy sẵn ở " + url)
+        r.tieu_de("Jarvis 007 is already running at " + url)
     else:
         goc = _tim_javis()
         if not goc:
-            r.loi("Không thấy bản cài Javis trên máy này.\n"
-                  "javis up chỉ khởi động Javis đã cài sẵn - nó KHÔNG chứa server bên trong.\n"
-                  "Cách xử lý: đặt JAVIS_HOME trỏ tới thư mục Javis, hoặc chạy lệnh này từ trong "
-                  "thư mục đó, hoặc dùng `javis login <địa-chỉ>` để nối tới một Javis đang chạy "
-                  "ở nơi khác.")
+            r.loi("No Jarvis 007 installation found on this machine.\n"
+                  "javis up only starts a Jarvis 007 that is already installed - it does NOT contain the server inside.\n"
+                  "How to fix: set JAVIS_HOME to point at the Jarvis 007 folder, or run this command from inside "
+                  "that folder, or use `javis login <address>` to connect to a Jarvis 007 running "
+                  "elsewhere.")
             return 1
         py = shutil.which("python3") or shutil.which("python") or sys.executable
-        r.tieu_de(f"Đang bật Javis từ {goc} ...")
+        r.tieu_de(f"Starting Jarvis 007 from {goc} ...")
         try:
             subprocess.Popen(
                 [py, "-m", "uvicorn", "main:app", "--app-dir", "server",
@@ -270,20 +270,20 @@ def up(args) -> int:
                 cwd=str(goc), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                 start_new_session=True)
         except Exception as e:
-            r.loi(f"Không bật được: {type(e).__name__}: {e}")
+            r.loi(f"Could not start: {type(e).__name__}: {e}")
             return 1
         for _ in range(60):          # 30 giây: lần đầu còn phải nạp model/registry
             if _dang_chay(url):
                 break
             time.sleep(0.5)
         else:
-            r.loi("Bật rồi nhưng máy chủ chưa trả lời sau 30 giây. Xem log trong thư mục Javis.")
+            r.loi("Started, but the server has not answered after 30 seconds. Check the log in the Jarvis 007 folder.")
             return 1
-        r.tieu_de("Javis đã sẵn sàng ở " + url)
+        r.tieu_de("Jarvis 007 is ready at " + url)
 
     # Lưu hồ sơ localhost nếu chưa có, để lần sau `javis "..."` là chạy luôn.
     p = cfgmod.ho_so()
     if not p.get("url"):
         cfgmod.luu("local", url, "", "")
-        r.trang_thai("Đã lưu hồ sơ 'local'. Chạy thử: javis \"chào\"")
+        r.trang_thai("Saved profile 'local'. Try it: javis \"hello\"")
     return 0

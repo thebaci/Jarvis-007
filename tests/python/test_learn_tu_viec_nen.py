@@ -55,7 +55,7 @@ def test_viec_xong_vao_hang_doi_hoc(tmp_path):
     jobs = _jobs(feature)
     assert len(jobs) == 1
     assert "Tổng hợp giá vàng" in jobs[0]
-    assert "Kết quả:" in jobs[0]
+    assert "Result:" in jobs[0]
     assert feature._pending["brain"]["count"] == 1
 
 
@@ -69,7 +69,7 @@ def test_viec_bi_chan_xep_dense_de_no_som(tmp_path):
                                     status="blocked"))
     p = feature._pending["brain"]
     assert p["dense"] is True
-    assert "Vướng:" in p["jobs"][0]
+    assert "Blocker:" in p["jobs"][0]
 
 
 # ---- ba rào an toàn ----

@@ -95,9 +95,9 @@ for wiki_name in ("wiki", "07 - Wiki"):
     check(f"[{wiki_name}] nội dung chat còn nguyên", "Đầu SMA chỉ đi vào bộ Q" in text)
     check(f"[{wiki_name}] và có thêm mục Mâu thuẫn", "## Mâu thuẫn" in text and "bộ R" in text)
     oq = (root / wiki_name / "_open-questions.md").read_text(encoding="utf-8")
-    check(f"[{wiki_name}] câu hỏi mở trỏ đúng trang", f"[[{TEN}]]: mâu thuẫn" in oq, oq)
+    check(f"[{wiki_name}] câu hỏi mở trỏ đúng trang", f"[[{TEN}]]: conflicts with the new view" in oq, oq)
     check(f"[{wiki_name}] không path nào bị coi là ngoài phạm vi",
-          not any("ngoài scope" in b for b in rep.get("blocked", [])), rep.get("blocked"))
+          not any("outside scope" in b for b in rep.get("blocked", [])), rep.get("blocked"))
     check(f"[{wiki_name}] lượt học được commit (có thể hoàn tác như mọi lượt học)", bool(rep.get("commit")), rep)
 
 # ---- 2. Trang mới do lượt học tạo trong wiki/ thường: không bị dọn mất ----

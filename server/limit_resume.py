@@ -193,7 +193,7 @@ class LimitResumeRegistry:
             await item.runner(item.attempt + 1)
         except Exception as exc:   # noqa: BLE001 - task nền, không có ai bắt phía trên
             import sys
-            print(f"[limit_resume] chạy lại {item.session_id[:12]} lỗi: "
+            print(f"[limit_resume] rerun of {item.session_id[:12]} failed: "
                   f"{type(exc).__name__}: {exc}", file=sys.stderr)
 
 

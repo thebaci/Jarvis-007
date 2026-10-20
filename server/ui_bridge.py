@@ -53,9 +53,9 @@ async def request(action: str, target: str = "", session_id: str = "",
     thuật lại được mọi ngả hỏng bằng một câu.
     """
     if _runtime is None:
-        return {"ok": False, "detail": "cầu nối dashboard chưa sẵn sàng (máy chủ đang khởi động?)"}
+        return {"ok": False, "detail": "dashboard bridge is not ready yet (is the server starting up?)"}
     if not has_clients():
-        return {"ok": False, "detail": "không có dashboard nào đang mở để thực hiện"}
+        return {"ok": False, "detail": "no dashboard is open to carry this out"}
     rid = uuid.uuid4().hex[:12]
     loop = asyncio.get_running_loop()
     fut: asyncio.Future = loop.create_future()
@@ -68,7 +68,7 @@ async def request(action: str, target: str = "", session_id: str = "",
         await _runtime.publish(frame)
         return await asyncio.wait_for(fut, timeout=timeout)
     except asyncio.TimeoutError:
-        return {"ok": False, "detail": f"dashboard không phản hồi trong {timeout:g} giây"}
+        return {"ok": False, "detail": f"dashboard did not respond within {timeout:g} seconds"}
     except Exception as e:  # pragma: no cover - phòng writer lạ
         return {"ok": False, "detail": f"{type(e).__name__}: {e}"}
     finally:

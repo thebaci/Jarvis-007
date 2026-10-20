@@ -40,7 +40,7 @@ def register(ctx):
     def _stats(args, cctx):
         data = _load()
         if not data:
-            return "Chưa ghi nhận lượt gọi tool nào. Bật plugin rồi chat vài lượt có gọi tool, sau đó xem lại."
+            return "No tool calls recorded yet. Enable the plugin, chat a few turns that call tools, then check again."
         top = sorted(data.items(), key=lambda kv: kv[1], reverse=True)[:20]
         return json.dumps({
             "total_calls": sum(data.values()),
@@ -51,8 +51,8 @@ def register(ctx):
     ctx.register_hook("post_tool_call", _on_post_tool_call)
     ctx.register_tool(
         name="javis_tool_stats",
-        description=("Thống kê số lần mỗi tool đã được gọi (do plugin tool-audit ghi qua hook post_tool_call). "
-                     "Xem tool/nguồn dữ liệu nào Javis hay dùng nhất."),
+        description=("Counts how many times each tool has been called (recorded by the tool-audit plugin via the post_tool_call hook). "
+                     "Shows which tools and data sources Jarvis 007 uses most."),
         handler=_stats, min_mode="readonly",
         schema={"type": "object", "properties": {}},
     )

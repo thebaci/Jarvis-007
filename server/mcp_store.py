@@ -63,7 +63,7 @@ def _load():
         try:
             raw = json.loads(path.read_text(encoding="utf-8"))
         except Exception as e:
-            print(f"[mcp_store] lỗi đọc {path.name}: {e}", file=sys.stderr)
+            print(f"[mcp_store] failed to read {path.name}: {e}", file=sys.stderr)
             raw = None
     if not raw:
         return {"version": 2, "connections": []}
@@ -112,9 +112,9 @@ def _migrate_v1(raw, src_path):
         if src_path and src_path.exists():
             src_path.replace(src_path.with_name("mcp_servers.v1.bak.json"))
     except Exception as e:
-        print(f"[mcp_store] không backup được v1: {e}", file=sys.stderr)
+        print(f"[mcp_store] could not back up v1: {e}", file=sys.stderr)
     _save(d)
-    print(f"[mcp_store] đã migrate {len(conns)} server v1 → connection v2", file=sys.stderr)
+    print(f"[mcp_store] migrated {len(conns)} v1 servers to v2 connections", file=sys.stderr)
     return d
 
 
@@ -326,7 +326,7 @@ def forget_cred_dir(conn):
             shutil.rmtree(cred["path"])
             return True
     except OSError as e:
-        print(f"[mcp_store] dọn cred dir: {e}", file=sys.stderr)
+        print(f"[mcp_store] cred dir cleanup: {e}", file=sys.stderr)
     return False
 
 

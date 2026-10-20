@@ -360,7 +360,7 @@ def ensure_git_repo(root: str) -> dict:
             with BrainLock(root, timeout=1.0) as lk:
                 if getattr(lk, "acquired", False):
                     untrack_media(root)
-                    commit_paths(root, [".gitignore"], "chore: cập nhật .gitignore brain")
+                    commit_paths(root, [".gitignore"], "chore: update brain .gitignore")
         return {"ok": True, "created": False}
     try:
         Path(root).mkdir(parents=True, exist_ok=True)
@@ -374,7 +374,7 @@ def ensure_git_repo(root: str) -> dict:
         _ensure_gitignore_lines(root)   # merge chứ không ghi đè (brain có thể đã có .gitignore)
         _git(root, "add", ".gitignore")
         _git(root, "add", "-A")   # commit NỀN duy nhất được phép add -A (baseline, chưa có state học)
-        c = _git(root, "commit", "-m", "chore: baseline brain snapshot (bật tự học)")
+        c = _git(root, "commit", "-m", "chore: baseline brain snapshot (learning enabled)")
         return {"ok": True, "created": True, "commit": (c.stdout or "")[:120]}
     except Exception as e:
         return {"ok": False, "created": False, "error": f"{type(e).__name__}: {e}"}
@@ -847,7 +847,7 @@ def _apply_back(mirror: str, brains_dir: str, changed: set, sync_start: float,
             if lk.acquire():
                 locks.append(lk)
             else:
-                print(f"[sync apply] không lấy được lock {top} sau 30s - vẫn áp tiếp",
+                print(f"[sync apply] could not get lock {top} after 30s - applying anyway",
                       file=__import__('sys').stderr)
     try:
         for rel in todo:
@@ -997,7 +997,7 @@ def _apply_tombstones(brains_dir: str, mirror_dir: str, trash_dir: str,
         else:
             rep["failed"].append(name)
     if changed_mirror:
-        _git(mirror_dir, "commit", "-m", f"sync: áp giấy báo tử ({_host_tag()})")
+        _git(mirror_dir, "commit", "-m", f"sync: apply deletion markers ({_host_tag()})")
     return rep
 
 

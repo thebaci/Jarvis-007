@@ -993,22 +993,22 @@ def build_system_prompt(brain: str = "brain", include_memory: bool = True,
     base += (
         "\n\n# === LỚP AGENTIC (vault đang làm việc) ===\n"
         f"Vault root: {root}\n"
-        f"- AGENT: tạo/sửa tại `{ag}/<slug>.md`\n"
-        f"- WORKFLOW: tạo/sửa tại `{wf}/<slug>.md`\n"
-        f"- LOOP (nhiệm vụ lặp vô hạn): tạo/sửa tại `{lp}/<slug>.md`\n"
-        f"- SKILL: tạo/sửa tại `{sk}/<slug>/SKILL.md` (tự mirror sang .claude/skills cho Claude native)\n"
-        f"- FILE KHÁC (bài viết, báo cáo, nháp, dữ liệu): ghi VÀO TRONG vault root ở trên bằng đường "
-        f"dẫn TUYỆT ĐỐI `{root}/<thư mục>/<tên file>`. TUYỆT ĐỐI không ghi tương đối theo thư mục "
-        "làm việc và không ghi ra ngoài vault: file ngoài vault không hiện ở trang Tệp tin và mất "
-        "khi cập nhật. Trong câu trả lời, dẫn link bằng đường dẫn TƯƠNG ĐỐI so với vault root "
-        "(vd `bai-viet/bai-1.txt`), KHÔNG dùng giao thức `file://` và không mã hoá %20 dù harness "
-        "có dặn khác (khung chat và Telegram mở không được), và CHỈ dẫn link tới file đã ghi xong "
-        "thật. Khi đếm hay liệt kê "
-        "file (vd \"còn bao nhiêu bài chưa xong\"), liệt kê lại thư mục bằng tool ngay lúc đó, "
-        "đừng nhớ lại từ lượt trước.\n"
-        "Khi user yêu cầu tạo/sửa agent, workflow hoặc loop qua chat, ghi file .md đúng định dạng "
-        "(xem mục 'Tạo/sửa Agent & Workflow qua chat' và 'Điều phối' trong system prompt) bằng "
-        "ĐƯỜNG DẪN TUYỆT ĐỐI ở trên. Trang Agents/Workflows/Việc định kỳ sẽ tự nhận file mới."
+        f"- AGENT: create/edit at `{ag}/<slug>.md`\n"
+        f"- WORKFLOW: create/edit at `{wf}/<slug>.md`\n"
+        f"- LOOP (endlessly repeating task): create/edit at `{lp}/<slug>.md`\n"
+        f"- SKILL: create/edit at `{sk}/<slug>/SKILL.md` (auto-mirrored to .claude/skills for native Claude)\n"
+        f"- OTHER FILES (articles, reports, drafts, data): write INSIDE the vault root above using an "
+        f"ABSOLUTE path `{root}/<folder>/<file name>`. NEVER write relative to the working "
+        "directory and never write outside the vault: files outside the vault do not appear on the Files page and are lost "
+        "on update. In your answer, link using a path RELATIVE to the vault root "
+        "(e.g. `bai-viet/bai-1.txt`), do NOT use the `file://` protocol and do not encode %20 even if the harness "
+        "says otherwise (the chat box and Telegram cannot open those), and ONLY link to files that are fully written "
+        "for real. When counting or listing "
+        "files (e.g. \"how many articles are left\"), list the folder again with a tool right then, "
+        "do not rely on memory from an earlier turn.\n"
+        "When the user asks to create/edit an agent, workflow or loop through chat, write the .md file in the right format "
+        "(see the sections 'Creating/editing Agents and Workflows from chat' and 'Orchestration' in the system prompt) using the "
+        "ABSOLUTE PATHS above. The Agents/Workflows/Recurring work pages pick up the new file automatically."
     )
     # Resonance (M2): chỉ brain đã bật mới có dòng này và mới thấy tool javis_goal. CLAUDE.md đã hết ngân sách
     # ký tự, và brain chưa bật thì không được dài thêm chữ nào.
@@ -1057,10 +1057,10 @@ def build_system_prompt(brain: str = "brain", include_memory: bool = True,
         if _t.get("in") or _t.get("out"):
             _c = f", ~${_t.get('cost', 0):.4f}" if _t.get("cost") else ""
             base += (f"\n\n# === MỨC DÙNG HÔM NAY (Javis tự đo) ===\n"
-                     f"{_t.get('in', 0):,} token vào + {_t.get('out', 0):,} token ra qua "
-                     f"{_t.get('turns', 0)} lượt{_c}. Đây là token Javis TỰ ĐO, KHÔNG phải hạn mức gói "
-                     f"thuê bao (đa số nhà cung cấp không cho lấy hạn mức tài khoản qua API). Chi tiết "
-                     f"từng nhà cung cấp ở panel 'Mức dùng' trên dashboard.")
+                     f"{_t.get('in', 0):,} tokens in + {_t.get('out', 0):,} tokens out over "
+                     f"{_t.get('turns', 0)} turns{_c}. These are tokens Jarvis 007 MEASURES ITSELF, NOT the subscription plan "
+                     f"quota (most providers do not expose account quotas through the API). Details "
+                     f"for each provider are in the 'Usage' panel on the dashboard.")
     except Exception:
         pass
     return base
@@ -1121,8 +1121,8 @@ def do_phan_bo_prompt(brain: str = "brain") -> dict:
         # Nói thẳng phép đo này KHÔNG bao gồm gì, để không ai đọc tổng ở đây rồi tưởng đó là
         # toàn bộ chi phí một lượt: schema tool, lịch sử hội thoại và bản thân câu hỏi đều
         # nằm ngoài. Trên brain nhiều MCP, schema tool còn to hơn cả bảng này.
-        "chua_ke": ["schema tool (MCP Hub)", "lịch sử hội thoại", "câu hỏi của lượt này",
-                    "khối tài liệu project/session (chỉ có khi hội thoại nằm trong project)"],
+        "chua_ke": ["tool schemas (MCP Hub)", "conversation history", "this turn's question",
+                    "project/session document block (only present when the conversation is inside a project)"],
     }
 
 
@@ -1140,8 +1140,8 @@ def build_adaptive_source_prompt(brain: str = "brain", include_memory: bool = Fa
     parts = [
         "# Javis adaptive source contract",
         f"Brain root: {root}",
-        "MCP Hub và tool gateway là nguồn capability live. Chỉ gọi tool được cung cấp; "
-        "không bịa tool, dữ liệu live hay kết quả hành động.",
+        "The MCP Hub and tool gateway are the live capability source. Only call tools that are provided; "
+        "do not invent tools, live data or action results.",
         f"Agent files: {ag}/<slug>.md; workflow files: {wf}/<slug>.md; "
         f"loop files: {loops}/<slug>.md; skill files: {skills}/<slug>/SKILL.md.",
     ]
@@ -1152,7 +1152,7 @@ def build_adaptive_source_prompt(brain: str = "brain", include_memory: bool = Fa
         except OSError:
             memory = ""
         if memory.strip():
-            parts.append("# Bộ nhớ fallback\n" + _fit_memory_index(memory))
+            parts.append("# Fallback memory\n" + _fit_memory_index(memory))
     if include_skills:
         try:
             system_sync.ensure_synced(root)
@@ -1237,8 +1237,8 @@ def _clip_for_log(text: str, max_chars: int = _LOG_MSG_MAX_CHARS) -> str:
         return text
     head, tail = text[:_LOG_HEAD_CHARS], text[-_LOG_TAIL_CHARS:]
     omitted = len(text) - _LOG_HEAD_CHARS - _LOG_TAIL_CHARS
-    marker = (f"\n\n[… cắt {omitted} ký tự giữa - giữ {_LOG_HEAD_CHARS} đầu + "
-              f"{_LOG_TAIL_CHARS} cuối / tổng {len(text)} …]\n\n")
+    marker = (f"\n\n[… cut {omitted} characters in the middle - kept {_LOG_HEAD_CHARS} at the start + "
+              f"{_LOG_TAIL_CHARS} at the end / total {len(text)} …]\n\n")
     return head + marker + tail
 
 def log_conversation(brain: str, user_msg: str, javis_msg: str):

@@ -188,7 +188,7 @@ def ds_tai_lieu(root: Any) -> List[str]:
     try:
         return [p.relative_to(r).as_posix() for p in _duyet(r)]
     except Exception as e:
-        print(f"[chatbot grounding] liệt kê {r} lỗi: {e}", file=sys.stderr)
+        print(f"[chatbot grounding] listing {r} failed: {e}", file=sys.stderr)
         return []
 
 
@@ -277,7 +277,7 @@ def chi_muc(root: Any, extra: Optional[List[dict]] = None) -> dict:
     try:
         van = (_dau_van(r), ve)
     except Exception as e:
-        print(f"[chatbot grounding] quét {r} lỗi: {e}", file=sys.stderr)
+        print(f"[chatbot grounding] scanning {r} failed: {e}", file=sys.stderr)
         return {"manh": [], "idf": {}}
     with _lock:
         c = _CACHE.get(key)
@@ -359,7 +359,7 @@ def thu_thap(root: Any, cau_hoi: str, k: int = 4, extra: Optional[List[dict]] = 
     try:
         hit = tim(root, cau_hoi, k, extra)
     except Exception as e:
-        print(f"[chatbot grounding] tìm lỗi: {e}", file=sys.stderr)
+        print(f"[chatbot grounding] search failed: {e}", file=sys.stderr)
         return {"co": False, "khoi": "", "nguon": []}
     # Mảnh ĐẦU phải tự nó đủ liên quan; qua được cửa đó rồi thì các mảnh sau chỉ cần đạt điểm
     # sàn, vì chúng vào prompt với tư cách ngữ cảnh bổ sung chứ không phải căn cứ chính.

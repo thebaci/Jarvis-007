@@ -97,7 +97,7 @@ check("a similar tagged message now passes the gate", rp.pre_screen(ev2, p_off, 
 
 # prompt mentions the tag signal
 prompt = rp.build_prompt(ev, p_on, "none", rp.AddressResult("none", []), {}, [], [])
-check("judge prompt states the message tags someone else", "Tin mở đầu bằng tag một người khác: có" in prompt)
+check("judge prompt states the message tags someone else", "Message opens by tagging someone else: yes" in prompt)
 
 # ---- forget and delete_bot clear the new tables ----
 st.log_change({"bot_id": "A", "actor": "review", "op": "lesson_add", "status": "applied"}, NOW)

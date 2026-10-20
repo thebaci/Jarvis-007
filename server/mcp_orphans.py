@@ -68,7 +68,7 @@ def _save(data: Dict[str, dict]) -> None:
         tmp.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
         os.replace(tmp, p)
     except OSError as e:
-        print(f"[mcp orphans] ghi sổ PID lỗi: {e}", file=sys.stderr)
+        print(f"[mcp orphans] failed to write the PID ledger: {e}", file=sys.stderr)
 
 
 def record(key: str, pid: int, args: List[str]) -> None:
@@ -228,7 +228,7 @@ def reap_all() -> List[str]:
             if still_ours(ent):
                 winproc.kill_tree(int(ent["pid"]))
                 killed.append(key)
-                print(f"[mcp orphans] {key}: dọn tiến trình MCP còn sót từ lần chạy trước "
+                print(f"[mcp orphans] {key}: cleaned up an MCP process left over from a previous run "
                       f"(pid {ent['pid']})", file=sys.stderr)
         except Exception as e:      # noqa: BLE001 - one bad entry must not stop the others
             print(f"[mcp orphans] {key}: {type(e).__name__}: {e}", file=sys.stderr)

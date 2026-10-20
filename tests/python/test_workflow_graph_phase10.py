@@ -712,7 +712,7 @@ def test_kanban_marks_a_paused_workflow_as_needing_a_person(tmp_path):
     }))
     assert needs_input is True, "phải chuyển sang trạng thái cần người"
     assert not error
-    assert "[[NEEDS_INPUT]]" in result and "chờ duyệt" in result
+    assert "[[NEEDS_INPUT]]" in result and "waiting for approval" in result
     assert "Gửi email cho khách?" in result, "phải nói rõ đang chờ duyệt việc gì"
 
 

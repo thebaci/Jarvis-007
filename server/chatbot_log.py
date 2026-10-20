@@ -102,7 +102,7 @@ def _cat_bot(p: Path) -> None:
         tmp.write_text("\n".join(dong[-CAT_XUONG:]) + "\n", encoding="utf-8")
         os.replace(tmp, p)
     except Exception as e:
-        print(f"[chatbot log cắt] {e}", file=sys.stderr)
+        print(f"[chatbot log trim] {e}", file=sys.stderr)
 
 
 def _nap(bot_id: str) -> List[dict]:
@@ -112,7 +112,7 @@ def _nap(bot_id: str) -> List[dict]:
     except FileNotFoundError:
         return []
     except Exception as e:
-        print(f"[chatbot log đọc] {e}", file=sys.stderr)
+        print(f"[chatbot log read] {e}", file=sys.stderr)
         return []
     ra = []
     for dong in raw.splitlines():
@@ -200,7 +200,7 @@ def xoa(bot_id: str) -> None:
     except FileNotFoundError:
         pass
     except Exception as e:
-        print(f"[chatbot log xoá] {e}", file=sys.stderr)
+        print(f"[chatbot log delete] {e}", file=sys.stderr)
 
 
 def loi_gan_nhat(bot_id: str) -> str:

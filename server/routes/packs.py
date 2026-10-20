@@ -117,7 +117,7 @@ def _connector_cua_app() -> list:
         return ra
     except Exception as e:
         # Kho vẫn phải vẽ được nếu chỗ này hỏng: mục tải từ kho không dính dáng gì tới catalog.
-        print(f"[packs] không gộp được connector của app vào kho: {e}", file=sys.stderr)
+        print(f"[packs] could not merge the app connectors into the store: {e}", file=sys.stderr)
         return []
 
 

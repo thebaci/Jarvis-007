@@ -580,7 +580,7 @@ class TaskStore:
                     )
                     self._event(
                         tid, "auto_archive",
-                        f"{row['status']} -> archived: đã kết thúc quá {age_days:g} ngày",
+                        f"{row['status']} -> archived: ended more than {age_days:g} days ago",
                     )
                 self._db.commit()
                 return len(rows)
@@ -682,7 +682,7 @@ class TaskStore:
                            WHERE id=?""",
                         (ts, tid),
                     )
-                    self._event(tid, "operator_move", "-> archived: xoá tất cả")
+                    self._event(tid, "operator_move", "-> archived: delete all")
                 self._db.commit()
                 return len(ids)
             except Exception:
@@ -718,7 +718,7 @@ class TaskStore:
                     (now(), task_id),
                 )
                 self._event(task_id, "operator_grant",
-                            f"{row['status']} -> ready, mức quyền = full: {reason}")
+                            f"{row['status']} -> ready, permission level = full: {reason}")
                 self._db.commit()
                 return True
             except Exception:
@@ -1193,7 +1193,7 @@ class TaskStore:
         if not team_id or not source_ref:
             raise QueueError("team_id_and_source_ref_required")
         self.ensure_board(root)
-        title = (title or intent or "Việc nhóm")[:160]
+        title = (title or intent or "Team task")[:160]
         key = f"team:{team_id}:{source_ref}"
         ts = now()
         with self._lock:

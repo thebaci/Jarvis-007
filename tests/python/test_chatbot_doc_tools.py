@@ -167,7 +167,7 @@ s = call("javis_docs_search", query="mật khẩu kho")
 check("search never returns private files", "BIMAT-123" not in s)
 s = call("javis_docs_search", query="nội bộ quy trình agent")
 check("search never returns agents/workflows", "NOI-BO-789" not in s and "QUY-TRINH-000" not in s)
-check("a miss tells the model to retry with other words", "từ khác" in call("javis_docs_search", query="xyzqwv"))
+check("a miss tells the model to retry with other words", "other words" in call("javis_docs_search", query="xyzqwv"))
 
 toc = dt.table_of_contents(BRAIN)
 check("table of contents lists documents and headings", "faq/chinh-sach.md" in toc and "Hoàn trả" in toc, toc)
@@ -277,7 +277,7 @@ check("other levels: keyword miss still silences without a model call",
 j = Judge()
 d = run(rp.decide(ev(NOW + 5), P, store=st, ask=j, doc_search=miss_with_toc, now=NOW + 5))
 check("read_docs: keyword miss goes to the judge instead", d.silence_code != "no_grounding" and len(j.prompts) == 1, d)
-check("read_docs: the judge sees the table of contents", j.prompts and "Mục lục tài liệu của bot" in j.prompts[0]
+check("read_docs: the judge sees the table of contents", j.prompts and "Bot document index" in j.prompts[0]
       and "Hoàn trả" in j.prompts[0])
 check("read_docs: and can let the bot speak", d.verdict == "reply", d)
 

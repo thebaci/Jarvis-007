@@ -89,7 +89,7 @@ def set_cap(store, agent_key: str, value: Any, by: str = "owner", at: Optional[f
     """Chủ đặt trần ngày: số 0..200, hay "unlimited"/None là Không giới hạn. Người gọi khác chủ bị từ chối
     (PermissionError): học, phản hồi, trưởng nhóm hay Toàn quyền không nâng được trần này."""
     if str(by) != "owner":
-        raise PermissionError("chỉ chủ mới đổi được hạn mức lượt mỗi ngày của trợ lý")
+        raise PermissionError("only the owner can change an assistant's daily turn limit")
     # Chuỗi rỗng KHÔNG phải "Không giới hạn" (review T3 L P3): ô trống gửi lên là lỗi nhập (400), không âm thầm bỏ trần.
     unlimited = value is None or str(value).strip().lower() in ("unlimited", "none")
     n = None
@@ -97,9 +97,9 @@ def set_cap(store, agent_key: str, value: Any, by: str = "owner", at: Optional[f
         try:
             n = int(value)
         except (TypeError, ValueError):
-            raise ValueError("hạn mức phải là số hay Không giới hạn")
+            raise ValueError("the limit must be a number or Unlimited")
         if not 0 <= n <= MAX_DAILY:
-            raise ValueError(f"hạn mức phải trong 0 tới {MAX_DAILY}")
+            raise ValueError(f"the limit must be between 0 and {MAX_DAILY}")
     ensure(store)
     t = time.time() if at is None else float(at)
     with store._Tx(store) as c:

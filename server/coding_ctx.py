@@ -140,15 +140,15 @@ class CodingToolContext:
         """
         if not self.active:
             return ""
-        phan = [f"Thư mục làm việc: {self.workspace_root}"]
+        phan = [f"Working directory: {self.workspace_root}"]
         phu = [g for g in self.workspace_roots if g != self.workspace_root]
         if phu:
-            phan.append("thư mục khác cũng thuộc việc này: " + ", ".join(phu))
+            phan.append("other directories that belong to this task: " + ", ".join(phu))
         if self.branch:
-            phan.append(f"nhánh {self.branch}")
+            phan.append(f"branch {self.branch}")
         if self.worktree:
-            phan.append("đang ở worktree riêng")
-        phan.append(f"mức quyền {self.permission_mode}")
+            phan.append("in its own worktree")
+        phan.append(f"permission level {self.permission_mode}")
         return ". ".join(phan) + "."
 
 

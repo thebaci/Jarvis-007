@@ -387,10 +387,10 @@ def huy(job_id: str) -> Optional[dict]:
 def thoi_luong(giay: float) -> str:
     g = max(0, int(giay))
     if g < 60:
-        return f"{g} giây"
+        return f"{g} sec"
     if g < 3600:
-        return f"{g // 60} phút" + (f" {g % 60} giây" if g % 60 and g < 600 else "")
-    return f"{g // 3600} giờ {(g % 3600) // 60} phút"
+        return f"{g // 60} min" + (f" {g % 60} sec" if g % 60 and g < 600 else "")
+    return f"{g // 3600} h {(g % 3600) // 60} min"
 
 
 # ---------------------------------------------------------------------------------------
@@ -442,7 +442,7 @@ async def _goi_khi_xong(v: dict) -> None:
         if asyncio.iscoroutine(r):
             await r
     except Exception as e:
-        print(f"[tien trinh nen] báo xong lỗi: {type(e).__name__}: {e}")
+        print(f"[tien trinh nen] completion callback failed: {type(e).__name__}: {e}")
 
 
 async def _vong_theo_doi() -> None:
@@ -451,7 +451,7 @@ async def _vong_theo_doi() -> None:
             for v in kiem_mot_luot():
                 await _goi_khi_xong(v)
         except Exception as e:
-            print(f"[tien trinh nen] vòng theo dõi lỗi: {type(e).__name__}: {e}")
+            print(f"[tien trinh nen] watch loop failed: {type(e).__name__}: {e}")
         if not dang_chay():
             return          # hết việc thì nghỉ; việc mới sẽ đánh thức lại
         await asyncio.sleep(NHIP_GIAY)

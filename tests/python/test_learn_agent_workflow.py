@@ -538,7 +538,7 @@ def test_prompt_bao_file_bi_khoa(tmp_path):
     feature = _feature(tmp_path)
     _wf_cu(tmp_path, extra_fm="learn_lock: true\n")
     p = feature._build_prompt(CAPS, "brain", "hội thoại dài đủ bốn mươi ký tự trở lên nhé")
-    assert "chủ đã khoá" in p
+    assert "owner-locked" in p
 
 
 if __name__ == "__main__":

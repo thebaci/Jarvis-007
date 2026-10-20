@@ -73,7 +73,7 @@ note("sub/c.md", days_ago=10)
 cfg = {"curator": {"full_every_days": 30, "state": {}}}
 s = feat._curator_scope(cfg, BRAIN)
 check("lan dau -> quet toan bo", s["mode"] == "full")
-check("lan dau: neu ro ly do", "lần đầu" in s["reason"])
+check("lan dau: neu ro ly do", "first run" in s["reason"])
 
 # ghi lại mốc như run_curator làm sau một vòng full
 now = time.time()
@@ -82,7 +82,7 @@ cfg["curator"]["state"][BRAIN] = {"last_scan": now, "last_full": now, "sig": s["
 # ---- 2. không đổi gì -> bỏ hẳn vòng ----
 s2 = feat._curator_scope(cfg, BRAIN)
 check("khong doi gi -> BO HAN vong", s2["mode"] == "skip")
-check("khong doi: neu ro ly do", "không đổi" in s2["reason"])
+check("khong doi: neu ro ly do", "no wiki note changed" in s2["reason"])
 
 # ---- 3. sửa 1 note -> chỉ soi note đó ----
 time.sleep(0.02)
@@ -106,7 +106,7 @@ cfg["curator"]["state"][BRAIN]["last_scan"] = time.time()
 (WIKI / "moi.md").unlink()
 s5 = feat._curator_scope(cfg, BRAIN)
 check("xoa note -> quet toan bo", s5["mode"] == "full")
-check("xoa note: neu ro vi wikilink", "xoá" in s5["reason"] or "đổi tên" in s5["reason"])
+check("xoa note: neu ro vi wikilink", "deleted" in s5["reason"] or "renamed" in s5["reason"])
 
 # đổi tên cũng vậy (mtime của các file còn lại không đổi)
 files, sig_now = feat._wiki_scan(BRAIN)
@@ -122,7 +122,7 @@ cfg["curator"]["state"][BRAIN] = {"last_scan": time.time(), "last_full": old,
                                   "sig": sig_now, "n": len(files)}
 s6 = feat._curator_scope(cfg, BRAIN)
 check("den hen -> quet toan bo du khong doi gi", s6["mode"] == "full")
-check("den hen: neu ro ly do", "toàn bộ" in s6["reason"])
+check("den hen: neu ro ly do", "full scan" in s6["reason"])
 # tắt được bằng full_every_days=0
 cfg["curator"]["full_every_days"] = 0
 check("full_every_days=0 -> khong ep quet toan bo", feat._curator_scope(cfg, BRAIN)["mode"] == "skip")
@@ -139,8 +139,8 @@ check("wiki rong -> bo qua", feat._curator_scope(cfg, empty)["mode"] == "skip")
 src = SERVER.joinpath("learn.py").read_text(encoding="utf-8")
 check("run_curator chi doi moc khi THAT SU quet", 'if not skipped:\n                st["last_scan"]' in src)
 check("run_curator co goi _curator_scope", "scope = self._curator_scope(cfg, brain)" in src)
-check("prompt quet-phan-doi co dan danh sach note", "NOTE MỚI ĐỔI:" in src)
-check("prompt quet-phan-doi cam quet ca wiki", "KHÔNG quét lại cả wiki" in src)
+check("prompt quet-phan-doi co dan danh sach note", "RECENTLY CHANGED NOTES:" in src)
+check("prompt quet-phan-doi cam quet ca wiki", "do NOT rescan the whole wiki" in src)
 check("config mac dinh co full_every_days", '"full_every_days": 30' in src)
 check("run_curator luu ca so luong note", 'st["n"] = scope.get("n", 0)' in src)
 

@@ -172,18 +172,18 @@ def _system_items():
                     try:
                         body = extra.read_text(encoding="utf-8")
                     except (UnicodeDecodeError, OSError) as e:
-                        print(f"[system sync] bỏ qua {extra}: {type(e).__name__}", file=sys.stderr)
+                        print(f"[system sync] skipping {extra}: {type(e).__name__}", file=sys.stderr)
                         continue
                     items.append((f"skills/{p.name}/{rel}", "skill", p.name, body, rel))
     except Exception as e:
-        print(f"[system sync] đọc skills hệ thống lỗi: {e}", file=sys.stderr)
+        print(f"[system sync] failed to read system skills: {e}", file=sys.stderr)
     try:
         if SYSTEM_LOOPS_DIR.is_dir():
             for f in sorted(SYSTEM_LOOPS_DIR.glob("*.md")):
                 content = f.read_text(encoding="utf-8").replace("{today}", _today())
                 items.append((f"loops/{f.stem}", "loop", f.stem, content, f"{f.stem}.md"))
     except Exception as e:
-        print(f"[system sync] đọc loops hệ thống lỗi: {e}", file=sys.stderr)
+        print(f"[system sync] failed to read system loops: {e}", file=sys.stderr)
     return items
 
 
@@ -664,7 +664,7 @@ def ensure_synced(brain_root) -> Optional[dict]:
     try:
         r = sync_brain(brain_root)
         if r.get("installed") or r.get("updated"):
-            print(f"[system sync] {brain_root}: cài {len(r['installed'])}, cập nhật {len(r['updated'])}",
+            print(f"[system sync] {brain_root}: installed {len(r['installed'])}, updated {len(r['updated'])}",
                   file=sys.stderr)
         return r
     except Exception as e:

@@ -103,7 +103,7 @@ def _ghi_so(pack_id: str, d: dict) -> None:
         tmp.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
         tmp.replace(p)
     except OSError as e:
-        print(f"[pack_vault] ghi sổ {pack_id}: {e}", file=sys.stderr)
+        print(f"[pack_vault] failed to write the ledger for {pack_id}: {e}", file=sys.stderr)
 
 
 def _xoa_so(pack_id: str) -> None:

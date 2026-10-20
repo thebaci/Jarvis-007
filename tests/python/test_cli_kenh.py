@@ -204,7 +204,7 @@ check("CANARY: gói lạ bị bỏ qua im lặng, không làm vỡ CLI",
       "Mọi `type` lạ: BỎ QUA im lặng" in _cmds)
 check("lỗi thì thoát khác 0", "return 1" in _cmds)
 check("javis up nói rõ nó KHÔNG chứa server",
-      "KHÔNG chứa server bên trong" in _cmds)
+      "does NOT contain the server inside" in _cmds)
 
 _cfg_cli = (_CLI / "javis_cli" / "config.py").read_text(encoding="utf-8")
 check("CANARY: file cấu hình chứa token phải chmod 600", "0o600" in _cfg_cli)

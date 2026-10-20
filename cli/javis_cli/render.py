@@ -43,7 +43,7 @@ def trang_thai(chu: str):
 
 
 def loi(chu: str):
-    sys.stderr.write(_m("do", "Lỗi: ") + (chu or "") + "\n")
+    sys.stderr.write(_m("do", "Error: ") + (chu or "") + "\n")
     sys.stderr.flush()
 
 
@@ -55,9 +55,9 @@ def nhac(chu: str):
 def duong_chay(ctx_path: str):
     """Dòng nhỏ cuối lượt: lượt này đi đường nào. Cùng bộ nhãn với dashboard để hai nơi nói
     cùng một thứ tiếng."""
-    ten = {"legacy": "Đầy đủ", "sources": "Tối ưu", "fast": "Tức thì",
-           "readonly": "Tra cứu", "orchestrator": "Tra cứu sâu", "write": "Thực thi",
-           "workflow": "Quy trình"}.get(ctx_path or "", "")
+    ten = {"legacy": "Full", "sources": "Optimised", "fast": "Instant",
+           "readonly": "Lookup", "orchestrator": "Deep lookup", "write": "Execute",
+           "workflow": "Workflow"}.get(ctx_path or "", "")
     if ten:
         sys.stderr.write(_m("mo", "  · " + ten) + "\n")
         sys.stderr.flush()

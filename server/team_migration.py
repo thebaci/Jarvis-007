@@ -36,7 +36,7 @@ def snapshot_once(path: Path, table: str, marker_column: str, suffix: str = SNAP
         return bak
     except Exception as ex:  # noqa: BLE001
         import sys
-        print(f"[team migration] không chụp được {path.name}: {type(ex).__name__}: {ex}", file=sys.stderr)
+        print(f"[team migration] could not snapshot {path.name}: {type(ex).__name__}: {ex}", file=sys.stderr)
         return None
 
 
@@ -59,5 +59,5 @@ def snapshot_before_table(path: Path, base_table: str, marker_table: str, suffix
         return bak
     except Exception as ex:  # noqa: BLE001
         import sys
-        print(f"[migration] không chụp được {path.name}: {type(ex).__name__}: {ex}", file=sys.stderr)
+        print(f"[migration] could not snapshot {path.name}: {type(ex).__name__}: {ex}", file=sys.stderr)
         return None

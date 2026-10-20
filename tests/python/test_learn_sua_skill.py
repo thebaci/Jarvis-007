@@ -214,10 +214,10 @@ def test_prompt_liet_ke_skill_da_co_va_dan_nhan_cam(tmp_path):
     _co_skill(tmp_path, slug="javis-builder")
     _co_skill(tmp_path, slug="da-khoa", extra_fm="learn_lock: true\n")
     p = feature._build_prompt(CAPS, "brain", "hội thoại")
-    assert "SKILL ĐÃ CÓ" in p
+    assert "EXISTING SKILLS" in p
     assert "- chot-don" in p
-    assert "[hệ thống, cấm sửa]" in p
-    assert "[chủ đã khoá]" in p
+    assert "[system, do not edit]" in p
+    assert "[owner-locked]" in p
 
 
 if __name__ == "__main__":

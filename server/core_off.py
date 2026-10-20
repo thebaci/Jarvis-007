@@ -56,11 +56,11 @@ def _doc() -> dict:
         try:
             d = json.loads(STORE.read_text(encoding="utf-8"))
             if not isinstance(d, dict):
-                raise ValueError("gốc phải là object")
+                raise ValueError("the root must be an object")
         except Exception as e:
             # File hỏng thì coi như CHƯA GỠ GÌ, không phải gỡ hết. Suy biến phải nghiêng về
             # "người dùng thấy đủ năng lực" chứ không phải "Javis đột nhiên trống rỗng".
-            print(f"[core_off] lỗi đọc {STORE.name}: {e}", file=sys.stderr)
+            print(f"[core_off] failed to read {STORE.name}: {e}", file=sys.stderr)
             _cache.update(sig=sig, data={})
             return _cache["data"]
         sach = {k: sorted({str(x) for x in (d.get(k) or []) if str(x).strip()}) for k in LOAI}
@@ -98,10 +98,10 @@ def dat(loai: str, cid: str, off: bool) -> bool:
     thấy gì, nên một lần ghi bị cắt giữa đường không được phép biến nó thành JSON hỏng.
     """
     if loai not in LOAI:
-        raise ValueError(f"loại không hợp lệ: {loai}")
+        raise ValueError(f"invalid kind: {loai}")
     cid = str(cid or "").strip()
     if not cid:
-        raise ValueError("thiếu id")
+        raise ValueError("missing id")
     with _lock:
         d = {k: list(v) for k, v in _doc().items()}
         for k in LOAI:

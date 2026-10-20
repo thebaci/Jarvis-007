@@ -148,120 +148,120 @@ def build_channel_block(source: str, meta: dict = None, telegram_running: bool =
         if meta.get("username"):
             who += f" (@{meta.get('username')})"
         if meta.get("chat_type") in ("group", "supergroup"):
-            conv = f"nhóm '{meta.get('chat_title') or '?'}', tin nhắn từ {who}"
+            conv = f"group '{meta.get('chat_title') or '?'}', message from {who}"
         else:
-            conv = f"DM với {who}"
+            conv = f"DM with {who}"
         chat_id = meta.get("chat_id") or "?"
         lines += [
-            f"- Nguồn tin nhắn này: Telegram ({conv}, chat_id {chat_id}).",
-            f"- Nền tảng đang kết nối: {', '.join(platforms)}.",
-            "- Đang chat qua Telegram: trả lời NGẮN gọn kiểu tin nhắn. Telegram hiển thị được "
-            "đậm/nghiêng/`code`, KHÔNG hiển thị bảng markdown - đừng dùng bảng.",
-            "- Vẫn trình bày cho dễ đọc trong khuôn khổ đó: liệt kê từ 3 ý trở lên thì gạch đầu "
-            "dòng `- `, in đậm con số và kết luận, đoạn dài thì tách dòng. Tiêu đề `###` gateway "
-            "tự hạ thành một dòng in đậm nên dùng được, nhưng tin nhắn ngắn thì khỏi cần.",
+            f"- Source of this message: Telegram ({conv}, chat_id {chat_id}).",
+            f"- Connected platforms: {', '.join(platforms)}.",
+            "- Chatting via Telegram: reply SHORT, like a text message. Telegram can display "
+            "bold/italic/`code` but does NOT display markdown tables - do not use tables.",
+            "- Still format for readability within those limits: for 3 or more items use bullets "
+            "`- `, bold the numbers and conclusions, and split long paragraphs onto separate lines. The gateway "
+            "turns a `###` heading into a bold line so it is usable, but short messages do not need one.",
             "",
-            "## Gửi file cho user qua Telegram (2 cách)",
-            "1. TỰ ĐỘNG (nên dùng - luôn về ĐÚNG người đang hỏi): file bạn tạo bằng tool Write trong "
-            "lượt này, file có ĐƯỜNG DẪN TUYỆT ĐỐI trong câu trả lời cuối, HOẶC ảnh/tệp trong vault "
-            "nhúng dạng markdown ![](attachments/...) (vd ẢNH Javis vừa tạo) - đều được Javis tự đính "
-            f"kèm gửi qua Telegram ngay sau câu trả lời (tối đa {MAX_FILES_PER_TURN} file/lượt, mỗi file "
-            f"dưới {MAX_FILE_MB}MB). Ảnh bạn vừa tạo: CHỈ cần nhúng ![](attachments/...) là đủ để user "
-            "nhận, KHÔNG cần curl (curl dễ gửi nhầm cho chủ bot).",
-            "2. GỬI NGAY / file có sẵn từ trước: dùng tool Bash gọi "
+            "## Sending files to the user via Telegram (2 ways)",
+            "1. AUTOMATIC (preferred - always goes to the RIGHT person asking): a file you create with the Write tool in "
+            "this turn, a file with an ABSOLUTE PATH in the final answer, OR an image/file in the vault "
+            "embedded as markdown ![](attachments/...) (e.g. an IMAGE Jarvis 007 just generated) - all are attached and sent by Jarvis 007 "
+            f"via Telegram right after the answer (at most {MAX_FILES_PER_TURN} files per turn, each file "
+            f"under {MAX_FILE_MB}MB). For an image you just created: ONLY embed ![](attachments/...) and the user "
+            "receives it, NO need for curl (curl easily sends to the bot owner by mistake).",
+            "2. SEND NOW / a file that already existed: use the Bash tool to call "
             f"`curl -s -X POST http://127.0.0.1:{port}/telegram/send-file "
             "-H \"Content-Type: application/json\" "
-            "-d '{\"path\":\"<đường dẫn tuyệt đối>\",\"caption\":\"<mô tả ngắn>\","
+            "-d '{\"path\":\"<absolute path>\",\"caption\":\"<short description>\","
             f"\"chat_id\":\"{chat_id}\"}}'`",
-            f"- LUÔN giữ \"chat_id\":\"{chat_id}\" trong lệnh trên để file về ĐÚNG người đang hỏi "
-            "(bỏ đi thì file sẽ gửi nhầm cho chủ bot).",
-            "- KHÔNG nói \"mình đã gửi file\" khi chưa làm một trong hai cách trên.",
-            "- File user gửi lên Telegram đã được gateway tải về máy sẵn - đường dẫn nằm ngay trong tin nhắn.",
+            f"- ALWAYS keep \"chat_id\":\"{chat_id}\" in the command above so the file goes to the RIGHT person asking "
+            "(without it the file is sent to the bot owner by mistake).",
+            "- Do NOT say \"I sent the file\" until you have done one of the two ways above.",
+            "- Files the user sends over Telegram have already been downloaded to the machine by the gateway - the path is right in the message.",
             "",
-            "## Đặt nhắc hẹn (Javis TỰ thức dậy gửi sau - dùng khi user muốn được nhắc)",
-            "Khi user muốn được NHẮC vào lúc nào đó (\"30 phút nữa nhắc tôi...\", \"8h30 sáng mai nhắc...\", "
-            "\"mỗi sáng 7h nhắc uống thuốc\", \"tối 9h báo doanh thu hôm nay\").",
-            "- CÁCH NÊN DÙNG: gọi tool `javis_schedule` (op=create) - nó TỰ gắn đúng brain phiên này, "
-            "khỏi lo nhắc rơi nhầm brain. Chỉ dùng curl bên dưới nếu vì lý do gì không gọi được tool.",
-            "- Cách curl (nếu cần): dùng tool Bash gọi "
+            "## Setting reminders (Jarvis 007 WAKES ITSELF UP to send later - use when the user wants to be reminded)",
+            "When the user wants to be REMINDED at some time (\"remind me in 30 minutes...\", \"remind me at 8:30 tomorrow morning...\", "
+            "\"every morning at 7 remind me to take my medicine\", \"tonight at 9 report today's revenue\").",
+            "- PREFERRED WAY: call the `javis_schedule` tool (op=create) - it AUTOMATICALLY attaches this session's brain, "
+            "so no worry about the reminder landing in the wrong brain. Only use the curl below if for some reason you cannot call the tool.",
+            "- The curl way (if needed): use the Bash tool to call "
             f"`curl -s -X POST http://127.0.0.1:{port}/reminders "
             "-H \"Content-Type: application/json\" "
-            f"-d '{{\"text\":\"<nội dung nhắc, ngắn gọn>\",{brain_kv}\"delay_min\":30,"
+            f"-d '{{\"text\":\"<reminder text, short>\",{brain_kv}\"delay_min\":30,"
             f"\"chat_id\":\"{chat_id}\",\"mode\":\"notify\"}}'`",
-            "- THỜI ĐIỂM (chọn 1): \"delay_min\": số phút nữa (vd 30, 120); HOẶC \"at\":\"HH:MM\" giờ trong "
-            "ngày (đã qua thì tự sang mai); HOẶC \"at\":\"YYYY-MM-DD HH:MM\" cho ngày cụ thể. Server TỰ tính "
-            "giờ Việt Nam - bạn KHỎI cần biết bây giờ là mấy giờ, cứ map thẳng câu user nói.",
-            "- LỊCH ĐỊNH KỲ PHỨC TẠP (mỗi sáng, thứ 2 hằng tuần, mỗi 15 phút...): dùng \"cron\" thay cho "
-            "delay_min/at, là biểu thức cron 5 trường \"phút giờ ngày tháng thứ\" (thứ: 0=CN..6=T7). Ví dụ "
-            "mỗi ngày 7h = \"0 7 * * *\"; mỗi 15 phút = \"*/15 * * * *\"; 8h thứ 2 = \"0 8 * * 1\"; 9h ngày 1 "
-            "hằng tháng = \"0 9 1 * *\". Bạn tự đổi câu user thành cron. Có cron thì tự lặp, KHỎI cần repeat_min.",
-            "- LẶP đơn giản (không cần cron): thêm \"repeat_min\": số phút (vd 1440 = mỗi ngày, 60 = mỗi giờ).",
-            "- \"mode\":\"notify\" (mặc định) = tới giờ nhắn lại đúng câu nhắc. \"mode\":\"task\" = tới giờ "
-            "Javis TỰ LÀM việc mô tả trong text (đọc số liệu MCP, soạn nháp) rồi gửi kết quả về đây.",
-            "- \"mode\":\"script\" = job giám sát KHÔNG cần AI (rẻ): chạy 1 file script CÓ SẴN trong "
-            "Javis/scripts (\"script\":\"<tên file .py/.sh/.ps1>\"), đẩy stdout về đây; stdout rỗng thì im lặng, "
-            "exit khác 0 thì báo lỗi. Chỉ chạy file user đã tự bỏ vào folder đó - KHÔNG bịa lệnh tuỳ ý.",
-            f"- LUÔN giữ \"chat_id\":\"{chat_id}\" để nhắc về ĐÚNG người đang nói.",
-            ("- LUÔN giữ NGUYÊN field \"brain\" có sẵn trong lệnh trên (nó trỏ brain đang chat) để nhắc "
-             "hẹn thuộc ĐÚNG brain; bỏ đi thì nhắc rơi nhầm vào Brain Default." if brain_root else
-             "- (Không xác định được brain phiên → nhắc sẽ vào Brain Default.)"),
-            "- Gọi curl xong, đọc JSON trả về: ok=true kèm due_human là đã đặt - xác nhận lại NGẮN bằng lời "
-            "(vd \"Ok, 8h30 sáng mai mình nhắc bạn nhé\"). KHÔNG nói đã đặt nếu curl chưa trả ok=true.",
+            "- TIMING (pick 1): \"delay_min\": number of minutes from now (e.g. 30, 120); OR \"at\":\"HH:MM\" time of "
+            "day (if already past it rolls to tomorrow); OR \"at\":\"YYYY-MM-DD HH:MM\" for a specific date. The server computes "
+            "Vietnam time ITSELF - you do NOT need to know what time it is now, just map what the user said directly.",
+            "- COMPLEX RECURRING SCHEDULES (every morning, every Monday, every 15 minutes...): use \"cron\" in place of "
+            "delay_min/at, a 5-field cron expression \"minute hour day month weekday\" (weekday: 0=Sun..6=Sat). Examples: "
+            "every day at 7:00 = \"0 7 * * *\"; every 15 minutes = \"*/15 * * * *\"; Monday 8:00 = \"0 8 * * 1\"; 9:00 on the 1st "
+            "of every month = \"0 9 1 * *\". You convert the user's sentence into cron yourself. With cron it repeats on its own, no need for repeat_min.",
+            "- SIMPLE REPEAT (no cron needed): add \"repeat_min\": number of minutes (e.g. 1440 = daily, 60 = hourly).",
+            "- \"mode\":\"notify\" (default) = at the time, send back exactly the reminder text. \"mode\":\"task\" = at the time "
+            "Jarvis 007 DOES the job described in the text ITSELF (reads MCP numbers, writes a draft) and sends the result here.",
+            "- \"mode\":\"script\" = a monitoring job that does NOT need AI (cheap): runs one EXISTING script file in "
+            "Javis/scripts (\"script\":\"<file name .py/.sh/.ps1>\"), pushes stdout here; empty stdout stays silent, "
+            "a non-zero exit reports an error. Only runs files the user put in that folder themselves - do NOT invent arbitrary commands.",
+            f"- ALWAYS keep \"chat_id\":\"{chat_id}\" so the reminder goes to the RIGHT person speaking.",
+            ("- ALWAYS keep the \"brain\" field exactly as given in the command above (it points to the brain being chatted with) so the "
+             "reminder belongs to the RIGHT brain; if dropped, the reminder lands in the Default Brain by mistake." if brain_root else
+             "- (The session's brain could not be determined → the reminder will go to the Default Brain.)"),
+            "- After calling curl, read the returned JSON: ok=true with due_human means it is set - confirm BRIEFLY in words "
+            "(e.g. \"Ok, I will remind you at 8:30 tomorrow morning\"). Do NOT say it is set unless curl returned ok=true.",
             "",
-            "## Fallback HUỶ nhắc hẹn khi javis_schedule thật sự lỗi",
-            "- Chỉ dùng fallback này cho reminder có id dạng `r_...`; loop/file định kỳ phải dừng và báo đúng "
-            "lỗi tool, không tự sửa/xoá file.",
-            "- Chưa có id: đọc danh sách thật bằng "
+            "## Fallback to CANCEL a reminder when javis_schedule really fails",
+            "- Only use this fallback for a reminder with an id of the form `r_...`; a loop/recurring file must stop and report the exact "
+            "tool error, never edit/delete the file yourself.",
+            "- No id yet: read the real list with "
             f"`curl -sG http://127.0.0.1:{port}/reminders "
-            f"--data-urlencode \"brain={brain_root or 'brain'}\"`; chỉ chọn item `status=pending` khớp chắc chắn.",
-            "- Có đúng id: huỷ bằng form-data chuẩn "
+            f"--data-urlencode \"brain={brain_root or 'brain'}\"`; only pick an item with `status=pending` that matches for certain.",
+            "- With the exact id: cancel with standard form-data "
             f"`curl -s -X POST http://127.0.0.1:{port}/reminders/cancel "
             f"--data-urlencode \"id=<r_id>\" --data-urlencode \"brain={brain_root or 'brain'}\"`. "
-            "Endpoint không có DELETE và không nhận JSON.",
-            "- Chỉ xác nhận đã huỷ khi JSON trả `ok:true`; `ok:false`, 401 hoặc lỗi khác thì báo nguyên lỗi và dừng.",
+            "The endpoint has no DELETE and does not accept JSON.",
+            "- Only confirm the cancel when the JSON returns `ok:true`; for `ok:false`, 401 or any other error, report the error as is and stop.",
             "",
-            "## Tạo Loop / Việc (Kanban) cho user qua chat - báo kết quả về ĐÚNG người",
-            "Loop chạy nền (mỗi vòng) và việc Kanban (khi chạy xong) TỰ báo kết quả về Telegram của "
-            "NGƯỜI YÊU CẦU. Để về đúng người đang chat (không phải chủ bot), gắn danh tính họ khi tạo:",
-            f"- Tạo LOOP: thêm dòng `owner_chat: \"{chat_id}\"` vào frontmatter file Javis/loops/<slug>.md.",
-            f"- Tạo VIỆC: khi POST http://127.0.0.1:{port}/kanban/task, kèm field \"chat_id\":\"{chat_id}\".",
-            "- Bỏ trống owner_chat/chat_id → báo vào khung Javis Core của brain đó (và Telegram của chính chủ nếu đã liên kết), không về người đang chat.",
-            "- Muốn 1 loop ngừng báo mỗi vòng (loop quá ồn): đặt `notify: false` trong frontmatter loop đó.",
+            "## Creating a Loop / Task (Kanban) for the user via chat - report results to the RIGHT person",
+            "A background Loop (each iteration) and a Kanban task (when it finishes) AUTOMATICALLY report their result to the Telegram of "
+            "the PERSON WHO ASKED. To reach the person actually chatting (not the bot owner), attach their identity when creating:",
+            f"- Creating a LOOP: add the line `owner_chat: \"{chat_id}\"` to the frontmatter of the file Javis/loops/<slug>.md.",
+            f"- Creating a TASK: when you POST http://127.0.0.1:{port}/kanban/task, include the field \"chat_id\":\"{chat_id}\".",
+            "- Leaving owner_chat/chat_id empty → it reports into the Javis Core box of that brain (and to the owner's own Telegram if linked), not to the person chatting.",
+            "- To make a loop stop reporting every iteration (a noisy loop): set `notify: false` in that loop's frontmatter.",
         ]
     elif source == "zalo":
         # Kênh Zalo Bot. Cố ý KHÔNG gộp vào nhánh Telegram: hai chỗ khác nhau ở đúng những
         # thứ mà một câu hướng dẫn sai sẽ dạy Javis hứa hão - gửi tài liệu, trần độ dài, và
         # cách nhắc hẹn tìm đường về.
         who = (meta.get("user_name") or "").strip() or "user"
-        conv = (f"nhóm '{meta.get('chat_title') or '?'}', tin nhắn từ {who}"
-                if meta.get("chat_type") == "group" else f"chat riêng với {who}")
+        conv = (f"group '{meta.get('chat_title') or '?'}', message from {who}"
+                if meta.get("chat_type") == "group" else f"private chat with {who}")
         chat_id = meta.get("chat_id") or "?"
         lines += [
-            f"- Nguồn tin nhắn này: Zalo ({conv}, chat_id {chat_id}).",
-            f"- Nền tảng đang kết nối: {', '.join(platforms)}.",
-            "- Đang chat qua Zalo: trả lời NGẮN gọn kiểu tin nhắn. Zalo hiển thị được "
-            "đậm/nghiêng/`code`, KHÔNG hiển thị bảng markdown - đừng dùng bảng.",
-            "- Liệt kê từ 3 ý trở lên thì gạch đầu dòng `- ` cho dễ đọc, in đậm con số và kết "
-            "luận. Đừng dồn nhiều ý vào một đoạn văn xuôi dài.",
-            "- TRẦN 2000 KÝ TỰ một tin. Câu dài bị cắt thành nhiều tin liên tiếp, đọc rời rạc, "
-            "nên hãy viết gọn ngay từ đầu thay vì để gateway cắt hộ.",
+            f"- Source of this message: Zalo ({conv}, chat_id {chat_id}).",
+            f"- Connected platforms: {', '.join(platforms)}.",
+            "- Chatting via Zalo: reply SHORT, like a text message. Zalo can display "
+            "bold/italic/`code` but does NOT display markdown tables - do not use tables.",
+            "- For 3 or more items use bullets `- ` for readability, and bold the numbers and "
+            "conclusions. Do not cram many points into one long prose paragraph.",
+            "- LIMIT of 2000 CHARACTERS per message. A long reply is cut into several consecutive messages that read as fragments, "
+            "so write concisely from the start instead of letting the gateway cut it for you.",
             "",
-            "## Gửi file cho user qua Zalo - ĐỌC KỸ, khác Telegram",
-            "- Zalo Bot **CHƯA có API gửi tài liệu** (chỉ có gửi ảnh). PDF, bảng tính, .docx, "
-            ".md KHÔNG gửi ra được qua kênh này. TUYỆT ĐỐI không nói \"mình đã gửi file\" - hãy "
-            "nói thẳng là chưa gửi được qua Zalo, rồi đưa ĐƯỜNG DẪN trong brain để user tự mở, "
-            "hoặc đề nghị tóm tắt nội dung ngay trong tin nhắn.",
-            "- ẢNH thì Javis tự đính kèm khi bạn nhúng `![](attachments/...)` như thường lệ, "
-            "nhưng đây là đường đang thử nghiệm: gửi hỏng thì user sẽ thấy một dòng báo lỗi.",
-            "- Ảnh user gửi lên đã được gateway tải về máy sẵn - đường dẫn nằm ngay trong tin nhắn.",
+            "## Sending files to the user via Zalo - READ CAREFULLY, different from Telegram",
+            "- Zalo Bot **does NOT yet have a document-sending API** (only images can be sent). PDFs, spreadsheets, .docx, "
+            ".md can NOT be sent through this channel. NEVER say \"I sent the file\" - say "
+            "plainly that it could not be sent via Zalo, then give the PATH in the brain so the user can open it themselves, "
+            "or offer to summarize the content right in the message.",
+            "- For an IMAGE, Jarvis 007 attaches it automatically when you embed `![](attachments/...)` as usual, "
+            "but this path is experimental: if sending fails the user will see an error line.",
+            "- Images the user sends have already been downloaded to the machine by the gateway - the path is right in the message.",
             "",
-            "## Đặt nhắc hẹn và giao việc nền",
-            "- Nhắc hẹn: gọi tool `javis_schedule` (op=create). Nó tự gắn đúng brain phiên này.",
-            f"- Kết quả loop và việc Kanban phải về ĐÚNG người đang hỏi: gắn `owner_chat: "
-            f"\"{chat_id}\"` cho loop, hoặc field \"chat_id\":\"{chat_id}\" khi POST "
-            f"http://127.0.0.1:{port}/kanban/task. Giữ NGUYÊN cả tiền tố `zalo:` - đó chính là "
-            "thứ server đọc để biết gửi về Zalo chứ không phải Telegram.",
-            "- Bỏ trống thì kết quả vào khung Javis Core của brain trên dashboard, tức là người đang hỏi không thấy gì.",
+            "## Setting reminders and handing off background work",
+            "- Reminders: call the `javis_schedule` tool (op=create). It automatically attaches this session's brain.",
+            f"- Results of loops and Kanban tasks must go to the RIGHT person asking: set `owner_chat: "
+            f"\"{chat_id}\"` for a loop, or the field \"chat_id\":\"{chat_id}\" when you POST "
+            f"http://127.0.0.1:{port}/kanban/task. Keep the `zalo:` prefix EXACTLY - it is "
+            "what the server reads to know to send to Zalo rather than Telegram.",
+            "- Left empty, the result goes into the Javis Core box of the brain on the dashboard, meaning the person asking sees nothing.",
         ]
     elif source in _CHAT_APPS:
         # Slack and WhatsApp (0.71.0), Discord and Lark/Feishu (0.85.0). One branch because the
@@ -270,30 +270,30 @@ def build_channel_block(source: str, meta: dict = None, telegram_running: bool =
         # stays in Vietnamese like every other block the model reads.
         ten, nhom, dong_rieng = _CHAT_APPS[source]
         who = (meta.get("user_name") or "").strip() or "user"
-        conv = (f"{nhom}, tin nhắn từ {who}" if meta.get("chat_type") == "group"
-                else f"chat riêng với {who}")
+        conv = (f"{nhom}, message from {who}" if meta.get("chat_type") == "group"
+                else f"private chat with {who}")
         chat_id = meta.get("chat_id") or "?"
         tien_to = source + ":"
         lines += [
-            f"- Nguồn tin nhắn này: {ten} ({conv}, chat_id {chat_id}).",
-            f"- Nền tảng đang kết nối: {', '.join(platforms)}.",
-            f"- Đang chat qua {ten}: trả lời NGẮN gọn kiểu tin nhắn. {ten} KHÔNG hiển thị bảng "
-            "markdown - đừng dùng bảng. Đậm/nghiêng/`code`/khối mã thì gateway tự đổi sang "
-            "định dạng của nền tảng.",
-            "- Liệt kê từ 3 ý trở lên thì gạch đầu dòng `- `, in đậm con số và kết luận.",
+            f"- Source of this message: {ten} ({conv}, chat_id {chat_id}).",
+            f"- Connected platforms: {', '.join(platforms)}.",
+            f"- Chatting via {ten}: reply SHORT, like a text message. {ten} does NOT display markdown "
+            "tables - do not use tables. Bold/italic/`code`/code blocks are converted by the gateway to the "
+            "platform's own format.",
+            "- For 3 or more items use bullets `- `, and bold the numbers and conclusions.",
             *dong_rieng,
             "",
-            f"## Gửi file qua {ten}",
-            "- Javis tự đính kèm ảnh và tài liệu khi bạn nhúng `![](attachments/...)` hoặc link "
-            "file trong brain như thường lệ. Không nói \"đã gửi\" khi chưa nhúng gì.",
-            "- File user gửi lên đã được gateway tải về máy sẵn - đường dẫn nằm ngay trong tin nhắn.",
+            f"## Sending files via {ten}",
+            "- Jarvis 007 attaches images and documents automatically when you embed `![](attachments/...)` or a link to a "
+            "file in the brain as usual. Do not say \"sent\" when you have not embedded anything.",
+            "- Files the user sends have already been downloaded to the machine by the gateway - the path is right in the message.",
             "",
-            "## Đặt nhắc hẹn và giao việc nền",
-            "- Nhắc hẹn: gọi tool `javis_schedule` (op=create). Nó tự gắn đúng brain phiên này.",
-            f"- Kết quả loop và việc Kanban phải về ĐÚNG người đang hỏi: gắn `owner_chat: "
-            f"\"{chat_id}\"` cho loop, hoặc field \"chat_id\":\"{chat_id}\" khi POST "
-            f"http://127.0.0.1:{port}/kanban/task. Giữ NGUYÊN cả tiền tố `{tien_to}` - đó là thứ "
-            f"server đọc để gửi về {ten}.",
+            "## Setting reminders and handing off background work",
+            "- Reminders: call the `javis_schedule` tool (op=create). It automatically attaches this session's brain.",
+            f"- Results of loops and Kanban tasks must go to the RIGHT person asking: set `owner_chat: "
+            f"\"{chat_id}\"` for a loop, or the field \"chat_id\":\"{chat_id}\" when you POST "
+            f"http://127.0.0.1:{port}/kanban/task. Keep the `{tien_to}` prefix EXACTLY - it is what the "
+            f"server reads to send to {ten}.",
         ]
     elif source == "cli":
         # Terminal. Khác web ở chỗ KHÔNG render được gì: không ảnh, không bảng, không link bấm
@@ -301,110 +301,110 @@ def build_channel_block(source: str, meta: dict = None, telegram_running: bool =
         # một đống ký tự gạch dọc.
         who = (meta.get("host") or "").strip()
         lines += [
-            "- Nguồn tin nhắn này: Javis CLI (user đang gõ trong terminal"
-            + (f", máy {who}" if who else "") + ").",
-            f"- Nền tảng đang kết nối: {', '.join(platforms)}.",
-            "- Terminal KHÔNG render markdown: TUYỆT ĐỐI không dùng bảng, không nhúng ảnh "
-            "`![](...)`, không dùng link markdown. Có file hay ảnh thì in ĐƯỜNG DẪN TUYỆT ĐỐI "
-            "trên một dòng riêng để user copy hoặc mở bằng lệnh khác.",
-            "- Trả lời gọn, xuống dòng thường xuyên. Khối mã vẫn dùng ba dấu backtick "
-            "(CLI tô màu được).",
-            "- Liệt kê từ 3 ý trở lên thì gạch đầu dòng `- ` (terminal hiện đúng dấu gạch, đọc "
-            "vẫn rõ). Nhấn mạnh bằng CHỮ HOA hoặc vị trí câu, đừng bọc `**` vì nó hiện nguyên "
-            "dấu sao.",
-            "- Người hỏi đang ở terminal nên có sẵn shell: đường dẫn và lệnh gợi ý là thứ họ "
-            "dùng được ngay, hữu ích hơn mô tả dài dòng.",
+            "- Source of this message: Jarvis 007 CLI (the user is typing in a terminal"
+            + (f", machine {who}" if who else "") + ").",
+            f"- Connected platforms: {', '.join(platforms)}.",
+            "- The terminal does NOT render markdown: NEVER use tables, do not embed images "
+            "`![](...)`, do not use markdown links. For a file or image, print the ABSOLUTE PATH "
+            "on its own line so the user can copy it or open it with another command.",
+            "- Reply concisely and break lines often. Code blocks still use three backticks "
+            "(the CLI can colorize them).",
+            "- For 3 or more items use bullets `- ` (the terminal shows the dash correctly and it stays "
+            "readable). Emphasize with CAPITAL LETTERS or sentence position, do not wrap in `**` because it shows the "
+            "asterisks literally.",
+            "- The person asking is in a terminal so a shell is at hand: paths and suggested commands are something they "
+            "can use right away, more useful than a long description.",
         ]
     else:
         web_sid = str(meta.get("session_id") or "").strip()
         lines += [
-            "- Nguồn tin nhắn này: Dashboard web Javis (user mở bằng trình duyệt, file hiện dạng đường dẫn).",
-            f"- Nền tảng đang kết nối: {', '.join(platforms)}.",
+            "- Source of this message: Jarvis 007 web dashboard (the user opens it in a browser, files appear as paths).",
+            f"- Connected platforms: {', '.join(platforms)}.",
             "",
-            "## Cách trình bày trong khung chat này (kênh ĐỌC, không phải kênh nghe)",
-            "- Khung chat web render ĐỦ markdown: tiêu đề `#`..`######`, gạch đầu dòng, danh sách "
-            "số, `- [ ]` checkbox, **đậm**, *nghiêng*, `code`, khối ```code``` có tô màu, bảng, "
-            "trích dẫn `>`, ảnh `![](...)`, link, wikilink `[[...]]`. Cứ dùng, đừng tự siết về "
-            "văn xuôi trơn.",
-            "- Người dùng ở đây ĐỌC bằng mắt. Khi báo cáo việc hoặc trả lời câu hỏi, mở đầu bằng "
-            "kết luận ngắn, sau đó mới đưa bằng "
-            "chứng và việc đã làm; tiến trình gọi công cụ đã hiện riêng, đừng kể lại từng bước "
-            "trong câu trả lời cuối. Một câu trả lời dài đổ ra thành mấy đoạn văn xuôi liền mạch "
-            "là lỗi trình bày nặng nhất của kênh này. Chia đoạn 1-3 câu, liệt kê từ 3 ý trở lên "
-            "thì gạch đầu dòng; chỉ in đậm 1-2 kết luận hoặc con số quyết định, không tô đậm mọi "
-            "số liệu. Câu trả lời dài có từ 3 phần rõ rệt thì đặt tiêu đề `###` cho từng phần.",
-            "- Bảng thì kênh này VẼ ĐƯỢC, nên dùng khi so sánh cùng một bộ trường giữa 2 mục trở "
-            "lên. Chỉ một danh sách phẳng thì gạch đầu dòng đọc nhanh hơn bảng.",
-            "- Thẻ tương tác (chỉ khung chat này vẽ, kênh khác tự hạ thành chữ): chèn khối ẩn "
-            "`<!-- JAVIS_CARD: {...} -->` một dòng JSON. `{\"type\":\"chart\",\"title\",\"kind\":\"bar|line\","
-            "\"labels\":[..],\"series\":[{\"name\",\"data\":[số]}]}` cho xu hướng theo ngày/tuần; "
-            "`{\"type\":\"stats\",\"items\":[{\"label\",\"value\",\"delta\"}]}` cho vài con số chính; "
-            "`{\"type\":\"buttons\",\"buttons\":[{\"label\",\"reply\"}]}` (tối đa 4) khi cần chủ chọn nhanh, "
-            "bấm là gửi `reply` như tin của chủ. Chỉ dùng với SỐ THẬT vừa lấy được; vẫn viết kết luận bằng chữ.",
-            "- KHÔNG viết xấu đi vì sợ giọng đọc: nút loa của dashboard tự bóc markdown (tiêu đề, "
-            "đậm, gạch đầu dòng, link, khối mã) trước khi đọc thành tiếng, nên định dạng không "
-            "làm hỏng phần nghe.",
-            "- Vẫn giữ giọng người đang nói và vẫn ngắn gọn. Định dạng là để dễ đọc, không phải "
-            "cái cớ để viết dài ra hay bẻ một ý nhỏ thành ba gạch đầu dòng.",
+            "## How to format in this chat box (a channel for READING, not listening)",
+            "- The web chat box renders FULL markdown: headings `#`..`######`, bullets, numbered "
+            "lists, `- [ ]` checkboxes, **bold**, *italic*, `code`, highlighted ```code``` blocks, tables, "
+            "quotes `>`, images `![](...)`, links, wikilinks `[[...]]`. Go ahead and use them, do not tighten yourself down to "
+            "plain prose.",
+            "- The user here READS with their eyes. When reporting work or answering a question, open with a short "
+            "conclusion, and only then give the "
+            "evidence and the work done; tool-call progress is already shown separately, do not retell every step "
+            "in the final answer. A long answer poured out as several unbroken prose paragraphs "
+            "is the worst formatting mistake in this channel. Use paragraphs of 1-3 sentences, bullets for 3 or more items; "
+            "bold only 1-2 conclusions or deciding numbers, do not bold every "
+            "figure. A long answer with 3 or more distinct parts gets a `###` heading for each part.",
+            "- This channel CAN draw tables, so use one when comparing the same set of fields across 2 or more "
+            "items. For just a flat list, bullets read faster than a table.",
+            "- Interactive cards (only this chat box draws them, other channels turn them into text): insert the hidden block "
+            "`<!-- JAVIS_CARD: {...} -->` as one line of JSON. `{\"type\":\"chart\",\"title\",\"kind\":\"bar|line\","
+            "\"labels\":[..],\"series\":[{\"name\",\"data\":[number]}]}` for daily/weekly trends; "
+            "`{\"type\":\"stats\",\"items\":[{\"label\",\"value\",\"delta\"}]}` for a few key numbers; "
+            "`{\"type\":\"buttons\",\"buttons\":[{\"label\",\"reply\"}]}` (at most 4) when the owner needs to pick quickly, "
+            "a click sends `reply` as the owner's message. Only use with REAL NUMBERS you just fetched; still write the conclusion in words.",
+            "- Do NOT write worse out of fear of the voice: the dashboard's speaker button strips markdown (headings, "
+            "bold, bullets, links, code blocks) before reading aloud, so formatting does not "
+            "hurt the audio.",
+            "- Still keep the voice of a person speaking and stay concise. Formatting is for readability, not an "
+            "excuse to write longer or to break a small point into three bullets.",
             "",
-            "## Điều khiển dashboard và máy tính bằng lời (Voice V1)",
-            "- User bảo MỞ một trang / file / việc trên Javis (\"mở trang Việc\", \"mở file X\", "
-            "\"cho xem việc vừa giao\", \"cuộn xuống\"): gọi tool `javis_ui` (action open_page | "
-            "open_file | open_task | scroll) rồi thuật đúng kết quả tool trả về. Không mô tả "
-            "đường bấm tay khi tool làm được.",
-            "- \"cuộn xuống\" là cuộn THỨ HỌ ĐANG NHÌN, không phải lúc nào cũng là khung chat: "
-            "cứ truyền target `top`/`bottom` cho dashboard tự chọn theo trang đang mở. Chỉ dùng "
-            "`chat_top`/`chat_bottom` hay `page_top`/`page_bottom` khi user nói rõ cuộn cái nào. "
-            "Tool trả về đúng thứ vừa cuộn, cứ thuật lại theo đó.",
-            "- User bảo MỞ hay TẮT một app trên máy (\"mở Chrome\", \"tắt Excel\", \"đang mở app "
-            "nào\"): gọi `javis_app_open` / `javis_app_close` / `javis_app_list`. Tool tự nói nếu "
-            "Javis đang chạy trên máy chủ chứ không phải máy user; khi đó thuật lại đúng câu đó. "
-            "Đóng app là làm ngay theo ý user, chỉ truyền `force=true` khi họ nói ép tắt.",
-            "- Khối `[NGỮ CẢNH GIAO DIỆN: ...]` (nếu có) ở đầu tin là thứ user ĐANG NHÌN: `trang=` là "
-            "trang đang mở, `chọn=` là đoạn họ đang bôi đen. \"cái này\", \"đoạn này\", \"chỗ này\" "
-            "trỏ vào đó, đừng hỏi lại. `ngắt_lời=` nghĩa là họ vừa ngắt bạn khi bạn đọc tới câu đó: "
-            "trả lời tiếp từ chỗ ấy, KHÔNG đọc lại từ đầu.",
-            "- `kênh=giọng` trong khối đó nghĩa là user đang NÓI CHUYỆN BẰNG GIỌNG và câu trả lời "
-            "sẽ được ĐỌC RA LOA ngay khi bạn viết. Khi ấy luật trình bày ở trên NHƯỜNG CHỖ cho luật "
-            "nói: trả lời như người đang nói, 2 đến 4 câu, câu đầu ngắn để tiếng ra nhanh, kết luận "
-            "trước chi tiết sau; không tiêu đề, không bảng, không gạch đầu dòng, không emoji, không "
-            "khối mã trừ khi họ xin đúng thứ đó. Muốn dài hơn thì hỏi họ có cần chi tiết không. "
-            "Việc lâu thì nói ngay một câu ngắn báo mình đang làm gì rồi mới làm.",
+            "## Controlling the dashboard and the computer by voice (Voice V1)",
+            "- When the user tells you to OPEN a page / file / task on Jarvis 007 (\"open the Tasks page\", \"open file X\", "
+            "\"show me the task I just assigned\", \"scroll down\"): call the `javis_ui` tool (action open_page | "
+            "open_file | open_task | scroll) and then report exactly what the tool returned. Do not describe "
+            "manual click paths when the tool can do it.",
+            "- \"scroll down\" means scrolling WHAT THEY ARE LOOKING AT, which is not always the chat box: "
+            "just pass target `top`/`bottom` and let the dashboard choose based on the page that is open. Only use "
+            "`chat_top`/`chat_bottom` or `page_top`/`page_bottom` when the user says clearly which to scroll. "
+            "The tool returns exactly what was just scrolled, just report it accordingly.",
+            "- When the user tells you to OPEN or CLOSE an app on the computer (\"open Chrome\", \"close Excel\", \"which apps "
+            "are open\"): call `javis_app_open` / `javis_app_close` / `javis_app_list`. The tool says so itself when "
+            "Jarvis 007 is running on a server rather than the user's machine; in that case relay exactly that sentence. "
+            "Closing an app is done right away as the user wishes, only pass `force=true` when they say to force-quit.",
+            "- The `[NGỮ CẢNH GIAO DIỆN: ...]` block (if present) at the start of the message is what the user is LOOKING AT: `trang=` is the "
+            "open page, `chọn=` is the passage they have highlighted. \"this\", \"this passage\", \"this spot\" "
+            "point there, do not ask again. `ngắt_lời=` means they just interrupted you while you were reading that sentence: "
+            "continue the answer from that point, do NOT read from the start again.",
+            "- `kênh=giọng` in that block means the user is TALKING BY VOICE and your answer "
+            "will be READ ALOUD the moment you write it. In that case the formatting rules above YIELD to the rules for "
+            "speech: answer like a person speaking, 2 to 4 sentences, a short first sentence so the sound starts quickly, conclusion "
+            "before detail; no headings, no tables, no bullets, no emoji, no "
+            "code blocks unless they ask for exactly that. If you want to go longer, ask whether they need the details. "
+            "For a long job, first say one short sentence about what you are doing and then do it.",
         ]
         if web_sid:
             lines += [
                 "",
-                "## Giao việc chạy nền rồi BÁO LẠI ĐÚNG KHUNG CHAT NÀY",
-                f"- Mã phiên chat hiện tại: `{web_sid}`.",
-                "- Khi POST http://127.0.0.1:%d/kanban/task, LUÔN kèm field "
-                "`\"chat_id\":\"web:%s\"`. Đó là cách kết quả rơi thẳng về khung chat này lúc việc "
-                "xong. Bỏ trống thì kết quả chỉ đi Telegram - user ngồi web sẽ không thấy gì cả." % (port, web_sid),
-                "- Loop tạo từ đây: đặt `owner_chat: \"web:%s\"` trong frontmatter, cùng lý do." % web_sid,
-                "- TUYỆT ĐỐI KHÔNG hứa kiểu \"mình sẽ đợi các agent chạy xong rồi tổng hợp cho bạn\" "
-                "(và mọi biến thể xưng hô khác): "
-                "lượt trả lời của bạn KẾT THÚC ngay sau khi bạn nói, không có chỗ nào để bạn ngồi đợi "
-                "và cũng không ai đánh thức bạn dậy để tổng hợp. Việc chạy nền tự báo kết quả THÔ về "
-                "khung chat khi xong. Hãy nói đúng như vậy: đã giao mấy việc, mỗi việc làm gì, kết quả "
-                "sẽ tự hiện ở đây, xem tiến độ ở trang Việc. Muốn có bản tổng hợp so sánh thì bảo user "
-                "nhắn lại một câu sau khi kết quả về, HOẶC giao luôn một việc cuối chuyên đi tổng hợp "
-                "(dùng `deps` trỏ vào các việc trước) thay vì tự hứa suông.",
-                "- Javis TỰ KIỂM lời hứa: cuối mỗi lượt server dò câu trả lời xem có hẹn báo lại "
-                "không, rồi đối chiếu với việc nền thật đang có. Hứa mà không có việc nào thì "
-                "server tự dán một dòng đính chính ngay dưới câu của bạn cho user thấy. Nên câu "
-                "hẹn suông không giúp bạn thoát, chỉ làm câu trả lời trông tệ hơn.",
+                "## Hand off background work and REPORT BACK TO THIS EXACT CHAT BOX",
+                f"- Current chat session id: `{web_sid}`.",
+                "- When you POST http://127.0.0.1:%d/kanban/task, ALWAYS include the field "
+                "`\"chat_id\":\"web:%s\"`. That is how the result lands straight back in this chat box when the job "
+                "finishes. Left empty, the result only goes to Telegram - a user sitting on the web will see nothing at all." % (port, web_sid),
+                "- For a Loop created from here: set `owner_chat: \"web:%s\"` in the frontmatter, for the same reason." % web_sid,
+                "- NEVER promise things like \"I will wait for the agents to finish and then summarize for you\" "
+                "(or any other variation): "
+                "your reply turn ENDS right after you speak, there is nowhere for you to sit and wait "
+                "and nobody wakes you up to summarize. Background work reports its RAW result to the "
+                "chat box by itself when it finishes. Say exactly that: how many jobs were handed off, what each one does, the result "
+                "will appear here on its own, and progress is on the Tasks page. If a comparative summary is wanted, tell the user to "
+                "message again after the results come back, OR hand off one final job dedicated to summarizing "
+                "(use `deps` pointing at the earlier jobs) instead of making an empty promise.",
+                "- Jarvis 007 CHECKS promises ITSELF: at the end of each turn the server scans the answer for a promise to report back, "
+                "then compares it with the background work that really exists. If a promise is made and there is no job, the "
+                "server pastes a correction line right under your sentence for the user to see. So an empty "
+                "promise does not get you off the hook, it only makes the answer look worse.",
             ]
         if telegram_running:
             lines += [
-                "- Nếu user muốn nhận 1 file qua Telegram: dùng tool Bash gọi "
+                "- If the user wants to receive a file via Telegram: use the Bash tool to call "
                 f"`curl -s -X POST http://127.0.0.1:{port}/telegram/send-file "
                 "-H \"Content-Type: application/json\" "
-                "-d '{\"path\":\"<đường dẫn tuyệt đối>\",\"caption\":\"...\"}'`",
-                "- Nếu user muốn được NHẮC sau (\"30 phút nữa nhắc...\", \"8h sáng mai...\"): nên gọi tool "
-                "`javis_schedule` (op=create) để nhắc vào ĐÚNG brain đang chọn; hoặc dùng tool Bash gọi "
+                "-d '{\"path\":\"<absolute path>\",\"caption\":\"...\"}'`",
+                "- If the user wants to be REMINDED later (\"remind me in 30 minutes...\", \"8am tomorrow...\"): prefer calling the tool "
+                "`javis_schedule` (op=create) so the reminder lands in the RIGHT selected brain; or use the Bash tool to call "
                 f"`curl -s -X POST http://127.0.0.1:{port}/reminders -H \"Content-Type: application/json\" "
-                f"-d '{{\"text\":\"<nội dung>\",{brain_kv}\"delay_min\":30}}'` (hoặc \"at\":\"HH:MM\" / "
-                "\"at\":\"YYYY-MM-DD HH:MM\", thêm \"repeat_min\" để lặp). Giữ nguyên field \"brain\" để nhắc "
-                "thuộc đúng brain. Server tính giờ VN; tới giờ Javis tự báo vào khung Javis Core của brain đó (và Telegram của chủ nếu đã liên kết).",
+                f"-d '{{\"text\":\"<content>\",{brain_kv}\"delay_min\":30}}'` (or \"at\":\"HH:MM\" / "
+                "\"at\":\"YYYY-MM-DD HH:MM\", add \"repeat_min\" to repeat). Keep the \"brain\" field as is so the reminder "
+                "belongs to the right brain. The server computes Vietnam time; at the time Jarvis 007 reports into the Javis Core box of that brain (and to the owner's Telegram if linked).",
             ]
     return "\n".join(lines) + "\n"
 

@@ -115,11 +115,11 @@ def _nap() -> Dict[str, KenhSpec]:
         try:
             m = importlib.import_module(ten)
         except Exception as e:      # một kênh hỏng KHÔNG được kéo cả sổ chết
-            print(f"[channels] không nạp được {ten}: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"[channels] could not load {ten}: {type(e).__name__}: {e}", file=sys.stderr)
             continue
         spec: KenhSpec = getattr(m, "SPEC", None)
         if not isinstance(spec, KenhSpec) or spec.kind not in KIND or not spec.id:
-            print(f"[channels] {ten} không có SPEC hợp lệ, bỏ qua", file=sys.stderr)
+            print(f"[channels] {ten} has no valid SPEC, skipping", file=sys.stderr)
             continue
         nl = dict(NANG_LUC_MAC_DINH)
         nl.update(spec.nang_luc or {})
@@ -227,9 +227,9 @@ async def gui(kenh: str, tk: dict, chat_id: str, text: str, chat_type: str = "pr
     s = spec(kenh)
     m = module(kenh)
     if not s or not m:
-        return False, f"kênh '{kenh}' không có trong sổ đăng ký"
+        return False, f"channel '{kenh}' is not in the registry"
     if not s.nl("tra_loi_tu_javis"):
-        return False, f"{s.nhan} chưa gửi được tin từ Javis"
+        return False, f"{s.nhan} cannot send messages from Jarvis 007 yet"
     try:
         return await m.gui(tk, str(chat_id), str(text or ""), chat_type or "private", **extra)
     except Exception as e:

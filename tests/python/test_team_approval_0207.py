@@ -490,7 +490,7 @@ check("providers: Claude, Codex, API can run gated; Grok and Antigravity cannot 
               "antigravity-cli": False}, sup)
 check("providers: Codex without its sandbox cannot run gated",
       team_gate.provider_support("openai-oauth", codex_sandbox=None)["ok"] is False)
-check("providers: Grok says why it is refused", "file cấu hình" in team_gate.provider_support("grok-cli")["reason"])
+check("providers: Grok says why it is refused", "config file" in team_gate.provider_support("grok-cli")["reason"])
 
 # ═════ 10. Review 0.207.0 fixes ═════
 EFFECTS.clear()

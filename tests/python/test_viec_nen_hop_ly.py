@@ -207,9 +207,9 @@ check("việc đang chạy KHÔNG bị dọn dù có gọi kèm",
 # ============================================================
 check("lý do chặn nói rõ VIỆC PHẢI LÀM chứ không nói 'mode=full'",
       "mode=full" not in tasks_mod.LY_DO_CAN_QUYEN
-      and "Cho phép chạy thật" in tasks_mod.LY_DO_CAN_QUYEN, tasks_mod.LY_DO_CAN_QUYEN)
+      and "Allow it to act" in tasks_mod.LY_DO_CAN_QUYEN, tasks_mod.LY_DO_CAN_QUYEN)
 check("và nói luôn lối thoát thứ hai: xoá nếu đã xử lý trong chat",
-      "xoá khỏi bảng" in tasks_mod.LY_DO_CAN_QUYEN.lower())
+      "remove it from the board" in tasks_mod.LY_DO_CAN_QUYEN.lower())
 
 # ============================================================
 # 4. Gom chuông: một chùm việc kẹt = MỘT tin, không phải năm tiếng chuông

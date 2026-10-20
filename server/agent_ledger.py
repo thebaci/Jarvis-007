@@ -68,10 +68,10 @@ class CallLedger:
         trình khác), nên nhiều lượt đồng thời không cùng lọt qua chỗ trống cuối. `obligation=False` chỉ dùng tới
         floor(trần * 0.8). Lý do đang có lượt sống thì ném `ReasonBusy`. `c`: giao dịch có sẵn của người gọi."""
         if purpose not in PURPOSES:
-            raise ValueError(f"purpose không hợp lệ: {purpose}")
+            raise ValueError(f"invalid purpose: {purpose}")
         ref = str(reason_ref or "").strip()
         if not ref:
-            raise ValueError("thiếu reason_ref")
+            raise ValueError("missing reason_ref")
         if c is None:
             with self._tx() as cc:
                 return self.reserve(purpose=purpose, reason_ref=ref, agent_key=agent_key, brain_id=brain_id,
@@ -106,7 +106,7 @@ class CallLedger:
                cost_usd: Optional[float] = None, now: Optional[float] = None) -> bool:
         """Chốt `ok`, `error` hay `interrupted` (đều tính). Dòng đã chốt hay đã hoàn thì không đổi."""
         if status not in ("ok", "error", "interrupted"):
-            raise ValueError("kết cục lượt không hợp lệ")
+            raise ValueError("invalid turn outcome")
         with self._tx() as c:
             return c.execute("UPDATE agent_calls SET status=?, tokens_in=?, tokens_out=?, cost_usd=?, settled_at=? "
                              "WHERE id=? AND status IN ('reserved','running')",
@@ -380,7 +380,7 @@ class WakeReasons:
         """Gom một nguồn vào lý do `pending` (tạo nếu chưa có). Idempotent theo `source_ref`: gọi lại trả đúng lý do cũ,
         không thêm dòng (bộ chiếu chạy lại an toàn). Trả mã lý do."""
         if code not in REASON_CODES:
-            raise ValueError(f"loại lý do không hợp lệ: {code}")
+            raise ValueError(f"invalid reason kind: {code}")
         t = _now(now)
         with self._tx() as c:
             old = c.execute("SELECT reason_id FROM agent_wake_sources WHERE source_ref=?", (str(source_ref),)).fetchone()
@@ -506,7 +506,7 @@ class WakeReasons:
           giữ `attempt` lớn hơn, lý do đang chạy `superseded`; chưa có thì quay về `pending`, hay `failed` khi đã thử đủ
           MAX_ATTEMPTS lần. Dòng sổ lượt chốt theo (`refunded` chỉ khi chưa qua mốc engine)."""
         if call_status not in ("ok", "error", "interrupted", "refunded"):
-            raise ValueError("kết cục không hợp lệ")
+            raise ValueError("invalid outcome")
         t = _now(now)
         consumed = {str(x) for x in consumed}
         with self._tx() as c:

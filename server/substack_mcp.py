@@ -42,7 +42,7 @@ def _clip(text, max_chars=6000):
         return text
     head = int(max_chars * 0.6)
     tail = max_chars - head
-    return (text[:head] + f"\n… [BỊ CẮT - bỏ {len(text) - head - tail:,} ký tự] …\n" + text[-tail:])
+    return (text[:head] + f"\n… [TRUNCATED - dropped {len(text) - head - tail:,} characters] …\n" + text[-tail:])
 
 
 def _t(name, description, props=None, required=None):
@@ -52,29 +52,29 @@ def _t(name, description, props=None, required=None):
 
 TOOLS = [
     _t("substack_list_drafts",
-       "Liệt kê các BẢN NHÁP gần đây trên Substack (id, tiêu đề, đã đăng chưa). Dùng để xem "
-       "hoặc lấy id một nháp có sẵn rồi đăng.",
-       {"limit": {"type": "integer", "description": "số nháp lấy về, mặc định 15"}}),
+       "List the recent DRAFTS on Substack (id, title, whether published). Use it to look "
+       "at drafts or get the id of an existing draft and then publish it.",
+       {"limit": {"type": "integer", "description": "number of drafts to fetch, default 15"}}),
     _t("substack_create_draft",
-       "Tạo BẢN NHÁP bài viết trên Substack (KHÔNG đăng). body nhận markdown gọn: # tiêu đề, "
-       "- gạch đầu dòng, 1. danh sách số, > trích dẫn, --- kẻ ngang, **đậm**, *nghiêng*, "
-       "[chữ](link), `code`. Trả về id nháp để sửa/đăng.",
+       "Create a post DRAFT on Substack (does NOT publish). body takes simple markdown: # heading, "
+       "- bullet, 1. numbered list, > quote, --- horizontal rule, **bold**, *italic*, "
+       "[text](link), `code`. Returns the draft id to edit/publish.",
        {"title": {"type": "string"}, "subtitle": {"type": "string"},
-        "body": {"type": "string", "description": "nội dung, hỗ trợ markdown gọn"},
+        "body": {"type": "string", "description": "content, simple markdown supported"},
         "audience": {"type": "string",
-                     "description": "everyone (mặc định) | only_paid | founding"}},
+                     "description": "everyone (default) | only_paid | founding"}},
        ["title", "body"]),
     _t("substack_publish",
-       "ĐĂNG BÀI THẬT lên Substack. Hoặc tạo mới rồi đăng (truyền title+body), hoặc đăng một "
-       "nháp có sẵn (truyền draft_id). MẶC ĐỊNH chỉ đăng lên web, KHÔNG gửi email; đặt "
-       "send_email=true thì gửi email cho TOÀN BỘ người đăng ký (không hoàn tác được) - chỉ bật "
-       "khi người dùng yêu cầu rõ. Đây là thao tác nguy hiểm, chỉ chạy khi được yêu cầu trực tiếp.",
-       {"draft_id": {"type": "string", "description": "id nháp có sẵn muốn đăng (bỏ trống nếu tạo mới)"},
+       "PUBLISH A REAL POST to Substack. Either create a new one and publish it (pass title+body), or publish an "
+       "existing draft (pass draft_id). BY DEFAULT it only publishes to the web and does NOT send email; setting "
+       "send_email=true emails ALL subscribers (cannot be undone) - only turn it on "
+       "when the user clearly asks. This is a dangerous action, only run it when directly asked.",
+       {"draft_id": {"type": "string", "description": "id of an existing draft to publish (leave empty to create a new one)"},
         "title": {"type": "string"}, "subtitle": {"type": "string"},
-        "body": {"type": "string", "description": "nội dung markdown gọn (khi tạo mới)"},
-        "audience": {"type": "string", "description": "everyone (mặc định) | only_paid | founding"},
+        "body": {"type": "string", "description": "simple markdown content (when creating a new one)"},
+        "audience": {"type": "string", "description": "everyone (default) | only_paid | founding"},
         "send_email": {"type": "boolean",
-                       "description": "true = đăng VÀ gửi email cho người đăng ký; mặc định false (chỉ web)"}}),
+                       "description": "true = publish AND email the subscribers; default false (web only)"}}),
 ]
 
 
@@ -177,14 +177,14 @@ def _ctx(spec):
     token = str(secrets.get("session_token", "")).strip()
     user_id = str(secrets.get("user_id", "")).strip()
     if not pub or not token or not user_id:
-        return None, None, None, None, ("ERROR: kết nối Substack thiếu publication_url / session_token "
-                                        "/ user_id - sửa lại ở trang Kết nối")
+        return None, None, None, None, ("ERROR: the Substack connection is missing publication_url / session_token "
+                                        "/ user_id - fix it on the Connections page")
     if not re.match(r"^https?://", pub):
         pub = "https://" + pub
     try:
         int(user_id)
     except ValueError:
-        return None, None, None, None, "ERROR: User ID phải là dãy số (lấy ở URL trang Hồ sơ Substack)"
+        return None, None, None, None, "ERROR: User ID must be a string of digits (take it from the URL of your Substack profile page)"
     headers = {
         "Cookie": f"substack.sid={token}; connect.sid={token};",
         "referer": f"{pub}/publish/post",
@@ -216,7 +216,7 @@ def _clean_err(text):
         return ""
     low = t[:200].lower()
     if t.startswith("<") or "<html" in low or "<!doctype" in low:
-        return "Substack chặn truy cập (thường do session token sai/hết hạn hoặc bị chặn tạm)"
+        return "Substack blocked the request (usually a wrong/expired session token or a temporary block)"
     try:
         j = json.loads(t)
         if isinstance(j, dict) and (j.get("error") or j.get("message")):
@@ -249,9 +249,9 @@ async def _req(method, url, headers, body=None, params=None):
             **winproc.kwargs_no_window())
         out, errb = await asyncio.wait_for(proc.communicate(stdin_data), timeout=55)
     except FileNotFoundError:
-        raise RuntimeError("máy chạy Javis thiếu 'curl' - cần cài curl để gọi Substack")
+        raise RuntimeError("the machine running Jarvis 007 has no 'curl' - install curl to call Substack")
     except Exception as e:
-        raise RuntimeError(f"không gọi được Substack ({type(e).__name__})")
+        raise RuntimeError(f"could not call Substack ({type(e).__name__})")
     text = out.decode("utf-8", "replace")
     body_text, sep, status_s = text.rpartition("\n")
     if not sep:
@@ -261,9 +261,9 @@ async def _req(method, url, headers, body=None, params=None):
     except ValueError:
         status = 0
     if status == 0:
-        raise RuntimeError(f"curl lỗi: {_clean_err(errb.decode('utf-8', 'replace')) or 'không rõ'}")
+        raise RuntimeError(f"curl error: {_clean_err(errb.decode('utf-8', 'replace')) or 'unknown'}")
     if status >= 400:
-        raise RuntimeError(f"Substack {status}: {_clean_err(body_text) or 'lỗi không rõ'}")
+        raise RuntimeError(f"Substack {status}: {_clean_err(body_text) or 'unknown error'}")
     body_text = body_text.strip()
     if not body_text:
         return {}
@@ -291,7 +291,7 @@ async def call(tool, arguments, spec):
             for d in rows[:limit]:
                 out.append({
                     "id": d.get("id"),
-                    "title": d.get("draft_title") or d.get("title") or "(chưa có tiêu đề)",
+                    "title": d.get("draft_title") or d.get("title") or "(untitled)",
                     "is_published": bool(d.get("is_published")),
                     "post_date": d.get("post_date"),
                 })
@@ -299,12 +299,12 @@ async def call(tool, arguments, spec):
 
         if tool == "substack_create_draft":
             if not args.get("title") or not args.get("body"):
-                return "ERROR: cần title và body để tạo nháp"
+                return "ERROR: title and body are needed to create a draft"
             payload = _draft_payload(args.get("title"), args.get("subtitle"), args.get("body"),
                                      user_id, args.get("audience"))
             draft = await _req("POST", f"{api}/drafts", headers, body=payload)
             did = draft.get("id") if isinstance(draft, dict) else None
-            return (f"OK - đã tạo nháp id={did}. Sửa hoặc đăng tại: {pub}/publish/post/{did}"
+            return (f"OK - draft created, id={did}. Edit or publish at: {pub}/publish/post/{did}"
                     if did else _clip(json.dumps(draft, ensure_ascii=False)))
 
         if tool == "substack_publish":
@@ -312,13 +312,13 @@ async def call(tool, arguments, spec):
             did = str(args.get("draft_id") or "").strip()
             if not did:
                 if not args.get("title") or not args.get("body"):
-                    return "ERROR: cần draft_id (đăng nháp có sẵn) HOẶC title+body (tạo mới rồi đăng)"
+                    return "ERROR: need draft_id (publish an existing draft) OR title+body (create new, then publish)"
                 payload = _draft_payload(args.get("title"), args.get("subtitle"), args.get("body"),
                                          user_id, args.get("audience"))
                 draft = await _req("POST", f"{api}/drafts", headers, body=payload)
                 did = str(draft.get("id")) if isinstance(draft, dict) else ""
                 if not did:
-                    return "ERROR: tạo nháp không trả về id, chưa đăng: " + _clip(json.dumps(draft, ensure_ascii=False))
+                    return "ERROR: creating the draft returned no id, nothing was published: " + _clip(json.dumps(draft, ensure_ascii=False))
             # prepublish: best-effort, không chặn nếu server không cần
             try:
                 await _req("GET", f"{api}/drafts/{did}/prepublish", headers)
@@ -330,11 +330,11 @@ async def call(tool, arguments, spec):
             if isinstance(res, dict):
                 slug = res.get("slug")
                 url = res.get("canonical_url") or (f"{pub}/p/{slug}" if slug else "")
-            mail = "CÓ gửi email cho người đăng ký" if send_email else "chỉ đăng lên web (không gửi email)"
-            return f"OK - đã ĐĂNG bài (id={did}, {mail}). {('Link: ' + url) if url else ''}".strip()
+            mail = "email SENT to subscribers" if send_email else "published to the web only (no email)"
+            return f"OK - post PUBLISHED (id={did}, {mail}). {('Link: ' + url) if url else ''}".strip()
 
-        return f"ERROR: tool '{tool}' không có trong cầu nối Substack"
+        return f"ERROR: tool '{tool}' is not in the Substack bridge"
     except RuntimeError as e:
         return f"ERROR: {e}"
     except Exception as e:
-        return f"ERROR: Substack không phản hồi: {type(e).__name__}: {e}"
+        return f"ERROR: Substack did not respond: {type(e).__name__}: {e}"

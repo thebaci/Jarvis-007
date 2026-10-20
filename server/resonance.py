@@ -44,8 +44,8 @@ _PROVIDER_OF_KIND = {"CodexCLI": "openai-oauth", "GrokCLI": "grok-cli"}
 OUTPUT_MAX_CHARS = 200_000
 ERROR_DETAIL_MAX = 300
 
-SYSTEM_PROMPT = ("Bạn là bộ thực thi một bước của Javis. Chỉ trả về nội dung được yêu cầu, viết bằng chữ. "
-                 "Không gọi công cụ, không đọc hay ghi file, không chạy lệnh: host sẽ tự lưu câu trả lời.")
+SYSTEM_PROMPT = ("You are a single-step executor for Jarvis 007. Return only the requested content, written as text. "
+                 "Do not call tools, do not read or write files, do not run commands: the host will save the answer itself.")
 
 
 @dataclass(frozen=True)
@@ -215,19 +215,19 @@ def pick_text_only_link(engine: Any, base: Any, requested: dict, chain_type: typ
         "text_only": False,
     }
     if first is None:
-        info["blocked"] = "không dựng được engine nào"
+        info["blocked"] = "no engine could be built"
         return None, info
     if actual_prov != req_prov:
-        info["blocked"] = (f"engine đã chọn ({req_prov}) không chạy được ở chế độ chỉ chữ; "
-                           f"hệ thống định lùi về {actual_prov} nhưng Resonance không tự đổi provider")
+        info["blocked"] = (f"the selected engine ({req_prov}) cannot run in text-only mode; "
+                           f"the system would fall back to {actual_prov} but Resonance does not switch provider on its own")
         return None, info
     if first is base:
         if not getattr(first, "allowed_tools", None):
-            info["blocked"] = "engine Claude không có cổng chặn công cụ (allowed_tools trống), không bảo đảm chỉ chữ"
+            info["blocked"] = "the Claude engine has no tool-blocking gate (allowed_tools is empty), text-only cannot be guaranteed"
             return None, info
     elif getattr(first, "no_tools", False) is not True:
-        info["blocked"] = (f"engine {actual_prov} còn công cụ native, chưa có cơ chế chỉ chữ được kiểm; "
-                           "Resonance M1 chỉ nhận Claude (cổng can_use_tool) và engine API (no_tools)")
+        info["blocked"] = (f"engine {actual_prov} still has native tools and no verified text-only mechanism; "
+                           "Resonance M1 only accepts Claude (can_use_tool gate) and API engines (no_tools)")
         return None, info
     info["text_only"] = True
     return first, info
@@ -287,7 +287,7 @@ class GoalDeps:
             return turn.fail("engine_build", f"{type(e).__name__}: {e}")
         if engine is None:
             self.budget.release()
-            return turn.fail("engine_blocked", turn.engine_info.get("blocked") or "không có engine")
+            return turn.fail("engine_blocked", turn.engine_info.get("blocked") or "no engine")
         try:
             available = engine.is_available()
         except Exception as e:  # noqa: BLE001
@@ -295,7 +295,7 @@ class GoalDeps:
             return turn.fail("engine_unavailable", f"{type(e).__name__}: {e}")
         if not available:
             self.budget.release()
-            return turn.fail("engine_unavailable", "engine đã chọn chưa sẵn sàng")
+            return turn.fail("engine_unavailable", "the selected engine is not ready")
         try:
             engine.max_wall_s = int(self.max_wall_s)
         except Exception:  # noqa: BLE001 - engine không có trần riêng thì vẫn còn wait_for bên dưới
@@ -330,7 +330,7 @@ class GoalDeps:
         try:
             await asyncio.wait_for(consume(), timeout=float(self.max_wall_s) + float(self.wall_grace_s))
         except asyncio.TimeoutError:
-            return turn.fail("timeout", f"quá {self.max_wall_s}s")
+            return turn.fail("timeout", f"exceeded {self.max_wall_s}s")
         except Exception as e:  # noqa: BLE001
             return turn.fail("engine_exception", f"{type(e).__name__}: {e}")
         if err:
@@ -344,12 +344,12 @@ class GoalDeps:
         if turn.tool_calls:
             # Lượt chỉ chữ mà model vẫn gọi công cụ: sandbox đã chặn, nhưng đầu ra không còn đáng tin
             # là "chỉ sinh chữ". Không dùng, báo thẳng chứ không lặng lẽ cho qua.
-            return turn.fail("tool_call_in_text_only", f"{turn.tool_calls} lần gọi công cụ")
+            return turn.fail("tool_call_in_text_only", f"{turn.tool_calls} tool calls")
         if not (final_text or "").strip():
-            return turn.fail("empty_output", "engine không trả chữ nào")
+            return turn.fail("empty_output", "the engine returned no text")
         if len(final_text) > OUTPUT_MAX_CHARS:
             # Không cắt âm thầm: hash của bản bị cắt sẽ chứng nhận một đầu ra không đầy đủ là "xong".
-            return turn.fail("output_too_large", f"{len(final_text)} ký tự, trần {OUTPUT_MAX_CHARS}")
+            return turn.fail("output_too_large", f"{len(final_text)} characters, ceiling {OUTPUT_MAX_CHARS}")
         turn.text = final_text
         return turn
 
@@ -363,21 +363,21 @@ class GoalDeps:
                                  error_code=code, error_detail=_short(detail), **kw)
 
         if not ACTION_ID_RE.match(str(action_id or "")):
-            return done("cancelled", code="invalid_action_id", detail="action_id phải 6-80 ký tự chữ, số, _ hoặc -")
+            return done("cancelled", code="invalid_action_id", detail="action_id must be 6-80 characters: letters, digits, _ or -")
         try:
             root = Path(goal.output_root).resolve()
             out = (root / f"{action_id}.md").resolve()
             out.relative_to(root)
         except Exception as e:  # noqa: BLE001
-            return done("cancelled", code="output_scope", detail=f"vùng ghi không hợp lệ: {e}")
+            return done("cancelled", code="output_scope", detail=f"invalid write scope: {e}")
         if not root.is_dir():
-            return done("cancelled", code="output_scope", detail="vùng ghi chưa được cấp (thư mục không tồn tại)")
+            return done("cancelled", code="output_scope", detail="the write scope has not been granted (the folder does not exist)")
         if out.exists():
             # Một action_id chỉ được có MỘT tác động. Chạy lại cùng id không được gọi model lần hai.
-            return done("cancelled", code="action_exists", detail="action_id này đã có đầu ra; không chạy lại",
+            return done("cancelled", code="action_exists", detail="this action_id already has an output; not running again",
                         output_ref=str(out))
         if not self.budget.try_reserve():
-            return done("cancelled", code="budget_exhausted", detail=f"đã dùng hết {self.budget.max_calls} lượt gọi")
+            return done("cancelled", code="budget_exhausted", detail=f"all {self.budget.max_calls} calls have been used")
 
         turn = await self._ask(SYSTEM_PROMPT, prompt)
         engine_info.update(turn.engine_info)
@@ -407,7 +407,7 @@ class GoalDeps:
         try:
             data, cut = await _thread_done(_write)
             if data is None:
-                rc = done("cancelled", code="action_exists", detail="có lượt khác vừa ghi cùng action_id", usage=usage)
+                rc = done("cancelled", code="action_exists", detail="another call just wrote the same action_id", usage=usage)
                 if cut:
                     raise _CancelledWith(rc)
                 return rc
@@ -452,8 +452,8 @@ QUESTIONS_MAX = 3
 GOAL_DEFAULT_CALLS = 6
 GUARDS_MAX = 5
 
-FRAMER_SYSTEM = ("Bạn là bộ lập mục tiêu của Javis. Đọc yêu cầu của người dùng, điền khung SMART thành JSON. "
-                 "Chỉ trả JSON, không lời dẫn. Không bịa thứ người dùng không nói.")
+FRAMER_SYSTEM = ("You are the goal framer for Jarvis 007. Read the user's request and fill in the SMART frame as JSON. "
+                 "Return JSON only, with no preamble. Do not invent anything the user did not say.")
 
 
 class GoalRejected(Exception):
@@ -602,30 +602,30 @@ def _artifact_params(raw: Any, need_path: bool = False) -> tuple:
     if raw is None:
         raw = {}
     if not isinstance(raw, dict):
-        return {}, "params phải là object"
+        return {}, "params must be an object"
     extra = [k for k in raw if k not in _ARTIFACT_KEYS]
     if extra:
-        return {}, f"tham số không hỗ trợ: {', '.join(map(str, extra[:5]))} (chỉ nhận path, min_chars, must_contain)"
+        return {}, f"unsupported parameters: {', '.join(map(str, extra[:5]))} (only path, min_chars, must_contain are accepted)"
     out = {}
     if raw.get("path") not in (None, ""):
         path = str(raw["path"]).strip().replace("\\", "/")
         if (not isinstance(raw["path"], str) or len(path) > 260 or path.startswith("/") or ":" in path
                 or any(s in ("..", ".", "") for s in path.split("/"))):
-            return {}, "path phải là đường dẫn tương đối trong brain, không có ., .., // hay ổ đĩa"
+            return {}, "path must be a relative path inside the brain, with no ., .., // or drive letter"
         out["path"] = path
     elif need_path:
-        return {}, "guard artifact_contract cần path"
+        return {}, "the artifact_contract guard needs a path"
     if raw.get("min_chars") not in (None, ""):
         if isinstance(raw["min_chars"], bool) or not isinstance(raw["min_chars"], (int, float)) \
                 or int(raw["min_chars"]) != raw["min_chars"] or not 0 <= int(raw["min_chars"]) <= OUTPUT_MAX_CHARS:
-            return {}, f"min_chars phải là số nguyên từ 0 tới {OUTPUT_MAX_CHARS}"
+            return {}, f"min_chars must be an integer from 0 to {OUTPUT_MAX_CHARS}"
         out["min_chars"] = int(raw["min_chars"])
     need = raw.get("must_contain")
     if need not in (None, "", []):
         need = [need] if isinstance(need, str) else need
         if not isinstance(need, list) or len(need) > 10 or not all(isinstance(x, str) and x.strip() and len(x) <= 200
                                                                     for x in need):
-            return {}, "must_contain phải là danh sách tối đa 10 chuỗi không rỗng, mỗi chuỗi tối đa 200 ký tự"
+            return {}, "must_contain must be a list of at most 10 non-empty strings, each at most 200 characters"
         out["must_contain"] = [x.strip() for x in need]
     return out, ""
 
@@ -675,13 +675,13 @@ def validate_proposal(proposal: dict, user_text: str, *, user_unsure: bool = Fal
     `source_ref`: tin nhắn (message_ref) làm căn cứ cho hạn và chỉ tiêu mới.
     """
     if not isinstance(proposal, dict):
-        raise GoalRejected("đề xuất phải là một object")
+        raise GoalRejected("the proposal must be an object")
     base = _prior_view(prior)
     proposal = {**base, **{k: v for k, v in proposal.items() if v is not None}}
     quote = str(proposal.get("relevant_quote") or "").strip()
     if not _quoted(quote, user_text):
-        raise GoalRejected("relevant_quote phải trích đúng một đoạn trong lời người dùng; "
-                           "mục tiêu không được dựng từ ý agent tự đề xuất")
+        raise GoalRejected("relevant_quote must quote an exact passage from the user's words; "
+                           "the goal must not be built from an idea the agent proposed itself")
     criteria, blank = [], 0
     for c in (proposal.get("criteria") or []):
         if not isinstance(c, dict) or c.get("evaluator") not in EVALUATORS:
@@ -694,18 +694,18 @@ def validate_proposal(proposal: dict, user_text: str, *, user_unsure: bool = Fal
         if c["evaluator"] == "artifact_contract":
             params, err = _artifact_params(c.get("params"))
             if err:
-                raise GoalRejected(f"tiêu chí \"{desc[:60]}\": {err}")
+                raise GoalRejected(f"criterion \"{desc[:60]}\": {err}")
         criteria.append({"id": f"c{len(criteria) + 1}", "description": desc, "evaluator": c["evaluator"],
                          "params": params})
     if not criteria:
         if blank:
-            raise GoalRejected("tiêu chí phải nói rõ cần kiểm điều gì (description không được rỗng)")
-        raise GoalRejected("thiếu tiêu chí kiểm được (M): dùng artifact_contract hoặc human_confirmation")
+            raise GoalRejected("a criterion must say what needs to be checked (description must not be empty)")
+        raise GoalRejected("missing a checkable criterion (M): use artifact_contract or human_confirmation")
     h = proposal.get("horizon") if isinstance(proposal.get("horizon"), dict) else {}
     ph = base.get("horizon") or {}
     kind = h.get("kind")
     if kind not in HORIZON_KINDS:
-        raise GoalRejected("thiếu chân trời (T): deadline, review, event hoặc maintain")
+        raise GoalRejected("missing a horizon (T): deadline, review, event or maintain")
     at = _at(h) if kind in ("deadline", "review") else 0.0
     horizon = None
     if kind == "deadline":
@@ -722,17 +722,17 @@ def validate_proposal(proposal: dict, user_text: str, *, user_unsure: bool = Fal
         if kind == "review":
             horizon["at"] = at
     if kind in ("deadline", "review") and not horizon.get("at"):
-        raise GoalRejected("chân trời deadline/review cần thời điểm at_iso đọc được")
+        raise GoalRejected("a deadline/review horizon needs a readable at_iso time")
     if kind == "event":
         horizon["event"] = str(h.get("event") or "").strip()[:200]
         if not horizon["event"]:
-            raise GoalRejected("chân trời event cần mô tả sự kiện")
+            raise GoalRejected("an event horizon needs an event description")
     if ph.get("kind") == "deadline" and ph.get("from_user") and horizon != ph:
         same = horizon.get("kind") == "deadline" and abs(_at(horizon) - _at(ph)) < 1
         horizon = dict(ph)      # hạn người dùng đã nêu: giữ nguyên cả giá trị lẫn nguồn
         if not same and notes is not None:
-            notes.append("Đổi hay bỏ hạn chót người dùng đã nêu (\"" + str(ph.get("quote") or "") + "\") không làm "
-                         "qua bản cập nhật được; hạn cũ vẫn giữ. Người dùng bỏ được bằng nút Bỏ trên thẻ mục tiêu.")
+            notes.append("Changing or removing the deadline the user stated (\"" + str(ph.get("quote") or "") + "\") cannot be done "
+                         "through an update; the old deadline stays. The user can remove it with the Remove button on the goal card.")
     assumptions = _clean_list(proposal.get("assumptions"))
     old_targets = {_norm(t.get("text")): t for t in (base.get("targets") or []) if isinstance(t, dict)}
     targets = []
@@ -747,7 +747,7 @@ def validate_proposal(proposal: dict, user_text: str, *, user_unsure: bool = Fal
         elif _quoted(t.get("quote"), user_text):
             targets.append({"text": text, "quote": str(t.get("quote"))[:200], "source": source_ref})
         else:
-            note = f"Chỉ tiêu chưa có căn cứ từ lời người dùng, không dùng làm thước đo: {text}"
+            note = f"This target has no basis in the user's words, so it is not used as a measure: {text}"
             if note not in assumptions:
                 assumptions.append(note)
     for k, t in old_targets.items():
@@ -755,10 +755,10 @@ def validate_proposal(proposal: dict, user_text: str, *, user_unsure: bool = Fal
             continue
         targets.append(dict(t))
         if notes is not None:
-            notes.append(f"Bỏ chỉ tiêu người dùng đã nêu \"{t.get('text')}\" không làm qua bản cập nhật được; "
-                         "chỉ tiêu vẫn giữ. Người dùng bỏ được bằng nút Bỏ trên thẻ mục tiêu.")
+            notes.append(f"Removing the target the user stated \"{t.get('text')}\" cannot be done through an update; "
+                         "the target stays. The user can remove it with the Remove button on the goal card.")
     if proposal.get("remove_targets") and notes is not None:
-        notes.append("remove_targets chưa hỗ trợ ở bản này; không chỉ tiêu nào bị bỏ.")
+        notes.append("remove_targets is not supported in this version; no target was removed.")
     understanding = str(proposal.get("understanding") or "").strip()[:500]
     # Không khai stage: có cách hiểu cụ thể thì là delivery, chưa có thì mới là discovery (chữ S của SMART).
     stage = proposal.get("stage") if proposal.get("stage") in ("discovery", "delivery") else (
@@ -769,7 +769,7 @@ def validate_proposal(proposal: dict, user_text: str, *, user_unsure: bool = Fal
     if user_unsure:
         questions = []
         stage = "discovery"
-        note = "Người dùng chưa rõ mong muốn; bắt đầu bằng một bước khám phá nhỏ, sửa được"
+        note = "The user is not clear on what they want; start with one small, adjustable discovery step"
         if note not in assumptions:
             assumptions.append(note)
     constraints = _clean_list(list(base.get("constraints") or []) + list(user_constraints or [])
@@ -798,7 +798,7 @@ def validate_proposal(proposal: dict, user_text: str, *, user_unsure: bool = Fal
     proposed_keys = {_guard_key(x) for x in proposed}
     for x in prior_guards:
         if _guard_key(x) not in proposed_keys and notes is not None:
-            notes.append(f"Bỏ hay sửa guard đã có \"{x.get('description')}\" chưa hỗ trợ ở bản này; guard vẫn giữ.")
+            notes.append(f"Removing or editing the existing guard \"{x.get('description')}\" is not supported in this version; the guard stays.")
     guards = list(prior_guards)
     # id cấp từ bộ đếm TĂNG DẦN lưu trong khung (review M4, P1-3): bỏ rồi thêm guard không bao giờ tái dùng id, nên
     # nút Bỏ luôn trỏ đúng một mục.
@@ -809,7 +809,7 @@ def validate_proposal(proposal: dict, user_text: str, *, user_unsure: bool = Fal
             guards.append({"id": f"gd{seq}", **x})
             prior_keys.add(_guard_key(x))
     if len({x["id"] for x in guards}) != len(guards):
-        raise GoalRejected("id điều kiện bảo vệ bị trùng; không lưu khung này")
+        raise GoalRejected("duplicate guard condition id; this frame is not saved")
     # Theo chân trời CUỐI CÙNG đã nhận: chân trời đề xuất bị host chặn không được kéo mode đổi theo.
     mode = "maintain" if (proposal.get("mode") == "maintain" or horizon.get("kind") == "maintain") else "achieve"
     return {"understanding": understanding, "criteria": criteria, "relevant_quote": quote[:300],
@@ -845,9 +845,9 @@ def revise_goal(store, p, goal_id: str, expected_revision: int, proposal: dict, 
     from resonance_store import ConflictError
     prior = store.get(p, goal_id)
     if prior is None:
-        raise GoalRejected("không có mục tiêu này trong brain")
+        raise GoalRejected("this goal does not exist in the brain")
     if int(prior.revision) != int(expected_revision):
-        raise ConflictError(f"mục tiêu đang ở revision {prior.revision}, không phải {expected_revision}")
+        raise ConflictError(f"the goal is at revision {prior.revision}, not {expected_revision}")
     mref = str(context.get("message_ref") or "")
     user_text = str(context.get("user_text") or "")
     constraints = list(context.get("constraints") or ())
@@ -861,7 +861,7 @@ def revise_goal(store, p, goal_id: str, expected_revision: int, proposal: dict, 
     intent = store.new_intent(p, context.get("session_id") or "", context.get("message_id"), user_text,
                               constraints=constraints, prev_intent_id=prior.intent_id or None, relation=relation)
     goal = store.revise(p, goal_id, expected_revision, frame,
-                        reason=str(context.get("reason") or "người dùng bổ sung")[:500],
+                        reason=str(context.get("reason") or "user addition")[:500],
                         message_ref=mref, relation=relation, intent=intent, work_due_at=context.get("hold_until"),
                         handoff_owner=BOOT_ID if context.get("hold_until") else None,
                         agent_key=context.get("agent_key"), agent_version=context.get("agent_version"),
@@ -4373,7 +4373,7 @@ async def compare_methods(goal_id: str, baseline_ref: str, candidate_ref: str, c
         raise GoalRejected("thiếu kho hoặc principal")
     g = store.get(p, goal_id)
     if g is None:
-        raise GoalRejected("không có mục tiêu này trong brain")
+        raise GoalRejected("this goal does not exist in the brain")
     _compare_check(g, baseline_ref, candidate_ref, deps)
     items = _trial_cases(cases)
     runnable = [c for c in items if c["expect"].get("evaluator") != "human_confirmation"]

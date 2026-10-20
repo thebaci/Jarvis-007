@@ -150,7 +150,7 @@ class JudgeStore:
         rh = cur["role_hash"] if role_hash is None else str(role_hash)
         eag = cur["eagerness"] if eagerness is None else str(eagerness)
         if eag not in EAGERNESS:
-            raise ValueError("eagerness không hợp lệ")
+            raise ValueError("invalid eagerness")
         src = cur["eagerness_source"] if eagerness is None else str(source or "")
         with self._Tx(self) as c:
             c.execute("INSERT INTO profiles(agent_key,role_text,eagerness,role_hash,eagerness_source,updated_at) "
@@ -179,10 +179,10 @@ class JudgeStore:
         """Ghi một quyết định. Loại `direct`/`message`/`related` có tối đa một dòng mỗi (agent, ngữ cảnh, nguồn, loại):
         gọi lại trả đúng dòng cũ (chạy lại an toàn)."""
         if d.get("verdict") not in VERDICTS:
-            raise ValueError("verdict không hợp lệ")
+            raise ValueError("invalid verdict")
         kind = str(d.get("kind") or "message")
         if kind not in KINDS:
-            raise ValueError("loại quyết định không hợp lệ")
+            raise ValueError("invalid decision kind")
         t = _now(now if now is not None else d.get("created_at"))
         with self._Tx(self) as c:
             if kind in ("direct", "message", "related"):
@@ -261,7 +261,7 @@ class JudgeStore:
                     volunteer: Optional[bool] = None) -> None:
         """Hạ một quyết định (vd. tự lên tiếng mà lượt bị chặn): ghi kết cục thật, không xoá dòng."""
         if verdict not in VERDICTS:
-            raise ValueError("verdict không hợp lệ")
+            raise ValueError("invalid verdict")
         with self._Tx(self) as c:
             c.execute("UPDATE decisions SET verdict=?, silence_code=?, reason=COALESCE(?, reason), "
                       "volunteer=COALESCE(?, volunteer) WHERE id=?",
@@ -433,7 +433,7 @@ class JudgeStore:
                   reason_id: Optional[int] = None, now: Optional[float] = None) -> bool:
         """CAS trạng thái của một lần chờ. Trả True khi đổi được (một người gỡ duy nhất)."""
         if status not in WAIT_STATUSES:
-            raise ValueError("trạng thái chờ không hợp lệ")
+            raise ValueError("invalid wait status")
         with self._Tx(self) as c:
             return c.execute("UPDATE waits SET status=?, release_event=CASE WHEN ?='' THEN release_event ELSE ? END, "
                              "reason_id=COALESCE(?, reason_id), updated_at=? WHERE id=? AND status=?",

@@ -104,7 +104,7 @@ def khoa_vapid() -> dict:
                 pass
             tmp.replace(VAPID_FILE)
         except OSError as e:
-            print(f"[webpush] ghi {VAPID_FILE.name} lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"[webpush] failed to write {VAPID_FILE.name}: {type(e).__name__}: {e}", file=sys.stderr)
         return d
 
 
@@ -167,9 +167,9 @@ def ma_hoa(plaintext: bytes, p256dh: str, auth: str, *,
     ua_pub_raw = b64u_giai(p256dh)
     auth_raw = b64u_giai(auth)
     if len(ua_pub_raw) != 65 or ua_pub_raw[0] != 0x04:
-        raise ValueError("p256dh không phải điểm P-256 dạng uncompressed 65 byte")
+        raise ValueError("p256dh is not a 65-byte uncompressed P-256 point")
     if len(auth_raw) != 16:
-        raise ValueError("auth secret phải đúng 16 byte")
+        raise ValueError("auth secret must be exactly 16 bytes")
     if len(plaintext) > MAX_PLAINTEXT:
         plaintext = plaintext[:MAX_PLAINTEXT]
 
@@ -233,7 +233,7 @@ def _save_subs(d: dict) -> None:
         tmp.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
         tmp.replace(SUBS_FILE)
     except OSError as e:
-        print(f"[webpush] ghi {SUBS_FILE.name} lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[webpush] failed to write {SUBS_FILE.name}: {type(e).__name__}: {e}", file=sys.stderr)
 
 
 def dang_ky(sub: dict, nhan: str = "", phien: str = "") -> tuple:
@@ -247,13 +247,13 @@ def dang_ky(sub: dict, nhan: str = "", phien: str = "") -> tuple:
     keys = (sub or {}).get("keys") or {}
     p256dh, auth = str(keys.get("p256dh") or ""), str(keys.get("auth") or "")
     if not ep.startswith("https://"):
-        return False, "endpoint không hợp lệ"
+        return False, "invalid endpoint"
     if not p256dh or not auth:
-        return False, "thiếu khoá p256dh/auth"
+        return False, "missing p256dh/auth key"
     try:
         ma_hoa(b"x", p256dh, auth)      # thử mã hoá NGAY để khoá rác không nằm im tới lúc gửi
     except Exception as e:
-        return False, f"khoá không dùng được: {e}"
+        return False, f"unusable key: {e}"
     with _LOCK:
         d = _load_subs()
         d["subs"] = [s for s in d["subs"] if s.get("endpoint") != ep]
@@ -367,17 +367,17 @@ async def gui_het(tieu_de: str, than: str, url: str = "/", tag: str = "javis", p
                 muc["ma"] = r.status_code
                 if r.status_code in (404, 410):
                     don.append(ep)
-                    muc["loi"] = "đăng ký đã hết hiệu lực - đã dọn"
+                    muc["loi"] = "subscription expired - removed"
                 elif 200 <= r.status_code < 300:
                     ok += 1
                     muc["ok"] = True
                 else:
                     muc["loi"] = (r.text or "").strip()[:200] or f"HTTP {r.status_code}"
-                    print(f"[webpush] {r.status_code} từ {urlsplit(ep).netloc}: "
+                    print(f"[webpush] {r.status_code} from {urlsplit(ep).netloc}: "
                           f"{muc['loi']}", file=sys.stderr)
             except Exception as e:
                 muc["loi"] = f"{type(e).__name__}: {e}"[:200]
-                print(f"[webpush] gửi lỗi: {muc['loi']}", file=sys.stderr)
+                print(f"[webpush] send failed: {muc['loi']}", file=sys.stderr)
             chi_tiet.append(muc)
             if ep not in don:
                 _ghi_ket_qua(ep, muc["ok"], muc["loi"])

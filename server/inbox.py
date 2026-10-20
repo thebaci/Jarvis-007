@@ -70,7 +70,7 @@ def _load() -> dict:
     except Exception as e:
         # File hỏng: đừng ném lỗi lên tận endpoint làm chết cả chuông. Báo ra stderr rồi
         # coi như hòm rỗng - mất thư cũ còn hơn mất luôn hòm.
-        print(f"[inbox] hỏng {STORE.name}: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[inbox] corrupt {STORE.name}: {type(e).__name__}: {e}", file=sys.stderr)
         return {"version": 1, "items": []}
     if not isinstance(d, dict):
         return {"version": 1, "items": []}
@@ -87,7 +87,7 @@ def _save(d: dict) -> None:
         tmp.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
         tmp.replace(STORE)
     except OSError as e:
-        print(f"[inbox] ghi {STORE.name} lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[inbox] failed to write {STORE.name}: {type(e).__name__}: {e}", file=sys.stderr)
 
 
 def _tieu_de(text: str) -> str:

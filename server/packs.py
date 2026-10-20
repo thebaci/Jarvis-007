@@ -134,7 +134,7 @@ def _hop_compat(dai: str) -> tuple[bool, str]:
         # Không đọc nổi VERSION là lỗi CỦA JAVIS, không phải lỗi của gói. Từ chối mọi gói vì
         # một tệp của chính mình không đọc được thì hỏng nặng hơn nhiều so với cho cài một gói
         # có thể hơi mới - người dùng đã đọc màn hình xác nhận và tự bấm đồng ý rồi.
-        print("[packs] không đọc được VERSION, bỏ qua chốt tương thích", file=sys.stderr)
+        print("[packs] could not read VERSION, skipping the compatibility check", file=sys.stderr)
         return True, ""
     hien = _ver(ban)
     for phan in dai.split():
@@ -145,7 +145,7 @@ def _hop_compat(dai: str) -> tuple[bool, str]:
         ok = {">=": hien >= moc, "<=": hien <= moc, ">": hien > moc,
               "<": hien < moc, "==": hien == moc, "=": hien == moc}[op]
         if not ok:
-            return False, f"cần Javis {dai}, bản này là {_app_version()}"
+            return False, f"needs Jarvis 007 {dai}, this version is {_app_version()}"
     return True, ""
 
 
@@ -187,28 +187,28 @@ def _kiem_connector(con, thu_muc, id_da_co) -> tuple[bool, str]:
     """Một connector từ gói có được phép vào kho không. Trả (ok, lý do)."""
     cid = str((con or {}).get("id") or "").strip()
     if not cid:
-        return False, "connector thiếu trường id"
+        return False, "connector is missing the id field"
     if not _ID_RE.match(cid):
-        return False, f"id connector '{cid}' không hợp lệ"
+        return False, f"connector id '{cid}' is not valid"
     # Trùng id là TỪ CHỐI, không bao giờ ghi đè. Đây là luật quan trọng nhất trong file: một
     # gói ship `id: pancake-pos` kèm `url_template` trỏ đi chỗ khác sẽ âm thầm bẻ hướng một kết
     # nối ĐANG ĐĂNG NHẬP THẬT, vì `mcp_store.resolved` dựng lại url và header TỪ CONNECTOR ở
     # mỗi lần resolve. Không có `override` trong spec 1.
     if cid in id_da_co:
-        return False, f"id connector '{cid}' đã có trong kho, gói không được ghi đè"
+        return False, f"connector id '{cid}' already exists in the store, a pack cannot overwrite it"
     tr = str(con.get("transport") or "http").lower()
     if tr in _TRANSPORT_CAM:
-        return False, f"transport '{tr}' không cho phép trong gói"
+        return False, f"transport '{tr}' is not allowed in a pack"
     auth_type = str(((con.get("auth") or {}).get("type")) or "apikey").lower()
     if auth_type in _AUTH_TYPE_CAM:
-        return False, f"cách đăng nhập '{auth_type}' không khai bằng gói được"
+        return False, f"sign-in method '{auth_type}' cannot be declared by a pack"
     icon = str(con.get("icon") or "")
     if icon.startswith(("http://", "https://", "//")):
         # Icon ở xa là một beacon nổ mỗi lần vẽ trang Kết nối, tức lộ IP và nhịp dùng của người
         # dùng cho bên phát hành gói. Icon phải nằm trong gói.
-        return False, "icon phải là đường dẫn trong gói, không phải URL ngoài"
+        return False, "icon must be a path inside the pack, not an external URL"
     if icon and (icon.startswith("/") or ".." in icon.replace("\\", "/").split("/")):
-        return False, "đường dẫn icon không hợp lệ"
+        return False, "invalid icon path"
     return True, ""
 
 
@@ -238,38 +238,38 @@ def _nap_mot(thu_muc, id_da_co) -> dict:
 
     manifest = next((thu_muc / t for t in MANIFEST_TEN if (thu_muc / t).is_file()), None)
     if manifest is None:
-        ban["error"] = "thiếu javis-pack.yaml"
+        ban["error"] = "missing javis-pack.yaml"
         return ban
     try:
         m = _doc_file(manifest)
         if not isinstance(m, dict):
-            raise ValueError("manifest phải là một object")
+            raise ValueError("manifest must be an object")
     except Exception as e:
-        ban["error"] = f"manifest lỗi: {type(e).__name__}: {e}"
+        ban["error"] = f"manifest error: {type(e).__name__}: {e}"
         return ban
 
     if str(m.get("format") or "") != FORMAT_MAGIC:
-        ban["error"] = f"không phải gói Javis (thiếu format: {FORMAT_MAGIC})"
+        ban["error"] = f"not a Jarvis 007 pack (missing format: {FORMAT_MAGIC})"
         return ban
     try:
         spec = int(m.get("spec") or 0)
     except (TypeError, ValueError):
         spec = -1
     if spec not in SPEC_HO_TRO:
-        ban["error"] = f"spec {m.get('spec')!r} chưa hỗ trợ (bản này đọc {SPEC_HO_TRO})"
+        ban["error"] = f"spec {m.get('spec')!r} is not supported (this version reads {SPEC_HO_TRO})"
         return ban
 
     khai_id = str(m.get("id") or "").strip()
     if not _ID_RE.match(pid):
-        ban["error"] = f"tên thư mục '{pid}' không hợp lệ làm id gói"
+        ban["error"] = f"folder name '{pid}' is not valid as a pack id"
         return ban
     if khai_id and khai_id != pid:
         # Id là ĐƯỜNG DẪN, nên tên thư mục mới là sự thật. Manifest khai lệch thì từ chối chứ
         # không im lặng chọn một bên: hai chỗ nói hai kiểu là mầm của mọi nhầm lẫn về sau.
-        ban["error"] = f"id trong manifest ('{khai_id}') khác tên thư mục ('{pid}')"
+        ban["error"] = f"id in the manifest ('{khai_id}') differs from the folder name ('{pid}')"
         return ban
     if pid in _module_server():
-        ban["error"] = f"id '{pid}' trùng tên một module của Javis, đổi tên gói"
+        ban["error"] = f"id '{pid}' collides with the name of a Jarvis 007 module, rename the pack"
         return ban
 
     ok, vi_sao = _hop_compat((m.get("compat") or {}).get("app"))
@@ -286,14 +286,14 @@ def _nap_mot(thu_muc, id_da_co) -> dict:
         p = (thu_muc / str(rel)).resolve()
         try:
             if thu_muc.resolve() not in p.parents:
-                loi.append(f"{rel}: trỏ ra ngoài thư mục gói")
+                loi.append(f"{rel}: points outside the pack folder")
                 continue
             con = _doc_file(p)
         except Exception as e:
             loi.append(f"{rel}: {type(e).__name__}: {e}")
             continue
         if not isinstance(con, dict):
-            loi.append(f"{rel}: phải là một object")
+            loi.append(f"{rel}: must be an object")
             continue
         hop, vs = _kiem_connector(con, thu_muc, id_da_co)
         if not hop:

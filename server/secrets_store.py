@@ -21,7 +21,7 @@ def _get_fernet():
     try:
         from cryptography.fernet import Fernet
     except ImportError:
-        print("[secrets] thiếu lib cryptography - secret lưu 'plain:' (chạy: pip install cryptography)",
+        print("[secrets] cryptography library missing - secrets are stored as 'plain:' (run: pip install cryptography)",
               file=sys.stderr)
         _fernet = False
         return None
@@ -37,7 +37,7 @@ def _get_fernet():
                 pass
         _fernet = Fernet(key)
     except Exception as e:
-        print(f"[secrets] không init được key: {e}", file=sys.stderr)
+        print(f"[secrets] could not initialise the key: {e}", file=sys.stderr)
         _fernet = False
         return None
     return _fernet
@@ -62,12 +62,12 @@ def decrypt(value):
     if value.startswith("enc:"):
         f = _get_fernet()
         if not f:
-            print("[secrets] gặp giá trị enc: nhưng thiếu cryptography/key - trả rỗng", file=sys.stderr)
+            print("[secrets] found an enc: value but cryptography or the key is missing - returning empty", file=sys.stderr)
             return ""
         try:
             return f.decrypt(value[len("enc:"):].encode("ascii")).decode("utf-8")
         except Exception:
-            print("[secrets] giải mã thất bại (file key đổi?) - cần nhập lại secret", file=sys.stderr)
+            print("[secrets] decryption failed (key file changed?) - the secret must be entered again", file=sys.stderr)
             return ""
     return value
 

@@ -61,7 +61,7 @@ async def main():
     check("retryable failure is retried once", retries == ["t_1"])
     check("owner told it was retried", bool(posts) and posts[-1][0] == "/b"
           and ("chạy lại một lần" in posts[-1][1] or "ran it again once" in posts[-1][1]))
-    check("report fenced as data in the prompt", "không phải lời của người dùng" in prompts[-1]
+    check("report fenced as data in the prompt", "not the user's words" in prompts[-1]
           and prompts[-1].count(">>>") == 2)
     inc = desk.list()[0]
     check("incident marked retrying", inc["status"] == "retrying" and inc["decided_by"] == "model")

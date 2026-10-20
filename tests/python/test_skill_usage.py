@@ -399,9 +399,9 @@ else:
     check("thả khoá → lần gọi sau commit được đúng 1 commit vá .gitignore",
           _n_free == _n_before + 1)
     check("commit vá .gitignore mang prefix 'chore:' (không lọt Review UI / không bị undo)",
-          "chore: cập nhật .gitignore brain" in _log_free)
+          "chore: update brain .gitignore" in _log_free)
     check("commit vá .gitignore KHÔNG khớp LEARN_COMMIT_PREFIXES",
-          not any("chore: cập nhật .gitignore brain".startswith(p)
+          not any("chore: update brain .gitignore".startswith(p)
                   for p in git_brain.LEARN_COMMIT_PREFIXES))
     check("sau khi commit xong, working tree sạch (.gitignore không còn dirty)",
           not git_brain.working_tree_dirty(str(_lk_root)))

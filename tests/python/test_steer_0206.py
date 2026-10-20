@@ -37,7 +37,7 @@ b = box.put("s1", "và gửi cho chị Lan")
 check("messages held, trimmed, numbered", a["text"] == "làm thêm bản tiếng Anh" and b["id"] > a["id"])
 note = box.take_note_for_tag("chat:s1:aaa")
 check("the turn reads both at once, in order", note.index("làm thêm bản tiếng Anh") < note.index("chị Lan")
-      and "2 tin" in note and note.count("<<<") == 2)
+      and "2 more messages" in note and note.count("<<<") == 2)
 check("read callback names the messages", reads == [("s1", [a["id"], b["id"]])])
 check("read once", box.take_note_for_tag("chat:s1:aaa") == "")
 box.put("s1", "câu cuối")
@@ -53,7 +53,7 @@ check("the pending cap holds", box.put("s2", "một tin nữa") is None)
 box.close("s2")
 check("empty text refused", box.put("s3", "   ") is None)
 check("follow-up prompt keeps the owner's words", "gửi báo giá" in si.followup_prompt(["gửi báo giá"])
-      and "2 tin" in si.followup_prompt(["a", "b"]))
+      and "2 messages" in si.followup_prompt(["a", "b"]))
 
 # ---- the API engines' tool loop reads a message sent while a tool ran ----
 import engine  # noqa: E402

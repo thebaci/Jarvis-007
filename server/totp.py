@@ -153,7 +153,7 @@ def qr_svg(noi_dung: str) -> str:
         return buf.getvalue().decode("utf-8")
     except Exception as e:  # noqa: BLE001 - thiếu QR không được làm hỏng cả màn bật 2FA
         import sys
-        print(f"[totp qr] không vẽ được QR: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[totp qr] could not draw the QR code: {type(e).__name__}: {e}", file=sys.stderr)
         return ""
 
 

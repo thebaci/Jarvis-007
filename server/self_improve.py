@@ -83,20 +83,20 @@ GOALS = ("business", "brain", "product", "custom")
 # ghi nháp, hub chặn hành động ra ngoài nên nói thẳng cho model biết để nó không gọi rồi hỏng.
 # Đây KHÔNG còn là luật an toàn chung: mặc định của loop là full (xem docstring đầu file).
 _MCP_SAFETY = (
-    "MỨC QUYỀN CỦA LOOP NÀY LÀ MỨC NHẸ (chủ tự chọn): bạn dùng MCP để ĐỌC dữ liệu thật (POS, "
-    "quảng cáo, lịch, analytics...) phục vụ nhiệm vụ. Các tool hành động ra ngoài (tạo/sửa đơn, "
-    "bật/tắt quảng cáo, thanh toán, gửi tin nhắn/email, đăng bài) bị hub chặn ở mức này, nên "
-    "đừng gọi chúng: việc nào cần hành động thì ghi thành NHÁP trong vault và nêu rõ để chủ "
-    "nâng mức quyền của loop nếu muốn nó tự làm.\n"
+    "THIS LOOP RUNS AT A LIGHT PERMISSION LEVEL (chosen by the owner): use MCP to READ real data (POS, "
+    "ads, calendar, analytics...) for the task. Tools that act on the outside world (create/edit orders, "
+    "turn ads on/off, payments, send messages/emails, publish posts) are blocked by the hub at this level, so "
+    "do not call them: for anything that needs an action, write it as a DRAFT in the vault and say so clearly so the owner "
+    "can raise the loop's permission level if they want it done automatically.\n"
 )
 
 # Chế độ TOÀN QUYỀN (mode="full") - mặc định. Loop thao tác thật ra ngoài qua MCP, không hỏi lại.
 _MCP_FULL = (
-    "CHẾ ĐỘ TOÀN QUYỀN: Bạn được DÙNG MỌI công cụ và MCP để HOÀN THÀNH nhiệm vụ, KỂ CẢ hành động "
-    "THẬT ra bên ngoài (tạo/sửa đơn, chạy/sửa quảng cáo, gửi tin nhắn/email, đăng bài, thao tác "
-    "file). Không có ai ngồi cạnh để duyệt: làm được thì làm rồi thuật lại đã làm gì. Hành động "
-    "thật không hoàn tác được, nên chỉ làm ĐÚNG phạm vi nhiệm vụ được giao, không làm quá, không "
-    "đụng thứ ngoài ý định của chủ.\n"
+    "FULL PERMISSION MODE: You may USE ANY tool and MCP to COMPLETE the task, INCLUDING REAL actions "
+    "on the outside world (create/edit orders, run/edit ads, send messages/emails, publish posts, work on "
+    "files). No one is sitting next to you to approve: if you can do it, do it and then report what you did. Real "
+    "actions cannot be undone, so stay EXACTLY within the scope of the assigned task, do not overreach, and do not "
+    "touch anything outside the owner's intent.\n"
 )
 
 
@@ -248,7 +248,7 @@ class LoopFeature:
             # một loop trắng. Client cũ bật thật (enabled) hay có nội dung thì mới tạo.
             if old is None and not self._has_legacy_content(cfg):
                 return
-            old = old or {"slug": LEGACY_SLUG, "name": "Vòng lặp tự cải thiện",
+            old = old or {"slug": LEGACY_SLUG, "name": "Self-improvement loop",
                           "workspace": "vault", "tools_profile": "vault-safe",
                           "quiet_hours": "", "max_runs_per_day": 0, "body": ""}
             old.update({
@@ -530,7 +530,7 @@ class LoopFeature:
                 self._mark_migrated(cfg)
                 return
             self.save_loop(brain, {
-                "slug": LEGACY_SLUG, "name": "Vòng lặp tự cải thiện",
+                "slug": LEGACY_SLUG, "name": "Self-improvement loop",
                 "enabled": bool(cfg.get("enabled")), "goal": cfg.get("goal", "business"),
                 "mode": cfg.get("mode", LOOP_MODE_DEFAULT),
                 "interval_min": cfg.get("interval_min", 60),
@@ -681,7 +681,7 @@ class LoopFeature:
         is_write = mode in ("auto", "full")   # auto/full = được ghi; suggest = chỉ đọc
         # Chỉ dẫn theo mode: full = toàn quyền (mặc định); suggest/auto = mức nhẹ, hub chặn ra ngoài.
         if loop["tools_profile"] == "code":
-            safety = ("PHẠM VI: profile code không có MCP. Chỉ thao tác file trong workspace được giao.\n")
+            safety = ("SCOPE: the code profile has no MCP. Only work on files in the assigned workspace.\n")
         else:
             safety = _MCP_FULL if mode == "full" else _MCP_SAFETY
         if goal == "business":
@@ -689,61 +689,61 @@ class LoopFeature:
             # vì tự spawn agent kèm MCP mỗi lần mở dashboard, tốn hạn mức cho một bảng không ai
             # xem. Giờ loop tự lấy số qua MCP ngay trong vòng - đúng nguồn, đúng lúc cần.
             base = (
-                "VÒNG TỰ CẢI THIỆN - MỤC TIÊU: CẢI THIỆN CHỈ SỐ KINH DOANH.\n"
-                "BƯỚC 1 - lấy số thật: xem các MCP đang kết nối rồi lấy 3-6 chỉ số kinh doanh quan trọng nhất "
-                "của kỳ hiện tại, có so kỳ trước nếu lấy được. Ưu tiên nguồn theo thứ tự: Pancake POS (tool pos_*) "
-                "→ kênh bán / mạng xã hội → quảng cáo → bất kỳ nguồn kinh doanh nào khác. Dùng số THẬT, KHÔNG bịa. "
-                "Nếu KHÔNG có nguồn kinh doanh nào đang đấu thì dừng vòng và báo đúng một câu là chưa có nguồn dữ liệu.\n"
-                "BƯỚC 2 - phân tích: "
-                "Đọc thêm context trong vault (Wiki marketing/sales/funnel/content, data cache, projects) để hiểu bối cảnh. "
-                "Xác định CHỈ SỐ YẾU NHẤT hoặc đòn bẩy lớn nhất, rồi đề ra 1 hành động khả thi TUẦN NÀY để cải thiện nó "
-                "(vd: ý tưởng + caption content nháp, khung email, kịch bản khuyến mãi, điểm tối ưu funnel, danh sách lead cần gọi lại).\n"
-                "Báo cáo phải NÊU RÕ các con số đã lấy được ở bước 1, kèm nguồn.\n"
+                "SELF-IMPROVEMENT LOOP - GOAL: IMPROVE BUSINESS METRICS.\n"
+                "STEP 1 - get real numbers: look at the connected MCPs and pull the 3-6 most important business metrics "
+                "for the current period, compared with the previous period if available. Prefer sources in this order: Pancake POS (pos_* tools) "
+                "→ sales channels / social media → ads → any other business source. Use REAL numbers, do NOT invent any. "
+                "If NO business source is connected, stop the cycle and report in exactly one sentence that there is no data source.\n"
+                "STEP 2 - analyze: "
+                "Read more context in the vault (Wiki marketing/sales/funnel/content, data cache, projects) to understand the background. "
+                "Identify the WEAKEST METRIC or the biggest lever, then propose 1 feasible action THIS WEEK to improve it "
+                "(e.g. content idea + draft caption, email outline, promotion script, funnel optimization point, list of leads to call back).\n"
+                "The report must STATE CLEARLY the numbers you got in step 1, with their sources.\n"
                 + safety
             )
             if is_write:
                 return base + (
-                    "GHI kết quả vào vault: tạo/cập nhật 1 note kế hoạch trong '05 - Projects' (đặt tên rõ, vd "
-                    "'Cải thiện [chỉ số] - <ngày>'), kèm vật liệu nháp. Nếu cần hành động → thêm task vào Daily Log hôm nay.\n"
-                    "Báo cáo NGẮN: nhắm chỉ số nào, hành động gì, đã ghi file nào."
+                    "WRITE the result into the vault: create/update 1 plan note in '05 - Projects' (name it clearly, e.g. "
+                    "'Improve [metric] - <date>'), with draft material attached. If an action is needed → add a task to today's Daily Log.\n"
+                    "SHORT report: which metric you targeted, what action, which file you wrote."
                 ), ""
             return base + (
-                "CHẾ ĐỘ ĐỀ XUẤT - chỉ phân tích, KHÔNG ghi file. Nêu chỉ số yếu nhất + 2-3 đề xuất hành động cụ thể để cải thiện."
+                "SUGGESTION MODE - analyze only, do NOT write files. State the weakest metric + 2-3 concrete suggested actions to improve it."
             ), ""
         if goal == "product":
             base = (
-                "MỤC TIÊU: TỰ CẢI THIỆN JAVIS hữu dụng hơn với người dùng.\n"
-                "Đọc log hội thoại gần đây (Memory/conversations) + các agent/workflow trong Javis/ + ghi chú phản hồi. "
-                "Nhận diện: người dùng hay vướng gì, yêu cầu lặp lại gì, thiếu agent/workflow/skill nào, chỗ nào gây khó. "
-                "KHÔNG sửa code server.\n"
+                "GOAL: SELF-IMPROVE JARVIS 007 so it is more useful to the user.\n"
+                "Read recent conversation logs (Memory/conversations) + the agents/workflows in Javis/ + feedback notes. "
+                "Identify: where users often get stuck, what requests repeat, which agent/workflow/skill is missing, where things are hard. "
+                "Do NOT edit server code.\n"
                 + safety
             )
             if is_write:
                 return base + (
-                    "Thực hiện 1 cải tiến cụ thể: tạo/cải thiện 1 agent hoặc workflow trong Javis/ (đúng format frontmatter), "
-                    "hoặc ghi 1 note đề xuất cải tiến UX/tính năng vào '05 - Projects'. Báo cáo NGẮN: cải tiến gì, file nào, vì sao."
+                    "Make 1 concrete improvement: create/improve 1 agent or workflow in Javis/ (correct frontmatter format), "
+                    "or write 1 note proposing a UX/feature improvement into '05 - Projects'. SHORT report: what improvement, which file, why."
                 ), ""
             return base + (
-                "CHẾ ĐỘ ĐỀ XUẤT - chỉ đọc, không ghi. Liệt kê 3-5 cải tiến giá trị nhất để Javis hữu dụng hơn (mỗi cái 1 dòng + lý do)."
+                "SUGGESTION MODE - read only, no writing. List the 3-5 most valuable improvements to make Jarvis 007 more useful (1 line each + the reason)."
             ), ""
         if goal == "custom":
-            objective = (loop.get("body") or "").strip() or "Cải thiện vault theo cách hữu ích nhất bạn thấy."
-            base = f"NHIỆM VỤ CỦA LOOP NÀY (làm ĐÚNG 1 lần mỗi vòng rồi dừng):\n{objective}\n{safety}"
-            return base + ("Thực hiện 1 bước cụ thể cho nhiệm vụ trên rồi báo cáo ngắn (làm gì, chạm file nào)." if is_write
-                           else "CHẾ ĐỘ ĐỀ XUẤT - chỉ đọc, không ghi file. Đề xuất 2-3 hành động cụ thể cho nhiệm vụ trên."), ""
+            objective = (loop.get("body") or "").strip() or "Improve the vault in the way you find most useful."
+            base = f"THIS LOOP'S TASK (do it EXACTLY once per cycle, then stop):\n{objective}\n{safety}"
+            return base + ("Do 1 concrete step for the task above, then give a short report (what you did, which files you touched)." if is_write
+                           else "SUGGESTION MODE - read only, do not write files. Suggest 2-3 concrete actions for the task above."), ""
         # goal == brain - làm dày bộ não
         if is_write:
             return (
-                "VÒNG TỰ CẢI THIỆN (làm dày bộ não, chế độ TỰ LÀM).\n"
-                "Chọn ĐÚNG 1 việc giá trị nhất: (1) INGEST 1 source unprocessed, (2) trả lời 1 _open-question, "
-                "(3) sửa 1 lỗi Wiki (broken link/thiếu citation/orphan/trùng). TUÂN THỦ quy ước CLAUDE.md + cập nhật index.md & log.md.\n"
+                "SELF-IMPROVEMENT LOOP (thicken the brain, DO-IT mode).\n"
+                "Pick EXACTLY 1 most valuable job: (1) INGEST 1 unprocessed source, (2) answer 1 _open-question, "
+                "(3) fix 1 Wiki defect (broken link/missing citation/orphan/duplicate). FOLLOW the CLAUDE.md conventions + update index.md & log.md.\n"
                 + safety +
-                "Báo cáo NGẮN: làm gì, chạm file nào. Nếu không có việc → 'Không có việc mới'."
+                "SHORT report: what you did, which files you touched. If there is no work, reply exactly 'Không có việc mới' (this exact Vietnamese phrase is the no-work signal)."
             ), ""
         return (
-            "VÒNG TỰ CẢI THIỆN (làm dày bộ não, chế độ ĐỀ XUẤT - chỉ đọc).\n"
-            "Quét vault, liệt kê 3-5 việc giá trị nhất: source unprocessed, _open-questions mở, lỗi Wiki, task quá hạn. "
-            "Mỗi việc 1 dòng '- [loại] mô tả → hành động'. Không có gì → 'Không có việc mới'."
+            "SELF-IMPROVEMENT LOOP (thicken the brain, SUGGESTION mode - read only).\n"
+            "Scan the vault and list the 3-5 most valuable jobs: unprocessed sources, open _open-questions, Wiki defects, overdue tasks. "
+            "One line per job: '- [type] description → action'. If there is nothing, reply exactly 'Không có việc mới' (this exact Vietnamese phrase is the no-work signal)."
         ), ""
 
     def _make_cli(self, loop: dict, cwd: str, sysprompt: Optional[str], for_verify: bool = False,
@@ -879,21 +879,21 @@ class LoopFeature:
             streak = (int(st.get("fail_streak", 0)) + 1) if failed else 0
             patch = {
                 "last_run": time.time(), "last_summary": summary[:1000],
-                "last_status": verify_line or ("lỗi" if failed else "ok"),
+                "last_status": verify_line or ("error" if failed else "ok"),
                 "runs_today": runs, "day": today, "fail_streak": streak,
             }
             paused_now = False
             if streak >= 3 and not st.get("auto_paused_reason"):
-                patch["auto_paused_reason"] = (f"Tự tạm dừng {_now_vn().strftime('%d/%m %H:%M')}: "
-                                               "3 lần lỗi/kiểm chứng không đạt liên tiếp")
+                patch["auto_paused_reason"] = (f"Auto-paused {_now_vn().strftime('%d/%m %H:%M')}: "
+                                               "3 failures/failed verifications in a row")
                 paused_now = True
             self._update_state(brain, slug, **patch)
             if slug == LEGACY_SLUG:
                 self._sync_legacy_state(patch)
             title = f"{slug} · loop ({goal}/{mode}) - {reason}"
-            body = summary + (f"\n\n**Kiểm chứng:** {verify_line}" if verify_line else "")
+            body = summary + (f"\n\n**Verification:** {verify_line}" if verify_line else "")
             if paused_now:
-                body += f"\n\n⚠ **{patch['auto_paused_reason']}** - bật lại hoặc bấm Chạy ngay để tiếp tục."
+                body += f"\n\n⚠ **{patch['auto_paused_reason']}** - turn it back on or press Run now to continue."
             self._log_append(brain, {"title": title, "body": body})
             # BÁO CÁO mỗi vòng cho NGƯỜI YÊU CẦU loop (mặc định của Javis; đặt notify: false
             # trong frontmatter để tắt loop nào quá ồn). owner_chat rỗng → Javis Core của brain loop
@@ -965,7 +965,7 @@ class LoopFeature:
         if loop["workspace"] and loop["workspace"] != "vault":
             ws = Path(loop["workspace"])
             if not ws.is_dir():
-                return _finish(f"Lỗi: workspace '{loop['workspace']}' không tồn tại", "", True)
+                return _finish(f"Error: workspace '{loop['workspace']}' does not exist", "", True)
             cwd = str(ws)
         else:
             cwd = vault_root
@@ -982,7 +982,7 @@ class LoopFeature:
         sysprompt = self.deps.build_system_prompt(brain)
         gcli = self._make_cli(loop, cwd, sysprompt, brain=brain)
         if gcli is None:
-            return _finish("Lỗi: không tạo được file MCP rỗng để cô lập (profile code từ chối chạy)", "", True)
+            return _finish("Error: could not create an empty MCP file for isolation (the code profile refuses to run)", "", True)
         if not gcli.is_available():
             return {"ok": False, "error": localefmt.chu("Claude CLI chưa cài", "Claude CLI is not installed")}
         # Trần thời gian như mọi việc nền khác (Kanban, nhắc hẹn): không có thì một vòng treo
@@ -1008,30 +1008,30 @@ class LoopFeature:
         if mode in ("auto", "full") and summary and not summary.startswith("Lỗi:") \
                 and "không có việc mới" not in summary.lower():
             # Kiểm chứng độc lập: giả định kết quả SAI, kiểm tra thực tế
-            vcli = self._make_cli(loop, cwd, "Bạn là người KIỂM CHỨNG độc lập, giả định kết quả vừa rồi SAI.",
+            vcli = self._make_cli(loop, cwd, "You are an independent VERIFIER; assume the result just produced is WRONG.",
                                   for_verify=True, brain=brain)
             if vcli is not None:
                 if loop["tools_profile"] == "code":
-                    criteria = ("thay đổi có đúng mục tiêu không, diff có NHỎ không (dưới ~80 dòng), có phá API hiện có "
-                                "không; BẮT BUỘC chạy `python -m py_compile <file .py đã sửa>` và `node --check "
-                                "<file .js đã sửa>` cho từng file bị đổi - tất cả phải sạch mới được pass")
+                    criteria = ("does the change match the goal, is the diff SMALL (under ~80 lines), does it break any existing API; "
+                                "you MUST run `python -m py_compile <edited .py file>` and `node --check "
+                                "<edited .js file>` for every changed file - all must be clean to pass")
                 elif goal == "business":
-                    criteria = ("đề xuất/hành động có BÁM số liệu thật không, có khả thi/đủ cụ thể không, có bịa số không")
+                    criteria = ("are the suggestions/actions grounded in real numbers, are they feasible and specific enough, were any numbers invented")
                 elif goal == "brain":
-                    criteria = "thay đổi có đúng quy ước Wiki không, có bịa/thiếu citation không, có làm hỏng link không"
+                    criteria = "does the change follow the Wiki conventions, is anything invented or missing a citation, did it break any link"
                 else:
-                    criteria = "kết quả có đúng mục tiêu không, có hợp lý/khả thi không, có bịa hay làm hỏng file nào không"
+                    criteria = "does the result match the goal, is it reasonable/feasible, was anything invented or any file broken"
                 # mode full = chủ cho toàn quyền → CHỈ kiểm 'đúng phạm vi', KHÔNG fail vì có hành động ghi ra ngoài.
                 if mode == "full":
-                    criteria += ("; đây là loop TOÀN QUYỀN nên hành động thật ra ngoài LÀ ĐƯỢC PHÉP - chỉ FAIL nếu "
-                                 "làm SAI/QUÁ phạm vi nhiệm vụ, gây hại rõ ràng, hoặc thao tác thứ ngoài ý định")
+                    criteria += ("; this is a FULL PERMISSION loop so real actions on the outside world ARE ALLOWED - only FAIL if "
+                                 "it did something WRONG/BEYOND the task scope, caused clear harm, or touched something outside the owner's intent")
                 elif loop["tools_profile"] != "code":
-                    criteria += ("; và TUYỆT ĐỐI KHÔNG có hành động tiền/đơn/quảng cáo/đăng bài/gửi tin qua MCP "
-                                 "(chỉ được đọc dữ liệu) - nếu có thì FAIL ngay")
+                    criteria += ("; and there must be ABSOLUTELY NO money/order/ads/publishing/messaging actions via MCP "
+                                 "(reading data only) - if there are, FAIL immediately")
                 vprompt = (
-                    "Một vòng tự cải thiện vừa chạy. Kết quả của nó:\n" + summary + "\n\n"
-                    f"Kiểm tra thực tế (đọc lại file liên quan): {criteria}. "
-                    'CHỈ trả JSON 1 dòng: {"pass":true|false,"reason":"ngắn gọn"}.'
+                    "A self-improvement cycle just ran. Its result:\n" + summary + "\n\n"
+                    f"Check it against reality (re-read the relevant files): {criteria}. "
+                    'Reply with ONLY a 1-line JSON: {"pass":true|false,"reason":"short"}.'
                 )
                 v_out = ""
                 async for ev in vcli.query(vprompt):
@@ -1042,12 +1042,12 @@ class LoopFeature:
                     try:
                         vj = json.loads(vm.group(0))
                         verify_failed = not vj.get("pass")
-                        verify_line = ("✓ Đạt" if vj.get("pass") else "✗ Chưa đạt") + ": " + str(vj.get("reason", ""))
+                        verify_line = ("✓ Passed" if vj.get("pass") else "✗ Failed") + ": " + str(vj.get("reason", ""))
                     except json.JSONDecodeError:
-                        verify_line = "Kiểm chứng: không parse được"
+                        verify_line = "Verification: could not parse the result"
 
         failed = (not summary) or summary.startswith("Lỗi:") or verify_failed
-        return _finish(summary or "Lỗi: fork không phản hồi", verify_line, failed)
+        return _finish(summary or "Error: the fork did not respond", verify_line, failed)
 
     # ══════════════════════ helpers cho API/automations ══════════════════════
 

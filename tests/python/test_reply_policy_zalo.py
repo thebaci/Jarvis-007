@@ -108,7 +108,7 @@ class Judge:
         if purpose == "teach":
             return json.dumps(self.teach)
         self.prompts.append(prompt)
-        ex = prompt.split("## Ca tương tự")[1].split("## Cuộc trò chuyện")[0] if "## Ca tương tự" in prompt else ""
+        ex = prompt.split("## Similar past cases")[1].split("## Recent conversation")[0] if "## Similar past cases" in prompt else ""
         if self.mode == "learn":
             say = "label:missed" in ex and "7777" in ex
             return json.dumps({"verdict": "reply" if say else "silent", "score": 0.9 if say else 0.3, "reason": "học"})

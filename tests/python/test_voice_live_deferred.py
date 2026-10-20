@@ -47,7 +47,7 @@ class GeminiProviderTests(unittest.TestCase):
     def test_prompts_carry_no_sample_filler(self):
         # A quoted sample is what the model repeats word for word, in the sample's language.
         self.assertNotIn("để mình xem", voice_live.ASK_JAVIS_TOOL["description"])
-        self.assertIn("MỘT câu", voice_live.SYSTEM_PROMPT)
+        self.assertIn("ONE very short sentence", voice_live.SYSTEM_PROMPT)
 
 
 class DeferredRouteTests(LiveRouteMixin, unittest.IsolatedAsyncioTestCase):

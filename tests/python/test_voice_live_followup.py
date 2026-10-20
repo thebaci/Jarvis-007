@@ -46,7 +46,7 @@ class FollowupWordsTests(unittest.TestCase):
         self.assertFalse(voice_live.is_noop_result("Số đơn huỷ hôm nay là 3."))
 
     def test_chatgpt_ack_is_silent_and_prompt_says_no_redelegation(self):
-        self.assertIn("đang chờ", voice_live.CHATGPT_LIVE_PROMPT)
+        self.assertIn("waiting for a result", voice_live.CHATGPT_LIVE_PROMPT)
         live = voice_live.ChatGPTLive(app_server_getter=lambda: None)
         asyncio.run(live.send_tool_ack("h2", "ask_javis", "x"))   # không gọi app-server nào
 
