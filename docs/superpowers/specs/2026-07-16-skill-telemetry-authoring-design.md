@@ -1,299 +1,317 @@
-# Đo skill + Chuẩn viết skill (A+B)
+# Skill telemetry + skill authoring standard (A+B)
 
-Ngày: 2026-07-16
-Trạng thái: đã duyệt thiết kế, chờ kế hoạch triển khai
+Date: 2026-07-16
+Status: design approved, waiting for the implementation plan
 
-## Bối cảnh
+## Background
 
-So sánh Jarvis 007 với `NousResearch/hermes-agent` cho thấy Jarvis 007 tạo skill/agent/workflow
-không kém, nhưng thiếu hoàn toàn **vòng đời sau khi tạo**: không đo, không gộp, không dọn.
-Jarvis 007 có hệ miễn dịch mạnh (fork học read-only, Python là người ghi duy nhất, provenance
-tier, secret/injection scan, git undo) nhưng không có trao đổi chất. Hermes ngược lại.
+Comparing Jarvis 007 with `NousResearch/hermes-agent` shows that Jarvis 007 creates
+skills/agents/workflows just as well, but has no **lifecycle after creation** at all: no
+measuring, no merging, no cleanup. Jarvis 007 has a strong immune system (read-only learn fork,
+Python as the only writer, provenance tiers, secret/injection scan, git undo) but no
+metabolism. Hermes is the opposite.
 
-Định hướng: ghép cơ chế trao đổi chất của Hermes vào bộ khung an toàn sẵn có của Jarvis 007,
-không phải ngược lại.
+Direction: graft Hermes's metabolism mechanisms onto Jarvis 007's existing safety framework,
+not the other way around.
 
-Toàn bộ lộ trình gồm 4 hệ con. Spec này CHỈ phủ A và B.
+The full roadmap has 4 subsystems. This spec covers ONLY A and B.
 
-- **A. Vòng đời skill** - telemetry, trạng thái, hiển thị.
-- **B. Chuẩn viết skill** - hạn mức description, bộ chuẩn authoring, skill package.
-- C. Curator gộp ô dù (vòng sau, phụ thuộc A và B).
-- D. `/learn` từ nguồn (vòng sau, độc lập).
+- **A. Skill lifecycle** - telemetry, state, display.
+- **B. Skill authoring standard** - description limit, authoring standard set, skill package.
+- C. Umbrella-merging curator (later round, depends on A and B).
+- D. `/learn` from a source (later round, independent).
 
-C phụ thuộc cả A lẫn B: không có telemetry thì curator gộp mù, không có chuẩn thì không
-biết gộp về hình gì.
+C depends on both A and B: without telemetry the curator merges blind, without a standard it
+does not know what shape to merge into.
 
-## Phát hiện dẫn đường: lỗi cắt cụt description
+## Guiding finding: the description truncation bug
 
-Đây là lỗi CÓ THẬT, đang chạy, đo được, không phải suy đoán từ Hermes.
+This bug is REAL, running today and measurable, not a guess inferred from Hermes.
 
-Jarvis 007 cắt description ở **ba** nơi, với **ba** hạn mức khác nhau:
+Jarvis 007 truncates descriptions in **three** places, with **three** different limits:
 
 - `server/mcp_hub.py:256` - `(s['description'] or '')[:60]`, `metas[:20]`
 - `server/main.py:3471` - `(s.get("description") or "")[:100]`, `metas[:15]`
-- `server/skill_router.py:90` - `[:140]`, dùng khi frontmatter thiếu `description` thì lấy
-  dòng đầu thân file làm mô tả thay thế
+- `server/skill_router.py:90` - `[:140]`, used when the frontmatter has no `description`, in
+  which case the first line of the file body is taken as the fallback description
 
-Người viết skill không có cách nào biết mình đang bị chấm theo thước nào.
+A skill author has no way to know which ruler they are being measured against.
 
-Lưu ý hệ quả: `SKILL_DESC_MAX = 150` KHÔNG trùng với bất kỳ giá trị nào đang chạy. Nó đổi
-hành vi ở cả ba chỗ (60 lên 150, 100 lên 150, 140 lên 150) và đổi cap danh sách của
-`main.py` từ 15 lên 20. Đây là thay đổi hành vi có chủ đích, không phải refactor trung tính.
+Note the consequence: `SKILL_DESC_MAX = 150` does NOT match any value currently running. It
+changes behavior in all three places (60 to 150, 100 to 150, 140 to 150) and changes the
+`main.py` list cap from 15 to 20. This is a deliberate behavior change, not a neutral refactor.
 
-Đo bằng chính `skill_router.list_enabled_meta` trên brain `Brain Default`, **6/6 skill
-đang bật đều bị cắt**:
+Measured with `skill_router.list_enabled_meta` itself on the `Brain Default` brain, **6 of 6
+enabled skills are truncated**:
 
-- `html-to-webcake` 376 ký tự, mất 316 (84%)
-- `javis-builder` 333, mất 273 (82%)
-- `ingest-source` 266, mất 206
-- `query-wiki` 249, mất 189
-- `lint-wiki` 213, mất 153
-- `tao-anh-minh-hoa-2d` 139, mất 79
+- `html-to-webcake` 376 characters, 316 lost (84%)
+- `javis-builder` 333, 273 lost (82%)
+- `ingest-source` 266, 206 lost
+- `query-wiki` 249, 189 lost
+- `lint-wiki` 213, 153 lost
+- `tao-anh-minh-hoa-2d` 139, 79 lost
 
-Nghiêm trọng hơn con số: 5/6 skill mở đầu bằng đúng cụm `"Kích hoạt khi người dùng muốn"`
-dài 29 ký tự. Gần nửa ngân sách 60 ký tự bị đốt cho boilerplate giống hệt nhau, chỉ còn
-khoảng 31 ký tự thật sự phân biệt được skill này với skill kia. Mọi ví dụ trigger (`vd "..."`),
-đúng cái phần khiến routing hoạt động, đều bị vứt sạch.
+More serious than the numbers: 5 of 6 skills open with the exact phrase
+`"Kích hoạt khi người dùng muốn"` (Vietnamese for "Activate when the user wants"), 29
+characters long. Nearly half of the 60-character budget is burned on identical boilerplate,
+leaving about 31 characters that actually tell one skill from another. Every trigger example
+(`vd "..."`, i.e. "e.g. ..."), which is exactly the part that makes routing work, is thrown away.
 
-Tệ nhất là **tài liệu đang chủ động dạy viết sai**. CLAUDE.md bảo description phải "viết rõ
-trigger", `javis-builder` bảo "viết kỹ", trong khi runtime cắt cụt. Hermes cảnh báo đúng
-hiện tượng này và gọi nó là lỗi không-cosmetic: mô tả quá hạn bị cắt im lặng và skill không
-bao giờ route được.
+Worst of all, **the documentation actively teaches the wrong thing**. CLAUDE.md says the
+description must "spell out the trigger", `javis-builder` says "write it in detail", while the
+runtime truncates. Hermes warns about exactly this and calls it a non-cosmetic bug: an
+over-limit description is silently cut and the skill never routes.
 
-Quan hệ với A: skill không route được thì `use_count` sẽ mãi bằng 0, và telemetry ở A sẽ
-đọc nhầm thành "skill chết". **B là điều kiện để A có nghĩa.**
+Relation to A: a skill that cannot route will have `use_count` stuck at 0, and the telemetry
+in A would misread that as a "dead skill". **B is the precondition for A to mean anything.**
 
-## Quyết định đã chốt
+## Decisions made
 
-1. Phạm vi: A + B chung một spec. C và D để vòng sau.
-2. Mức tự động: **đo và hiển thị, không tự động gì**. Mọi việc tắt/archive do người bấm.
-3. Hạn mức description: **150 ký tự**, một hằng số duy nhất cho cả hai điểm cắt.
+1. Scope: A + B in one spec. C and D are left for later rounds.
+2. Automation level: **measure and display, automate nothing**. Every disable/archive is done
+   by a person clicking.
+3. Description limit: **150 characters**, one single constant for both cut points.
 
-Về con số 150: Hermes dùng 60, quá chật cho tiếng Việt có dấu. 300 đã được cân nhắc và loại,
-vì ở mốc 15 skill nó tốn khoảng 3.000 token mỗi lượt mỗi engine và tăng tuyến tính khi
-learn.py tự sinh thêm skill, trong khi 4/6 description hiện tại sẽ lọt, tức là không sửa
-được bệnh gốc. Bệnh gốc không phải cắt cụt (đó là triệu chứng) mà là description đang bị
-viết như tài liệu trong khi nó là một dòng mục lục. 150 rộng gấp 2,5 lần Hermes để tiếng
-Việt thở được và nhét vừa 1 ví dụ trigger, vẫn đủ chặt để ép viết sắc.
+About the number 150: Hermes uses 60, too tight for Vietnamese with diacritics. 300 was
+considered and rejected, because at 15 skills it costs about 3,000 tokens per turn per engine
+and grows linearly as learn.py auto-generates more skills, while 4 of the 6 current
+descriptions would fit, which means it would not cure the root disease. The root disease is not
+truncation (that is a symptom) but that descriptions are being written like documentation when
+they are a one-line table of contents. 150 is 2.5 times Hermes's limit so Vietnamese can
+breathe and fit 1 trigger example, yet still tight enough to force sharp writing.
 
-Bằng chứng không mất thông tin, viết lại `html-to-webcake` (gốc 376 ký tự):
+Proof that no information is lost, rewriting `html-to-webcake` (original 376 characters):
 
 > Chuyển HTML sang file Webcake .pke để upload/sửa trên Webcake.
+> (Vietnamese: "Convert HTML into a Webcake .pke file to upload/edit on Webcake.")
 
-62 ký tự, và phân biệt TỐT HƠN 60 ký tự đầu của bản gốc (bản gốc cụt giữa chừng ở
-`"...CHUYỂN một file/đoạn HTML thàn"`, mất luôn từ khoá quyết định là "Webcake").
-316 ký tự còn lại là ví dụ trigger, chỗ của chúng là thân SKILL.md mục "Khi nào dùng".
+62 characters, and it distinguishes BETTER than the first 60 characters of the original (the
+original is cut mid-word at `"...CHUYỂN một file/đoạn HTML thàn"` ("...CONVERT a file/snippet
+of HTML int"), losing the deciding keyword "Webcake" too). The remaining 316 characters are
+trigger examples, whose place is the body of SKILL.md under "When to use".
 
-Kiến trúc: **index để tìm, thân file để làm.**
+Architecture: **the index is for finding, the body is for doing.**
 
-## A. Đo skill
+## A. Measuring skills
 
-### A1. Nơi lưu
+### A1. Storage
 
-File `<brain>/Javis/skill-usage.json`. Module mới `server/skill_usage.py`.
+File `<brain>/Javis/skill-usage.json`. New module `server/skill_usage.py`.
 
-Đặt ở `Javis/` chứ không phải `skills/.usage.json` như Hermes, để bám quy ước Jarvis 007 đã có.
-`server/self_improve.py` ghi rõ: "STATE runtime tách riêng, server sở hữu:
-`<vault>/Javis/loop-state.json`". Telemetry là state runtime, cùng loại với loop-state,
-nên nằm cạnh nhau.
+It lives in `Javis/` rather than `skills/.usage.json` as in Hermes, to follow the convention
+Jarvis 007 already has. `server/self_improve.py` states plainly: "runtime STATE kept separate,
+owned by the server: `<vault>/Javis/loop-state.json`". Telemetry is runtime state, the same
+kind as loop-state, so it sits next to it.
 
-Không nhét vào frontmatter SKILL.md: brain là git repo (`git_brain`), mỗi lần dùng skill sẽ
-đẻ một commit rác và tạo áp lực xung đột lên file do người viết. Đây cũng là lý do Hermes
-chọn sidecar.
+It is not stuffed into the SKILL.md frontmatter: the brain is a git repo (`git_brain`), so
+every skill use would spawn a junk commit and create conflict pressure on a file the author
+writes. This is also why Hermes chose a sidecar.
 
-Khoá theo slug. Mỗi bản ghi: `use_count`, `last_used_at`, `first_used_at`, `created_at`,
+Keyed by slug. Each record: `use_count`, `last_used_at`, `first_used_at`, `created_at`,
 `created_by`, `pinned`.
 
-Ghi atomic qua `atomic_write_text` sẵn có. Mọi thao tác best-effort: sidecar thiếu hoặc
-hỏng thì trả rỗng và đi tiếp. **Sidecar hỏng tuyệt đối không được làm gãy lời gọi skill.**
+Writes are atomic through the existing `atomic_write_text`. Every operation is best-effort: a
+missing or corrupt sidecar returns empty and moves on. **A corrupt sidecar must never break a
+skill call.**
 
-### A2. Điểm đếm
+### A2. Counting point
 
-Handler `_skill` trong `server/mcp_hub.py:259` (tool `javis_use_skill`). Một chỗ duy nhất,
-mọi engine đi qua (Claude Code, Codex, OpenRouter, OpenAI, Anthropic API). Bump khi nạp
-skill thành công, không bump khi slug sai.
+The `_skill` handler in `server/mcp_hub.py:259` (tool `javis_use_skill`). One single place,
+every engine goes through it (Claude Code, Codex, OpenRouter, OpenAI, Anthropic API). Bump when
+the skill loads successfully, do not bump on a wrong slug.
 
-### A3. Điểm mù (ghi rõ, chấp nhận)
+### A3. Blind spot (stated plainly, accepted)
 
-`system_sync.mirror_skills` mirror skill sang `<brain>/.claude/skills` để Claude Code nạp
-NATIVE. Đường native KHÔNG đi qua hub nên không đếm được. Bỏ mirror là mất tính năng thật,
-nên không bỏ.
+`system_sync.mirror_skills` mirrors skills into `<brain>/.claude/skills` so Claude Code loads
+them NATIVELY. The native path does NOT go through the hub so it cannot be counted. Dropping
+the mirror would lose a real feature, so it stays.
 
-Hệ quả bắt buộc, áp cho toàn bộ spec và mọi vòng sau:
+Mandatory consequence, applying to this whole spec and every later round:
 
-> `use_count` là **tín hiệu dương một chiều**. Có đếm nghĩa là skill chắc chắn có dùng.
-> `use=0` chỉ có nghĩa "không có bằng chứng", KHÔNG bao giờ được diễn giải là vô dụng,
-> và KHÔNG bao giờ được dùng làm căn cứ tự tắt hay tự archive bất cứ thứ gì.
+> `use_count` is a **one-way positive signal**. A count means the skill was definitely used.
+> `use=0` only means "no evidence", and must NEVER be interpreted as useless, and must NEVER
+> be used as grounds to auto-disable or auto-archive anything.
 
-Hermes tự nó cũng ra đúng luật này vì lý do khác (bộ đếm còn mới): "use=0 is not evidence a
-skill is valuable; it's absence of evidence either way. Corollary: use=0 is ALSO not a reason
-to PRUNE." Với Jarvis 007 luật đó còn bắt buộc hơn vì có điểm mù thật.
+Hermes arrives at the same rule on its own for a different reason (its counter is still new):
+"use=0 is not evidence a skill is valuable; it's absence of evidence either way. Corollary:
+use=0 is ALSO not a reason to PRUNE." For Jarvis 007 the rule is even more mandatory because
+the blind spot is real.
 
-### A4. Không có máy trạng thái
+### A4. No state machine
 
-Vì đã chốt "đo và hiển thị, không tự động", bỏ luôn máy trạng thái. Không lưu `state` trong
-file, không job nền, không scheduler.
+Since "measure and display, automate nothing" is decided, the state machine is dropped
+entirely. No `state` stored in the file, no background job, no scheduler.
 
-`stale` là **hàm thuần** tính lúc đọc từ `(created_at, last_used_at, pinned, now)`.
+`stale` is a **pure function** computed at read time from `(created_at, last_used_at, pinned, now)`.
 
-Điều kiện cụ thể: `pinned == False` VÀ `use_count == 0` VÀ `now - created_at > SKILL_STALE_AFTER_DAYS`.
+The exact condition: `pinned == False` AND `use_count == 0` AND `now - created_at > SKILL_STALE_AFTER_DAYS`.
 
-Hằng số `SKILL_STALE_AFTER_DAYS = 30` đặt trong `skill_usage.py`, KHÔNG đặt trong
-`skill_router.py`. Bản đầu của spec ghi đặt cùng `SKILL_DESC_MAX` là sai: `skill_router`
-không có một dòng logic thời gian nào (không import `datetime`, không `time`, không đọc
-`st_mtime`), và nó không thấy dữ liệu usage. Đặt hằng số ở đó thì nó nằm chết. Hàm stale
-cần cả `created_at` lẫn `use_count`, cả hai đều thuộc sidecar, nên nó thuộc về
-`skill_usage.py`.
+The constant `SKILL_STALE_AFTER_DAYS = 30` lives in `skill_usage.py`, NOT in
+`skill_router.py`. The first draft of this spec said to put it next to `SKILL_DESC_MAX`, which
+was wrong: `skill_router` has not a single line of time logic (it does not import `datetime`,
+no `time`, does not read `st_mtime`), and it cannot see the usage data. A constant placed there
+would sit dead. The stale function needs both `created_at` and `use_count`, both of which belong
+to the sidecar, so it belongs in `skill_usage.py`.
 
-`created_at` lấy ở đâu: sidecar ghi khi lần đầu thấy skill. Với skill có sẵn từ trước khi
-tính năng này tồn tại (chưa có bản ghi sidecar), fallback là `mtime` của `SKILL.md`, bọc
-`try/except OSError`. Fallback này chỉ dùng để tính stale, không ghi ngược vào sidecar.
+Where `created_at` comes from: the sidecar writes it the first time it sees the skill. For a
+skill that existed before this feature (no sidecar record yet), the fallback is the `mtime` of
+`SKILL.md`, wrapped in `try/except OSError`. This fallback is used only to compute stale and is
+not written back into the sidecar.
 
-Ngưỡng 30 ngày lấy theo luật của Hermes: skill mới tạo có thể đơn giản là chưa gặp trigger,
-nên chưa đủ già thì không được gắn nhãn gì. Skill có `use_count > 0` không bao giờ stale,
-bất kể lần dùng cuối cách đây bao lâu (vì điểm mù native khiến `last_used_at` không đáng
-tin làm căn cứ phủ định).
+The 30-day threshold follows Hermes's rule: a newly created skill may simply not have met its
+trigger yet, so until it is old enough it must not get any label. A skill with `use_count > 0`
+is never stale, no matter how long ago the last use was (because the native blind spot makes
+`last_used_at` unreliable as grounds for a negative).
 
-Cả A thu lại còn: một sidecar, một chỗ bump, một hàm tính. Phần lifecycle phức tạp của
-Hermes (active/stale/archived, transition walk, `.archive/`) để dành cho C, khi đã có dữ
-liệu telemetry thật để kiểm nghiệm.
+All of A shrinks to: one sidecar, one bump point, one compute function. Hermes's complex
+lifecycle (active/stale/archived, transition walk, `.archive/`) is saved for C, once real
+telemetry data exists to test against.
 
-### A5. Hiển thị
+### A5. Display
 
-`GET /skills` trả thêm trường usage. Trang Skill hiện số lần dùng, lần dùng cuối, và nhãn
-"chưa thấy dùng" cho skill đủ già mà chưa có tín hiệu dương.
+`GET /skills` returns an extra usage field. The Skill page shows the use count, the last use,
+and a "not seen used yet" label for a skill that is old enough but has no positive signal.
 
-Nhãn này BẮT BUỘC kèm chú thích rằng đường native không đếm được nên chỉ để tham khảo.
-Không được trình bày như một phán quyết.
+This label MUST carry a note that the native path cannot be counted, so it is for reference
+only. It must not be presented as a verdict.
 
-## B. Chuẩn viết skill
+## B. Skill authoring standard
 
-### B1. Một thước đo
+### B1. One ruler
 
-Thêm vào `server/skill_router.py`:
+Add to `server/skill_router.py`:
 
 - `SKILL_DESC_MAX = 150`
-- `SKILL_LIST_MAX = 20` (gom hai cap 15 và 20 hiện nay về một; lấy 20 vì description đã
-  giảm từ 300 xuống 150 nên ngân sách dôi ra, và 20 phủ hết số skill thực tế hiện nay)
-- `SKILL_STALE_AFTER_DAYS = 30` (dùng cho A4)
+- `SKILL_LIST_MAX = 20` (merges the two current caps of 15 and 20 into one; 20 was chosen
+  because descriptions drop from 300 to 150 so there is spare budget, and 20 covers every real
+  skill count today)
+- `SKILL_STALE_AFTER_DAYS = 30` (used by A4)
 
-Cả `main.py:3471` lẫn `mcp_hub.py:256` import từ đây. Hết cảnh hai thước.
+Both `main.py:3471` and `mcp_hub.py:256` import from here. No more two rulers.
 
-Ghi nhận (KHÔNG sửa trong spec này): hai nơi này cùng render danh sách skill, nên chi phí
-context bị trả gấp đôi mỗi lượt. Cả hai đều có lý do tồn tại (`_skill_router_block` phục vụ
-engine không có tool, mô tả tool phục vụ engine có tool). Tối ưu chỗ này là việc riêng,
-đừng gộp vào đây.
+Noted (NOT fixed in this spec): these two places render the same skill list, so the context
+cost is paid twice every turn. Both have a reason to exist (`_skill_router_block` serves
+engines without tools, the tool description serves engines with tools). Optimizing this is a
+separate job, do not merge it in here.
 
-`skill_router` là nơi đặt đúng vì nó đã tự nhận là "nguồn chân lý DUY NHẤT cho việc khám phá
-skill, dùng chung bởi main.py và mcp_hub.py để hai nơi KHÔNG bao giờ lệch nhau". Hằng số
-hạn mức thuộc về chính trách nhiệm đó.
+`skill_router` is the right home because it already describes itself as "the SINGLE source of
+truth for skill discovery, shared by main.py and mcp_hub.py so the two places NEVER drift
+apart". The limit constants belong to that very responsibility.
 
-### B2. Ép lúc ghi
+### B2. Enforce at write time
 
-`POST /skills` từ chối description quá `SKILL_DESC_MAX` và từ chối cụm mở đầu boilerplate.
+`POST /skills` rejects a description over `SKILL_DESC_MAX` and rejects an opening boilerplate
+phrase.
 
-learn.py kiểm tra tương tự trong `_promote_sync`. Vi phạm thì đưa vào `rep["blocked"]` đúng
-như secret-scan và injection-scan đang làm, KHÔNG ghi bừa rồi để runtime cắt.
+learn.py applies the same check in `_promote_sync`. A violation goes into `rep["blocked"]`
+exactly as the secret-scan and injection-scan do, rather than writing blindly and letting the
+runtime truncate.
 
-Boilerplate bị cấm: các biến thể mở đầu kiểu `Kích hoạt khi (người dùng) muốn`,
-`Dùng khi cần`, `Sử dụng skill này khi`. Chúng đốt tới 29 ký tự mà không phân biệt gì,
-vì mọi skill đều mở đầu như vậy.
+Banned boilerplate: opening variants such as `Kích hoạt khi (người dùng) muốn` ("Activate when
+(the user) wants"), `Dùng khi cần` ("Use when you need"), `Sử dụng skill này khi` ("Use this
+skill when"). These are Vietnamese literals that the check matches, so they stay in Vietnamese.
+They burn up to 29 characters without distinguishing anything, since every skill opens that way.
 
-### B3. Bộ chuẩn dùng chung
+### B3. Shared standard set
 
-Một hằng số text (theo mẫu `_AUTHORING_STANDARDS` của `hermes/agent/learn_prompt.py`),
-nhúng vào cả prompt learn (`learn.py:_build_prompt`) lẫn `javis-builder/SKILL.md`.
+One text constant (following the `_AUTHORING_STANDARDS` pattern of
+`hermes/agent/learn_prompt.py`), embedded in both the learn prompt (`learn.py:_build_prompt`)
+and `javis-builder/SKILL.md`.
 
-Nội dung:
+Content:
 
-- Hạn mức 150 **kèm lý do**: router cắt đúng ở 150, viết dài hơn là mất im lặng và skill
-  không route được. Viết xong TỰ ĐẾM. (Hermes nhấn mạnh đây là luật bị vi phạm nhiều nhất
-  và không phải chuyện thẩm mỹ.)
-- Cấm boilerplate mở đầu. Nêu năng lực, không nêu ngữ cảnh kích hoạt.
-- Ví dụ trigger đầy đủ nằm ở mục "Khi nào dùng" trong thân file, không nhét vào description.
-- Thứ tự mục cố định: Khi nào dùng / Chuẩn bị / Cách chạy / Quy trình / Bẫy / Kiểm chứng.
-- Cấm bịa flag, path, API chưa thấy trong nguồn.
-- Trần độ dài thân file: khoảng 100 dòng cho skill đơn giản, 200 cho skill phức tạp.
-  Dài hơn thì đẩy xuống `references/`.
-- Cấm skill kiểu router chỉ trỏ sang skill khác.
-- Nội dung lớn đẩy xuống `scripts/` và `references/`, tham chiếu bằng đường dẫn tương đối.
-- Giữ luật hiện có của Jarvis 007: `group` bắt buộc, slug ASCII không dấu, cấm em dash.
+- The 150 limit **with its reason**: the router cuts at exactly 150, writing longer is a silent
+  loss and the skill cannot route. After writing, COUNT YOURSELF. (Hermes stresses this is the
+  most violated rule and not a matter of aesthetics.)
+- No opening boilerplate. State the capability, not the activation context.
+- Full trigger examples go in the "When to use" section of the body, not in the description.
+- Fixed section order: When to use / Prerequisites / How to run / Procedure / Pitfalls / Verification.
+- Never invent flags, paths or APIs not seen in the source.
+- Body length ceiling: about 100 lines for a simple skill, 200 for a complex one. Longer
+  content moves down to `references/`.
+- No router-style skills that only point to another skill.
+- Large content goes down into `scripts/` and `references/`, referenced by relative path.
+- Keep Jarvis 007's existing rules: `group` is mandatory, ASCII slug without diacritics, no em dash.
 
-### B4. Skill thành package
+### B4. Skills as packages
 
-Cho phép `references/`, `scripts/`, `templates/` trong thư mục skill.
+Allow `references/`, `scripts/`, `templates/` inside the skill folder.
 
-**SỬA LỖI TRONG CHÍNH SPEC NÀY (bản đầu viết sai, đã kiểm chứng lại bằng cách đọc
-`system_sync.py:235-264` đầy đủ):** `mirror_skills` KHÔNG phải "chỉ copy mỗi SKILL.md".
-Dòng 258-260 copy **mọi file top-level** trong thư mục skill qua `d.iterdir()` +
-`if f.is_file()`. Thứ thực sự bị rơi là **THƯ MỤC CON**, vì `f.is_file()` false với dir và
-không có đệ quy.
+**FIX TO THIS SPEC ITSELF (the first draft was wrong, re-verified by reading
+`system_sync.py:235-264` in full):** `mirror_skills` is NOT "copy only SKILL.md". Lines 258-260
+copy **every top-level file** in the skill folder via `d.iterdir()` + `if f.is_file()`. What
+actually gets dropped is **SUBFOLDERS**, because `f.is_file()` is false for a directory and
+there is no recursion.
 
-Nên việc cần làm là "file phẳng thành cây đệ quy", không phải "một file thành thư mục".
+So the job is "flat files become a recursive tree", not "one file becomes a folder".
 
-**Bug đi kèm phải sửa cùng lúc:** cổng hash-skip (dòng 251-256) chỉ băm nội dung `SKILL.md`.
-Nếu `references/x.md` đổi mà `SKILL.md` không đổi thì hash trùng, `continue` chạy, và thay
-đổi KHÔNG BAO GIỜ tới được bản mirror. Lỗi này đã tồn tại sẵn với file asset ngang hàng, và
-sẽ nặng hơn khi có thư mục con. Skip phải trở thành tree-aware.
+**Companion bug to fix at the same time:** the hash-skip gate (lines 251-256) hashes only the
+content of `SKILL.md`. If `references/x.md` changes but `SKILL.md` does not, the hashes match,
+`continue` runs, and the change NEVER reaches the mirror. This bug already exists with sibling
+asset files, and will get worse with subfolders. The skip must become tree-aware.
 
-Bẫy khi làm tree-aware: mirror là add-only, nên bản mirror có file THỪA sẽ không bao giờ
-khớp digest của nguồn, gây copy lại vô hạn mỗi lần gọi. Phải tính digest của đích **chỉ trên
-tập đường dẫn có ở nguồn**. Và không được đưa file nhị phân qua `read_text`/`skill_hash`
-(`errors="replace"` sẽ làm hỏng thầm lặng, và `_norm_text` chuẩn hoá ngày) - dùng sha256
-trên raw bytes cho file không phải text.
+Trap when making it tree-aware: the mirror is add-only, so a mirror holding EXTRA files will
+never match the source's digest, causing endless re-copying on every call. The destination
+digest must be computed **only over the set of paths that exist in the source**. And binary
+files must not pass through `read_text`/`skill_hash` (`errors="replace"` would corrupt silently,
+and `_norm_text` normalizes dates) - use sha256 on raw bytes for non-text files.
 
-Ràng buộc phải giữ: add/update-only, không xoá entry lạ ở `.claude`, bỏ qua `.disabled`,
-và `mirror_skills` phải KHÔNG tự lấy `_LOCK` (`sync_brain:356` gọi nó khi đang giữ lock, mà
-`threading.Lock` không reentrant nên sẽ deadlock).
+Constraints to keep: add/update-only, never delete foreign entries in `.claude`, skip
+`.disabled`, and `mirror_skills` must NOT take `_LOCK` itself (`sync_brain:356` calls it while
+holding the lock, and `threading.Lock` is not reentrant so it would deadlock).
 
-**Đây là chỗ rủi ro cao nhất của cả spec**, cần test riêng.
+**This is the highest-risk spot in the whole spec**, and needs its own tests.
 
-**Phạm vi:** `references/`/`scripts/`/`templates/` CHỈ áp cho skill của brain (do người dùng
-hoặc learn tạo). Skill HỆ THỐNG vẫn một file `SKILL.md`, vì `_system_items` (`system_sync.py:142-160`)
-ship nội dung dưới dạng chuỗi đơn và tuple `(key, kind, slug, content)` của nó bị `sync_brain`
-lẫn CLI `--hash` tiêu thụ; nới ra sẽ phá cả hai. Không đáng, và chưa cần.
+**Scope:** `references/`/`scripts/`/`templates/` apply ONLY to brain skills (created by the
+user or by learn). SYSTEM skills stay a single `SKILL.md` file, because `_system_items`
+(`system_sync.py:142-160`) ships content as plain strings and its tuple
+`(key, kind, slug, content)` is consumed by both `sync_brain` and the CLI `--hash`; loosening
+it would break both. Not worth it, and not needed yet.
 
-### B5. Viết lại 6 description
+### B5. Rewrite 6 descriptions
 
-Không mất thông tin: ví dụ trigger chuyển xuống mục "Khi nào dùng" trong thân file, nơi
-không bị cắt và chỉ được đọc khi skill đã nạp.
+No information is lost: trigger examples move down to the "When to use" section of the body,
+where nothing is truncated and which is read only once the skill is loaded.
 
-Thực tế chỉ phải viết lại **5**, không phải 6. `tao-anh-minh-hoa-2d` đo lại chính xác được
-139 ký tự, tức là ĐÃ dưới 150 và không có ví dụ trigger nào trong description để dời đi.
-Không đụng vào nó.
+In practice only **5** need rewriting, not 6. `tao-anh-minh-hoa-2d` re-measures at exactly 139
+characters, so it is ALREADY under 150 and has no trigger example in its description to move.
+Leave it alone.
 
-5 skill hệ thống sửa ở NGUỒN `<project>/.claude/skills/`, KHÔNG sửa bản mirror trong brain:
+The 5 system skills are fixed at the SOURCE `<project>/.claude/skills/`, NOT in the mirror
+copy in the brain:
 
-- `html-to-webcake` 376 ký tự, dư 226 (nặng nhất, rủi ro cao nhất)
-- `javis-builder` 333, dư 183
-- `ingest-source` 266, dư 116
-- `query-wiki` 249, dư 99
-- `lint-wiki` 213, dư 63 (nhẹ nhất)
+- `html-to-webcake` 376 characters, 226 over (heaviest, highest risk)
+- `javis-builder` 333, 183 over
+- `ingest-source` 266, 116 over
+- `query-wiki` 249, 99 over
+- `lint-wiki` 213, 63 over (lightest)
 
-Sửa luôn hai chỗ tài liệu đang dạy sai: CLAUDE.md (mục description "viết rõ trigger") và
-`javis-builder` (mục description "viết kỹ").
+Also fix the two places where the docs teach wrongly: CLAUDE.md (the description section
+"spell out the trigger") and `javis-builder` (the description section "write it in detail").
 
-### B6. Lỗi lệch phát hiện trong lúc đọc
+### B6. Drift bug found while reading
 
-`javis-builder` đang dạy ghi skill vào `.claude/skills/`, trong khi CLAUDE.md và `skill_router`
-nói canonical là `skills/<slug>/SKILL.md` còn `.claude/skills` chỉ là bản mirror phái sinh.
-Skill builder đang dạy ghi vào chỗ mirror.
+`javis-builder` teaches writing skills into `.claude/skills/`, while CLAUDE.md and
+`skill_router` say the canonical location is `skills/<slug>/SKILL.md` and `.claude/skills` is
+only a derived mirror. The skill builder is teaching to write into the mirror.
 
-Không phải 1 chỗ mà **3 chỗ** trong cùng file, phải sửa cả ba kẻo file tự mâu thuẫn:
+Not 1 place but **3 places** in the same file, all three must be fixed or the file contradicts
+itself:
 
-- dòng 54: `### Skill -> \`.claude/skills/<slug>/SKILL.md\``
-- dòng 23-24: bước chống trùng bảo đọc folder `.claude/skills/`
-- dòng 38: chú thích field `skills:` bảo "chỉ gán skill đã có trong .claude/skills"
+- line 54: `### Skill -> \`.claude/skills/<slug>/SKILL.md\``
+- lines 23-24: the duplicate-check step tells you to read the `.claude/skills/` folder
+- line 38: the note for the `skills:` field says "only assign skills that already exist in .claude/skills"
 
-## Kiểm thử
+## Testing
 
-**Quy ước nhà (bắt buộc theo, đã kiểm chứng):** repo này KHÔNG dùng pytest. Không có
-conftest.py, pytest.ini, pyproject.toml hay tox.ini nào. Mọi test là script Python chạy
-thẳng, dùng helper tự viết `check(name, cond)` gom lỗi vào `_fails` rồi `sys.exit(1)` ở
-cuối (mẫu chuẩn: `server/test_loop_ambient.py:23-30` và `:117-120`).
+**House convention (must follow, verified):** this repo does NOT use pytest. There is no
+conftest.py, pytest.ini, pyproject.toml or tox.ini. Every test is a Python script run directly,
+using a hand-written helper `check(name, cond)` that collects failures into `_fails` and then
+calls `sys.exit(1)` at the end (canonical pattern: `server/test_loop_ambient.py:23-30` and
+`:117-120`).
 
-Preamble bắt buộc, thứ tự load-bearing (env TRƯỚC import, vì module state đọc
-`JAVIS_STATE_DIR` lúc import):
+Mandatory preamble, with load-bearing order (env BEFORE import, because module state reads
+`JAVIS_STATE_DIR` at import time):
 
 ```python
 os.environ.setdefault("JAVIS_STATE_DIR", tempfile.mkdtemp(prefix="javis-<x>test-"))
@@ -301,154 +319,161 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import <module>  # noqa: E402
 ```
 
-KHÔNG lấy `server/test_plugins_host.py` làm mẫu: nó dùng bare assert nên dừng ở lỗi ĐẦU
-TIÊN, trong khi lint description cần liệt kê MỌI skill vi phạm trong một lần chạy. Lệnh
-chạy ghi trong docstring của file đó (`.venv/Scripts/python`) cũng sai: `server/.venv`
-không tồn tại, venv nằm ở gốc repo.
+Do NOT use `server/test_plugins_host.py` as a template: it uses bare asserts so it stops at the
+FIRST failure, whereas the description lint must list EVERY violating skill in one run. The run
+command in that file's docstring (`.venv/Scripts/python`) is also wrong: `server/.venv` does not
+exist, the venv is at the repo root.
 
-Lệnh chạy đúng: `cd server && ../.venv/Scripts/python.exe test_<name>.py`
+The correct run command: `cd server && ../.venv/Scripts/python.exe test_<name>.py`
 
-CI (`.github/workflows/ci.yml:29-39`) glob `test_*.py` trong `server/` rồi chạy từng file
-bằng `python` trần. Nên test mới **chỉ cần đặt tên `server/test_*.py` là tự vào CI**, không
-phải sửa ci.yml. Ngược lại, đặt ngoài `server/` thì CI sẽ KHÔNG chạy.
+CI (`.github/workflows/ci.yml:29-39`) globs `test_*.py` in `server/` and runs each file with
+plain `python`. So a new test **only needs to be named `server/test_*.py` to enter CI
+automatically**, with no ci.yml edit. Conversely, a test placed outside `server/` will NOT run
+in CI.
 
-`test_skill_usage.py`: bump tăng đúng, ghi atomic, file thiếu, file hỏng (JSON rác), gọi
-song song, sidecar hỏng không làm gãy lời gọi skill.
+`test_skill_usage.py`: bump increments correctly, atomic write, missing file, corrupt file
+(garbage JSON), parallel calls, a corrupt sidecar does not break a skill call.
 
-`test_skill_router.py`: khẳng định `main.py` và `mcp_hub.py` cùng dùng `SKILL_DESC_MAX`,
-không còn hằng số rời (60 hay 100) nằm rải rác.
+`test_skill_router.py`: asserts that `main.py` and `mcp_hub.py` both use `SKILL_DESC_MAX`, and
+that no stray constants (60 or 100) are left scattered around.
 
-`test_system_sync.py`: `mirror_skills` copy đủ `references/`, `scripts/`, `templates/`;
-vẫn bỏ qua `.disabled`; vẫn không ghi lại khi hash trùng.
+`test_system_sync.py`: `mirror_skills` copies `references/`, `scripts/`, `templates/` in full;
+still skips `.disabled`; still does not rewrite when the hash matches.
 
-**Test CI quan trọng nhất:** quét mọi skill hệ thống trong `<project>/.claude/skills/`,
-FAIL nếu có description vượt `SKILL_DESC_MAX` hoặc dính boilerplate. Đây là thứ khiến con
-bug hôm nay không bao giờ quay lại, và là lý do chính khiến B đáng làm chứ không chỉ là
-dọn dẹp một lần.
+**The most important CI test:** scan every system skill in `<project>/.claude/skills/`, FAIL if
+any description exceeds `SKILL_DESC_MAX` or contains boilerplate. This is what keeps today's bug
+from ever coming back, and the main reason B is worth doing rather than being a one-off cleanup.
 
-Chạy test phải dùng `.venv` (python hệ thống thiếu lib).
+Tests must run with the `.venv` (the system Python lacks libs).
 
-## Rủi ro
+## Risks
 
-Đổi nội dung system prompt sẽ phá prompt cache một lần ở lượt đầu sau deploy. Chấp nhận được.
+Changing system prompt content breaks the prompt cache once, on the first turn after deploy.
+Acceptable.
 
-Viết lại description là đổi hành vi routing thật. Kỳ vọng tốt lên nhưng vẫn là thay đổi
-hành vi cần theo dõi.
+Rewriting descriptions changes real routing behavior. Expected to improve, but it is still a
+behavior change that needs monitoring.
 
-`mirror_skills` copy thư mục là chỗ dễ sinh lỗi nhất. Rủi ro cụ thể: xoá nhầm file trong
-`.claude/skills`, hoặc copy đè lên thứ người dùng sửa tay. Giữ nguyên tinh thần hiện tại
-(add/update-only, không xoá entry lạ).
+`mirror_skills` copying directories is the most bug-prone spot. Concrete risks: deleting the
+wrong file in `.claude/skills`, or overwriting something the user edited by hand. Keep the
+current spirit (add/update-only, never delete foreign entries).
 
-`Javis/skill-usage.json` là state runtime, không phải tri thức, nên PHẢI được gitignore ở
-brain. Đây không phải chuyện cân nhắc: `.gitignore` của brain đã nêu nguyên tắc dứt khoát
-là "Git chỉ version TRI THỨC ĐÃ CHƯNG CẤT (facts/wiki/skills/MEMORY.md)" và đã loại sẵn
-learn-log, loop-log, conversations, lock. Telemetry rơi đúng vào nhóm bị loại.
+`Javis/skill-usage.json` is runtime state, not knowledge, so it MUST be gitignored in the
+brain. This is not a judgment call: the brain's `.gitignore` already states the firm principle
+"Git versions only DISTILLED KNOWLEDGE (facts/wiki/skills/MEMORY.md)" and already excludes
+learn-log, loop-log, conversations, lock. Telemetry falls squarely into the excluded group.
 
-Vị trí chính xác (bản đầu ghi lệch, đã kiểm chứng lại):
+Exact locations (the first draft had them off, re-verified):
 
-- Template là hằng số `_GITIGNORE` ở `server/git_brain.py:62-72` (dòng 63-64 là comment,
-  các mục ignore thật nằm ở 65-71).
-- "Danh sách path song song" KHÔNG nằm trong hàm nào. Đó là hằng số module
-  `_BACKUP_SKIP_SUBSTR` ở `git_brain.py:267-268`, do helper `_backup_skip()` (271-276) tiêu
-  thụ, dùng ở 4 chỗ: `_sync_mirror` (289), `_apply_back` (467), `_brains_has_content` (532),
-  `_sync_brains_locked` (604).
+- The template is the constant `_GITIGNORE` at `server/git_brain.py:62-72` (lines 63-64 are
+  comments, the real ignore entries are at 65-71).
+- The "parallel path list" does not live inside any function. It is the module constant
+  `_BACKUP_SKIP_SUBSTR` at `git_brain.py:267-268`, consumed by the helper `_backup_skip()`
+  (271-276), used in 4 places: `_sync_mirror` (289), `_apply_back` (467),
+  `_brains_has_content` (532), `_sync_brains_locked` (604).
 
-Hai chỗ này ở **hai không gian đường dẫn KHÁC NHAU**, dễ sai:
+These two spots live in **two DIFFERENT path spaces**, which is easy to get wrong:
 
-- `.gitignore` tương đối với gốc BRAIN, nên viết `Javis/skill-usage.json` (không slash đầu).
-- `_BACKUP_SKIP_SUBSTR` so khớp chuỗi con trên rel tương đối với thư mục CHA của brain, và
-  `_backup_skip` bọc rel trong hai dấu slash. Nên phải viết `"/Javis/skill-usage.json/"`
-  đúng dạng đó (cả slash đầu lẫn slash cuối), giống mọi mục hiện có.
+- `.gitignore` is relative to the BRAIN root, so write `Javis/skill-usage.json` (no leading slash).
+- `_BACKUP_SKIP_SUBSTR` does substring matching on a rel path relative to the brain's PARENT
+  directory, and `_backup_skip` wraps the rel in two slashes. So it must be written as
+  `"/Javis/skill-usage.json/"` in exactly that form (both leading and trailing slash), like
+  every existing entry.
 
-**Câu hỏi brain cũ đã có lời đáp dứt khoát: KHÔNG, brain cũ sẽ không bao giờ nhận template
-mới.** `ensure_git_repo` có hai chốt chặn độc lập:
+**The old-brain question has a definitive answer: NO, an old brain will never receive the new
+template.** `ensure_git_repo` has two independent guards:
 
-1. Dòng 82 `if is_git_checkout(root): return {...}` return TRƯỚC khi chạm bất cứ code
-   `.gitignore` nào. Brain đã là git repo thì không bao giờ đọc lại template.
-2. Dòng 92-93 `if not gi.exists(): gi.write_text(_GITIGNORE)` - kể cả nhánh init, `.gitignore`
-   có sẵn cũng không bị đụng.
+1. Line 82 `if is_git_checkout(root): return {...}` returns BEFORE touching any `.gitignore`
+   code. A brain that is already a git repo never re-reads the template.
+2. Lines 92-93 `if not gi.exists(): gi.write_text(_GITIGNORE)` - even on the init branch, an
+   existing `.gitignore` is not touched.
 
-Nên `ensure_git_repo` idempotent theo nghĩa "gọi lại không hỏng", nhưng KHÔNG reconcile.
+So `ensure_git_repo` is idempotent in the sense of "calling it again does not break anything",
+but it does NOT reconcile.
 
-Cách sửa: tách helper `_ensure_gitignore_lines(root) -> bool` đọc `.gitignore` hiện có, chỉ
-APPEND các dòng của `_GITIGNORE` chưa có (merge theo dòng, TUYỆT ĐỐI không ghi đè kẻo xoá
-mục user tự thêm), trả về có đổi hay không. Gọi ở cả hai nhánh. Nhánh brain-cũ nếu có đổi
-thì commit bằng `commit_paths` với prefix `chore:` (KHÔNG dùng `learn:`/`curator:` vì
-`LEARN_COMMIT_PREFIXES` ở dòng 31 quyết định cái gì hiện ở UI Review và cái gì
-`revert_last_learn` sẽ undo). Không thêm `add -A` mới: dòng 95 tự ghi rõ đó là chỗ DUY NHẤT
-được phép dùng `-A`.
+The fix: split out a helper `_ensure_gitignore_lines(root) -> bool` that reads the existing
+`.gitignore`, only APPENDS the lines of `_GITIGNORE` that are missing (merge by line, ABSOLUTELY
+never overwrite, or user-added entries get deleted), and returns whether anything changed. Call
+it on both branches. On the old-brain branch, if it changed anything, commit with
+`commit_paths` using the prefix `chore:` (NOT `learn:`/`curator:`, because
+`LEARN_COMMIT_PREFIXES` at line 31 decides what appears in the Review UI and what
+`revert_last_learn` will undo). Add no new `add -A`: line 95 itself states this is the ONLY
+place `-A` is allowed.
 
-Hai điều còn lại phải xử lý: (a) brain cũ có thể ĐÃ track `Javis/skill-usage.json` do
-`add -A` baseline, mà gitignore không có tác dụng với file đã track, nên cần một lần
-`git rm --cached` khi path vừa bị ignore vừa đang được track; (b) không caller nào chạy lúc
-server khởi động (chỉ `/learn/enable` và `/reflect` gọi), nên việc reconcile chỉ xảy ra khi
-một trong hai endpoint đó được gọi.
+Two remaining things to handle: (a) an old brain may ALREADY track `Javis/skill-usage.json`
+because of the baseline `add -A`, and gitignore has no effect on an already-tracked file, so a
+one-time `git rm --cached` is needed when the path is both ignored and tracked; (b) no caller
+runs at server startup (only `/learn/enable` and `/reflect` call it), so reconciliation only
+happens when one of those two endpoints is called.
 
-## HOÃN: B4 (mirror_skills đệ quy) - cần spec riêng
+## DEFERRED: B4 (recursive mirror_skills) - needs its own spec
 
-Ngày 2026-07-17, sau khi fan-out 6 reader lập bản đồ rủi ro, **B4 bị hoãn** (anh Quy quyết).
-Ghi lại đây vì ledger thi công bị gitignore, phát hiện sẽ mất theo.
+On 2026-07-17, after fanning out 6 readers to map the risk, **B4 was deferred** (Quy decided).
+Recorded here because the build ledger is gitignored and the findings would be lost with it.
 
-**Spec này đã SAI ba chỗ về B4:**
+**This spec was WRONG in three places about B4:**
 
-1. *"Skill HỆ THỐNG vẫn một file SKILL.md"* - **sai**. `.claude/skills/html-to-webcake` đã
-   ship `tools/` (4 file) + `examples/` (9 file) ngay bây giờ.
-2. *"7 hot path"* - **sai**. Chỉ MỘT chỗ nóng thật: `main.py:184` trong `build_system_prompt`,
-   chạy mỗi lượt chat (dashboard, Telegram, Kanban task, loop, nhắc hẹn, learn spawn). Sáu chỗ
-   còn lại là endpoint do người bấm, cộng `system_sync.py:356` chạy 1 lần/brain/process.
-3. Cảnh báo symlink và file nhị phân - **không có cơ sở**. Đĩa không có symlink/reparse point
-   nào, không file nhị phân nào (kể cả `.pke` cũng là base64 ASCII).
+1. *"SYSTEM skills stay a single SKILL.md file"* - **wrong**. `.claude/skills/html-to-webcake`
+   already ships `tools/` (4 files) + `examples/` (9 files) right now.
+2. *"7 hot paths"* - **wrong**. There is only ONE truly hot spot: `main.py:184` in
+   `build_system_prompt`, which runs every chat turn (dashboard, Telegram, Kanban task, loop,
+   reminder, learn spawn). The other six are endpoints a person triggers, plus
+   `system_sync.py:356` which runs once per brain per process.
+3. The symlink and binary file warning - **no basis**. The disk has no symlinks/reparse points
+   and no binary files (even `.pke` is base64 ASCII).
 
-**Sáu blocker khiến B4 không làm được như đã viết:**
+**Six blockers that stop B4 from working as written:**
 
-- `main.py:184` KHÔNG có cổng chặn (khác `ensure_synced` ngay trên nó, vốn được gác bởi
-  `_SYNCED_ROOTS`). Cố ý như vậy để skill viết giữa phiên hiện ra không cần khởi động lại.
-  Làm đệ quy = rglob + băm mọi file trong mọi skill dir MỖI LƯỢT CHAT. Số thật đo được:
-  `brains/My Bullet Journal/skills` = 27 dir / 41 file / 496 KB. Và chi phí tăng theo đúng
-  thứ tính năng này khuyến khích thêm vào (`references/`, `scripts/`).
-- `build_system_prompt` là hàm ĐỒNG BỘ, gọi trần từ handler async (`main.py:4359`, `:4641`).
-  Đi bộ cây thư mục sẽ chặn event loop -> đứng mọi WebSocket, Telegram poller, scheduler loop,
-  tick nhắc hẹn. Không chỉ lượt chat đó. Repo biết dùng `asyncio.to_thread` ở chỗ khác.
-- `_LOCK` là `threading.Lock` KHÔNG reentrant. `sync_brain:356` gọi `mirror_skills` khi ĐANG
-  giữ lock, nhưng 7 chỗ ở `main.py` gọi nó mà KHÔNG giữ lock nào. Nên bản đệ quy không thể
-  lấy lock (deadlock) mà cũng không thể bỏ lock (copy cây không đồng bộ đua với bản đang khoá).
-  Cần thiết kế lại, không phải sửa vài dòng.
-- Lần gọi đầu cho mỗi brain, `mirror_skills` chạy HAI LẦN liền nhau (`sync_brain` bước 3, rồi
-  `main.py:184`). Rẻ hôm nay, nhưng nhân đôi băm-cả-cây đúng lúc khởi động.
-- KHÔNG một test nào trong repo chạm `mirror_skills`. `test_system_sync.py` mà spec giả định
-  là có thì KHÔNG TỒN TẠI. Rewrite không có lưới nào.
-- Lợi ích B4 hứa thì nó KHÔNG giao được: `html-to-webcake` hỏng vì `_system_items`
-  (`system_sync.py:142-160`) chỉ ship chuỗi SKILL.md, nằm PHÍA TRÊN `mirror_skills`.
+- `main.py:184` has NO gate (unlike `ensure_synced` right above it, which is guarded by
+  `_SYNCED_ROOTS`). This is deliberate so a skill written mid-session shows up without a
+  restart. Going recursive = rglob + hash every file in every skill dir EVERY CHAT TURN.
+  Measured real numbers: `brains/My Bullet Journal/skills` = 27 dirs / 41 files / 496 KB. And
+  the cost grows with exactly the things this feature encourages adding (`references/`, `scripts/`).
+- `build_system_prompt` is a SYNCHRONOUS function, called bare from async handlers
+  (`main.py:4359`, `:4641`). Walking a directory tree would block the event loop -> every
+  WebSocket, Telegram poller, scheduler loop and reminder tick stalls. Not just that chat turn.
+  The repo knows to use `asyncio.to_thread` elsewhere.
+- `_LOCK` is a non-reentrant `threading.Lock`. `sync_brain:356` calls `mirror_skills` WHILE
+  holding the lock, but 7 places in `main.py` call it WITHOUT holding any lock. So the recursive
+  version cannot take the lock (deadlock) and cannot drop the lock either (an unsynchronized
+  tree copy races with the locked one). It needs a redesign, not a few-line fix.
+- On the first call for each brain, `mirror_skills` runs TWICE back to back (`sync_brain` step 3,
+  then `main.py:184`). Cheap today, but it doubles the whole-tree hashing right at startup.
+- NOT ONE test in the repo touches `mirror_skills`. The `test_system_sync.py` this spec assumed
+  exists does NOT EXIST. The rewrite has no safety net.
+- The benefit B4 promises it CANNOT deliver: `html-to-webcake` is broken because `_system_items`
+  (`system_sync.py:142-160`) only ships the SKILL.md string, sitting ABOVE `mirror_skills`.
 
-**Bug có thật phát hiện kèm (ghi nhận, xử sau - anh Quy quyết):**
+**A real bug found along the way (recorded, to be handled later - Quy decided):**
 
-`html-to-webcake` **đang hỏng ở MỌI brain ngay bây giờ**. SKILL.md của nó bảo agent chạy
-`tools/` và đọc `examples/`, nhưng cây con chưa bao giờ tới brain nào vì `_system_items` chỉ
-ship SKILL.md và `_atomic_write` là text-only. Bug CÓ SẴN, không do kế hoạch này gây ra.
-Sửa đòi: `_system_items` ship cả cây + manifest chuyển từ per-item sang per-file (hiện là
-một chuỗi `hash` mỗi skill, dù khoá tên là `"files"`). Manifest quyết định app có tự cập nhật
-đè skill user đã sửa hay không, nên chạm vào nó cần cẩn trọng riêng.
+`html-to-webcake` **is broken in EVERY brain right now**. Its SKILL.md tells the agent to run
+`tools/` and read `examples/`, but the subtree has never reached any brain because
+`_system_items` ships only SKILL.md and `_atomic_write` is text-only. A PRE-EXISTING bug, not
+caused by this plan. Fixing it requires: `_system_items` shipping the whole tree + the manifest
+moving from per-item to per-file (it is currently one `hash` string per skill, even though the
+key is named `"files"`). The manifest decides whether the app auto-updates over a skill the
+user edited, so touching it needs separate care.
 
-**Bug có thật thứ hai (cũng có sẵn):** cổng hash-skip của `mirror_skills` chỉ băm SKILL.md,
-nhưng vòng copy lại copy MỌI file top-level. Nên asset ngang hàng đổi mà SKILL.md không đổi
-thì bản mirror KHÔNG BAO GIỜ nhận. Đã đúng hôm nay, sẽ nặng hơn nếu có cây con.
+**A second real bug (also pre-existing):** the `mirror_skills` hash-skip gate hashes only
+SKILL.md, but the copy loop copies EVERY top-level file. So if a sibling asset changes but
+SKILL.md does not, the mirror NEVER receives it. True today, and gets worse if there is a subtree.
 
-**Dữ liệu thật:** 11/59 skill dir đã có thư mục con (10 × `references/` trong brain, cộng
-`html-to-webcake`). Nên nhu cầu là THẬT, không tưởng tượng - chỉ là cách làm trong spec này sai.
+**Real data:** 11 of 59 skill dirs already have subfolders (10 x `references/` in brains, plus
+`html-to-webcake`). So the need is REAL, not imagined - only the approach in this spec was wrong.
 
-Việc còn lại khi làm spec riêng cho B4: gác chi phí ở `main.py:184` trước, giải bài toán lock,
-dựng `test_system_sync.py` từ số 0, rồi mới đụng tới đệ quy. Và sửa `_system_items` nếu muốn
-skill hệ thống ship được cây con.
+Remaining work when writing the separate B4 spec: gate the cost at `main.py:184` first, solve
+the lock problem, build `test_system_sync.py` from zero, and only then touch recursion. And fix
+`_system_items` if system skills should be able to ship subtrees.
 
-## Ngoài phạm vi (cố ý)
+## Out of scope (deliberate)
 
-Curator gộp ô dù (C). `/learn` từ nguồn (D). Auto-archive và `.archive/`. `related_skills`
-thành graph. Máy trạng thái lifecycle đầy đủ. Skill templating kiểu `${HERMES_SKILL_DIR}`
-và shell nội tuyến.
+Umbrella-merging curator (C). `/learn` from a source (D). Auto-archive and `.archive/`.
+`related_skills` as a graph. A full lifecycle state machine. Skill templating in the style of
+`${HERMES_SKILL_DIR}` and inline shell.
 
-## Tham chiếu
+## References
 
-Repo Hermes đọc tại commit `53adb3f`. Các file đáng đọc lại khi làm C:
-`agent/learn_prompt.py` (bộ chuẩn authoring), `tools/skill_usage.py` (sidecar telemetry,
-lifecycle), `agent/curator.py` (prompt gộp ô dù, các luật cứng), `agent/background_review.py`
-(fork review sau lượt), `agent/learning_graph.py` (đồ thị hiển thị).
+Hermes repo read at commit `53adb3f`. Files worth re-reading when doing C:
+`agent/learn_prompt.py` (authoring standard), `tools/skill_usage.py` (telemetry sidecar,
+lifecycle), `agent/curator.py` (umbrella-merge prompt, hard rules), `agent/background_review.py`
+(post-turn review fork), `agent/learning_graph.py` (display graph).

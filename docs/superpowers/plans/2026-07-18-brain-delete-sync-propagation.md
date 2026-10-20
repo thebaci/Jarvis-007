@@ -1,60 +1,60 @@
-# Xóa não lan sang mọi máy qua Sync - Implementation Plan
+# Brain Deletion Propagating to Every Machine via Sync - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Một lần xóa não có chủ đích lan sang mọi máy đồng bộ (không bị "hồi sinh"), mỗi máy giữ bản sao trong thùng rác cục bộ 30 ngày.
+**Goal:** A deliberate brain deletion propagates to every synced machine (it is not "resurrected"), and each machine keeps a copy in a local trash for 30 days.
 
-**Architecture:** Ghi "giấy báo tử" (tombstone) nhỏ đồng bộ theo repo khi xóa; bước `_apply_tombstones` trong sync đọc tombstone và xóa dứt khoát não đó ở mọi máy, ghi đè đúng chính sách "xóa không thắng" chỉ cho lần xóa cố ý. Dữ liệu não chuyển vào thùng rác cục bộ (ngoài vùng đồng bộ), tự dọn sau 30 ngày.
+**Architecture:** On delete, write a small repo-synced "death notice" (tombstone); the `_apply_tombstones` step in sync reads the tombstones and definitively deletes that brain on every machine, overriding the "delete does not win" policy only for deliberate deletions. Brain data moves into a local trash (outside the sync area), cleaned automatically after 30 days.
 
-**Tech Stack:** Python 3 stdlib (git_brain.py, stdlib-only), FastAPI (main.py), vanilla JS (brains-ui.js), git CLI. Test = script standalone chạy `python test_*.py`, remote giả bằng repo `file://` cục bộ.
+**Tech Stack:** Python 3 stdlib (git_brain.py, stdlib-only), FastAPI (main.py), vanilla JS (brains-ui.js), git CLI. Tests = standalone scripts run with `python test_*.py`, fake remote = a local `file://` repo.
 
 ## Global Constraints
 
-- **Không em dash (U+2014)** ở bất kỳ đâu (code/comment/chat/UI). Dùng "-" hoặc viết lại câu.
-- `git_brain.py` chỉ dùng **stdlib**, không thêm dependency.
-- Giữ nguyên **bất biến an toàn sync**: không bao giờ push khi áp về máy chưa trọn (lỗi -> rollback mirror + hoãn push).
-- Tombstone giữ **180 ngày** (`_TOMBSTONE_TTL`); thùng rác giữ **30 ngày**. Hằng số nội bộ, không lộ UI.
-- Não **mặc định** ("Brain Default") miễn nhiễm mọi tombstone (chặn 2 lớp).
-- Test phải chạy bằng `.venv` (`../.venv/Scripts/python.exe` từ `server/`), python hệ thống thiếu lib.
-- Comment/tên/chuỗi tiếng Việt là chính, khớp phong cách file hiện có.
+- **No em dash (U+2014)** anywhere (code/comments/chat/UI). Use "-" or rewrite the sentence.
+- `git_brain.py` uses **stdlib only**, no new dependencies.
+- Keep the **sync safety invariant**: never push when applying to the machine is incomplete (on error -> roll back the mirror + defer the push).
+- Tombstones are kept **180 days** (`_TOMBSTONE_TTL`); the trash is kept **30 days**. Internal constants, not exposed in the UI.
+- The **default** brain ("Brain Default") is immune to every tombstone (two layers of blocking).
+- Tests must run with `.venv` (`../.venv/Scripts/python.exe` from `server/`); the system python lacks libs.
+- Comments, names and strings match the style of the existing files.
 
 ---
 
 ## File Structure
 
-- `server/git_brain.py` (Modify): thêm helpers tombstone + thùng rác + `_apply_tombstones`, nới `sync_brains`/`_sync_brains_locked` để nhận `trash_dir`/`protected_names`, GC đầu sync, áp tombstone sau integrate.
-- `server/main.py` (Modify): viết lại `/brains/delete` (move-to-trash + tombstone + eager sync); `/brains/new` gỡ tombstone cùng tên; `_do_backup` truyền `trash_dir`/`protected_names`.
-- `server/test_brain_tombstone.py` (Create): test helpers tombstone.
-- `server/test_brain_trash.py` (Create): test helpers thùng rác + `_dir_newer_than`.
-- `server/test_brain_delete_sync.py` (Create): test tích hợp 2 mirror + remote `file://` (lan xóa, chốt thời gian, bảo vệ khi không tombstone, não mặc định).
-- `server/test_brain_delete_endpoint.py` (Create): test endpoint `/brains/delete` + `/brains/new`.
-- `dashboard/brains-ui.js` (Modify): đổi lời xác nhận xóa.
+- `server/git_brain.py` (Modify): add tombstone + trash helpers + `_apply_tombstones`, extend `sync_brains`/`_sync_brains_locked` to accept `trash_dir`/`protected_names`, GC at the start of sync, apply tombstones after integrate.
+- `server/main.py` (Modify): rewrite `/brains/delete` (move-to-trash + tombstone + eager sync); `/brains/new` removes the tombstone of the same name; `_do_backup` passes `trash_dir`/`protected_names`.
+- `server/test_brain_tombstone.py` (Create): tests for the tombstone helpers.
+- `server/test_brain_trash.py` (Create): tests for the trash helpers + `_dir_newer_than`.
+- `server/test_brain_delete_sync.py` (Create): integration test with 2 mirrors + a `file://` remote (delete propagation, time cutoff, protection without a tombstone, default brain).
+- `server/test_brain_delete_endpoint.py` (Create): tests for the `/brains/delete` + `/brains/new` endpoints.
+- `dashboard/brains-ui.js` (Modify): change the delete confirmation text.
 - `dashboard/index.html` (Modify): bump `brains-ui.js?v=6 -> v=7`.
-- `CHANGELOG.md`, `VERSION` (Modify): mục 0.9.76.
+- `CHANGELOG.md`, `VERSION` (Modify): entry 0.9.76.
 
 ---
 
-## Task 1: Helpers giấy báo tử (tombstone) trong git_brain.py
+## Task 1: Tombstone helpers in git_brain.py
 
 **Files:**
-- Modify: `server/git_brain.py` (thêm sau khối BACKUP, trước `class BrainLock`; thêm `import json` ở đầu file)
+- Modify: `server/git_brain.py` (add after the BACKUP block, before `class BrainLock`; add `import json` at the top of the file)
 - Test: `server/test_brain_tombstone.py`
 
 **Interfaces:**
 - Produces:
-  - `TOMBSTONE_DIR = ".javis-tombstones"` (str, hằng)
+  - `TOMBSTONE_DIR = ".javis-tombstones"` (str, constant)
   - `write_tombstone(brains_dir: str, name: str) -> None`
   - `clear_tombstone(brains_dir: str, name: str) -> None`
-  - `_read_tombstones(root: str) -> list[dict]` (mỗi dict có `name`, `deleted_at`, `host`, `v`, và `_file` = tên file)
+  - `_read_tombstones(root: str) -> list[dict]` (each dict has `name`, `deleted_at`, `host`, `v`, and `_file` = file name)
   - `gc_tombstones(brains_dir: str, ttl: int = _TOMBSTONE_TTL) -> int`
   - `_TOMBSTONE_TTL = 180 * 86400` (int)
 
-- [ ] **Step 1: Viết test thất bại** — `server/test_brain_tombstone.py`
+- [ ] **Step 1: Write the failing test** - `server/test_brain_tombstone.py`
 
 ```python
-"""Test helpers giấy báo tử (tombstone) của git_brain. Chạy:
+"""Tests for the git_brain tombstone helpers. Run:
     cd server && ../.venv/Scripts/python.exe test_brain_tombstone.py
-KHÔNG mạng."""
+NO network."""
 import os, sys, time, tempfile
 from pathlib import Path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -67,22 +67,22 @@ def check(name, cond):
 
 BR = Path(tempfile.mkdtemp(prefix="jv-tomb-")).resolve()
 
-# write -> đọc lại đúng nội dung, file đúng tên
+# write -> read back the right content, file has the right name
 gb.write_tombstone(str(BR), "Ngọc Thu Phạm")
 p = BR / gb.TOMBSTONE_DIR / "Ngọc Thu Phạm.json"
-check("write_tombstone tạo đúng file", p.is_file())
+check("write_tombstone creates the right file", p.is_file())
 ts = gb._read_tombstones(str(BR))
-check("read_tombstones trả 1 mục", len(ts) == 1)
-check("mục có name đúng (giữ dấu)", ts and ts[0]["name"] == "Ngọc Thu Phạm")
-check("mục có deleted_at là số > 0", ts and isinstance(ts[0]["deleted_at"], int) and ts[0]["deleted_at"] > 0)
+check("read_tombstones returns 1 entry", len(ts) == 1)
+check("entry has the right name (diacritics kept)", ts and ts[0]["name"] == "Ngọc Thu Phạm")
+check("entry has deleted_at as a number > 0", ts and isinstance(ts[0]["deleted_at"], int) and ts[0]["deleted_at"] > 0)
 
-# clear -> hết
+# clear -> gone
 gb.clear_tombstone(str(BR), "Ngọc Thu Phạm")
-check("clear_tombstone gỡ file", not p.exists())
-check("read sau clear = rỗng", gb._read_tombstones(str(BR)) == [])
-check("clear tên không tồn tại không ném", (gb.clear_tombstone(str(BR), "Không Có") or True))
+check("clear_tombstone removes the file", not p.exists())
+check("read after clear = empty", gb._read_tombstones(str(BR)) == [])
+check("clear on a missing name does not raise", (gb.clear_tombstone(str(BR), "Không Có") or True))
 
-# gc_tombstones: mục quá hạn bị xóa, mục mới giữ
+# gc_tombstones: expired entries are removed, new ones kept
 gb.write_tombstone(str(BR), "Cu")
 old = BR / gb.TOMBSTONE_DIR / "Cu.json"
 import json
@@ -90,22 +90,22 @@ d = json.loads(old.read_text(encoding="utf-8")); d["deleted_at"] = int(time.time
 old.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
 gb.write_tombstone(str(BR), "Moi")
 n = gb.gc_tombstones(str(BR))
-check("gc xóa đúng 1 mục quá hạn", n == 1)
+check("gc removes exactly 1 expired entry", n == 1)
 names = {t["name"] for t in gb._read_tombstones(str(BR))}
-check("gc giữ mục mới, bỏ mục cũ", names == {"Moi"})
+check("gc keeps the new entry, drops the old one", names == {"Moi"})
 
-print(); print("TẤT CẢ PASS" if not _fails else f"{len(_fails)} FAIL: {_fails}")
+print(); print("ALL PASS" if not _fails else f"{len(_fails)} FAIL: {_fails}")
 sys.exit(1 if _fails else 0)
 ```
 
-- [ ] **Step 2: Chạy test để chắc nó FAIL**
+- [ ] **Step 2: Run the test to make sure it FAILS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_brain_tombstone.py`
-Expected: FAIL/AttributeError vì `git_brain` chưa có `write_tombstone`/`TOMBSTONE_DIR`.
+Expected: FAIL/AttributeError because `git_brain` has no `write_tombstone`/`TOMBSTONE_DIR` yet.
 
-- [ ] **Step 3: Thêm `import json` vào đầu `git_brain.py`**
+- [ ] **Step 3: Add `import json` at the top of `git_brain.py`**
 
-Sửa khối import đầu file (hiện có `import os, shutil, subprocess, time`), thêm `import json`:
+Edit the import block at the top of the file (it currently has `import os, shutil, subprocess, time`), adding `import json`:
 
 ```python
 import json
@@ -115,16 +115,16 @@ import subprocess
 import time
 ```
 
-- [ ] **Step 4: Thêm helpers tombstone** vào `git_brain.py`, đặt NGAY TRƯỚC dòng `# ============================================================` của khối `BrainLock` (khoảng dòng 698):
+- [ ] **Step 4: Add the tombstone helpers** to `git_brain.py`, placed RIGHT BEFORE the `# ============================================================` line of the `BrainLock` block (around line 698):
 
 ```python
 # ============================================================
-# GIẤY BÁO TỬ (tombstone) - đánh dấu não bị xóa CÓ CHỦ ĐÍCH để lan việc xóa sang mọi máy.
-# Một file cho mỗi não trong <brains_dir>/.javis-tombstones/<tên não>.json. Đồng bộ theo repo
-# (không nằm trong _backup_skip), KHÔNG hiện thành não (/brains bỏ tên bắt đầu bằng '.').
+# TOMBSTONE (death notice) - marks a brain DELIBERATELY deleted so the deletion propagates to every machine.
+# One file per brain in <brains_dir>/.javis-tombstones/<brain name>.json. Synced with the repo
+# (not in _backup_skip), NOT shown as a brain (/brains skips names starting with '.').
 # ============================================================
 TOMBSTONE_DIR = ".javis-tombstones"
-_TOMBSTONE_TTL = 180 * 86400   # giữ 180 ngày: lâu hơn thùng rác để máy offline lâu quay lại không hồi sinh
+_TOMBSTONE_TTL = 180 * 86400   # keep 180 days: longer than the trash so a machine that was offline for a long time does not resurrect it
 
 
 def _tombstone_path(brains_dir: str, name: str) -> Path:
@@ -132,19 +132,19 @@ def _tombstone_path(brains_dir: str, name: str) -> Path:
 
 
 def write_tombstone(brains_dir: str, name: str) -> None:
-    """Ghi giấy báo tử cho não <name> (đã bị xóa có chủ đích). Ghi nguyên tử (.tmp -> replace)."""
+    """Write the tombstone for brain <name> (deliberately deleted). Atomic write (.tmp -> replace)."""
     if not name:
         return
     p = _tombstone_path(brains_dir, name)
     p.parent.mkdir(parents=True, exist_ok=True)
     data = {"name": name, "deleted_at": int(time.time()), "host": _host_tag(), "v": 1}
-    tmp = Path(str(p) + ".tmp")   # đuôi .tmp -> nằm trong _backup_skip, không lọt vào backup
+    tmp = Path(str(p) + ".tmp")   # .tmp suffix -> covered by _backup_skip, never ends up in the backup
     tmp.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
     os.replace(str(tmp), str(p))
 
 
 def clear_tombstone(brains_dir: str, name: str) -> None:
-    """Gỡ giấy báo tử của não <name> (khi tạo lại não cùng tên) để không bị xóa oan."""
+    """Remove the tombstone of brain <name> (when a brain of the same name is recreated) so it is not deleted by mistake."""
     try:
         _tombstone_path(brains_dir, name).unlink()
     except FileNotFoundError:
@@ -154,7 +154,7 @@ def clear_tombstone(brains_dir: str, name: str) -> None:
 
 
 def _read_tombstones(root: str) -> List[dict]:
-    """Đọc mọi giấy báo tử trong <root>/.javis-tombstones/. Bỏ file hỏng. Gắn _file = tên file."""
+    """Read every tombstone in <root>/.javis-tombstones/. Skip broken files. Attach _file = file name."""
     d = Path(root) / TOMBSTONE_DIR
     out: List[dict] = []
     if not d.is_dir():
@@ -171,7 +171,7 @@ def _read_tombstones(root: str) -> List[dict]:
 
 
 def gc_tombstones(brains_dir: str, ttl: int = _TOMBSTONE_TTL) -> int:
-    """Xóa giấy báo tử quá hạn (mặc định 180 ngày). Trả số file đã xóa."""
+    """Delete expired tombstones (default 180 days). Returns the number of files deleted."""
     now = int(time.time())
     n = 0
     for t in _read_tombstones(brains_dir):
@@ -184,38 +184,38 @@ def gc_tombstones(brains_dir: str, ttl: int = _TOMBSTONE_TTL) -> int:
     return n
 ```
 
-- [ ] **Step 5: Chạy test để chắc nó PASS**
+- [ ] **Step 5: Run the test to make sure it PASSES**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_brain_tombstone.py`
-Expected: `TẤT CẢ PASS`
+Expected: `ALL PASS`
 
 - [ ] **Step 6: Commit**
 
 ```bash
 git add server/git_brain.py server/test_brain_tombstone.py
-git commit -m "feat(sync): helpers giay bao tu (tombstone) trong git_brain
+git commit -m "feat(sync): tombstone (death notice) helpers in git_brain
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ---
 
-## Task 2: Helpers thùng rác + `_dir_newer_than` trong git_brain.py
+## Task 2: Trash helpers + `_dir_newer_than` in git_brain.py
 
 **Files:**
-- Modify: `server/git_brain.py` (thêm ngay sau khối tombstone của Task 1)
+- Modify: `server/git_brain.py` (add right after the tombstone block from Task 1)
 - Test: `server/test_brain_trash.py`
 
 **Interfaces:**
 - Produces:
-  - `move_to_trash(brain_dir: str, trash_dir: str, name: str) -> Optional[str]` (trả path đích trong thùng rác, hoặc None nếu nguồn không phải thư mục; retry 3 lần cho Windows file-in-use)
+  - `move_to_trash(brain_dir: str, trash_dir: str, name: str) -> Optional[str]` (returns the destination path in the trash, or None if the source is not a directory; retries 3 times for Windows file-in-use)
   - `gc_trash(trash_dir: str, days: int = 30) -> int`
-  - `_dir_newer_than(root: str, ts: int) -> bool` (có file nào trong root có mtime > ts + 1s)
+  - `_dir_newer_than(root: str, ts: int) -> bool` (is any file in root newer than ts + 1s by mtime)
 
-- [ ] **Step 1: Viết test thất bại** — `server/test_brain_trash.py`
+- [ ] **Step 1: Write the failing test** - `server/test_brain_trash.py`
 
 ```python
-"""Test helpers thùng rác + _dir_newer_than của git_brain. Chạy:
+"""Tests for the git_brain trash helpers + _dir_newer_than. Run:
     cd server && ../.venv/Scripts/python.exe test_brain_trash.py"""
 import os, sys, time, tempfile
 from pathlib import Path
@@ -232,48 +232,48 @@ BR = TMP / "brains"; TRASH = TMP / "trash"
 brain = BR / "Foo"; (brain / "sub").mkdir(parents=True)
 (brain / "note.md").write_text("hi", encoding="utf-8")
 
-# move_to_trash: nguồn biến mất, đích xuất hiện trong thùng rác
+# move_to_trash: the source disappears, the destination shows up in the trash
 dest = gb.move_to_trash(str(brain), str(TRASH), "Foo")
-check("move_to_trash trả path đích", bool(dest))
-check("nguồn đã biến khỏi brains", not brain.exists())
-check("đích nằm trong thùng rác + còn note", dest and Path(dest, "note.md").read_text(encoding="utf-8") == "hi")
-check("move nguồn không tồn tại -> None", gb.move_to_trash(str(BR / "KhongCo"), str(TRASH), "KhongCo") is None)
+check("move_to_trash returns the destination path", bool(dest))
+check("source is gone from brains", not brain.exists())
+check("destination is in the trash and still has note", dest and Path(dest, "note.md").read_text(encoding="utf-8") == "hi")
+check("move of a missing source -> None", gb.move_to_trash(str(BR / "KhongCo"), str(TRASH), "KhongCo") is None)
 
 # _dir_newer_than
 d2 = BR / "Bar"; d2.mkdir(parents=True)
 f = d2 / "x.md"; f.write_text("x", encoding="utf-8")
 past = int(time.time()) - 1000; future = int(time.time()) + 1000
-check("_dir_newer_than: có file mới hơn mốc quá khứ", gb._dir_newer_than(str(d2), past) is True)
-check("_dir_newer_than: không file nào mới hơn mốc tương lai", gb._dir_newer_than(str(d2), future) is False)
+check("_dir_newer_than: a file is newer than a past cutoff", gb._dir_newer_than(str(d2), past) is True)
+check("_dir_newer_than: no file is newer than a future cutoff", gb._dir_newer_than(str(d2), future) is False)
 check("_dir_newer_than: ts<=0 -> False", gb._dir_newer_than(str(d2), 0) is False)
 
-# gc_trash: mục quá 30 ngày bị dọn, mục mới giữ
+# gc_trash: entries older than 30 days are cleaned, new ones kept
 oldt = TRASH / "Old__20200101-000000"; oldt.mkdir(parents=True)
 os.utime(oldt, (time.time() - 40 * 86400, time.time() - 40 * 86400))
 newt = TRASH / "New__20990101-000000"; newt.mkdir(parents=True)
 n = gb.gc_trash(str(TRASH), 30)
-check("gc_trash dọn mục >30 ngày", not oldt.exists() and n >= 1)
-check("gc_trash giữ mục mới", newt.exists())
+check("gc_trash cleans entries older than 30 days", not oldt.exists() and n >= 1)
+check("gc_trash keeps new entries", newt.exists())
 
-print(); print("TẤT CẢ PASS" if not _fails else f"{len(_fails)} FAIL: {_fails}")
+print(); print("ALL PASS" if not _fails else f"{len(_fails)} FAIL: {_fails}")
 sys.exit(1 if _fails else 0)
 ```
 
-- [ ] **Step 2: Chạy test để chắc nó FAIL**
+- [ ] **Step 2: Run the test to make sure it FAILS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_brain_trash.py`
-Expected: FAIL/AttributeError (`move_to_trash` chưa có).
+Expected: FAIL/AttributeError (`move_to_trash` does not exist yet).
 
-- [ ] **Step 3: Thêm helpers thùng rác** vào `git_brain.py`, ngay sau `gc_tombstones` (Task 1):
+- [ ] **Step 3: Add the trash helpers** to `git_brain.py`, right after `gc_tombstones` (Task 1):
 
 ```python
 # ============================================================
-# THÙNG RÁC CỤC BỘ - giữ bản sao não đã xóa (30 ngày) để cứu hộ. NGOÀI vùng đồng bộ (không lên git).
+# LOCAL TRASH - keeps a copy of a deleted brain (30 days) for rescue. OUTSIDE the sync area (never goes to git).
 # ============================================================
 def move_to_trash(brain_dir: str, trash_dir: str, name: str) -> Optional[str]:
-    """Chuyển thư mục não vào thùng rác <trash_dir>/<name>__<ts>/. Trả path đích hoặc None nếu
-    nguồn không phải thư mục. shutil.move xử lý cả khác ổ đĩa. Retry 3 lần: Windows có thể kẹt
-    handle (engine đang mở file trong não) - chờ ngắn rồi thử lại."""
+    """Move the brain folder into the trash <trash_dir>/<name>__<ts>/. Returns the destination path, or None if
+    the source is not a directory. shutil.move also handles a different drive. Retries 3 times: Windows can
+    hold a handle (an engine has a file in the brain open) - wait briefly and try again."""
     src = Path(brain_dir)
     if not src.is_dir():
         return None
@@ -296,7 +296,7 @@ def move_to_trash(brain_dir: str, trash_dir: str, name: str) -> Optional[str]:
 
 
 def gc_trash(trash_dir: str, days: int = 30) -> int:
-    """Xóa các mục trong thùng rác cũ hơn <days> ngày (theo mtime thư mục). Trả số mục đã xóa."""
+    """Delete trash entries older than <days> days (by folder mtime). Returns the number of entries deleted."""
     d = Path(trash_dir)
     if not d.is_dir():
         return 0
@@ -313,8 +313,8 @@ def gc_trash(trash_dir: str, days: int = 30) -> int:
 
 
 def _dir_newer_than(root: str, ts: int) -> bool:
-    """Có file nào trong root có mtime > ts (dung sai +1s) không? Bỏ .git nested. Dùng cho chốt
-    thời gian: não dựng/sửa lại SAU khi có tombstone thì không bị xóa oan."""
+    """Is any file in root newer than ts by mtime (tolerance +1s)? Skips nested .git. Used for the time
+    cutoff: a brain rebuilt/edited AFTER the tombstone is not deleted by mistake."""
     if ts <= 0:
         return False
     for dp, dn, fns in os.walk(root):
@@ -328,42 +328,42 @@ def _dir_newer_than(root: str, ts: int) -> bool:
     return False
 ```
 
-- [ ] **Step 4: Chạy test để chắc nó PASS**
+- [ ] **Step 4: Run the test to make sure it PASSES**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_brain_trash.py`
-Expected: `TẤT CẢ PASS`
+Expected: `ALL PASS`
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add server/git_brain.py server/test_brain_trash.py
-git commit -m "feat(sync): helpers thung rac cuc bo + _dir_newer_than
+git commit -m "feat(sync): local trash helpers + _dir_newer_than
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ---
 
-## Task 3: `_apply_tombstones` + đấu vào luồng sync
+## Task 3: `_apply_tombstones` + hook into the sync flow
 
 **Files:**
-- Modify: `server/git_brain.py` (`_apply_tombstones` mới; nới `sync_brains` + `_sync_brains_locked`)
-- Modify: `server/main.py` (`_do_backup` truyền `trash_dir`/`protected_names`, dòng ~1208-1209)
+- Modify: `server/git_brain.py` (new `_apply_tombstones`; extend `sync_brains` + `_sync_brains_locked`)
+- Modify: `server/main.py` (`_do_backup` passes `trash_dir`/`protected_names`, lines ~1208-1209)
 - Test: `server/test_brain_delete_sync.py`
 
 **Interfaces:**
-- Consumes: `write_tombstone`, `_read_tombstones`, `move_to_trash`, `gc_trash`, `gc_tombstones`, `_dir_newer_than` (Task 1-2); `_git`, `_rollback_mirror`, `_host_tag`, `_BACKUP_SKIP_DIRS`.
+- Consumes: `write_tombstone`, `_read_tombstones`, `move_to_trash`, `gc_trash`, `gc_tombstones`, `_dir_newer_than` (Tasks 1-2); `_git`, `_rollback_mirror`, `_host_tag`, `_BACKUP_SKIP_DIRS`.
 - Produces:
-  - `_apply_tombstones(brains_dir, mirror_dir, trash_dir, protected_names) -> dict` trả `{"deleted": [str], "superseded": [str], "failed": [str]}`
-  - `sync_brains(..., trash_dir=None, protected_names=None)` - thêm 2 kwarg (mặc định giữ tương thích)
-  - `rep["brains_deleted"]: list[str]` trong kết quả sync
+  - `_apply_tombstones(brains_dir, mirror_dir, trash_dir, protected_names) -> dict` returns `{"deleted": [str], "superseded": [str], "failed": [str]}`
+  - `sync_brains(..., trash_dir=None, protected_names=None)` - two added kwargs (defaults keep compatibility)
+  - `rep["brains_deleted"]: list[str]` in the sync result
 
-- [ ] **Step 1: Viết test tích hợp thất bại** — `server/test_brain_delete_sync.py`
+- [ ] **Step 1: Write the failing integration test** - `server/test_brain_delete_sync.py`
 
 ```python
-"""Test tích hợp: xóa não lan sang máy khác qua sync (remote file:// cục bộ). Chạy:
+"""Integration test: deleting a brain propagates to another machine via sync (local file:// remote). Run:
     cd server && ../.venv/Scripts/python.exe test_brain_delete_sync.py
-Cần git trong PATH. KHÔNG mạng thật."""
+Needs git in PATH. NO real network."""
 import os, sys, time, tempfile, subprocess
 from pathlib import Path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -375,13 +375,13 @@ def check(name, cond):
     if not cond: _fails.append(name)
 
 if not gb.has_git():
-    print("SKIP: máy không có git"); sys.exit(0)
+    print("SKIP: this machine has no git"); sys.exit(0)
 
 ROOT = Path(tempfile.mkdtemp(prefix="jv-delsync-")).resolve()
 REMOTE = ROOT / "remote.git"
 subprocess.run(["git", "init", "--bare", str(REMOTE)], capture_output=True)
 URL = "file:///" + str(REMOTE).replace("\\", "/").lstrip("/")
-TOKEN = "x"  # file:// không dùng token nhưng sync_brains yêu cầu non-empty
+TOKEN = "x"  # file:// does not use a token but sync_brains requires non-empty
 
 def machine(tag):
     b = ROOT / tag / "brains"; m = ROOT / tag / "mirror"; t = ROOT / tag / "trash"
@@ -396,68 +396,68 @@ def sync(brains, mirror, trash):
     return gb.sync_brains(brains, mirror, URL, TOKEN, "main",
                           trash_dir=trash, protected_names={"Brain Default"})
 
-# --- Dựng: A tạo Foo, đẩy lên; B kéo về -> cả hai + remote đều có Foo ---
+# --- Setup: A creates Foo and pushes; B pulls -> both + the remote have Foo ---
 Ab, Am, At = machine("A"); Bb, Bm, Bt = machine("B")
 seed(Ab, "Foo"); sync(Ab, Am, At)
 sync(Bb, Bm, Bt)
-check("B nhận được Foo từ remote", (Path(Bb) / "Foo" / "note.md").exists())
+check("B received Foo from the remote", (Path(Bb) / "Foo" / "note.md").exists())
 
-# --- A xóa Foo (move trash + tombstone) rồi sync ---
+# --- A deletes Foo (move trash + tombstone) then syncs ---
 gb.move_to_trash(str(Path(Ab) / "Foo"), At, "Foo")
 gb.write_tombstone(Ab, "Foo")
 r = sync(Ab, Am, At)
-check("A: sync sau xóa ok", r.get("ok"))
-check("A: Foo không còn trong brains", not (Path(Ab) / "Foo").exists())
+check("A: sync after delete ok", r.get("ok"))
+check("A: Foo is no longer in brains", not (Path(Ab) / "Foo").exists())
 
-# --- B sync -> Foo bị xóa ở B + vào thùng rác B, remote sạch ---
+# --- B syncs -> Foo is deleted on B + goes to B's trash, remote is clean ---
 r2 = sync(Bb, Bm, Bt)
 check("B: sync ok", r2.get("ok"))
-check("B: Foo bị xóa khỏi brains", not (Path(Bb) / "Foo").exists())
+check("B: Foo was removed from brains", not (Path(Bb) / "Foo").exists())
 trashed = list(Path(Bt).glob("Foo__*")) if Path(Bt).is_dir() else []
-check("B: Foo nằm trong thùng rác B", len(trashed) == 1 and (trashed[0] / "note.md").exists())
+check("B: Foo is in B's trash", len(trashed) == 1 and (trashed[0] / "note.md").exists())
 
-# --- Chốt thời gian: tạo LẠI Foo mới ở A (mtime mới) rồi sync -> KHÔNG bị xóa, tombstone gỡ ---
+# --- Time cutoff: recreate a NEW Foo on A (new mtime) then sync -> NOT deleted, tombstone removed ---
 seed(Ab, "Foo", "moi")
-os.utime(Path(Ab) / "Foo" / "note.md", None)  # mtime = bây giờ > deleted_at
+os.utime(Path(Ab) / "Foo" / "note.md", None)  # mtime = now > deleted_at
 r3 = sync(Ab, Am, At)
-check("A: Foo dựng lại KHÔNG bị xóa (chốt thời gian)", (Path(Ab) / "Foo" / "note.md").exists())
-check("A: tombstone Foo đã gỡ", not (Path(Ab) / gb.TOMBSTONE_DIR / "Foo.json").exists())
+check("A: a rebuilt Foo is NOT deleted (time cutoff)", (Path(Ab) / "Foo" / "note.md").exists())
+check("A: Foo's tombstone was removed", not (Path(Ab) / gb.TOMBSTONE_DIR / "Foo.json").exists())
 
-# --- Bảo vệ khi KHÔNG tombstone: xóa tay Bar khỏi brains B -> sync khôi phục, không mất ---
+# --- Protection WITHOUT a tombstone: hand-delete Bar from B's brains -> sync restores it, nothing lost ---
 Cb, Cm, Ct = machine("C")
-seed(Cb, "Bar"); sync(Cb, Cm, Ct)   # đẩy Bar lên remote
-Db, Dm, Dt = machine("D"); sync(Db, Dm, Dt)  # D kéo Bar về
-import shutil as _sh; _sh.rmtree(str(Path(Db) / "Bar"))  # xóa TAY, KHÔNG tombstone
+seed(Cb, "Bar"); sync(Cb, Cm, Ct)   # push Bar to the remote
+Db, Dm, Dt = machine("D"); sync(Db, Dm, Dt)  # D pulls Bar
+import shutil as _sh; _sh.rmtree(str(Path(Db) / "Bar"))  # deleted BY HAND, NO tombstone
 sync(Db, Dm, Dt)
-check("Bảo vệ: Bar biến mất không tombstone -> được khôi phục", (Path(Db) / "Bar").exists())
+check("Protection: Bar vanished without a tombstone -> restored", (Path(Db) / "Bar").exists())
 
-# --- Não mặc định miễn nhiễm: tombstone giả trỏ 'Brain Default' -> không bị xóa ---
+# --- Default brain is immune: a fake tombstone pointing at 'Brain Default' -> not deleted ---
 Eb, Em, Et = machine("E")
 seed(Eb, "Brain Default"); gb.write_tombstone(Eb, "Brain Default")
 sync(Eb, Em, Et)
-check("Não mặc định miễn nhiễm tombstone", (Path(Eb) / "Brain Default").exists())
+check("Default brain is immune to tombstones", (Path(Eb) / "Brain Default").exists())
 
-print(); print("TẤT CẢ PASS" if not _fails else f"{len(_fails)} FAIL: {_fails}")
+print(); print("ALL PASS" if not _fails else f"{len(_fails)} FAIL: {_fails}")
 sys.exit(1 if _fails else 0)
 ```
 
-- [ ] **Step 2: Chạy test để chắc nó FAIL**
+- [ ] **Step 2: Run the test to make sure it FAILS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_brain_delete_sync.py`
-Expected: FAIL - `sync_brains()` chưa nhận `trash_dir`/`protected_names` (TypeError) hoặc lan xóa chưa hoạt động.
+Expected: FAIL - `sync_brains()` does not accept `trash_dir`/`protected_names` yet (TypeError) or delete propagation does not work yet.
 
-- [ ] **Step 3: Thêm `_apply_tombstones`** vào `git_brain.py`, đặt ngay TRƯỚC `def sync_brains(` (khoảng dòng 601):
+- [ ] **Step 3: Add `_apply_tombstones`** to `git_brain.py`, placed right BEFORE `def sync_brains(` (around line 601):
 
 ```python
 def _apply_tombstones(brains_dir: str, mirror_dir: str, trash_dir: str,
                       protected_names) -> dict:
-    """Áp giấy báo tử: xóa DỨT KHOÁT các não có tombstone (ghi đè chính sách 'xóa không thắng'),
-    chỉ cho lần xóa cố ý. Đọc tombstone từ MIRROR sau hoà nhập (= union mọi máy).
-    - Chốt thời gian: não còn sống mà có file mtime > deleted_at -> dựng/sửa lại có chủ đích ->
-      BỎ QUA + gỡ tombstone (superseded, propagate việc gỡ).
-    - Xóa: brains_dir/<name> -> thùng rác; mirror/<name> -> git rm -r (stage) để đẩy đi.
-    - An toàn: bỏ qua não mặc định (protected_names) + tên phải là con TRỰC TIẾP của brains_dir.
-    Trả {deleted, superseded, failed}."""
+    """Apply tombstones: DEFINITIVELY delete brains that have a tombstone (overriding the 'delete does not win'
+    policy), only for deliberate deletions. Reads tombstones from the MIRROR after the merge (= union of all machines).
+    - Time cutoff: a still-living brain that has a file with mtime > deleted_at was deliberately rebuilt/edited ->
+      SKIP + remove the tombstone (superseded, propagating the removal).
+    - Delete: brains_dir/<name> -> trash; mirror/<name> -> git rm -r (staged) so it gets pushed.
+    - Safety: skip the default brain (protected_names) + the name must be a DIRECT child of brains_dir.
+    Returns {deleted, superseded, failed}."""
     rep = {"deleted": [], "superseded": [], "failed": []}
     protected = set(protected_names or ())
     tombs = _read_tombstones(mirror_dir)
@@ -473,11 +473,11 @@ def _apply_tombstones(brains_dir: str, mirror_dir: str, trash_dir: str,
         bp = Path(brains_dir) / name
         mp = Path(mirror_dir) / name
         try:
-            if bp.resolve().parent != base:   # chỉ con trực tiếp của brains_dir
+            if bp.resolve().parent != base:   # only direct children of brains_dir
                 continue
         except Exception:
             continue
-        # Chốt thời gian: dựng lại có chủ đích -> giữ + gỡ tombstone
+        # Time cutoff: deliberately rebuilt -> keep + remove the tombstone
         if bp.is_dir() and _dir_newer_than(str(bp), deleted_at):
             _git(mirror_dir, "rm", "-f", "--", f"{TOMBSTONE_DIR}/{t['_file']}")
             try:
@@ -487,7 +487,7 @@ def _apply_tombstones(brains_dir: str, mirror_dir: str, trash_dir: str,
             changed_mirror = True
             rep["superseded"].append(name)
             continue
-        # Xóa dứt khoát
+        # Definitive delete
         ok = True
         if bp.is_dir():
             try:
@@ -507,115 +507,115 @@ def _apply_tombstones(brains_dir: str, mirror_dir: str, trash_dir: str,
         else:
             rep["failed"].append(name)
     if changed_mirror:
-        _git(mirror_dir, "commit", "-m", f"sync: áp giấy báo tử ({_host_tag()})")
+        _git(mirror_dir, "commit", "-m", f"sync: apply tombstones ({_host_tag()})")
     return rep
 ```
 
-- [ ] **Step 4: Nới `sync_brains` nhận 2 kwarg** - sửa signature (dòng ~601) và lời gọi `_sync_brains_locked` (dòng ~613):
+- [ ] **Step 4: Extend `sync_brains` to accept 2 kwargs** - edit the signature (line ~601) and the `_sync_brains_locked` call (line ~613):
 
-Từ:
+From:
 ```python
 def sync_brains(brains_dir: str, mirror_dir: str, repo_url: str, token: str, branch: str = "main") -> dict:
 ```
-Thành:
+To:
 ```python
 def sync_brains(brains_dir: str, mirror_dir: str, repo_url: str, token: str, branch: str = "main",
                 trash_dir: Optional[str] = None, protected_names=None) -> dict:
 ```
-Và trong thân, đổi lời gọi:
+And in the body, change the call:
 ```python
         return _sync_brains_locked(str(brains_dir), str(mirror_dir), repo_url, token, branch)
 ```
-thành:
+to:
 ```python
         return _sync_brains_locked(str(brains_dir), str(mirror_dir), repo_url, token, branch,
                                    trash_dir, protected_names)
 ```
 
-- [ ] **Step 5: Nới `_sync_brains_locked`** - signature (dòng ~620), rep init (thêm `brains_deleted`), GC đầu hàm, và chèn `_apply_tombstones` sau integrate.
+- [ ] **Step 5: Extend `_sync_brains_locked`** - signature (line ~620), rep init (add `brains_deleted`), GC at the start of the function, and insert `_apply_tombstones` after integrate.
 
-Signature từ:
+Signature, from:
 ```python
 def _sync_brains_locked(brains_dir: str, mirror_dir: str, repo_url: str, token: str, branch: str) -> dict:
 ```
-thành:
+to:
 ```python
 def _sync_brains_locked(brains_dir: str, mirror_dir: str, repo_url: str, token: str, branch: str,
                         trash_dir: Optional[str] = None, protected_names=None) -> dict:
 ```
 
-Ngay sau dòng `rep = {...}` (dòng 621-623), thêm khối chuẩn bị trash_dir + GC (đặt trước `Path(mirror_dir).mkdir(...)`):
+Right after the `rep = {...}` line (lines 621-623), add the trash_dir preparation + GC block (placed before `Path(mirror_dir).mkdir(...)`):
 ```python
     if not trash_dir:
-        trash_dir = str(Path(mirror_dir).parent / "brain-trash")   # cạnh mirror (đều trong STATE_DIR)
-    gc_trash(trash_dir, 30)              # dọn thùng rác quá 30 ngày
-    gc_tombstones(brains_dir, _TOMBSTONE_TTL)   # dọn giấy báo tử quá 180 ngày
+        trash_dir = str(Path(mirror_dir).parent / "brain-trash")   # next to the mirror (both inside STATE_DIR)
+    gc_trash(trash_dir, 30)              # clean trash older than 30 days
+    gc_tombstones(brains_dir, _TOMBSTONE_TTL)   # clean tombstones older than 180 days
 ```
-Và thêm `"brains_deleted": []` vào dict `rep` (ví dụ cạnh `"deleted_sample": []`).
+And add `"brains_deleted": []` to the `rep` dict (for example next to `"deleted_sample": []`).
 
-Chèn `_apply_tombstones` NGAY SAU khối integrate (sau dòng `changed = _changed_by_integration(mirror_dir, pre_head)`, dòng ~662) và TRƯỚC khối tự-vá (dòng ~663 `# Tự vá...`):
+Insert `_apply_tombstones` RIGHT AFTER the integrate block (after the line `changed = _changed_by_integration(mirror_dir, pre_head)`, line ~662) and BEFORE the self-heal block (line ~663 `# Tự vá...`, i.e. "Self-heal..."):
 ```python
-        # Áp giấy báo tử: xóa dứt khoát não có tombstone (ghi đè 'xóa không thắng') TRƯỚC khi
-        # _apply_back kịp khôi phục chúng về brains. Đặt trước tự-vá + _apply_back là cố ý.
+        # Apply tombstones: definitively delete brains that have a tombstone (overriding 'delete does not win')
+        # BEFORE _apply_back gets the chance to restore them into brains. Placing it before self-heal + _apply_back is deliberate.
         tomb = _apply_tombstones(brains_dir, mirror_dir, trash_dir, protected_names)
         if tomb["failed"]:
             _rollback_mirror(mirror_dir, pre_head)
-            return {**rep, "error": "Áp giấy báo tử lỗi (" + ", ".join(tomb["failed"][:2]) +
-                    ") - hoãn push, lần sau tự thử lại"}
+            return {**rep, "error": "Applying tombstones failed (" + ", ".join(tomb["failed"][:2]) +
+                    ") - push deferred, will retry next time"}
         if tomb["deleted"]:
             rep["brains_deleted"] = (rep["brains_deleted"] + tomb["deleted"])[:50]
 ```
 
-- [ ] **Step 6: `_do_backup` truyền trash_dir + protected_names** - `server/main.py` dòng ~1208-1209:
+- [ ] **Step 6: `_do_backup` passes trash_dir + protected_names** - `server/main.py` lines ~1208-1209:
 
-Từ:
+From:
 ```python
-    mirror = str(cfgmod.STATE_DIR / "brains-backup")   # repo mirror riêng (tránh nested git từng brain)
+    mirror = str(cfgmod.STATE_DIR / "brains-backup")   # separate mirror repo (avoids a nested git per brain)
     res = git_brain.sync_brains(BRAINS_DIR, mirror, b["repo_url"], b["token"], b.get("branch") or "main")
 ```
-Thành:
+To:
 ```python
-    mirror = str(cfgmod.STATE_DIR / "brains-backup")   # repo mirror riêng (tránh nested git từng brain)
+    mirror = str(cfgmod.STATE_DIR / "brains-backup")   # separate mirror repo (avoids a nested git per brain)
     res = git_brain.sync_brains(BRAINS_DIR, mirror, b["repo_url"], b["token"], b.get("branch") or "main",
                                 trash_dir=str(cfgmod.STATE_DIR / "brain-trash"),
                                 protected_names={_default_brain_dir().name})
 ```
 
-- [ ] **Step 7: Chạy test tích hợp để chắc nó PASS**
+- [ ] **Step 7: Run the integration test to make sure it PASSES**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_brain_delete_sync.py`
-Expected: `TẤT CẢ PASS` (nếu máy không git thì in `SKIP`).
+Expected: `ALL PASS` (if the machine has no git it prints `SKIP`).
 
-- [ ] **Step 8: Chạy lại 2 test đơn vị (không hồi quy)**
+- [ ] **Step 8: Re-run the 2 unit tests (no regression)**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_brain_tombstone.py && ../.venv/Scripts/python.exe test_brain_trash.py`
-Expected: cả hai `TẤT CẢ PASS`.
+Expected: both `ALL PASS`.
 
 - [ ] **Step 9: Commit**
 
 ```bash
 git add server/git_brain.py server/main.py server/test_brain_delete_sync.py
-git commit -m "feat(sync): _apply_tombstones - xoa nao lan sang moi may, chot thoi gian + bao ve
+git commit -m "feat(sync): _apply_tombstones - brain deletion propagates to every machine, time cutoff + protection
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ---
 
-## Task 4: Viết lại endpoint `/brains/delete` (move-to-trash + tombstone + eager sync)
+## Task 4: Rewrite the `/brains/delete` endpoint (move-to-trash + tombstone + eager sync)
 
 **Files:**
-- Modify: `server/main.py` (`/brains/delete` dòng ~2037-2058; thêm `_DELETE_SYNC_TASKS = set()` ngay trên endpoint)
+- Modify: `server/main.py` (`/brains/delete` lines ~2037-2058; add `_DELETE_SYNC_TASKS = set()` right above the endpoint)
 - Test: `server/test_brain_delete_endpoint.py`
 
 **Interfaces:**
 - Consumes: `git_brain.move_to_trash`, `git_brain.write_tombstone`, `_do_backup`, `cfgmod.STATE_DIR`, `_default_brain_dir`, `_safe_brain_name`.
-- Produces: `/brains/delete` trả `{"ok": True, "name": safe, "trashed": bool}`; tạo tombstone + chuyển vào `<STATE_DIR>/brain-trash/`.
+- Produces: `/brains/delete` returns `{"ok": True, "name": safe, "trashed": bool}`; creates a tombstone + moves the brain into `<STATE_DIR>/brain-trash/`.
 
-- [ ] **Step 1: Viết test thất bại** — `server/test_brain_delete_endpoint.py`
+- [ ] **Step 1: Write the failing test** - `server/test_brain_delete_endpoint.py`
 
 ```python
-"""Test endpoint /brains/delete + /brains/new (tombstone). Chạy:
+"""Tests for the /brains/delete + /brains/new endpoints (tombstone). Run:
     cd server && ../.venv/Scripts/python.exe test_brain_delete_endpoint.py"""
 import os, sys, asyncio, tempfile
 from pathlib import Path
@@ -631,82 +631,82 @@ def check(name, cond):
 
 BR = Path(tempfile.mkdtemp(prefix="jv-del-brains-")).resolve()
 main.BRAINS_DIR = str(BR)
-(BR / "Brain Default").mkdir(parents=True)         # não mặc định (không xóa được)
+(BR / "Brain Default").mkdir(parents=True)         # default brain (cannot be deleted)
 foo = BR / "Foo"; foo.mkdir(parents=True); (foo / "n.md").write_text("hi", encoding="utf-8")
 
-# Xóa Foo hợp lệ (confirm khớp) -> vào thùng rác + tombstone, không còn trong brains
+# Delete Foo validly (confirm matches) -> goes to the trash + tombstone, no longer in brains
 r = asyncio.run(main.delete_brain(name="Foo", confirm="Foo"))
-ok = getattr(r, "body", None) is None  # JSONResponse lỗi mới có .body; dict thành công thì không
-check("xóa Foo trả ok", isinstance(r, dict) and r.get("ok"))
-check("Foo biến khỏi brains", not foo.exists())
-check("tombstone Foo được ghi", (BR / gb.TOMBSTONE_DIR / "Foo.json").exists())
+ok = getattr(r, "body", None) is None  # only an error JSONResponse has .body; a success dict does not
+check("deleting Foo returns ok", isinstance(r, dict) and r.get("ok"))
+check("Foo vanishes from brains", not foo.exists())
+check("Foo's tombstone is written", (BR / gb.TOMBSTONE_DIR / "Foo.json").exists())
 import config as cfgmod
 trash = Path(cfgmod.STATE_DIR) / "brain-trash"
-check("Foo nằm trong thùng rác", trash.is_dir() and len(list(trash.glob("Foo__*"))) == 1)
+check("Foo is in the trash", trash.is_dir() and len(list(trash.glob("Foo__*"))) == 1)
 
-# Chặn xóa não mặc định
+# Block deleting the default brain
 r2 = asyncio.run(main.delete_brain(name="Brain Default", confirm="Brain Default"))
-check("chặn xóa não mặc định", hasattr(r2, "status_code") and r2.status_code == 400)
+check("deleting the default brain is blocked", hasattr(r2, "status_code") and r2.status_code == 400)
 
-# confirm sai -> chặn
+# wrong confirm -> blocked
 bar = BR / "Bar"; bar.mkdir(parents=True)
 r3 = asyncio.run(main.delete_brain(name="Bar", confirm="sai"))
-check("confirm sai -> chặn, Bar còn nguyên", hasattr(r3, "status_code") and bar.exists())
+check("wrong confirm -> blocked, Bar left intact", hasattr(r3, "status_code") and bar.exists())
 
-# /brains/new gỡ tombstone cùng tên (dựng lại Foo)
+# /brains/new removes the tombstone of the same name (rebuilding Foo)
 gb.write_tombstone(str(BR), "Foo")
 r4 = asyncio.run(main.new_brain(name="Foo"))
-check("tạo lại Foo -> gỡ tombstone Foo", not (BR / gb.TOMBSTONE_DIR / "Foo.json").exists())
+check("recreating Foo -> removes Foo's tombstone", not (BR / gb.TOMBSTONE_DIR / "Foo.json").exists())
 
-print(); print("TẤT CẢ PASS" if not _fails else f"{len(_fails)} FAIL: {_fails}")
+print(); print("ALL PASS" if not _fails else f"{len(_fails)} FAIL: {_fails}")
 sys.exit(1 if _fails else 0)
 ```
 
-- [ ] **Step 2: Chạy test để chắc nó FAIL**
+- [ ] **Step 2: Run the test to make sure it FAILS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_brain_delete_endpoint.py`
-Expected: FAIL - `/brains/delete` còn `rmtree` (không tạo tombstone/thùng rác); `/brains/new` chưa gỡ tombstone.
+Expected: FAIL - `/brains/delete` still uses `rmtree` (no tombstone/trash); `/brains/new` does not remove the tombstone yet.
 
-- [ ] **Step 3: Thêm set giữ ref + viết lại endpoint** - `server/main.py`. Ngay TRƯỚC `@app.post("/brains/delete")` thêm:
+- [ ] **Step 3: Add the ref-holding set + rewrite the endpoint** - `server/main.py`. Right BEFORE `@app.post("/brains/delete")` add:
 
 ```python
-_DELETE_SYNC_TASKS = set()   # giữ ref mạnh cho eager-sync sau khi xóa não (tránh GC nuốt task)
+_DELETE_SYNC_TASKS = set()   # strong ref for the eager sync after a brain delete (keeps GC from swallowing the task)
 ```
 
-Thay TOÀN BỘ thân `delete_brain` (giữ các guard cũ, đổi phần thực thi):
+Replace the ENTIRE body of `delete_brain` (keep the old guards, change the execution part):
 
 ```python
 @app.post("/brains/delete")
 async def delete_brain(name: str = Form(...), confirm: str = Form("")):
-    """Xoá 1 brain: CHUYỂN vào thùng rác cục bộ (giữ 30 ngày) + ghi giấy báo tử để lan việc xoá
-    sang mọi máy đồng bộ. Yêu cầu confirm == name. Chặn xoá não mặc định + chỉ trong BRAINS_DIR."""
+    """Delete a brain: MOVE it into the local trash (kept 30 days) + write a tombstone so the deletion
+    propagates to every synced machine. Requires confirm == name. Blocks deleting the default brain + only inside BRAINS_DIR."""
     safe = _safe_brain_name(name)
     if not safe:
-        return JSONResponse({"ok": False, "error": "Tên brain không hợp lệ"}, status_code=400)
+        return JSONResponse({"ok": False, "error": "Invalid brain name"}, status_code=400)
     if (confirm or "").strip() != safe:
-        return JSONResponse({"ok": False, "error": "Xác nhận không khớp tên brain"}, status_code=400)
+        return JSONResponse({"ok": False, "error": "Confirmation does not match the brain name"}, status_code=400)
     root = (Path(BRAINS_DIR) / safe).resolve()
     base = Path(BRAINS_DIR).resolve()
     if root == base or base not in root.parents:
-        return JSONResponse({"ok": False, "error": "Brain ngoài phạm vi quản lý"}, status_code=400)
+        return JSONResponse({"ok": False, "error": "Brain is outside the managed area"}, status_code=400)
     if root == _default_brain_dir().resolve():
-        return JSONResponse({"ok": False, "error": "Không thể xoá Brain mặc định"}, status_code=400)
+        return JSONResponse({"ok": False, "error": "Cannot delete the default Brain"}, status_code=400)
     if not root.is_dir():
-        return JSONResponse({"ok": False, "error": "Brain không tồn tại"}, status_code=404)
+        return JSONResponse({"ok": False, "error": "Brain does not exist"}, status_code=404)
     trash_dir = str(cfgmod.STATE_DIR / "brain-trash")
 
     def _trash_and_mark():
-        dest = git_brain.move_to_trash(str(root), trash_dir, safe)   # có retry cho Windows
-        git_brain.write_tombstone(BRAINS_DIR, safe)                  # giấy báo tử -> lan việc xoá
+        dest = git_brain.move_to_trash(str(root), trash_dir, safe)   # has a retry for Windows
+        git_brain.write_tombstone(BRAINS_DIR, safe)                  # tombstone -> propagates the deletion
         return dest
 
     try:
         dest = await asyncio.to_thread(_trash_and_mark)
     except Exception as e:
-        return JSONResponse({"ok": False, "error": f"Không xoá được (brain đang bận?): {e}"},
+        return JSONResponse({"ok": False, "error": f"Could not delete (is the brain busy?): {e}"},
                             status_code=500)
 
-    # Eager sync (nền, best-effort): đẩy lệnh xoá + tombstone lên remote NGAY thay vì chờ chu kỳ 6h.
+    # Eager sync (background, best-effort): push the deletion + tombstone to the remote NOW instead of waiting for the 6h cycle.
     try:
         _b = cfgmod.read_settings().get("backup", {}) or {}
         if _b.get("enabled") and _b.get("repo_url") and _b.get("token") and git_brain.has_git():
@@ -719,33 +719,33 @@ async def delete_brain(name: str = Form(...), confirm: str = Form("")):
     return {"ok": True, "name": safe, "trashed": bool(dest)}
 ```
 
-- [ ] **Step 4: Chạy test để chắc nó PASS**
+- [ ] **Step 4: Run the test to make sure it PASSES**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_brain_delete_endpoint.py`
-Expected: `TẤT CẢ PASS`
+Expected: `ALL PASS`
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add server/main.py server/test_brain_delete_endpoint.py
-git commit -m "feat(brain): xoa nao chuyen vao thung rac + ghi tombstone + eager sync
+git commit -m "feat(brain): deleting a brain moves it to the trash + writes a tombstone + eager sync
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ---
 
-## Task 5: `/brains/new` gỡ tombstone cùng tên
+## Task 5: `/brains/new` removes the tombstone of the same name
 
 **Files:**
-- Modify: `server/main.py` (`/brains/new` dòng ~2021-2034)
-- Test: đã phủ ở `server/test_brain_delete_endpoint.py` (case "/brains/new gỡ tombstone").
+- Modify: `server/main.py` (`/brains/new` lines ~2021-2034)
+- Test: already covered in `server/test_brain_delete_endpoint.py` (the "/brains/new removes the tombstone" case).
 
 **Interfaces:**
 - Consumes: `git_brain.clear_tombstone`.
-- Produces: `/brains/new` gỡ tombstone của tên vừa tạo (chống xóa oan não dựng lại).
+- Produces: `/brains/new` removes the tombstone of the name just created (prevents deleting a rebuilt brain by mistake).
 
-- [ ] **Step 1: Sửa `new_brain`** - thêm `clear_tombstone` sau khi tạo scaffold thành công. Từ:
+- [ ] **Step 1: Edit `new_brain`** - add `clear_tombstone` after the scaffold is created successfully. From:
 
 ```python
     try:
@@ -754,41 +754,41 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
     return {"ok": True, "name": safe, "path": str(root)}
 ```
-Thành:
+To:
 ```python
     try:
         _ensure_brain_scaffold(root)
     except Exception as e:
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
-    git_brain.clear_tombstone(BRAINS_DIR, safe)   # dựng lại não cùng tên -> gỡ giấy báo tử để không bị xoá oan
+    git_brain.clear_tombstone(BRAINS_DIR, safe)   # rebuilt a brain of the same name -> remove the tombstone so it is not deleted by mistake
     return {"ok": True, "name": safe, "path": str(root)}
 ```
 
-- [ ] **Step 2: Chạy lại test endpoint (đã có case này)**
+- [ ] **Step 2: Re-run the endpoint test (it already has this case)**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_brain_delete_endpoint.py`
-Expected: `TẤT CẢ PASS` (case "tạo lại Foo -> gỡ tombstone Foo" xanh).
+Expected: `ALL PASS` (the "recreating Foo -> removes Foo's tombstone" case is green).
 
 - [ ] **Step 3: Commit**
 
 ```bash
 git add server/main.py
-git commit -m "feat(brain): tao lai nao cung ten thi go tombstone (chong xoa oan)
+git commit -m "feat(brain): recreating a brain of the same name removes the tombstone (prevents mistaken deletion)
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ---
 
-## Task 6: Lời xác nhận xóa ở frontend + bump cache
+## Task 6: Delete confirmation text in the frontend + cache bump
 
 **Files:**
-- Modify: `dashboard/brains-ui.js` (hàm `deleteBrain`, phần prompt xác nhận)
+- Modify: `dashboard/brains-ui.js` (`deleteBrain` function, the confirmation prompt)
 - Modify: `dashboard/index.html` (`brains-ui.js?v=6 -> v=7`)
 
-**Interfaces:** không có (chỉ text UI).
+**Interfaces:** none (UI text only).
 
-- [ ] **Step 1: Đổi lời prompt xác nhận** trong `deleteBrain` (`dashboard/brains-ui.js`). Từ:
+- [ ] **Step 1: Change the confirmation prompt text** in `deleteBrain` (`dashboard/brains-ui.js`). From:
 
 ```javascript
     const typed = window.prompt(
@@ -797,30 +797,30 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
       "Gõ CHÍNH XÁC tên brain để xác nhận:"
     );
 ```
-Thành:
+To:
 ```javascript
     const typed = window.prompt(
-      "⚠️ XOÁ BRAIN \"" + name + "\"\n\n" +
-      "Não này sẽ được chuyển vào THÙNG RÁC (giữ 30 ngày rồi tự xoá hẳn), và việc xoá sẽ ĐỒNG BỘ sang mọi máy khác.\n\n" +
-      "Gõ CHÍNH XÁC tên brain để xác nhận:"
+      "⚠️ DELETE BRAIN \"" + name + "\"\n\n" +
+      "This brain will be moved to the TRASH (kept for 30 days, then deleted for good), and the deletion will be SYNCED to every other machine.\n\n" +
+      "Type the brain name EXACTLY to confirm:"
     );
 ```
 
-- [ ] **Step 2: Đổi thông báo sau khi xóa** trong `deleteBrain`. Từ:
+- [ ] **Step 2: Change the message after deleting** in `deleteBrain`. From:
 ```javascript
     alert('Đã xoá brain "' + name + '".');
 ```
-Thành:
+To:
 ```javascript
-    alert('Đã xoá brain "' + name + '" (đưa vào thùng rác 30 ngày, đồng bộ xoá sang các máy khác).');
+    alert('Deleted brain "' + name + '" (moved to the trash for 30 days, deletion synced to other machines).');
 ```
 
-- [ ] **Step 3: Bump cache** - `dashboard/index.html`:
+- [ ] **Step 3: Bump the cache** - `dashboard/index.html`:
 ```
   <script src="/static/brains-ui.js?v=7"></script>
 ```
 
-- [ ] **Step 4: Kiểm tra cú pháp JS**
+- [ ] **Step 4: Check the JS syntax**
 
 Run: `node -e "const fs=require('fs');new Function(fs.readFileSync('dashboard/brains-ui.js','utf8'));console.log('OK')"`
 Expected: `OK`
@@ -829,57 +829,57 @@ Expected: `OK`
 
 ```bash
 git add dashboard/brains-ui.js dashboard/index.html
-git commit -m "feat(brain): loi xac nhan xoa bao thung rac 30 ngay + dong bo xoa (bump v=7)
+git commit -m "feat(brain): delete confirmation mentions the 30-day trash + synced deletion (bump v=7)
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ---
 
-## Task 7: CHANGELOG + VERSION + khởi động lại kiểm chứng
+## Task 7: CHANGELOG + VERSION + restart and verify
 
 **Files:**
-- Modify: `CHANGELOG.md` (mục `## [0.9.76] - 2026-07-18` trên đầu, dưới phần header format)
+- Modify: `CHANGELOG.md` (entry `## [0.9.76] - 2026-07-18` at the top, under the format header)
 - Modify: `VERSION` (`0.9.75 -> 0.9.76`)
 
-- [ ] **Step 1: Chạy TẤT CẢ test mới (không hồi quy)**
+- [ ] **Step 1: Run ALL the new tests (no regression)**
 
 Run:
 ```bash
 cd server && for t in test_brain_tombstone test_brain_trash test_brain_delete_sync test_brain_delete_endpoint; do echo "== $t =="; ../.venv/Scripts/python.exe $t.py || echo "FAILED $t"; done
 ```
-Expected: mỗi test in `TẤT CẢ PASS` (hoặc `SKIP` nếu thiếu git).
+Expected: each test prints `ALL PASS` (or `SKIP` if git is missing).
 
-- [ ] **Step 2: Thêm mục CHANGELOG 0.9.76** - chèn ngay trên `## [0.9.75]`:
+- [ ] **Step 2: Add the CHANGELOG 0.9.76 entry** - insert right above `## [0.9.75]`:
 
 ```markdown
 ## [0.9.76] - 2026-07-18
-Xoá não giờ LAN sang mọi máy đồng bộ (không còn bị "hồi sinh"), và giữ bản sao trong thùng rác cục bộ 30 ngày. **Cần khởi động lại server** (đổi luồng sync + endpoint xoá); giao diện tự nạp lại nhờ bump `?v=7`.
-### Thêm mới
-- **Giấy báo tử (tombstone) đồng bộ để lan việc xoá não**: khi xoá 1 não (đã gõ đúng tên xác nhận), Jarvis 007 ghi một file nhỏ `<BRAINS_DIR>/.javis-tombstones/<tên>.json` đồng bộ theo repo. Bước `_apply_tombstones` mới trong sync đọc tombstone và xoá dứt khoát não đó ở mọi máy, ghi đè đúng chính sách "xoá không thắng bản còn sống" - NHƯNG chỉ cho lần xoá cố ý. Có chốt thời gian: não được tạo/sửa lại sau khi xoá thì không bị giết oan (tombstone tự gỡ). Não mặc định miễn nhiễm.
-- **Thùng rác cục bộ 30 ngày**: xoá não giờ CHUYỂN dữ liệu vào `<STATE_DIR>/brain-trash/<tên>__<thời-gian>/` (ngoài vùng đồng bộ, mỗi máy một thùng riêng) thay vì xoá cứng; tự dọn mục quá 30 ngày ở đầu mỗi lần sync. Lời xác nhận khi xoá báo rõ điều này. Khôi phục bằng tay (chuyển folder từ thùng rác về `brains/`).
-### Sửa lỗi
-- **Não đã xoá bị "hồi sinh" khi sync/update**: chính sách sync cũ cố tình không cho việc xoá thắng bản còn sống (chống mất dữ liệu), nên một não xoá ở máy này bị máy/remote khác đẩy ngược lại. Nay lần xoá cố ý lan đi qua tombstone; lá chắn chống mất dữ liệu chung vẫn nguyên vẹn cho mọi trường hợp KHÔNG có tombstone (folder biến mất do volume chưa mount, engine ghi dở...).
+Deleting a brain now PROPAGATES to every synced machine (no more "resurrection"), and keeps a copy in a local trash for 30 days. **The server must be restarted** (sync flow + delete endpoint changed); the UI reloads itself thanks to the `?v=7` bump.
+### Added
+- **Synced tombstone (death notice) to propagate brain deletion**: when you delete a brain (after typing the right confirmation name), Jarvis 007 writes a small file `<BRAINS_DIR>/.javis-tombstones/<name>.json` that syncs with the repo. The new `_apply_tombstones` step in sync reads the tombstones and definitively deletes that brain on every machine, overriding the "delete does not win over the living copy" policy - BUT only for deliberate deletions. There is a time cutoff: a brain created/edited again after the deletion is not killed by mistake (the tombstone removes itself). The default brain is immune.
+- **30-day local trash**: deleting a brain now MOVES the data into `<STATE_DIR>/brain-trash/<name>__<time>/` (outside the sync area, one trash per machine) instead of hard-deleting; entries older than 30 days are cleaned at the start of each sync. The delete confirmation says this clearly. Restore by hand (move the folder from the trash back to `brains/`).
+### Fixed
+- **A deleted brain was "resurrected" on sync/update**: the old sync policy deliberately did not let a deletion win over the living copy (to prevent data loss), so a brain deleted on this machine was pushed back by another machine/the remote. Now a deliberate deletion propagates through the tombstone; the general data-loss shield stays intact for every case WITHOUT a tombstone (a folder vanishing because a volume is not mounted, an engine writing halfway...).
 ```
 
 - [ ] **Step 3: Bump VERSION**
 
-Ghi `VERSION` = `0.9.76`.
+Set `VERSION` = `0.9.76`.
 
 - [ ] **Step 4: Commit + push**
 
 ```bash
 git add CHANGELOG.md VERSION
-git commit -m "chore(release): 0.9.76 - xoa nao lan sang moi may + thung rac 30 ngay
+git commit -m "chore(release): 0.9.76 - brain deletion propagates to every machine + 30-day trash
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 git push origin main
 ```
 
-- [ ] **Step 5: Khởi động lại + kiểm chứng live**
+- [ ] **Step 5: Restart + verify live**
 
-Run: `wscript //nologo start-javis.vbs` (chờ ~8s) rồi kiểm tra server lên (`curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:7777/` = 200) và log không traceback (`tail -15 server/javis.log`).
-Expected: server lên PID mới, không lỗi. Xác nhận `curl -s http://127.0.0.1:7777/static/index.html | grep brains-ui` = `?v=7`.
+Run: `wscript //nologo start-javis.vbs` (wait ~8s) then check the server is up (`curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:7777/` = 200) and the log has no traceback (`tail -15 server/javis.log`).
+Expected: the server comes up with a new PID, no errors. Confirm `curl -s http://127.0.0.1:7777/static/index.html | grep brains-ui` = `?v=7`.
 
 ---
 
@@ -887,14 +887,14 @@ Expected: server lên PID mới, không lỗi. Xác nhận `curl -s http://127.0
 
 **Spec coverage:**
 - Tombstone store (spec 4.1) -> Task 1. ✓
-- Thùng rác + GC (spec 4.2) -> Task 2 (+ GC gọi trong Task 3). ✓
-- `_apply_tombstones` + thứ tự sync (spec 4.3, 5.2, 5.3) -> Task 3. ✓
-- Luồng xoá: move-to-trash + tombstone + eager sync + confirm (spec 5.1) -> Task 4 (backend) + Task 6 (confirm UI). ✓
-- `/brains/new` gỡ tombstone (spec 5.1 chốt thời gian lớp 2) -> Task 5. ✓
-- Rào an toàn (spec 6): con trực tiếp brains_dir, não mặc định miễn nhiễm, chốt thời gian, không push nửa vời -> Task 3 (`_apply_tombstones` + failed->rollback). ✓
-- Test a-f (spec 7) -> Task 1/2 (đơn vị), Task 3 (lan xoá, chốt thời gian, bảo vệ không-tombstone, mặc định miễn nhiễm), Task 4 (endpoint + dọn thùng rác đã phủ ở Task 2). ✓
-- Retention 180 ngày tombstone (spec 3, 8) -> `gc_tombstones` (Task 1) gọi trong Task 3 Step 5. ✓
+- Trash + GC (spec 4.2) -> Task 2 (+ GC called in Task 3). ✓
+- `_apply_tombstones` + sync order (spec 4.3, 5.2, 5.3) -> Task 3. ✓
+- Delete flow: move-to-trash + tombstone + eager sync + confirm (spec 5.1) -> Task 4 (backend) + Task 6 (confirm UI). ✓
+- `/brains/new` removes the tombstone (spec 5.1 time cutoff layer 2) -> Task 5. ✓
+- Safety guards (spec 6): direct child of brains_dir, default brain immune, time cutoff, no half-done push -> Task 3 (`_apply_tombstones` + failed->rollback). ✓
+- Tests a-f (spec 7) -> Task 1/2 (unit), Task 3 (delete propagation, time cutoff, protection without a tombstone, default immune), Task 4 (endpoint; trash cleanup is covered in Task 2). ✓
+- 180-day tombstone retention (spec 3, 8) -> `gc_tombstones` (Task 1) called in Task 3 Step 5. ✓
 
-**Placeholder scan:** Không có TBD/TODO; mọi step có mã/lệnh thật + kỳ vọng cụ thể. ✓
+**Placeholder scan:** No TBD/TODO; every step has real code/commands + concrete expectations. ✓
 
-**Type consistency:** `write_tombstone/clear_tombstone/_read_tombstones/gc_tombstones/move_to_trash/gc_trash/_dir_newer_than/_apply_tombstones` khai ở Task 1-3 và dùng đúng tên/chữ ký ở Task 3-5. `sync_brains(..., trash_dir, protected_names)` khai ở Task 3 Step 4, dùng ở Task 3 Step 6 (`_do_backup`) và test. `rep["brains_deleted"]` khai + gán ở Task 3 Step 5. ✓
+**Type consistency:** `write_tombstone/clear_tombstone/_read_tombstones/gc_tombstones/move_to_trash/gc_trash/_dir_newer_than/_apply_tombstones` are declared in Tasks 1-3 and used with the right names/signatures in Tasks 3-5. `sync_brains(..., trash_dir, protected_names)` is declared in Task 3 Step 4, used in Task 3 Step 6 (`_do_backup`) and the test. `rep["brains_deleted"]` is declared + assigned in Task 3 Step 5. ✓

@@ -596,14 +596,14 @@ git commit -m "Composer: pin a working folder per conversation; drop the folder 
 - [ ] **Step 1: Update the test first** (`tests/js/test_trang_coding.js`)
 
 Replace the two checks that expect the folder chip and the in-brain line:
-- `"chưa gắn thư mục thì nói rõ đang làm trong bộ não"` becomes:
+- `"chưa gắn thư mục thì nói rõ đang làm trong bộ não"` (existing check name, kept verbatim: "with no folder attached, say clearly it is working in the brain") becomes:
 
 ```js
 check("the Coding page no longer shows its own in-brain line (the composer chip shows the folder)",
   !/coding\.in_brain/.test(CD) && !VI["coding.in_brain"] && !EN["coding.in_brain"]);
 ```
 
-- `"chưa gắn thư mục thì có chip mời chọn VÀ chip mức quyền"` becomes:
+- `"chưa gắn thư mục thì có chip mời chọn VÀ chip mức quyền"` (existing check name, kept verbatim: "with no folder attached there is a pick-a-folder chip AND a permission chip") becomes:
 
 ```js
 check("no folder: only the permission chip, no folder chip",
@@ -616,7 +616,7 @@ check("the page refreshes its git chips when the composer pins or unpins", CD.in
 check("the folder picker of the Coding page is gone", !/moKhungThemThuMuc|menuThuMuc|chip_pick_folder/.test(CD));
 ```
 
-- The check `"chữ trên giao diện nói THƯ MỤC"` (needs `coding.add_folder`) is removed together with the key. Keep the "old repo keys removed" check.
+- The check `"chữ trên giao diện nói THƯ MỤC"` (existing check name, kept verbatim: "UI text says FOLDER"; needs `coding.add_folder`) is removed together with the key. Keep the "old repo keys removed" check.
 - Any other check that reads `coding.add_folder`, `coding.detach_folder`, `coding.forget_folder`, `coding.forget_confirm`, `coding.add_err`, `coding.folder_main`, `coding.folder_gone`: delete it if it only asserted the removed menu.
 
 - [ ] **Step 2: Run it to verify it fails**
@@ -795,7 +795,7 @@ git commit -m "Agent Work tab: two compact dropdowns and a smaller type scale"
 
 - [ ] **Step 1: Find the lines.** `git diff 1d1b52fa..3c398a8d -U0 -- dashboard server tests | grep '^+' | grep -P '[\x{00C0}-\x{1EF9}]'` lists every added line with Vietnamese letters. User-facing strings in `i18n/*.json` are out of scope.
 - [ ] **Step 2: Translate** those comments, docstrings and `check(...)` names to English, keeping meaning. Do not change code behavior or string literals that tests or the UI read.
-- [ ] **Step 3: `docs/quy-uoc-dev.md`**: replace the bullet "**Module, tên hàm, comment MỚI:** tiếng Anh. Sửa trong một file sẵn có thì theo ngôn ngữ của file đó cho nhất quán; ..." with: "**Mọi code mới viết tiếng Anh**: tên module, hàm, biến, comment, docstring, tên test và câu in trong `check(...)`, kể cả khi thêm vào một file cũ đang viết tiếng Việt. Không dịch lại phần code cũ không đụng tới. Chữ hiện cho người dùng đi qua i18n (`vi.json` có dấu, `en.json`). Chủ repo chốt 15/10/2026."
+- [ ] **Step 3: `docs/quy-uoc-dev.md`**: replace the bullet "**Module, tên hàm, comment MỚI:** tiếng Anh. Sửa trong một file sẵn có thì theo ngôn ngữ của file đó cho nhất quán; ..." with: "**Mọi code mới viết tiếng Anh**: tên module, hàm, biến, comment, docstring, tên test và câu in trong `check(...)`, kể cả khi thêm vào một file cũ đang viết tiếng Việt. Không dịch lại phần code cũ không đụng tới. Chữ hiện cho người dùng đi qua i18n (`vi.json` có dấu, `en.json`). Chủ repo chốt 15/10/2026." (This is the Vietnamese text that goes into the Vietnamese-language dev conventions file; in English: "All newly written code is in English: module, function and variable names, comments, docstrings, test names and the strings printed in `check(...)`, even when added to an old file written in Vietnamese. Do not re-translate old code you are not touching. User-facing text goes through i18n (`vi.json` with diacritics, `en.json`). Decided by the repo owner on 2026-10-15.")
 - [ ] **Step 4: Run** the whole JS suite (`for f in tests/js/test_*.js tests/js/*.mjs; do node "$f" >/dev/null 2>&1 || echo "RED $f"; done`) and the edited Python test. Expected: no RED.
 - [ ] **Step 5: Commit** `git commit -am "English comments and test names for the 0.153.0 composer code; dev convention: all new code in English"`
 

@@ -1,113 +1,113 @@
-# Số đo T4 nhóm chat thích nghi (0.170.0) - máy local, engine GIẢ, KHÔNG phải VPS
+# T4 adaptive team chat measurements (0.170.0) - local machine, FAKE engine, NOT a VPS
 
-Công cụ: `tools/team_adaptive_bench.py` (host thật `main.app` trong tiến trình qua httpx ASGITransport, engine giả có bộ đếm,
-chốt chặn mọi lối dựng engine thật) và `tools/team_adaptive_ui_bench.js` (hàm vẽ thuần dưới node). Kết quả gốc:
-`exports/reviews/team-adaptive/t4-bench-2026-10-15.json` (thư mục gói review, ngoài git). Hồi quy:
-`tests/python/test_team_t4_perf.py` (kiểm bằng số đếm, ngưỡng thời gian rộng).
+Tools: `tools/team_adaptive_bench.py` (the real host `main.app` in-process through the httpx ASGITransport, a fake engine with counters,
+a guard that blocks every path that would build a real engine) and `tools/team_adaptive_ui_bench.js` (the pure render functions under node). Raw results:
+`exports/reviews/team-adaptive/t4-bench-2026-10-15.json` (the review bundle folder, outside git). Regression:
+`tests/python/test_team_t4_perf.py` (checks by counts, with wide time thresholds).
 
-Không có số nào ở đây là số VPS. Kịch bản đo VPS chỉ đọc đã chuẩn bị ở `tools/team_adaptive_vps_measure.py`, **chưa chạy**.
-Chưa đo VPS thì không kết luận đã hết lag.
+No number here is a VPS number. The read-only VPS measurement script is prepared in `tools/team_adaptive_vps_measure.py`, **not run yet**.
+Until the VPS is measured, do not conclude that the lag is gone.
 
-## Máy và điều kiện
+## Machine and conditions
 
-- Windows 11 Pro 10.0.26200, Intel64 Family 6 Model 165 (8 luồng), Python 3.12.10, node v24.15.0. Máy đang chạy các phiên
-  làm việc khác (không cô lập), nên thời gian chỉ để so thứ bậc, không phải cam kết.
-- Lệnh: `python tools/team_adaptive_bench.py --out exports/reviews/team-adaptive/t4-bench-2026-10-15.json` (mặc định).
-- Dữ liệu: 12 nhóm x 1.500 tin = 18.000 tin, 8 trợ lý (4 bật Auto), mỗi nhóm 4 thành viên, 1.500 reaction của chủ seed
-  thẳng vào kho (outbox còn chờ chiếu), 12 ngữ cảnh nhóm ngủ đông và 12 ngữ cảnh đến hạn, 8 phiên chat riêng.
-- Engine giả: mỗi lượt 5 ms. Nhịp nền của scheduler dừng (`JAVIS_PULSE_TICK_PAUSED=1`), bench gọi tick trực tiếp. Không đặt
-  `JAVIS_RESONANCE_CALL_CEILING`. Số câu SQL đếm bằng trace callback của sqlite3 trên mọi kết nối.
+- Windows 11 Pro 10.0.26200, Intel64 Family 6 Model 165 (8 threads), Python 3.12.10, node v24.15.0. The machine was running other
+  working sessions (not isolated), so the times are only for comparing order, not a commitment.
+- Command: `python tools/team_adaptive_bench.py --out exports/reviews/team-adaptive/t4-bench-2026-10-15.json` (defaults).
+- Data: 12 teams x 1,500 messages = 18,000 messages, 8 assistants (4 with Auto on), 4 members per team, 1,500 owner reactions seeded
+  straight into the store (the outbox still waiting to be projected), 12 hibernating team contexts and 12 due contexts, 8 private chat sessions.
+- Fake engine: 5 ms per turn. The scheduler's background pulse is stopped (`JAVIS_PULSE_TICK_PAUSED=1`), and the bench calls the tick directly. `JAVIS_RESONANCE_CALL_CEILING`
+  is not set. SQL statements are counted with the sqlite3 trace callback on every connection.
 
-## API tuần tự (30 lần mỗi route, thời gian phía server)
+## Sequential API (30 calls per route, server-side time)
 
-| Route | p50 | p95 | câu SQL đọc / ghi (tối đa) |
+| Route | p50 | p95 | SQL read / write statements (max) |
 |---|---|---|---|
-| GET /teams/{id} (trang nhóm) | 54 ms | 64 ms | 25 / 0 |
-| GET /teams/{id}/messages (trang tin) | 10 ms | 13 ms | 5 / 0 |
-| POST reaction nhóm | 72 ms | 96 ms | 26 / 9 |
-| POST reaction chat riêng | 52 ms | 76 ms | 25 / 8 |
-| GET /agents/{slug}/pulse (khung nhịp) | 37 ms | 45 ms | 17 / 0 |
+| GET /teams/{id} (team page) | 54 ms | 64 ms | 25 / 0 |
+| GET /teams/{id}/messages (message page) | 10 ms | 13 ms | 5 / 0 |
+| POST team reaction | 72 ms | 96 ms | 26 / 9 |
+| POST private chat reaction | 52 ms | 76 ms | 25 / 8 |
+| GET /agents/{slug}/pulse (pulse panel) | 37 ms | 45 ms | 17 / 0 |
 
-Số câu SQL của trang tin và trang nhóm **không đổi** giữa nhóm 60 tin và 600 tin (test hồi quy) và giữa 100 và 1.500 tin.
+The SQL statement counts of the message page and the team page are **unchanged** between a team of 60 messages and one of 600 (regression test) and between 100 and 1,500 messages.
 
-## Độ trễ event loop (bộ hẹn giờ 10 ms)
+## Event loop lag (10 ms timer)
 
-| Pha | Thời gian | p95 | lớn nhất |
+| Phase | Duration | p95 | max |
 |---|---|---|---|
-| Chỉ request (8 luồng x 30 request hỗn hợp) | 6,2 s | 0 ms | 45 ms |
-| Chỉ lô phán xử (24 tin không @ cùng lúc) | 1,1 s | 1,7 ms | 75 ms |
-| Chỉ nhịp pulse (5 tick) | 7,1 s | 10,7 ms | 217 ms |
-| Tất cả cùng lúc | 13,5 s | 3,2 ms | 245 ms |
+| Requests only (8 threads x 30 mixed requests) | 6.2 s | 0 ms | 45 ms |
+| Judge batch only (24 messages without an @ at once) | 1.1 s | 1.7 ms | 75 ms |
+| Pulse tick only (5 ticks) | 7.1 s | 10.7 ms | 217 ms |
+| All at once | 13.5 s | 3.2 ms | 245 ms |
 
-Trong pha đồng thời, độ trễ request p50 338 ms, p95 1,29 s (240 request, cùng lúc với 24 lô phán xử và 5 tick).
+In the concurrent phase, request latency was p50 338 ms, p95 1.29 s (240 requests, at the same time as 24 judge batches and 5 ticks).
 
-Một tick nhịp: 3,4 s ở lần đầu (chiếu outbox còn lại), 0,5 tới 1,5 s các lần sau; 1,9 tới 3,0 s khi chạy cùng tải. Phần
-nặng chạy ở luồng phụ (`asyncio.to_thread`).
+One pulse tick: 3.4 s the first time (projecting the remaining outbox), 0.5 to 1.5 s afterwards; 1.9 to 3.0 s when run under load. The
+heavy part runs in a worker thread (`asyncio.to_thread`).
 
-## Lượt model giả
+## Fake model turns
 
-Pha đồng thời: 24 lượt nhóm, 24 lô phán xử (mỗi tin không @ đúng một lô), 0 lượt quét. Lượt quét bằng 0 là đúng thiết kế 5.5:
-lần thức chạy code trước, không có cơ hội mới thì không gọi model. Không engine thật nào được dựng (`real_engine_guard`).
+Concurrent phase: 24 team turns, 24 judge batches (each message without an @ is exactly one batch), 0 scan turns. Zero scan turns is by design 5.5:
+a wake-up runs code first, and with no new opportunity it does not call the model. No real engine was built (`real_engine_guard`).
 
-## Outbox phản hồi
+## Feedback outbox
 
-1.500 reaction còn `pending` xả hết trong 8 lần chiếu (mỗi lần tối đa 200 dòng), 48 s, khoảng 32 ms mỗi reaction. Ở bản chạy
-6 nhóm x 300 tin (cùng máy): 150 reaction ở "Chờ xem xét" sau khi xả, mỗi lần chiếu ổn định tốn khoảng 700 ms (khoảng 4,7 ms
-mỗi reaction đang chờ, trần 200 dòng mỗi nhịp).
+1,500 reactions still `pending` were drained in 8 projections (at most 200 rows each), 48 s, about 32 ms per reaction. In the run
+with 6 teams x 300 messages (same machine): 150 reactions in "Waiting for review" after draining, each steady projection costing about 700 ms (about 4.7 ms
+per waiting reaction, ceiling 200 rows per tick).
 
-## Vẽ trên trình duyệt (giới hạn)
+## Browser rendering (limitation)
 
-Playwright cho Python không có trong `.venv`, nên chưa đo trình duyệt thật (layout, paint, hai tab thật). Thay thế: thời gian
-dựng chuỗi HTML bằng chính hàm vẽ của dashboard dưới node:
+Playwright for Python is not in `.venv`, so a real browser was not measured (layout, paint, two real tabs). Substitute: the time to
+build the HTML string with the dashboard's own render functions under node:
 
-| Việc | p50 | p95 |
+| Task | p50 | p95 |
 |---|---|---|
-| Danh sách 12 nhóm | 0,4 ms | 7,7 ms |
-| Khung 200 tin (94 KB HTML) | 2,8 ms | 5,3 ms |
-| MÔ PHỎNG 20 gói reaction tới 2 tab, mỗi gói vẽ lại cả khung 200 tin (vòng lặp của bench làm lại việc của `onTeamEvent`, không gọi nó) | 92 ms | 101 ms |
-| 500 chip + bộ chọn reaction | 25 ms | 36 ms |
+| List of 12 teams | 0.4 ms | 7.7 ms |
+| Frame of 200 messages (94 KB HTML) | 2.8 ms | 5.3 ms |
+| SIMULATED 20 reaction packets to 2 tabs, each packet redrawing the whole 200 message frame (the bench loop redoes the work of `onTeamEvent`, without calling it) | 92 ms | 101 ms |
+| 500 chips + the reaction picker | 25 ms | 36 ms |
 
-## Trước và sau bản sửa hiệu năng của T3 (nhánh T3 `7e8b96f5`)
+## Before and after the T3 performance fix (T3 branch `7e8b96f5`)
 
-Cùng máy, cùng lệnh mặc định, cùng dữ liệu. "Trước" là head T4 `89a0acd1` (T3 chỉ có P và J, chưa sửa hiệu năng); "sau" là
-head T4 sau khi ghép T3 `7e8b96f5` (P, J, L; lô phán xử và tick nhịp rời event loop qua `server/io_offload.py`, bộ chiếu theo
-lô; số đo của T3 ở docs/dev/team-chat-t3-pulse.md mục 9). (Các nhánh T3 sau `7e8b96f5` tới `054975b3` chỉ sửa hành vi và giao diện, không đổi đường nóng đã đo.) Kết quả gốc của lần sau:
-`exports/reviews/team-adaptive/t4-bench-2026-10-15-after-t3-fix.json`. Máy dùng chung với phiên khác nên lệch vài chục ms
-giữa hai lần là nhiễu; chỉ đọc các thay đổi lớn.
+Same machine, same default command, same data. "Before" is T4 head `89a0acd1` (T3 only had P and J, no performance fix yet); "after" is
+the T4 head after merging T3 `7e8b96f5` (P, J, L; the judge batch and pulse tick leave the event loop through `server/io_offload.py`, the projector
+works in batches; T3's measurements are in docs/dev/team-chat-t3-pulse.md section 9). (The T3 branches after `7e8b96f5` up to `054975b3` only fix behavior and UI, and do not change the measured hot path.) Raw results of the second run:
+`exports/reviews/team-adaptive/t4-bench-2026-10-15-after-t3-fix.json`. The machine is shared with other sessions, so a difference of a few tens of ms
+between the two runs is noise; read only the large changes.
 
-| Số đo | Trước | Sau |
+| Measurement | Before | After |
 |---|---|---|
-| Event loop lớn nhất, chỉ nhịp pulse | 217 ms | **39 ms** |
-| Event loop lớn nhất, tất cả cùng lúc | 245 ms | **67 ms** |
-| Event loop lớn nhất, chỉ lô phán xử | 75 ms | 73 ms |
-| Event loop lớn nhất, chỉ request | 45 ms | 52 ms |
-| Request p95 khi tất cả cùng lúc | 1,29 s | 0,93 s |
-| Một tick nhịp (chỉ nhịp, lần 2 tới 5) | 0,46 tới 1,5 s | 0,26 tới 0,51 s |
-| Một lần chiếu ổn định của bộ chiếu | 2,5 tới 3,6 ms (0 reaction chờ) | 16 tới 21 ms với **1.125** reaction "Chờ xem xét" (bản trước: khoảng 700 ms với 150) |
-| Xả outbox 1.500 reaction | 48 s | 81 s (nhiều reaction vào "Chờ xem xét" hơn, vì phần L giờ phục vụ lý do) |
-| GET trang nhóm p50 / câu SQL đọc | 54 ms / 25 | 49 ms / 25 |
-| GET trang tin p50 / câu SQL đọc | 10 ms / 5 | 14 ms / 5 |
-| POST reaction nhóm p50 / đọc, ghi | 72 ms / 26, 9 | 80 ms / 26, 9 |
-| POST reaction chat riêng p50 | 52 ms | 43 ms |
-| GET khung nhịp p50 / câu SQL đọc | 37 ms / 17 | 83 ms / **29** (thêm mục bài học của phần L) |
-| Lượt model giả, pha đồng thời | 24 nhóm, 24 lô phán xử, 0 quét | 24 nhóm, 24 lô phán xử, 0 quét (cả bench: 6 lượt học giả của L) |
-| Engine thật được dựng | 0 | 0 |
+| Max event loop, pulse tick only | 217 ms | **39 ms** |
+| Max event loop, all at once | 245 ms | **67 ms** |
+| Max event loop, judge batch only | 75 ms | 73 ms |
+| Max event loop, requests only | 45 ms | 52 ms |
+| Request p95 when all at once | 1.29 s | 0.93 s |
+| One pulse tick (tick only, runs 2 to 5) | 0.46 to 1.5 s | 0.26 to 0.51 s |
+| One steady projector projection | 2.5 to 3.6 ms (0 waiting reactions) | 16 to 21 ms with **1,125** reactions "Waiting for review" (previous version: about 700 ms with 150) |
+| Draining the outbox of 1,500 reactions | 48 s | 81 s (more reactions go into "Waiting for review", because part L now serves the reason) |
+| GET team page p50 / SQL read statements | 54 ms / 25 | 49 ms / 25 |
+| GET message page p50 / SQL read statements | 10 ms / 5 | 14 ms / 5 |
+| POST team reaction p50 / reads, writes | 72 ms / 26, 9 | 80 ms / 26, 9 |
+| POST private chat reaction p50 | 52 ms | 43 ms |
+| GET pulse panel p50 / SQL read statements | 37 ms / 17 | 83 ms / **29** (adds part L's lessons section) |
+| Fake model turns, concurrent phase | 24 team, 24 judge batches, 0 scans | 24 team, 24 judge batches, 0 scans (whole bench: 6 fake learning turns of L) |
+| Real engines built | 0 | 0 |
 
-Kết luận: bản sửa của T3 gỡ được phần lớn độ trễ event loop ở pha nhịp và pha đồng thời, và chi phí đối soát của bộ chiếu
-không còn tăng theo số reaction đang chờ. Khung nhịp chậm hơn vì có thêm mục bài học (29 câu SQL đọc, vẫn là hằng số). Lô
-phán xử vẫn có lúc giữ loop khoảng 70 ms ở máy này. Chưa đo VPS.
+Conclusion: the T3 fix removed most of the event loop lag in the pulse phase and the concurrent phase, and the projector's reconciliation cost
+no longer grows with the number of waiting reactions. The pulse panel is slower because it has the extra lessons section (29 SQL read statements, still a constant). The judge
+batch still sometimes holds the loop for about 70 ms on this machine. VPS not measured.
 
-## Nhận xét (lần đo trước bản sửa của T3)
+## Observations (the run before the T3 fix)
 
-1. **Lô phán xử giữ event loop:** chẩn đoán `--stall-watch` (chụp ngăn xếp luồng loop khi bị giữ quá 50 ms) chỉ ra
-   `agent_judge.judge_team_message` gọi `agent_judge_store` (`get_decision`, `profile`, `get_offset`, `add_decision`),
-   `resonance_store.agent_any` (qua `_agent_judge_resonance_on`) và `agent_ledger._tx` ngay trên luồng loop. Thuộc phần J;
-   hướng sửa là đưa phần kho của lô sang luồng phụ. Lưu ý: bật `--stall-watch` làm chậm cả tiến trình (chụp ngăn xếp tranh
-   GIL), chỉ dùng để chẩn đoán, không dùng số đo của lần chạy đó.
-2. **Nhịp pulse:** ở pha chỉ nhịp, không ngăn xếp nào của code Jarvis 007 bị bắt trên luồng loop; độ trễ lớn nhất khoảng 0,2 s
-   nhiều khả năng do luồng phụ của bộ chiếu (đối soát trạng thái từng reaction, mỗi dòng mở vài kết nối SQLite) tranh GIL.
-   Phần L chưa ghép thì reaction "Chờ xem xét" không bao giờ được phục vụ, nên phần đối soát này lặp lại mỗi nhịp 30 giây
-   (tối đa 200 dòng).
-3. **Đồng thời làm request chậm:** p95 request 1,3 s khi có 8 luồng request cùng lô phán xử và nhịp, so với dưới 0,1 s khi
-   tuần tự. Cần đo lại trên VPS (đĩa và CPU khác) trước khi kết luận.
-4. **Mỗi gói reaction vẽ lại cả khung tin** của mỗi tab (O(số tin đang hiện)). Ổn ở 200 tin.
+1. **The judge batch holds the event loop:** the `--stall-watch` diagnostic (captures the loop thread's stack when held more than 50 ms) pointed at
+   `agent_judge.judge_team_message` calling `agent_judge_store` (`get_decision`, `profile`, `get_offset`, `add_decision`),
+   `resonance_store.agent_any` (through `_agent_judge_resonance_on`) and `agent_ledger._tx` right on the loop thread. This belongs to part J;
+   the fix direction is to move the batch's store work to a worker thread. Note: turning on `--stall-watch` slows the whole process (capturing stacks contends for the
+   GIL), so use it only for diagnosis and do not use the numbers from that run.
+2. **Pulse tick:** in the tick-only phase, no stack of Jarvis 007 code was caught on the loop thread; the max lag of about 0.2 s
+   is most likely from the projector's worker thread (reconciling each reaction's status, every row opening several SQLite connections) contending for the GIL.
+   While part L is not merged, reactions in "Waiting for review" are never served, so this reconciliation repeats every 30 second tick
+   (at most 200 rows).
+3. **Concurrency slows requests:** request p95 1.3 s with 8 request threads plus the judge batch and tick, against under 0.1 s when
+   sequential. It must be measured again on the VPS (different disk and CPU) before concluding.
+4. **Every reaction packet redraws the whole message frame** of each tab (O(number of visible messages)). Fine at 200 messages.

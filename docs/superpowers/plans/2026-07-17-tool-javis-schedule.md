@@ -1,93 +1,93 @@
-# Tool `javis_schedule`: chat tạo được việc định kỳ - Implementation Plan
+# Tool `javis_schedule`: create recurring jobs from chat - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Cho Jarvis 007 một tool để tạo/liệt kê/huỷ việc định kỳ và nhắc hẹn ngay từ chat, thay cho việc gõ YAML bằng tay hoặc shell ra `curl`.
+**Goal:** Give Jarvis 007 a tool to create, list and cancel recurring jobs and reminders straight from chat, replacing hand-typed YAML or a shell call to `curl`.
 
-**Architecture:** `javis_schedule` là **plugin bundled** (`system/plugins/javis-schedule/`), KHÔNG phải tool trong hub. Nó route theo bản chất công việc: nhắc/cron/một-lần → kho `reminders` (đã chạy sẵn, có cron đầy đủ); việc lặp + bền + cần prompt sửa được trong Obsidian → file `.md` trong `Javis/loops/`. Người dùng và model chỉ thấy MỘT khái niệm "việc"; chuyện nó rơi vào kho nào là chi tiết triển khai.
+**Architecture:** `javis_schedule` is a **bundled plugin** (`system/plugins/javis-schedule/`), NOT a tool in the hub. It routes by the nature of the job: reminders/cron/one-shot go to the `reminders` store (already running, full cron support); a repeating job that must be durable and have a prompt editable in Obsidian becomes a `.md` file in `Javis/loops/`. The user and the model see ONE concept, a "job"; which store it lands in is an implementation detail.
 
-**Tech Stack:** Python 3.12, hệ plugin của Jarvis 007 (`plugins_host.py`), test script thuần.
+**Tech Stack:** Python 3.12, the Jarvis 007 plugin system (`plugins_host.py`), plain-script tests.
 
-Spec: `docs/superpowers/specs/2026-07-17-hop-nhat-viec-dinh-ky-design.md` (mục "Tool `javis_schedule`")
+Spec: `docs/superpowers/specs/2026-07-17-hop-nhat-viec-dinh-ky-design.md` (section "Tool `javis_schedule`")
 
 ---
 
-## Spec sai ba chỗ, plan này sửa
+## The spec is wrong in three places, this plan corrects them
 
-Spec viết: *"Thêm vào hub cạnh `javis_use_skill` (`mcp_hub.py:272`)"*. **Sai, và sai theo cách sẽ ship ra một tool vô hình.** Đọc code thật:
+The spec says: *"Add it to the hub next to `javis_use_skill` (`mcp_hub.py:272`)"*. **Wrong, and wrong in a way that would ship an invisible tool.** Reading the real code:
 
-**1. Hub HTTP không phục vụ nhóm builtin đó cho Claude/Codex.** `_handle_one` (`mcp_hub.py:391`) gọi `discover_all(mode, include_plugins=...)`, tức `vault_root=None` (mặc định ở `mcp_hub.py:293`). Mà `_builtin_tools` **early-return ngay sau `javis_connections`** (`mcp_hub.py:213-214`: `if not vault_root: return tools, route`). Đặt `javis_schedule` cạnh `javis_use_skill` = Claude Code không bao giờ thấy nó.
+**1. The HTTP hub does not serve that builtin group to Claude/Codex.** `_handle_one` (`mcp_hub.py:391`) calls `discover_all(mode, include_plugins=...)`, i.e. `vault_root=None` (the default at `mcp_hub.py:293`). And `_builtin_tools` **early-returns right after `javis_connections`** (`mcp_hub.py:213-214`: `if not vault_root: return tools, route`). Putting `javis_schedule` next to `javis_use_skill` means Claude Code never sees it.
 
-**2. Hub chỉ được gắn khi có ít nhất 1 connector MCP.** `claude_config_path` (`mcp_hub.py:~450`) trả `None` khi `not _has_connections()`. Người dùng chưa đấu MCP nào thì không có hub, tức không có tool. Một năng lực lõi không được phụ thuộc việc user đã đấu connector hay chưa.
+**2. The hub is only attached when there is at least one MCP connector.** `claude_config_path` (`mcp_hub.py:~450`) returns `None` when `not _has_connections()`. A user who has not connected any MCP has no hub, so no tool. A core capability must not depend on whether the user has connected a connector.
 
-**3. Đường đúng là plugin, và CLAUDE.md tự dạy vậy.** `claude_sdk_engine._plugins_server` (`:162-186`) dựng **MCP server IN-PROCESS** từ `plugins_host.plugin_tools(mode, None)`, gọi thẳng handler Python, **không qua hub**, nên không dính hai rào trên. Codex và engine API vẫn lấy plugin qua hub (`mcp_hub.py:334-347`). Một plugin bundled tới được mọi engine. `system/plugins/image-chatgpt/` là tiền lệ chính xác: `enabled: true`, `min_mode: safe`, đăng ký `javis_generate_image`, chạy trên mọi engine.
+**3. The right path is a plugin, and CLAUDE.md itself teaches that.** `claude_sdk_engine._plugins_server` (`:162-186`) builds an **IN-PROCESS MCP server** from `plugins_host.plugin_tools(mode, None)`, calling the Python handler directly, **not through the hub**, so it hits neither barrier. Codex and the API engines still get plugins through the hub (`mcp_hub.py:334-347`). A bundled plugin reaches every engine. `system/plugins/image-chatgpt/` is the exact precedent: `enabled: true`, `min_mode: safe`, registers `javis_generate_image`, runs on every engine.
 
-**Giới hạn đã biết, chấp nhận:** `_mcp_servers` (`claude_sdk_engine.py:188-191`) chỉ đấu plugin in-process khi engine **KHÔNG gated**; fork gated (`allowed_tools` có giá trị: loop mode suggest/auto, reminders mode task, workflow) cố ý giữ cô lập và **không** có plugin. Nên `javis_schedule` có ở **chat thường** (`main.py:1731` gọi `claude_engine` không truyền `allowed_tools` → ungated) - đúng ca dùng mà anh Quy nêu - nhưng loop nền sẽ không tự đặt lịch được. Đó là hành vi ĐÚNG (loop tự đẻ lịch là thứ ta không muốn), đừng "sửa".
+**Known limitation, accepted:** `_mcp_servers` (`claude_sdk_engine.py:188-191`) wires in-process plugins only when the engine is **NOT gated**; gated forks (`allowed_tools` has a value: loop mode suggest/auto, reminders mode task, workflow) are deliberately kept isolated and do **not** get plugins. So `javis_schedule` is available in **normal chat** (`main.py:1731` calls `claude_engine` without passing `allowed_tools`, so it is ungated), which is exactly the use case Quy described, but a background loop will not be able to schedule jobs by itself. That is the CORRECT behavior (a loop spawning its own schedules is something we do not want), do not "fix" it.
 
-## Bug có sẵn phải sửa trước, nếu không tool này sẽ ghi nhầm brain
+## An existing bug to fix first, or this tool will write to the wrong brain
 
-`PluginContext.vault_root` (`plugins_host.py:218`) nhận thẳng tham số `vault_root`. Đường SDK truyền `None` (`claude_sdk_engine.py:169`, comment "None = plugin toàn cục"). Nên **mọi plugin gọi từ Claude Code đều có `ctx.vault_root is None`**.
+`PluginContext.vault_root` (`plugins_host.py:218`) takes the `vault_root` parameter directly. The SDK path passes `None` (`claude_sdk_engine.py:169`, comment "None = global plugin"). So **every plugin called from Claude Code has `ctx.vault_root is None`**.
 
-Hậu quả đang xảy ra HÔM NAY (không phải giả thuyết): `image-chatgpt` truyền `vault_root=cctx.vault_root` (`plugin.py:33`) xuống `image_gen._resolve_vault` (`image_gen.py:95-98`), hàm này thấy rỗng thì **rơi về `brains/Brain Default`**. Tức: anh Quy đang làm việc ở brain "My Bullet Journal", bảo Jarvis 007 tạo ảnh, **ảnh lưu vào Brain Default** và link `![](attachments/...)` trong chat trỏ vào chỗ không có file. Bug im lặng, chưa ai báo.
+The consequence is happening TODAY (not hypothetical): `image-chatgpt` passes `vault_root=cctx.vault_root` (`plugin.py:33`) down to `image_gen._resolve_vault` (`image_gen.py:95-98`), which sees it empty and **falls back to `brains/Brain Default`**. In other words: Quy is working in the brain "My Bullet Journal", asks Jarvis 007 to create an image, **the image is saved into Brain Default** and the `![](attachments/...)` link in chat points at a file that is not there. A silent bug that nobody has reported.
 
-`javis_schedule` mà copy mẫu này thì sẽ ghi loop vào sai brain và đặt nhắc vào sai kho. **Task 1 sửa đường ống đó**, và sửa luôn `image-chatgpt` như hiệu ứng phụ.
+If `javis_schedule` copies this pattern it will write loops into the wrong brain and put reminders into the wrong store. **Task 1 fixes that plumbing**, and fixes `image-chatgpt` as a side effect.
 
 ## Global Constraints
 
-- **TUYỆT ĐỐI không dùng ký tự em dash (U+2014)** trong bất kỳ file nào: code, comment, test, doc, commit message. Dùng "-" hoặc viết lại câu. (CLAUDE.md, nguyên tắc 8.)
-- Tiếng Việt cho comment, docstring, mô tả tool, thông báo lỗi.
-- Test là **script thuần, không pytest**: `server/test_*.py`, có `def check(name, cond)`, gom `_fails`, `sys.exit(1)` khi lỗi. CI chạy `for f in test_*.py; do python "$f"; done` (`.github/workflows/ci.yml:35-37`).
-- Chạy test bằng venv: `.venv/Scripts/python.exe`. Test tự cô lập bằng `os.environ.setdefault("JAVIS_STATE_DIR", tempfile.mkdtemp(prefix="..."))` TRƯỚC khi import module Jarvis 007.
-- **Mô tả tool phải nói rõ KHI NÀO gọi**, vì đó là thứ duy nhất model đọc để quyết định. Bám giọng `image-chatgpt`.
-- Plugin bundled (`system/plugins/`) đi theo app, `enabled: true`. **Không** áp luật "plugin do chat tạo thì `enabled: false`" - luật đó dành cho plugin user tự viết.
-- Không sửa `server/self_improve.py` phần executor (`_eligible_overdue`, `run_cycle`). Plan này chỉ TẠO việc, không đổi cách chạy.
-- Nhắc lại từ giai đoạn 1: `dashboard/style.css` có `.loop-sel` và `.loop-row` còn SỐNG. Plan này không đụng CSS.
+- **NEVER use the em dash character (U+2014)** in any file: code, comments, tests, docs, commit messages. Use "-" or rewrite the sentence. (CLAUDE.md, principle 8.)
+- English for comments, docstrings, tool descriptions and error messages.
+- Tests are **plain scripts, not pytest**: `server/test_*.py`, with a `def check(name, cond)`, collecting `_fails`, and `sys.exit(1)` on failure. CI runs `for f in test_*.py; do python "$f"; done` (`.github/workflows/ci.yml:35-37`).
+- Run tests with the venv: `.venv/Scripts/python.exe`. Tests isolate themselves with `os.environ.setdefault("JAVIS_STATE_DIR", tempfile.mkdtemp(prefix="..."))` BEFORE importing any Jarvis 007 module.
+- **The tool description must say clearly WHEN to call it**, because that is the only thing the model reads to decide. Follow the `image-chatgpt` voice.
+- Bundled plugins (`system/plugins/`) ship with the app, `enabled: true`. The rule "a plugin created from chat is `enabled: false`" does **not** apply; that rule is for plugins the user writes themselves.
+- Do not touch the executor part of `server/self_improve.py` (`_eligible_overdue`, `run_cycle`). This plan only CREATES jobs, it does not change how they run.
+- Reminder from phase 1: `dashboard/style.css` still has LIVE `.loop-sel` and `.loop-row`. This plan does not touch CSS.
 
 ## File Structure
 
-| File | Trách nhiệm |
+| File | Responsibility |
 |---|---|
-| `server/claude_sdk_engine.py:162-186` | `_plugins_server` truyền vault_root THẬT thay vì `None`. |
-| `server/plugins_host.py` | `plugin_tools(mode, vault_root)` phân biệt "nạp plugin nào" với "ctx thấy vault nào". |
-| `server/test_plugin_vault.py` | **Mới.** Chặn hồi quy: ctx của plugin phải thấy đúng brain, không rơi về Brain Default. |
-| `system/plugins/javis-schedule/plugin.yaml` | **Mới.** Khai báo plugin, `min_mode: safe`. |
-| `system/plugins/javis-schedule/plugin.py` | **Mới.** Tool `javis_schedule`: op create/list/cancel, route hai kho. |
-| `server/test_javis_schedule.py` | **Mới.** Phủ: route đúng kho, parse lịch, list thấy CẢ HAI kho, cancel. |
-| `CLAUDE.md` | Mục điều phối: nói cho Jarvis 007 biết đã có tool này, đừng gõ YAML tay nữa. |
+| `server/claude_sdk_engine.py:162-186` | `_plugins_server` passes the REAL vault_root instead of `None`. |
+| `server/plugins_host.py` | `plugin_tools(mode, vault_root)` separates "which plugins to load" from "which vault the ctx sees". |
+| `server/test_plugin_vault.py` | **New.** Regression guard: a plugin's ctx must see the right brain and not fall back to Brain Default. |
+| `system/plugins/javis-schedule/plugin.yaml` | **New.** Declares the plugin, `min_mode: safe`. |
+| `system/plugins/javis-schedule/plugin.py` | **New.** Tool `javis_schedule`: op create/list/cancel, routing to the two stores. |
+| `server/test_javis_schedule.py` | **New.** Covers: routing to the right store, schedule parsing, list sees BOTH stores, cancel. |
+| `CLAUDE.md` | Orchestration section: tell Jarvis 007 this tool exists, stop typing YAML by hand. |
 
 ---
 
-### Task 1: Plugin phải thấy đúng brain (sửa bug ghi nhầm Brain Default)
+### Task 1: Plugins must see the right brain (fix the wrong-brain write to Brain Default)
 
 **Files:**
 - Modify: `server/claude_sdk_engine.py:162-186` (`_plugins_server`)
 - Modify: `server/plugins_host.py` (`plugin_tools`)
-- Test: `server/test_plugin_vault.py` (tạo mới)
+- Test: `server/test_plugin_vault.py` (new)
 
 **Interfaces:**
-- Consumes: chữ ký HIỆN TẠI đã verify: `plugin_tools(mode: str = "full", vault_root: Optional[str] = None) -> Tuple[List[dict], Dict[str, dict]]` (`plugins_host.py:415`). Task này THÊM keyword-only `scope_vault: bool = True`.
-- Produces: `ctx.vault_root` **không còn là None** ở đường chat. **Cơ chế THẬT (đã sửa lúc chạy, khác bản nháp plan):** brain đi TƯỜNG MINH qua `_apply_mcp(cli, mode="full", brain=None)` (`main.py:693`) đặt `cli.javis_vault = _brain_root(brain) if brain else None`, y khuôn `cli.javis_mode` sẵn có; `_plugins_server` đọc `self.javis_vault`. Bản nháp plan bảo suy từ `cwd` (`_brain_root()` kiểm `(cwd/"Jarvis 007").is_dir()`) - **SAI và đã xoá hẳn**: `CLAUDE_CWD` (`main.py:318`) là gốc project, không có `Javis/`, mà chat (`main.py:4213`, `:4537`) dùng đúng cwd đó, nên suy-từ-cwd luôn trượt ở chính đường chat.
+- Consumes: the CURRENT signature, verified: `plugin_tools(mode: str = "full", vault_root: Optional[str] = None) -> Tuple[List[dict], Dict[str, dict]]` (`plugins_host.py:415`). This task ADDS a keyword-only `scope_vault: bool = True`.
+- Produces: `ctx.vault_root` **is no longer None** on the chat path. **The REAL mechanism (corrected at run time, differs from the plan draft):** the brain travels EXPLICITLY through `_apply_mcp(cli, mode="full", brain=None)` (`main.py:693`), which sets `cli.javis_vault = _brain_root(brain) if brain else None`, in the same mold as the existing `cli.javis_mode`; `_plugins_server` reads `self.javis_vault`. The plan draft said to infer it from `cwd` (`_brain_root()` checks `(cwd/"Javis").is_dir()`) - **WRONG and removed entirely**: `CLAUDE_CWD` (`main.py:318`) is the project root, which has no `Javis/`, and chat (`main.py:4213`, `:4537`) uses exactly that cwd, so inferring from cwd always misses on the very chat path.
 
-**Vì sao task riêng:** đây là bug có sẵn, độc lập với `javis_schedule`, và một reviewer có thể duyệt/từ chối nó riêng. Nó cũng sửa `image-chatgpt` (đang lưu ảnh nhầm brain) mà không cần đụng file plugin đó.
+**Why a separate task:** this is an existing bug, independent of `javis_schedule`, and a reviewer can approve or reject it on its own. It also fixes `image-chatgpt` (currently saving images to the wrong brain) without touching that plugin's files.
 
-- [ ] **Step 1: Chứng minh bug tồn tại trước khi sửa**
+- [ ] **Step 1: Prove the bug exists before fixing it**
 
-Tạo `server/test_plugin_vault.py`:
+Create `server/test_plugin_vault.py`:
 
 ```python
-"""Test: plugin phải thấy ĐÚNG brain, không âm thầm rơi về Brain Default. Chạy tay / CI:
+"""Test: a plugin must see the RIGHT brain, not silently fall back to Brain Default. Run by hand / CI:
 
     cd server && python test_plugin_vault.py
 
-Bối cảnh bug: claude_sdk_engine._plugins_server gọi plugin_tools(mode, None) nên
-PluginContext.vault_root (plugins_host.py:218) = None với MỌI plugin gọi từ Claude Code.
-image-chatgpt truyền cctx.vault_root xuống image_gen._resolve_vault (image_gen.py:95-98),
-hàm này thấy rỗng thì rơi về brains/Brain Default -> ảnh lưu SAI brain, im lặng.
+Bug background: claude_sdk_engine._plugins_server calls plugin_tools(mode, None), so
+PluginContext.vault_root (plugins_host.py:218) = None for EVERY plugin called from Claude Code.
+image-chatgpt passes cctx.vault_root down to image_gen._resolve_vault (image_gen.py:95-98),
+which sees it empty and falls back to brains/Brain Default -> the image is saved to the WRONG brain, silently.
 
-Phủ:
-- PluginContext giữ đúng vault_root được truyền.
-- plugin_tools(mode, vault) dựng ctx có vault đó (không None).
-- _resolve_vault: có vault hợp lệ thì KHÔNG rơi về Brain Default (khẳng định tiền đề của bug).
+Covers:
+- PluginContext keeps the vault_root it was given.
+- plugin_tools(mode, vault) builds a ctx with that vault (not None).
+- _resolve_vault: with a valid vault it does NOT fall back to Brain Default (asserts the premise of the bug).
 """
 import os
 import sys
@@ -111,214 +111,214 @@ def check(name, cond):
 
 _BRAIN = tempfile.mkdtemp(prefix="javis-brain-that-")
 
-# ---- 1. Tiền đề của bug: _resolve_vault rơi về Brain Default khi vault rỗng ----
-# Nếu assert này đỏ thì bug đã được sửa ở nơi khác và test cần viết lại.
+# ---- 1. Premise of the bug: _resolve_vault falls back to Brain Default when the vault is empty ----
+# If this assert goes red the bug was fixed elsewhere and the test needs rewriting.
 fallback = str(image_gen._resolve_vault(None))
-check("tiền đề: _resolve_vault(None) rơi về Brain Default",
+check("premise: _resolve_vault(None) falls back to Brain Default",
       fallback.endswith("Brain Default"))
-check("tiền đề: _resolve_vault(<vault thật>) tôn trọng vault",
+check("premise: _resolve_vault(<real vault>) respects the vault",
       str(image_gen._resolve_vault(_BRAIN)) == _BRAIN)
 
-# ---- 2. PluginContext giữ vault_root ----
-# Chữ ký THẬT (plugins_host.py:214): __init__(self, slug, source, plugin_dir, vault_root)
+# ---- 2. PluginContext keeps vault_root ----
+# REAL signature (plugins_host.py:214): __init__(self, slug, source, plugin_dir, vault_root)
 ctx = plugins_host.PluginContext(slug="thu-nghiem", source="bundled",
                                  plugin_dir=Path(_BRAIN), vault_root=_BRAIN)
-check("ctx: giữ đúng vault_root được truyền", ctx.vault_root == _BRAIN)
-check("ctx: data_dir là property, không phải field gán tay", isinstance(ctx.data_dir, Path))
+check("ctx: keeps the vault_root it was given", ctx.vault_root == _BRAIN)
+check("ctx: data_dir is a property, not a hand-assigned field", isinstance(ctx.data_dir, Path))
 
-# ---- 3. _load_all dựng ctx THẤY vault (đây là chỗ bug sống) ----
-# Assert vào ctx THẬT của plugin đã nạp, không assert kiểu trả về. LoadedPlugin giữ ctx
-# (plugins_host.py:257 __slots__ có "ctx"), nên đọc thẳng được. Assert kiểu
-# `isinstance(tools, list)` là TAUTOLOGY: luôn đúng kể cả khi ctx mù vault.
+# ---- 3. _load_all builds a ctx that SEES the vault (this is where the bug lives) ----
+# Assert on the REAL ctx of the loaded plugin, not on a return type. LoadedPlugin holds ctx
+# (plugins_host.py:257 __slots__ has "ctx"), so it can be read directly. An assert like
+# `isinstance(tools, list)` is a TAUTOLOGY: always true even when the ctx is blind to the vault.
 ent = plugins_host._load_all(_BRAIN)
 loaded = ent["plugins"]
-check("nạp: có ít nhất 1 plugin bundled để soi ctx", len(loaded) > 0)
-check("ctx: MỌI plugin đã nạp thấy đúng brain (không None, không Brain Default)",
+check("load: at least 1 bundled plugin to inspect the ctx of", len(loaded) > 0)
+check("ctx: EVERY loaded plugin sees the right brain (not None, not Brain Default)",
       all(lp.ctx.vault_root == _BRAIN for lp in loaded))
 
-# Chứng minh bug: truyền None thì ctx mù -> đây chính là thứ đường SDK đang làm.
+# Prove the bug: passing None leaves the ctx blind -> this is exactly what the SDK path is doing.
 ent_none = plugins_host._load_all(None)
-check("bug: _load_all(None) -> ctx.vault_root là None (tiền đề của lỗi lưu nhầm brain)",
+check("bug: _load_all(None) -> ctx.vault_root is None (premise of the wrong-brain save)",
       all(lp.ctx.vault_root is None for lp in ent_none["plugins"]))
 
 
 if _fails:
-    print(f"\nFAIL - test_plugin_vault: {len(_fails)} lỗi: {_fails}")
+    print(f"\nFAIL - test_plugin_vault: {len(_fails)} failures: {_fails}")
     sys.exit(1)
-print("\nOK - test_plugin_vault: tất cả pass")
+print("\nOK - test_plugin_vault: all pass")
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận nó chạy được và tiền đề đỏ/xanh đúng**
+- [ ] **Step 2: Run the test, confirm it runs and the premises come out right**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_plugin_vault.py`
 
-Expected: hai assert "tiền đề" PASS (chứng minh bug có thật và `_resolve_vault` hành xử như mô tả). Nếu `PluginContext(...)` ném `TypeError` vì chữ ký khác, ĐỌC `plugins_host.py:209-220` rồi sửa test cho khớp chữ ký THẬT - đừng sửa code cho khớp test ở bước này.
+Expected: both "premise" asserts PASS (proving the bug is real and `_resolve_vault` behaves as described). If `PluginContext(...)` raises `TypeError` because the signature differs, READ `plugins_host.py:209-220` and fix the test to match the REAL signature - do not change the code to fit the test at this step.
 
-- [ ] **Step 3: Đọc chữ ký thật trước khi sửa**
+- [ ] **Step 3: Read the real signatures before fixing**
 
 Run: `cd /d/Project/Javis-OS && sed -n '160,175p;209,225p' server/plugins_host.py && sed -n '160,172p' server/claude_sdk_engine.py`
 
-Ghi lại: `plugin_tools` nhận gì, `PluginContext.__init__` nhận gì, `_plugins_server` đang truyền gì. Plan này mô tả theo hiểu biết lúc soạn; **code thật thắng**.
+Write down: what `plugin_tools` takes, what `PluginContext.__init__` takes, what `_plugins_server` is passing. This plan describes things as understood when it was written; **the real code wins**.
 
-- [ ] **Step 4: Sửa `_plugins_server` truyền vault thật**
+- [ ] **Step 4: Fix `_plugins_server` to pass the real vault**
 
-Trong `server/claude_sdk_engine.py`, hàm `_plugins_server` (`:162`), dòng hiện tại:
+In `server/claude_sdk_engine.py`, function `_plugins_server` (`:162`), the current line:
 
 ```python
-        p_tools, p_route = plugins_host.plugin_tools(mode, None)   # None = plugin toàn cục, như hub phục vụ CLI
+        p_tools, p_route = plugins_host.plugin_tools(mode, None)   # None = global plugins, as the hub serves the CLI
 ```
 
-Vấn đề: một tham số `None` đang gánh HAI nghĩa - "nạp plugin toàn cục (bundled + global, không nạp plugin riêng của vault)" VÀ "ctx không thấy vault nào". Nghĩa thứ nhất là cố ý, nghĩa thứ hai là bug.
+The problem: one `None` parameter is carrying TWO meanings: "load global plugins (bundled + global, not the vault's own plugins)" AND "the ctx sees no vault". The first meaning is deliberate, the second is the bug.
 
-Sửa thành:
+Change it to:
 
 ```python
-        # vault_root: CHỈ để ctx của plugin biết đang làm việc ở brain nào (vd image-chatgpt lưu
-        # ảnh vào đúng attachments/). Trước đây truyền None nên MỌI plugin gọi từ Claude Code đều
-        # có ctx.vault_root=None -> image_gen._resolve_vault rơi về "Brain Default" -> lưu SAI brain.
-        # Vẫn KHÔNG nạp plugin riêng-của-vault (giữ nguyên hành vi cũ): xem _plugin_scope dưới.
+        # vault_root: ONLY so the plugin's ctx knows which brain it is working in (e.g. image-chatgpt saves
+        # the image into the right attachments/). Before, None was passed so EVERY plugin called from Claude Code
+        # had ctx.vault_root=None -> image_gen._resolve_vault fell back to "Brain Default" -> saved to the WRONG brain.
+        # Still do NOT load the vault's own plugins (old behavior preserved): see _plugin_scope below.
         p_tools, p_route = plugins_host.plugin_tools(mode, self._brain_root())
 ```
 
-Và thêm helper vào cùng class:
+And add a helper to the same class:
 
 ```python
     def _brain_root(self):
-        """Brain đang làm việc, suy từ cwd. Trả None nếu cwd không phải một brain hợp lệ
-        (vd chat chạy với cwd = thư mục project) - khi đó plugin tự lo fallback như cũ."""
+        """The brain being worked in, inferred from cwd. Returns None if cwd is not a valid brain
+        (e.g. chat running with cwd = the project folder) - then the plugin handles its own fallback as before."""
         try:
             root = Path(self.cwd)
-            return str(root) if (root / "Jarvis 007").is_dir() else None
+            return str(root) if (root / "Javis").is_dir() else None
         except Exception:
             return None
 ```
 
-Đảm bảo `from pathlib import Path` đã có ở đầu file (`grep -n "^from pathlib\|^import pathlib" server/claude_sdk_engine.py`); nếu chưa thì thêm.
+Make sure `from pathlib import Path` is at the top of the file (`grep -n "^from pathlib\|^import pathlib" server/claude_sdk_engine.py`); add it if missing.
 
-- [ ] **Step 5: Tách hai nghĩa của tham số trong `plugins_host`**
+- [ ] **Step 5: Separate the two meanings of the parameter in `plugins_host`**
 
-Đọc `plugin_tools` và `_iter_plugin_dirs` (`plugins_host.py:129-140`). `_iter_plugin_dirs(vault_root)` dùng `vault_root` để quyết định có nạp `vault_plugins_dir(vault_root)` hay không. Nếu Step 4 giờ truyền vault thật, plugin **riêng của vault** sẽ bắt đầu được nạp cho engine SDK - đó là **đổi hành vi ngoài phạm vi** và dính rào `JAVIS_ENABLE_USER_PLUGINS`.
+Read `plugin_tools` and `_iter_plugin_dirs` (`plugins_host.py:129-140`). `_iter_plugin_dirs(vault_root)` uses `vault_root` to decide whether to load `vault_plugins_dir(vault_root)`. If Step 4 now passes the real vault, the vault's **own plugins** would start loading for the SDK engine - that is a **behavior change outside scope** and runs into the `JAVIS_ENABLE_USER_PLUGINS` gate.
 
-Nên thêm tham số tách bạch vào `plugin_tools`:
+So add a separate parameter to `plugin_tools`:
 
 ```python
 def plugin_tools(mode, vault_root=None, *, scope_vault=True):
-    """mode: mức quyền lượt chạy. vault_root: brain để ctx của plugin biết đang ở đâu.
-    scope_vault=False: KHÔNG nạp plugin riêng-của-vault (chỉ bundled + global) nhưng ctx VẪN
-    thấy vault_root. Tách hai nghĩa vì trước đây một chữ None gánh cả hai, làm ctx mù brain."""
+    """mode: the permission level of this turn. vault_root: the brain, so the plugin's ctx knows where it is.
+    scope_vault=False: do NOT load the vault's own plugins (only bundled + global) but the ctx STILL
+    sees vault_root. Two meanings are separated because before, a single None carried both, leaving the ctx blind to the brain."""
 ```
 
-**Đường dây thật (đã verify, đừng đoán):** `plugin_tools` (`:415`) gọi `_load_all(vault_root)`; `_load_all` mới là chỗ gọi `_iter_plugin_dirs(vault_root)` (`:129`) và dựng `PluginContext(..., vault_root=vault_root)`. Nên `scope_vault` phải xuyên qua CẢ HAI: `plugin_tools(..., scope_vault=...)` → `_load_all(vault_root, scope_vault=...)` → `_iter_plugin_dirs(vault_root if scope_vault else None)`, trong khi `PluginContext` vẫn nhận `vault_root` THẬT.
+**The real wiring (verified, do not guess):** `plugin_tools` (`:415`) calls `_load_all(vault_root)`; `_load_all` is what calls `_iter_plugin_dirs(vault_root)` (`:129`) and builds `PluginContext(..., vault_root=vault_root)`. So `scope_vault` must pass through BOTH: `plugin_tools(..., scope_vault=...)` → `_load_all(vault_root, scope_vault=...)` → `_iter_plugin_dirs(vault_root if scope_vault else None)`, while `PluginContext` still receives the REAL `vault_root`.
 
-Chỉ `_iter_plugin_dirs` được nhận `None`; `PluginContext` thì không. Đó chính là chỗ tách hai nghĩa.
+Only `_iter_plugin_dirs` may receive `None`; `PluginContext` may not. That is exactly where the two meanings are separated.
 
-**Cache:** `_load_all` cache theo `vault_root` (`plugins_host.py:63`). Thêm `scope_vault` vào khoá cache, nếu không hai lượt chạy cùng vault nhưng khác scope sẽ dùng nhầm cache của nhau. Đọc `:63-70` xem khoá đang dựng thế nào rồi thêm cho khớp.
+**Cache:** `_load_all` caches by `vault_root` (`plugins_host.py:63`). Add `scope_vault` to the cache key, otherwise two runs with the same vault but different scope would use each other's cache. Read `:63-70` to see how the key is built and add it to match.
 
-Rồi ở `claude_sdk_engine._plugins_server` gọi:
+Then in `claude_sdk_engine._plugins_server` call:
 
 ```python
         p_tools, p_route = plugins_host.plugin_tools(mode, self._brain_root(), scope_vault=False)
 ```
 
-- [ ] **Step 6: Bổ sung assert cho hành vi mới**
+- [ ] **Step 6: Add asserts for the new behavior**
 
-Thêm vào `server/test_plugin_vault.py` trước khối `if _fails:`:
+Add to `server/test_plugin_vault.py` before the `if _fails:` block:
 
 ```python
-# ---- 4. scope_vault=False: ctx VẪN thấy vault nhưng KHÔNG nạp plugin riêng-của-vault ----
+# ---- 4. scope_vault=False: ctx STILL sees the vault but does NOT load the vault's own plugins ----
 import inspect  # noqa: E402
 sig = inspect.signature(plugins_host.plugin_tools)
-check("plugin_tools: có tham số scope_vault", "scope_vault" in sig.parameters)
-check("plugin_tools: scope_vault mặc định True (giữ hành vi cũ cho hub)",
+check("plugin_tools: has a scope_vault parameter", "scope_vault" in sig.parameters)
+check("plugin_tools: scope_vault defaults to True (keeps old behavior for the hub)",
       sig.parameters["scope_vault"].default is True)
 
 import claude_sdk_engine  # noqa: E402
-# Class THẬT tên ClaudeSDK (claude_sdk_engine.py:124), KHÔNG phải ClaudeSDKEngine.
-check("SDK: có helper _brain_root", hasattr(claude_sdk_engine.ClaudeSDK, "_brain_root"))
+# The REAL class is named ClaudeSDK (claude_sdk_engine.py:124), NOT ClaudeSDKEngine.
+check("SDK: has the _brain_root helper", hasattr(claude_sdk_engine.ClaudeSDK, "_brain_root"))
 
 src_sdk = (Path(__file__).parent / "claude_sdk_engine.py").read_text(encoding="utf-8")
-check("SDK: không còn truyền None mù vào plugin_tools",
+check("SDK: no longer passes a blind None into plugin_tools",
       "plugin_tools(mode, None)" not in src_sdk)
-check("SDK: truyền brain thật + scope_vault=False",
+check("SDK: passes the real brain + scope_vault=False",
       "scope_vault=False" in src_sdk)
 ```
 
-**Tên class đã verify:** `ClaudeSDK` (`claude_sdk_engine.py:124`). Không phải `ClaudeSDKEngine`.
+**Class name verified:** `ClaudeSDK` (`claude_sdk_engine.py:124`). Not `ClaudeSDKEngine`.
 
-- [ ] **Step 7: Chạy test**
+- [ ] **Step 7: Run the test**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_plugin_vault.py`
 
-Expected: PASS toàn bộ.
+Expected: everything PASSES.
 
-- [ ] **Step 8: Chạy hồi quy các test đụng plugin/engine**
+- [ ] **Step 8: Run regressions on the tests that touch plugins/engine**
 
 Run: `cd server && for f in test_plugins_host.py test_sdk_engine.py test_image_gen.py test_loop_ambient.py; do echo "--- $f"; ../.venv/Scripts/python.exe "$f" || echo "FAIL: $f"; done`
 
-Expected: cả 4 in `OK - ...`. Nếu `test_plugins_host.py` đỏ vì đổi chữ ký, sửa TEST cho khớp chữ ký mới (thêm `scope_vault`), đừng bỏ tham số.
+Expected: all 4 print `OK - ...`. If `test_plugins_host.py` goes red because of the signature change, fix the TEST to match the new signature (add `scope_vault`), do not drop the parameter.
 
 - [ ] **Step 9: Commit**
 
 ```bash
 git add server/claude_sdk_engine.py server/plugins_host.py server/test_plugin_vault.py
-git commit -m "fix(plugins): ctx thay dung brain - truoc day moi plugin goi tu Claude Code deu mu
+git commit -m "fix(plugins): ctx sees the right brain - before, every plugin called from Claude Code was blind
 
-_plugins_server truyen plugin_tools(mode, None) nen PluginContext.vault_root
-(plugins_host.py:218) = None voi MOI plugin goi tu Claude Code. image-chatgpt
-truyen cctx.vault_root xuong image_gen._resolve_vault (image_gen.py:95-98), ham
-nay thay rong thi roi ve brains/Brain Default -> lam viec o brain khac ma anh
-lai luu vao Brain Default, link attachments/ tro vao cho khong co file. Bug im
-lang, chua ai bao.
+_plugins_server passed plugin_tools(mode, None), so PluginContext.vault_root
+(plugins_host.py:218) = None for EVERY plugin called from Claude Code. image-chatgpt
+passes cctx.vault_root down to image_gen._resolve_vault (image_gen.py:95-98), which
+sees it empty and falls back to brains/Brain Default -> working in another brain but
+the image is saved to Brain Default, and the attachments/ link points at a file that
+is not there. A silent bug, nobody reported it.
 
-Mot chu None dang ganh HAI nghia: 'khong nap plugin rieng-cua-vault' (co y) va
-'ctx khong thay vault nao' (bug). Tach bang tham so scope_vault.
+One None was carrying TWO meanings: 'do not load the vault's own plugins' (deliberate)
+and 'the ctx sees no vault' (the bug). Separated with the scope_vault parameter.
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 2: Plugin `javis-schedule` - tool tạo/liệt kê/huỷ việc
+### Task 2: Plugin `javis-schedule` - tool to create/list/cancel jobs
 
 **Files:**
 - Create: `system/plugins/javis-schedule/plugin.yaml`
 - Create: `system/plugins/javis-schedule/plugin.py`
-- Test: `server/test_javis_schedule.py` (tạo mới)
+- Test: `server/test_javis_schedule.py` (new)
 
 **Interfaces:**
-- Consumes: `ctx.vault_root` thấy đúng brain khi gọi từ **chat** (Task 1, cơ chế: `_apply_mcp(cli, brain=...)` → `cli.javis_vault` → `plugin_tools(mode, self.javis_vault, scope_vault=False)`). **Lưu ý:** loop nền gọi `apply_mcp` KHÔNG truyền brain nên `javis_vault=None` ở đó - nhưng loop suggest/auto vốn gated nên không có plugin, còn loop `mode: full` thì có. Vì vậy handler PHẢI báo lỗi rõ khi `ctx.vault_root` rỗng, TUYỆT ĐỐI không fallback về Brain Default. `reminders` HTTP API `POST /reminders` (`server/reminders.py:507`, localhost-exempt qua `_AUTH_LOCAL_EXACT` ở `main.py:70`), `GET /reminders`, `POST /reminders/cancel`.
-- Produces: tool `javis_schedule(op, ...)`. Không task nào sau dựa vào nó.
+- Consumes: `ctx.vault_root` sees the right brain when called from **chat** (Task 1, mechanism: `_apply_mcp(cli, brain=...)` → `cli.javis_vault` → `plugin_tools(mode, self.javis_vault, scope_vault=False)`). **Note:** the background loop calls `apply_mcp` WITHOUT passing brain, so `javis_vault=None` there - but suggest/auto loops are gated by design and get no plugins, while `mode: full` loops do. Therefore the handler MUST report a clear error when `ctx.vault_root` is empty and MUST NOT fall back to Brain Default under any circumstances. The `reminders` HTTP API `POST /reminders` (`server/reminders.py:507`, localhost-exempt via `_AUTH_LOCAL_EXACT` at `main.py:70`), `GET /reminders`, `POST /reminders/cancel`.
+- Produces: tool `javis_schedule(op, ...)`. No later task depends on it.
 
-**Quyết định wiring, đọc kỹ trước khi code:**
+**Wiring decision, read carefully before coding:**
 
-Plugin **KHÔNG import `main.py`** (vòng lặp import, và `main.py` 5000 dòng có side-effect lúc import). Hai kho được với tới theo hai đường khác nhau, vì luật auth khác nhau:
+The plugin **does NOT import `main.py`** (import cycle, and the 5000-line `main.py` has side effects at import time). The two stores are reached by two different routes, because the auth rules differ:
 
-- **Nhắc hẹn** → gọi HTTP `POST /reminders` trên `127.0.0.1`. Đường này CỐ Ý miễn đăng nhập cho localhost (`main.py:70`, `_AUTH_LOCAL_EXACT = ("/telegram/send-file", "/reminders")`), chính là đường mà `reminders.py:17` mô tả agent đang dùng bằng `curl`. Tool chỉ gói lại cho tử tế.
-- **Loop** → **ghi thẳng file** `.md` vào `<vault_root>/Javis/loops/<slug>.md`. KHÔNG dùng `POST /loops` vì route đó **cần đăng nhập** (không nằm trong `_AUTH_LOCAL_EXACT`) nên plugin không gọi được từ localhost. Ghi file là đúng bản chất: loop VỐN LÀ một file `.md` (`self_improve.py:6`), scheduler tự đọc thư mục.
+- **Reminders** → call HTTP `POST /reminders` on `127.0.0.1`. This route is DELIBERATELY login-exempt for localhost (`main.py:70`, `_AUTH_LOCAL_EXACT = ("/telegram/send-file", "/reminders")`), the very route `reminders.py:17` describes agents already using with `curl`. The tool just wraps it properly.
+- **Loops** → **write the `.md` file directly** to `<vault_root>/Javis/loops/<slug>.md`. Do NOT use `POST /loops` because that route **requires login** (it is not in `_AUTH_LOCAL_EXACT`), so a plugin cannot call it from localhost. Writing the file is the true nature of it: a loop IS a `.md` file (`self_improve.py:6`) and the scheduler reads the folder itself.
 
-Port server: đọc từ env `JAVIS_PORT` nếu có, mặc định `7777`. Xác nhận bằng `grep -rn "7777\|JAVIS_PORT" server/main.py server/config.py | head`.
+Server port: read from env `JAVIS_PORT` if present, default `7777`. Confirm with `grep -rn "7777\|JAVIS_PORT" server/main.py server/config.py | head`.
 
-- [ ] **Step 1: Viết test thất bại**
+- [ ] **Step 1: Write the failing test**
 
-Tạo `server/test_javis_schedule.py`:
+Create `server/test_javis_schedule.py`:
 
 ```python
-"""Test tool javis_schedule (plugin bundled). Chạy tay / CI:
+"""Test the javis_schedule tool (bundled plugin). Run by hand / CI:
 
     cd server && python test_javis_schedule.py
 
-Bối cảnh: trước tool này, chat muốn tạo việc định kỳ phải TỰ GÕ YAML frontmatter vào
-Javis/loops/<slug>.md, hoặc shell ra curl POST /reminders (reminders.py:17). Tool gói cả hai
-lại và tự route: nhắc/cron/một-lần -> kho reminders; việc lặp + bền -> file .md.
+Background: before this tool, chat that wanted to create a recurring job had to TYPE the YAML frontmatter
+into Javis/loops/<slug>.md itself, or shell out to curl POST /reminders (reminders.py:17). The tool wraps both
+and routes automatically: reminder/cron/one-shot -> the reminders store; repeating + durable -> a .md file.
 
-KHÔNG chạm mạng: mọi test đều gọi hàm thuần hoặc ghi file trong thư mục tạm.
+NO network: every test calls a pure function or writes a file in a temp folder.
 
-Phủ:
-- _route_kind: phân loại đúng lịch -> kho nào.
-- _slugify_vn: tên tiếng Việt -> slug ascii, không đụng file đã có.
-- op=create việc lặp -> ghi .md đúng chỗ, frontmatter đọc lại được, enabled=false.
-- op=create nhắc -> KHÔNG ghi .md (phải đi đường reminders).
-- Tool đăng ký đúng tên + min_mode.
+Covers:
+- _route_kind: classifies the schedule -> which store.
+- _slugify_vn: Vietnamese name -> ascii slug, does not collide with an existing file.
+- op=create repeating job -> writes the .md in the right place, frontmatter reads back, enabled=false.
+- op=create reminder -> does NOT write a .md (must go through reminders).
+- The tool registers with the right name + min_mode.
 """
 import os
 import sys
@@ -340,48 +340,54 @@ def check(name, cond):
         _fails.append(name)
 
 
-# ---- 1. Route: lịch nào về kho nào ----
-check("route: '120m' -> loop (lặp, bền)", sched._route_kind("120m", False) == "loop")
+# ---- 1. Route: which schedule goes to which store ----
+# (The Vietnamese schedule strings below are deliberate test input: "mỗi 2 tiếng" = "every 2 hours",
+#  "30 phút nữa" = "in 30 minutes".)
+check("route: '120m' -> loop (repeating, durable)", sched._route_kind("120m", False) == "loop")
 check("route: 'mỗi 2 tiếng' -> loop", sched._route_kind("mỗi 2 tiếng", False) == "loop")
-check("route: '0 7 * * *' -> reminder (cron, reminders đã có sẵn)",
+check("route: '0 7 * * *' -> reminder (cron, reminders already has it)",
       sched._route_kind("0 7 * * *", False) == "reminder")
-check("route: '30 phút nữa' -> reminder (một lần)", sched._route_kind("30 phút nữa", False) == "reminder")
-check("route: notify_only ép về reminder dù lịch lặp",
+check("route: '30 phút nữa' -> reminder (one-shot)", sched._route_kind("30 phút nữa", False) == "reminder")
+check("route: notify_only forces reminder even for a repeating schedule",
       sched._route_kind("120m", True) == "reminder")
 
 # ---- 2. Slug ----
-check("slug: bỏ dấu tiếng Việt", sched._slugify_vn("Đọc source mỗi 2 tiếng") == "doc-source-moi-2-tieng")
-check("slug: không rỗng khi tên toàn ký tự lạ", sched._slugify_vn("!!!") != "")
+# (Vietnamese input on purpose: the slug rule strips diacritics. "Đọc source mỗi 2 tiếng" = "Read source every 2 hours".)
+check("slug: strips Vietnamese diacritics", sched._slugify_vn("Đọc source mỗi 2 tiếng") == "doc-source-moi-2-tieng")
+check("slug: not empty when the name is all odd characters", sched._slugify_vn("!!!") != "")
 
-# ---- 3. Tạo việc lặp -> ghi .md ----
+# ---- 3. Create a repeating job -> write the .md ----
+# (Vietnamese name and prompt on purpose: "Quét đơn mỗi 2 tiếng" = "Scan orders every 2 hours",
+#  the prompt = "Each round, read today's order count through the POS MCP then write a draft.")
 _vault = tempfile.mkdtemp(prefix="javis-vault-")
 res = sched._create_loop_file(_vault, name="Quét đơn mỗi 2 tiếng",
                               prompt="Mỗi vòng đọc số đơn hôm nay qua MCP POS rồi ghi nháp.",
                               schedule="120m", owner_chat="123")
-f = Path(_vault) / "Jarvis 007" / "loops" / "quet-don-moi-2-tieng.md"
-check("loop: ghi đúng <vault>/Javis/loops/<slug>.md", f.is_file())
+f = Path(_vault) / "Javis" / "loops" / "quet-don-moi-2-tieng.md"
+check("loop: writes <vault>/Javis/loops/<slug>.md in the right place", f.is_file())
 body = f.read_text(encoding="utf-8") if f.is_file() else ""
-check("loop: frontmatter có type: loop", "type: loop" in body)
-check("loop: MẶC ĐỊNH enabled: false (luật an toàn CLAUDE.md)", "enabled: false" in body)
-check("loop: MẶC ĐỊNH mode: suggest (không bao giờ tự đặt full)", "mode: suggest" in body)
-check("loop: interval_min từ '120m'", "interval_min: 120" in body)
-check("loop: giữ owner_chat để báo đúng người", 'owner_chat: "123"' in body)
-check("loop: thân file LÀ prompt (tự đủ, không phụ thuộc chat)", "MCP POS" in body)
-check("loop: trả về đường dẫn cho model biết đã ghi đâu", "quet-don-moi-2-tieng" in str(res))
+check("loop: frontmatter has type: loop", "type: loop" in body)
+check("loop: DEFAULT enabled: false (CLAUDE.md safety rule)", "enabled: false" in body)
+check("loop: DEFAULT mode: suggest (never sets full by itself)", "mode: suggest" in body)
+check("loop: interval_min from '120m'", "interval_min: 120" in body)
+check("loop: keeps owner_chat so the right person is notified", 'owner_chat: "123"' in body)
+check("loop: the file body IS the prompt (self-contained, independent of the chat)", "MCP POS" in body)
+check("loop: returns the path so the model knows where it was written", "quet-don-moi-2-tieng" in str(res))
 
-# ---- 4. Không ghi đè loop đã có bằng bản ascii song song ----
-# self_improve.py:273 lấy ĐỊNH DANH theo TÊN FILE. Tạo trùng slug -> phải báo, không âm thầm fork.
+# ---- 4. Do not overwrite an existing loop with a parallel ascii copy ----
+# self_improve.py:273 takes the IDENTITY from the FILE NAME. A duplicate slug -> must report, not silently fork.
 res2 = sched._create_loop_file(_vault, name="Quét đơn mỗi 2 tiếng", prompt="khác", schedule="60m")
-check("loop: trùng slug -> báo lỗi rõ, không đẻ bản sao",
+# ("đã có" is the Vietnamese error text, "already exists", that the plugin returns.)
+check("loop: duplicate slug -> clear error, no copy spawned",
       str(res2).startswith("ERROR:") or "đã có" in str(res2).lower())
 
-# ---- 5. Tool đăng ký đúng ----
+# ---- 5. The tool registers correctly ----
 _regs = []
 
 
 class _FakeCtx:
-    # data_dir là @property trên PluginContext thật (plugins_host.py:223) nên KHÔNG gán được;
-    # fake ctx chỉ cần thứ handler thật sự đọc.
+    # data_dir is a @property on the real PluginContext (plugins_host.py:223) so it can NOT be assigned;
+    # the fake ctx only needs what the handler actually reads.
     vault_root = _vault
     slug = "javis-schedule"
 
@@ -393,38 +399,38 @@ class _FakeCtx:
 
 
 sched.register(_FakeCtx())
-check("đăng ký: đúng 1 tool", len(_regs) == 1)
-check("đăng ký: tên javis_schedule", _regs and _regs[0].get("name") == "javis_schedule")
-check("đăng ký: min_mode=safe (tạo việc là GHI, chặn ở suggest)",
+check("register: exactly 1 tool", len(_regs) == 1)
+check("register: name javis_schedule", _regs and _regs[0].get("name") == "javis_schedule")
+check("register: min_mode=safe (creating a job is a WRITE, blocked in suggest)",
       _regs and _regs[0].get("min_mode") == "safe")
 desc = (_regs[0].get("description") or "") if _regs else ""
-check("đăng ký: mô tả nói rõ KHI NÀO gọi", len(desc) > 60 and "op" in desc)
+check("register: the description says clearly WHEN to call", len(desc) > 60 and "op" in desc)
 props = ((_regs[0].get("schema") or {}).get("properties") or {}) if _regs else {}
-check("đăng ký: schema có op/name/schedule/prompt",
+check("register: schema has op/name/schedule/prompt",
       {"op", "name", "schedule", "prompt"}.issubset(set(props)))
 
 
 if _fails:
-    print(f"\nFAIL - test_javis_schedule: {len(_fails)} lỗi: {_fails}")
+    print(f"\nFAIL - test_javis_schedule: {len(_fails)} failures: {_fails}")
     sys.exit(1)
-print("\nOK - test_javis_schedule: tất cả pass")
+print("\nOK - test_javis_schedule: all pass")
 ```
 
-- [ ] **Step 2: Chạy test để xác nhận FAIL**
+- [ ] **Step 2: Run the test to confirm it FAILS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_javis_schedule.py`
 
-Expected: `ModuleNotFoundError: No module named 'plugin'` (chưa tạo plugin).
+Expected: `ModuleNotFoundError: No module named 'plugin'` (the plugin is not created yet).
 
-- [ ] **Step 3: Tạo `plugin.yaml`**
+- [ ] **Step 3: Create `plugin.yaml`**
 
-Tạo `system/plugins/javis-schedule/plugin.yaml`:
+Create `system/plugins/javis-schedule/plugin.yaml`:
 
 ```yaml
-name: Đặt việc định kỳ & nhắc hẹn
+name: Schedule recurring jobs and reminders
 slug: javis-schedule
 version: 1.0.0
-description: Tạo/liệt kê/huỷ việc chạy định kỳ và nhắc hẹn ngay từ chat. Tự chọn kho - việc lặp và bền thì ghi Javis/loops/<slug>.md để sửa được trong Obsidian; nhắc một lần hoặc lịch cron thì vào kho nhắc hẹn (đã có sẵn cron 5 trường). Thay cho việc gõ YAML tay hoặc curl.
+description: Create, list and cancel recurring jobs and reminders straight from chat. Picks the store itself - a repeating, durable job is written to Javis/loops/<slug>.md so it can be edited in Obsidian; a one-time reminder or a cron schedule goes into the reminders store (which already has 5-field cron). Replaces hand-typed YAML or curl.
 author: Jarvis 007 (bundled)
 enabled: true
 min_mode: safe
@@ -433,20 +439,20 @@ tools:
 hooks: []
 ```
 
-- [ ] **Step 4: Viết `plugin.py`**
+- [ ] **Step 4: Write `plugin.py`**
 
-Tạo `system/plugins/javis-schedule/plugin.py`. Đọc `system/plugins/image-chatgpt/plugin.py` trước để bám đúng khuôn `register(ctx)` / `ctx.register_tool` / trả `"ERROR: ..."` khi lỗi.
+Create `system/plugins/javis-schedule/plugin.py`. Read `system/plugins/image-chatgpt/plugin.py` first to follow the exact mold of `register(ctx)` / `ctx.register_tool` / returning `"ERROR: ..."` on failure.
 
-Yêu cầu nội dung (viết đầy đủ, đây là mô tả hành vi bắt buộc chứ không phải gợi ý):
+Required content (write it in full; this is a mandatory behavior description, not a suggestion):
 
-1. `_slugify_vn(name) -> str`: bỏ dấu tiếng Việt (dùng `unicodedata.normalize("NFD", s)` rồi lọc `category != "Mn"`), hạ chữ thường, thay mọi ký tự không phải `[a-z0-9]` bằng `-`, gộp `-` liên tiếp, cắt hai đầu. Rỗng thì trả `"viec"`.
+1. `_slugify_vn(name) -> str`: strip Vietnamese diacritics (use `unicodedata.normalize("NFD", s)` then filter `category != "Mn"`), lowercase, replace every character that is not `[a-z0-9]` with `-`, collapse repeated `-`, trim both ends. If empty return `"viec"` (Vietnamese for "job").
 2. `_route_kind(schedule, notify_only) -> "loop" | "reminder"`:
    - `notify_only` True → `"reminder"`.
-   - Chuỗi khớp cron 5 trường (5 token cách nhau bởi khoảng trắng, hoặc bắt đầu bằng `@`) → `"reminder"`.
-   - Chuỗi chỉ ra CHU KỲ lặp (`"120m"`, `"90 phút"`, `"mỗi 2 tiếng"`, `"2h"`) → `"loop"`.
-   - Còn lại (mốc một lần: `"30 phút nữa"`, `"9h sáng mai"`, ISO) → `"reminder"`.
-3. `_interval_min(schedule) -> int`: rút số phút từ chuỗi chu kỳ. `"2 tiếng"`/`"2h"` → 120. Tối thiểu **5** (khớp trần cứng ở `self_improve.py:257`).
-4. `_create_loop_file(vault_root, name, prompt, schedule, owner_chat="") -> str`: ghi `<vault_root>/Javis/loops/<slug>.md`. **File đã tồn tại → trả `"ERROR: đã có việc tên ... , sửa nó thay vì tạo bản sao"`**, KHÔNG ghi đè (`self_improve.py:321-327` lấy định danh theo tên file; đẻ bản ascii song song thì bản gốc VẪN CHẠY). Frontmatter đúng khuôn CLAUDE.md:
+   - A string matching 5-field cron (5 tokens separated by whitespace, or starting with `@`) → `"reminder"`.
+   - A string that indicates a repeating PERIOD (`"120m"`, `"90 phút"`, `"mỗi 2 tiếng"`, `"2h"`) → `"loop"`. (The Vietnamese units are deliberate input: "phút" = minutes, "mỗi 2 tiếng" = every 2 hours.)
+   - Everything else (a one-time point: `"30 phút nữa"` = "in 30 minutes", `"9h sáng mai"` = "9am tomorrow", ISO) → `"reminder"`.
+3. `_interval_min(schedule) -> int`: extract the minutes from a period string. `"2 tiếng"`/`"2h"` → 120. Minimum **5** (matching the hard floor at `self_improve.py:257`).
+4. `_create_loop_file(vault_root, name, prompt, schedule, owner_chat="") -> str`: write `<vault_root>/Javis/loops/<slug>.md`. **File already exists → return `"ERROR: đã có việc tên ... , sửa nó thay vì tạo bản sao"`** (Vietnamese for "ERROR: a job named ... already exists, edit it instead of creating a copy"), do NOT overwrite (`self_improve.py:321-327` takes the identity from the file name; spawning a parallel ascii copy means the original KEEPS RUNNING). Frontmatter in the CLAUDE.md mold:
 
 ```
 ---
@@ -462,14 +468,14 @@ updated: <YYYY-MM-DD>
 <prompt>
 ```
 
-   `enabled: false` và `mode: suggest` là **BẮT BUỘC**, không nhận tham số để đổi. Luật CLAUDE.md: "Loop do chat tạo LUÔN mặc định `mode: suggest` + `enabled: false`. KHÔNG bao giờ tự đặt `mode: full`."
-5. `_post_reminder(payload) -> str`: `httpx.post(f"http://127.0.0.1:{_port()}/reminders", json=payload, timeout=10)`. `_port()` đọc env `JAVIS_PORT` mặc định `7777`.
+   `enabled: false` and `mode: suggest` are **MANDATORY**, with no parameter to change them. The CLAUDE.md rule: "A loop created from chat ALWAYS defaults to `mode: suggest` + `enabled: false`. NEVER set `mode: full` yourself."
+5. `_post_reminder(payload) -> str`: `httpx.post(f"http://127.0.0.1:{_port()}/reminders", json=payload, timeout=10)`. `_port()` reads env `JAVIS_PORT`, default `7777`.
 6. Handler `javis_schedule(args, cctx)`:
-   - `op="create"`: cần `name` + `prompt` + `schedule`. Route bằng `_route_kind`. `"loop"` → `_create_loop_file(cctx.vault_root, ...)`; `"reminder"` → `_post_reminder`. `cctx.vault_root` rỗng → trả `"ERROR: không xác định được brain đang làm việc"` (ĐỪNG fallback về Brain Default - đó là chính bug Task 1 vừa sửa).
-   - `op="list"`: trả **union CẢ HAI kho** - đọc `<vault>/Javis/loops/*.md` (tên + enabled + interval) và `GET /reminders` (pending). Đây là lỗi dễ mắc nhất: chỉ nhìn một kho thì model sẽ báo "không có việc nào" trong khi việc nằm ở kho kia.
-   - `op="cancel"`: `id` bắt đầu bằng slug loop → xoá file `.md`; còn lại → `POST /reminders/cancel`.
-   - Trả CHUỖI người đọc được (model sẽ đọc lại), lỗi thì `"ERROR: ..."`.
-7. `register(ctx)` gọi `ctx.register_tool(...)`. Chữ ký THẬT đã verify (`plugins_host.py:~230`):
+   - `op="create"`: needs `name` + `prompt` + `schedule`. Route with `_route_kind`. `"loop"` → `_create_loop_file(cctx.vault_root, ...)`; `"reminder"` → `_post_reminder`. If `cctx.vault_root` is empty → return `"ERROR: không xác định được brain đang làm việc"` (Vietnamese for "ERROR: cannot determine which brain is being worked in"; do NOT fall back to Brain Default - that is exactly the Task 1 bug just fixed).
+   - `op="list"`: return the **union of BOTH stores** - read `<vault>/Javis/loops/*.md` (name + enabled + interval) and `GET /reminders` (pending). This is the easiest mistake to make: looking at only one store makes the model report "there are no jobs" while the jobs sit in the other store.
+   - `op="cancel"`: an `id` starting with a loop slug → delete the `.md` file; otherwise → `POST /reminders/cancel`.
+   - Return a human-readable STRING (the model will read it back), `"ERROR: ..."` on failure.
+7. `register(ctx)` calls `ctx.register_tool(...)`. REAL signature, verified (`plugins_host.py:~230`):
 
 ```python
 def register_tool(self, name: str, description: str, handler: Callable,
@@ -478,15 +484,15 @@ def register_tool(self, name: str, description: str, handler: Callable,
                   emoji: str = "") -> None
 ```
 
-   `handler(args: dict, ctx: PluginContext) -> str` (sync hoặc async). Tên tool phải khớp `a-z0-9_` nếu không nó **ném ValueError**. Dùng `min_mode="safe"`, schema có `op` (enum create|list|cancel), `name`, `schedule`, `prompt`, `notify_only`, `id`. Mô tả tool phải nêu rõ khi nào gọi kèm ví dụ lịch hợp lệ.
+   `handler(args: dict, ctx: PluginContext) -> str` (sync or async). The tool name must match `a-z0-9_` or it **raises ValueError**. Use `min_mode="safe"`, a schema with `op` (enum create|list|cancel), `name`, `schedule`, `prompt`, `notify_only`, `id`. The tool description must say clearly when to call it, with examples of valid schedules.
 
-- [ ] **Step 5: Chạy test tới khi PASS**
+- [ ] **Step 5: Run the test until it PASSES**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_javis_schedule.py`
 
-Expected: PASS toàn bộ. Nếu assert nào sai vì chữ ký `ctx.register_tool` khác thật, đọc `plugins_host.py:209-260` lấy chữ ký thật rồi sửa TEST.
+Expected: everything PASSES. If any assert is wrong because the `ctx.register_tool` signature differs from the real one, read `plugins_host.py:209-260` to get the real signature and fix the TEST.
 
-- [ ] **Step 6: Xác nhận plugin được nạp thật (không chỉ pass test đơn vị)**
+- [ ] **Step 6: Confirm the plugin really loads (not just a passing unit test)**
 
 Run:
 
@@ -498,118 +504,118 @@ sys.path.insert(0, '.')
 import plugins_host
 d = plugins_host.describe(None)
 p = [x for x in d if x['slug'] == 'javis-schedule']
-print('mo ta:', p)
+print('description:', p)
 t, r = plugins_host.plugin_tools('safe', None)
 print('tool safe:', [x['fn'] for x in t])
 t2, _ = plugins_host.plugin_tools('readonly', None)
-print('tool readonly (KHONG duoc co javis_schedule):', [x['fn'] for x in t2])
+print('tool readonly (must NOT include javis_schedule):', [x['fn'] for x in t2])
 "
 ```
 
-Expected: `javis-schedule` xuất hiện trong `describe`, `loaded: True`, `error` rỗng. `javis_schedule` CÓ trong danh sách mode `safe`, **KHÔNG** có trong mode `readonly` (min_mode chặn). Nếu `loaded: False` thì đọc trường `error` để biết import hỏng ở đâu.
+Expected: `javis-schedule` appears in `describe`, `loaded: True`, `error` empty. `javis_schedule` IS in the list for mode `safe` and is **NOT** in mode `readonly` (min_mode blocks it). If `loaded: False`, read the `error` field to see where the import broke.
 
-- [ ] **Step 7: Chạy hồi quy**
+- [ ] **Step 7: Run regressions**
 
 Run: `cd server && for f in test_plugins_host.py test_plugin_vault.py test_javis_schedule.py; do echo "--- $f"; ../.venv/Scripts/python.exe "$f" || echo "FAIL: $f"; done`
 
-Expected: cả 3 in `OK - ...`.
+Expected: all 3 print `OK - ...`.
 
 - [ ] **Step 8: Commit**
 
 ```bash
 git add system/plugins/javis-schedule/ server/test_javis_schedule.py
-git commit -m "feat(schedule): tool javis_schedule - chat dat duoc viec dinh ky, thoi go YAML tay
+git commit -m "feat(schedule): javis_schedule tool - chat can set recurring jobs, no more hand-typed YAML
 
-Truoc: chat muon tao viec dinh ky phai TU GO YAML frontmatter vao
-Javis/loops/<slug>.md, hoac shell ra curl POST /reminders (reminders.py:17 ghi
-thang nhu vay). Duong thu hai con tu mau thuan: loop mode suggest/auto bi chan
-Bash (self_improve.py:112) nen loop khong tu dat nhac duoc cho chinh no.
+Before: chat that wanted to create a recurring job had to TYPE the YAML frontmatter
+into Javis/loops/<slug>.md itself, or shell out to curl POST /reminders (reminders.py:17
+says exactly that). The second path also contradicts itself: suggest/auto loops are
+blocked from Bash (self_improve.py:112), so a loop cannot set a reminder for itself.
 
-La PLUGIN bundled chu khong phai tool trong hub, vi hub khong voi toi duoc moi
-engine: _builtin_tools early-return khi vault_root=None (mcp_hub.py:213) ma
-duong HTTP luon goi vay, va claude_config_path tra None khi chua co connector
-MCP nao. Plugin di qua MCP server IN-PROCESS (claude_sdk_engine.py:162-186),
-khong dinh hai rao do.
+It is a bundled PLUGIN, not a hub tool, because the hub does not reach every
+engine: _builtin_tools early-returns when vault_root=None (mcp_hub.py:213), which is
+how the HTTP path always calls it, and claude_config_path returns None when there is
+no MCP connector yet. A plugin goes through the IN-PROCESS MCP server
+(claude_sdk_engine.py:162-186) and hits neither barrier.
 
-Route hai kho: viec lap + ben -> .md (sua duoc trong Obsidian); nhac/cron/mot-lan
--> kho reminders (da co cron 5 truong san). op=list phai nhin CA HAI kho.
+Two stores are routed: repeating + durable -> .md (editable in Obsidian); reminder/cron/one-shot
+-> the reminders store (which already has 5-field cron). op=list must look at BOTH stores.
 
-An toan: loop tao qua chat LUON enabled:false + mode:suggest, khong nhan tham so
-de doi (luat CLAUDE.md). Trung slug thi bao loi, khong de ban sao song song
-(self_improve.py:321-327: dinh danh theo TEN FILE).
+Safety: a loop created via chat is ALWAYS enabled:false + mode:suggest, with no parameter
+to change that (CLAUDE.md rule). A duplicate slug reports an error and does not let a parallel
+copy exist (self_improve.py:321-327: identity comes from the FILE NAME).
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 3: Dạy Jarvis 007 dùng tool + tài liệu
+### Task 3: Teach Jarvis 007 to use the tool + docs
 
 **Files:**
-- Modify: `CLAUDE.md` (mục "Điều phối", bậc 2/6/7)
+- Modify: `CLAUDE.md` (section "Orchestration", levels 2/6/7)
 - Modify: `CHANGELOG.md`, `VERSION`
 
 **Interfaces:**
 - Consumes: tool `javis_schedule` (Task 2).
-- Produces: không.
+- Produces: nothing.
 
-**Vì sao cần:** tool tồn tại mà system prompt vẫn dạy "ghi file `Javis/loops/<slug>.md`" thì model sẽ tiếp tục gõ YAML tay. Mô tả tool cạnh tranh trực tiếp với chỉ dẫn trong prompt, và prompt thường thắng.
+**Why this is needed:** if the tool exists but the system prompt still teaches "write the file `Javis/loops/<slug>.md`", the model will keep typing YAML by hand. The tool description competes directly with the instructions in the prompt, and the prompt usually wins.
 
-- [ ] **Step 1: Đọc mục Điều phối hiện tại**
+- [ ] **Step 1: Read the current Orchestration section**
 
 Run: `cd /d/Project/Javis-OS && sed -n '18,40p' CLAUDE.md`
 
-Ghi lại nguyên văn bậc 2 (Kanban task), bậc 6 (Nhắc hẹn), bậc 7 (Loop).
+Write down levels 2 (Kanban task), 6 (Reminder) and 7 (Loop) verbatim.
 
-- [ ] **Step 2: Sửa CLAUDE.md**
+- [ ] **Step 2: Edit CLAUDE.md**
 
-Bậc 6 hiện tại (sau giai đoạn 1): `6. **Tạo Nhắc hẹn** - nhắc nhở / job có MỐC GIỜ cố định → `POST /reminders` (xem ở trang Việc).`
+Level 6 currently (after phase 1): `6. **Create a Reminder** - a reminder / job at a FIXED TIME → `POST /reminders` (see the Work page).`
 
-Đổi thành:
-
-```markdown
-6. **Tạo Nhắc hẹn** - nhắc nhở / job có MỐC GIỜ cố định → gọi tool `javis_schedule` (op=create, notify_only=true nếu chỉ nhắc). Xem lại ở trang Việc định kỳ.
-```
-
-Bậc 7 hiện tại nói loop ghi file `Javis/loops/<slug>.md`. Thêm vào ĐẦU phần format loop một câu:
+Change it to:
 
 ```markdown
-**Ưu tiên gọi tool `javis_schedule` (op=create) thay vì tự ghi file** - tool tự đặt đúng slug, đúng frontmatter, chặn trùng tên, và tự chọn kho (việc lặp → file .md; nhắc/cron → kho nhắc hẹn). Chỉ ghi file tay khi cần trường nâng cao mà tool chưa nhận (quiet_hours, max_runs_per_day, workspace, ambient_mcp).
+6. **Create a Reminder** - a reminder / job at a FIXED TIME → call tool `javis_schedule` (op=create, notify_only=true if it only reminds). Review it on the Scheduled page.
 ```
 
-**Giữ nguyên** phần mô tả format file loop bên dưới: nó vẫn đúng, và người dùng lẫn model vẫn cần biết để SỬA loop đã có.
+Level 7 currently says a loop writes the file `Javis/loops/<slug>.md`. Add one sentence at the TOP of the loop format section:
 
-- [ ] **Step 3: Kiểm tra không còn chỗ nào dạy curl**
+```markdown
+**Prefer calling tool `javis_schedule` (op=create) over writing the file yourself** - the tool sets the right slug, the right frontmatter, blocks duplicate names, and picks the store itself (repeating job → .md file; reminder/cron → the reminder store). Only hand-write a file when you need an advanced field the tool does not accept yet (quiet_hours, max_runs_per_day, workspace, ambient_mcp).
+```
+
+**Keep** the description of the loop file format below as it is: it is still correct, and both users and the model still need it to EDIT an existing loop.
+
+- [ ] **Step 3: Check that nothing still teaches curl**
 
 Run: `cd /d/Project/Javis-OS && grep -n "curl\|POST /reminders\|POST /kanban" CLAUDE.md`
 
-Với mỗi hit: nếu nó dạy model tự gọi HTTP để đặt lịch/nhắc, đổi sang gọi `javis_schedule`. Nếu là chuyện khác (vd Kanban task) thì để yên - plan này không đụng Kanban.
+For each hit: if it teaches the model to call HTTP itself to set a schedule/reminder, change it to call `javis_schedule`. If it is about something else (e.g. a Kanban task) leave it alone - this plan does not touch Kanban.
 
 - [ ] **Step 4: Bump VERSION + CHANGELOG**
 
-Đọc `VERSION`, tăng patch. Đọc khối `## [0.9.69]` trong `CHANGELOG.md` để bám giọng: chủ dự án viết CHANGELOG **giải thích nguyên nhân gốc kèm bằng chứng file:line**, không chỉ liệt kê. Thêm khối mới trên cùng, nhóm `### Thêm mới` và `### Sửa lỗi`, phủ:
-- Tool `javis_schedule`: trước đây chat phải gõ YAML tay hoặc curl; vì sao là plugin chứ không phải hub (hai rào: `mcp_hub.py:213` early-return, `claude_config_path` trả None khi chưa có connector).
-- Bug plugin mù brain (Task 1): ảnh của `javis_generate_image` gọi từ Claude Code luôn lưu vào Brain Default.
+Read `VERSION`, bump the patch. Read the `## [0.9.69]` block in `CHANGELOG.md` to match the voice: the project owner writes the CHANGELOG **explaining the root cause with file:line evidence**, not just listing. Add a new block at the top, groups `### Added` and `### Fixed`, covering:
+- Tool `javis_schedule`: before, chat had to type YAML by hand or use curl; why a plugin and not the hub (two barriers: `mcp_hub.py:213` early-return, `claude_config_path` returns None when there is no connector yet).
+- The plugin brain-blindness bug (Task 1): `javis_generate_image` images called from Claude Code were always saved into Brain Default.
 
-- [ ] **Step 5: Chạy toàn bộ test như CI**
+- [ ] **Step 5: Run the whole test suite like CI**
 
 Run: `cd server && for f in test_*.py; do echo "--- $f"; ../.venv/Scripts/python.exe "$f" || echo "FAIL: $f"; done`
 
-Expected: mọi file in `OK - ...`.
+Expected: every file prints `OK - ...`.
 
 Run: `cd /d/Project/Javis-OS && .venv/Scripts/python.exe -m compileall -q server system/plugins`
 
-Expected: không output.
+Expected: no output.
 
 - [ ] **Step 6: Commit + push**
 
 ```bash
 git add CLAUDE.md CHANGELOG.md VERSION
-git commit -m "docs(schedule): day Jarvis 007 goi javis_schedule thay vi go YAML tay
+git commit -m "docs(schedule): teach Jarvis 007 to call javis_schedule instead of typing YAML by hand
 
-Tool ton tai ma system prompt van day 'ghi file Javis/loops/<slug>.md' thi model
-van go YAML tay: mo ta tool canh tranh truc tiep voi chi dan trong prompt, va
-prompt thuong thang.
+The tool exists but the system prompt still teaches 'write the file Javis/loops/<slug>.md', so the
+model still types YAML by hand: the tool description competes directly with the
+instructions in the prompt, and the prompt usually wins.
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 git push origin main
@@ -617,23 +623,23 @@ git push origin main
 
 ---
 
-## Kiểm tra bằng mắt (BẮT BUỘC trước khi coi là xong)
+## Visual check (MANDATORY before calling it done)
 
-Giai đoạn 1 dạy một bài đắt: **mọi kiểm chứng tĩnh đều xanh mà vẫn suýt ship bản hỏng** (quy ước cache-bust `?v=` không nằm trong plan, không test nào bắt, chỉ mở trình duyệt mới lộ). Task 1 và 2 ở đây động vào đường tool của engine THẬT, mà không test đơn vị nào chứng minh được Claude Code thực sự NHÌN THẤY và GỌI ĐƯỢC tool.
+Phase 1 taught an expensive lesson: **every static check was green and we still nearly shipped a broken build** (the `?v=` cache-bust convention was not in the plan, no test caught it, only opening the browser exposed it). Tasks 1 and 2 here touch the REAL engine tool path, and no unit test can prove that Claude Code actually SEES and can CALL the tool.
 
-Nên sau Task 3, phải làm bằng tay:
+So after Task 3, do this by hand:
 
-1. Khởi động lại server (code mới), mở dashboard, đăng nhập.
-2. Chat: *"tạo cho anh một việc mỗi 2 tiếng đọc source mới rồi đề xuất wiki"*. Kỳ vọng: Jarvis 007 **gọi tool** (không gõ YAML), báo đã tạo, và `brains/<brain đang dùng>/Javis/loops/doc-source-*.md` xuất hiện với `enabled: false`.
-3. Kiểm tra file rơi vào **ĐÚNG brain đang mở**, không phải Brain Default. Đây là điểm chính Task 1 sửa.
-4. Chat: *"30 phút nữa nhắc anh gọi cho khách"*. Kỳ vọng: vào kho nhắc hẹn (không đẻ file .md), và hiện ở khối "Nhắc hẹn đang chờ" trên trang Việc định kỳ.
-5. Chat: *"anh đang có những việc định kỳ nào"*. Kỳ vọng: `op=list` liệt kê **cả hai** thứ vừa tạo.
-6. Mở trang Việc định kỳ: thấy loop mới (đang tắt) + nhắc hẹn đang chờ.
-7. Xoá dọn: tắt/xoá loop thử nghiệm, huỷ nhắc thử nghiệm.
+1. Restart the server (new code), open the dashboard, log in.
+2. Chat: *"create a job for me every 2 hours that reads new sources and proposes wiki notes"*. Expected: Jarvis 007 **calls the tool** (does not type YAML), reports it was created, and `brains/<brain in use>/Javis/loops/doc-source-*.md` appears with `enabled: false`.
+3. Check the file lands in the **brain that is OPEN**, not Brain Default. This is the main point Task 1 fixes.
+4. Chat: *"remind me in 30 minutes to call the customer"*. Expected: it goes into the reminders store (no .md file is spawned), and shows in the "Pending reminders" block on the Scheduled page.
+5. Chat: *"which recurring jobs do I have right now"*. Expected: `op=list` lists **both** things just created.
+6. Open the Scheduled page: see the new loop (switched off) + the pending reminder.
+7. Clean up: switch off/delete the test loop, cancel the test reminder.
 
-## Ngoài phạm vi plan này
+## Out of scope for this plan
 
-- **Scoping connector + `allow_real_actions`** (bỏ dial 3 nấc). Plan riêng, rủi ro cao nhất vì phải sửa hub - lớp cứng, sai là hỏng rào cho MỌI engine.
-- **Cron trên loop** (`schedule` một field + jitter). **Đã hoãn có chủ ý (YAGNI)**: `reminders.py` đã có cron 5 trường đầy đủ (`cron_util.py`, tự tính lần kế ở `reminders.py:364`) và mode `task` chạy engine thật (`reminders.py:426`), nên "7h sáng chạy báo cáo" đã làm được. Chỉ làm khi thực sự cần việc BỀN (file .md sửa trong Obsidian) chạy theo đồng hồ - reminders phù du và chạy cứng ở mức `safe_tools`.
-- Số phận 5 route shim legacy `/loop/*` (`self_improve.py:988-1036`).
-- Kanban task (`op=create` không route sang Kanban - Kanban là máy trạng thái, không có đồng hồ).
+- **Connector scoping + `allow_real_actions`** (dropping the 3-notch dial). A separate plan, the highest risk because it means editing the hub - a hard layer, and a mistake breaks the barrier for EVERY engine.
+- **Cron on loops** (a single `schedule` field + jitter). **Deliberately deferred (YAGNI)**: `reminders.py` already has full 5-field cron (`cron_util.py`, next run computed at `reminders.py:364`) and mode `task` runs a real engine (`reminders.py:426`), so "run the report at 7am" can already be done. Only build it when a DURABLE job (a .md file edited in Obsidian) really needs to run on a clock - reminders are ephemeral and run hard-limited to `safe_tools`.
+- The fate of the 5 legacy shim routes `/loop/*` (`self_improve.py:988-1036`).
+- Kanban task (`op=create` does not route to Kanban - Kanban is a state machine, with no clock).

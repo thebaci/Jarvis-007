@@ -1,181 +1,180 @@
-# Bộ phán xử tự soát và tự chỉnh (0.77.0)
+# Self-reviewing and self-tuning reply judge (0.77.0)
 
-Ngày: 2026-10-05. Chủ đã duyệt thiết kế trong chat (hướng A cộng một phần B, kèm vòng tự soát).
-Nối tiếp đặc tả gốc `2026-09-30-bo-phan-xu-nhom-design.md`; đọc mục 3 và 4.1 ở đó trước.
+Date: 2026-10-05. The owner approved the design in chat (option A plus part of B, with a self-review loop).
+Continues the original spec `2026-09-30-bo-phan-xu-nhom-design.md`; read section 3 and 4.1 there first.
 
-## 1. Vì sao
+## 1. Why
 
-Bộ phán xử (0.65.x) học tức thì từ phản ứng trong nhóm và từ nút Đúng/Sai, nhưng:
+The reply judge (0.65.x) learns instantly from reactions in the group and from the Right/Wrong buttons, but:
 
-- **Không AI nào đọc được kho của nó.** Kho `chatbot_reply_policy.sqlite3` chỉ đi ra qua route của
-  trang Chatbot. Hỏi Jarvis 007 "vì sao bot im" thì Jarvis 007 đoán theo tài liệu, không nhìn số liệu thật
-  (ca 05/10: Jarvis 007 trên VPS khẳng định tin tag chủ "không để lại dòng nào", sai, dòng có ghi).
-- **Có chỗ học không chạm tới được.** `coarse_gate` trả `addressed_other` cho tin mở đầu bằng
-  `@người khác` TRƯỚC khi xét ca dương, nên chủ bấm Sai hay dạy bằng lời cũng không gỡ được.
-- Chủ muốn tự động hoá: máy tự soát, tự chỉnh; người chỉ can thiệp khi muốn, và can thiệp bằng
-  cách NÓI với Jarvis 007 chứ không tự tay sửa (nguyên tắc chung [ít cài đặt, đẩy về AI]).
+- **No AI can read its store.** The store `chatbot_reply_policy.sqlite3` only comes out through the Chatbot page routes.
+  Ask Jarvis 007 "why is the bot silent" and Jarvis 007 guesses from the docs instead of looking at the real numbers
+  (the 05/10 case: Jarvis 007 on the VPS claimed a message that tagged the owner "left no row", which was wrong, the row was written).
+- **Some things cannot be learned.** `coarse_gate` returns `addressed_other` for a message that starts with
+  `@someone else` BEFORE looking at positive cases, so pressing Wrong or teaching it in words does not lift the block.
+- The owner wants this automated: the machine reviews and tunes itself; the person steps in only when they want to, and does so by
+  TALKING to Jarvis 007 rather than editing by hand (general principle [few settings, push them to the AI]).
 
-## 2. Mục tiêu và không làm
+## 2. Goals and non-goals
 
-Làm:
-1. Một cửa chung cho AI: hai tool hub (đọc, chỉnh) mà mọi bộ não gọi được.
-2. Vòng tự soát chạy nền khi có đủ bằng chứng, dùng **bộ não chính** (model mạnh nhất chủ có),
-   tự áp dụng thay đổi trong một tập nút có trần, kèm nhật ký, tự đo và tự hoàn.
-3. Hai nút mới AI vặn được (không phải ô cài đặt cho người): độ hăng nói gốc, và xét tin tag người khác.
-4. Sửa `addressed_other`: ca dương hoặc nút "xét tin tag" gỡ được chặn.
-5. Rào cứng: tool này KHÔNG BAO GIỜ tới tay bot chăm khách.
+Do:
+1. One shared door for the AI: two hub tools (read, tune) that every brain can call.
+2. A background self-review loop that runs when there is enough evidence, using the **main brain** (the strongest model the owner has),
+   applying changes by itself within a capped set of knobs, with a log, self-measurement and self-revert.
+3. Two new knobs the AI can turn (not settings fields for people): how eager it is to speak unprompted, and whether to consider messages that tag someone else.
+4. Fix `addressed_other`: a positive case or the "consider tagged" knob lifts the block.
+5. A hard fence: these tools NEVER reach the customer-facing bot.
 
-Không làm:
-- AI không sửa mã Python. Chỗ nút vặn không chạm tới thì ghi góp ý vào brain.
-- Không đổi nội dung câu trả lời của bot; chỉ đổi việc NÓI HAY IM (giữ nguyên đặc tả gốc).
-- Không thêm ô nào trên giao diện. Không đụng hạn mức, nhường-khi-chủ-gõ, mức quyền.
-- Vòng soát không sửa hồ sơ vai (chỉ chủ yêu cầu qua chat mới sửa).
+Do not:
+- The AI does not edit Python code. Where the knobs cannot reach, it writes a suggestion into the brain.
+- Do not change the content of the bot's replies; only change whether it SPEAKS or STAYS SILENT (keeping the original spec).
+- Do not add any field to the UI. Do not touch the quota, yield-when-owner-types, or permission level.
+- The review loop does not edit the role profile (only the owner can, by asking in chat).
 
-## 3. Thành phần
+## 3. Components
 
-### 3.1 Kho (`chatbot_reply_policy_store.py`)
+### 3.1 Store (`chatbot_reply_policy_store.py`)
 
-Bảng mới:
-- `tuning(bot_id, key, value, updated_ts)`: nút AI vặn theo bot. Khoá: `eagerness`
-  (`low|medium|high`), `consider_tagged` (`0|1`). Không có dòng = mặc định (`medium`, `0`).
+New tables:
+- `tuning(bot_id, key, value, updated_ts)`: knobs the AI turns per bot. Keys: `eagerness`
+  (`low|medium|high`), `consider_tagged` (`0|1`). No row = default (`medium`, `0`).
 - `changes(id, bot_id, ts, actor, review_id, op, target, before_json, after_json, reason,
-  evidence_json, status, status_ts)`: nhật ký mọi lần chỉnh. `actor`: `review` (vòng tự soát) hoặc
-  `owner` (chủ nhờ qua chat). `status`: `applied`, `kept`, `reverted`, `auto_reverted`, `noted`
-  (góp ý mã, không áp dụng gì).
-- `review_state(bot_id, last_ts)`: mốc lần soát gần nhất.
+  evidence_json, status, status_ts)`: a log of every change. `actor`: `review` (the self-review loop) or
+  `owner` (the owner asked through chat). `status`: `applied`, `kept`, `reverted`, `auto_reverted`, `noted`
+  (code suggestion, nothing applied).
+- `review_state(bot_id, last_ts)`: the timestamp of the most recent review.
 
-Cột mới: `lessons.source` (`''` = chủ/cũ, `review` = vòng soát, `owner_chat` = chủ nhờ qua chat).
-Thêm bằng `ALTER TABLE` có rào lúc mở kho lần đầu. Khi vượt 15 bài học, bỏ bài `review` cũ nhất
-trước, để bài của chủ không bị máy đẩy ra.
+New column: `lessons.source` (`''` = owner/old, `review` = review loop, `owner_chat` = owner asked through chat).
+Added with a guarded `ALTER TABLE` the first time the store is opened. When there are more than 15 lessons, the oldest `review` lesson is dropped
+first, so the owner's lessons are not pushed out by the machine.
 
-Hàm mới: `get_tuning`, `set_tuning`, `delete_lesson`, `set_offset`, `log_change`, `list_changes`,
+New functions: `get_tuning`, `set_tuning`, `delete_lesson`, `set_offset`, `log_change`, `list_changes`,
 `set_change_status`, `label_counts(bot_id, since, until)`, `activity_since(since)`,
-`get/set_review_state`. `delete_bot` và `forget` xoá cả bảng mới.
+`get/set_review_state`. `delete_bot` and `forget` also delete the new tables.
 
-### 3.2 Bộ phán xử (`chatbot_reply_policy.py`)
+### 3.2 Reply judge (`chatbot_reply_policy.py`)
 
-- `BotProfile` thêm `consider_tagged: bool`. Hàm `apply_tuning(profile, store)` đọc bảng `tuning`
-  ghi đè `eagerness` và `consider_tagged`; `chatbot_runtime._rp_profile` gọi nó.
-- `coarse_gate(..., has_positive_case, consider_tagged)`: tin `@người khác` chỉ bị loại
-  (`addressed_other`) khi KHÔNG có ca dương giống nó VÀ `consider_tagged` tắt. Đi qua cổng thì
-  vẫn phải qua `no_grounding` (cần tài liệu), hạn mức và người phán xử như mọi tin.
-- Prompt người phán xử thêm một dòng tín hiệu "tin mở đầu bằng tag một người khác".
+- `BotProfile` gains `consider_tagged: bool`. The function `apply_tuning(profile, store)` reads the `tuning` table
+  and overrides `eagerness` and `consider_tagged`; `chatbot_runtime._rp_profile` calls it.
+- `coarse_gate(..., has_positive_case, consider_tagged)`: a message `@someone else` is only dropped
+  (`addressed_other`) when there is NO similar positive case AND `consider_tagged` is off. A message that passes the gate
+  still has to pass `no_grounding` (needs documents), the quota and the judge like any message.
+- The judge prompt gains one signal line, "the message opens by tagging a different person".
 
-### 3.3 Vòng tự soát (`chatbot_reply_policy_review.py`, module mới)
+### 3.3 Self-review loop (`chatbot_reply_policy_review.py`, new module)
 
-Thuần, tiêm `ask`, `store`, `notify`, `write_feedback`, `bot_lookup` để test không cần model.
+Pure, with `ask`, `store`, `notify`, `write_feedback`, `bot_lookup` injected so tests need no model.
 
-**Khi nào chạy** (`due_bots(now)`): bot có trong `chatbot_store`, cách lần soát trước ít nhất 24
-giờ, và từ lần trước có ít nhất 8 nhãn mới HOẶC 40 tin bị im. Mỗi nhịp chỉ khởi một lượt soát,
-không chạy hai lượt cùng lúc. Biến môi trường `JAVIS_REPLY_POLICY_REVIEW=0` tắt hẳn (cho người
-vận hành, không phải ô cài đặt).
+**When it runs** (`due_bots(now)`): a bot present in `chatbot_store`, at least 24
+hours since the previous review, and since then at least 8 new labels OR 40 silenced messages. Each tick starts only one review,
+never two at once. The environment variable `JAVIS_REPLY_POLICY_REVIEW=0` turns it off completely (for operators, not a settings field).
 
-**Báo cáo** (`build_report`): cửa sổ từ lần soát trước, tối đa 7 ngày. Gồm tổng theo kết luận và
-mã im, nhãn theo loại, từng nhóm (tin, im, bỏ lỡ, chen nhầm, độ lệch ngưỡng), tối đa 12 tin bị
-gắn nhãn sai và 16 tin im gần đây kèm mã, lý do, điểm, ngưỡng; nút hiện tại; bài học (có id,
-nguồn); số ca theo nguồn; 10 thay đổi gần nhất kèm trạng thái (để model không lặp cái đã bị hoàn).
-Mọi chữ chat đi qua `clean_chat_text` và nằm trong `<chat_data>`.
+**Report** (`build_report`): window from the previous review, at most 7 days. Contains totals by verdict and
+silence code, labels by kind, each group (message, silence, missed, wrongly interjected, threshold drift), at most 12 messages
+labeled wrong and 16 recent silenced messages with code, reason, score, threshold; the current knobs; the lessons (with id,
+source); the number of cases by source; the 10 most recent changes with status (so the model does not repeat what was already reverted).
+All chat text goes through `clean_chat_text` and sits inside `<chat_data>`.
 
-**Prompt** yêu cầu DUY NHẤT một JSON:
+**Prompt** asks for ONLY one JSON:
 `{"summary": "...", "changes": [{"op": ..., ..., "reason": "...", "evidence": [id,...]}], "code_feedback": "..."}`.
 
-**Kiểm và áp dụng** (`apply_change`, dùng chung với tool):
+**Validate and apply** (`apply_change`, shared with the tool):
 
-| op | tham số | vòng soát được dùng | hoàn lại |
+| op | parameters | review loop may use | revert |
 |---|---|---|---|
-| `lesson_add` | text (<=200) | có | xoá bài |
-| `lesson_remove` | id | chỉ bài nguồn `review` | thêm lại |
-| `case_add` | text, verdict, reason, chat_id? | có (nguồn `review`, trọng số 1.0) | xoá ca |
-| `case_remove` | id | chỉ ca nguồn `review`/`bootstrap` | thêm lại |
-| `offset_set` | chat_id, value (kẹp ±0.25) | có | đặt lại giá trị cũ |
-| `eagerness_set` | value | có | đặt lại |
-| `consider_tagged_set` | value | có | đặt lại |
-| `role_profile_set` | text | KHÔNG (chỉ chủ) | đặt lại |
+| `lesson_add` | text (<=200) | yes | delete the lesson |
+| `lesson_remove` | id | only lessons with source `review` | add it back |
+| `case_add` | text, verdict, reason, chat_id? | yes (source `review`, weight 1.0) | delete the case |
+| `case_remove` | id | only cases with source `review`/`bootstrap` | add it back |
+| `offset_set` | chat_id, value (clamped to +/-0.25) | yes | set the old value back |
+| `eagerness_set` | value | yes | set back |
+| `consider_tagged_set` | value | yes | set back |
+| `role_profile_set` | text | NO (owner only) | set back |
 
-Vòng soát: tối đa 3 thay đổi mỗi lượt; mỗi thay đổi phải dẫn ít nhất một `evidence` là id quyết
-định CỦA BOT NÀY; bỏ thay đổi trùng `op`+`target` đã bị hoàn trong 14 ngày. Thay đổi sai khuôn thì
-bỏ riêng nó, không làm hỏng cả lượt. Nhãn chủ nhờ qua chat (`actor=owner`) không cần bằng chứng.
+Review loop: at most 3 changes per review; each change must cite at least one `evidence` that is a decision id
+OF THIS BOT; drop a change with the same `op`+`target` that was reverted in the last 14 days. A malformed change
+is dropped by itself and does not spoil the whole review. Changes the owner asked for through chat (`actor=owner`) need no evidence.
 
-**Tự đo, tự hoàn** (`evaluate_due`): với mỗi lượt soát còn `applied`, so tỉ lệ lỗi
-(bỏ lỡ + chen nhầm) / số nhãn trong 7 ngày trước lúc áp dụng với khoảng sau đó. Đủ 6 nhãn sau:
-tệ hơn quá 0.15 (và có ít nhất 3 lỗi) thì hoàn CẢ lượt, trạng thái `auto_reverted`; không thì
-`kept`. Quá 14 ngày mà chưa đủ nhãn thì `kept`. Thay đổi do chủ nhờ không tự hoàn.
+**Self-measure, self-revert** (`evaluate_due`): for each review still `applied`, compare the error rate
+(missed + wrongly interjected) / number of labels over the 7 days before it was applied with the period after. With 6 labels after,
+if it is worse by more than 0.15 (and there are at least 3 errors) the WHOLE review is reverted, status `auto_reverted`; otherwise
+`kept`. After 14 days without enough labels, `kept`. Changes the owner asked for are never auto-reverted.
 
-**Góp ý mã**: `code_feedback` khác rỗng thì ghi một dòng `changes` trạng thái `noted` và nối vào
-`<brain của bot>/Javis/gop-y-bo-phan-xu.md` (ngày, tên bot, nội dung, id bằng chứng).
+**Code suggestion**: when `code_feedback` is non-empty, write one `changes` row with status `noted` and append to
+`<bot's brain>/Javis/gop-y-bo-phan-xu.md` (date, bot name, content, evidence ids).
 
-**Báo lại**: có thay đổi, có góp ý, hoặc có tự hoàn thì gửi đúng một tin qua `_notify_owner("")`
-(hộp thư + Telegram của chủ), viết thường, có câu "không vừa ý thì nhắn Jarvis 007 hoàn lại".
+**Reporting back**: when there is a change, a suggestion, or an auto-revert, send exactly one message through `_notify_owner("")`
+(the owner's Inbox + Telegram), in lowercase, with the sentence "if you are not happy, message Jarvis 007 to revert it".
 
-**Model**: `main._reply_policy_review_ask` dựng engine giống `_reply_policy_ask` (thư mục trống,
-không MCP, không công cụ) nhưng chọn **bộ não chính** qua `aux_engine.swap(spec=main_spec())`.
-Hết giờ 240 giây. Lỗi hay JSON hỏng: không đổi gì, vẫn ghi mốc soát để khỏi thử lại liên hồi.
+**Model**: `main._reply_policy_review_ask` builds an engine like `_reply_policy_ask` (empty folder,
+no MCP, no tools) but picks the **main brain** through `aux_engine.swap(spec=main_spec())`.
+Timeout 240 seconds. On error or broken JSON: change nothing, but still record the review timestamp to avoid endless retries.
 
-**Không công cụ, ở mọi engine** (rà soát độc lập 05/10 bắt được, lỗ có từ trước ở người phán xử):
-`swap` thay engine Claude bị nhốt bằng Codex/API/Grok/agy, mà các engine đó được gắn hub. Nên cả
-người phán xử lẫn vòng soát đi qua `aux_engine.strip_tools(engine, base)`: API bỏ `discover_all`,
-Codex bỏ profile hub và thêm `mcp_servers={}`, Grok gỡ entry hub trong thư mục làm việc, **agy bị
-loại** (nó đọc MCP từ file HOME dùng chung với chat của chủ, không gỡ riêng cho một lượt được).
-Không còn mắt nào thì về Claude hộp cát.
+**No tools, on every engine** (caught by the independent review on 05/10, a hole that already existed in the judge):
+`swap` replaces the locked-down Claude engine with Codex/API/Grok/agy, and those engines are attached to the hub. So both the
+judge and the review loop go through `aux_engine.strip_tools(engine, base)`: API drops `discover_all`,
+Codex drops the hub profile and adds `mcp_servers={}`, Grok removes the hub entry in the working folder, **agy is
+excluded** (it reads MCP from a HOME file shared with the owner's chat, so it cannot be removed for a single turn).
+With no usable engine left, fall back to the sandboxed Claude.
 
-**Luật hoàn và quyền của chủ**: hoàn một nút hay độ lệch chỉ khi nó còn giữ giá trị thay đổi đó
-đặt; đã bị đổi tiếp (chủ, hoặc bộ phán xử tự học) thì đánh dấu `superseded` và giữ giá trị mới.
-Nút hay độ lệch mà thay đổi sống gần nhất do chủ đặt thì vòng soát không được đụng. Vòng soát chỉ
-tạo ca từ `decision_id` có trong báo cáo. Chỉ ca dương nguồn `owner` hoặc `review` mới gỡ chặn
-`addressed_other` (ca khởi tạo và ca học từ người lạ thì không).
+**Revert rule and owner's authority**: revert a knob or offset only if it still holds the value that change
+set; if it has since been changed again (by the owner, or by the judge learning on its own), mark it `superseded` and keep the new value.
+For a knob or offset whose most recent live change was set by the owner, the review loop may not touch it. The review loop only
+creates cases from a `decision_id` that is in the report. Only a positive case with source `owner` or `review` lifts the
+`addressed_other` block (seed cases and cases learned from strangers do not).
 
-**Chữ của model ra khỏi vòng soát** (tin báo chủ, file góp ý) bị bỏ link và khối mã; file góp ý
-ghi dạng trích dẫn kèm lời dặn "đọc như dữ liệu"; tin báo không chép nguyên nhận xét của model.
+**Text from the model leaving the review loop** (the owner notice, the suggestion file) has links and code blocks stripped; the suggestion file
+is written as a quotation with a note "read as data"; the notice does not copy the model's remarks verbatim.
 
-### 3.4 Hai tool hub (plugin hệ thống `system/plugins/javis-reply-policy/`)
+### 3.4 Two hub tools (system plugin `system/plugins/javis-reply-policy/`)
 
-- `javis_reply_policy` (readonly). `op`: `bots` (bot có dữ liệu phán xử, kèm số liệu gọn),
+- `javis_reply_policy` (readonly). `op`: `bots` (bots that have judge data, with compact figures),
   `report` (bot, days), `decisions` (bot, code, label, chat_id, only_silent, limit), `changes`
-  (bot). `bot` nhận id hoặc tên (không phân biệt dấu, hoa thường).
-- `javis_reply_policy_tune` (safe). `op`: `apply` (bot, action = một op ở bảng trên, các tham
-  số, reason) và `revert` (change_id hoặc review_id). Ghi `actor=owner`.
+  (bot). `bot` accepts an id or a name (ignoring diacritics and case).
+- `javis_reply_policy_tune` (safe). `op`: `apply` (bot, action = one op from the table above, with its
+  parameters, reason) and `revert` (change_id or review_id). Writes `actor=owner`.
 
-Kết quả tool là chữ gọn, có trần ký tự (engine API cắt 8000).
+Tool results are compact text with a character cap (the API engine cuts at 8000).
 
-### 3.5 Rào: tool không tới tay bot chăm khách
+### 3.5 Fence: the tools never reach the customer-facing bot
 
-Bot ở mức Được ghi / Toàn quyền nhận tool từ hub; khách lạ điều khiển bot. Đọc kho là lộ chat
-của khách khác, chỉnh kho là khách tự vặn bot. Nên:
+A bot at the Can write / Full power level receives tools from the hub; strangers (customers) control the bot. Reading the store would leak other customers'
+chats, and tuning the store would let a customer turn the bot's knobs. So:
 
-- `mcp_hub.OWNER_ONLY_TOOLS` = hai tool trên. `discover_all(..., for_bot=True)` bỏ chúng TRƯỚC
-  tầng lazy (kẻo `javis_run_tool` vẫn gọi được), và `for_bot` nằm trong khoá cache.
-- Đường API của bot (`_bot_tra_loi_co_tool`) truyền `for_bot=True`.
-- Đường Claude của bot: `claude_config_path(..., bot=True)` gắn header `X-Javis-Bot: 1` (file
-  config riêng hậu tố `_bot`); `handle_http` đọc header, chuyển xuống `discover_all`. Thêm lớp hai:
-  `disallowed_tools` của bot có `mcp__javis__javis_reply_policy*`.
-- Engine Claude của bot là bản "gated" (có `allowed_tools`) nên không nạp plugin trong tiến trình;
-  mọi tool đều đi qua hub, rào trên là đủ.
+- `mcp_hub.OWNER_ONLY_TOOLS` = the two tools above. `discover_all(..., for_bot=True)` drops them BEFORE
+  the lazy layer (otherwise `javis_run_tool` could still call them), and `for_bot` is part of the cache key.
+- The bot's API path (`_bot_tra_loi_co_tool`) passes `for_bot=True`.
+- The bot's Claude path: `claude_config_path(..., bot=True)` attaches the header `X-Javis-Bot: 1` (a separate
+  config file with suffix `_bot`); `handle_http` reads the header and passes it down to `discover_all`. Second layer:
+  the bot's `disallowed_tools` includes `mcp__javis__javis_reply_policy*`.
+- The bot's Claude engine is the "gated" kind (it has `allowed_tools`), so it does not load in-process plugins;
+  every tool goes through the hub, and the fence above is enough.
 
-### 3.6 Nối vào máy chủ (`main.py`)
+### 3.6 Wiring into the server (`main.py`)
 
-- `chatbot_reply_policy_review.wire(...)` cạnh `chatbot_reply_policy.wire`.
-- Vòng `_scheduler_loop`: nhịp riêng 30 phút gọi `chatbot_reply_policy_review.tick()` (đánh giá
-  thay đổi đến hạn + khởi tối đa một lượt soát chạy nền bằng `create_task`, giữ tham chiếu).
+- `chatbot_reply_policy_review.wire(...)` next to `chatbot_reply_policy.wire`.
+- In `_scheduler_loop`: its own 30-minute tick calls `chatbot_reply_policy_review.tick()` (evaluate
+  changes that are due + start at most one background review through `create_task`, keeping the reference).
 
-## 4. Lưu ý vận hành
+## 4. Operating notes
 
-Bộ não chính là gói Claude Pro/Max thì lượt soát là việc chạy nền trên gói thuê bao, thứ
-Anthropic không tính là dùng cá nhân thông thường. Tần suất thấp (tối đa một lần mỗi ngày mỗi
-bot, chỉ khi có bằng chứng) nhưng tài liệu `docs/25-chatbot.md` phải nói rõ và gợi ý đặt bộ não
-chính khác hoặc tắt bằng biến môi trường.
+If the main brain is a Claude Pro/Max plan, the review is background work on a subscription plan, which
+Anthropic does not count as ordinary personal use. The frequency is low (at most once a day per
+bot, and only when there is evidence), but the doc `docs/25-chatbot.md` must say so clearly and suggest setting a different
+main brain or turning it off with the environment variable.
 
-## 5. Kiểm thử
+## 5. Testing
 
-Script chạy thẳng như các test bộ phán xử cũ (`tests/python/test_reply_policy_*.py`):
-- `test_reply_policy_tuning.py`: bảng mới, nút ghi đè profile, `coarse_gate` gỡ chặn tag bằng ca
-  dương và bằng nút, bài học `review` rơi trước bài của chủ.
-- `test_reply_policy_review.py`: điều kiện đến hạn, báo cáo không lẫn bot khác, kiểm thay đổi
-  (trần 3, bằng chứng phải thuộc bot, op cấm, trùng với cái đã hoàn), áp dụng và hoàn từng op,
-  tự đo tự hoàn, JSON hỏng thì không đổi gì, góp ý mã ghi file, báo đúng một tin.
-- `test_reply_policy_hub_owner_only.py`: `discover_all(for_bot=True)` không có hai tool (cả khi
-  lazy bật), `for_bot=False` có; `claude_config_path(bot=True)` có header; plugin `apply`/`revert`.
+Scripts that run directly like the old judge tests (`tests/python/test_reply_policy_*.py`):
+- `test_reply_policy_tuning.py`: the new tables, knobs overriding the profile, `coarse_gate` lifting the tag block through a positive
+  case and through the knob, a `review` lesson dropping before the owner's lesson.
+- `test_reply_policy_review.py`: due conditions, a report that does not mix in other bots, change validation
+  (cap of 3, evidence must belong to the bot, forbidden op, duplicate of one already reverted), apply and revert for each op,
+  self-measure and self-revert, broken JSON changes nothing, code suggestion writes the file, exactly one notice.
+- `test_reply_policy_hub_owner_only.py`: `discover_all(for_bot=True)` lacks the two tools (even with lazy on), `for_bot=False` has them;
+  `claude_config_path(bot=True)` has the header; plugin `apply`/`revert`.
 
-## 6. Tài liệu
+## 6. Docs
 
-`docs/25-chatbot.md` (và bản tiếng Anh nếu có): mục "Bộ phán xử tự soát", cách nhờ Jarvis 007 xem và
-chỉnh, cách hoàn lại, biến tắt, lưu ý gói thuê bao. CHANGELOG hai thứ tiếng cho 0.77.0.
+`docs/25-chatbot.md` (and the English edition if there is one): a section "Self-reviewing reply judge", how to ask Jarvis 007 to look at and
+tune it, how to revert, the off switch, the subscription-plan note. CHANGELOG in both languages for 0.77.0.

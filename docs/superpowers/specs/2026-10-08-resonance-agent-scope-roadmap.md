@@ -1,192 +1,192 @@
-# Resonance dành cho agent: phạm vi và lộ trình sau MVP
+# Resonance for agents: scope and roadmap after the MVP
 
-Ngày chốt hướng: 08/10/2026. Mã đối chiếu: main `09f254d0e4d009451dc58cb2e97788631c5acc1a` (0.86.1). MVP Resonance đã phát hành trong 0.86.0, commit `438f8309`, PR #587.
+Direction settled on: 2026-10-08. Reference code: main `09f254d0e4d009451dc58cb2e97788631c5acc1a` (0.86.1). The Resonance MVP shipped in 0.86.0, commit `438f8309`, PR #587.
 
-**Trạng thái tài liệu:** hướng sản phẩm theo yêu cầu mới của chủ dự án, kèm lộ trình và điều kiện nghiệm thu. Tiến độ cập nhật 12/10/2026: A1 đã phát hành 0.87.0 (mục 12), A2 đã phát hành 0.88.0 (mục 13); A3 đã phát hành 0.89.0 (`33a3c1aa`, PR #598, [thiết kế A3](2026-10-09-resonance-a3-feedback-learning-design.md), biên bản [resonance-a3-verification](../../dev/resonance-a3-verification.md)); A4 thiết kế chốt, mã đạt review vòng 5 (`5b5e3ef0`); smoke giao diện bằng engine giả xong, sửa một lỗi thẻ (`f6aeb6d1`); pilot thật một lần (2 lượt Claude Code Opus, 0 việc nền; kết quả gốc `technical_failed` do bộ chạy, đã khép bằng hậu kiểm; bản cuối đạt nội dung, bản đầu tự thêm ngày); **đã phát hành 0.96.0** (`d36ebb3e`, PR #604, 11/10/2026; CI `main` run 38146898745 và build image run 38146898746 thành công; image `ghcr.io/blogminhquy/javis-os:0.96.0`, digest `sha256:8f1751d2…`; VPS chưa kéo) ([thiết kế A4](2026-10-10-resonance-a4-handoff-grants-design.md), biên bản [resonance-a4-verification](../../dev/resonance-a4-verification.md)); A5 thiết kế chốt (vòng 3, `56f7ab50`), **mã đạt review vòng 2 tại `05e9b065`; pilot thật real-2 tại `33cec518` được reviewer chấp nhận trong phạm vi một mẫu `pass_first` (1 lượt làm, 1 lượt review, 0 chat; chưa chứng minh vòng sửa bằng model thật); đã phát hành 0.109.0 (`bfb1c29f`, PR #616, 13/10/2026; CI `main` run 38369853756 và build image run 38369852881 thành công; image `ghcr.io/blogminhquy/javis-os:0.109.0`, digest `sha256:3890f824…`; VPS chưa kéo)** ([thiết kế A5](2026-10-11-resonance-a5-maker-reviewer-design.md), biên bản [resonance-a5-verification](../../dev/resonance-a5-verification.md)). A1 tới A5 là nền Cộng hưởng đã hoàn thành phạm vi đã chốt; hạng mục tiếp theo là nhóm chat team ([thiết kế nhóm chat team](2026-10-13-team-chat-design.md), chờ review); tag tiếp tục riêng. Đây không phải lệnh chạy model, bật tính năng hoặc sửa hệ thống đang vận hành. Kế hoạch code chi tiết của từng PR được viết từ tài liệu này và mã mới nhất khi bắt đầu.
+**Document status:** product direction following the project owner's new requirements, with a roadmap and acceptance conditions. Progress as of 2026-10-12: A1 shipped in 0.87.0 (section 12), A2 shipped in 0.88.0 (section 13); A3 shipped in 0.89.0 (`33a3c1aa`, PR #598, [A3 design](2026-10-09-resonance-a3-feedback-learning-design.md), record [resonance-a3-verification](../../dev/resonance-a3-verification.md)); A4 design settled, code passed review round 5 (`5b5e3ef0`); UI smoke test with a fake engine done, one card bug fixed (`f6aeb6d1`); one real pilot (2 Claude Code Opus turns, 0 background jobs; the raw result was `technical_failed` because of the runner, closed by a post-hoc check; the final version met the content bar, the first version added a date on its own); **shipped in 0.96.0** (`d36ebb3e`, PR #604, 2026-10-11; `main` CI run 38146898745 and image build run 38146898746 succeeded; image `ghcr.io/blogminhquy/javis-os:0.96.0`, digest `sha256:8f1751d2…`; the VPS has not pulled it) ([A4 design](2026-10-10-resonance-a4-handoff-grants-design.md), record [resonance-a4-verification](../../dev/resonance-a4-verification.md)); A5 design settled (round 3, `56f7ab50`), **code passed review round 2 at `05e9b065`; the real pilot real-2 at `33cec518` was accepted by the reviewer within the scope of a single `pass_first` sample (1 maker turn, 1 review turn, 0 chats; the fix loop is not yet proven with a real model); shipped in 0.109.0 (`bfb1c29f`, PR #616, 2026-10-13; `main` CI run 38369853756 and image build run 38369852881 succeeded; image `ghcr.io/blogminhquy/javis-os:0.109.0`, digest `sha256:3890f824…`; the VPS has not pulled it)** ([A5 design](2026-10-11-resonance-a5-maker-reviewer-design.md), record [resonance-a5-verification](../../dev/resonance-a5-verification.md)). A1 to A5 are the Resonance foundation, with the agreed scope completed; the next item is the team chat group ([team chat group design](2026-10-13-team-chat-design.md), awaiting review); tags continue as a separate system. This is not an order to run a model, enable a feature or change a live system. The detailed code plan for each PR is written from this document and the latest code when work starts.
 
-## 1. Điều anh muốn và điều giữ lại
+## 1. What the owner wants and what stays
 
-- Cộng hưởng trang bị cho **từng agent**, không tự trang bị cho cuộc trò chuyện thông thường.
-- Có một công tắc Cộng hưởng rõ ràng trên mỗi agent. Agent tự hình thành mục tiêu từ lời giao, không bắt người dùng chọn hoặc điền mục tiêu.
-- Agent biết lúc nào cần làm, khi nào chờ; nhịp tim thích nghi và vòng học từ phản hồi phải có trong đợt sau MVP, trước đội AI.
-- Luật nền ít và cố định; cách làm, lịch, bài học và cách trình bày được thay đổi trong phạm vi đó.
-- M1–M5 không làm lại: giữ kho mục tiêu, revision, receipt, bằng chứng, guard, hạn mức, bàn giao sản phẩm, thẻ và thử phương pháp.
+- Resonance equips **each agent**; it does not automatically equip ordinary conversations.
+- Each agent has a clear Resonance switch. The agent forms its goal from the assignment on its own; users are not asked to pick or fill in a goal.
+- The agent knows when to work and when to wait; the adaptive heartbeat and the learning loop from feedback must come in the post-MVP phase, before the AI team.
+- The base rules are few and fixed; methods, schedules, lessons and presentation can change within that range.
+- M1 to M5 are not redone: keep the goal store, revisions, receipts, evidence, guards, budgets, product handoff, cards and the method trial.
 
-Phạm vi “toàn bộ tiến độ” trong đợt rà này là chương trình Resonance cùng các hệ agent/workflow/loop/học có liên quan trong Jarvis 007. Không phải kiểm toán mọi tính năng khác của Jarvis 007 hay kiểm chứng lại toàn bộ suite.
+The scope of "all progress" in this review is the Resonance program plus the related agent/workflow/loop/learning systems in Jarvis 007. It is not an audit of every other Jarvis 007 feature or a re-verification of the whole test suite.
 
-## 2. Bốn bất biến làm khung chung
+## 2. Four invariants as the common frame
 
-1. **Có chủ thể và quyền:** mỗi mục tiêu có agent chịu trách nhiệm do host xác định, đúng brain, đúng quyền và hạn mức. Chat hoặc model không tự khai danh tính để được cấp quyền.
-2. **Kết quả có căn cứ:** thành công dựa trên tiêu chí và bằng chứng đúng revision/sản phẩm; không dựa riêng vào lời model, reaction hoặc số lần làm việc.
-3. **Quyền dừng luôn thắng:** tắt, tạm dừng, huỷ, thu hồi quyền và guard được kiểm trước hành động tiếp theo; học tập không được tự mở lại các chốt này.
-4. **Thay đổi phải truy lại được:** ghi nguồn yêu cầu, quyết định, sản phẩm, phản hồi và cách làm; thay đổi đã áp dụng có phạm vi và đường quay lại phù hợp. Không hứa undo tác động không thể hoàn tác.
+1. **Owner and authority:** every goal has a responsible agent determined by the host, in the right brain, with the right permissions and budget. Chat or the model cannot declare its own identity to obtain permissions.
+2. **Grounded results:** success rests on criteria and evidence for the right revision/product; not on the model's word alone, a reaction or the number of work attempts.
+3. **The right to stop always wins:** switching off, pausing, cancelling, revoking permissions and guards are checked before the next action; learning must not reopen these stops by itself.
+4. **Changes must be traceable:** record the source of the request, the decision, the product, the feedback and the method; an applied change has a scope and a suitable way back. Do not promise to undo effects that cannot be undone.
 
-Không thêm một “điểm beat tổng” vừa quyết định quyền, vừa chấm thành công, vừa điều khiển tần suất. Các tín hiệu có ý nghĩa khác nhau phải giữ riêng.
+Do not add one "master beat score" that decides authority, grades success and drives frequency all at once. Signals with different meanings must stay separate.
 
-## 3. Ranh giới sản phẩm mới
+## 3. The new product boundary
 
-| Ngữ cảnh | Hành vi đích |
+| Context | Target behavior |
 |---|---|
-| Chat thông thường | Trả lời hoặc làm việc một lần theo cơ chế hiện có; không tự tạo mục tiêu Resonance hoặc lịch theo đuổi |
-| Chat giao việc rõ cho agent | Hướng mở rộng sau A1: host chuyển giao có dấu vết sang agent được trang bị. A1 chưa triển khai đường này |
-| Chat với agent có Cộng hưởng | Vẫn phân biệt hỏi đáp, việc một lần, nối mục tiêu và tạo mục tiêu; không tạo goal cho mọi câu |
-| Workflow, loop, chatbot, kênh ngoài | Chỉ dùng Resonance khi có adapter xác định agent và uỷ quyền rõ; chưa nối thì không ngầm suy ra quyền |
-| Đội AI sau này | Một agent chịu trách nhiệm mục tiêu; các vai thực hiện/review được cấp phạm vi, không sở hữu chồng chéo |
+| Ordinary chat | Answer or do one-off work through the existing mechanism; do not create a Resonance goal or a pursuit schedule on its own |
+| Chat that clearly assigns work to an agent | Extension direction after A1: the host hands off to an equipped agent with a trace. A1 does not implement this path |
+| Chat with an agent that has Resonance | Still tells apart Q&A, one-off work, continuing a goal and creating a goal; no goal for every message |
+| Workflow, loop, chatbot, external channel | Use Resonance only when an adapter identifies the agent and delegation is explicit; where not wired, do not infer authority implicitly |
+| AI team later | One agent is responsible for the goal; maker/reviewer roles are granted scopes, with no overlapping ownership |
 
-Brain là nơi dữ liệu và cấu hình chung; engine là bộ máy chạy; agent là chủ thể thực hiện. Không dùng ba khái niệm này thay nhau. Dữ liệu nguồn từ session `agent:<slug>` có thể dùng để host phân giải agent, nhưng slug trong prompt không phải căn cứ cấp quyền.
+Brain is where shared data and configuration live; engine is the machine that runs; agent is the subject that performs the work. Do not use these three concepts interchangeably. Source data from an `agent:<slug>` session can be used by the host to resolve the agent, but a slug in a prompt is not a basis for granting authority.
 
-## 4. A1: phạm vi agent, công tắc và tiến độ tối thiểu
+## 4. A1: agent scope, switch and minimal progress
 
-**Đây là PR chức năng đầu tiên cần làm.** Phạm vi A1 đã thu hẹp: chỉ lập mục tiêu từ phiên agent được trang bị; đường giao từ chat thường tách thành hạng mục sau A1, không gộp ngầm vào A2. Gộp màn hình tối thiểu với công tắc để người dùng nhìn thấy ngay trạng thái của chính agent vừa bật.
+**This is the first functional PR to build.** The A1 scope has been narrowed: it only creates goals from an equipped agent's session; the path for assigning work from ordinary chat is split into an item after A1 and is not merged implicitly into A2. Combine the minimal screen with the switch so users see the state of the agent they just enabled right away.
 
-### Danh tính và cổng quyền
+### Identity and permission gate
 
-- Bổ sung liên kết agent vào goal và sự kiện. Dùng danh tính bền vững trong brain; đổi tên hiển thị không chuyển quyền hoặc làm mất mục tiêu. Phải rà cách lưu agent hiện có trước khi chọn schema cụ thể.
-- Host phân giải agent từ phiên/đường dispatch đã xác thực. Áp cùng cổng ở tool, HTTP API, scheduler, bước tiếp nhận/đăng sản phẩm và phép thử phương pháp. Không chỉ ẩn `javis_goal` khỏi danh sách tool.
-- `Principal("agent", "javis", brain)` hiện tại không đủ làm danh tính riêng cho nhiều agent. `/goal-requests` cũng phải chuyển qua cổng agent, không được thành đường vòng từ chat thường.
-- Danh sách mục tiêu, phản hồi, revision và sản phẩm phải được lọc đúng agent/brain, kể cả hai brain trùng slug. Người dùng owner có đường quản lý mục tiêu theo quyền hiện có.
+- Add the agent link to goals and events. Use a persistent identity within the brain; renaming the display name must not move authority or lose goals. Review how agents are currently stored before choosing a concrete schema.
+- The host resolves the agent from the authenticated session/dispatch path. Apply the same gate at the tool, the HTTP API, the scheduler, the intake/publish-product step and the method trial. Do not just hide `javis_goal` from the tool list.
+- The current `Principal("agent", "javis", brain)` is not enough as a separate identity for multiple agents. `/goal-requests` must also go through the agent gate and must not become a side door from ordinary chat.
+- Goal lists, feedback, revisions and products must be filtered by the right agent/brain, including two brains with the same slug. The owner user has a goal management path under existing permissions.
 
-### Công tắc
+### Switch
 
-Một công tắc **Cộng hưởng** trong cấu hình agent, mặc định tắt khi chưa được trang bị. Tắt Cộng hưởng không tắt khả năng chat/làm việc một lần của agent và không tác động các loop/reminder độc lập.
+One **Resonance** switch in the agent configuration, off by default until equipped. Turning Resonance off does not turn off the agent's ability to chat or do one-off work, and does not affect independent loops/reminders.
 
-| Thao tác | Ngữ nghĩa |
+| Action | Semantics |
 |---|---|
-| Bật | Cho phép agent nhận và tiếp tục mục tiêu hợp lệ trong quyền/hạn mức; không tự mở guard, pause hoặc goal đã huỷ |
-| Tắt | Chặn giữ lượt mới và tác động mới; yêu cầu dừng công việc đang chạy theo khả năng engine; giữ dữ liệu để xem lại |
-| Đang có lượt model | Lượt đã bắt đầu vẫn tính; không quảng bá “dừng tức thì” hay hoàn lại chi phí. Chặn đăng/nộp khi đã thu hồi quyền; lưu kết quả để đối soát nếu có |
-| Bật lại | Đối soát phần dở, dùng lại đầu ra hợp lệ khi đủ điều kiện; không tự nhân bản hành động hoặc bắt đầu goal đã kết thúc |
+| On | Allows the agent to accept and continue valid goals within its permissions/budget; does not reopen guards, pauses or cancelled goals by itself |
+| Off | Blocks taking new turns and new actions; requests running work to stop as far as the engine allows; keeps data for review |
+| A model turn in progress | A turn that has already started still counts; do not advertise "instant stop" or refunded cost. Block publishing/submitting once permission is revoked; save the result for reconciliation if there is one |
+| On again | Reconcile unfinished parts, reuse valid output when eligible; do not duplicate actions or start a goal that has ended |
 
-Đề xuất lưu cờ hiệu lực và số phiên bản cấu hình trong nguồn host quản lý, để quyết định giữ hạn mức/áp dụng có thể kiểm nhất quán. Không để agent tự ghi file cấu hình để bật lại quyền của mình. Chi tiết persistence và đồng bộ với metadata agent phải được chốt trong thiết kế PR A1.
+Proposal: store the effective flag and a configuration version number in a host-managed source, so that budget-holding and application decisions can be checked for consistency. Do not let the agent write the configuration file itself to turn its own permission back on. Persistence details and synchronization with agent metadata must be settled in the A1 PR design.
 
-### Di chuyển dữ liệu cũ
+### Migrating old data
 
-- `Javis/resonance.json` cũ là cờ theo brain; không được tự nhân nó thành “mọi agent đều bật”. Có thể giữ nó làm công tắc quản trị tổng trong giai đoạn chuyển đổi, nhưng UI phải nói rõ khi nó chặn agent.
-- Goal cũ chưa có danh tính agent đáng tin cậy: giữ nguyên lịch sử, đưa vào danh sách chờ gán. Không tự gán theo tên gần giống hay phiên mới nhất. Owner gán một lần qua đường có kiểm quyền; sau đó mới đủ điều kiện chạy tiếp.
-- Goal mới chỉ thuộc agent; chat thường có thể hiển thị tiến độ đã được uỷ quyền, không được tự thành chủ thể thực thi.
-- Không xoá SQLite, bằng chứng hoặc mục tiêu đã nghiệm thu để “làm sạch” migration. Kiểm với bản sao dữ liệu cũ và đường khôi phục trước khi phát hành.
+- The old `Javis/resonance.json` is a per-brain flag; it must not be automatically multiplied into "every agent is on". It may be kept as an overall admin switch during the transition, but the UI must say clearly when it blocks an agent.
+- Old goals without a trustworthy agent identity: keep the history intact and put them in a waiting-to-assign list. Do not assign by similar name or latest session. The owner assigns once through a permission-checked path; only then are they eligible to continue running.
+- New goals belong only to an agent; ordinary chat may display delegated progress but must not itself become the executing subject.
+- Do not delete SQLite, evidence or accepted goals to "clean up" the migration. Test with a copy of the old data and a recovery path before release.
 
-### Màn hình tối thiểu trên trang agent
+### Minimal screen on the agent page
 
-Hiện: bật/tắt, mục tiêu/revision, tiêu chí đạt/chưa đạt/chưa biết cùng căn cứ, sản phẩm đang có hiệu lực, đang chờ ai hoặc bị chặn vì gì, lần thức tiếp theo và lý do, hạn mức đã dùng/còn, nút dừng. Chat thường chỉ hiện thẻ liên kết tới mục tiêu agent khi có việc đã giao.
+Show: on/off, goal/revision, criteria met/not met/unknown with their basis, the product currently in effect, who it is waiting on or what blocks it, the next wake time and why, budget used/remaining, a stop button. Ordinary chat only shows a card linking to the agent's goal when work has been assigned.
 
-Không dùng một phần trăm do model đoán. Tỷ lệ tiêu chí đã xác minh, nếu hiển thị, phải gọi đúng tên và không coi là phần trăm khối lượng công việc.
+Do not use a percentage guessed by the model. A ratio of verified criteria, if shown, must be named accurately and not treated as a percentage of workload.
 
-**Nghiệm thu A1:** chat thường không tạo goal kể cả gọi API/tool trực tiếp; agent A bật không cấp quyền cho agent B; tắt trong lượt chặn bước tiếp theo; rename/delete/restart không chuyển nhầm chủ thể; dữ liệu cũ không mất hoặc tự chạy; thẻ và điều khiển hoạt động đúng agent.
+**A1 acceptance:** ordinary chat creates no goal even when the API/tool is called directly; enabling agent A does not grant permission to agent B; switching off during a turn blocks the next step; rename/delete/restart do not move the owner by mistake; old data is neither lost nor run on its own; cards and controls work for the right agent.
 
-## 5. A2: heartbeat thích nghi
+## 5. A2: adaptive heartbeat
 
-Lịch MVP đã có claim/lease, next_wake, backoff và restart. Dùng lại nền đó; không dựng thêm một scheduler độc lập gọi model song song.
+The MVP schedule already has claim/lease, next_wake, backoff and restart. Reuse that foundation; do not build another independent scheduler that calls the model in parallel.
 
-Một heartbeat là bước host xem có lý do hợp lệ để thực thi hay không. Không có lý do thì không dựng engine và không gọi model.
+A heartbeat is a host step that checks whether there is a valid reason to execute. With no reason, no engine is built and no model is called.
 
-- Ưu tiên sự kiện có ích: góp ý mới, nguồn dữ liệu đổi, kết quả tác vụ phụ hoặc mốc xem lại thực sự tới hạn.
-- Chờ phản hồi người dùng thì ngủ; im lặng không bị phạt và không tự thành quyền hành động.
-- Có bước hữu ích tiếp theo thì giữ lượt trong hạn mức; lỗi hoặc thiếu thông tin thì giãn nhịp/chờ đúng điều kiện. Không tự thử lại vô hạn.
-- Gom các sự kiện trùng; một sự kiện, một hành động logic. Thông báo do chính agent phát ra không được kích hoạt vòng tự gọi mình.
-- Tách lịch quan sát guard với lịch làm việc. Giãn worker không được bỏ theo dõi guard đã cam kết; thu hồi quyền quan sát phải báo mất khả năng giám sát, không giả là clear.
-- Cùng một công việc đã gắn goal chỉ có một bên quản lịch. Loop cũ khác việc và reminder giờ cố định vẫn giữ ngữ nghĩa hiện tại.
-- Tần suất là kết quả của chính sách có phiên bản, dựa vào trạng thái, thông tin mới, độ khẩn cấp và chi phí còn lại. Các khoảng tối thiểu/tối đa là cấu hình, không thêm luật cố định theo ngành.
+- Prioritize useful events: new feedback, a changed data source, a sub-task result, or a review milestone that is genuinely due.
+- When waiting for user feedback, sleep; silence is not penalized and does not become authority to act.
+- When there is a useful next step, keep the turn within budget; on error or missing information, slow the rhythm or wait for the exact condition. No unlimited automatic retries.
+- Merge duplicate events; one event, one logical action. Notifications emitted by the agent itself must not trigger a self-calling loop.
+- Separate the guard observation schedule from the work schedule. Slowing the worker must not drop monitoring of a committed guard; revoking observation permission must report loss of monitoring capability, not pretend it is clear.
+- A job already attached to a goal has only one schedule owner. Other old loops and fixed-time reminders keep their current semantics.
+- Frequency is the outcome of a versioned policy, based on state, new information, urgency and remaining cost. Minimum/maximum intervals are configuration; do not add fixed rules by industry.
 
-**Nghiệm thu A2:** đồng hồ giả kiểm ngủ/thức, event trùng, hai scheduler, restart, nguồn hồi phục, guard khi worker ngủ, hết hạn mức và tắt agent; mỗi lần thức có lý do truy được; không có sự kiện cần xử lý thì 0 lượt model.
+**A2 acceptance:** a fake clock tests sleep/wake, duplicate events, two schedulers, restart, a recovering source, guards while the worker sleeps, budget exhaustion and switching the agent off; every wake has a traceable reason; with no event to handle there are 0 model turns.
 
-## 6. A3: vòng phản hồi và học từ reaction
+## 6. A3: feedback loop and learning from reactions
 
-M4 đã có phản hồi cách hiểu/đầu ra; M5 đã có compare_methods và áp dụng trong revision. Phần mới là biến phản hồi có nguồn thành đề xuất học, thử và ghi nhận, không gắn điểm emoji trực tiếp vào scheduler.
+M4 already has feedback on interpretation/output; M5 already has compare_methods and application within a revision. What is new is turning sourced feedback into learning proposals, trials and records, without attaching emoji scores directly to the scheduler.
 
-| Tín hiệu | Dùng cho | Không được suy ra |
+| Signal | Used for | Must not be inferred as |
 |---|---|---|
-| Reaction trên lời nói của agent | Giả thuyết về cách trình bày, độ dài, thời điểm báo tin, mức làm phiền | Công việc đạt, thêm quyền, tăng hạn mức, tự tăng số lượt |
-| Đúng ý / Hiểu chưa đúng | Sửa hoặc xác nhận cách hiểu của đúng revision | Sản phẩm đã đạt |
-| Đạt yêu cầu / Cần chỉnh | Tiêu chí human_confirmation của đúng artifact hash/revision | Vượt guard hoặc thay kết quả kiểm khách quan |
-| Kết quả đo, bằng chứng, chi phí | So cách làm trên cùng thước đo | Quy công mọi biến động cho hành động agent khi chưa có căn cứ |
+| Reaction on the agent's words | Hypotheses about presentation, length, timing of updates, level of interruption | Work done, added permissions, higher budget, more turns on its own |
+| Right on point / Misunderstood | Correct or confirm the interpretation of the exact revision | The product has passed |
+| Meets the bar / Needs changes | The human_confirmation criterion of the exact artifact hash/revision | Overriding a guard or replacing an objective check result |
+| Measured results, evidence, cost | Compare methods on the same yardstick | Attributing every fluctuation to the agent's actions without grounds |
 
-Vòng đích: **ghi phản hồi có nguồn → đề xuất thay đổi nhỏ → thử trong ngân sách → so với cách cũ → áp dụng trong phạm vi đã kiểm hoặc giữ nguyên → tiếp tục quan sát**.
+Target loop: **record sourced feedback → propose a small change → trial within budget → compare with the old way → apply within the verified scope or keep as is → keep observing**.
 
-- Reaction thay đổi/thu hồi phải thay thế đóng góp cũ, không cộng điểm mỗi lần bấm; gắn message, agent, goal/revision/artifact khi liên quan và người phản hồi có quyền.
-- Chat thường không bị thu vào vòng học Resonance toàn cục. Phản hồi tại thẻ của agent có thể tới agent đó ngay cả khi thẻ được xem trong chat thường.
-- Không phạt việc người dùng không bấm. Một reaction không tự sinh lượt model; gom phản hồi để xử lý cùng lượt hợp lệ hoặc trong ngân sách khám phá đã cấp.
-- Bài học ban đầu là giả thuyết có phạm vi và bằng chứng. Không biến thành sở thích toàn hệ thống chỉ vì một người thích một câu trả lời.
-- Phản hồi “nói ít hơn” có thể giảm số thông báo; không làm chậm việc kiểm guard hay giấu một cảnh báo bắt buộc. Phản hồi không được biến việc khó thành tiêu chí dễ để đạt điểm cao.
-- Cách làm tốt được áp dụng qua cơ chế thử M5; còn giới hạn theo revision cho tới khi có bằng chứng chuyển giao. Cách trình bày có thể lưu theo agent/người dùng nhưng vẫn có provenance và khả năng rút lại.
+- A changed/revoked reaction must replace the old contribution and not add a point each time it is clicked; attach it to the message, agent, goal/revision/artifact where relevant, and the person reacting must have permission.
+- Ordinary chat is not collected into a global Resonance learning loop. Feedback on an agent's card can reach that agent even when the card is viewed in ordinary chat.
+- Do not penalize users for not clicking. A reaction does not spawn a model turn by itself; batch feedback to process in the same valid turn or within the granted exploration budget.
+- An initial lesson is a hypothesis with scope and evidence. It does not become a system-wide preference just because one person liked one reply.
+- Feedback like "say less" may reduce the number of notifications; it must not slow guard checks or hide a mandatory warning. Feedback must not turn a hard task into an easy criterion to score higher.
+- A good method is applied through the M5 trial mechanism; it stays limited to the revision until there is evidence of transfer. Presentation style can be stored per agent/user but still has provenance and can be withdrawn.
 
-**Nghiệm thu A3:** 👍 không làm goal thành công; 👎 không tự ghi thất bại khách quan; không phản hồi là unknown; phản hồi muộn/sai revision không áp nhầm; bấm lại không tăng điểm; ứng viên thua/unknown giữ cách cũ; thu hồi bài học ngừng áp dụng.
+**A3 acceptance:** a thumbs up does not make a goal succeed; a thumbs down does not record an objective failure by itself; no feedback is unknown; late/wrong-revision feedback is not applied by mistake; clicking again does not raise the score; a losing/unknown candidate keeps the old way; revoking a lesson stops its application.
 
-## 7. A4 và A5
+## 7. A4 and A5
 
-**A4: bàn giao sản phẩm đa engine.** Một hợp đồng host kiểm đường dẫn/quyền, kết quả thực thi, bytes/hash và revision. Claude Code hiện có adapter Write thành công; thêm từng adapter Codex/Grok/Antigravity hoặc nộp nội dung để host ghi trong đúng quyền. Không coi lời model tự khai là receipt. Cùng bộ ca kiểm để so tương đương, không tuyên bố mọi engine đã hỗ trợ chỉ vì cùng tên API.
+**A4: multi-engine product handoff.** One host contract checks path/permissions, execution result, bytes/hash and revision. Claude Code currently has a successful Write adapter; add adapters for Codex/Grok/Antigravity one by one, or submit content for the host to write within the right permissions. A model's self-declaration is not a receipt. The same test set is used to compare equivalence; do not claim every engine is supported just because the API name is the same.
 
-**A5: đội AI làm và review.** Tái sử dụng workflow graph, verify_agent và runtime có grant; bắt đầu một agent làm và một agent review, một goal chịu trách nhiệm cuối. Review gắn đúng hash/revision, reviewer không tự sửa tiêu chí, cả hai dùng hạn mức chung có chia phần. Bản bị sửa sau review phải được review lại. Owner dừng thì cả hai dừng theo phạm vi công việc, không tự sinh agent mới để vượt chốt.
+**A5: AI team that makes and reviews.** Reuse the workflow graph, verify_agent and the runtime with grants; start with one maker agent and one reviewer agent, with one goal ultimately responsible. The review is tied to the exact hash/revision, the reviewer does not edit the criteria itself, and both use a shared budget with allocated shares. A version edited after review must be reviewed again. When the owner stops, both stop within the scope of the work, and no new agent is spawned to get around the stop.
 
-Đội AI là sau A1–A3. Theo lộ trình mặc định A4 đứng trước A5 để thống nhất bàn giao; nếu chỉ dùng một engine đã được kiểm thì A4 không phải phụ thuộc kỹ thuật bắt buộc của mô hình hai vai.
+The AI team comes after A1 to A3. On the default roadmap A4 comes before A5 to unify handoff; if only one verified engine is used, A4 is not a mandatory technical dependency of the two-role model.
 
-## 8. Thứ tự, đầu ra và cổng hoàn thành
+## 8. Order, outputs and completion gates
 
-| Mốc | Kết quả nhìn thấy được | Trạng thái 11/10 |
+| Milestone | Visible result | Status as of 2026-10-11 |
 |---|---|---|
-| D0 | Xác minh vận hành trên máy triển khai | Localhost thử ghim `438f8309` (0.86.0) đạt 13 kiểm không model và 1 chat thật; commit, cách chạy và kết quả ở [biên bản D0](../../dev/resonance-d0-local-check-2026-10-08.md). VPS chưa kiểm, không chặn thiết kế A1 |
-| A1 | Trang agent có công tắc Cộng hưởng, mục tiêu đúng chủ thể và tiến độ tối thiểu | Đạt review mã (`cc79deb2`), pilot A1-1 đạt kỹ thuật và nội dung trong một kịch bản. Đã phát hành 0.87.0 (`fdfec7c5`, PR #590). Biên bản: [resonance-a1-verification](../../dev/resonance-a1-verification.md) |
-| A2 | Agent thức vì lý do cụ thể, ngủ khi chờ, không gọi model vô ích | Thiết kế đạt (`cb11fc23`), mã đạt review (`b5975b7e`), review cuối đạt (`b80ae0ea`). Đã phát hành 0.88.0 (`c101d108`, PR #593); hiệu năng VPS chưa đo. Biên bản: [resonance-a2-verification](../../dev/resonance-a2-verification.md) |
-| A3 | Phản hồi dẫn tới điều chỉnh có kiểm chứng; không chạy theo emoji | Đã phát hành 0.89.0 (`33a3c1aa`, PR #598). Pilot làn M một lần (4 lượt Sonnet, hoà, không áp dụng). Biên bản: [resonance-a3-verification](../../dev/resonance-a3-verification.md) |
-| A4 | Các engine nộp sản phẩm theo cùng hợp đồng host | Đã phát hành 0.96.0 (`d36ebb3e`, PR #604). Pilot thật một mẫu Claude Code (2 lượt chat, 0 việc nền), khép bằng hậu kiểm; các engine khác chỉ kiểm bằng engine giả. Công cụ `javis_submit_deliverable` cho Claude, Codex, engine API; phạm vi do chủ dự án cho phép trên thẻ (không cấp từ lời chat). [Thiết kế A4](2026-10-10-resonance-a4-handoff-grants-design.md), [biên bản](../../dev/resonance-a4-verification.md) |
-| A5 | Một agent làm, một agent review; báo rõ ai đang chờ ai | Đã phát hành 0.109.0 (`bfb1c29f`, PR #616). Pilot thật real-2 được chấp nhận trong phạm vi một mẫu `pass_first`; vòng sửa chưa chứng minh bằng model thật: [thiết kế A5](2026-10-11-resonance-a5-maker-reviewer-design.md), [hướng dẫn](../../dev/resonance-a5-team.md). Biên bản: [resonance-a5-verification](../../dev/resonance-a5-verification.md) |
-| Nhóm chat team | Nhiều nhóm; trưởng nhóm điều phối; @ giao việc; hàng đợi có Ưu tiên; công tắc Cộng hưởng trên dòng trợ lý; sáu reaction; trưởng nhóm Quyền giới hạn hay Toàn quyền | Thiết kế vòng 1 chờ review ([thiết kế nhóm chat team](2026-10-13-team-chat-design.md)); chưa có mã |
+| D0 | Operational check on the deployment machine | Localhost trial pinned to `438f8309` (0.86.0) passed 13 no-model checks and 1 real chat; commit, how it was run and results are in the [D0 record](../../dev/resonance-d0-local-check-2026-10-08.md). VPS not checked, does not block the A1 design |
+| A1 | Agent page has a Resonance switch, goals under the right owner and minimal progress | Passed code review (`cc79deb2`), pilot A1-1 passed technically and on content in one scenario. Shipped in 0.87.0 (`fdfec7c5`, PR #590). Record: [resonance-a1-verification](../../dev/resonance-a1-verification.md) |
+| A2 | The agent wakes for a specific reason, sleeps when waiting, makes no useless model calls | Design passed (`cb11fc23`), code passed review (`b5975b7e`), final review passed (`b80ae0ea`). Shipped in 0.88.0 (`c101d108`, PR #593); VPS performance not measured. Record: [resonance-a2-verification](../../dev/resonance-a2-verification.md) |
+| A3 | Feedback leads to verified adjustments; does not chase emoji | Shipped in 0.89.0 (`33a3c1aa`, PR #598). One pilot on the M lane (4 Sonnet turns, a tie, not applied). Record: [resonance-a3-verification](../../dev/resonance-a3-verification.md) |
+| A4 | Engines submit products under the same host contract | Shipped in 0.96.0 (`d36ebb3e`, PR #604). One real pilot sample on Claude Code (2 chat turns, 0 background jobs), closed by a post-hoc check; other engines checked only with a fake engine. The `javis_submit_deliverable` tool for Claude, Codex and API engines; the scope is allowed by the project owner on the card (not granted from chat words). [A4 design](2026-10-10-resonance-a4-handoff-grants-design.md), [record](../../dev/resonance-a4-verification.md) |
+| A5 | One agent makes, one agent reviews; clearly says who is waiting on whom | Shipped in 0.109.0 (`bfb1c29f`, PR #616). Real pilot real-2 accepted within the scope of a single `pass_first` sample; the fix loop is not yet proven with a real model: [A5 design](2026-10-11-resonance-a5-maker-reviewer-design.md), [guide](../../dev/resonance-a5-team.md). Record: [resonance-a5-verification](../../dev/resonance-a5-verification.md) |
+| Team chat group | Multiple groups; a lead coordinates; @ assigns work; a queue with a Prioritize button; a Resonance switch on the assistant row; six reactions; the lead is Limited permissions or Full permissions | Round 1 design awaiting review ([team chat group design](2026-10-13-team-chat-design.md)); no code yet |
 
-A1–A5 là thứ tự phát triển, không phải năm tính năng đã có. Mỗi mốc ra một PR hoặc các PR nhỏ có giá trị kiểm riêng; không cần xí chỗ toàn bộ số phiên bản ngay bây giờ. Không đưa lịch ngày hoàn thành hoặc % công sức khi chưa ước lượng.
+A1 to A5 are a development order, not five features that already exist. Each milestone produces a PR or small PRs with their own verification value; there is no need to reserve all the version numbers right now. Do not give completion dates or % effort before an estimate exists.
 
-Chỉ gọi model thật khi điều kiện/mục tiêu pilot và hạn mức của lần chạy đó đã rõ; ngân sách các pilot cũ không chuyển thành quyền gọi thêm. Review tài liệu này không tự mở phát hành chức năng.
+Call a real model only when the pilot conditions/goal and the budget for that run are clear; the budgets of old pilots do not become permission to call more. Reviewing this document does not by itself open a feature release.
 
-## 9. Đối chiếu bộ kế hoạch 01/02/03 cũ
+## 9. Mapping to the old 01/02/03 plan set
 
-| Kế hoạch cũ | Cách dùng tiếp |
+| Old plan | How it continues |
 |---|---|
-| A1–A4 Foundation: hợp đồng/kho/evaluator/framer | MVP đã làm lõi. Rà phần thiếu và scope agent, không dựng lại song song |
-| A5 Foundation và B5 Runtime: UI | Phần một agent đưa sớm vào A1 mới; UI nhóm để A5 mới |
-| B1/B2: grant/thực thi | Tái dùng M1/M3 và bổ sung cổng theo agent trong A1 |
-| B3: beat | Đưa thành A2 mới, dùng lịch hiện có, không chờ toàn bộ Runtime |
-| C1/C2: thử/áp dụng phương pháp | Dùng M5 làm nền của A3; giữ giới hạn bằng chứng hiện có |
-| C3: bài học có nguồn | Đưa phần phản hồi vào A3 mới |
-| B4: nhóm/mục tiêu con | Thu hẹp ban đầu thành cặp làm/review A5 |
-| B6, C4/C5: undo tổng quát, supervisor, tự sửa code | Hoãn; không nằm trên đường bắt buộc đợt kế |
+| A1 to A4 Foundation: contract/store/evaluator/framer | The MVP built the core. Review the gaps and agent scope; do not rebuild in parallel |
+| A5 Foundation and B5 Runtime: UI | The single-agent part moves early into the new A1; the group UI is left to the new A5 |
+| B1/B2: grants/execution | Reuse M1/M3 and add the per-agent gate in A1 |
+| B3: beat | Becomes the new A2, using the existing schedule, without waiting for the whole Runtime |
+| C1/C2: method trial/application | Use M5 as the base of A3; keep the existing evidence limits |
+| C3: sourced lessons | Move the feedback part into the new A3 |
+| B4: groups/sub-goals | Narrowed at first to the A5 maker/review pair |
+| B6, C4/C5: general undo, supervisor, self-fixing code | Deferred; not on the required path of the next phase |
 
-Ba kế hoạch cũ là tài liệu tham khảo; không thực thi nguyên tuần tự sau MVP. Khi có mâu thuẫn về **phạm vi mới và thứ tự sau MVP**, tài liệu ngày 08/10 này được ưu tiên. Không sửa lại lịch sử nghiệm thu M1–M5.
+The three old plans are reference documents; they are not executed sequentially in full after the MVP. When they conflict on the **new scope and the post-MVP order**, this 2026-10-08 document takes priority. Do not rewrite the acceptance history of M1 to M5.
 
-## 10. Những điểm cần chốt khi viết thiết kế PR A1
+## 10. Points to settle when writing the A1 PR design
 
-Danh tính agent bền vững và rename/delete; kho lưu công tắc do host kiểm soát; schema/migration cho goal cũ; uỷ quyền từ chat/kênh ngoài; giới hạn quyền cho agent được nối tới khách hàng; vòng đời công việc đang chạy khi tắt. Đây là quyết định kỹ thuật cần đọc mã mới nhất, không phải câu hỏi bắt người dùng tự đặt mục tiêu.
+Persistent agent identity and rename/delete; the host-controlled store for the switch; schema/migration for old goals; delegation from chat/external channels; permission limits for an agent connected to customers; the lifecycle of running work when switched off. These are technical decisions that need the latest code read, not questions that make the user set their own goal.
 
-Nguồn audit và các khoảng trống bằng chứng: [Báo cáo tiến độ 08/10](../../dev/resonance-progress-audit-2026-10-08.md). Trang theo dõi: HTML (`exports/javis-resonance-tien-do.html`, ngoài git, chỉ có trên máy chủ dự án).
+Audit source and evidence gaps: [Progress report of 2026-10-08](../../dev/resonance-progress-audit-2026-10-08.md). Tracking page: HTML (`exports/javis-resonance-tien-do.html`, outside git, only on the project's server).
 
-## 11. Cập nhật sau review đề xuất A1 (08/10/2026)
+## 11. Update after the A1 proposal review (2026-10-08)
 
-- **Phạm vi A1 thu hẹp:** chỉ lập mục tiêu trong phiên của agent đã bật Cộng hưởng. Đường giao việc từ chat thường sang agent là hạng mục riêng sau A1, không gộp vào A2. Chat thường vẫn xem thẻ hợp lệ theo quyền chủ dự án; lệnh dừng và huỷ không mất hiệu lực.
-- **D0:** biên bản [resonance-d0-local-check-2026-10-08.md](../../dev/resonance-d0-local-check-2026-10-08.md). Bằng chứng vận hành cục bộ, không phải VPS hay server cổng 7777.
-- **Thiết kế A1:** [2026-10-08-resonance-a1-agent-scope-design.md](2026-10-08-resonance-a1-agent-scope-design.md). Đã qua các vòng review, xem mục 12 dưới.
+- **A1 scope narrowed:** only create goals in the session of an agent with Resonance enabled. The path of assigning work from ordinary chat to an agent is a separate item after A1, not merged into A2. Ordinary chat can still view valid cards under the project owner's permissions; the stop and cancel commands do not lose effect.
+- **D0:** record [resonance-d0-local-check-2026-10-08.md](../../dev/resonance-d0-local-check-2026-10-08.md). Local operational evidence, not the VPS or the port 7777 server.
+- **A1 design:** [2026-10-08-resonance-a1-agent-scope-design.md](2026-10-08-resonance-a1-agent-scope-design.md). It has passed the review rounds; see section 12 below.
 
-## 12. Tiến độ A1 (08/10/2026)
+## 12. A1 progress (2026-10-08)
 
-- **Mã:** PR #590. Review mã đạt ở `cc79deb2`; `e01eb3c2` thêm test hồi quy phục hồi, `e0a60352` thêm hồ sơ pilot.
-- **Pilot A1-1** (phiên trợ lý, 2 lượt chat Opus, 0 việc nền Sonnet, xác nhận cuối mô phỏng): đạt kỹ thuật và nội dung, trong một kịch bản.
-- **Biên bản nghiệm thu:** [resonance-a1-verification](../../dev/resonance-a1-verification.md).
-- **Phát hành:** 0.87.0, PR #590 squash thành `fdfec7c5` (09/10/2026). Hiệu năng VPS đi việc riêng (#592 chưa merge).
+- **Code:** PR #590. Code review passed at `cc79deb2`; `e01eb3c2` added a recovery regression test, `e0a60352` added the pilot record.
+- **Pilot A1-1** (assistant session, 2 Opus chat turns, 0 Sonnet background jobs, simulated final confirmation): passed technically and on content, in one scenario.
+- **Acceptance record:** [resonance-a1-verification](../../dev/resonance-a1-verification.md).
+- **Release:** 0.87.0, PR #590 squashed into `fdfec7c5` (2026-10-09). VPS performance is handled separately (#592 not merged).
 
-## 13. Tiến độ A2 (09/10/2026)
+## 13. A2 progress (2026-10-09)
 
-- **PR #593** (0.88.0), chồng lên A1. Thiết kế đạt review ở vòng 4 (`cb11fc23`); mã đạt review ở `b5975b7e` sau ba vòng sửa.
-- **Kiểm tích hợp:** smoke dry trên server thật (0 lượt engine), soi giao diện heartbeat trên sandbox.
-- **Biên bản:** [resonance-a2-verification](../../dev/resonance-a2-verification.md).
-- **Phát hành:** 0.88.0, PR #593 squash thành `c101d108` (09/10/2026), image GHCR 0.88.0.
-- **Chưa làm:** chưa đo hiệu năng VPS. A3 đã phát hành 0.89.0; A4 đã phát hành 0.96.0 (`d36ebb3e`); A5 đã phát hành 0.109.0 (`bfb1c29f`). Hạng mục tiếp theo: nhóm chat team (thiết kế chờ review).
+- **PR #593** (0.88.0), stacked on A1. Design passed review in round 4 (`cb11fc23`); code passed review at `b5975b7e` after three rounds of fixes.
+- **Integration check:** a dry smoke test on the real server (0 engine turns), a look at the heartbeat UI on a sandbox.
+- **Record:** [resonance-a2-verification](../../dev/resonance-a2-verification.md).
+- **Release:** 0.88.0, PR #593 squashed into `c101d108` (2026-10-09), GHCR image 0.88.0.
+- **Not done:** VPS performance not measured. A3 shipped in 0.89.0; A4 shipped in 0.96.0 (`d36ebb3e`); A5 shipped in 0.109.0 (`bfb1c29f`). Next item: the team chat group (design awaiting review).
 
-## 14. Sau A1 tới A5: nhóm chat team (13/10/2026)
+## 14. After A1 to A5: the team chat group (2026-10-13)
 
-- **A1 tới A5 là nền Cộng hưởng đã hoàn thành phạm vi đã chốt** (A5 phát hành 0.109.0, `bfb1c29f`). Giới hạn của pilot A5 giữ nguyên: một mẫu `pass_first`, reviewer chưa nhận lời giao gốc, vòng sửa chưa chứng minh bằng model thật.
-- **Hạng mục tiếp theo: nhóm chat team nhiều agent** ([thiết kế nhóm chat team](2026-10-13-team-chat-design.md), [rà mã](../../dev/team-chat-audit-2026-10-13.md), [wireframe](../../dev/team-chat-wireframes.md)).
-  - Gồm: nhiều nhóm, trưởng nhóm điều phối, @ giao việc, hàng đợi có nút Ưu tiên, công tắc Cộng hưởng trên dòng trợ lý, sáu reaction, hai chế độ trưởng nhóm (Quyền giới hạn, Toàn quyền).
-  - Trạng thái: thiết kế vòng 1 chờ review; chưa có mã.
-- **Tag tiếp tục là hệ phân loại riêng**, không phải nhóm chat.
-- **Cặp làm/review A5 không phải cấu trúc của nhóm:** agent trong nhóm vẫn có thể có mục tiêu Cộng hưởng với cặp A5.
-- **Việc riêng đã ghi, chưa triển khai:**
-  - nguồn yêu cầu do host ghim cho reviewer A5;
-  - usage việc nền trên màn usage chung;
-  - kéo bản mới lên VPS và đo lại (cần duyệt riêng).
+- **A1 to A5 are the Resonance foundation with the agreed scope completed** (A5 shipped in 0.109.0, `bfb1c29f`). The limits of the A5 pilot stay as they are: a single `pass_first` sample, the reviewer has not received the original assignment, the fix loop is not yet proven with a real model.
+- **Next item: the multi-agent team chat group** ([team chat group design](2026-10-13-team-chat-design.md), [code review](../../dev/team-chat-audit-2026-10-13.md), [wireframes](../../dev/team-chat-wireframes.md)).
+  - Includes: multiple groups, a lead who coordinates, @ to assign work, a queue with a Prioritize button, a Resonance switch on the assistant row, six reactions, two lead modes (Limited permissions, Full permissions).
+  - Status: round 1 design awaiting review; no code yet.
+- **Tags remain a separate classification system**, not chat groups.
+- **The A5 maker/review pair is not a structure of the group:** an agent in a group can still have a Resonance goal with an A5 pair.
+- **Separate items noted, not yet implemented:**
+  - request source pinned by the host for the A5 reviewer;
+  - background-job usage on the shared usage screen;
+  - pull the new build onto the VPS and re-measure (needs separate approval).

@@ -1,28 +1,28 @@
-# Thiết kế: đổi credential ngay trên UI (bỏ bước chạy lệnh)
+# Design: exchanging credentials right in the UI (dropping the run-a-command step)
 
-Ngày: 2026-07-20
-Trạng thái: chờ duyệt
+Date: 2026-07-20
+Status: awaiting approval
 
-## Vấn đề
+## Problem
 
-Connector `google-keep` bắt người dùng mở terminal chạy một lệnh dài để đổi App Password lấy
-Google master token, rồi dán token vào Jarvis 007. Người dùng hỏi thẳng: "sao khó thế, không làm trên
-UI luôn được à?"
+The `google-keep` connector makes the user open a terminal and run a long command to exchange an App Password for a
+Google master token, then paste that token into Jarvis 007. The user asked directly: "why is it so hard, can't you just do it in
+the UI?"
 
-Câu trả lời là ĐƯỢC. `gpsoauth.perform_master_login(email, app_password, android_id)` chỉ là một
-lời gọi HTTP tới máy chủ xác thực của Google, trả về dict chứa token. Không có gì buộc nó phải
-chạy trong terminal; server Jarvis 007 gọi được y hệt.
+The answer is YES. `gpsoauth.perform_master_login(email, app_password, android_id)` is just one HTTP call to
+Google's auth server, returning a dict containing the token. Nothing forces it to run in a terminal; the Jarvis 007 server can
+call it just the same.
 
-Hai bước KHÔNG tự động hoá được vì là giao diện bảo mật của chính Google: bật xác minh 2 bước, và
-tạo App Password. Google cố tình bắt làm tay. Ngoài ra thì hết.
+Two steps can NOT be automated because they are Google's own security UI: turning on 2-step verification, and
+creating the App Password. Google deliberately makes those manual. Everything else can be automated.
 
-## Cơ chế: `auth.exchange` khai báo trong catalog
+## Mechanism: `auth.exchange` declared in the catalog
 
-Thay vì nhét logic riêng cho Google Keep vào `main.py`, dựng một bước ĐỔI CREDENTIAL tổng quát
-mà catalog tự khai. Lý do: `google-ads` cũng đang bắt chạy `gcloud auth application-default login`
-và sẽ cần đúng cơ chế này; nhét cứng cho Keep thì lần sau lại phải sửa lõi.
+Rather than putting Google Keep-specific logic into `main.py`, build a general CREDENTIAL EXCHANGE step
+that the catalog declares itself. Reason: `google-ads` also forces running `gcloud auth application-default login`
+and will need exactly this mechanism; hard-wiring it for Keep would mean editing the core again next time.
 
-Catalog khai thêm trong `auth`:
+The catalog declares an extra entry under `auth`:
 
 ```json
 "exchange": {
@@ -33,87 +33,87 @@ Catalog khai thêm trong `auth`:
 }
 ```
 
-Ý nghĩa: nếu ô `master_token` để trống mà các ô `inputs` đã điền, gọi handler
-`google_master_token` để sinh ra giá trị cho `master_token`, rồi XOÁ các field trong `drop` khỏi
-dữ liệu trước khi lưu. Nếu `master_token` đã có sẵn thì BỎ QUA hoàn toàn (đường lui thủ công).
+Meaning: if the `master_token` field is empty but the `inputs` fields are filled in, call the handler
+`google_master_token` to produce the value for `master_token`, then DELETE the fields in `drop` from the data before
+saving. If `master_token` is already present, SKIP everything (the manual fallback path).
 
-Module mới `server/cred_exchange.py`:
+A new module `server/cred_exchange.py`:
 
-- `HANDLERS` = registry tên → hàm. Chỉ handler khai trong module này mới chạy được; catalog KHÔNG
-  chỉ định được mã tuỳ ý (tránh biến catalog thành đường thực thi mã).
-- `run(connector, fields) -> (fields_moi, loi)` đọc `auth.exchange`, quyết định có chạy không,
-  gọi handler, và luôn xoá field `drop` dù thành công hay thất bại.
-- Handler `google_master_token` gọi `gpsoauth.perform_master_login`, dịch mã lỗi của Google sang
-  tiếng Việt dễ hiểu.
+- `HANDLERS` = a registry of name -> function. Only handlers declared in this module can run; the catalog can NOT
+  specify arbitrary code (so the catalog does not become a code execution path).
+- `run(connector, fields) -> (new_fields, error)` reads `auth.exchange`, decides whether to run,
+  calls the handler, and always deletes the `drop` fields whether it succeeds or fails.
+- The `google_master_token` handler calls `gpsoauth.perform_master_login` and translates Google's error codes into
+  plain Vietnamese messages (user-facing error text stays in Vietnamese).
 
-Nối vào `main.py` tại `/connect/add`, ngay TRƯỚC `mcp_store.add_connection`.
+Hooked into `main.py` at `/connect/add`, right BEFORE `mcp_store.add_connection`.
 
-## Bất biến bảo mật (phải có test)
+## Security invariants (must have tests)
 
-1. **App Password KHÔNG BAO GIỜ được lưu.** Nó nằm trong `drop`, bị xoá trước khi
-   `mcp_store.add_connection` mã hoá và ghi xuống đĩa.
-2. **App Password KHÔNG map ra env.** Field khai không có `env`, nên `build_env` bỏ qua kể cả khi
-   vì lý do nào đó nó còn sót lại.
-3. **Đổi thất bại thì không lưu gì.** Trả lỗi ngay, không gọi `add_connection`.
-4. **Không ghi log giá trị.** Thông báo lỗi chỉ nói LOẠI lỗi, không kèm giá trị người dùng nhập.
-5. **Đường lui còn nguyên.** Ai đã có sẵn master token vẫn dán thẳng vào được, không bị ép qua
-   App Password. Quan trọng vì Google hay chặn đăng nhập từ IP trung tâm dữ liệu (VPS).
+1. **The App Password is NEVER stored.** It is in `drop`, deleted before
+   `mcp_store.add_connection` encrypts and writes to disk.
+2. **The App Password does NOT map to env.** The field is declared without `env`, so `build_env` skips it even if
+   for some reason it were left behind.
+3. **A failed exchange stores nothing.** It returns the error immediately and does not call `add_connection`.
+4. **Values are not logged.** The error message states only the KIND of error, never the value the user entered.
+5. **The fallback path stays intact.** Anyone who already has a master token can still paste it directly, without being forced through an
+   App Password. Important because Google often blocks logins from data-center IPs (VPS).
 
-## Thay đổi UI
+## UI changes
 
-`openApikeyFlow` hiện KHÔNG gọi `oauthWizard(con)`, nên connector dạng apikey không hiện được nút
-bấm mở trang ngoài dù catalog có khai `auth.setup.links`. Thêm lời gọi đó vào, rồi khai cho
-`google-keep` một nút mở thẳng `myaccount.google.com/apppasswords`.
+`openApikeyFlow` currently does NOT call `oauthWizard(con)`, so apikey-type connectors cannot show a
+button that opens an external page even if the catalog declares `auth.setup.links`. Add that call, then declare for
+`google-keep` a button that opens `myaccount.google.com/apppasswords` directly.
 
-Đây là sửa 1 dòng và có lợi cho mọi connector apikey về sau, không riêng Keep.
+This is a 1-line fix and benefits every apikey connector from now on, not just Keep.
 
-## Luồng sau khi sửa
+## Flow after the change
 
-1. Bấm nút trong Jarvis 007, mở thẳng trang App Password của Google.
-2. Copy chuỗi 16 ký tự.
-3. Dán email + chuỗi đó vào Jarvis 007, bấm Kết nối.
+1. Tap the button in Jarvis 007, which opens Google's App Password page directly.
+2. Copy the 16-character string.
+3. Paste the email + that string into Jarvis 007 and tap Connect.
 
-Jarvis 007 tự đổi lấy master token, lưu token, vứt App Password. Không còn terminal.
+Jarvis 007 exchanges it for the master token on its own, saves the token, and discards the App Password. No more terminal.
 
-## Rủi ro đã biết
+## Known risks
 
-- **Google có thể chặn đăng nhập từ IP VPS.** Đăng nhập từ trung tâm dữ liệu ở nước khác dễ bị
-  trả `BadAuthentication` hơn từ máy nhà. Vì vậy đường lui dán tay master token phải giữ, và
-  thông báo lỗi phải gợi ý đúng cách xử lý này.
-- **App Password đi qua server Jarvis 007.** Không lưu, không log, dùng một lần rồi bỏ. Nhưng khác với
-  cách cũ (chuỗi chỉ nằm trên máy người dùng), nên phải nói rõ trong hướng dẫn.
-- **Thêm 4 gói phụ thuộc**: gpsoauth, pycryptodomex, requests, charset-normalizer, urllib3. Đã
-  kiểm bằng `pip install --dry-run`: KHÔNG đụng tới `fastapi`/`starlette`, nên không dẫm vào cái
-  pin nguy hiểm đã ghi chú trong `requirements.txt`.
+- **Google may block logins from a VPS IP.** Logging in from a data center in another country is more likely to get
+  `BadAuthentication` than from a home machine. That is why the manual master-token paste fallback must stay, and the
+  error message must suggest exactly that remedy.
+- **The App Password passes through the Jarvis 007 server.** Not stored, not logged, used once and discarded. But unlike
+  the old way (where the string stayed only on the user's machine), so the instructions must say so clearly.
+- **Adds 4 dependencies**: gpsoauth, pycryptodomex, requests, charset-normalizer, urllib3. Checked with
+  `pip install --dry-run`: it does NOT touch `fastapi`/`starlette`, so it does not step on the dangerous
+  pin noted in `requirements.txt`.
 
-## Phần 2: google-ads (ĐÃ LÀM, 0.9.114)
+## Part 2: google-ads (DONE, 0.9.114)
 
-`google-ads` bắt cài Google Cloud CLI rồi chạy `gcloud auth application-default login` với một
-chuỗi `--scopes=` rất dài, xong đi tìm file JSON trong `%APPDATA%` mà dán vào. Còn cực hơn Keep.
+`google-ads` made users install the Google Cloud CLI, then run `gcloud auth application-default login` with a very long
+`--scopes=` string, then go hunting for a JSON file in `%APPDATA%` to paste in. Even worse than Keep.
 
-Chìa khoá: file ADC mà gcloud sinh ra thực chất CHỈ LÀ
-`{type: authorized_user, client_id, client_secret, refresh_token}`. Mà Jarvis 007 đã có sẵn luồng OAuth
-Google hoàn chỉnh đang chạy cho Gmail và Lịch. Nên chỉ cần chạy luồng đó với scope
-`https://www.googleapis.com/auth/adwords` rồi TỰ DỰNG file ADC. Không cần gcloud, không chạy lệnh.
+The key insight: the ADC file that gcloud produces is really JUST
+`{type: authorized_user, client_id, client_secret, refresh_token}`. And Jarvis 007 already has a complete Google OAuth
+flow running for Gmail and Calendar. So all that is needed is to run that flow with the scope
+`https://www.googleapis.com/auth/adwords` and BUILD the ADC file itself. No gcloud, no commands.
 
-Vướng đã gỡ: `oauth_mcp.auth_headers()` sinh HTTP HEADER, tức thiết kế cho `transport: http`.
-`google-ads` là `stdio`, chỉ nhận credential qua FILE + biến môi trường. Cầu nối gồm hai mảnh:
+The obstacle, now removed: `oauth_mcp.auth_headers()` produces HTTP HEADERS, i.e. it is designed for `transport: http`.
+`google-ads` is `stdio`, and accepts credentials only through a FILE + environment variables. The bridge has two pieces:
 
-1. `oauth_mcp.credentials_file(conn_id, fmt)` - ĐỒNG BỘ, không gọi mạng, ghép refresh_token trong
-   kho oauth với client_id/secret trong `mcp_store` thành đúng khuôn ADC. Không refresh ở đây vì
-   file chứa refresh_token, chính tiến trình con sẽ tự đổi lấy access token khi cần.
-2. `mcp_store.resolved()` - connector khai `oauth_file: {format, env, ext}` thì ghi file 0600 vào
-   `connector-files/` rồi trỏ env vào, tái dùng đúng khuôn sẵn có của field `file`.
+1. `oauth_mcp.credentials_file(conn_id, fmt)` - SYNCHRONOUS, makes no network call, combines the refresh_token in the oauth
+   store with the client_id/secret in `mcp_store` into exactly the ADC shape. No refresh here, because the file
+   holds the refresh_token and the child process will exchange it for an access token itself when needed.
+2. `mcp_store.resolved()` - a connector that declares `oauth_file: {format, env, ext}` gets a 0600 file written into
+   `connector-files/` and the env pointed at it, reusing the existing mold of the `file` field.
 
-Import phải TRỄ (`import oauth_mcp` bên trong hàm) vì `oauth_mcp` đã import `mcp_store` ở cấp
-module; import thẳng là vòng lặp. Giống cách `mcp_client._oauth_headers` đang làm.
+The import must be LAZY (`import oauth_mcp` inside the function) because `oauth_mcp` already imports `mcp_store` at module
+level; importing directly would create a cycle. Same as what `mcp_client._oauth_headers` does.
 
-Giữ ô `adc_json` làm ĐƯỜNG LUI cho ai đã lỡ chạy gcloud, và nó THẮNG: nếu user dán tay thì OAuth
-không ghi đè (kiểm bằng `not env.get(of["env"])`).
+Keep the `adc_json` field as the FALLBACK for anyone who already ran gcloud, and it WINS: if the user pastes by hand, OAuth
+does not overwrite it (checked with `not env.get(of["env"])`).
 
-Kèm sửa `openOauthFlow` biết render `multiline` thành textarea. Trước đó nó ép mọi field thành
-input một dòng, nên ô dán file ADC sẽ không dùng nổi.
+Also fixes `openOauthFlow` so it knows how to render `multiline` as a textarea. Before that it forced every field into a
+single-line input, so the box for pasting the ADC file was unusable.
 
-KHÔNG đụng vào `args` của google-ads: nó tải server từ `git+https://...`, mà `google-ads-mcp` trên
-PyPI mới ở 0.0.1 (tháng 10/2025) nên đổi sang PyPI là rước rủi ro không cần thiết. Git vẫn là yêu
-cầu, nhưng Docker image đã cài sẵn `git`.
+Do NOT touch the `args` of google-ads: it downloads the server from `git+https://...`, while `google-ads-mcp` on
+PyPI is only at 0.0.1 (October 2025), so switching to PyPI invites needless risk. Git is still a requirement, but the Docker image
+already has `git` installed.

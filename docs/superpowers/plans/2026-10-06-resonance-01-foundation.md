@@ -1,70 +1,70 @@
 # Jarvis 007 Resonance Foundation Implementation Plan
 
-**Trạng thái sau phản biện vòng 2:** tham chiếu cho kiến trúc mở rộng. Bắt đầu bằng [MVP một agent](2026-10-06-resonance-00-mvp.md); không triển khai toàn bộ kế hoạch này trước demo. Những đường đã làm trong MVP được dùng lại, không tạo bản thứ hai. Giao diện/kiểu dữ liệu dưới đây được đối chiếu và migrate khi mở rộng.
+**Status after the second round of challenge:** reference for the extended architecture. Start with the [single-agent MVP](2026-10-06-resonance-00-mvp.md); do not implement this whole plan before the demo. Paths already built in the MVP are reused, not duplicated. The interfaces/data types below are reconciled and migrated when extending.
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (- [ ]) syntax for tracking. Chỉ chọn phương thức thực thi sau khi người dùng quyết định triển khai; tài liệu này không khởi chạy công việc nền.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (- [ ]) syntax for tracking. Only choose an execution method after the user decides to implement; this document does not launch background work.
 
-**Goal:** Từ nhu cầu bằng ngôn ngữ tự nhiên, agent tự hình thành và điều chỉnh mục tiêu; lưu hợp đồng có phiên bản, bằng chứng có nguồn và đánh giá độc lập với lĩnh vực. Người dùng không phải chọn mục tiêu hoặc tự điền tiêu chí.
+**Goal:** From a need expressed in natural language, the agent forms and adjusts the goal on its own; it stores a versioned contract, evidence with a source and a domain-independent assessment. The user does not have to pick goals or fill in criteria.
 
-**Architecture:** Goal framer dùng engine adapter hiện có để diễn giải nhu cầu, đưa ra câu hỏi hoặc bước khám phá và tạo hợp đồng. SQLite giữ đầu vào gốc, phiên bản cách hiểu, trạng thái mục tiêu và outbox; EvidenceStore hiện có giữ payload mã hóa. Hợp đồng, quyền, bằng chứng và assessment được ghim phiên bản, kiểm tra theo brain và principal.
+**Architecture:** A goal framer uses the existing engine adapter to interpret the need, raise questions or discovery steps and create the contract. SQLite holds the original input, the understanding versions, the goal status and the outbox; the existing EvidenceStore holds the encrypted payloads. The contract, permissions, evidence and assessment are version-pinned and checked per brain and principal.
 
-**Tech Stack:** Python hiện có của repo, FastAPI, SQLite, standard-library unittest, dashboard JavaScript và i18n vi/en. Không thêm framework agent hoặc dịch vụ cơ sở dữ liệu.
+**Tech Stack:** The repo's existing Python, FastAPI, SQLite, standard-library unittest, dashboard JavaScript and vi/en i18n. No added agent framework or database service.
 
-**Spec:** [Jarvis 007 Resonance thiết kế và lộ trình thực thi mục tiêu](../specs/2026-10-06-javis-resonance-design.md), đặc biệt mục 2 đến 7, 12 đến 17.
+**Spec:** [Jarvis 007 Resonance design and goal execution roadmap](../specs/2026-10-06-javis-resonance-design.md), especially sections 2 to 7 and 12 to 17.
 
 ## Global Constraints
 
-- Lõi không chứa điều kiện theo ngành hoặc nhà cung cấp model.
-- Mục tiêu, quyền và tiêu chí có phiên bản; agent không tự tăng quyền.
-- Người dùng giao nhu cầu, agent chịu trách nhiệm đặt mục tiêu. Bản diễn giải không ghi đè chỉ dẫn gốc; quyền và ràng buộc rõ không đổi theo suy đoán của model.
-- Hỏi để giảm bất định đáng kể; trả lời chưa biết dẫn tới khám phá trong quyền, không bắt người dùng chọn mục tiêu hoặc duyệt mọi revision.
-- Task/workflow hoàn thành không tự xác nhận mục tiêu đạt.
-- Reaction không quyết định hiệu suất hoặc quyền hạn.
-- Feature mới mặc định off; loop/cron legacy giữ hành vi khi chưa gắn mục tiêu.
-- Thời gian lưu bằng UTC epoch seconds; giao diện dùng múi giờ đã cấu hình.
-- State ở JAVIS_STATE_DIR; dữ liệu riêng không đưa vào Git hoặc prompt toàn cục.
-- Không dùng em dash (U+2014); định danh mới bằng tiếng Anh, chuỗi UI có vi/en. File văn bản ghi UTF-8 và LF. TestClient dùng base_url http://127.0.0.1:8080 để đi qua web_security đúng như các test hiện có.
-- Log giao tiếp tùy chọn có thể lỗi mà chat tiếp tục; lỗi sổ bắt buộc không được giả thành đã lưu. Không dùng actor slug hoặc thời gian gần nhau thay định danh brain/run/action.
-- Dùng tests/run.py để chạy test; test mới dùng unittest và gọi unittest.main khi chạy trực tiếp, theo đường dẫn import tests/python/_paths.py.
-- Tuân theo docs/quy-uoc-dev.md khi triển khai code; không đặt phiên bản phát hành cho riêng bản kế hoạch.
+- The core contains no industry-specific or model-provider-specific conditions.
+- Goals, permissions and criteria are versioned; the agent does not raise its own permissions.
+- The user hands over the need; the agent is responsible for setting the goal. An interpretation does not overwrite the original instruction; explicit permissions and constraints do not change on the model's guess.
+- Ask to reduce significant uncertainty; an "I don't know" answer leads to discovery within permissions, and the user is not made to pick the goal or approve every revision.
+- A completed task/workflow does not by itself confirm the goal is met.
+- A reaction does not decide performance or permissions.
+- New features are off by default; legacy loops/cron keep their behavior until attached to a goal.
+- Time is stored as UTC epoch seconds; the UI uses the configured time zone.
+- State lives in JAVIS_STATE_DIR; private data does not go into Git or the global prompt.
+- No em dash (U+2014); new identifiers are in English, UI strings in vi/en. Text files are written as UTF-8 and LF. TestClient uses base_url http://127.0.0.1:8080 to go through web_security exactly as the existing tests do.
+- The optional communication log may fail while chat continues; a failure of the mandatory ledger must not be faked as saved. Do not use an actor slug or closeness in time in place of a brain/run/action identity.
+- Use tests/run.py to run tests; new tests use unittest and call unittest.main when run directly, following the import path tests/python/_paths.py.
+- Follow docs/quy-uoc-dev.md when implementing code; do not set a release version just for this plan.
 
 ## Review Focus
 
-1. Đánh giá dùng bằng chứng thuộc brain hoặc revision khác phải bị chặn, không trả metadata nhạy cảm: A2, A3, A4.
-2. Cập nhật hợp đồng giữa lúc đánh giá không được dùng kết quả cũ để đóng phiên bản mới: A1, A4.
-3. Sự kiện lặp/đến muộn/đính chính không được tạo hai kết quả độc lập: A2, A3.
-4. Payload bằng chứng hết hạn hoặc bị người dùng xóa phải thành unavailable/unknown: A2, A3.
-5. Tiêu chí định tính không có phần trăm giả; lỗi evaluator không bị tính thành thất bại của mục tiêu: A3, A5.
-6. Agent đặt sai mục tiêu, hỏi lặp hoặc hạ tiêu chí để tự nhận thành công phải được phát hiện trong fixture: A1, A4, A5.
-7. Chỉ số chứa id/ngày tháng/lỗi, mẫu đến muộn hoặc nhịp lấy mẫu thay đổi không được làm sai kết luận: A3. Một chỉ số ổn định không bị đánh đồng với dữ liệu kém tin cậy.
+1. An evaluation that uses evidence belonging to another brain or revision must be blocked, without returning sensitive metadata: A2, A3, A4.
+2. A contract update in the middle of an evaluation must not use the old result to close the new revision: A1, A4.
+3. Repeated/late/corrected events must not create two independent results: A2, A3.
+4. An expired evidence payload, or one deleted by the user, must become unavailable/unknown: A2, A3.
+5. Qualitative criteria have no fake percentages; an evaluator error is not counted as a goal failure: A3, A5.
+6. An agent that sets the wrong goal, asks repeatedly or lowers the criteria to claim success must be caught in a fixture: A1, A4, A5.
+7. A metric containing ids/dates/errors, late samples or a changing sampling cadence must not make the conclusion wrong. A stable metric is not equated with unreliable data: A3.
 
-## Hợp đồng kiểu dữ liệu dùng chung
+## Shared data type contract
 
-Tạo dataclass frozen trong server/resonance_contracts.py; serialize qua hàm tường minh, không serialize quyền từ object do model tự gửi.
+Create frozen dataclasses in server/resonance_contracts.py; serialize through explicit functions, and do not serialize permissions from an object the model sent itself.
 
-| Kiểu | Trường bắt buộc và nghĩa |
+| Type | Required fields and meaning |
 |---|---|
-| Principal | id: str; brain_ids: frozenset[str]; capabilities: frozenset[str]. Host tạo từ auth hiện có |
+| Principal | id: str; brain_ids: frozenset[str]; capabilities: frozenset[str]. Created by the host from the existing auth |
 | CriterionSpec | id, description, evaluator_ref, evaluator_revision: str; parameters, evidence_selector, acceptance: dict |
-| IntentRecord | id, brain_id, source_message_ref, author_id: str; revision: int; explicit_constraint_refs: tuple[str,...]; received_at: float; supersedes_id: str hoặc None. Host giữ bản ghi đầu vào có nguồn; nguồn gốc user phải được xác thực |
-| GoalFraming | stage: discovery/delivery; assumptions, unknowns, alternatives: tuple[dict,...]; evidence_refs, constraint_refs, unresolved_conflicts: tuple[str,...]; rationale, reconsider_when: str. Các dict có schema riêng; phân loại từ model vẫn là diễn giải có thể sai |
-| Clarification | id, intent_ref, question, impact, fallback: str; required_for: tuple[str,...]; status: open/answered/user_unsure/superseded; answer_ref: str hoặc None. Phân biệt làm rõ sở thích với yêu cầu cấp quyền |
-| FramingResult | intent_ref: str; framing: GoalFraming; proposed_contract: dict hoặc None; clarification: Clarification hoặc None; next_step: proceed/discover/clarify/blocked; reason: str |
-| GoalContract | id, brain_id, owner_id, intent_ref, intent: str; revision: int; framing: GoalFraming; mode: achieve/maintain; criteria: tuple[CriterionSpec,...]; criteria_mode: all/any; guards: tuple[CriterionSpec,...]; authority_ref: str; resources, timing, communication: dict; parent_goal_id: str hoặc None; dependencies: tuple[str,...] |
+| IntentRecord | id, brain_id, source_message_ref, author_id: str; revision: int; explicit_constraint_refs: tuple[str,...]; received_at: float; supersedes_id: str or None. The host keeps the input record with its source; the user origin must be authenticated |
+| GoalFraming | stage: discovery/delivery; assumptions, unknowns, alternatives: tuple[dict,...]; evidence_refs, constraint_refs, unresolved_conflicts: tuple[str,...]; rationale, reconsider_when: str. The dicts have their own schema; a classification from the model is still an interpretation that can be wrong |
+| Clarification | id, intent_ref, question, impact, fallback: str; required_for: tuple[str,...]; status: open/answered/user_unsure/superseded; answer_ref: str or None. Distinguishes clarifying a preference from a request to grant permission |
+| FramingResult | intent_ref: str; framing: GoalFraming; proposed_contract: dict or None; clarification: Clarification or None; next_step: proceed/discover/clarify/blocked; reason: str |
+| GoalContract | id, brain_id, owner_id, intent_ref, intent: str; revision: int; framing: GoalFraming; mode: achieve/maintain; criteria: tuple[CriterionSpec,...]; criteria_mode: all/any; guards: tuple[CriterionSpec,...]; authority_ref: str; resources, timing, communication: dict; parent_goal_id: str or None; dependencies: tuple[str,...] |
 | GoalSnapshot | contract: GoalContract; status: draft/active/succeeded/failed/cancelled; run_state: ready/running/waiting/blocked/paused/dormant; state_version: int; reason: str |
-| EvidenceEnvelope | id, brain_id, goal_id, source, source_event_id, resource_ref, content_hash, evidence_ref, trust_class: str; contract_revision: int; observed_at, received_at: float; action_id, resource_version, supersedes_id: str hoặc None; freshness: dict |
-| CriterionResult | criterion_id: str; verdict: met/not_met/unknown; evidence_ids: tuple[str,...]; confidence: low/medium/high; rationale: str; error_code: str hoặc None |
-| Assessment | id, goal_id, brain_id, evaluator_revision: str; contract_revision: int; criterion_results: tuple[CriterionResult,...]; verdict: met/not_met/unknown; guard_status: triggered/clear/unknown; confidence: low/medium/high; rationale: str; evaluated_at: float; next_observation_at: float hoặc None |
+| EvidenceEnvelope | id, brain_id, goal_id, source, source_event_id, resource_ref, content_hash, evidence_ref, trust_class: str; contract_revision: int; observed_at, received_at: float; action_id, resource_version, supersedes_id: str or None; freshness: dict |
+| CriterionResult | criterion_id: str; verdict: met/not_met/unknown; evidence_ids: tuple[str,...]; confidence: low/medium/high; rationale: str; error_code: str or None |
+| Assessment | id, goal_id, brain_id, evaluator_revision: str; contract_revision: int; criterion_results: tuple[CriterionResult,...]; verdict: met/not_met/unknown; guard_status: triggered/clear/unknown; confidence: low/medium/high; rationale: str; evaluated_at: float; next_observation_at: float or None |
 | GoalEvent | id, brain_id, goal_id, source, source_event_id, kind: str; contract_revision: int; occurred_at, received_at: float; payload: dict |
-| ResourceEnvelope | limits: dict[str,int hoặc float]; units: dict[str,str]; accounting_policy: dict. Mọi số hữu hạn, không âm |
-| WakePlan | reason, policy_revision: str; earliest_at, observation_due_at, expires_at: float hoặc None; wake_on: tuple[str,...] |
+| ResourceEnvelope | limits: dict[str,int or float]; units: dict[str,str]; accounting_policy: dict. Every number finite and non-negative |
+| WakePlan | reason, policy_revision: str; earliest_at, observation_due_at, expires_at: float or None; wake_on: tuple[str,...] |
 | Decision | id, goal_id: str; contract_revision: int; kind: act/delegate/experiment/clarify/reframe/wait/escalate/finish; rationale: str; payload: dict; resources: ResourceEnvelope; wake: WakePlan |
-| GoalRunContext | goal_id, brain_id, run_id, actor_id, authority_ref: str; contract_revision, grant_generation: int; action_id, lease_id: str; turn_id: str hoặc None. Host xác nhận toàn bộ; invocation riêng nằm trong metadata evidence/receipt |
-| MessageLink | brain_id, session_id, run_id, report_key: str; message_id: int; action_ids: tuple[str,...]. Liên kết tác động đúng lượt, không suy từ thời gian |
+| GoalRunContext | goal_id, brain_id, run_id, actor_id, authority_ref: str; contract_revision, grant_generation: int; action_id, lease_id: str; turn_id: str or None. Fully confirmed by the host; the separate invocation lives in the evidence/receipt metadata |
+| MessageLink | brain_id, session_id, run_id, report_key: str; message_id: int; action_ids: tuple[str,...]. Links effects to the correct turn, not inferred from time |
 
-Các module sau import đúng kiểu này. Trường mở rộng do adapter sở hữu nằm trong parameters/metadata có schema riêng, không thêm tên nghiệp vụ vào GoalContract.
+Later modules import exactly these types. Extension fields owned by an adapter go in parameters/metadata with their own schema; no business names are added to GoalContract.
 
-## Task A1 Hợp đồng có phiên bản và luật chuyển trạng thái
+## Task A1 Versioned contract and state transition rules
 
 **Files:** Create server/resonance_contracts.py, tests/python/test_resonance_contracts.py.
 
@@ -73,44 +73,44 @@ Các module sau import đúng kiểu này. Trường mở rộng do adapter sở
 - validate_contract(raw: dict) -> GoalContract.
 - validate_child(parent: GoalContract, child: GoalContract) -> None.
 - transition(snapshot: GoalSnapshot, event: GoalEvent, assessment: Assessment | None) -> GoalSnapshot.
-- Errors: ContractValidationError, RevisionConflict, AuthorityError; đặt trong resonance_contracts.py và tái sử dụng.
+- Errors: ContractValidationError, RevisionConflict, AuthorityError; placed in resonance_contracts.py and reused.
 
-- [ ] Viết test đạt/chưa đạt/unknown, finite numeric values, all/any, parent cùng brain, dependency cycle, achieve/maintain, pause giữ nguyên trước sự kiện thông thường.
-- [ ] Viết regression test_task_done_is_not_goal_success: sự kiện task.completed không có Assessment met giữ status active; test_maintain_met_stays_active giữ status active khi condition met.
-- [ ] Viết test discovery đạt chỉ yêu cầu xem lại đích hoặc hoàn thành mục tiêu con khám phá, không tự đóng nhu cầu gốc; unresolved_conflicts ngăn tuyên bố giải quyết nhu cầu. Agent đổi framing không sửa IntentRecord, không xóa lịch sử kết quả hoặc pause.
-- [ ] Chạy python tests/run.py resonance_contracts -v; xác nhận test mới thất bại vì chưa có implementation.
-- [ ] Implement validate và transition thuần, không I/O. Chỉ transition được phép đóng goal khi assessment cùng goal/brain/revision, guards clear, không còn unresolved_conflicts và không dùng kết quả discovery để đóng nhu cầu gốc; finish của planner chưa đủ. Phân biệt nghiên cứu là sản phẩm user yêu cầu với khảo sát trung gian để tìm đích.
-- [ ] Chạy lại test. PASS khi mọi trường hợp được chấp nhận/từ chối đúng và không phụ thuộc model/mạng.
-- [ ] Review diff rồi commit riêng task sau khi test xanh.
+- [ ] Write tests for met/not met/unknown, finite numeric values, all/any, parent in the same brain, dependency cycle, achieve/maintain, and pause being kept before ordinary events.
+- [ ] Write the regression test_task_done_is_not_goal_success: a task.completed event without a met Assessment keeps the status active; test_maintain_met_stays_active keeps the status active when the condition is met.
+- [ ] Write tests that a passing discovery only requires reviewing the target or completing the discovery sub-goal, and does not close the original need on its own; unresolved_conflicts prevent claiming the need is resolved. An agent changing the framing does not edit the IntentRecord and does not erase the history of results or pause.
+- [ ] Run python tests/run.py resonance_contracts -v; confirm the new tests fail because there is no implementation yet.
+- [ ] Implement pure validate and transition, with no I/O. A transition may only close a goal when the assessment is for the same goal/brain/revision, guards are clear, no unresolved_conflicts remain, and a discovery result is not used to close the original need; the planner's finish is not enough. Distinguish research that is the product the user asked for from an intermediate survey to find the target.
+- [ ] Rerun the tests. PASS when every case is accepted/rejected correctly and does not depend on the model or the network.
+- [ ] Review the diff, then commit the task on its own after the tests are green.
 
-## Task A2 Kho mục tiêu và liên kết bằng chứng
+## Task A2 Goal store and evidence links
 
-**Files:** Create server/resonance_store.py, server/resonance_evidence.py, tests/python/test_resonance_store.py, tests/python/test_resonance_evidence.py. Modify server/evidence_store.py, server/context_runtime.py để hỗ trợ giữ bằng chứng đang được tham chiếu.
+**Files:** Create server/resonance_store.py, server/resonance_evidence.py, tests/python/test_resonance_store.py, tests/python/test_resonance_evidence.py. Modify server/evidence_store.py, server/context_runtime.py to support retaining evidence that is being referenced.
 
 **Interfaces:**
 
 - GoalStore(path: Path); create(contract: GoalContract, principal: Principal, key: str) -> GoalSnapshot.
 - GoalStore.get(goal_id: str, principal: Principal) -> GoalSnapshot.
-- GoalStore.record_intent(record: IntentRecord, principal: Principal, key: str) -> IntentRecord; get_intent(intent_id: str, principal: Principal) -> IntentRecord. Revision từ người dùng nối nguồn xác thực, không nhận tác giả user do model tự khai.
+- GoalStore.record_intent(record: IntentRecord, principal: Principal, key: str) -> IntentRecord; get_intent(intent_id: str, principal: Principal) -> IntentRecord. A user revision is tied to an authenticated source; it does not accept a user author that the model declares itself.
 - GoalStore.revise(goal_id: str, expected_revision: int, contract: GoalContract, principal: Principal) -> GoalSnapshot.
-- GoalStore.append_event(event: GoalEvent, principal: Principal) -> bool, false nếu source_event_id đã xử lý.
+- GoalStore.append_event(event: GoalEvent, principal: Principal) -> bool, false if source_event_id was already processed.
 - GoalStore.record_assessment(assessment: Assessment, expected_state_version: int) -> GoalSnapshot.
 - GoalStore.pending_outbox(limit: int) -> list[dict]; acknowledge_outbox(event_id: str) -> None.
 - EvidenceBridge.capture(context: GoalRunContext, source: str, source_event_id: str, value: object, metadata: dict) -> EvidenceEnvelope.
 - EvidenceBridge.resolve(envelope: EvidenceEnvelope, principal: Principal, now: float) -> object.
-- EvidenceStore.pin(evidence_id: str, owner_ref: str, until: float) -> None; unpin(evidence_id: str, owner_ref: str) -> None. Kiểm quyền ở bridge; kiểm tồn tại và storage quota ở store.
+- EvidenceStore.pin(evidence_id: str, owner_ref: str, until: float) -> None; unpin(evidence_id: str, owner_ref: str) -> None. Permissions are checked at the bridge; existence and storage quota are checked at the store.
 
-- [ ] Viết test hai connection SQLite cùng revise chỉ một bên thắng; create và append_event lặp không tạo dòng mới; crash trước acknowledge làm event được nhận lại mà không nhân effect.
-- [ ] Viết test cross-brain bị từ chối; supersedes không xóa bản cũ; bằng chứng pin không bị cleanup; hết pin về retention cũ; xóa theo người dùng làm resolve báo unavailable.
-- [ ] Viết test IntentRecord giữ nguồn, các goal revision tham chiếu đúng phiên bản; sửa cách hiểu không sửa đầu vào gốc. Câu hỏi và câu trả lời có id liên kết, nhận lại không nhân câu hỏi; payload đầu vào theo cùng redaction/retention và quyền đọc như evidence.
-- [ ] Viết test lỗi SQLite/disk full không trả create/revise/append_event thành công; hai brain có slug giống nhau không chia sẻ bản ghi. Lịch sử còn được tham chiếu không mất do xoay log; snapshot phục hồi nếu có dùng EvidenceStore và quota hiện có.
-- [ ] Chạy python tests/run.py resonance_store resonance_evidence -v; xác nhận đỏ theo hành vi thiếu.
-- [ ] Implement SQLite WAL, transaction BEGIN IMMEDIATE, unique key theo brain/source/source_event_id, optimistic concurrency và outbox trong cùng transaction. Lưu payload qua EvidenceStore.put hiện có; tạo/resume trace qua runtime thật, không giả TurnTrace để bỏ kiểm tra.
-- [ ] Bổ sung pin registry trong context_runtime và điều chỉnh snapshot retention để cleanup tôn trọng pin. Pin không kéo dài vô hạn mặc định; thời hạn đến từ hợp đồng/experiment. Crash giữa lưu payload và link được dọn bằng đối soát orphan, không coi payload rời là bằng chứng đã gắn mục tiêu.
-- [ ] Chạy lại test mới và python tests/run.py adaptive_runtime_hardening context_runtime_phase01 -v. PASS khi không mất tính mã hóa/redaction/retention cũ.
-- [ ] Review và commit task.
+- [ ] Write a test that with two SQLite connections doing revise at the same time only one wins; repeated create and append_event do not create new rows; a crash before acknowledge makes the event be received again without multiplying the effect.
+- [ ] Write tests that cross-brain is rejected; supersedes does not delete the old record; pinned evidence is not cleaned up; when the pin ends it returns to the old retention; deletion by the user makes resolve report unavailable.
+- [ ] Write tests that IntentRecord keeps its source and the goal revisions reference the right version; editing the understanding does not edit the original input. Questions and answers have linked ids, and being received again does not multiply the question; the input payload follows the same redaction/retention and read permissions as evidence.
+- [ ] Write tests that a SQLite error/full disk does not turn create/revise/append_event into a success; two brains with the same slug do not share records. History that is still referenced is not lost to log rotation; a snapshot is restored if the existing EvidenceStore and quota are used.
+- [ ] Run python tests/run.py resonance_store resonance_evidence -v; confirm red on the missing behavior.
+- [ ] Implement SQLite WAL, BEGIN IMMEDIATE transactions, a unique key by brain/source/source_event_id, optimistic concurrency and an outbox in the same transaction. Store payloads through the existing EvidenceStore.put; create/resume the trace through the real runtime, and do not fake a TurnTrace to skip a check.
+- [ ] Add a pin registry in context_runtime and adjust snapshot retention so cleanup respects pins. A pin does not extend indefinitely by default; the duration comes from the contract/experiment. A crash between saving the payload and the link is cleaned up by orphan reconciliation, and a loose payload is not treated as evidence already attached to a goal.
+- [ ] Rerun the new tests and python tests/run.py adaptive_runtime_hardening context_runtime_phase01 -v. PASS when the old encryption/redaction/retention is not lost.
+- [ ] Review and commit the task.
 
-## Task A3 Giao diện đánh giá và hai evaluator đầu tiên
+## Task A3 Evaluation interface and the first two evaluators
 
 **Files:** Create server/resonance_evaluators.py, server/resonance_eval_artifact.py, server/resonance_eval_predicate.py, tests/python/test_resonance_evaluators.py.
 
@@ -119,77 +119,77 @@ Các module sau import đúng kiểu này. Trường mở rộng do adapter sở
 - Evaluator Protocol: async evaluate(contract: GoalContract, evidence: tuple[EvidenceEnvelope,...], now: float) -> Assessment.
 - EvaluatorRegistry.register(evaluator_id: str, revision: str, evaluator: Evaluator) -> None; resolve(evaluator_id: str, revision: str) -> Evaluator.
 - evaluate_goal(contract: GoalContract, evidence: tuple[EvidenceEnvelope,...], registry: EvaluatorRegistry, now: float) -> Assessment.
-- artifact_contract/v1 parameters: required_resources và required_sections; dữ liệu file chỉ đọc từ evidence đã capture, không đọc đường dẫn tùy ý do model nhập.
-- state_predicate/v1 parameters: path theo danh sách key/index; op trong exists/eq/ne/lt/lte/gt/gte; expected kiểu JSON. Không eval Python/JavaScript/string expression.
+- artifact_contract/v1 parameters: required_resources and required_sections; file data is only read from captured evidence, not from an arbitrary path the model enters.
+- state_predicate/v1 parameters: path as a list of keys/indexes; op in exists/eq/ne/lt/lte/gt/gte; expected as a JSON type. No eval of Python/JavaScript/string expressions.
 
-- [ ] Viết test cùng goal service đánh giá artifact và state; không có logic theo ngành trong evaluator registry.
-- [ ] Viết test stale evidence, sai evaluator revision, missing source, NaN, đọc vượt brain, prompt injection trong artifact, evaluator timeout. Các ca thiếu dữ liệu trả unknown kèm lý do; timeout có error_code.
-- [ ] Viết test correction đảo assessment mới nhưng giữ assessment cũ; nguồn trùng không tăng confidence; tất cả tiêu chí met nhưng guard triggered không đóng goal.
-- [ ] Viết test dữ liệu có trường id/ngày tháng đứng trước value vẫn chọn đúng path; kết quả ERROR:/isError không được nhập thành số hoặc bằng chứng thành công. Adapter thu dữ liệu phải giữ trạng thái lỗi, không chỉ bắt exception.
-- [ ] Chạy python tests/run.py resonance_evaluators -v; xác nhận đỏ.
-- [ ] Implement registry và aggregation theo mục 6 spec. Giới hạn thời gian/bằng chứng do evaluation policy truyền vào; lỗi adapter được cô lập, không làm dừng toàn scheduler.
-- [ ] Chạy lại test. PASS khi không cần LLM và một loại evaluator mới có thể đăng ký bằng giao diện mà không sửa goal state machine.
-- [ ] Review và commit task.
+- [ ] Write a test that the same goal service evaluates an artifact and a state; there is no industry-specific logic in the evaluator registry.
+- [ ] Write tests for stale evidence, wrong evaluator revision, missing source, NaN, reading beyond the brain, prompt injection in an artifact, and evaluator timeout. Cases with missing data return unknown with a reason; a timeout has an error_code.
+- [ ] Write tests that a correction reverses the new assessment but keeps the old one; a duplicate source does not raise confidence; all criteria met but a guard triggered does not close the goal.
+- [ ] Write tests that data with an id/date field before the value still selects the right path; a result of ERROR:/isError must not be entered as a number or as success evidence. The data-collecting adapter must keep the error state, not just catch the exception.
+- [ ] Run python tests/run.py resonance_evaluators -v; confirm red.
+- [ ] Implement the registry and aggregation per section 6 of the spec. Time/evidence limits are passed in by the evaluation policy; adapter errors are isolated and do not stop the whole scheduler.
+- [ ] Rerun the tests. PASS when no LLM is needed and a new evaluator type can be registered through the interface without editing the goal state machine.
+- [ ] Review and commit the task.
 
-Khi hợp đồng cần so sánh chuỗi thời gian, bổ sung adapter metric_series/v1 trong server/resonance_eval_metric.py với tests/python/test_resonance_metric.py, dùng cùng Evaluator Protocol. Không đưa công thức phần trăm vào goal service. Schema parameters gồm selector, unit, value_kind (gauge/period_total/counter), window/timezone, aggregation (last/sum/delta/time_weighted_mean), baseline, direction và missing_data_policy; validate tổ hợp phù hợp. Sample metadata có source_sample_id, observed_at, received_at, unit và quality. Baseline và giới hạn chất lượng được ghim theo hợp đồng; không mặc định giảm 30% cho mọi lĩnh vực.
+When a contract needs a time-series comparison, add a metric_series/v1 adapter in server/resonance_eval_metric.py with tests/python/test_resonance_metric.py, using the same Evaluator Protocol. Do not put percentage formulas in the goal service. The parameters schema includes selector, unit, value_kind (gauge/period_total/counter), window/timezone, aggregation (last/sum/delta/time_weighted_mean), baseline, direction and missing_data_policy; validate that the combination is appropriate. Sample metadata has source_sample_id, observed_at, received_at, unit and quality. The baseline and quality limits are pinned by the contract; there is no default 30% reduction for every domain.
 
-- [ ] Viết test_metric_source_selection, test_metric_error_is_unknown, test_metric_constant_is_readable, test_metric_duplicate_samples và test_metric_sampling_cadence_does_not_reweight: dữ liệu nguồn giữ nguyên thì đổi lịch đọc không đổi phép tổng hợp; dữ liệu ổn định vẫn có đủ chất lượng.
-- [ ] Viết test_metric_late_sample, test_metric_zero_baseline, test_metric_nonfinite, test_metric_unit_change và test_metric_window_policy: không đủ điều kiện thì unknown; cùng kỳ lịch khác rolling khi policy quy định khác; timestamp sau thời điểm bắt đầu đọc vẫn được xét ở lần đánh giá sau khi nhận.
-- [ ] Chạy python tests/run.py resonance_metric -v để xác nhận đỏ; implement adapter theo mục 6.5 spec, không regex số đầu tiên; chạy lại cùng resonance_evaluators và commit khi xanh. Có thể làm sau mốc demo artifact đầu tiên; chưa dùng metric_series trong hợp đồng trước khi adapter được kiểm chứng.
+- [ ] Write test_metric_source_selection, test_metric_error_is_unknown, test_metric_constant_is_readable, test_metric_duplicate_samples and test_metric_sampling_cadence_does_not_reweight: if the source data is unchanged, changing the read schedule does not change the aggregation; stable data still has enough quality.
+- [ ] Write test_metric_late_sample, test_metric_zero_baseline, test_metric_nonfinite, test_metric_unit_change and test_metric_window_policy: if the conditions are not met it is unknown; the same calendar period differs from rolling when the policy says otherwise; a timestamp after the read start time is still considered at the next evaluation after it is received.
+- [ ] Run python tests/run.py resonance_metric -v to confirm red; implement the adapter per section 6.5 of the spec, not a regex on the first number; rerun the same resonance_evaluators and commit when green. It can be done after the first artifact demo milestone; do not use metric_series in a contract before the adapter has been verified.
 
-## Task A4 Tự hình thành mục tiêu, goal service và API có kiểm quyền
+## Task A4 Self-forming goals, goal service and a permission-checked API
 
-**Files:** Create server/resonance_intent.py, server/resonance_service.py, server/resonance_api.py, tests/python/test_resonance_intent.py, tests/python/test_resonance_api.py. Modify server/main.py chỉ để dependency injection/router/lifecycle. Dùng engine adapter hiện có qua dependency injection, không tạo client model riêng.
+**Files:** Create server/resonance_intent.py, server/resonance_service.py, server/resonance_api.py, tests/python/test_resonance_intent.py, tests/python/test_resonance_api.py. Modify server/main.py only for dependency injection/router/lifecycle. Use the existing engine adapter through dependency injection; do not create a separate model client.
 
 **Interfaces:**
 
-- GoalFramer.form(intent: IntentRecord, context_refs: tuple[str,...], current: GoalSnapshot | None, evidence: tuple[EvidenceEnvelope,...], policy: dict) -> FramingResult; async, đầu vào ngữ cảnh đã kiểm quyền, policy do host cấp và có phiên bản.
-- GoalFramer.check_revision(current: GoalSnapshot, proposed: FramingResult, principal: Principal) -> dict trả permitted, conflicts, reasons. Kiểm quyền và trường bảo vệ bằng code; nhận định phù hợp ngữ nghĩa lưu dưới dạng có căn cứ, không giả chứng minh bằng schema validation.
+- GoalFramer.form(intent: IntentRecord, context_refs: tuple[str,...], current: GoalSnapshot | None, evidence: tuple[EvidenceEnvelope,...], policy: dict) -> FramingResult; async, the context input is already permission-checked, and the policy is issued by the host and versioned.
+- GoalFramer.check_revision(current: GoalSnapshot, proposed: FramingResult, principal: Principal) -> dict returning permitted, conflicts, reasons. Permissions and protected fields are checked by code; the judgment of semantic fit is stored in a grounded form and is not faked as proven by schema validation.
 - GoalService(store: GoalStore, evidence: EvidenceBridge, evaluators: EvaluatorRegistry, framer: GoalFramer).
-- GoalService.accept_request(source_message_ref: str, principal: Principal, key: str) -> FramingResult; xác thực đầu vào đã lưu và tự tạo/kích hoạt hợp đồng đủ điều kiện trong phạm vi giai đoạn A.
+- GoalService.accept_request(source_message_ref: str, principal: Principal, key: str) -> FramingResult; authenticates the stored input and automatically creates/activates an eligible contract within the scope of phase A.
 - GoalService.clarify(clarification_id: str, answer_ref: str, expected_revision: int, principal: Principal) -> FramingResult.
-- GoalService.reframe(goal_id: str, reason: str, evidence_ids: tuple[str,...], expected_revision: int, principal: Principal) -> GoalSnapshot; revision mới giữ tài nguyên đã tiêu, guard và trạng thái can thiệp.
+- GoalService.reframe(goal_id: str, reason: str, evidence_ids: tuple[str,...], expected_revision: int, principal: Principal) -> GoalSnapshot; the new revision keeps the spent resources, guards and intervention state.
 - GoalService.create(raw: dict, principal: Principal, key: str) -> GoalSnapshot.
 - GoalService.evaluate(goal_id: str, principal: Principal, now: float) -> Assessment.
-- GoalService.command(goal_id: str, command: str, expected_revision: int, principal: Principal) -> GoalSnapshot; command trong activate/pause/resume/cancel.
-- GoalDeps gồm service và get_principal(request) -> Principal lấy từ auth của Jarvis 007; register(app, deps: GoalDeps) -> None.
-- API hội thoại: POST /goal-requests; POST /goal-clarifications/{id}/answers; POST /goals/{id}/reframe. Input chính là tham chiếu tin nhắn người dùng, không bắt client điền GoalContract. Nhu cầu thiếu thông tin vẫn được lưu và trả next_step/clarification, không lỗi 422 chỉ vì diễn đạt mơ hồ.
-- API quản lý/chi tiết: POST /goals; GET /goals; GET /goals/{id}; POST /goals/{id}/revisions; POST /goals/{id}/commands; POST /goals/{id}/evaluate; GET /goals/{id}/events; GET /goals/{id}/assessments. Create cấu trúc dùng cho adapter/test hoặc người dùng nâng cao, không phải bước bắt buộc của giao diện.
-- Mutation nhận idempotency key; revise/commands nhận expected_revision; 409 nếu stale, 422 nếu contract không hợp lệ, 404 cho id ngoài phạm vi, 403 cho thiếu quyền trong brain hợp lệ.
+- GoalService.command(goal_id: str, command: str, expected_revision: int, principal: Principal) -> GoalSnapshot; command is one of activate/pause/resume/cancel.
+- GoalDeps consists of the service and get_principal(request) -> Principal taken from Jarvis 007's auth; register(app, deps: GoalDeps) -> None.
+- Conversation API: POST /goal-requests; POST /goal-clarifications/{id}/answers; POST /goals/{id}/reframe. The main input is a reference to a user message; the client is not made to fill in a GoalContract. A need with missing information is still stored and returns next_step/clarification, with no 422 error just because the wording is vague.
+- Management/detail API: POST /goals; GET /goals; GET /goals/{id}; POST /goals/{id}/revisions; POST /goals/{id}/commands; POST /goals/{id}/evaluate; GET /goals/{id}/events; GET /goals/{id}/assessments. The structured create is for adapters/tests or advanced users, and is not a mandatory step of the UI.
+- Mutations take an idempotency key; revise/commands take expected_revision; 409 if stale, 422 if the contract is invalid, 404 for an id outside the scope, 403 for missing permission within a valid brain.
 
-Giai đoạn A chỉ hỗ trợ hợp đồng observation-only với authority_ref do host tạo từ quyền đọc hiện có của principal. Active cho phép thu/đánh giá bằng chứng trong phạm vi này, chưa cấp quyền autonomous execution. Grant thực thi và ngân sách đầy đủ được bổ sung ở B1; không tạo dependency vòng từ A vào B.
+Phase A only supports observation-only contracts with an authority_ref created by the host from the principal's existing read permission. Active allows collecting/evaluating evidence within this scope, and does not yet grant autonomous execution permission. Execution grants and the full budget are added in B1; do not create a circular dependency from A into B.
 
-- [ ] Viết test chủ hợp lệ tạo/đọc/sửa, người khác không đọc chéo brain, planner payload không tự cấp Principal hoặc authority_ref có thêm quyền.
-- [ ] Viết test hợp đồng bị sửa trong lúc evaluator đang chạy: assessment cũ được lưu lịch sử nhưng không cập nhật active revision.
-- [ ] Viết test engine giả nhận yêu cầu mơ hồ và ngữ cảnh: tự chọn mục tiêu cùng tiêu chí, không đòi người dùng chọn; thông tin thiếu không đáng kể dùng giả định có ghi nguồn. Khi có câu hỏi đáng hỏi, chỉ phần phụ thuộc chờ; câu trả lời chưa biết chuyển discover, không phát lại câu hỏi cũ.
-- [ ] Viết test không có căn cứ hoặc nguồn truy cập: giữ unknown, chọn bước khám phá được phép hoặc trả blocked có lý do. Ràng buộc mâu thuẫn được nêu rõ; không tự bỏ chỉ dẫn trực tiếp hoặc lấy nội dung tài liệu làm chỉ dẫn user.
-- [ ] Viết test reframe có bằng chứng mới giữ intent_ref và constraint_refs hợp lệ, supersede revision cũ, không tự đổi quyền hoặc reset ngân sách. Hạ chỉ tiêu đơn thuần để báo thắng không qua check_revision; thay mục tiêu hợp lý cũng không được ghi là cải thiện phương pháp khi thiếu đối chứng.
-- [ ] Viết test resume không tự vượt guard yêu cầu quyền người dùng và activate bị chặn khi thiếu evaluator/source/grant cần thiết. Khi feature off, không tạo run nền.
-- [ ] Chạy python tests/run.py resonance_intent resonance_api -v; xác nhận đỏ.
-- [ ] Implement framer và service theo mục 4 spec: giữ nguồn gốc đầu vào, giả thuyết, câu hỏi đã hỏi, căn cứ sửa và giới hạn khám phá theo policy. Tái sử dụng engine adapter hiện có; output model qua schema validation và host authorization. Không cho model gọi endpoint nội bộ ghi assessment như một evaluator tin cậy. Chưa gắn scheduler thực thi ở giai đoạn A.
-- [ ] Giới hạn xác minh: unit test engine giả chỉ kiểm luồng và ràng buộc. Đánh giá chất lượng suy ra mục tiêu bằng engine thật, rubric/fixture độc lập tại C6; không gọi unit test xanh là bằng chứng agent đã hiểu đúng mọi nhu cầu.
-- [ ] Chạy lại nhóm test resonance; PASS nếu API hoạt động bằng fixture và không gọi engine thật.
-- [ ] Review và commit task.
+- [ ] Write tests that a valid owner creates/reads/edits, others cannot read across brains, and a planner payload does not grant itself a Principal or an authority_ref with extra permissions.
+- [ ] Write a test that a contract edited while an evaluator is running: the old assessment is saved in history but does not update the active revision.
+- [ ] Write a test that a fake engine receiving a vague request and context: picks the goal and criteria on its own, does not make the user choose; missing information that is not significant uses an assumption with a recorded source. When there is a question worth asking, only the dependent part waits; an "I don't know" answer switches to discover, and the old question is not replayed.
+- [ ] Write tests for no basis or no access source: stay unknown, choose a permitted discovery step or return blocked with a reason. Contradictory constraints are stated clearly; do not drop a direct instruction on your own or take document content as a user instruction.
+- [ ] Write a test that a reframe with new evidence keeps a valid intent_ref and constraint_refs, supersedes the old revision, and does not change permissions or reset the budget on its own. Merely lowering the target to report a win does not pass check_revision; a reasonable change of goal is also not recorded as a method improvement when there is no control comparison.
+- [ ] Write tests that resume does not cross a guard that requires user permission on its own, and activate is blocked when a needed evaluator/source/grant is missing. When the feature is off, no background run is created.
+- [ ] Run python tests/run.py resonance_intent resonance_api -v; confirm red.
+- [ ] Implement the framer and service per section 4 of the spec: keep the origin of the input, the hypotheses, the questions already asked, the grounds for edits and the discovery limits by policy. Reuse the existing engine adapter; model output goes through schema validation and host authorization. Do not let the model call an internal endpoint that writes an assessment as a trusted evaluator. Do not attach the execution scheduler in phase A.
+- [ ] Verification limit: a unit test with a fake engine only checks the flow and constraints. Evaluate the quality of inferring goals with a real engine, with an independent rubric/fixture, at C6; do not call a green unit test evidence that the agent understood every need correctly.
+- [ ] Rerun the resonance test group; PASS if the API works with fixtures and does not call a real engine.
+- [ ] Review and commit the task.
 
-## Task A5 Giao diện nhận nhu cầu và hiển thị cách hiểu hiện tại
+## Task A5 UI for receiving a need and showing the current understanding
 
 **Files:** Create dashboard/resonance.js, tests/js/test_resonance_ui.js. Modify dashboard/workspace.js, dashboard/console.js, dashboard/index.html, dashboard/i18n/vi.json, dashboard/i18n/en.json. Create docs/22-muc-tieu-va-resonance.md, docs/en/22-goals-and-resonance.md.
 
-**Interfaces:** window.JavisResonance.render(container, {ownerType, ownerId, brain}); destroy(container). Module gọi API A4; không đọc SQLite/file trực tiếp.
+**Interfaces:** window.JavisResonance.render(container, {ownerType, ownerId, brain}); destroy(container). The module calls the A4 API; it does not read SQLite/files directly.
 
-- [ ] Viết test render các trạng thái chưa có mục tiêu, active, waiting, unknown, paused, succeeded; không tạo phần trăm từ số tiêu chí một cách tùy tiện.
-- [ ] Viết test đổi brain xóa dữ liệu màn trước, hủy request cũ; tên/ý định/bằng chứng HTML được escape; request revise 409 không ghi đè thay đổi mới.
-- [ ] Viết test giao nhu cầu bằng lời tạo mục tiêu tự động, không mở màn chọn mục tiêu/điền KPI/xác nhận hợp đồng; câu trả lời chưa biết được nhận và hiển thị bước khám phá. Sửa cách hiểu bằng hội thoại cập nhật revision, không xóa lời gốc.
-- [ ] Chạy python tests/run.py --js resonance_ui -v; xác nhận đỏ.
-- [ ] Implement điểm vào bằng hội thoại và thẻ Em đang hướng tới: cách hiểu, giả định quan trọng, việc đang làm, bằng chứng và lịch sử. Cho sửa cách hiểu bằng lời; chi tiết hợp đồng chỉ mở khi cần. Gắn vào Cộng sự/Việc; chưa biến field group phân loại hiện tại thành runtime group. Giai đoạn A ghi rõ mới quan sát/chuẩn bị, chưa tự thực thi các tác động ở giai đoạn B.
-- [ ] Chạy lại test JS và mở dashboard với fixture để kiểm tra màn hình rộng/hẹp, thao tác bàn phím, câu chữ vi/en, trạng thái lỗi API. Không ghi rằng UI đã kiểm chứng nếu chỉ test string.
-- [ ] Cập nhật hướng dẫn và commit task khi đạt.
+- [ ] Write tests that render the states no goal yet, active, waiting, unknown, paused, succeeded; do not derive a percentage from the number of criteria arbitrarily.
+- [ ] Write tests that switching brain clears the previous screen's data and cancels old requests; name/intent/evidence HTML is escaped; a revise request with 409 does not overwrite a newer change.
+- [ ] Write a test that handing over a need in words creates a goal automatically, without opening a goal-picking/KPI-filling/contract-confirming screen; an "I don't know" answer is received and shows a discovery step. Editing the understanding through conversation updates the revision, and does not delete the original words.
+- [ ] Run python tests/run.py --js resonance_ui -v; confirm red.
+- [ ] Implement the entry point through conversation and the "What Jarvis 007 is working toward" card (Vietnamese: Em đang hướng tới): the understanding, important assumptions, what is being done, evidence and history. Allow editing the understanding in words; contract details only open when needed. Attach it to Partners/Tasks; do not yet turn the existing classification field group into a runtime group. Phase A states clearly that it is only observing/preparing and does not yet execute the effects of phase B on its own.
+- [ ] Rerun the JS tests and open the dashboard with a fixture to check wide/narrow screens, keyboard operation, vi/en wording and API error states. Do not record that the UI is verified if only strings were tested.
+- [ ] Update the guide and commit the task when it passes.
 
-## Nghiệm thu giai đoạn A
+## Phase A acceptance
 
-- [ ] Cùng API nhận nhu cầu tự nhiên, suy ra và đánh giá một tài liệu theo cấu trúc và một trạng thái dữ liệu mô phỏng; không bắt người dùng cung cấp mục tiêu chuẩn hóa.
-- [ ] Yêu cầu mơ hồ và câu trả lời chưa biết tạo bước khám phá hợp lệ; thiếu quyền vẫn chặn phần cần quyền. Lịch sử tách được đầu vào gốc, giả định, revision và kết quả thực tế.
-- [ ] Bằng chứng có thể mở lại; unknown, lỗi và stale revision hiển thị đúng.
-- [ ] Không có reaction, số tin hoặc số lần gọi model trong logic thành công.
-- [ ] Tất cả test resonance và hồi quy liên quan xanh; ghi kết quả thực tế vào PR.
-- [ ] Tiếp tục B1; sau đó chạy C1 trước khi mở rộng nhóm.
+- [ ] The same API receives a natural-language need, infers and evaluates a structured document and a simulated data state; the user is not made to provide a standardized goal.
+- [ ] A vague request and an "I don't know" answer create a valid discovery step; missing permission still blocks the part that needs permission. The history separates the original input, assumptions, revisions and actual results.
+- [ ] Evidence can be reopened; unknown, errors and stale revisions display correctly.
+- [ ] No reaction, message count or model call count is in the success logic.
+- [ ] All resonance tests and related regressions are green; record the actual results in the PR.
+- [ ] Continue to B1; after that, run C1 before expanding to teams.

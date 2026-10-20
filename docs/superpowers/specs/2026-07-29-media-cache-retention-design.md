@@ -1,152 +1,152 @@
-# Thiết kế: media là vùng cache, không phải tri thức
+# Design: media is a cache zone, not knowledge
 
-Ngày: 2026-07-29
-Trạng thái: đã brainstorm + duyệt hướng, chờ triển khai.
+Date: 2026-07-29
+Status: direction brainstormed and approved, awaiting implementation.
 
-## Vấn đề
+## Problem
 
-Media chảy vào vault qua ba đường và không đường nào có cơ chế dọn:
+Media flows into the vault through three paths, and none of them has any cleanup mechanism:
 
-- Ảnh Jarvis 007 tự tạo lưu vào `<vault>/attachments/` - `server/image_gen.py:202` (`save_png_b64`).
-- File/ảnh user gửi qua Telegram tải về `<vault>/inbox/telegram/` - `server/main.py:6242` (`_tg_inbox_dir`).
-- Ingest source chép ảnh gốc sang thư mục Attachments khi user yêu cầu - `server/main.py:1888`.
+- Images Jarvis 007 generates itself are saved to `<vault>/attachments/` - `server/image_gen.py:202` (`save_png_b64`).
+- Files/images the user sends through Telegram are downloaded to `<vault>/inbox/telegram/` - `server/main.py:6242` (`_tg_inbox_dir`).
+- Source ingest copies the original image into the Attachments folder when the user asks for it - `server/main.py:1888`.
 
-Grep toàn bộ `server/` không thấy một dòng retention, prune hay expire nào cho media.
+A grep over all of `server/` finds not one line of retention, prune or expire logic for media.
 
-Chỗ đắt hơn nằm ở git. Mẫu `.gitignore` của brain (`server/git_brain.py:63`) chỉ loại lock, `learn-staging`, `learn-log`, `loop-log`, `skill-usage.json` và `conversations/`. `attachments/` với `inbox/` được commit bình thường. Nghĩa là mỗi tấm ảnh là một blob nằm vĩnh viễn trong lịch sử git của brain: xoá file trên đĩa về sau cũng không lấy lại được dung lượng, mà `git_brain` còn giữ mirror nên nhân đôi. Ảnh 2MB hôm nay là 4MB chiếm chỗ mãi mãi, cộng thêm dung lượng trên GitHub nếu bật sao lưu.
+The expensive part is git. The brain's `.gitignore` template (`server/git_brain.py:63`) only excludes locks, `learn-staging`, `learn-log`, `loop-log`, `skill-usage.json` and `conversations/`. `attachments/` and `inbox/` are committed like anything else. That means every image is a blob that lives forever in the brain's git history: deleting the file on disk never gets the space back, and `git_brain` also keeps a mirror, so it is doubled. A 2MB image today is 4MB taking up space forever, plus the space on GitHub if backup is on.
 
-## Đối chiếu hermes
+## Comparison with hermes
 
-Hermes để media ở `~/.hermes/cache/images` (`.learn/hermes/agent/image_gen_provider.py:234`), cùng họ với `cache/audio`, `cache/videos`, `cache/documents`, `cache/screenshots` (`.learn/hermes/gateway/platforms/base.py:950`). Media nằm trong thư mục state của app, đặt tên thẳng là **cache**, tách hẳn khỏi tầng tri thức, không dính git. Chỗ này hermes làm đúng hơn Jarvis 007.
+Hermes keeps media in `~/.hermes/cache/images` (`.learn/hermes/agent/image_gen_provider.py:234`), in the same family as `cache/audio`, `cache/videos`, `cache/documents`, `cache/screenshots` (`.learn/hermes/gateway/platforms/base.py:950`). Media lives in the app's state directory, is named plainly as a **cache**, is fully separated from the knowledge layer, and is not tracked by git. Hermes does this part better than Jarvis 007.
 
-Nhưng hermes chỉ giải nửa bài. Nó prune session 90 ngày (`.learn/hermes/gateway/session.py:1429`) và checkpoint 7 ngày (`.learn/hermes/gateway/run.py:2821`), còn `cache/images` thì không có dòng dọn nào. Gọi là cache nhưng không ai xoá, vẫn phình vô hạn. Nên lấy ý tưởng "media là cache" của hermes, không lấy cách nó bỏ mặc.
+But hermes only solves half of the problem. It prunes sessions at 90 days (`.learn/hermes/gateway/session.py:1429`) and checkpoints at 7 days (`.learn/hermes/gateway/run.py:2821`), while `cache/images` has no cleanup line at all. It is called a cache but nobody deletes anything, so it still grows without bound. So we take hermes's idea of "media is a cache", not its habit of leaving it alone.
 
-## Quyết định đã chốt
+## Decisions made
 
-- Media là **nguyên liệu đi qua**, không phải tài sản. Đọc xong, rút thành text .md là đủ dùng.
-- Muốn lưu ảnh lâu dài thì về sau đấu Drive làm kho, không để Jarvis 007 ôm. Hiện tại chưa làm.
-- Không backup media lên GitHub.
-- Chấp nhận lịch sử chat cũ bị mất ảnh, miễn là chỗ đó ghi rõ "ảnh đã hết hạn" chứ không phải icon vỡ trơ.
-- Lịch sử git đã lỡ commit ảnh thì **kệ**, không viết lại history. Chỉ chặn từ nay về sau.
-- Giữ 30 ngày, trần 300MB mỗi brain.
+- Media is **material passing through**, not an asset. Once read, extracting it into a text .md is enough.
+- If the user wants long-term image storage, a Drive connection will be the store later, rather than Jarvis 007 holding it. Not done for now.
+- No media backup to GitHub.
+- Accept that old chat history loses its images, as long as the spot clearly says "image expired" rather than showing a bare broken icon.
+- Git history that already committed images is **left alone**; history is not rewritten. We only block it from now on.
+- Keep 30 days, with a cap of 300MB per brain.
 
-## Thiết kế
+## Design
 
-### Ranh giới
+### Boundary
 
-Coi `attachments/` và `inbox/` của mỗi brain là **vùng cache**, không phải tri thức. Tri thức là file .md. Cái gì trong hai thư mục đó đều có thể biến mất mà brain vẫn nguyên vẹn.
+Treat each brain's `attachments/` and `inbox/` as a **cache zone**, not knowledge. Knowledge is .md files. Anything in those two folders can vanish and the brain stays intact.
 
-### Phần 1 - Chặn git
+### Part 1 - Block git
 
-Thêm vào `_GITIGNORE` ở `server/git_brain.py:63`. `_ensure_gitignore_lines` là merge-only nên brain cũ tự nhận dòng mới ở lần commit kế tiếp, không đè dòng user tự thêm.
+Add to `_GITIGNORE` at `server/git_brain.py:63`. `_ensure_gitignore_lines` is merge-only, so old brains pick up the new lines on the next commit without overwriting lines the user added.
 
-Hai bẫy phải xử đúng:
+Two traps must be handled correctly:
 
-**Bẫy tên thư mục.** Jarvis 007 dò thư mục attachments bằng regex `^(\d+\s*[-_.]\s*)?attachments$` không phân biệt hoa thường (`server/image_gen.py:40`, `server/main.py:1931`), nên trên thực tế nó có thể tên là `attachments`, `Attachments`, `05 - attachments`, `05-attachments`, `05_attachments` hay `05.attachments`. Git thì phân biệt hoa thường trên Linux (VPS chạy Linux). Một dòng `attachments/` là không đủ.
+**The folder name trap.** Jarvis 007 detects the attachments folder with the regex `^(\d+\s*[-_.]\s*)?attachments$`, case-insensitive (`server/image_gen.py:40`, `server/main.py:1931`), so in practice it can be named `attachments`, `Attachments`, `05 - attachments`, `05-attachments`, `05_attachments` or `05.attachments`. Git is case-sensitive on Linux (the VPS runs Linux). A single `attachments/` line is not enough.
 
-Dùng bốn dòng: `attachments/`, `Attachments/`, `*attachments/`, `*Attachments/`, cộng `inbox/`. Dấu `*` phủ mọi tiền tố số thứ tự mà regex chấp nhận mà không phải liệt kê từng dấu phân cách. Hai dòng không có `*` giữ lại cho dễ đọc, dù về mặt cú pháp `*` cũng khớp chuỗi rỗng.
+Use four lines: `attachments/`, `Attachments/`, `*attachments/`, `*Attachments/`, plus `inbox/`. The `*` covers every numeric prefix the regex accepts without listing each separator. The two lines without `*` stay for readability, even though syntactically `*` also matches the empty string.
 
-**Bẫy file đã track.** `.gitignore` không có tác dụng với file git đã theo dõi từ trước. Phải chạy `git rm --cached -r` một lần cho các thư mục đó ở mỗi brain đang là git checkout. Hệ quả: commit kế tiếp ghi nhận "đã xoá ảnh", và kéo brain về máy khác thì ảnh cũ không đi theo nữa. Đây là hệ quả đã được chấp nhận, không phải lỗi.
+**The already-tracked files trap.** `.gitignore` has no effect on files git already tracks. `git rm --cached -r` must be run once for those folders in every brain that is a git checkout. Consequence: the next commit records "images deleted", and pulling the brain onto another machine no longer brings the old images along. This consequence is accepted, not a bug.
 
-Bước `git rm --cached` chạy ở đâu: cùng chỗ đã có sẵn cơ chế vá `.gitignore` cho brain cũ (`server/git_brain.py:114-147`), chạy một lần, idempotent (không còn gì trong index thì lệnh không làm gì).
+Where the `git rm --cached` step runs: in the same place that already patches `.gitignore` for old brains (`server/git_brain.py:114-147`), once, idempotent (if nothing is left in the index the command does nothing).
 
-### Phần 2 - Janitor
+### Part 2 - Janitor
 
-Module mới `server/media_gc.py`.
+New module `server/media_gc.py`.
 
-Phần quyết định tách thành hàm **thuần**:
+The decision part is split out as a **pure** function:
 
 ```
 plan_deletions(entries, now, max_age_days, max_mb) -> list[path]
 ```
 
-`entries` là danh sách `(path, size, mtime)`. Hàm không chạm đĩa nên test được không cần fixture. Cùng kiểu `save_png_b64` bên `server/image_gen.py` đang làm.
+`entries` is a list of `(path, size, mtime)`. The function does not touch the disk, so it can be tested without fixtures. Same style as `save_png_b64` in `server/image_gen.py`.
 
-Hai luật chạy cùng nhau:
+Two rules run together:
 
-1. **Hạn tuổi**: file có mtime quá 30 ngày thì vào danh sách xoá.
-2. **Trần dung lượng**: sau khi trừ nhóm quá hạn, nếu tổng còn lại vẫn vượt 300MB thì xoá tiếp từ cũ tới mới cho tới khi xuống dưới trần.
+1. **Age limit**: a file whose mtime is older than 30 days goes on the deletion list.
+2. **Size cap**: after removing the expired group, if the remaining total still exceeds 300MB, keep deleting from oldest to newest until it falls below the cap.
 
-Trần là van an toàn cho trường hợp sinh một trăm tấm ảnh trong một ngày, lúc đó luật tuổi chưa kịp cứu.
+The cap is a safety valve for the case of generating a hundred images in one day, when the age rule has not had time to help.
 
-File `.md` nằm trong hai thư mục đó thì chừa ra, phòng khi có note lạc vào.
+`.md` files inside those two folders are skipped, in case a note strays in.
 
-Janitor **không** phân biệt ảnh Jarvis 007 tự tạo với ảnh user chủ động bảo "lưu vào source". Ảnh ingest nhúng trong note Sources cũng hết hạn như mọi ảnh khác, note .md giữ lại nội dung đã trích còn chỗ nhúng ảnh thành ô xám. Đây là hệ quả đã được chấp nhận, đúng với quyết định "media là nguyên liệu đi qua". Muốn giữ ảnh lâu dài thì đường đi là Drive, không phải chừa ngoại lệ trong janitor.
+The janitor does **not** distinguish images Jarvis 007 generated itself from images the user actively asked to "save to source". An ingested image embedded in a Sources note expires like any other image: the .md note keeps the extracted content, while the spot where the image was embedded becomes a gray box. This consequence is accepted, consistent with the decision that "media is material passing through". If the user wants to keep images long-term, the path is Drive, not an exception in the janitor.
 
-Phần chạm đĩa là hàm riêng: quét thư mục, gọi `plan_deletions`, xoá, trả về số file và số byte đã dọn.
+The part that touches the disk is a separate function: scan the folders, call `plan_deletions`, delete, and return the number of files and bytes cleaned up.
 
-**Quét đĩa phải dùng `os.scandir` và không được nằm trong event loop.** Bài học cũ ở dự án này: `glob(...)[:N]` đi hết cây rồi mới cắt, không phải trần thật, và quét đĩa đồng bộ làm nghẽn event loop tới mức Traefik gỡ route vì container unhealthy.
+**The disk scan must use `os.scandir` and must not run inside the event loop.** An old lesson in this project: `glob(...)[:N]` walks the whole tree and only then slices, so it is not a real cap, and a synchronous disk scan blocked the event loop to the point that Traefik removed the route because the container was unhealthy.
 
-### Phần 3 - Móc vào scheduler
+### Part 3 - Hook into the scheduler
 
-Thêm một mục vào `_scheduler_loop` (`server/main.py:4220`), nhưng **không** chạy theo nhịp 30 giây của vòng lặp đó. Giữ mốc `last_run` trong bộ nhớ tiến trình, đủ 6 tiếng mới chạy một lượt, và bọc trong `asyncio.to_thread`. Bọc `try/except` riêng in ra stderr theo đúng khuôn các mục đang có, để janitor hỏng không kéo sập tick của loop, kanban hay reminders.
+Add one entry to `_scheduler_loop` (`server/main.py:4220`), but **do not** run it on that loop's 30-second beat. Keep a `last_run` marker in process memory, run one pass only every 6 hours, and wrap it in `asyncio.to_thread`. Wrap it in its own `try/except` that prints to stderr in the same pattern as the existing entries, so a broken janitor cannot take down the loop, kanban or reminders tick.
 
-Quét theo danh sách brain của `loop_feature.scheduler_brains()`, giống mục Jarvis 007 index ở `server/main.py:4263`.
+Scan the brain list from `loop_feature.scheduler_brains()`, like the Jarvis 007 index entry at `server/main.py:4263`.
 
-### Phần 4 - Cấu hình
+### Part 4 - Configuration
 
-Khoá `media` trong `settings.json`, đọc qua `cfgmod.read_settings()`:
+A `media` key in `settings.json`, read through `cfgmod.read_settings()`:
 
-- `enabled`: mặc định `true`.
-- `max_age_days`: mặc định `30`.
-- `max_mb`: mặc định `300`.
+- `enabled`: default `true`.
+- `max_age_days`: default `30`.
+- `max_mb`: default `300`.
 
-Đặt `enabled: false` thì janitor không xoá gì, dùng khi user muốn tự quản.
+With `enabled: false` the janitor deletes nothing, for users who want to manage it themselves.
 
-### Phần 5 - Ô ảnh hết hạn
+### Part 5 - The expired-image box
 
-`/files/raw` trả 404 khi file không tồn tại (`server/main.py:2864`), nên `<img>` sẽ bắn sự kiện `error`.
+`/files/raw` returns 404 when the file does not exist (`server/main.py:2864`), so the `<img>` fires an `error` event.
 
-Sửa `imgHtml` ở `dashboard/chat-render.js:172`: gắn `onerror` để thay thẻ `<img>` bằng một ô xám ghi **"Ảnh đã hết hạn"**. Làm ở tầng `onerror` thì đúng luôn cả trường hợp user xoá tay hay đổi tên file, không chỉ riêng janitor.
+Change `imgHtml` in `dashboard/chat-render.js:172`: attach an `onerror` that replaces the `<img>` tag with a gray box reading **"Image expired"** (in the Vietnamese UI: "Ảnh đã hết hạn"). Doing it at the `onerror` layer also covers the case where the user deletes or renames a file by hand, not just the janitor.
 
-Chuỗi hiển thị phải là tiếng Việt **có dấu** (luật dự án, đã mắc lỗi này hai lần trước).
+The Vietnamese display string must keep its diacritics (project rule, a mistake already made twice before).
 
-CSS ô xám thêm vào `dashboard/style.css`, nhớ bump `?v` (asset tĩnh cache theo VERSION, đã tự động từ v0.9.139).
+The gray-box CSS goes into `dashboard/style.css`; remember to bump `?v` (static assets are cached by VERSION, automatic since v0.9.139).
 
-## Bổ sung sau khi triển khai: đường thứ tư
+## Addendum after implementation: the fourth path
 
-Bản khảo sát ban đầu đếm ba đường media và bỏ sót đường thứ tư, vì lúc đó chỉ quét `brains/`.
+The original survey counted three media paths and missed the fourth, because at the time it only scanned `brains/`.
 
-`STATE_DIR/.staging` (`server/main.py:1779`) là nơi file user dán hoặc tải lên khung chat rơi xuống trước khi engine đọc. Code chỉ có hai thao tác với nó: tạo thư mục và ghi file vào (`server/main.py:1848`). Không có gì dọn. Đo trên máy phát triển ngày 2026-07-29: **114MB, 62 tệp, file cũ nhất 27 ngày**, tức là to hơn cả `attachments` của brain.
+`STATE_DIR/.staging` (`server/main.py:1779`) is where files the user pastes or uploads into the chat box land before the engine reads them. The code has only two operations on it: create the folder and write files into it (`server/main.py:1848`). Nothing cleans it. Measured on the development machine on 2026-07-29: **114MB, 62 files, oldest file 27 days old**, which is bigger than the brain's `attachments`.
 
-Nó không nằm trong vault nên không dính git (đã bị chặn sẵn ở `.gitignore:11`), nhưng vẫn ăn đĩa VPS như mọi thứ khác.
+It is not inside the vault so git does not touch it (already blocked at `.gitignore:11`), but it still eats VPS disk like everything else.
 
-Xử lý: `media_gc.sweep_staging`, hạn **3 ngày**, cấu hình qua `media.staging_days`. Khác luật của vùng cache brain ở hai điểm, cả hai đều vì staging là chỗ trung chuyển thuần:
+Handling: `media_gc.sweep_staging`, limit **3 days**, configured through `media.staging_days`. It differs from the brain cache zone's rules in two ways, both because staging is a pure transit spot:
 
-- **Không chừa `.md`.** Chat không bao giờ nhúng đường dẫn staging nên không ai cuộn lại mở nó; một file `.md` ở đây là thứ user vừa dán vào chat, không phải note. Điều này đòi `plan_deletions` thêm tham số `keep_md`, mặc định `True` để luật của brain không đổi.
-- **Chỉ có luật tuổi, không trần dung lượng.** Hạn 3 ngày đã đủ chặt.
+- **`.md` is not spared.** The chat never embeds a staging path, so nobody scrolls back to open it; a `.md` file here is something the user just pasted into the chat, not a note. This requires `plan_deletions` to take a `keep_md` parameter, defaulting to `True` so the brain's rules do not change.
+- **Age rule only, no size cap.** A 3-day limit is already tight enough.
 
-Staging là thư mục dùng chung, không theo brain, nên scheduler quét nó đúng một lần ngoài vòng lặp brain.
+Staging is a shared folder, not per brain, so the scheduler scans it exactly once outside the brain loop.
 
-## Phạm vi và ranh giới
+## Scope and boundaries
 
-- **Không** viết code đẩy Drive trong phạm vi này. Janitor là một hàm nhỏ, sau này muốn đẩy Drive thì chèn một bước ngay trước lệnh xoá. Không dựng sẵn khung hook rỗng.
-- **Không** viết lại lịch sử git của brain. Đã chốt là kệ phần đã lỡ.
-- **Không** dời media ra ngoài vault kiểu hermes. Đường dẫn `![](attachments/x.png)` giữ nguyên nên `/files/raw`, `chat-render.js`, `console.js`, `file-editor.js` không phải sửa gì về đường dẫn.
-- Media của Zalo listener không nằm trong phạm vi: `server/zalo_listener.py` không tải file về vault.
+- **No** Drive-upload code in this scope. The janitor is one small function; if Drive upload is wanted later, insert a step right before the delete call. No empty hook scaffolding is built in advance.
+- **No** rewriting of the brain's git history. It is settled that what was already committed stays.
+- **No** moving media outside the vault the hermes way. The path `![](attachments/x.png)` stays as is, so `/files/raw`, `chat-render.js`, `console.js` and `file-editor.js` need no path changes.
+- Zalo listener media is out of scope: `server/zalo_listener.py` does not download files into the vault.
 
-## File đụng tới
+## Files touched
 
-- `server/media_gc.py` - mới. `plan_deletions` thuần + hàm quét/xoá.
-- `server/git_brain.py` - thêm dòng vào `_GITIGNORE`; thêm bước `git rm --cached` một lần cho brain cũ.
-- `server/main.py` - thêm mục janitor vào `_scheduler_loop`, tiết tấu 6 tiếng, chạy trong `to_thread`.
-- `dashboard/chat-render.js` - `onerror` cho `imgHtml`.
-- `dashboard/style.css` - ô xám "Ảnh đã hết hạn"; bump `?v`.
-- `tests/python/test_media_gc.py` - mới.
+- `server/media_gc.py` - new. Pure `plan_deletions` plus the scan/delete function.
+- `server/git_brain.py` - add lines to `_GITIGNORE`; add a one-time `git rm --cached` step for old brains.
+- `server/main.py` - add the janitor entry to `_scheduler_loop`, 6-hour cadence, run in `to_thread`.
+- `dashboard/chat-render.js` - `onerror` for `imgHtml`.
+- `dashboard/style.css` - the gray "Image expired" box; bump `?v`.
+- `tests/python/test_media_gc.py` - new.
 
-## Kiểm thử
+## Testing
 
-`plan_deletions` (thuần, không cần đĩa):
+`plan_deletions` (pure, no disk needed):
 
-- File mới hơn hạn tuổi và tổng dưới trần thì không xoá gì.
-- File quá hạn tuổi thì vào danh sách, file trong hạn thì không.
-- Tổng vượt trần dù mọi file còn trong hạn: xoá từ cũ tới mới, dừng ngay khi xuống dưới trần, không xoá thừa.
-- Vừa quá hạn vừa vượt trần: hai luật cộng dồn, không đếm trùng một file hai lần.
-- File `.md` không bao giờ vào danh sách xoá.
-- `max_age_days` hoặc `max_mb` bằng 0 hoặc âm: coi như tắt luật đó, không xoá sạch nhầm.
+- Files newer than the age limit and a total under the cap: nothing is deleted.
+- Files past the age limit go on the list, files within the limit do not.
+- Total over the cap even though every file is within the age limit: delete from oldest to newest, stop as soon as it falls below the cap, no extra deletions.
+- Both past the age limit and over the cap: the two rules add up, and no file is counted twice.
+- `.md` files never go on the deletion list.
+- `max_age_days` or `max_mb` equal to 0 or negative: treat that rule as off, do not wipe everything by mistake.
 
-Phần chạm đĩa: dựng thư mục tạm với vài file giả mtime, chạy hàm quét, kiểm đúng file biến mất và số byte trả về khớp.
+The disk-touching part: build a temp folder with a few files with fake mtimes, run the scan function, and check that exactly the right files disappear and the returned byte count matches.
 
-Gitignore: brain mới tạo có đủ các dòng biến thể; brain cũ đã có `.gitignore` riêng thì được merge thêm chứ không mất dòng cũ.
+Gitignore: a newly created brain has all the variant lines; an old brain that already has its own `.gitignore` gets the lines merged in without losing the old ones.
 
-Thủ công trên dashboard: xoá tay một ảnh trong `attachments/` rồi tải lại chat cũ, chỗ đó phải hiện ô xám "Ảnh đã hết hạn" chứ không phải icon vỡ.
+Manual on the dashboard: delete one image in `attachments/` by hand, then reload an old chat; that spot must show the gray box "Image expired" and not a broken icon.
