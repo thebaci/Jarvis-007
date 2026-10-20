@@ -190,7 +190,7 @@ def _write_state(state: dict) -> None:
         tmp.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
         tmp.replace(_STATE_PATH)
     except Exception as e:
-        print(f"[plugins] ghi state lỗi: {e}", file=sys.stderr)
+        print(f"[plugins] failed to write state: {e}", file=sys.stderr)
 
 
 # ============================================================
@@ -217,7 +217,7 @@ def _pack_plugin_dirs() -> List[tuple]:
         import packs
         return [(d.name, d, pid) for pid, d in packs.plugin_dirs()]
     except Exception as e:
-        print(f"[plugins] không đọc được plugin của gói: {e}", file=sys.stderr)
+        print(f"[plugins] could not read the pack plugins: {e}", file=sys.stderr)
         return []
 
 
@@ -299,7 +299,7 @@ def _read_manifest(pdir: Path) -> Tuple[dict, str]:
         m = fastyaml.safe_load(f.read_text(encoding="utf-8")) or {}
         out, err = (m if isinstance(m, dict) else {}), ""
     except Exception as e:
-        out, err = {}, f"manifest lỗi: {type(e).__name__}: {e}"
+        out, err = {}, f"manifest error: {type(e).__name__}: {e}"
     if sig is not None:
         _MANIFEST_CACHE[key] = {"sig": sig, "manifest": copy.deepcopy(out), "err": err}
     return out, err
@@ -418,7 +418,7 @@ class PluginContext:
         Khác check_fn: check_fn chặn lúc GỌI nhưng tool vẫn hiện, visible_fn giấu hẳn tool khỏi brain
         chưa bật tính năng, nên brain đó không thấy, không tốn chỗ trong prompt và không gọi nhầm."""
         if not _TOOL_RE.match(str(name or "")):
-            raise ValueError(f"tên tool không hợp lệ (a-z0-9_): {name!r}")
+            raise ValueError(f"invalid tool name (a-z0-9_): {name!r}")
         if min_mode not in VALID_MIN_MODE:
             min_mode = "readonly"
         self._tools.append({
@@ -493,12 +493,12 @@ class PluginContext:
         duong = str(path or "").strip("/")
         if duong and (not _HTTP_PATH_RE.match(duong)
                       or any(p in (".", "..") for p in duong.split("/"))):
-            raise ValueError(f"đường HTTP không hợp lệ: {path!r}")
+            raise ValueError(f"invalid HTTP path: {path!r}")
         if no_cookie and not public:
-            raise ValueError("no_cookie chỉ đi kèm public=True")
+            raise ValueError("no_cookie only goes with public=True")
         mt = tuple(sorted({str(m).upper() for m in (methods or ("GET",))}))
         if not mt or any(m not in _HTTP_METHODS for m in mt):
-            raise ValueError(f"method không hợp lệ: {methods!r}")
+            raise ValueError(f"invalid method: {methods!r}")
         self._http.append({"path": duong, "handler": handler, "methods": mt,
                            "public": bool(public), "no_cookie": bool(no_cookie)})
 
@@ -508,7 +508,7 @@ class PluginContext:
         một tên thì plugin nạp trước giữ tên đó."""
         ten = str(name or "").strip("/")
         if not _WELL_KNOWN_RE.match(ten):
-            raise ValueError(f"tên well-known không hợp lệ: {name!r}")
+            raise ValueError(f"invalid well-known name: {name!r}")
         self._well_known[ten] = handler
 
 
@@ -570,7 +570,7 @@ def _import_entry(slug: str, source: str, entry: Path):
     mod_name = f"javis_plugin_{source}_{re.sub(r'[^a-z0-9_]', '_', slug.lower())}"
     spec = importlib.util.spec_from_file_location(mod_name, str(entry))
     if not spec or not spec.loader:
-        raise ImportError(f"không tạo được spec cho {entry}")
+        raise ImportError(f"could not create a spec for {entry}")
     # Cho module tự tìm được anh em của nó mà KHÔNG chọc sys.path. Cách cũ chèn thư mục
     # plugin vào đầu sys.path suốt lúc chạy thân module, nên một plugin chứa `config.py` hay
     # `mcp_hub.py` sẽ CHE module thật của server cho mọi import nó thực hiện - và cache
@@ -631,21 +631,21 @@ def _pack_duoc_nap(pdir: Path) -> Tuple[bool, str]:
     tất cả. Xem docs/dev/2026-09-tang-goi-mo-rong-spec.md."""
     pid = _pack_cua(pdir)
     if not pid:
-        return False, "không xác định được gói sở hữu"
+        return False, "could not determine the owning pack"
     try:
         import packs
     except Exception as e:
-        return False, f"không đọc được sổ gói: {e}"
+        return False, f"could not read the pack ledger: {e}"
     thuc = _digest_thu_muc(pdir.parent.parent)   # digest tính trên CẢ gói, như lúc cài
     if not thuc:
         return True, ""                          # gói không có mã thì không có gì để gác
     if not packs.da_dong_y_ma(pid):
-        return False, ("gói này chưa đi qua trình cài nên mã của nó không tự chạy - "
-                       "cài lại ở Kho cài đặt để xác nhận")
+        return False, ("this pack has not gone through the installer, so its code does not run on its own - "
+                       "reinstall it from the Store to confirm")
     ghi = packs.digest_ma(pid)
     if ghi and ghi != thuc:
-        return False, ("mã trong gói đã đổi so với lúc bạn đồng ý cài - "
-                       "cài lại ở Kho cài đặt để xem và xác nhận lại")
+        return False, ("the code in the pack has changed since you agreed to install it - "
+                       "reinstall it from the Store to review and confirm again")
     return True, ""
 
 
@@ -678,11 +678,11 @@ def _load_all(vault_root: Optional[str], scope_vault: bool = True) -> dict:
                 if not env_ok:
                     continue   # opted out on this machine: JAVIS_ENABLE_USER_PLUGINS=false
                 if not valid_slug(slug):
-                    errors[slug] = "slug không hợp lệ"
+                    errors[slug] = "invalid slug"
                     continue
             if source == "pack":
                 if not valid_slug(slug):
-                    errors[slug] = "slug không hợp lệ"
+                    errors[slug] = "invalid slug"
                     continue
                 duoc, vi_sao = _pack_duoc_nap(pdir)
                 if not duoc:
@@ -690,14 +690,14 @@ def _load_all(vault_root: Optional[str], scope_vault: bool = True) -> dict:
                     continue
             entry = _entry_file(pdir)
             if not entry:
-                errors[slug] = "thiếu plugin.py"
+                errors[slug] = "missing plugin.py"
                 continue
             try:
                 ctx = PluginContext(slug, source, pdir, vault_root)
                 module = _import_entry(slug, source, entry)
                 reg = getattr(module, "register", None)
                 if not callable(reg):
-                    raise AttributeError("thiếu hàm register(ctx)")
+                    raise AttributeError("missing register(ctx) function")
                 reg(ctx)
                 lp = LoadedPlugin(ctx, manifest)
                 plugins.append(lp)
@@ -705,7 +705,7 @@ def _load_all(vault_root: Optional[str], scope_vault: bool = True) -> dict:
                     hooks.setdefault(evt, []).extend(cbs)
             except Exception as e:
                 errors[slug] = f"{type(e).__name__}: {e}"
-                print(f"[plugins] nạp '{slug}' lỗi: {e}", file=sys.stderr)
+                print(f"[plugins] loading '{slug}' failed: {e}", file=sys.stderr)
         ent = {"sig": sig, "plugins": plugins, "hooks": hooks, "errors": errors}
         _cache[k] = ent
         return ent
@@ -849,15 +849,15 @@ def _make_call(tool: dict, ctx: PluginContext, mode: str):
             if not ok:
                 return why
         elif not _min_mode_ok(min_mode, mode):
-            loai = "ghi/hành động" if min_mode == "safe" else "nguy hiểm (chỉ chế độ full)"
-            return (f"ERROR: tool '{name}' cần mức quyền cao hơn ({min_mode}) - thao tác {loai} "
-                    f"bị chặn ở chế độ hiện tại. Nâng chế độ chạy nếu thật sự cần.")
+            loai = "write/action" if min_mode == "safe" else "dangerous (full mode only)"
+            return (f"ERROR: tool '{name}' needs a higher permission level ({min_mode}) - a {loai} operation "
+                    f"is blocked in the current mode. Raise the run mode if you really need it.")
         if check_fn:
             try:
                 why = check_fn()
                 why = await _maybe_await(why)
             except Exception as e:
-                return f"ERROR: kiểm tra điều kiện tool '{name}' lỗi: {type(e).__name__}: {e}"
+                return f"ERROR: checking the condition of tool '{name}' failed: {type(e).__name__}: {e}"
             if why:
                 return f"ERROR: {why}"
         try:
@@ -865,7 +865,7 @@ def _make_call(tool: dict, ctx: PluginContext, mode: str):
             res = await _maybe_await(res)
             return res if isinstance(res, str) else json.dumps(res, ensure_ascii=False, default=str)
         except Exception as e:
-            return f"ERROR: tool plugin '{name}' lỗi: {type(e).__name__}: {e}"
+            return f"ERROR: plugin tool '{name}' failed: {type(e).__name__}: {e}"
 
     return _call
 
@@ -944,7 +944,7 @@ def plugin_tools(mode: str = "full", vault_root: Optional[str] = None, *,
         for t in lp.tools:
             fn = t["name"]
             if fn in _RESERVED_TOOLS or fn in seen:
-                print(f"[plugins] tool '{fn}' ({lp.slug}) trùng tên - bỏ qua", file=sys.stderr)
+                print(f"[plugins] tool '{fn}' ({lp.slug}) has a duplicate name - skipped", file=sys.stderr)
                 continue
             vis = t.get("visible_fn")
             if vis is not None:
@@ -952,7 +952,7 @@ def plugin_tools(mode: str = "full", vault_root: Optional[str] = None, *,
                     if not vis(vault_root):
                         continue
                 except Exception as e:  # noqa: BLE001 - không chắc thì giấu, đừng lộ tool chưa bật
-                    print(f"[plugins] visible_fn của '{fn}' lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+                    print(f"[plugins] visible_fn of '{fn}' failed: {type(e).__name__}: {e}", file=sys.stderr)
                     continue
             seen.add(fn)
             desc = t["description"]
@@ -1006,7 +1006,7 @@ async def _fire(event: str, vault_root: Optional[str], payload: dict) -> None:
         try:
             await _maybe_await(cb(**payload))
         except Exception as e:
-            print(f"[plugins] hook {event} lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"[plugins] hook {event} failed: {type(e).__name__}: {e}", file=sys.stderr)
 
 
 async def _fire_pre(vault_root: Optional[str], payload: dict) -> dict:
@@ -1036,7 +1036,7 @@ async def _fire_pre(vault_root: Optional[str], payload: dict) -> dict:
         try:
             out = await _maybe_await(cb(**payload))
         except Exception as e:
-            print(f"[plugins] hook pre_tool_call lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"[plugins] hook pre_tool_call failed: {type(e).__name__}: {e}", file=sys.stderr)
             continue
         if not isinstance(out, dict):
             continue
@@ -1053,9 +1053,9 @@ async def _fire_pre(vault_root: Optional[str], payload: dict) -> dict:
 # Câu báo khi hook chặn. Đi thẳng vào chỗ model đọc kết quả tool, nên phải nói ĐƯỢC GÌ TIẾP
 # THEO chứ không chỉ nói "bị chặn" - model nhận một câu cụt thì nó thử lại y hệt.
 def _cau_bi_chan(fn: str, ly_do: str) -> str:
-    return (f"ERROR: lời gọi `{fn}` bị chặn bởi một hook đang bật trên máy này.\n"
-            f"Lý do: {ly_do}\n"
-            f"Đọc kỹ lý do rồi làm lại theo đúng cách nó chỉ. Đừng gọi lại y nguyên.")
+    return (f"ERROR: the call `{fn}` was blocked by a hook that is enabled on this machine.\n"
+            f"Reason: {ly_do}\n"
+            f"Read the reason carefully, then redo it the way it says. Do not call it again unchanged.")
 
 
 def wrap_with_hooks(fn: str, base_call: Callable, mode: str, vault_root: Optional[str]) -> Callable:

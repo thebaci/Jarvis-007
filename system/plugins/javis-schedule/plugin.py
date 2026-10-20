@@ -216,25 +216,25 @@ def _create_loop_file(vault_root: str, name: str, prompt: str, schedule: str,
     ghi đè - self_improve.py lấy định danh loop theo TÊN FILE nên đẻ bản ascii song song sẽ để
     bản gốc vẫn chạy, thành 2 loop làm cùng 1 việc."""
     if not vault_root:
-        return "ERROR: không xác định được brain đang làm việc"
+        return "ERROR: cannot determine the active brain"
     name = (name or "").strip() or "Việc mới"
     prompt = (prompt or "").strip()
     if not prompt:
-        return "ERROR: thiếu 'prompt' - mỗi vòng loop cần biết làm gì (viết tự-đủ, không phụ thuộc chat)"
+        return "ERROR: missing 'prompt' - each loop run needs to know what to do (write it self-contained, not dependent on the chat)"
     slug = _slugify_vn(name)
     d = _loops_dir(vault_root)
     fp = d / f"{slug}.md"
     if fp.exists():
-        return (f"ERROR: đã có việc tên '{name}' (Javis/loops/{slug}.md) - "
-                 f"sửa nó thay vì tạo bản sao (vd đổi lịch/nội dung của file đó)")
+        return (f"ERROR: a task named '{name}' already exists (Javis/loops/{slug}.md) - "
+                 f"edit it instead of creating a copy (e.g. change that file's schedule/content)")
     mode = str(mode or "").strip().lower() or _LOOP_MODE_MAC_DINH
     if mode not in _LOOP_MODES:
         mode = _LOOP_MODE_MAC_DINH
     interval = _interval_min(schedule)
     if interval is None:
-        return (f"ERROR: không rõ chu kỳ '{schedule}' - nói rõ số + đơn vị (vd '120m', '2 tiếng', "
-                 f"'mỗi ngày', 'mỗi tuần', 'mỗi tháng'), hoặc nếu là mốc giờ cố định thì dùng cron "
-                 f"5 trường (vd '0 7 * * *' = 7h sáng mỗi ngày). TUYỆT ĐỐI không tự đoán 5 phút.")
+        return (f"ERROR: unclear interval '{schedule}' - state a number + unit (e.g. '120m', '2 hours', "
+                 f"'every day', 'every week', 'every month'), or for a fixed time of day use a 5-field cron "
+                 f"(e.g. '0 7 * * *' = 7am every day). NEVER guess 5 minutes.")
     frontmatter = (
         "---\n"
         "type: loop\n"
@@ -260,13 +260,13 @@ def _create_loop_file(vault_root: str, name: str, prompt: str, schedule: str,
         tmp.write_text(frontmatter, encoding="utf-8")
         tmp.replace(fp)
     except Exception as e:
-        return f"ERROR: ghi file loop lỗi: {type(e).__name__}: {e}"
-    where = f" trong brain {brain_name}" if brain_name else ""
-    ten_mode = {"full": "toàn quyền, tự thao tác ra ngoài", "auto": "chỉ ghi file nháp",
-                "suggest": "chỉ đọc rồi đề xuất"}[mode]
-    return (f"Đã tạo việc lặp '{name}'{where} (Javis/loops/{slug}.md), chạy mỗi {interval} phút, "
-             f"mức quyền {mode} ({ten_mode}). Đang TẮT (enabled: false): người dùng vào tab Việc "
-             f"trong dashboard bấm Bật thì nó mới chạy.")
+        return f"ERROR: failed to write the loop file: {type(e).__name__}: {e}"
+    where = f" in brain {brain_name}" if brain_name else ""
+    ten_mode = {"full": "full access, acts on the outside world on its own", "auto": "writes draft files only",
+                "suggest": "read-only, then suggests"}[mode]
+    return (f"Created recurring task '{name}'{where} (Javis/loops/{slug}.md), runs every {interval} minutes, "
+             f"permission level {mode} ({ten_mode}). It is currently OFF (enabled: false): the user must open the Work "
+             f"tab in the dashboard and click Enable before it runs.")
 
 
 def _list_loops(vault_root: str) -> list:
@@ -307,16 +307,16 @@ def _cancel_loop_file(vault_root: str, slug: str) -> str:
     fp = d / f"{slug}.md"
     try:
         if fp.resolve().parent != d.resolve():
-            return "ERROR: id không hợp lệ"
+            return "ERROR: invalid id"
     except Exception:
-        return "ERROR: id không hợp lệ"
+        return "ERROR: invalid id"
     if not fp.is_file():
-        return f"ERROR: không thấy việc lặp '{slug}' trong Javis/loops"
+        return f"ERROR: recurring task '{slug}' not found in Javis/loops"
     try:
         fp.unlink()
     except Exception as e:
-        return f"ERROR: xoá file lỗi: {type(e).__name__}: {e}"
-    return f"Đã xoá việc lặp '{slug}'."
+        return f"ERROR: failed to delete the file: {type(e).__name__}: {e}"
+    return f"Deleted recurring task '{slug}'."
 
 
 def _reminder_time_payload(schedule: str) -> dict:
@@ -360,44 +360,44 @@ async def _post_reminder(payload: dict, brain_name: str = "") -> str:
             r = await c.post(f"http://127.0.0.1:{_port()}/reminders", json=payload)
         data = r.json()
     except Exception as e:
-        return f"ERROR: gọi kho nhắc hẹn lỗi: {type(e).__name__}: {e}"
+        return f"ERROR: reminder store call failed: {type(e).__name__}: {e}"
     if not data.get("ok"):
         if data.get("can_force"):
             # THIẾU ĐIỀU KIỆN, không phải lỗi cú pháp. Model TUYỆT ĐỐI không được tự vượt rào:
             # phải nói thiếu gì rồi để user quyết. Đây đúng cái khách phàn nàn - Javis dựng cron
             # "báo qua Telegram" trong khi Telegram còn chưa đấu, rồi im lặng không nói gì.
             return (f"ERROR: {data.get('error')}\n"
-                    "→ BÁO LẠI CHO USER đúng thứ còn thiếu ở trên và HỎI: đấu Telegram trước, "
-                    "hay vẫn tạo dù chưa ai nhận được báo? User đồng ý tạo tiếp thì gọi lại tool "
-                    "với allow_no_channel=true. KHÔNG tự quyết hộ.")
-        return f"ERROR: {data.get('error') or 'tạo nhắc hẹn thất bại'}"
+                    "→ TELL THE USER exactly what is missing above and ASK: connect Telegram first, "
+                    "or create it anyway even though nobody will receive the report? If the user agrees to create it, call the tool again "
+                    "with allow_no_channel=true. Do NOT decide for them.")
+        return f"ERROR: {data.get('error') or 'failed to create the reminder'}"
     where = f" (brain {brain_name})" if brain_name else ""
     if data.get("cron"):
         lich = data.get("cron_human") or data["cron"]
-        ra = (f"Đã đặt lịch lặp {lich} (cron {data['cron']}){where} (id {data.get('id')}), "
-              f"lần chạy kế tiếp {data.get('due_human') or '?'}.")
+        ra = (f"Set a recurring schedule {lich} (cron {data['cron']}){where} (id {data.get('id')}), "
+              f"next run {data.get('due_human') or '?'}.")
         ra += _next_runs_line(data.get("next_runs"))
     else:
-        ra = f"Đã đặt nhắc hẹn lúc {data.get('due_human') or '?'}{where} (id {data.get('id')})."
+        ra = f"Set a reminder for {data.get('due_human') or '?'}{where} (id {data.get('id')})."
     mq = str(data.get("muc_quyen") or "").strip().lower()
     if data.get("mode") == "task" and mq:
-        ten = {"full": "toàn quyền, tự thao tác ra ngoài", "auto": "chỉ ghi file nháp",
-               "suggest": "chỉ đọc rồi báo lại"}.get(mq, mq)
-        ra += f" Mức quyền {mq} ({ten})."
+        ten = {"full": "full access, acts on the outside world on its own", "auto": "writes draft files only",
+               "suggest": "read-only, then reports back"}.get(mq, mq)
+        ra += f" Permission level {mq} ({ten})."
     if data.get("remember_last"):
-        ra += " Mỗi lần chạy sẽ nhận lại kết quả lần trước."
+        ra += " Each run will receive the previous run's result."
     if data.get("speak"):
-        ra += " Kết quả sẽ kèm tin thoại đọc thành tiếng."
+        ra += " The result will come with a voice message read aloud."
     if data.get("call"):
-        ra += (" Tới giờ Javis sẽ GỌI ĐẾN trên trang Javis đang mở: bấm Nghe là vào cuộc gọi và Javis đọc"
-               " kết quả; không mở Javis thì kết quả vẫn tới như tin nhắn thường.")
+        ra += (" When the time comes Jarvis 007 will CALL IN on the page where Jarvis 007 is open: click Listen to join the call and Jarvis 007 reads"
+               " the result aloud; if Jarvis 007 is not open the result still arrives as a normal message.")
     return ra
 
 
 def _next_runs_line(runs) -> str:
     """Three upcoming dates, so the reply confirms the schedule in dates rather than cron syntax."""
     days = [str(r.get("human") or "") for r in (runs or []) if isinstance(r, dict) and r.get("human")]
-    return (" Ba lần chạy tới: " + "; ".join(days) + ". Đọc lại các ngày này cho user xác nhận.") if days else ""
+    return (" Next three runs: " + "; ".join(days) + ". Read these dates back to the user to confirm.") if days else ""
 
 
 async def _get_reminders(vault_root: str) -> dict:
@@ -417,10 +417,10 @@ async def _cancel_reminder(vault_root: str, rid: str) -> str:
                              data={"id": rid, "brain": vault_root})
         data = r.json()
     except Exception as e:
-        return f"ERROR: huỷ nhắc hẹn lỗi: {type(e).__name__}: {e}"
+        return f"ERROR: failed to cancel the reminder: {type(e).__name__}: {e}"
     if data.get("ok"):
-        return f"Đã huỷ nhắc hẹn {rid}."
-    return f"ERROR: không huỷ được ({data.get('error') or 'không rõ lý do (có thể id sai/đã xong)'})."
+        return f"Cancelled reminder {rid}."
+    return f"ERROR: could not cancel ({data.get('error') or 'unknown reason (the id may be wrong or it already finished)'})."
 
 
 async def _do_create(vault_root: str, args: dict) -> str:
@@ -428,7 +428,7 @@ async def _do_create(vault_root: str, args: dict) -> str:
     prompt = str(args.get("prompt") or "").strip()
     schedule = str(args.get("schedule") or "").strip()
     if not name or not prompt or not schedule:
-        return "ERROR: cần đủ 'name', 'prompt' và 'schedule' để tạo việc."
+        return "ERROR: 'name', 'prompt' and 'schedule' are all required to create a task."
     notify_only = bool(args.get("notify_only") or False)
     chat_id = str(args.get("chat_id") or args.get("owner_chat") or "").strip()
     brain_name = Path(vault_root).name   # tên brain phiên → nói cho user biết việc rơi vào đâu
@@ -464,13 +464,13 @@ async def _update_reminder(vault_root: str, rid: str, fields: dict) -> str:
                              data=dict({"id": rid, "brain": vault_root}, **fields))
         data = r.json()
     except Exception as e:
-        return f"ERROR: sửa lịch lỗi: {type(e).__name__}: {e}"
+        return f"ERROR: failed to edit the schedule: {type(e).__name__}: {e}"
     if not data.get("ok"):
-        return f"ERROR: {data.get('error') or 'không sửa được'}"
+        return f"ERROR: {data.get('error') or 'could not edit'}"
     rem = data.get("reminder") or {}
     when = rem.get("cron_human") or rem.get("cron") or ""
-    return (f"Đã sửa lịch {rid}" + (f" thành '{when}'" if when else "")
-            + f", lần chạy kế tiếp {rem.get('due_human') or '?'}."
+    return (f"Edited schedule {rid}" + (f" to '{when}'" if when else "")
+            + f", next run {rem.get('due_human') or '?'}."
             + _next_runs_line(rem.get("next_runs")))
 
 
@@ -480,19 +480,19 @@ def _update_loop_file(vault_root: str, slug: str, fields: dict) -> str:
     fp = _loops_dir(vault_root) / f"{slug}.md"
     try:
         if fp.resolve().parent != _loops_dir(vault_root).resolve() or not fp.is_file():
-            return f"ERROR: không thấy việc lặp '{slug}'"
+            return f"ERROR: recurring task '{slug}' not found"
         text = fp.read_text(encoding="utf-8")
     except Exception as e:
-        return f"ERROR: đọc file loop lỗi: {type(e).__name__}: {e}"
+        return f"ERROR: failed to read the loop file: {type(e).__name__}: {e}"
     m = _FM_RE.match(text)
     if not m:
-        return f"ERROR: file loop '{slug}' không có frontmatter hợp lệ"
+        return f"ERROR: loop file '{slug}' has no valid frontmatter"
     try:
         fm = yaml.safe_load(m.group(1)) or {}
     except Exception as e:
-        return f"ERROR: frontmatter lỗi: {e}"
+        return f"ERROR: bad frontmatter: {e}"
     if not isinstance(fm, dict):
-        return "ERROR: frontmatter lỗi"
+        return "ERROR: bad frontmatter"
     body = m.group(2)
     if fields.get("name"):
         fm["name"] = str(fields["name"])
@@ -501,8 +501,8 @@ def _update_loop_file(vault_root: str, slug: str, fields: dict) -> str:
     if fields.get("schedule"):
         interval = _interval_min(str(fields["schedule"]))
         if interval is None:
-            return (f"ERROR: không rõ chu kỳ '{fields['schedule']}' - nói rõ số + đơn vị "
-                    f"(vd '120m', '2 tiếng', 'mỗi ngày')")
+            return (f"ERROR: unclear interval '{fields['schedule']}' - state a number + unit "
+                    f"(e.g. '120m', '2 hours', 'every day')")
         fm["interval_min"] = interval
     fm["updated"] = _today()
     lines = ["---"]
@@ -515,14 +515,14 @@ def _update_loop_file(vault_root: str, slug: str, fields: dict) -> str:
         tmp.replace(fp)
     except Exception as e:
         return f"ERROR: ghi file loop lỗi: {type(e).__name__}: {e}"
-    return (f"Đã sửa việc lặp '{fm.get('name') or slug}' (mỗi {fm.get('interval_min')} phút). "
-            f"Trạng thái bật/tắt giữ nguyên.")
+    return (f"Edited recurring task '{fm.get('name') or slug}' (every {fm.get('interval_min')} minutes). "
+            f"The on/off state is unchanged.")
 
 
 async def _do_update(vault_root: str, args: dict) -> str:
     rid = str(args.get("id") or "").strip()
     if not rid:
-        return "ERROR: cần 'id' để sửa (lấy từ op=list)."
+        return "ERROR: 'id' is required to edit (get it from op=list)."
     fields = {}
     if str(args.get("name") or "").strip():
         fields["name"] = str(args["name"]).strip()
@@ -534,10 +534,10 @@ async def _do_update(vault_root: str, args: dict) -> str:
         fields["remember_last"] = args["remember_last"]
     call = args.get("call") if isinstance(args.get("call"), bool) else None
     if not fields and call is None:
-        return "ERROR: không có gì để sửa - truyền ít nhất một trong name / prompt / schedule."
+        return "ERROR: nothing to edit - pass at least one of name / prompt / schedule."
     if (_loops_dir(vault_root) / f"{rid}.md").is_file():
         if not fields:
-            return "ERROR: việc lặp không gọi điện được; 'call' chỉ dành cho nhắc hẹn."
+            return "ERROR: a recurring task cannot place a call; 'call' is for reminders only."
         return _update_loop_file(vault_root, rid, fields)
     # Kho nhắc hẹn: đổi lịch thì dịch chuỗi lịch sang tham số thời gian như lúc tạo.
     payload = {}
@@ -558,33 +558,33 @@ async def _do_list(vault_root: str) -> str:
     lines = []
     loops = _list_loops(vault_root)
     if loops:
-        lines.append("Việc LẶP (Javis/loops):")
+        lines.append("RECURRING tasks (Javis/loops):")
         for lp in loops:
-            trang = "bật" if lp["enabled"] else "tắt"
-            lines.append(f"- [{lp['id']}] {lp['name']} - mỗi {lp['interval_min']} phút, "
-                         f"đang {trang}, mode {lp['mode']}")
+            trang = "on" if lp["enabled"] else "off"
+            lines.append(f"- [{lp['id']}] {lp['name']} - every {lp['interval_min']} minutes, "
+                         f"currently {trang}, mode {lp['mode']}")
     rem = await _get_reminders(vault_root)
     pending = rem.get("pending") or []
     if pending:
-        lines.append("Nhắc hẹn / lịch (kho reminders):")
+        lines.append("Reminders / schedules (reminders store):")
         for r in pending:
             # Nói lịch bằng LỜI ("7:00 mỗi ngày") kèm biểu thức thô - model kể lại cho user thì
             # user hiểu ngay, không phải tự dịch "0 7 * * *".
-            extra = (f" (lặp {r.get('cron_human') or r.get('cron')} - cron {r.get('cron')})"
+            extra = (f" (repeats {r.get('cron_human') or r.get('cron')} - cron {r.get('cron')})"
                      if r.get("cron") else "")
             lines.append(f"- [{r.get('id')}] {r.get('label') or r.get('text')} - "
-                         f"kế tiếp {r.get('due_human')}{extra}")
+                         f"next {r.get('due_human')}{extra}")
     if rem.get("error"):
-        lines.append(f"(không đọc được kho nhắc hẹn: {rem['error']})")
+        lines.append(f"(could not read the reminders store: {rem['error']})")
     if not lines:
-        return "Chưa có việc định kỳ hay nhắc hẹn nào (cả kho loop lẫn kho reminders đều trống)."
+        return "No recurring tasks or reminders yet (both the loop store and the reminders store are empty)."
     return "\n".join(lines)
 
 
 async def _do_cancel(vault_root: str, args: dict) -> str:
     rid = str(args.get("id") or "").strip()
     if not rid:
-        return "ERROR: cần 'id' để huỷ (lấy từ kết quả op=list)."
+        return "ERROR: 'id' is required to cancel (get it from the op=list result)."
     if (_loops_dir(vault_root) / f"{rid}.md").is_file():
         return _cancel_loop_file(vault_root, rid)
     return await _cancel_reminder(vault_root, rid)
@@ -596,7 +596,7 @@ async def javis_schedule(args: dict, cctx) -> str:
     # An toàn CỨNG: đây chính là bug Task 1 vừa vá ở nơi khác (image_gen._resolve_vault rơi về
     # Brain Default khi vault_root rỗng, lưu nhầm brain suốt mà không ai biết). Không tái tạo.
     if not vault_root:
-        return "ERROR: không xác định được brain đang làm việc"
+        return "ERROR: cannot determine the active brain"
     op = str(args.get("op") or "create").strip().lower()
     if op == "create":
         return await _do_create(vault_root, args)
@@ -606,31 +606,30 @@ async def javis_schedule(args: dict, cctx) -> str:
         return await _do_update(vault_root, args)
     if op == "cancel":
         return await _do_cancel(vault_root, args)
-    return f"ERROR: op không hợp lệ: {op!r} (dùng create|list|update|cancel)"
+    return f"ERROR: invalid op: {op!r} (use create|list|update|cancel)"
 
 
 def register(ctx) -> None:
     ctx.register_tool(
         name="javis_schedule",
         description=(
-            "Tạo/liệt kê/sửa/huỷ việc chạy ĐỊNH KỲ hoặc NHẮC HẸN ngay từ chat - thay vì tự gõ YAML "
-            "vào Javis/loops hay tự curl POST /reminders. GỌI khi user nói kiểu: 'tạo cho tôi "
-            "việc mỗi 2 tiếng quét đơn' (op=create, schedule='120m' hoặc 'mỗi 2 tiếng'), '7h "
-            "sáng nào cũng nhắc tôi doanh thu' (schedule='0 7 * * *'), '30 phút nữa nhắc tôi "
-            "gọi khách' (schedule='30 phút nữa'), 'còn việc gì đang chạy không' (op=list), hoặc "
-            "'đổi giờ việc đó sang 8h' (op=update, id lấy từ op=list, schedule='0 8 * * *'), hoặc "
-            "'huỷ việc quét đơn đi' (op=cancel, id lấy từ op=list trước). "
-            "ĐỦ ĐIỀU KIỆN MỚI TẠO: trước khi op=create, tự hỏi việc này tới giờ chạy có ĐỦ thứ "
-            "cần không (nguồn dữ liệu đã đấu chưa, kênh báo kết quả đã có chưa). Thiếu thì NÓI "
-            "THẲNG thiếu gì và hỏi user, KHÔNG tạo trước rồi im lặng để nó chạy thất bại mỗi ngày. "
-            "CHỈ GỌI khi user ra lệnh rõ ràng với lịch tự động của Javis; KHÔNG gọi chỉ vì câu có "
-            "'đặt lịch', booking, tư vấn 1-1, cuộc hẹn, hoặc đang bàn về sản phẩm/UX/marketing. "
-            "Trong các trường hợp đó phải trả lời hội thoại bình thường, không op=list/create/cancel. "
-            "Tool TỰ CHỌN kho: lịch "
-            "LẶP+BỀN ('120m'/'2h'/'mỗi X tiếng'/'90 phút') ghi file Javis/loops/<slug>.md (sửa "
-            "được trong Obsidian, mặc định TẮT + chỉ-gợi-ý, phải vào tab Việc bật tay); lịch giờ "
-            "cố định lặp lại (cron 5 trường '0 7 * * *', macro '@daily') hoặc một lần ('30 phút "
-            "nữa', '8h30', '2026-07-20 09:00') vào kho nhắc hẹn có sẵn."
+            "Create/list/edit/cancel RECURRING tasks or REMINDERS straight from chat - instead of hand-writing YAML "
+            "into Javis/loops or curling POST /reminders yourself. CALL it when the user says things like: 'create a "
+            "task that scans orders every 2 hours' (op=create, schedule='120m' or 'every 2 hours'), 'remind me of "
+            "revenue every day at 7am' (schedule='0 7 * * *'), 'remind me to call the customer in 30 "
+            "minutes' (schedule='in 30 minutes'), 'is anything still running' (op=list), or "
+            "'move that task to 8am' (op=update, id from op=list, schedule='0 8 * * *'), or "
+            "'cancel the order scan' (op=cancel, get the id from op=list first). "
+            "ONLY CREATE WHEN THE PRECONDITIONS HOLD: before op=create, ask yourself whether this task will have EVERYTHING "
+            "it needs when it runs (is the data source connected, is there a channel to report results to). If something is missing, SAY "
+            "PLAINLY what is missing and ask the user; do NOT create it first and stay silent while it fails every day. "
+            "ONLY CALL when the user gives a clear order about Jarvis 007's automatic schedule; do NOT call just because the sentence has "
+            "'schedule', booking, a 1-1 consultation, an appointment, or the talk is about product/UX/marketing. "
+            "In those cases answer as a normal conversation, no op=list/create/cancel. "
+            "The tool CHOOSES the store itself: REPEATING+DURABLE schedules ('120m'/'2h'/'every X hours'/'90 minutes') write the file Javis/loops/<slug>.md (editable "
+            "in Obsidian, OFF by default + suggest-only, the user must switch it on in the Work tab); fixed-time "
+            "repeating schedules (5-field cron '0 7 * * *', macro '@daily') or one-off ones ('in 30 "
+            "minutes', '8:30', '2026-07-20 09:00') go to the existing reminders store."
         ),
         handler=javis_schedule,
         min_mode="safe",
@@ -638,50 +637,50 @@ def register(ctx) -> None:
             "type": "object",
             "properties": {
                 "op": {"type": "string", "enum": ["create", "list", "update", "cancel"],
-                       "description": ("create = tạo việc mới (cần name/prompt/schedule); "
-                                       "list = liệt kê MỌI việc đang có, cả loop lẫn nhắc hẹn; "
-                                       "update = sửa việc đã có theo id (truyền name/prompt/"
-                                       "schedule - trường nào không truyền thì giữ nguyên); "
-                                       "cancel = huỷ 1 việc theo id (lấy từ op=list).")},
+                       "description": ("create = create a new task (needs name/prompt/schedule); "
+                                       "list = list EVERY existing task, both loops and reminders; "
+                                       "update = edit an existing task by id (pass name/prompt/"
+                                       "schedule - any field not passed is kept as is); "
+                                       "cancel = cancel one task by id (get it from op=list).")},
                 "name": {"type": "string",
-                         "description": "Tên ngắn của việc, vd 'Quét đơn mỗi 2 tiếng' (op=create)."},
+                         "description": "Short name of the task, e.g. 'Scan orders every 2 hours' (op=create)."},
                 "prompt": {"type": "string",
-                           "description": ("Nội dung cần làm mỗi lần chạy/nhắc (op=create) - viết "
-                                           "TỰ ĐỦ, không phụ thuộc ngữ cảnh chat hiện tại vì sẽ "
-                                           "chạy lúc không ai hỏi.")},
+                           "description": ("What to do on each run/reminder (op=create) - write it "
+                                           "SELF-CONTAINED, not dependent on the current chat context because it will "
+                                           "run when nobody is asking.")},
                 "schedule": {"type": "string",
-                             "description": ("Lịch (op=create). Lặp+bền: '120m' (mỗi 120 phút), "
-                                             "'2h', 'mỗi 2 tiếng', '90 phút'. Cố định lặp lại: "
-                                             "cron 5 trường '0 7 * * *', macro '@daily'. Một lần: "
-                                             "'30 phút nữa', '8h30' (qua giờ hôm nay -> tự sang "
-                                             "mai), hoặc đủ ngày giờ '2026-07-20 09:00'.")},
+                             "description": ("Schedule (op=create). Repeating+durable: '120m' (every 120 minutes), "
+                                             "'2h', 'every 2 hours', '90 minutes'. Fixed-time repeating: "
+                                             "5-field cron '0 7 * * *', macro '@daily'. One-off: "
+                                             "'in 30 minutes', '8:30' (if already past today -> rolls to "
+                                             "tomorrow), or a full date and time '2026-07-20 09:00'.")},
                 "notify_only": {"type": "boolean",
-                                 "description": ("true = ép thành nhắc MỘT LẦN (kho reminders) dù "
-                                                 "schedule trông giống chu kỳ lặp. Mặc định false.")},
+                                 "description": ("true = force a ONE-TIME reminder (reminders store) even if "
+                                                 "the schedule looks like a repeating interval. Default false.")},
                 "muc_quyen": {"type": "string", "enum": ["suggest", "auto", "full"],
-                              "description": ("Quyền của việc lúc chạy, áp cho cả loop lẫn nhắc "
-                                              "hẹn. 'full' (mặc định) = dùng được mọi công cụ đã "
-                                              "đấu, gồm cả hành động ra ngoài (gửi tin, đăng bài, "
-                                              "tạo đơn, thanh toán). 'auto' = đọc + ghi file, "
-                                              "không hành động ra ngoài. 'suggest' = chỉ đọc rồi "
-                                              "báo lại. Chỉ hạ mức khi user muốn vậy.")},
+                              "description": ("Permission of the task when it runs, applies to both loops and "
+                                              "reminders. 'full' (default) = may use every connected "
+                                              "tool, including actions on the outside world (sending messages, publishing posts, "
+                                              "creating orders, payments). 'auto' = read + write files, "
+                                              "no outside actions. 'suggest' = read-only, then "
+                                              "report back. Only lower the level when the user wants that.")},
                 "speak": {"type": "boolean",
-                          "description": "true = tới giờ gửi kèm TIN THOẠI đọc kết quả thành tiếng (user muốn nghe)."},
+                          "description": "true = when the time comes, also send a VOICE MESSAGE reading the result aloud (the user wants to listen)."},
                 "call": {"type": "boolean",
-                         "description": ("true = tới giờ Javis GỌI ĐẾN như cuộc gọi trên trang Javis đang mở, user bấm "
-                                         "Nghe thì Javis đọc kết quả và nói chuyện tiếp (\"7h gọi đọc báo cáo cho anh\").")},
+                         "description": ("true = when the time comes Jarvis 007 CALLS IN like a phone call on the page where Jarvis 007 is open; when the user clicks "
+                                         "Listen, Jarvis 007 reads the result and keeps talking (\"call me at 7 to read the report\").")},
                 "remember_last": {"type": "boolean",
-                                  "description": ("true = mỗi lần chạy nhận lại kết quả lần trước (theo dõi, "
-                                                  "báo cái mới). Chỉ cho nhắc hẹn tự làm, không cho loop.")},
+                                  "description": ("true = each run receives the previous run's result (to track "
+                                                  "and report what is new). Only for self-running reminders, not for loops.")},
                 "chat_id": {"type": "string",
-                             "description": "chat_id Telegram người yêu cầu, để báo đúng người. Bỏ trống nếu không rõ."},
+                             "description": "Telegram chat_id of the requester, so the report reaches the right person. Leave empty if unknown."},
                 "allow_no_channel": {"type": "boolean",
-                                      "description": ("Chỉ đặt true khi tool đã báo THIẾU KÊNH GỬI, "
-                                                      "bạn đã nói với user thiếu gì, và user vẫn "
-                                                      "muốn tạo. TUYỆT ĐỐI không tự đặt true ngay "
-                                                      "lần gọi đầu.")},
+                                      "description": ("Set true only when the tool has reported a MISSING DELIVERY CHANNEL, "
+                                                      "you have told the user what is missing, and the user still "
+                                                      "wants to create it. NEVER set true on "
+                                                      "the first call on your own.")},
                 "id": {"type": "string",
-                       "description": "id việc cần sửa/huỷ (op=update|cancel) - lấy từ kết quả op=list."},
+                       "description": "id of the task to edit/cancel (op=update|cancel) - get it from the op=list result."},
             },
             "required": ["op"],
         },

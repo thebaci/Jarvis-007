@@ -40,12 +40,12 @@
 </head>
 <body>
   <h1>⬡ Javis Voice - Test Lab</h1>
-  <p style="color:#8888aa">Test STT + TTS không cần backend. Mở file này trong Chrome / Edge.</p>
+  <p style="color:#8888aa">Test STT + TTS without a backend. Open this file in Chrome / Edge.</p>
 
   <div class="row">
-    <div class="label">STT - NHẬN DẠNG GIỌNG NÓI</div>
-    <button id="micBtn">🎤 Bấm để nói</button>
-    <button id="stopBtn">⏹ Dừng</button>
+    <div class="label">STT - SPEECH RECOGNITION</div>
+    <button id="micBtn">🎤 Click to speak</button>
+    <button id="stopBtn">⏹ Stop</button>
     <div class="output">
       <div id="finalText">-</div>
       <div class="interim" id="interimText"></div>
@@ -53,23 +53,23 @@
   </div>
 
   <div class="row">
-    <div class="label">TTS - GIỌNG ĐỌC (EDGE TTS BACKEND)</div>
-    <p style="font-size:12px;color:#22c55e;margin-bottom:10px">⬤ Dùng giọng Vietnamese từ Microsoft Edge - yêu cầu backend đang chạy ở localhost:7777</p>
+    <div class="label">TTS - VOICE (EDGE TTS BACKEND)</div>
+    <p style="font-size:12px;color:#22c55e;margin-bottom:10px">⬤ Uses Vietnamese voices from Microsoft Edge - requires the backend running at localhost:7777</p>
     <select id="voiceSelect" style="margin-bottom:10px">
-      <option value="en-US-EmmaMultilingualNeural">Emma - Nữ · vui tươi, rõ chữ · đa ngôn ngữ</option>
-      <option value="vi-VN-HoaiMyNeural">Hoài My (nữ) - tự nhiên, ấm áp</option>
-      <option value="vi-VN-NamMinhNeural">Nam Minh (nam) - trầm</option>
-      <option value="en-US-AvaMultilingualNeural">Ava - Nữ · dịu, biểu cảm · đa ngôn ngữ</option>
-      <option value="en-US-AndrewMultilingualNeural">Andrew - Nam · ấm, tự tin · đa ngôn ngữ</option>
-      <option value="en-US-BrianMultilingualNeural">Brian - Nam · gần gũi, đời thường · đa ngôn ngữ</option>
-      <option value="en-AU-WilliamMultilingualNeural">William - Nam · thân thiện, giọng Úc · đa ngôn ngữ</option>
+      <option value="en-US-EmmaMultilingualNeural">Emma - Female · cheerful, clear · multilingual</option>
+      <option value="vi-VN-HoaiMyNeural">Hoài My (female) - natural, warm</option>
+      <option value="vi-VN-NamMinhNeural">Nam Minh (male) - deep</option>
+      <option value="en-US-AvaMultilingualNeural">Ava - Female · soft, expressive · multilingual</option>
+      <option value="en-US-AndrewMultilingualNeural">Andrew - Male · warm, confident · multilingual</option>
+      <option value="en-US-BrianMultilingualNeural">Brian - Male · friendly, casual · multilingual</option>
+      <option value="en-AU-WilliamMultilingualNeural">William - Male · friendly, Australian accent · multilingual</option>
     </select>
     <textarea id="ttsText">Xin chào, em là Javis, trợ lý AI của bạn. Em sẽ báo cáo kết quả kinh doanh và cuộc sống dựa trên các nguồn dữ liệu bạn kết nối. Hôm nay bạn muốn xem báo cáo gì?</textarea>
     <div style="margin-top:10px">
-      <button id="speakBtn">🔊 Đọc (Edge TTS)</button>
-      <button id="speakBrowserBtn" style="background:#7c3aed">🔊 Đọc (Browser - fallback)</button>
-      <button id="stopSpeakBtn">⏹ Dừng đọc</button>
-      <label style="margin-left:14px;font-size:13px">Tốc độ:
+      <button id="speakBtn">🔊 Read (Edge TTS)</button>
+      <button id="speakBrowserBtn" style="background:#7c3aed">🔊 Read (Browser - fallback)</button>
+      <button id="stopSpeakBtn">⏹ Stop reading</button>
+      <label style="margin-left:14px;font-size:13px">Speed:
         <input type="range" id="rate" min="0.7" max="1.8" step="0.05" value="1.1" style="width:140px;vertical-align:middle">
         <span id="rateVal" style="font-family:monospace;color:#ff6b2b;margin-left:6px">1.10×</span>
       </label>
@@ -78,8 +78,8 @@
   </div>
 
   <div class="row">
-    <div class="label">PUSH-TO-TALK - GIỮ PHÍM CÁCH</div>
-    <p style="font-size:13px;color:#8888aa">Giữ phím <kbd style="background:#1a1a24;padding:2px 8px;border-radius:3px;border:1px solid #2a2a3a">Space</kbd> để nói liên tục (khi text input không focus).</p>
+    <div class="label">PUSH-TO-TALK - HOLD SPACEBAR</div>
+    <p style="font-size:13px;color:#8888aa">Hold <kbd style="background:#1a1a24;padding:2px 8px;border-radius:3px;border:1px solid #2a2a3a">Space</kbd> to speak continuously (when no text input is focused).</p>
   </div>
 
   <script src="voice.js"></script>
@@ -97,11 +97,11 @@
 
     const voice = new JavisVoice({
       lang: "vi-VN",
-      onStart: () => { micBtn.classList.add("recording"); interimText.textContent = "đang nghe..."; },
+      onStart: () => { micBtn.classList.add("recording"); interimText.textContent = "listening..."; },
       onInterim: t => interimText.textContent = t,
       onTranscript: t => { finalText.textContent = t; interimText.textContent = ""; },
       onEnd: () => { micBtn.classList.remove("recording"); interimText.textContent = ""; },
-      onError: e => alert("Lỗi: " + e),
+      onError: e => alert("Error: " + e),
     });
 
     micBtn.onclick = () => voice.toggleListening();
@@ -141,16 +141,16 @@
       const backendUp = await fetch("http://localhost:7777/health").then(() => true).catch(() => false);
 
       if (backendUp) {
-        ttsStatus.textContent = "Đang dùng Edge TTS backend...";
+        ttsStatus.textContent = "Using Edge TTS backend...";
         if (currentAudio) currentAudio.pause();
         const url = `http://localhost:7777/tts?text=${encodeURIComponent(text)}&voice=${encodeURIComponent(voiceName)}&rate=${encodeURIComponent(ratePctStr)}`;
         currentAudio = new Audio(url);
-        currentAudio.onplay = () => ttsStatus.textContent = `▶ Đang đọc bằng ${voiceName} (Edge TTS, ${ratePctStr})`;
-        currentAudio.onended = () => ttsStatus.textContent = "✓ Đọc xong";
+        currentAudio.onplay = () => ttsStatus.textContent = `▶ Reading with ${voiceName} (Edge TTS, ${ratePctStr})`;
+        currentAudio.onended = () => ttsStatus.textContent = "✓ Done reading";
         currentAudio.onerror = () => playGoogleTTS(text);
         await currentAudio.play().catch(() => playGoogleTTS(text));
       } else {
-        ttsStatus.textContent = "Backend không chạy - dùng Google Translate TTS";
+        ttsStatus.textContent = "Backend not running - using Google Translate TTS";
         playGoogleTTS(text);
       }
     };
@@ -160,15 +160,15 @@
       const chunks = splitText(text, 180);
       let idx = 0;
       const playNext = () => {
-        if (idx >= chunks.length) { ttsStatus.textContent = "✓ Đọc xong (Google TTS)"; return; }
+        if (idx >= chunks.length) { ttsStatus.textContent = "✓ Done reading (Google TTS)"; return; }
         const chunk = chunks[idx++];
         const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=${encodeURIComponent(chunk)}`;
         currentAudio = new Audio(url);
         applyRate(currentAudio);
         currentAudio.onplay = () => ttsStatus.textContent = `▶ Google TTS - ${idx}/${chunks.length} - ${rate.value}×`;
         currentAudio.onended = playNext;
-        currentAudio.onerror = () => ttsStatus.textContent = "✗ Lỗi: Trình duyệt chặn Google TTS.";
-        currentAudio.play().catch(e => ttsStatus.textContent = "Lỗi: " + e.message);
+        currentAudio.onerror = () => ttsStatus.textContent = "✗ Error: the browser blocked Google TTS.";
+        currentAudio.play().catch(e => ttsStatus.textContent = "Error: " + e.message);
       };
       playNext();
     }
@@ -197,13 +197,13 @@
         u.rate = 1.05;
         speechSynthesis.speak(u);
       });
-      ttsStatus.textContent = `▶ Đang đọc bằng browser (${selected ? selected.name : 'default'})`;
+      ttsStatus.textContent = `▶ Reading with browser (${selected ? selected.name : 'default'})`;
     };
 
     stopSpeakBtn.onclick = () => {
       speechSynthesis.cancel();
       if (currentAudio) currentAudio.pause();
-      ttsStatus.textContent = "⏹ Đã dừng";
+      ttsStatus.textContent = "⏹ Stopped";
     };
 
     // Push-to-talk

@@ -89,7 +89,7 @@ with RA.turn(A, "eA", 1, USER, BRAIN, slug="viet-bai", store=store):
 g1 = store.find_by_key(OWNER, R.message_ref("eA", 1))
 check("1 engine API: javis_goal nói rõ phạm vi CHƯA được cho phép và trả mã bàn giao",
       "CHƯA được cho phép" in out and h1.startswith("bd_"), out[-400:])
-check("1 engine API: nộp giữ làm nháp, chưa ghi file đích", "NHÁP" in sub1 and not (Path(BRAIN) / DELIV).exists()
+check("1 engine API: nộp giữ làm nháp, chưa ghi file đích", "DRAFT" in sub1 and not (Path(BRAIN) / DELIV).exists()
       and [s["status"] for s in store.submissions(OWNER, g1.id)] == ["awaiting_scope"], sub1)
 out_plain = asyncio.run(SUBMIT({"path": DELIV, "content": GOOD}))
 check("G20 gọi ngoài lượt: ERROR no_turn, không ghi bản nộp", out_plain.startswith("ERROR no_turn")
@@ -128,7 +128,7 @@ with RA.turn(A, "cA", 1, USER, BRAIN, slug="viet-bai", store=store):
     sub2 = asyncio.run(_hub(key, "javis_submit_deliverable", {"path": DELIV, "content": GOOD,
                                                                 "handoff": handoff_of(out2)}))
 g2 = store.find_by_key(OWNER, R.message_ref("cA", 1))
-check("2 Codex qua hub với khoá lượt: nộp đúng mục tiêu của lượt, giữ làm nháp", "NHÁP" in sub2
+check("2 Codex qua hub với khoá lượt: nộp đúng mục tiêu của lượt, giữ làm nháp", "DRAFT" in sub2
       and [s["status"] for s in store.submissions(OWNER, g2.id)] == ["awaiting_scope"], sub2)
 no_key = asyncio.run(_hub(None, "javis_submit_deliverable", {"path": DELIV, "content": GOOD}))
 dead = asyncio.run(_hub(key, "javis_submit_deliverable", {"path": DELIV, "content": GOOD + "x"}))
@@ -151,7 +151,7 @@ with RA.turn(A, "kA", 1, USER, BRAIN, slug="viet-bai", store=store):
     out3 = asyncio.run(_sdk("javis_goal", {"op": "create", **PROPOSAL}))
     sub3 = asyncio.run(_sdk("javis_submit_deliverable", {"path": DELIV, "content": GOOD, "handoff": handoff_of(out3)}))
 g3 = store.find_by_key(OWNER, R.message_ref("kA", 1))
-check("3 Claude Code qua server plugin thật: nộp đúng mục tiêu của lượt", "NHÁP" in sub3
+check("3 Claude Code qua server plugin thật: nộp đúng mục tiêu của lượt", "DRAFT" in sub3
       and [s["status"] for s in store.submissions(OWNER, g3.id)] == ["awaiting_scope"], sub3)
 
 # ═══════════ 4. API chủ dự án: xem trước, Cho phép, thẻ cũ ═══════════

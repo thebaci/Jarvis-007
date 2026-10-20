@@ -88,17 +88,17 @@ check("links added in the panel are team links", any(l["url"] == "https://zalo.m
 # ---- what a member turn reads ----
 blk = main._team_docs_block(dict(team, session_id=sid, brain_id=main._brain_key(b)))
 check("member turns get the team documents with their content (text only turns cannot open files)",
-      "TÀI LIỆU VÀ LINK CỦA NHÓM" in blk and "Trang ban nuoc mam co gio hang" in blk and "Giá sỉ: 50.000đ" in blk
-      and "https://zalo.me/g/abc" in blk and "KHÔNG mở được file" in blk, blk[:600])
+      "TEAM DOCUMENTS AND LINKS" in blk and "Trang ban nuoc mam co gio hang" in blk and "Giá sỉ: 50.000đ" in blk
+      and "https://zalo.me/g/abc" in blk and "can NOT open files" in blk, blk[:600])
 form = {"path": "du-an", "brain": b}
 r = client.post(f"/coding/session/{sid}/pin", data=form)
 check("a working folder pins on the team's conversation (same route as the main chat)", r.status_code == 200 and
       (r.json().get("folder") or {}).get("name") == "du-an", r.text)
 blk = main._team_docs_block(dict(team, session_id=sid, brain_id=main._brain_key(b)))
-check("member turns see the folder as a short tree", "THƯ MỤC LÀM VIỆC CỦA NHÓM" in blk and "- web/" in blk and "README.md" in blk, blk[-500:])
+check("member turns see the folder as a short tree", "TEAM WORKING FOLDER" in blk and "- web/" in blk and "README.md" in blk, blk[-500:])
 runner = main._TEAM_API.runner()
 check("the runner adds the block to every member turn", runner.docs_block is not None
-      and "THƯ MỤC LÀM VIỆC" in runner._docs(dict(team, session_id=sid, brain_id=main._brain_key(b))))
+      and "WORKING FOLDER" in runner._docs(dict(team, session_id=sid, brain_id=main._brain_key(b))))
 src = (ROOT / "server" / "team_runner.py").read_text(encoding="utf-8")
 check("_prepare puts it between the team context and the message",
       "self._context(team, agent_key, role, task, step, authority_pin=pin)\n" in src
@@ -106,13 +106,13 @@ check("_prepare puts it between the team context and the message",
 # 0.194.0: a Work/Help turn can open the files and the folder itself, so its block says so instead of "cannot open".
 tblk = main._team_docs_block(dict(team, session_id=sid, brain_id=main._brain_key(b)), tools=True)
 check("tool turns: the block says the turn can open the files and works in the folder",
-      "có công cụ" in tblk and "KHÔNG mở được file" not in tblk and "chạy ngay trong thư mục đó" in tblk
+      "This turn has tools" in tblk and "can NOT open files" not in tblk and "runs right inside that folder" in tblk
       and "- web/" in tblk, tblk[:600])
 check("tool turns through the runner get the tool wording, chat turns keep the text-only wording",
-      "chạy ngay trong thư mục đó" in runner._docs(dict(team, session_id=sid, brain_id=main._brain_key(b)), True)
-      and "Lượt nhóm không mở được file" in runner._docs(dict(team, session_id=sid, brain_id=main._brain_key(b))))
+      "runs right inside that folder" in runner._docs(dict(team, session_id=sid, brain_id=main._brain_key(b)), True)
+      and "A team turn cannot open files" in runner._docs(dict(team, session_id=sid, brain_id=main._brain_key(b))))
 check("tree keeps hidden folders out and stops at the cap",
-      team_docs.tree(str(BR), cap=3)[-1].endswith("(còn nữa, đã cắt)") and not any(".x" in x for x in team_docs.tree(str(BR))))
+      team_docs.tree(str(BR), cap=3)[-1].endswith("(more not shown, cut off)") and not any(".x" in x for x in team_docs.tree(str(BR))))
 
 # ---- the folder list says which folders have folders inside (the ">" of the picker) ----
 d = client.get("/files/list", params={"brain": b, "subdirs": 1}).json()
@@ -149,11 +149,11 @@ asyncio.run(main._team_describe(dict(team, session_id=sid, brain_id=main._brain_
 check("another brain looks at the picture itself (the file in the brain), with the message as caption",
       seen.get("args") and seen["args"][0][0].endswith("bang-gia.png") and seen["args"][1] == "giá bao nhiêu"
       and seen["args"][2] == f"team:{tid}", seen)
-desc = [f for f in store.list_session_files(sid) if f["name"] == "bang-gia.png (mô tả ảnh)"]
+desc = [f for f in store.list_session_files(sid) if f["name"] == "bang-gia.png (image description)"]
 check("what it saw becomes a pinned team document", desc and desc[0]["pinned"], store.list_session_files(sid))
 blk = main._team_docs_block(dict(team, session_id=sid, brain_id=main._brain_key(b)))
 check("member turns read the description, and are told that is how they see a picture",
-      "nước mắm 50.000đ" in blk and "openai-oauth/gpt-test" in blk and "mô tả ảnh" in blk, blk[:900])
+      "nước mắm 50.000đ" in blk and "openai-oauth/gpt-test" in blk and "image description" in blk, blk[:900])
 
 
 async def _no_eyes(images, text, prov, api_model, chat_id=""):

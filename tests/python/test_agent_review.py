@@ -193,7 +193,7 @@ check("sổ lượt chốt ok kèm token", len(row) == 1 and row[0]["status"] ==
 prompt = w["eng"].calls[0]["prompt"]
 check("lời nhắc có tin bị phản hồi, mã nguồn, cảm xúc; system có luật xem xét",
       "Báo cáo tuần" in prompt and src in prompt and "haha" in prompt
-      and "LƯỢT XEM XÉT PHẢN HỒI" in w["eng"].calls[0]["system"], prompt)
+      and "OWNER FEEDBACK REVIEW TURN" in w["eng"].calls[0]["system"], prompt)
 evs = AP.events(w["gs"], w["key"], kinds=("reaction_review",))
 check("quyết định ghi vào agent_pulse_events kèm mã nguồn", evs and evs[0]["reason"] == "keep"
       and evs[0]["payload"]["consumed"] == [src] and evs[0]["payload"]["reason_id"] == rs[0]["id"], evs)

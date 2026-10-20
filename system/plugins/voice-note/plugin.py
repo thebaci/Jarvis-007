@@ -14,25 +14,25 @@ def register(ctx):
         args = args or {}
         text = str(args.get("text") or "").strip()
         if not text:
-            return "ERROR: thiếu 'text' (câu cần đọc thành tin thoại)."
+            return "ERROR: missing 'text' (the sentence to read out as a voice note)."
         res = await voice_note.make(cctx.vault_root, text, voice=str(args.get("voice") or ""))
         if not res.get("ok"):
-            return "ERROR: " + str(res.get("error") or "không tạo được tin thoại")
+            return "ERROR: " + str(res.get("error") or "could not create the voice note")
         rel = res["rel_path"]
-        return (f"Đã ghi tin thoại ({res['chars']} ký tự, giọng {res['voice']}), lưu tại {rel}. "
-                f"NHÚNG ngay vào câu trả lời bằng đúng dòng này: [🔊 Tin thoại]({rel}) "
-                "và viết lại nội dung đó bằng chữ ngay dưới để người không nghe được vẫn đọc được.")
+        return (f"Voice note recorded ({res['chars']} characters, voice {res['voice']}), saved at {rel}. "
+                f"EMBED it in your answer right away using exactly this line: [🔊 Tin thoại]({rel}) "
+                "and write the same content out as text right below it so people who cannot listen can still read it.")
 
     ctx.register_tool(
         name="javis_voice_note",
-        description=("Ghi một TIN THOẠI ngắn (tối đa 1000 ký tự) thành file mp3 rồi nhúng vào câu trả lời. "
-                     "Dùng khi user muốn NGHE thay vì đọc (\"đọc cho tôi nghe\", \"gửi tin thoại\", báo cáo "
-                     "buổi sáng để nghe lúc lái xe). Tham số: text (câu cần đọc, văn nói, không markdown), "
-                     "voice (tuỳ chọn, tên giọng Edge như vi-VN-NamMinhNeural; bỏ trống thì tự chọn theo "
-                     "ngôn ngữ). Sau khi gọi, nhúng link trả về vào câu trả lời."),
+        description=("Record a short VOICE NOTE (at most 1000 characters) as an mp3 file and embed it in the answer. "
+                     "Use it when the user wants to LISTEN instead of read (\"read it to me\", \"send a voice note\", a "
+                     "morning report to hear while driving). Parameters: text (the sentence to read, spoken style, no markdown), "
+                     "voice (optional, an Edge voice name such as vi-VN-NamMinhNeural; left empty it is chosen by "
+                     "language). After calling, embed the returned link in the answer."),
         handler=_note, min_mode="safe",
         schema={"type": "object", "properties": {
-            "text": {"type": "string", "description": "Câu cần đọc thành tiếng (văn nói, tối đa 1000 ký tự)"},
-            "voice": {"type": "string", "description": "Tên giọng Edge, bỏ trống để tự chọn"},
+            "text": {"type": "string", "description": "The sentence to read aloud (spoken style, at most 1000 characters)"},
+            "voice": {"type": "string", "description": "Edge voice name, leave empty to pick automatically"},
         }, "required": ["text"]},
     )

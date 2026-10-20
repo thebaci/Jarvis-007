@@ -123,7 +123,7 @@ try:
     ra = _chay(goi({"path": "Javis/agents/x.md"}))
     check("hook deny thì tool KHÔNG chạy", _da_chay == [], f"[đã chạy {len(_da_chay)} lần]")
     check("hook deny thì model nhận đúng lý do", "ghi sai thư mục" in ra, f"[{ra[:80]}]")
-    check("câu báo nói được làm gì tiếp", "làm lại" in ra.lower() or "đừng gọi lại" in ra.lower())
+    check("câu báo nói được làm gì tiếp", "redo it" in ra.lower() or "do not call it again" in ra.lower())
 finally:
     _hoan()
 

@@ -117,8 +117,8 @@ with tempfile.TemporaryDirectory() as td:
         pf.write_bytes(goc_ma + b"\n# them mot dong\n")
         check("sửa một byte trong mã thì tool biến mất", not route_co("goi_chao"))
         ly_do = plugins_host._load_all(None)["errors"].get("chao", "")
-        check("và nói rõ lý do là mã đã đổi", "đã đổi" in ly_do)
-        check("lý do chỉ đúng đường sửa (cài lại ở Kho cài đặt)", "Kho cài đặt" in ly_do)
+        check("và nói rõ lý do là mã đã đổi", "has changed" in ly_do)
+        check("lý do chỉ đúng đường sửa (cài lại ở Kho cài đặt)", "the Store" in ly_do)
         pf.write_bytes(goc_ma)
         check("trả mã về đúng từng byte thì chạy lại", route_co("goi_chao"))
 
@@ -129,7 +129,7 @@ with tempfile.TemporaryDirectory() as td:
         check("gói không có hàng trong sổ cài đặt thì mã KHÔNG tự chạy",
               not route_co("goi_chao"))
         ly_do2 = plugins_host._load_all(None)["errors"].get("chao", "")
-        check("và nói rõ là chưa đi qua trình cài", "trình cài" in ly_do2)
+        check("và nói rõ là chưa đi qua trình cài", "installer" in ly_do2)
         so["acme.tool"] = luu
         pack_install._ghi_so(so)
         check("có hàng trở lại thì chạy tiếp", route_co("goi_chao"))

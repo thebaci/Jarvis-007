@@ -662,7 +662,7 @@ class TasksFeature:
     async def _query(self, cli, prompt: str) -> tuple[str, str, list[str]]:
         if not cli.is_available():
             spec = aux_engine.read_spec()
-            return "", f"Engine {spec.get('provider') or 'AI'} chưa sẵn sàng", []
+            return "", f"Engine {spec.get('provider') or 'AI'} is not ready", []
         # Gom RIÊNG câu chốt (final) và dòng tường thuật (text). Trước đây trộn chung nên
         # result = toàn bộ dòng suy nghĩ của worker ("Tôi sẽ lần theo...", "Lệnh shell bị
         # chặn...") rồi đổ nguyên si về Telegram. Có final thì final LÀ kết quả; text chỉ
@@ -692,34 +692,36 @@ class TasksFeature:
     async def _specify(self, task: dict) -> tuple[dict, str]:
         cli = self._base_cli(task, [], "suggest", "specifier")
         prompt = f"""
-Bạn là specifier của hàng đợi AI Javis. Chuẩn hoá goal dưới đây thành một task có thể
-chạy headless. Không thực thi task, không hỏi người dùng, không thêm mục tiêu ngoài phạm vi.
+You are the specifier of the Jarvis 007 AI queue. Normalize the goal below into a task that can
+run headless. Do not execute the task, do not ask the user, do not add goals outside the scope.
 
-Tiêu đề: {task.get('title', '')}
-Goal thô:
+Title: {task.get('title', '')}
+Raw goal:
 {task.get('intent', '')}
 
-Chọn đúng một capability:
-- files: đọc/ghi/sắp xếp nội dung trong brain
-- research: cần tìm hiểu web hoặc tổng hợp nguồn
-- mcp-read: cần đọc dữ liệu thật từ connector/MCP
-- code: cần sửa hoặc kiểm thử code
-- external-write: gửi tin, tạo lịch/đơn/bài đăng hoặc thay đổi hệ thống bên ngoài
-- image: phải TẠO hoặc XEM ảnh (ảnh bài đăng, ảnh minh hoạ, duyệt ảnh) và lưu vào brain
+Choose exactly one capability:
+- files: read/write/organize content in the brain
+- research: needs web research or source synthesis
+- mcp-read: needs to read real data from a connector/MCP
+- code: needs to change or test code
+- external-write: send messages, create calendar entries/orders/posts or change an outside system
+- image: must CREATE or VIEW images (post images, illustrations, image review) and save them to the brain
 
-Trả duy nhất JSON hợp lệ, không markdown:
+Return only valid JSON, no markdown:
 {{
-  "intent": "mô tả đầu ra cụ thể và đủ ngữ cảnh",
+  "intent": "a concrete description of the output with enough context",
   "capability": "files|research|mcp-read|code|external-write|image",
   "execution_mode": "suggest|auto|full",
-  "acceptance": ["điều kiện hoàn thành 1", "điều kiện hoàn thành 2"]
+  "acceptance": ["completion condition 1", "completion condition 2"]
 }}
 
-acceptance là điều kiện KIỂM ĐƯỢC sau khi chạy (file nào phải có, ảnh khổ gì, mục nào phải
-đủ), vì một lượt nghiệm thu riêng sẽ đối chiếu kết quả với từng điều kiện.
+acceptance holds conditions that can be CHECKED after the run (which file must exist, what image
+size, which section must be complete), because a separate acceptance pass will compare the result
+against each condition.
 
-Luật quyền: files/research/mcp-read/code/image dùng auto. external-write chỉ dùng full nếu goal
-nói rõ đã được phép tự hành động; nếu không thì để auto để kernel chặn và xin quyền.
+Permission rule: files/research/mcp-read/code/image use auto. external-write uses full only if the
+goal explicitly says it is allowed to act on its own; otherwise leave it at auto so the kernel
+blocks and asks for permission.
 """.strip()
         out, error, _ = await self._query(cli, prompt)
         if error:

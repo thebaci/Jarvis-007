@@ -251,7 +251,7 @@ check("đầu trang Việc cảnh báo khi chưa có kênh báo", "lpNotifyWarn"
 check("tool javis_schedule có op=update để sửa lịch bằng chat",
       '"update"' in PLUGIN and "_do_update" in PLUGIN)
 check("tool KHÔNG tự vượt rào thiếu kênh",
-      "KHÔNG tự quyết hộ" in PLUGIN and "allow_no_channel" in PLUGIN)
+      "Do NOT decide for them" in PLUGIN and "allow_no_channel" in PLUGIN)
 
 if fails:
     raise SystemExit(f"\nFAIL - test_lich_ro_rang: {len(fails)} lỗi: {fails}")

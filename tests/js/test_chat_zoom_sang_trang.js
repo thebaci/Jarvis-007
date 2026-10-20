@@ -107,7 +107,7 @@ check("chat-zoom.js được bump phiên bản", v("chat-zoom.js") >= 6);
 check("sessions-ui.js được bump phiên bản", v("sessions-ui.js") >= 7);
 check("style.css được bump phiên bản", v("style.css") >= 53);
 check("nút phóng to đổi lời chú thích cho đúng việc nó làm",
-      /id="chatZoomBtn"[^>]*title="[^"]*Trò chuyện/.test(HTML));
+      /id="chatZoomBtn"[^>]*title="[^"]*Chat page/.test(HTML));
 
 if (fails.length) {
   console.log("\nFAIL - test_chat_zoom_sang_trang: " + fails.length + " lỗi: " + fails.join(", "));

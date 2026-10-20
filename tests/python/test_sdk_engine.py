@@ -134,8 +134,8 @@ async def gate_prefix_tests():
     check("gate: prefix KHÔNG khớp server khác", r3.behavior == "deny")
     check("gate: prefix KHÔNG khớp server tên gần giống (javisfake)", r4.behavior == "deny")
     check("gate: deny tool MCP nói rõ connector KHÔNG hỏng (chống agent suy diễn OAuth chết)",
-          r3.behavior == "deny" and "KHÔNG hỏng" in r3.message
-          and "rào quyền phiên nền" in r3.message)
+          r3.behavior == "deny" and "NOT broken" in r3.message
+          and "permission barrier" in r3.message)
 
 
 asyncio.run(gate_prefix_tests())

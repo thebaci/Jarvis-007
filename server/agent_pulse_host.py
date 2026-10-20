@@ -124,16 +124,16 @@ def _budget_try_spend(agent_key: str, purpose: str, at: Optional[float] = None) 
 
 
 SCAN_RULES = (
-    "\n\n# LẦN THỨC CHỦ ĐỘNG (lượt quét)\n"
-    "Đây là lần tự thức của bạn, không phải chủ đang hỏi. Xem danh sách cơ hội trong phạm vi đã giao bên dưới và chọn "
-    "TỐI ĐA MỘT hành động. Không có gì đáng làm thì chọn none (đó là kết quả tốt, không bị phạt). Không tạo việc chỉ "
-    "để giữ mình bận. Không bịa nguồn: propose và enqueue phải trỏ đúng source_ref của một cơ hội.\n"
-    "Trả về DUY NHẤT một khối JSON:\n"
+    "\n\n# PROACTIVE WAKE-UP (scan turn)\n"
+    "This is your own self-initiated wake-up, not the owner asking. Look at the list of opportunities within your assigned scope below and pick "
+    "AT MOST ONE action. If nothing is worth doing, choose none (that is a good result and is not penalised). Do not create work just "
+    "to look busy. Do not invent sources: propose and enqueue must point to the exact source_ref of an opportunity.\n"
+    "Return ONLY one JSON block:\n"
     '{"action": "none"|"propose"|"enqueue"|"say", "source_ref": "...", "title": "...", "brief": "...", '
     '"text": "...", "reason": "..."}\n'
-    "- propose: đề xuất một việc cho chủ hay trưởng nhóm duyệt (title, brief).\n"
-    "- enqueue: xếp một việc vào hàng đợi chung (chỉ khi bạn có quyền; không có quyền thì host đổi thành đề xuất).\n"
-    "- say: một tin ngắn gửi chủ (text); tin này còn qua bộ phán xử nói/chờ/im trước khi gửi.\n"
+    "- propose: suggest a piece of work for the owner or team lead to approve (title, brief).\n"
+    "- enqueue: put a piece of work on the shared queue (only if you have permission; without permission the host turns it into a proposal).\n"
+    "- say: a short message to the owner (text); it still goes through the speak/wait/stay-silent judge before sending.\n"
 )
 
 
@@ -205,7 +205,7 @@ class PulseHost:
             t = self.deps.spawn(coro)
         except Exception as ex:  # noqa: BLE001
             coro.close()
-            print(f"[pulse] không tạo được việc nền: {type(ex).__name__}: {ex}", file=sys.stderr)
+            print(f"[pulse] could not create the background task: {type(ex).__name__}: {ex}", file=sys.stderr)
             return
         if isinstance(t, asyncio.Future):
             self._tasks.add(t)
@@ -554,9 +554,9 @@ class PulseHost:
                 await asyncio.to_thread(ledger.mark_engine, cid, engine, model)
 
         lines = [f"- [{o['source_ref']}] ({o.get('kind') or ''}) {str(o.get('summary') or '')[:400]}" for o in fresh]
-        prompt = ("Ngữ cảnh: " + ctx + "\n" + ("Danh sách cơ hội:\n" + "\n".join(lines) if lines else
-                  "Không có cơ hội mới trong danh sách. Đây là lần quét giới hạn định kỳ: chỉ hành động khi thật sự "
-                  "thấy việc đáng làm trong phạm vi đã giao; không thì none."))
+        prompt = ("Context: " + ctx + "\n" + ("List of opportunities:\n" + "\n".join(lines) if lines else
+                  "There are no new opportunities in the list. This is a periodic limited scan: only act when you truly "
+                  "see work worth doing within your assigned scope; otherwise none."))
         system = (await asyncio.to_thread(self.deps.persona, key) or "") + SCAN_RULES
         req = {"system": system, "prompt": prompt, "engine_started": engine_started, "team_id": ctx,
                "turn_id": due_ref, "agent_key": key, "context_ref": ctx, "purpose": "scan"}
@@ -752,16 +752,16 @@ def register(app, deps: PulseRouteDeps) -> None:
         ctx = str(b.get("context_ref") or "").strip()
         if ctx:
             if not (ctx.startswith("team:") or ctx == f"dm:{key}" or ctx == "*"):
-                raise ValueError("ngữ cảnh không thuộc trợ lý")
+                raise ValueError("context does not belong to the assistant")
             if ctx.startswith("team:") and deps.contexts is not None:
                 # Chỉ nhóm agent đang tham gia, hay nhóm đã có dòng nhịp (để chủ vẫn tạm dừng, đặt lại được): không tạo
                 # dòng có lịch cho nhóm không liên quan (review T3 P P3).
                 known = {r["context_ref"] for r in AP.rows(store, key)}
                 if ctx not in known and ctx not in set(deps.contexts(key) or []):
-                    raise ValueError("trợ lý không ở nhóm này")
+                    raise ValueError("the assistant is not in this team")
             return [ctx]
         if not allow_all:
-            raise ValueError("chọn một ngữ cảnh")
+            raise ValueError("choose a context")
         return [r["context_ref"] for r in AP.rows(store, key) if r["context_ref"] != "*"]
 
     @app.post("/agents/{slug}/pulse/wake")
@@ -792,7 +792,7 @@ def register(app, deps: PulseRouteDeps) -> None:
         def fn(store, key, b):
             ctx = _ctxs(store, key, b, allow_all=False)[0]
             if ctx == "*":
-                raise ValueError("chọn một ngữ cảnh")
+                raise ValueError("choose a context")
             return AP.reset(store, key, ctx, by="owner")
         return await act(slug, brain, request, fn)
 
@@ -805,7 +805,7 @@ def register(app, deps: PulseRouteDeps) -> None:
                     return None
                 return AP.revert_policy_change(store, int(b["change_id"]), reason="owner", by="owner")
             if b.get("event_id") is None:
-                raise ValueError("thiếu event_id hay change_id")
+                raise ValueError("missing event_id or change_id")
             return AP.revert(store, key, int(b["event_id"]), by="owner")
         return await act(slug, brain, request, fn)
 
@@ -815,7 +815,7 @@ def register(app, deps: PulseRouteDeps) -> None:
             if prop is None or prop["agent_key"] != key or prop["status"] != "pending":
                 return None
             if deps.proposal_action is None:
-                raise ValueError("chưa nối thao tác đề xuất")
+                raise ValueError("the proposal action is not wired up")
             return deps.proposal_action(prop, decision) or None
         return fn
 

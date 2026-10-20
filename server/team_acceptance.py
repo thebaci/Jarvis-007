@@ -71,31 +71,31 @@ def _rel_ok(p: str) -> bool:
 
 def clean_criteria(raw: Any) -> list:
     if not isinstance(raw, list) or not raw:
-        raise AcceptanceError("cần ít nhất một tiêu chí")
+        raise AcceptanceError("at least one criterion is required")
     out = []
     for c in raw[:MAX_CRITERIA]:
         if not isinstance(c, dict) or c.get("kind") not in KINDS:
-            raise AcceptanceError(f"tiêu chí không hợp lệ: {str(c)[:80]}")
+            raise AcceptanceError(f"invalid criterion: {str(c)[:80]}")
         k = c["kind"]
         item = {"kind": k, "label": str(c.get("label") or "").strip()[:200]}
         if k in ("file_exists", "file_contains", "json_keys") or (k == "owner_confirm" and c.get("path")):
             if not _rel_ok(c.get("path")):
-                raise AcceptanceError("đường dẫn sản phẩm phải nằm trong bộ não (tương đối, không '..')")
+                raise AcceptanceError("the product path must be inside the brain (relative, no '..')")
             item["path"] = str(c["path"]).strip()[:400]
         if k == "file_contains":
             try:
                 item["min_chars"] = max(0, int(c.get("min_chars") or 0))
             except (TypeError, ValueError):
-                raise AcceptanceError("min_chars phải là số")
+                raise AcceptanceError("min_chars must be a number")
             item["must_contain"] = [str(x)[:200] for x in (c.get("must_contain") or []) if str(x or "").strip()][:10]
         if k == "json_keys":
             item["keys"] = [str(x)[:100] for x in (c.get("keys") or []) if str(x or "").strip()][:20]
             if not item["keys"]:
-                raise AcceptanceError("json_keys cần danh sách khoá")
+                raise AcceptanceError("json_keys needs a list of keys")
         if k == "command_ok":
             item["command"] = str(c.get("command") or "").strip()[:400]
             if not item["command"]:
-                raise AcceptanceError("command_ok cần lệnh")
+                raise AcceptanceError("command_ok needs a command")
         out.append(item)
     return out
 
@@ -127,7 +127,7 @@ def _file_evidence(root: Path, rel: str, since: float = 0.0) -> tuple:
     so the evidence describes exactly what was checked. Over HASH_MAX only size and mtime are kept."""
     p = resolve_in(root, rel)
     if p is None:
-        return {"path": rel, "error": "ngoài bộ não"}, None
+        return {"path": rel, "error": "outside the brain"}, None
     if not p.is_file():
         return {"path": rel, "exists": False}, None
     st = p.stat()
@@ -140,7 +140,7 @@ def _file_evidence(root: Path, rel: str, since: float = 0.0) -> tuple:
     try:
         data = p.read_bytes()
     except OSError:
-        return dict(ev, error="không đọc được"), None
+        return dict(ev, error="could not be read"), None
     ev["sha256"] = hashlib.sha256(data).hexdigest()
     return ev, data
 
@@ -166,56 +166,56 @@ def check_one(c: dict, root: Path, run_command: Optional[Callable] = None, since
     k = c["kind"]
     if k == "command_ok":
         if run_command is None:
-            return "unknown", {"command": c["command"], "detail": "máy chủ không chạy được lệnh kiểm tra"}
+            return "unknown", {"command": c["command"], "detail": "the server cannot run the check command"}
         sc = _script_sha(root, c["command"])
         res = run_command(c["command"], root) or {}
         if not res.get("ran"):
-            return "unknown", dict(sc, command=c["command"], detail=str(res.get("error") or "lệnh không chạy")[:300])
+            return "unknown", dict(sc, command=c["command"], detail=str(res.get("error") or "the command did not run")[:300])
         code = int(res.get("exit") or 0)
         return ("pass" if code == 0 else "fail"), dict(sc, command=c["command"], exit=code,
                                                        output=str(res.get("output") or "")[-600:])
     if k == "owner_confirm":
         if not c.get("path"):
-            return "unknown", {"detail": "chờ chủ nhóm xác nhận"}
+            return "unknown", {"detail": "waiting for the team owner to confirm"}
         ev, _ = _file_evidence(root, c["path"], since)
         if ev.get("error") or not ev.get("exists"):
-            return "fail", dict(ev, detail="chưa có file để xác nhận")
-        return "unknown", dict(ev, detail="chờ chủ nhóm xác nhận")
+            return "fail", dict(ev, detail="no file yet to confirm")
+        return "unknown", dict(ev, detail="waiting for the team owner to confirm")
     ev, data = _file_evidence(root, c["path"], since)
     if ev.get("error"):
         return "fail", ev
     if not ev.get("exists"):
-        return "fail", dict(ev, detail="chưa có file")
+        return "fail", dict(ev, detail="no file yet")
     if ev.get("older_than_job"):
-        return "unknown", dict(ev, detail="file có từ trước khi giao việc, không phải sản phẩm của việc này")
+        return "unknown", dict(ev, detail="the file existed before the job was assigned, so it is not a product of this job")
     if k == "file_exists":
-        return ("unknown", dict(ev, detail="file quá lớn để băm")) if ev.get("too_big") else ("pass", ev)
+        return ("unknown", dict(ev, detail="file too large to hash")) if ev.get("too_big") else ("pass", ev)
     if data is None or ev["size"] > READ_MAX:
-        return "unknown", dict(ev, detail="file quá lớn để đọc kiểm")
+        return "unknown", dict(ev, detail="file too large to read and check")
     try:
         text = data.decode("utf-8")
     except UnicodeDecodeError:
-        return "unknown", dict(ev, detail="không đọc được nội dung dạng chữ")
+        return "unknown", dict(ev, detail="could not read the content as text")
     if k == "file_contains":
         miss = [m for m in c.get("must_contain") or [] if m.lower() not in text.lower()]
         short = len(text.strip()) < int(c.get("min_chars") or 0)
         if miss or short:
             why = []
             if short:
-                why.append(f"chỉ có {len(text.strip())} ký tự, cần {c.get('min_chars')}")
+                why.append(f"only {len(text.strip())} characters, need {c.get('min_chars')}")
             if miss:
-                why.append("thiếu: " + ", ".join(miss))
+                why.append("missing: " + ", ".join(miss))
             return "fail", dict(ev, detail="; ".join(why))
         return "pass", dict(ev, chars=len(text.strip()))
     if k == "json_keys":
         try:
             data = json.loads(text)
         except ValueError as ex:
-            return "fail", dict(ev, detail=f"không phải JSON hợp lệ: {str(ex)[:120]}")
+            return "fail", dict(ev, detail=f"not valid JSON: {str(ex)[:120]}")
         if not isinstance(data, dict):
-            return "fail", dict(ev, detail="JSON không phải object")
+            return "fail", dict(ev, detail="JSON is not an object")
         miss = [x for x in c["keys"] if x not in data]
-        return ("fail", dict(ev, detail="thiếu khoá: " + ", ".join(miss))) if miss else ("pass", ev)
+        return ("fail", dict(ev, detail="missing keys: " + ", ".join(miss))) if miss else ("pass", ev)
     return "unknown", ev
 
 
@@ -251,7 +251,7 @@ class AcceptanceStore:
         try:
             rounds = max(0, min(5, int(DEFAULT_FIX_ROUNDS if fix_rounds in (None, "") else fix_rounds)))
         except (TypeError, ValueError):
-            raise AcceptanceError("số vòng sửa phải là số")
+            raise AcceptanceError("the number of fix rounds must be a number")
         now = self.clock()
         with closing(self._conn()) as c:
             c.execute("INSERT INTO team_acceptance(task_id, team_id, criteria_json, fix_rounds, status, set_by, created_at,"
@@ -266,7 +266,7 @@ class AcceptanceStore:
         allowed = {"status", "rounds_used", "revision", "confirmed_by", "confirmed_at", "confirmed_hashes", "result_msg_id",
                    "message_id"}
         if set(fields) - allowed:
-            raise AcceptanceError("trường không đổi được")
+            raise AcceptanceError("field cannot be changed")
         cols = {("confirmed_hashes_json" if k == "confirmed_hashes" else k): (_j(v) if k == "confirmed_hashes" else v)
                 for k, v in fields.items()}
         with closing(self._conn()) as c:

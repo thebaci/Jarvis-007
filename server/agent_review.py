@@ -90,35 +90,35 @@ CREATE TABLE IF NOT EXISTS agent_review_proposals(
 _READY: set = set()
 
 REVIEW_RULES = (
-    "\n\n# LƯỢT XEM XÉT PHẢN HỒI CỦA CHỦ (reaction)\n"
-    "Đây không phải chủ đang hỏi. Chủ đã thả cảm xúc, lý do hay góp ý lên tin của bạn; xem lại tin đó cùng các phản hồi "
-    "bên dưới rồi chọn ĐÚNG MỘT cách xử lý:\n"
-    "- keep: giữ cách làm, không gửi gì (khen, cảm xúc về sự việc được kể, hay chưa đủ rõ để đổi).\n"
-    "- ask_back: gửi MỘT tin mới hỏi lại chủ cho rõ (message).\n"
-    "- revise: gửi MỘT tin mới là bản sửa của tin bị phản hồi (message); không sửa đè tin cũ.\n"
-    "- lesson: rút MỘT bài học cho đúng ngữ cảnh này (lesson.text một câu, lesson.kind presentation|method); không gửi tin.\n"
-    "Emoji là cảm xúc, không phải chấm điểm hay mệnh lệnh: chỉ đổi khi lý do chất lượng, trục nói/im hay góp ý chữ cho thấy "
-    "cần đổi. Không phải phản hồi nào cũng cần tin mới. Tin mới còn qua bộ phán xử nói/chờ/im trước khi gửi.\n"
-    "consumed: các mã nguồn [rx:...] bạn đã xem xét xong trong lượt này, CHỈ lấy từ danh sách bên dưới, ít nhất một mã.\n"
-    "Trả về DUY NHẤT một khối JSON đúng các khoá sau, không thêm khoá nào khác:\n"
+    "\n\n# OWNER FEEDBACK REVIEW TURN (reaction)\n"
+    "The owner is not asking a question right now. The owner left a reaction, a reason or a comment on your message; look at that message again together with the feedback "
+    "below, then choose EXACTLY ONE way to handle it:\n"
+    "- keep: keep your approach and send nothing (praise, an emotion about the event described, or not clear enough to change anything).\n"
+    "- ask_back: send ONE new message asking the owner for clarification (message).\n"
+    "- revise: send ONE new message that is a corrected version of the message that got feedback (message); do not overwrite the old message.\n"
+    "- lesson: draw ONE lesson for exactly this context (lesson.text one sentence, lesson.kind presentation|method); send no message.\n"
+    "An emoji is a feeling, not a grade or a command: only change something when the quality reason, the speak/silent axis or the written comment shows "
+    "a change is needed. Not every piece of feedback needs a new message. A new message still goes through the speak/wait/silent judge before it is sent.\n"
+    "consumed: the source codes [rx:...] you have finished reviewing in this turn, taken ONLY from the list below, at least one code.\n"
+    "Return ONLY one JSON block with exactly these keys and no other keys:\n"
     '{"outcome": "keep"|"ask_back"|"revise"|"lesson", "message": "...", "lesson": {"text": "...", '
     '"kind": "presentation"|"method"}, "consumed": ["rx:..."], "reason": "..."}\n'
 )
 
 SELF_RULES = (
-    "\n\n# TỰ RÀ SOÁT (không phải chủ đang hỏi)\n"
-    "Bên dưới là bằng chứng MỚI về cách bạn tham gia: quyết định nói/chờ/im đã được chủ gắn nhãn, và tín hiệu hữu ích. Đề "
-    "xuất TỐI ĐA 3 thay đổi, CHỈ từ danh sách đóng sau, mỗi thay đổi dẫn mã bằng chứng đã cho xem (evidence):\n"
-    "- offset_set: đổi độ lệch ngưỡng phán xử của MỘT ngữ cảnh (context_ref, value trong -0.25..0.25; âm là dễ lên tiếng "
-    "hơn, dương là kín tiếng hơn).\n"
-    "- eagerness_set: đổi độ hăng hái chung (value: low|medium|high).\n"
-    "- lesson_add: thêm một bài học cho MỘT ngữ cảnh (context_ref team:<id> hay dm:<mã>, text, lesson_kind "
+    "\n\n# SELF-REVIEW (the owner is not asking a question)\n"
+    "Below is NEW evidence about how you take part: speak/wait/silent decisions the owner has labelled, and useful signals. Propose "
+    "AT MOST 3 changes, ONLY from the closed list below, each change citing evidence codes you were shown (evidence):\n"
+    "- offset_set: change the judging threshold offset of ONE context (context_ref, value in -0.25..0.25; negative means speaking up more "
+    "easily, positive means staying quieter).\n"
+    "- eagerness_set: change the overall eagerness (value: low|medium|high).\n"
+    "- lesson_add: add a lesson for ONE context (context_ref team:<id> or dm:<code>, text, lesson_kind "
     "speak|method|presentation|collab).\n"
-    "- lesson_remove: bỏ một bài học sai hay lỗi thời (lesson_id).\n"
-    "- lesson_promote: đưa một bài học lên dùng mọi nơi (lesson_id), CHỈ khi bằng chứng đến từ ít nhất 2 ngữ cảnh khác nhau.\n"
-    "Không đổi quyền, luật của chủ, mã, skill, workflow hay cấu trúc trợ lý: ý như vậy ghi vào proposals cho chủ quyết. "
-    "Không đủ bằng chứng thì changes rỗng (đó là kết quả tốt). Nhiều trợ lý cùng ý không phải bằng chứng độc lập.\n"
-    "Trả về DUY NHẤT một khối JSON:\n"
+    "- lesson_remove: drop a lesson that is wrong or out of date (lesson_id).\n"
+    "- lesson_promote: promote a lesson to be used everywhere (lesson_id), ONLY when the evidence comes from at least 2 different contexts.\n"
+    "Do not change permissions, the owner's rules, code, skills, workflows or the assistant's structure: put ideas like that in proposals for the owner to decide. "
+    "If there is not enough evidence, leave changes empty (that is a good result). Several assistants saying the same thing is not independent evidence.\n"
+    "Return ONLY one JSON block:\n"
     '{"changes": [{"kind": "...", "context_ref": "...", "value": ..., "text": "...", "lesson_kind": "...", '
     '"lesson_id": 0, "evidence": ["decision:1", "rx:dm:2"], "why": "..."}], '
     '"proposals": [{"area": "permissions|owner_rule|code|skill|workflow|structure|other", "text": "...", '
@@ -496,23 +496,23 @@ class ReviewHost:
 
     def review_prompt(self, store, key: str, ctx: str, sources: list) -> str:
         import reaction_values as RV
-        lines = [f"Ngữ cảnh: {'nhóm ' + ctx[5:] if ctx.startswith('team:') else 'chat riêng với chủ'}",
-                 "Phản hồi cần xem xét (mỗi mục một mã nguồn):"]
+        lines = [f"Context: {'team ' + ctx[5:] if ctx.startswith('team:') else 'private chat with the owner'}",
+                 "Feedback to review (each item has one source code):"]
         for s in sources:
             excerpt = re.sub(r"\s+", " ", str(s.get("message_text") or "")).strip()
             if len(excerpt) > EXCERPT_MAX:
                 excerpt = excerpt[:EXCERPT_MAX] + "..."
-            parts = [f"- [{s['source_ref']}] về tin #{s['message_id']}: \"{excerpt}\""]
+            parts = [f"- [{s['source_ref']}] about message #{s['message_id']}: \"{excerpt}\""]
             if s.get("value"):
-                parts.append(f"cảm xúc: {RV.REACTION_EMOJI.get(s['value'], '')} ({s['value']})")
+                parts.append(f"feeling: {RV.REACTION_EMOJI.get(s['value'], '')} ({s['value']})")
             if s.get("reasons"):
-                parts.append("lý do: " + ", ".join(RV.REASON_LABEL.get(x, x) for x in s["reasons"]))
+                parts.append("reason: " + ", ".join(RV.REASON_LABEL.get(x, x) for x in s["reasons"]))
             if s.get("axis"):
-                parts.append("nói/im: " + RV.AXIS_LABEL.get(s["axis"], s["axis"]))
+                parts.append("speak/silent: " + RV.AXIS_LABEL.get(s["axis"], s["axis"]))
             if s.get("comment"):
-                parts.append('góp ý: "' + re.sub(r"\s+", " ", s["comment"]).strip() + '"')
+                parts.append('comment: "' + re.sub(r"\s+", " ", s["comment"]).strip() + '"')
             if not s.get("current"):
-                parts.append("(chủ đã đổi phản hồi này sau đó)")
+                parts.append("(the owner changed this feedback afterwards)")
             lines.append(" · ".join(parts))
         block = AL.prompt_block(store, key, ctx)
         if block:
@@ -855,31 +855,31 @@ class ReviewHost:
     def self_prompt(self, store, key: str, ev: dict, contexts: list) -> tuple:
         """(lời nhắc, bằng chứng đã cho xem {mã: ngữ cảnh}, bài học đã cho xem {mã: dòng})."""
         shown: dict = {}
-        lines = ["Ngữ cảnh của bạn: " + ", ".join(contexts or ["(chưa có)"])]
+        lines = ["Your contexts: " + ", ".join(contexts or ["(none yet)"])]
         prof = self.deps.judge.profile(key)
-        lines.append(f"Độ hăng hái hiện tại: {prof.get('eagerness') or '?'}")
+        lines.append(f"Current eagerness: {prof.get('eagerness') or '?'}")
         offs = prof.get("offsets") or {}
         if offs:
-            lines.append("Độ lệch ngưỡng theo ngữ cảnh: " + ", ".join(f"{c}={float(v):+.2f}" for c, v in offs.items()))
+            lines.append("Threshold offset per context: " + ", ".join(f"{c}={float(v):+.2f}" for c, v in offs.items()))
         if ev["labels"]:
-            lines.append("\nQuyết định nói/chờ/im có nhãn của chủ:")
+            lines.append("\nSpeak/wait/silent decisions labelled by the owner:")
             for d in ev["labels"]:
                 ref = f"decision:{d['id']}"
                 shown[ref] = d["context_ref"]
-                lines.append(f"- [{ref}] {d['context_ref']} · kết luận {d['verdict']} · nhãn {d['label']} · "
+                lines.append(f"- [{ref}] {d['context_ref']} · verdict {d['verdict']} · label {d['label']} · "
                              f"\"{d.get('excerpt') or ''}\"")
         if ev["signals"]:
-            lines.append("\nTín hiệu hữu ích:")
+            lines.append("\nUseful signals:")
             for s in ev["signals"]:
                 shown[s["source_ref"]] = s["context_ref"]
                 extra = f" {s['emoji']}" if s.get("emoji") else ""
                 reasons = s.get("reasons") or _jl(s.get("reasons_json"), [])
-                lines.append(f"- [{s['source_ref']}] {s['context_ref']} · {s['kind']}{extra} · giá trị "
-                             f"{float(s['value']):+.2f}" + (f" · lý do {', '.join(reasons)}" if reasons else ""))
+                lines.append(f"- [{s['source_ref']}] {s['context_ref']} · {s['kind']}{extra} · value "
+                             f"{float(s['value']):+.2f}" + (f" · reason {', '.join(reasons)}" if reasons else ""))
         cur = AL.lessons(store, key, status="active", limit=60)
         known = {}
         if cur:
-            lines.append("\nBài học đang dùng:")
+            lines.append("\nLessons in use:")
             for r in cur:
                 known[int(r["id"])] = r
                 lines.append(AL.lesson_line(r))

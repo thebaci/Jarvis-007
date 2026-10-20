@@ -74,13 +74,13 @@ _LIST_MAX = 40
 
 # Cột đáng báo cáo, theo thứ tự người dùng quan tâm: đang chạy trước, xong rồi để cuối.
 _COT = [
-    ("running", "đang chạy"),
-    ("review", "chờ duyệt"),
-    ("blocked", "kẹt"),
-    ("ready", "sẵn sàng"),
-    ("todo", "chờ tới lượt"),
-    ("triage", "mới nhận"),
-    ("done", "xong"),
+    ("running", "running"),
+    ("review", "awaiting review"),
+    ("blocked", "blocked"),
+    ("ready", "ready"),
+    ("todo", "waiting for turn"),
+    ("triage", "newly received"),
+    ("done", "done"),
 ]
 
 _MODE_CHO_PHEP = ("suggest", "auto", "full")
@@ -89,9 +89,9 @@ _MODE_MAC_DINH = "full"
 # Chỉ mức điều phối "auto" mới có dispatcher lấy việc ra chạy (`tasks.TaskRunner._dispatch`).
 # "off" (mặc định của MỌI brain mới) và "manual" đều để việc nằm im vô thời hạn.
 _CANH_BAO_DIEU_PHOI = (
-    "LƯU Ý QUAN TRỌNG: điều phối việc nền của brain này đang ở mức \"{muc}\" nên việc chỉ nằm "
-    "xếp hàng, KHÔNG tự chạy và sẽ không có kết quả nào tự về. Phải nói thẳng điều này với "
-    "người dùng và bảo họ bật \"AI tự vận hành\" ở trang Việc, đừng hứa là việc đang chạy."
+    "IMPORTANT NOTE: background orchestration for this brain is set to \"{muc}\", so the task only sits "
+    "in the queue, will NOT run by itself, and no result will come back on its own. Tell the user "
+    "this plainly and ask them to turn on \"AI self-driving\" on the Work page. Do not promise the task is running."
 )
 
 
@@ -139,18 +139,18 @@ def _workflow_nhac_toi(wfs: dict, title: str, intent: str) -> list:
 def _feature():
     f = tasks_mod.current()
     if f is None:
-        return None, ("ERROR: hàng đợi việc chưa sẵn sàng (máy chủ đang khởi động?). "
-                      "Thử lại sau vài giây, hoặc giao việc ở trang Việc trên dashboard.")
+        return None, ("ERROR: the task queue is not ready yet (is the server still starting?). "
+                      "Try again in a few seconds, or add the task on the Work page of the dashboard.")
     return f, ""
 
 
 def _them(args, ctx) -> str:
     if not ctx.vault_root:
-        return ("ERROR: chưa biết đang làm việc trên brain nào nên không giao việc được. "
-                "Giao ở trang Việc trên dashboard, ở đó brain đã xác định rõ.")
+        return ("ERROR: it is not known which brain we are working on, so the task cannot be added. "
+                "Add it on the Work page of the dashboard, where the brain is clear.")
     tieu_de = str((args or {}).get("title") or "").strip()
     if not tieu_de:
-        return "ERROR: thiếu title - việc phải có tên thì người dùng mới theo dõi được."
+        return "ERROR: missing title - a task needs a name so the user can follow it."
 
     mode = str((args or {}).get("mode") or _MODE_MAC_DINH).strip().lower()
     # Mode lạ (model gõ sai, hoặc bịa ra tên mức) kẹp về mặc định thay vì để enqueue tự xử.
@@ -167,25 +167,25 @@ def _them(args, ctx) -> str:
     if route != "auto":
         slug = route[3:].strip() if route.startswith("wf:") else ""
         if not slug:
-            return ("ERROR: route chỉ nhận 'auto' hoặc 'wf:<slug>' của một quy trình có thật. "
-                    "Quy trình đang có: " + (", ".join(sorted(wfs)) or "(chưa có quy trình nào)") + ".")
+            return ("ERROR: route only accepts 'auto' or 'wf:<slug>' of a real workflow. "
+                    "Existing workflows: " + (", ".join(sorted(wfs)) or "(no workflows yet)") + ".")
         if slug not in wfs:
-            return (f"ERROR: không có quy trình '{slug}' trong brain này nên chưa giao việc. "
-                    "Quy trình đang có: " + (", ".join(sorted(wfs)) or "(chưa có quy trình nào)")
-                    + ". Hỏi lại người dùng nếu không chắc quy trình nào.")
+            return (f"ERROR: there is no workflow '{slug}' in this brain, so the task was not added. "
+                    "Existing workflows: " + (", ".join(sorted(wfs)) or "(no workflows yet)")
+                    + ". Ask the user again if you are not sure which workflow.")
         route = f"wf:{slug}"
         if wfs[slug][1] != "active":
-            canh_bao_route = (f"LƯU Ý: quy trình '{wfs[slug][0]}' đang TẮT, nên việc này sẽ dừng "
-                              "chờ ngay khi tới lượt chạy. Bảo người dùng bật quy trình ở trang Cộng "
-                              "sự, rồi chạy lại việc ở trang Việc.")
+            canh_bao_route = (f"NOTE: workflow '{wfs[slug][0]}' is OFF, so this task will stop and wait "
+                              "as soon as its turn comes. Tell the user to turn the workflow on at the Team "
+                              "page, then rerun the task on the Work page.")
     else:
         nhac = _workflow_nhac_toi(wfs, tieu_de, str((args or {}).get("intent") or ""))
         if nhac:
             canh_bao_route = (
-                "CẢNH BÁO: việc này nhắc tới quy trình " + ", ".join(f"wf:{s}" for s in nhac)
-                + " nhưng được giao với route auto, nên MỘT worker chung sẽ làm hết thay vì chạy "
-                "đúng các agent của quy trình. Nếu người dùng muốn chạy quy trình đó thì giao lại "
-                "với route=wf:<slug> (đặt tên việc khác đi, vì tên trùng sẽ bị từ chối).")
+                "WARNING: this task mentions workflow " + ", ".join(f"wf:{s}" for s in nhac)
+                + " but was added with route auto, so ONE generic worker will do everything instead of running "
+                "the workflow's own agents. If the user wants to run that workflow, add it again "
+                "with route=wf:<slug> (give the task a different name, because a duplicate name will be rejected).")
 
     chat_id = str((args or {}).get("chat_id") or "").strip()
     # Model quên chat_id thì hỏi sổ lượt đang chạy (0.64.49): đúng một khung chat đang hỏi trên
@@ -214,7 +214,7 @@ def _them(args, ctx) -> str:
             "",
         )
     except Exception as e:
-        return f"ERROR: không giao được việc ({type(e).__name__}: {e})."
+        return f"ERROR: could not add the task ({type(e).__name__}: {e})."
 
     # Kho việc TRẢ VỀ việc cũ khi trùng tên với một việc còn sống (kể cả đang kẹt hay chờ
     # duyệt) chứ không tạo việc mới. Bản trước tool vẫn báo "Đã giao việc" với mã cũ, người
@@ -224,27 +224,27 @@ def _them(args, ctx) -> str:
     except Exception:
         _cu = {}
     if _cu and (time.time() - float(_cu.get("created_at") or time.time())) > 5:
-        return (f"CHƯA TẠO việc mới: đã có việc trùng tên \"{tieu_de}\" (mã {tid}) đang ở trạng thái "
-                f"{_cu.get('status')}. Hãy nói rõ với người dùng, rồi hoặc đặt tên việc khác đi, "
-                "hoặc xử lý việc cũ ở trang Việc (chạy lại / huỷ) trước khi giao lại.")
+        return (f"NO NEW TASK CREATED: a task with the same name \"{tieu_de}\" (id {tid}) already exists with status "
+                f"{_cu.get('status')}. Tell the user clearly, then either give the task a different name, "
+                "or handle the old task on the Work page (rerun / cancel) before adding it again.")
 
-    ten_mode = {"suggest": "chỉ đọc và đề xuất", "auto": "được ghi file nháp trong brain",
-                "full": "toàn quyền, tự thao tác ra ngoài"}[mode]
-    ra = [f"Đã giao việc: {tieu_de}", f"Mã việc: {tid}", f"Mức quyền: {mode} ({ten_mode})"]
+    ten_mode = {"suggest": "read-only, suggestions only", "auto": "may write draft files in the brain",
+                "full": "full permission, acts on the outside world by itself"}[mode]
+    ra = [f"Task added: {tieu_de}", f"Task id: {tid}", f"Permission level: {mode} ({ten_mode})"]
     if route != "auto":
-        ra.append(f"Chạy quy trình: {route} ({wfs.get(route[3:], (route[3:], ''))[0]}), "
-                  "từng bước do đúng agent của quy trình làm.")
+        ra.append(f"Runs workflow: {route} ({wfs.get(route[3:], (route[3:], ''))[0]}), "
+                  "each step is done by the workflow's own agent.")
     if canh_bao_route:
         ra.append(canh_bao_route)
     if deps:
-        ra.append("Chờ xong: " + ", ".join(deps))
+        ra.append("Waits for: " + ", ".join(deps))
     if tu_gan:
-        ra.append(f"Người nhận kết quả: tự gắn khung chat đang hỏi ({chat_id}).")
+        ra.append(f"Result recipient: automatically attached to the chat that is asking ({chat_id}).")
     if not chat_id:
         # Không nuốt: đây là lý do số một khiến người dùng "giao việc rồi không thấy gì".
-        ra.append("CẢNH BÁO: chưa gắn người nhận (chat_id), nên kết quả sẽ về ID Telegram đầu "
-                  "tiên trong whitelist - máy chưa đấu Telegram thì mất hút. Lần sau hãy truyền "
-                  "chat_id lấy từ khối KÊNH HỘI THOẠI HIỆN TẠI.")
+        ra.append("WARNING: no recipient attached (chat_id), so the result will go to the first Telegram ID "
+                  "in the whitelist - and if Telegram is not connected on this machine it is lost. Next time pass "
+                  "the chat_id taken from the KÊNH HỘI THOẠI HIỆN TẠI block.")
 
     # Lý do số hai, và là lý do LẶNG LẼ nhất: điều phối mặc định TẮT ở mọi brain mới, nên
     # "đã giao việc" và "việc đang chạy" là hai chuyện hoàn toàn khác nhau. Trước bản này tool
@@ -256,7 +256,7 @@ def _them(args, ctx) -> str:
     except Exception:
         pass
     if _dieu_phoi_chay(muc):
-        ra.append("Việc chạy nền. Kết quả tự về, tiến độ xem ở trang Việc.")
+        ra.append("Running in the background. The result comes back on its own; see progress on the Work page.")
     else:
         ra.append(_CANH_BAO_DIEU_PHOI.format(muc=muc))
     return "\n".join(ra)
@@ -264,14 +264,14 @@ def _them(args, ctx) -> str:
 
 def _liet_ke(args, ctx) -> str:
     if not ctx.vault_root:
-        return "ERROR: chưa biết đang làm việc trên brain nào nên không xem được danh sách việc."
+        return "ERROR: it is not known which brain we are working on, so the task list cannot be viewed."
     f, loi = _feature()
     if loi:
         return loi
     try:
         view = f.board_view(ctx.vault_root)
     except Exception as e:
-        return f"ERROR: không đọc được bảng việc ({type(e).__name__}: {e})."
+        return f"ERROR: could not read the task board ({type(e).__name__}: {e})."
 
     cols = view.get("columns") or {}
     dong, con = [], 0
@@ -285,9 +285,9 @@ def _liet_ke(args, ctx) -> str:
                 continue
             dong.append(f"[{nhan}] {t.get('id', '')} · {t.get('title', '')}")
     if not dong:
-        return "Chưa có việc nào trong hàng đợi."
+        return "There are no tasks in the queue yet."
     if con:
-        dong.append(f"…(+{con} việc nữa, xem đủ ở trang Việc)")
+        dong.append(f"…(+{con} more tasks, see all on the Work page)")
 
     # Điều phối TẮT thì việc nằm im mãi mãi mà không có một dòng lỗi nào. Nói ngay ở đây, vì đây
     # là chỗ model đang nhìn khi người dùng hỏi "việc chạy tới đâu rồi".
@@ -304,33 +304,33 @@ def _liet_ke(args, ctx) -> str:
 def register(ctx):
     ctx.register_tool(
         "javis_task",
-        "Giao việc nền vào hàng đợi Kanban, hoặc xem việc đang chạy tới đâu. "
-        "CHỈ op=add khi NGƯỜI DÙNG bảo làm một việc cụ thể mà lượt này không làm xong được. "
-        "KHÔNG giao việc cho kế hoạch hay 'bước tiếp theo' do chính bạn vừa nghĩ ra và user chưa "
-        "gật (vd 'áp dụng kế hoạch vừa trình bày', 'cập nhật timeline', 'theo dõi rồi nhắc lại'): "
-        "mỗi việc đều bắn thông báo về chuông và về khung chat khi nó xong hoặc kẹt. "
-        "op=add: cần title; nên kèm chat_id (lấy từ khối KÊNH HỘI THOẠI HIỆN TẠI) để kết quả về "
-        "đúng người, và intent nếu cần mô tả kỹ hơn tiêu đề. mode=full (mặc định: toàn quyền, "
-        "tự thao tác ra ngoài như lúc chat), auto (chỉ ghi file nháp trong brain) hoặc suggest "
-        "(chỉ đọc và đề xuất); chỉ hạ mức khi người dùng muốn vậy. deps='id1,id2' để việc này "
-        "chờ việc khác xong. "
-        "route: 'auto' (mặc định, một worker chung làm) hoặc 'wf:<slug>' để chạy ĐÚNG một quy trình "
-        "có thật, từng bước do agent của quy trình làm; muốn chạy quy trình thì PHẢI đặt route, "
-        "chép tên quy trình vào intent không làm nó chạy. "
-        "op=list: liệt kê việc theo cột. "
-        "Chuyển cột, huỷ việc và duyệt việc chờ phê duyệt thì làm ở trang Việc, tool này không có.",
+        "Queue a background task on the Kanban board, or see how running tasks are progressing. "
+        "ONLY use op=add when the USER asks for a specific job that this turn cannot finish. "
+        "Do NOT queue tasks for a plan or 'next step' you just thought up yourself that the user has not "
+        "approved (e.g. 'apply the plan just presented', 'update the timeline', 'follow up and remind me'): "
+        "every task fires a notification to the bell and to the chat box when it finishes or gets stuck. "
+        "op=add: needs title; should include chat_id (taken from the KÊNH HỘI THOẠI HIỆN TẠI block) so the result goes to "
+        "the right person, and intent if the task needs a fuller description than the title. mode=full (default: full permission, "
+        "acts on the outside world by itself as in chat), auto (only writes draft files in the brain) or suggest "
+        "(read-only and suggestions); lower the level only when the user wants that. deps='id1,id2' makes this task "
+        "wait for other tasks to finish. "
+        "route: 'auto' (default, one generic worker does it) or 'wf:<slug>' to run EXACTLY one real workflow, "
+        "each step done by the workflow's agents; to run a workflow you MUST set route, "
+        "copying the workflow name into intent does not make it run. "
+        "op=list: list tasks by column. "
+        "Moving columns, cancelling tasks and approving tasks awaiting approval are done on the Work page; this tool does not have them.",
         _chay,
         schema={
             "type": "object",
             "properties": {
                 "op": {"type": "string", "enum": ["add", "list"]},
-                "title": {"type": "string", "description": "Tên việc, ngắn gọn (op=add)"},
-                "intent": {"type": "string", "description": "Mô tả đầy đủ hơn nếu tiêu đề chưa đủ"},
+                "title": {"type": "string", "description": "Short task name (op=add)"},
+                "intent": {"type": "string", "description": "A fuller description if the title is not enough"},
                 "mode": {"type": "string", "enum": ["suggest", "auto", "full"]},
-                "chat_id": {"type": "string", "description": "Người nhận kết quả, vd web:<mã phiên>"},
-                "deps": {"type": "string", "description": "Mã các việc phải xong trước, cách nhau dấu phẩy"},
+                "chat_id": {"type": "string", "description": "Result recipient, e.g. web:<session id>"},
+                "deps": {"type": "string", "description": "Ids of tasks that must finish first, separated by commas"},
                 "route": {"type": "string",
-                          "description": "auto, hoặc wf:<slug> để chạy một quy trình có thật"},
+                          "description": "auto, or wf:<slug> to run a real workflow"},
             },
             "required": ["op"],
         },
@@ -345,4 +345,4 @@ async def _chay(args, ctx) -> str:
         return _them(args, ctx)
     if op == "list":
         return _liet_ke(args, ctx)
-    return "ERROR: op phải là 'add' (giao việc) hoặc 'list' (xem việc đang có)."
+    return "ERROR: op must be 'add' (add a task) or 'list' (see existing tasks)."

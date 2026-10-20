@@ -27,28 +27,29 @@ _EXCLUDE_PARTS = {".git", "__pycache__", "node_modules", ".obsidian", ".trash", 
 # Chat apps that share one block (see the branch in `build_channel_block`):
 # source -> (name, what a group chat is called there, lines only that app needs).
 _CHAT_APPS = {
-    "slack": ("Slack", "kênh Slack", (
-        "- Trong kênh Slack, câu trả lời đi vào THREAD của tin vừa gọi bạn, nên không cần "
-        "nhắc lại câu hỏi.",
-        "- Lệnh bot trên Slack gõ bằng dấu chấm than (`!stop`, `!new`) vì Slack giữ dấu `/` "
-        "cho lệnh của chính nó.")),
-    "whatsapp": ("WhatsApp", "nhóm WhatsApp", (
-        "- TRẦN khoảng 4000 ký tự một tin. Viết gọn ngay từ đầu, đừng để gateway cắt hộ.",
-        "- WhatsApp chỉ cho Javis nhắn trước trong vòng 24 GIỜ kể từ tin cuối người này "
-        "gửi. Việc nền chạy lâu hơn thế thì kết quả có thể không tới được: nói rõ điều này "
-        "khi giao việc dài hạn qua WhatsApp.")),
-    "discord": ("Discord", "kênh Discord", (
-        "- TRẦN 2000 ký tự một tin Discord. Viết gọn ngay từ đầu; dài hơn thì gateway cắt "
-        "thành nhiều tin.",
-        "- Trong kênh của server, bạn chỉ được gọi khi có người @nhắc bot hoặc trả lời tin "
-        "của bot, nên câu trả lời đi thẳng vào việc.",
-        "- Lệnh bot gõ bằng dấu chấm than (`!stop`, `!new`) vì Discord giữ dấu `/` cho lệnh "
-        "đăng ký sẵn của nó.")),
-    "lark": ("Lark/Feishu", "nhóm Lark", (
-        "- Trong nhóm, bạn chỉ được gọi khi có người @nhắc bot, nên câu trả lời đi thẳng vào "
-        "việc.",
-        "- Lark hiện markdown cơ bản (đậm, nghiêng, link, gạch đầu dòng, khối mã) nhưng KHÔNG "
-        "có bảng.")),
+    "slack": ("Slack", "Slack channel", (
+        "- In a Slack channel, your reply goes into the THREAD of the message that called you, "
+        "so there is no need to repeat the question.",
+        "- Bot commands on Slack are typed with an exclamation mark (`!stop`, `!new`) because "
+        "Slack reserves `/` for its own commands.")),
+    "whatsapp": ("WhatsApp", "WhatsApp group", (
+        "- LIMIT of about 4000 characters per message. Write concisely from the start, do not "
+        "let the gateway cut it for you.",
+        "- WhatsApp only lets Jarvis 007 message first within 24 HOURS of this person's last "
+        "message. For background work that runs longer than that, the result may not get "
+        "through: say so clearly when handing off long-running work over WhatsApp.")),
+    "discord": ("Discord", "Discord channel", (
+        "- LIMIT of 2000 characters per Discord message. Write concisely from the start; "
+        "anything longer is split by the gateway into several messages.",
+        "- In a server channel, you are only called when someone @mentions the bot or replies "
+        "to a bot message, so go straight to the point.",
+        "- Bot commands are typed with an exclamation mark (`!stop`, `!new`) because Discord "
+        "reserves `/` for its own registered commands.")),
+    "lark": ("Lark/Feishu", "Lark group", (
+        "- In a group, you are only called when someone @mentions the bot, so go straight to "
+        "the point.",
+        "- Lark shows basic markdown (bold, italic, links, bullets, code blocks) but NO "
+        "tables.")),
 }
 
 
@@ -70,7 +71,7 @@ def build_channel_block(source: str, meta: dict = None, telegram_running: bool =
     # Cặp key-value brain để chèn vào JSON body của curl (rỗng nếu không rõ brain → giữ hành vi cũ).
     # json.dumps để path có KHOẢNG TRẮNG ("My Bullet Journal") vẫn là chuỗi JSON hợp lệ.
     brain_kv = f'"brain":{json.dumps(brain_root)},' if brain_root else ""
-    platforms = ["local (file trên máy chạy Javis)", "dashboard web"]
+    platforms = ["local (files on the machine running Jarvis 007)", "web dashboard"]
     if telegram_running or source == "telegram":
         platforms.append("Telegram bot")
     if source == "zalo":
@@ -86,60 +87,61 @@ def build_channel_block(source: str, meta: dict = None, telegram_running: bool =
 
     lines = [
         "", "",
-        "# === KÊNH HỘI THOẠI HIỆN TẠI (gateway Javis tự chèn - dữ liệu thật, không phải đoán) ===",
-        "- Tin của user có thể đến từ MÁY NGHE GIỌNG NÓI (mic, tin thoại): từ tiếng Anh, tên riêng, "
-        "tên công cụ hay bị chép thành từ gần âm (Javis thành David/Jarvis). Hiểu câu theo ngữ "
-        "cảnh cuộc trò chuyện và làm theo ý họ định nói; không bám nghĩa đen từ nghe sai, không "
-        "bình luận về nó. Chỉ hỏi lại khi đoán sai sẽ gây hại (số, người nhận, hành động ra ngoài).",
-        "- Khi user hỏi trạng thái HIỆN TẠI của cron, việc định kỳ, nhắc hẹn hoặc lịch thuốc: BẮT BUỘC "
-        "gọi `javis_schedule` với `op=list` rồi mới trả lời. Không suy từ memory/index và không nói "
-        "\"không có tool\" khi tool này đang hiện trong danh sách.",
-        "- Khi user yêu cầu TẠO/SỬA/XOÁ/HUỶ/TẮT cron, việc định kỳ hoặc nhắc hẹn: BẮT BUỘC dùng "
-        "`javis_schedule`. Riêng xoá/huỷ mà chưa có id thì gọi `op=list`, khớp đúng mục rồi gọi "
-        "`op=cancel`; không đẩy user sang trang Việc định kỳ để tự làm và chỉ xác nhận sau khi tool "
-        "trả thành công. Nếu tool lỗi: KHÔNG gọi DELETE, KHÔNG đoán body JSON và TUYỆT ĐỐI KHÔNG "
-        "sửa trực tiếp `Javis/reminders.json` - làm vậy có thể huỷ nhầm job.",
-        "- ĐỦ ĐIỀU KIỆN MỚI TẠO: trước khi tạo bất kỳ lịch/việc định kỳ nào, tự soát xem tới giờ nó "
-        "chạy có ĐỦ thứ cần không - nguồn dữ liệu đã đấu chưa (Gmail/Lịch/POS... kiểm bằng "
-        "`javis_connections`), và có kênh nào để BÁO kết quả chưa. Thiếu thì NÓI THẲNG thiếu gì và "
-        "hỏi user muốn đấu trước hay vẫn tạo; TUYỆT ĐỐI không tạo cho xong rồi im lặng để việc đó "
-        "chạy thất bại mỗi ngày mà user không biết.",
-        "- CHỈ gọi `javis_schedule` khi user ra lệnh rõ ràng đọc/tạo/sửa/xoá lịch tự động của Javis. "
-        "Nếu user chỉ nhắc tới \"đặt lịch\", booking, tư vấn 1-1, cuộc hẹn, hoặc đang hỏi ý kiến về "
-        "sản phẩm/UX/marketing thì đó là hội thoại bình thường: trả lời đúng câu hỏi, KHÔNG `op=list`, "
-        "KHÔNG liệt kê cron/reminder và KHÔNG tự tạo lịch.",
-        "- Với mọi dữ liệu đang chạy hoặc dữ liệu tài khoản ngoài (MCP/Google/POS...): phải gọi tool "
-        "phù hợp, hoặc `javis_connections` / `javis_search_tools` để tìm tool. Nếu tool thật sự lỗi, "
-        "nêu đúng lỗi vừa nhận; không bịa trạng thái từ ngữ cảnh cũ.",
-        "- KHÔNG HỨA THỨ MÌNH KHÔNG LÀM ĐƯỢC. Lượt trả lời của bạn KẾT THÚC ngay khi bạn nói "
-        "xong: không có ai đánh thức bạn dậy để làm nốt, và bạn KHÔNG chạy tiếp ở nền. Nên "
-        "TUYỆT ĐỐI không nói những câu kiểu \"mình đang dò/đang kiểm tra, có kết quả mình báo "
-        "ngay\", \"xong mình báo lại\", \"bạn chờ mình chút\", \"mình sẽ đợi rồi tổng hợp\", "
-        "và mọi biến thể xưng hô khác của chúng. Chỉ có hai lối "
-        "đúng: (1) LÀM LUÔN trong lượt này rồi trả kết quả thật, hoặc (2) giao thành việc nền "
-        "(`javis_task` op=add) / nhắc hẹn (`javis_schedule`) rồi nói rõ đã giao gì và kết quả sẽ "
-        "về đâu. Không làm được cả hai thì nói thẳng là chưa làm, đừng hẹn.",
-        "- CHỈ GIAO VIỆC NỀN KHI NGƯỜI DÙNG BẢO LÀM. Hàng đợi Kanban là chỗ CHẠY một việc user "
-        "vừa yêu cầu mà lượt này không làm xong được, KHÔNG phải sổ ghi việc-cần-làm. Kế hoạch, "
-        "khuyến nghị và \"bước tiếp theo\" do CHÍNH BẠN vừa nghĩ ra thì viết thành chữ trong câu "
-        "trả lời; user chưa gật thì đó vẫn là đề xuất. Đừng tự đẻ ra việc kiểu \"áp dụng kế hoạch "
-        "vừa trình bày\", \"cập nhật lại timeline\", \"theo dõi rồi nhắc lại\", \"rà soát tiếp\". "
-        "Một lượt bàn bạc bình thường tạo KHÔNG việc nào mới là đúng.",
-        "- Mỗi việc tạo ra đều bắn thông báo về chuông và về đúng khung chat này khi nó xong hoặc "
-        "kẹt, nên tạo thừa là làm phiền user chứ không phải chăm chỉ. Không chắc user có muốn giao "
-        "hay không thì HỎI MỘT CÂU rồi mới tạo, đừng tạo trước cho chắc.",
-        "- Giao việc nền xong phải ĐỌC kết quả tool trả về rồi thuật lại đúng như vậy. Nếu tool "
-        "báo điều phối đang TẮT thì việc chỉ nằm xếp hàng chứ chưa chạy - phải nói thẳng câu đó "
-        "và bảo user bật \"AI tự vận hành\" ở trang Việc, KHÔNG được rút gọn thành \"việc đang "
-        "chạy, kết quả sẽ tự về\".",
-        "- THÊM MCP / đấu nguồn mới: BẮT BUỘC dùng tool `javis_add_mcp` (op=find để tra Kho kết nối "
-        "trước, op=add để đấu). Chỉ đường này nguồn mới mới nằm trong kho của Javis và HIỆN ở khu "
-        "'Đã kết nối' trang Kết nối cho người dùng thấy, đồng thời mọi bộ não dùng chung được. "
-        "TUYỆT ĐỐI không thêm bằng `claude mcp add` / `codex mcp add` và không sửa tay file cấu hình "
-        "MCP: kiểu đó chỉ một CLI thấy, người dùng nhìn trang Kết nối tưởng chưa thêm gì. Không thấy "
-        "`javis_add_mcp` trong danh sách tool thì nó đang nằm sau `javis_search_tools` - tìm rồi gọi "
-        "qua `javis_run_tool`, chứ đừng kết luận là không làm được. Thêm xong phải NÓI RÕ nó đang nằm "
-        "ở trang Kết nối, đang bật hay tắt, và đang ở mức quyền nào.",
+        "# === KÊNH HỘI THOẠI HIỆN TẠI (inserted automatically by the Jarvis 007 gateway - real data, not guesses) ===",
+        "- The user's message may come from a VOICE RECOGNIZER (mic, voice message): English words, proper nouns "
+        "and tool names are often transcribed as similar-sounding words (Javis becomes David/Jarvis). Understand the "
+        "sentence from the context of the conversation and follow what they meant to say; do not cling to the "
+        "literal mis-heard word and do not comment on it. Only ask back when a wrong guess would cause harm "
+        "(numbers, recipients, outside actions).",
+        "- When the user asks about the CURRENT state of crons, recurring jobs, reminders or a medication schedule: "
+        "you MUST call `javis_schedule` with `op=list` before answering. Do not infer from memory/index and do not say "
+        "\"there is no tool\" when this tool is shown in the list.",
+        "- When the user asks to CREATE/EDIT/DELETE/CANCEL/TURN OFF a cron, recurring job or reminder: you MUST use "
+        "`javis_schedule`. For delete/cancel without an id, call `op=list`, match the right item, then call "
+        "`op=cancel`; do not send the user to the Scheduled page to do it themselves, and only confirm after the tool "
+        "returns success. If the tool fails: do NOT call DELETE, do NOT guess a JSON body and NEVER "
+        "edit `Javis/reminders.json` directly - doing so can cancel the wrong job.",
+        "- ONLY CREATE WHEN THE PRECONDITIONS HOLD: before creating any schedule or recurring job, check whether, by the time it "
+        "runs, it will have EVERYTHING it needs - are the data sources connected (Gmail/Calendar/POS... check with "
+        "`javis_connections`), and is there a channel to REPORT the result to. If something is missing, SAY SO PLAINLY and "
+        "ask the user whether to connect it first or create it anyway; NEVER create it just to be done and then stay silent while the job "
+        "fails every day without the user knowing.",
+        "- ONLY call `javis_schedule` when the user clearly orders you to read/create/edit/delete Jarvis 007's automatic schedules. "
+        "If the user only mentions \"scheduling\", booking, 1-1 consulting, an appointment, or is asking for opinions about "
+        "a product/UX/marketing, that is a normal conversation: answer the question asked, do NOT `op=list`, "
+        "do NOT list crons/reminders and do NOT create a schedule on your own.",
+        "- For any live data or external account data (MCP/Google/POS...): you must call the "
+        "right tool, or `javis_connections` / `javis_search_tools` to find the tool. If the tool really fails, "
+        "state the exact error you just received; do not invent a status from old context.",
+        "- DO NOT PROMISE WHAT YOU CANNOT DO. Your reply turn ENDS the moment you finish "
+        "speaking: nobody wakes you up to finish the job, and you do NOT keep running in the background. So "
+        "NEVER say things like \"I am looking into it/checking, I will report as soon as I have a result\", "
+        "\"I will report back when done\", \"give me a moment\", \"I will wait and then summarize\", "
+        "or any other variation of them. There are only two correct "
+        "paths: (1) DO IT NOW in this turn and return the real result, or (2) hand it off as background work "
+        "(`javis_task` op=add) / a reminder (`javis_schedule`) and say clearly what was handed off and where the result "
+        "will land. If you can do neither, say plainly that it has not been done, do not make a promise.",
+        "- ONLY QUEUE BACKGROUND WORK WHEN THE USER TELLS YOU TO. The Kanban queue is where a job the user "
+        "just asked for RUNS when this turn cannot finish it, it is NOT a to-do notebook. Plans, "
+        "recommendations and \"next steps\" that YOU came up with go in the text of your "
+        "answer; until the user agrees, they remain proposals. Do not invent jobs like \"apply the plan "
+        "just presented\", \"update the timeline\", \"follow up and remind\", \"keep reviewing\". "
+        "A normal planning chat creating NO new jobs is correct.",
+        "- Every job created fires a notification to the bell and to this chat box when it finishes or "
+        "gets stuck, so creating extras annoys the user rather than showing diligence. If you are not sure whether the user wants to "
+        "hand it off, ASK ONE QUESTION before creating, do not create first to be safe.",
+        "- After handing off background work, READ the result the tool returns and report it exactly as it is. If the tool "
+        "says orchestration is OFF, the job is only waiting in the queue and has not run - you must say that plainly "
+        "and tell the user to turn on \"AI self-driving\" on the Tasks page, you must NOT shorten it to \"the job is "
+        "running, the result will come back on its own\".",
+        "- ADDING an MCP / connecting a new source: you MUST use the `javis_add_mcp` tool (op=find to look in the Connection Store "
+        "first, op=add to connect). Only this way does the new source land in Jarvis 007's store and SHOW in the "
+        "'Connected' area of the Connections page for the user to see, and every brain can share it. "
+        "NEVER add it with `claude mcp add` / `codex mcp add` and never hand-edit the MCP config file: "
+        "that way only one CLI sees it, and the user looking at the Connections page thinks nothing was added. If you do not see "
+        "`javis_add_mcp` in the tool list, it is sitting behind `javis_search_tools` - find it and call it "
+        "through `javis_run_tool`, do not conclude it cannot be done. After adding, SAY CLEARLY that it is on "
+        "the Connections page, whether it is on or off, and what permission level it is at.",
     ]
     if source == "telegram":
         who = (meta.get("user_name") or "").strip() or "user"

@@ -102,7 +102,7 @@ for nguy in ("rm", "dd", "mkfs", "shutdown", "sudo", "chmod", "curl", "wget"):
     check(f"CHẶN CỨNG ở MỌI mức kể cả full: {nguy}",
           rc.kiem_quyen([nguy, "-x"], "full") != "")
 check("câu chặn cứng nói rõ là rào cứng, không phải thiếu quyền",
-      "MỌI mức" in rc.kiem_quyen(["rm", "-rf", "/"], "full"))
+      "EVERY" in rc.kiem_quyen(["rm", "-rf", "/"], "full"))
 
 
 # ---- 5. Chạy thật, trong thư mục làm việc ----
@@ -142,14 +142,14 @@ check("câu chặn nêu thư mục làm việc", str(WS.resolve()) in kq.error)
 kq = rc.chay("ls", ctx("auto"), cwd="/etc")
 check("cwd tuyệt đối ra ngoài -> chặn", not kq.da_chay)
 kq = rc.chay("ls", ctx("auto"), cwd="khong-co-thu-muc-nay")
-check("cwd không tồn tại -> câu lỗi nói được, không nổ", not kq.da_chay and "thư mục" in kq.error)
+check("cwd không tồn tại -> câu lỗi nói được, không nổ", not kq.da_chay and "folder" in kq.error)
 
 
 # ---- 8. Trần thời gian ----
 
 kq = rc.chay('python -c "import time; time.sleep(30)"', ctx("auto"), timeout_s=1)
 check("quá trần thời gian -> bị dừng", not kq.ok)
-check("quá trần -> câu lỗi nói rõ số giây", "giây" in kq.error)
+check("quá trần -> câu lỗi nói rõ số giây", "seconds" in kq.error)
 check("quá trần -> không treo lâu hơn trần bao nhiêu", kq.elapsed < 10)
 
 kq = rc.chay("python -c \"print(1)\"", ctx("auto"), timeout_s=99999)
@@ -162,21 +162,21 @@ kq = rc.chay('python -c "print(\'x\' * 50000); print(\'DONG-CUOI-QUAN-TRONG\')"'
 check("output quá dài bị cắt", len(kq.output) <= rc.OUTPUT_TOI_DA + 200)
 check("cắt output vẫn GIỮ ĐUÔI (lỗi thật thường ở đuôi)",
       "DONG-CUOI-QUAN-TRONG" in kq.output)
-check("có nói rõ đã cắt bao nhiêu", "cắt" in kq.output)
+check("có nói rõ đã cắt bao nhiêu", "cut" in kq.output)
 
 
 # ---- 10. Không có workspace thì không chạy ----
 
 kq = rc.chay("ls", CodingToolContext())
 check("phiên không gắn thư mục -> không chạy", not kq.da_chay)
-check("câu lỗi chỉ đúng chỗ cần làm", "trang Coding" in kq.error)
+check("câu lỗi chỉ đúng chỗ cần làm", "Coding page" in kq.error)
 
 
 # ---- 11. Chương trình không tồn tại: câu lỗi nói được, KHÔNG ném ----
 
 kq = rc.chay("chuong-trinh-khong-co-that --x", ctx("full"))
 check("chương trình không có -> không ném, trả câu nói được",
-      not kq.da_chay and "Không tìm thấy" in kq.error)
+      not kq.da_chay and "Could not find" in kq.error)
 
 
 # ---- 12. Gói kết quả cho model ----

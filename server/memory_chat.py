@@ -42,7 +42,7 @@ def wire(deps: Deps) -> Deps:
 
 
 def _clip(text: str) -> str:
-    return text if len(text) <= OUT_MAX else text[:OUT_MAX] + "\n…(cắt bớt)"
+    return text if len(text) <= OUT_MAX else text[:OUT_MAX] + "\n…(truncated)"
 
 
 def _one_line(text: str, n: int = BODY_PREVIEW) -> str:
@@ -54,7 +54,7 @@ def _find_agent(d: Deps, root: str, ref: str):
     """(agent, error). Accepts a slug or a name; names compare without case."""
     ref = str(ref or "").strip()
     if not ref:
-        return None, "ERROR: thiếu agent (slug hoặc tên trợ lý)."
+        return None, "ERROR: missing agent (slug or assistant name)."
     ags = d.agents(root) or []
     for a in ags:
         if a.get("slug") == ref:
@@ -65,17 +65,17 @@ def _find_agent(d: Deps, root: str, ref: str):
     if len(hits) == 1:
         return hits[0], ""
     if len(hits) > 1:
-        return None, "ERROR: nhiều trợ lý khớp: " + ", ".join(f"{a.get('name')} ({a.get('slug')})" for a in hits)
-    return None, f"ERROR: không có trợ lý '{ref}' trong brain này."
+        return None, "ERROR: several assistants match: " + ", ".join(f"{a.get('name')} ({a.get('slug')})" for a in hits)
+    return None, f"ERROR: there is no assistant '{ref}' in this brain."
 
 
 def _scope_label(scope: str) -> str:
     if scope == "*":
-        return "mọi nơi"
+        return "everywhere"
     if scope.startswith("dm:"):
-        return "chat riêng"
+        return "private chat"
     if scope.startswith("team:"):
-        return "nhóm " + scope[5:]
+        return "team " + scope[5:]
     return scope
 
 
@@ -84,11 +84,11 @@ def _scope_label(scope: str) -> str:
 def _op_list(d: Deps, root: str) -> str:
     mem = d.memory_dir(root)
     items = MC.list_memories(mem)
-    head = (f"Ghi nhớ mới: {'BẬT' if MC.learning_enabled(mem) else 'TẮT'}. "
-            f"Hồ sơ chung: {'có' if MC.read_profile() else 'chưa có'}. Đã quên: {len(MC.forgotten(mem))}.")
+    head = (f"New memories: {'ON' if MC.learning_enabled(mem) else 'OFF'}. "
+            f"Shared profile: {'yes' if MC.read_profile() else 'none'}. Forgotten: {len(MC.forgotten(mem))}.")
     if not items:
-        return head + "\nBrain này chưa có ghi nhớ nào."
-    lines = [head, f"{len(items)} ghi nhớ (slug | loại | nguồn | ngày | nội dung):"]
+        return head + "\nThis brain has no memories yet."
+    lines = [head, f"{len(items)} memories (slug | type | source | date | content):"]
     for m in items:
         lines.append(f"- {m['slug']} | {m['type'] or '?'} | {m['source'] or '-'} | {m['updated'] or m['created'] or '-'}"
                      f" | {_one_line(m['title'] if m['title'] != m['slug'] else m['body'])}")
@@ -98,45 +98,45 @@ def _op_list(d: Deps, root: str) -> str:
 def _op_edit(d: Deps, root: str, args: dict) -> str:
     slug, text = str(args.get("slug") or "").strip(), str(args.get("text") or "").strip()
     if not slug or not text:
-        return "ERROR: edit cần slug (xem op=list) và text (nội dung mới)."
+        return "ERROR: edit needs a slug (see op=list) and text (the new content)."
     try:
         MC.edit_memory(d.memory_dir(root), slug, text)
     except FileNotFoundError:
-        return f"ERROR: không có ghi nhớ '{slug}'. Gọi op=list để xem slug đúng."
+        return f"ERROR: there is no memory '{slug}'. Call op=list to see the right slug."
     except ValueError:
-        return "ERROR: slug hoặc nội dung không hợp lệ."
-    return f"Đã sửa ghi nhớ '{slug}' (đánh dấu: chủ sửa)."
+        return "ERROR: invalid slug or content."
+    return f"Edited memory '{slug}' (marked: edited by the owner)."
 
 
 def _op_forget(d: Deps, root: str, args: dict) -> str:
     slug = str(args.get("slug") or "").strip()
     if not slug:
-        return "ERROR: forget cần slug (xem op=list)."
+        return "ERROR: forget needs a slug (see op=list)."
     try:
         r = MC.forget_memory(d.memory_dir(root), slug)
     except FileNotFoundError:
-        return f"ERROR: không có ghi nhớ '{slug}'. Gọi op=list để xem slug đúng."
+        return f"ERROR: there is no memory '{slug}'. Call op=list to see the right slug."
     except ValueError:
-        return "ERROR: slug không hợp lệ."
-    return (f"Đã quên '{r['title']}'. Javis không tự học lại điều này từ chat cũ; lịch sử chat không bị xoá. "
-            "Brain có git hoặc bản sao lưu thì nội dung cũ vẫn còn trong đó.")
+        return "ERROR: invalid slug."
+    return (f"Forgot '{r['title']}'. Jarvis 007 will not learn this again from old chats; the chat history is not deleted. "
+            "If the brain has git or a backup, the old content is still in there.")
 
 
 def _op_learning(d: Deps, root: str, args: dict) -> str:
     if "enabled" not in args:
-        return f"Ghi nhớ mới đang {'BẬT' if MC.learning_enabled(d.memory_dir(root)) else 'TẮT'}."
+        return f"New memories are currently {'ON' if MC.learning_enabled(d.memory_dir(root)) else 'OFF'}."
     on = args.get("enabled") in (True, 1, "1", "true", "on")
     MC.set_learning(d.memory_dir(root), on)
-    return ("Đã BẬT lưu ghi nhớ mới cho brain này." if on else
-            "Đã TẮT lưu ghi nhớ mới cho brain này. Những gì đã nhớ vẫn được dùng.")
+    return ("Saving new memories is now ON for this brain." if on else
+            "Saving new memories is now OFF for this brain. What is already remembered is still used.")
 
 
 def _op_profile(args: dict) -> str:
     if "text" not in args:
         cur = MC.read_profile()
-        return ("Hồ sơ chung (mọi brain):\n" + cur) if cur else "Chưa có hồ sơ chung."
+        return ("Shared profile (every brain):\n" + cur) if cur else "No shared profile yet."
     saved = MC.write_profile(str(args.get("text") or ""))
-    return ("Đã lưu hồ sơ chung, dùng cho mọi brain." if saved else "Đã xoá hồ sơ chung.")
+    return ("Saved the shared profile, used for every brain." if saved else "Deleted the shared profile.")
 
 
 # ── lessons of an assistant ───────────────────────────────────────────────────
@@ -152,19 +152,19 @@ def _op_lessons(d: Deps, root: str, args: dict) -> str:
     a, e = _find_agent(d, root, args.get("agent"))
     if e:
         return e
-    lines = [f"Bài học của {a.get('name') or a['slug']} ({a['slug']}):"]
+    lines = [f"Lessons of {a.get('name') or a['slug']} ({a['slug']}):"]
     key, store = d.agent_key(root, a["slug"], False), d.lesson_store()
     rows = AL.lessons(store, key, status="active") if key and store is not None else []
     for r in rows:
         lines.append(f"- L{r['id']} | {_scope_label(r['scope'])} | {r['source']} | {_one_line(r['text'], 220)}")
     legacy = _legacy_file_lines(d.agent_memory_file(root, a["slug"]))
     for i, t in enumerate(legacy, 1):
-        lines.append(f"- C{i} | bài học cũ (MEMORY.md) | {_one_line(t, 220)}")
+        lines.append(f"- C{i} | old lesson (MEMORY.md) | {_one_line(t, 220)}")
     if len(lines) == 1:
-        lines.append("Chưa có bài học nào.")
+        lines.append("No lessons yet.")
     else:
-        lines.append("Mã L... thu hồi bằng op=lesson_revoke; mã C... là dòng cũ trong file, gỡ bằng op=lesson_revoke "
-                     "với đúng mã đó.")
+        lines.append("Revoke an L... id with op=lesson_revoke; a C... id is an old line in the file, remove it with op=lesson_revoke "
+                     "using that exact id.")
     return _clip("\n".join(lines))
 
 
@@ -174,13 +174,13 @@ def _op_lesson_add(d: Deps, root: str, args: dict) -> str:
         return e
     text = str(args.get("text") or "").strip()
     if not text:
-        return "ERROR: lesson_add cần text (một câu ngắn trợ lý cần nhớ)."
+        return "ERROR: lesson_add needs text (one short sentence for the assistant to remember)."
     store = d.lesson_store()
     key = d.agent_key(root, a["slug"], True)
     if not key or store is None:
-        return "ERROR: kho bài học chưa sẵn sàng, thử lại sau vài giây."
+        return "ERROR: the lesson store is not ready, try again in a few seconds."
     lid = AL.add(store, agent_key=key, scope="*", kind="method", text=text, source="owner", by="owner")
-    return f"Đã thêm bài học L{lid} cho {a.get('name') or a['slug']}, dùng ở mọi nơi."
+    return f"Added lesson L{lid} for {a.get('name') or a['slug']}, used everywhere."
 
 
 def _remove_legacy_line(path: Path, idx: int) -> Optional[str]:
@@ -213,17 +213,17 @@ def _op_lesson_revoke(d: Deps, root: str, args: dict) -> str:
     ref = str(args.get("id") or "").strip().upper()
     if ref.startswith("C") and ref[1:].isdigit():
         gone = _remove_legacy_line(d.agent_memory_file(root, a["slug"]), int(ref[1:]))
-        return f"Đã gỡ bài học cũ: {_one_line(gone, 220)}" if gone else f"ERROR: không có bài học cũ {ref}."
+        return f"Removed the old lesson: {_one_line(gone, 220)}" if gone else f"ERROR: there is no old lesson {ref}."
     num = ref[1:] if ref.startswith("L") else ref
     if not num.isdigit():
-        return "ERROR: id là mã trong op=lessons, ví dụ L12 hoặc C3."
+        return "ERROR: id is a code from op=lessons, for example L12 or C3."
     key, store = d.agent_key(root, a["slug"], False), d.lesson_store()
     if not key or store is None:
-        return f"ERROR: {a.get('name') or a['slug']} chưa có bài học nào."
+        return f"ERROR: {a.get('name') or a['slug']} has no lessons yet."
     r = AL.revoke(store, int(num), by="owner", reason="owner_chat", agent_key=key)
     if not r:
-        return f"ERROR: không có bài học L{num} đang dùng của trợ lý này."
-    return f"Đã thu hồi bài học L{num}. Trợ lý không tự học lại đúng câu này."
+        return f"ERROR: this assistant has no active lesson L{num}."
+    return f"Revoked lesson L{num}. The assistant will not learn this exact sentence again."
 
 
 # ── entry point ───────────────────────────────────────────────────────────────
@@ -234,7 +234,7 @@ OPS = ("list", "edit", "forget", "learning", "profile", "lessons", "lesson_add",
 def run(args: dict, vault_root: str) -> str:
     d = _DEPS[0]
     if d is None:
-        return "ERROR: máy chủ đang khởi động, thử lại sau vài giây."
+        return "ERROR: the server is starting up, try again in a few seconds."
     args = args if isinstance(args, dict) else {}
     op = str(args.get("op") or "").strip()
     root = str(vault_root or "").strip()
@@ -244,7 +244,7 @@ def run(args: dict, vault_root: str) -> str:
             MC.note_change(d.memory_dir(root))   # "đã nhớ cách xưng hô" is backed by the shared profile
         return out
     if not root:
-        return "ERROR: chưa biết đang ở brain nào nên không đụng được trí nhớ."
+        return "ERROR: it is not known which brain this is, so memory cannot be touched."
     fn = {"list": lambda: _op_list(d, root), "edit": lambda: _op_edit(d, root, args),
           "forget": lambda: _op_forget(d, root, args), "learning": lambda: _op_learning(d, root, args),
           "lessons": lambda: _op_lessons(d, root, args), "lesson_add": lambda: _op_lesson_add(d, root, args),
@@ -255,4 +255,4 @@ def run(args: dict, vault_root: str) -> str:
         if wrote and not out.startswith("ERROR"):
             MC.note_change(d.memory_dir(root))   # the turn's empty-claim check must not flag a real write
         return out
-    return "ERROR: op phải là một trong " + ", ".join(OPS) + "."
+    return "ERROR: op must be one of " + ", ".join(OPS) + "."

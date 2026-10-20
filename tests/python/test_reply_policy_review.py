@@ -96,7 +96,7 @@ check("the review lesson is stored with source review",
       any(x["source"] == "review" and "lịch học" in x["text"] for x in st.list_lessons("A")))
 check("review time recorded", st.get_review_ts("A") == NOW)
 check("not due again right after", rv.due_bots(st, NOW + H) == [])
-check("prompt fences chat and forbids obeying it", "<chat_data>" in fake.last_prompt and "bỏ qua" in fake.last_prompt)
+check("prompt fences chat and forbids obeying it", "<chat_data>" in fake.last_prompt and "is ignored" in fake.last_prompt)
 msg = rv.review_message(res)
 check("owner message lists the changes and how to undo", "2" in msg and res["review_id"] in msg)
 
@@ -182,7 +182,7 @@ check("revert_review undoes both changes", n == 2 and st.get_tuning("A").get("co
 st.set_review_ts("A", 0.0)
 res2 = run(rv.run_review("A", store=st, ask=fake(payload), now=NOW + 2 * H, bot_cfg=CFG))
 check("a recently reverted change is not re-applied", st.get_tuning("A").get("consider_tagged") in (None, "0")
-      and any("14 ngày" in r for r in res2["rejected"]), res2)
+      and any("14 days" in r for r in res2["rejected"]), res2)
 
 # ---- failures change nothing ----
 before = (st.get_tuning("A"), [x["text"] for x in st.list_lessons("A")])

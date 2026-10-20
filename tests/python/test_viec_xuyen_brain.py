@@ -135,7 +135,7 @@ _res_loop = asyncio.run(sched._do_create(_vault_kk, {
     "name": "Quet don kho", "prompt": "quet don moi 2 tieng", "schedule": "120m"}))
 check("C: câu tạo LOOP nêu tên brain", "KimKhiHaLoc" in _res_loop)
 check("C: _create_loop_file có brain_name -> chuỗi chứa brain",
-      "trong brain MyBrain" in sched._create_loop_file(
+      "in brain MyBrain" in sched._create_loop_file(
           tempfile.mkdtemp(prefix="javis-vault-mb-"), name="Viec X",
           prompt="lam gi do", schedule="120m", brain_name="MyBrain"))
 

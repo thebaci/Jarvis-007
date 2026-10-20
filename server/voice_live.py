@@ -58,7 +58,7 @@ CHATGPT_VOICES = ["juniper", "maple", "spruce", "ember", "vale", "breeze", "arbo
 # `transport`: "pcm" = trình duyệt đẩy PCM qua /ws/voice-live; "webrtc" = trình duyệt nối THẲNG
 # nhà cung cấp, /ws/voice-live chỉ chuyển gói bắt tay SDP và chữ (ChatGPT Live).
 PROVIDERS = {
-    "chatgpt": {"label": "ChatGPT Live (gói ChatGPT)", "key_field": None,
+    "chatgpt": {"label": "ChatGPT Live (ChatGPT plan)", "key_field": None,
                 "default_model": "", "default_voice": "juniper", "voices": CHATGPT_VOICES, "transport": "webrtc"},
     "gemini": {"label": "Google Gemini Live (API)", "key_field": "gemini_api_key",
                "default_model": "gemini-3.1-flash-live-preview",   # 03/2026; bản cũ: gemini-2.5-flash-native-audio-preview-12-2025
@@ -72,24 +72,24 @@ PROVIDERS = {
 
 ASK_JAVIS_TOOL = {
     "name": "ask_javis",
-    "description": ("Hỏi bộ não chính của Javis khi cần dữ liệu thật (số liệu kinh doanh, lịch, email, file, "
-                    "ghi chú, ký ức), giao việc, nhắc hẹn, mở trang hay app, hoặc bất cứ hành động nào ra "
-                    "ngoài. Truyền yêu cầu đầy đủ bằng ngôn ngữ người dùng. Kết quả trả về là chữ, hãy "
-                    "thuật lại ngắn gọn."),
+    "description": ("Ask Jarvis 007's main brain when you need real data (business numbers, calendar, email, files, "
+                    "notes, memory), to hand off a task, set a reminder, open a page or app, or for any action "
+                    "outside the call. Pass the full request in the user's language. The result comes back as text, so "
+                    "retell it briefly."),
     "parameters": {"type": "object", "properties": {"request": {"type": "string"}}, "required": ["request"]},
 }
 
 SYSTEM_PROMPT = (
-    "Bạn là Javis, trợ lý cá nhân, đang nói chuyện trực tiếp bằng giọng. "
-    "Nói ngắn, tự nhiên. Không bịa dữ liệu: cần dữ liệu "
-    "thật hay hành động thì gọi tool ask_javis "
-    "rồi thuật lại kết quả. Đang được ngắt lời thì dừng ngay và nghe. "
+    "You are Jarvis 007, a personal assistant, talking directly by voice. "
+    "Speak briefly and naturally. Never invent data: when you need real data "
+    "or an action, call the tool ask_javis "
+    "and then retell the result. If you are interrupted, stop at once and listen. "
     # A spoken sentence BEFORE the call, in the same turn: the person never sits in silence
     # wondering whether they were heard. No sample wording on purpose: a quoted example is what
     # the model parrots every time, and in the language of the example rather than the caller's.
-    "Trước khi gọi ask_javis, nói MỘT câu thật ngắn nêu đúng việc bạn sắp làm, bằng ngôn ngữ người "
-    "dùng đang nói, rồi gọi tool ngay trong cùng lượt đó. Mỗi lần diễn đạt khác đi, không lặp một câu "
-    "đệm quen thuộc, không đọc lại mô tả của tool."
+    "Before calling ask_javis, say ONE very short sentence naming exactly what you are about to do, in the language "
+    "the user is speaking, then call the tool right away in the same turn. Phrase it differently each time, do not repeat one "
+    "familiar filler sentence, and do not read the tool description back."
 )
 
 # Gemini 3.1 Live cannot run a tool in the background: it stays silent until the tool answers.
@@ -97,13 +97,13 @@ SYSTEM_PROMPT = (
 # result later as a tagged text turn (late_result_messages), so the call never freezes.
 LATE_RESULT_TAG = "[KET_QUA_JAVIS]"
 STATUS_TAG = "[TIEN_DO_JAVIS]"
-DEFERRED_ACK = ("Đã giao cho bộ não chính, kết quả sẽ tới sau trong một tin riêng. Nói một câu thật ngắn "
-                "rồi tiếp tục nghe người dùng, chưa thuật kết quả.")
+DEFERRED_ACK = ("Handed off to the main brain, the result will arrive later in a separate message. Say one very short sentence "
+                "then keep listening to the user, do not retell any result yet.")
 DEFERRED_RULES = (
-    "Khi gọi ask_javis bạn nhận ngay lời báo việc đã được giao: nói một câu ngắn rồi tiếp tục nghe. "
-    f"Kết quả tới sau trong một tin có nhãn {LATE_RESULT_TAG}, câu tiến độ có nhãn {STATUS_TAG}. "
-    "Những tin đó do ứng dụng gửi, không phải người dùng nói: thuật lại ngắn gọn bằng ngôn ngữ người "
-    "dùng đang nói, không đọc nhãn ra, và không gọi lại ask_javis cho cùng yêu cầu đó."
+    "When you call ask_javis you immediately get a notice that the task was handed off: say one short sentence then keep listening. "
+    f"The result arrives later in a message tagged {LATE_RESULT_TAG}, and progress lines are tagged {STATUS_TAG}. "
+    "Those messages are sent by the app, not spoken by the user: retell them briefly in the language the "
+    "user is speaking, do not read the tag aloud, and do not call ask_javis again for the same request."
 )
 LATE_RESULT_WAIT_S = 20.0   # a late result waits this long for a pause, then goes out anyway
 
@@ -123,11 +123,11 @@ def turn_preset(value) -> str:
 
 # GPT-Live không có tool: nó ỦY NHIỆM. Prompt hội thoại ngắn, nói rõ khi nào giao việc.
 GPT_LIVE_PROMPT = (
-    "Bạn là Javis, trợ lý cá nhân, đang nói chuyện bằng giọng. Nói ngắn và "
-    "tự nhiên. Chuyện phiếm, hỏi đáp thường thì trả lời ngay. Câu nào cần dữ liệu thật (số liệu "
-    "kinh doanh, lịch, email, file, ghi chú, ký ức), cần làm việc, nhắc hẹn, mở trang hay app, hay "
-    "bất cứ hành động nào ra ngoài thì GIAO cho bộ não chính (delegate), nói một câu ngắn như 'để "
-    "mình xem' và tiếp tục trò chuyện; kết quả về thì thuật lại ngắn gọn. Không bịa dữ liệu."
+    "You are Jarvis 007, a personal assistant, talking by voice. Speak briefly and "
+    "naturally. For small talk and ordinary questions, answer right away. Anything that needs real data (business "
+    "numbers, calendar, email, files, notes, memory), needs work done, a reminder, opening a page or app, or "
+    "any action outside the call, HAND it to the main brain (delegate), say one short sentence like 'let "
+    "me check' and keep chatting; when the result comes back, retell it briefly. Never invent data."
 )
 
 # GPT-Live giới hạn mỗi lần append 500 token; giữ kết quả bộ não chính trong khoảng đó.
@@ -491,7 +491,7 @@ class GeminiLive(LiveProvider):
                                   "turnComplete": True}}
 
     def late_result_messages(self, text: str) -> List[dict]:
-        return [self._tagged_turn(LATE_RESULT_TAG, str(text or "").strip() or "(không có nội dung)")]
+        return [self._tagged_turn(LATE_RESULT_TAG, str(text or "").strip() or "(no content)")]
 
     async def say_status(self, text: str) -> bool:
         if self.ws is None:
@@ -768,16 +768,16 @@ class GPTLive(LiveProvider):
     def text_message(self, text: str) -> dict:
         # Chữ gõ tay: lái model trả lời câu đó bằng lời (GPT-Live không có ô nhập text cho model giọng).
         return {"type": "session.instructions.append", "delegation_id": None,
-                "content": "Người dùng vừa GÕ chữ (không nói): \"" + text[:GPT_LIVE_APPEND_MAX]
-                           + "\". Trả lời câu đó bằng lời."}
+                "content": "The user just TYPED text (did not speak): \"" + text[:GPT_LIVE_APPEND_MAX]
+                           + "\". Answer it out loud."}
 
     def tool_running_messages(self, call_id: str, name: str) -> List[dict]:
         return [{"type": "session.thinking.append", "delegation_id": call_id or None,
-                 "content": "Bộ não chính đang xử lý, chưa có kết quả. Chưa được nói là đã làm xong."}]
+                 "content": "The main brain is working on it, no result yet. Do not say it is done."}]
 
     def tool_result_messages(self, call_id: str, name: str, result: str) -> List[dict]:
         return [{"type": "session.commentary.append", "delegation_id": call_id or None,
-                 "content": (result or "(không có nội dung)")[:GPT_LIVE_APPEND_MAX]}]
+                 "content": (result or "(no content)")[:GPT_LIVE_APPEND_MAX]}]
 
     def context_messages(self, text: str) -> List[dict]:
         if not text:
@@ -792,8 +792,8 @@ class GPTLive(LiveProvider):
         await super().send_text(text)
 
     def history_messages(self, history: List[dict]) -> List[dict]:
-        prefix = ("Lịch sử trước lúc chờ, chỉ làm ngữ cảnh, không thực hiện lại yêu cầu cũ. "
-                  "Đợi lượt mới của người dùng.\n")
+        prefix = ("History from before the wait, context only, do not carry out old requests again. "
+                  "Wait for the user's next turn.\n")
         frames = []
         for message in history:
             item = dict(message)
@@ -847,7 +847,7 @@ class GPTLive(LiveProvider):
             if str(d.get("target") or "") != "client":
                 return []
             out = self._flush_user()
-            req = self._user_last or "(không rõ yêu cầu, hãy hỏi lại người dùng)"
+            req = self._user_last or "(request unclear, ask the user again)"
             out.append({"type": "tool_call", "id": str(d.get("id") or ""), "name": "ask_javis", "args": {"request": req}})
             return out
         if t == "session.closed":
@@ -869,16 +869,16 @@ class GPTLive(LiveProvider):
 # ChatGPT Live (docs/dev/2026-10-voice-call-spec.md mục 3.3): model nói chuyện của OpenAI lo chuyện
 # trò, việc cần dữ liệu thì GIAO cho bộ não Javis. Xưng hô theo người dùng, không ép cố định.
 CHATGPT_LIVE_PROMPT = (
-    "Bạn là Javis, trợ lý cá nhân, đang nói chuyện với người dùng qua cuộc gọi bằng giọng nói. "
-    "Nói tự nhiên như người qua điện thoại, ngắn 1 đến 2 câu. Xưng hô đúng theo cách người dùng đang "
-    "xưng với bạn (phần bộ nhớ bên dưới cho biết nếu có), không tự đổi. Chuyện trò, hỏi thăm, giải "
-    "thích kiến thức chung thì trả lời thẳng. Mọi câu cần dữ liệu thật hay hành động (doanh thu, đơn "
-    "hàng, lịch, email, file, ghi chú, ký ức, mở trang trên màn hình, gửi tin, nhắc hẹn, tạo việc) thì "
-    "KHÔNG đoán: nói một câu đệm rất ngắn kiểu 'Để em xem nhé' rồi giao việc cho hệ thống, viết yêu cầu "
-    "giao việc bằng đúng thứ tiếng người dùng đang nói. Trong lúc "
-    "đang chờ kết quả mà người dùng chỉ nói kiểu 'ok', 'xong thì báo anh nhé', 'cảm ơn' thì KHÔNG giao "
-    "việc lần nữa, chỉ đáp một câu ngắn là đang làm. Khi hệ thống trả kết quả, đọc lại tự nhiên, ngắn "
-    "gọn, không thêm số liệu (bản đầy đủ đã hiện trên màn hình). Bị chen ngang thì dừng ngay và nghe."
+    "You are Jarvis 007, a personal assistant, talking with the user over a voice call. "
+    "Speak naturally like a person on the phone, 1 to 2 short sentences. Address the user the way the user "
+    "addresses you (the memory section below says so if it is known), and never change it yourself. For chat, greetings and "
+    "general knowledge explanations, answer directly. For anything that needs real data or an action (revenue, orders, "
+    "calendar, email, files, notes, memory, opening a page on screen, sending a message, reminders, creating tasks), do "
+    "NOT guess: say one very short filler sentence like 'Let me check' and then hand the work to the system, writing the "
+    "handoff request in exactly the language the user is speaking. While "
+    "waiting for a result, if the user only says things like 'ok', 'tell me when it is done', 'thanks', do NOT hand off "
+    "the work again, just reply with one short sentence saying it is in progress. When the system returns the result, read it back naturally and "
+    "briefly, adding no extra figures (the full version is already on screen). If interrupted, stop at once and listen."
 )
 SPEAK_MAX = 600          # kết quả bộ não đọc ra loa: phần đầu, đủ ý; bản đầy đủ hiện thành bong bóng
 HANDOFF_SHORT_WORDS = 3  # yêu cầu giao việc ngắn hơn thì ghép câu người dùng vừa nói
@@ -899,7 +899,7 @@ FOLLOWUP_NOOP = "JAVIS_NOOP"
 STATUS_FIRST_S = 60.0    # việc chạy quá chừng này thì bắt đầu nói
 STATUS_EVERY_S = 90.0    # rồi cách chừng này mới nói lại
 STATUS_TICK_S = 5.0      # nhịp kiểm tra của vòng nền
-FOLLOWUP_ACK = "Đã ghi nhận. Việc đang làm sẽ báo kết quả ngay khi xong, không có việc mới."
+FOLLOWUP_ACK = "Noted. The task in progress will report its result as soon as it finishes, no new task was started."
 _ACK_WORDS = frozenset("""
 ok oke okie okay ừ ừm ờ ừa vâng dạ được rồi nhé nha nhá nhỉ nghen thế vậy thì là xong xem kiểm tra
 báo lại cho anh em chị mình tôi tớ bạn biết đi cảm ơn cám chờ đợi tí chút xíu nhanh lên cứ làm khi nào
@@ -933,12 +933,12 @@ def parallel_request(running: List[str], followup: str) -> str:
     Báo rõ các việc kia CHƯA xong: bộ não không được coi kết quả của chúng là đã có, cũng không được
     ghi đè thứ chúng đang làm dở (tệp, tin đang soạn) trừ khi người dùng bảo rõ."""
     work = "; ".join('"' + str(r).strip()[:200] + '"' for r in running)
-    return (f"Em đang làm các việc sau cho người dùng và chúng CHƯA xong: {work}. Trong lúc đó người dùng "
-            f"nói thêm qua cuộc gọi: \"{str(followup).strip()}\". Việc này chạy SONG SONG với các việc trên, "
-            f"không chờ chúng và kết quả của chúng chưa có. Nếu câu nói thêm chỉ là đồng ý, nhắc báo kết quả "
-            f"hay bảo chờ thì trả lời đúng một dòng {FOLLOWUP_NOOP} và không làm gì thêm. Nếu có yêu cầu "
-            f"mới thì làm phần đó rồi trả lời như thường; đừng sửa hay ghi đè thứ mà các việc đang chạy "
-            f"đang làm dở (tệp, tin nhắn đang soạn), trừ khi người dùng bảo rõ.")
+    return (f"I am working on the following tasks for the user and they are NOT finished yet: {work}. Meanwhile the user "
+            f"said more over the call: \"{str(followup).strip()}\". This runs IN PARALLEL with the tasks above, "
+            f"does not wait for them, and their results are not available yet. If the extra remark is only agreement, a request to report back "
+            f"or to wait, reply with exactly one line {FOLLOWUP_NOOP} and do nothing more. If there is a "
+            f"new request, do that part and reply as usual; do not edit or overwrite anything the running tasks "
+            f"are still working on (files, messages being drafted), unless the user clearly says so.")
 
 
 def is_noop_result(text: str) -> bool:
@@ -1140,7 +1140,7 @@ class ChatGPTLive(LiveProvider):
     def start_params(self, sdp: str) -> dict:
         prompt = self.system
         if self.memory_index.strip():
-            prompt += "\n\nBộ nhớ về người dùng (mục lục, chỉ làm ngữ cảnh):\n" + self.memory_index.strip()
+            prompt += "\n\nMemory about the user (index, context only):\n" + self.memory_index.strip()
         params = {
             "threadId": self.thread_id, "version": "v3", "outputModality": "audio",
             "transport": {"type": "webrtc", "sdp": sdp},
@@ -1199,9 +1199,9 @@ class ChatGPTLive(LiveProvider):
                 self._sdp.set_result(str(p.get("sdp") or ""))
             return []
         if method == "thread/realtime/error":
-            text = str(p.get("message") or "lỗi không rõ")
+            text = str(p.get("message") or "unknown error")
             if self._sdp is not None and not self._sdp.done():
-                self._sdp.set_exception(RuntimeError(f"ChatGPT Live không mở được: {text}"))
+                self._sdp.set_exception(RuntimeError(f"ChatGPT Live could not open: {text}"))
             return [{"type": "error", "message": localefmt.chu(f"ChatGPT Live lỗi: {text}", f"ChatGPT Live error: {text}")}]
         # Chỉ thông báo `transcript/done` của người dùng mới tạo bong bóng chốt. Đo trên dashboard thật
         # (01/10): model hay BẮT ĐẦU trả lời trước khi chữ cuối của người dùng về ("... có khỏe" rồi
@@ -1310,7 +1310,7 @@ class ChatGPTLive(LiveProvider):
         # Câu tiến độ còn kẹt trong hàng là câu cũ ngay khi kết quả thật về: đọc nó SAU câu trả lời
         # ("em vẫn đang làm" rồi mới "xong rồi") nghe như Javis lú.
         self._speech_q[:] = [t for t in self._speech_q if not isinstance(t, _Status)]
-        self._enqueue_speech(speakable(result) or "Em chưa có kết quả.")
+        self._enqueue_speech(speakable(result) or "I do not have a result yet.")
 
     async def say_status(self, text: str) -> bool:
         """Câu tiến độ cho người đang không nhìn màn hình. Đi chung hàng với lời đọc kết quả nên không
@@ -1385,9 +1385,9 @@ class ChatGPTLive(LiveProvider):
 _CLASSES = {"chatgpt": ChatGPTLive, "gemini": GeminiLive, "openai": OpenAIRealtime, "gpt-live": GPTLive}
 
 CHATGPT_UNAVAILABLE = {
-    "no_cli": "Chưa cài Codex CLI nên chưa dùng được ChatGPT Live. Cài Codex rồi nối ChatGPT ở trang Models.",
-    "no_login": "Chưa nối ChatGPT ở trang Models nên chưa dùng được ChatGPT Live.",
-    "old_cli": "Codex CLI trên máy đã cũ (cần bản 0.153 trở lên) nên chưa dùng được ChatGPT Live. Cập nhật Codex rồi thử lại.",
+    "no_cli": "Codex CLI is not installed, so ChatGPT Live is unavailable. Install Codex, then connect ChatGPT on the Models page.",
+    "no_login": "ChatGPT is not connected on the Models page, so ChatGPT Live is unavailable.",
+    "old_cli": "The Codex CLI on this machine is too old (version 0.153 or newer is needed), so ChatGPT Live is unavailable. Update Codex and try again.",
 }
 
 

@@ -151,66 +151,66 @@ def build(vault_root: Any) -> Tuple[List[dict], Dict[str, dict]]:
     async def _list(args):
         hs = _headings(r)
         if not hs:
-            return "(brain này chưa có tài liệu nào)"
+            return "(this brain has no documents yet)"
         rows, used = [], 0
         for path, ds in sorted(hs.items()):
-            line = "- " + path + (" | mục: " + " · ".join(ds[:12]) if ds else "")
+            line = "- " + path + (" | sections: " + " · ".join(ds[:12]) if ds else "")
             if used + len(line) > LIST_MAX:
-                rows.append(f"… (còn {len(hs) - len(rows)} tài liệu, dùng javis_docs_search để tìm)")
+                rows.append(f"… ({len(hs) - len(rows)} more documents, use javis_docs_search to find them)")
                 break
             rows.append(line)
             used += len(line) + 1
-        return f"{len(hs)} tài liệu:\n" + "\n".join(rows)
+        return f"{len(hs)} documents:\n" + "\n".join(rows)
 
     async def _search(args):
         q = str((args or {}).get("query") or "").strip()
         if not q:
-            return "ERROR: thiếu query"
+            return "ERROR: missing query"
         ok = set(allowed_docs(r))
         hits = [h for h in chatbot_grounding.tim(r, q, k=SEARCH_K * 3)
                 if str(h.get("path") or "").replace("\\", "/") in ok][:SEARCH_K]
         if not hits:
-            return (f"Không có đoạn nào chứa các chữ của '{q}'. Thử lại bằng từ khác (từ đồng nghĩa, "
-                    f"cách gọi khác, có dấu hoặc không dấu), hoặc xem javis_docs_list để chọn tài liệu.")
+            return (f"No passage contains the words of '{q}'. Try again with other words (synonyms, "
+                    f"other names for it, with or without diacritics), or see javis_docs_list to pick a document.")
         parts = []
         for h in hits:
             t = str(h.get("text") or "")
             t = t[:SEARCH_CHUNK] + ("…" if len(t) > SEARCH_CHUNK else "")
-            parts.append(f"### {h.get('ten')}\n(nguồn: {str(h.get('path')).replace(chr(92), '/')})\n\n{t}")
+            parts.append(f"### {h.get('ten')}\n(source: {str(h.get('path')).replace(chr(92), '/')})\n\n{t}")
         return "\n\n".join(parts)
 
     async def _read(args):
         rel = _match(r, (args or {}).get("path"))
         if not rel:
-            return (f"ERROR: không có tài liệu '{(args or {}).get('path')}' trong danh sách được đọc. "
-                    f"Gọi javis_docs_list để xem đường dẫn đúng.")
+            return (f"ERROR: there is no document '{(args or {}).get('path')}' in the readable list. "
+                    f"Call javis_docs_list to see the right path.")
         p = (r / rel).resolve()
         try:
             p.relative_to(r)
         except ValueError:
-            return "ERROR: tài liệu này nằm ngoài brain nên không đọc được."
+            return "ERROR: this document is outside the brain so it cannot be read."
         try:
             text = p.read_text(encoding="utf-8", errors="replace")
         except OSError as e:
-            return f"ERROR: không đọc được '{rel}': {type(e).__name__}"
+            return f"ERROR: could not read '{rel}': {type(e).__name__}"
         text = re.sub(r"\A---\n.*?\n---\n", "", text, flags=re.DOTALL)
         if len(text) > READ_MAX:
-            text = text[:READ_MAX] + f"\n… [cắt, tài liệu dài {len(text):,} ký tự]"
+            text = text[:READ_MAX] + f"\n… [cut, the document is {len(text):,} characters long]"
         return f"# {rel}\n\n{text}"
 
     tools = [
         _tool("javis_docs_search",
-              "Tìm trong tài liệu của bạn các đoạn chứa chữ của câu hỏi. Khách hay dùng chữ khác tài liệu, "
-              "nên tìm không ra thì thử lại bằng từ đồng nghĩa hoặc cách gọi khác trước khi kết luận là "
-              "không có.",
-              {"query": {"type": "string", "description": "Các từ cần tìm"}}, ["query"]),
+              "Search your documents for passages containing the words of the question. Customers often use different words from the documents, "
+              "so if nothing is found, try again with synonyms or other names before concluding that "
+              "there is no answer.",
+              {"query": {"type": "string", "description": "The words to search for"}}, ["query"]),
         _tool("javis_docs_list",
-              "Liệt kê mọi tài liệu của bạn kèm tên các mục trong từng tài liệu. Dùng khi tìm theo chữ "
-              "không ra, để tự chọn tài liệu có vẻ đúng chủ đề rồi mở ra đọc.",
+              "List all your documents with the names of the sections in each one. Use it when searching by words "
+              "finds nothing, to pick the document that seems to fit the topic and then open it to read.",
               {}, []),
         _tool("javis_docs_read",
-              "Mở đọc trọn một tài liệu theo đường dẫn lấy từ javis_docs_list hoặc javis_docs_search.",
-              {"path": {"type": "string", "description": "Đường dẫn tài liệu, vd 'faq/doi-tra.md'"}}, ["path"]),
+              "Open and read one whole document by the path taken from javis_docs_list or javis_docs_search.",
+              {"path": {"type": "string", "description": "Document path, e.g. 'faq/doi-tra.md'"}}, ["path"]),
     ]
     route = {"javis_docs_search": _route(_search), "javis_docs_list": _route(_list),
              "javis_docs_read": _route(_read)}

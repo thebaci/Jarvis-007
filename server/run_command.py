@@ -133,29 +133,29 @@ def tach(command: str) -> tuple[list[str], str]:
     """Tách lệnh thành argv. Trả ([], lý do) nếu không tách được hoặc có ký tự shell."""
     cmd = str(command or "").strip()
     if not cmd:
-        return [], "Lệnh rỗng."
+        return [], "Empty command."
     if "\n" in cmd:
-        return [], ("Lệnh có nhiều dòng. Tool này chạy ĐÚNG MỘT chương trình; tách thành "
-                    "nhiều lời gọi tool.")
+        return [], ("The command has multiple lines. This tool runs EXACTLY ONE program; split it into "
+                    "multiple tool calls.")
     try:
         argv = shlex.split(cmd)
     except ValueError as e:
-        return [], f"Không tách được lệnh ({e}). Kiểm tra dấu nháy."
+        return [], f"Could not parse the command ({e}). Check the quotes."
     if not argv:
-        return [], "Lệnh rỗng sau khi tách."
+        return [], "Empty command after parsing."
     for tok in argv:
         # Toán tử đứng riêng (`ls && pytest`), hoặc dính đuôi (`ls; whoami` -> token 'ls;').
         if tok in _TOAN_TU_SHELL or (len(tok) > 1 and tok.endswith(";")):
-            return [], (f"Lệnh chứa toán tử shell '{tok}'. Tool này chạy ĐÚNG MỘT chương "
-                        f"trình, KHÔNG qua shell, nên nối lệnh hay chuyển hướng đều không có "
-                        f"tác dụng. Tách thành nhiều lời gọi tool.")
+            return [], (f"The command contains the shell operator '{tok}'. This tool runs EXACTLY ONE "
+                        f"program, NOT through a shell, so chaining commands or redirecting has "
+                        f"no effect. Split it into multiple tool calls.")
         # Thay thế lệnh. Không nguy hiểm (không có shell thì `$(whoami)` chỉ là chữ), nhưng
         # model viết ra là đang TƯỞNG nó chạy, nên nói thẳng thay vì để nó ngồi đoán vì sao
         # kết quả toàn dấu đô la. Hẹp có chủ ý: `python -c "print(1)"` có '(' mà không có '$('.
         if "$(" in tok or (tok.count("`") >= 2):
-            return [], (f"Lệnh chứa thay thế lệnh ('{tok[:40]}'). Tool này không qua shell nên "
-                        f"nó KHÔNG chạy, chỉ thành chữ. Cần giá trị đó thì gọi một lời gọi "
-                        f"tool riêng để lấy trước.")
+            return [], (f"The command contains command substitution ('{tok[:40]}'). This tool does not go through a shell, so "
+                        f"it is NOT executed and just becomes literal text. If you need that value, make a "
+                        f"separate tool call to get it first.")
     return argv, ""
 
 
@@ -167,28 +167,28 @@ def kiem_quyen(argv: list[str], muc: str) -> str:
         prog = prog[:-4]
 
     if prog in CHAN_CUNG:
-        return (f"'{prog}' bị chặn ở MỌI mức quyền, kể cả toàn quyền. Đây là rào cứng của "
-                f"Javis để một lời gọi sai khuôn không phá được máy. Cần thật thì chủ máy tự "
-                f"chạy trong terminal.")
+        return (f"'{prog}' is blocked at EVERY permission level, even full access. This is a hard "
+                f"guardrail in Jarvis 007 so that a malformed call cannot damage the machine. If it is truly needed, the machine owner "
+                f"should run it in a terminal.")
 
     if muc == FULL:
         return ""
 
     if muc != AUTO:
-        return (f"Mức quyền hiện tại là '{muc}', không chạy lệnh. Nâng chip của phiên lên "
-                f"'auto' hoặc 'full' trên trang Coding.")
+        return (f"The current permission level is '{muc}', so no command is run. Raise the session chip to "
+                f"'auto' or 'full' on the Coding page.")
 
     if prog not in ALLOWLIST_AUTO:
-        return (f"'{prog}' không nằm trong danh sách lệnh được phép ở mức 'auto'. Mức này chỉ "
-                f"cho chạy thử và đọc. Nâng chip của phiên lên 'full' nếu thật sự cần.")
+        return (f"'{prog}' is not on the list of commands allowed at the 'auto' level. This level only "
+                f"allows tests and reads. Raise the session chip to 'full' if you really need it.")
 
     sub = (argv[1] if len(argv) > 1 else "").lower()
     if prog == "git" and sub not in _GIT_AUTO:
-        return (f"'git {sub}' đổi lịch sử hoặc cây làm việc nên không chạy ở mức 'auto'. "
-                f"Mức này chỉ cho git chỉ đọc: {', '.join(sorted(_GIT_AUTO))}.")
+        return (f"'git {sub}' changes history or the working tree, so it does not run at the 'auto' level. "
+                f"This level only allows read-only git: {', '.join(sorted(_GIT_AUTO))}.")
     if prog in ("npm", "yarn", "pnpm") and sub not in _NPM_AUTO:
-        return (f"'{prog} {sub}' không chạy ở mức 'auto' (cài gói thì đụng mạng và ghi ngoài "
-                f"thư mục làm việc). Mức này cho: {', '.join(sorted(_NPM_AUTO))}.")
+        return (f"'{prog} {sub}' does not run at the 'auto' level (installing packages touches the network and writes outside "
+                f"the working folder). This level allows: {', '.join(sorted(_NPM_AUTO))}.")
     return ""
 
 
@@ -198,7 +198,7 @@ def _cat_output(s: str) -> str:
     if len(s) <= OUTPUT_TOI_DA:
         return s
     duoi = OUTPUT_TOI_DA - OUTPUT_DAU
-    return (s[:OUTPUT_DAU] + f"\n\n… [cắt {len(s) - OUTPUT_TOI_DA:,} ký tự ở giữa] …\n\n"
+    return (s[:OUTPUT_DAU] + f"\n\n… [cut {len(s) - OUTPUT_TOI_DA:,} characters from the middle] …\n\n"
             + s[-duoi:])
 
 
@@ -209,12 +209,12 @@ def _cwd_hop_le(ctx: CodingToolContext, cwd: str) -> tuple[str, str]:
     try:
         t = (root / raw).resolve()
     except (OSError, ValueError):
-        return "", f"Đường dẫn '{raw}' không hợp lệ."
+        return "", f"The path '{raw}' is not valid."
     if t != root and root not in t.parents:
-        return "", (f"'{raw}' nằm ngoài thư mục làm việc ({root}). Lệnh chỉ chạy được bên "
-                    f"trong thư mục đó.")
+        return "", (f"'{raw}' is outside the working folder ({root}). Commands can only run inside "
+                    f"that folder.")
     if not t.is_dir():
-        return "", f"Không có thư mục '{raw}' trong thư mục làm việc."
+        return "", f"There is no folder '{raw}' in the working folder."
     return str(t), ""
 
 
@@ -228,7 +228,7 @@ def chay(command: str, ctx: CodingToolContext, cwd: str = ".",
     cmd = str(command or "").strip()
     if not ctx.active:
         return KetQua(False, command=cmd, error=(
-            "Phiên này chưa gắn thư mục làm việc nào. Mở trang Coding, chọn repo rồi thử lại."))
+            "This session has no working folder attached. Open the Coding page, pick a repo and try again."))
 
     argv, loi = tach(cmd)
     if loi:
@@ -240,7 +240,7 @@ def chay(command: str, ctx: CodingToolContext, cwd: str = ".",
 
     if ctx.permission_mode == SUGGEST:
         # Tới đây thì kiem_quyen đã chặn rồi, nhưng giữ nhánh này để ý định hiện rõ trong mã.
-        return KetQua(False, command=cmd, error="Mức 'suggest' chỉ đề xuất, không chạy.")
+        return KetQua(False, command=cmd, error="The 'suggest' level only proposes and does not run anything.")
 
     thu_muc, loi = _cwd_hop_le(ctx, cwd)
     if loi:
@@ -265,13 +265,13 @@ def chay(command: str, ctx: CodingToolContext, cwd: str = ".",
         )
     except FileNotFoundError:
         return KetQua(False, command=cmd, elapsed=time.time() - t0,
-                      error=f"Không tìm thấy chương trình '{argv[0]}' trên máy này.")
+                      error=f"Could not find the program '{argv[0]}' on this machine.")
     except subprocess.TimeoutExpired:
         return KetQua(False, command=cmd, elapsed=time.time() - t0, da_chay=True,
-                      error=f"Lệnh chạy quá {int(tran)} giây nên đã bị dừng.")
+                      error=f"The command ran longer than {int(tran)} seconds and was stopped.")
     except OSError as e:
         return KetQua(False, command=cmd, elapsed=time.time() - t0,
-                      error=f"Không chạy được: {type(e).__name__}: {e}")
+                      error=f"Could not run: {type(e).__name__}: {e}")
 
     ra = (r.stdout or "")
     if r.stderr:
@@ -287,4 +287,4 @@ def ket_qua_cho_model(kq: KetQua) -> str:
     dau = f"exit={kq.exit_code} ({kq.elapsed:.1f}s)"
     if kq.error:
         return f"{dau}\nERROR: {kq.error}\n{kq.output}".rstrip()
-    return f"{dau}\n{kq.output}".rstrip() if kq.output else f"{dau}\n(không có output)"
+    return f"{dau}\n{kq.output}".rstrip() if kq.output else f"{dau}\n(no output)"

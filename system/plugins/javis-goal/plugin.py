@@ -26,10 +26,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-_NOTE = ("Lưu ý: mục tiêu sẽ được Javis làm tiếp ở NỀN từng bước, trong hạn mức {budget} lượt gọi model; "
-         "kết quả, việc cần người dùng xác nhận hay lý do phải dừng tự hiện trong khung chat này. Nói đúng như vậy, "
-         "đừng hứa thời điểm cụ thể. Bộ thực thi nền chỉ có lời người dùng và khung mục tiêu, KHÔNG đọc được file "
-         "hay dữ liệu khác: phần cần dữ liệu thì làm ngay trong lượt này.")
+_NOTE = ("Note: Jarvis 007 will keep working on the goal in the BACKGROUND, step by step, within a budget of {budget} model calls; "
+         "the result, anything that needs the user's confirmation, or the reason it had to stop will appear in this chat on its own. Say exactly that, "
+         "and do not promise a specific time. The background executor only has the user's words and the goal frame, it CANNOT read files "
+         "or other data: do any part that needs data right now, in this turn.")
 
 
 def _brain_id(vault_root) -> str:
@@ -79,28 +79,28 @@ def _when(ts) -> str:
 def _summary(g, head: str) -> str:
     h = g.horizon or {}
     if h.get("kind") == "deadline":
-        hz = f"hạn {_when(h.get('at'))} (người dùng nêu: \"{h.get('quote')}\")"
+        hz = f"deadline {_when(h.get('at'))} (the user said: \"{h.get('quote')}\")"
     elif h.get("kind") == "review":
-        hz = f"mốc xem lại nội bộ {_when(h.get('at'))}, KHÔNG phải hạn của người dùng"
+        hz = f"internal review point {_when(h.get('at'))}, NOT a user deadline"
     elif h.get("kind") == "event":
-        hz = f"chờ sự kiện: {h.get('event')}"
+        hz = f"waiting for event: {h.get('event')}"
     else:
-        hz = "duy trì cho tới khi người dùng dừng"
+        hz = "maintain until the user stops it"
     lines = [f"{head} {g.id} (revision {g.revision}, stage {g.stage}, mode {g.mode}).",
-             f"Cách hiểu: {g.understanding or '(chưa rõ, đang ở bước khám phá)'}",
-             "Tiêu chí: " + "; ".join(f"{c['id']} {c['description']} [{c['evaluator']}]" for c in g.criteria),
-             f"Chân trời: {hz}"]
+             f"Understanding: {g.understanding or '(not clear yet, still in discovery)'}",
+             "Criteria: " + "; ".join(f"{c['id']} {c['description']} [{c['evaluator']}]" for c in g.criteria),
+             f"Horizon: {hz}"]
     if g.targets:
-        lines.append("Chỉ tiêu người dùng nêu: " + "; ".join(f"{t.get('text')} (\"{t.get('quote')}\")"
+        lines.append("Targets the user stated: " + "; ".join(f"{t.get('text')} (\"{t.get('quote')}\")"
                                                          for t in g.targets))
     if g.assumptions:
-        lines.append("Giả định: " + "; ".join(g.assumptions))
+        lines.append("Assumptions: " + "; ".join(g.assumptions))
     if g.constraints:
-        lines.append("Ràng buộc của người dùng: " + "; ".join(g.constraints))
+        lines.append("User constraints: " + "; ".join(g.constraints))
     if g.open_questions:
-        lines.append("Câu hỏi còn mở (chỉ hỏi nếu thật cần): " + "; ".join(g.open_questions))
+        lines.append("Open questions (only ask if really needed): " + "; ".join(g.open_questions))
     if g.guards:
-        lines.append("Guard (host tự kiểm định kỳ, nhảy thì dừng mục tiêu): "
+        lines.append("Guard (the host checks these periodically, and stops the goal if one trips): "
                      + "; ".join(f"{x.get('id')} {x.get('description')}" for x in g.guards))
     lines.append(_NOTE.format(budget=g.budget_calls))
     return "\n".join(lines)
@@ -114,7 +114,7 @@ def _hold_until() -> float:
     return time.time() + R.HANDOFF_HOLD_S
 
 
-_PLAIN = " Không lập mục tiêu; trả lời người dùng bình thường."
+_PLAIN = " Do not set a goal; answer the user normally."
 
 
 def _scope_note(store, p, g, mref: str) -> str:
@@ -131,16 +131,16 @@ def _scope_note(store, p, g, mref: str) -> str:
     st = sc.get("state")
     lines = []
     if st == "granted":
-        lines.append(f"Phạm vi ghi: đã được cho phép với {path}.")
+        lines.append(f"Write scope: allowed for {path}.")
     elif st == "pending":
-        lines.append(f"Phạm vi ghi: CHƯA được cho phép. Thẻ mục tiêu sẽ hỏi chủ dự án có cho ghi vào {path} không. "
-                     "Nói đúng như vậy; đừng nói đã ghi hay sẽ tự ghi. Bản bạn nộp bây giờ chỉ được giữ làm nháp; "
-                     "chủ dự án bấm Cho phép thì Javis đăng đúng bản đó.")
+        lines.append(f"Write scope: NOT allowed yet. The goal card will ask the project owner whether writing to {path} is allowed. "
+                     "Say exactly that; do not say it was written or will be written automatically. What you submit now is only kept as a draft; "
+                     "when the project owner clicks Allow, Jarvis 007 publishes exactly that version.")
     elif st in ("revoked", "denied", "missing"):
-        lines.append("Phạm vi ghi: không có quyền ghi lúc này (chủ dự án đã thu hồi hay chưa cho phép).")
+        lines.append("Write scope: no write permission right now (the project owner revoked it or has not allowed it).")
     if b is not None and b.get("status") == "live" and path:
-        lines.append(f"Mã bàn giao của lượt này: handoff={b['id']}. Muốn nộp sản phẩm thì gọi javis_submit_deliverable "
-                     f"với path={path}, content là TOÀN VĂN, và handoff này. Không Write thẳng vào file đích.")
+        lines.append(f"Handoff code for this turn: handoff={b['id']}. To submit the deliverable, call javis_submit_deliverable "
+                     f"with path={path}, content as the FULL TEXT, and this handoff. Do not Write directly to the target file.")
     return ("\n" + "\n".join(lines)) if lines else ""
 
 
@@ -154,25 +154,25 @@ def _turn(vault_root):
     import turn_context
     t = turn_context.current()
     if t is None:
-        return ("ERROR: Không xác định được lượt chat đang gọi tool (engine này chưa mang được ngữ cảnh lượt tới "
-                "Javis)." + _PLAIN)
+        return ("ERROR: Could not identify the chat turn calling this tool (this engine did not carry the turn context to "
+                "Jarvis 007)." + _PLAIN)
     ag = t.get("agent") or {}
     if not ag.get("key"):
-        return ("ERROR: Cộng hưởng chỉ dùng trong cuộc trò chuyện với một trợ lý đã bật Cộng hưởng (trang Cộng sự)."
+        return ("ERROR: Resonance is only available in a conversation with an assistant that has Resonance enabled (Partners page)."
                 + _PLAIN)
     sid, mid = str(t.get("session_id") or ""), int(t.get("message_id") or 0)
     if not sid or mid <= 0:
-        return "ERROR: Lượt này không có id tin nhắn của người dùng." + _PLAIN
+        return "ERROR: This turn has no user message id." + _PLAIN
     if not _store_exists():
-        return "ERROR: Chưa có trợ lý nào bật Cộng hưởng." + _PLAIN
+        return "ERROR: No assistant has Resonance enabled yet." + _PLAIN
     store = RS.GoalStore()
     _a, why = R.agent_gate(store, _brain_id(vault_root), ag["key"], ag.get("config_version"))
     if why:
-        return (f"ERROR: Cộng hưởng của trợ lý này đang tắt hoặc vừa đổi ({why}). Chủ dự án bật lại ở trang Cộng sự "
-                "rồi gửi lại tin." + _PLAIN)
+        return (f"ERROR: Resonance for this assistant is off or was just changed ({why}). The project owner can turn it back on in the Partners page, "
+                "then send the message again." + _PLAIN)
     text = luot_dang_chay.loi_cua_luot(f"web:{sid}", mid, vault_root)
     if text is None:
-        return "ERROR: Lượt chat của tin này không còn chạy." + _PLAIN
+        return "ERROR: The chat turn for this message is no longer running." + _PLAIN
     return store, ag, sid, mid, text, t.get("authority_seq")
 
 
@@ -183,9 +183,9 @@ async def javis_goal(args, ctx):
     vault = getattr(ctx, "vault_root", None)
     op = str(args.get("op") or "").strip().lower()
     if op not in ("create", "update", "list"):
-        return "ERROR: op phải là create, update hoặc list."
+        return "ERROR: op must be create, update or list."
     if not vault:
-        return "ERROR: Không xác định được brain." + _PLAIN
+        return "ERROR: Could not identify the brain." + _PLAIN
     turn = _turn(vault)
     if isinstance(turn, str):
         return turn
@@ -194,13 +194,13 @@ async def javis_goal(args, ctx):
     if op == "list":
         goals = store.list_open(p, agent_key=ag["key"])
         if not goals:
-            return "Trợ lý này chưa có mục tiêu nào đang mở."
-        return "\n\n".join(_summary(g, "Mục tiêu") for g in goals[:10])
+            return "This assistant has no open goals yet."
+        return "\n\n".join(_summary(g, "Goal") for g in goals[:10])
     mref = R.message_ref(sid, mid)
     constraints = [str(x) for x in (args.get("constraints") or []) if str(x).strip()]
     unsure = bool(args.get("user_unsure"))
     if op == "create":
-        deps = R.GoalDeps(engine_factory=lambda s, t: (None, {"blocked": "tool không gọi model"}),
+        deps = R.GoalDeps(engine_factory=lambda s, t: (None, {"blocked": "the tool does not call a model"}),
                           budget=R.CallBudget(0), store=store)
         try:
             g = await R.form_goal(mref, {"principal": p, "brain_root": vault, "session_id": sid, "message_id": mid,
@@ -209,22 +209,22 @@ async def javis_goal(args, ctx):
                                          "hold_until": _hold_until(), "agent_key": ag["key"],
                                          "agent_version": ag.get("config_version"), "authority_seq": aseq}, deps)
         except R.GoalRejected as e:
-            return f"ERROR: Chưa lập được mục tiêu: {e}. Sửa đề xuất rồi gọi lại, hoặc trả lời bình thường nếu việc này không cần theo đuổi sau lượt chat."
+            return f"ERROR: Could not set the goal: {e}. Fix the proposal and call again, or answer normally if this does not need follow-up after the chat turn."
         except RS.AgentStateError as e:
-            return f"ERROR: Cộng hưởng của trợ lý này vừa tắt hoặc đổi ({e})." + _PLAIN
+            return f"ERROR: Resonance for this assistant was just turned off or changed ({e})." + _PLAIN
         if g.agent_key != ag["key"]:
             # Tin này đã có mục tiêu từ trước mà không thuộc trợ lý của lượt: không trả nó ra, không ghi gì thêm.
-            return "ERROR: Tin này đã gắn với một mục tiêu không thuộc trợ lý này." + _PLAIN
-        return _summary(g, "Đã lập mục tiêu") + _scope_note(store, p, g, mref)
+            return "ERROR: This message is already attached to a goal that does not belong to this assistant." + _PLAIN
+        return _summary(g, "Goal created") + _scope_note(store, p, g, mref)
     gid = str(args.get("goal_id") or "")
     try:
         exp = int(args.get("expected_revision"))
     except (TypeError, ValueError):
-        return "ERROR: update cần expected_revision (số revision bạn đang thấy)."
+        return "ERROR: update needs expected_revision (the revision number you are currently seeing)."
     cur = store.get(p, gid)
     if cur is None or cur.agent_key != ag["key"]:
         # Kiểm TRƯỚC khi đọc hay so gì: mục tiêu của agent khác trả lời như không tồn tại, không lộ nội dung.
-        return "ERROR: Không có mục tiêu này trong các mục tiêu của trợ lý. Gọi op=list để xem."
+        return "ERROR: This goal is not among the assistant's goals. Call op=list to see them."
     try:
         # Đọc revision hiện tại trước khi kiểm: hạn và chỉ tiêu người dùng nêu ở tin trước được giữ nguyên.
         g, relation, kept = R.revise_goal(store, p, gid, exp, _proposal(args), {
@@ -233,71 +233,71 @@ async def javis_goal(args, ctx):
             "hold_until": _hold_until(), "agent_key": ag["key"], "agent_version": ag.get("config_version"),
             "authority_seq": aseq})
     except RS.ConflictError as e:
-        return f"ERROR: Mục tiêu đã đổi trước đó ({e}). Gọi op=list để xem revision hiện tại."
+        return f"ERROR: The goal was changed earlier ({e}). Call op=list to see the current revision."
     except RS.ScopeError as e:
         return f"ERROR: {e}."
     except RS.AgentStateError as e:
-        return f"ERROR: Cộng hưởng của trợ lý này vừa tắt hoặc đổi ({e})." + _PLAIN
+        return f"ERROR: Resonance for this assistant was just turned off or changed ({e})." + _PLAIN
     except R.GoalRejected as e:
-        return f"ERROR: Chưa cập nhật được mục tiêu: {e}."
+        return f"ERROR: Could not update the goal: {e}."
     if relation == "none":
-        out = _summary(g, "KHÔNG có thay đổi nào được áp dụng, mục tiêu giữ nguyên")
+        out = _summary(g, "NO changes were applied, the goal stays as it was")
     else:
-        out = _summary(g, "Đã cập nhật mục tiêu")
+        out = _summary(g, "Goal updated")
     out += _scope_note(store, p, g, mref)
     if kept:
-        out += ("\nHost giữ nguyên chỉ dẫn cũ, phần sau CHƯA áp dụng (bản này chưa hỗ trợ). Nói rõ với người dùng là chưa đổi được, "
-                "đừng báo là đã đổi:\n" + "\n".join("- " + k for k in kept))
+        out += ("\nThe host kept the old instructions; the following were NOT applied (this version does not support them yet). Tell the user plainly they could not be changed, "
+                "and do not report them as changed:\n" + "\n".join("- " + k for k in kept))
     return out
 
 
 _DESC = (
-    "Lập hoặc cập nhật MỤC TIÊU bền (Hệ thống cộng hưởng). op=create CHỈ khi người dùng giao trách nhiệm theo "
-    "đuổi kết quả SAU lượt chat này (làm, tự kiểm, sửa theo phản hồi, duy trì, theo dõi, chờ sự kiện, giữ việc "
-    "mở tới khi đạt) và nói được cách nhận biết xong (criteria) cùng chân trời (horizon). KHÔNG gọi cho: câu "
-    "hỏi, tư vấn, lập kế hoạch, việc làm xong ngay trong lượt, hay kế hoạch do chính bạn đề xuất. Việc nền một "
-    "lần, xong là hết trách nhiệm: javis_task. Nhắc giờ cố định: "
-    "javis_schedule. relevant_quote phải trích NGUYÊN VĂN lời người dùng. Không bịa hạn chót hay chỉ tiêu: "
-    "người dùng không nêu hạn thì horizon.kind=review (mốc xem lại nội bộ). Người dùng nói chưa biết muốn gì "
-    "thì user_unsure=true, stage=discovery. Người dùng bổ sung ý cho mục tiêu đang mở: op=update với goal_id "
-    "và expected_revision (xem bằng op=list); chỉ gửi trường thay đổi, trường bỏ trống giữ như cũ. Bản này "
-    "CHƯA đổi hay bỏ được hạn chót, chỉ tiêu và ràng buộc người dùng đã nêu: host giữ nguyên và báo lại; khi "
-    "đó nói rõ với người dùng là bạn không đổi được, người dùng tự bỏ bằng nút Bỏ trên thẻ mục tiêu trong khung chat. "
-    "Thêm chỉ tiêu hay ràng buộc mới thì được."
+    "Create or update a durable GOAL (Resonance system). op=create ONLY when the user hands over responsibility for "
+    "pursuing a result AFTER this chat turn (do it, self-check, fix from feedback, maintain, monitor, wait for an event, keep the work "
+    "open until it is met) and you can state how to tell it is done (criteria) and the horizon (horizon). Do NOT call it for: "
+    "questions, advice, planning, work finished within this turn, or a plan you proposed yourself. One-off "
+    "background work that ends your responsibility once done: javis_task. Reminders at a fixed time: "
+    "javis_schedule. relevant_quote must quote the user's words VERBATIM. Do not invent deadlines or targets: "
+    "if the user gave no deadline, use horizon.kind=review (an internal review point). If the user says they do not know what they want, "
+    "set user_unsure=true, stage=discovery. When the user adds something to an open goal: op=update with goal_id "
+    "and expected_revision (see it with op=list); send only the changed fields, omitted fields stay as they were. This version "
+    "CANNOT yet change or drop a deadline, target or constraint the user already stated: the host keeps them and reports back; in "
+    "that case tell the user plainly that you cannot change them, and that they can remove them with the Remove button on the goal card in the chat. "
+    "Adding new targets or constraints is fine."
 )
 
 _SCHEMA = {
     "type": "object",
     "properties": {
         "op": {"type": "string", "enum": ["create", "update", "list"]},
-        "understanding": {"type": "string", "description": "Kết quả cần tạo, một câu. Rỗng nếu chưa rõ."},
-        "criteria": {"type": "array", "description": "Cách nhận biết xong. Ít nhất một mục.", "items": {
+        "understanding": {"type": "string", "description": "The result to produce, one sentence. Empty if not clear yet."},
+        "criteria": {"type": "array", "description": "How to tell it is done. At least one item.", "items": {
             "type": "object", "properties": {
                 "description": {"type": "string",
-                                "description": "Điều cần kiểm, cụ thể. Rỗng thì host từ chối."},
+                                "description": "What to check, specific. The host rejects it if empty."},
                 "evaluator": {"type": "string", "enum": ["artifact_contract", "human_confirmation"]},
-                "params": {"type": "object", "description": "artifact_contract: path (tương đối trong brain), "
+                "params": {"type": "object", "description": "artifact_contract: path (relative to the brain), "
                                                             "min_chars, must_contain"}},
             "required": ["description", "evaluator"]}},
-        "relevant_quote": {"type": "string", "description": "Trích nguyên văn một đoạn lời người dùng làm căn cứ."},
+        "relevant_quote": {"type": "string", "description": "Quote a passage of the user's words verbatim as the basis."},
         "horizon": {"type": "object", "properties": {
             "kind": {"type": "string", "enum": ["deadline", "review", "event", "maintain"]},
-            "at_iso": {"type": "string", "description": "Thời điểm ISO 8601 cho deadline/review."},
+            "at_iso": {"type": "string", "description": "ISO 8601 time for deadline/review."},
             "from_user": {"type": "boolean"},
-            "quote": {"type": "string", "description": "Trích đoạn người dùng nêu hạn (bắt buộc với deadline)."},
+            "quote": {"type": "string", "description": "Quote where the user stated the deadline (required for deadline)."},
             "event": {"type": "string"},
             "reason": {"type": "string"}}},
         "stage": {"type": "string", "enum": ["discovery", "delivery"]},
         "mode": {"type": "string", "enum": ["achieve", "maintain"]},
         "assumptions": {"type": "array", "items": {"type": "string"}},
         "constraints": {"type": "array", "items": {"type": "string"},
-                        "description": "Ràng buộc người dùng đã nêu (ví dụ: không xoá gì)."},
+                        "description": "Constraints the user stated (for example: delete nothing)."},
         "targets": {"type": "array", "items": {"type": "object", "properties": {
             "text": {"type": "string"}, "quote": {"type": "string"}}}},
         "open_questions": {"type": "array", "items": {"type": "string"}},
-        "guards": {"type": "array", "description": "Điều kiện bảo vệ host tự kiểm định kỳ bằng code; nhảy thì "
-                   "dừng mục tiêu và báo người dùng. Ví dụ ràng buộc 'không xoá ghi chú cũ': artifact_contract với "
-                   "path của ghi chú đó.", "items": {"type": "object", "properties": {
+        "guards": {"type": "array", "description": "Protective conditions the host checks periodically in code; if one trips, "
+                   "the goal stops and the user is told. Example, for the constraint 'do not delete the old note': artifact_contract with "
+                   "the path of that note.", "items": {"type": "object", "properties": {
                        "description": {"type": "string"},
                        "evaluator": {"type": "string", "enum": ["artifact_contract"]},
                        "params": {"type": "object"}}, "required": ["description", "evaluator"]}},
@@ -311,21 +311,21 @@ _SCHEMA = {
 
 
 _SUBMIT_MSG = {
-    "no_turn": "Không xác định được lượt chat đang gọi (engine này chưa mang được ngữ cảnh lượt tới Javis).",
-    "not_agent_turn": "Chỉ nộp được trong cuộc trò chuyện với một trợ lý đã bật Cộng hưởng.",
-    "invalid_content": "content phải là toàn văn sản phẩm, không rỗng.",
-    "path_rejected": "Đường đích không nhận (ngoài brain, có . hay .., đuôi không phải .md/.txt, hay thư mục cấm).",
-    "too_large": "Sản phẩm quá 1MB.",
-    "no_open_handoff": "Lượt này không có mục tiêu nào đang chờ bàn giao (lập hay cập nhật mục tiêu bằng javis_goal trước).",
-    "path_not_in_scope": "Đường này không phải sản phẩm của mục tiêu trong lượt này.",
-    "ambiguous_handoff": "Có nhiều mục tiêu cùng đích trong lượt này; gửi kèm handoff do javis_goal trả.",
-    "submission_conflict": "Khoá nộp này đã dùng cho một nội dung khác.",
-    "turn_closed": "Lượt bàn giao đã đóng; không nhận lời nộp mới.",
-    "grant_revoked": "Chủ dự án đã thu hồi quyền của mục tiêu này.",
-    "scope_decided": "Chủ dự án đã quyết phạm vi; lượt này không nộp thêm được.",
-    "revision_changed": "Mục tiêu đã sang revision khác; nộp theo handoff mới.",
-    "agent_changed": "Công tắc trợ lý vừa đổi; không nhận lời nộp.",
-    "storage_error": "Javis chưa lưu được bản nộp; thử lại sau.",
+    "no_turn": "Could not identify the chat turn making the call (this engine did not carry the turn context to Jarvis 007).",
+    "not_agent_turn": "Submitting is only possible in a conversation with an assistant that has Resonance enabled.",
+    "invalid_content": "content must be the full text of the deliverable, not empty.",
+    "path_rejected": "Target path not accepted (outside the brain, contains . or .., extension is not .md/.txt, or a forbidden folder).",
+    "too_large": "The deliverable is over 1MB.",
+    "no_open_handoff": "This turn has no goal waiting for handoff (create or update a goal with javis_goal first).",
+    "path_not_in_scope": "This path is not a deliverable of a goal in this turn.",
+    "ambiguous_handoff": "Several goals share this target in this turn; include the handoff returned by javis_goal.",
+    "submission_conflict": "This submission key was already used for different content.",
+    "turn_closed": "The handoff turn is closed; new submissions are not accepted.",
+    "grant_revoked": "The project owner revoked the permission for this goal.",
+    "scope_decided": "The project owner already decided the scope; nothing more can be submitted in this turn.",
+    "revision_changed": "The goal moved to another revision; submit with the new handoff.",
+    "agent_changed": "The assistant switch just changed; the submission is not accepted.",
+    "storage_error": "Jarvis 007 could not save the submission; try again later.",
 }
 
 
@@ -338,7 +338,7 @@ async def javis_submit_deliverable(args, ctx):
     import turn_context
     vault = getattr(ctx, "vault_root", None)
     if not vault or not _store_exists():
-        return "ERROR: Chưa có trợ lý nào bật Cộng hưởng."
+        return "ERROR: No assistant has Resonance enabled yet."
     deps = R.deps_for(_brain_id(vault))
     if deps is None:
         deps = R.GoalDeps(engine_factory=lambda s, t: (None, {}), budget=R.CallBudget(0), store=RS.GoalStore(),
@@ -351,32 +351,32 @@ async def javis_submit_deliverable(args, ctx):
         code = res.get("code") or "storage_error"
         extra = ""
         if res.get("handoffs"):
-            extra = " Các handoff: " + ", ".join(f"{h['handoff']} (mục tiêu {h['goal_id']})" for h in res["handoffs"])
+            extra = " Handoffs: " + ", ".join(f"{h['handoff']} (goal {h['goal_id']})" for h in res["handoffs"])
         return f"ERROR {code}: {_SUBMIT_MSG.get(code, code)}{extra}"
     st = res["status"]
-    what = {"candidate": "chờ host đăng vào file đích cuối lượt",
-            "awaiting_scope": "giữ làm NHÁP; file đích chưa được cho phép, chủ dự án bấm Cho phép thì Javis đăng đúng "
-                              "bản này",
-            "published": "đã đăng"}.get(st, st)
-    return (f"Đã nhận bản nộp {res['submission_id']} (sha256 {res['sha256'][:12]}, {res['size']} byte): {what}."
-            + (" Đây là biên nhận cũ của cùng nội dung." if res.get("replay") else "")
-            + " Không nói với người dùng là file đã được ghi cho tới khi host đăng xong.")
+    what = {"candidate": "waiting for the host to publish to the target file at the end of the turn",
+            "awaiting_scope": "kept as a DRAFT; the target file is not allowed yet, and when the project owner clicks Allow, Jarvis 007 publishes exactly "
+                              "this version",
+            "published": "published"}.get(st, st)
+    return (f"Submission {res['submission_id']} received (sha256 {res['sha256'][:12]}, {res['size']} bytes): {what}."
+            + (" This is the earlier receipt for the same content." if res.get("replay") else "")
+            + " Do not tell the user the file was written until the host has finished publishing.")
 
 
 _SUBMIT_DESC = (
-    "Nộp TOÀN VĂN sản phẩm của mục tiêu mà lượt này vừa lập hay cập nhật bằng javis_goal. Dùng thay cho ghi thẳng "
-    "vào file đích: host tự lưu bản nộp có biên nhận, tự đăng vào file đích khi chủ dự án đã cho phép phạm vi, và "
-    "không ghi đè file người dùng. path là đường sản phẩm của mục tiêu (tương đối trong brain), content là toàn bộ "
-    "nội dung, handoff là mã javis_goal trả (bắt buộc khi lượt có nhiều mục tiêu cùng đích). Nộp lại cùng nội dung trả "
-    "biên nhận cũ.")
+    "Submit the FULL TEXT of the deliverable for the goal this turn just created or updated with javis_goal. Use it instead of writing directly "
+    "to the target file: the host saves the submission with a receipt, publishes it to the target file once the project owner has allowed the scope, and "
+    "does not overwrite user files. path is the goal's deliverable path (relative to the brain), content is the entire "
+    "text, handoff is the code javis_goal returned (required when the turn has several goals sharing a target). Resubmitting the same content returns the "
+    "earlier receipt.")
 
 _SUBMIT_SCHEMA = {
     "type": "object",
     "properties": {
-        "path": {"type": "string", "description": "Đường sản phẩm của mục tiêu, tương đối trong brain."},
-        "content": {"type": "string", "description": "Toàn văn sản phẩm."},
-        "handoff": {"type": "string", "description": "Mã bàn giao do javis_goal trả."},
-        "submission_key": {"type": "string", "description": "Khoá chống nộp trùng, không bắt buộc."},
+        "path": {"type": "string", "description": "Deliverable path of the goal, relative to the brain."},
+        "content": {"type": "string", "description": "Full text of the deliverable."},
+        "handoff": {"type": "string", "description": "Handoff code returned by javis_goal."},
+        "submission_key": {"type": "string", "description": "Key to prevent duplicate submissions, optional."},
     },
     "required": ["path", "content"],
 }

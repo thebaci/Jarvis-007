@@ -22,17 +22,17 @@ def register(ctx):
     def _check():
         try:
             if not openai_oauth.status().get("connected"):
-                return ("Chưa kết nối ChatGPT (OAuth). Vào trang Model đăng nhập ChatGPT rồi thử lại - "
-                        "tạo ảnh dùng chính gói ChatGPT, không cần API key.")
+                return ("ChatGPT is not connected (OAuth). Sign in to ChatGPT on the Models page and try again - "
+                        "image generation uses your ChatGPT plan itself, no API key needed.")
         except Exception as e:
-            return f"Không kiểm tra được kết nối ChatGPT: {e}"
+            return f"Could not check the ChatGPT connection: {e}"
         return None
 
     async def _gen(args, cctx):
         args = args or {}
         prompt = str(args.get("prompt") or "").strip()
         if not prompt:
-            return "ERROR: thiếu 'prompt' (mô tả ảnh cần tạo)."
+            return "ERROR: missing 'prompt' (description of the image to create)."
         aspect = str(args.get("aspect_ratio") or "square")
         quality = str(args.get("quality") or "medium")
         # `images`: đường dẫn ảnh MẪU trong brain. Nhận cả chuỗi một ảnh lẫn mảng nhiều ảnh -
@@ -44,32 +44,32 @@ def register(ctx):
         res = await image_gen.generate_chatgpt(prompt, aspect, quality,
                                                vault_root=cctx.vault_root, images=anh)
         if not res.get("ok"):
-            return "ERROR: " + str(res.get("error") or "tạo ảnh thất bại")
+            return "ERROR: " + str(res.get("error") or "image generation failed")
         rel = res["rel_path"]
-        theo = f" (dựng theo {res.get('refs') or 0} ảnh mẫu bạn gửi)" if res.get("refs") else ""
-        return (f"Đã tạo ảnh ({res['size']}, chất lượng {res['quality']}){theo}, lưu tại {rel}. "
-                f"HÃY NHÚNG ngay vào câu trả lời cho người dùng bằng cú pháp markdown: "
+        theo = f" (built from the {res.get('refs') or 0} reference image(s) you sent)" if res.get("refs") else ""
+        return (f"Image created ({res['size']}, quality {res['quality']}){theo}, saved at {rel}. "
+                f"EMBED it right away in your answer to the user with markdown syntax: "
                 f"![{prompt[:40]}]({rel})")
 
     ctx.register_tool(
         name="javis_generate_image",
-        description=("Tạo hoặc SỬA ẢNH bằng gói ChatGPT đang đăng nhập (không cần API key). Tham số: "
-                     "prompt (mô tả, bắt buộc), images (danh sách đường dẫn ảnh MẪU trong brain - "
-                     "ChatGPT sẽ NHÌN THẤY ảnh thật để sửa/dựng theo, dùng khi cần giữ đúng sản phẩm, "
-                     "nhãn, khuôn mặt, bố cục), aspect_ratio (square|landscape|portrait), "
-                     "quality (low|medium|high). Người dùng đưa ảnh và bảo 'dựng theo ảnh này' thì "
-                     "PHẢI truyền đường dẫn ảnh đó vào images, đừng tả lại ảnh bằng lời. "
-                     "Sau khi gọi, NHÚNG ![](đường-dẫn) trả về vào câu trả lời."),
+        description=("Create or EDIT IMAGES with the signed-in ChatGPT plan (no API key needed). Parameters: "
+                     "prompt (description, required), images (list of REFERENCE image paths in the brain - "
+                     "ChatGPT will SEE the real images to edit or build from, use it when the product, "
+                     "label, faces or layout must be kept exactly), aspect_ratio (square|landscape|portrait), "
+                     "quality (low|medium|high). When the user gives an image and says 'build it like this image', "
+                     "you MUST pass that image path in images, do not describe the image in words. "
+                     "After calling, EMBED the returned ![](path) in your answer."),
         handler=_gen, min_mode="safe", check_fn=_check,
         schema={"type": "object", "properties": {
-            "prompt": {"type": "string", "description": "Mô tả ảnh cần tạo (càng rõ càng tốt)"},
+            "prompt": {"type": "string", "description": "Description of the image to create (the clearer the better)"},
             "aspect_ratio": {"type": "string", "enum": ["square", "landscape", "portrait"],
-                             "description": "Tỉ lệ khung ảnh, mặc định square"},
+                             "description": "Image aspect ratio, default square"},
             "quality": {"type": "string", "enum": ["low", "medium", "high"],
-                        "description": "Chất lượng/độ chi tiết, mặc định medium"},
+                        "description": "Quality/level of detail, default medium"},
             "images": {"type": "array", "items": {"type": "string"},
-                       "description": ("Đường dẫn ảnh MẪU trong brain (vd attachments/chai.jpg) để "
-                                       "ChatGPT nhìn và dựng theo. Tối đa 4 ảnh, mỗi ảnh dưới 12MB.")}},
+                       "description": ("Path of a REFERENCE image in the brain (e.g. attachments/bottle.jpg) for "
+                                       "ChatGPT to look at and build from. Up to 4 images, each under 12MB.")}},
             "required": ["prompt"]},
     )
 
@@ -80,22 +80,22 @@ def register(ctx):
             raw = [raw]
         anh = [str(x).strip() for x in raw if str(x or "").strip()]
         if not anh:
-            return "ERROR: thiếu 'images' (đường dẫn ảnh trong brain, vd attachments/abc.jpg)."
+            return "ERROR: missing 'images' (image path in the brain, e.g. attachments/abc.jpg)."
         res = await image_vision.describe_images(anh, str(args.get("question") or ""),
                                                  vault_root=cctx.vault_root)
         if not res.get("ok"):
-            return "ERROR: " + str(res.get("error") or "không xem được ảnh")
-        return f"ChatGPT đã xem {res['count']} ảnh:\n{res['text']}"
+            return "ERROR: " + str(res.get("error") or "could not view the image")
+        return f"ChatGPT viewed {res['count']} image(s):\n{res['text']}"
 
     ctx.register_tool(
         name="javis_describe_image",
-        description=("XEM ẢNH trong brain: ChatGPT (gói đang đăng nhập) nhìn ảnh thật rồi tả lại bằng chữ, chép nguyên văn "
-                     "chữ/số trong ảnh. Dùng khi bạn KHÔNG tự mở được file ảnh (tool đọc file chỉ đọc chữ, không cho thấy "
-                     "ảnh). Tham số: images (đường dẫn ảnh trong brain, tối đa 4), question (cần tìm gì trong ảnh, tuỳ chọn)."),
+        description=("VIEW IMAGES in the brain: ChatGPT (the signed-in plan) looks at the real image and describes it in words, copying "
+                     "any text/numbers in the image verbatim. Use it when you CANNOT open the image file yourself (the file-read tool only reads text, it does not show "
+                     "images). Parameters: images (image paths in the brain, up to 4), question (what to look for in the image, optional)."),
         handler=_describe, min_mode="readonly", check_fn=_check,
         schema={"type": "object", "properties": {
             "images": {"type": "array", "items": {"type": "string"},
-                       "description": "Đường dẫn ảnh trong brain (vd attachments/zalo/abc.jpg). Tối đa 4 ảnh."},
-            "question": {"type": "string", "description": "Cần biết gì trong ảnh (tuỳ chọn), vd 'tổng tiền trên hoá đơn'"}},
+                       "description": "Image path in the brain (e.g. attachments/zalo/abc.jpg). Up to 4 images."},
+            "question": {"type": "string", "description": "What to find out from the image (optional), e.g. 'total amount on the invoice'"}},
             "required": ["images"]},
     )

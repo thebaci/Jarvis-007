@@ -52,8 +52,8 @@ def _token():
 
 def _check():
     if not _token():
-        return ("Chưa kết nối Apify. Vào trang Kết nối, chọn 'Theo dõi Facebook (Apify)', đăng ký "
-                "apify.com rồi dán Personal API token. Sau đó gọi lại tool này.")
+        return ("Apify is not connected. Go to the Connections page, choose 'Facebook Monitor (Apify)', sign up at "
+                "apify.com and paste your Personal API token. Then call this tool again.")
     return None
 
 
@@ -74,7 +74,7 @@ async def _run(actor, token, input_obj):
         e = data["error"]
         return {"__error": str(e.get("message") if isinstance(e, dict) else e)}
     if not isinstance(data, list):
-        return {"__error": f"Apify trả dữ liệu lạ: {str(data)[:200]}"}
+        return {"__error": f"Apify returned unexpected data: {str(data)[:200]}"}
     return data
 
 
@@ -124,11 +124,11 @@ def _split_urls(val):
 async def _monitor(args, ctx):
     token = _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     args = args or {}
     urls = _split_urls(args.get("urls") or args.get("url"))
     if not urls:
-        return "ERROR: thiếu 'urls' (danh sách link Trang/Nhóm CÔNG KHAI cần theo dõi)."
+        return "ERROR: missing 'urls' (the list of PUBLIC Page/Group links to monitor)."
     try:
         limit = max(1, min(100, int(args.get("limit") or 20)))
     except (TypeError, ValueError):
@@ -172,16 +172,16 @@ async def _monitor(args, ctx):
 def register(ctx):
     ctx.register_tool(
         name="fb_monitor", min_mode="readonly", check_fn=_check, handler=_monitor,
-        description=("Theo dõi Trang và Nhóm CÔNG KHAI Facebook, tìm bài nhiều share (viral) qua Apify. "
-                     "urls = danh sách link Trang/Nhóm (chuỗi cách nhau hoặc mảng); URL chứa '/groups/' được "
-                     "quét bằng actor nhóm, còn lại quét như Trang. limit = số bài/nguồn (mặc định 20); "
-                     "min_shares = chỉ lấy bài từ ngần này share trở lên. Trả bài kèm share/react/bình luận, "
-                     "sắp theo share giảm dần. KHÔNG dùng tài khoản cá nhân, chỉ đọc. Tốn phí Apify theo lượt. "
-                     "LƯU Ý: Trang nào chặn xem feed khi chưa đăng nhập Facebook sẽ trả lỗi not_available - "
-                     "đó là chặn từ phía Facebook, đổi Trang khác hoặc chờ bản hỗ trợ cookie."),
+        description=("Monitor PUBLIC Facebook Pages and Groups and find posts with many shares (viral) through Apify. "
+                     "urls = list of Page/Group links (a separated string or an array); a URL containing '/groups/' is "
+                     "scanned with the group actor, the rest are scanned as Pages. limit = posts per source (default 20); "
+                     "min_shares = only keep posts with at least this many shares. Returns posts with shares/reactions/comments, "
+                     "sorted by shares, highest first. Does NOT use a personal account, read only. Apify charges per run. "
+                     "NOTE: a Page that blocks viewing its feed when not logged in to Facebook returns the error not_available - "
+                     "that is a block on Facebook's side; try another Page or wait for cookie support."),
         schema={"type": "object", "properties": {
-            "urls": {"type": "string", "description": "Link Trang/Nhóm công khai, cách nhau bởi dấu phẩy hoặc xuống dòng"},
-            "limit": {"type": "integer", "description": "Số bài quét mỗi nguồn (mặc định 20)"},
-            "min_shares": {"type": "integer", "description": "Chỉ lấy bài có số share >= giá trị này (mặc định 0)"}},
+            "urls": {"type": "string", "description": "Public Page/Group links, separated by commas or new lines"},
+            "limit": {"type": "integer", "description": "Number of posts to scan per source (default 20)"},
+            "min_shares": {"type": "integer", "description": "Only keep posts with a share count >= this value (default 0)"}},
             "required": ["urls"]},
     )

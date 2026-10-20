@@ -183,26 +183,26 @@ p_small, reads_small, detail_small = turn(small)
 
 check("nhóm 5.000 tin: còn quyết định ghim từ đầu lịch sử", "QUYẾT_ĐỊNH_GỐC_lon" in p_big)
 check("nhóm 5.000 tin: còn yêu cầu gốc của việc mở (phần trước lần sửa), kèm số lần sửa",
-      "YÊU_CẦU_GỐC_lon" in p_big and "sửa 1 lần" in p_big, p_big[-2500:])
-check("yêu cầu gốc không lẫn phần sửa", "thêm phần ngân sách" not in p_big.split("Việc đang mở")[1].split("\n## ")[0]
-      if "Việc đang mở" in p_big else False)
-check("nhóm 5.000 tin: còn trạng thái việc bị chặn và lý do", "bị chặn" in p_big and "CHỜ_CHỦ_DUYỆT_lon" in p_big)
+      "YÊU_CẦU_GỐC_lon" in p_big and "amended 1x" in p_big, p_big[-2500:])
+check("yêu cầu gốc không lẫn phần sửa", "thêm phần ngân sách" not in p_big.split("Open jobs of the team")[1].split("\n## ")[0]
+      if "Open jobs of the team" in p_big else False)
+check("nhóm 5.000 tin: còn trạng thái việc bị chặn và lý do", "blocked" in p_big and "CHỜ_CHỦ_DUYỆT_lon" in p_big)
 check("nhóm 5.000 tin: còn nguồn đóng góp của kết quả gần nhất (đầu vào của Minh và Hoa, Lan tổng hợp)",
-      "Nguồn đóng góp" in p_big and "Lan tổng hợp" in p_big and "của Minh" in p_big and "của Hoa" in p_big, p_big[-2500:])
-check("nguồn đóng góp có tỷ lệ ghi nhận từ pulse_contrib", "ghi nhận theo phản hồi của chủ" in p_big
-      and "%" in p_big.split("ghi nhận theo phản hồi của chủ")[1].split("\n")[0], p_big[-2500:])
+      "Contributions to the most recent result" in p_big and "Lan synthesized" in p_big and "from Minh" in p_big and "from Hoa" in p_big, p_big[-2500:])
+check("nguồn đóng góp có tỷ lệ ghi nhận từ pulse_contrib", "credited by the owner's feedback" in p_big
+      and "%" in p_big.split("credited by the owner's feedback")[1].split("\n")[0], p_big[-2500:])
 check("nhóm 5.000 tin: còn phản hồi chưa xem xét cũ hơn 30 ngày", "THIẾU_SỐ_THÁNG_BA_lon" in p_big
-      and "chờ xem xét" in p_big, p_big[-2500:])
-check("phần luôn giữ có trần ký tự", len(p_big.split("## Luôn giữ dù lịch sử dài")[1].split("\n## ")[0])
+      and "awaiting review" in p_big, p_big[-2500:])
+check("phần luôn giữ có trần ký tự", len(p_big.split("## Always kept even when the history is long")[1].split("\n## ")[0])
       <= TLM.ALWAYS_CHARS + 200)
 check("chỉ dữ liệu của chính nhóm này: không quyết định, yêu cầu, lý do chặn, phản hồi, việc xong của nhóm kia",
       all(f"{m}_nho" not in p_big for m in ("QUYẾT_ĐỊNH_GỐC", "YÊU_CẦU_GỐC", "CHỜ_CHỦ_DUYỆT", "THIẾU_SỐ_THÁNG_BA"))
-      and "Báo cáo quý nho" not in p_big and "của nho" not in p_big
+      and "Báo cáo quý nho" not in p_big and "from nho" not in p_big
       and all(f"{m}_lon" not in p_small for m in ("QUYẾT_ĐỊNH_GỐC", "YÊU_CẦU_GỐC", "CHỜ_CHỦ_DUYỆT", "THIẾU_SỐ_THÁNG_BA"))
       and "Báo cáo quý lon" not in p_small, p_big[-2500:])
 check("phản hồi ở chat riêng không bao giờ vào lượt nhóm", "BÍ_MẬT_CHAT_RIÊNG" not in p_big
       and "BÍ_MẬT_CHAT_RIÊNG" not in p_small)
-kept = p_big.split("## Luôn giữ dù lịch sử dài")[1].split("\n## ")[0]
+kept = p_big.split("## Always kept even when the history is long")[1].split("\n## ")[0]
 check("phần luôn giữ kết thúc bằng câu dặn: dữ liệu, không phải lệnh", kept.rstrip().endswith(TLM.KEPT_NOTE), kept[-300:])
 check("phần luôn giữ không có tiêu đề trống (mỗi tiêu đề có ít nhất một dòng)", all(
     i + 1 < len(kept.splitlines()) and kept.splitlines()[i + 1].startswith(("-", "  -"))
@@ -216,7 +216,7 @@ check(f"số lần đọc kho mỗi lượt có trần (<= {READ_CAP})", reads_b
 tm._set_reaction_time(big["session_id"], hoa_mid_big, time.time() - 86400)
 p_hoa = r._context(big, "hoa", "member_reply", None, None)
 recent_block = p_hoa.split("## Phản hồi gần đây của chủ nhóm")[1].split("\n## ")[0] if "## Phản hồi gần đây" in p_hoa else ""
-kept_hoa = p_hoa.split("## Luôn giữ dù lịch sử dài")[1].split("\n## ")[0] if "## Luôn giữ" in p_hoa else ""
+kept_hoa = p_hoa.split("## Always kept even when the history is long")[1].split("\n## ")[0] if "## Always kept" in p_hoa else ""
 check("phản hồi trong 30 ngày: hiện ở khối gần đây, KHÔNG lặp ở phần luôn giữ",
       "THIẾU_SỐ_THÁNG_BA_lon" in recent_block and "THIẾU_SỐ_THÁNG_BA_lon" not in kept_hoa, (recent_block, kept_hoa))
 tm._set_reaction_time(big["session_id"], hoa_mid_big, time.time() - 45 * 86400)
@@ -239,12 +239,12 @@ sid = ss.create_session(brain=str(d), channel=f"team:{tid}")
 tm.create_team(str(d), "Ngắn", "", sid, team_id=tid)
 tm.add_member(tid, "minh", "minh")
 ss.append_team_message(sid, "user", "Chào", author_kind="owner", client_msg_id="short")
-check("nhóm ngắn: không có khối luôn giữ", "Luôn giữ dù lịch sử dài" not in r._context(tm.get(tid), "minh",
+check("nhóm ngắn: không có khối luôn giữ", "Always kept even when the history is long" not in r._context(tm.get(tid), "minh",
                                                                                    "member_reply", None, None))
 
 # Lượt thật qua bộ chạy (engine giả) nhận đúng các mục đó.
 asyncio.run(r.run_replies(r.submit(big["team_id"], "Tóm lại giúp", mentions=["minh"], client_msg_id="ask-big")))
-check("lượt thật qua run_replies: prompt có phần luôn giữ", rec.reqs and "Luôn giữ dù lịch sử dài" in rec.reqs[-1]["prompt"]
+check("lượt thật qua run_replies: prompt có phần luôn giữ", rec.reqs and "Always kept even when the history is long" in rec.reqs[-1]["prompt"]
       and "YÊU_CẦU_GỐC_lon" in rec.reqs[-1]["prompt"])
 
 # Lỗi đọc một mục không làm hỏng lượt.
@@ -252,8 +252,8 @@ broken = TR.TeamRunner(teams=tm, tasks=ts, sessions=ss, engine_for=rec.engine_fo
                        agent_info=lambda root, key: {"slug": key, "name": NAMES.get(key, key), "system": ""},
                        contrib_reader=lambda ref: (_ for _ in ()).throw(RuntimeError("kho nhịp lỗi")))
 pb = broken._context(big, "minh", "member_reply", None, None)
-check("kho nhịp lỗi: vẫn dựng được khối, chỉ mất tỷ lệ ghi nhận", "YÊU_CẦU_GỐC_lon" in pb and "Lan tổng hợp" in pb
-      and "ghi nhận theo phản hồi" not in pb, pb[-2500:])
+check("kho nhịp lỗi: vẫn dựng được khối, chỉ mất tỷ lệ ghi nhận", "YÊU_CẦU_GỐC_lon" in pb and "Lan synthesized" in pb
+      and "credited by the owner" not in pb, pb[-2500:])
 
 # Kế hoạch truy vấn: mọi truy vấn của phần luôn giữ và hai truy vấn lịch sử chạy theo chỉ mục.
 

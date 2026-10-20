@@ -106,7 +106,7 @@ box["texts"][A] = "Đã rõ."
 say(T1, B)
 p = box["prompts"][B][-1]
 check("lượt kế tiếp của B trong nhóm 1 có mục góp ý đúng tiêu đề, người gửi, vai, mã tin",
-      ALS.PEER_HEADER in p and "Thiếu nguồn số liệu ở đoạn hai" in p and "Trưởng" in p and "trưởng nhóm" in p
+      ALS.PEER_HEADER in p and "Thiếu nguồn số liệu ở đoạn hai" in p and "Trưởng" in p and "team lead" in p
       and f"#{mB}" in p, p[-1200:])
 check("khối nói rõ không phải yêu cầu của chủ, nhiều trợ lý đồng ý không là bằng chứng độc lập",
       "không phải yêu cầu của chủ" in p and "không phải bằng chứng độc lập" in p)

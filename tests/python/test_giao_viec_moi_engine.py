@@ -107,7 +107,7 @@ async def _chay():
     # việc cho mọi op nó không hiểu.
     out = await goi({"op": "xoa-sach-moi-thu", "title": "việc lọt cửa"})
     check("CANARY: op lạ bị từ chối, KHÔNG bị hiểu thành giao việc",
-          "ERROR" in out and "op phải là" in out)
+          "ERROR" in out and "op must be" in out)
 
     # ============================================================
     # 3. Dựng hàng đợi thật rồi giao việc thật

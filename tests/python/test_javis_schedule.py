@@ -65,7 +65,7 @@ check("loop: MẶC ĐỊNH enabled: false (user bấm Bật ở trang Việc)", 
 # 2026-09-10: chủ repo bỏ luật "không giao tự động tiền/đơn/đăng bài/nhắn khách", nên loop tạo
 # qua chat mặc định toàn quyền. Muốn nhẹ hơn thì truyền muc_quyen.
 check("loop: MẶC ĐỊNH mode: full (Javis tự thao tác)", "mode: full" in body)
-check("loop: kết quả nói rõ mức quyền", "toàn quyền" in str(res))
+check("loop: kết quả nói rõ mức quyền", "full access" in str(res))
 _res_nhe = sched._create_loop_file(_vault, name="Chỉ đọc rồi báo",
                                    prompt="Mỗi vòng đọc số đơn rồi đề xuất.",
                                    schedule="60m", mode="suggest")

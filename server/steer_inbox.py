@@ -31,22 +31,22 @@ def note_for(texts: List[str]) -> str:
     if not texts:
         return ""
     body = "\n\n".join(f"<<<\n{t}\n>>>" for t in texts)
-    return ("\n\n[Javis] Người dùng vừa gửi thêm "
-            + ("một tin" if len(texts) == 1 else f"{len(texts)} tin")
-            + " trong lúc bạn đang làm. Đây là lời của chính họ:\n" + body + "\n"
-            "Nếu đó là sửa hướng hay bổ sung cho việc đang làm, áp dụng ngay từ bước kế tiếp. Nếu là một việc mới, "
-            "độc lập, hãy nhận luôn: làm song song (giao việc nền hoặc sub-agent nếu có) hoặc làm ngay sau phần đang dở, "
-            "rồi trả lời cả hai trong câu trả lời cuối. Đừng bỏ qua tin này.\n")
+    return ("\n\n[Jarvis 007] The user just sent "
+            + ("one more message" if len(texts) == 1 else f"{len(texts)} more messages")
+            + " while you were working. These are their own words:\n" + body + "\n"
+            "If it corrects the direction of, or adds to, the work in progress, apply it from the next step. If it is a new, "
+            "independent task, take it on: run it in parallel (hand it to a background job or sub-agent if available) or do it "
+            "right after the part in progress, then answer both in your final reply. Do not ignore this message.\n")
 
 
 def followup_prompt(texts: List[str]) -> str:
     """The message of the turn that runs the leftovers after a turn ended. Model prompt: Vietnamese."""
     body = "\n\n".join(texts)
     if len(texts) == 1:
-        return ("[Javis] Tin dưới đây người dùng gửi trong lúc lượt trước còn đang chạy; lượt trước đã xong. "
-                "Giờ làm theo tin này:\n\n" + body)
-    return (f"[Javis] {len(texts)} tin dưới đây người dùng gửi trong lúc lượt trước còn đang chạy; lượt trước đã xong. "
-            "Giờ làm theo các tin này, theo đúng thứ tự:\n\n" + body)
+        return ("[Jarvis 007] The user sent the message below while the previous turn was still running; the previous turn has finished. "
+                "Now act on this message:\n\n" + body)
+    return (f"[Jarvis 007] The user sent the {len(texts)} messages below while the previous turn was still running; the previous turn has finished. "
+            "Now act on these messages, in this order:\n\n" + body)
 
 
 class SteerInbox:

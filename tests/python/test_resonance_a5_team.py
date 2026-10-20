@@ -169,7 +169,7 @@ created = [e for e in t.store.events(t.owner, g.id) if e["kind"] in ("created", 
 # 0.142.0: bỏ người review cố định. Đường thật (tool javis_goal mở kho mặc định của host, không bật cờ của test) KHÔNG
 # gắn đội nữa, kể cả khi trợ lý còn một cặp làm/review cũ trong kho.
 check("T31 (0.142.0) tool javis_goal: mục tiêu mới KHÔNG có đội dù có cặp cũ, không lấy ngân sách đội 8, chỉ một sự kiện tạo",
-      "Đã lập mục tiêu" in out and tm is None and t.g(g).budget_calls != 8
+      "Goal created" in out and tm is None and t.g(g).budget_calls != 8
       and [e["kind"] for e in created] == ["created"], (out[:200], tm, created))
 try:
     t.store.assign_goal(t.owner, g.id, t.maker["agent_key"], g.revision)

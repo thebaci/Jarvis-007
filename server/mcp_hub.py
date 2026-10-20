@@ -230,8 +230,8 @@ def _guard(ent, fn, mode):
             ok, why, gated_ask = (False, full_why, False) if not full_ok else (False, "", True)
         if (ok or gated_ask) and not _rate_ok(conn["id"], connector):
             ok, gated_ask = False, False
-            why = (f"Kết nối '{conn.get('label')}' vượt giới hạn tần suất "
-                   f"(chống spam/khoá tài khoản). Chờ 1 phút rồi thử lại.")
+            why = (f"Connection '{conn.get('label')}' exceeded the rate limit "
+                   f"(protects against spam and account lockout). Wait 1 minute and try again.")
         if gated_ask:
             # Checked after the rate limit, so a refused call never burns the owner's approval.
             ok, why = await asyncio.to_thread(team_gate.hub_check, fn, args,
@@ -258,7 +258,7 @@ def _guard(ent, fn, mode):
         if str(result).startswith("ERROR:"):
             chan_doan = chan_doan_loi(str(result).split("ERROR:", 1)[1].strip(), conn["id"])
             if chan_doan:
-                return f"{result}\n\n[Javis chẩn đoán] {chan_doan}"
+                return f"{result}\n\n[Jarvis 007 diagnosis] {chan_doan}"
         return result
 
     return _call
@@ -403,12 +403,12 @@ def _safe_path(vault_root, p, workspace_root=None):
     if not goc_lv:
         if tv is not None:
             return tv
-        raise ValueError(f"đường dẫn '{p}' nằm ngoài vault")
+        raise ValueError(f"path '{p}' is outside the vault")
 
     ung_vien = [tv] + [_trong_goc(g, p) for g in goc_lv]
     co_that = [u for u in ung_vien if u is not None]
     if not co_that:
-        raise ValueError(f"đường dẫn '{p}' nằm ngoài cả bộ não lẫn thư mục làm việc")
+        raise ValueError(f"path '{p}' is outside both the brain and the working folder")
 
     for u in co_that:
         if u.exists():
@@ -491,11 +491,11 @@ def _connections_json(include_ambient=False, hidden=None, bo_qua=None):
     # này" rồi còn ghi điều đó vào bộ nhớ dài hạn. KHÔNG có khái niệm ấy: hub dựng tool từ
     # mcp_store.resolved() cho MỌI vault như nhau. Không thấy tool chỉ có hai lý do thật -
     # nguồn đang tắt, hoặc nguồn đang hỏng lúc dò - và cả hai đều phải nói ra ở đây.
-    out = [{"ghi_chu": ("Kết nối là của CẢ Javis, dùng chung cho MỌI brain. Không có chuyện "
-                        "'gắn nguồn vào brain' - đừng bao giờ nói vậy. Nguồn có mặt ở danh sách "
-                        "này mà không thấy tool của nó thì xem trang_thai: đang TẮT (bật lại ở "
-                        "trang Kết nối) hoặc đang HỎNG lúc dò (bảo người dùng bấm Kiểm tra ở "
-                        "trang Kết nối). Sai ở nguồn, không phải ở brain.")}]
+    out = [{"ghi_chu": ("Connections belong to ALL of Jarvis 007 and are shared by EVERY brain. There is no "
+                        "such thing as 'attaching a source to a brain' - never say that. If a source is in "
+                        "this list but its tools are missing, check trang_thai: it is either OFF (turn it "
+                        "back on in the Connections page) or BROKEN when probed (tell the user to press "
+                        "Check in the Connections page). The fault is in the source, not in the brain.")}]
     for c in mcp_store.list_connections():
         con = mcp_catalog.get(c.get("connector_id")) or {}
         rec = {"connector": con.get("name") or c.get("connector_id"), "label": c.get("label"),
@@ -504,30 +504,30 @@ def _connections_json(include_ambient=False, hidden=None, bo_qua=None):
                "source": "javis_hub"}
         sk = suc_khoe.get(c.get("id")) or {}
         if not c.get("enabled"):
-            rec["trang_thai"] = "ĐANG TẮT - bật lại ở trang Kết nối là mọi brain dùng được ngay."
+            rec["trang_thai"] = "OFF - turn it back on in the Connections page and every brain can use it right away."
         elif c.get("id") in bo_qua:
-            rec["trang_thai"] = ("KHÔNG DÒ ĐƯỢC lúc này nên tool của nguồn này đang vắng. Nói "
-                                 "thẳng là nguồn đang hỏng/không nối được, bảo người dùng bấm "
-                                 "Kiểm tra ở trang Kết nối. " + (sk.get("message") or ""))
+            rec["trang_thai"] = ("CANNOT BE PROBED right now, so this source's tools are missing. Say "
+                                 "plainly that the source is broken or cannot connect, and tell the user to press "
+                                 "Check in the Connections page. " + (sk.get("message") or ""))
         elif sk:
-            rec["trang_thai"] = "ổn" if sk.get("ok") else f"lỗi: {sk.get('message') or sk.get('kind')}"
+            rec["trang_thai"] = "ok" if sk.get("ok") else f"error: {sk.get('message') or sk.get('kind')}"
         # Tool bị mức quyền GIẤU khỏi danh sách. Không kể ra thì model tưởng nguồn này không
         # làm được việc đó và đi đường vòng (vụ Lịch mức Chỉ đọc: create_event biến mất, model
         # loay hoay tìm tool tạo sự kiện rồi kết luận sai là kết nối hỏng).
         h = hidden.get(c.get("id")) or {}
         if h.get("tools"):
             rec["tool_bi_an_do_quyen"] = sorted(h["tools"])[:15]
-            rec["cach_mo"] = (f"Các tool này CÓ THẬT nhưng bị ẩn vì kết nối đang ở mức "
-                              f"'{h.get('perm')}'. Muốn dùng thì bảo user tự nâng mức ở trang "
-                              "Kết nối - Javis KHÔNG tự nâng quyền.")
+            rec["cach_mo"] = (f"These tools are REAL but hidden because the connection is at level "
+                              f"'{h.get('perm')}'. To use them, tell the user to raise the level in the "
+                              "Connections page - Jarvis 007 does NOT raise permissions itself.")
         out.append(rec)
     # Connector đấu vào TÀI KHOẢN Claude (Drive/Gmail/lịch...): engine Claude đã có sẵn dưới dạng
     # tool native mcp__<server>__* → chỉ model gọi THẲNG, KHÔNG bọc qua javis_run_tool/hub.
     if include_ambient:
         for s in _ambient_servers():
             out.append({"connector": s["name"], "label": s["name"], "source": "claude_account",
-                        "goi_the_nao": f"Đã có sẵn trong danh sách tool: mcp__{_ambient_prefix(s['name'])}__* "
-                                       "- GỌI THẲNG, không qua javis_run_tool."})
+                        "goi_the_nao": f"Already in the tool list: mcp__{_ambient_prefix(s['name'])}__* "
+                                       "- CALL IT DIRECTLY, not through javis_run_tool."})
     return json.dumps(out, ensure_ascii=False, indent=1)
 
 
@@ -573,12 +573,12 @@ def _builtin_tools(mode, vault_root, include_ambient=False, hidden=None, lang=""
             "health": "healthy",
         }
 
-    add("javis_connections", "Liệt kê các nguồn dữ liệu (connector/tài khoản MCP) đang đấu vào Javis, "
-        "kèm mức quyền, trạng thái sống/hỏng, và các tool đang bị mức quyền ẩn (tool_bi_an_do_quyen). "
-        "Kết nối DÙNG CHUNG cho mọi brain - không có khái niệm gắn nguồn vào brain. Gồm cả connector đấu "
-        "vào TÀI KHOẢN Claude (Drive/Gmail/lịch...) - loại source='claude_account' gọi THẲNG qua "
-        "tool native mcp__<tên>__*, KHÔNG qua javis_run_tool. Dùng khi cần biết đang có nguồn nào / "
-        "tài khoản nào là mặc định, hoặc khi không tìm thấy tool tưởng phải có.",
+    add("javis_connections", "List the data sources (MCP connectors/accounts) connected to Jarvis 007, "
+        "with permission level, live/broken status, and the tools hidden by the permission level (tool_bi_an_do_quyen). "
+        "Connections are SHARED by every brain - there is no concept of attaching a source to a brain. Also includes "
+        "connectors attached to the Claude ACCOUNT (Drive/Gmail/calendar...) - entries with source='claude_account' are called DIRECTLY "
+        "through the native tool mcp__<name>__*, NOT through javis_run_tool. Use it to find out which sources exist / "
+        "which account is the default, or when a tool you expected is missing.",
         {}, [], lambda args: _async_const(_connections_json(include_ambient, hidden, bo_qua)))
 
     if not vault_root:
@@ -594,39 +594,39 @@ def _builtin_tools(mode, vault_root, include_ambient=False, hidden=None, lang=""
             # nguyên văn "nằm ngoài vault", model đọc xong tự dựng một lời khuyên sai (bảo
             # người dùng tự chép file vào thư mục Brain rồi mới đọc được).
             if workspace_root:
-                return (f"ERROR: '{rel}' nằm ngoài MỌI nơi tool này được phép đọc, nên "
-                        f"không đọc được. Những nơi đó là: bộ não đang làm việc, và thư mục "
-                        f"làm việc của phiên này ({_ten_goc(workspace_root)}). Dùng đường dẫn "
-                        f"tương đối so với một trong số đó, hoặc file vừa đính kèm vào khung "
-                        f"chat.")
-            return (f"ERROR: '{rel}' nằm ngoài bộ não đang làm việc nên tool này không đọc "
-                    f"được. Javis khoá tool file trong brain để một lượt chat không đọc lung "
-                    f"tung trên máy. Đọc được: đường dẫn tương đối trong brain, và file người "
-                    f"dùng vừa đính kèm vào khung chat.")
+                return (f"ERROR: '{rel}' is outside EVERY place this tool is allowed to read, so "
+                        f"it cannot be read. Those places are: the working brain, and the working "
+                        f"folder of this session ({_ten_goc(workspace_root)}). Use a path "
+                        f"relative to one of them, or a file just attached to the "
+                        f"chat box.")
+            return (f"ERROR: '{rel}' is outside the working brain so this tool cannot read "
+                    f"it. Jarvis 007 locks the file tool to the brain so a chat turn cannot read around "
+                    f"the machine. Readable: paths relative to the brain, and files the user "
+                    f"just attached to the chat box.")
         if not p.is_file():
-            return f"ERROR: không có file '{rel}'"
+            return f"ERROR: no such file '{rel}'"
         if p.suffix.lower() in _IMAGE_SUFFIXES:
             # Reading a photo as text hands the model a page of mojibake it then "describes" with confidence. Say what the
             # file is and how to actually see it (0.73.0).
-            return (f"'{rel}' là file ẢNH ({p.stat().st_size // 1024} KB), tool này chỉ đọc chữ nên không cho bạn thấy ảnh. "
-                    f"Muốn biết trong ảnh có gì, gọi tool javis_describe_image với images=['{rel}'] (ChatGPT nhìn ảnh thật "
-                    f"rồi tả lại). Muốn người dùng xem ảnh thì nhúng ![]({rel}) vào câu trả lời.")
+            return (f"'{rel}' is an IMAGE file ({p.stat().st_size // 1024} KB); this tool reads text only so it cannot show you the image. "
+                    f"To find out what is in the image, call the javis_describe_image tool with images=['{rel}'] (ChatGPT looks at the real image "
+                    f"and describes it). To let the user see the image, embed ![]({rel}) in your answer.")
         if p.suffix.lower() in doc_text.SUFFIXES:
             # PDF/Word đọc thô ra toàn mã nhị phân: bóc chữ trước để engine API và Ollama máy nhà đọc được file đính kèm (0.92.2).
             text = await asyncio.to_thread(doc_text.extract, p)
         else:
             text = p.read_text(encoding="utf-8", errors="replace")
-        return text[:100_000] + (f"\n… [cắt, file dài {len(text):,} ký tự]" if len(text) > 100_000 else "")
+        return text[:100_000] + (f"\n… [truncated, file is {len(text):,} characters long]" if len(text) > 100_000 else "")
 
     async def _ls(args):
         p = _safe_path(vault_root, (args or {}).get("path") or ".",
                        workspace_root=workspace_root)
         if not p.is_dir():
-            return f"ERROR: không có thư mục '{(args or {}).get('path')}'"
+            return f"ERROR: no such folder '{(args or {}).get('path')}'"
         rows = []
         for e in sorted(p.iterdir())[:300]:
             rows.append(("[d] " if e.is_dir() else "    ") + e.name)
-        return "\n".join(rows) or "(trống)"
+        return "\n".join(rows) or "(empty)"
 
     async def _write(args):
         if mcp_catalog.effective_perm("full", mode) == "readonly":
@@ -636,12 +636,12 @@ def _builtin_tools(mode, vault_root, include_ambient=False, hidden=None, lang=""
             # được câu "môi trường filesystem đang lỗi quyền sandbox" rồi đi tìm lỗi ổ đĩa,
             # trong khi thứ cần làm chỉ là nâng mức việc lên Ghi nháp (2026-08-04).
             # Kèm luôn việc-cần-làm-thay-thế để lượt đó vẫn ra kết quả dùng được.
-            return ("ERROR: KHÔNG ghi được file vì việc này đang chạy ở mức 'Chỉ đọc' (suggest). "
-                    "Đây là GIỚI HẠN QUYỀN do người dùng đặt, KHÔNG phải lỗi ổ đĩa, không phải "
-                    "lỗi sandbox, không phải thiếu quyền hệ điều hành - đừng báo cáo sai nguyên "
-                    "nhân. Muốn ghi thật: mở trang Việc, nâng mức của việc này lên 'Ghi nháp' "
-                    "(auto) rồi chạy lại. Ngay bây giờ: ĐỪNG thử ghi lại, hãy đưa TRỌN nội dung "
-                    "file vào câu trả lời để người dùng tự lưu.")
+            return ("ERROR: CANNOT write the file because this job is running at the 'Read only' (suggest) level. "
+                    "This is a PERMISSION LIMIT set by the user, NOT a disk error, not a "
+                    "sandbox error, not a missing operating-system permission - do not report the wrong "
+                    "cause. To really write: open the Work page, raise this job to 'Draft writing' "
+                    "(auto) and run it again. Right now: do NOT try writing again, put the FULL content of the "
+                    "file in your answer so the user can save it.")
         # Trả câu NÓI ĐƯỢC thay vì để ValueError bay ra, y như `_read` đã làm. Engine Web
         # chạy vòng tool bằng chữ: một exception bay ra giữa lô tool là chết cả lượt, còn một
         # câu lỗi thì model đọc rồi tự sửa đường dẫn ở vòng sau.
@@ -649,12 +649,12 @@ def _builtin_tools(mode, vault_root, include_ambient=False, hidden=None, lang=""
             p = _safe_path(vault_root, (args or {}).get("path"), workspace_root=workspace_root)
         except ValueError:
             if workspace_root:
-                return (f"ERROR: '{(args or {}).get('path')}' nằm ngoài MỌI nơi được phép "
-                        f"ghi: bộ não đang làm việc, và thư mục làm việc của phiên này "
-                        f"({_ten_goc(workspace_root)}). Dùng đường dẫn tương đối so với một "
-                        f"trong số đó.")
-            return (f"ERROR: '{(args or {}).get('path')}' nằm ngoài bộ não đang làm việc nên "
-                    f"tool này không ghi được. Dùng đường dẫn tương đối trong brain.")
+                return (f"ERROR: '{(args or {}).get('path')}' is outside EVERY place that may be "
+                        f"written: the working brain, and the working folder of this session "
+                        f"({_ten_goc(workspace_root)}). Use a path relative to one of "
+                        f"them.")
+            return (f"ERROR: '{(args or {}).get('path')}' is outside the working brain so "
+                    f"this tool cannot write it. Use a path relative to the brain.")
         # 0.188.0 (Javis Core spec 13, 14): the learning switch and the forgotten list are the person's, never the
         # model's; and with learning off nothing new is written under memory/.
         try:
@@ -662,10 +662,10 @@ def _builtin_tools(mode, vault_root, include_ambient=False, hidden=None, lang=""
             mem = (Path(vault_root) / "memory").resolve()
             rp = p.resolve()
             if rp.parent == mem and rp.name in (memory_control.LEARNING, memory_control.FORGOTTEN):
-                return "ERROR: công tắc ghi nhớ và danh sách đã quên do người dùng quản lý, tool không ghi được."
+                return "ERROR: the memory switch and the forgotten list are managed by the user, the tool cannot write them."
             if (rp == mem or mem in rp.parents) and not memory_control.learning_enabled(mem):
-                return ("ERROR: người dùng đã TẮT việc lưu ghi nhớ mới cho brain này nên không ghi vào memory/. "
-                        "Nói với người dùng rằng ghi nhớ đang tắt (bật lại ở Javis Core > Trí nhớ).")
+                return ("ERROR: the user has TURNED OFF saving new memories for this brain so nothing is written to memory/. "
+                        "Tell the user that memory is off (turn it back on in Jarvis 007 Core > Memory).")
         except Exception:
             pass
         if mode == team_gate.HUB_MODE:
@@ -686,7 +686,7 @@ def _builtin_tools(mode, vault_root, include_ambient=False, hidden=None, lang=""
                     return why
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(str((args or {}).get("content") or ""), encoding="utf-8")
-        return f"Đã ghi {p.name} ({len(str((args or {}).get('content') or ''))} ký tự)"
+        return f"Wrote {p.name} ({len(str((args or {}).get('content') or ''))} characters)"
 
     async def _skill(args):
         name = str((args or {}).get("name") or "").strip()
@@ -694,8 +694,8 @@ def _builtin_tools(mode, vault_root, include_ambient=False, hidden=None, lang=""
         # skills/ → .claude/skills → .agents.
         f = skill_router.resolve_skill_file(vault_root, name)
         if not f or not f.is_file():
-            return ("ERROR: không có skill đó. Skill khả dụng: "
-                    + (", ".join(_list_skills(vault_root)) or "(chưa có)"))
+            return ("ERROR: no such skill. Available skills: "
+                    + (", ".join(_list_skills(vault_root)) or "(none yet)"))
         text = f.read_text(encoding="utf-8", errors="replace")[:60_000]
         # ĐIỂM ĐẾM DUY NHẤT: mọi engine nạp skill qua tool này đều đi ngang đây. Chỉ đếm ở
         # đường THÀNH CÔNG - nhánh trên đã lọc slug sai/skill tắt nên không đếm gõ nhầm.
@@ -706,13 +706,13 @@ def _builtin_tools(mode, vault_root, include_ambient=False, hidden=None, lang=""
         await asyncio.to_thread(skill_usage.bump, vault_root, f.parent.name)
         return text
 
-    add("javis_read_file", "Đọc 1 file trong vault (Second Brain). path tương đối so với gốc vault; "
-        "nhận CẢ đường dẫn tuyệt đối của file người dùng vừa đính kèm/dán vào khung chat.",
+    add("javis_read_file", "Read 1 file in the vault (Second Brain). path is relative to the vault root; "
+        "ALSO accepts the absolute path of a file the user just attached/pasted into the chat box.",
         {"path": {"type": "string"}}, ["path"], _read)
-    add("javis_list_dir", "Liệt kê file/thư mục trong vault. path tương đối, bỏ trống = gốc vault.",
+    add("javis_list_dir", "List files/folders in the vault. path is relative, empty = vault root.",
         {"path": {"type": "string"}}, [], _ls)
-    add("javis_write_file", "Ghi/tạo file trong vault (ghi đè nếu có). Dùng khi cần lưu ghi chú, "
-        "báo cáo, nháp. KHÔNG dùng cho hành động ra ngoài.",
+    add("javis_write_file", "Write/create a file in the vault (overwrites if it exists). Use it to save notes, "
+        "reports, drafts. Do NOT use it for outside actions.",
         {"path": {"type": "string"}, "content": {"type": "string"}}, ["path", "content"], _write,
         effect="write")
     # Mô tả tool = router thu nhỏ: liệt kê slug + mô tả ngắn để engine biết KHI NÀO gọi skill nào.
@@ -728,11 +728,11 @@ def _builtin_tools(mode, vault_root, include_ambient=False, hidden=None, lang=""
     listing = "; ".join(f"{s['slug']}: {(s['description'] or '')[:skill_router.SKILL_DESC_MAX]}"
                         for s in _hien)
     if _con_lai > 0:
-        listing += (f"; …(+{_con_lai} skill nữa không liệt kê ở đây, vẫn nạp được bằng "
-                    f"name=<slug> nếu biết tên - xem Javis/index.md)")
+        listing += (f"; …(+{_con_lai} more skills not listed here, still loadable with "
+                    f"name=<slug> if you know the name - see Javis/index.md)")
     add("javis_use_skill",
-        "Nạp nội dung 1 skill (hướng dẫn chuyên sâu) rồi LÀM THEO. Truyền name=<slug>. "
-        "Skill khả dụng (slug: mô tả): " + (listing or "(chưa có)"),
+        "Load the content of 1 skill (in-depth instructions) and FOLLOW it. Pass name=<slug>. "
+        "Available skills (slug: description): " + (listing or "(none yet)"),
         {"name": {"type": "string"}}, ["name"], _skill)
 
     # `javis_run_command` chỉ hiện khi phiên CÓ thư mục làm việc. Phiên chat thường không thấy
@@ -744,7 +744,7 @@ def _builtin_tools(mode, vault_root, include_ambient=False, hidden=None, lang=""
             try:
                 import run_command
             except Exception as e:                       # pragma: no cover - môi trường lạ
-                return f"ERROR: không nạp được run_command: {type(e).__name__}: {e}"
+                return f"ERROR: could not load run_command: {type(e).__name__}: {e}"
             kq = run_command.chay(
                 str(args.get("command") or ""), coding_ctx_cua_phien,
                 cwd=str(args.get("cwd") or "."), timeout_s=args.get("timeout_s"),
@@ -752,11 +752,11 @@ def _builtin_tools(mode, vault_root, include_ambient=False, hidden=None, lang=""
             return run_command.ket_qua_cho_model(kq)
 
         add("javis_run_command",
-            "Chạy MỘT lệnh trong thư mục làm việc của phiên (chạy test, lint, git chỉ đọc). "
-            "KHÔNG qua shell: '&&', ';', '|', '$(...)' đều không có tác dụng, tách thành "
-            "nhiều lời gọi. Trả về mã thoát rồi tới output đã cắt bớt.",
+            "Run ONE command in the session's working folder (run tests, lint, read-only git). "
+            "NOT through a shell: '&&', ';', '|', '$(...)' have no effect, split into "
+            "several calls. Returns the exit code followed by the truncated output.",
             {"command": {"type": "string"},
-             "cwd": {"type": "string", "description": "thư mục con, mặc định gốc thư mục làm việc"},
+             "cwd": {"type": "string", "description": "subfolder, defaults to the root of the working folder"},
              "timeout_s": {"type": "number"}},
             ["command"], _lenh, effect="full")
 
@@ -810,8 +810,8 @@ CORE_TOOL_FNS = frozenset({
 # Mô tả nhóm tool nội bộ cho thực đơn lazy. Builtin/plugin không có connector trong
 # mcp_catalog nên không tự có mô tả; thiếu dòng này thì model chỉ thấy "javis (javis, N tool)".
 _LOCAL_GROUP_DESC = {
-    "javis": "skill của brain, danh sách nguồn đang đấu, tiện ích nội bộ",
-    "plugin": "tool do plugin cài thêm",
+    "javis": "brain skills, the list of connected sources, internal utilities",
+    "plugin": "tools added by installed plugins",
 }
 
 
@@ -904,8 +904,8 @@ def _connector_menu(pool, ambient=None):
         d = (": " + v["desc"][:70]) if v["desc"] else ""
         parts.append(f"{ns} ({v['label']}, {v['n']} tool){d}")
     for s in (ambient or []):
-        parts.append(f"mcp__{_ambient_prefix(s['name'])}__* ({s['name']}, tài khoản Claude - "
-                     "tool native, gọi thẳng)")
+        parts.append(f"mcp__{_ambient_prefix(s['name'])}__* ({s['name']}, Claude account - "
+                     "native tool, call directly)")
     return "; ".join(parts)
 
 
@@ -944,12 +944,12 @@ def _hidden_hint(hidden, only_ns=None):
         names = sorted(h.get("tools") or [])
         if not names or (only_ns is not None and h.get("ns") not in only_ns):
             continue
-        parts.append(f"{h.get('ns') or '?'} (mức {h.get('perm')}): " + ", ".join(names[:8]))
+        parts.append(f"{h.get('ns') or '?'} (level {h.get('perm')}): " + ", ".join(names[:8]))
     if not parts:
         return ""
-    return ("Đang bị mức quyền của kết nối ẩn khỏi danh sách - " + "; ".join(parts)
-            + ". Các tool này CÓ THẬT: bảo user nâng mức quyền ở trang Kết nối rồi làm lại, "
-              "ĐỪNG kết luận là nguồn không làm được hay kết nối hỏng.")
+    return ("Hidden from the list by the connection's permission level - " + "; ".join(parts)
+            + ". These tools are REAL: tell the user to raise the permission level in the Connections page and try again, "
+              "do NOT conclude that the source cannot do it or that the connection is broken.")
 
 
 # Kết quả tìm tool (chế độ lazy): mấy kết quả đầu giữ mô tả đầy đủ, còn lại cắt gọn.
@@ -974,8 +974,8 @@ def _lazy_tools_and_route(visible_tools, visible_route, pool, full_route, top_k,
         amb = _match_ambient(ambient, q)
         if not hits and not amb:
             hint = _hidden_hint(hidden)
-            return ("Không thấy tool khớp. Nguồn đang đấu: " + (menu or "(chưa có nguồn nào)")
-                    + f". Nêu rõ nguồn hoặc việc cần làm rồi gọi lại {_LAZY_SEARCH}."
+            return ("No matching tool found. Connected sources: " + (menu or "(no sources yet)")
+                    + f". Name the source or the task, then call {_LAZY_SEARCH} again."
                     + (" " + hint if hint else ""))
         payload = {}
         hint = _hidden_hint(hidden, {t.get("namespace") for t in hits})
@@ -991,14 +991,14 @@ def _lazy_tools_and_route(visible_tools, visible_route, pool, full_route, top_k,
                                      :(_MO_TA_DAY_DU if i < _SO_KQ_DAY_DU else _MO_TA_GON)],
                                  "schema": t.get("schema") or {"type": "object", "properties": {}}}
                                 for i, t in enumerate(hits)]
-            payload["goi_the_nao"] = f"Gọi tool bằng {_LAZY_RUN}(name=<name>, args={{...}})."
+            payload["goi_the_nao"] = f"Call the tool with {_LAZY_RUN}(name=<name>, args={{...}})."
         if amb:
             # Connector tài khoản Claude: tool native đã có sẵn trong danh sách tool của engine.
             payload["tai_khoan_claude"] = [
                 {"connector": s["name"],
-                 "goi_the_nao": f"Tool native mcp__{_ambient_prefix(s['name'])}__* đã có sẵn - GỌI THẲNG "
-                                f"(KHÔNG qua {_LAZY_RUN}). Không thấy trong danh sách tool thì nguồn này "
-                                "chưa được engine nạp (kiểm tra kết nối ở trang Model/Kết nối)."}
+                 "goi_the_nao": f"The native tool mcp__{_ambient_prefix(s['name'])}__* is already available - CALL IT DIRECTLY "
+                                f"(NOT through {_LAZY_RUN}). If it is not in the tool list, this source "
+                                "has not been loaded by the engine (check the connection in the Models/Connections page)."}
                 for s in amb]
         return json.dumps(payload, ensure_ascii=False)
 
@@ -1013,33 +1013,33 @@ def _lazy_tools_and_route(visible_tools, visible_route, pool, full_route, top_k,
         if not isinstance(targs, dict):
             targs = {}
         if not name:
-            return f"ERROR: thiếu 'name'. Dùng {_LAZY_SEARCH} để tìm tên tool trước."
+            return f"ERROR: missing 'name'. Use {_LAZY_SEARCH} to find the tool name first."
         if name in (_LAZY_SEARCH, _LAZY_RUN):
-            return f"ERROR: '{name}' là meta-tool, không gọi qua {_LAZY_RUN}."
+            return f"ERROR: '{name}' is a meta-tool, do not call it through {_LAZY_RUN}."
         if name not in full_route:
-            return (f"ERROR: không có tool '{name}'. Dùng {_LAZY_SEARCH} để lấy đúng tên "
-                    "(phải khớp y hệt kết quả tìm).")
+            return (f"ERROR: no tool '{name}'. Use {_LAZY_SEARCH} to get the exact name "
+                    "(it must match the search result exactly).")
         return await mcp_client.call_route(full_route, name, targs)
 
     tools = list(visible_tools)
     route = dict(visible_route)
     tools.append({"fn": _LAZY_SEARCH, "server": "javis", "name": _LAZY_SEARCH,
-                  "description": ("TÌM tool MCP theo NHU CẦU rồi mới nạp (tiết kiệm token: tool chỉ vào "
-                                  "ngữ cảnh khi cần). query = mô tả việc cần làm hoặc tên nguồn. Nguồn "
-                                  "đang đấu: " + (menu or "(chưa có nguồn nào)") + f". Kết quả trả tên + "
-                                  f"tham số tool để gọi tiếp qua {_LAZY_RUN}; nếu khớp nguồn tài khoản "
-                                  "Claude thì trả hướng dẫn gọi thẳng tool native mcp__<tên>__*."),
+                  "description": ("FIND an MCP tool by NEED before loading it (saves tokens: a tool only enters "
+                                  "the context when needed). query = a description of the task or a source name. Connected "
+                                  "sources: " + (menu or "(no sources yet)") + f". The result returns the tool name + "
+                                  f"parameters to call next through {_LAZY_RUN}; if it matches a Claude account "
+                                  "source it returns instructions to call the native tool mcp__<name>__* directly."),
                   "schema": {"type": "object", "properties": {
                       "query": {"type": "string",
                                 "description": "Việc cần làm / nguồn / từ khoá, vd 'doanh thu POS hôm nay'"}},
                       "required": ["query"]}})
     tools.append({"fn": _LAZY_RUN, "server": "javis", "name": _LAZY_RUN,
-                  "description": (f"GỌI một tool MCP đã tìm được qua {_LAZY_SEARCH}. name = tên tool (đúng "
-                                  "y hệt kết quả tìm), args = tham số (object). Quyền/audit/giới hạn tần "
-                                  "suất áp y như gọi trực tiếp."),
+                  "description": (f"CALL an MCP tool found through {_LAZY_SEARCH}. name = the tool name (exactly "
+                                  "as in the search result), args = parameters (object). Permissions/audit/rate "
+                                  "limits apply exactly as for a direct call."),
                   "schema": {"type": "object", "properties": {
-                      "name": {"type": "string", "description": f"Tên tool lấy từ {_LAZY_SEARCH}"},
-                      "args": {"type": "object", "description": "Tham số tool (object)"}},
+                      "name": {"type": "string", "description": f"Tool name taken from {_LAZY_SEARCH}"},
+                      "args": {"type": "object", "description": "Tool parameters (object)"}},
                       "required": ["name"]}})
     route[_LAZY_SEARCH] = {"call": _search}
     route[_LAZY_RUN] = {"call": _run}
@@ -1187,7 +1187,7 @@ async def discover_all(mode="full", vault_root=None, include_plugins=True, inclu
             for t in p_tools:
                 fn = t["fn"]
                 if fn in route:
-                    print(f"[hub] plugin tool '{fn}' trùng tool đã có - bỏ qua", file=sys.stderr)
+                    print(f"[hub] plugin tool '{fn}' duplicates an existing tool - skipped", file=sys.stderr)
                     continue
                 tools_spec.append(t)
                 route[fn] = p_route[fn]
@@ -1198,7 +1198,7 @@ async def discover_all(mode="full", vault_root=None, include_plugins=True, inclu
                 if base:
                     route[fn]["call"] = plugins_host.wrap_with_hooks(fn, base, mode, vault_root)
     except Exception as e:
-        print(f"[hub] plugin host lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[hub] plugin host error: {type(e).__name__}: {e}", file=sys.stderr)
 
     # Owner-only tools leave a bot's list BEFORE the lazy tier, or `javis_run_tool` would still dispatch them.
     if for_bot:
@@ -1380,8 +1380,8 @@ def resolve_vault(raw_vault):
     return (root or None), (nguon if root else ""), header_hong
 
 
-_NGUON_CHU = {"phien": "brain đang mở (cuộc trò chuyện gần nhất)",
-              "duy-nhat": "brain duy nhất trên máy này"}
+_NGUON_CHU = {"phien": "the open brain (most recent conversation)",
+              "duy-nhat": "the only brain on this machine"}
 
 
 def _ten_hien_brain(vault_root) -> str:
@@ -1397,13 +1397,13 @@ def _ghi_chu_brain(nguon, vault_root, header_hong):
     """Dòng gắn vào kết quả tool để người dùng luôn biết lượt đó chạy trên brain nào."""
     if nguon not in _NGUON_CHU:
         return ""
-    ra = (f"(Javis đang làm việc trên brain \"{_ten_hien_brain(vault_root)}\" - {vault_root}. "
-          f"Lượt gọi này tới hub không kèm header X-Javis-Vault nên hub lấy "
-          f"{_NGUON_CHU[nguon]}. Muốn brain khác thì đổi brain trên dashboard, hoặc thêm "
-          f"header X-Javis-Vault vào cấu hình MCP của client.)")
+    ra = (f"(Jarvis 007 is working on brain \"{_ten_hien_brain(vault_root)}\" - {vault_root}. "
+          f"This call to the hub did not include the X-Javis-Vault header so the hub took "
+          f"{_NGUON_CHU[nguon]}. To use another brain, switch brains on the dashboard, or add the "
+          f"X-Javis-Vault header to the client's MCP config.)")
     if header_hong:
-        ra = (f"(Header X-Javis-Vault có gửi nhưng trỏ vào \"{header_hong}\" - đường dẫn này "
-              f"không có thật trên máy chủ nên hub không dùng được.) ") + ra
+        ra = (f"(The X-Javis-Vault header was sent but points to \"{header_hong}\" - this path "
+              f"does not exist on the server so the hub cannot use it.) ") + ra
     return ra
 
 
@@ -1412,16 +1412,16 @@ def _chan_doan_thieu_brain(header_hong):
     thiếu và ai gây ra nó, vì đứng từ phía client thì lỗi gốc nói y như một lỗi cấu hình máy."""
     dau = ""
     if header_hong:
-        dau = (f"Header X-Javis-Vault có gửi nhưng trỏ vào \"{header_hong}\", đường dẫn này "
-               f"không có thật trên máy chủ. ")
-    return ("\n\n(CHẨN ĐOÁN: " + dau + "lượt gọi này tới hub không mang brain nào, và Javis "
-            "cũng chưa suy ra được brain đang mở (chưa có cuộc trò chuyện nào, mà thư mục "
-            f"{_brains_dir()} đang có nhiều hơn một brain nên hub không đoán bừa). Thiếu header "
-            "là chuyện của cấu hình MCP phía client: Javis chỉ tự gắn X-Javis-Vault khi CHÍNH "
-            "nó khởi động engine, còn phiên Codex do người dùng tự mở thì dùng profile chung "
-            "vốn không mang header. Cách chữa: chat một lượt ở dashboard để Javis biết brain "
-            "đang mở, hoặc thêm \"X-Javis-Vault\" = \"<đường dẫn brain>\" vào http_headers của "
-            "server javis trong cấu hình MCP.)")
+        dau = (f"The X-Javis-Vault header was sent but points to \"{header_hong}\", a path that "
+               f"does not exist on the server. ")
+    return ("\n\n(DIAGNOSIS: " + dau + "this call to the hub carried no brain, and Jarvis 007 "
+            "could not infer the open brain either (there is no conversation yet, and the folder "
+            f"{_brains_dir()} holds more than one brain so the hub does not guess). A missing header "
+            "is a matter of the client's MCP config: Jarvis 007 only attaches X-Javis-Vault itself when IT "
+            "starts the engine, while a Codex session the user opened by hand uses the shared profile "
+            "which carries no header. Fix: chat one turn on the dashboard so Jarvis 007 knows which brain "
+            "is open, or add \"X-Javis-Vault\" = \"<brain path>\" to the http_headers of the "
+            "javis server in the MCP config.)")
 
 
 async def _handle_one(msg, mode, include_plugins=True, include_ambient=False, vault_root=None,
@@ -1472,7 +1472,7 @@ async def _handle_one(msg, mode, include_plugins=True, include_ambient=False, va
             "content": [{"type": "text", "text": result}],
             "isError": result.startswith("ERROR:"),
         }}
-    return _rpc_error(mid, -32601, f"method không hỗ trợ: {method}")
+    return _rpc_error(mid, -32601, f"unsupported method: {method}")
 
 
 async def handle_http(request):
@@ -1557,7 +1557,7 @@ async def tra_loi_jsonrpc(request, mode, include_plugins=True, include_ambient=F
     except Exception as e:
         print(f"[hub] {type(e).__name__}: {e}", file=sys.stderr)
         return JSONResponse(_rpc_error(body.get("id") if isinstance(body, dict) else None,
-                                       -32603, f"lỗi nội bộ: {type(e).__name__}"))
+                                       -32603, f"internal error: {type(e).__name__}"))
 
 
 # ============================================================
@@ -1857,9 +1857,13 @@ def _extract_label(text, paths):
 # TỪNG QUYỀN thì chỉ bật cho quyền CHƯA từng cấp (và chỉ khi app xin từ 2 quyền trở lên).
 # Nên "đăng nhập lại mà không thấy ô tick nào" là đúng cơ chế, không phải hỏng - đường duy
 # nhất để tick lại từ đầu là gỡ ứng dụng ở trang quyền của tài khoản Google.
-REVOKE_HINT = (" Đăng nhập lại mà Google không hiện ô tick quyền nào là bình thường: quyền đã"
-               " cấp thì nó cho qua thẳng. Muốn tick lại từ đầu thì gỡ Javis tại"
-               " https://myaccount.google.com/permissions rồi Kết nối lại.")
+REVOKE_HINT = (" It is normal for Google to show no permission boxes when you sign in again: permissions already"
+               " granted pass straight through. To tick them again from scratch, remove Jarvis 007 at"
+               " https://myaccount.google.com/permissions and then Connect again.")
+# Vietnamese variant of REVOKE_HINT, used only inside the vi side of localefmt.chu().
+REVOKE_HINT_VI = (" Đăng nhập lại mà Google không hiện ô tick quyền nào là bình thường: quyền đã"
+                  " cấp thì nó cho qua thẳng. Muốn tick lại từ đầu thì gỡ Javis tại"
+                  " https://myaccount.google.com/permissions rồi Kết nối lại.")
 
 
 def _missing_scope_note(conn_id):
@@ -1870,7 +1874,7 @@ def _missing_scope_note(conn_id):
         import oauth_mcp
         rep = oauth_mcp.scope_report(conn_id)
         if rep.get("missing"):
-            return " Token hiện tại thiếu: " + ", ".join(oauth_mcp.short_scopes(rep["missing"])) + "."
+            return " The current token is missing: " + ", ".join(oauth_mcp.short_scopes(rep["missing"])) + "."
     except Exception as e:
         print(f"[hub scope] {e}", file=sys.stderr)
     return ""
@@ -1892,41 +1896,41 @@ def chan_doan_loi(err, conn_id=""):
     low = e.lower()
     if "has not been used in project" in low or "service_disabled" in low:
         m = re.search(r"https://console\.developers\.google\.com/apis/[^\s\"'\\]+", e)
-        link = ("\nBật tại: " + m.group(0)) if m else ""
+        link = ("\nEnable it at: " + m.group(0)) if m else ""
         extra = ""
         m2 = re.search(r"\b([a-z0-9-]*mcp)\.googleapis\.com", low)
         if m2:
-            extra = ("\nLưu ý: server MCP của Google là API riêng (" + m2.group(0)
-                     + "), phải bật THÊM bên cạnh API thường, và tài khoản Google phải ghi danh"
-                       " Workspace Developer Preview Program (miễn phí):"
+            extra = ("\nNote: Google's MCP server is a separate API (" + m2.group(0)
+                     + "), it must be enabled IN ADDITION to the regular API, and the Google account must enroll in the"
+                       " Workspace Developer Preview Program (free):"
                        " https://developers.google.com/workspace/preview")
-        return "API này chưa được bật trong project Google Cloud của bạn." + link + extra
+        return "This API has not been enabled in your Google Cloud project." + link + extra
     if "insufficient authentication scopes" in low or "access_token_scope_insufficient" in low:
         # Đây KHÔNG phải lỗi hỏng key: token đúng nhưng thiếu đúng một phạm vi quyền. Xoá đi cài
         # lại không chữa được nếu bản Javis đang chạy xin thiếu scope (vụ suggest_time cần
         # calendar.events.freebusy) - nên phải nói rõ là đăng nhập LẠI sau khi cập nhật.
-        return ("Tài khoản đã kết nối nhưng token chưa đủ phạm vi quyền cho tool này."
+        return ("The account is connected but the token does not have enough permission scopes for this tool."
                 + _missing_scope_note(conn_id) +
-                " Bấm Đăng nhập lại và tick chọn đầy đủ các quyền. Nếu vừa cập nhật Javis thì"
-                " BẮT BUỘC đăng nhập lại: token cũ chỉ mang những quyền xin ở bản trước, xoá"
-                " kết nối rồi tạo lại cũng không thêm được quyền mới." + REVOKE_HINT)
+                " Press Sign in again and tick all the permissions. If you just updated Jarvis 007 you"
+                " MUST sign in again: the old token only carries the permissions requested in the previous version, and deleting"
+                " the connection and recreating it cannot add new permissions either." + REVOKE_HINT)
     if ("missing required authentication credential" in low or "unauthenticated" in low
             or "invalid_grant" in low or "invalid_token" in low):
-        return "Phiên đăng nhập hỏng hoặc hết hạn. Bấm Đăng nhập lại để lấy token mới."
+        return "The sign-in session is broken or expired. Press Sign in again to get a new token."
     # 403 PERMISSION_DENIED KHÔNG kèm chữ scope. Đặt SAU nhánh scope vì lỗi thiếu scope của
     # Google cũng mang status PERMISSION_DENIED. Với server MCP của Google, họ lỗi này gần như
     # luôn là chưa ghi danh Developer Preview cho ĐÚNG tài khoản đang đăng nhập, hoặc project
     # chưa bật API MCP riêng. Ghi danh tính theo TỪNG TÀI KHOẢN nên đổi sang tài khoản khác là
     # phải ghi danh lại - đúng bẫy của người dùng khi chuyển từ gmail cá nhân sang mail tên miền.
     if "caller does not have permission" in low or "permission_denied" in low:
-        return ("Google từ chối chính TÀI KHOẢN đang đăng nhập (403 PERMISSION_DENIED). Đây KHÔNG"
-                " phải Javis chặn: mức quyền của kết nối chặn thì Javis báo bằng tiếng Việt kèm chữ"
-                " 'bị chặn'. Với server MCP của Google, lỗi này thường do 1 trong 2: tài khoản đó"
-                " chưa ghi danh Google Workspace Developer Preview Program, hoặc project chưa bật"
-                " API MCP riêng. Ghi danh tính theo TỪNG tài khoản Google, nên vừa đổi sang tài"
-                " khoản khác là phải ghi danh lại cho tài khoản mới. Nếu là email theo tên miền"
-                " riêng (Workspace) thì quản trị viên của miền phải cho phép nữa."
-                " Ghi danh: https://developers.google.com/workspace/preview")
+        return ("Google rejected the signed-in ACCOUNT itself (403 PERMISSION_DENIED). This is NOT"
+                " Jarvis 007 blocking it: when the connection's permission level blocks a call, Jarvis 007 reports it explicitly with the word"
+                " 'blocked'. With Google's MCP server, this error usually has one of 2 causes: that account"
+                " has not enrolled in the Google Workspace Developer Preview Program, or the project has not enabled the"
+                " separate MCP API. Enrollment is per Google account, so as soon as you switch to another"
+                " account you must enroll the new account again. If it is an email on a custom domain"
+                " (Workspace), the domain administrator must also allow it."
+                " Enroll: https://developers.google.com/workspace/preview")
     return ""
 
 
@@ -1968,7 +1972,7 @@ async def validate_connection(conn_id):
                         "error": localefmt.chu(
                             "Đăng nhập rồi nhưng token thiếu quyền: "
                             + ", ".join(oauth_mcp.short_scopes(rep["missing"]))
-                            + ". Bấm Đăng nhập lại và tick đủ mọi ô quyền." + REVOKE_HINT,
+                            + ". Bấm Đăng nhập lại và tick đủ mọi ô quyền." + REVOKE_HINT_VI,
                             "Signed in, but the token is missing permissions: "
                             + ", ".join(oauth_mcp.short_scopes(rep["missing"]))
                             + ". Press Sign in again and tick every permission box."

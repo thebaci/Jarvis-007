@@ -40,7 +40,7 @@ function check(name, cond) {
 // ---- 1. Lối vào tồn tại, và nằm ĐÚNG trong khối tài khoản của #quickSet ----
 check("index.html có điểm neo #setTfaRow", /id="setTfaRow"/.test(html));
 const quick = html.slice(html.indexOf('id="quickSet"'));
-const khoiTk = quick.slice(quick.indexOf("Tài khoản đăng nhập"));
+const khoiTk = quick.slice(quick.indexOf("Sign-in account"));
 check("điểm neo nằm trong khối 'Tài khoản đăng nhập', không lạc sang khối khác",
   khoiTk.indexOf('id="setTfaRow"') >= 0
   && khoiTk.indexOf('id="setTfaRow"') < khoiTk.indexOf("</div>\n      </div>") + 4000);

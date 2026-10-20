@@ -80,7 +80,7 @@ def run(args, root=BR):
 
 
 r = run({"op": "list_agents"})
-check("list_agents: thấy ba trợ lý có sẵn, model chính", all(s in r for s in ("lan", "minh", "hoa")) and "model chính" in r, r)
+check("list_agents: thấy ba trợ lý có sẵn, model chính", all(s in r for s in ("lan", "minh", "hoa")) and "main model" in r, r)
 check("không biết brain: lỗi rõ, không đoán", run({"op": "list"}, root=None).startswith("ERROR"))
 check("op lạ: lỗi liệt kê op hợp lệ", "create_agent" in run({"op": "bay"}))
 
@@ -89,7 +89,7 @@ r = run({"op": "create", "name": "Phòng thử 3 AI", "members": ["lan"], "leade
          "new_agents": [{"name": "Người phản biện", "role": "Tìm điểm yếu, đưa cách sửa", "model": "sonnet",
                          "model_provider": "anthropic-cli"},
                         {"name": "Người tóm tắt", "role": "Tóm tắt sau thảo luận", "model": "haiku"}]})
-check("create: báo đã tạo, có trợ lý mới", r.startswith("Đã tạo nhóm") and "nguoi-phan-bien" in r, r)
+check("create: báo đã tạo, có trợ lý mới", r.startswith("Team created") and "nguoi-phan-bien" in r, r)
 pb = (BR / "agents" / "nguoi-phan-bien.md").read_text(encoding="utf-8")
 tt = (BR / "agents" / "nguoi-tom-tat.md").read_text(encoding="utf-8")
 check("trợ lý mới ghi đúng model và provider vào file", "model: sonnet" in pb and "model_provider: anthropic-cli" in pb
@@ -122,7 +122,7 @@ check("set_leader theo slug", ops.api.teams().get(tid)["leader_key"] == ops.memb
                                                                                          "nguoi-phan-bien"), r)
 r = run({"op": "create_agent", "name": "Người viết", "role": "Viết bản nháp", "model": "gpt-5.5",
          "model_provider": "openai-oauth", "team": tid, "leader": True})
-check("create_agent + ghép nhóm + làm trưởng nhóm", "nguoi-viet" in r and "trưởng nhóm" in r
+check("create_agent + ghép nhóm + làm trưởng nhóm", "nguoi-viet" in r and "team leader" in r
       and ops.api.teams().get(tid)["leader_key"] == ops.member_key(ops.api.teams().get(tid), "nguoi-viet"), r)
 
 check("set_agent_model: provider lạ bị từ chối",
@@ -132,20 +132,20 @@ mt = (BR / "agents" / "minh.md").read_text(encoding="utf-8")
 check("set_agent_model: ghi model, giữ tên và lời dặn", "model: opus" in mt and "name: Minh" in mt
       and "Bạn là Minh." in mt, mt)
 r = run({"op": "set_agent_model", "slug": "minh", "model": ""})
-check("set_agent_model rỗng: về model chính, bỏ provider", "model chính" in r
+check("set_agent_model rỗng: về model chính, bỏ provider", "main model" in r
       and "model_provider" not in (BR / "agents" / "minh.md").read_text(encoding="utf-8"), r)
 
 # Xoá: phải lưu trữ trước và phải có confirm=true
 check("delete thiếu confirm: từ chối", run({"op": "delete", "team": tid}).startswith("ERROR"))
 check("delete nhóm chưa lưu trữ: từ chối kể cả có confirm",
-      "lưu trữ" in run({"op": "delete", "team": tid, "confirm": True}) and ops.api.teams().get(tid) is not None)
-check("archive: nhóm thành archived", "lưu trữ" in run({"op": "archive", "team": tid})
+      "archived" in run({"op": "delete", "team": tid, "confirm": True}) and ops.api.teams().get(tid) is not None)
+check("archive: nhóm thành archived", "archived" in run({"op": "archive", "team": tid})
       and ops.api.teams().get(tid)["status"] == "archived")
-check("unarchive rồi archive lại", "mở lại" in run({"op": "unarchive", "team": tid})
-      and ops.api.teams().get(tid)["status"] == "active" and "lưu trữ" in run({"op": "archive", "team": tid}))
+check("unarchive rồi archive lại", "Reopened" in run({"op": "unarchive", "team": tid})
+      and ops.api.teams().get(tid)["status"] == "active" and "archived" in run({"op": "archive", "team": tid}))
 sid = ops.api.teams().get(tid)["session_id"]
 r = run({"op": "delete", "team": tid, "confirm": True})
-check("delete nhóm đã lưu trữ: xoá nhóm, thành viên và phiên chat", r.startswith("Đã xoá") and ops.api.teams().get(tid) is None
+check("delete nhóm đã lưu trữ: xoá nhóm, thành viên và phiên chat", r.startswith("Permanently deleted") and ops.api.teams().get(tid) is None
       and ops.api.teams().members(tid, include_removed=True) == [] and main.get_store().get_session(sid) is None, r)
 check("file trợ lý vẫn còn sau khi xoá nhóm", (BR / "agents" / "nguoi-phan-bien.md").is_file())
 

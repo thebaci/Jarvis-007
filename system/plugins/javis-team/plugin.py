@@ -25,8 +25,8 @@ except Exception:          # chạy lẻ ngoài máy chủ
 _LIST_MAX = 30
 _OPS = ("list", "get", "list_agents", "create", "update", "archive", "unarchive", "delete", "add_member",
         "remove_member", "set_leader", "create_agent", "set_agent_model")
-_NO_OPS = ("ERROR: bộ quản lý nhóm chưa sẵn sàng (máy chủ đang khởi động?). Thử lại sau vài giây, "
-           "hoặc làm ở trang Nhóm trên dashboard.")
+_NO_OPS = ("ERROR: the team manager is not ready (is the server starting up?). Try again in a few seconds, "
+           "or do it on the Teams page of the dashboard.")
 
 
 class _Fail(Exception):
@@ -73,9 +73,9 @@ def _find_team(ops, root, ref) -> dict:
     """`ref` là team_id hay TÊN nhóm (không phân biệt hoa thường) trong brain này."""
     ref = _s(ref)
     if not ref:
-        raise _Fail("ERROR: thiếu team (mã nhóm hay tên nhóm). Dùng op=list để xem các nhóm.")
+        raise _Fail("ERROR: missing team (team id or team name). Use op=list to see the teams.")
     if not ops.api.exists():
-        raise _Fail("ERROR: brain này chưa có nhóm nào. Dùng op=create để tạo.")
+        raise _Fail("ERROR: this brain has no teams yet. Use op=create to make one.")
     team = ops.api.teams().get(ref)
     if team and team["brain_id"] == root:
         return team
@@ -84,9 +84,9 @@ def _find_team(ops, root, ref) -> dict:
     if len(hits) == 1:
         return hits[0]
     if len(hits) > 1:
-        raise _Fail(f"ERROR: có {len(hits)} nhóm cùng tên '{ref}'. Dùng mã nhóm: "
+        raise _Fail(f"ERROR: {len(hits)} teams share the name '{ref}'. Use the team id: "
                     + ", ".join(f"{t['team_id']} ({t['status']})" for t in hits))
-    raise _Fail(f"ERROR: không có nhóm '{ref}' trong brain này. Dùng op=list để xem các nhóm.")
+    raise _Fail(f"ERROR: no team '{ref}' in this brain. Use op=list to see the teams.")
 
 
 def _team_line(ops, team, models=None) -> str:
@@ -94,17 +94,17 @@ def _team_line(ops, team, models=None) -> str:
     names = []
     for m in members:
         slug = m.get("slug_at_join") or m["agent_key"]
-        mark = " (trưởng nhóm)" if m["agent_key"] == team.get("leader_key") else ""
+        mark = " (team leader)" if m["agent_key"] == team.get("leader_key") else ""
         mdl = (models or {}).get(slug, ("", ""))[0]
         names.append(f"{slug}{mark}" + (f" [{mdl}]" if mdl else ""))
-    return (f"- {team['name']} | mã {team['team_id']} | {team['status']} | "
-            + (", ".join(names) or "chưa có trợ lý"))
+    return (f"- {team['name']} | id {team['team_id']} | {team['status']} | "
+            + (", ".join(names) or "no assistants yet"))
 
 
 def _new_agent(ops, root, spec: dict) -> str:
     name = _s(spec.get("name"))
     if not name:
-        raise _Fail("ERROR: trợ lý mới cần name.")
+        raise _Fail("ERROR: a new assistant needs a name.")
     role = _s(spec.get("role")) or name
     return ops.deps.admin.create_agent(root, name, role, _s(spec.get("prompt")), model=_s(spec.get("model")),
                                        model_provider=_s(spec.get("model_provider")), tags=spec.get("tags") or None)
@@ -114,22 +114,22 @@ def _do(op: str, args: dict, root: str) -> str:
     ops = _ops()
     if op == "list":
         if not ops.api.exists():
-            return "Brain này chưa có nhóm nào."
+            return "This brain has no teams yet."
         teams = ops.api.teams().list_teams(root, limit=_LIST_MAX, include_archived=bool(args.get("include_archived")))
         models = _agent_models(root)
-        return ("Nhóm của brain này:\n" + "\n".join(_team_line(ops, t, models) for t in teams)) if teams \
-            else "Brain này chưa có nhóm nào (hoặc chỉ có nhóm đã lưu trữ: thêm include_archived=true)."
+        return ("Teams in this brain:\n" + "\n".join(_team_line(ops, t, models) for t in teams)) if teams \
+            else "This brain has no teams yet (or only archived teams: add include_archived=true)."
     if op == "list_agents":
         models = _agent_models(root)
         rows = _agents(ops, root)
         if not rows:
-            return "Brain này chưa có trợ lý nào. Dùng op=create_agent để tạo."
-        return "Trợ lý của brain này (slug | tên | vai | model riêng):\n" + "\n".join(
+            return "This brain has no assistants yet. Use op=create_agent to make one."
+        return "Assistants in this brain (slug | name | role | own model):\n" + "\n".join(
             f"- {a['slug']} | {a.get('name') or a['slug']} | {a.get('title') or ''} | "
-            + (models.get(a["slug"], ("", ""))[0] or "model chính") for a in rows[:80])
+            + (models.get(a["slug"], ("", ""))[0] or "main model") for a in rows[:80])
     if op == "get":
         team = _find_team(ops, root, args.get("team"))
-        return _team_line(ops, team, _agent_models(root)) + (f"\nMô tả: {team['description']}" if team.get("description")
+        return _team_line(ops, team, _agent_models(root)) + (f"\nDescription: {team['description']}" if team.get("description")
                                                              else "")
     if op == "create":
         created = [_new_agent(ops, root, a) for a in (args.get("new_agents") or []) if isinstance(a, dict)]
@@ -142,33 +142,33 @@ def _do(op: str, args: dict, root: str) -> str:
         got = ops.create(root, root, args.get("name"), members, leader, _s(args.get("description")),
                          _s(args.get("client_req_id")))
         team = got["team"]
-        head = "Nhóm này đã có từ trước (cùng mã yêu cầu), không tạo thêm." if got["duplicate"] else "Đã tạo nhóm."
-        extra = f" Trợ lý mới tạo: {', '.join(created)}." if created else ""
+        head = "This team already existed (same request id), so none was created." if got["duplicate"] else "Team created."
+        extra = f" New assistants created: {', '.join(created)}." if created else ""
         return (f"{head}{extra}\n{_team_line(ops, team, _agent_models(root))}\n"
-                "Chủ mở trang Nhóm để nhắn vào nhóm.")
+                "The owner opens the Teams page to message the team.")
     if op == "create_agent":
         slug = _new_agent(ops, root, args)
-        msg = f"Đã tạo trợ lý '{slug}'" + (f" với model {_s(args.get('model'))}" if _s(args.get("model")) else "") + "."
+        msg = f"Created assistant '{slug}'" + (f" with model {_s(args.get('model'))}" if _s(args.get("model")) else "") + "."
         if _s(args.get("team")):
             team = _find_team(ops, root, args.get("team"))
             ops.add_member(root, team["team_id"], slug)
-            msg += f" Đã thêm vào nhóm {team['name']}."
+            msg += f" Added to team {team['name']}."
             if args.get("leader"):
                 ops.set_leader(root, team["team_id"], ops.member_key(team, slug))
-                msg += " Trợ lý này là trưởng nhóm."
+                msg += " This assistant is the team leader."
         return msg
     if op == "set_agent_model":
         slug = _s(args.get("slug"))
         if not slug:
-            return "ERROR: thiếu slug của trợ lý."
+            return "ERROR: missing the assistant slug."
         prov = _s(args.get("model_provider"))
         if prov and prov not in ops.deps.admin.providers():
-            return "ERROR: model_provider không hợp lệ. Chọn một trong: " + ", ".join(ops.deps.admin.providers())
+            return "ERROR: invalid model_provider. Choose one of: " + ", ".join(ops.deps.admin.providers())
         try:
             r = ops.deps.admin.set_model(root, slug, _s(args.get("model")), prov)
         except FileNotFoundError:
-            return f"ERROR: không có trợ lý '{slug}'. Dùng op=list_agents để xem."
-        return f"Đã đặt model của '{slug}': " + (r["model"] or "dùng model chính") + (
+            return f"ERROR: no assistant '{slug}'. Use op=list_agents to see them."
+        return f"Set the model of '{slug}': " + (r["model"] or "use the main model") + (
             f" ({r['model_provider']})" if r["model_provider"] else "") + "."
 
     team = _find_team(ops, root, args.get("team"))
@@ -176,46 +176,46 @@ def _do(op: str, args: dict, root: str) -> str:
     if op == "update":
         fields = {k: args.get(k) for k in ("name", "description") if args.get(k) is not None}
         if not fields:
-            return "ERROR: op=update cần name hay description mới."
+            return "ERROR: op=update needs a new name or description."
         t = ops.update(root, tid, **fields)
-        return "Đã sửa nhóm.\n" + _team_line(ops, t)
+        return "Team updated.\n" + _team_line(ops, t)
     if op == "archive":
         ops.update(root, tid, status="archived")
-        return f"Đã lưu trữ nhóm {team['name']}: việc đang chờ của nhóm đã huỷ. Muốn mở lại dùng op=unarchive."
+        return f"Team {team['name']} archived: the team's pending work was cancelled. To reopen it use op=unarchive."
     if op == "unarchive":
         ops.update(root, tid, status="active")
-        return f"Đã mở lại nhóm {team['name']}."
+        return f"Reopened team {team['name']}."
     if op == "delete":
         if args.get("confirm") is not True:
-            return ("ERROR: xoá nhóm không hoàn tác được. Chỉ gọi lại với confirm=true khi chủ đã nói rõ là xoá nhóm "
+            return ("ERROR: deleting a team cannot be undone. Only call again with confirm=true when the owner has clearly said to delete the team "
                     f"'{team['name']}'.")
         if team["status"] != "archived":
-            return (f"ERROR: nhóm '{team['name']}' chưa lưu trữ. Lưu trữ trước (op=archive), rồi mới xoá được.")
+            return (f"ERROR: team '{team['name']}' is not archived. Archive it first (op=archive), then it can be deleted.")
         ops.delete(root, tid)
-        return f"Đã xoá hẳn nhóm {team['name']} cùng cuộc trò chuyện của nhóm."
+        return f"Permanently deleted team {team['name']} together with its conversation."
     if op == "add_member":
         slug = _s(args.get("slug"))
         if not slug:
-            return "ERROR: thiếu slug của trợ lý cần thêm."
-        return "Đã thêm thành viên.\n" + _team_line(ops, ops.add_member(root, tid, slug))
+            return "ERROR: missing the slug of the assistant to add."
+        return "Member added.\n" + _team_line(ops, ops.add_member(root, tid, slug))
     if op == "remove_member":
         key = ops.member_key(team, args.get("member") or args.get("slug"))
-        return "Đã bỏ thành viên.\n" + _team_line(ops, ops.remove_member(root, tid, key))
+        return "Member removed.\n" + _team_line(ops, ops.remove_member(root, tid, key))
     if op == "set_leader":
         who = args.get("member") or args.get("slug")
         key = ops.member_key(team, who) if _s(who) else None
-        return ("Đã đổi trưởng nhóm.\n" if key else "Đã bỏ trưởng nhóm.\n") + _team_line(ops, ops.set_leader(root, tid, key))
-    return "ERROR: op không hợp lệ."
+        return ("Team leader changed.\n" if key else "Team leader cleared.\n") + _team_line(ops, ops.set_leader(root, tid, key))
+    return "ERROR: invalid op."
 
 
 async def _run(args, ctx) -> str:
     args = args or {}
     op = _s(args.get("op")).lower()
     if op not in _OPS:
-        return "ERROR: op phải là một trong: " + ", ".join(_OPS) + "."
+        return "ERROR: op must be one of: " + ", ".join(_OPS) + "."
     if not ctx.vault_root:
-        return ("ERROR: chưa biết đang làm việc trên brain nào nên không thao tác nhóm được. "
-                "Làm ở trang Nhóm trên dashboard, ở đó brain đã xác định rõ.")
+        return ("ERROR: it is not known which brain is being worked on, so teams cannot be changed. "
+                "Do it on the Teams page of the dashboard, where the brain is clearly identified.")
     try:
         root = _ops().root(str(ctx.vault_root))
         return await asyncio.to_thread(_do, op, args, root)
@@ -246,22 +246,22 @@ def register(ctx):
             "type": "object",
             "properties": {
                 "op": {"type": "string", "enum": list(_OPS)},
-                "team": {"type": "string", "description": "Mã nhóm (tm_...) hay tên nhóm"},
-                "name": {"type": "string", "description": "Tên nhóm (create/update) hay tên trợ lý (create_agent)"},
+                "team": {"type": "string", "description": "Team id (tm_...) or team name"},
+                "name": {"type": "string", "description": "Team name (create/update) or assistant name (create_agent)"},
                 "description": {"type": "string"},
-                "members": {"type": "array", "items": {"type": "string"}, "description": "Slug trợ lý có sẵn"},
+                "members": {"type": "array", "items": {"type": "string"}, "description": "Slugs of existing assistants"},
                 "new_agents": {"type": "array", "items": {"type": "object", "properties": {
                     "name": {"type": "string"}, "role": {"type": "string"}, "prompt": {"type": "string"},
                     "model": {"type": "string"}, "model_provider": {"type": "string"}}}},
-                "leader": {"description": "create: slug hay tên trưởng nhóm; create_agent: true để làm trưởng nhóm"},
-                "slug": {"type": "string", "description": "Slug trợ lý (add_member, set_agent_model)"},
-                "member": {"type": "string", "description": "Slug hay mã của thành viên (remove_member, set_leader)"},
+                "leader": {"description": "create: slug or name of the team leader; create_agent: true to make it the team leader"},
+                "slug": {"type": "string", "description": "Assistant slug (add_member, set_agent_model)"},
+                "member": {"type": "string", "description": "Slug or id of the member (remove_member, set_leader)"},
                 "role": {"type": "string"},
                 "prompt": {"type": "string"},
                 "model": {"type": "string"},
                 "model_provider": {"type": "string"},
                 "include_archived": {"type": "boolean"},
-                "confirm": {"type": "boolean", "description": "Chỉ true khi chủ nói rõ là xoá nhóm"},
+                "confirm": {"type": "boolean", "description": "Only true when the owner clearly said to delete the team"},
                 "client_req_id": {"type": "string"},
             },
             "required": ["op"],

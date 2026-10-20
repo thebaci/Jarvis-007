@@ -633,11 +633,11 @@ def _gop_memory_lac_chu_hoa(root: Path, mem: Path) -> None:
     try:
         lac.rmdir()
     except OSError:
-        loi.append("Memory/ còn file lạ nên giữ nguyên thư mục")
+        loi.append("Memory/ still has unknown files, so the folder was left in place")
     if chuyen or loi:
-        print(f"[memory hoa-thường] {root}: gộp {len(chuyen)} file từ Memory/ vào {mem.name}/"
-              + (f"; giữ cả hai bản do trùng tên: {ca_hai}" if ca_hai else "")
-              + (f"; lỗi: {loi}" if loi else ""), file=__import__('sys').stderr)
+        print(f"[memory hoa-thường] {root}: merged {len(chuyen)} files from Memory/ into {mem.name}/"
+              + (f"; kept both copies because of a name clash: {ca_hai}" if ca_hai else "")
+              + (f"; errors: {loi}" if loi else ""), file=__import__('sys').stderr)
 
 
 def _brain_memory_dir(brain: str) -> Path:
@@ -702,8 +702,8 @@ def _fit_memory_index(mem: str, cap: int = None) -> str:
     for desc_cap in (100, 60, None):
         got = rebuild(desc_cap)
         if len(got) <= cap:
-            note = ("\n\n> (Mô tả trong chỉ mục đã rút gọn cho vừa ngữ cảnh. Chi tiết đầy đủ của "
-                    "từng ký ức nằm trong file tương ứng ở memory/facts/ - cứ đọc khi cần.)")
+            note = ("\n\n> (Descriptions in the index were shortened to fit the context. The full detail of "
+                    "each memory lives in its matching file under memory/facts/ - read it when needed.)")
             return got + note
 
     # Bậc cuối: buộc phải bỏ bớt dòng. Giữ các dòng ĐẦU (ký ức nền tảng ghi sớm nhất) và nói rõ
@@ -738,11 +738,11 @@ def _fit_memory_index(mem: str, cap: int = None) -> str:
             break
         names.append(slug)
         used += len(slug) + 2
-    ten = (f" Tên file của chúng: {', '.join(names)}. Cần ký ức nào thì đọc memory/facts/<tên>.md."
+    ten = (f" Their file names: {', '.join(names)}. Read memory/facts/<name>.md for any memory you need."
            if names else "")
     return "\n".join(kept) + (
-        f"\n\n> (Chỉ mục quá dài nên còn {con_lai} ký ức chưa liệt kê ở đây.{ten} "
-        "Đọc memory/MEMORY.md để xem đủ danh sách, và memory/facts/ để xem chi tiết.)")
+        f"\n\n> (The index is too long, so {con_lai} memories are not listed here.{ten} "
+        "Read memory/MEMORY.md for the full list, and memory/facts/ for details.)")
 
 
 # ── Khối PROJECT ghép vào system prompt ──────────────────────────────────────
@@ -785,7 +785,7 @@ def _project_block(project_id: str, chi_huong_dan: bool = False) -> str:
     ra = ""
     hd = (p.get("instructions") or "").strip()
     if hd:
-        ra += (f"\n\n# === HƯỚNG DẪN RIÊNG CỦA PROJECT: {p.get('name') or ''} ===\n"
+        ra += (f"\n\n# === PROJECT-SPECIFIC INSTRUCTIONS: {p.get('name') or ''} ===\n"
                f"{hd[:sessions.PROJECT_INSTRUCTIONS_MAX]}")
     if chi_huong_dan:
         return ra
@@ -798,9 +798,9 @@ def _project_block(project_id: str, chi_huong_dan: bool = False) -> str:
     dong, da_nap = _liet_ke_tai_lieu(p.get("brain") or "brain", files, links)
     if dong:
         ra += ("\n\n# === TÀI LIỆU & LINK CỦA PROJECT ===\n"
-               "Đây là DANH SÁCH, không phải nội dung: mở file bằng tool đọc file khi cần, "
-               "đừng đoán nội dung từ cái tên. Link chỉ mở được nếu lượt này có tool duyệt web; "
-               "không có thì nói thẳng chứ đừng đoán nội dung trang.\n" + "\n".join(dong))
+               "This is a LIST, not the content: open a file with the file-reading tool when needed, "
+               "do not guess the content from the name. Links can only be opened if this turn has a web-browsing tool; "
+               "if there is none, say so plainly instead of guessing the page content.\n" + "\n".join(dong))
     if da_nap:
         ra += ("\n\n# === NỘI DUNG FILE ĐÃ GHIM (nạp sẵn, không cần mở lại) ===" + "".join(da_nap))
     return ra
@@ -823,7 +823,7 @@ def _liet_ke_tai_lieu(brain: str, files: list, links: list):
         if duoi not in PROJECT_GHIM_DUOI:
             # Nói THẲNG là ghim nhưng không nạp được, kèm lý do. Im lặng bỏ qua thì người dùng
             # ghim xong tưởng Javis đã đọc, rồi ngạc nhiên vì nó trả lời như chưa thấy gì.
-            dong.append(f"- [file, đã ghim nhưng là tệp nhị phân - tự mở khi cần] {ten} - {duong}")
+            dong.append(f"- [file, pinned but binary - open it yourself when needed] {ten} - {duong}")
             continue
         try:
             # `_safe_serve_path` chứ không phải `_safe_path`: đây là đường ĐỌC, và trần duyệt
@@ -835,14 +835,14 @@ def _liet_ke_tai_lieu(brain: str, files: list, links: list):
             noi_dung = _safe_serve_path(brain, duong).read_text(
                 encoding="utf-8", errors="replace")
         except Exception:
-            dong.append(f"- [file, đã ghim nhưng đọc không được] {ten} - {duong}")
+            dong.append(f"- [file, pinned but unreadable] {ten} - {duong}")
             continue
         cat = noi_dung[:min(PROJECT_GHIM_FILE_MAX, max(0, con_lai))]
         if not cat:
-            dong.append(f"- [file, đã ghim nhưng hết chỗ nạp trong lượt này] {ten} - {duong}")
+            dong.append(f"- [file, pinned but no room left to preload this turn] {ten} - {duong}")
             continue
         con_lai -= len(cat)
-        thieu = " (đã cắt bớt)" if len(cat) < len(noi_dung) else ""
+        thieu = " (truncated)" if len(cat) < len(noi_dung) else ""
         da_nap.append(f"\n## {ten} - {duong}{thieu}\n{cat}")
     for l in links[:PROJECT_FILES_LIET_KE]:
         dong.append(f"- [link] {l.get('label') or l.get('url')} - {l.get('url')}"
@@ -878,9 +878,9 @@ def _session_block(session_id: str) -> str:
     ra = ""
     if dong:
         ra += ("\n\n# === TÀI LIỆU & LINK NGƯỜI DÙNG GẮN VÀO CUỘC NÀY ===\n"
-               "Người dùng tự gắn tay ở khung \"Trong cuộc trò chuyện này\", nên đây là thứ họ "
-               "coi là quan trọng cho ĐÚNG cuộc này. Vẫn là DANH SÁCH chứ không phải nội dung: "
-               "mở file bằng tool đọc file khi cần, đừng đoán nội dung từ cái tên.\n"
+               "The user attached these by hand in the \"In this conversation\" panel, so this is what they "
+               "consider important for THIS conversation specifically. Still a LIST, not the content: "
+               "open a file with the file-reading tool when needed, do not guess the content from the name.\n"
                + "\n".join(dong))
     if da_nap:
         ra += ("\n\n# === NỘI DUNG FILE ĐÃ GHIM TRONG CUỘC NÀY (nạp sẵn, không cần mở lại) ==="
@@ -908,9 +908,9 @@ def _agent_assets_block(brain: str, meta: dict) -> str:
     ra = ""
     if dong:
         ra += ("\n# === TÀI LIỆU & LINK CỦA BẠN ===\n"
-               "Chủ gắn sẵn cho vai này, nên đây là thứ bạn được coi là ĐÃ BIẾT CHỖ. Vẫn là "
-               "DANH SÁCH chứ không phải nội dung: mở file bằng tool đọc file khi cần, đừng "
-               "đoán nội dung từ cái tên. Link chỉ mở được nếu lượt này có tool duyệt web.\n"
+               "The owner attached these to this role, so you are expected to ALREADY KNOW WHERE THEY ARE. Still a "
+               "LIST, not the content: open a file with the file-reading tool when needed, do not "
+               "guess the content from the name. Links can only be opened if this turn has a web-browsing tool.\n"
                + "\n".join(dong) + "\n")
     if da_nap:
         ra += ("\n# === NỘI DUNG FILE ĐÃ GHIM (nạp sẵn, không cần mở lại) ===" + "".join(da_nap)

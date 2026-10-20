@@ -30,8 +30,8 @@ def _connected_id():
 
 def _check():
     if not _connected_id():
-        return ("Chưa kết nối Facebook. Vào trang Kết nối, chọn 'Meta Ads (tự tạo app - Graph API)', "
-                "làm theo hướng dẫn tạo Facebook App rồi đăng nhập. Sau đó gọi lại tool này.")
+        return ("Facebook is not connected. Go to the Connections page, choose 'Meta Ads (own app - Graph API)', "
+                "follow the instructions to create a Facebook App, then sign in. After that, call this tool again.")
     return None
 
 
@@ -74,8 +74,8 @@ async def _resolve_act(args, token):
             return None, _fmt(d)
         data = (d or {}).get("data") or []
         if not data:
-            return None, ("ERROR: Không thấy tài khoản quảng cáo nào. Kiểm tra bạn có quyền ads_read "
-                          "và là admin của ad account.")
+            return None, ("ERROR: No ad accounts found. Check that you have the ads_read permission "
+                          "and are an admin of the ad account.")
         aid = data[0].get("account_id") or ""
     return "act_" + aid.replace("act_", ""), None
 
@@ -83,7 +83,7 @@ async def _resolve_act(args, token):
 async def _accounts(args, ctx):
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     d = await _get("me/adaccounts",
                    {"fields": "account_id,name,currency,account_status,amount_spent,balance", "limit": 100},
                    token)
@@ -93,7 +93,7 @@ async def _accounts(args, ctx):
 async def _insights(args, ctx):
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     act, err = await _resolve_act(args, token)
     if err:
         return err
@@ -111,7 +111,7 @@ async def _insights(args, ctx):
 async def _campaigns(args, ctx):
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     act, err = await _resolve_act(args, token)
     if err:
         return err
@@ -127,11 +127,11 @@ async def _campaigns(args, ctx):
 async def _raw_get(args, ctx):
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     args = args or {}
     path = str(args.get("path") or "").strip().lstrip("/")
     if not path:
-        return "ERROR: thiếu 'path' (vd 'me/adaccounts', 'act_123/insights')."
+        return "ERROR: missing 'path' (e.g. 'me/adaccounts', 'act_123/insights')."
     params = args.get("params")
     if isinstance(params, str):
         try:
@@ -147,38 +147,38 @@ async def _raw_get(args, ctx):
 def register(ctx):
     ctx.register_tool(
         name="meta_ads_accounts", min_mode="readonly", check_fn=_check, handler=_accounts,
-        description=("Liệt kê các tài khoản quảng cáo Facebook/Instagram của bạn (id, tên, tiền tệ, "
-                     "trạng thái, tổng đã tiêu). Dùng đầu tiên để lấy account_id cho các tool khác."),
+        description=("List your Facebook/Instagram ad accounts (id, name, currency, "
+                     "status, total spent). Use it first to get the account_id for the other tools."),
         schema={"type": "object", "properties": {}},
     )
     ctx.register_tool(
         name="meta_ads_insights", min_mode="readonly", check_fn=_check, handler=_insights,
-        description=("Hiệu suất quảng cáo Facebook/Instagram: chi tiêu, hiển thị, click, CTR, CPC, CPM, "
-                     "reach, hành động chuyển đổi. Bỏ trống account_id = tài khoản đầu tiên. Kỳ mặc định "
-                     "7 ngày; đổi bằng date_preset (today/yesterday/last_7d/last_14d/last_30d/this_month/"
-                     "last_month...) hoặc since+until (YYYY-MM-DD). level = account|campaign|ad."),
+        description=("Facebook/Instagram ad performance: spend, impressions, clicks, CTR, CPC, CPM, "
+                     "reach, conversion actions. Empty account_id = the first account. Default period "
+                     "is 7 days; change it with date_preset (today/yesterday/last_7d/last_14d/last_30d/this_month/"
+                     "last_month...) or since+until (YYYY-MM-DD). level = account|campaign|ad."),
         schema={"type": "object", "properties": {
-            "account_id": {"type": "string", "description": "act_<id> hoặc <id> (bỏ trống = tài khoản đầu tiên)"},
+            "account_id": {"type": "string", "description": "act_<id> or <id> (empty = the first account)"},
             "date_preset": {"type": "string", "description": "vd last_7d, last_30d, this_month"},
-            "since": {"type": "string", "description": "Từ ngày YYYY-MM-DD (dùng kèm until)"},
-            "until": {"type": "string", "description": "Đến ngày YYYY-MM-DD"},
-            "level": {"type": "string", "description": "account | campaign | ad (mặc định account)"}}},
+            "since": {"type": "string", "description": "From date YYYY-MM-DD (use together with until)"},
+            "until": {"type": "string", "description": "To date YYYY-MM-DD"},
+            "level": {"type": "string", "description": "account | campaign | ad (default account)"}}},
     )
     ctx.register_tool(
         name="meta_ads_campaigns", min_mode="readonly", check_fn=_check, handler=_campaigns,
-        description=("Liệt kê chiến dịch quảng cáo của một tài khoản (tên, trạng thái, mục tiêu, ngân sách "
-                     "ngày/trọn đời, thời gian chạy). Bỏ trống account_id = tài khoản đầu tiên."),
+        description=("List the ad campaigns of an account (name, status, objective, daily/lifetime "
+                     "budget, run dates). Empty account_id = the first account."),
         schema={"type": "object", "properties": {
-            "account_id": {"type": "string", "description": "act_<id> hoặc <id> (bỏ trống = tài khoản đầu tiên)"},
-            "limit": {"type": "integer", "description": "Số chiến dịch tối đa (mặc định 50)"}}},
+            "account_id": {"type": "string", "description": "act_<id> or <id> (empty = the first account)"},
+            "limit": {"type": "integer", "description": "Maximum number of campaigns (default 50)"}}},
     )
     ctx.register_tool(
         name="meta_ads_get", min_mode="readonly", check_fn=_check, handler=_raw_get,
-        description=("Gọi ĐỌC bất kỳ node/edge nào của Graph API Marketing (chỉ GET, không ghi). Dùng khi "
-                     "3 tool trên chưa đủ. path = đường dẫn Graph (vd 'act_123/adsets', 'me/businesses'); "
-                     "params = tham số truy vấn (object)."),
+        description=("READ any node/edge of the Marketing Graph API (GET only, no writes). Use it when "
+                     "the 3 tools above are not enough. path = Graph path (e.g. 'act_123/adsets', 'me/businesses'); "
+                     "params = query parameters (object)."),
         schema={"type": "object", "properties": {
-            "path": {"type": "string", "description": "Đường dẫn Graph API, vd 'act_123/adsets'"},
-            "params": {"type": "object", "description": "Tham số query (vd {\"fields\":\"name,status\"})"}},
+            "path": {"type": "string", "description": "Graph API path, e.g. 'act_123/adsets'"},
+            "params": {"type": "object", "description": "Query parameters (e.g. {\"fields\":\"name,status\"})"}},
             "required": ["path"]},
     )

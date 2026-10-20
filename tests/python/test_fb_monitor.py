@@ -54,7 +54,7 @@ check("plugin: có tool fb_monitor readonly",
       len(ctx.tools) == 1 and ctx.tools[0]["name"] == "fb_monitor" and ctx.tools[0]["min_mode"] == "readonly")
 
 plug._connected_id = lambda: None
-check("plugin: _check chặn khi chưa có token", "Chưa kết nối" in (plug._check() or ""))
+check("plugin: _check chặn khi chưa có token", "Apify is not connected" in (plug._check() or ""))
 
 
 # ---- 3. Helper thuần: split URL, bóc share, chuẩn hoá ----

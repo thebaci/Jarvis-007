@@ -129,7 +129,7 @@ check("fix: the job is done only after the product passed", t["status"] == "done
 hist = r.acceptance.history(j)
 check("fix: two check rounds recorded, fail then pass, with sha256 evidence",
       [h["verdict"] for h in hist] == ["fail", "pass"] and hist[1]["evidence"].get("sha256")
-      and "thiếu" in hist[0]["evidence"].get("detail", ""), hist)
+      and "missing" in hist[0]["evidence"].get("detail", ""), hist)
 work_calls = [c for c in fake.calls if c["role"] == "work"]
 check("fix: the same member got a fix step listing what failed", len(work_calls) == 2
       and "NGHIỆM THU CHƯA ĐẠT" in work_calls[1]["prompt"] and "liên hệ" in work_calls[1]["prompt"])

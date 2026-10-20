@@ -268,13 +268,13 @@ out = tool(9, MSG2, {"op": "update", "goal_id": gt.id, "expected_revision": 1,
 gt2 = store.get(P, gt.id)
 check("tool update tin bổ sung: thành công, revision 2", not out.startswith("ERROR") and gt2.revision == 2)
 check("tool update tin bổ sung: hạn chót còn nguyên và tóm tắt vẫn ghi là hạn người dùng nêu",
-      gt2.horizon == gt.horizon and "người dùng nêu" in out)
+      gt2.horizon == gt.horizon and "the user said" in out)
 check("tool update tin bổ sung: chỉ tiêu còn nguyên", list(gt2.targets) == list(gt.targets))
 out = tool(10, MSG2, {"op": "update", "goal_id": gt.id, "expected_revision": 2, "relevant_quote": "Thêm bảng tổng hợp",
                       "targets": []})
 check("tool: bộ não gửi targets=[] ở tin chỉ đổi trình bày thì chỉ tiêu còn, tool báo không áp dụng gì",
-      list(store.get(P, gt.id).targets) == list(gt.targets) and "CHƯA áp dụng" in out
-      and "KHÔNG có thay đổi nào" in out and store.get(P, gt.id).revision == 2)
+      list(store.get(P, gt.id).targets) == list(gt.targets) and "NOT applied" in out
+      and "NO changes were applied" in out and store.get(P, gt.id).revision == 2)
 out = tool(11, MSG_C, {"op": "create", **proposal(relevant_quote="Gom ghi chú họp", targets=[],
                                                   horizon={"kind": "maintain"},
                                                   constraints=["không xoá ghi chú cũ"])})
@@ -295,12 +295,12 @@ check("tool, horizon maintain bị chặn: bản ghi y nguyên (mode vẫn achie
       gm.mode == "achieve" and store.get(P, gm.id) == gm)
 check("tool, horizon maintain bị chặn: không thêm dòng intent, revision, event, outbox", _counts() == _c0)
 check("tool, horizon maintain bị chặn: báo không có thay đổi và phần CHƯA áp dụng",
-      "KHÔNG có thay đổi" in out and "CHƯA áp dụng" in out)
+      "NO changes were applied" in out and "NOT applied" in out)
 out = tool(15, MSG4, {"op": "update", "goal_id": gm.id, "expected_revision": gm.revision,
                       "relevant_quote": "Không cần đủ 10 hồ sơ nữa",
                       "remove_targets": [{"text": "10 hồ sơ", "quote": "Không cần đủ 10 hồ sơ nữa"}]})
 check("tool, chỉ gửi remove_targets (trường cũ): báo chưa hỗ trợ, không đổi gì",
-      "KHÔNG có thay đổi" in out and "remove_targets" in out and store.get(P, gm.id) == gm and _counts() == _c0)
+      "NO changes were applied" in out and "remove_targets" in out and store.get(P, gm.id) == gm and _counts() == _c0)
 MSG6 = "Thêm bảng tổng hợp. Không cần đủ 10 hồ sơ nữa."
 out = tool(16, MSG6, {"op": "update", "goal_id": gm.id, "expected_revision": gm.revision,
                       "relevant_quote": "Thêm bảng tổng hợp", "understanding": "Báo cáo hồ sơ có bảng tổng hợp",
@@ -310,8 +310,8 @@ check("tool, pha trộn sửa hợp lệ + remove_targets: phần hợp lệ đ�
       gm2.understanding == "Báo cáo hồ sơ có bảng tổng hợp" and list(gm2.targets) == list(gm.targets)
       and gm2.revision == gm.revision + 1)
 check("tool, pha trộn: báo đã cập nhật KÈM phần CHƯA áp dụng nhắc remove_targets, tóm tắt hiện chỉ tiêu còn giữ",
-      "Đã cập nhật mục tiêu" in out and "CHƯA áp dụng" in out and "remove_targets" in out
-      and "Chỉ tiêu người dùng nêu: 10 hồ sơ" in out)
+      "Goal updated" in out and "NOT applied" in out and "remove_targets" in out
+      and "Targets the user stated: 10 hồ sơ" in out)
 
 if _fails:
     print(f"\n{len(_fails)} FAIL:", _fails)

@@ -166,15 +166,15 @@ def stop_server(mode, server_pid=0, port=""):
         # CỐ Ý không dừng gì: kill lúc này thì KeepAlive respawn ngay và bản respawn đó sẽ
         # giành cổng với bản mình bật sau. Server cũ cứ phục vụ tiếp trong lúc pull + pip
         # (git không đụng tiến trình đang chạy); cú đổi ca duy nhất là kickstart -k ở bước start.
-        log(f"launchd đang giữ job {_launchd_target()} → bỏ qua bước dừng, "
-            "đổi ca bằng launchctl kickstart -k ở bước khởi động.")
+        log(f"launchd is holding job {_launchd_target()} → skipping the stop step, "
+            "switching over with launchctl kickstart -k at the start step.")
     else:  # nohup: kill đúng PID server (mình là session riêng nên không chết theo)
         pids = [server_pid] if server_pid else []
         pids += [p for p in _pids_on_port(port) if p not in pids and p != os.getpid()]
         if not pids:
-            log("Không tìm thấy tiến trình server để dừng (có thể đã tắt).")
+            log("No server process found to stop (it may already be off).")
         for p in pids:
-            log(f"Dừng PID {p}…")
+            log(f"Stopping PID {p}…")
             _kill_pid(p)
 
 
@@ -370,7 +370,7 @@ def pip_install():
     thì cả hai lần đều im lặng, và người dùng chỉ nhận được một câu chung chung."""
     r = run([venv_python(), "-m", "pip", "install", "-r", "requirements.txt", "-q"])
     if r.returncode != 0:
-        log(f"pip LỖI (rc={r.returncode}). Server sắp tới nhiều khả năng KHÔNG lên được.")
+        log(f"pip ERROR (rc={r.returncode}). The next server start will most likely NOT come up.")
     return r
 
 
@@ -406,15 +406,15 @@ def main():
     ap.add_argument("--target", default="")
     ap.add_argument("--port", default=os.getenv("JAVIS_PORT", "7777"))
     ap.add_argument("--server-pid", type=int, default=0,
-                    help="PID server đang chạy (để chế độ nohup kill đúng tiến trình)")
+                    help="PID of the running server (so nohup mode kills the right process)")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
 
     if a.dry_run:
         remote, branch = release_source()
-        print(f"PLAN: stop -> fetch({remote}/{branch}) + merge(stash nếu bẩn) "
+        print(f"PLAN: stop -> fetch({remote}/{branch}) + merge(stash if dirty) "
               f"-> pip -> start -> health({a.port}) "
-              f"-> rollback(reset {a.old_sha or '?'}) nếu không lên")
+              f"-> rollback(reset {a.old_sha or '?'}) if it does not come up")
         return 0
 
     target = a.target or None
@@ -423,9 +423,9 @@ def main():
                     "old_version": a.old_version, "target_version": target, "stashed": False})
 
     mode = service_mode()
-    log(f"Chế độ restart: {mode}")
+    log(f"Restart mode: {mode}")
 
-    log("Dừng server cũ…")
+    log("Stopping the old server…")
     stop_server(mode, a.server_pid, a.port)
     time.sleep(2)
 
@@ -444,7 +444,7 @@ def main():
     pull, tree_safe = merge_release()
     if pull.returncode != 0:
         git_error = "\n".join(x for x in (pull.stdout, pull.stderr) if x)
-        log("Hợp nhất bản phát hành LỖI:\n" + git_error)
+        log("Merging the release FAILED:\n" + git_error)
         if not tree_safe:
             note = (_chu(f"Không xác nhận được cây Git an toàn. Kiểm tra git status và update.log "
                          f"trước khi khởi động lại; "
@@ -479,7 +479,7 @@ def main():
             " Server cũ CŨNG chưa lên lại - mở Javis bằng tay để chạy tiếp.",
             " The old server has NOT come back up either - start Javis by hand to continue.")
         ly_do = chan_doan_pull_hong(git_error, merge_aborted=tree_safe)
-        log("Chẩn đoán: " + (ly_do or "(không nhận ra nguyên nhân quen thuộc)"))
+        log("Diagnosis: " + (ly_do or "(no familiar cause recognised)"))
         tho = (git_error or _chu("Không hợp nhất được bản phát hành", "Could not merge the release")).strip()
         us.write_state({"phase": "error", "result": "pull_failed",
                         "error": ((ly_do + _chu(" (chi tiết trong update.log)", " (details in update.log)"))
@@ -493,7 +493,7 @@ def main():
     if stash_oid:
         stash_restored, restore_error = restore_local_changes(stash_oid)
         if stash_restored:
-            log("Đã áp lại sửa đổi cục bộ; giữ bản sao tới khi bản mới chạy ổn.")
+            log("Local changes re-applied; keeping the backup copy until the new version runs fine.")
         else:
             stash_note = _chu(f"Sửa đổi cục bộ chưa khôi phục được trên bản mới; bản sao "
                               f"{stash_oid[:12]} vẫn trong git stash: {restore_error}",
@@ -502,15 +502,15 @@ def main():
             log(stash_note)
 
     us.write_state({"phase": "installing"})
-    log("Cài thư viện…")
+    log("Installing libraries…")
     pip_moi = pip_install()
 
     us.write_state({"phase": "restarting"})
-    log("Khởi động bản mới…")
+    log("Starting the new version…")
     start_server(mode, a.port)
 
     us.write_state({"phase": "health_check"})
-    log("Kiểm tra sức khoẻ…")
+    log("Checking health…")
     healthy = poll_health(a.port, 90)
     current = read_current_version()
     outcome = us.update_outcome(healthy, current, a.old_version, target)
@@ -538,7 +538,7 @@ def main():
                 stash_note = _chu(f"Bản sao sửa đổi {stash_oid[:12]} vẫn trong git stash.",
                                   f"The copy of your changes {stash_oid[:12]} is still in git stash.")
         ly_do = chan_doan_pull(pull.stdout or "")
-        log("Phiên bản không đổi. Chẩn đoán: " + ly_do)
+        log("Version unchanged. Diagnosis: " + ly_do)
         us.write_state({"phase": "done", "result": "error",
                         "error": _chu(f"Vẫn đang chạy {current}, chưa lên {target}. {ly_do} {stash_note}",
                                       f"Still running {current}, not yet {target}. {ly_do} {stash_note}"),
@@ -546,7 +546,7 @@ def main():
         return 1
 
     # need_rollback
-    log("Bản mới KHÔNG lên được → tự lùi về bản cũ…")
+    log("The new version did NOT come up → rolling back to the old version automatically…")
     us.write_state({"phase": "rolling_back"})
     if not a.old_sha:
         us.write_state({"phase": "error", "result": "rollback_failed",

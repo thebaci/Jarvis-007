@@ -79,7 +79,7 @@ out = in_turn(MID, USER, lambda: asyncio.run(route["javis_goal"]["call"]({
                   "params": {"path": "Inbox/tong-hop.md"}}],
     "relevant_quote": "mỗi khi có ghi chú mới thì gom vào bản tổng hợp",
     "horizon": {"kind": "event", "event": "có ghi chú mới trong Inbox"}, "mode": "maintain"})))
-check("tool trong lượt: lập được mục tiêu", "Đã lập mục tiêu" in out)
+check("tool trong lượt: lập được mục tiêu", "Goal created" in out)
 d = in_turn(MID, USER, lambda: main._resonance_after_turn(SID, BRAIN, MID, t0, None))
 check("sau lượt có lập mục tiêu: create_goal", d is not None and d.kind == "create_goal" and d.goal_id)
 _wk = [w for w in main._resonance_store().wakes(RS.Principal("agent", "javis", main._brain_key(BRAIN)), d.goal_id)

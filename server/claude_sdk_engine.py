@@ -591,11 +591,12 @@ class ClaudeSDK:
         # agent từng suy diễn "OAuth chết / cần re-auth" rồi kết luận sai cho user (vụ 0.9.189).
         extra = ""
         if tool_name.startswith("mcp__"):
-            extra = (" Kết nối MCP/connector KHÔNG hỏng - đừng thử đăng nhập lại hay chẩn đoán "
-                     "OAuth. Việc này cần quyền rộng hơn thì báo lại người giao việc.")
+            extra = (" The MCP/connector connection is NOT broken - do not try to sign in again or "
+                     "diagnose OAuth. If this needs broader permission, report back to whoever "
+                     "assigned the task.")
         return PermissionResultDeny(
-            message=f"Tool '{tool_name}' bị chặn bởi rào quyền phiên nền an toàn: phiên này chỉ "
-                    f"được dùng {', '.join(allowed)}.{extra}")
+            message=f"Tool '{tool_name}' was blocked by the safe background session permission barrier: "
+                    f"this session may only use {', '.join(allowed)}.{extra}")
 
     def _plugins_server(self, only=None):
         """Phase 3: dựng MCP server IN-PROCESS từ tool plugin (plugins_host) - engine SDK gọi
@@ -649,7 +650,7 @@ class ClaudeSDK:
             import turn_context
             key = turn_context.issue_key()
         except Exception as e:   # noqa: BLE001 - no key means "nobody", never a broken turn
-            print(f"[sdk engine] khoá lượt lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"[sdk engine] turn key error: {type(e).__name__}: {e}", file=sys.stderr)
             key = None
         if not key:
             return servers
@@ -667,7 +668,7 @@ class ClaudeSDK:
                 with open(self.mcp_config, encoding="utf-8") as f:
                     servers = dict(json.load(f).get("mcpServers") or {})
             except Exception as e:
-                print(f"[sdk engine] đọc mcp_config lỗi ({e}) - truyền path thô", file=sys.stderr)
+                print(f"[sdk engine] failed to read mcp_config ({e}) - passing the raw path", file=sys.stderr)
                 return str(self.mcp_config), self.mcp_strict
             servers = self._gan_khoa_luot(servers)
         only = None
@@ -682,7 +683,7 @@ class ClaudeSDK:
         try:
             plug = self._plugins_server(only)
         except Exception as e:
-            print(f"[sdk engine] plugin in-process lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"[sdk engine] in-process plugin error: {type(e).__name__}: {e}", file=sys.stderr)
             plug = None
         if plug is not None:
             servers = dict(servers or {})
@@ -810,7 +811,7 @@ class ClaudeSDK:
             import claude_auth
             _env = claude_auth.env_cho_cli()
         except Exception as e:   # noqa: BLE001 - đọc cấu hình hỏng không được phá lượt chat
-            print(f"[sdk engine] không đọc được chế độ auth: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"[sdk engine] could not read the auth mode: {type(e).__name__}: {e}", file=sys.stderr)
             _env = {}
         if _env and "env" in fields:
             kw["env"] = {**os.environ, **_env}
@@ -901,7 +902,7 @@ class ClaudeSDK:
             ok, msg = await asyncio.to_thread(team_gate.native_check, self.team_gate, name,
                                               (input_data or {}).get("tool_input") or {})
         except Exception as e:  # noqa: BLE001
-            ok, msg = False, f"Javis không kiểm được quyền của lời gọi này ({type(e).__name__}), đã chặn."
+            ok, msg = False, f"Jarvis 007 could not check the permission for this call ({type(e).__name__}), so it was blocked."
         if ok:
             return {}
         _audit(self.tag, name, False, "chờ chủ nhóm duyệt")
@@ -1049,7 +1050,7 @@ class ClaudeSDK:
                 import claude_token_gate
                 nhan = await claude_token_gate.xep_hang()
                 if nhan:
-                    print(f"[claude token] xếp hàng làm mới: {nhan}", file=sys.stderr)
+                    print(f"[claude token] refresh queued: {nhan}", file=sys.stderr)
             except Exception:
                 pass
             await client.connect()

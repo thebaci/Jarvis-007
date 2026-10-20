@@ -91,7 +91,7 @@ def save(attachments: Iterable[dict], *, staging: Path, brain_root: Path, dest_d
                 txt = _unique(dest.parent if staged else dest_dir, dest.stem + ".txt")
                 txt.parent.mkdir(parents=True, exist_ok=True)
                 txt.write_text(text, encoding="utf-8")
-                tid = add(to_rel(txt), f"{name} (chữ)")
+                tid = add(to_rel(txt), f"{name} (text)")
                 if tid:
                     pin(tid)
         out.append({"name": name, "path": to_rel(dest), "image": suf in IMAGE_SUFFIXES})
@@ -110,9 +110,9 @@ def save_description(names: List[str], text: str, who: str, *, dest_dir: Path, t
     dest_dir.mkdir(parents=True, exist_ok=True)
     first = Path(_safe_name(names[0])).stem
     out = _unique(dest_dir, f"{first} - mo ta anh.txt")
-    head = "Mô tả ảnh " + ", ".join(names) + (f" (do {who} xem hộ)" if who else "") + ":\n\n"
+    head = "Description of image " + ", ".join(names) + (f" (viewed on its behalf by {who})" if who else "") + ":\n\n"
     out.write_text(head + body + "\n", encoding="utf-8")
-    fid = add(to_rel(out), ", ".join(names) + " (mô tả ảnh)")
+    fid = add(to_rel(out), ", ".join(names) + " (image description)")
     if not fid:
         return None
     pin(fid)
@@ -143,7 +143,7 @@ def tree(folder: str, depth: int = TREE_DEPTH, cap: int = TREE_MAX) -> List[str]
 
     walk(root, 0)
     if len(lines) >= cap:
-        lines.append("  ... (còn nữa, đã cắt)")
+        lines.append("  ... (more not shown, cut off)")
     return lines
 
 
@@ -152,22 +152,22 @@ def block(listed: List[str], loaded: List[str], folder: str, tools: bool = False
     `tools=True` (0.194.0): the wording of a Work/Help turn, which can open the files and the folder itself."""
     out = ""
     if listed:
-        how = ("Lượt làm việc này có công cụ: mở thẳng file theo đường dẫn khi cần đọc hết hay sửa; phần nạp sẵn bên dưới "
-               "chỉ là bản đọc nhanh. Ảnh thì đọc tài liệu \"mô tả ảnh\" đi kèm hay mở ảnh nếu engine của bạn xem được ảnh."
+        how = ("This turn has tools: open a file directly by its path when you need to read all of it or edit it; the preloaded part below "
+               "is only a quick read. For an image, read the accompanying \"image description\" document, or open the image if your engine can view images."
                if tools else
-               "Lượt nhóm chỉ chữ: bạn KHÔNG mở được file hay link; chỉ đọc được phần nội dung đã nạp sẵn bên dưới. Ảnh thì "
-               "đọc tài liệu \"mô tả ảnh\" đi kèm (một bộ não khác đã xem hộ); ảnh hay tài liệu chưa nạp thì nói rõ là chưa "
-               "đọc được, đừng đoán nội dung từ cái tên.")
-        out += ("\n\n# === TÀI LIỆU VÀ LINK CỦA NHÓM ===\n"
-                "Chủ nhóm gắn các tài liệu và link này cho cả nhóm. " + how + "\n" + "\n".join(listed))
+               "Text-only team turn: you can NOT open files or links; you can only read the content preloaded below. For an image, "
+               "read the accompanying \"image description\" document (another brain looked at it on your behalf); if an image or document is not preloaded, "
+               "say plainly that you have not been able to read it, and do not guess its content from its name.")
+        out += ("\n\n# === TEAM DOCUMENTS AND LINKS ===\n"
+                "The team owner attached these documents and links for the whole team. " + how + "\n" + "\n".join(listed))
     if loaded:
-        out += "\n\n# === NỘI DUNG TÀI LIỆU CỦA NHÓM (nạp sẵn) ===" + "".join(loaded)
+        out += "\n\n# === TEAM DOCUMENT CONTENT (preloaded) ===" + "".join(loaded)
     lines = tree(folder)
     if folder:
-        out += ("\n\n# === THƯ MỤC LÀM VIỆC CỦA NHÓM ===\n"
-                f"Chủ nhóm ghim thư mục: {folder}\n"
-                + ("Lượt làm việc này chạy ngay trong thư mục đó: đọc, sửa file và chạy lệnh ở đây khi bước của bạn cần.\n"
+        out += ("\n\n# === TEAM WORKING FOLDER ===\n"
+                f"The team owner pinned this folder: {folder}\n"
+                + ("This turn runs right inside that folder: read and edit files and run commands here when your step needs it.\n"
                    if tools else
-                   "Đây là cây thư mục để cả nhóm biết dự án gồm gì. Lượt nhóm không mở được file trong đó; cần đọc file nào "
-                   "thì nhờ chủ nhóm gắn file đó vào tài liệu của nhóm.\n") + "\n".join(lines))
+                   "This is the folder tree so the whole team knows what the project contains. A team turn cannot open files in it; to read a file, "
+                   "ask the team owner to attach that file to the team documents.\n") + "\n".join(lines))
     return out

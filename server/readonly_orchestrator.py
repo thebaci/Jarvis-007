@@ -511,7 +511,7 @@ class ReadonlyOrchestrator:
                 "task_budget_preflight_rejected" if binding_task_budget
                 else "orchestrator_planner_compile_rejected",
                 policy, trace, bucket, "orchestrator",
-                "Planner capsule vượt budget đã xác minh. Javis chưa gọi model hoặc tool.",
+                "Planner capsule exceeds the verified budget. Jarvis 007 has not called a model or tool.",
             )
         exact_estimates = []
         for item in candidates:
@@ -537,7 +537,7 @@ class ReadonlyOrchestrator:
             return self._plan(
                 "reject", "task_budget_preflight_rejected", policy, trace, bucket,
                 "orchestrator",
-                "Evidence bundle dự kiến vượt budget. Javis chưa gọi model hoặc tool.",
+                "Evidence bundle is expected to exceed the budget. Jarvis 007 has not called a model or tool.",
             )
         worst_input = int(math.ceil((
             int(planner.trace_report.get("estimated_input_tokens") or 0) +
@@ -556,8 +556,8 @@ class ReadonlyOrchestrator:
             return self._plan(
                 "reject", "task_budget_preflight_rejected", policy, trace, bucket,
                 "orchestrator",
-                "Task read-only nhiều bước vượt token hoặc monetary budget. "
-                "Javis chưa gọi model hoặc tool.",
+                "Multi-step read-only task exceeds the token or monetary budget. "
+                "Jarvis 007 has not called a model or tool.",
             )
         path = self.runtime.pin_execution_path(
             trace, "orchestrator", bucket, policy.version,
@@ -1019,7 +1019,7 @@ class ReadonlyOrchestrator:
     async def _finalize(self, plan, state: dict, trace, api_key: str, reasoning: str,
                         emitter: Emitter | None, final_generator: FinalGenerator):
         if not state["evidence"]:
-            return "Javis chưa thu được evidence read-only hợp lệ để trả lời an toàn.", "no_evidence"
+            return "Jarvis 007 has not gathered valid read-only evidence to answer safely.", "no_evidence"
         child = self.runtime.create_child_step(
             trace, "final", _hash({"evidence": [x["content_hash"] for x in state["evidence"]]})
         )
@@ -1073,11 +1073,11 @@ class ReadonlyOrchestrator:
         )
         if "false_action_claim" in decision.reasons:
             final_text = (
-                "Bản tổng hợp đã bị chặn vì tuyên bố hành động không phù hợp với task "
-                "read-only. Evidence vẫn được giữ tại: " + ", ".join(refs)
+                "The summary was blocked because it claimed an action that does not fit a "
+                "read-only task. Evidence is still kept at: " + ", ".join(refs)
             )
         elif refs and not any(ref in final_text for ref in refs):
-            final_text += "\n\nNguồn: " + ", ".join(refs)
+            final_text += "\n\nSource: " + ", ".join(refs)
         self.runtime.finish_child_step(
             child, "COMPLETED" if not engine_failed else "FAILED",
             "final_engine_error" if engine_failed else "",
@@ -1091,10 +1091,10 @@ class ReadonlyOrchestrator:
     def _evidence_only_message(state: dict) -> str:
         refs = [x["evidence_ref"] for x in state.get("evidence") or []]
         if not refs:
-            return "Task dừng an toàn trước khi có evidence hợp lệ."
+            return "Task stopped safely before any valid evidence was gathered."
         return (
-            "Task đã dừng trước vòng tổng hợp vì budget, quota hoặc runtime guard. "
-            "Evidence đã đọc vẫn còn và có thể resume: " + ", ".join(refs)
+            "Task stopped before the synthesis round because of the budget, quota or a runtime guard. "
+            "The evidence already read is kept and the task can be resumed: " + ", ".join(refs)
         )
 
     async def _continue(self, plan: OrchestratorAdmission, state: dict, trace,
@@ -1272,7 +1272,7 @@ class ReadonlyOrchestrator:
         state = self._initial_state(plan)
         if not self._checkpoint(plan.trace, state, initialize=True):
             return OrchestratorResult(
-                "Không thể tạo checkpoint mã hoá cho task read-only; Javis đã dừng trước model/tool.",
+                "Could not create an encrypted checkpoint for the read-only task; Jarvis 007 stopped before any model/tool call.",
                 plan.model, "FAILED", plan.trace.task_id, "checkpoint_initialize_failed",
                 0, 0, 0.0, (), 0,
             )

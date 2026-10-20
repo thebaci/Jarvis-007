@@ -38,30 +38,30 @@ ACTIONS = ("open_page", "open_file", "open_task", "scroll", "open_group", "sideb
 def check_target(action: str, target: str) -> str:
     """Chuỗi lý do chặn, hoặc rỗng nếu ổn. Trả target đã chuẩn hoá qua `normalize_target`."""
     if action not in ACTIONS:
-        return f"action '{action}' không có. Chọn một trong: {', '.join(ACTIONS)}."
+        return f"action '{action}' does not exist. Choose one of: {', '.join(ACTIONS)}."
     t = str(target or "").strip()
     if action == "open_page":
         if not resolve_page(t):
-            return f"không có trang '{target}'. Trang hợp lệ: {', '.join(PAGES)}."
+            return f"no page '{target}'. Valid pages: {', '.join(PAGES)}."
     elif action == "open_file":
         if not t:
-            return "thiếu target: đường dẫn file tương đối trong brain."
+            return "missing target: a relative file path inside the brain."
         bad = t.replace("\\", "/")
         if bad.startswith("/") or ":" in bad.split("/")[0] or ".." in bad.split("/") or bad.startswith("~"):
-            return "target phải là đường dẫn TƯƠNG ĐỐI trong brain (không '..', không tuyệt đối, không scheme)."
+            return "target must be a RELATIVE path inside the brain (no '..', no absolute path, no scheme)."
     elif action == "open_task":
         if not t:
-            return "thiếu target: mã việc Kanban (lấy từ javis_task op=list)."
+            return "missing target: a Kanban task id (get it from javis_task op=list)."
     elif action == "scroll":
         if not resolve_scroll(t):
-            return ("scroll nhận target: " + " | ".join(SCROLL_TARGETS) + " (hoặc tiếng Việt như "
+            return ("scroll accepts target: " + " | ".join(SCROLL_TARGETS) + " (or Vietnamese such as "
                     "'xuống dưới', 'cuộn trang này lên', 'cuộn khung chat xuống').")
     elif action == "open_group":
         if not resolve_group(t):
-            return f"không có nhóm '{target}'. Nhóm hợp lệ: {', '.join(GROUPS)}."
+            return f"no group '{target}'. Valid groups: {', '.join(GROUPS)}."
     elif action == "sidebar":
         if _khong_dau(t) not in ("open", "close", "mo", "dong", "bung", "thu", "thu gon"):
-            return "sidebar chỉ nhận target 'open' (bung thanh bên) hoặc 'close' (thu gọn)."
+            return "sidebar only accepts target 'open' (expand the sidebar) or 'close' (collapse it)."
     return ""
 
 
@@ -77,39 +77,39 @@ async def _ui(args, ctx) -> str:
         sid = sid[4:]
     res = await ui_bridge.request(action, target, session_id=sid)
     if not res.get("ok"):
-        return "ERROR: [failed] " + (res.get("detail") or "dashboard không thực hiện được")
+        return "ERROR: [failed] " + (res.get("detail") or "the dashboard could not do it")
     detail = res.get("detail") or ""
     if action == "scroll":
         # `detail` là thứ dashboard THẬT SỰ cuộn ("nội dung trang" hay "khung chat"). Đừng đoán:
         # target 'bottom' là để dashboard tự chọn theo trang đang mở.
-        return f"[done] Đã cuộn {detail or 'khung chat'} {'lên đầu' if target.endswith('top') else 'xuống cuối'}."
+        return f"[done] Scrolled {detail or 'the chat panel'} to the {'top' if target.endswith('top') else 'bottom'}."
     if action == "sidebar":
-        return "[done] Đã bung thanh bên." if target == "open" else "[done] Đã thu gọn thanh bên."
+        return "[done] Expanded the sidebar." if target == "open" else "[done] Collapsed the sidebar."
     if action == "open_group":
-        return f"[done] Đã bung nhóm {target} trên thanh bên."
-    ten = {"open_page": "trang", "open_file": "file", "open_task": "việc"}[action]
+        return f"[done] Expanded group {target} on the sidebar."
+    ten = {"open_page": "page", "open_file": "file", "open_task": "task"}[action]
     # [done]: the dashboard tab acknowledged the action (ui_bridge waits for its reply).
-    return f"[done] Đã mở {ten} {target} trên dashboard." + (f" {detail}" if detail else "")
+    return f"[done] Opened {ten} {target} on the dashboard." + (f" {detail}" if detail else "")
 
 
 def register(ctx):
     ctx.register_tool(
         name="javis_ui",
         description=(
-            "Điều khiển DASHBOARD Javis đang mở trong trình duyệt của người dùng: mở trang, mở file, "
-            "mở việc, cuộn. Dùng khi người dùng bảo (bằng lời hoặc gõ) 'mở trang Việc', 'mở file X', "
-            "'cho xem việc vừa giao', 'cuộn xuống'. action=open_page (target: id trang - "
-            + ", ".join(PAGES) + " - hoặc ĐÚNG tên tiếng Việt đang hiện trên thanh bên: 'việc', 'tệp tin', 'cài đặt', 'trợ lý' và 'quy trình' = workspace (trang Cộng sự), 'kỹ năng' = skills, 'công cụ' = plugins); "
-            "open_file (target: đường dẫn tương đối trong brain); open_task (target: mã việc Kanban); "
-            "scroll (cuộn THỨ NGƯỜI DÙNG ĐANG XEM - target: top | bottom để dashboard tự chọn "
-            "theo trang đang mở, page_top | page_bottom khi họ nói rõ 'cuộn trang này', "
-            "chat_top | chat_bottom khi họ nói rõ 'cuộn khung chat'); open_group (BUNG một nhóm đang gập trên thanh bên mà "
-            "KHÔNG đổi trang, dùng khi người dùng nói 'mở mục Năng lực', 'bung nhóm Kết nối', 'cho xem "
-            "phần ẩn trong menu' - target: " + ", ".join(GROUPS) + " hoặc tên tiếng Việt như 'năng lực'); "
-            "sidebar (target: open để bung cả thanh bên, close để thu gọn còn icon). session_id: mã phiên "
-            "web trong khối KÊNH HỘI THOẠI HIỆN TẠI "
-            "(để đúng tab thực hiện; bỏ trống thì mọi tab đang mở làm). Tool trả về '[done] Đã mở ...' khi "
-            "dashboard xác nhận, hoặc 'ERROR: [failed] ...' khi không có tab nào mở / trang không tồn tại."
+            "Control the Jarvis 007 DASHBOARD open in the user's browser: open a page, open a file, "
+            "open a task, scroll. Use when the user says (in words or typed) 'open the Tasks page', 'open file X', "
+            "'show me the task I just assigned', 'scroll down'. action=open_page (target: page id - "
+            + ", ".join(PAGES) + " - or the EXACT Vietnamese name shown on the sidebar: 'việc', 'tệp tin', 'cài đặt', 'trợ lý' and 'quy trình' = workspace (the Teammates page), 'kỹ năng' = skills, 'công cụ' = plugins); "
+            "open_file (target: relative path inside the brain); open_task (target: Kanban task id); "
+            "scroll (scrolls WHAT THE USER IS LOOKING AT - target: top | bottom to let the dashboard choose "
+            "based on the open page, page_top | page_bottom when they clearly say 'scroll this page', "
+            "chat_top | chat_bottom when they clearly say 'scroll the chat panel'); open_group (EXPAND a collapsed sidebar group "
+            "WITHOUT changing page, use when the user says 'open the Capabilities section', 'expand the Connections group', 'show me "
+            "the hidden part of the menu' - target: " + ", ".join(GROUPS) + " or a Vietnamese name such as 'năng lực'); "
+            "sidebar (target: open to expand the whole sidebar, close to collapse it to icons). session_id: the web session id "
+            "in the KÊNH HỘI THOẠI HIỆN TẠI block "
+            "(so the right tab acts; leave empty and every open tab acts). The tool returns '[done] Opened ...' when the "
+            "dashboard confirms, or 'ERROR: [failed] ...' when no tab is open / the page does not exist."
         ),
         handler=_ui, min_mode="safe",
         schema={"type": "object", "properties": {

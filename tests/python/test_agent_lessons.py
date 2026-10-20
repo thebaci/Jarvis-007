@@ -76,7 +76,7 @@ check("loại, nguồn sai bị từ chối",
       and raises(lambda: AL.add(st, agent_key=K, scope="*", kind="method", text="x", source="boss"), ValueError))
 blk = AL.prompt_block(st, K, "team:A")
 check("khối lời nhắc nhóm có mã, phạm vi và nguồn", f"[L{a}]" in blk and "nhóm này" in blk and "turn:t1" in blk
-      and "mọi nơi" in blk and "Nhóm B" not in blk, blk)
+      and "everywhere" in blk and "Nhóm B" not in blk, blk)
 check("khối lời nhắc chat riêng không có bài học nhóm",
       "Nhóm B" not in AL.prompt_block(st, K, f"dm:{K}") and "hỏi lại" in AL.prompt_block(st, K, f"dm:{K}"))
 
@@ -181,7 +181,7 @@ AL.add(gs, agent_key=key, scope="*", kind="method", text="Bài học chung đã 
 sp = main._agent_turn_system_prompt(brain, "viet", "")
 check("lời nhắc chat riêng nạp dm + * (có mã nguồn), không nạp bài học nhóm",
       "Chủ thích mở bài bằng câu hỏi." in sp and "Bài học chung đã nâng." in sp and "Bài học riêng nhóm Z." not in sp
-      and "[L" in sp and "kho bài học của CHAT RIÊNG" in sp, sp[-800:])
+      and "[L" in sp and "lesson store of the PRIVATE CHAT" in sp, sp[-800:])
 
 team = {"brain_id": main._brain_key(brain), "team_id": "Z", "session_id": "s-z"}
 
