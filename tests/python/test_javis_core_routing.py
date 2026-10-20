@@ -206,7 +206,7 @@ check("blocked-job batches are kept per recipient AND brain",
       'chat_id = str(task.get("chat_id") or "") + _BUCKET_SEP + str(task.get("brain_root") or "")' in tk)
 cl = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
 check("the prompt no longer teaches the first-Telegram fallback",
-      "first Telegram ID" not in cl and "Left empty → the Javis Core chat of the work's brain." in cl)
+      "first Telegram ID" not in cl and "Left empty → the Jarvis 007 Core chat of the work's brain." in cl)
 
 print()
 if fails:

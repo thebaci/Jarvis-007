@@ -125,7 +125,7 @@ for _doc in ("docs/16-cau-hinh-env.md", "docs/en/16-env-configuration.md"):
           "JAVIS_ENABLE_WEB_CHAT" not in (ROOT / _doc).read_text(encoding="utf-8"))
 check("tài liệu hướng dẫn cũ đã xoá", not (ROOT / "docs" / "29-chatgpt-web.md").exists())
 check("spec cũ còn lại làm hồ sơ, có ghi rõ ĐÃ GỠ",
-      "ĐÃ GỠ ở 0.64.20" in (ROOT / "docs/dev/2026-09-chatgpt-web-model-spec.md").read_text(encoding="utf-8"))
+      "REMOVED in 0.64.20" in (ROOT / "docs/dev/2026-09-chatgpt-web-model-spec.md").read_text(encoding="utf-8"))
 
 # main.py có một regex CỐ Ý khớp ký tự gạch dài trong nội dung người dùng; đó là mã nhận diện,
 # không phải chữ viết ra, nên bỏ đúng chuỗi đó trước khi soi.

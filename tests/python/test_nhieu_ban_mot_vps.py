@@ -147,7 +147,7 @@ check("multi: thu cổng về loopback bằng biến JAVIS_BIND ở file gốc",
 check("multi: thiếu DOMAIN_NAME thì báo lỗi rõ chứ không dựng site rỗng",
       "${DOMAIN_NAME:?" in src("docker-compose.multi.yml"))
 check("bản Caddy cũ nói rõ nó chỉ dành cho máy chạy MỘT bản",
-      "MỘT BẢN JAVIS" in src("docker-compose.https.yml"))
+      "SINGLE JARVIS 007" in src("docker-compose.https.yml"))
 
 # ============================================================
 # 4. Native: tên dịch vụ systemd + cổng đều theo bản

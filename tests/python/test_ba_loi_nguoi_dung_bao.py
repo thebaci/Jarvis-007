@@ -42,8 +42,10 @@ def check(name, cond, them=""):
 REQ = ROOT / "requirements.txt"
 raw = REQ.read_bytes()
 
-check("requirements.txt có chú thích tiếng Việt (nếu không thì test này vô nghĩa)",
-      any(b > 127 for b in raw))
+# English edition: the comments were translated, so the file may be pure ASCII now. The guard stays for the day a
+# non-ASCII comment comes back: the file must be valid UTF-8 and carry the explanation of the coding line.
+check("requirements.txt là UTF-8 hợp lệ và còn lời giải thích dòng khai báo encoding",
+      raw.decode("utf-8") is not None and b"PEP-263" in raw)
 
 hai_dong_dau = raw.split(b"\n")[:2]
 check("CANARY: khai báo encoding nằm trong HAI DÒNG ĐẦU (pip chỉ soi đúng 2 dòng)",

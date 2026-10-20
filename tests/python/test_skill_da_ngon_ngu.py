@@ -72,7 +72,9 @@ _thieu, _dai, _sao_rong = [], [], []
 for _f in sorted(_sys.glob("*/SKILL.md")):
     _m, _ = skill_router.split_frontmatter(_f.read_text(encoding="utf-8"))
     _en = skill_router.theo_ngon_ngu(_m, "description", "en")
-    if not _en or _en == skill_router.theo_ngon_ngu(_m, "description", "vi"):
+    # The base `description` is now English too, so "differs from the base text" no longer
+    # proves a translation exists; require the explicit `description_en` key instead.
+    if not _en or not str(_m.get("description_en") or "").strip():
         _thieu.append(_f.parent.name)
         continue
     if len(_en) > skill_router.SKILL_DESC_MAX:

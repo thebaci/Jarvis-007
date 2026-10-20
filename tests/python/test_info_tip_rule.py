@@ -98,7 +98,7 @@ check("no smaller size on phones", "@media (max-width: 600px) { .info-body { fon
 
 # ---- The rule is written down ----
 rules = (ROOT / "docs" / "quy-uoc-dev.md").read_text(encoding="utf-8")
-check("docs/quy-uoc-dev.md carries the rule", "Chữ giải thích gập vào nút (i)" in rules and "test_info_tip_rule.py" in rules)
+check("docs/quy-uoc-dev.md carries the rule", "Explanatory text folded into the (i) button" in rules and "test_info_tip_rule.py" in rules)
 
 if _fails:
     print(f"\nFAIL {len(_fails)}: " + ", ".join(_fails))

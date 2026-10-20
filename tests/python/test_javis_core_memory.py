@@ -88,7 +88,7 @@ manifest = {"facts": [
 rep = feat._promote_sync(str(B), manifest, feat.read_config(), {"memory": True}, True)
 check("the learning loop does not bring a forgotten memory back (same slug, or same text under a new slug)",
       not (mem / "facts" / "kenh-ban.md").exists() and not (mem / "facts" / "kenh-ban-2.md").exists()
-      and (mem / "facts" / "gio-mo-cua.md").exists() and sum("đã yêu cầu quên" in b for b in rep["blocked"]) == 2, rep)
+      and (mem / "facts" / "gio-mo-cua.md").exists() and sum("the user asked to forget it" in b for b in rep["blocked"]) == 2, rep)
 check("forgetting a memory does not delete the chat it came from",
       [m["content"] for m in main.get_store().get_messages(chat)] == ["Mình bán nước mắm qua Facebook và Zalo nhé"])
 

@@ -99,7 +99,7 @@ check(
 )
 check(
     "file quy ước dev có thật và còn luật đặt xí chỗ số phiên bản",
-    _QUY_UOC.exists() and "xí chỗ" in _QUY_UOC.read_text(encoding="utf-8"),
+    _QUY_UOC.exists() and "Reserve the version number BEFORE coding" in _QUY_UOC.read_text(encoding="utf-8"),
 )
 
 # ------------------------------------------------------------

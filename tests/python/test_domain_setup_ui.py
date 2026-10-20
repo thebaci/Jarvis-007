@@ -61,7 +61,7 @@ check("backend không giả vờ sửa được Traefik Hostinger", "Hostinger q
 check("compose Hostinger khai báo target và route hiện tại",
       "JAVIS_DEPLOY_TARGET=hostinger" in HOSTINGER and "DOMAIN_NAME: ${DOMAIN_NAME:-localhost}" in HOSTINGER)
 check("compose VPS mặc định được backend nhận là Caddy", "WATCHTOWER_TOKEN" in VPS and "JAVIS_DEPLOY_TARGET: vps" not in VPS)
-check("tài liệu mô tả wizard mới", "Lưu & kiểm tra" in DOC and "Sao chép biến" in DOC)
+check("tài liệu mô tả wizard mới", "Save and check" in DOC and "Copy variable" in DOC)
 
 if fails:
     raise SystemExit(f"\nFAIL - test_domain_setup_ui: {len(fails)} lỗi")
