@@ -1,305 +1,306 @@
-# Nhóm chat 0.142.0: hết im lặng, tạo nhóm kiểu Zalo, tab Công việc, Auto
+# Team chat 0.142.0: no more silence, Zalo-style team creation, Jobs tab, Auto
 
-Ngày 14/10/2026. Nhánh `claude/compassionate-wozniak-z5umfl`, PR [#651](https://github.com/blogminhquy/javis-os/pull/651).
-Nền: `main` `063750a` (0.141.0). Số phiên bản giữ chỗ ngay đầu nhánh (commit đầu, PR nháp mang số 0.142.0).
+14 Oct 2026. Branch `claude/compassionate-wozniak-z5umfl`, PR [#651](https://github.com/blogminhquy/javis-os/pull/651).
+Base: `main` `063750a` (0.141.0). The version number was reserved right at the head of the branch (first commit, draft PR carrying 0.142.0).
 
-**Đánh số lại khi phát hành:** trong lúc làm, `main` lên 0.145.0 (#652, #653 đang mở giữ 0.143.0, 0.144.0), nên bản này
-phát hành là **0.146.0**. Tên file biên bản, tên test và các ghi chú "0.142.0" trong mã giữ nguyên như dấu mốc của tính
-năng (hậu tố sao lưu `.pre-0.142.0` cũng giữ để khớp marker migration đã chạy ở các máy thử).
+**Renumbered at release:** while the work was in progress, `main` rose to 0.145.0 (#652 and #653, still open, hold 0.143.0 and 0.144.0), so this
+change ships as **0.146.0**. The record's file name, the test names and the "0.142.0" notes in the code stay as they are, as the feature's milestone marker
+(the backup suffix `.pre-0.142.0` also stays, to match the migration marker that already ran on test machines).
 
-Goal gốc nằm ở máy của chủ repo (`exports/reviews/team-chat-zalo-ux-2026-10-14/goal-claude-v2.txt`, `audit.md`, ảnh
-01 tới 08). Phiên này chạy trong container đám mây nên không đọc được thư mục đó; làm theo đúng nội dung goal được dán
-trong lệnh `/goal` cùng năm ảnh chụp đính kèm. PR #645 (đã đóng) không bị đụng tới.
+The original goal sits on the repo owner's machine (`exports/reviews/team-chat-zalo-ux-2026-10-14/goal-claude-v2.txt`, `audit.md`, images
+01 to 08). This session ran in a cloud container and could not read that folder; the work followed the goal text pasted into
+the `/goal` command, together with the five attached screenshots. PR #645 (closed) was not touched.
 
-## 1. Chat nhóm im lặng: nguyên nhân gốc đã xác minh
+## 1. Silent team chat: verified root cause
 
-Hai lỗi chồng nhau:
+Two overlapping bugs:
 
-1. **Lượt nhóm đi qua hợp đồng của Cộng hưởng.** `main._team_engine_for` dựng engine bằng `_resonance_engine`: model
-   VIỆC NỀN, và `resonance.pick_text_only_link` chỉ nhận hai cơ chế chỉ chữ (Claude có cổng `can_use_tool`, engine API có
-   `no_tools`). Máy để model việc nền là Codex thì mọi lượt bị chặn trước mốc gọi model.
-   Tái hiện trên mã `origin/main` cũ (worktree tạm, settings: chính Claude, việc nền Codex):
+1. **Team turns went through Resonance's contract.** `main._team_engine_for` built the engine with `_resonance_engine`: the BACKGROUND-WORK
+   model, and `resonance.pick_text_only_link` accepts only two text-only mechanisms (Claude with the `can_use_tool` gate, API engines with
+   `no_tools`). On a machine whose background-work model is Codex, every turn was blocked before the model call milestone.
+   Reproduced on the old `origin/main` code (temp worktree, settings: main Claude, background work Codex):
    `EngineUnavailable: model việc nền chưa chạy được lượt chỉ chữ: {... 'blocked': 'engine openai-oauth còn công cụ
-   native, chưa có cơ chế chỉ chữ được kiểm; Resonance M1 chỉ nhận Claude (cổng can_use_tool) và engine API (no_tools)'}`,
-   `engine_started` chưa từng được gọi.
-2. **Kết cục lỗi bị bỏ đi.** `team_api.teams_send` chạy `runner.run_replies(sub)` nền và không ai đọc kết quả; lượt lỗi
-   chỉ còn trong sổ lượt, khung chat không có dòng nào.
+   native, chưa có cơ chế chỉ chữ được kiểm; Resonance M1 chỉ nhận Claude (cổng can_use_tool) và engine API (no_tools)'}`
+   (Vietnamese error text, kept verbatim; in English: the background-work model cannot yet run a text-only turn, because the openai-oauth engine
+   still has native tools and no verified text-only mechanism, and Resonance M1 accepts only Claude (the `can_use_tool` gate) and API engines (`no_tools`)),
+   and `engine_started` was never called.
+2. **The failure outcome was thrown away.** `team_api.teams_send` ran `runner.run_replies(sub)` in the background and nobody read the result; a failed turn
+   survived only in the turn ledger, with no row in the chat frame.
 
-## 2. Đã làm
+## 2. What was done
 
-| Mục | Thay đổi | File chính |
+| Item | Change | Main files |
 |---|---|---|
-| Hợp đồng engine | `team_engine.py`: model của trợ lý, thiếu hay chưa cấu hình được thì model chính (ghi chú trên tin vì sao). Không dùng model việc nền, không chuỗi dự phòng, không nâng quyền | `server/team_engine.py`, `main._team_engine_for` |
-| Codex chỉ chữ | Không profile `-p`, `mcp_servers={}`, `web_search="disabled"`, tắt công cụ native bằng `features.*=false`, LUÔN `--sandbox read-only` (kể cả `JAVIS_CODEX_SANDBOX=off`) | `team_engine.codex_text_only` |
-| Grok, Antigravity | Chưa có cơ chế chỉ chữ được kiểm: báo lý do, không chạy thay bằng provider khác | `team_engine.build` |
-| Kết cục lượt trả lời | Bảng `team_replies` (queued, running/answering, done, error + lý do), gói WS `team_replies`, trang tin kèm `replies`, Thử lại bằng CAS `error -> queued`, khởi động lại đổi lượt dở thành `error/restart` | `team_store.py`, `team_runner.py`, `team_api.py`, `teams.js` |
-| Việc nền bị chặn | Thêm tin hệ thống ngay trong khung chat (ngoài hộp thư) | `team_runner._block` |
-| @ theo agent_key | Trùng tên thì phải chọn trong gợi ý (mã ghi theo thứ tự chọn); gõ tay tên trùng thì không gọi ai và báo | `teams.js mentionScan` |
-| Tạo, thêm nhóm | Hộp chọn kiểu Zalo, lớp phủ gắn vào `<body>` | `team-picker.js`, `teams.js`, `console.css` |
-| Tab Công việc | `GET/POST /agents/{slug}/jobs`; gom theo agent_key, đọc bản ghi gốc; Giao việc tạo một việc Kanban mang khoá `agent:<mã>:<slug>:<nonce>` | `agent_jobs.py`, `main.py`, `tasks.py`, `task_store.py`, `agent-jobs.js`, `workspace.js` |
-| Bỏ reviewer cố định | Mục tiêu mới không gắn đội; migration một lần cho mục tiêu cũ | `resonance_store.py`, `resonance_api.py`, `resonance-agent.js`, `chat-resonance.js` |
-| Auto | Đổi tên hiển thị, công tắc trong thẻ, mục trong menu ba chấm dùng chung `doiAuto` | i18n, `resonance-agent.js`, `workspace.js`, `console.css` |
+| Engine contract | `team_engine.py`: the assistant's own model, or the main model if it is missing or cannot be configured (a note on the message says why). No background-work model, no fallback chain, no privilege raise | `server/team_engine.py`, `main._team_engine_for` |
+| Codex text-only | No `-p` profile, `mcp_servers={}`, `web_search="disabled"`, native tools turned off with `features.*=false`, ALWAYS `--sandbox read-only` (even with `JAVIS_CODEX_SANDBOX=off`) | `team_engine.codex_text_only` |
+| Grok, Antigravity | No verified text-only mechanism yet: report the reason, do not run on another provider instead | `team_engine.build` |
+| Reply turn outcome | Table `team_replies` (queued, running/answering, done, error + reason), WS packet `team_replies`, message page with `replies`, Retry by CAS `error -> queued`, a restart turns a half-done turn into `error/restart` | `team_store.py`, `team_runner.py`, `team_api.py`, `teams.js` |
+| Blocked background work | Add a system message right in the chat frame (outside the inbox) | `team_runner._block` |
+| @ by agent_key | With duplicate names the user must pick from the suggestions (the code is written in order of picking); hand-typing a duplicate name calls nobody and says so | `teams.js mentionScan` |
+| Create, add to a team | Zalo-style picker box, overlay attached to `<body>` | `team-picker.js`, `teams.js`, `console.css` |
+| Jobs tab | `GET/POST /agents/{slug}/jobs`; grouped by agent_key, reading the source records; Assign a job creates a Kanban job carrying the key `agent:<code>:<slug>:<nonce>` | `agent_jobs.py`, `main.py`, `tasks.py`, `task_store.py`, `agent-jobs.js`, `workspace.js` |
+| Drop the fixed reviewer | A new goal is not attached to a team; a one-time migration for old goals | `resonance_store.py`, `resonance_api.py`, `resonance-agent.js`, `chat-resonance.js` |
+| Auto | Display rename; the switch in the card and the entry in the three-dot menu share `doiAuto` | i18n, `resonance-agent.js`, `workspace.js`, `console.css` |
 
-### Bằng chứng Codex chỉ chữ (Codex CLI 0.153.4, bản Docker đang ghim)
+### Evidence for Codex text-only (Codex CLI 0.153.4, the pinned Docker version)
 
-Chạy `codex exec` thật trỏ vào một máy chủ Responses giả trên máy (không gọi OpenAI), ghi lại thân request:
+Ran a real `codex exec` pointed at a fake Responses server on the local machine (no call to OpenAI), recording the request body:
 
-- Mặc định: công cụ gửi cho model là `exec_command, write_stdin, request_user_input, apply_patch, view_image, get_goal,
+- Default: the tools sent to the model are `exec_command, write_stdin, request_user_input, apply_patch, view_image, get_goal,
   create_goal, update_goal, tool_search, web_search`.
-- Với cờ của `codex_text_only`: chỉ còn `request_user_input` (chỉ dùng được ở Plan mode) và `apply_patch`.
-- Máy chủ giả trả một `apply_patch` ghi file NGOÀI thư mục làm việc: Codex từ chối ở tầng chính sách (`patch rejected:
-  writing is blocked by read-only sandbox; rejected by user approval settings`), file không được tạo.
-- Tên `features.*` lạ với một bản Codex bị bỏ qua (đã thử), nên danh sách dư không làm hỏng bản khác.
+- With the `codex_text_only` flags: only `request_user_input` (usable only in Plan mode) and `apply_patch` remain.
+- The fake server returned an `apply_patch` writing a file OUTSIDE the working directory: Codex refused at the policy layer (`patch rejected:
+  writing is blocked by read-only sandbox; rejected by user approval settings`), and the file was not created.
+- A `features.*` name unknown to a given Codex version is ignored (tried), so the extra list does not break another version.
 
-### Tab Công việc: nguồn và trạng thái
+### Jobs tab: sources and states
 
-- **Nhóm:** việc giao thẳng (`assignee_key`), việc điều phối (`coordinator_key`, bước plan, synthesize), và việc chỉ
-  làm một bước con hay hỗ trợ (bước `work`, `help` trong `team_steps`). Tiến độ là số bước thật, vị trí thật trong hàng
-  của nhóm, Huỷ đi route huỷ của nhóm.
-- **Chat riêng:** việc Kanban có `chat_id` là phiên `agent:<slug>` đã ghim đúng mã (phiên ghim mã cũ cùng slug bị loại),
-  và việc giao bằng nút Giao việc. Metadata của việc Kanban bị ghi đè khi việc chạy xong, nên quyền sở hữu nằm ở khoá
-  idempotency (bền suốt đời việc). Tiêu đề kèm tên trợ lý để Kanban không gộp hai việc cùng chữ của hai trợ lý.
-- **Auto:** mục tiêu của trợ lý (`goal_agents`) và mục tiêu cũ trợ lý đang là người review. Mã lý do `review_removed`,
-  `paused` hiện bằng lời thường.
-- **Hàng chờ trung thực:** brain tắt "AI tự vận hành" thì việc giao trực tiếp ghi rõ chỉ nằm chờ; chân tab nêu trần
-  việc nền chạy cùng lúc (`JAVIS_KANBAN_MAX_WORKERS`).
-- Việc Kanban giao cho trợ lý chạy với vai của trợ lý (lời nhắc như ở quy trình, nối vào lời nhắc hệ thống). Engine,
-  quyền và trần của Kanban giữ nguyên. Đọc tab không tạo gì; chat thường không tự tạo việc.
+- **Team:** directly assigned jobs (`assignee_key`), coordination jobs (`coordinator_key`, the plan and synthesize steps), and jobs that
+  only do a sub-step or give help (the `work` and `help` steps in `team_steps`). Progress is the real number of steps, the real position in the
+  team's queue, and Cancel goes through the team's cancel route.
+- **Private chat:** a Kanban job with a `chat_id` that is an `agent:<slug>` session pinned to the right code (an older code-pinned session with the same slug is excluded),
+  and jobs assigned with the Assign a job button. A Kanban job's metadata is overwritten when the job finishes running, so ownership lives in the
+  idempotency key (durable for the whole life of the job). The title carries the assistant's name so Kanban does not merge two jobs with the same text from two assistants.
+- **Auto:** the assistant's goals (`goal_agents`) and old goals where the assistant is the reviewer. The reason codes `review_removed` and
+  `paused` appear in plain words.
+- **Honest queue:** if the brain has "AI self-driving" turned off, a directly assigned job says clearly that it only sits waiting; the tab footer states the
+  ceiling on background work running at the same time (`JAVIS_KANBAN_MAX_WORKERS`).
+- A Kanban job assigned to an assistant runs in the assistant's role (the prompt as in a workflow, appended to the system prompt). The Kanban engine,
+  permissions and ceiling are unchanged. Reading the tab creates nothing; ordinary chat does not create jobs by itself.
 
-### Migration bỏ người review cố định
+### Migration that drops the fixed reviewer
 
-Chạy một lần khi mở kho (dòng `review_migrations`), chép trước `resonance.sqlite3.pre-0.142.0`:
+Runs once when the store is opened (a row in `review_migrations`), after first copying `resonance.sqlite3.pre-0.142.0`:
 
-- Mọi cặp `team_pairs` tắt (`enabled=0`, tăng `config_version`), dòng giữ nguyên.
-- Mỗi mục tiêu còn đội `active`: đội `detached` bởi `host:review_removed`, sự kiện `team_detached` ghi trạng thái chạy và
-  lý do chặn trước đó, lý do thức của vai review chốt `superseded`. Mục tiêu đang mở bị **tạm dừng**, chặn thuộc đội gỡ
-  về `ready`.
-- Không dùng lại `team_detach` của chủ: lệnh đó hẹn thức ngay, và lần thức đó chốt theo luật A4, có thể kết thúc
-  `succeeded` mà không ai review (test A5 T24, T46 khẳng định đúng điều này).
-- Không xoá gì: `reviews`, `team_calls`, `goal_events`, bản nộp và file đích giữ nguyên. Chủ thấy mục tiêu ở ngăn Cần
-  bạn và trên thẻ: Tiếp tục, sửa, huỷ, hay giao một việc kiểm chứng.
+- Every `team_pairs` pair is turned off (`enabled=0`, `config_version` bumped), and the row is kept.
+- For every goal that still has an `active` team: the team is `detached` by `host:review_removed`, the `team_detached` event records the running state and the
+  previous blocking reason, and the wake reason of the review role is closed as `superseded`. A goal that is open is **paused**, and a block belonging to the detached team
+  goes back to `ready`.
+- The owner's `team_detach` is not reused: that command schedules an immediate wake, and that wake closes under rule A4, and can end
+  `succeeded` with nobody reviewing (A5 tests T24 and T46 assert exactly this).
+- Nothing is deleted: `reviews`, `team_calls`, `goal_events`, submissions and the target files are kept. The owner sees the goal in the Needs you drawer
+  and on the card: Resume, edit, cancel, or assign a verification job.
 
-## 3. Kiểm
+## 3. Checks
 
-**Test mới:**
-- `tests/python/test_team_chat_0142.py`: chọn model, dựng engine từng provider, Codex `read-only` khi tắt sandbox, kết
-  cục lượt (chờ, đang trả lời, xong, lỗi), một lượt lỗi không mất lượt sau, Thử lại không nhân đôi tin, lượt hay kết
-  quả, gửi lại cùng `client_msg_id`, nhóm tạm dừng, khởi động lại, việc bị chặn có tin trong chat.
-- `tests/python/test_agent_jobs_0142.py`: route thật, vai trong việc nhóm (giao, điều phối, hỗ trợ), huỷ một việc không
-  đụng việc khác, Giao việc chống trùng, không gộp theo tiêu đề giữa hai trợ lý, phiên chat riêng, vai khi chạy, không
-  nguồn nào lỗi ngầm.
-- `tests/python/test_review_removed_0142.py`: kho thời A5 có mục tiêu đang chờ review, giả lập kho trước 0.142.0, mở
-  bằng mã mới; không tự đạt kể cả khi thức lại, lịch sử giữ nguyên, có bản sao, chạy lại không đổi gì.
-- `tests/js/test_team_chat_0142.js`: @ trùng tên, dòng trạng thái lượt, hộp chọn, tab Công việc, Auto.
+**New tests:**
+- `tests/python/test_team_chat_0142.py`: model selection, building the engine for each provider, Codex `read-only` when the sandbox is off, reply turn
+  outcome (waiting, answering, done, error), one failed turn does not lose the next turn, Retry does not double the message, turn or
+  result, resending the same `client_msg_id`, paused team, restart, blocked work has a message in the chat.
+- `tests/python/test_agent_jobs_0142.py`: real routes, roles in team jobs (assigned, coordinating, helping), cancelling one job does not
+  touch another, Assign a job duplicate protection, no merging by title between two assistants, private chat session, role at run time, no
+  source fails silently.
+- `tests/python/test_review_removed_0142.py`: an A5-era store with a goal waiting for review, simulating a pre-0.142.0 store, opened
+  with the new code; it does not pass itself even when woken again, history is kept, there is a copy, and running again changes nothing.
+- `tests/js/test_team_chat_0142.js`: duplicate-name @, the turn status line, the picker box, the Jobs tab, Auto.
 
-**Test cũ cập nhật theo thiết kế mới** (ghi rõ vì sao trong từng file): `test_team_t1_review.py` (điểm thay engine),
+**Old tests updated to the new design** (the reason is stated in each file): `test_team_t1_review.py` (the engine swap point),
 `test_teams_ui.js`, `test_workspace.js`, `test_tab_thu_muc.js`, `test_team_t0_toggle.js`, `test_resonance_a5_ui.js`,
-`test_resonance_a5_api.py` (route đặt reviewer trả 410), `test_resonance_a5_team.py` (T31: đường `javis_goal` thật không
-gắn đội), `test_resonance_a5_rollback.py` và helper `_resonance_team.py` (bật lại việc gắn đội để dựng kho thời A5).
+`test_resonance_a5_api.py` (the set-reviewer route returns 410), `test_resonance_a5_team.py` (T31: the real `javis_goal` path does not
+attach a team), `test_resonance_a5_rollback.py` and the helper `_resonance_team.py` (re-enable attaching a team to build an A5-era store).
 
-**Kết quả trên container:** `tests/run.py --js` 187/187. `tests/run.py --py` 503/512 lần đầu; 9 file đỏ đều không do
-thay đổi này (thiếu `pytest` trong `.venv` cho 7 file, `test_khoi_dong_nhe` đo thời gian lúc máy đang chạy nặng, và
-`test_icons` bắt hai ký tự dự phòng trong `team-picker.js`, đã sửa). Cài `pytest` rồi chạy lại cả 9: xanh.
+**Results on the container:** `tests/run.py --js` 187/187. `tests/run.py --py` 503/512 the first time; 9 red files, none caused by
+this change (`pytest` missing from `.venv` for 7 files, `test_khoi_dong_nhe` measuring time while the machine was under heavy load, and
+`test_icons` catching two fallback characters in `team-picker.js`, since fixed). After installing `pytest` and rerunning all 9: green.
 
-**Smoke trình duyệt thật** (Chromium qua Playwright, sandbox cổng 7788, state và brain tạm, model chính Claude `haiku`
-thật, model việc nền đặt Codex để tái hiện ca lỗi gốc, không Telegram, Zalo hay kênh ngoài nào):
+**Real browser smoke test** (Chromium via Playwright, sandbox on port 7788, temp state and brain, real main model Claude `haiku`,
+background-work model set to Codex to reproduce the original failure case, no Telegram, Zalo or any outside channel):
 
-- 1366x860: tạo nhóm qua hộp chọn (tìm "muc tieu" ra Coach, lọc tag rồi đổi tag vẫn giữ người đã chọn, Điều phối mặc định
-  là người đầu tiên), vào chat ngay. Tin thường: trưởng nhóm trả lời bằng model thật. @One khi có hai trợ lý tên One: chọn
-  bản B, đúng bản B trả lời. Trợ lý có model không tồn tại: dòng "Chưa trả lời được" kèm câu lỗi thật và nút Thử lại;
-  bấm Thử lại chạy đúng một lượt. Giao việc ngắn: kết quả về khung chat với nhãn "Kết quả việc", và hiện ở tab Công việc
-  ngăn Đã xong. Tải lại trang: trạng thái lượt còn nguyên. Giao việc từ tab Công việc khi AI tự vận hành tắt: ghi rõ chỉ
-  nằm chờ. Công tắc Auto trên thẻ và mục Auto trong menu ba chấm.
-- 768x1024: khung chat nhóm, hộp chọn giữa màn hình.
-- 375x812: hộp chọn đầy màn hình, footer cố định ở đáy (737 tới 806 trên 812), không tràn ngang; vùng chạm công tắc
-  Auto 87x44; tab Công việc trong ngăn kéo phải.
-- Lỗi tìm được nhờ smoke và đã sửa: lớp phủ hộp chọn bị thanh trên của app che trên điện thoại (nay gắn vào `<body>`),
-  chi tiết lỗi hiện "(success)" thay vì câu lỗi thật, nhãn việc đã xong chỉ còn mã sau khi tải lại, ghi chú thừa dấu
-  chấm, "Nhóm Nhóm ..." ở nguồn của việc.
+- 1366x860: created a team through the picker box (searching "muc tieu" finds Coach, filtering by tag and then changing the tag keeps the people already picked, the Coordinator defaults
+  to the first person), went into the chat immediately. Ordinary message: the team lead replied with the real model. @One when there are two assistants named One: picked
+  copy B, and exactly copy B replied. An assistant with a nonexistent model: the "Could not answer" row with the real error sentence and a Retry button;
+  clicking Retry ran exactly one turn. Assigning a short job: the result came back to the chat frame with the label "Job result", and appeared in the Jobs tab
+  in the Done drawer. Reloading the page: the turn status stayed intact. Assigning a job from the Jobs tab with AI self-driving off: said clearly that it only
+  sits waiting. The Auto switch on the card and the Auto entry in the three-dot menu.
+- 768x1024: the team chat frame, the picker box in the middle of the screen.
+- 375x812: the picker box fills the screen, a fixed footer at the bottom (737 to 806 of 812), no horizontal overflow; the Auto switch tap target
+  is 87x44; the Jobs tab in the right drawer.
+- Bugs found by the smoke test and fixed: the picker overlay was covered by the app's top bar on a phone (now attached to `<body>`),
+  the error detail showed "(success)" instead of the real error sentence, the label of a finished job showed only the code after reloading, a stray
+  period in a note, and "Team Team ..." in a job's source.
 
-## 4. Review độc lập toàn bộ thay đổi
+## 4. Independent review of the whole change
 
-Một agent review mới đọc cả `origin/main..HEAD` (không chỉ bản sửa cuối), tự chạy test nhóm, 0142, A5, i18n.
-Kết luận: 1 Blocking, 2 Important, 6 Minor. Đã sửa hết, mỗi mục có test:
+A fresh review agent read all of `origin/main..HEAD` (not only the last fix) and ran the team, 0142, A5 and i18n tests itself.
+Verdict: 1 Blocking, 2 Important, 6 Minor. All fixed, each with a test:
 
-| Mức | Phát hiện | Sửa | Test |
+| Level | Finding | Fix | Test |
 |---|---|---|---|
-| Blocking | Tab Công việc gắn lại trên cùng khung thì chồng trình nghe: một lần bấm Giao tạo nhiều việc, Huỷ hỏi nhiều lần | Trình nghe gắn một lần cho khung, chuyển cho lần gắn đang sống | `test_team_chat_0142.js` (gắn ba lần, một POST) |
-| Important | Quyền "Không giới hạn" cũ (`anthropic-cli`) nay phủ cả lượt chạy model chính mà chủ chưa từng đồng ý | Quyền có `providers_v=2`; quyền cũ không cho provider nào Không giới hạn, trần về mức nhóm tới khi chủ cấp lại | `test_team_chat_0142.py` |
-| Important | Lượt cũ về muộn ghi đè kết cục của lần Thử lại; phục hồi đánh "restart" cả lượt vừa gửi | `settle_reply` theo `attempt` và chỉ khi lượt còn mở; phục hồi chỉ đụng lượt ghi trước lúc tiến trình khởi động | `test_team_chat_0142.py` |
-| Minor | Bị huỷ giữa chừng thì lượt phía sau nằm "đang chờ" mãi; việc nền không tạo được cũng vậy | Huỷ thì chốt cả lượt chưa chạy là lỗi `interrupted`; chờ quá 10 phút thì có Thử lại | `test_team_chat_0142.py`, `.js` |
-| Minor | Lý do `leader_changed`, `superseded` không có nhãn | Thêm nhãn vi/en | `.js` |
-| Minor | Enter ở ô tên nhóm không chuyển sang ô tìm (hộp chọn đã ra `<body>`) | Tìm trong lớp phủ | |
-| Minor | Giao việc báo vào phiên của trợ lý cũ cùng slug | Chọn phiên đã ghim đúng mã, không có thì mở mới | `test_agent_jobs_0142.py` |
-| Minor | Nonce toàn ký tự lạ thành rỗng, mọi lần giao chung một khoá | Kiểm sau khi lọc, 400 | `test_agent_jobs_0142.py` |
-| Minor | Tham số `metadata` thừa | Bỏ | |
+| Blocking | Re-attaching the Jobs tab on the same frame stacks listeners: one click on Assign creates several jobs, and Cancel asks several times | The listener is attached once per frame, handing over to the live attachment | `test_team_chat_0142.js` (attach three times, one POST) |
+| Important | The old "Unlimited" permission (`anthropic-cli`) now also covers runs of the main model that the owner never agreed to | The permission carries `providers_v=2`; an old permission grants Unlimited to no provider, and the ceiling falls back to the team level until the owner grants it again | `test_team_chat_0142.py` |
+| Important | A late old turn overwrites the outcome of a Retry; recovery marks even a just-sent turn as "restart" | `settle_reply` by `attempt` and only while the turn is still open; recovery touches only turns written before the process started | `test_team_chat_0142.py` |
+| Minor | Cancelled midway, later turns sit "waiting" forever; so do background jobs that could not be created | Cancel closes unstarted turns as error `interrupted`; waiting more than 10 minutes gives a Retry | `test_team_chat_0142.py`, `.js` |
+| Minor | The reasons `leader_changed` and `superseded` have no labels | Added vi/en labels | `.js` |
+| Minor | Enter in the team name field does not move to the search field (the picker box moved out to `<body>`) | Search inside the overlay | |
+| Minor | Assigning a job reports into the session of an older assistant with the same slug | Choose the session pinned to the right code, open a new one if none | `test_agent_jobs_0142.py` |
+| Minor | A nonce made entirely of odd characters becomes empty, so every assignment shares one key | Check after filtering, 400 | `test_agent_jobs_0142.py` |
+| Minor | A superfluous `metadata` parameter | Removed | |
 
-Đã kiểm không có lỗi: lượt nhóm không bao giờ có công cụ (Claude, Codex, API, Grok và Antigravity bị từ chối), không lẫn
-dữ liệu giữa các brain, mọi HTML mới đều escape, migration không tự đạt và không xoá lịch sử, chat thường không tạo việc,
-tắt Auto không đụng việc nhóm hay Kanban.
+Checked and found no defect: a team turn never has tools (Claude, Codex, API; Grok and Antigravity are refused), no data mixing
+between brains, all new HTML is escaped, the migration does not pass itself and does not delete history, ordinary chat does not create jobs,
+turning off Auto does not touch team work or Kanban.
 
-## 5. Hạn chế còn lại
+## 5. Remaining limits
 
-- Smoke với provider thật chỉ có Claude (container không có đăng nhập ChatGPT). Đường Codex được kiểm bằng Codex CLI thật
-  với máy chủ Responses giả, không phải một lượt ChatGPT thật.
-- Grok Build và Antigravity chưa chạy được lượt nhóm: còn công cụ đọc native (Grok) hay MCP dùng chung file của máy
-  (`agy`). Trợ lý đặt hai model này dùng model chính, kèm ghi chú trên tin.
-- `apply_patch` của Codex không tắt được bằng cờ; lớp chặn là `--sandbox read-only` cộng kiểm sự kiện công cụ của
+- The smoke test with a real provider covers only Claude (the container has no ChatGPT login). The Codex path was checked with the real Codex CLI
+  against a fake Responses server, not a real ChatGPT turn.
+- Grok Build and Antigravity cannot yet run a team turn: Grok still has native read tools, and `agy` uses an MCP shared through a machine file. An assistant set to these two models uses the main model, with a note on the message.
+- Codex's `apply_patch` cannot be turned off with a flag; the blocking layers are `--sandbox read-only` plus the tool-event check in
   `TextOnlyOutcome`.
-- Việc giao bằng nút Giao việc chạy trên engine việc nền của Kanban (giữ nguyên quyền và trần), với vai của trợ lý; nó
-  không dùng model riêng của trợ lý như lượt chat nhóm.
-- Quyền "Không giới hạn lượt" cũ ghi `aux` không còn khớp lượt nào (lượt nhóm nay ghi provider thật): trần về mức của
-  nhóm, tức chặt hơn.
-- Chưa merge, chưa triển khai VPS.
+- A job assigned with the Assign a job button runs on Kanban's background-work engine (permissions and ceiling unchanged), in the assistant's role; it
+  does not use the assistant's own model the way a team chat turn does.
+- The old "Unlimited turns" permission that recorded `aux` no longer matches any turn (a team turn now records the real provider): the ceiling falls back to the team's level,
+  which is stricter.
+- Not merged, not deployed to a VPS.
 
-## 6. Đối chiếu goal-claude-v2 và audit
+## 6. Cross-check against goal-claude-v2 and the audit
 
-Phiên thứ hai (14/10/2026, máy Windows của chủ repo, đọc được `exports/reviews/team-chat-zalo-ux-2026-10-14/`): đối chiếu
-từng yêu cầu của `goal-claude-v2.txt`, từng phát hiện của `audit.md` và ảnh 01 tới 08 với mã trên nhánh (HEAD `f225ba1`).
-Ba agent đọc mã song song theo nhóm mục (1-3 và 7, 4-5, 6 và 8-9), mỗi mục ghi Đạt, Thiếu hay Sai kèm `file:dòng`; phần
-thiếu và sai sửa trên cùng nhánh, giữ số 0.142.0. Mục đã Đạt từ phiên trước là các mục ở phần 2 phía trên.
+Second session (14 Oct 2026, the repo owner's Windows machine, able to read `exports/reviews/team-chat-zalo-ux-2026-10-14/`): each
+requirement of `goal-claude-v2.txt`, each finding of `audit.md` and images 01 to 08 were checked against the code on the branch (HEAD `f225ba1`).
+Three agents read code in parallel by item group (1-3 and 7, 4-5, 6 and 8-9), each item recorded as Pass, Missing or Wrong with `file:line`; the
+missing and wrong parts were fixed on the same branch, keeping the number 0.142.0. Items that already Passed from the earlier session are the ones in section 2 above.
 
-### Bảng đối chiếu (mục Thiếu hay Sai lúc đối chiếu)
+### Cross-check table (items that were Missing or Wrong at the time)
 
-| Mục goal / audit | Lúc đối chiếu | Đã sửa | Bằng chứng |
+| Goal / audit item | At cross-check | Fixed | Evidence |
 |---|---|---|---|
-| 1. Ngữ cảnh nhóm nội bộ trong lời nhắc (không phải nhóm Zalo khách, không im theo luật chatbot, không gửi ra Zalo) | Thiếu | `INTERNAL_GROUP_NOTE` nối sau lời nhắc trợ lý trong mọi lượt nhóm | `team_runner._prepare`, `test_team_chat_0142_review.py` mục 1 |
-| 1. Tin của AI không phải lệnh mới của chủ | Thiếu | Cùng đoạn trên: chỉ tin "Chủ nhóm" là yêu cầu | như trên |
-| 1. Ghi rõ thay đổi hợp đồng T1/R3 | Thiếu ở tài liệu thiết kế | Ghi chú dưới R3 | `docs/dev/team-chat-t1.md` |
-| 1. Grok/Antigravity | Sai so với biên bản (báo lỗi thay vì model chính) | Chạy model chính, ghi chú trên tin | `team_engine.text_only_supported`, test mục 5 |
-| 2. Timeout | Thiếu: lượt treo nằm "đang trả lời" mãi | Trần `JAVIS_TEAM_TURN_TIMEOUT` (600 giây), lỗi `timeout` có Thử lại; giết đúng tiến trình engine của lượt trước khi nhả khoá bận | `team_runner._turn`, `main._team_engine_for.run` (tag theo lượt) |
-| 2. Lỗi đăng nhập, model | Sai: chung một nhãn, chỉ có Thử lại | Lý do `auth`; nút Mở trang Models, Đổi model của trợ lý | `replyActions` (`teams.js`) |
-| 2. Thiếu điều phối | Sai: tin không có dòng kết cục | Dòng `__leader__` lý do `no_leader`, nút Chọn điều phối; Thử lại giao đúng một lượt cho điều phối hiện tại | `team_runner.retry_reply`, test mục 3 |
-| 2. Hết lượt, tạm dừng, điều phối rời | Sai: chỉ Thử lại | Mở giới hạn của nhóm, Chạy lại nhóm, Chọn điều phối; nhóm tạm dừng chưa có điều phối vẫn có dòng | như trên |
-| 2. Bận việc khác | Yếu: chỉ "Đang chờ" | "Đang chờ: trợ lý đang làm việc ở nhóm X" | `_acquire(on_wait)`, test mục 4 |
-| 2. Mất WebSocket | Sai: gói lỡ không tải lại | `hello` lần hai phát `team_resync`, trang Nhóm tải lại tin, hàng việc, nhóm | `app.js`, `onTeamEvent` |
-| 3. Chọn từ gợi ý không suy lại theo tên | Sai | Lựa chọn lưu `{agent_key, label}`; token còn nguyên thì gọi đúng mã, sửa hay xoá token thì bỏ; lựa chọn mới nhất thắng | `mentionScan`, `pickMention` |
-| 3. Token riêng trong composer, xoá token là bỏ gọi | Thiếu | Hàng "Gọi:" mỗi người một thẻ có nút x (xoá đúng token, không phá token dài hơn của người khác) | `callsHtml`, `removeMention` |
-| 3. Tìm không dấu; lên/xuống, Enter, Escape; ảnh, tên, vai, slug | Sai, Thiếu | Tìm không dấu theo đầu từ bất kỳ (tên, slug, vai); listbox có `aria-activedescendant`; phím xử lý trước Escape của ngăn; bỏ qua khi đang gõ IME | `mentionMatches`, `sugKey`, `member_views.title` |
-| 3. Email không mở gợi ý | Sai một phần | `emailBefore` | `test_team_chat_0142_review.js` |
-| 4. Chip "Chưa có tag", ảnh ghép xem trước, mô tả thu gọn | Thiếu, Sai | Có | `team-picker.js` |
-| 4. Điều phối chọn ngay trên danh sách đã chọn; bỏ điều phối thể hiện rõ | Sai (select riêng, chuyển ngầm) | Nút Điều phối trên chip; bỏ thì để trống, báo rõ, khoá nút Tạo tới khi chọn lại | `normalize`, `canSubmit` |
-| 4. Chống tạo trùng phía server, ít nhất một trợ lý, một giao dịch | Thiếu | `client_req_id` (chỉ mục duy nhất theo brain), 400 khi không có trợ lý, nhóm + thành viên + điều phối trong một giao dịch, phiên mồ côi bị xoá | `team_store.create_team`, `team_api.teams_create`, test mục 6 |
-| 4. Tạo xong focus composer; đang tải, lỗi tải | Sai, Thiếu | Có | `drawComposer`, `loadRoster` |
-| 4. Thêm thành viên: "Đã tham gia", chỉ đếm người mới | Sai (ẩn người đã có) | Hiện, khoá ô chọn, "N người mới" | `team-picker.js` |
-| 5. Người tạo lấy từ phiên xác thực server; nhóm cũ migration | Thiếu | Cột `created_by` (nhóm cũ nhận `owner`), `team.creator` do server điền, client khai thì bỏ qua | `team_store`, `team_api.creator` |
-| 5. "Bạn + N trợ lý" ở đầu nhóm và danh sách thành viên | Sai | `headLine`, tiêu đề mục Thành viên | `teams.js` |
-| 5. Không bị bàn phím che (hộp chọn) | Sai trên iOS | Hộp chọn co theo `--vv-h` khi `kb-open` | `console.css` |
-| 6. Lọc nguồn, phân trang | Thiếu | Có (không còn trần ẩn việc) | `agent_jobs.collect`, `agent-jobs.js` |
-| 6. Thẻ: cập nhật gần nhất, bước cần làm | Thiếu | `updated_at`, `next` (vị trí hàng, đang chờ nhóm khác, cần bạn, bật AI tự vận hành) | như trên |
-| 6. Vai Điều phối, Thực hiện, Hỗ trợ, Kiểm chứng | Sai nhãn | Đổi | i18n `ajobs.role.*` |
-| 6. Giao việc: tiêu chí xong, nơi nhận kết quả, xác nhận | Thiếu | Có; giao vào nhóm đi đúng `runner.submit` của nhóm; tiêu đề việc nhóm lấy đoạn đầu | `main.agent_jobs_assign`, `_enqueue_for` |
-| 6. Tiếp tục, ưu tiên; Huỷ mục tiêu có revision | Thiếu | Tiếp tục (`resume` + `expected_revision`), Ưu tiên việc nhóm qua route sẵn có | `agent-jobs.js` |
-| 6. Sửa ở một nơi đồng bộ nơi khác | Thiếu | Nghe sự kiện nhóm, mục tiêu, phiên, việc; không vẽ lại khi đang gõ form hay IME | `agent-jobs.js` |
-| 7. Không mở nhiều lượt model chỉ vì nhiều việc | Thiếu ở việc giao từ Cộng sự | Kanban: một việc `agent:` đang chạy mỗi trợ lý, việc khác vẫn chạy (FIFO) | `task_store.next_candidate`, `claim` |
-| 7. Vai theo nhân dạng | Sai: tra theo slug | `_agent_persona(root, slug, agent_key)` kiểm mã | `tasks._persona` |
-| 8. Kiểm chứng là việc riêng, liên kết rõ | Thiếu | Kiểu "Kiểm chứng" trong Giao việc, bắt buộc tiêu chí, liên kết mục được kiểm, chặn tự kiểm việc của mình; nút "Giao kiểm chứng" trên thẻ | `agent_jobs.resolve_link`, `/agents/{slug}/jobs/verify-targets` |
-| 8. Test migration đủ trạng thái | Thiếu | `review_changes`, đang chạy, bị chặn lý do khác, chưa bắt đầu, thất bại | `test_review_removed_0142.py` |
-| 9. Còn chữ "Cộng hưởng", "trưởng nhóm" trên giao diện | Sai | "Auto" ở cài đặt và tin hệ thống; "trưởng nhóm" thành "điều phối" trong giao diện nhóm (vi/en) | i18n, `team_runner.py`, `index.html` |
-| 9. Đồng bộ Auto với trang Nhóm; badge việc tách Auto | Thiếu | Trang Nhóm nghe `javis:resonance-agents-changed`; huy hiệu việc (đang làm, cần bạn) riêng trên thẻ | `teams.js`, `workspace.js`, `/agents/jobs/counts` |
-| Ảnh 01 (khung chat im) | Đạt sau sửa | Smoke thật bên dưới | `smoke-0142/1366-error-row.png` |
-| Ảnh 02, 04, 07 (form phẳng; luồng Zalo) | Đạt sau sửa | | `smoke-0142/1366-picker.png`, `375-picker.png`, `1366-add-members.png` |
-| Ảnh 03, 05, 06 (thông tin nhóm Zalo) | Đạt trong phạm vi | Panel có người tạo, điều phối, thành viên, Thêm, ghim, trạng thái, quyền; link mời, bình chọn, xoá lịch sử ngoài phạm vi goal | `smoke-0142/1366-team-panel.png` |
-| Ảnh 08 (hàng "Cộng hưởng: Bật" ngoài thẻ) | Đạt | Công tắc Auto trong thẻ, cam khi bật | `smoke-0142/375-auto-on.png`, `375-menu.png` |
+| 1. Internal team context in the prompt (not a customer Zalo group, no silence by chatbot rule, no sending out to Zalo) | Missing | `INTERNAL_GROUP_NOTE` appended after the assistant's prompt in every team turn | `team_runner._prepare`, `test_team_chat_0142_review.py` item 1 |
+| 1. An AI's message is not a new command from the owner | Missing | Same paragraph as above: only the "Chủ nhóm" (Team owner) message is a request | same as above |
+| 1. State the T1/R3 contract change explicitly | Missing in the design doc | Note under R3 | `docs/dev/team-chat-t1.md` |
+| 1. Grok/Antigravity | Wrong against the record (reported an error instead of using the main model) | Run on the main model, with a note on the message | `team_engine.text_only_supported`, test item 5 |
+| 2. Timeout | Missing: a hung turn sat "answering" forever | `JAVIS_TEAM_TURN_TIMEOUT` ceiling (600 seconds), error `timeout` with Retry; kills exactly the engine process of the turn before releasing the busy lock | `team_runner._turn`, `main._team_engine_for.run` (tag per turn) |
+| 2. Login error, model | Wrong: one shared label, only Retry | Reason `auth`; buttons Open the Models page, Change the assistant's model | `replyActions` (`teams.js`) |
+| 2. Missing coordinator | Wrong: the message had no outcome row | A `__leader__` row with reason `no_leader`, a Choose coordinator button; Retry hands exactly one turn to the current coordinator | `team_runner.retry_reply`, test item 3 |
+| 2. Out of turns, paused, coordinator left | Wrong: only Retry | Open the team limits, Resume the team, Choose coordinator; a paused team with no coordinator still gets a row | same as above |
+| 2. Busy with other work | Weak: only "Waiting" | "Waiting: the assistant is working in the team X" | `_acquire(on_wait)`, test item 4 |
+| 2. WebSocket lost | Wrong: a missed packet was not reloaded | The second `hello` emits `team_resync`, and the Teams page reloads messages, the job queue and teams | `app.js`, `onTeamEvent` |
+| 3. Picking from a suggestion is not re-inferred by name | Wrong | The choice is stored as `{agent_key, label}`; if the token is intact, call exactly that code; editing or deleting the token drops it; the newest choice wins | `mentionScan`, `pickMention` |
+| 3. A separate token in the composer, deleting the token drops the call | Missing | A "Calling:" row, one card per person with an x button (deletes exactly that token, without breaking another person's longer token) | `callsHtml`, `removeMention` |
+| 3. Accent-insensitive search; up/down, Enter, Escape; photo, name, role, slug | Wrong, Missing | Accent-insensitive search by the start of any word (name, slug, role); the listbox has `aria-activedescendant`; keys are handled before the drawer's Escape; skipped while typing in an IME | `mentionMatches`, `sugKey`, `member_views.title` |
+| 3. An email does not open suggestions | Partly wrong | `emailBefore` | `test_team_chat_0142_review.js` |
+| 4. "No tag" chip, composite photo preview, collapsed description | Missing, Wrong | Done | `team-picker.js` |
+| 4. Coordinator chosen right on the picked list; removing the coordinator is shown clearly | Wrong (a separate select, switching silently) | A Coordinator button on the chip; removing it leaves it empty, says so, and locks the Create button until chosen again | `normalize`, `canSubmit` |
+| 4. Server-side duplicate-creation protection, at least one assistant, one transaction | Missing | `client_req_id` (unique index per brain), 400 when there is no assistant, team + members + coordinator in one transaction, an orphan session is deleted | `team_store.create_team`, `team_api.teams_create`, test item 6 |
+| 4. After creating, focus the composer; loading, load error | Wrong, Missing | Done | `drawComposer`, `loadRoster` |
+| 4. Adding members: "Already in the team", count only new people | Wrong (hid people already in) | Show them, lock the picker box, "N new" | `team-picker.js` |
+| 5. The creator comes from the server's authenticated session; old teams get a migration | Missing | Column `created_by` (old teams get `owner`), `team.creator` is filled by the server, a client-supplied value is ignored | `team_store`, `team_api.creator` |
+| 5. "You + N assistants" at the head of the team and the member list | Wrong | `headLine`, the title of the Members section | `teams.js` |
+| 5. Not covered by the keyboard (picker box) | Wrong on iOS | The picker box shrinks by `--vv-h` when `kb-open` | `console.css` |
+| 6. Source filter, pagination | Missing | Done (no more hidden ceiling on jobs) | `agent_jobs.collect`, `agent-jobs.js` |
+| 6. Card: latest update, next step | Missing | `updated_at`, `next` (queue position, waiting on another team, needs you, turn on AI self-driving) | same as above |
+| 6. Roles Coordinating, Doing, Helping, Checking | Wrong labels | Renamed | i18n `ajobs.role.*` |
+| 6. Assign a job: completion criteria, where the result goes, confirmation | Missing | Done; assigning into a team goes through the team's own `runner.submit`; a team job's title takes the opening passage | `main.agent_jobs_assign`, `_enqueue_for` |
+| 6. Resume, priority; Cancel goal with revision | Missing | Resume (`resume` + `expected_revision`), Prioritize team jobs through the existing route | `agent-jobs.js` |
+| 6. Editing in one place syncs the others | Missing | Listens to team, goal, session and job events; does not redraw while a form is being typed in or an IME is active | `agent-jobs.js` |
+| 7. Do not open many model turns just because there are many jobs | Missing for jobs assigned from the Partners page | Kanban: one `agent:` job running per assistant, other jobs still run (FIFO) | `task_store.next_candidate`, `claim` |
+| 7. Role by identity | Wrong: looked up by slug | `_agent_persona(root, slug, agent_key)` checks the code | `tasks._persona` |
+| 8. Verification is a separate job, clearly linked | Missing | A "Check" kind in Assign a job, criteria required, a link to the item being checked, self-checking one's own job is blocked; an "Assign a check" button on the card | `agent_jobs.resolve_link`, `/agents/{slug}/jobs/verify-targets` |
+| 8. Migration test for every state | Missing | `review_changes`, running, blocked for another reason, not started, failed | `test_review_removed_0142.py` |
+| 9. Still the words "Cộng hưởng" (Resonance) and "trưởng nhóm" (team lead) in the UI | Wrong | "Auto" in settings and system messages; "team lead" became "coordinator" in the team UI (vi/en) | i18n, `team_runner.py`, `index.html` |
+| 9. Auto synced with the Teams page; the job badge separated from Auto | Missing | The Teams page listens to `javis:resonance-agents-changed`; a job badge (working, needs you) separate on the card | `teams.js`, `workspace.js`, `/agents/jobs/counts` |
+| Image 01 (silent chat frame) | Pass after the fix | Real smoke test below | `smoke-0142/1366-error-row.png` |
+| Images 02, 04, 07 (flat form; Zalo flow) | Pass after the fix | | `smoke-0142/1366-picker.png`, `375-picker.png`, `1366-add-members.png` |
+| Images 03, 05, 06 (Zalo group info) | Pass within scope | The panel has the creator, coordinator, members, Add, pin, status, permissions; invite link, polls, deleting history are outside the goal's scope | `smoke-0142/1366-team-panel.png` |
+| Image 08 (the "Resonance: On" row outside the card) | Pass | The Auto switch inside the card, orange when on | `smoke-0142/375-auto-on.png`, `375-menu.png` |
 
-### Review độc lập vòng 2 (phần thay đổi mới, `f225ba1..81eb61c8`)
+### Independent review round 2 (the new changes, `f225ba1..81eb61c8`)
 
-Không có lỗi chặn. Đã sửa, mỗi mục có test:
+No blocking defects. Fixed, each with a test:
 
-| Mức | Phát hiện | Sửa |
+| Level | Finding | Fix |
 |---|---|---|
-| Important | Lựa chọn @ cũ giành token của lựa chọn mới ("Lan" rồi "Lan Anh") | Xét lựa chọn mới nhất trước; bỏ lựa chọn mất token khi chọn người mới |
-| Important | Quá trần thời gian chỉ huỷ phía đọc, tiến trình Codex còn sống, khoá bận đã nhả | Tag theo lượt, `cancel_all(tag)` và `aclose()` trước khi nhả khoá |
-| Important | Tab Công việc vẽ lại cả khung lúc đang gõ form | Hoãn tải lại khi form mở, ô nhập đang focus hay đang gõ IME |
-| Minor | Bỏ gọi một người phá token dài hơn của người khác | Bỏ qua chỗ mà tên người khác dài hơn cũng khớp |
-| Minor | Nhóm tạm dừng mà chưa có điều phối: tin không có dòng | Dòng `__leader__` lý do `team_paused` |
-| Minor | Đếm việc cho huy hiệu chạy cả khi đang xem Quy trình hay tab ẩn | Chỉ khi danh sách trợ lý đang hiện |
-| Minor | Đọc kho trên vòng sự kiện trong `waiting` | Đưa qua `_io` |
-| Minor | Phiên mồ côi khi tạo nhóm lỗi | Xoá phiên |
-| Minor | Tạo được nhóm không có điều phối | Khoá nút Tạo tới khi chọn |
-| Minor | Kanban từ chat riêng (không có khoá `agent:`) và lượt nhóm vẫn có thể chạy cùng lúc với việc được giao | Ghi ở hạn chế, chưa sửa |
+| Important | An old @ choice grabs the token of a new choice ("Lan" then "Lan Anh") | Consider the newest choice first; drop a choice that lost its token when a new person is picked |
+| Important | Going over the time ceiling only cancelled the read side, the Codex process was still alive, and the busy lock was released | Tag per turn, `cancel_all(tag)` and `aclose()` before releasing the lock |
+| Important | The Jobs tab redraws the whole frame while a form is being typed in | Defer the reload while a form is open, an input is focused or an IME is active |
+| Minor | Dropping the call of one person breaks another person's longer token | Skip places where a longer name of another person also matches |
+| Minor | A paused team with no coordinator: the message has no row | A `__leader__` row with reason `team_paused` |
+| Minor | The job count for the badge runs even while viewing Workflows or a hidden tab | Only when the assistant list is showing |
+| Minor | Reading the store on the event loop in `waiting` | Moved to `_io` |
+| Minor | An orphan session when creating a team fails | Delete the session |
+| Minor | A team could be created with no coordinator | Lock the Create button until one is chosen |
+| Minor | Kanban from private chat (without an `agent:` key) and team turns can still run at the same time as an assigned job | Recorded under limits, not fixed |
 
-### Smoke với provider thật (sandbox cổng 7788, state và brain tạm, không Zalo, Telegram hay khách)
+### Smoke test with a real provider (sandbox on port 7788, temp state and brain, no Zalo, Telegram or customers)
 
-Cấu hình như máy thật trong audit: model chính và model việc nền đều OpenAI OAuth (Codex CLI 0.160.0 trên máy),
-`gpt-6.1-sol`. Jarvis 007 Vũ Zalo đặt riêng Codex `gpt-6.1-sol`, lời nhắc có luật chatbot Zalo "im lặng khi không được gọi";
-Coach không đặt model (theo model chính); hai trợ lý cùng tên One đặt Claude `haiku`.
+Configured like the real machine in the audit: the main model and the background-work model are both OpenAI OAuth (Codex CLI 0.160.0 on the machine),
+`gpt-6.1-sol`. "Jarvis 007 Vũ Zalo" is set to its own Codex `gpt-6.1-sol`, and its prompt carries the Zalo chatbot rule "stay silent when not called";
+Coach has no model set (follows the main model); the two assistants with the same name One are set to Claude `haiku`.
 
-Năm lần gọi model, dừng ở đó:
+Five model calls, and it stopped there:
 
-1. Tin thường: Jarvis 007 Vũ Zalo (điều phối) trả lời sau 10 giây bằng `openai-oauth gpt-6.1-sol`, không im theo luật chatbot.
-2. @One chọn bản A bằng phím mũi tên: đúng bản A trả lời (`anthropic-cli haiku`).
-3. Giao việc ngắn cho Coach: chạy bằng model chính Codex, kết quả về nhóm, hiện ở tab Công việc ngăn Đã xong sau tải lại;
-   Mở đưa về đúng nhóm.
-4. One bản B đặt model không tồn tại: dòng "Chưa trả lời được: Model báo lỗi..." kèm câu lỗi thật, nút Đổi model và Thử
-   lại; tải lại trang vẫn còn. (Đính chính: biên bản ban đầu ghi "khởi động lại server rồi tải lại vẫn còn". Sai: lệnh tắt
-   chỉ giết tiến trình vỏ của `.venv`, tiến trình Python con giữ cổng 7788, nên các lần "khởi động lại" sau đó không bind
-   được và trình duyệt vẫn nói chuyện với server khởi động đầu tiên (mã `81eb61c8`). Phần server sửa sau đó, cùng việc lượt
-   dở thành `restart` sau khởi động lại, chỉ được kiểm bằng test tự động, không bằng smoke.)
-5. Sửa model rồi bấm đúp Thử lại: đúng một lượt mới, bản B trả lời.
+1. Ordinary message: Jarvis 007 Vũ Zalo (the coordinator) replied after 10 seconds with `openai-oauth gpt-6.1-sol`, without going silent by the chatbot rule.
+2. @One, copy A picked with the arrow keys: exactly copy A replied (`anthropic-cli haiku`).
+3. A short job assigned to Coach: ran on the main model Codex, the result came back to the team, and appeared in the Jobs tab in the Done drawer after reloading;
+   Open took the user back to the right team.
+4. One copy B set to a nonexistent model: the row "Could not answer: the model reported an error..." with the real error sentence, the Change model and Retry
+   buttons; it was still there after reloading the page. (Correction: the original record said "restarted the server and it was still there after reloading". Wrong: the stop command
+   killed only the shell process of the `.venv`, the child Python process kept port 7788, so the later "restarts" could not
+   bind and the browser kept talking to the first server that started (code `81eb61c8`). The server part fixed after that, along with a half-done turn
+   becoming `restart` after a restart, was checked only by automated tests, not by the smoke test.)
+5. Fixed the model and double-clicked Retry: exactly one new turn, and copy B replied.
 
-Không gọi model: tạo nhóm bấm đúp (một nhóm), bỏ điều phối có cảnh báo, Thêm thành viên ("Đã tham gia", "0 người mới"),
-Giao việc vào chat riêng có tiêu chí và bước xem lại (bấm đúp Xác nhận vẫn một việc; AI tự vận hành tắt nên ghi rõ chỉ nằm
-chờ), email không mở gợi ý, token Gọi bỏ được, Auto bật trên thẻ và tắt trong menu ba chấm.
+No model call: double-click Create team (one team), removing the coordinator with a warning, Add members ("Already in the team", "0 new"),
+Assign a job in private chat with criteria and a review step (double-click Confirm still gave one job; AI self-driving was off, so it said clearly that it only sits
+waiting), an email does not open suggestions, the Calling token can be removed, Auto on in the card and off in the three-dot menu.
 
-Số đo: 1366, 768, 375 không tràn ngang (`scrollWidth` bằng bề ngang); hộp chọn ở 375 đầy màn hình, footer 743 tới 812;
-chữ nhỏ nhất trong hộp chọn 16px; công tắc Auto 87x44. Smoke bắt thêm hai lỗi, đã sửa: danh sách gợi ý @ ở giao diện tối
-có nền gần trong suốt (`--surface-1`, lỗi có sẵn); thanh lọc theo việc đã xong hiện mã việc thay vì tên. Ảnh:
+Measurements: 1366, 768, 375 had no horizontal overflow (`scrollWidth` equals the width); the picker box at 375 fills the screen, footer 743 to 812;
+the smallest text in the picker box is 16px; the Auto switch is 87x44. The smoke test caught two more bugs, fixed: the @ suggestion list in the dark theme
+had a nearly transparent background (`--surface-1`, a pre-existing bug); the filter bar for finished jobs showed the job code instead of the name. Screenshots:
 `exports/reviews/team-chat-zalo-ux-2026-10-14/smoke-0142/`.
 
-### Hạn chế còn lại
+### Remaining limits
 
-- Kanban từ chat riêng và lượt nhóm chưa chung khoá bận với việc giao từ tab Công việc; trần chung vẫn là
-  `JAVIS_KANBAN_MAX_WORKERS` và khoá bận của nhóm.
-- Việc Kanban chưa có route ưu tiên nên tab Công việc chỉ có Ưu tiên cho việc nhóm. Lần chạy quy trình (`wf:`) chưa có
-  định danh trợ lý nên chưa vào tab.
-- Ảnh nhóm chưa đổi được (ghép từ ảnh trợ lý), nên không có nút đổi ảnh. Link mời, bình chọn, nhiều tài khoản ngoài phạm vi.
-- Chưa merge, chưa triển khai VPS.
+- Kanban from private chat and team turns do not yet share the busy lock with jobs assigned from the Jobs tab; the shared ceiling is still
+  `JAVIS_KANBAN_MAX_WORKERS` and the team's busy lock.
+- Kanban jobs have no priority route yet, so the Jobs tab has Prioritize only for team jobs. A workflow run (`wf:`) has no
+  assistant identity yet, so it does not appear in the tab.
+- The team photo cannot yet be changed (it is composed from the assistants' photos), so there is no change-photo button. Invite links, polls, multiple accounts are outside the scope.
+- Not merged, not deployed to a VPS.
 
-### Sau báo cáo: công tắc Auto lên hàng tag
+### After the report: the Auto switch moves to the tag row
 
-Chủ repo xem ảnh 375 và yêu cầu (14/10/2026): công tắc Auto ở hàng riêng dưới đáy thẻ khó biết thuộc trợ lý nào. Nay công
-tắc nằm trong thẻ, CÙNG HÀNG với tag, bên phải; nút ba chấm lên ngang hàng tên để tag còn đủ chỗ ở cột hẹp; trợ lý chưa có
-tag thì công tắc giữ một hàng đáy riêng. Đo trên trình duyệt: tâm công tắc lệch tâm tag tối đa 1px, tag không bị cắt chữ ở
-1366 và 375, không chồng nút ba chấm, vùng chạm 44px trên màn cảm ứng. Thẻ cũng gọn hơn một hàng.
+The repo owner looked at the 375 screenshot and asked (14 Oct 2026): the Auto switch on its own row at the bottom of the card makes it hard to tell which assistant it belongs to. Now the
+switch sits inside the card, on the SAME ROW as the tags, on the right; the three-dot button moved up level with the name so the tags have enough room in the narrow column; an assistant with no
+tags keeps the switch on its own bottom row. Measured in the browser: the switch's center is off the tag's center by at most 1px, tags are not clipped at
+1366 and 375, they do not overlap the three-dot button, and the tap target is 44px on touch screens. The card is also one row shorter.
 
-### Sau báo cáo: bố cục trang Cộng sự
+### After the report: Partners page layout
 
-Chủ repo yêu cầu (14/10/2026, kèm ảnh danh sách chat có giờ):
+The repo owner asked (14 Oct 2026, with a screenshot of a chat list that shows times):
 
-- **Giờ nhắn gần nhất** trên thẻ trợ lý, cùng hàng tên (hôm nay giờ:phút, hôm qua "Hôm qua", xa hơn ngày/tháng). Dữ liệu là
-  `last_chat_at` sẵn có của `/agents` (cũng là thứ tự danh sách); nay chỉ tính phiên đã có tin, vì bấm vào trợ lý là trang
-  tạo sẵn một phiên trống. Xong một lượt chat thì giờ trên thẻ đổi ngay.
-- **Cột phải mặc định ẩn** ở màn rộng; nút góc phải hiện lại và lựa chọn được nhớ (`javis_ws_right`). Mở Cài đặt để xác nhận
-  trợ lý vẫn tự hiện cột mà không ghi đè lựa chọn. Màn hẹp giữ ngăn kéo như cũ.
-- **Cột danh sách rộng hơn** (mặc định `clamp(240px, 24vw, 320px)` thay 210-260px) và **kéo được** ở đường biên, cả cột phải;
-  có tay kéo bàn phím (mũi tên trái/phải 16px), nhấp đúp về mặc định, chặn 220-560px (trái) và 280-640px (phải), không quá
-  45%/50% bề ngang trang; nhớ qua `javis_ws_left_w`, `javis_ws_right_w`.
-- **Cột phải ẩn thì chữ rộng ra:** bong bóng trả lời giãn tới `min(120ch, 100%)` thay vì 72 ký tự.
+- **Latest message time** on the assistant card, on the same row as the name (today hour:minute, yesterday "Yesterday", older day/month). The data is the
+  existing `last_chat_at` from `/agents` (also the list order); it now counts only sessions that have messages, because clicking an assistant makes the page
+  create an empty session in advance. When a chat turn finishes, the time on the card changes immediately.
+- **The right column is hidden by default** on wide screens; a button in the right corner shows it again and the choice is remembered (`javis_ws_right`). Opening Settings to confirm
+  an assistant still shows the column by itself without overwriting the choice. Narrow screens keep the drawer as before.
+- **A wider list column** (default `clamp(240px, 24vw, 320px)` instead of 210-260px) that is **draggable** at the edge, as is the right column;
+  with a keyboard handle (left/right arrows 16px), double-click to return to the default, clamped to 220-560px (left) and 280-640px (right), never more than
+  45%/50% of the page width; remembered through `javis_ws_left_w`, `javis_ws_right_w`.
+- **With the right column hidden the text gets wider:** the reply bubble stretches to `min(120ch, 100%)` instead of 72 characters.
 
-Đo trên trình duyệt: 1366 cột trái 320px, kéo thêm 80px được 400px và còn sau tải lại; cột phải hiện, kéo 350 thành 430px;
-bong bóng 846/850px của khoang giữa khi cột phải ẩn (1366), 1298px ở 1920 (trần 120 ký tự); 375 không có tay kéo, không tràn
-ngang, giờ cùng hàng tên. Chữ giờ 14px để bằng tên trợ lý ở cột hẹp (ngoại lệ có chủ ý so với sàn 16px của phần mới).
-Test: `tests/js/test_cong_su_bo_cuc_0142.js`, thêm một kiểm ở `test_sessions_kenh_cong_su.py`.
+Measured in the browser: at 1366 the left column is 320px, dragging 80px more gives 400px and it persists after reloading; with the right column showing, dragging 350 to 430px;
+the bubble is 846/850px of the middle area when the right column is hidden (1366), 1298px at 1920 (the 120-character ceiling); at 375 there is no drag handle, no horizontal
+overflow, and the time is on the same row as the name. The time text is 14px to match the assistant name in the narrow column (a deliberate exception to the 16px floor for new parts).
+Tests: `tests/js/test_cong_su_bo_cuc_0142.js`, plus one check in `test_sessions_kenh_cong_su.py`.
 
-### Rà soát trước khi phát hành
+### Review before release
 
-Chủ repo yêu cầu rà lại toàn bộ trước khi merge. Hai agent đọc độc lập `origin/main...HEAD` (server và giao diện), tự chạy
-mã và test; không có lỗi chặn. Kiểm thật: nâng cấp `team.sqlite3` dựng bằng mã `origin/main` (mở hai lần, mã cũ vẫn mở được
-kho đã nâng cấp), migration Cộng hưởng, phục hồi lúc khởi động, khoá một việc mỗi trợ lý của Kanban, tag giết tiến trình theo
-lượt. Khởi động lại server sandbox thật (tắt theo cổng): server lên lại, dòng trạng thái lượt trả lời còn nguyên.
+The repo owner asked for a full review before merging. Two agents independently read `origin/main...HEAD` (server and UI), running
+the code and tests themselves; no blocking defects. Real checks: upgrading a `team.sqlite3` built with `origin/main` code (opened twice, the old code could still open the
+upgraded store), the Resonance migration, recovery at startup, Kanban's one-job-per-assistant lock, and per-turn tags killing the process. Restarted the
+real sandbox server (stopped by port): the server came back, and the reply turn status row stayed intact.
 
-Đã sửa, mỗi mục có test (`test_prerelease_0142.py`, `test_team_chat_0142_review.js`, `test_cong_su_bo_cuc_0142.js`):
+Fixed, each with a test (`test_prerelease_0142.py`, `test_team_chat_0142_review.js`, `test_cong_su_bo_cuc_0142.js`):
 
-| Mức | Phát hiện | Sửa |
+| Level | Finding | Fix |
 |---|---|---|
-| Important | Huy hiệu việc và danh sách kiểm chứng mở một kết nối kho Cộng hưởng cho MỖI phiên: 15 giây với 20 trợ lý x 150 phiên trên Windows, request chồng nhau làm nghẽn luồng phụ | `session_pins` đọc một lần; trang chỉ chạy một lượt đếm mỗi lúc |
-| Important | Thu cửa sổ còn nửa màn hình thì cột phải bật ra đè khung chat (lớp `right-open` đổi nghĩa theo khổ) | Nghe đổi khổ màn, đặt lại theo nghĩa mới |
-| Important | Nút "Vị trí file" ở trang Cộng sự bấm không ra gì (tab Thư mục đã bỏ) | Mở trang Tệp tin và soi file trong cây |
-| Important | Dòng trạng thái của người đã rời nhóm hiện mã thay vì tên | Tra sổ tác giả |
-| Minor | @ người đã rời nhóm: tin không ai trả lời và câu báo bị lọc mất (chứa mã có `_`) | Câu báo bằng tên; khung soạn chỉ lọc mã |
-| Minor | Trần 10 phút áp cả bước của việc nhóm (trước không có trần) | Trả lời chat 10 phút, bước việc nhóm 60 phút (`JAVIS_TEAM_STEP_TIMEOUT`) |
-| Minor | Việc giao báo về phiên đã lưu trữ hay phiên trống | Ưu tiên phiên chưa lưu trữ đã có tin |
-| Minor | Chạy tay việc Kanban khi trợ lý đang bận trả `ok:false` không lý do | Câu lý do vi/en |
-| Minor | Hộp chọn mất focus sau khi chọn, Escape không đóng; tab Công việc vẫn hỏi server sau khi rời tab; Thử lại có thể kẹt; lưu Cài đặt thu cột phải dù chủ chọn hiện; laptop 1061-1240px mất bề rộng cũ của cột phải; kéo hai cột có thể bóp khung chat còn ~100px | Sửa từng mục; khung chat luôn còn ít nhất 360px |
-| Minor | Lỗi `nonce` trả mã thô | Câu vi/en |
+| Important | The job badge and the verification list opened one Resonance store connection for EACH session: 15 seconds with 20 assistants x 150 sessions on Windows, and overlapping requests clogged the side thread | `session_pins` is read once; the page runs only one count pass at a time |
+| Important | Shrinking the window to half the screen made the right column pop out over the chat frame (the `right-open` class changed meaning with the screen size) | Listen for screen-size changes and reset to the new meaning |
+| Important | The "File location" button on the Partners page did nothing when clicked (the Folder tab was removed) | Open the Files page and highlight the file in the tree |
+| Important | The status row of a person who left the team showed the code instead of the name | Look up the author ledger |
+| Minor | @ a person who left the team: nobody answered the message and the notice was filtered out (it contained a code with `_`) | The notice uses the name; the composer filters only codes |
+| Minor | The 10-minute ceiling applied to team job steps too (there was no ceiling before) | Chat replies 10 minutes, team job steps 60 minutes (`JAVIS_TEAM_STEP_TIMEOUT`) |
+| Minor | An assigned job reported into an archived or empty session | Prefer an unarchived session that has messages |
+| Minor | Manually running a Kanban job while the assistant is busy returned `ok:false` with no reason | A reason sentence in vi/en |
+| Minor | The picker box lost focus after picking, Escape did not close it; the Jobs tab still asked the server after leaving the tab; Retry could get stuck; saving Settings collapsed the right column even though the owner chose to show it; on a 1061-1240px laptop the right column lost its old width; dragging both columns could squeeze the chat frame down to ~100px | Fixed one by one; the chat frame always keeps at least 360px |
+| Minor | A `nonce` error returned a raw code | A sentence in vi/en |

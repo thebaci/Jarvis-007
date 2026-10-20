@@ -1,99 +1,99 @@
 # Jarvis 007 Resonance Runtime Implementation Plan
 
-**Trạng thái sau phản biện vòng 2:** tham chiếu cho kiến trúc mở rộng. Bắt đầu bằng [MVP một agent](2026-10-06-resonance-00-mvp.md); các phần context, bằng chứng và quyền cần cho MVP được làm ở phạm vi hẹp. Nhóm, transport đa worker và undo tổng quát không phải điều kiện của mốc đầu. Không dựng hai scheduler hoặc hai kho goal khi mở rộng.
+**Status after the second round of challenge:** reference for the extended architecture. Start with the [single-agent MVP](2026-10-06-resonance-00-mvp.md); the context, evidence and permission parts the MVP needs are built in a narrow scope. Groups, multi-worker transport and general undo are not conditions for the first milestone. Do not build two schedulers or two goal stores when extending.
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (- [ ]) syntax for tracking. Không triển khai chỉ vì tài liệu này tồn tại.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (- [ ]) syntax for tracking. Do not implement just because this document exists.
 
-**Goal:** Cho agent và nhóm tự hình thành mục tiêu từ nhu cầu, thực thi, xem lại cách hiểu theo bằng chứng, điều chỉnh beat, cộng tác và tiếp tục sau gián đoạn trong đúng quyền và nguồn lực.
+**Goal:** Let an agent and a group form goals from needs on their own, execute, review their understanding against evidence, adjust the beat, collaborate and continue after an interruption, within the right permissions and resources.
 
-**Architecture:** Goal service dùng executor/Kanban/workflow hiện có, bổ sung authorization theo goal và scheduler dựa trên sự kiện. Một mục tiêu có một chủ sở hữu lịch. Group runtime giữ leader epoch và phân công bằng hợp đồng con.
+**Architecture:** The goal service uses the existing executor/Kanban/workflow, adding per-goal authorization and an event-based scheduler. A goal has one schedule owner. The group runtime holds a leader epoch and assigns work through child contracts.
 
-**Tech Stack:** Python/FastAPI/SQLite, engine adapters và workflow graph của Jarvis 007, JavaScript dashboard. Dùng clock và executor giả trong test.
+**Tech Stack:** Python/FastAPI/SQLite, Jarvis 007's engine adapters and workflow graph, JavaScript dashboard. Use a fake clock and fake executor in tests.
 
-**Spec:** [Thiết kế tổng thể](../specs/2026-10-06-javis-resonance-design.md), mục 7 đến 10, 12 đến 17. Phụ thuộc [Foundation](2026-10-06-resonance-01-foundation.md).
+**Spec:** [Overall design](../specs/2026-10-06-javis-resonance-design.md), sections 7 to 10 and 12 to 17. Depends on [Foundation](2026-10-06-resonance-01-foundation.md).
 
 ## Global Constraints
 
-- Kế thừa tất cả Global Constraints và kiểu dữ liệu của plan Foundation.
-- Beat là lịch quyết định tiếp theo, không phải điểm thưởng hiệu suất.
-- Tự phân công không tăng quyền/ngân sách; thu hồi quyền có hiệu lực trước tác động tiếp theo.
-- Workflow legacy không có GoalRunContext giữ quy trình duyệt hiện tại.
-- Goal gắn loop không đồng thời được loop timer và goal scheduler khởi chạy.
-- Worker không tự bỏ user pause hoặc guard yêu cầu người dùng.
-- Dữ liệu MCP/file không cấp quyền hoặc sửa hợp đồng.
-- Agent tự đặt và điều chỉnh phần mục tiêu suy ra trong ràng buộc gốc; không cần thêm cổng người dùng chọn/duyệt mục tiêu. Làm rõ ý định và cấp quyền là hai việc riêng.
-- Đổi mục tiêu không reset chi phí, guard, pause hoặc thu hồi; không tự ghi các revision trước thành thành công.
-- B1 gồm B1 đến B3 dưới đây; sau đó làm C1/C2 trong plan Evolution rồi mới B4/B5.
+- Inherit all Global Constraints and data types of the Foundation plan.
+- The beat is the schedule of the next decision, not a performance reward point.
+- Self-assignment does not raise permissions/budget; revoking a permission takes effect before the next effect.
+- A legacy workflow without a GoalRunContext keeps the current approval process.
+- A goal attached to a loop is not started by both the loop timer and the goal scheduler.
+- A worker does not drop a user pause or a guard that requires the user on its own.
+- MCP/file data does not grant permissions or edit the contract.
+- The agent sets and adjusts the inferred part of the goal on its own within the original constraints; no extra user gate for choosing/approving goals is needed. Clarifying intent and granting permission are two separate things.
+- Changing the goal does not reset cost, guards, pause or revocation; earlier revisions are not recorded as successes on their own.
+- B1 covers B1 to B3 below; after that do C1/C2 in the Evolution plan before B4/B5.
 
 ## Review Focus
 
-1. Restart sau khi tool đã tác động nhưng trước khi receipt được ghi không được tự chạy lại mù: B2.
-2. Grant bị thu hồi trong lúc task nằm hàng đợi phải bị chặn ngay trước effect: B1, B2.
-3. Parent/children cạnh tranh ngân sách không được vượt tổng: B1, B4.
-4. Event storm hoặc hai scheduler không tạo hai run; nhiệm vụ chờ không làm tắc cron cũ: B3.
-5. Leader chết rồi trở lại không thể chốt cùng leader mới; user pause áp dụng cả cây đã chọn: B4, B5.
-6. Người dùng chưa biết hoặc không trả lời câu hỏi tùy chọn không tạo vòng hỏi vô hạn; reframe không làm hành động cũ tiếp tục theo mục tiêu hết hiệu lực: B2, B3, B4.
-7. Context xuyên HTTP, cache route và các brain trùng slug không được gán sai tác nhân; lỗi tool dạng text không được thành receipt succeeded: B2.
-8. Guard phải được quan sát khi worker giãn nhịp; refresh chat phải giữ đúng liên kết tác động: B3, B5. Hoàn tác file đã sửa tiếp phải trả conflict: B6.
+1. A restart after a tool has taken effect but before the receipt is written must not blindly rerun on its own: B2.
+2. A grant revoked while a task is in the queue must be blocked right before the effect: B1, B2.
+3. Parent/children competing for budget must not exceed the total: B1, B4.
+4. An event storm or two schedulers must not create two runs; a waiting task must not clog the old cron: B3.
+5. A leader that dies and comes back cannot commit alongside a new leader; a user pause applies to the whole selected tree: B4, B5.
+6. A user who does not know, or does not answer an optional question, must not create an endless question loop; a reframe must not let old actions continue for an expired goal: B2, B3, B4.
+7. Context across HTTP, route caches and brains with the same slug must not be attributed to the wrong actor; a text-form tool error must not become a succeeded receipt: B2.
+8. A guard must be observed when the worker slows its pace; a chat refresh must keep the right effect links: B3, B5. Undoing a file that was edited further must return a conflict: B6.
 
-## Task B1 Sự ủy quyền và giữ chỗ tài nguyên
+## Task B1 Delegation of authority and resource reservation
 
 **Files:** Create server/resonance_authority.py, tests/python/test_resonance_authority.py. Modify server/resonance_store.py, server/resonance_contracts.py.
 
 **Interfaces:**
 
-- GoalGrant(id, brain_id, principal_id, parent_grant_id, capabilities, resource_scope, envelope, generation, expires_at); kiểu frozen trong resonance_contracts.py.
+- GoalGrant(id, brain_id, principal_id, parent_grant_id, capabilities, resource_scope, envelope, generation, expires_at); a frozen type in resonance_contracts.py.
 - Authorization(allowed: bool, reason: str, grant_id: str, generation: int, reservation_id: str | None).
 - AuthorityService.authorize(context: GoalRunContext, decision: Decision, principal: Principal, now: float) -> Authorization.
 - AuthorityService.delegate(parent_id: str, requested: GoalGrant, principal: Principal) -> GoalGrant.
 - AuthorityService.reserve(grant_id: str, action_id: str, estimate: ResourceEnvelope) -> str.
 - AuthorityService.settle(reservation_id: str, actual: ResourceEnvelope) -> None.
-- AuthorityService.revoke(grant_id: str, principal: Principal) -> int trả generation mới.
+- AuthorityService.revoke(grant_id: str, principal: Principal) -> int returns the new generation.
 - AuthorityService.check_effect(context: GoalRunContext, resource: dict, effect: str, now: float) -> Authorization.
 
-- [ ] Viết test con xin thêm capability/phạm vi bị từ chối; hết hạn và sai brain bị từ chối; grant full legacy không tự có self_modify/deploy.
-- [ ] Viết test hai transaction reserve đồng thời: tổng spent + reserved không vượt hạn mức gốc; settle lặp không tính hai lần; tạo con không nhân ngân sách.
-- [ ] Viết test hình thành mục tiêu không cần capability mới; các hành động khảo sát/thử nhỏ vẫn qua grant tương ứng. Reframe cùng goal hoặc tạo con không reset spent/reserved, không tự mở thêm tài nguyên hoặc bỏ ràng buộc user.
-- [ ] Viết test giá tiền unknown không ghi là 0, vẫn chặn bằng trần token/lượt đã cấp; actual vượt estimate làm chặn phần cấp tiếp và ghi overrun thật, không sửa usage để vừa trần.
-- [ ] Chạy python tests/run.py resonance_authority -v; xác nhận đỏ.
-- [ ] Implement capability subset và budget transaction. Grant từ host, không từ prompt. Check generation ở mọi effect; policy và ngân sách là cấu hình có phiên bản.
-- [ ] Chạy lại test; PASS khi kiểm tra concurrency thật bằng hai connection SQLite.
-- [ ] Review và commit.
+- [ ] Write tests that a child asking for extra capability/scope is rejected; expired and wrong-brain are rejected; a legacy full grant does not automatically have self_modify/deploy.
+- [ ] Write a test of two concurrent reserve transactions: total spent + reserved does not exceed the original limit; a repeated settle is not counted twice; creating children does not multiply the budget.
+- [ ] Write tests that forming a goal needs no new capability; survey/small-trial actions still go through the corresponding grant. A reframe of the same goal or creating a child does not reset spent/reserved, does not open extra resources or drop user constraints on its own.
+- [ ] Write tests that an unknown price is not recorded as 0 and is still blocked by the granted token/turn ceiling; an actual that exceeds the estimate blocks the next grants and records the real overrun, without editing usage to fit the ceiling.
+- [ ] Run python tests/run.py resonance_authority -v; confirm red.
+- [ ] Implement the capability subset and the budget transaction. Grants come from the host, not from a prompt. Check the generation at every effect; policy and budget are versioned configuration.
+- [ ] Rerun the tests; PASS when real concurrency is checked with two SQLite connections.
+- [ ] Review and commit.
 
-## Task B2 Thực thi một agent và bằng chứng tác động
+## Task B2 Single-agent execution and effect evidence
 
 **Files:** Create server/resonance_executor.py, server/resonance_run_context.py, tests/python/test_resonance_executor.py, tests/python/test_resonance_run_context.py. Modify server/agent_runtime.py, server/workflow_runtime.py, server/main.py, server/mcp_hub.py, server/mcp_client.py, server/tasks.py, server/task_store.py, server/resonance_store.py, server/resonance_contracts.py.
 
 **Interfaces:**
 
-- ActionReceipt(action_id, status, started_at, finished_at, evidence_ids, external_ref, error_code, invocation_ids); status succeeded/failed/uncertain/cancelled; định nghĩa trong resonance_contracts.py. Invocation id gắn đúng mỗi lần gọi và lần retry, không suy từ tên tool.
-- RunContextRegistry.issue(context: GoalRunContext, ttl: float) -> str; resolve(credential: str, now: float) -> GoalRunContext; revoke(run_id: str) -> None. Credential ngắn hạn gắn run/grant, cấp bởi host và kiểm tra lại generation trước effect; không log credential hoặc đưa vào nội dung chat.
-- Header X-Javis-Run mang credential tới Hub; X-Javis-Actor nếu có chỉ để chẩn đoán, không cấp quyền hoặc làm nguồn chuẩn quy công. Engine in-process dùng context đã resolve và reset ContextVar bằng token trong finally. Request legacy không có goal context giữ hành vi cũ và không được tự gán vào goal khác.
+- ActionReceipt(action_id, status, started_at, finished_at, evidence_ids, external_ref, error_code, invocation_ids); status is succeeded/failed/uncertain/cancelled; defined in resonance_contracts.py. The invocation id is attached to each call and each retry, not inferred from the tool name.
+- RunContextRegistry.issue(context: GoalRunContext, ttl: float) -> str; resolve(credential: str, now: float) -> GoalRunContext; revoke(run_id: str) -> None. A short-lived credential tied to the run/grant, issued by the host and generation-checked again before the effect; do not log the credential or put it in chat content.
+- The X-Javis-Run header carries the credential to the Hub; X-Javis-Actor, if present, is only for diagnostics, and does not grant permissions or serve as the authoritative source for attribution. An in-process engine uses the resolved context and resets the ContextVar with a token in finally. A legacy request without a goal context keeps the old behavior and must not be attached to another goal on its own.
 - GoalExecutor.execute(context: GoalRunContext, decision: Decision) -> ActionReceipt.
 - GoalExecutor.reconcile(context: GoalRunContext, action_id: str) -> ActionReceipt.
-- Thêm goal_context: GoalRunContext | None = None và effect_authorizer callback optional vào cuối chữ ký AgentRunner.run, WorkflowCanary.run/resume; giữ tương thích positional cũ.
+- Add goal_context: GoalRunContext | None = None and an optional effect_authorizer callback at the end of the AgentRunner.run, WorkflowCanary.run/resume signatures; keep the old positional compatibility.
 - EffectAuthorizer: async (context: GoalRunContext, node: WorkflowNode) -> Authorization.
-- TaskStore.enqueue bổ sung metadata: dict | None = None ở cuối chữ ký, dùng metadata_json hiện có; goal metadata gồm id/revision/action_id, không chứa grant tự khai.
+- TaskStore.enqueue gains metadata: dict | None = None at the end of the signature, using the existing metadata_json; goal metadata consists of id/revision/action_id, and does not contain a self-declared grant.
 
-- [ ] Viết test Decision act đi qua grant và tạo receipt; Decision finish chỉ gọi evaluate_goal; run COMPLETED nhưng assessment unknown giữ goal active.
-- [ ] Viết test workflow write legacy vẫn WAITING_USER; goal write có grant hợp lệ đi tiếp; explicit wait_user luôn giữ hành vi chờ; grant bị thu hồi sau enqueue chặn effect.
-- [ ] Viết test backend CLI có native shell ngoài cổng quyền nhưng chưa có isolation không được nhận action cần bảo vệ phạm vi. Chỉ đổi backend khi có backend khác đáp ứng cùng grant; nếu không thì blocked với lý do, không giảm bảo vệ âm thầm.
-- [ ] Viết test crash sau external commit với receipt chưa ghi: có idempotency key thì reconcile/retry cùng key; không có bằng chứng xác nhận thì uncertain, không tạo effect lần hai.
-- [ ] Viết test reframe giữa enqueue và effect: revision cũ không phát thêm effect; effect đã gửi được đối soát và lưu dưới revision gốc. Kế hoạch mới chỉ chạy từ checkpoint hợp lệ, không nhân hành động hoặc tự tính kết quả cũ cho tiêu chí mới.
-- [ ] Viết test_context_cross_process_and_brain: hai run cùng actor và hai brain trùng slug gửi song song không trộn context; request lỗi/cancel reset ContextVar; giả X-Javis-Actor không nhận quyền hay công của người khác; credential hết hạn bị từ chối. Cache discovery được dùng lại không giữ run context cũ hoặc bọc ledger lặp.
-- [ ] Viết test_tool_error_content_not_success và test_multiplexed_effect_at_call: ERROR:/isError giữ lỗi, effect xét arguments thực tế dù metadata lúc list là read. Các read tạo bằng chứng đánh giá có receipt/provenance; không log toàn bộ payload nhạy cảm.
-- [ ] Viết test_call_route_receives_mapping bằng fake route: gọi mcp_client.call_route(route, fn, arguments), không truyền route[fn]; fake tool phải được gọi đúng một lần. Khi adapter thay đổi cách giữ kết quả cấu trúc, kiểm hồi quy client cũ nhận text.
-- [ ] Viết test_required_audit_failure: không lưu intent/reservation thì không effect; mất receipt sau effect dẫn tới uncertain và đối soát; lỗi telemetry phụ không làm chat thất bại. Kiểm crash/timeout thực tế, không chỉ chmod vì phép thử quyền có thể không gây lỗi trên Windows.
-- [ ] Chạy python tests/run.py resonance_executor resonance_run_context -v; xác nhận đỏ.
-- [ ] Implement adapter đến engine/workflow hiện có, không tạo model loop thứ hai. Ghi intent và reservation trước effect; event/receipt sau effect. Task outbox enqueue dùng idempotency key ổn định.
-- [ ] Clarify và reframe đi qua GoalService A4; thay revision trong transaction cùng hủy lịch/action chưa gửi và outbox. Giải phóng đúng reservation chưa dùng; giữ phần đang có tác động chưa xác định. Bằng chứng cũ chỉ tái sử dụng nếu bộ đánh giá mới kiểm tính phù hợp và độ mới, không tái sử dụng verdict cũ.
-- [ ] Không bỏ kiểm tra lease/capability revision hiện có. Executor read-only hiện tại chỉ dùng cho read; write đi qua effect_authorizer và đường write được ủy quyền. Không set approved_nodes hàng loạt chỉ vì mode full.
-- [ ] B1 trước C4 chỉ cho phép action qua tool do host cưỡng chế phạm vi. Plugin Python tùy ý cùng process host không phải ranh giới quyền; các action cần shell/candidate code chờ backend isolation đã kiểm tra.
-- [ ] Snapshot sau khi native tool đã ghi chỉ chứng minh trạng thái sau nếu quan sát đủ, không tạo khả năng undo hoặc quy công chắc chắn. Không tuyên bố wrapper Hub thấy mọi hành động CLI; backend không kiểm soát được ghi phải giữ giới hạn ở spec mục 5.
-- [ ] Chạy test mới và python tests/run.py agent_replan_phase11 workflow_graph_phase10 workflow_runs kanban_snapshot -v; xác nhận các đường legacy không đổi.
-- [ ] Review và commit.
+- [ ] Write tests that a Decision act goes through the grant and creates a receipt; a Decision finish only calls evaluate_goal; a run that is COMPLETED but whose assessment is unknown keeps the goal active.
+- [ ] Write tests that a legacy workflow write still goes to WAITING_USER; a goal write with a valid grant proceeds; an explicit wait_user always keeps its waiting behavior; a grant revoked after enqueue blocks the effect.
+- [ ] Write a test that a CLI backend with a native shell outside the permission gate but with no isolation must not receive an action that needs scope protection. Only switch backends when another backend meets the same grant; otherwise blocked with a reason, and never lower protection silently.
+- [ ] Write a test of a crash after an external commit with the receipt not yet written: with an idempotency key, reconcile/retry with the same key; without confirming evidence it is uncertain, and no second effect is created.
+- [ ] Write a test of a reframe between enqueue and effect: the old revision emits no more effects; an effect already sent is reconciled and saved under the original revision. A new plan only runs from a valid checkpoint, does not multiply actions or count old results for new criteria on its own.
+- [ ] Write test_context_cross_process_and_brain: two runs with the same actor and two brains with the same slug sending in parallel do not mix context; a failed/cancelled request resets the ContextVar; a fake X-Javis-Actor does not receive another's permissions or credit; an expired credential is rejected. A reused discovery cache does not keep an old run context or wrap the ledger repeatedly.
+- [ ] Write test_tool_error_content_not_success and test_multiplexed_effect_at_call: ERROR:/isError keeps the error, and the effect is judged by the actual arguments even if the metadata at list time says read. Reads that create evaluation evidence have a receipt/provenance; do not log the whole sensitive payload.
+- [ ] Write test_call_route_receives_mapping with a fake route: call mcp_client.call_route(route, fn, arguments), not passing route[fn]; the fake tool must be called exactly once. When the adapter changes how it keeps structured results, run a regression check that the old client still receives text.
+- [ ] Write test_required_audit_failure: if the intent/reservation is not saved there is no effect; losing the receipt after an effect leads to uncertain and reconciliation; a failure of secondary telemetry does not fail the chat. Check real crash/timeout, not just chmod, because a permission test may not cause an error on Windows.
+- [ ] Run python tests/run.py resonance_executor resonance_run_context -v; confirm red.
+- [ ] Implement the adapter to the existing engine/workflow, without creating a second model loop. Record the intent and reservation before the effect; the event/receipt after the effect. The task outbox enqueue uses a stable idempotency key.
+- [ ] Clarify and reframe go through the A4 GoalService; changing the revision in the same transaction cancels unsent schedules/actions and the outbox. Release exactly the reservation not yet used; keep the part with an undetermined effect. Old evidence is only reused if the new evaluator checks its fit and freshness, and the old verdict is not reused.
+- [ ] Do not drop the existing lease/capability revision checks. The current read-only executor is only used for reads; writes go through the effect_authorizer and the authorized write path. Do not set approved_nodes in bulk just because of full mode.
+- [ ] B1 before C4 only allows actions through tools whose scope is enforced by the host. An arbitrary Python plugin in the same process as the host is not a permission boundary; actions that need a shell/candidate code wait for a verified isolation backend.
+- [ ] A snapshot after a native tool has written only proves the later state if it is observed enough, and does not create undo ability or certain attribution. Do not claim the Hub wrapper sees every CLI action; a backend whose writes cannot be controlled must keep the limits in section 5 of the spec.
+- [ ] Run the new tests and python tests/run.py agent_replan_phase11 workflow_graph_phase10 workflow_runs kanban_snapshot -v; confirm the legacy paths are unchanged.
+- [ ] Review and commit.
 
-## Task B3 Beat theo sự kiện và tiếp tục sau gián đoạn
+## Task B3 Event-based beat and continuing after an interruption
 
 **Files:** Create server/resonance_scheduler.py, tests/python/test_resonance_scheduler.py. Modify server/self_improve.py, server/main.py, server/resonance_store.py, server/resonance_service.py.
 
@@ -101,92 +101,92 @@
 
 - BeatScheduler.on_event(event: GoalEvent) -> None.
 - BeatScheduler.schedule(goal_id: str, revision: int, plan: WakePlan) -> str.
-- BeatScheduler.schedule_observation(goal_id: str, revision: int, due_at: float, source_ref: str) -> str; loại wakeup observation dùng cùng store/lease, chỉ thu dữ liệu trong grant, không mặc nhiên gọi worker/model.
-- BeatScheduler.tick(now: float) -> list[str] trả run ids đã được dispatch.
+- BeatScheduler.schedule_observation(goal_id: str, revision: int, due_at: float, source_ref: str) -> str; the observation wakeup type uses the same store/lease, only collects data within the grant, and does not call a worker/model by default.
+- BeatScheduler.tick(now: float) -> list[str] returns the run ids that were dispatched.
 - BeatScheduler.cancel_tree(goal_id: str, principal: Principal, reason: str) -> None.
 - decide_next_wake(snapshot: GoalSnapshot, assessment: Assessment | None, decision: Decision | None, now: float) -> WakePlan.
 
-- [ ] Viết test fake clock: không có event/deadline đến hạn thì không gọi model; waiting thức đúng sự kiện; dormant nhận event phù hợp; paused không tự thức.
-- [ ] Viết test hai scheduler claim cùng wakeup chỉ dispatch một lần; lặp event chỉ một logical action; revision cũ bị bỏ; event từ chính báo cáo không tạo vòng tự kích hoạt.
-- [ ] Viết test loop gắn goal bỏ lịch legacy cho đúng loop, loop khác và reminder vẫn chạy; một task dài không block tick.
-- [ ] Viết test user_unsure chuyển sang bước discover còn trong quyền; câu hỏi tùy chọn đang mở không chặn bước độc lập. Không phản hồi không được coi là cấp quyền; câu hỏi thiếu dữ liệu thiết yếu chỉ chặn đúng phần phụ thuộc. Không hỏi lại cùng điều chưa biết nếu không có bằng chứng mới.
-- [ ] Viết test đủ dữ liệu mới thì reframe một lần có lý do; timer hoặc thông báo do chính agent sinh không gây chuỗi đổi mục tiêu. Hết ngân sách khám phá hoặc không còn bước hữu ích thì trả kết quả hiện có và waiting/dormant có điều kiện thức rõ, không gọi model liên tục.
-- [ ] Viết test_guard_without_agent_action_stops và test_guard_observed_while_worker_dormant: điều kiện dừng đúng thì chặn scope đã khai dù chưa xác định nguyên nhân; cadence quan sát không phụ thuộc điểm, số lần hành động hoặc khoảng ngủ của worker.
-- [ ] Viết test_guard_unknown_policy, test_guard_latched_resume và test_observation_revoked: thiếu nguồn không thành clear; mẫu tốt không tự bỏ chốt cần owner; rút quyền quan sát ngừng đọc và báo mất giám sát. Dedupe cảnh báo và chính sách chống dao động không tự hạ điều kiện dừng đã được đặt.
-- [ ] Chạy python tests/run.py resonance_scheduler -v; xác nhận đỏ.
-- [ ] Implement leases, coalescing và outbox. earliest_at không được vượt deadline hợp đồng khi deadline cần kiểm tra; timestamp không hợp lệ trả lỗi có lý do. Cấu hình giới hạn kỹ thuật có phiên bản, không gắn với điểm reaction.
-- [ ] Xử lý blocked theo reason: source_reconnected/budget_replenished chỉ tự mở khi hợp đồng cho phép; user_pause/guard_requires_owner không tự mở. Thông báo guard và completion dedupe theo goal/revision/event.
-- [ ] Lưu clarification id, required_for, fallback, câu trả lời và các giả định đã thử. Policy có phiên bản quyết định thời gian dành cho câu hỏi/khám phá theo bối cảnh và phần nguồn lực còn lại, không đặt số lần hỏi thành luật cố định toàn hệ thống. Chờ trả lời tùy chọn vẫn cho chạy việc độc lập; hết thời gian không tự đổi quyền.
-- [ ] Tách observation wakeup khỏi worker wakeup trong cùng hàng đợi; giữ nguồn lực giám sát theo grant. Sau await thu mẫu mới lấy thời điểm đánh giá, không loại mẫu mới vì dùng timestamp lấy trước khi gọi tool. Lịch nguồn có sẵn giữ nguyên ngữ nghĩa dữ liệu dù worker đổi nhịp.
-- [ ] Chạy test mới và python tests/run.py loop_goal_default loop_ambient kanban_het_luot -v.
-- [ ] Review và commit. Đến đây chuyển sang Task C1 và C2 để kiểm chứng một vòng tự cải thiện nhỏ.
+- [ ] Write fake clock tests: with no event/deadline due, the model is not called; waiting wakes on exactly the right event; dormant receives a matching event; paused does not wake on its own.
+- [ ] Write tests that two schedulers claiming the same wakeup dispatch only once; a repeated event creates only one logical action; an old revision is dropped; an event from the report itself does not create a self-triggering loop.
+- [ ] Write a test that a loop attached to a goal drops the legacy schedule for exactly that loop, while other loops and reminders still run; one long task does not block the tick.
+- [ ] Write tests that user_unsure moves to a discover step still within permissions; an open optional question does not block an independent step. No response is not treated as granting permission; a question missing essential data only blocks the dependent part. Do not ask again about the same unknown without new evidence.
+- [ ] Write a test that once there is enough new data, reframe happens once with a reason; a timer or a notice generated by the agent itself does not cause a chain of goal changes. When the discovery budget is used up or no useful step remains, return the current result and waiting/dormant with clear wake conditions, and do not call the model continuously.
+- [ ] Write test_guard_without_agent_action_stops and test_guard_observed_while_worker_dormant: when the stop condition is true, block the declared scope even if the cause is not determined; the observation cadence does not depend on points, the number of actions or the worker's sleep interval.
+- [ ] Write test_guard_unknown_policy, test_guard_latched_resume and test_observation_revoked: a missing source does not become clear; a good sample does not drop a latch that needs the owner; withdrawing observation permission stops reading and reports lost monitoring. Alert dedupe and the anti-oscillation policy do not lower a stop condition that was already set.
+- [ ] Run python tests/run.py resonance_scheduler -v; confirm red.
+- [ ] Implement leases, coalescing and the outbox. earliest_at must not exceed the contract deadline when the deadline needs to be checked; an invalid timestamp returns an error with a reason. Versioned technical limit configuration, not tied to reaction points.
+- [ ] Handle blocked by reason: source_reconnected/budget_replenished only reopen on their own when the contract allows it; user_pause/guard_requires_owner do not reopen on their own. Guard and completion notices are deduped by goal/revision/event.
+- [ ] Store the clarification id, required_for, fallback, the answer and the assumptions tried. A versioned policy decides the time spent on questions/discovery by context and the remaining share of resources, and the number of questions is not set as a fixed system-wide rule. Waiting for an optional answer still lets independent work run; when time runs out, permissions do not change on their own.
+- [ ] Separate the observation wakeup from the worker wakeup in the same queue; keep the monitoring resources per grant. Only take the evaluation time after the await that collects the new sample, and do not drop a new sample because it used a timestamp taken before the tool call. A source's existing schedule keeps its data semantics even if the worker changes pace.
+- [ ] Run the new tests and python tests/run.py loop_goal_default loop_ambient kanban_het_luot -v.
+- [ ] Review and commit. At this point move on to Tasks C1 and C2 to verify one small self-improvement loop.
 
-## Task B4 Nhóm và mục tiêu con
+## Task B4 Groups and child goals
 
 **Files:** Create server/resonance_groups.py, tests/python/test_resonance_groups.py. Modify server/resonance_store.py, server/resonance_contracts.py, server/resonance_executor.py.
 
 **Interfaces:**
 
-- GroupState(id, brain_id, goal_id, leader_id, epoch, members, status); định nghĩa trong resonance_contracts.py.
+- GroupState(id, brain_id, goal_id, leader_id, epoch, members, status); defined in resonance_contracts.py.
 - GroupService.create(goal_id: str, leader_id: str, members: tuple[str,...], principal: Principal) -> GroupState.
 - GroupService.delegate(group_id: str, child: GoalContract, principal: Principal) -> GoalSnapshot.
 - GroupService.contribute(group_id: str, actor_id: str, kind: str, evidence_ids: tuple[str,...], content: str) -> str.
 - GroupService.commit_decision(group_id: str, epoch: int, decision: Decision, principal: Principal) -> None.
 - GroupService.replace_leader(group_id: str, expected_epoch: int, new_leader_id: str, principal: Principal) -> GroupState.
-- kind đóng góp: proposal/objection/evidence/decision/ack; kind chỉ mô tả hội thoại, không là reward.
+- Contribution kinds: proposal/objection/evidence/decision/ack; the kind only describes the conversation and is not a reward.
 
-- [ ] Viết test goal con cùng brain, quyền subset, ngân sách từ cha, không cycle; tất cả con done nhưng parent criterion chưa đạt thì parent vẫn active.
-- [ ] Viết test leader cũ commit sau failover bị từ chối; đóng góp trùng không nhân bằng chứng; leader không sửa phép chấm của experiment đang chạy hoặc tự tăng grant.
-- [ ] Viết test thành viên im không bị trừ năng lực; event chỉ gọi subscription liên quan; cả nhóm có thể dừng chờ người dùng đúng phạm vi.
-- [ ] Viết test leader tự đặt mục tiêu con từ nhu cầu cha; phản biện có bằng chứng dẫn tới reframe qua GoalService. Cha đổi revision làm con liên quan kiểm tra lại trước effect; con không đổi mục tiêu để che việc không đóng góp cho cha. Nhóm chỉ gửi một câu hỏi tổng hợp và tiếp tục phần độc lập khi user chưa biết.
-- [ ] Chạy python tests/run.py resonance_groups -v; xác nhận đỏ.
-- [ ] Implement membership bền với leader epoch. Không dùng field group phân loại trong workspace.js làm group runtime id. Không ép mọi thành viên chạy mỗi vòng.
-- [ ] Kết nối delegation qua GoalService và AuthorityService; nhóm thảo luận dùng run budget chung, được tự chọn số vòng trong phần đã cấp.
-- [ ] Ghim parent revision và IntentRecord liên quan trong metadata phân công; lưu đóng góp cho việc hình thành mục tiêu cùng bằng chứng. Leader epoch bảo vệ cả quyết định reframe, không chỉ quyết định thực thi. Mục tiêu con và khám phá cùng dùng tài nguyên gốc.
-- [ ] Chạy lại test và hồi quy nhom_agent_workflow, agent_replan_phase11; review và commit.
+- [ ] Write tests that a child goal is in the same brain, with a subset of permissions, budget from the parent, no cycle; all children done but the parent criterion not met means the parent stays active.
+- [ ] Write tests that an old leader committing after a failover is rejected; a duplicate contribution does not multiply evidence; the leader does not edit the scoring of a running experiment or raise a grant on its own.
+- [ ] Write tests that a silent member is not docked capability; an event only calls the relevant subscription; the whole group can stop to wait for the user within the right scope.
+- [ ] Write tests that a leader sets child goals itself from the parent need; a rebuttal with evidence leads to a reframe through GoalService. When the parent changes revision, related children recheck before an effect; a child does not change its goal to hide that it does not contribute to the parent. The group sends only one combined question and continues the independent part when the user does not know.
+- [ ] Run python tests/run.py resonance_groups -v; confirm red.
+- [ ] Implement durable membership with a leader epoch. Do not use the classification field group in workspace.js as the group runtime id. Do not force every member to run each round.
+- [ ] Connect delegation through GoalService and AuthorityService; group discussion uses the shared run budget, and may choose its own number of rounds within the granted share.
+- [ ] Pin the parent revision and the related IntentRecord in the assignment metadata; store contributions to goal formation along with the evidence. The leader epoch protects the reframe decision as well, not only the execution decision. Child goals and discovery use the same original resources.
+- [ ] Rerun the tests and the regressions nhom_agent_workflow, agent_replan_phase11; review and commit.
 
-## Task B5 Giao diện hoạt động và điều khiển nhóm
+## Task B5 Activity UI and group controls
 
 **Files:** Modify dashboard/resonance.js, dashboard/workspace.js, dashboard/console.js, dashboard/app.js, dashboard/chat-acts.js, server/main.py, server/sessions.py, server/resonance_store.py, server/resonance_api.py, dashboard/i18n/vi.json, dashboard/i18n/en.json, docs/22-muc-tieu-va-resonance.md, docs/en/22-goals-and-resonance.md. Create tests/js/test_resonance_runtime_ui.js, tests/python/test_resonance_runtime_api.py, tests/python/test_resonance_message_links.py.
 
-**Interfaces:** API bổ sung POST /goals/{id}/run-now, GET /goals/{id}/actions, GET /goals/{id}/wake-plan, POST /goals/{id}/stop-tree, POST /goal-groups, GET /goal-groups/{id}, POST /goal-groups/{id}/contributions. Principal và expected_revision/epoch lấy cùng quy tắc A4.
+**Interfaces:** Added API POST /goals/{id}/run-now, GET /goals/{id}/actions, GET /goals/{id}/wake-plan, POST /goals/{id}/stop-tree, POST /goal-groups, GET /goal-groups/{id}, POST /goal-groups/{id}/contributions. Principal and expected_revision/epoch follow the same rules as A4.
 
-- GoalStore.link_message(link: MessageLink, principal: Principal) -> None; message_links(brain_id: str, session_id: str, message_ids: tuple[int,...], principal: Principal) -> list[MessageLink]. Idempotency theo report_key/run, kiểm session và message thuộc brain cho phép.
-- Khung response/push và API đọc lịch sử trả mid cùng liên kết run/action; dashboard giữ qua live stream, dữ liệu khôi phục và F5. Không đổi push_to_chat bool thành int mà không kiểm mọi caller; thêm đường gửi báo cáo có receipt trong adapter hoặc kiểu kết quả tương thích tường minh.
-- Báo cáo có report_key bền, lưu tin trước phát và ghi liên kết có đối soát. Kho sessions và resonance là hai kho riêng: cần idempotency key trong kho tin và reconciliation sau crash, không giả là transaction chung chỉ bằng hai lệnh ghi nối tiếp. Publish thất bại được phát lại cùng mid, không tạo tin mới.
+- GoalStore.link_message(link: MessageLink, principal: Principal) -> None; message_links(brain_id: str, session_id: str, message_ids: tuple[int,...], principal: Principal) -> list[MessageLink]. Idempotent by report_key/run, checking that the session and message belong to the permitted brain.
+- The response/push frame and the history-reading API return the mid along with the run/action link; the dashboard keeps it across the live stream, restored data and F5. Do not change the push_to_chat bool into an int without checking every caller; add a report-sending path with a receipt in the adapter or an explicit compatible result type.
+- A report has a durable report_key, stores the message before sending and records the link with reconciliation. The sessions store and the resonance store are two separate stores: an idempotency key in the message store and reconciliation after a crash are needed, and it is not faked as one shared transaction with just two consecutive writes. A failed publish is replayed with the same mid and does not create a new message.
 
-- [ ] Viết test trạng thái running/waiting/blocked/paused/dormant và lý do; không hiện queued thành running; stop-tree hiển thị đúng phạm vi.
-- [ ] Viết test nguồn lực chưa đo được hiển thị chưa biết, không 0; nhóm phân loại hiện tại không tự có quyền tự chủ.
-- [ ] Viết test sửa cách hiểu qua hội thoại, trả lời chưa biết và thông báo đổi hướng có lý do. UI không chuyển sang bắt chọn mục tiêu khi planner gặp bất định; không báo đã giải quyết nhu cầu chỉ vì một bước khám phá xong.
-- [ ] Viết test_reload_restores_action_links, test_report_retry_same_mid, test_message_link_cross_brain và test_two_runs_same_actor: live/F5/reconnect giữ đúng tin và tác động; không gắn theo actor trong 10 phút gần nhất. Mất liên kết do crash được đối soát; không nhận session_id từ client là bằng chứng sở hữu message.
-- [ ] Chạy python tests/run.py resonance_runtime_api -v và python tests/run.py --js resonance_runtime_ui -v; xác nhận đỏ.
-- [ ] Implement timeline quyết định/bằng chứng và thay đổi cách hiểu, hội thoại nhóm gắn mục tiêu, nút dừng/tiếp tục, lý do lần thức kế tiếp. Thẻ Em đang hướng tới phân biệt giả định với chỉ dẫn người dùng, cho sửa bằng lời. Báo sự kiện quan trọng về đúng owner_chat bằng đường report hiện có; không yêu cầu duyệt từng revision.
-- [ ] Chạy test, kiểm tra dashboard bằng fixture thật ở màn hình rộng/hẹp, kiểm tra refresh/reconnect không mất trạng thái hay gửi trùng.
-- [ ] Cập nhật hướng dẫn, review và commit.
+- [ ] Write tests of the running/waiting/blocked/paused/dormant states and reasons; do not show queued as running; stop-tree displays the right scope.
+- [ ] Write tests that resources not yet measured display as unknown, not 0; the current classification group does not automatically have autonomy.
+- [ ] Write tests of editing the understanding through conversation, an "I don't know" reply and a change-of-direction notice with a reason. The UI does not switch to making the user pick a goal when the planner meets uncertainty; it does not report the need as resolved just because a discovery step finished.
+- [ ] Write test_reload_restores_action_links, test_report_retry_same_mid, test_message_link_cross_brain and test_two_runs_same_actor: live/F5/reconnect keep the right message and effects; do not attach by the actor in the last 10 minutes. A link lost to a crash is reconciled; a session_id received from the client is not accepted as proof of owning a message.
+- [ ] Run python tests/run.py resonance_runtime_api -v and python tests/run.py --js resonance_runtime_ui -v; confirm red.
+- [ ] Implement the decision/evidence timeline and understanding changes, group conversation attached to the goal, stop/resume buttons, and the reason for the next wake. The "What Jarvis 007 is working toward" card (Vietnamese: Em đang hướng tới) distinguishes assumptions from user instructions and allows editing in words. Report important events to the right owner_chat through the existing report path; do not require approving each revision.
+- [ ] Run the tests, check the dashboard with a real fixture on wide/narrow screens, and check that refresh/reconnect does not lose state or send duplicates.
+- [ ] Update the guide, review and commit.
 
-## Task B6 Hoàn tác file có điều kiện, tùy chọn sau mốc demo
+## Task B6 Conditional file undo, optional after the demo milestone
 
-Task này chỉ cần khi phát hành nút hoàn tác; không chặn vòng mục tiêu đầu tiên. Hoàn tác không tạo điểm phạt hiệu suất mặc định.
+This task is only needed when releasing an undo button; it does not block the first goal loop. Undo creates no default performance penalty.
 
 **Files:** Create server/resonance_undo.py, tests/python/test_resonance_undo.py. Modify server/resonance_executor.py, server/resonance_store.py, server/resonance_api.py, dashboard/resonance.js, dashboard/chat-acts.js, dashboard/i18n/vi.json, dashboard/i18n/en.json.
 
 **Interfaces:**
 
-- FileUndoAdapter.capture_before(context: GoalRunContext, resource_ref: str) -> str trả evidence ref được mã hóa; record_after(action_id: str, before_ref: str, after_version: str) -> None.
-- FileUndoAdapter.preview(action_id: str, principal: Principal) -> dict trả available/conflict/expired/unsupported, reason và diff_ref trong phạm vi đọc được phép.
-- FileUndoAdapter.undo(action_id: str, expected_after_version: str, principal: Principal, key: str) -> ActionReceipt; trả effect/action mới liên kết action gốc. API GET /actions/{id}/undo-preview và POST /actions/{id}/undo dùng kiểm quyền, expected version và idempotency.
+- FileUndoAdapter.capture_before(context: GoalRunContext, resource_ref: str) -> str returns an encrypted evidence ref; record_after(action_id: str, before_ref: str, after_version: str) -> None.
+- FileUndoAdapter.preview(action_id: str, principal: Principal) -> dict returns available/conflict/expired/unsupported, a reason and a diff_ref within the permitted read scope.
+- FileUndoAdapter.undo(action_id: str, expected_after_version: str, principal: Principal, key: str) -> ActionReceipt; returns a new effect/action linked to the original action. The API GET /actions/{id}/undo-preview and POST /actions/{id}/undo use permission checks, expected version and idempotency.
 
-- [ ] Viết test_undo_changed_file_conflicts, test_undo_created_then_edited_not_deleted, test_undo_cross_brain_denied và test_undo_symlink_escape: không mất thay đổi sau action, không ra khỏi scope.
-- [ ] Viết test_undo_concurrent_requests_once, test_undo_crash_reconciles và test_undo_missing_backup: không bù hai lần, bản chụp hết hạn không được hiển thị có thể hoàn tác.
-- [ ] Chạy python tests/run.py resonance_undo -v; xác nhận đỏ.
-- [ ] Implement snapshot qua EvidenceStore, content/version preconditions, lock/CAS theo backend và receipt bền. Nếu không chứng minh chống thay đổi xen giữa kiểm tra/ghi với editor bên ngoài, tạo bản phục hồi riêng để so sánh, không ghi đè file gốc. Chỉ adapter đã có khả năng hoàn tác mới cung cấp nút; phân loại read/write/danger không đủ.
-- [ ] Chạy lại test và kiểm giao diện sau F5, hai yêu cầu đồng thời, file do người dùng sửa tiếp. Khi đạt mới mở nút, cập nhật hướng dẫn và commit.
+- [ ] Write test_undo_changed_file_conflicts, test_undo_created_then_edited_not_deleted, test_undo_cross_brain_denied and test_undo_symlink_escape: no change made after the action is lost, and nothing leaves the scope.
+- [ ] Write test_undo_concurrent_requests_once, test_undo_crash_reconciles and test_undo_missing_backup: no compensation twice, and an expired snapshot is not shown as undoable.
+- [ ] Run python tests/run.py resonance_undo -v; confirm red.
+- [ ] Implement snapshots through EvidenceStore, content/version preconditions, a lock/CAS per backend and a durable receipt. If protection against an outside editor changing the file between the check and the write cannot be proven, create a separate recovery copy for comparison and do not overwrite the original file. Only an adapter that already has undo ability provides the button; a read/write/danger classification is not enough.
+- [ ] Rerun the tests and check the UI after F5, two concurrent requests, and a file the user edited further. Only open the button when it passes, update the guide and commit.
 
-## Nghiệm thu giai đoạn B
+## Phase B acceptance
 
-- [ ] Một agent tự hoàn thành mục tiêu qua sự kiện thật, bằng chứng xác nhận độc lập với tin nhắn.
-- [ ] Restart giữa các bước không lặp effect đã xác nhận; effect chưa rõ được đối soát.
-- [ ] Nhóm phân công và chốt được, leader đổi không chạy hai luồng chốt.
-- [ ] Người dùng vắng không làm hệ thống tự giảm năng lực; pause/thu hồi đúng hiệu lực.
-- [ ] Agent/nhóm tự tìm mục tiêu từ đầu vào mơ hồ, tự điều chỉnh có căn cứ và chuyển revision không lặp effect. Người dùng chưa biết không gây hỏi lặp hoặc vượt quyền; mục tiêu khám phá không bị báo thành kết quả cuối.
-- [ ] Không thay scheduler/permissions của các nhiệm vụ legacy chưa tham gia.
+- [ ] One agent completes a goal on its own through real events, with confirming evidence independent of the message.
+- [ ] A restart between steps does not repeat a confirmed effect; an unclear effect is reconciled.
+- [ ] A group can assign and commit; a leader change does not run two commit threads.
+- [ ] A user being away does not make the system lower its own capability; pause/revocation take proper effect.
+- [ ] The agent/group finds goals itself from vague input, adjusts with grounds and moves revisions without repeating effects. A user who does not know does not cause repeated questions or exceed permissions; a discovery goal is not reported as the final result.
+- [ ] The schedulers/permissions of legacy tasks that have not joined are not replaced.

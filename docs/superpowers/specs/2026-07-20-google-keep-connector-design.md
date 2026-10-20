@@ -1,59 +1,62 @@
-# Thiết kế: Connector Google Keep
+# Design: Google Keep connector
 
-Ngày: 2026-07-20
-Trạng thái: chờ duyệt
+Date: 2026-07-20
+Status: awaiting approval
 
-## Mục tiêu
+## Goal
 
-Cho Jarvis 007 đọc và thao tác note trong Google Keep, đấu qua MCP server cộng đồng
+Let Jarvis 007 read and operate on notes in Google Keep, wired through the community MCP server
 [feuerdev/keep-mcp](https://github.com/feuerdev/keep-mcp) (PyPI `keep-mcp` 0.3.1, Python >=3.10).
 
-## Bối cảnh: vì sao phải dùng master token
+## Background: why a master token is needed
 
-Google Keep KHÔNG có API công khai cho tài khoản gmail cá nhân. API chính chủ (Keep API) chỉ mở
-cho Google Workspace Enterprise kèm service account + domain-wide delegation. Tài khoản dùng ở đây
-là gmail thường, nên đường duy nhất là thư viện không chính thức `gkeepapi`, vốn đòi
+Google Keep has NO public API for personal gmail accounts. The official API (Keep API) is only open
+to Google Workspace Enterprise with a service account + domain-wide delegation. The account used here
+is a regular gmail, so the only route is the unofficial library `gkeepapi`, which requires a
 **Google Master Token**.
 
-Master token KHÔNG phải OAuth token giới hạn phạm vi. Nó là token cấp thiết bị Android, dạng
-`aas_et/...`, [có toàn quyền trên tài khoản và tương đương mật khẩu](https://gkeepapi.readthedocs.io/en/latest/):
-nắm nó là mint được token cho gần như mọi dịch vụ Google khác (Gmail, Drive, Photos, Contacts).
+A master token is NOT a scope-limited OAuth token. It is an Android device-level token, shaped like
+`aas_et/...`, [with full access to the account, equivalent to the password](https://gkeepapi.readthedocs.io/en/latest/):
+whoever holds it can mint tokens for nearly every other Google service (Gmail, Drive, Photos, Contacts).
 
-Jarvis 007 mã hoá secret at rest bằng Fernet qua `secrets_store.encrypt_map` (xem `mcp_store.save`),
-nên token không nằm plaintext trên đĩa. Nhưng mã hoá at rest không đổi được bản chất
-"token = toàn quyền tài khoản", và token sẽ nằm cả trên VPS Hostinger.
+Jarvis 007 encrypts secrets at rest with Fernet via `secrets_store.encrypt_map` (see `mcp_store.save`),
+so the token is not plaintext on disk. But encryption at rest does not change the nature of
+"token = full account access", and the token will also sit on the Hostinger VPS.
 
-Rủi ro này đã được nêu rõ với người dùng và người dùng chấp nhận, chọn dùng tài khoản chính.
+This risk was spelled out to the user, who accepted it and chose to use their main account.
 
-## Quyết định đã chốt
+## Decisions made
 
-1. **Phạm vi thao tác**: bật `UNSAFE_MODE` để Jarvis 007 sửa được MỌI note, kể cả note viết tay
-   trong app Keep (mặc định của server chỉ cho sửa note nó tự tạo, gắn nhãn `keep-mcp`).
-2. **Tài khoản**: dùng tài khoản chính, không lập tài khoản phụ.
-3. **Runner**: `uvx` chứ không `pipx` như README gợi ý, cho khớp các connector stdio sẵn có
-   (`google-sheets`, `tiktok-ads`). `uv` đã có sẵn qua `requirements.txt`, không cần thêm gì (xem dưới).
-4. **`UNSAFE_MODE` là ô nhập tuỳ chọn**, KHÔNG hardcode trong catalog.
+1. **Scope of operations**: turn on `UNSAFE_MODE` so Jarvis 007 can edit ANY note, including notes handwritten
+   in the Keep app (the server's default only allows editing notes it created itself, tagged with the `keep-mcp` label).
+2. **Account**: use the main account, no secondary account.
+3. **Runner**: `uvx` rather than `pipx` as the README suggests, to match the existing stdio connectors
+   (`google-sheets`, `tiktok-ads`). `uv` is already available via `requirements.txt`, nothing to add (see below).
+4. **`UNSAFE_MODE` is an optional input field**, NOT hard-coded in the catalog.
 
-Về quyết định 4, lý do: hardcode `UNSAFE_MODE=true` sẽ bật sẵn chế độ sửa-mọi-note cho mọi người
-fork Jarvis 007 về, trái nguyên tắc đã chốt là năng lực chạm dữ liệu cá nhân phải opt-in mặc định TẮT.
-Để thành ô nhập thì người dùng này vẫn được đúng cái họ chọn (gõ `true`), bản fork vẫn sạch, và
-công tắc nguy hiểm hiện rõ trên trang Kết nối nên sau này gỡ được. Cách này cũng KHÔNG cần sửa lõi,
-vì `mcp_catalog.build_env` hiện chỉ dựng env từ `auth.fields` có khai `env`, chưa hỗ trợ env tĩnh
-ở cấp connector.
+On decision 4, the reason: hard-coding `UNSAFE_MODE=true` would pre-enable edit-any-note mode for everyone
+who forks Jarvis 007, against the settled principle that capabilities touching personal data must be opt-in, default OFF.
+Making it an input field still gives this user exactly what they chose (type `true`), keeps forks clean, and
+the dangerous switch is plainly visible on the Connections page so it can be removed later. It also needs NO core change,
+because `mcp_catalog.build_env` currently builds env only from `auth.fields` that declare an `env`, and does not yet support
+static env at the connector level.
 
-## Thay đổi 1: entry catalog
+## Change 1: catalog entry
 
-Thêm vào `system/mcp-catalog.json`, mảng `connectors`. Không sửa `mcp_hub`, `mcp_store`,
-`mcp_catalog`, hay dashboard: toàn bộ hạ tầng đã sẵn (form đăng nhập tự sinh từ `auth.fields`,
-secret tự mã hoá, ba mức quyền tự áp qua `tool_meta`).
+Add to `system/mcp-catalog.json`, the `connectors` array. Do not change `mcp_hub`, `mcp_store`,
+`mcp_catalog`, or the dashboard: all the infrastructure is already there (the sign-in form is generated from `auth.fields`,
+secrets are encrypted automatically, the three permission levels apply automatically through `tool_meta`).
 
-Icon dùng emoji thay vì file logo, theo tiền lệ `google-search-console` (`🔍`) và
-`google-workspace` (`📧`). Tránh phải tải asset có nhãn hiệu vào repo.
+The icon is an emoji instead of a logo file, following the precedent of `google-search-console` (`🔍`) and
+`google-workspace` (`📧`). This avoids pulling trademarked assets into the repo.
 
-Lưu ý: `requires` là metadata THUẦN TÀI LIỆU, không có chỗ nào trong code đọc nó (đã grep
-`server/*.py` và `dashboard/console.js`). `lark` khai `requires: {node: ">=18"}` cũng chỉ để đọc.
-Giữ lại cho khớp tiền lệ và để người sau biết connector cần gì, nhưng ĐỪNG trông đợi nó chặn
-được việc thiếu `uv`. Cái thật sự bảo đảm `uv` có mặt là dòng `uv>=0.5` trong `requirements.txt`.
+Note: `requires` is PURELY DOCUMENTATION metadata, nothing in the code reads it (grepped
+`server/*.py` and `dashboard/console.js`). `lark` declares `requires: {node: ">=18"}` also just for reading.
+Keep it to match precedent and so later readers know what the connector needs, but do NOT expect it to stop a
+missing `uv`. What actually guarantees `uv` is present is the `uv>=0.5` line in `requirements.txt`.
+
+The catalog strings below are the Vietnamese text as it appears in the catalog data (the catalog itself is user-facing data and is not part of this
+document). `"category": "Văn phòng"` is a machine value the code matches on; it means "Office".
 
 ```json
 {
@@ -112,128 +115,135 @@ Giữ lại cho khớp tiền lệ và để người sau biết connector cần
 }
 ```
 
-### Cách gọi: vì sao KHÔNG phải `uvx keep-mcp`
+For readers, the main user-facing strings mean: the `description` says "Read and edit Google Keep notes: find notes, create notes/to-do lists, label, pin,
+archive. Runs locally through an unofficial library - needs a Google master token." The `guide` explains that Keep has no official API for regular gmail, warns that the
+token has FULL access to the Google account, and walks through: enable 2-step verification, create a 16-character App Password at
+myaccount.google.com/apppasswords, run the `gpsoauth` command in a terminal, and paste the `aas_et/` string into the Master token field; leaving the last field empty
+limits edits to notes Jarvis 007 created, typing `true` allows editing every note. The `risk` text warns that Draft level lets Jarvis 007 create/edit/pin/archive/label real notes, and Full level adds
+TRASH/DELETE and SHARE with other people.
 
-Bản thiết kế đầu tiên khai `args: ["keep-mcp"]` theo README. Kiểm chứng thực tế cho thấy nó HỎNG,
-và hỏng theo kiểu âm thầm nên đáng ghi lại.
+### How it is invoked: why NOT `uvx keep-mcp`
 
-Package `keep-mcp` 0.3.1 khai console script tên `mcp` (`server.cli:main`). Nhưng chính dependency
-của nó, MCP Python SDK (`mcp` 1.28.1), cũng khai console script tên `mcp` (`mcp.cli:app`). Hai cái
-trùng tên nên cài xong thì SDK thắng.
+The first version of the design declared `args: ["keep-mcp"]` following the README. Real-world verification showed it is BROKEN,
+and broken in a silent way, so it is worth recording.
 
-Hậu quả theo từng cách gọi:
+The package `keep-mcp` 0.3.1 declares a console script named `mcp` (`server.cli:main`). But its own dependency,
+the MCP Python SDK (`mcp` 1.28.1), also declares a console script named `mcp` (`mcp.cli:app`). The two
+have the same name, so after install the SDK wins.
 
-- `uvx keep-mcp` → uv báo lỗi thẳng: "An executable named `keep-mcp` is not provided by package
-  `keep-mcp`". Hỏng ồn ào, dễ phát hiện.
-- `uvx --from keep-mcp mcp` → CHẠY, nhưng chạy nhầm sang CLI của MCP SDK ("MCP development tools",
-  các lệnh version/dev/run). Hỏng ÂM THẦM, đây mới là cái bẫy: nó không báo lỗi gì cả.
-- `uvx --from keep-mcp python -m server` → đúng server keep-mcp, qua `server/__main__.py`.
+Consequences for each way of invoking it:
 
-Đã xác minh bằng bắt tay MCP stdio thật (initialize + tools/list, không cần credential):
-server trả về ĐÚNG 23 tool, trùng khít danh sách README, không có tool ẩn nào ngoài `tool_meta`.
-Đây là điều quan trọng với bảo mật, vì tool không khai trong `tool_meta` sẽ rơi xuống heuristic
-`WRITE_HINTS` và có thể lọt qua lớp chặn.
+- `uvx keep-mcp` -> uv errors out directly: "An executable named `keep-mcp` is not provided by package
+  `keep-mcp`". Loud failure, easy to spot.
+- `uvx --from keep-mcp mcp` -> RUNS, but runs the wrong thing: the MCP SDK's CLI ("MCP development tools",
+  commands version/dev/run). It fails SILENTLY, which is the real trap: it reports no error at all.
+- `uvx --from keep-mcp python -m server` -> the correct keep-mcp server, via `server/__main__.py`.
 
-Có ghi chú `_args_doc` ngay trong entry catalog để người sau đừng "dọn gọn" nó về `uvx keep-mcp`.
+Verified with a real MCP stdio handshake (initialize + tools/list, no credentials needed):
+the server returns EXACTLY 23 tools, matching the README list exactly, with no hidden tools beyond `tool_meta`.
+This matters for security, because a tool not declared in `tool_meta` falls through to the `WRITE_HINTS`
+heuristic and could slip past the blocking layer.
 
-### Phân loại tool và lý do
+A `_args_doc` note sits right in the catalog entry so that later readers do not "tidy it up" back to `uvx keep-mcp`.
 
-`mcp_catalog.allowed()` chặn dựa vào `tool_meta`, đây là lớp cứng không phụ thuộc prompt, nên
-phân loại phải khai tường minh chứ không dựa heuristic `WRITE_HINTS`.
+### Tool classification and reasons
 
-Hai chủ ý đáng chú ý:
+`mcp_catalog.allowed()` blocks based on `tool_meta`, which is a hard layer independent of the prompt, so
+the classification must be declared explicitly rather than relying on the `WRITE_HINTS` heuristic.
 
-- `restore_note` xếp **write** còn `trash_note` xếp **danger**. Nghĩa là ở mức Ghi nháp, Jarvis 007
-  luôn gỡ lại được note bị vứt nhầm nhưng không tự vứt được. Bất đối xứng này là cố ý.
-- `add_note_collaborator` và `remove_note_collaborator` xếp **danger** vì chúng chia sẻ note ra
-  người khác, tức là rò dữ liệu ra ngoài, khác về chất với sửa nội dung trong nhà.
+Two notable choices:
 
-`archive_note` xếp write vì không phá huỷ (note vẫn còn, chỉ ẩn khỏi danh sách chính).
-`delete_list_item` xếp write vì xoá một dòng trong checklist là thao tác soạn thảo bình thường.
+- `restore_note` is classed **write** while `trash_note` is classed **danger**. This means that at the Draft level, Jarvis 007
+  can always restore a note that was trashed by mistake but cannot trash one itself. The asymmetry is deliberate.
+- `add_note_collaborator` and `remove_note_collaborator` are classed **danger** because they share notes with
+  other people, i.e. leak data outward, which is different in kind from editing content in-house.
 
-### Về khối `validate`
+`archive_note` is classed write because it is non-destructive (the note remains, merely hidden from the main list).
+`delete_list_item` is classed write because deleting a line in a checklist is a normal editing operation.
 
-Dùng `list_labels` (không tham số, thuần đọc) để nút Test thực sự chạm tới Keep API, chứng minh
-master token còn sống chứ không chỉ chứng minh server khởi động được.
+### About the `validate` block
 
-KHÔNG khai `label_paths` vì chưa biết chắc hình dạng response của `list_labels`. Theo
-`mcp_hub.validate_connection`, thiếu `label_paths` chỉ làm nhãn hiển thị rỗng, không làm hỏng
-kết nối. Đoán sai `label_paths` cũng không làm Test fail, nhưng khai bừa thì vô nghĩa.
+It uses `list_labels` (no parameters, purely read) so the Test button truly reaches the Keep API, proving the
+master token is still alive rather than merely proving the server starts.
 
-Cần lưu ý: khối `validate` này CHƯA được kiểm chứng thực tế vì cần master token thật để chạy.
-Nếu `list_labels` trả lỗi khi tài khoản chưa có nhãn nào, nút Test sẽ báo fail oan và phải bỏ
-khối `validate` đi. Đây là điểm phải xác nhận khi nghiệm thu.
+It does NOT declare `label_paths` because the response shape of `list_labels` is not known for sure. Per
+`mcp_hub.validate_connection`, a missing `label_paths` only leaves the display label empty and does not break the
+connection. Guessing `label_paths` wrong would not make Test fail either, but declaring it at random is pointless.
 
-## Thay đổi 2: KHÔNG cần gì cả (mục này từng SAI, giữ lại để rút kinh nghiệm)
+Note: this `validate` block has NOT been verified in practice because it needs a real master token to run.
+If `list_labels` returns an error when the account has no labels yet, the Test button will report a false failure and the
+`validate` block must be dropped. This must be confirmed at acceptance.
 
-Bản thiết kế đầu có mục "thêm uv vào Docker image", lập luận: `Dockerfile` chỉ có `node`, `npx`,
-`pip`, không có `uv` lẫn `pipx`, nên `uvx` sẽ chết trên VPS, và 4 connector `uvx` sẵn có
-(`google-sheets`, `google-search-console`, `google-ads`, `tiktok-ads`) chắc cũng đang hỏng.
+## Change 2: NOTHING needed (this section was once WRONG, kept as a lesson)
 
-**Lập luận đó SAI.** `uv>=0.5` đã nằm trong `requirements.txt` từ v0.9.0 (commit 856cb19), mà
-`Dockerfile` vẫn chạy `pip install --no-cache-dir -r requirements.txt`. Nên image LUÔN có `uv`,
-và 4 connector kia chưa bao giờ hỏng vì lý do này. Dòng `pip install uv` thêm vào là thừa, đã gỡ
-ở 0.9.112.
+The first version of the design had a section "add uv to the Docker image", arguing: the `Dockerfile` only has `node`, `npx`,
+`pip`, with neither `uv` nor `pipx`, so `uvx` would die on the VPS, and the 4 existing `uvx` connectors
+(`google-sheets`, `google-search-console`, `google-ads`, `tiktok-ads`) were probably broken too.
 
-Sai ở đâu: chỉ `grep` Dockerfile tìm chữ `uv`, không thấy thì kết luận là thiếu, trong khi dòng
-`pip install -r requirements.txt` nằm ngay đó mà chưa hề mở `requirements.txt` ra xem. Suy đoán
-từ một phép tìm kiếm hẹp rồi trình bày như sự thật đã kiểm chứng.
+**That argument was WRONG.** `uv>=0.5` has been in `requirements.txt` since v0.9.0 (commit 856cb19), and
+the `Dockerfile` still runs `pip install --no-cache-dir -r requirements.txt`. So the image ALWAYS has `uv`,
+and those 4 connectors were never broken for this reason. The extra `pip install uv` line was redundant and was removed
+in 0.9.112.
 
-Bài học: khi kết luận "X không có trong image", phải lần theo MỌI đường cài đặt (requirements.txt,
-apt, npm, COPY từ stage khác), không chỉ grep tên X trong Dockerfile.
+Where it went wrong: it only ran `grep` over the Dockerfile for the word `uv`, found nothing and concluded it was missing, while the
+`pip install -r requirements.txt` line was right there and `requirements.txt` was never opened. A guess
+from a narrow search, presented as a verified fact.
 
-Kiến thức về việc `uv` phục vụ các connector `uvx` giờ nằm ở comment trong `requirements.txt`,
-đúng chỗ của nó.
+Lesson: when concluding "X is not in the image", trace EVERY installation path (requirements.txt,
+apt, npm, COPY from another stage), not just grep for the name X in the Dockerfile.
 
-## Kiểm thử nghiệm thu
+The knowledge that `uv` serves the `uvx` connectors now lives in a comment in `requirements.txt`,
+where it belongs.
 
-1. `python -c "import json; json.load(open('system/mcp-catalog.json', encoding='utf-8'))"` phải sạch.
-2. `mcp_catalog.load()` nhận được `google-keep`; `public_catalog()` trả đủ 3 field.
-3. Kiểm phân loại quyền bằng `mcp_catalog.allowed()`:
-   - `readonly` + `find` cho qua; `readonly` + `create_note` bị chặn.
-   - `safe` + `create_note` cho qua; `safe` + `delete_note` bị chặn.
-   - `safe` + `restore_note` cho qua nhưng `safe` + `trash_note` bị chặn (kiểm bất đối xứng có chủ ý).
-   - `full` + `add_note_collaborator` cho qua.
-   - `mode: suggest` ép mọi thứ về readonly kể cả khi perm là full.
-4. Docker: `docker run --rm <image> uvx --version` phải chạy (uv đến từ requirements.txt).
-5. Thủ công: đấu kết nối thật trên trang Kết nối, bấm Test, xác nhận `validate` không báo fail oan.
-   Rồi thử `find` qua chat.
+## Acceptance testing
 
-### Đã kiểm chứng được gì (2026-07-20)
+1. `python -c "import json; json.load(open('system/mcp-catalog.json', encoding='utf-8'))"` must be clean.
+2. `mcp_catalog.load()` picks up `google-keep`; `public_catalog()` returns all 3 fields.
+3. Check the permission classification with `mcp_catalog.allowed()`:
+   - `readonly` + `find` passes; `readonly` + `create_note` is blocked.
+   - `safe` + `create_note` passes; `safe` + `delete_note` is blocked.
+   - `safe` + `restore_note` passes but `safe` + `trash_note` is blocked (checks the deliberate asymmetry).
+   - `full` + `add_note_collaborator` passes.
+   - `mode: suggest` forces everything to readonly even when the perm is full.
+4. Docker: `docker run --rm <image> uvx --version` must run (uv comes from requirements.txt).
+5. Manual: connect for real on the Connections page, press Test, confirm `validate` does not report a false failure.
+   Then try `find` through chat.
 
-Điểm 1 tới 3 đã thành `server/test_google_keep.py`, 40 check, chạy bằng
-`cd server && ../.venv/Scripts/python.exe test_google_keep.py`. Có canary chứng minh
-`mcp_catalog.allowed` thật sự đang chặn chứ không trả True vô điều kiện. Đã chạy lại
+### What has been verified (2026-07-20)
+
+Points 1 to 3 became `server/test_google_keep.py`, 40 checks, run with
+`cd server && ../.venv/Scripts/python.exe test_google_keep.py`. There is a canary proving that
+`mcp_catalog.allowed` really blocks rather than returning True unconditionally. Re-ran
 `test_fb_monitor`, `test_fb_personal`, `test_meta_graph`, `test_meta_pages`, `test_security`,
-`test_plugins_host`, `test_skill_caps` đều xanh.
+`test_plugins_host`, `test_skill_caps`, all green.
 
-Ngoài ra đã kiểm bằng tay ngoài test suite:
+Also verified by hand outside the test suite:
 
-- `pip install uv` trên venv sạch có sinh ra `uvx` chạy được, tức dòng `uv>=0.5` trong requirements.txt là đủ.
-- `uvx --from keep-mcp python -m server` khởi động đúng server keep-mcp và nói giao thức MCP.
-- Bắt tay `initialize` + `tools/list` trả về đúng 23 tool, khớp `tool_meta`.
+- `pip install uv` on a clean venv does produce a working `uvx`, so the `uv>=0.5` line in requirements.txt is enough.
+- `uvx --from keep-mcp python -m server` starts the right keep-mcp server and speaks the MCP protocol.
+- The `initialize` + `tools/list` handshake returns exactly 23 tools, matching `tool_meta`.
 
-### CHƯA kiểm chứng được, phải làm khi nghiệm thu
+### NOT yet verified, to be done at acceptance
 
-- **Chưa chạy `uvx` trong Docker thật.** Máy phát triển không cài Docker. Việc `pip install uv`
-  cho ra `uvx` mới chỉ được chứng minh trên Windows venv, chưa chứng minh trên `python:3.12-slim`.
-  Rủi ro thấp vì uv có wheel manylinux và dòng `uv>=0.5` đã nằm trong requirements.txt từ v0.9.0
-  (tức các connector uvx khác đã chạy đường này từ lâu), nhưng vẫn chưa phải sự thật đã kiểm.
-- **Khối `validate` chưa chạy thật** vì cần master token. Nếu tài khoản chưa có nhãn nào mà
-  `list_labels` trả lỗi thì nút Test sẽ báo fail oan và phải bỏ khối `validate` đi.
-- **Chưa gọi tool nào chạm Keep thật.** Toàn bộ kiểm chứng ở trên không cần credential, nên chưa
-  chứng minh được master token chạy thông hay `UNSAFE_MODE` có tác dụng đúng như tài liệu.
+- **`uvx` has not been run in a real Docker.** The dev machine has no Docker installed. That `pip install uv`
+  yields `uvx` has only been shown on a Windows venv, not on `python:3.12-slim`.
+  Low risk because uv has manylinux wheels and the `uv>=0.5` line has been in requirements.txt since v0.9.0
+  (so the other uvx connectors have run this path for a long time), but it is still not a verified fact.
+- **The `validate` block has not been run for real** because it needs a master token. If the account has no labels and
+  `list_labels` returns an error, the Test button will report a false failure and the `validate` block must be dropped.
+- **No tool that touches real Keep has been called.** All the verification above needs no credentials, so it has not
+  proven that the master token works end to end or that `UNSAFE_MODE` behaves as documented.
 
-## Ngoài phạm vi
+## Out of scope
 
-- Không viết skill hay agent riêng cho Keep. Tool MCP đủ để Jarvis 007 dùng qua chat; có nhu cầu lặp
-  lại thật thì mới cân nhắc sau.
-- Không đồng bộ hai chiều Keep với Second Brain. Đây là việc lớn và riêng.
-- Không tự động hoá bước lấy master token. Bước đó buộc phải người dùng tự làm vì dính App Password.
-- Không đụng 4 connector `uvx` đang hỏng ngoài việc thêm `uv` vào image. Kiểm chứng lại chúng là
-  việc riêng.
+- No dedicated skill or agent for Keep. The MCP tools are enough for Jarvis 007 to use through chat; only if there is a real
+  repeated need will it be considered later.
+- No two-way sync of Keep with the Second Brain. That is a large, separate job.
+- No automating the step of getting the master token. That step must be done by the user because it involves the App Password.
+- No touching the 4 `uvx` connectors that were thought broken beyond adding `uv` to the image. Re-verifying them is
+  a separate job.
 
-## Nguồn
+## Sources
 
 - [feuerdev/keep-mcp](https://github.com/feuerdev/keep-mcp)
 - [gkeepapi: obtaining a master token](https://gkeepapi.readthedocs.io/en/latest/)

@@ -9,7 +9,7 @@ Status: approved by the owner on 2026-10-15 (chat). Follows PR #663 (0.153.0, co
    working folder as a small chip under its input; Jarvis 007 should do the same, as compactly as possible.
 2. The Coding page has its own "Pick a folder" chip and menu. Once the composer can pin a folder, that
    duplicate is not needed.
-3. The agent Work tab ("Công việc") filters with two horizontally scrolling chip rows and 16px text in a
+3. The agent Work tab ("Jobs") filters with two horizontally scrolling chip rows and 16px text in a
    ~300px column. It looks crude and wastes space. The owner wants dropdowns and smaller text.
 
 ## What exists today (facts the design relies on)

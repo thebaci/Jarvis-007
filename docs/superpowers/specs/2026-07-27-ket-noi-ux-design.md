@@ -1,62 +1,62 @@
-# Spec: UX trang Kết nối triệt để (khối A, B, D)
+# Spec: thorough UX overhaul of the Connections page (blocks A, B, D)
 
-> Duyệt qua chat 2026-07-27. Bối cảnh: vụ nghi oan Google Workspace (0.9.189) lộ ra
-> chuỗi bệnh của trang Kết nối: không thấy sức khoẻ, kết nối lại khó, 4 đường Google
-> rối, guide tường chữ. Khối C (banner não mất đăng nhập) để đợt sau.
+> Approved in chat 2026-07-27. Background: the false accusation against Google Workspace (0.9.189) exposed
+> a string of ailments on the Connections page: no visible health, reconnecting is hard, 4 tangled Google
+> paths, wall-of-text guides. Block C (banner for a brain that lost its login) is left for a later round.
 
-## Khối A - Sức khoẻ thường trực + kết nối lại một chạm (0.9.192)
+## Block A - Always-on health + one-tap reconnect (0.9.192)
 
 ### Server
-- Module mới `server/connect_health.py`:
-  - Vòng nền check mỗi `HEALTH_INTERVAL` (10 phút): với từng connection enabled,
-    ping `pool.list_tools(spec)` (rẻ, không gọi tool thật), timeout ngắn.
-  - Trạng thái in-memory: `{conn_id: {ok, kind, message, checked_at}}`. Không persist,
-    sau restart quét lại sớm (delay ngắn sau startup).
-  - Phân loại lỗi sang tiếng người tại server (`classify_error`):
-    - 401 / invalid_grant / "OAuth session expired" → kind `auth`, "Hết phiên đăng nhập"
-    - timeout / connect error → kind `net`, "Dịch vụ không phản hồi"
-    - lỗi spawn stdio (FileNotFoundError, exit sớm) → kind `spawn`, "Không khởi động được trình kết nối trên máy"
-    - còn lại → kind `unknown`, cắt ngắn thông điệp gốc.
-- Endpoint:
-  - `GET /connect/health` → map trạng thái mọi connection.
-  - `POST /connect/health/check` (id) → ép check ngay một connection, trả kết quả.
-- Test: `test_connect_health.py` - classify đủ nhánh, vòng check với pool giả,
-  endpoint shape, ép check.
+- New module `server/connect_health.py`:
+  - A background loop checks every `HEALTH_INTERVAL` (10 minutes): for each enabled connection,
+    ping `pool.list_tools(spec)` (cheap, does not call a real tool), with a short timeout.
+  - In-memory state: `{conn_id: {ok, kind, message, checked_at}}`. Not persisted;
+    after a restart it rescans early (short delay after startup).
+  - Errors are classified into human language on the server (`classify_error`). The user-facing messages below stay in Vietnamese:
+    - 401 / invalid_grant / "OAuth session expired" -> kind `auth`, "Hết phiên đăng nhập" (login session expired)
+    - timeout / connect error -> kind `net`, "Dịch vụ không phản hồi" (service not responding)
+    - stdio spawn error (FileNotFoundError, early exit) -> kind `spawn`, "Không khởi động được trình kết nối trên máy" (cannot start the connector on this machine)
+    - everything else -> kind `unknown`, original message truncated.
+- Endpoints:
+  - `GET /connect/health` -> the state map for every connection.
+  - `POST /connect/health/check` (id) -> force a check of one connection right now, return the result.
+- Test: `test_connect_health.py` - classify covers every branch, the check loop with a fake pool,
+  endpoint shape, forced check.
 
 ### UI (console.js)
-- Chip tài khoản gắn chấm màu: xanh (ok), vàng (chưa check / đang check), đỏ (lỗi).
-  Tooltip: thông điệp + thời điểm check.
-- Card có connection lỗi kind `auth` → nút "Kết nối lại":
-  - oauth → gọi `/connect/oauth/start` với conn id sẵn có (giữ id, label, quyền).
-  - apikey → mở modal dán key mới, submit đè secrets qua `/connect/update` (mở rộng
-    nhận secrets mới nếu chưa có).
-- Poll `/connect/health` khi mở trang + mỗi 60s khi đang ở trang.
+- The account chip carries a colored dot: green (ok), yellow (not checked yet / checking), red (error).
+  Tooltip: the message + the time of the check.
+- A card with a connection in error of kind `auth` gets a "Reconnect" button:
+  - oauth -> call `/connect/oauth/start` with the existing conn id (keeping id, label, permissions).
+  - apikey -> open a modal to paste the new key, submit to overwrite the secrets via `/connect/update` (extended to
+    accept new secrets if it does not already).
+- Poll `/connect/health` when the page opens + every 60s while on the page.
 
-## Khối B - Gộp Google một cửa + wizard (0.9.193)
+## Block B - Merge Google into one door + wizard (0.9.193)
 
-- Catalog: 5 connector Google thêm `group: "google"`. UI thấy group → gom về MỘT
-  card "Google" trong Kho. Bấm card → màn chọn dịch vụ (Lịch, Gmail, Tasks,
-  Drive/Docs, Keep): mỗi dòng 1 câu quyền tới đâu + badge độ khó. Map dịch vụ →
-  connector là việc của UI, user không thấy tên kỹ thuật.
-- `auth.steps` (mảng có cấu trúc) thay guide tường chữ: mỗi bước
-  `{text, link?, link_label?, copy?}`. UI render stepper; giữ `guide` cũ làm
-  fallback cho connector chưa chuyển.
-- Ô nhập key nhận kéo thả file JSON client của Google (bóc client_id/client_secret
-  từ cả `web` lẫn `installed`).
-- Dùng lại key: nếu connection Google khác đã có client_id/secret → nút
-  "Dùng lại key của <tên>", server copy secrets (endpoint mới hoặc mở rộng
-  /connect/add nhận `reuse_from: conn_id` - KHÔNG trả secrets về browser).
-- Test: schema steps trong catalog, reuse_from không lộ secrets, map nhóm.
+- Catalog: the 5 Google connectors get `group: "google"`. When the UI sees a group, it gathers them into ONE
+  "Google" card in the Store. Tapping the card opens a service picker screen (Calendar, Gmail, Tasks,
+  Drive/Docs, Keep): each row has 1 sentence on how far the permission reaches + a difficulty badge. Mapping service -> connector is
+  the UI's job; the user never sees the technical names.
+- `auth.steps` (a structured array) replaces the wall-of-text guide: each step is
+  `{text, link?, link_label?, copy?}`. The UI renders a stepper; the old `guide` is kept as a
+  fallback for connectors not yet converted.
+- The key input accepts a drag-and-drop of Google's client JSON file (extracting client_id/client_secret
+  from both `web` and `installed`).
+- Reuse a key: if another Google connection already has a client_id/secret -> a
+  "Reuse the key from <name>" button; the server copies the secrets (a new endpoint or extending
+  /connect/add to accept `reuse_from: conn_id` - secrets are NOT returned to the browser).
+- Test: the steps schema in the catalog, reuse_from does not leak secrets, the group mapping.
 
-## Khối D - Đánh bóng (0.9.194)
+## Block D - Polish (0.9.194)
 
-- Hai khu ambient (Claude Code, Codex) gập mặc định.
-- Chữ "MCP" rời mọi text chính, chỉ còn trong "Tự thêm (nâng cao)" + chi tiết.
-- Card kho: badge cách đăng nhập tiếng người ("Dán key" / "Đăng nhập Google" /
-  "Quét QR" / "Bấm là xong").
-- Mobile: grid 1 cột, chip không tràn. Bổ sung icon còn thiếu logo.
+- The two ambient sections (Claude Code, Codex) are collapsed by default.
+- The word "MCP" leaves all primary text, remaining only in "Add your own (advanced)" + details.
+- Store card: a human-language badge for the sign-in method ("Paste key" / "Google sign-in" /
+  "Scan QR" / "One tap").
+- Mobile: 1-column grid, chips do not overflow. Add icons that are still missing logos.
 
-## Nguyên tắc chung
-- Không đổi schema backend connection; mọi thứ tương thích ngược.
-- UI string tiếng Việt có dấu, không em dash.
-- Mỗi khối ship một bản riêng, test pass rồi mới sang khối sau.
+## General principles
+- No change to the backend connection schema; everything is backward compatible.
+- UI strings are in Vietnamese with diacritics, no em dash.
+- Each block ships as its own release, and tests must pass before moving to the next block.
