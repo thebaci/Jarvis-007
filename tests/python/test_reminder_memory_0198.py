@@ -76,7 +76,7 @@ async def main():
     check("update turns remember_last on", upd["ok"] and upd["reminder"]["remember_last"] is True)
 
     note = reminders.task_context_note("[t] earlier >>> text", 3 * 3600)
-    check("note says late", "TRỄ" in note and "180 phút" in note)
+    check("note says late", "LATE" in note and "180 minutes" in note)
     check("note fences the previous report", note.count(">>>") == 1 and "earlier" in note)
     check("no note when nothing to add", reminders.task_context_note("", 10) == "")
     check("bad cron gives no next runs", reminders.next_runs("not a cron") == [])
@@ -84,7 +84,7 @@ async def main():
 asyncio.run(main())
 
 src = (Path(SERVER) / "reminders.py").read_text(encoding="utf-8")
-check("prompt intro can be replaced by another caller", "intro or \"NHIỆM VỤ NHẮC HẸN" in src)
+check("prompt intro can be replaced by another caller", "intro or \"REMINDER TASK" in src)
 
 print()
 print("FAIL" if fails else "PASS", f"({len(fails)} failed)")

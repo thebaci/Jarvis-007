@@ -263,7 +263,7 @@ class CapabilityExecutor:
             "capability_revision": lease.revision,
             "content_hash": evidence.content_hash,
             "excerpt": evidence.inline_excerpt,
-            "instruction": "Chỉ dùng excerpt này cho dữ liệu live và phải dẫn evidence_ref.",
+            "instruction": "Use this excerpt only for live data and you must cite evidence_ref.",
         }, ensure_ascii=False, separators=(",", ":"))
 
     async def invoke(self, trace: context_runtime.TurnTrace, actor_id: str,
@@ -272,7 +272,7 @@ class CapabilityExecutor:
         if (not trace or trace.task_id != lease.task_id or trace.step_id != lease.step_id or
                 self.actor_hash(actor_id) != lease.actor_hash or time.time() >= lease.expires_at):
             return InvocationResult(
-                "REJECTED", "ERROR: capability lease không hợp lệ hoặc đã hết hạn.",
+                "REJECTED", "ERROR: capability lease is invalid or has expired.",
                 error_code="lease_mismatch_or_expired",
             )
         valid, error_code = self._validate(lease, args)
@@ -283,7 +283,7 @@ class CapabilityExecutor:
                 "error_code": error_code,
             })
             return InvocationResult(
-                "FAILED_VALIDATION", "ERROR: arguments không đạt JSON Schema của capability.",
+                "FAILED_VALIDATION", "ERROR: arguments do not satisfy the capability JSON Schema.",
                 error_code=error_code,
             )
         current = self.registry.get_capabilities([lease.capability_id], lease.brain)
@@ -298,7 +298,7 @@ class CapabilityExecutor:
                 "current_revision": current[0].get("capability_revision") if current else "missing",
             })
             return InvocationResult(
-                "REJECTED", "ERROR: capability revision đã thay đổi; cần resolve lại.",
+                "REJECTED", "ERROR: capability revision has changed; resolve it again.",
                 error_code="capability_revision_mismatch",
             )
         args_hash = arguments_hash(args)
@@ -328,7 +328,7 @@ class CapabilityExecutor:
         )
         if not invocation_id:
             return InvocationResult(
-                "REJECTED", "ERROR: capability lease đã dùng hoặc không còn hợp lệ.",
+                "REJECTED", "ERROR: capability lease was already used or is no longer valid.",
                 error_code="lease_claim_failed",
             )
         try:
@@ -345,7 +345,7 @@ class CapabilityExecutor:
                 trace, invocation_id, lease.lease_id, "TIMEOUT", error_code="tool_timeout"
             )
             return InvocationResult(
-                "TIMEOUT", "ERROR: capability read bị timeout; task state và invocation đã được lưu.",
+                "TIMEOUT", "ERROR: capability read timed out; task state and invocation have been saved.",
                 invocation_id=invocation_id, error_code="tool_timeout",
             )
         except Exception as exc:
@@ -354,7 +354,7 @@ class CapabilityExecutor:
                 trace, invocation_id, lease.lease_id, "FAILED_FINAL", error_code=code
             )
             return InvocationResult(
-                "FAILED_FINAL", "ERROR: capability read gặp lỗi thực thi.",
+                "FAILED_FINAL", "ERROR: capability read hit an execution error.",
                 invocation_id=invocation_id, error_code=code,
             )
         if str(result).startswith("ERROR:"):
@@ -385,7 +385,7 @@ class CapabilityExecutor:
                 trace, invocation_id, lease.lease_id, "FAILED_FINAL", error_code=code
             )
             return InvocationResult(
-                "FAILED_FINAL", "ERROR: không thể lưu evidence an toàn.",
+                "FAILED_FINAL", "ERROR: could not store the evidence safely.",
                 invocation_id=invocation_id, error_code=code,
             )
         finished = self.runtime.finish_read_invocation(
@@ -394,7 +394,7 @@ class CapabilityExecutor:
         if not finished:
             return InvocationResult(
                 "FAILED_FINAL",
-                f"ERROR: evidence đã lưu tại {evidence.ref} nhưng invocation ledger chưa chốt.",
+                f"ERROR: evidence was stored at {evidence.ref} but the invocation ledger is not finalized.",
                 invocation_id=invocation_id, evidence=evidence,
                 error_code="invocation_finalize_failed",
             )

@@ -99,7 +99,7 @@ VALID_MUC_QUYEN = {"suggest", "auto", "full"}
 import os as _os
 MUC_QUYEN_MAC_DINH = "full" if _os.getenv("JAVIS_UPSTREAM_DEFAULTS", "").strip().lower() in ("1", "true", "yes", "on") else "auto"  # Jarvis 007: drafts-only by default; muc_quyen="full" opts in
 
-NHAN_MUC_QUYEN = {"suggest": "chỉ đọc", "auto": "được ghi file", "full": "toàn quyền"}
+NHAN_MUC_QUYEN = {"suggest": "read-only", "auto": "can write files", "full": "full access"}
 
 
 def muc_quyen_cua(rem: dict) -> str:
@@ -404,7 +404,7 @@ class RemindersFeature:
             rp = self._resolve_script(brain, script)   # xác thực ngay lúc tạo (fail fast)
             script_name = rp.name
             if not text:
-                text = f"chạy script {script_name}"
+                text = f"run script {script_name}"
         elif not text:
             raise ValueError(localefmt.chu("Thiếu nội dung nhắc (text)", "Missing reminder content (text)"))
         cron_expr = (str(cron).strip() if cron not in (None, "") else "")
@@ -626,7 +626,7 @@ class RemindersFeature:
             try:
                 await self._fire(brain, rem)
             except Exception as e:
-                print(f"[reminders] nhắc {rid} chạy nền lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+                print(f"[reminders] reminder {rid} background run error: {type(e).__name__}: {e}", file=sys.stderr)
             finally:
                 self._dang_chay.discard(rid)
 
@@ -767,7 +767,7 @@ class RemindersFeature:
                         cur["status"] = "pending"
                     except Exception as ce:
                         cur["status"] = "failed"
-                        cur["error"] = (cur.get("error", "") + f" | cron lỗi: {ce}")[:400]
+                        cur["error"] = (cur.get("error", "") + f" | cron error: {ce}")[:400]
                 elif rep > 0:
                     step = rep * 60.0
                     nxt = float(cur.get("due_at", _now()))
@@ -877,28 +877,28 @@ class RemindersFeature:
         if not cli.is_available():
             return "", localefmt.chu("Claude CLI chưa cài", "Claude CLI is not installed")
         rang_buoc = {
-            "suggest": ("Mức quyền của nhắc hẹn này là CHỈ ĐỌC: được đọc dữ liệu thật qua MCP "
-                        "và đọc file, KHÔNG ghi file, KHÔNG hành động ra ngoài. Việc nào cần "
-                        "hành động thì mô tả lại cho user tự làm."),
-            "auto": ("Mức quyền của nhắc hẹn này là ĐƯỢC GHI FILE: đọc dữ liệu thật qua MCP và "
-                     "ghi file nháp trong vault, nhưng KHÔNG tạo đơn / tiêu tiền / chạy quảng "
-                     "cáo / đăng bài / gửi tin ra ngoài."),
+            "suggest": ("The permission level of this reminder is READ-ONLY: you may read real data through MCP "
+                        "and read files, but do NOT write files and do NOT take outside actions. For anything that needs "
+                        "an action, describe it so the user can do it themselves."),
+            "auto": ("The permission level of this reminder is CAN WRITE FILES: read real data through MCP and "
+                     "write draft files in the vault, but do NOT create orders / spend money / run ads "
+                     "/ publish posts / send messages outside."),
             # Không kể lể "hãy cẩn thận": user đã được cảnh báo lúc tạo và đã chọn mức này. Nói
             # đúng một điều model cần biết mà nó không tự suy ra được: việc này chạy KHÔNG có
             # ai ngồi cạnh, nên hỏi lại là hỏi vào hư không.
-            "full": ("Mức quyền của nhắc hẹn này là TOÀN QUYỀN: user đã chủ động cấp, nên cứ "
-                     "làm đúng việc được giao bằng các công cụ đã đấu, gồm cả hành động ra "
-                     "ngoài. Không có ai ngồi cạnh để duyệt hay trả lời câu hỏi ở bước này: "
-                     "làm được thì làm rồi thuật lại đã làm gì, không làm được thì nói thẳng "
-                     "là chưa làm và vì sao, tuyệt đối đừng hỏi lại rồi ngồi đợi."),
+            "full": ("The permission level of this reminder is FULL ACCESS: the user granted it on purpose, so just "
+                     "do exactly the assigned task with the connected tools, including outside "
+                     "actions. Nobody is sitting by to approve or answer questions at this step: "
+                     "if you can do it, do it and then report what you did; if you cannot, say plainly "
+                     "that it was not done and why, and never ask a question and then sit waiting."),
         }[mq]
         # `intro` (0.198.0): another caller of this runner, such as a webhook, says what woke it.
         prompt = (
-            (intro or "NHIỆM VỤ NHẮC HẸN - tới giờ user đã đặt trước.")
-            + " Làm việc dưới đây rồi VIẾT câu trả lời "
-            "NGẮN GỌN như tin nhắn Telegram gửi cho user (tiếng Việt, không bảng, không gạch ngang dài). "
+            (intro or "REMINDER TASK - the time the user set in advance has arrived.")
+            + " Do the work below, then WRITE a SHORT reply "
+            "like a Telegram message to the user (in Vietnamese, no tables, no long dashes). "
             + rang_buoc + "\n\n"
-            "Việc cần làm:\n" + text
+            "Task to do:\n" + text
             + task_context_note(previous, late_s)
         )
         out, err = "", ""
@@ -939,7 +939,7 @@ class RemindersFeature:
             # KHÔNG chặn (giữ tương thích caller cũ/thủ công cố ý dùng default). Đây từng là bug câm
             # "chat brain khác nhưng nhắc hẹn vẫn vào default".
             if not str(p.get("brain") or "").strip():
-                print(f"[reminders] POST thiếu 'brain' → Brain Default (created_by="
+                print(f"[reminders] POST is missing 'brain' → Default Brain (created_by="
                       f"{p.get('created_by') or 'user'}, text={str(p.get('text'))[:40]!r})", file=sys.stderr)
             try:
                 async with self._io:
@@ -1075,11 +1075,11 @@ def task_context_note(previous: str, late_s: float) -> str:
     parts = []
     if late_s >= LATE_NOTE_AFTER_S:
         mins = int(late_s // 60)
-        parts.append(f"Lưu ý: lần chạy này TRỄ khoảng {mins} phút so với giờ hẹn (máy chủ tắt hoặc "
-                     "đang bận). Nếu việc phụ thuộc giờ giấc thì tính theo thời điểm hiện tại.")
+        parts.append(f"Note: this run is LATE by about {mins} minutes compared with the scheduled time (the server was off or "
+                     "busy). If the task depends on the time of day, go by the current time.")
     if previous:
-        parts.append("Kết quả LẦN CHẠY TRƯỚC của chính việc này (để biết đã báo gì, chỉ báo cái "
-                     "mới hoặc cái thay đổi, đừng lặp lại y nguyên):\n<<<\n"
+        parts.append("Result of the PREVIOUS RUN of this same task (so you know what was already reported; only report what "
+                     "is new or changed, do not repeat it verbatim):\n<<<\n"
                      + previous.replace(">>>", "> > >") + "\n>>>")
     return ("\n\n" + "\n\n".join(parts)) if parts else ""
 

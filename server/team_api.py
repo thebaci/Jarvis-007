@@ -121,7 +121,7 @@ class TeamApi:
                 task = self.deps.spawn(value)
             except Exception as ex:  # noqa: BLE001
                 value.close()
-                print(f"[team] không tạo được việc nền: {type(ex).__name__}: {ex}", file=sys.stderr)
+                print(f"[team] could not create the background task: {type(ex).__name__}: {ex}", file=sys.stderr)
                 return
             # Giữ tham chiếu tới khi xong: event loop chỉ giữ tham chiếu yếu, việc nền không ai giữ có thể bị dọn rác
             # giữa chừng (lượt trả lời, gói WS, tin hộp thư).
@@ -493,8 +493,8 @@ class TeamOps:
         if fields.get("status") == "archived":
             q = self.deps.task_store().team_queue(team_id)
             for t in q["waiting"] + q["blocked"]:
-                runner.cancel_job(t["id"], "nhóm đã lưu trữ")
-            runner.cancel_idle_running(team_id, "nhóm đã lưu trữ")
+                runner.cancel_job(t["id"], "team archived")
+            runner.cancel_idle_running(team_id, "team archived")
         elif fields.get("status") == "active" and team["status"] != "active":
             runner._on_loop(lambda: self.api._spawn(runner.resume_team(team_id)))
             self.api.kick()
@@ -562,7 +562,7 @@ async def _described_then(api: "TeamApi", team: dict, pics: list, caption: str, 
     try:
         await asyncio.wait_for(api.deps.describe(team, pics, caption), DESCRIBE_TIMEOUT_S)
     except Exception as ex:  # noqa: BLE001 - timeouts and engine errors alike
-        print(f"[team] không tả được ảnh: {type(ex).__name__}: {str(ex)[:200]}", file=sys.stderr)
+        print(f"[team] could not describe the image: {type(ex).__name__}: {str(ex)[:200]}", file=sys.stderr)
     if then is not None:
         await then()
 
@@ -1142,7 +1142,7 @@ def register(app, deps: TeamApiDeps) -> TeamApi:
                         return _err(400, "Thiếu hộp cấp quyền", "Missing grant")
                     runner.grant_authority(team_id, grant, by="owner")
                 elif mode == "limited":
-                    runner.revoke_authority(team_id, by="owner", reason=str(body.get("reason") or "chủ thu hồi")[:200])
+                    runner.revoke_authority(team_id, by="owner", reason=str(body.get("reason") or "owner revoked")[:200])
                 else:
                     return _err(400, "Chế độ không hợp lệ", "Invalid mode")
             except TeamError as ex:
@@ -1267,8 +1267,8 @@ def register(app, deps: TeamApiDeps) -> TeamApi:
             api.teams().set_work_mode(team_id, mode)
             if before != mode:
                 r = api.runner()
-                r._post(api.teams().get(team_id), "Chủ nhóm cho nhóm tự làm hành động ra ngoài, không cần hỏi từng bước."
-                        if mode == "full" else "Chủ nhóm đặt lại: hành động ra ngoài của nhóm phải chờ duyệt.",
+                r._post(api.teams().get(team_id), "The owner lets the team take outside actions on its own, without asking at every step."
+                        if mode == "full" else "The owner reset it: the team's outside actions must wait for approval.",
                         author_kind="system", meta={"kind": "work_mode", "work_mode": mode})
                 r._publish({"type": "team_state", "team_id": team_id})
             return {"ok": True, "work_mode": mode}
@@ -1307,7 +1307,7 @@ def register(app, deps: TeamApiDeps) -> TeamApi:
                     api._spawn(api.runner().recheck(task_id))
             except team_acceptance.AcceptanceError as ex:
                 return _err(400, f"Tiêu chí chưa hợp lệ: {ex}", f"Criteria are not valid: {ex}")
-            api.runner()._system(api.teams().get(team_id), "Chủ nhóm đã đặt tiêu chí nghiệm thu cho việc này.",
+            api.runner()._system(api.teams().get(team_id), "The owner set the acceptance criteria for this job.",
                                  "acceptance_set")
             return {"ok": True, "acceptance": api.runner().acceptance_view(team, task_id)}
         return await api.io(_do)
@@ -1376,7 +1376,7 @@ def register(app, deps: TeamApiDeps) -> TeamApi:
             except team_mandate.MandateError as ex:
                 return _err(400, f"Mục tiêu chưa hợp lệ: {ex}", f"The mandate is not valid: {ex}")
             m = api.mandates().get(team_id)
-            api.runner()._system(api.teams().get(team_id), f"Chủ nhóm đã cập nhật mục tiêu phòng ban (bản {m['version']}).",
+            api.runner()._system(api.teams().get(team_id), f"The owner updated the department mandate (version {m['version']}).",
                                  "mandate_edited")
             api.runner()._state(team_id)
             return _mandate_view(team_id)
@@ -1403,8 +1403,8 @@ def register(app, deps: TeamApiDeps) -> TeamApi:
                     out = {}
             except team_mandate.MandateError as ex:
                 return _err(409, str(ex), str(ex))
-            label = {"active": "bật", "paused": "tạm dừng", "off": "tắt", "revoked": "thu hồi"}[status]
-            api.runner()._system(api.teams().get(team_id), f"Chủ nhóm đã {label} mục tiêu phòng ban.", "mandate_status")
+            label = {"active": "turned on", "paused": "paused", "off": "turned off", "revoked": "revoked"}[status]
+            api.runner()._system(api.teams().get(team_id), f"The owner {label} the department mandate.", "mandate_status")
             api.runner()._state(team_id)
             return dict(_mandate_view(team_id), cancelled=out.get("cancelled", []))
         return await api.io(_do)

@@ -657,7 +657,7 @@ class GoalStore:
     @staticmethod
     def _owner_only(p: Principal) -> None:
         if p.kind != "owner":
-            raise PermissionError("chỉ chủ dự án mới đổi được sổ đăng ký agent")
+            raise PermissionError("only the project owner can change the agent registry")
 
     @staticmethod
     def _agent_event(c, r, kind: str, by: str, after: Optional[int], payload: Optional[dict] = None,
@@ -734,7 +734,7 @@ class GoalStore:
         self._owner_only(p)
         slug = str(slug or "").strip()
         if not slug:
-            raise AgentStateError("thiếu slug agent")
+            raise AgentStateError("missing agent slug")
         now = time.time()
         with self._Tx(self) as c:
             r = self._live_agent_row(c, p.brain_id, slug)
@@ -747,7 +747,7 @@ class GoalStore:
             # Kiểm trạng thái TRƯỚC nhánh "không đổi" (review PR #590, P2-1): agent missing vẫn giữ cờ bật cũ, nên
             # đặt cờ bật lần nữa không được báo thành công.
             if enabled and r["status"] != "active":
-                raise AgentStateError(f"agent đang {r['status']}, cần chủ dự án xác nhận trước khi bật")
+                raise AgentStateError(f"agent is {r['status']}, the project owner must confirm before it is turned on")
             if bool(r["enabled"]) == bool(enabled):
                 return self._agent(r)
             # T2: mốc bật lại (`resumed_at`) ghi CÙNG giao dịch với công tắc, nên mọi đường bật (route của chủ, lệnh
@@ -766,7 +766,7 @@ class GoalStore:
         self._owner_only(p)
         slug = str(slug or "").strip()
         if not slug:
-            raise AgentStateError("thiếu slug agent")
+            raise AgentStateError("missing agent slug")
         now = time.time()
         with self._Tx(self) as c:
             r = self._live_agent_row(c, p.brain_id, slug)
@@ -809,9 +809,9 @@ class GoalStore:
             r = c.execute("SELECT * FROM resonance_agents WHERE agent_key=? AND brain_id=?",
                           (str(agent_key or ""), p.brain_id)).fetchone()
             if r is None:
-                raise ScopeError("agent không tồn tại trong brain này")
+                raise ScopeError("agent does not exist in this brain")
             if r["status"] != "missing":
-                raise AgentStateError(f"agent đang {r['status']}, không cần xác nhận")
+                raise AgentStateError(f"agent is {r['status']}, no confirmation needed")
             if same:
                 if r["enabled"]:
                     self._mark_resumed(c, r["agent_key"], now)
@@ -906,7 +906,7 @@ class GoalStore:
 
     def _insert_intent(self, c, p: Principal, rec: dict) -> None:
         if rec.get("brain_id") != p.brain_id:
-            raise ScopeError("bản ghi ý định không thuộc brain này")
+            raise ScopeError("the intent record does not belong to this brain")
         if rec.get("prev_intent_id"):
             self._intent(c, p, rec["prev_intent_id"])
         c.execute("INSERT INTO intents VALUES(?,?,?,?,?,?,?,?,?)",
@@ -916,7 +916,7 @@ class GoalStore:
     def _intent(self, c, p: Principal, intent_id: str) -> dict:
         r = c.execute("SELECT * FROM intents WHERE id=?", (intent_id,)).fetchone()
         if r is None or r["brain_id"] != p.brain_id:
-            raise ScopeError("bản ghi ý định không tồn tại trong brain này")
+            raise ScopeError("the intent record does not exist in this brain")
         return {"id": r["id"], "text": r["text"], "constraints": json.loads(r["constraints_json"] or "[]"),
                 "prev_intent_id": r["prev_intent_id"], "relation": r["relation"]}
 
@@ -1010,7 +1010,7 @@ class GoalStore:
             intent = self._intent(c, p, intent_id)
             missing = [x for x in intent["constraints"] if x not in (frame.get("constraints") or [])]
             if missing:
-                raise R.GoalRejected(f"khung mục tiêu bỏ ràng buộc người dùng đã nêu: {missing}")
+                raise R.GoalRejected(f"the goal frame drops a constraint the user stated: {missing}")
             gid = _nid("g")
             root = output_root or str(Path(output_base or (Path(STATE_DIR) / "resonance" / "outputs")) / gid)
             c.execute("INSERT INTO goals(id,brain_id,owner,revision,status,session_id,request_ref,idempotency_key,"
@@ -1019,7 +1019,7 @@ class GoalStore:
                       (gid, p.brain_id, p.id, 1, "active", str(session_id or ""), msg, idempotency_key, root,
                        _j(intent["constraints"]), max(0, int(budget_calls)), 0, 0, now, now))
             c.execute("INSERT INTO goal_revisions VALUES(?,?,?,?,?,?,?)",
-                      (gid, 1, intent_id, _j(frame), "tạo", p.by, now))
+                      (gid, 1, intent_id, _j(frame), "created", p.by, now))
             c.execute("INSERT INTO goal_events(goal_id,revision,kind,source,message_ref,payload_json,by,"
                       "idempotency_key,created_at) VALUES(?,?,?,?,?,?,?,?,?)",
                       (gid, 1, "created", "host", msg, _j({"intent_id": intent_id}), p.by, "created", now))
@@ -1136,15 +1136,15 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             if agent_key is not None:
                 if self._goal_agent(c, goal_id) != agent_key:
-                    raise ScopeError("mục tiêu không thuộc trợ lý này")
+                    raise ScopeError("the goal does not belong to this assistant")
                 why = self._agent_block(c, p.brain_id, agent_key, agent_version)
                 if why:
                     raise AgentStateError(why)
             if int(row["revision"]) != int(expected_revision):
-                raise ConflictError(f"mục tiêu đang ở revision {row['revision']}, không phải {expected_revision}")
+                raise ConflictError(f"the goal is at revision {row['revision']}, not {expected_revision}")
             user_cons = json.loads(row["user_constraints_json"] or "[]")
             if intent is not None:
                 # Ghi ý định trong CÙNG transaction: revision bị từ chối thì ý định cũng không còn.
@@ -1156,7 +1156,7 @@ class GoalStore:
                         user_cons.append(x)
             missing = [x for x in user_cons if x not in (frame.get("constraints") or [])]
             if missing:
-                raise R.GoalRejected(f"không được bỏ ràng buộc người dùng đã nêu: {missing}")
+                raise R.GoalRejected(f"must not drop a constraint the user stated: {missing}")
             prev = c.execute("SELECT * FROM goal_revisions WHERE goal_id=? AND revision=?",
                              (goal_id, row["revision"])).fetchone()
             old_fr = json.loads(prev["frame_json"]) if prev else {}
@@ -1196,11 +1196,11 @@ class GoalStore:
     def set_paused(self, p: Principal, goal_id: str, paused: bool) -> None:
         """Chỉ người dùng (owner) đổi pause. Agent không tự bỏ pause của người dùng."""
         if p.kind != "owner":
-            raise PermissionError("chỉ người dùng mới tạm dừng hoặc tiếp tục mục tiêu")
+            raise PermissionError("only the user can pause or resume a goal")
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             c.execute("UPDATE goals SET paused=?, updated_at=? WHERE id=?", (1 if paused else 0, time.time(), goal_id))
             cur = c.execute("INSERT INTO goal_events(goal_id,kind,source,payload_json,by,created_at) VALUES(?,?,?,?,?,?)",
                             (goal_id, "paused" if paused else "resumed", "owner", "{}", p.by, time.time()))
@@ -1214,7 +1214,7 @@ class GoalStore:
     def add_calls_used(self, p: Principal, goal_id: str, n: int) -> None:
         with self._Tx(self) as c:
             if self._goal_row(c, p, goal_id) is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             c.execute("UPDATE goals SET calls_used=calls_used+?, updated_at=? WHERE id=?",
                       (max(0, int(n)), time.time(), goal_id))
 
@@ -1224,7 +1224,7 @@ class GoalStore:
                      revision: Optional[int] = None, source: str = "host", message_ref: str = "") -> int:
         with self._Tx(self) as c:
             if self._goal_row(c, p, goal_id) is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             if idempotency_key:
                 old = c.execute("SELECT id FROM goal_events WHERE goal_id=? AND idempotency_key=?",
                                 (goal_id, idempotency_key)).fetchone()
@@ -1365,7 +1365,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             if row["status"] != "active":
                 return False
             return self._reason_event(c, goal_id, p.brain_id, code, ref,
@@ -1411,7 +1411,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             if expect_revision is not None and (int(row["revision"]) != int(expect_revision)
                                                 or row["status"] != "active"):
                 return 0
@@ -1523,7 +1523,7 @@ class GoalStore:
             if a is None or a["status"] != "running" or a["kind"] not in ("work", "review"):
                 return False
             ok = self._refund_not_run(c, a, now, code,
-                                      detail or "lần thức bị huỷ trước khi gọi model; lượt được trả lại")
+                                      detail or "the wake was cancelled before calling the model; the turn was refunded")
             if ok and recheck_at is not None:
                 g = c.execute("SELECT * FROM goals WHERE id=?", (a["goal_id"],)).fetchone()
                 if g is not None and g["status"] == "active" and int(g["revision"]) == int(a["revision"]):
@@ -1733,7 +1733,7 @@ class GoalStore:
     def set_wake(self, p: Principal, goal_id: str, kind: str, due_at: float, reason: str = "") -> None:
         with self._Tx(self) as c:
             if self._goal_row(c, p, goal_id) is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             self._wake(c, goal_id, p.brain_id, kind, due_at, reason)
 
     def clear_wake(self, p: Principal, goal_id: str, kind: Optional[str] = None) -> None:
@@ -1834,7 +1834,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             if expect_revision is not None and (int(row["revision"]) != int(expect_revision)
                                                 or row["status"] != "active"):
                 return False
@@ -1878,7 +1878,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             it = intent or {}
             if "agent_key" not in it and self._goal_agent(c, goal_id):
                 # Mục tiêu đã thuộc một trợ lý thì MỌI hành động phải mang mã và version (review A1 tích hợp, P1-3):
@@ -1917,7 +1917,7 @@ class GoalStore:
                 # Mức tăng ròng 0: không giữ lượt mới nên không kiểm trần lại; lượt giữ đã tính trong calls_used.
                 hold = self._valid_hold(c, goal_id, int(revision))
                 if hold is None and it.get("require_hold"):
-                    raise ConflictError("lượt đã giữ cho lượt làm sản phẩm không còn dùng được")
+                    raise ConflictError("the turn reserved for the product turn can no longer be used")
             if kind in ("work", "review") and hold is None:
                 if not _under_ceiling(c, 1):
                     return None
@@ -1957,7 +1957,7 @@ class GoalStore:
                 cur = c.execute("UPDATE call_holds SET status='attached', action_id=?, updated_at=? WHERE id=? AND "
                                 "status='held'", (aid, now, hold["id"]))
                 if cur.rowcount != 1:
-                    raise ConflictError("lượt đã giữ vừa bị dùng hay trả")
+                    raise ConflictError("the reserved turn was just used or returned")
             c.execute("INSERT INTO actions(id,goal_id,revision,kind,seq,status,lease_until,intent_json,receipt_json,"
                       "created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                       (aid, goal_id, int(revision), kind, seq, "running", float(lease_until), _j(stored), "{}",
@@ -2041,7 +2041,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             gkey = self._goal_agent(c, goal_id)
             if gkey or agent:
                 ag = agent or {}
@@ -2078,7 +2078,7 @@ class GoalStore:
             if lesson_id:
                 if not self._lesson_move(c, lesson_id, ("trial_pending",), "trialing", "trial_started", "host", now,
                                          experiment_id=eid):
-                    raise ConflictError("bài học không còn chờ thử")
+                    raise ConflictError("the lesson is no longer waiting for a trial")
                 c.execute("INSERT INTO call_holds(id,goal_id,revision,experiment_id,lesson_id,purpose,status,created_at,"
                           "updated_at) VALUES(?,?,?,?,?,?,?,?,?)", (_nid("hold"), goal_id, int(revision), eid, lesson_id,
                                                                   "method_followup", "held", now, now))
@@ -2132,7 +2132,7 @@ class GoalStore:
             r = c.execute("SELECT e.* FROM experiments e JOIN goals g ON g.id=e.goal_id WHERE e.id=? AND g.brain_id=?",
                           (experiment_id, p.brain_id)).fetchone()
             if r is None:
-                raise ScopeError("phép thử không tồn tại trong brain này")
+                raise ScopeError("the trial does not exist in this brain")
             if r["status"] != "running":
                 return {"finished": False, "verdict": r["verdict"], "reason": r["reason"], "applied": False}
             applied, detail = False, ""
@@ -2148,7 +2148,7 @@ class GoalStore:
                 elif ls is not None and not self._lesson_move(c, ls["id"], ("trialing",), "active", "trial_eligible",
                                                               "host", now):
                     now_status = c.execute("SELECT status FROM lessons WHERE id=?", (ls["id"],)).fetchone()[0]
-                    detail = f"bài học đã {now_status}"
+                    detail = f"the lesson is already {now_status}"
                     verdict, reason = "inconclusive", "lesson_dismissed"
                 else:
                     self._set_method(c, p, row, r["baseline_ref"], r["candidate_ref"], int(r["revision"]),
@@ -2212,31 +2212,31 @@ class GoalStore:
         không đọc cờ quan sát cũ: còn active, đúng revision, không tạm dừng, không có chốt guard, phản hồi cách hiểu
         MỚI NHẤT của revision không phải "Chưa đúng ý", và cách làm hiện tại vẫn là baseline."""
         if row is None or row["status"] != "active":
-            return "stopped", "mục tiêu không còn active"
+            return "stopped", "the goal is no longer active"
         if int(row["revision"]) != int(revision):
-            return "goal_reframed", "mục tiêu đã sang revision khác"
+            return "goal_reframed", "the goal moved to another revision"
         if row["paused"]:
-            return "stopped", "người dùng đang tạm dừng mục tiêu"
+            return "stopped", "the user has paused the goal"
         gkey = self._goal_agent(c, row["id"])
         pin = c.execute("SELECT * FROM experiment_agents WHERE experiment_id=?",
                         (str(experiment_id or ""),)).fetchone() if experiment_id else None
         if gkey and (pin is None or pin["agent_key"] != gkey):
             # Phép thử không ghim quyền (hay ghim mã khác) thì không được áp dụng cho mục tiêu của trợ lý.
-            return "stopped", "phép thử không mang quyền của trợ lý sở hữu"
+            return "stopped", "the trial does not carry the permissions of the owning assistant"
         ablock = self._agent_block(c, row["brain_id"], gkey, pin["agent_config_version"] if pin else None)
         if ablock:
             # A1: agent sở hữu phải còn active, bật và CÙNG version lúc bắt đầu phép thử, NGAY trong giao dịch đổi cách
             # làm. Tắt rồi bật giữa phép thử là version mới: kết quả theo quyền cũ không được áp dụng.
-            return "stopped", f"trợ lý của mục tiêu chưa cho phép ({ablock})"
+            return "stopped", f"the goal's assistant is not allowed yet ({ablock})"
         if row["block_reason"] in self._METHOD_LATCHES:
-            return "stopped", f"mục tiêu đang bị chặn: {row['block_reason']}"
+            return "stopped", f"the goal is blocked: {row['block_reason']}"
         fit = c.execute("SELECT kind FROM goal_events WHERE goal_id=? AND revision=? AND kind IN "
                         "('feedback.goal_fit_confirmed','feedback.goal_fit_rejected') ORDER BY id DESC LIMIT 1",
                         (row["id"], int(revision))).fetchone()
         if fit is not None and fit["kind"] == "feedback.goal_fit_rejected":
-            return "stopped", "người dùng nói cách hiểu chưa đúng"
+            return "stopped", "the user said the understanding is wrong"
         if R.effective_method(self._record(c, row)) != baseline_ref:
-            return "stopped", "cách làm hiện tại không còn là baseline của phép thử"
+            return "stopped", "the current method is no longer the baseline of the trial"
         return None
 
     def _set_method(self, c, p: Principal, row, from_ref: str, to_ref: str, revision: int, experiment_id: str,
@@ -2278,7 +2278,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             # A1: áp dụng cách làm là tác động lên mục tiêu: agent sở hữu phải còn active và bật, kiểm trong giao dịch này.
             why = self._agent_block(c, p.brain_id, self._goal_agent(c, goal_id))
             if why:
@@ -2287,7 +2287,7 @@ class GoalStore:
             if (e is None or e["verdict"] != "eligible" or e["status"] != "finished" or e["applied"]
                     or int(e["revision"]) != int(expected_revision) or e["baseline_ref"] != from_ref
                     or e["candidate_ref"] != to_ref):
-                raise R.GoalRejected("không có phép thử eligible khớp để đổi cách làm")
+                raise R.GoalRejected("no matching eligible trial to change the method")
             why = self._method_change_blocked(c, row, int(expected_revision), from_ref, experiment_id)
             if why:
                 raise ConflictError(why[1])
@@ -2299,15 +2299,15 @@ class GoalStore:
         revision hiện tại cho nó, review M5, P1-3): nếu phạm vi đó không phải revision hiện tại thì cách làm có hiệu
         lực là mặc định. Trả cách làm có hiệu lực sau khi quay lại."""
         if p.kind != "owner":
-            raise PermissionError("chỉ người dùng mới quay lại cách làm cũ")
+            raise PermissionError("only the user can go back to the old method")
         now = time.time()
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             prev = row["method_prev_ref"] or ""
             if not prev:
-                raise R.GoalRejected("mục tiêu chưa đổi cách làm nào để quay lại")
+                raise R.GoalRejected("the goal has not changed method yet, so there is nothing to go back to")
             c.execute("UPDATE goals SET method_ref=?, method_prev_ref='', method_revision=?, method_prev_revision=0, "
                       "updated_at=? WHERE id=?", (prev, int(row["method_prev_revision"] or 0), now, goal_id))
             c.execute("INSERT INTO goal_events(goal_id,revision,kind,source,payload_json,by,created_at) "
@@ -2365,7 +2365,7 @@ class GoalStore:
             if a["status"] != "running":
                 return False
             if a["kind"] == "review":
-                return self._refund_not_run(c, a, now, code, "engine không dựng được; lượt review được trả lại")
+                return self._refund_not_run(c, a, now, code, "the engine could not be built; the review turn was refunded")
             it = json.loads(a["intent_json"] or "{}")
             if it.get("refunded"):
                 return False
@@ -2382,7 +2382,7 @@ class GoalStore:
             r = c.execute("SELECT a.id, a.status, a.receipt_json FROM actions a JOIN goals g ON g.id=a.goal_id "
                           "WHERE a.id=? AND g.brain_id=?", (action_id, p.brain_id)).fetchone()
             if r is None:
-                raise ScopeError("hành động không tồn tại trong brain này")
+                raise ScopeError("the action does not exist in this brain")
             if r["status"] == "cancelled" and json.loads(r["receipt_json"] or "{}").get("error_code") == "not_run":
                 # A5: lượt đã hoàn vì host chắc chắn engine chưa chạy là trạng thái cuối; kết sổ muộn không ghi đè nó.
                 return
@@ -2454,7 +2454,7 @@ class GoalStore:
                       kind: str, content_hash: str = "") -> None:
         with self._Tx(self) as c:
             if self._goal_row(c, p, goal_id) is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             c.execute("INSERT OR IGNORE INTO evidence_links VALUES(?,?,?,?,?,?,?)",
                       (goal_id, int(revision), str(action_id or ""), evidence_id, kind, str(content_hash or ""),
                        time.time()))
@@ -2472,7 +2472,7 @@ class GoalStore:
     def add_assessment(self, p: Principal, a: dict) -> int:
         with self._Tx(self) as c:
             if self._goal_row(c, p, a["goal_id"]) is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             cur = c.execute("INSERT INTO assessments(goal_id,revision,verdict,payload_json,created_at) VALUES(?,?,?,?,?)",
                             (a["goal_id"], int(a["revision"]), a["verdict"], _j(a), time.time()))
             return int(cur.lastrowid)
@@ -2534,7 +2534,7 @@ class GoalStore:
         chuyển cho việc nền, NGAY trong giao dịch này, để bàn giao đến muộn không được nhận nữa."""
         with self._Tx(self) as c:
             if self._goal_row(c, p, goal_id) is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             r = c.execute("SELECT * FROM handoffs WHERE goal_id=? AND revision=?", (goal_id, int(revision))).fetchone()
             if r is None or r["status"] != "pending":
                 return "clear"
@@ -2561,7 +2561,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             h = c.execute("SELECT * FROM handoffs WHERE goal_id=? AND revision=?", (goal_id, int(revision))).fetchone()
             if h is None or h["message_ref"] != str(message_ref):
                 return "no_handoff"
@@ -2645,15 +2645,15 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             if int(row["revision"]) != int(expected_revision):
-                raise ConflictError(f"mục tiêu đang ở revision {row['revision']}, không phải {expected_revision}")
+                raise ConflictError(f"the goal is at revision {row['revision']}, not {expected_revision}")
             if self._goal_agent(c, goal_id):
-                raise ConflictError("mục tiêu đã thuộc một trợ lý; A1 chưa hỗ trợ chuyển giữa hai trợ lý")
+                raise ConflictError("the goal already belongs to an assistant; A1 does not support moving between two assistants")
             a = c.execute("SELECT * FROM resonance_agents WHERE agent_key=? AND brain_id=?",
                           (str(agent_key or ""), p.brain_id)).fetchone()
             if a is None or a["status"] != "active":
-                raise AgentStateError("chỉ gán cho trợ lý đang hoạt động trong brain này")
+                raise AgentStateError("can only assign to an active assistant in this brain")
             c.execute("INSERT INTO goal_agents(goal_id,brain_id,agent_key,by,created_at) VALUES(?,?,?,?,?)",
                       (goal_id, p.brain_id, a["agent_key"], p.by, now))
             # A5 (D11): mục tiêu cũ gán qua đây KHÔNG có đội (có thể đã tiêu lượt; gắn đội lúc này buộc chia lại lượt đã
@@ -2716,7 +2716,7 @@ class GoalStore:
     def set_published(self, p: Principal, goal_id: str, path: str, sha256: str, action_id: str) -> None:
         with self._Tx(self) as c:
             if self._goal_row(c, p, goal_id) is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             c.execute("INSERT INTO published VALUES(?,?,?,?,?) ON CONFLICT(goal_id,path) DO UPDATE SET "
                       "sha256=excluded.sha256, action_id=excluded.action_id, created_at=excluded.created_at",
                       (goal_id, path, sha256, action_id, time.time()))
@@ -2730,7 +2730,7 @@ class GoalStore:
         trong giao dịch kết thúc): đúng revision, kết luận không lỗi thời, đúng mã và version HIỆN TẠI của reviewer, đúng
         bản đang là mốc đăng. Thiếu thì ConflictError `review_required`, không ghi gì."""
         if status not in ("succeeded", "failed"):
-            raise ValueError("status kết thúc phải là succeeded hoặc failed")
+            raise ValueError("the final status must be succeeded or failed")
         now = time.time()
         closed = False
         with self._Tx(self) as c:
@@ -2784,7 +2784,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             c.execute("INSERT OR IGNORE INTO outbox(goal_id,kind,payload_json,created_at,idem) VALUES(?,?,?,?,?)",
                       (goal_id, kind, _j({"revision": row["revision"], **(payload or {})}), time.time(), idem))
 
@@ -2798,23 +2798,23 @@ class GoalStore:
         revision (CAS): thẻ cũ không xác nhận được revision mới. Cùng khoá chống trùng thì không ghi lần hai.
         Hệ quả ghi CÙNG giao dịch: "Chưa đúng ý" dừng tác động tới khi có revision mới; phản hồi khác hẹn đánh giá lại."""
         if p.kind != "owner":
-            raise PermissionError("chỉ người dùng mới xác nhận được")
+            raise PermissionError("only the user can confirm")
         if kind not in self.FEEDBACK_KINDS:
-            raise R.GoalRejected(f"loại phản hồi không hỗ trợ: {kind}")
+            raise R.GoalRejected(f"unsupported feedback kind: {kind}")
         now = time.time()
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             if idempotency_key:
                 old = c.execute("SELECT id FROM goal_events WHERE goal_id=? AND idempotency_key=?",
                                 (goal_id, f"fb:{idempotency_key}")).fetchone()
                 if old is not None:
                     return {"event_id": int(old["id"]), "duplicate": True}
             if row["status"] != "active":
-                raise R.GoalRejected(f"mục tiêu đã {row['status']}")
+                raise R.GoalRejected(f"the goal is already {row['status']}")
             if int(row["revision"]) != int(expected_revision):
-                raise ConflictError(f"mục tiêu đang ở revision {row['revision']}, không phải {expected_revision}")
+                raise ConflictError(f"the goal is at revision {row['revision']}, not {expected_revision}")
             cur = c.execute("INSERT INTO goal_events(goal_id,revision,kind,source,payload_json,by,idempotency_key,"
                             "created_at) VALUES(?,?,?,?,?,?,?,?)",
                             (goal_id, int(expected_revision), f"feedback.{kind}", "owner", _j(data or {}), p.by,
@@ -2857,12 +2857,12 @@ class GoalStore:
         """Người dùng huỷ mục tiêu. Luôn có hiệu lực (can thiệp của người dùng, spec 2.3); ghi revision người dùng
         đang nhìn. Tác động đã xảy ra không được mô tả là đã hoàn tác."""
         if p.kind != "owner":
-            raise PermissionError("chỉ người dùng mới huỷ được mục tiêu")
+            raise PermissionError("only the user can cancel a goal")
         now = time.time()
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             if row["status"] != "active":
                 return False
             c.execute("UPDATE goals SET status='cancelled', run_state='dormant', block_reason='', updated_at=? "
@@ -2878,7 +2878,7 @@ class GoalStore:
     def clear_block(self, p: Principal, goal_id: str, reason: str) -> bool:
         """Người dùng mở lại một chặn cụ thể (ví dụ guard sau khi đã sửa). Chỉ owner; chỉ khi đúng lý do đang chặn."""
         if p.kind != "owner":
-            raise PermissionError("chỉ người dùng mới mở lại được")
+            raise PermissionError("only the user can reopen it")
         now = time.time()
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
@@ -2905,18 +2905,18 @@ class GoalStore:
         Gắn revision (CAS), tạo revision mới ghi nguồn là người dùng, rồi hẹn làm tiếp theo cách hiểu mới. Bỏ guard
         đang chặn thì mở chặn đó; các chặn khác giữ nguyên."""
         if p.kind != "owner":
-            raise PermissionError("chỉ người dùng mới bỏ được chỉ dẫn của mình")
+            raise PermissionError("only the user can drop their own directive")
         if field not in self.DIRECTIVE_FIELDS:
-            raise R.GoalRejected(f"không bỏ được loại chỉ dẫn này: {field}")
+            raise R.GoalRejected(f"cannot drop this kind of directive: {field}")
         now = time.time()
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             if row["status"] != "active":
-                raise R.GoalRejected(f"mục tiêu đã {row['status']}")
+                raise R.GoalRejected(f"the goal is already {row['status']}")
             if int(row["revision"]) != int(expected_revision):
-                raise ConflictError(f"mục tiêu đang ở revision {row['revision']}, không phải {expected_revision}")
+                raise ConflictError(f"the goal is at revision {row['revision']}, not {expected_revision}")
             prev = c.execute("SELECT * FROM goal_revisions WHERE goal_id=? AND revision=?",
                              (goal_id, row["revision"])).fetchone()
             fr = json.loads(prev["frame_json"]) if prev else {}
@@ -2925,32 +2925,32 @@ class GoalStore:
             if field == "deadline":
                 h = dict(fr.get("horizon") or {})
                 if h.get("kind") != "deadline" or not h.get("from_user"):
-                    raise R.GoalRejected("mục tiêu không có hạn chót của người dùng để bỏ")
+                    raise R.GoalRejected("the goal has no user deadline to drop")
                 fr["horizon"] = {"kind": "review", "from_user": False, "quote": "", "at": h.get("at"),
-                                 "reason": "người dùng bỏ hạn chót"}
+                                 "reason": "the user dropped the deadline"}
             elif field == "target":
                 left = [t for t in (fr.get("targets") or []) if str(t.get("text")) != key]
                 if len(left) == len(fr.get("targets") or []):
-                    raise R.GoalRejected("không có chỉ tiêu này")
+                    raise R.GoalRejected("no such metric")
                 fr["targets"] = left
             elif field == "constraint":
                 if key not in (fr.get("constraints") or []) and key not in user_cons:
-                    raise R.GoalRejected("không có ràng buộc này")
+                    raise R.GoalRejected("no such constraint")
                 fr["constraints"] = [x for x in (fr.get("constraints") or []) if x != key]
                 user_cons = [x for x in user_cons if x != key]
             else:
                 cur_guards = list(fr.get("guards") or [])
                 hits = [g for g in cur_guards if str(g.get("id")) == key]
                 if not hits:
-                    raise R.GoalRejected("không có điều kiện bảo vệ này")
+                    raise R.GoalRejected("no such guard condition")
                 if len(hits) > 1:
                     # Dữ liệu cũ có id trùng: không đoán người dùng muốn bỏ mục nào, không xoá cả hai (review M4, P1-3).
-                    raise R.GoalRejected("có nhiều điều kiện bảo vệ cùng id; không bỏ để tránh xoá nhầm")
+                    raise R.GoalRejected("several guard conditions share this id; not dropping to avoid deleting the wrong one")
                 fr["guards"] = [g for g in cur_guards if g is not hits[0]]
                 fr["guard_seq"] = max(int(fr.get("guard_seq") or 0), max(R._guard_num(g.get("id")) for g in cur_guards))
             rev = int(row["revision"]) + 1
             c.execute("INSERT INTO goal_revisions VALUES(?,?,?,?,?,?,?)",
-                      (goal_id, rev, prev["intent_id"] if prev else "", _j(fr), f"người dùng bỏ {field}", p.by, now))
+                      (goal_id, rev, prev["intent_id"] if prev else "", _j(fr), f"the user dropped {field}", p.by, now))
             unblock = field == "guard" and row["block_reason"] in ("guard", "guard_unknown")
             self._close_goal_holds(c, goal_id, "reframed", now, revision=int(row["revision"]))
             c.execute("UPDATE goals SET revision=?, user_constraints_json=?, updated_at=?"
@@ -2958,7 +2958,7 @@ class GoalStore:
                       (rev, _j(user_cons), now, goal_id))
             c.execute("INSERT INTO goal_events(goal_id,revision,kind,source,payload_json,by,idempotency_key,created_at) "
                       "VALUES(?,?,?,?,?,?,?,?)",
-                      (goal_id, rev, "reframe", "owner", _j({"reason": f"người dùng bỏ {field}", "relation": "replace",
+                      (goal_id, rev, "reframe", "owner", _j({"reason": f"the user dropped {field}", "relation": "replace",
                                                             "field": field, "key": key}), p.by, f"reframe:{rev}", now))
             c.execute("INSERT INTO outbox(goal_id,kind,payload_json,created_at) VALUES(?,?,?,?)",
                       (goal_id, "goal.revised", _j({"revision": rev}), now))
@@ -3337,21 +3337,21 @@ class GoalStore:
         `src` do host dựng từ biên nhận báo cáo: session_id, message_id, report_key, goal_id, revision, notice_kind,
         presentation, content_sha. `alive(session_id, message_id, content_sha)` cho biết tin còn nguyên không."""
         if p.kind != "owner":
-            raise PermissionError("chỉ người dùng mới phản hồi được")
+            raise PermissionError("only the user can give feedback")
         value = str(value or "")
         reason = str(reason or "") if value == "down" else ""
         if value not in L.REACTION_VALUES:
-            raise R.GoalRejected(f"giá trị phản hồi không hỗ trợ: {value}")
+            raise R.GoalRejected(f"unsupported feedback value: {value}")
         if reason and reason not in L.REACTION_REASONS:
-            raise R.GoalRejected(f"lý do không hỗ trợ: {reason}")
+            raise R.GoalRejected(f"unsupported reason: {reason}")
         nonce = str(nonce or "").strip()[:120]
         if not nonce:
-            raise R.GoalRejected("thiếu nonce của lần bấm")
+            raise R.GoalRejected("missing nonce for this click")
         now = time.time() if now is None else float(now)
         with self._Tx(self) as c:
             row = self._goal_row(c, p, src["goal_id"])
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             gkey = self._goal_agent(c, row["id"])
             ag = c.execute("SELECT * FROM resonance_agents WHERE agent_key=? AND brain_id=?",
                            (gkey, p.brain_id)).fetchone() if gkey else None
@@ -3436,12 +3436,12 @@ class GoalStore:
           diện đổi sang Thu hồi.
         - revoke (`active`): làn P về mặc định; làn M quay lại cách cũ và trả lượt giữ, cùng giao dịch."""
         if p.kind != "owner":
-            raise PermissionError("chỉ người dùng mới quyết bài học")
+            raise PermissionError("only the user can decide on a lesson")
         now = time.time() if now is None else float(now)
         with self._Tx(self) as c:
             ls = c.execute("SELECT * FROM lessons WHERE id=? AND brain_id=?", (lesson_id, p.brain_id)).fetchone()
             if ls is None:
-                raise ScopeError("bài học không tồn tại trong brain này")
+                raise ScopeError("the lesson does not exist in this brain")
 
             def conflict(code: str) -> dict:
                 cur = c.execute("SELECT * FROM lessons WHERE id=?", (lesson_id,)).fetchone()
@@ -3449,7 +3449,7 @@ class GoalStore:
 
             if action == "apply":
                 if ls["lane"] != "presentation":
-                    raise R.GoalRejected("chỉ đề xuất trình bày mới áp dụng tay; cách làm chỉ áp dụng qua phép thử")
+                    raise R.GoalRejected("only presentation proposals can be applied by hand; methods can only be applied through a trial")
                 if ls["status"] != "proposed" or (expected_status and expected_status != ls["status"]):
                     return conflict("status")
                 if expected_updated_at is not None and abs(float(expected_updated_at) - float(ls["updated_at"])) > 1e-6:
@@ -3495,7 +3495,7 @@ class GoalStore:
                 self._lesson_move(c, lesson_id, ("active",), "revoked", "owner_revoke", p.by, now, decided_by=p.by,
                                   decided_at=now)
             else:
-                raise R.GoalRejected(f"hành động không hỗ trợ: {action}")
+                raise R.GoalRejected(f"unsupported action: {action}")
             cur = c.execute("SELECT * FROM lessons WHERE id=?", (lesson_id,)).fetchone()
             return {"ok": True, "lesson": self._lesson(cur)}
 
@@ -3689,7 +3689,7 @@ class GoalStore:
                   "reason,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                   (rid, goal_id, int(revision), "expand" if root is not None else "create", key, agent,
                    self._agent_version(c, agent), str(origin_ref or ""),
-                   "đích khác phạm vi đã cho" if root is not None else "đích chưa được cho phép", "pending", now))
+                   "target differs from the scope given" if root is not None else "target not allowed yet", "pending", now))
         return {"scope": "pending", "request_id": rid}
 
     def _retire_old_revision(self, c, goal_id: str, new_revision: int, now: float) -> None:
@@ -3836,7 +3836,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             st = self._scope_state(c, row)
             if st["state"] != "missing":
                 return st
@@ -3849,7 +3849,7 @@ class GoalStore:
             c.execute("INSERT INTO scope_requests(id,goal_id,revision,kind,path,agent_key,agent_config_version,"
                       "origin_ref,reason,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                       (rid, goal_id, int(row["revision"]), "expand" if st["root"] else "create", st["key"], agent,
-                       self._agent_version(c, agent), "", "revision chưa có quyền", "pending", now))
+                       self._agent_version(c, agent), "", "revision has no permission yet", "pending", now))
             return self._scope_state(c, row)
 
     def binding_block(self, p: Principal, origin_kind: str, origin_ref: str, finishing: bool = False) -> str:
@@ -4159,7 +4159,7 @@ class GoalStore:
         a = c.execute("SELECT a.* FROM actions a JOIN goals g ON g.id=a.goal_id WHERE a.id=? AND g.brain_id=?",
                       (str(action_id), p.brain_id)).fetchone()
         if a is None:
-            raise ScopeError("hành động không tồn tại trong brain này")
+            raise ScopeError("the action does not exist in this brain")
         it = json.loads(a["intent_json"] or "{}")
         s = c.execute("SELECT * FROM submissions WHERE id=?", (str(it.get("submission_id") or ""),)).fetchone()
         return a, it, s
@@ -4492,27 +4492,27 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             req = c.execute("SELECT * FROM scope_requests WHERE id=? AND goal_id=?", (str(request_id), goal_id)).fetchone()
             stale = None
             if req is None or req["status"] != "pending" or row["status"] != "active":
-                stale = "yêu cầu không còn chờ"
+                stale = "the request is no longer pending"
             elif int(req["revision"]) != int(row["revision"]):
-                stale = "mục tiêu đã sang revision khác"
+                stale = "the goal moved to another revision"
             elif G.path_key(row["brain_id"], path) != req["path"]:
-                stale = "đường không khớp yêu cầu"
+                stale = "the path does not match the request"
             elif self._goal_agent(c, goal_id) != req["agent_key"] or self._agent_block(
                     c, row["brain_id"], req["agent_key"], req["agent_config_version"]):
-                stale = "trợ lý đã đổi"
+                stale = "the assistant changed"
             drafts = [] if stale else c.execute(
                 "SELECT s.* FROM submissions s JOIN bindings b ON b.id=s.binding_id WHERE b.scope_request_id=? AND "
                 "s.status='awaiting_scope' ORDER BY s.created_at DESC, s.rowid DESC", (req["id"],)).fetchall()
             latest = drafts[0] if drafts else None
             if not stale and submission_id and (latest is None or latest["id"] != submission_id
                                                 or latest["sha256"] != str(sha256 or "")):
-                stale = "bản nháp đã đổi"
+                stale = "the draft changed"
             elif not stale and not submission_id and latest is not None:
-                stale = "đã có bản nháp mới"
+                stale = "there is already a newer draft"
             if stale:
                 raise ConflictError(f"scope_request_stale: {stale}")
             seq = self._seq_bump(c)
@@ -4570,10 +4570,10 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             req = c.execute("SELECT * FROM scope_requests WHERE id=? AND goal_id=?", (str(request_id), goal_id)).fetchone()
             if req is None or req["status"] != "pending" or int(req["revision"]) != int(row["revision"]):
-                raise ConflictError("scope_request_stale: yêu cầu không còn chờ")
+                raise ConflictError("scope_request_stale: the request is no longer pending")
             c.execute("UPDATE scope_requests SET status='denied', decided_by=?, decided_at=? WHERE id=?",
                       (p.by, now, req["id"]))
             for d in c.execute("SELECT s.id FROM submissions s JOIN bindings b ON b.id=s.binding_id WHERE "
@@ -4598,9 +4598,9 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             if expected_revision is not None and int(row["revision"]) != int(expected_revision):
-                raise ConflictError(f"mục tiêu đang ở revision {row['revision']}, không phải {expected_revision}")
+                raise ConflictError(f"the goal is at revision {row['revision']}, not {expected_revision}")
             root = self._active_root(c, goal_id)
             if root is None:
                 return {"ok": False, "reason": "no_scope"}
@@ -4642,7 +4642,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             st = self._scope_state(c, row)
             if st["state"] != "revoked":
                 return {"ok": False, "state": st["state"]}
@@ -4750,7 +4750,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             cur = c.execute("UPDATE goal_team SET status='detached', detached_at=?, detached_by=? WHERE goal_id=? AND "
                             "status='active'", (now, p.by, goal_id))
             if cur.rowcount != 1:
@@ -4780,7 +4780,7 @@ class GoalStore:
         with self._Tx(self) as c:
             row = self._goal_row(c, p, goal_id)
             if row is None:
-                raise ScopeError("mục tiêu không tồn tại trong brain này")
+                raise ScopeError("the goal does not exist in this brain")
             team = self._team_row(c, goal_id)
             if row["status"] != "active" or team is None or team["status"] != "active":
                 raise ConflictError("team_inactive")
@@ -4929,7 +4929,7 @@ class GoalStore:
                           (action_id, p.brain_id)).fetchone()
             r = c.execute("SELECT * FROM reviews WHERE action_id=?", (action_id,)).fetchone()
             if a is None or r is None:
-                raise ScopeError("lượt review không tồn tại trong brain này")
+                raise ScopeError("the review turn does not exist in this brain")
             if r["status"] != "running":
                 return {"recorded": False, "status": r["status"], "review_id": r["id"]}
             g = c.execute("SELECT * FROM goals WHERE id=?", (r["goal_id"],)).fetchone()
@@ -5050,7 +5050,7 @@ class GoalStore:
                             "AND status='running'",
                             (_j({"action_id": action_id, "status": "failed", "reconciled": code == "interrupted",
                                  "error_code": code,
-                                 "error_detail": "lượt review dừng giữa chừng; engine có thể đã chạy nên lượt vẫn tính"}),
+                                 "error_detail": "the review turn stopped midway; the engine may have run, so the turn still counts"}),
                              now, action_id))
             if cur.rowcount != 1:
                 return {"ok": False}

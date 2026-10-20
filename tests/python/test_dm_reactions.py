@@ -191,7 +191,7 @@ post(S_MINH, am, {"value": "angry", "comment": "MINH_ONLY_FEEDBACK", "nonce": "m
 p_lan = main._agent_turn_system_prompt(str(BR), "lan", S_LAN)
 p_minh = main._agent_turn_system_prompt(str(BR), "minh", S_MINH)
 check("lượt agent:lan kế tiếp có khối phản hồi của chủ (emoji, lý do, góp ý, đoạn trích, câu dặn)",
-      "Phản hồi gần đây của chủ" in p_lan and "😢 (sad)" in p_lan and "Sai dữ kiện" in p_lan and "Sai số liệu" in p_lan
+      "Recent feedback from the owner" in p_lan and "😢 (sad)" in p_lan and "Sai dữ kiện" in p_lan and "Sai số liệu" in p_lan
       and "Bản thứ hai của Lan" in p_lan and "đừng coi là chấm điểm" in p_lan, p_lan[-900:])
 check("khối phản hồi của trợ lý khác không lọt vào lượt của Lan", "MINH_ONLY_FEEDBACK" not in p_lan)
 check("lượt agent:minh chỉ thấy phản hồi của Minh", "MINH_ONLY_FEEDBACK" in p_minh and "Sai số liệu" not in p_minh)

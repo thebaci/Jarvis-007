@@ -87,21 +87,21 @@ def pick_connection(conns: List[dict], connection_id: str = "") -> Tuple[Optiona
     cid = str(connection_id or "").strip()
     if cid:
         hit = [c for c in conns if c["id"] == cid]
-        return (hit[0], "") if hit else (None, f"không có kết nối Zalo nào id '{cid}'.")
+        return (hit[0], "") if hit else (None, f"no Zalo connection has the id '{cid}'.")
     if len(conns) == 1:
         return conns[0], ""
     ds = "; ".join(f"{c['label']} (id={c['id']})" for c in conns)
-    return None, f"đang có {len(conns)} tài khoản Zalo, hãy nêu rõ connection_id. Danh sách: {ds}"
+    return None, f"there are {len(conns)} Zalo accounts, state the connection_id explicitly. List: {ds}"
 
 
 def check() -> Optional[str]:
     """Lý do CHƯA dùng được (người đọc hiểu và làm theo), hoặc None nếu ổn."""
     if not shutil.which("npx"):
-        return ("Máy chạy Javis chưa có Node.js 20+ (lệnh npx) nên chưa dùng được tính năng này. "
-                "Cài tại nodejs.org rồi thử lại.")
+        return ("The machine running Jarvis 007 does not have Node.js 20+ (the npx command) yet, so this feature cannot be used. "
+                "Install it from nodejs.org and try again.")
     if not connections():
-        return ("Chưa đấu tài khoản Zalo nào. Vào trang Kết nối, chọn 'Zalo Agent MCP', "
-                "quét QR bằng app Zalo rồi gọi lại tool này.")
+        return ("No Zalo account is connected. Go to the Connections page, choose 'Zalo Agent MCP', "
+                "scan the QR code with the Zalo app, then call this tool again.")
     return None
 
 
@@ -158,7 +158,7 @@ async def _install() -> bool:
             pkg.write_text('{"name": "javis-zalo-cli", "private": true}\n', encoding="utf-8")
         (root / _INSTALL_MARK).unlink(missing_ok=True)
     except OSError as e:
-        print(f"[zalo-cli] không tạo được thư mục cài: {e}", file=sys.stderr)
+        print(f"[zalo-cli] could not create the install folder: {e}", file=sys.stderr)
         return False
     argv = head + ["install", "--prefix", str(root), "--no-audit", "--no-fund", "--no-package-lock",
                    "--loglevel=error", CLI_PACKAGE]
@@ -176,13 +176,13 @@ async def _install() -> bool:
             await asyncio.wait_for(proc.wait(), 5)
         except Exception:
             pass
-        print(f"[zalo-cli] cài quá {INSTALL_TIMEOUT} giây, bỏ", file=sys.stderr)
+        print(f"[zalo-cli] install took longer than {INSTALL_TIMEOUT} seconds, giving up", file=sys.stderr)
         return False
     if proc.returncode != 0:
-        print("[zalo-cli] cài lỗi: " + _ANSI.sub("", (err or b"").decode("utf-8", "replace")).strip()[-300:], file=sys.stderr)
+        print("[zalo-cli] install failed: " + _ANSI.sub("", (err or b"").decode("utf-8", "replace")).strip()[-300:], file=sys.stderr)
         return False
     if not (root / "node_modules" / CLI_NAME / "src" / "index.js").is_file():
-        print("[zalo-cli] cài xong nhưng không thấy index.js", file=sys.stderr)
+        print("[zalo-cli] install finished but index.js was not found", file=sys.stderr)
         return False
     (root / _INSTALL_MARK).write_text(CLI_PACKAGE, encoding="utf-8")
     _drop_old_installs(root)
@@ -202,10 +202,10 @@ async def _install_guarded() -> None:
     try:
         ok = await _install()
     except Exception as e:      # noqa: BLE001 - cài ngầm hỏng không được làm hỏng lượt đang chạy
-        print(f"[zalo-cli] cài lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[zalo-cli] install failed: {type(e).__name__}: {e}", file=sys.stderr)
         ok = False
     if ok:
-        print("[zalo-cli] đã cài xong bản ghim, từ nay chạy thẳng bằng Node", file=sys.stderr)
+        print("[zalo-cli] the pinned version is installed, from now on it runs directly with Node", file=sys.stderr)
     else:
         _install_state["failed_at"] = time.time()
 
@@ -286,8 +286,8 @@ def unsafe_for_cmd(argv: List[str]) -> Optional[str]:
         return None
     for a in argv[3:]:
         if _CMD_UNSAFE.search(a):
-            return ("máy Windows này không có sẵn npx-cli.js nên nội dung có ký tự & | < > ^ % ! \" hoặc xuống dòng "
-                    "không gửi an toàn được. Bỏ các ký tự đó đi, hoặc cài lại Node.js 20+ bản chuẩn.")
+            return ("this Windows machine does not have npx-cli.js available, so content with the characters & | < > ^ % ! \" or a line break "
+                    "cannot be sent safely. Remove those characters, or reinstall the standard Node.js 20+.")
     return None
 
 
@@ -354,14 +354,14 @@ def interpret(rc: Optional[int], out: Optional[str], err: str) -> Tuple[bool, An
         return False, None, f"Zalo {err}"
     if rc != 0:
         tail = _ANSI.sub("", (err or out or "")).strip()[-400:]
-        return False, None, f"CLI Zalo thoát mã {rc}. {tail}"
+        return False, None, f"Zalo CLI exited with code {rc}. {tail}"
     data = parse_json(out)
     if data is None:
         clean = _ANSI.sub("", err or "")
         # Dòng "✗ ..." ở stderr (javis-zalo) hoặc stdout (bản 1.6.2 cũ, vd "✗ Not logged in" khi chưa có phiên): đọc cả hai.
         both = clean + "\n" + _ANSI.sub("", out or "")
         marks = [ln.strip().lstrip("✗").strip() for ln in both.splitlines() if "✗" in ln]
-        why = "; ".join(m for m in marks if m) or clean.strip()[-300:] or (out or "").strip()[-300:] or "không có phản hồi"
+        why = "; ".join(m for m in marks if m) or clean.strip()[-300:] or (out or "").strip()[-300:] or "no response"
         return False, None, why
     return True, data, ""
 
@@ -377,12 +377,12 @@ async def run_cli(conn: dict, command: List[str], positionals: Optional[List[str
     được (không phải traceback)."""
     home = str((conn or {}).get("home") or "")
     if not home:
-        return False, None, "kết nối Zalo này chưa có thư mục phiên"
+        return False, None, "this Zalo connection has no session folder yet"
     if direct_command() is None:
         start_install()
     argv = build_argv(command, positionals, options)
     if argv is None:
-        return False, None, "máy chưa có Node.js 20+ (lệnh npx)"
+        return False, None, "the machine does not have Node.js 20+ (the npx command)"
     why = unsafe_for_cmd(argv)
     if why:
         return False, None, why
@@ -424,10 +424,10 @@ async def send_files(conn_id: str, home: str, thread_id: str, files: List[Path],
     try:
         import zalo_personal_channel
     except Exception as e:      # noqa: BLE001
-        return False, None, f"không nạp được kênh Zalo ({type(e).__name__})"
+        return False, None, f"could not load the Zalo channel ({type(e).__name__})"
     conn = zalo_personal_channel.ket_noi_theo_id(conn_id)
     if not conn:
-        return False, None, f"kết nối Zalo '{conn_id}' không còn bật"
+        return False, None, f"the Zalo connection '{conn_id}' is no longer enabled"
     box = outbox_dir(home) / uuid.uuid4().hex
     try:
         try:
@@ -442,7 +442,7 @@ async def send_files(conn_id: str, home: str, thread_id: str, files: List[Path],
                 shutil.copyfile(f, dst)
                 copied.append(str(dst))
         except OSError as e:
-            return False, None, f"không chép được file vào hộp gửi Zalo ({e})"
+            return False, None, f"could not copy the file into the Zalo outbox ({e})"
         args = {"threadId": str(thread_id), "threadType": int(thread_type), "paths": copied, "caption": caption or ""}
         try:
             data = await zalo_personal_channel._goi(conn, SEND_FILE_TOOL, args)
@@ -451,11 +451,11 @@ async def send_files(conn_id: str, home: str, thread_id: str, files: List[Path],
         except Exception as e:      # noqa: BLE001 - lỗi nào cũng phải thành câu người đọc hiểu
             why = re.sub(r"^\s*Error:\s*", "", str(e)).strip() or type(e).__name__
             if _old_mcp(why):
-                return False, None, ("kết nối Zalo đang chạy bản javis-zalo cũ chưa có tool gửi file. Cập nhật Javis rồi "
-                                     "tắt-bật lại kết nối Zalo ở trang Kết nối (không phải quét QR lại).")
+                return False, None, ("the Zalo connection is running an old javis-zalo without the send-file tool. Update Jarvis 007, then "
+                                     "turn the Zalo connection off and on again on the Connections page (no need to scan the QR code again).")
             return False, None, why
         if not isinstance(data, dict) or not data.get("success"):
-            return False, None, f"MCP Zalo trả kết quả lạ: {json.dumps(data, ensure_ascii=False)[:200]}"
+            return False, None, f"The Zalo MCP returned an unexpected result: {json.dumps(data, ensure_ascii=False)[:200]}"
         return True, data, ""
     finally:
         shutil.rmtree(box, ignore_errors=True)

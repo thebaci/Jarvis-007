@@ -35,8 +35,8 @@ FEEDBACK_LIMIT = 5
 FEEDBACK_DAYS = 30
 FEEDBACK_EXCERPT = 160
 # Câu dặn đi kèm khối phản hồi ở chat riêng (gửi model, không dịch). Cùng ý với FEEDBACK_NOTE của nhóm.
-DM_FEEDBACK_NOTE = ("Emoji là cảm xúc của chủ, có thể về sự việc được kể; đừng coi là chấm điểm hay mệnh lệnh. Chỉ điều "
-                    "chỉnh theo lý do chất lượng, trục nói/im và góp ý chữ. Chưa rõ thì giữ cách làm.")
+DM_FEEDBACK_NOTE = ("An emoji is the owner's feeling, possibly about the event being described; do not treat it as a grade or a command. Adjust "
+                    "only for quality reasons, the speak/stay-silent axis and written feedback. If unclear, keep your approach.")
 
 
 def _chu(vi: str, en: str) -> str:
@@ -640,13 +640,13 @@ def dm_feedback_lines(sessions: Any, agent_key: str, now: Optional[float] = None
             excerpt = excerpt[:FEEDBACK_EXCERPT] + "..."
         parts = [f'- [#{fb["message_id"]}] "{excerpt}"']
         if fb.get("value"):
-            parts.append(f"cảm xúc: {RV.REACTION_EMOJI.get(fb['value'], '')} ({fb['value']})")
+            parts.append(f"reaction: {RV.REACTION_EMOJI.get(fb['value'], '')} ({fb['value']})")
         if fb.get("reasons"):
-            parts.append("lý do: " + ", ".join(RV.REASON_LABEL.get(x, x) for x in fb["reasons"]))
+            parts.append("reasons: " + ", ".join(RV.REASON_LABEL.get(x, x) for x in fb["reasons"]))
         if fb.get("axis"):
-            parts.append("nói/im: " + RV.AXIS_LABEL.get(fb["axis"], fb["axis"]))
+            parts.append("speak/silent: " + RV.AXIS_LABEL.get(fb["axis"], fb["axis"]))
         if fb.get("comment"):
-            parts.append('góp ý: "' + re.sub(r"\s+", " ", fb["comment"]).strip() + '"')
+            parts.append('comment: "' + re.sub(r"\s+", " ", fb["comment"]).strip() + '"')
         out.append(" · ".join(parts))
     return out
 
@@ -655,5 +655,5 @@ def dm_feedback_block(sessions: Any, agent_key: str, now: Optional[float] = None
     lines = dm_feedback_lines(sessions, agent_key, now)
     if not lines:
         return ""
-    return ("\n\n## Phản hồi gần đây của chủ (về câu trả lời của bạn trong chat riêng)\n" + "\n".join(lines) + "\n"
+    return ("\n\n## Recent feedback from the owner (about your replies in the private chat)\n" + "\n".join(lines) + "\n"
             + DM_FEEDBACK_NOTE + "\n")

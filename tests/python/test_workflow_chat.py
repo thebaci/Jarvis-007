@@ -26,8 +26,8 @@ check("persona web/None/rong", wc.persona_cua_phien({"channel": "web"}) is None 
 # ghép đầu vào
 check("ghep khong co ket qua truoc", wc.ghep_dau_vao("viết về A", "") == "viết về A")
 g = wc.ghep_dau_vao("sửa đoạn 2", "x" * 9000)
-check("ghep co ket qua truoc, cat 8000", g.startswith("sửa đoạn 2\n\n# Kết quả lần trước\n") and g.endswith("x" * 8000)
-      and len(g) == len("sửa đoạn 2\n\n# Kết quả lần trước\n") + 8000)
+check("ghep co ket qua truoc, cat 8000", g.startswith("sửa đoạn 2\n\n# Previous result\n") and g.endswith("x" * 8000)
+      and len(g) == len("sửa đoạn 2\n\n# Previous result\n") + 8000)
 
 # tin
 check("tin_xong", wc.tin_xong(2, 3, 42, "bài") == "Lần chạy #2 · 3 bước · 42 giây\n\nbài")

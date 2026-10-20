@@ -112,7 +112,7 @@ check("và câu lỗi sạch mã màu ANSI", ESC not in err and "✗" not in err
 ok, data, err = Z.interpret(0, "", "")
 check("mã 0 mà không có gì cả cũng là thất bại, có lý do", ok is False and err != "")
 ok, data, err = Z.interpret(1, "", "Thread not found")
-check("mã khác 0 thì thất bại kèm nguyên nhân", ok is False and "Thread not found" in err and "mã 1" in err)
+check("mã khác 0 thì thất bại kèm nguyên nhân", ok is False and "Thread not found" in err and "code 1" in err)
 ok, data, err = Z.interpret(None, None, "quá 120 giây chưa xong")
 check("hết giờ thì nói hết giờ", ok is False and "120" in err)
 check("JSON kèm dòng trạng thái xung quanh vẫn đọc được", Z.parse_json('đang tải…\n{"a": [1, 2]}\nxong') == {"a": [1, 2]})
@@ -302,7 +302,7 @@ check("home_of lấy HOME rồi USERPROFILE, rỗng nếu không có",
       Z.home_of({"env": {"HOME": "/h/a"}}) == "/h/a" and Z.home_of({"env": {"USERPROFILE": "C:/u"}}) == "C:/u"
       and Z.home_of({"env": {}}) == "" and Z.home_of({}) == "" and Z.home_of(None) == "")
 ok, data, err = asyncio.run(Z.run_cli({"home": ""}, ["msg", "send"], ["T1", "hi"]))
-check("không có thư mục phiên thì từ chối chạy, có lý do", ok is False and "thư mục phiên" in err)
+check("không có thư mục phiên thì từ chối chạy, có lý do", ok is False and "session folder" in err)
 
 # ============================================================
 # 4b. Chọn kết nối: nhiều tài khoản thì hỏi lại
@@ -323,7 +323,7 @@ Z.connections = lambda: []
 Z.shutil = types.SimpleNamespace(which=lambda n: None)
 check("chưa có Node thì nói rõ", "nodejs.org" in (Z.check() or ""))
 Z.shutil = types.SimpleNamespace(which=lambda n: "/usr/bin/npx")
-check("có Node mà chưa đấu Zalo thì chỉ chỗ cần bấm", "trang Kết nối" in (Z.check() or ""))
+check("có Node mà chưa đấu Zalo thì chỉ chỗ cần bấm", "Connections page" in (Z.check() or ""))
 Z.connections = lambda: ONE
 check("đủ điều kiện thì None", Z.check() is None)
 

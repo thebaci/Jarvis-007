@@ -10249,10 +10249,10 @@ def _agent_chat_prompt(brain, slug) -> str:
     # tắt, hay không có lượt, thì prompt y như trước A1.
     if _resonance_turn_enabled(brain):
         sysprompt = (sysprompt.replace(_AGENT_HAI_LOI, _AGENT_BA_LOI)
-                     + "\n# Cộng hưởng (đang bật cho bạn)\n- " + _RESONANCE_GOAL_HINT + "\n")
-    return (sysprompt + "\n\n# Kênh: bạn đang trò chuyện trực tiếp với chủ trên dashboard Javis "
-            "(trang Cộng sự). Trả lời như đang nói chuyện, theo ngôn ngữ chủ đang dùng; "
-            "không cần báo cáo dạng nhiệm vụ trừ khi được giao việc cụ thể.")
+                     + "\n# Resonance (on for you)\n- " + _RESONANCE_GOAL_HINT + "\n")
+    return (sysprompt + "\n\n# Channel: you are chatting directly with the owner on the Jarvis 007 dashboard "
+            "(Associates page). Reply as in a conversation, in the language the owner is using; "
+            "no task-style report unless given a specific job.")
 
 
 def _dm_feedback_prompt(brain, slug, conv_sid) -> str:
@@ -10338,7 +10338,7 @@ def _ket_luot_agent(brain, slug, user_message, final_text, conv_sid="") -> str:
                 print(f"[dm lessons] {slug}: {type(_e).__name__}: {_e}", file=sys.stderr)
             memory_control.note_change(_brain_memory_dir(brain))   # 0.190.0: "em sẽ nhớ" is backed by a lesson
         else:
-            print(f"[dm lessons] {slug}: không tra được mã trợ lý, bỏ {len(lessons)} bài học", file=sys.stderr)
+            print(f"[dm lessons] {slug}: could not resolve the assistant code, dropped {len(lessons)} lessons", file=sys.stderr)
     _log(slug, user_message or "", sach or "")
     return sach
 
@@ -10418,7 +10418,7 @@ async def execute_workflow_graph(brain, slug, input="", tools=None, session_id="
                   if (v or {}).get("status") != "COMPLETED"}
         spec = {"type": "function", "function": {
             "name": "submit_extra_steps",
-            "description": "Đề xuất thêm bước để đạt mục tiêu. Chỉ dùng agent/capability đã cấp.",
+            "description": "Propose extra steps to reach the goal. Use only the agents/capabilities provided.",
             "parameters": {
                 "type": "object",
                 "properties": {"steps": {
@@ -10438,9 +10438,9 @@ async def execute_workflow_graph(brain, slug, input="", tools=None, session_id="
             }}}
         messages = [
             {"role": "system", "content":
-             "Bạn lập thêm bước cho một agent đang chạy dở. CHỈ dùng agent và capability "
-             "trong danh sách đã cấp. Không đủ căn cứ để làm thêm thì trả mảng rỗng - "
-             "đó là câu trả lời hợp lệ và tốt hơn việc bịa ra việc."},
+             "You plan extra steps for an agent that is partway through a run. Use ONLY the agents and capabilities "
+             "in the list provided. If there is not enough basis to do more, return an empty array - "
+             "that is a valid answer and better than inventing work."},
             {"role": "user", "content": json.dumps({
                 "objective": objective,
                 "granted_agents": agents, "granted_capabilities": caps,
@@ -10598,15 +10598,15 @@ async def _execute_workflow_raw(brain, slug, input="", tools=None, session_id=""
             v_name, v_body, v_model, v_prov = _agent_sysprompt(verify_slug)
             yield {"type": "step_verify", "i": i, "agent": v_name, "attempt": attempt}
             v_sys = (
-                v_body + "\n\nVAI TRÒ KIỂM CHỨNG: Bạn là người ĐÁNH GIÁ độc lập. "
-                "Mặc định GIẢ ĐỊNH kết quả dưới đây ĐANG SAI và phải tự chứng minh. "
-                "Kiểm tra thực tế (đọc file/chạy thử nếu cần), KHÔNG chỉ đọc lướt. "
-                'CHỈ trả JSON 1 dòng: {"pass":true|false,"reason":"ngắn gọn vì sao","fixes":"cần sửa gì nếu fail"}.'
+                v_body + "\n\nVERIFIER ROLE: You are an independent EVALUATOR. "
+                "By default ASSUME the result below is WRONG and must prove itself. "
+                "Check it for real (read files / run it if needed), do NOT just skim. "
+                'Return ONLY one line of JSON: {"pass":true|false,"reason":"brief why","fixes":"what to fix if it fails"}.'
             )
             v_prompt = (
-                f"NHIỆM VỤ GỐC:\n{task_f}\n\n"
-                f"KẾT QUẢ CẦN KIỂM CHỨNG:\n{out}\n\n"
-                "Đánh giá kết quả có ĐẠT nhiệm vụ không. Trả JSON như hướng dẫn."
+                f"ORIGINAL TASK:\n{task_f}\n\n"
+                f"RESULT TO VERIFY:\n{out}\n\n"
+                "Judge whether the result PASSES the task. Return JSON as instructed."
             )
             vcli = _mk(v_sys, v_model, v_prov)   # agent kiểm chứng cũng dùng model của nó
             v_out = ""
@@ -10618,7 +10618,7 @@ async def _execute_workflow_raw(brain, slug, input="", tools=None, session_id=""
                     v_err = ev.get("content") or v_err or "engine error"
             passed, reason, fixes = _workflow_verdict(v_out, v_err)
             yield {"type": "step_verify_result", "i": i, "passed": passed, "reason": reason, "attempt": attempt}
-            _log(verify_slug, f"[kiểm chứng bước của {agent_name}] {task_f}", v_out)
+            _log(verify_slug, f"[verification of {agent_name}'s step] {task_f}", v_out)
             verified = passed
             if passed or attempt >= max_retries:
                 break
@@ -10627,9 +10627,9 @@ async def _execute_workflow_raw(brain, slug, input="", tools=None, session_id=""
             # Evaluator-optimizer (cookbook Anthropic): lượt sau THẤY kết quả cũ + phản hồi
             # để CẢI THIỆN tiếp, không làm lại từ đầu (làm lại mù dễ lặp đúng lỗi cũ).
             cur_prompt = (
-                f"{task_f}\n\n# KẾT QUẢ LẦN TRƯỚC (bị kiểm chứng đánh giá CHƯA ĐẠT):\n{out[:8000]}\n\n"
-                f"# PHẢN HỒI KIỂM CHỨNG:\n- Vấn đề: {reason}\n- Cần sửa: {fixes}\n"
-                "CẢI THIỆN kết quả lần trước theo phản hồi: giữ phần đã tốt, sửa đúng chỗ bị chê. Làm cho ĐẠT."
+                f"{task_f}\n\n# PREVIOUS RESULT (judged NOT PASSED by the verifier):\n{out[:8000]}\n\n"
+                f"# VERIFIER FEEDBACK:\n- Problem: {reason}\n- To fix: {fixes}\n"
+                "IMPROVE the previous result per the feedback: keep what was good, fix exactly what was criticised. Make it PASS."
             )
 
         # Bước hỏng thì DỪNG CẢ LẦN CHẠY ở đây: không `step_done` (bước hỏng không phải bước
@@ -10706,7 +10706,7 @@ async def _ghi_lich_su(gen, *, brain, slug, name, input, source, session_id, run
     finally:
         if ket is None:
             try:
-                st.ket_thuc(rid, "error", error="dừng giữa chừng")
+                st.ket_thuc(rid, "error", error="stopped midway")
             except Exception:
                 pass
 
@@ -10906,14 +10906,14 @@ async def studio_seed(brain: str = Form("brain")):
     # Bộ mẫu ĐẶT SẴN nhóm "Nội dung": brain mới mở ra là thấy ngay cột nhóm có nghĩa, thay vì
     # ba agent nằm trong "Chung" khiến người dùng tưởng tính năng nhóm chưa chạy.
     examples = [
-        {"name": "Researcher", "role": "Chuyên nghiên cứu, tìm tư liệu và tổng hợp nguồn đáng tin cậy.",
-         "skills": ["deep-research"], "prompt": "Bạn tìm 5-7 nguồn chất lượng, trích dẫn rõ ràng, tổng hợp insight chính."},
-        {"name": "Writer", "role": "Chuyên viết bài chuẩn SEO và hấp dẫn từ tư liệu nghiên cứu.",
-         "skills": ["salepage-16-buoc"], "prompt": "Bạn viết bài có cấu trúc, hook mạnh, dùng tư liệu được cung cấp."},
-        {"name": "Kiểm chứng viên", "role": "Đánh giá độc lập - luôn giả định kết quả SAI và phải chứng minh.",
-         "skills": [], "prompt": "Bạn KHÔNG tạo nội dung, chỉ ĐÁNH GIÁ. Mặc định kết quả đang sai/thiếu. "
-                                 "Kiểm tra thực tế: có bám nhiệm vụ không, có bịa/thiếu dẫn chứng không, có lỗi rõ ràng không. "
-                                 "Khắt khe nhưng công bằng."},
+        {"name": "Researcher", "role": "Specializes in research, finding source material and synthesizing reliable sources.",
+         "skills": ["deep-research"], "prompt": "You find 5-7 quality sources, cite them clearly and synthesize the main insights."},
+        {"name": "Writer", "role": "Specializes in writing SEO-friendly, engaging articles from research material.",
+         "skills": ["salepage-16-buoc"], "prompt": "You write structured articles with a strong hook, using the material provided."},
+        {"name": "Kiểm chứng viên", "role": "Independent evaluation - always assume the result is WRONG and must be proven.",
+         "skills": [], "prompt": "You do NOT create content, you only EVALUATE. By default the result is wrong or incomplete. "
+                                 "Check for real: does it stick to the task, is anything invented or missing evidence, are there obvious errors. "
+                                 "Be strict but fair."},
     ]
     for ex in examples:
         slug = _ascii_slug(ex["name"])
@@ -10923,10 +10923,10 @@ async def studio_seed(brain: str = Form("brain")):
         _write_md(a / f"{slug}.md", meta, ex["prompt"])
     wf_meta = {"type": "workflow", "name": "Research → Write (có kiểm chứng)", "slug": "research-and-write",
                "status": "active", "group": "Nội dung",
-               "description": "Nghiên cứu → viết bài → kiểm chứng độc lập, tự sửa nếu chưa đạt.",
+               "description": "Research → write the article → independent verification, self-correct if it does not pass.",
                "steps": [
-                   {"agent": "researcher", "task": "Nghiên cứu kỹ chủ đề: {{input}}. Tìm nguồn, tổng hợp insight chính."},
-                   {"agent": "writer", "task": "Viết một bài hoàn chỉnh về '{{input}}' dựa trên nghiên cứu sau:\n{{prev}}",
+                   {"agent": "researcher", "task": "Research the topic thoroughly: {{input}}. Find sources and synthesize the main insights."},
+                   {"agent": "writer", "task": "Write a complete article about '{{input}}' based on the following research:\n{{prev}}",
                     "verify_agent": "kiem-chung-vien", "max_retries": 2},
                ], "updated": _today()}
     _write_md(_workflows_dir(brain) / "research-and-write.md", wf_meta, wf_meta["description"])
@@ -10976,12 +10976,12 @@ async def _tg_send_to(chat_id, text) -> tuple:
     token = tg.get("token")
     ids = tg_parse_ids(tg.get("chat_id"))
     if not (tg.get("enabled") and token):
-        return False, "Bot Telegram chưa bật"
+        return False, "Telegram bot is not enabled"
     cid = str(chat_id or "").strip()
     # 0.186.0: only the named chat. An empty or unlisted one used to fan out to every allowed id.
     targets = [cid] if (cid and (not ids or cid in ids)) else []
     if not targets:
-        return False, "Chưa có chat_id đích" if not cid else "Chat này không nằm trong danh sách được phép"
+        return False, "No target chat_id" if not cid else "This chat is not on the allowed list"
     import httpx
     ok_any, errs = False, []
     try:
@@ -11064,7 +11064,7 @@ async def push_to_chat(session_id, text, viec=None, card="", nho="") -> bool:
         else:
             mid = get_store().append_message(sid, "assistant", clean, report=report)
     except Exception as e:
-        print(f"[push_to_chat] lưu phiên lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[push_to_chat] saving the session failed: {type(e).__name__}: {e}", file=sys.stderr)
     try:
         # Mã tin và hash nội dung (0.168.0): bong bóng đẩy về (tin báo goal, kết quả việc nền) có ngay hàng sáu cảm xúc,
         # không phải đợi F5. Tin báo goal không còn hàng Hữu ích / Chưa ổn của A3 (quyết định của chủ).
@@ -11074,7 +11074,7 @@ async def push_to_chat(session_id, text, viec=None, card="", nho="") -> bool:
             ev["content_sha"] = sessions.content_sha(clean)
         await _CHAT_RUNTIME.publish(ev)
     except Exception as e:
-        print(f"[push_to_chat] bắn WebSocket lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[push_to_chat] WebSocket push failed: {type(e).__name__}: {e}", file=sys.stderr)
     return True
 
 
@@ -11118,11 +11118,11 @@ async def _bao_ve_khung_goc(goc_sid: str, brain, loai: str, slug: str, conv_sid:
     if not goc or not than or goc == conv_sid:
         return False
     if len(than) > TRAN_BAO_KHUNG_GOC:
-        than = than[:TRAN_BAO_KHUNG_GOC].rstrip() + "\n\n... (còn nữa, mở hội thoại bên trên để đọc đủ)"
-    nhan = "Trợ lý" if loai == "agent" else "Quy trình"
+        than = than[:TRAN_BAO_KHUNG_GOC].rstrip() + "\n\n... (more - open the conversation above to read it all)"
+    nhan = "Assistant" if loai == "agent" else "Workflow"
     ten = _ten_cong_su(brain, loai, slug)
     link = f"#cs={loai}:{slug}:{conv_sid}"
-    dau = f"**{nhan} {ten}** vừa chạy xong việc bạn giao từ đây. [Mở hội thoại]({link})"
+    dau = f"**{nhan} {ten}** has just finished the job you handed off from here. [Open conversation]({link})"
     return await push_to_chat(goc, dau + "\n\n" + than)
 
 
@@ -11132,12 +11132,12 @@ async def _zalo_send_to(chat_id, text) -> tuple:
     token = z.get("token")
     ids = tg_parse_ids(z.get("chat_id"))
     if not (z.get("enabled") and token):
-        return False, "Bot Zalo chưa bật"
+        return False, "Zalo bot is not enabled"
     cid = str(chat_id or "").strip()
     # 0.186.0: only the named chat. An empty or unlisted one used to fan out to every allowed id.
     targets = [cid] if (cid and (not ids or cid in ids)) else []
     if not targets:
-        return False, "Chưa có chat_id đích" if not cid else "Chat này không nằm trong danh sách được phép"
+        return False, "No target chat_id" if not cid else "This chat is not on the allowed list"
     import httpx
     ok_any, errs = False, []
     url = f"https://bot-api.zaloplatforms.com/bot{token}/sendMessage"
@@ -11225,12 +11225,12 @@ async def _bo_vao_hom_thu(owner_chat, text, *, kind="answer", label="", source="
                 if kenh.startswith("agent:") and _partner_muted(get_store().get_session(sid) or {}):
                     quiet = True
             except Exception as e:
-                print(f"[inbox] không đọc được kênh của phiên {sid[:8]}: "
+                print(f"[inbox] could not read the channel of session {sid[:8]}: "
                       f"{type(e).__name__}: {e}", file=sys.stderr)
         item = inbox.add(text, kind=kind, session_id=sid, source=source, label=label,
                          read=bool(quiet), channel=kenh, brain=brain, dedup=dedup, routing=routing)
     except Exception as e:
-        print(f"[inbox] bỏ thư lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[inbox] dropped a bad message: {type(e).__name__}: {e}", file=sys.stderr)
         return None
     if item.get("duplicate"):
         return item   # the same report was already filed: no second bell, no second push
@@ -11239,7 +11239,7 @@ async def _bo_vao_hom_thu(owner_chat, text, *, kind="answer", label="", source="
         # tải lại trang sau. Đi chung đường WebSocket sẵn có của khung chat.
         await _CHAT_RUNTIME.publish({"type": "inbox", "session_id": item["session_id"]})
     except Exception as e:
-        print(f"[inbox] bắn WebSocket lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[inbox] WebSocket push failed: {type(e).__name__}: {e}", file=sys.stderr)
     if quiet:
         # Tin lặng: đã vào hòm ở dạng ĐÃ ĐỌC nên chuông không nổi chấm đỏ, và cũng không
         # rung thông báo đẩy. Nội dung thì người dùng đã thấy rồi - nó vừa rơi thẳng vào
@@ -11264,7 +11264,7 @@ async def _bo_vao_hom_thu(owner_chat, text, *, kind="answer", label="", source="
         _PUSH_TASKS.add(t)
         t.add_done_callback(_PUSH_TASKS.discard)
     except Exception as e:
-        print(f"[webpush] đẩy lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[webpush] push failed: {type(e).__name__}: {e}", file=sys.stderr)
     return item
 
 
@@ -11373,7 +11373,7 @@ async def _notify_owner(owner_chat, text, *, kind="answer", label="", source="",
         return True, ""   # filed before: a retry must not post or ring a second time
     if route.get("routing"):
         # No chat and no source brain: kept in the bell for the owner, sent nowhere else (spec 6.4).
-        print(f"[notify] không rõ nơi nhận ({route['routing']}), chỉ giữ trong hòm thư: {str(text)[:80]!r}",
+        print(f"[notify] unknown recipient ({route['routing']}), kept in the inbox only: {str(text)[:80]!r}",
               file=sys.stderr)
         return bool(vao_hom), ("" if vao_hom else "no_target")
     ok, err = False, ""
@@ -11391,7 +11391,7 @@ async def _notify_owner(owner_chat, text, *, kind="answer", label="", source="",
     # vẫn phải còn dấu vết để còn dò được, nên ghi log - và trang Việc đã nói riêng chuyện
     # "chưa đấu Telegram/Zalo" qua `_kenh_con_thieu`.
     if err:
-        print(f"[notify] hòm thư đã giữ tin, nhưng kênh ngoài hỏng: {err}", file=sys.stderr)
+        print(f"[notify] the inbox kept the message, but the external channel failed: {err}", file=sys.stderr)
     return True, ""
 
 
@@ -11408,7 +11408,7 @@ def _cat_cho_tg(text: str) -> str:
     t = str(text or "")
     if len(t) <= _TRAN_TIN_TG:
         return t
-    return t[:_TRAN_TIN_TG].rstrip() + "\n\n… (còn nữa - xem đầy đủ trong hòm thư của Javis)"
+    return t[:_TRAN_TIN_TG].rstrip() + "\n\n… (more - see the full text in the Jarvis 007 inbox)"
 
 
 async def _gui_qua_kenh(owner_chat, text, *, ngan="", viec=None, web="", card="") -> tuple:
@@ -11430,7 +11430,7 @@ async def _gui_qua_kenh(owner_chat, text, *, ngan="", viec=None, web="", card=""
                 return True, ""
         elif await push_to_chat(sid, (web or text) if viec else text, viec=viec):
             return True, ""
-        return False, "Không tìm thấy phiên chat web để báo"
+        return False, "Web chat session to notify not found"
     text = str(ngan or text or "")
     # Việc giao TỪ Zalo phải báo VỀ Zalo. Không có nhánh này thì kết quả rơi sang Telegram của
     # chủ, tức là người giao việc không bao giờ thấy nó, còn chủ thì nhận một báo cáo không
@@ -11445,11 +11445,11 @@ async def _gui_qua_kenh(owner_chat, text, *, ngan="", viec=None, web="", card=""
     token = tg.get("token")
     ids = tg_parse_ids(tg.get("chat_id"))
     if not (tg.get("enabled") and token and ids):
-        return False, "Bot Telegram chưa bật hoặc chưa có chat_id"
+        return False, "Telegram bot is not enabled or has no chat_id"
     # 0.186.0: an explicit id outside the allow-list, or no id at all, is not redirected to "the first id" (that may be
     # someone else sharing the bot). `_report_route` already put the owner's own id here when it is known.
     if not cid or cid not in ids:
-        return False, ("Không rõ người nhận Telegram" if not cid else "Chat Telegram này không nằm trong danh sách được phép")
+        return False, ("Unknown Telegram recipient" if not cid else "This Telegram chat is not on the allowed list")
     target = cid
     import httpx
     try:
@@ -11758,8 +11758,8 @@ async def _incident_ask(prompt: str) -> str:
     may have shaped). Raises when no engine is ready, and in tests (same switch as the group judge)."""
     if os.environ.get("JAVIS_NO_REAL_JUDGE_ENGINE") == "1":
         raise RuntimeError("JAVIS_NO_REAL_JUDGE_ENGINE")
-    cli = _reply_policy_sandbox_engine("Bạn phân loại sự cố của việc nền. Chỉ trả về đúng một dòng JSON được yêu "
-                                       "cầu, không thêm lời dẫn.", "incident-triage", cwd_name="incident_cwd")
+    cli = _reply_policy_sandbox_engine("You classify incidents of background work. Return only the single requested JSON line, "
+                                       "with no preamble.", "incident-triage", cwd_name="incident_cwd")
     base = cli
     cli = aux_engine.strip_tools(_aux_swap(cli, mode="suggest", tag="incident-triage"), base)
     if not cli.is_available():

@@ -119,7 +119,7 @@ check("CANARY: outbox cleaned up after a failure too", list(outbox.iterdir()) ==
 reply["raise"] = RuntimeError("MCP error -32602: Tool zalo_send_file not found")
 ok, data, err = send([SRC / "Danh sach.xlsx"])
 check("older javis-zalo without the tool: says to update Javis and restart the connection, no QR",
-      ok is False and "bản javis-zalo cũ" in err and "Cập nhật Javis" in err, err)
+      ok is False and "old javis-zalo" in err and "Update Jarvis 007" in err, err)
 
 reply["raise"] = TimeoutError("tool không phản hồi sau 120s")
 ok, data, err = send([SRC / "Danh sach.xlsx"])
@@ -129,7 +129,7 @@ check("the MCP call itself timed out: marked as a timeout (the file may have gon
 reply["raise"] = None
 reply["value"] = {"text": "???"}
 ok, data, err = send([SRC / "Danh sach.xlsx"])
-check("odd result is a failure, not a silent 'sent'", ok is False and "lạ" in err, err)
+check("odd result is a failure, not a silent 'sent'", ok is False and "unexpected" in err, err)
 
 n = len(CALLS)
 ok, data, err = send([SRC / "Danh sach.xlsx"], conn_id="gone")
@@ -137,7 +137,7 @@ check("connection no longer on: failure, MCP not called", ok is False and "z1" n
 
 ok, data, err = send([SRC / "missing.pdf"])
 check("unreadable source: failure before calling MCP, outbox clean",
-      ok is False and "hộp gửi" in err and len(CALLS) == n and list(outbox.iterdir()) == [], err)
+      ok is False and "outbox" in err and len(CALLS) == n and list(outbox.iterdir()) == [], err)
 
 # ============================================================
 # 4. Pins and catalog
