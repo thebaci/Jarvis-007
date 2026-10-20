@@ -116,7 +116,7 @@ t = doc_text.extract(TMP / "bao-cao.pdf")
 check("PDF có chữ: bóc ra đúng câu, có đánh số trang", cau in t and "--- Page 1 ---" in t, t[:200])
 (TMP / "scan.pdf").write_bytes(pdf_mot_trang(""))
 t = doc_text.extract(TMP / "scan.pdf")
-check("PDF scan (không có chữ): nói thẳng, không trả rỗng", "gần như không có chữ" in t, t)
+check("PDF scan (không có chữ): nói thẳng, không trả rỗng", "almost no text" in t, t)
 (TMP / "hong.pdf").write_bytes(b"%PDF-1.4 rac")
 check("PDF hỏng: câu lỗi, không ném ra ngoài", doc_text.extract(TMP / "hong.pdf").startswith("ERROR:"))
 
@@ -127,11 +127,11 @@ t = doc_text.extract(TMP / "hop-dong.docx")
 check("DOCX: bóc chữ, giữ xuống dòng theo đoạn, giải mã &amp;", t == "Điều 1: Bên A & Bên B\nThời hạn\t18 tháng", t)
 with zipfile.ZipFile(TMP / "khong-phai.docx", "w") as z:
     z.writestr("a.txt", "x")
-check("DOCX thiếu document.xml: câu lỗi rõ", "không phải file Word" in doc_text.extract(TMP / "khong-phai.docx"))
+check("DOCX thiếu document.xml: câu lỗi rõ", "is not a valid Word" in doc_text.extract(TMP / "khong-phai.docx"))
 goc_max = doc_text.MAX_DOCX_XML_BYTES
 doc_text.MAX_DOCX_XML_BYTES = 10
 try:
-    check("DOCX giãn ra quá lớn (zip bomb): chặn, không đọc", "quá lớn" in doc_text.extract(TMP / "hop-dong.docx"))
+    check("DOCX giãn ra quá lớn (zip bomb): chặn, không đọc", "too large to read" in doc_text.extract(TMP / "hop-dong.docx"))
 finally:
     doc_text.MAX_DOCX_XML_BYTES = goc_max
 

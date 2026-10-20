@@ -140,7 +140,7 @@ check("plugin: mọi tool readonly", all(t["min_mode"] == "readonly" for t in ct
 
 # chưa kết nối → _check chặn + handler trả ERROR
 plug._connected_id = lambda: None
-check("plugin: _check chặn khi chưa kết nối", "Chưa kết nối" in (plug._check() or ""))
+check("plugin: _check chặn khi chưa kết nối", "is not connected" in (plug._check() or ""))
 
 
 async def plugin_tests():
