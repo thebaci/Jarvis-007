@@ -54,6 +54,15 @@
    * `count` được đối xử riêng: ngôn ngữ có chia số nhiều (tiếng Anh) khai `key.one` và
    * `key.other`, ngôn ngữ không chia (tiếng Việt) chỉ khai `key.other`. Cố ý KHÔNG kéo cả
    * ICU MessageFormat vào cho đúng một việc này. */
+  /* Jarvis 007: the server sets window.JAVIS_BRAND (settings branding.name) in index.html. Swap
+   * the product name in dictionary text BEFORE {placeholders} are filled, so user data is never
+   * touched. Word boundaries keep identifiers like javis_task or JavisI18n intact. */
+  function _brand(s) {
+    var b = (typeof window !== "undefined" && window.JAVIS_BRAND) || "";
+    if (!b || s.indexOf("avis") < 0 && s.indexOf("AVIS") < 0) return s;
+    return s.replace(/\b(?:Javis|JAVIS) OS\b/g, b).replace(/\bJAVIS\b/g, b).replace(/\bJavis\b/g, b);
+  }
+
   function t(key, bien) {
     var k = String(key || "");
     var val = null;
@@ -70,7 +79,7 @@
     if (val == null) val = _en[k];
     if (val == null) val = _goc[k];
     if (val == null) return k;   // chỉ tới đây khi CẢ vi.json cũng thiếu key - đó là lỗi thật
-    return String(val).replace(/\{(\w+)\}/g, function (m, ten) {
+    return _brand(String(val)).replace(/\{(\w+)\}/g, function (m, ten) {
       return (bien && bien[ten] != null) ? String(bien[ten]) : m;
     });
   }

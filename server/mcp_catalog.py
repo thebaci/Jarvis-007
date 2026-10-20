@@ -137,10 +137,33 @@ def _icon_goi(con, gia_tri):
     return f"/packs/{pid}/asset/{v}"
 
 
+def _vn_an() -> set:
+    """Jarvis 007: Vietnam-only connector ids to leave out of the store listing. Never hides one
+    that is already connected, so an existing Zalo connection stays manageable."""
+    try:
+        import config
+        if config.vn_channels_enabled():
+            return set()
+        an = set(config.VN_ONLY_CONNECTORS)
+        try:
+            import mcp_store
+            for con in mcp_store.list_connections() or []:
+                cid = (con or {}).get("connector") or (con or {}).get("connector_id") or (con or {}).get("id")
+                an.discard(cid)
+        except Exception:
+            pass
+        return an
+    except Exception:
+        return set()
+
+
 def public_catalog():
     """Bản cho UI - đủ vẽ kho + form đăng nhập, không lộ chi tiết nội bộ (validate/arg_rules)."""
     out = []
+    an = _vn_an()
     for c in load().values():
+        if c["id"] in an:
+            continue   # Jarvis 007: Vietnam-only service hidden from the store (config.vn_channels_enabled)
         auth = c.get("auth") or {}
         out.append({
             "id": c["id"], "name": c.get("name", c["id"]),

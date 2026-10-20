@@ -6162,7 +6162,7 @@
   //   - Hai bước đánh số: 1. Kết nối, 2. Ai được dùng. Nút Lưu ở CUỐI, ghi đúng việc nó làm
   //     ("Lưu và bật kênh" khi đang tắt, "Lưu thay đổi" khi đang chạy).
   // Một cột, nút xuống cuối: trang cài đặt phải đọc được trên điện thoại.
-  const ADMIN_CH = [
+  const ADMIN_CH_ALL = [
     { key: "telegram", set: "telegram", api: "/telegram", title: "Telegram",
       fields: [["token", true, "123456:ABC..."]], allowKey: "chat_id", openAllow: true },
     { key: "zalo", set: "zalo_bot", api: "/zalo-bot", title: "Zalo",
@@ -6178,6 +6178,8 @@
       fields: [["phone_number_id", false, "123456789012345"], ["access_token", true, "EAA..."], ["app_secret", true, ""]],
       allowKey: "allow", queue: true, webhook: true },
   ];
+  // Jarvis 007: the Zalo tab is hidden unless settings regional.vn_channels is on (server sets JAVIS_HIDE_VN).
+  const ADMIN_CH = ADMIN_CH_ALL.filter((c) => !(window.JAVIS_HIDE_VN && c.key === "zalo"));
   // Hướng dẫn mở đúng bản theo ngôn ngữ giao diện: tiếng Việt ở docs/, mọi thứ tiếng khác ở docs/en/.
   const DOC_GUIDE = { slack: "29-slack-whatsapp.md", whatsapp: "29-slack-whatsapp.md",
                       discord: "30-discord-lark.md", lark: "30-discord-lark.md" };

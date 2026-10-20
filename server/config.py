@@ -40,7 +40,9 @@ _DEFAULT = {
     "auth": {"username": "", "password_hash": "", "salt": "",
              "totp": {"enabled": False, "secret": "", "recovery": [], "last_step": 0}},
     # Logo/avatar hiển thị (góc trên, thanh bên, màn đăng nhập). logo_ext rỗng = dùng ảnh mặc định.
-    "branding": {"logo_ext": "", "logo_v": 0},
+    # name: shown product name. "" = the build default (Jarvis 007 in this fork, upstream look
+    # with JAVIS_UPSTREAM_DEFAULTS=1).
+    "branding": {"logo_ext": "", "logo_v": 0, "name": ""},
     # Tên miền riêng cho HTTPS tự động (Caddy On-Demand TLS hỏi /tls-check trước khi xin cert).
     "domain": {"custom": ""},
     # Ngôn ngữ và locale. TÁCH BA BIẾN có chủ ý (spec đa ngôn ngữ mục 4.1):
@@ -1136,6 +1138,29 @@ def hash_password(password, salt=None):
     salt = salt or secrets.token_hex(16)
     h = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("utf-8"), 120_000).hex()
     return h, salt
+
+
+def brand_name(cfg=None) -> str:
+    """Jarvis 007: product name shown in the dashboard. "" means keep the upstream "Javis" text."""
+    cfg = cfg or read_settings()
+    name = str((cfg.get("branding") or {}).get("name") or "").strip()[:40]
+    if name:
+        return name
+    return "" if UPSTREAM_DEFAULTS else "Jarvis 007"
+
+
+# Jarvis 007: connectors and admin channels that only make sense in Vietnam. Hidden from the
+# connection store and the Admin channels page unless settings regional.vn_channels is true
+# (or JAVIS_UPSTREAM_DEFAULTS=1). A connector that is already connected is never hidden.
+VN_ONLY_CONNECTORS = ("zalo", "botcake")
+
+
+def vn_channels_enabled(cfg=None) -> bool:
+    cfg = cfg or read_settings()
+    v = (cfg.get("regional") or {}).get("vn_channels")
+    if v is None:
+        return UPSTREAM_DEFAULTS
+    return bool(v)
 
 
 def auth_enabled(cfg=None):
