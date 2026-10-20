@@ -1,85 +1,85 @@
-# Kế hoạch nối Resonance A1 (sau review vòng 2)
+# Resonance A1 integration plan (after round 2 review)
 
-- **Ngày:** 08/10/2026.
-- **Nền:** PR #590, head `241fbb5d`. Thiết kế: `docs/superpowers/specs/2026-10-08-resonance-a1-agent-scope-design.md`.
-- **Review vòng 2:** cho tiếp tục, kèm một P2 (phiên mở trước lần bật đầu của agent tạo lại cùng tên) và hai điểm cần chốt: dùng lại đầu ra sau tắt/bật, phạm vi bằng chứng quay về.
-- **Không làm trong đợt này:** A2 trở đi, đường giao việc từ chat thường, pilot model thật, merge.
+- **Date:** 2026-10-08.
+- **Base:** PR #590, head `241fbb5d`. Design: `docs/superpowers/specs/2026-10-08-resonance-a1-agent-scope-design.md`.
+- **Round 2 review:** cleared to continue, with one P2 (a session opened before an agent's first enablement recreates the same name) and two points to settle: reusing output after an off/on cycle, and the scope of evidence that comes back.
+- **Not in this round:** A2 onward, the path for handing off work from ordinary chat, a real-model pilot, merge.
 
-## Chính sách chung: một hàm cổng agent
+## Shared policy: one agent gate function
 
-`resonance.agent_gate(store, brain_id, agent_key, version=None)` trả `(agent | None, lý do)`. Mọi đường dưới đây gọi đúng hàm này, không tự đọc công tắc. Lý do chặn:
-- `unassigned`: mục tiêu chưa gán agent;
-- `agent_missing`, `agent_retired`: mã không còn `active`;
-- `agent_off`: công tắc tắt;
-- `agent_changed`: `config_version` khác với bản người gọi đang giữ.
+`resonance.agent_gate(store, brain_id, agent_key, version=None)` returns `(agent | None, reason)`. Every path below calls exactly this function and does not read the switch on its own. Blocking reasons:
+- `unassigned`: the goal has no agent assigned;
+- `agent_missing`, `agent_retired`: the key is no longer `active`;
+- `agent_off`: the switch is off;
+- `agent_changed`: `config_version` differs from the version the caller is holding.
 
-## Nhóm 1: danh tính, mục tiêu theo agent, cổng (một commit kiểm riêng)
+## Group 1: identity, per-agent goals, the gate (one separately checked commit)
 
-1. **Kho:**
-   - `create` nhận `agent_key` cùng `agent_version`, ghi `goal_agents` và `handoff_agents` trong cùng giao dịch;
-   - `revise` ghi `handoff_agents` khi mở bàn giao;
-   - `GoalRecord` có `agent_key` (đọc từ `goal_agents`);
-   - `list_open` lọc theo `agent_key`;
-   - `begin_action` nhận intent có `agent_key` cùng `agent_config_version`.
+1. **Store:**
+   - `create` takes `agent_key` and `agent_version`, and writes `goal_agents` and `handoff_agents` in the same transaction;
+   - `revise` writes `handoff_agents` when a handoff opens;
+   - `GoalRecord` has `agent_key` (read from `goal_agents`);
+   - `list_open` filters by `agent_key`;
+   - `begin_action` takes an intent that has `agent_key` and `agent_config_version`.
 2. **Tool `javis_goal`:**
-   - Danh tính lấy từ `turn_context.current()`: phải có `agent`, `session_id`, `message_id`.
-   - Lời người dùng lấy từ sổ lượt đang chạy theo ĐÚNG khoá `(web:<phiên>, id tin)` của ngữ cảnh lượt, không đoán "lượt duy nhất". Đây là bản lời host đã dùng cho lượt (đã bóc khối ngữ cảnh giao diện, giữ câu gốc của lượt giọng nói).
-   - Thiếu một trong các thứ trên, hay cổng agent chặn: từ chối trước mọi lần ghi kho.
-   - `list` và `update` chỉ thấy mục tiêu của đúng agent.
+   - Identity comes from `turn_context.current()`: it must have `agent`, `session_id`, `message_id`.
+   - The user's words come from the running turn ledger by EXACTLY the key `(web:<session>, message id)` of the turn context, without guessing "the only turn". This is the text the host used for the turn (with the UI context block stripped, keeping the original sentence of a voice turn).
+   - If any of the above is missing, or the agent gate blocks: reject before any store write.
+   - `list` and `update` only see the goals of the exact agent.
    - `visible_fn`:
-     - có ngữ cảnh lượt thì theo agent của lượt;
-     - không có thì hiện nếu brain có ít nhất một agent bật. Chỉ để gợi ý.
-3. **`_gate` (scheduler, đăng, kết luận, phép thử):** thay công tắc brain bằng `agent_gate` theo mã của mục tiêu.
-   - `unassigned`: chặn, không đặt lịch; việc gán đặt lại lịch.
-   - Các lý do còn lại: chặn, hẹn kiểm lại bằng code.
-4. **Đầu ra theo agent và version:**
-   - `_work_step` ghi `agent_key` cùng version vào intent lúc giữ lượt.
-   - Trước khi đăng, so với cổng hiện tại. Lệch thì giữ đầu ra, hẹn thức ngay để lần sau xét lại.
-   - `_publish_latest` chỉ dùng đầu ra của hành động mang ĐÚNG `agent_key` của mục tiêu. Đầu ra trước lúc gán và của agent khác không được đăng.
-5. **Dùng lại đầu ra sau tắt/bật** (chốt theo review):
-   - Intent gốc giữ nguyên, không sửa version.
-   - Khi cổng mở lại, `_publish_latest` kiểm đủ: mã của hành động bằng mã của mục tiêu, agent `active` và bật, revision, guard, baseline.
-   - Sau đó ghi một hành động `publish` MỚI. Intent của nó mang version HIỆN TẠI cùng `source_action` trỏ về lượt việc cũ. Không gọi model lại.
-6. **Bàn giao trong lượt:** `handoff_after_turn` thay công tắc brain bằng cổng agent. Version ghi ở `handoff_agents` phải bằng version hiện tại.
-7. **Phép thử và áp dụng (M5):** `_trial_gate` đi qua `_gate`. `apply_method` kiểm lại cổng agent trong cùng giao dịch ghi.
+     - if there is a turn context, follow the turn's agent;
+     - if not, show it when the brain has at least one agent enabled. For suggestion only.
+3. **`_gate` (scheduler, posting, conclusion, trial):** replace the brain switch with `agent_gate` by the goal's key.
+   - `unassigned`: block, do not set a schedule; the assignment resets the schedule.
+   - The remaining reasons: block, and schedule a recheck in code.
+4. **Output by agent and version:**
+   - `_work_step` writes `agent_key` and the version into the intent when it takes the turn.
+   - Before posting, compare against the current gate. If it differs, keep the output and schedule an immediate wake so it is reconsidered next time.
+   - `_publish_latest` only uses the output of an action that carries EXACTLY the goal's `agent_key`. Output from before the assignment and from another agent must not be posted.
+5. **Reusing output after an off/on cycle** (settled per the review):
+   - The original intent stays as is, and its version is not edited.
+   - When the gate reopens, `_publish_latest` checks everything: the action's key equals the goal's key, the agent is `active` and enabled, the revision, the guard, the baseline.
+   - Then it writes a NEW `publish` action. Its intent carries the CURRENT version and a `source_action` pointing back to the old work turn. The model is not called again.
+6. **Handoff within a turn:** `handoff_after_turn` replaces the brain switch with the agent gate. The version recorded in `handoff_agents` must equal the current version.
+7. **Trial and apply (M5):** `_trial_gate` goes through `_gate`. `apply_method` rechecks the agent gate in the same write transaction.
 8. **main.py:**
-   - Dòng gợi ý trong system prompt chỉ có khi lượt thuộc agent đang bật.
-   - `_resonance_after_turn` và sổ biên nhận ghi chỉ chạy khi lượt có agent.
-   - `/agents/delete` cho mã đang sống nghỉ.
-9. **Test:**
-   - Helper chung bật agent cho test cũ M2 đến M5. Nội dung kiểm của chúng giữ nguyên.
-   - Test mới cho ma trận 1 đến 7 và 11, 12.
-   - Transport: plugin trong tiến trình, hub HTTP với khoá `X-Javis-Turn` (Codex), khoá giả hay đã chết.
+   - The hint line in the system prompt only appears when the turn belongs to an enabled agent.
+   - `_resonance_after_turn` and the receipt ledger only run when the turn has an agent.
+   - `/agents/delete` makes a live key retire.
+9. **Tests:**
+   - A shared helper enables the agent for the old M2 to M5 tests. Their checking content stays the same.
+   - New tests for the matrix of 1 to 7 and 11, 12.
+   - Transport: an in-process plugin, the HTTP hub with the `X-Javis-Turn` key (Codex), a fake or dead key.
 
-## Nhóm 2: API của chủ dự án
+## Group 2: the project owner's API
 
-1. `GET /resonance/agents?brain=`: file agent của brain ghép với sổ đăng ký, cùng số mục tiêu chờ gán.
+1. `GET /resonance/agents?brain=`: the brain's agent files joined with the registry, plus the number of goals waiting for assignment.
 2. `POST /resonance/agents/toggle {slug, enabled, session_id?}`:
-   - Bật đòi file agent có thật.
-   - Có `session_id` thì trả trạng thái của phiên đó: `ready`, hoặc `needs_new_session` khi phiên không dùng được mã hiện tại (P2 vòng 2). Không tự chuyển phiên.
-   - Bật thì đặt lịch thức cho mục tiêu `active`, không tạm dừng, của mã đó.
-3. `POST /resonance/agents/confirm {agent_key, same}`: đòi file có thật.
-4. `POST /goals/{id}/assign {agent_key, expected_revision}`: chỉ mục tiêu chưa gán, mã `active` cùng brain, CAS.
-5. **`/goal-requests`:** tin phải thuộc phiên mà mã ghim (cùng hàm với `run_turn`) đang bật; mục tiêu gắn mã đó.
-6. **`GET /resonance/goals`:** lọc `agent_key`; `unassigned=1` cho mục "Chờ gán".
-7. **Phản hồi trên thẻ:** đòi agent của mục tiêu đang bật. Xem, tạm dừng, huỷ, bỏ chỉ dẫn không đòi gì như cũ.
+   - Enabling requires the agent file to really exist.
+   - With a `session_id`, return the status of that session: `ready`, or `needs_new_session` when the session cannot use the current key (round 2 P2). It does not switch sessions on its own.
+   - Enabling sets a wake schedule for the `active`, non-paused goals of that key.
+3. `POST /resonance/agents/confirm {agent_key, same}`: requires the file to really exist.
+4. `POST /goals/{id}/assign {agent_key, expected_revision}`: only an unassigned goal, an `active` key in the same brain, CAS.
+5. **`/goal-requests`:** the message must belong to the session that the key (the same function as `run_turn`) has pinned as enabled; the goal is attached to that key.
+6. **`GET /resonance/goals`:** filter by `agent_key`; `unassigned=1` for the "Waiting for assignment" section.
+7. **Feedback on the card:** requires the goal's agent to be enabled. Viewing, pausing, cancelling and dropping an instruction require nothing, as before.
 
-## Nhóm 3: giao diện tối thiểu
+## Group 3: minimal UI
 
-1. **Trang Cộng sự, cột phải của agent:** khối Cộng hưởng.
-   - Có công tắc và dòng trạng thái của phiên đang mở.
-   - Khi bị `needs_new_session`: câu giải thích và nút "Mở cuộc trò chuyện mới".
-   - Có danh sách "Mục tiêu của trợ lý" (cách hiểu, tiêu chí, sản phẩm, đang chờ gì, lần thức kế, lượt đã dùng, nút tạm dừng và huỷ).
-2. **Trang Cài đặt:**
-   - Khối công tắc theo brain đổi thành danh sách agent kèm công tắc.
-   - Có mục "Chờ gán" với ô chọn agent.
-   - Có ghi chú rằng công tắc brain cũ không còn dùng.
-3. **Engine:** dòng cảnh báo khi engine của agent chưa mang được khoá lượt (Grok, Antigravity). Phân biệt ba khả năng: lập mục tiêu, nhận bản chat, việc nền.
-4. Chuỗi qua `vi.json` và `en.json`. Test JS cho phần dựng khối và luồng `needs_new_session`.
+1. **Partners page, the agent's right column:** the Resonance block.
+   - It has a switch and a status line for the session that is open.
+   - When `needs_new_session`: an explanation and an "Open a new conversation" button.
+   - It has a list "Assistant goals" (the understanding, criteria, product, what it is waiting on, the next wake, turns used, pause and cancel buttons).
+2. **Settings page:**
+   - The per-brain switch block becomes a list of agents with a switch each.
+   - It has a "Waiting for assignment" section with an agent picker.
+   - It has a note that the old brain switch is no longer used.
+3. **Engine:** a warning line when the agent's engine cannot yet carry the turn key (Grok, Antigravity). Distinguish three capabilities: forming goals, receiving the chat version, background work.
+4. Strings go through `vi.json` and `en.json`. JS tests for building the block and the `needs_new_session` flow.
 
-## Sau ba nhóm
+## After the three groups
 
-- Vòng quay về có thêm một mục tiêu A1 thật (đã gán agent, có `handoff_agents`).
-- Ca tắt trong lượt, version cũ, restart, CAS gán, giữ đầu ra: đếm số lượt engine lẫn bản được đăng.
-- Gửi review tích hợp A1 kèm base/head, test và giới hạn.
-- Pilot thật chỉ trình sau khi đường engine giả đạt, với phạm vi và hạn mức riêng.
+- The return loop has one more real A1 goal (with an agent assigned and `handoff_agents`).
+- The cases of switching off within a turn, an old version, restart, the assignment CAS, and keeping output: count both the engine turns and the published versions.
+- Send the A1 integration review with the base/head, tests and limits.
+- A real pilot is only presented after the fake-engine path passes, with its own scope and quota.

@@ -1,5 +1,5 @@
 {
-  "_ghi_chu": "Từ khoá của bộ phán xử hội thoại nhóm, tiếng Việt. Mọi danh sách ĐÃ BỎ DẤU, trừ `openers` và `vocatives_raw`: hai danh sách này so với chữ GIỮ DẤU, vì bỏ dấu thì \"này\" (gọi) và \"nay\" (hôm nay) thành một. Thêm ngôn ngữ = thêm file keywords_<mã>.json cùng khuôn. Chỉ là tín hiệu, không phải luật cứng.",
+    "_ghi_chu": "Keywords for the group-conversation judge, Vietnamese. Every list is DIACRITIC-STRIPPED, except `openers` and `vocatives_raw`: those two are compared against text WITH diacritics kept, because once stripped \"này\" (calling someone) and \"nay\" (today) become the same word. Adding a language = adding a keywords_<code>.json file with the same shape. These are signals only, not hard rules.",
   "question_words": [
     "sao",
     "nao",

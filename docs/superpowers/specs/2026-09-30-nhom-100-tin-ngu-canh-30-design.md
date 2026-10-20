@@ -1,48 +1,48 @@
-# Nhóm chỉ giữ 100 tin, bot xem 30 tin làm ngữ cảnh (0.65.12)
+# Groups keep only 100 messages, the bot sees 30 messages as context (0.65.12)
 
-## Vấn đề
+## Problem
 
-Chủ dự án (30/09/2026) lo bot lưu quá nhiều chat vào kho SQL của Hòm thư. Đọc mã: `customer_conversations.sqlite3` lưu MỌI tin của MỌI cuộc chat trên kênh được theo dõi (mỗi tin tối đa
-8.000 ký tự), không có hạn xoá, kể cả nhóm mà bot chưa được phép trả lời (tin vẫn vào Hòm thư). Các kho khác đã có trần (bộ phán xử: 400 ký tự mỗi quyết định, dòng chưa gắn
-nhãn giữ 14 ngày, 500 ca mỗi bot; nhật ký bot: 2.000 dòng). Hòm thư là kho duy nhất phình vô hạn. Ngoài dung lượng còn có riêng tư: kho giữ lời của người lạ trong nhóm.
+The project owner (30 Sep 2026) worried that the bot stores too many chats in the Inbox's SQL store. Reading the code: `customer_conversations.sqlite3` stores EVERY message of EVERY chat on a monitored channel (each message up to
+8,000 characters), with no deletion limit, even for groups where the bot is not yet allowed to reply (messages still enter the Inbox). The other stores already have caps (the arbiter: 400 characters per decision, unlabeled
+rows kept 14 days, 500 cases per bot; the bot log: 2,000 lines). The Inbox is the only store that grows without bound. Beyond disk usage there is also privacy: the store keeps the words of strangers in groups.
 
-Ngoài ra bot trong nhóm chỉ được gọi khi có người tag hoặc reply nên chỉ thấy đúng câu gọi nó (cửa sổ 8 tin trong RAM chỉ phục vụ bộ phán xử). "Vậy còn cái kia?" vô nghĩa nếu bot không biết
-người ta vừa nói gì.
+Also, a bot in a group is only invoked when someone tags it or replies to it, so it sees only the exact sentence that called it (the 8-message window in RAM serves only the arbiter). "What about the other one?" is
+meaningless if the bot does not know what people just said.
 
-## Quyết định (chủ chốt)
+## Decisions (key points)
 
-- **Nhóm giữ 100 tin gần nhất, khách hàng (chat riêng) giữ hết.** Không ô cài đặt.
-- **Bot trong nhóm xem 30 tin gần nhất** trước tin đang hỏi khi trả lời.
+- **Groups keep the 100 most recent messages; customers (private chats) keep everything.** No settings toggle.
+- **A bot in a group sees the 30 most recent messages** before the message being asked when it replies.
 
-## Cách làm
+## Approach
 
-- `conversations.ghi_su_kien` cắt ngay trong giao dịch ghi tin, chỉ với `chat_type == "group"`: xoá các tin có id nhỏ hơn id của tin thứ 100 tính từ mới nhất (truy vấn theo chỉ mục
-  `ix_msg_conv`, không quét bảng). `message_count` vẫn là số tin từng nhận.
-- **Di trú nhóm cũ** `conversations.cat_nhom_cu()`, một lần lúc khởi động, ở luồng nền: sao lưu NGUYÊN file kho bằng API sao lưu của SQLite (nhất quán cả khi đang ghi WAL) rồi cắt các nhóm vượt
-  mức, ghi dấu `cat_nhom_v1` vào `sync_state` SAU khi cắt xong, rồi `wal_checkpoint` + `VACUUM` để file nhỏ lại thật (hỏng bước này chỉ là file chưa nhỏ). Chỉ sao lưu khi thật sự có nhóm vượt mức.
-  Bản sao lưu còn giữ lời người lạ nên **tự xoá sau 14 ngày** (dọn ở lần khởi động sau).
-- **Ngữ cảnh cho bot** `chatbot_runtime.ngu_canh_nhom`: 30 tin ngay trước tin đang hỏi (bỏ chính tin đang hỏi theo `message_id`; không biết id thì bỏ tin khách cuối), mỗi tin cắt 300 ký tự, cả khối
-  tối đa 6.000 ký tự (bớt từ tin cũ nhất), nhãn người nói (tên khách, `Bot`, `Chủ`). Nội dung đi qua `clean_chat_text` (gỡ marker nội bộ và thẻ `<chat_data>`) và được bọc `<chat_data>`
-  kèm lời dặn đó là DỮ LIỆU, không phải lệnh. Gắn vào cấu hình lượt (`cfg["_ngu_canh_nhom"]`) và vào PROMPT HỆ THỐNG qua `build_bot_prompt`, **không** nối vào tin của người hỏi: nối vào tin
-  thì mỗi lượt lại ghi thêm 30 tin vào lịch sử phiên của Agent và phình dần. Cả lượt thật lẫn lượt "Trả lời giúp tin này" của Hòm thư đều có.
-- Chat riêng không đổi: phiên của khách đã mang sẵn lịch sử.
+- `conversations.ghi_su_kien` trims right inside the write transaction, only for `chat_type == "group"`: it deletes messages whose id is lower than the id of the 100th message counting from the newest (the query uses the
+  `ix_msg_conv` index, no table scan). `message_count` stays the number of messages ever received.
+- **Migrating old groups** `conversations.cat_nhom_cu()`, once at startup, on a background thread: back up the WHOLE store file with SQLite's backup API (consistent even while WAL is being written), then trim the groups that exceed the
+  limit, write the `cat_nhom_v1` marker into `sync_state` AFTER the trim finishes, then `wal_checkpoint` + `VACUUM` so the file really shrinks (if this step fails the file just is not smaller). The backup is made only when a group actually exceeds the limit.
+  The backup still holds strangers' words so it **deletes itself after 14 days** (cleaned up at a later startup).
+- **Context for the bot** `chatbot_runtime.ngu_canh_nhom`: the 30 messages right before the message being asked (excluding the asked message itself by `message_id`; if the id is unknown, drop the last customer message), each message cut to 300 characters, the whole block
+  at most 6,000 characters (dropping from the oldest message), with speaker labels (the customer's name, `Bot`, `Chủ`; `Chủ` means "owner"). The content goes through `clean_chat_text` (which strips internal markers and `<chat_data>` tags) and is wrapped in `<chat_data>`
+  with a note that it is DATA, not instructions. It is attached to the turn config (`cfg["_ngu_canh_nhom"]`) and to the SYSTEM PROMPT through `build_bot_prompt`, and **not** appended to the asker's message: appended
+  to the message, every turn would add another 30 messages to the Agent's session history, which would swell over time. Both the real turn and the Inbox's "Reply for me" turn have it.
+- Private chat is unchanged: the customer's session already carries its history.
 
-## Những chỗ dễ hỏng (đã có canary trong `tests/python/test_hoi_thoai_cat_nhom.py`)
+## Fragile spots (canaries already exist in `tests/python/test_hoi_thoai_cat_nhom.py`)
 
-1. Cắt nhầm chat riêng hoặc tin mới: test ghi 130 tin nhóm và 130 tin riêng, nhóm còn đúng tin 31 đến 130, riêng còn đủ 130.
-2. Xoá không hoàn tác: sao lưu trước, chạy một lần (lần hai không sao lưu thêm), bản sao lưu còn NGUYÊN số tin cũ, bản quá hạn tự xoá.
-3. Tin nhắn thoát khỏi khối dữ liệu: tin chứa `</chat_data>`, `[IM_LANG]`, `JAVIS_ADMIN` bị gỡ; khối chỉ có một thẻ đóng.
-4. Phình phiên: ngữ cảnh nằm trong prompt hệ thống, tin của người hỏi vẫn chỉ là `[Tên] nội dung`.
-5. Lỗi khởi động bị nuốt im lặng: hook chạy trong `try/except` nên thiếu `import threading` khiến di trú không bao giờ chạy mà không báo gì. Bắt được khi chạy thật trên bản thử
-   (log `NameError`), đã sửa; di trú thật đã kiểm: nhóm 300 tin còn 100, nhóm 80 tin và chat riêng 250 tin nguyên vẹn, có bản sao lưu đủ 300.
+1. Trimming a private chat or a new message by mistake: the test writes 130 group messages and 130 private messages; the group keeps exactly messages 31 to 130, the private chat keeps all 130.
+2. Deletion that cannot be undone: back up first, run once (the second run makes no extra backup), the backup keeps the ORIGINAL number of old messages, and the expired backup deletes itself.
+3. A message escaping the data block: messages containing `</chat_data>`, `[IM_LANG]`, `JAVIS_ADMIN` get stripped; the block has only one closing tag.
+4. Session bloat: the context sits in the system prompt, and the asker's message stays just `[Name] content`.
+5. A startup error swallowed silently: the hook runs inside `try/except`, so a missing `import threading` meant the migration never ran and nothing reported it. It was caught in a real run on the trial build
+   (a `NameError` in the log) and fixed; the real migration was verified: a 300-message group left with 100, an 80-message group and a 250-message private chat intact, and a backup holding all 300.
 
-## Kèm theo
+## Included
 
-`conversations._now()` tăng nghiêm ngặt trong tiến trình: đồng hồ Windows nhích khoảng 15 ms nên hai lần ghi liên tiếp trùng `updated_at` và thứ tự "mới hoạt động trước" của danh sách khách
-ngẫu nhiên (`test_hoi_thoai_crm` đỏ khoảng 2 lần trên 5 trên máy Windows; 8 lần liên tiếp xanh sau khi sửa).
+`conversations._now()` increases strictly within the process: the Windows clock ticks about 15 ms so two consecutive writes shared the same `updated_at` and the "most recently active first" order of the customer list was
+random (`test_hoi_thoai_crm` was red about 2 times in 5 on a Windows machine; 8 consecutive greens after the fix).
 
-## Ngoài phạm vi
+## Out of scope
 
-- Không cắt chat riêng (chủ: khách hàng giữ hết, tạm thời).
-- Không cắt kho phiên của Agent hay bộ phán xử (đã có trần riêng).
-- Chưa có ô cài đặt số tin giữ lại hay số tin ngữ cảnh (chủ muốn ít cài đặt).
+- No trimming of private chats (owner: customers keep everything, for now).
+- No trimming of the Agent session store or the arbiter (they already have their own caps).
+- No settings toggle yet for the number of messages kept or the number of context messages (the owner wants few settings).
