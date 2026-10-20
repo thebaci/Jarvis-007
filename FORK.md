@@ -39,5 +39,6 @@ Resolve any conflict in favour of the upstream change, then re-apply the small `
 1. Safe defaults and English locale (this pass).
 2. Done: product name through one setting (`branding.name`), applied to dictionary text, page title, sidebar and home-screen name.
 3. Done: Vietnam-only connectors and the Zalo admin channel hidden by default. The Zalo section of `CLAUDE.md` stays, because upstream tests depend on it.
-4. Rebuild the 3D brain graph and strict model routing that were added locally.
-5. Guided English setup for the Google connectors (Gmail drafts, Calendar, Drive).
+4. Brain visualization: local perspective renderer with slow rotation, drag, pinch/wheel/button zoom, real selectable memory nodes, category filters and timelapse. Respects reduced motion and pauses when hidden.
+5. Rebuild strict model routing separately.
+6. Guided English setup for the Google connectors (Gmail drafts, Calendar, Drive).

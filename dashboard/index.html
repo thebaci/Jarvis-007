@@ -39,6 +39,8 @@
        Chế độ "auto" (0.74.0, mặc định khi chưa chọn gì từ 0.75.1) tính theo khung giờ "HH:MM-HH:MM", cùng quy tắc với lightAt() trong
        theme.js (vắt qua nửa đêm được, hai mốc trùng là tối): sửa một bên thì sửa cả bên kia. -->
   <script>(function(){try{var m=localStorage.getItem('javis.theme'),L=m==='light';if(m!=='light'&&m!=='dark'&&m!=='dim'){var p=/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/.exec(localStorage.getItem('javis.theme.schedule')||'')||[0,6,0,18,0],a=p[1]*60+ +p[2],b=p[3]*60+ +p[4],d=new Date(),n=d.getHours()*60+d.getMinutes();L=a!==b&&(a<b?n>=a&&n<b:n>=a||n<b);}if(L)document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
+  <!-- Jarvis 007: holographic memory brain, served locally. -->
+  <link rel="stylesheet" href="/static/brain-spatial.css?v=1">
 </head>
 <body>
   <div class="hud">
@@ -887,6 +889,8 @@
   <script src="/static/voice-lang.js?v=1"></script>
   <script src="/static/voice.js?v=29"></script>
   <script src="/static/graph.js?v=17"></script>
+  <!-- Jarvis 007: retains the existing graph data, notes and timelapse interfaces. -->
+  <script src="/static/brain-spatial.js?v=1"></script>
   <script src="/static/chat-render.js?v=20"></script>
   <script src="/static/code-hl.js?v=1"></script>
   <script src="/static/dataview.js?v=2"></script>
