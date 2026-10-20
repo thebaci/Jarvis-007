@@ -4209,7 +4209,7 @@ def _apply_antigravity_hub(cli, vault_root=None, mode="full"):
     try:
         cli.mcp_config = mcp_hub.antigravity_config_path(mode, root) if hub else None
     except Exception as e:
-        print(f"[antigravity hub] config riêng: {e}", file=__import__('sys').stderr)
+        print(f"[antigravity hub] own config: {e}", file=__import__('sys').stderr)
     return cli
 
 
@@ -4357,10 +4357,10 @@ async def _cap_nhat_claude(ly_do: str) -> dict:
         except Exception:
             ds = claude_cli.list_models() or []
         kq["model_moi"] = [x for x in ds if x not in cu and x.startswith("claude-")]
-        print(f"[claude update] {kq.get('truoc')} -> {kq.get('sau')} ({ly_do}); model mới: "
-              f"{', '.join(kq['model_moi']) or 'không có'}", file=sys.stderr)
+        print(f"[claude update] {kq.get('truoc')} -> {kq.get('sau')} ({ly_do}); new models: "
+              f"{', '.join(kq['model_moi']) or 'none'}", file=sys.stderr)
     elif not kq.get("ok") and not kq.get("docker"):
-        print(f"[claude update] không cập nhật được ({ly_do}): {kq.get('error')}", file=sys.stderr)
+        print(f"[claude update] could not update ({ly_do}): {kq.get('error')}", file=sys.stderr)
     return kq
 
 
@@ -4388,7 +4388,7 @@ async def _tu_cap_nhat_claude():
                 if claude_update.den_han() and claude_cli.find_claude_cli():
                     await _cap_nhat_claude("tu_dong")
             except Exception as e:
-                print(f"[claude update] vòng tự cập nhật lỗi: {type(e).__name__}: {e}",
+                print(f"[claude update] auto-update loop error: {type(e).__name__}: {e}",
                       file=sys.stderr)
             await asyncio.sleep(3600)
     asyncio.create_task(_vong())
@@ -4413,7 +4413,7 @@ async def _cap_nhat_agy(ly_do: str) -> dict:
         _PROV_MODELS_CACHE.pop("antigravity-cli", None)
         print(f"[agy update] {kq.get('truoc')} -> {kq.get('sau')} ({ly_do})", file=sys.stderr)
     elif not kq.get("ok"):
-        print(f"[agy update] không cập nhật được ({ly_do}): {kq.get('error')}", file=sys.stderr)
+        print(f"[agy update] could not update ({ly_do}): {kq.get('error')}", file=sys.stderr)
     return kq
 
 
@@ -4435,7 +4435,7 @@ async def _tu_cap_nhat_agy():
                 if agy_update.den_han() and antigravity_cli.find_antigravity_cli():
                     await _cap_nhat_agy("tu_dong")
             except Exception as e:
-                print(f"[agy update] vòng tự cập nhật lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+                print(f"[agy update] auto-update loop error: {type(e).__name__}: {e}", file=sys.stderr)
             await asyncio.sleep(3600)
     asyncio.create_task(_vong())
 
@@ -4456,7 +4456,7 @@ async def antigravity_check(brain: str = "brain"):
     try:
         _apply_antigravity_hub(_types.SimpleNamespace(cwd=root), root)
     except Exception as e:
-        print(f"[antigravity check] ghi cấu hình MCP: {e}", file=__import__('sys').stderr)
+        print(f"[antigravity check] writing MCP config: {e}", file=__import__('sys').stderr)
     d = await asyncio.to_thread(antigravity_cli.kiem_tra_nhanh)
     try:
         mcp = antigravity_cli.trang_thai_mcp(root)
@@ -4530,7 +4530,7 @@ async def grok_check(brain: str = "brain"):
     try:
         _apply_grok_hub(_types.SimpleNamespace(cwd=root), root)
     except Exception as e:
-        print(f"[grok check] ghi cấu hình MCP: {e}", file=__import__('sys').stderr)
+        print(f"[grok check] writing MCP config: {e}", file=__import__('sys').stderr)
     d = await asyncio.to_thread(grok_cli.kiem_tra_nhanh)
     try:
         mcp = grok_cli.trang_thai_mcp(root)
@@ -5527,7 +5527,7 @@ async def settings_set(section: str = Form(...), data: str = Form("{}")):
             else:
                 connect_health.probe_engines()
         except Exception as e:
-            print(f"[engine health] probe sau đổi model lỗi: {e}", file=__import__('sys').stderr)
+            print(f"[engine health] probe after model change failed: {e}", file=__import__('sys').stderr)
     if section == "telegram":
         try:
             restart_telegram()   # áp cấu hình bot ngay
@@ -5573,17 +5573,17 @@ def _do_backup(brain: str = "") -> dict:
     if res.get("ok"):
         bits = []
         if res.get("applied"):
-            bits.append(f"nhận {res['applied']} file")
+            bits.append(f"received {res['applied']} files")
         if res.get("deleted"):
-            bits.append(f"xoá {res['deleted']}")
+            bits.append(f"deleted {res['deleted']}")
         if res.get("conflicts"):
-            bits.append(f"{len(res['conflicts'])} xung đột (giữ cả 2 bản)")
+            bits.append(f"{len(res['conflicts'])} conflicts (kept both copies)")
         if res.get("restored"):
-            bits.append("khôi phục từ backup")
+            bits.append("restored from backup")
         detail = (" · " + ", ".join(bits)) if bits else ""
-        cfg["backup"]["last_status"] = "✓ Đồng bộ 2 chiều " + time.strftime("%H:%M %d/%m") + detail
+        cfg["backup"]["last_status"] = "✓ Two-way sync " + time.strftime("%H:%M %d/%m") + detail
     else:
-        cfg["backup"]["last_status"] = "✗ " + (res.get("error") or "lỗi")[:150]
+        cfg["backup"]["last_status"] = "✗ " + (res.get("error") or "error")[:150]
     cfg["backup"]["last_report"] = {
         "ts": time.time(), "ok": bool(res.get("ok")), "pushed": bool(res.get("pushed")),
         "applied": res.get("applied", 0), "deleted": res.get("deleted", 0),
@@ -5883,7 +5883,7 @@ def _remember_catalog(cfg, d, ids):
         cfgmod.write_settings(cfg)
     except Exception as e:
         import sys
-        print(f"[models] không ghi được catalog {key}: {e}", file=sys.stderr)
+        print(f"[models] could not write catalog {key}: {e}", file=sys.stderr)
 
 
 def _vi_sao_khong_co_model(provider: str, m: dict) -> str:
@@ -6371,25 +6371,25 @@ async def ingest_upload(
 
     if kind == "image":
         prompt = (
-            f"File ẢNH vừa tải lên nằm ở: {staged}\n"
-            f"Hãy:\n"
-            f"1) Đọc và HIỂU KỸ ảnh (chữ trong ảnh, số liệu, biểu đồ, sơ đồ, ý chính).\n"
-            f"2) Tạo file Markdown tại folder \"{sources}\" tên \"{slug}.md\" gồm:\n"
-            f"   - frontmatter: type: source, source_kind: screenshot, status: unprocessed, created (hôm nay), original: {name}\n"
-            f"   - phần MÔ TẢ CHI TIẾT nội dung ảnh bằng tiếng Việt.\n"
-            f"3) Di chuyển file ảnh gốc vào folder \"{attachments}\" rồi nhúng vào .md bằng ![[tên-ảnh]].\n"
-            f"CHỈ in ra đường dẫn đầy đủ của file .md đã tạo, không giải thích thêm."
+            f"The IMAGE file just uploaded is at: {staged}\n"
+            f"Do the following:\n"
+            f"1) Read and UNDERSTAND the image carefully (text in the image, figures, charts, diagrams, key points).\n"
+            f"2) Create a Markdown file in the folder \"{sources}\" named \"{slug}.md\" containing:\n"
+            f"   - frontmatter: type: source, source_kind: screenshot, status: unprocessed, created (today), original: {name}\n"
+            f"   - a DETAILED DESCRIPTION of the image content in Vietnamese.\n"
+            f"3) Move the original image file into the folder \"{attachments}\" and embed it in the .md with ![[image-name]].\n"
+            f"ONLY print the full path of the .md file you created, with no further explanation."
         )
     else:
         prompt = (
-            f"File VĂN BẢN vừa tải lên nằm ở: {staged}\n"
-            f"Hãy:\n"
-            f"1) Đọc toàn bộ nội dung.\n"
-            f"2) Tạo file Markdown SẠCH tại folder \"{sources}\" tên \"{slug}.md\" gồm:\n"
-            f"   - frontmatter: type: source, source_kind phù hợp, status: unprocessed, created (hôm nay), original: {name}\n"
-            f"   - nội dung đã định dạng gọn gàng, giữ nguyên thông tin, bỏ rác.\n"
-            f"3) Xóa file gốc tại {staged}.\n"
-            f"CHỈ in ra đường dẫn đầy đủ của file .md đã tạo, không giải thích thêm."
+            f"The TEXT file just uploaded is at: {staged}\n"
+            f"Do the following:\n"
+            f"1) Read the entire content.\n"
+            f"2) Create a CLEAN Markdown file in the folder \"{sources}\" named \"{slug}.md\" containing:\n"
+            f"   - frontmatter: type: source, a suitable source_kind, status: unprocessed, created (today), original: {name}\n"
+            f"   - the content neatly formatted, keeping all information and dropping junk.\n"
+            f"3) Delete the original file at {staged}.\n"
+            f"ONLY print the full path of the .md file you created, with no further explanation."
         )
 
     final = ""
@@ -6485,17 +6485,17 @@ DASHBOARD_SEED = (
 # cây thư mục. Nay hộp thư việc chỉ mọc ra khi có việc đầu tiên được thêm vào thật.
 TASKINBOX_SEED = (
     "# Task Inbox\n\n"
-    "Việc thêm nhanh từ dashboard - kéo về đúng sổ khi rảnh.\n"
+    "Tasks added quickly from the dashboard - move them to the right notebook when you have time.\n"
 )
 SCHEMA_SEED = (
     "# AGENTS.md - Vault Schema (Javis)\n\n"
-    "> Vault này hoạt động với Javis OS. Cấu trúc:\n\n"
-    "- `01 - Daily Log/` → `04 - Future Log/` - bộ sổ bullet journal (nhật ký ngày/tuần/tháng/tương lai, chứa task `- [ ]`; khối dataview kéo việc từ đây)\n"
-    "- `06 - Sources/` - ghi chú thô (source of truth)\n"
-    "- `07 - Wiki/` - tri thức đã chưng cất, có `[[wikilink]]`\n"
-    "- `memory/` - bộ nhớ dài hạn của Javis (facts + conversations)\n"
+    "> This vault works with Jarvis 007. Structure:\n\n"
+    "- `01 - Daily Log/` → `04 - Future Log/` - the bullet journal set (daily/weekly/monthly/future logs, holding `- [ ]` tasks; the dataview block pulls tasks from here)\n"
+    "- `06 - Sources/` - raw notes (source of truth)\n"
+    "- `07 - Wiki/` - distilled knowledge, with `[[wikilink]]`\n"
+    "- `memory/` - Jarvis 007's long-term memory (facts + conversations)\n"
     "- `Javis/` - agents + workflows\n\n"
-    "Nguyên lý: Sources → (ingest) → Wiki. Tri thức tích luỹ, không tái phát hiện.\n"
+    "Principle: Sources → (ingest) → Wiki. Knowledge accumulates and is not rediscovered.\n"
 )
 
 def _ensure_brain_scaffold(root):

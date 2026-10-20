@@ -252,9 +252,9 @@ def chuan_hoa(ev: dict) -> dict:
     kenh = _s(ev.get("channel"), 32).strip().lower()
     chat = _s(ev.get("external_chat_id"), 200).strip()
     if kenh not in KENH:
-        return {"loi": f"kênh '{kenh}' không nằm trong danh sách kho hiểu"}
+        return {"loi": f"channel '{kenh}' is not in the list the store understands"}
     if not chat:
-        return {"loi": "thiếu external_chat_id"}
+        return {"loi": "missing external_chat_id"}
     sender_type = _s(ev.get("sender_type"), 16).strip().lower() or "customer"
     if sender_type not in NGUOI_GUI:
         sender_type = "system"
@@ -399,7 +399,7 @@ def ghi_su_kien(ev: dict, dem_chua_doc: bool = True) -> dict:
         return {"ok": True, "trung": False, "conversation_id": conv_id, "message_id": msg_id,
                 "customer_id": customer_id}
     except Exception as ex:
-        print(f"[conversations] ghi lỗi: {type(ex).__name__}: {ex}", file=sys.stderr)
+        print(f"[conversations] write error: {type(ex).__name__}: {ex}", file=sys.stderr)
         return {"ok": False, "loi": f"{type(ex).__name__}: {ex}"}
 
 
@@ -492,11 +492,11 @@ def cat_nhom_cu(giu: int = GIU_TIN_NHOM) -> dict:
                     db.execute("PRAGMA wal_checkpoint(TRUNCATE)")
                     db.execute("VACUUM")
                 except Exception as ex:      # noqa: BLE001
-                    print(f"[conversations] gom chỗ trống sau khi cắt nhóm lỗi: {type(ex).__name__}: {ex}", file=sys.stderr)
+                    print(f"[conversations] error compacting free space after trimming a group: {type(ex).__name__}: {ex}", file=sys.stderr)
         out["da_chay"] = True
     except Exception as ex:      # noqa: BLE001
         out["loi"] = f"{type(ex).__name__}: {ex}"
-        print(f"[conversations] cắt nhóm cũ lỗi: {out['loi']}", file=sys.stderr)
+        print(f"[conversations] error trimming an old group: {out['loi']}", file=sys.stderr)
     return out
 
 
@@ -513,7 +513,7 @@ def tin_gan_day(channel: str, account_id: str, external_chat_id: str, limit: int
                 (_tai_khoan_id(channel, account_id), str(external_chat_id), n)).fetchall()
         return [dict(r) for r in reversed(rows)]
     except Exception as ex:      # noqa: BLE001
-        print(f"[conversations] đọc tin gần đây lỗi: {type(ex).__name__}: {ex}", file=sys.stderr)
+        print(f"[conversations] error reading recent messages: {type(ex).__name__}: {ex}", file=sys.stderr)
         return []
 
 
@@ -537,7 +537,7 @@ def tin_theo_id(channel: str, account_id: str, external_chat_id: str, external_m
         d["metadata"] = _loads(d.pop("metadata_json", "{}"), {})
         return d
     except Exception as ex:      # noqa: BLE001
-        print(f"[conversations] đọc tin theo id lỗi: {type(ex).__name__}: {ex}", file=sys.stderr)
+        print(f"[conversations] error reading messages by id: {type(ex).__name__}: {ex}", file=sys.stderr)
         return {}
 
 
@@ -922,7 +922,7 @@ def ghi_trang_thai(key: str, value: str) -> None:
                        (str(key), str(value if value is not None else ""), _now()))
             db.commit()
     except Exception as e:
-        print(f"[conversations] ghi trạng thái lỗi: {e}", file=sys.stderr)
+        print(f"[conversations] error writing state: {e}", file=sys.stderr)
 
 
 def xoa_trang_thai(tien_to: str) -> None:
@@ -932,7 +932,7 @@ def xoa_trang_thai(tien_to: str) -> None:
             db.execute("DELETE FROM sync_state WHERE key LIKE ?", (str(tien_to) + "%",))
             db.commit()
     except Exception as e:
-        print(f"[conversations] xoá trạng thái lỗi: {e}", file=sys.stderr)
+        print(f"[conversations] error deleting state: {e}", file=sys.stderr)
 
 
 # ============================================================

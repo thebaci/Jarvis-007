@@ -782,7 +782,7 @@ for _i in range(300):
     _chan["duoi"].append(f"đuôi {_i}")
 _d = grok_cli._chan_dong(_chan)
 check("giữ cả đầu lẫn đuôi, có dấu cắt ở giữa",
-      _d[0] == "đầu 0" and _d[-1] == "đuôi 299" and any("lược" in x for x in _d), _d[:3])
+      _d[0] == "đầu 0" and _d[-1] == "đuôi 299" and any("omitted" in x for x in _d), _d[:3])
 check("và KHÔNG phình vô hạn",
       len(_d) <= grok_cli._CHAN_DAU_TOI_DA + grok_cli._CHAN_DUOI_TOI_DA + 1, len(_d))
 

@@ -81,12 +81,12 @@ check("báo lỗi KHÔNG gợi ý lại chính provider đang bị chặn",
 _hint3 = model_limits.blocked_hint("groq", "llama-3.3-70b-versatile", 5000,
                                    ("groq", "openai"))
 check("provider bị chặn nhưng vẫn vừa TPM cũng KHÔNG được gợi ý lại",
-      "đổi sang" in _hint3 and "groq" not in _hint3.split("đổi sang", 1)[1])
-check("báo lỗi luôn nêu lối ra không cần đổi provider", "rút gọn" in _hint)
+      "switch to" in _hint3 and "groq" not in _hint3.split("switch to", 1)[1])
+check("báo lỗi luôn nêu lối ra không cần đổi provider", "shorten" in _hint)
 
 _hint2 = model_limits.blocked_hint("groq", "llama-3.3-70b-versatile", 21446, ())
 check("chưa cấu hình provider nào khác → không bịa ra lựa chọn",
-      "đổi sang" not in _hint2)
+      "switch to" not in _hint2)
 
 # ---- 4. Đường THẬT bị hỏng là Phase 8, không phải fast path ----
 #

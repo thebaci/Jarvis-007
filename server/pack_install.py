@@ -91,7 +91,7 @@ def doc_so() -> dict:
     except OSError:
         return {}
     except Exception as e:
-        print(f"[packs] sổ cài đặt hỏng: {e}", file=sys.stderr)
+        print(f"[packs] install ledger is corrupt: {e}", file=sys.stderr)
         # Sổ hỏng thì thử bản .bak. Mất sổ nghĩa là mất bản ghi ĐỒNG Ý cho gói có mã, và hệ
         # quả đúng hướng an toàn: gói đó sẽ hỏi lại chứ không tự chạy.
         try:
@@ -210,7 +210,7 @@ def _giai_nen(zf, infos, goc, dich: Path) -> None:
             continue
         ra = (dich / ten).resolve()
         if dich.resolve() not in ra.parents:
-            raise ValueError(f"member thoát khỏi thư mục đích: {i.filename}")
+            raise ValueError(f"member escapes the destination folder: {i.filename}")
         ra.parent.mkdir(parents=True, exist_ok=True)
         with zf.open(i) as src, open(ra, "wb") as f:
             shutil.copyfileobj(src, f, 64 * 1024)
@@ -366,7 +366,7 @@ def _liet_ke_vault(thu_muc):
         import pack_vault
         return pack_vault.liet_ke(thu_muc)
     except Exception as e:
-        print(f"[packs] không đọc được năng lực brain của gói: {e}", file=sys.stderr)
+        print(f"[packs] could not read the pack's brain capabilities: {e}", file=sys.stderr)
         return {}
 
 
@@ -427,7 +427,7 @@ def cai(staging_id: str, consent_sha256: str, *, enable: bool = False,
             import pack_vault
             bao_vault = pack_vault.cai(pid, dich, brain_root)
         except Exception as e:
-            print(f"[packs] ghi năng lực vào brain: {e}", file=sys.stderr)
+            print(f"[packs] writing capabilities into the brain failed: {e}", file=sys.stderr)
             bao_vault = {"loi": [str(e)]}
 
     so = doc_so()
@@ -508,7 +508,7 @@ def quet_tuong_thich() -> list:
             hang["disabled_reason"] = vi_sao
             doi = True
             ra.append({"id": pid, "reason": vi_sao})
-            print(f"[packs] tắt '{pid}': {vi_sao}", file=sys.stderr)
+            print(f"[packs] disabled '{pid}': {vi_sao}", file=sys.stderr)
     if doi:
         _ghi_so(so)
     return ra

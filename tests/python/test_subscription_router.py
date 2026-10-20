@@ -261,18 +261,18 @@ _h = limit_learner.parse_subscription_limit(
     f"Claude AI usage limit reached|{int(time.time()) + 5400}")
 _noi = model_limits.subscription_blocked_hint(_h, ("Groq (API)",))
 check("nói rõ là hết lượt gói Claude", "Claude" in _noi)
-check("nói còn bao lâu nữa", "giờ" in _noi or "phút" in _noi)
+check("nói còn bao lâu nữa", " h " in _noi or " min" in _noi)
 check("chỉ ra bộ não đang sẵn sàng để chạy tạm", "Groq (API)" in _noi)
 # Chỗ này dễ sai nhất: hạn mức thuê bao đếm LƯỢT theo giờ, rút gọn câu hỏi không giúp gì.
 # Khuyên "rút gọn yêu cầu" ở đây là chỉ sai đường cho người đang bí.
 check("CANARY: KHÔNG khuyên rút gọn yêu cầu (rút gọn không giải được hạn mức theo giờ)",
-      "KHÔNG giúp" in _noi)
+      "does NOT help" in _noi)
 check("không dùng em dash", "—" not in _noi)
 
 _h2 = limit_learner.parse_subscription_limit("You've hit your usage limit.",
                                              engine_hint="codex")
 _noi2 = model_limits.subscription_blocked_hint(_h2, ())
-check("không biết mốc reset thì NÓI là chưa biết", "chưa biết" in _noi2)
+check("không biết mốc reset thì NÓI là chưa biết", "does not know" in _noi2)
 check("chưa có bộ não dự phòng thì gợi ý cắm thêm", "Models" in _noi2)
 
 # Và main.py phải thật sự DÙNG câu đó ở cả bốn nhánh, thay cho chuỗi lỗi thô. Từ 0.55.44 bốn

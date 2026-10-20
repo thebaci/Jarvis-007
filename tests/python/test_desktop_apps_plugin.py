@@ -223,7 +223,7 @@ check("image_matches: Visual Studio Code -> Code.exe", m.image_matches("Visual S
 check("image_matches: Microsoft Edge -> msedge.exe", m.image_matches("Microsoft Edge", "msedge.exe"))
 check("image_matches: Google Chrome -> chrome.exe", m.image_matches("Google Chrome", "chrome.exe"))
 check("image_matches: Zalo không khớp chrome.exe", not m.image_matches("Zalo", "chrome.exe"))
-check("mô tả tool dặn [unverified] không được nói là xong", "[unverified]" in m.OUTCOME_RULE and "KHÔNG BAO GIỜ" in m.OUTCOME_RULE)
+check("mô tả tool dặn [unverified] không được nói là xong", "[unverified]" in m.OUTCOME_RULE and "NEVER" in m.OUTCOME_RULE)
 
 # ---- 5. Liệt kê ----
 import json
@@ -242,7 +242,7 @@ check("mức quyền: list readonly, open safe, close full",
       mm == {"javis_app_list": "readonly", "javis_app_open": "safe", "javis_app_close": "full"})
 tools_s, route_s = plugins_host.plugin_tools("suggest", None)
 res = asyncio.run(route_s["javis_app_open"]["call"]({"name": "chrome"}))
-check("chế độ suggest: mở app bị chặn bằng code", res.startswith("ERROR") and "mức quyền" in res)
+check("chế độ suggest: mở app bị chặn bằng code", res.startswith("ERROR") and "permission level" in res)
 
 if _fails:
     print("\nFAIL:", len(_fails), _fails)

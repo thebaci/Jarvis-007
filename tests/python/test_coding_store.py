@@ -209,7 +209,7 @@ k2 = coding_store.khoi_prompt(SID)
 check("chế độ Plan BẢO engine trả về kế hoạch rồi dừng",
       "Do NOT edit files" in k2 and "PLAN" in k2.upper())
 coding_store.dat_rang_buoc(SID, muc_quyen="full")
-check("mức Toàn quyền nói rõ được commit/push/deploy", "Toàn quyền" in coding_store.khoi_prompt(SID))
+check("mức Toàn quyền nói rõ được commit/push/deploy", "Full access" in coding_store.khoi_prompt(SID))
 coding_store.dat_rang_buoc(SID, thu_muc_id="")
 check("phiên chưa gắn thư mục thì KHÔNG chèn khối nào vào prompt",
       coding_store.khoi_prompt(SID) == "")

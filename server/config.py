@@ -613,7 +613,7 @@ def _doc_file_settings() -> dict:
             data = json.loads(SETTINGS_PATH.read_text(encoding="utf-8"))
             if isinstance(data, dict):
                 return data
-            raise ValueError(f"settings.json không phải object JSON ({type(data).__name__})")
+            raise ValueError(f"settings.json is not a JSON object ({type(data).__name__})")
         except FileNotFoundError:
             return {}
         except Exception as loi:      # noqa: BLE001 - phân loại ngay dưới
@@ -630,8 +630,8 @@ def _doc_file_settings() -> dict:
                 hong.write_bytes(raw)
         except Exception:
             pass
-        print(f"[config] settings.json ĐỌC HỎNG ({type(e).__name__}: {e}). Đã giữ bản hỏng ở {hong.name}; "
-              f"đang dùng bản dự phòng {_bak_path().name} nếu có.", file=__import__("sys").stderr)
+        print(f"[config] settings.json is UNREADABLE ({type(e).__name__}: {e}). Kept the broken copy at {hong.name}; "
+              f"using the backup {_bak_path().name} if there is one.", file=__import__("sys").stderr)
         for lan in range(_READ_TRIES):
             try:
                 data = json.loads(_bak_path().read_text(encoding="utf-8"))
@@ -646,8 +646,8 @@ def _doc_file_settings() -> dict:
         if isinstance(e, OSError):
             # Không mở được file (khoá, quyền), chứ không phải nội dung hỏng: file thật vẫn còn nguyên
             # đó. Coi là máy mới thì lần ghi kế tiếp xoá nó.
-            raise SettingsUnreadable(f"settings.json không đọc được ({type(e).__name__}: {e}) và không có bản "
-                                     f"dự phòng dùng được. Javis KHÔNG coi đây là máy mới để khỏi ghi đè cấu hình thật.")
+            raise SettingsUnreadable(f"settings.json cannot be read ({type(e).__name__}: {e}) and there is no usable "
+                                     f"backup. Jarvis 007 does NOT treat this as a new machine, so it does not overwrite the real configuration.")
         # Nội dung hỏng THẬT (JSON vỡ qua mọi lần đọc lại) và không có .bak: bản hỏng đã được giữ ở
         # `.bad-*` bên trên, nên vẫn như trước: chạy bằng mặc định để chủ cài lại được.
     return {}
@@ -836,7 +836,7 @@ def _ap_muc_mac_dinh(cfg: dict) -> bool:
 # Nắn ở ĐÂY chứ không ở main.py vì `aux_engine` đọc thẳng settings, không đi qua main.
 _PROVIDER_DA_GO = {
     # 0.50.0: Google ngắt Gemini CLI với MỌI tài khoản cá nhân từ 18/06/2026.
-    "gemini-cli": "Gemini CLI (Google đã ngắt tài khoản cá nhân)",
+    "gemini-cli": "Gemini CLI (Google cut off personal accounts)",
 }
 _DA_BAO_GO = set()      # chỉ in cảnh báo MỘT lần mỗi tiến trình: read_settings gọi liên tục
 
@@ -853,15 +853,15 @@ def _nan_provider_da_go(cfg: dict) -> None:
     main = m.get("main") or {}
     da_nan = []
     if main.get("provider") in _PROVIDER_DA_GO:
-        da_nan.append(("model chính", main["provider"]))
+        da_nan.append(("main model", main["provider"]))
         m["main"] = {"provider": "", "model": ""}
     aux = m.get("auxiliary") or {}
     if aux.get("provider") in _PROVIDER_DA_GO:
-        da_nan.append(("model việc nền", aux["provider"]))
+        da_nan.append(("background model", aux["provider"]))
         m["auxiliary"] = {**aux, "provider": "", "model": ""}
     tg = m.get("telegram") or {}
     if tg.get("provider") in _PROVIDER_DA_GO:
-        da_nan.append(("model Telegram", tg["provider"]))
+        da_nan.append(("Telegram model", tg["provider"]))
         m["telegram"] = {"provider": "", "model": ""}   # về "theo model chính", không chết kênh
     # Trường legacy `engine`: bỏ sót nó là `_effective_main` suy ngược ra provider vừa gỡ.
     if m.get("engine") in _PROVIDER_DA_GO:
@@ -872,8 +872,8 @@ def _nan_provider_da_go(cfg: dict) -> None:
         if khoa in _DA_BAO_GO:
             continue
         _DA_BAO_GO.add(khoa)
-        print(f"[config] {cho} đang trỏ vào provider đã gỡ '{prov}' "
-              f"({_PROVIDER_DA_GO[prov]}) - đã đưa về mặc định. Chọn lại ở trang Models.",
+        print(f"[config] {cho} points at the removed provider '{prov}' "
+              f"({_PROVIDER_DA_GO[prov]}) - reset to the default. Pick again on the Models page.",
               file=__import__("sys").stderr)
 
 
@@ -954,7 +954,7 @@ def read_settings():
         import secrets_store   # lazy: secrets_store import config → tránh vòng lặp import
         _transform_secret_fields(cfg, secrets_store.decrypt)
     except Exception as e:
-        print(f"[config] giải mã secret lỗi: {e}", file=__import__('sys').stderr)
+        print(f"[config] secret decryption failed: {e}", file=__import__('sys').stderr)
     if sig is not None and not tu_bak:
         _SETTINGS_CACHE["sig"] = sig
         _SETTINGS_CACHE["cfg"] = json.dumps(cfg, ensure_ascii=False)
@@ -983,7 +983,7 @@ def write_settings(cfg):
     cho phép người dùng Slack/WhatsApp) và mỗi lần chạy là xoá sạch tên miền, mật khẩu, khoá API
     (khách báo 08/10). Mảnh như thế giờ được gộp như update_settings, kèm một dòng log chỉ chỗ gọi."""
     if not isinstance(cfg, dict):
-        raise TypeError("write_settings cần một dict cấu hình đầy đủ")
+        raise TypeError("write_settings needs a full configuration dict")
     with _SETTINGS_LOCK:
         # MẢNH = thiếu quá nửa khoá gốc. Mảnh thật chỉ có một, hai khoá; còn cấu hình đầy đủ mà bỏ
         # hẳn một mục có chủ đích (đặt lại tài khoản: `pop("auth")` rồi ghi) vẫn phải xoá được.
@@ -991,8 +991,8 @@ def write_settings(cfg):
         if len(thieu) * 2 > len(_DEFAULT):
             import traceback
             noi = "".join(traceback.format_stack(limit=3)[:-1]).strip().replace("\n", " | ")
-            print(f"[config] write_settings nhận một MẢNH (thiếu {', '.join(thieu[:4])}...) - gộp thay vì "
-                  f"ghi đè cả file. Hãy dùng update_settings. Gọi từ: {noi[-300:]}",
+            print(f"[config] write_settings received a FRAGMENT (missing {', '.join(thieu[:4])}...) - merged instead of "
+                  f"overwriting the whole file. Use update_settings. Called from: {noi[-300:]}",
                   file=__import__("sys").stderr)
             day_du = read_settings()
             _deep_merge(day_du, json.loads(json.dumps(cfg)))
@@ -1032,12 +1032,12 @@ def _chan_ghi_trang(cfg) -> None:
         if not mat:
             return
     else:
-        mat = ["(không đọc được file trên đĩa)"]
+        mat = ["(could not read the file on disk)"]
     import traceback
     noi = "".join(traceback.format_stack(limit=4)[:-1]).strip().replace("\n", " | ")
-    print(f"[config] CHẶN ghi settings.json: cấu hình mới mất tài khoản và đưa {', '.join(mat[:5])} về mặc "
-          f"định trong khi file trên đĩa đã cài đặt. Gọi từ: {noi[-400:]}", file=__import__("sys").stderr)
-    raise SettingsUnreadable("Từ chối ghi một cấu hình trống đè lên máy đã cài đặt")
+    print(f"[config] BLOCKED a write to settings.json: the new configuration loses the account and resets {', '.join(mat[:5])} to the "
+          f"default while the file on disk is already set up. Called from: {noi[-400:]}", file=__import__("sys").stderr)
+    raise SettingsUnreadable("Refusing to write an empty configuration over a machine that is already set up")
 
 
 def _write_settings_full(cfg):
@@ -1047,7 +1047,7 @@ def _write_settings_full(cfg):
         import secrets_store
         _transform_secret_fields(out, secrets_store.encrypt)   # encrypt idempotent (bỏ qua enc:/plain:)
     except Exception as e:
-        print(f"[config] mã hoá secret lỗi: {e}", file=__import__('sys').stderr)
+        print(f"[config] secret encryption failed: {e}", file=__import__('sys').stderr)
     # KHÔNG PHÁ blob 2FA khi khoá đang lỗi: mất .secret_key thì read_settings giải mã
     # secret ra "", và nếu ghi thẳng "" xuống là blob mã hoá BAY MÀU vĩnh viễn - sau đó
     # có khôi phục lại đúng key cũ cũng không cứu được nữa. enabled=true + secret rỗng
@@ -1065,7 +1065,7 @@ def _write_settings_full(cfg):
     try:
         _giu_secret_khong_giai_duoc(out)
     except Exception as e:      # noqa: BLE001 - tấm che hỏng thì vẫn ghi như cũ, không chặn việc lưu
-        print(f"[config] giữ secret khi khoá lệch lỗi: {e}", file=__import__('sys').stderr)
+        print(f"[config] keeping secrets on a key mismatch failed: {e}", file=__import__('sys').stderr)
     _ghi_nguyen_tu(json.dumps(out, ensure_ascii=False, indent=2))
 
 
@@ -1126,7 +1126,7 @@ def apply_tool_env(cfg=None):
             os.environ.pop("ELEVENLABS_API_KEY", None)
             _TOOL_ENV_OWNED = False
     except Exception as e:
-        print(f"[config] apply_tool_env lỗi: {e}", file=__import__('sys').stderr)
+        print(f"[config] apply_tool_env failed: {e}", file=__import__('sys').stderr)
     # Windows: helper Python con (vd video-use) in Unicode ra console cp1252 sẽ crash
     # (UnicodeEncodeError) -> ép UTF-8 cho mọi tiến trình con. Tôn trọng giá trị user tự đặt.
     if os.name == "nt" and not os.environ.get("PYTHONUTF8"):
@@ -1471,7 +1471,7 @@ def _save_tokens(items):
         except Exception:
             pass
     except Exception as e:
-        print(f"[auth] không ghi được token: {e}", file=__import__('sys').stderr)
+        print(f"[auth] could not write the token: {e}", file=__import__('sys').stderr)
 
 
 def _token_hash(token: str) -> str:
@@ -1483,7 +1483,7 @@ def create_api_token(name: str, scope: str = "full") -> dict:
     raw = TOKEN_PREFIX + secrets.token_urlsafe(32)
     item = {
         "id": "tok_" + secrets.token_hex(6),
-        "name": (str(name or "").strip() or "không tên")[:60],
+        "name": (str(name or "").strip() or "unnamed")[:60],
         "scope": "chat" if str(scope) == "chat" else "full",
         "hash": _token_hash(raw),
         "prefix": raw[:12],

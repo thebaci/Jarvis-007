@@ -146,7 +146,7 @@ check("menu chế độ đánh dấu cái đang chọn", /chon: \(S\.rb\.muc_quy
 check("Plan nhìn khác hai mức kia", /\.cd-mq-suggest\s*\{/.test(CSS) && /\.cd-mq-full\s*\{/.test(CSS));
 check("server BẢO engine lập kế hoạch rồi dừng ở chế độ Plan", (() => {
   const ST = fs.readFileSync(path.join(ROOT, "server", "coding_store.py"), "utf8");
-  return /KHOI_PLAN/.test(ST) && /KHÔNG sửa file/.test(ST) && /def khoi_prompt/.test(ST);
+  return /KHOI_PLAN/.test(ST) && /Do NOT edit files/.test(ST) && /def khoi_prompt/.test(ST);
 })());
 check("the block is appended to the turn prompt (with the brain, for the pinned-folder block)", (() => {
   const MAIN = fs.readFileSync(path.join(ROOT, "server", "main.py"), "utf8");
@@ -259,11 +259,11 @@ check("server nhận cả DANH SÁCH thư mục cho một phiên", (() => {
 })());
 check("thư mục phụ đi vào prompt bằng đường dẫn tuyệt đối", (() => {
   const ST = fs.readFileSync(path.join(ROOT, "server", "coding_store.py"), "utf8");
-  return /ĐƯỜNG DẪN TUYỆT ĐỐI/.test(ST) && /def khoi_prompt[\s\S]{0,2000}thu_muc_cua_phien/.test(ST);
+  return /ABSOLUTE PATH/.test(ST) && /def khoi_prompt[\s\S]{0,2000}thu_muc_cua_phien/.test(ST);
 })());
 check("git chỉ chạy ở thư mục chính, và nói rõ điều đó", (() => {
   const ST = fs.readFileSync(path.join(ROOT, "server", "coding_store.py"), "utf8");
-  return /chỉ chạy ở thư mục làm việc/.test(ST);
+  return /only run in the working folder/.test(ST);
 })());
 // Menu tích chọn vẽ lại sau mỗi lần bấm, mỗi lần lại gắn một bộ nghe "bấm ra ngoài thì đóng".
 // Không gỡ thì chúng đọng lại và đóng oan một menu mở sau đó.

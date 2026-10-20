@@ -39,8 +39,8 @@ KNOWN_LIMITS: tuple[dict, ...] = (
         "context_window": 131072,
         "reserved_output_tokens": 2000,
         "window_seconds": 60,
-        "note": "Groq gói on_demand miễn phí. Chính hạn mức đã chặn Javis ở 21.446 token.",
-        "source": "Tài liệu rate limit công khai của Groq, tra ngày 2026-08-02",
+        "note": "Groq free on_demand tier. This very limit blocked Jarvis 007 at 21,446 tokens.",
+        "source": "Groq public rate limit documentation, checked on 2026-08-02",
         "verify": True,
     },
     {
@@ -51,9 +51,9 @@ KNOWN_LIMITS: tuple[dict, ...] = (
         "context_window": 131072,
         "reserved_output_tokens": 2000,
         "window_seconds": 60,
-        "note": "Model nhỏ hơn KHÔNG có nghĩa hạn mức rộng hơn - TPM và cửa sổ ngữ cảnh là "
-                "hai giới hạn khác nhau.",
-        "source": "Tài liệu rate limit công khai của Groq, tra ngày 2026-08-02",
+        "note": "A smaller model does NOT mean a wider limit - TPM and the context window are "
+                "two different limits.",
+        "source": "Groq public rate limit documentation, checked on 2026-08-02",
         "verify": True,
     },
     {
@@ -64,7 +64,7 @@ KNOWN_LIMITS: tuple[dict, ...] = (
         "context_window": 131072,
         "reserved_output_tokens": 2000,
         "window_seconds": 60,
-        "source": "Tài liệu rate limit công khai của Groq, tra ngày 2026-08-02",
+        "source": "Groq public rate limit documentation, checked on 2026-08-02",
         "verify": True,
     },
 )
@@ -133,27 +133,27 @@ def blocked_hint(provider: str, model: str, needed_tokens: int,
     limit = max((int(m["rolling_tpm"]) for m in matches), default=0)
     parts = []
     if limit:
-        parts.append(f"Lượt này cần khoảng {int(needed_tokens):,} token, "
-                     f"trong khi {provider} giới hạn {limit:,} token mỗi phút.")
+        parts.append(f"This turn needs about {int(needed_tokens):,} tokens, "
+                     f"while {provider} limits you to {limit:,} tokens per minute.")
     else:
-        parts.append(f"Lượt này cần khoảng {int(needed_tokens):,} token, "
-                     f"vượt hạn mức đã khai cho {provider}.")
+        parts.append(f"This turn needs about {int(needed_tokens):,} tokens, "
+                     f"which exceeds the limit declared for {provider}.")
     others = [p for p in (configured_providers or ())
               if str(p).strip().lower() != (provider or "").strip().lower()
               and fits_within(str(p), "", needed_tokens) is not False]
     if others:
-        parts.append("Có thể đổi sang " + ", ".join(sorted(set(others)))
-                     + " (chưa ghi nhận bị siết ở mức này).")
-    parts.append("Hoặc rút gọn yêu cầu, hoặc chờ hết cửa sổ một phút.")
+        parts.append("You can switch to " + ", ".join(sorted(set(others)))
+                     + " (not known to be throttled at this level).")
+    parts.append("Or shorten the request, or wait for the one-minute window to pass.")
     return " ".join(parts)
 
 
 # Nhãn người-đọc-được cho các engine chạy bằng gói thuê bao.
 SUBSCRIPTION_LABEL = {
-    "claude-code": "gói Claude (Claude Code)",
-    "codex": "gói ChatGPT (Codex)",
-    "antigravity-cli": "gói Google (Antigravity CLI)",
-    "grok-cli": "gói xAI (SuperGrok / X Premium+)",
+    "claude-code": "Claude plan (Claude Code)",
+    "codex": "ChatGPT plan (Codex)",
+    "antigravity-cli": "Google plan (Antigravity CLI)",
+    "grok-cli": "xAI plan (SuperGrok / X Premium+)",
 }
 
 
@@ -170,9 +170,9 @@ def subscription_blocked_hint(limit, configured_providers=(), now=None) -> str:
     import time as _time
 
     engine = getattr(limit, "engine", "") or ""
-    label = SUBSCRIPTION_LABEL.get(engine, "gói thuê bao đang dùng")
+    label = SUBSCRIPTION_LABEL.get(engine, "the subscription plan in use")
     scope = getattr(limit, "scope", "") or ""
-    parts = [f"Hết lượt {label}" + (f" trong cửa sổ {scope}." if scope else ".")]
+    parts = [f"The {label} has run out of usage" + (f" in the {scope} window." if scope else ".")]
 
     reset = float(getattr(limit, "reset_epoch", 0) or 0)
     ts = _time.time() if now is None else float(now)
@@ -180,20 +180,20 @@ def subscription_blocked_hint(limit, configured_providers=(), now=None) -> str:
         con = int(reset - ts)
         gio, phut = con // 3600, (con % 3600) // 60
         khi_nao = _time.strftime("%H:%M", _time.localtime(reset))
-        cho = f"{gio} giờ {phut} phút" if gio else f"{phut} phút"
-        parts.append(f"Khoảng {cho} nữa mới lại dùng được (tầm {khi_nao}).")
+        cho = f"{gio} h {phut} min" if gio else f"{phut} min"
+        parts.append(f"It will be usable again in about {cho} (around {khi_nao}).")
     elif getattr(limit, "reset_text", ""):
-        parts.append(f"Nhà cung cấp nói: {limit.reset_text}.")
+        parts.append(f"The provider says: {limit.reset_text}.")
     else:
-        parts.append("Nhà cung cấp không nói lúc nào reset, nên Javis cũng chưa biết.")
+        parts.append("The provider does not say when it resets, so Jarvis 007 does not know either.")
 
     others = sorted({str(p) for p in (configured_providers or ()) if str(p).strip()})
     if others:
-        parts.append("Đang chờ thì đổi tạm sang " + ", ".join(others)
-                     + " ở trang Models - hội thoại giữ nguyên.")
+        parts.append("While waiting, switch temporarily to " + ", ".join(others)
+                     + " on the Models page - the conversation stays as it is.")
     else:
-        parts.append("Chưa đấu bộ não nào khác để chạy tạm; thêm một API key ở trang Models "
-                     "là những lúc thế này vẫn làm việc được.")
-    parts.append("Rút gọn câu hỏi KHÔNG giúp gì ở đây - hạn mức này đếm lượt dùng theo giờ, "
-                 "không đếm độ dài.")
+        parts.append("No other brain is connected to run in the meantime; add an API key on the Models page "
+                     "and work can continue at times like this.")
+    parts.append("Shortening the question does NOT help here - this limit counts usage per hour, "
+                 "not length.")
     return " ".join(parts)

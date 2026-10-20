@@ -956,7 +956,7 @@ async def form_goal(message_ref: str, context: dict, deps: "GoalDeps") -> GoalRe
     """
     store = deps.store
     if store is None:
-        raise GoalRejected("thiếu kho mục tiêu")
+        raise GoalRejected("missing the goal store")
     p = context["principal"]
     old = store.find_by_key(p, message_ref)
     if old is not None:
@@ -965,7 +965,7 @@ async def form_goal(message_ref: str, context: dict, deps: "GoalDeps") -> GoalRe
     proposal = context.get("proposal")
     if proposal is None:
         if not deps.budget.try_reserve():
-            raise GoalRejected(f"hết hạn mức gọi model ({deps.budget.max_calls} lượt)")
+            raise GoalRejected(f"model call budget exhausted ({deps.budget.max_calls} calls)")
         # Lượt bộ lập mục tiêu chưa có mục tiêu nào để tính vào: giữ chỗ trong sổ bền của kho, trong trần chung,
         # TRƯỚC khi gọi engine (review e2e P1-1). Chạm trần thì không gọi.
         ask_deps = deps
@@ -973,14 +973,14 @@ async def form_goal(message_ref: str, context: dict, deps: "GoalDeps") -> GoalRe
             lid = store.reserve_ledger_call(p, "framer", message_ref)
             if lid is None:
                 deps.budget.release()
-                raise GoalRejected("đã chạm trần tổng lượt gọi của Resonance; không gọi bộ lập mục tiêu")
+                raise GoalRejected("the overall Resonance call ceiling was reached; not calling the goal framer")
             ask_deps = dataclasses_replace(deps, budget=_LedgerCall(deps.budget, store, p, lid))
         turn = await ask_deps._ask(FRAMER_SYSTEM, framer_prompt(user_text, str(context.get("extra") or "")))
         if turn.error_code:
-            raise GoalRejected(f"bộ lập mục tiêu lỗi: {turn.error_code}: {turn.error_detail}")
+            raise GoalRejected(f"the goal framer failed: {turn.error_code}: {turn.error_detail}")
         proposal = _parse_json_obj(turn.text)
         if proposal is None:
-            raise GoalRejected("bộ lập mục tiêu không trả JSON đọc được")
+            raise GoalRejected("the goal framer did not return readable JSON")
     frame = validate_proposal(proposal, user_text, user_unsure=bool(context.get("user_unsure")),
                               user_constraints=context.get("constraints") or (), source_ref=message_ref)
     intent = store.add_intent(p, context.get("session_id") or "", context.get("message_id"), user_text,
@@ -3920,31 +3920,31 @@ def apply_feedback(store, owner, goal_id: str, kind: str, payload: dict, brain_r
     payload = dict(payload or {})
     g = store.get(owner, goal_id)
     if g is None:
-        raise ScopeError("mục tiêu không tồn tại trong brain này")
+        raise ScopeError("the goal does not exist in this brain")
     try:
         exp = int(payload.get("expected_revision"))
     except (TypeError, ValueError):
-        raise GoalRejected("cần expected_revision (revision đang hiện trên thẻ)")
+        raise GoalRejected("expected_revision is required (the revision currently shown on the card)")
     comment = str(payload.get("comment") or "").strip()[:500]
     data = {"comment": comment} if comment else {}
     if kind in ("outcome_accepted", "outcome_rejected"):
         cid = str(payload.get("criterion_id") or "")
         crit = next((c for c in g.criteria if c.get("id") == cid), None)
         if crit is None:
-            raise GoalRejected("không có tiêu chí này trong revision hiện tại")
+            raise GoalRejected("this criterion does not exist in the current revision")
         if crit.get("evaluator") != "human_confirmation":
-            raise GoalRejected("tiêu chí này do host kiểm bằng bằng chứng, không nhận xác nhận tay")
+            raise GoalRejected("this criterion is checked by the host from evidence, manual confirmation is not accepted")
         if exp != g.revision:
-            raise ConflictError(f"mục tiêu đang ở revision {g.revision}, không phải {exp}")
+            raise ConflictError(f"the goal is at revision {g.revision}, not {exp}")
         ref = _artifact_ref_of(store, owner, g, brain_root)
         if not ref:
-            raise GoalRejected("chưa có sản phẩm của cách hiểu này để xác nhận")
+            raise GoalRejected("there is no product of this interpretation to confirm yet")
         if str(payload.get("artifact_ref") or "") != ref:
-            raise ConflictError("sản phẩm đã đổi so với bản đang hiện; xem bản mới rồi xác nhận lại")
+            raise ConflictError("the product has changed since the version shown; view the new version and confirm again")
         data.update({"criterion_id": cid, "artifact_ref": ref,
                      "verdict": "met" if kind == "outcome_accepted" else "not_met"})
     elif kind not in ("goal_fit_confirmed", "goal_fit_rejected"):
-        raise GoalRejected(f"loại phản hồi không hỗ trợ: {kind}")
+        raise GoalRejected(f"unsupported feedback type: {kind}")
     idem = str(payload.get("idempotency_key") or "").strip()[:120] or None
     return store.record_feedback(owner, goal_id, exp, kind, data, idem)
 
@@ -3958,7 +3958,7 @@ def apply_command(store, owner, goal_id: str, command: str, payload: dict, brain
     payload = dict(payload or {})
     g = store.get(owner, goal_id)
     if g is None:
-        raise ScopeError("mục tiêu không tồn tại trong brain này")
+        raise ScopeError("the goal does not exist in this brain")
     seen = payload.get("expected_revision")
     if command == "pause":
         store.set_paused(owner, goal_id, True)
@@ -3972,7 +3972,7 @@ def apply_command(store, owner, goal_id: str, command: str, payload: dict, brain
         try:
             exp = int(seen)
         except (TypeError, ValueError):
-            raise GoalRejected("cần expected_revision (revision đang hiện trên thẻ)")
+            raise GoalRejected("expected_revision is required (the revision currently shown on the card)")
         g2 = store.drop_directive(owner, goal_id, exp, str(payload.get("field") or ""), str(payload.get("key") or ""))
         return {"ok": True, "status": "revised", "revision": g2.revision}
     if command == "approve_scope":
@@ -4000,10 +4000,10 @@ def apply_command(store, owner, goal_id: str, command: str, payload: dict, brain
     if command == "revoke_grant":
         res = store.revoke_scope(owner, goal_id, int(seen) if seen not in (None, "") else None)
         if not res.get("ok"):
-            return {"ok": False, "status": "no_scope", "reason": "mục tiêu chưa có phạm vi nào để thu hồi"}
+            return {"ok": False, "status": "no_scope", "reason": "the goal has no scope to revoke"}
         return {"ok": True, "status": "revoked", "generation": res.get("generation")}
     if command != "resume":
-        raise GoalRejected(f"lệnh không hỗ trợ: {command}")
+        raise GoalRejected(f"unsupported command: {command}")
     if store.scope_state(owner, goal_id).get("state") == "revoked":
         # A4: Tiếp tục khi đang thu hồi là CẤP LẠI (gốc mới), hành động owner riêng; không đảo dòng cũ.
         store.regrant_scope(owner, goal_id)
@@ -4016,13 +4016,13 @@ def apply_command(store, owner, goal_id: str, command: str, payload: dict, brain
         still = [x["description"] for x in observe_guards(g, probe) if x["verdict"] != "clear"]
         if still:
             return {"ok": False, "status": "blocked",
-                    "reason": "điều kiện bảo vệ vẫn chưa đúng: " + "; ".join(still)}
+                    "reason": "the guard condition is still not true: " + "; ".join(still)}
         store.clear_block(owner, goal_id, "guard")
     elif reason == "fit_rejected":
         return {"ok": False, "status": "waiting",
-                "reason": "cách hiểu đang bị đánh dấu chưa đúng; nói rõ hơn trong khung chat để Javis sửa cách hiểu"}
+                "reason": "the interpretation is marked as wrong; say it more clearly in the chat box so Jarvis 007 can fix the interpretation"}
     elif reason in ("budget",):
-        return {"ok": False, "status": "blocked", "reason": "đã hết hạn mức lượt gọi của mục tiêu"}
+        return {"ok": False, "status": "blocked", "reason": "the goal's call budget is exhausted"}
     return {"ok": True, "status": "resumed"}
 
 
@@ -4239,25 +4239,25 @@ def _trial_cases(cases: Any) -> list:
     chỉ người dùng chấm được."""
     items = (cases or {}).get("cases") if isinstance(cases, dict) else None
     if not isinstance(items, list) or not 1 <= len(items) <= TRIAL_CASES_MAX:
-        raise GoalRejected(f"cần 1 đến {TRIAL_CASES_MAX} tình huống")
+        raise GoalRejected(f"need 1 to {TRIAL_CASES_MAX} scenarios")
     out, seen = [], set()
     for c in items:
         if not isinstance(c, dict):
-            raise GoalRejected("tình huống phải là object")
+            raise GoalRejected("a scenario must be an object")
         cid, split = str(c.get("id") or "").strip(), str(c.get("split") or "")
         if not cid or cid in seen or split not in TRIAL_SPLITS or not str(c.get("input") or "").strip():
-            raise GoalRejected("tình huống cần id duy nhất, split tuning/holdout và input")
+            raise GoalRejected("a scenario needs a unique id, a tuning/holdout split and an input")
         exp = dict(c.get("expect") or {})
         if exp.get("evaluator") == "human_confirmation":
             exp = {"evaluator": "human_confirmation", "description": str(exp.get("description") or "")[:300]}
         else:
             exp = {k: exp[k] for k in ("must_contain", "min_chars") if k in exp}
             if not exp:
-                raise GoalRejected(f"tình huống {cid} chưa có cách chấm")
+                raise GoalRejected(f"scenario {cid} has no way to be scored")
         seen.add(cid)
         out.append({"id": cid, "split": split, "input": str(c["input"])[:4000], "expect": exp})
     if not any(c["split"] == "tuning" for c in out) or not any(c["split"] == "holdout" for c in out):
-        raise GoalRejected("cần ít nhất một tình huống tập thử và một tình huống giữ riêng")
+        raise GoalRejected("need at least one tuning scenario and one holdout scenario")
     return out
 
 
@@ -4271,7 +4271,7 @@ def _grade(text: str, rubric: list, expect: dict) -> tuple:
     đáp án của tình huống. Không đọc lời tự khai của đầu ra."""
     checks = [_check_text(text, r["params"]) for r in rubric] + [_check_text(text, expect)]
     verdicts = [v for v, _ in checks]
-    why = "; ".join(w for v, w in checks if v != "met")[:300] or "đạt"
+    why = "; ".join(w for v, w in checks if v != "met")[:300] or "met"
     if all(v == "met" for v in verdicts):
         return "met", why
     if "not_met" in verdicts:
@@ -4302,7 +4302,7 @@ def _trial_post(goal: GoalRecord, case: dict, ref: str, rubric: list, rubric_has
     row = {"action_id": act["id"], "method": ref, "rubric_hash": rubric_hash}
     if receipt.status != "succeeded":
         store.finish_action(p, act["id"], receipt.status, rd)
-        return {**row, "verdict": "unknown", "reason": f"lượt lỗi: {receipt.error_code or receipt.status}",
+        return {**row, "verdict": "unknown", "reason": f"the turn failed: {receipt.error_code or receipt.status}",
                 "error_code": receipt.error_code}
     try:
         text = Path(receipt.output_ref).read_text(encoding="utf-8")
@@ -4312,7 +4312,7 @@ def _trial_post(goal: GoalRecord, case: dict, ref: str, rubric: list, rubric_has
     rd["evidence_ids"] = [eid] if eid else []
     store.finish_action(p, act["id"], receipt.status, rd)
     if eid is None:
-        return {**row, "verdict": "unknown", "reason": "không lưu được bằng chứng"}
+        return {**row, "verdict": "unknown", "reason": "could not save the evidence"}
     verdict, why = _grade(text, rubric, case["expect"])
     return {**row, "verdict": verdict, "reason": why, "evidence_id": eid, "output_sha256": receipt.output_sha256}
 
@@ -4371,7 +4371,7 @@ async def compare_methods(goal_id: str, baseline_ref: str, candidate_ref: str, c
     `_trial_step`, dùng chung `_compare_run` với khoá lượt đã giữ."""
     store, p = deps.store, deps.principal
     if store is None or p is None:
-        raise GoalRejected("thiếu kho hoặc principal")
+        raise GoalRejected("missing the store or principal")
     g = store.get(p, goal_id)
     if g is None:
         raise GoalRejected("this goal does not exist in the brain")
@@ -4379,7 +4379,7 @@ async def compare_methods(goal_id: str, baseline_ref: str, candidate_ref: str, c
     items = _trial_cases(cases)
     runnable = [c for c in items if c["expect"].get("evaluator") != "human_confirmation"]
     if not runnable:
-        raise GoalRejected("không tình huống nào host tự chấm được")
+        raise GoalRejected("no scenario can be scored by the host itself")
     now = deps.clock()
     owner = secrets.token_hex(6)
     until = now + 2 * len(runnable) * (float(deps.max_wall_s) + float(deps.wall_grace_s)) + LEASE_EXTRA_S
@@ -4395,16 +4395,16 @@ async def compare_methods(goal_id: str, baseline_ref: str, candidate_ref: str, c
 def _compare_check(g: GoalRecord, baseline_ref: str, candidate_ref: str, deps: GoalDeps) -> None:
     store, p = deps.store, deps.principal
     if agent_gate(store, p.brain_id, g.agent_key)[1]:
-        raise GoalRejected("trợ lý của mục tiêu chưa bật Auto")
+        raise GoalRejected("the goal's assistant does not have Auto turned on")
     _, why = _trial_gate(g, deps, deps.clock())
     if why:
-        raise GoalRejected(f"mục tiêu không chạy được lúc này: {why}")
+        raise GoalRejected(f"the goal cannot run right now: {why}")
     if baseline_ref not in METHODS or candidate_ref not in METHODS:
-        raise GoalRejected("cách làm phải là một mục khai báo sẵn trong METHODS")
+        raise GoalRejected("the method must be an entry declared in METHODS")
     if baseline_ref == candidate_ref:
-        raise GoalRejected("ứng viên phải khác cách làm hiện tại (đúng một thay đổi)")
+        raise GoalRejected("the candidate must differ from the current method (exactly one change)")
     if baseline_ref != effective_method(g):
-        raise GoalRejected("baseline phải là cách làm mục tiêu đang dùng ở revision này")
+        raise GoalRejected("the baseline must be the method the goal is using at this revision")
 
 
 def _compare_out(g: GoalRecord, baseline_ref: str, candidate_ref: str) -> dict:
@@ -4454,7 +4454,7 @@ def _trial_not_run(deps: GoalDeps, act: dict) -> None:
     đối soát hoàn đúng lượt đó (ranh giới chưa gọi engine giữ như A2)."""
     deps.store.finish_action(deps.principal, act["id"], "cancelled", {
         "action_id": act["id"], "status": "cancelled", "error_code": "not_run",
-        "error_detail": "lần thức bị huỷ trước khi gọi model; lượt được hoàn khi đối soát phép thử"})
+        "error_detail": "the wake-up was cancelled before calling the model; the turn was given back when reconciling the trial"})
 
 
 async def _compare_run(g: GoalRecord, baseline_ref: str, candidate_ref: str, items: list, deps: GoalDeps, *,
@@ -4477,7 +4477,7 @@ async def _compare_run(g: GoalRecord, baseline_ref: str, candidate_ref: str, ite
     cases_hash = _sha(_canon(items).encode("utf-8"))
     runnable = [c for c in items if c["expect"].get("evaluator") != "human_confirmation"]
     if not runnable:
-        raise GoalRejected("không tình huống nào host tự chấm được")
+        raise GoalRejected("no scenario can be scored by the host itself")
     need = 2 * len(runnable)
     out = {**_compare_out(g, baseline_ref, candidate_ref), "rubric_hash": rubric_hash, "cases_hash": cases_hash}
     # A1 (review tích hợp, P1-3): GHIM mã và version trợ lý cho cả phép thử. Mọi lượt, và bước áp dụng, phải còn đúng
@@ -4517,7 +4517,7 @@ async def _compare_run(g: GoalRecord, baseline_ref: str, candidate_ref: str, ite
     for c in ([] if stop else items):
         row = {"case_id": c["id"], "split": c["split"]}
         if c["expect"].get("evaluator") == "human_confirmation":
-            skip = {"verdict": "unknown", "reason": "chỉ người dùng chấm được; phép thử không tự chấm",
+            skip = {"verdict": "unknown", "reason": "only the user can score this; the trial does not score it itself",
                     "skipped": True, "rubric_hash": rubric_hash}
             results.append({**row, "baseline": dict(skip), "candidate": dict(skip)})
             continue
@@ -4551,12 +4551,12 @@ async def _compare_run(g: GoalRecord, baseline_ref: str, candidate_ref: str, ite
                 # Lỗi SAU khi có thể đã gọi model (lưu bằng chứng, ghi receipt, chấm): GIỮ lượt đã tính, không hoàn;
                 # phép thử dừng, không kết luận. Hành động dở (nếu receipt chưa ghi được) để _reconcile chốt sau.
                 row[arm] = {"action_id": act["id"], "verdict": "unknown", "rubric_hash": rubric_hash,
-                            "reason": f"lỗi sau lượt gọi: {type(e).__name__}"}
+                            "reason": f"error after the call: {type(e).__name__}"}
                 stop = f"storage_error_after_call: {type(e).__name__}: {_short(e)}"
                 break
         if stop:
             if "baseline" in row:
-                row.setdefault("candidate", {"verdict": "unknown", "reason": "không chạy: phép thử đã dừng",
+                row.setdefault("candidate", {"verdict": "unknown", "reason": "not run: the trial has stopped",
                                              "rubric_hash": rubric_hash})
                 results.append(row)
             break
@@ -4726,7 +4726,7 @@ async def _trial_step(ctx: _WakeCtx, deps: GoalDeps, now: float) -> Assessment:
     calls = sum(int(((out.get("usage") or {}).get(a) or {}).get("calls") or 0) for a in ("baseline", "candidate"))
     ctx.log.update(decision="trial", model_calls=calls, served=list(t["ids"]) if out.get("created") else [],
                    action_id=out.get("experiment_id") or "",
-                   why=f"phép thử cách làm: {out.get('verdict')}/{out.get('reason')}")
+                   why=f"method trial: {out.get('verdict')}/{out.get('reason')}")
     if not out.get("created"):
         await _off_loop(store.serve_reasons, p, g.id, t["ids"], "trial_" + str(out.get("reason") or "budget"), now)
     # Phép thử đã chốt: chỉ hẹn đối soát CỦA NÓ hết nghĩa (chốt theo id). Hẹn gỡ chặn mà cổng vừa ghi trong lúc thử
@@ -4734,8 +4734,8 @@ async def _trial_step(ctx: _WakeCtx, deps: GoalDeps, now: float) -> Assessment:
     if rec_id and not await _off_loop(_trial_open_running, store, p, g.id):
         await _off_loop(store.serve_reasons, p, g.id, [rec_id], "trial_done", now)
     await _off_loop(store.recompute_wake, p, g.id)
-    return Assessment(g.id, g.revision, "unknown", rationale=f"phép thử cách làm {t['to']}: {out.get('verdict')} "
-                      f"({out.get('reason')}), áp dụng: {bool(out.get('applied'))}", evaluated_at=now)
+    return Assessment(g.id, g.revision, "unknown", rationale=f"method trial {t['to']}: {out.get('verdict')} "
+                      f"({out.get('reason')}), applied: {bool(out.get('applied'))}", evaluated_at=now)
 
 
 def _method_label(ref: str) -> tuple:

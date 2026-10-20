@@ -44,7 +44,7 @@ def _da_go():
         import core_off
         return core_off.da_go("connectors")
     except Exception as e:
-        print(f"[catalog] không đọc được danh sách đã gỡ: {e}", file=sys.stderr)
+        print(f"[catalog] could not read the removed list: {e}", file=sys.stderr)
         return set()
 
 
@@ -57,7 +57,7 @@ def _lop_goi():
         import packs
         return packs.connector_layers()
     except Exception as e:
-        print(f"[catalog] không nạp được gói: {e}", file=sys.stderr)
+        print(f"[catalog] could not load packs: {e}", file=sys.stderr)
         return {}
 
 
@@ -93,7 +93,7 @@ def load():
         by_id = {c["id"]: c for c in data.get("connectors", []) if c.get("id")
                  and c["id"] not in go}
     except Exception as e:
-        print(f"[catalog] lỗi đọc {CATALOG_PATH.name}: {e}", file=sys.stderr)
+        print(f"[catalog] error reading {CATALOG_PATH.name}: {e}", file=sys.stderr)
         return _cache["by_id"]   # file hỏng → giữ bản cache cũ
     # Gói PHỦ THÊM, không bao giờ ghi đè: `packs` đã từ chối mọi connector trùng id với kho
     # gốc, nên `setdefault` ở đây chỉ là chốt thứ hai cho chắc. Ghi đè được nghĩa là một gói
@@ -113,7 +113,7 @@ def tat_ca():
         data = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
         return {c["id"]: c for c in data.get("connectors", []) if c.get("id")}
     except Exception as e:
-        print(f"[catalog] lỗi đọc {CATALOG_PATH.name}: {e}", file=sys.stderr)
+        print(f"[catalog] error reading {CATALOG_PATH.name}: {e}", file=sys.stderr)
         return {}
 
 
@@ -545,9 +545,9 @@ def allowed(connector, perm, mode, tool, args=None):
         return True, ""
     if eff == "safe" and cls == "write":
         return True, ""
-    vi_sao = ("loop/chạy nền đang ở chế độ giới hạn" if (mode or "full") in ("suggest", "auto")
-              else "kết nối đang đặt mức quyền hạn chế")
-    loai = "NGUY HIỂM (tiền/đơn/gửi tin)" if cls == "danger" else "ghi"
+    vi_sao = ("the loop/background run is in a restricted mode" if (mode or "full") in ("suggest", "auto")
+              else "the connection is set to a restricted permission level")
+    loai = "DANGEROUS (money/orders/sending messages)" if cls == "danger" else "write"
     # Tool cổng: nêu đúng lệnh con bị chặn. Chỉ nói "COMPOSIO_MULTI_EXECUTE_TOOL bị chặn" thì
     # model tưởng cả cổng hỏng, trong khi các lệnh đọc đi cùng cổng đó vẫn chạy được.
     cr = call_rule(connector, tool)
@@ -558,12 +558,12 @@ def allowed(connector, perm, mode, tool, args=None):
                for it in (_call_rule_items(cr, args) or [])
                if _MUC.get(_loai_hanh_dong_con(cr, it), 2) > tran]
         if ten:
-            con_chay = ("Lệnh đọc vẫn chạy được ở mức này" if eff == "readonly"
-                        else "Lệnh đọc và lệnh ghi thường vẫn chạy được ở mức này")
+            con_chay = ("Read commands still work at this level" if eff == "readonly"
+                        else "Read commands and ordinary write commands still work at this level")
             if cr.get("items") and eff == "readonly":
-                con_chay = "Lệnh đọc (LIST, GET, FETCH, SEARCH...) vẫn chạy được ở mức này"
-            return False, (f"Lệnh {', '.join(ten[:8])} qua '{tool}' bị chặn: thao tác {loai} trong khi "
-                           f"{vi_sao} (mức hiệu lực: {eff}). {con_chay}. Muốn sửa/gửi/xoá thì bảo "
-                           f"người dùng nâng quyền ở trang Kết nối.")
-    return False, (f"Tool '{tool}' bị chặn: thao tác {loai} trong khi {vi_sao} (mức hiệu lực: {eff}). "
-                   f"Nâng quyền ở trang Kết nối nếu thật sự cần.")
+                con_chay = "Read commands (LIST, GET, FETCH, SEARCH...) still work at this level"
+            return False, (f"Command {', '.join(ten[:8])} via '{tool}' is blocked: a {loai} action while "
+                           f"{vi_sao} (effective level: {eff}). {con_chay}. To edit/send/delete, tell "
+                           f"the user to raise the permission on the Connections page.")
+    return False, (f"Tool '{tool}' is blocked: a {loai} action while {vi_sao} (effective level: {eff}). "
+                   f"Raise the permission on the Connections page if you really need it.")
