@@ -1,155 +1,156 @@
 # Spec: Jarvis 007 CLI
 
-> Bản spec dev, viết 2026-08-03 trên nền v0.16.1. Mục tiêu: đưa Jarvis 007 ra terminal mà KHÔNG
-> nhân bản runtime, bằng cách coi CLI là một KÊNH thứ ba bên cạnh dashboard và Telegram.
+> Dev spec, written 2026-08-03 on top of v0.16.1. Goal: bring Jarvis 007 into the terminal WITHOUT
+> duplicating the runtime, by treating the CLI as a third CHANNEL next to the dashboard and Telegram.
 >
-> **Trạng thái: ĐÃ TRIỂN KHAI ĐỦ 4 PHASE ở v0.17.0** (2026-08-04). Ba chỗ lệch so với bản
-> spec này, ghi lại ngay đây thay vì để người đọc tự đối chiếu:
+> **Status: ALL 4 PHASES DEPLOYED in v0.17.0** (2026-08-04). Three places differ from this
+> spec, recorded right here instead of leaving the reader to cross-check:
 >
-> - **Phụ thuộc chỉ còn `httpx`, bỏ `rich`.** Xem mục 6.
-> - **`render.py` là một file phẳng**, không tách thư mục `commands/` thành sáu file. Cả CLI
->   gói gọn trong năm file; chia nhỏ hơn nữa là thêm chỗ để lạc chứ không thêm gì.
-> - **Ba câu hỏi ở mục 8 đã tự chốt** theo phương án tốt nhất, ghi ngay tại mục đó.
+> - **The only dependency is `httpx`, `rich` was dropped.** See section 6.
+> - **`render.py` is a single flat file**, the `commands/` directory is not split into six files.
+>   The whole CLI fits in five files; splitting it further adds places to get lost rather than adding anything.
+> - **The three questions in section 8 were settled** with the best option, recorded right in that section.
 
-## 1. Quyết định cốt lõi và vì sao
+## 1. The core decision and why
 
-**Jarvis 007 CLI là CLIENT MỎNG, không phải agent độc lập.**
+**The Jarvis 007 CLI is a THIN CLIENT, not an independent agent.**
 
-Jarvis 007 hôm nay là một máy chủ 43 nghìn dòng Python. Giá trị của nó nằm ở brain trên đĩa, trung
-tâm MCP, loop, việc Kanban, nhắc hẹn và runtime tiết kiệm token. Gần như toàn bộ những thứ đó
-đòi một tiến trình SỐNG DÀI: loop chạy theo chu kỳ, nhắc hẹn chờ tới giờ, hub giữ kết nối MCP,
-kho capability giữ registry. Một CLI gõ xong là thoát không phải chỗ cho chúng.
+Jarvis 007 today is a 43-thousand-line Python server. Its value lies in the brain on disk, the MCP
+hub, loops, Kanban work, reminders and the token-saving runtime. Nearly all of that
+demands a LONG-LIVED process: loops run on a cycle, reminders wait for their time, the hub keeps
+MCP connections, the capability store keeps the registry. A CLI that exits once you finish typing is no place for them.
 
-Viết "CLI tự chạy, không cần server" nghĩa là chép lại từng đó thứ sang một bản thứ hai. Đó
-đúng là cái bẫy vừa mắc ở 0.15.0 với cây thư mục (viết bản thứ hai của thứ đã có, rồi hai bản
-trôi lệch), nhưng ở quy mô gấp trăm lần. **Không làm.**
+Writing "the CLI runs by itself, no server needed" means copying all of that into a second copy.
+That is exactly the trap just fallen into in 0.15.0 with the folder tree (writing a second copy of
+something that already exists, then the two drifting apart), but at a hundred times the scale. **Not doing it.**
 
-Cái làm phương án client mỏng rẻ hơn nhiều so với cảm giác ban đầu: Jarvis 007 ĐÃ CÓ khái niệm
-kênh. `channel_context.build_channel_block(source, meta, ...)` dựng khối ngữ cảnh theo kênh,
-và `server/telegram_bot.py` được tách rời hẳn khỏi lõi - `main.py` chỉ cấp cho nó `answer_fn`
-và `command_fn`. Telegram là kênh thứ hai. **CLI là kênh thứ ba, đi qua đúng lõi đó.**
+What makes the thin client option much cheaper than it first seemed: Jarvis 007 ALREADY HAS the
+concept of a channel. `channel_context.build_channel_block(source, meta, ...)` builds the
+per-channel context block, and `server/telegram_bot.py` is fully decoupled from the core - `main.py`
+only gives it an `answer_fn` and a `command_fn`. Telegram is the second channel. **The CLI is the
+third channel, going through exactly that core.**
 
-## 2. Hai cái lợi, và cái thứ hai lớn hơn
+## 2. Two benefits, and the second is bigger
 
-**Lợi trực tiếp.** Gõ thẳng trong terminal, đưa vào đường ống Unix, cắm cron, hỏi brain trên
-VPS từ laptop mà không mở trình duyệt.
+**Direct benefit.** Type straight in the terminal, feed it into Unix pipelines, plug it into cron,
+ask the brain on the VPS from a laptop without opening a browser.
 
-**Lợi chiến lược: câu chuyện cài đặt.** Cửa vào Jarvis 007 hôm nay là "dựng Docker trên VPS" - một
-rào cản lớn với người mới. `pipx install javis-cli` rồi gõ `javis` là cửa nhẹ hơn hẳn. Với
-lượng người đã fork repo, đây là đòn bẩy đáng giá hơn bản thân sự tiện tay.
+**Strategic benefit: the installation story.** The way into Jarvis 007 today is "set up Docker on a
+VPS" - a big barrier for newcomers. `pipx install javis-cli` and then typing `javis` is a much lighter
+door. Given the number of people who have forked the repo, this is a more valuable lever than the convenience itself.
 
-## 3. Hiện trạng: bốn chỗ đang thiếu
+## 3. Current state: four things missing
 
-Đã soi mã, không đoán.
+Checked in the code, not guessed.
 
-**3.1. Không có đường chat qua HTTP.** Chat chỉ đi qua `@app.websocket("/ws")` (main.py:6817)
-và đường long-polling của Telegram. Không có endpoint nào nhận một câu hỏi rồi trả một câu trả
-lời. Hôm nay `curl` một câu hỏi vào Jarvis 007 là không làm được.
+**3.1. There is no chat path over HTTP.** Chat only goes through `@app.websocket("/ws")` (main.py:6817)
+and Telegram's long-polling path. No endpoint takes a question and returns an answer. Today
+you cannot `curl` a question into Jarvis 007.
 
-**3.2. Xác thực chỉ nhận cookie.** `_auth_guard` (main.py:163) kiểm
-`cfgmod.valid_session(request.cookies.get("javis_session"))`, và `/ws` cũng đọc `ws.cookies`.
-Không có token cho client ngoài trình duyệt.
+**3.2. Authentication only accepts cookies.** `_auth_guard` (main.py:163) checks
+`cfgmod.valid_session(request.cookies.get("javis_session"))`, and `/ws` also reads `ws.cookies`.
+There is no token for clients outside the browser.
 
-Có sẵn MỘT tiền lệ đúng hướng: `/hub/mcp` xác thực bằng `Bearer` với `hub_token()`
-(mcp_hub.py:46) - token sinh ngẫu nhiên, lưu ở `STATE_DIR/.hub_token`, `chmod 600`, so bằng
-`secrets.compare_digest`. Thiết kế token cho CLI đi theo tiền lệ này nhưng phải NHIỀU token,
-THU HỒI được, và BĂM khi lưu.
+There is ONE precedent in the right direction: `/hub/mcp` authenticates with `Bearer` and `hub_token()`
+(mcp_hub.py:46) - a randomly generated token, stored at `STATE_DIR/.hub_token`, `chmod 600`, compared
+with `secrets.compare_digest`. The CLI token design follows this precedent but must be MANY tokens,
+REVOCABLE, and HASHED when stored.
 
-Một chi tiết thuận lợi: `_csrf_guard` chạy TRƯỚC `_auth_guard` và cố ý bỏ qua client không
-phải trình duyệt (không gửi `Origin`). CLI vì vậy không vướng CSRF.
+One favorable detail: `_csrf_guard` runs BEFORE `_auth_guard` and deliberately skips clients that
+are not browsers (they send no `Origin`). So the CLI does not run into CSRF.
 
-**3.3. Không có đóng gói.** Repo không có `pyproject.toml`, không có `console_scripts`. Đường
-chạy hiện tại là `.bat`, `.sh`, `.vbs` và Docker.
+**3.3. There is no packaging.** The repo has no `pyproject.toml`, no `console_scripts`. The current
+ways to run are `.bat`, `.sh`, `.vbs` and Docker.
 
-**3.4. Chưa có kênh `cli` trong hợp đồng đầu ra.**
-`context_compiler.ContextCompiler._channel_contract` và `_output_contract_text` mới biết
-`telegram` và `dashboard`. Thiếu nhánh `cli` thì câu trả lời ra định dạng của web: bảng
-markdown, ảnh nhúng `![](...)`, link tương đối - vô nghĩa trong terminal.
+**3.4. There is no `cli` channel in the output contract yet.**
+`context_compiler.ContextCompiler._channel_contract` and `_output_contract_text` only know
+`telegram` and `dashboard`. Without a `cli` branch the answer comes out in the web's format:
+markdown tables, embedded images `![](...)`, relative links - meaningless in a terminal.
 
-## 4. Phạm vi
+## 4. Scope
 
-### 4.1. Có làm
+### 4.1. Doing
 
-- `POST /chat` một lượt (đồng bộ) và `POST /chat/stream` (SSE) cho phiên tương tác.
-- Token cá nhân: tạo, liệt kê, thu hồi. Băm khi lưu.
-- Gói `javis-cli` cài bằng `pipx`/`uvx`, lệnh `javis`.
-- Kênh `cli` trong `channel_context` + hợp đồng đầu ra hợp terminal.
-- Lệnh vận hành gọi endpoint SẴN CÓ: việc Kanban, phiên hội thoại, brain, loop, phiên bản.
+- `POST /chat` one turn (synchronous) and `POST /chat/stream` (SSE) for interactive sessions.
+- Personal tokens: create, list, revoke. Hashed when stored.
+- A `javis-cli` package installed with `pipx`/`uvx`, command `javis`.
+- A `cli` channel in `channel_context` + an output contract suited to the terminal.
+- Operations commands calling EXISTING endpoints: Kanban work, conversation sessions, brain, loops, version.
 
-### 4.2. KHÔNG làm, kể cả khi bị thúc
+### 4.2. NOT doing, even when pushed
 
-- **Không** agent độc lập chạy không cần server.
-- **Không** nhân bản runtime tiết kiệm token, MCP hub hay bộ định tuyến skill sang CLI.
-- **Không** bật token mặc định. Chưa ai tạo token thì không có token nào tồn tại.
-- **Không** cho token đi qua query string trong URL (rò vào access log, lịch sử shell).
+- **No** independent agent running without a server.
+- **No** duplicating the token-saving runtime, the MCP hub or the skill router into the CLI.
+- **No** token enabled by default. If nobody has created a token, no token exists.
+- **No** letting a token travel in the URL query string (it leaks into access logs and shell history).
 
-## 5. Thiết kế chi tiết
+## 5. Detailed design
 
-### 5.1. Token cá nhân
+### 5.1. Personal tokens
 
-**Vì sao token chứ không dùng lại session:** session sinh ra cho trình duyệt, lưu trong
-`.sessions.json` dạng `{token: created_ts}` với TTL 30 ngày và không có tên, không thu hồi
-riêng lẻ được. Một credential dán vào máy khác cần: có tên để biết nó của máy nào, thu hồi
-được từng cái, và không bao giờ nằm ở dạng đọc được trên đĩa.
+**Why a token rather than reusing the session:** the session was made for the browser, stored in
+`.sessions.json` as `{token: created_ts}` with a 30-day TTL, and has no name and cannot be revoked
+individually. A credential pasted onto another machine needs: a name to know which machine it
+belongs to, individual revocation, and never sitting in readable form on disk.
 
-**Mức quyền:** v1 token có quyền NGANG session dashboard. Nói thẳng chứ không giả vờ có phân
-quyền: đây không phải mức quyền mới, chỉ là loại credential mới cho đúng cái quyền chủ máy
-đã có. Phân quyền theo scope (`chat` với `admin`) để dành cho bản sau, và chỉ làm khi có nhu
-cầu thật.
+**Permission level:** in v1 a token has permission EQUAL to a dashboard session. Said plainly
+rather than pretending to have permission tiers: this is not a new permission level, only a new kind
+of credential for exactly the permission the machine owner already has. Scope-based permissions
+(`chat` versus `admin`) are left for a later version, and only done when there is real need.
 
-**Lưu trữ.** `STATE_DIR/.api_tokens.json`, `chmod 600`, mỗi mục:
+**Storage.** `STATE_DIR/.api_tokens.json`, `chmod 600`, each entry:
 
 ```json
 {
   "id": "tok_a1b2c3",
-  "name": "laptop nhà",
-  "hash": "<sha256 của token>",
+  "name": "home laptop",
+  "hash": "<sha256 of the token>",
   "prefix": "jvs_a1b2",
   "created_at": 1754246400.0,
   "last_used_at": 0.0
 }
 ```
 
-Token thô dạng `jvs_<43 ký tự token_urlsafe>`, **hiện đúng MỘT lần** lúc tạo. Về sau chỉ còn
-`prefix` để người dùng nhận ra token nào là token nào.
+The raw token has the form `jvs_<43 characters of token_urlsafe>`, **shown exactly ONCE** at
+creation. After that only `prefix` remains so the user can recognize which token is which.
 
-**Endpoint** (tất cả nằm sau `_auth_guard`, tức phải đăng nhập bằng session mới tạo được token
-- không cho phép dùng token để đẻ token, chặn chuỗi leo thang):
+**Endpoints** (all sit behind `_auth_guard`, meaning you must be signed in with a session to create
+a token - using a token to spawn tokens is not allowed, blocking an escalation chain):
 
 - `POST /auth/tokens` (form `name`) → `{"token": "jvs_...", "id": ..., "prefix": ...}`
-- `GET /auth/tokens` → danh sách, KHÔNG có `hash`
+- `GET /auth/tokens` → the list, WITHOUT `hash`
 - `POST /auth/tokens/revoke` (form `id`) → `{"ok": true}`
 
-**Kiểm token trong `_auth_guard`.** Thêm một nhánh SAU nhánh cookie:
+**Checking the token in `_auth_guard`.** Add a branch AFTER the cookie branch:
 
 ```
-session hợp lệ  -> cho qua (như cũ)
-Authorization: Bearer jvs_... hợp lệ -> cho qua, cập nhật last_used_at
-còn lại -> 401 như cũ
+valid session  -> let through (as before)
+valid Authorization: Bearer jvs_... -> let through, update last_used_at
+anything else -> 401 as before
 ```
 
-So sánh bằng `secrets.compare_digest` trên SHA-256, không so chuỗi thô.
+Compare with `secrets.compare_digest` on SHA-256, not by comparing the raw string.
 
-**Chống dò.** Đếm số lần sai theo IP trong cửa sổ trượt; quá 10 lần trong 5 phút thì trả 429
-cho IP đó trong 15 phút. Ghi nhật ký mọi lần sai vào `STATE_DIR/auth_audit.jsonl` với IP,
-thời điểm, `prefix` đã thử (không ghi token thô).
+**Anti-probing.** Count failures per IP in a sliding window; more than 10 in 5 minutes returns 429
+for that IP for 15 minutes. Log every failure to `STATE_DIR/auth_audit.jsonl` with IP,
+time, and the `prefix` tried (the raw token is not logged).
 
-**WebSocket.** `/ws` nhận thêm header `Authorization`. KHÔNG nhận qua query string. Trình duyệt
-không đặt được header cho WS nên vẫn dùng cookie như cũ; CLI thì đặt được.
+**WebSocket.** `/ws` additionally accepts the `Authorization` header. It does NOT accept it through
+the query string. Browsers cannot set headers for a WS so they keep using cookies as before; the CLI can.
 
-### 5.2. `POST /chat` - một lượt, đồng bộ
+### 5.2. `POST /chat` - one turn, synchronous
 
-Dùng lại ĐÚNG lõi mà Telegram đang chạy hằng ngày (`_tg_answer`, main.py:8711), nên không đẻ
-thêm một đường dispatch thứ ba. Quy ước trả về của lõi đó đã rõ: **dict = câu trả lời thật
-(đáng lưu), chuỗi = thông báo lỗi (không lưu)**.
+Reuses EXACTLY the core Telegram runs every day (`_tg_answer`, main.py:8711), so it spawns no
+third dispatch path. The return convention of that core is clear: **dict = a real answer (worth
+saving), string = an error message (not saved)**.
 
 Request:
 
 ```
 POST /chat
-  message   (bắt buộc)
-  brain     (mặc định: brain đang chọn ở Settings)
-  session   (id phiên; thiếu thì tạo phiên mới và trả id về)
+  message   (required)
+  brain     (default: the brain currently selected in Settings)
+  session   (session id; if missing, create a new session and return the id)
 ```
 
 Response:
@@ -165,60 +166,61 @@ Response:
 }
 ```
 
-`ctx_path` và `ctx_in` lấy đúng từ `_ctx_frame` - CLI in được dòng "Tức thì · 1.3k token" y như
-dashboard.
+`ctx_path` and `ctx_in` come straight from `_ctx_frame` - the CLI can print the line
+"Instant · 1.3k tokens" just like the dashboard.
 
-**Về thời gian chờ.** Một lượt agentic có thể chạy vài phút. Endpoint này KHÔNG đặt trần thời
-gian riêng; client tự chọn. Với phiên tương tác thì dùng `/chat/stream` bên dưới.
+**About wait time.** An agentic turn can run for several minutes. This endpoint sets NO time
+ceiling of its own; the client chooses. For interactive sessions, use `/chat/stream` below.
 
-### 5.3. `POST /chat/stream` - SSE cho phiên tương tác
+### 5.3. `POST /chat/stream` - SSE for interactive sessions
 
-Cùng tham số, trả `text/event-stream`. Mỗi gói là một dòng `data: {...}` bọc CHÍNH các gói mà
-WebSocket đang gửi cho dashboard, nên không phát minh giao thức thứ hai. Các loại gói đang có
-trong `main.py`: `status`, `stream`, `tool_call`, `tool_result`, `response`, `error`,
-`system`, `workflow`, `wait_user`, và nhóm `step_*` của workflow.
+Same parameters, returns `text/event-stream`. Each packet is a `data: {...}` line wrapping the
+SAME packets the WebSocket sends to the dashboard, so no second protocol is invented. The packet
+types in `main.py`: `status`, `stream`, `tool_call`, `tool_result`, `response`, `error`,
+`system`, `workflow`, `wait_user`, and the workflow `step_*` group.
 
-CLI chỉ cần hiểu bốn loại đầu tiên; loại lạ thì bỏ qua im lặng chứ không vỡ - đây là luật bắt
-buộc để server thêm loại gói mới không làm chết CLI cũ.
+The CLI only needs to understand the first four types; an unknown type is silently skipped rather
+than breaking - this is a mandatory rule so that the server adding a new packet type does not kill an old CLI.
 
-### 5.4. Kênh `cli`
+### 5.4. The `cli` channel
 
-`channel_context.build_channel_block("cli", meta)` với `meta` gồm `host` (tên máy) và `tty`
-(có phải terminal thật không). Khối này nói cho Jarvis 007 biết nó đang trả lời qua terminal.
+`channel_context.build_channel_block("cli", meta)` with `meta` containing `host` (machine name) and
+`tty` (whether it is a real terminal). This block tells Jarvis 007 it is answering through a terminal.
 
-Hợp đồng đầu ra cho kênh `cli` (thêm nhánh vào `_channel_contract` và `_output_contract_text`):
+The output contract for the `cli` channel (add branches to `_channel_contract` and `_output_contract_text`):
 
-- Không bảng markdown, không HTML.
-- Không nhúng ảnh; có ảnh thì in ĐƯỜNG DẪN tuyệt đối.
-- Đoạn văn ngắn, xuống dòng ở 100 cột.
-- Khối mã vẫn dùng dấu ba backtick (CLI tô màu được).
+- No markdown tables, no HTML.
+- No embedded images; if there is an image, print the absolute PATH.
+- Short paragraphs, wrapping at 100 columns.
+- Code blocks still use triple backticks (the CLI can colorize them).
 
-### 5.5. Gói CLI
+### 5.5. The CLI package
 
-Thư mục `cli/` trong repo, tách hẳn khỏi `server/`:
+A `cli/` directory in the repo, fully separate from `server/`:
 
 ```
 cli/
-  pyproject.toml         # tên gói javis-cli, lệnh javis
+  pyproject.toml         # package name javis-cli, command javis
   javis_cli/
     __init__.py
-    __main__.py          # điểm vào, phân tích tham số
-    config.py            # đọc/ghi ~/.javis/config.json
-    client.py            # HTTP + SSE, gắn Bearer
-    render.py            # gói -> terminal (màu, spinner, dòng ngữ cảnh)
+    __main__.py          # entry point, argument parsing
+    config.py            # read/write ~/.javis/config.json
+    client.py            # HTTP + SSE, attaches Bearer
+    render.py            # packets -> terminal (color, spinner, context line)
     commands/
       chat.py  task.py  brain.py  loop.py  status.py
 ```
 
-Phụ thuộc tối thiểu: **chỉ `httpx`**. Bản spec ban đầu tính thêm `rich`, nhưng lúc viết thật
-thì hoá ra không cần: cả CLI dùng đúng bốn mã màu ANSI và một dòng trạng thái, đủ gọn để viết
-tay trong `render.py`. Kéo `rich` về là bắt người dùng tải một thư viện dựng bảng và cây thư
-mục cho terminal, trong khi kênh CLI có luật CẤM bảng. Đã bỏ.
+Minimal dependencies: **only `httpx`**. The original spec also counted `rich`, but when actually
+writing it turned out unnecessary: the whole CLI uses exactly four ANSI color codes and one status
+line, compact enough to write by hand in `render.py`. Pulling in `rich` would make the user download
+a library that builds tables and directory trees for the terminal, while the CLI channel has a rule
+that FORBIDS tables. Dropped.
 
-**Không** kéo `fastapi`, `uvicorn` hay bất cứ thứ gì của server vào - gói CLI phải cài được
-trên máy chưa từng có Jarvis 007.
+**No** pulling in `fastapi`, `uvicorn` or anything from the server - the CLI package must install
+on a machine that has never had Jarvis 007.
 
-Cấu hình ở `~/.javis/config.json`, `chmod 600`:
+Configuration in `~/.javis/config.json`, `chmod 600`:
 
 ```json
 {
@@ -229,117 +231,125 @@ Cấu hình ở `~/.javis/config.json`, `chmod 600`:
 }
 ```
 
-Biến môi trường `JAVIS_URL`, `JAVIS_TOKEN`, `JAVIS_PROFILE` đè lên file - để cắm vào CI và
-Docker mà không phải mount file.
+The environment variables `JAVIS_URL`, `JAVIS_TOKEN`, `JAVIS_PROFILE` override the file - so it
+plugs into CI and Docker without mounting a file.
 
-### 5.6. Bộ lệnh
+### 5.6. The command set
 
 ```
-javis "câu hỏi"              một lượt, in stdout, pipe được
-javis chat                   phiên tương tác (SSE)
-javis login <url>            dán token, thử kết nối, lưu profile
-javis status                 phiên bản, bộ não đang chạy, mức tiết kiệm
-javis task add "..."         giao việc Kanban
-javis tasks                  liệt kê việc
-javis brain ls [thư mục]     duyệt brain
-javis brain cat <file>       in nội dung file
-javis loops                  liệt kê loop
+javis "question"             one turn, prints to stdout, pipeable
+javis chat                   interactive session (SSE)
+javis login <url>            paste a token, test the connection, save a profile
+javis status                 version, running brain, savings level
+javis task add "..."         assign Kanban work
+javis tasks                  list work
+javis brain ls [folder]      browse the brain
+javis brain cat <file>       print a file's content
+javis loops                  list loops
 ```
 
-Từ `status` trở xuống đều gọi endpoint SẴN CÓ (`/version`, `/runtime/diagnostics`,
-`/kanban/task`, `/files/list`, `/files/read`), không cần thêm gì ở server.
+From `status` downwards all call EXISTING endpoints (`/version`, `/runtime/diagnostics`,
+`/kanban/task`, `/files/list`, `/files/read`), with nothing to add on the server.
 
-Quy ước Unix bắt buộc: câu trả lời ra **stdout**, mọi thứ khác (spinner, trạng thái, dòng ngữ
-cảnh) ra **stderr**, mã thoát khác 0 khi lỗi. Thiếu ba thứ này thì `javis "..." > file.md` sẽ
-dính rác và cả CLI thành vô dụng cho việc kịch bản hoá.
+Mandatory Unix conventions: the answer goes to **stdout**, everything else (spinner, status,
+context line) goes to **stderr**, and the exit code is nonzero on error. Without these three,
+`javis "..." > file.md` would pick up junk and the whole CLI becomes useless for scripting.
 
-## 6. Kế hoạch theo giai đoạn
+## 6. Plan by phase
 
-Mỗi giai đoạn tự nó dùng được, và có thể dừng lại sau bất kỳ giai đoạn nào.
+Each phase is usable on its own, and you can stop after any phase.
 
-### Giai đoạn 0 - `POST /chat` (nửa ngày)
+### Phase 0 - `POST /chat` (half a day)
 
-Chỉ thêm endpoint, chưa có CLI. Xong bước này đã `curl` được và cắm cron được.
+Only add the endpoint, no CLI yet. Done with this step you can already `curl` and plug into cron.
 
-Đạt khi: `curl -X POST .../chat -d 'message=chào'` trả về câu trả lời thật; lượt đó xuất hiện
-ở `/sessions` và trong `brain/Memory/conversations` y như lượt Telegram; test kèm đột biến
-chứng minh nó dùng chung lõi chứ không đẻ đường dispatch thứ ba.
+Done when: `curl -X POST .../chat -d 'message=hello'` returns a real answer; that turn appears
+in `/sessions` and in `brain/Memory/conversations` just like a Telegram turn; a test with mutation
+proves it shares the core rather than spawning a third dispatch path.
 
-### Giai đoạn 1 - Token cá nhân (1-2 ngày)
+### Phase 1 - Personal tokens (1-2 days)
 
-Phần nhạy cảm nhất của cả kế hoạch: nó mở thêm một cửa vào máy chủ đang phơi ra Internet.
+The most sensitive part of the whole plan: it opens one more door into a server exposed to the Internet.
 
-Đạt khi: tạo/liệt kê/thu hồi chạy; token băm khi lưu và không có đường nào đọc lại được thô;
-`_auth_guard` nhận Bearer; chặn dò hoạt động; test đột biến gồm ít nhất "so chuỗi thô thay vì
-compare_digest", "quên băm", "token đã thu hồi vẫn vào được", "dùng token để tạo token".
+Done when: create/list/revoke work; tokens are hashed when stored and there is no path to read them
+back raw; `_auth_guard` accepts Bearer; anti-probing works; mutation tests include at least
+"comparing the raw string instead of compare_digest", "forgot to hash", "a revoked token still gets in",
+"using a token to create a token".
 
-### Giai đoạn 2 - CLI thật (2-3 ngày)
+### Phase 2 - The real CLI (2-3 days)
 
-`javis "..."`, `javis chat`, `javis login`, kênh `cli`, đóng gói, `POST /chat/stream`.
+`javis "..."`, `javis chat`, `javis login`, the `cli` channel, packaging, `POST /chat/stream`.
 
-Đạt khi: cài bằng `pipx` trên máy sạch rồi hỏi được brain trên VPS; `javis "..." | wc -l` ra
-số đúng (không rác ở stdout); gói lạ không làm vỡ CLI.
+Done when: install with `pipx` on a clean machine and then ask the brain on the VPS; `javis "..." | wc -l`
+gives the right number (no junk on stdout); an unknown packet does not break the CLI.
 
-### Giai đoạn 3 - Lệnh vận hành (2-3 ngày)
+### Phase 3 - Operations commands (2-3 days)
 
-Việc, brain, loop, trạng thái. Không thêm endpoint mới.
+Work, brain, loops, status. No new endpoints.
 
-### Giai đoạn 4 - `javis up`, tuỳ chọn (chưa ước lượng)
+### Phase 4 - `javis up`, optional (not estimated)
 
-CLI tự bật server localhost nếu chưa chạy rồi tự gắn vào. Vẫn MỘT server, MỘT brain; CLI chỉ
-là thứ khởi động nó. Đây mới là thứ đổi được cửa vào sản phẩm, nhưng cũng là giai đoạn dễ phình
-nhất nên tách hẳn ra và chỉ làm khi ba giai đoạn trên đã đứng vững.
+The CLI starts a localhost server itself if one is not running and then attaches to it. Still ONE
+server, ONE brain; the CLI is only the thing that starts it. This is what could change the product's
+entry point, but it is also the phase most prone to bloat, so it is split off entirely and only done
+once the three phases above stand firm.
 
-## 7. Rủi ro và cách chặn
+## 7. Risks and how to block them
 
-**Mở thêm cửa vào máy chủ công khai.** Đây là rủi ro lớn nhất. Chặn bằng: token băm khi lưu,
-thu hồi được, chặn dò theo IP, ghi nhật ký, không cho token đẻ token, và không có token nào
-tồn tại cho tới khi chủ máy tự tạo.
+**Opening one more door into a public server.** This is the biggest risk. Blocked with: tokens
+hashed when stored, revocable, per-IP anti-probing, logging, no token spawning tokens, and no token
+existing until the machine owner creates one.
 
-**CLI và dashboard trôi lệch.** Chặn bằng nguyên tắc CLI chỉ được gọi endpoint có sẵn, và gói
-SSE bọc chính gói WebSocket. Mọi tính năng mới vào server là CLI thấy ngay, không phải sửa hai
-chỗ.
+**The CLI and the dashboard drifting apart.** Blocked with the principle that the CLI may only call
+existing endpoints, and the SSE packets wrap the WebSocket packets themselves. Every new feature
+added to the server is seen by the CLI at once, with no need to edit two places.
 
-**Gói CLI phình theo server.** Chặn bằng thư mục `cli/` tách hẳn và luật phụ thuộc: chỉ
-`httpx`. Có test soát ĐÚNG dòng `dependencies` trong `pyproject.toml` (không quét cả file -
-chính lời chú thích ở đó có nhắc tên các gói bị cấm, quét cả file là test tự bắt chú thích của
-mình; đã dính đúng bẫy này một lần ở 0.14.3).
+**The CLI package bloating along with the server.** Blocked with the fully separate `cli/` directory
+and the dependency rule: only `httpx`. There is a test that checks EXACTLY the `dependencies` line
+in `pyproject.toml` (not scanning the whole file - the comments there mention the names of the
+banned packages, and scanning the whole file makes the test catch its own comment; this exact trap
+was hit once in 0.14.3).
 
-**Người dùng tưởng CLI chạy được không cần server.** Chặn bằng tài liệu nói thẳng ngay dòng
-đầu, và `javis` khi không kết nối được thì báo đúng nguyên nhân kèm cách khắc phục, không báo
-lỗi mạng chung chung.
+**Users thinking the CLI works without a server.** Blocked with documentation saying so plainly on
+the very first line, and `javis`, when it cannot connect, reports the real cause with a way to fix
+it, not a generic network error.
 
-## 8. Ba câu bỏ ngỏ - đã chốt ở v0.17.0
+## 8. Three open questions - settled in v0.17.0
 
-Chủ repo giao "dựng toàn bộ luôn các phase, phần nào cần phê duyệt đề xuất thì tự lựa chọn
-những đề xuất tốt nhất". Ba câu dưới đây chốt như sau, kèm lý do để sau này đổi thì biết đang
-đổi cái gì.
+The repo owner said "build all the phases, and for whatever needs approval of a proposal, pick the
+best proposals yourself". The three questions below were settled as follows, with reasons so that
+when changing them later you know what is being changed.
 
-1. **Tên gói: `javis-cli`, lệnh gõ là `javis`.** Người dùng không bao giờ gõ tên gói - họ gõ
-   `javis`, và cái đó vẫn ngắn đúng như mong muốn. Đổi lại, tên gói nói rõ đây là CLIENT chứ
-   không phải cả Jarvis 007, đúng thứ dễ hiểu nhầm nhất của tính năng này. Một người `pip install
-   javis` rồi tưởng mình vừa cài cả hệ thống là hiểu nhầm do chính cái tên gây ra.
+1. **Package name: `javis-cli`, the typed command is `javis`.** Users never type the package name -
+   they type `javis`, and that is still as short as hoped. In return, the package name says plainly
+   that this is the CLIENT and not the whole Jarvis 007, the very thing most easily misunderstood
+   about this feature. Someone who does `pip install javis` and thinks they just installed the whole
+   system is a misunderstanding caused by the name itself.
 
-2. **Có làm giai đoạn 4, nhưng theo nghĩa hẹp: `javis up` KHỞI ĐỘNG bản Jarvis 007 đã cài trên
-   máy, chứ gói CLI không chứa server.** Nhét server vào gói CLI là kéo `fastapi`, `uvicorn`
-   và toàn bộ phụ thuộc nặng về cho một người chỉ muốn hỏi một câu từ terminal - và tệ hơn, là
-   có hai đường cài Jarvis 007 phải giữ đồng bộ mãi mãi. `javis up` đi tìm `server/main.py` thật
-   (qua `JAVIS_HOME`, thư mục hiện tại, hoặc `~/javis-os`), tìm không ra thì NÓI THẲNG là nó
-   không chứa server và chỉ ba cách xử lý, chứ không báo lỗi mơ hồ.
+2. **Phase 4 is done, but in a narrow sense: `javis up` STARTS the Jarvis 007 already installed on
+   the machine, and the CLI package does not contain the server.** Stuffing the server into the CLI
+   package pulls in `fastapi`, `uvicorn` and all the heavy dependencies for someone who just wants
+   to ask one question from a terminal - and worse, it means two ways of installing Jarvis 007 that
+   must be kept in sync forever. `javis up` goes looking for the real `server/main.py` (through
+   `JAVIS_HOME`, the current directory, or `~/javis-os`), and if it cannot find it, it SAYS PLAINLY
+   that it does not contain the server and points to three ways to deal with it, rather than
+   reporting a vague error.
 
-3. **Token có hai mức ngay từ v1: `full` và `chat`.** Để quyền ngang session là mỗi máy muốn
-   hỏi một câu phải cầm một credential mở được cả `/settings` lẫn kho MCP. Mức `chat` đi theo
-   danh sách TRẮNG `("/chat", "/version", "/health", "/sessions")` - chọn chiều trắng chứ
-   không chiều đen, vì danh sách đen nghĩa là mỗi endpoint mới thêm vào server tự động phơi ra
-   cho token hẹp.
+3. **Tokens have two levels from v1: `full` and `chat`.** Giving them permission equal to a session
+   means every machine that wants to ask a question has to hold a credential that opens both
+   `/settings` and the MCP store. The `chat` level follows a WHITE list
+   `("/chat", "/version", "/health", "/sessions")` - the white direction chosen rather than the
+   black one, because a black list means every new endpoint added to the server is automatically
+   exposed to the narrow token.
 
-Ba rào an toàn kèm theo, không có trong spec gốc:
+Three accompanying safety barriers, not in the original spec:
 
-- **Không có token mặc định.** Chưa ai bấm tạo thì không token nào tồn tại, và không cửa nào
-  vào ngoài trình duyệt.
-- **Token không đẻ được token.** `POST /auth/tokens` đòi session trình duyệt. Thiếu rào này
-  thì một token rò ra là kẻ cầm nó tự cấp thêm token vĩnh viễn, và thu hồi cái đã rò vô nghĩa.
-  Ngược lại, THU HỒI thì cho phép dùng chính token đang cầm: mất máy là phải hạ được
-  credential ngay, kể cả khi không mở nổi trình duyệt.
-- **Băm khi lưu, so bằng `compare_digest`, đếm và chặn IP dò.** Nhật ký `auth_audit.jsonl` chỉ
-  ghi 12 ký tự đầu, vì nhật ký là thứ hay bị gửi kèm báo lỗi.
+- **No default token.** If nobody has clicked create, no token exists, and no door in other than
+  the browser.
+- **A token cannot spawn a token.** `POST /auth/tokens` demands a browser session. Without this
+  barrier a leaked token lets whoever holds it issue itself more tokens permanently, and revoking
+  the leaked one is meaningless. In contrast, REVOKING is allowed with the token being held: losing
+  the machine means you must be able to take down the credential at once, even when you cannot
+  open a browser.
+- **Hashed when stored, compared with `compare_digest`, counting and blocking probing IPs.** The
+  `auth_audit.jsonl` log only records the first 12 characters, because logs are what often get sent along with bug reports.

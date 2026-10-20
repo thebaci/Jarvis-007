@@ -1,156 +1,167 @@
-# Khối hỏi-lại có lựa chọn trong khung chat Jarvis 007
+# Ask-back block with choices in the Jarvis 007 chat window
 
-Ngày: 2026-07-16
-Trạng thái: đã chốt thiết kế, chờ lập kế hoạch triển khai
+Date: 2026-07-16
+Status: design settled, waiting for an implementation plan
 
-## Mục tiêu
+## Goal
 
-Khi Jarvis 007 cần hỏi lại người dùng, khung chat hiện các lựa chọn bấm được ngay dưới câu
-trả lời, thay vì bắt người dùng đọc câu hỏi rồi tự gõ đáp án. Mục đích là làm trải
-nghiệm khung chat quen thuộc với người đã dùng Claude Code.
+When Jarvis 007 needs to ask the user a follow-up question, the chat window shows clickable
+choices right under the answer, instead of making the user read the question and type the
+answer themselves. The aim is to make the chat window feel familiar to people who already use
+Claude Code.
 
-Phạm vi lần này CHỈ có khối hỏi-lại. Không làm timeline tool, không làm danh sách việc,
-không làm xin quyền. Chạy đúng trên mọi engine (Claude Agent SDK, Codex CLI, và các
-engine chat API). Dashboard có nút bấm thật; Telegram nhận bản chữ.
+This round covers ONLY the ask-back block. No tool timeline, no task list, no permission
+requests. It works on every engine (Claude Agent SDK, Codex CLI, and the chat API engines).
+The dashboard gets real buttons; Telegram gets a text version.
 
-## Bối cảnh kỹ thuật
+## Technical background
 
-Khung chat chạy qua WebSocket. Server đẩy về `status` / `tool_call` / `tool_result` /
-`stream` / `response` / `error` / `turn_done`; chiều ngược lại client chỉ gửi được một
-loại tin nhắn văn bản (`{message, brain, session_id}`).
+The chat window runs over WebSocket. The server pushes back `status` / `tool_call` /
+`tool_result` / `stream` / `response` / `error` / `turn_done`; in the other direction the
+client can only send one kind of text message (`{message, brain, session_id}`).
 
-Dự án đã có sẵn đúng một tiền lệ cho việc này: khối `JAVIS_METRICS`. Jarvis 007 nhúng một
-HTML comment ở cuối phản hồi, `app.js:1126` bóc nó ra bằng regex rồi bơm vào panel trái.
-Thiết kế này đi theo đúng vết đó.
+The project already has exactly one precedent for this: the `JAVIS_METRICS` block. Jarvis 007
+embeds an HTML comment at the end of the response, `app.js:1126` strips it out with a regex
+and pushes it into the left panel. This design follows the same trail.
 
-Hai chi tiết có sẵn khiến đường này rẻ:
-- `chat-render.js:246` đã nuốt mọi HTML comment, kể cả comment chưa đóng lúc đang stream.
-  Nên khối điều khiển không bao giờ nhấp nháy ra màn hình giữa chừng.
-- `app.js:160` đã có sẵn chỗ móc: `const { clean, cards } = extractMetrics(data.content)`
-  ngay trong nhánh xử lý `response`.
+Two existing details make this path cheap:
+- `chat-render.js:246` already swallows every HTML comment, including a comment that is still
+  unclosed while streaming. So the control block never flickers onto the screen midway.
+- `app.js:160` already has the hook: `const { clean, cards } = extractMetrics(data.content)`
+  right in the `response` handling branch.
 
-## Hướng đã chọn và hướng đã loại
+## Chosen approach and rejected approach
 
-Chọn: **quy ước đánh dấu ở cuối câu trả lời**.
+Chosen: **a marker convention at the end of the answer**.
 
-Loại: **tool thật `javis_ask_user` qua MCP hub** (model gọi tool, server treo lượt chờ
-người dùng bấm, trả kết quả làm tool result). Đây là cách Claude Code làm thật và cho
-phép hỏi giữa chừng lúc đang làm dở. Loại vì giá quá đắt so với phần dùng được: hub là
-HTTP nên phải nhét session vào header config MCP cho từng lượt (file config hiện cache
-theo mode chứ không theo phiên), phải lo timeout, lo người dùng F5 giữa lúc đang chờ,
-và phải làm ba lần cho ba đường engine. Trong khi ở khung chat Jarvis 007 gần như mọi câu
-hỏi lại đều rơi vào cuối lượt.
+Rejected: **a real `javis_ask_user` tool through the MCP hub** (the model calls the tool, the
+server holds the turn waiting for the user to click, and returns the result as the tool
+result). This is how Claude Code really does it, and it allows asking mid-way while work is
+in progress. Rejected because the price is too high for the usable part: the hub is HTTP, so
+the session would have to be stuffed into the MCP config header for every turn (the config
+file is currently cached per mode, not per session), timeouts have to be handled, the user
+pressing F5 while the turn is waiting has to be handled, and it has to be built three times
+for the three engine paths. Meanwhile, in the Jarvis 007 chat window almost every follow-up
+question lands at the end of a turn anyway.
 
-Nếu sau này thật sự cần hỏi giữa chừng thì đắp hướng tool lên trên vẫn được: phần giao
-diện chip dùng lại nguyên, chỉ thay nguồn phát câu hỏi.
+If mid-turn asking is really needed later, the tool approach can be layered on top: the chip
+UI is reused as is, only the source that emits the question changes.
 
-## Hợp đồng dữ liệu
+## Data contract
 
-Jarvis 007 kết thúc câu trả lời bằng:
-
-```
-<!-- JAVIS_ASK: {"question":"Anh muốn xem doanh thu kỳ nào?","header":"Kỳ","options":[{"label":"Tuần này","desc":"7 ngày gần nhất"},{"label":"Tháng này","desc":"Từ mùng 1"},{"label":"So tháng trước","desc":"Có đối chiếu"}]} -->
-```
-
-- `question`: câu hỏi đầy đủ, bắt buộc.
-- `header`: nhãn ngắn gọn chủ đề, tuỳ chọn.
-- `options`: tối đa 4 phần tử. `label` là chữ trên nút, `desc` là một dòng giải thích.
-
-Một khối là một câu hỏi. Không hỗ trợ chọn nhiều đáp án: trong khung chat gần như luôn
-là chọn một, thêm chọn nhiều là phải đẻ thêm nút xác nhận cho một thứ hiếm dùng.
-
-Khối này và khối `JAVIS_METRICS` sống chung được trong một phản hồi.
-
-## Hành vi giao diện
-
-Chip hiện thành một hàng dưới bong bóng trả lời, nằm trong cùng thẻ tin nhắn đó. `desc`
-nằm ở tooltip để hàng chip không phình. Chip cuối cùng luôn là "Ý khác": bấm vào không
-gửi gì, chỉ đưa con trỏ xuống ô nhập liệu.
-
-Bấm một chip thì gửi đúng `label` đó đi như một tin nhắn người dùng bình thường, cùng
-phiên. Lịch sử hội thoại đọc vẫn xuôi, không có tin nhắn ma, và Jarvis 007 không cần biết
-người dùng bấm hay gõ.
-
-**Chỉ tin nhắn cuối cùng mới có chip sống.** Sau khi người dùng trả lời (bấm chip hoặc
-gõ tay câu khác), hàng chip đông cứng: cái đã chọn giữ dấu tích, cái còn lại mờ và hết
-bấm được. Lý do: cuộn ngược lên đọc lịch sử mà bấm được câu hỏi của mười lượt trước thì
-làm rối mạch hội thoại. Khôi phục phiên sau F5 theo đúng luật đó: chip sống lại chỉ khi
-nó thuộc tin cuối và chưa được trả lời.
-
-Chip chỉ mọc khi lượt kết thúc (sự kiện `response`), không mọc lúc đang stream.
-
-## Kiến trúc mã
-
-**Mới: `dashboard/chat-ask.js`** (cỡ 100 dòng). Lo đúng ba việc: bóc khối JSON ra khỏi
-text, vẽ hàng chip, bắt sự kiện bấm. Phơi ra `window.JavisAsk`:
-
-- `extract(text) -> { clean, ask }` thuần, không đụng DOM.
-- `render(msgEl, ask, live)` vẽ chip vào thẻ tin nhắn; `live=false` thì vẽ dạng đông cứng.
-- `freezeAll()` đông cứng mọi hàng chip đang sống (gọi khi có tin nhắn mới).
-
-Không nhét vào `app.js` vì file đó đã 1900 dòng. Cách chia này theo đúng vết dự án đang
-làm với `chat-render.js`, `chat-zoom.js`, `voice.js`, và cho phép sửa hay test phần
-hỏi-lại mà không mở `app.js`.
-
-**Sửa `dashboard/app.js`**, đúng ba chỗ:
-- nhánh `response`: bóc `ask` cùng lúc với `cards`, gọi `JavisAsk.render(..., live=true)`.
-- `sendMessage()`: gọi `JavisAsk.freezeAll()` trước khi thêm bong bóng người dùng.
-- `restoreSession()`: vẽ lại chip, chỉ để sống ở tin cuối chưa trả lời. Ask được lưu
-  kèm trong bản ghi lượt của `convo`.
-
-**Mới: hàm bóc khối điều khiển phía server**, đặt trong `channel_context.py` vì module
-đó đúng là nơi lo chuyện text theo từng kênh và đã có sẵn các hàm thuần cùng loại
-(`extract_paths`, `collect_turn_files`); `main.py` đã import sẵn nó. Hàm bóc mọi khối
-`JAVIS_*` ra khỏi text trước khi trả về kênh không phải web, gọi ở cuối `_tg_answer`.
-Với `JAVIS_ASK` thì thay bằng danh sách đánh số:
+Jarvis 007 ends the answer with:
 
 ```
-Anh muốn xem doanh thu kỳ nào?
-1. Tuần này
-2. Tháng này
-3. So tháng trước
+<!-- JAVIS_ASK: {"question":"Which period do you want to see revenue for?","header":"Period","options":[{"label":"This week","desc":"Last 7 days"},{"label":"This month","desc":"From the 1st"},{"label":"Vs last month","desc":"With comparison"}]} -->
 ```
 
-Người dùng nhắn "1" là xong. Jarvis 007 đọc "1" trong ngữ cảnh câu hỏi vừa hỏi thì tự hiểu,
-không cần lưu state. Bot Telegram đã có sẵn hạ tầng nút inline (`reply_markup`,
-`_handle_callback`) nhưng lần này không dùng.
+- `question`: the full question, required.
+- `header`: a short label for the topic, optional.
+- `options`: at most 4 elements. `label` is the text on the button, `desc` is a one-line
+  explanation.
 
-**Sửa `CLAUDE.md`**: dạy Jarvis 007 khi nào nhúng khối, gắn vào mục "Làm rõ trước khi trả
-lời" đã có sẵn chứ không mở luật mới. Mục đó đang nói chỉ hỏi lại khi thực sự tắc, tối
-đa 1-3 câu. Khối này là cách trình bày cho bước "chỉ hỏi lại khi thực sự tắc" đó. Điểm
-dùng điển hình: phải đoán một tham số mà đoán sai thì hại, ví dụ kỳ thời gian hay chọn
-shop nào.
+One block is one question. Multi-select is not supported: in a chat window it is almost always
+single choice, and adding multi-select means adding a confirm button for something rarely used.
 
-## Lỗi có sẵn sẽ vá luôn
+This block and the `JAVIS_METRICS` block can live together in one response.
 
-Khối `JAVIS_METRICS` **đang lọt nguyên xi sang Telegram** hôm nay. `_tg_answer`
-(`main.py:4614`) trả `out` thô, `telegram_bot._send` gọi `md_to_mdv2` vốn chỉ escape chứ
-không bóc comment. Đã kiểm chứng bằng cách chạy thẳng `md_to_mdv2`, đầu ra chứa nguyên
-`<\!\-\- JAVIS\_METRICS: ...`.
+## UI behavior
 
-Đây là lỗi có sẵn, nhưng nằm đúng đường đi của thiết kế này: khối `JAVIS_ASK` sẽ rò y
-hệt nếu không xử. Hàm bóc khối điều khiển nói trên vá cả hai cùng lúc.
+The chips appear as one row under the answer bubble, inside the same message card. `desc` goes
+in the tooltip so the chip row does not bloat. The last chip is always "Something else...":
+clicking it sends nothing, it only moves the cursor down to the input box.
 
-## Đường lỗi
+Clicking a chip sends exactly that `label` as a normal user message, in the same session. The
+conversation history still reads naturally, there are no ghost messages, and Jarvis 007 does
+not need to know whether the user clicked or typed.
 
-- JSON hỏng: bỏ qua khối im lặng, vẫn hiện câu trả lời. Tuyệt đối không để một khối sai
-  cú pháp nuốt mất câu trả lời của Jarvis 007.
-- Thừa lựa chọn: cắt còn 4.
-- Nhãn quá dài: cắt gọn khi vẽ.
-- Khối nằm giữa bài thay vì cuối: vẫn bóc được, vì bắt bằng regex chứ không theo vị trí.
-- Nhãn do model sinh ra nên không tin được: escape toàn bộ khi vẽ.
-- Không có `options` hoặc `options` rỗng: coi như không có khối.
+**Only the last message has live chips.** Once the user replies (by clicking a chip or typing
+a different answer by hand), the chip row freezes: the chosen one keeps a mark, the others
+fade and can no longer be clicked. Reason: if you scroll back through history and can click
+the questions from ten turns ago, it muddles the flow of the conversation. Session restore
+after F5 follows the same rule: chips come back to life only if they belong to the last
+message and have not been answered yet.
 
-## Test
+Chips only appear when the turn ends (the `response` event), not while streaming.
 
-Thuần, không cần trình duyệt:
-- `extract()` với JSON hợp lệ, JSON hỏng, không có khối, thừa lựa chọn, options rỗng,
-  khối nằm giữa bài, có cả `JAVIS_ASK` lẫn `JAVIS_METRICS`.
-- Hàm bóc khối phía server: `JAVIS_ASK` xuống đúng danh sách đánh số; `JAVIS_METRICS`
-  biến mất sạch (test hồi quy cho lỗi rò ở trên).
+## Code architecture
 
-Bấm tay để xác nhận (hành vi DOM):
-- Chip mọc sau khi lượt xong, không nhấp nháy lúc stream.
-- Bấm chip thì ra tin nhắn người dùng đúng nhãn, Jarvis 007 chạy tiếp.
-- Chip đông cứng sau khi trả lời; cuộn lên lịch sử không bấm được.
-- F5 rồi khôi phục: chip sống lại đúng ở tin cuối chưa trả lời.
+**New: `dashboard/chat-ask.js`** (about 100 lines). It does exactly three things: strip the
+JSON block out of the text, draw the chip row, catch the click event. It exposes
+`window.JavisAsk`:
+
+- `extract(text) -> { clean, ask }` pure, does not touch the DOM.
+- `render(msgEl, ask, live)` draws the chips into the message card; with `live=false` it
+  draws the frozen form.
+- `freezeAll()` freezes every live chip row (called when a new message arrives).
+
+It does not go into `app.js` because that file is already 1900 lines. This split follows the
+trail the project is already taking with `chat-render.js`, `chat-zoom.js`, `voice.js`, and
+lets the ask-back part be edited or tested without opening `app.js`.
+
+**Edit `dashboard/app.js`**, exactly three places:
+- the `response` branch: strip `ask` at the same time as `cards`, call
+  `JavisAsk.render(..., live=true)`.
+- `sendMessage()`: call `JavisAsk.freezeAll()` before adding the user bubble.
+- `restoreSession()`: redraw the chips, keeping them live only on the last unanswered
+  message. The ask is stored along with the turn record in `convo`.
+
+**New: a server-side function that strips control blocks**, placed in `channel_context.py`
+because that module is exactly where per-channel text handling lives and it already has pure
+functions of the same kind (`extract_paths`, `collect_turn_files`); `main.py` already
+imports it. The function strips every `JAVIS_*` block out of the text before returning to a
+non-web channel, and is called at the end of `_tg_answer`. For `JAVIS_ASK` it substitutes a
+numbered list:
+
+```
+Which period do you want to see revenue for?
+1. This week
+2. This month
+3. Vs last month
+```
+
+The user just replies "1" and that is it. Jarvis 007 reads "1" in the context of the question
+it just asked and understands, with no state to store. The Telegram bot already has inline
+button infrastructure (`reply_markup`, `_handle_callback`) but it is not used this time.
+
+**Edit `CLAUDE.md`**: teach Jarvis 007 when to embed the block, attached to the existing
+"Clarify before answering" section rather than opening a new rule. That section already says
+to ask back only when truly stuck, at most 1-3 questions. This block is the presentation
+for that "ask back only when truly stuck" step. The typical use: having to guess a parameter
+where a wrong guess does harm, for example the time period or which shop.
+
+## Existing bug fixed along the way
+
+The `JAVIS_METRICS` block **is leaking verbatim into Telegram** today. `_tg_answer`
+(`main.py:4614`) returns the raw `out`, and `telegram_bot._send` calls `md_to_mdv2`, which
+only escapes and does not strip comments. Verified by running `md_to_mdv2` directly: the
+output contains the literal `<\!\-\- JAVIS\_METRICS: ...`.
+
+This is an existing bug, but it sits exactly on the path of this design: the `JAVIS_ASK`
+block would leak in exactly the same way if it were not handled. The control-block stripping
+function above fixes both at once.
+
+## Error paths
+
+- Broken JSON: skip the block silently, still show the answer. A block with a syntax error
+  must never swallow Jarvis 007's answer.
+- Too many options: cut to 4.
+- Label too long: truncate when drawing.
+- Block in the middle of the text instead of the end: still stripped, because it is matched
+  by regex, not by position.
+- Labels are generated by the model so they cannot be trusted: escape everything when drawing.
+- No `options` or an empty `options`: treat as no block.
+
+## Tests
+
+Pure, no browser needed:
+- `extract()` with valid JSON, broken JSON, no block, too many options, empty options, a block
+  in the middle of the text, and both `JAVIS_ASK` and `JAVIS_METRICS` present.
+- The server-side stripping function: `JAVIS_ASK` becomes the right numbered list;
+  `JAVIS_METRICS` disappears completely (a regression test for the leak above).
+
+Manual click-through to confirm (DOM behavior):
+- Chips appear after the turn finishes, with no flicker while streaming.
+- Clicking a chip produces a user message with exactly that label, and Jarvis 007 carries on.
+- Chips freeze after a reply; scrolling up through history, they cannot be clicked.
+- After F5 and restore, chips come back to life only on the last unanswered message.

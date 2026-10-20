@@ -1,146 +1,143 @@
-# Việc định kỳ xuyên brain: gộp hiển thị, di chuyển, nhớ brain Telegram
+# Recurring jobs across brains: unified display, moving, remembering the Telegram brain
 
-Ngày: 2026-07-19
-Trạng thái: đã duyệt thiết kế, triển khai luôn theo yêu cầu chủ dự án
+Date: 2026-07-19
+Status: design approved, implemented right away at the project owner's request
 
-## Vấn đề (gốc, không phải cảm giác)
+## Problem (root cause, not a feeling)
 
-Chủ dự án: "Việc định kỳ tạo qua Telegram mặc định lưu vào default brain, lúc tìm trong
-brain đang làm việc thì không có. Dùng thực tế thấy rối."
+Project owner: "Recurring jobs created through Telegram are saved to the default brain by default, and when I look in the brain I'm working in, they are not there. In real use it's confusing."
 
-Điều tra tại file:line xác nhận đang có HAI khái niệm "brain hiện tại" tách rời:
+Tracing it to file:line confirms there are TWO separate notions of "current brain":
 
-- **Telegram** (`main.py:4627` `_tg_brain`): mỗi chat gắn brain riêng trong `_TG_SESS` (RAM).
-  Chưa gõ `/brain` thì rơi về brain mặc định (`_read_loop_config().get("brain","brain")`).
-  Thực tế gần như không ai gõ `/brain`, nên mọi việc tạo qua Telegram âm thầm vào Brain Default.
-- **Dashboard** (`console.js:919,950`): trang Việc định kỳ (`renderSelfImprove`) CHỈ đọc đúng
-  brain đang chọn ở sidebar (`fbrain()` = `currentBrainPath()`). Loop, nhắc hẹn, nút
-  bật/tắt/xoá đều gắn `brain=fbrain()`.
+- **Telegram** (`main.py:4627` `_tg_brain`): each chat is tied to its own brain in `_TG_SESS` (RAM).
+  Before `/brain` is typed, it falls back to the default brain (`_read_loop_config().get("brain","brain")`).
+  In practice almost nobody types `/brain`, so every job created through Telegram silently lands in the Default Brain.
+- **Dashboard** (`console.js:919,950`): the Scheduled page (`renderSelfImprove`) reads ONLY the brain selected in the sidebar (`fbrain()` = `currentBrainPath()`). Loops, reminders, and the
+  enable/disable/delete buttons are all bound to `brain=fbrain()`.
 
-Hai cái không dính nhau. Tạo việc qua chat (vào Brain Default) rồi mở dashboard đang ở brain
-khác thì trang Việc trống. **Việc VẪN chạy** (scheduler quét mọi brain đã đăng ký,
-`self_improve.py:423` `scheduler_brains`), nên đây thuần là vấn đề NHÌN THẤY và ĐIỀU KHIỂN,
-không phải mất việc.
+The two are not linked. Create a job via chat (it goes to the Default Brain), then open the dashboard while on
+another brain, and the Scheduled page is empty. **The job STILL runs** (the scheduler scans every registered brain,
+`self_improve.py:423` `scheduler_brains`), so this is purely a problem of SEEING and CONTROLLING, not of lost jobs.
 
-Thêm một tầng nữa: `_TG_SESS` bị `_TG_SESS.clear()` xoá mỗi lần bot khởi động lại
-(`main.py:5098`). Nên kể cả đã `/brain` sang brain khác, restart một phát là về mặc định.
+One more layer: `_TG_SESS` is wiped by `_TG_SESS.clear()` on every bot restart
+(`main.py:5098`). So even after switching brains with `/brain`, one restart sends it back to the default.
 
-## Không gộp thành một kho (đã cân nhắc và loại)
+## Not merging into a single store (considered and rejected)
 
-Lưu tách theo brain là CỐ Ý: loop là file `.md` trong `<vault>/Javis/loops/` (sửa trong
-Obsidian, commit theo git brain, `self_improve.py:11`); nhắc hẹn là `<vault>/Javis/reminders.json`.
-Spec 2026-07-17 đã chốt giữ vậy. Hướng đúng không phải nhét chung một kho, mà là làm **lớp
-hiển thị và lớp điều khiển xuyên brain**, còn lớp lưu giữ nguyên.
+Storing per brain is INTENTIONAL: a loop is an `.md` file in `<vault>/Javis/loops/` (editable in
+Obsidian, committed with the brain's git, `self_improve.py:11`); reminders are `<vault>/Javis/reminders.json`.
+The 2026-07-17 spec settled on keeping it that way. The right direction is not to cram everything into one store, but to build a
+**cross-brain display layer and control layer**, and leave the storage layer unchanged.
 
-## Thiết kế: 5 mảnh
+## Design: 5 pieces
 
-### Mảnh 1 - Hiển thị gộp mọi brain
+### Piece 1 - Display merged across all brains
 
-Endpoint mới `GET /viec/all` (main.py, nơi có sẵn cả `loop_feature`, `reminders` feature và
-`list_brains`). Lặp qua `list_brains()` (KHÔNG chỉ brain đã đăng ký - phải thấy cả brain có
-loop/nhắc mà chưa từng mở), mỗi brain trả:
+A new endpoint `GET /viec/all` (main.py, where `loop_feature`, the `reminders` feature and
+`list_brains` are all available). It iterates over `list_brains()` (NOT only registered brains - it must also show brains that have
+loops/reminders but have never been opened), and for each brain returns:
 
 ```json
 {"brains": [
   {"name": "Kim Khí Hà Lộc", "path": "...", "is_default": false,
-   "loops": [ <loop_view + brain gắn kèm> ],
-   "reminders": [ <pending reminder + brain gắn kèm> ]}
+   "loops": [ <loop_view + brain attached> ],
+   "reminders": [ <pending reminder + brain attached> ]}
 ], "running": false, "running_slug": ""}
 ```
 
-- loop item tái dùng `loop_feature.loop_view(brain, lp, state)` y trang hiện tại, thêm
-  `brain_name` + `brain_path`.
-- reminder item tái dùng view `pending` của `reminders._load` + `_view`, thêm `brain_name` +
+- A loop item reuses `loop_feature.loop_view(brain, lp, state)` exactly as it is today, adding `brain_name` +
+  `brain_path`.
+- A reminder item reuses the `pending` view of `reminders._load` + `_view`, adding `brain_name` +
   `brain_path`.
 
-`renderSelfImprove` (console.js) đổi từ đọc `/loops?brain=` + `/reminders?brain=` (một brain)
-sang đọc `/viec/all` (mọi brain). Nhóm theo brain: brain đang chọn ở sidebar (`fbrain()`) lên
-đầu, làm nổi; các brain khác gom dưới, mỗi nhóm có tiêu đề tên brain. Mỗi thẻ loop/nhắc gắn
-nhãn brain của nó. Nút bật/tắt/xoá/chạy-ngay/huỷ đổi từ gửi `fbrain()` sang gửi **brain của
-chính item** (`lp.brain_path` / `r.brain_path`) - đây là điểm dễ sai nhất: hiện tất cả nút
-gửi `fbrain()`, gộp rồi mà quên đổi thì thao tác lên item brain khác sẽ nhắm nhầm brain.
+`renderSelfImprove` (console.js) switches from reading `/loops?brain=` + `/reminders?brain=` (one brain)
+to reading `/viec/all` (all brains). Group by brain: the brain selected in the sidebar (`fbrain()`) goes
+first and is highlighted; the other brains are gathered below, each group with a heading showing the brain name. Each loop/reminder card
+carries a label with its own brain. The enable/disable/delete/run-now/cancel buttons switch from sending `fbrain()` to sending **the item's
+own brain** (`lp.brain_path` / `r.brain_path`) - this is the easiest place to go wrong: today every button
+sends `fbrain()`, and after merging, forgetting to change it means operations on an item from another brain would target the wrong brain.
 
-### Mảnh 2 - Di chuyển việc sang brain khác
+### Piece 2 - Moving a job to another brain
 
-Nút "Chuyển sang brain..." trên mỗi thẻ, đổ danh sách brain (trừ brain hiện tại của item).
+A "Move to brain..." button on each card, listing the brains (except the item's current one).
 
 - **Loop**: `POST /loops/move` (self_improve router): `slug`, `from_brain`, `to_brain`.
-  - Đọc loop nguồn (`get_loop`); không có → lỗi.
-  - Đích đã có file cùng slug (`_loop_path(to_brain, slug).exists()`) → **lỗi, KHÔNG ghi đè**
-    (định danh theo tên file, `self_improve.py:319`; builtin `tu-cai-tien-javis` có ở mọi brain
-    nên đây là va chạm thật sẽ gặp).
-  - Đang chạy đúng loop đó (`self._running`) → lỗi "đang chạy, thử lại sau".
-  - `save_loop(to_brain, lp)` → `delete_loop(from_brain, slug)` → dời entry
-    `loop-state.json` (nguồn sang đích; không dời được thì để đích chạy mới) →
+  - Read the source loop (`get_loop`); missing -> error.
+  - The destination already has a file with the same slug (`_loop_path(to_brain, slug).exists()`) -> **error, do NOT overwrite**
+    (identity is by file name, `self_improve.py:319`; the builtin `tu-cai-tien-javis` exists in every brain,
+    so this is a real collision that will happen).
+  - That exact loop is currently running (`self._running`) -> error "running, try again later".
+  - `save_loop(to_brain, lp)` -> `delete_loop(from_brain, slug)` -> move the `loop-state.json` entry
+    (source to destination; if it cannot be moved, let the destination start fresh) ->
     `register_brain(to_brain)`.
-- **Nhắc hẹn**: `POST /reminders/move` (reminders router): `id`, `from_brain`, `to_brain`.
-  - Pop record khỏi `<from>/reminders.json`, push vào `<to>/reminders.json`, giữ nguyên `id`
-    và mọi field (chat_id, cron, due_at...). Lưu cả hai file.
+- **Reminder**: `POST /reminders/move` (reminders router): `id`, `from_brain`, `to_brain`.
+  - Pop the record from `<from>/reminders.json`, push it into `<to>/reminders.json`, keeping the `id`
+    and every field (chat_id, cron, due_at...). Save both files.
 
-`owner_chat`/`chat_id` giữ nguyên khi chuyển → vẫn báo về đúng người đã đặt.
+`owner_chat`/`chat_id` are kept when moving, so results are still reported to the person who set the job.
 
-### Mảnh 3 - Tạo trên dashboard chọn brain đích
+### Piece 3 - Creating on the dashboard with a chosen target brain
 
-Form "+ Loop mới" (console.js `openForm`) thêm ô chọn brain đích (dropdown đổ từ
-`/brains`), mặc định brain đang xem (`fbrain()`). `#lpSave` gửi `brain` = giá trị chọn thay
-vì cứng `fbrain()` (`console.js:847`). Không đổi backend `POST /loops` (đã nhận `brain`).
+The "+ New loop" form (console.js `openForm`) gets a target brain dropdown (filled from
+`/brains`), defaulting to the brain being viewed (`fbrain()`). `#lpSave` sends `brain` = the chosen value instead of
+the hard-coded `fbrain()` (`console.js:847`). No change to the `POST /loops` backend (it already accepts `brain`).
 
-### Mảnh 4 - Chat báo rõ brain khi tạo việc
+### Piece 4 - Chat states the brain clearly when creating a job
 
-`javis_schedule` (system/plugins/javis-schedule/plugin.py) hiện báo "Đã tạo... tại
-Javis/loops/<slug>.md" nhưng KHÔNG nói brain (`plugin.py:249`). Sửa để câu xác nhận nêu tên
-brain: "Đã tạo việc 'Quét đơn' trong brain **Kim Khí Hà Lộc**, chạy mỗi 120 phút, đang tắt,
-vào tab Việc để bật."
+`javis_schedule` (system/plugins/javis-schedule/plugin.py) currently reports "Created... at
+Javis/loops/<slug>.md" but does NOT say which brain (`plugin.py:249`). Change it so the confirmation names the
+brain: "Created the job 'Scan orders' in brain **Kim Khí Hà Lộc**, runs every 120 minutes, currently off,
+go to the Work tab to turn it on."
 
-- `brain_name = Path(vault_root).name` (vault_root là path brain phiên).
-- Sửa `_create_loop_file` (thêm brain_name vào câu trả về) và `_post_reminder` (nhận brain_name,
-  thêm vào câu "Đã đặt... trong brain X").
+- `brain_name = Path(vault_root).name` (vault_root is the session's brain path).
+- Change `_create_loop_file` (add brain_name to the returned sentence) and `_post_reminder` (accept brain_name,
+  add it to the sentence "Set... in brain X").
 
-Đây là chỗ bịt cái rối NGAY lúc tạo: user biết việc rơi vào brain nào tức thì, không phải đi
-tìm mới ngã ngửa.
+This plugs the confusion RIGHT at creation time: the user instantly knows which brain the job landed in, instead of
+searching for it and being surprised later.
 
-### Mảnh 5 - Nhớ bền lựa chọn /brain của Telegram
+### Piece 5 - Persistently remembering the Telegram /brain choice
 
-Vấn đề: brain phiên nằm trong `_TG_SESS` (RAM), mất khi restart.
+Problem: the session brain lives in `_TG_SESS` (RAM) and is lost on restart.
 
-- Map bền `chat_id -> tên brain`, ghi `STATE_DIR/tg_brain.json` (server state, gitignored,
-  xuyên brain, KHÔNG nằm trong vault nào - đúng chỗ như `.sessions.json`, `config.py:228`).
-- Lưu theo **tên brain**, không phải path tuyệt đối (bền qua Docker/local + brain đổi chỗ).
-  Đọc mới resolve tên -> path (`Path(BRAINS_DIR)/name`); brain đã xoá -> về mặc định + dọn
-  entry cũ.
-- `_tg_set_brain(chat_id, path)`: ghi cả phiên sống (như cũ) lẫn map bền (`name=Path(path).name`).
-- `_tg_brain(chat_id)`: phiên sống trước -> map bền -> mặc định.
-- `_TG_SESS.clear()` lúc restart giữ nguyên (vẫn reset hội thoại); brain sống sót vì đọc từ
-  map bền tách biệt.
+- A persistent map `chat_id -> brain name`, written to `STATE_DIR/tg_brain.json` (server state, gitignored,
+  cross-brain, NOT inside any vault - the same place as `.sessions.json`, `config.py:228`).
+- Store by **brain name**, not an absolute path (durable across Docker/local + brains that move). On read,
+  resolve name -> path (`Path(BRAINS_DIR)/name`); a deleted brain -> fall back to the default + clean up the stale
+  entry.
+- `_tg_set_brain(chat_id, path)`: write both the live session (as before) and the persistent map (`name=Path(path).name`).
+- `_tg_brain(chat_id)`: live session first -> persistent map -> default.
+- `_TG_SESS.clear()` on restart stays as is (the conversation still resets); the brain survives because it is read from the
+  separate persistent map.
 
-Kết quả: `/brain` sang brain nào thì dính đó tới khi đổi cái khác, kể cả sau restart.
+Result: whichever brain `/brain` switches to sticks until another is chosen, even after a restart.
 
-## Ngoài phạm vi
+## Out of scope
 
-- Cách Telegram chọn brain mặc định khi CHƯA từng `/brain` (vẫn về brain mặc định Settings) -
-  giữ nguyên. Mảnh 4 + 5 làm nó minh bạch và bền là đủ; không thêm khái niệm "brain làm việc
-  chính" (chủ dự án không muốn thêm cấu hình).
-- Kanban tasks (`tasks.py`) - không có đồng hồ, không thuộc trục việc-định-kỳ. Giữ nguyên.
-- Gộp một kho lưu - đã loại ở trên.
+- How Telegram picks the default brain when `/brain` has NEVER been used (still falls back to the Settings default brain) -
+  unchanged. Pieces 4 + 5 make it transparent and durable, which is enough; no new "main working brain" concept is added (the project
+  owner does not want extra configuration).
+- Kanban tasks (`tasks.py`) - they have no clock and do not belong to the recurring-jobs axis. Unchanged.
+- Merging into one store - rejected above.
 
-## Rủi ro
+## Risks
 
-1. **Nút thao tác nhắm nhầm brain sau khi gộp.** Điểm dễ sai nhất: mọi nút hiện gửi `fbrain()`.
-   Gộp xong PHẢI đổi sang brain của chính item. Cần test: bật/xoá item ở brain B khi sidebar
-   đang brain A phải tác động brain B.
-2. **Di chuyển loop trùng slug ở đích** (builtin `tu-cai-tien-javis` có ở mọi brain) - phải
-   fail rõ, KHÔNG ghi đè. Cần test va chạm.
-3. **Map bền lưu tên brain** - brain xoá/đổi tên giữa chừng phải fail-safe về mặc định, không
-   crash `_tg_brain`.
-4. **`/viec/all` quét mọi brain mỗi lần load** - với nhiều brain có thể chậm. Chấp nhận được ở
-   quy mô ~4 brain; nếu phình thì thêm cache sau (ngoài phạm vi).
+1. **Action buttons targeting the wrong brain after merging.** The easiest place to go wrong: every button currently sends `fbrain()`.
+   After merging, they MUST switch to the item's own brain. Needs a test: enabling/deleting an item in brain B
+   while the sidebar is on brain A must act on brain B.
+2. **Moving a loop whose slug already exists at the destination** (builtin `tu-cai-tien-javis` exists in every brain) - must
+   fail clearly, NOT overwrite. Needs a collision test.
+3. **The persistent map stores the brain name** - a brain deleted/renamed midway must fail safe to the default, without
+   crashing `_tg_brain`.
+4. **`/viec/all` scans every brain on each load** - with many brains it may be slow. Acceptable at a scale of ~4 brains; if it
+   grows, add a cache later (out of scope).
 
-## Kiểm thử (tối thiểu)
+## Testing (minimum)
 
-- `test` di chuyển loop: thành công (file dời + register), va chạm slug (từ chối), loop đang
-  chạy (từ chối).
-- `test` di chuyển nhắc hẹn: record sang đúng file đích, giữ id.
-- `test` nhớ bền tg brain: set -> đọc lại sau khi "restart" (dựng lại state từ file) trả đúng
-  brain; brain xoá -> về mặc định.
-- `test` javis_schedule: câu trả về create có tên brain.
-- `test` `/viec/all`: gắn đúng brain_name/brain_path cho từng item (nếu dựng được app trong test).
+- `test` moving a loop: success (file moved + registered), slug collision (rejected), loop currently
+  running (rejected).
+- `test` moving a reminder: the record goes to the right destination file, keeping its id.
+- `test` persistent tg brain: set -> read back after a "restart" (state rebuilt from the file) returns the right
+  brain; deleted brain -> falls back to the default.
+- `test` javis_schedule: the create reply contains the brain name.
+- `test` `/viec/all`: attaches the right brain_name/brain_path to each item (if the app can be built in the test).

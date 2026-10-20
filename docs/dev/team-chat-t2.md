@@ -1,237 +1,237 @@
-# Nhóm chat team T2: sáu reaction và vòng phản hồi (0.120.0)
+# Team chat group T2: six reactions and the feedback loop (0.120.0)
 
-Spec: [2026-10-13-team-chat-design.md](../superpowers/specs/2026-10-13-team-chat-design.md) mục 14; ca TC28 tới TC30, TC37 (phần reaction). Chồng trên T1 (PR #628).
+Spec: [2026-10-13-team-chat-design.md](../superpowers/specs/2026-10-13-team-chat-design.md) section 14; cases TC28 to TC30, TC37 (reaction part). Stacked on T1 (PR #628).
 
-## Luồng
+## Flow
 
-1. Rê chuột vào tin của trợ lý hiện nút mặt cười (máy chạm luôn hiện); điện thoại nhấn giữ tin 0,5 giây cũng mở bộ chọn.
-2. Bộ chọn mở ngay tại tin: sáu emoji 👍 ❤️ 😂 😮 😢 😡, sáu lý do chất lượng (chọn được nhiều), ô góp ý tối đa 500 ký tự, một câu nhắc "cảm xúc không phải chấm điểm".
-3. Bấm một emoji là lưu ngay; bấm lại emoji đang chọn là bỏ; "Lưu góp ý" lưu lý do và góp ý; "Bỏ phản hồi" xoá hết.
-4. Emoji đã chọn hiện thành chip dưới tin (kèm số lý do, "có góp ý"); bấm chip để đổi hay bỏ.
-5. Lượt KẾ TIẾP của chính trợ lý đó trong chính nhóm đó có khối "Phản hồi gần đây của chủ nhóm" kèm câu dặn cố định.
+1. Hovering over an assistant's message shows a smiley button (always shown on touch devices); on a phone, pressing and holding the message for 0.5 seconds also opens the picker.
+2. The picker opens right at the message: six emoji 👍 ❤️ 😂 😮 😢 😡, six quality reasons (multiple choice), a feedback box of up to 500 characters, and a reminder line "an emotion is not a score".
+3. Pressing an emoji saves immediately; pressing the selected emoji again removes it; "Save feedback" saves the reasons and the feedback; "Remove feedback" clears everything.
+4. The chosen emoji shows as a chip under the message (with the number of reasons, "has feedback"); pressing the chip changes or removes it.
+5. The NEXT turn of that same assistant in that same team has a block "Recent feedback from the team owner" with a fixed instruction line.
 
-## Bản đồ mã
+## Code map
 
-| Phần | File | Việc |
+| Part | File | Job |
 |---|---|---|
-| Kho | `server/team_store.py` | `team_reactions` (một dòng mỗi người phản hồi mỗi tin), `team_reaction_log` (nối tiếp, `nonce` UNIQUE); `set_reaction`, `reaction_of`, `reactions_for`, `reaction_log`, `recent_feedback`; hằng `REACTIONS`, `REACTION_EMOJI`, `REACTION_REASONS` |
-| Bộ chạy | `server/team_runner.py` | `react` (chỉ ghi kho và đẩy gói WS), `_feedback_lines`, `FEEDBACK_NOTE`; khối phản hồi trong `_context` |
-| Route | `server/team_api.py` | `POST /teams/{id}/messages/{mid}/reaction {value, reasons, comment, nonce}`; trang tin kèm `reaction` của từng tin |
-| Giao diện | `dashboard/teams.js`, `console.css`, i18n | Bảng `REACTIONS`, `reactionPickerHtml`, `reactionChipHtml`, `nextReaction`; nhấn giữ; giữ bản nháp góp ý qua lần vẽ lại |
-| Quy ước | `tests/python/test_icons.py` | Ngoại lệ có lý do cho đúng sáu emoji trong `teams.js`, kèm kiểm cả sáu luôn còn và chỉ nằm trong bảng `REACTIONS` |
+| Store | `server/team_store.py` | `team_reactions` (one row per reactor per message), `team_reaction_log` (append-only, `nonce` UNIQUE); `set_reaction`, `reaction_of`, `reactions_for`, `reaction_log`, `recent_feedback`; constants `REACTIONS`, `REACTION_EMOJI`, `REACTION_REASONS` |
+| Runner | `server/team_runner.py` | `react` (only writes the store and pushes a WS packet), `_feedback_lines`, `FEEDBACK_NOTE`; the feedback block in `_context` |
+| Route | `server/team_api.py` | `POST /teams/{id}/messages/{mid}/reaction {value, reasons, comment, nonce}`; the message page carries each message's `reaction` |
+| UI | `dashboard/teams.js`, `console.css`, i18n | The `REACTIONS` table, `reactionPickerHtml`, `reactionChipHtml`, `nextReaction`; press and hold; the feedback draft survives a redraw |
+| Convention | `tests/python/test_icons.py` | A reasoned exception for exactly six emoji in `teams.js`, with a check that all six remain and appear only in the `REACTIONS` table |
 
-## Quy tắc đã giữ
+## Rules kept
 
-- Đúng sáu giá trị, lưu nguyên (`like`, `love`, `haha`, `wow`, `sad`, `angry`), cộng `none` để bỏ emoji. Lý do và góp ý tồn tại được khi không có emoji.
-- Đặt phản hồi là THAY TRỌN trạng thái của người đó trên tin; giao diện tính "bấm lại là bỏ". `nonce` trùng thì không đổi gì.
-- Lưu kèm người phản hồi (`owner`), tin, agent tác giả, nhóm, việc, `content_sha` của nội dung lúc bấm.
-- Không gọi model, không mở lượt, không đánh thức agent, không đổi việc, goal hay hàng đợi (TC29, kiểm bằng sổ lượt và phiên bản hàng đợi).
-- Khối phản hồi: tối đa 5 mục, 30 ngày, mới nhất trước, chỉ tin của chính agent trong chính nhóm; mỗi mục có đoạn trích, emoji gốc kèm tên loại, lý do, góp ý; bỏ phản hồi thì rời khối ở lượt kế (đọc trạng thái hiện tại).
-- Không dùng bảng `reactions` của A3.
+- Exactly six values, stored as they are (`like`, `love`, `haha`, `wow`, `sad`, `angry`), plus `none` to remove the emoji. Reasons and feedback can exist without an emoji.
+- Setting a reaction REPLACES that person's whole state on the message; the UI computes "press again to remove". A repeated `nonce` changes nothing.
+- Stored with the reactor (`owner`), the message, the author agent, the team, the job, and the `content_sha` of the content at the time of the press.
+- No model call, no turn opened, no agent woken, no change to a job, goal or queue (TC29, checked with the turn ledger and the queue version).
+- The feedback block: at most 5 items, 30 days, newest first, only messages of that agent in that team; each item has an excerpt, the original emoji with its type name, the reasons, the feedback; removing the feedback takes it out of the block on the next turn (reads the current state).
+- The A3 `reactions` table is not used.
 
-## Phán quyết
+## Rulings
 
-- **Đề xuất bài học từ góp ý để mốc sau** (spec 14.4 mục 4 cho phép): T2 chỉ đưa phản hồi vào ngữ cảnh. Cơ chế "Bài học đề xuất" cần chỗ hiện trên bảng agent, nút nhận và nút gỡ như A3; làm cùng lúc sẽ kéo T2 sang trang Cộng sự. Giá nếu sai: chủ muốn góp ý thành bài học bền thì phải dặn trong chat 1:1 với agent cho tới khi có cơ chế này.
-- Người phản hồi chỉ có `owner` (dashboard một tài khoản); cột `reactor` để sẵn.
-- Thả cảm xúc được cả ở nhóm đã lưu trữ (chỉ là ghi phản hồi, không mở lượt).
-- Nhóm đã lưu trữ hay tin đến muộn (applied=false) vẫn nhận phản hồi; khối phản hồi chỉ đọc theo agent và nhóm.
+- **Proposing lessons from feedback is left for a later milestone** (spec 14.4 item 4 allows it): T2 only puts the feedback into the context. A "Proposed lessons" mechanism needs a place to show it on the agent panel, an accept button and a remove button like A3; doing it at the same time would pull T2 onto the Partners page. Cost if wrong: if the owner wants feedback to become a durable lesson, they must say it in a 1:1 chat with the agent until this mechanism exists.
+- The reactor is only `owner` (a one-account dashboard); the `reactor` column is ready.
+- Reacting is allowed even in an archived team (it only records feedback, opens no turn).
+- An archived team or a late-arriving message (applied=false) still receives feedback; the feedback block is read only by agent and team.
 
-## Kiểm
+## Checks
 
-| Lệnh | Kết quả |
+| Command | Result |
 |---|---|
-| `tests/python/test_team_reactions.py` | 31 ca: TC28 (chọn, đổi, bỏ, nonce, nhật ký, giữ qua mở lại kho, từ chối đầu vào sai, chỉ tin của agent đúng nhóm), TC29 (không đổi việc, hàng đợi, không lượt, không engine), TC30 (khối phản hồi, câu dặn, đúng nhóm, đúng agent, bỏ thì rời, tối đa 5, 30 ngày) |
-| `tests/python/test_team_api.py` | thêm 6 ca route reaction (200, trang tin kèm reaction, 400, 404 brain khác, không mở lượt) |
-| `tests/js/test_teams_ui.js` | thêm 22 ca giao diện reaction |
-| `tests/python/test_icons.py` | sáu reaction còn đủ, chỉ trong bảng `REACTIONS`; không emoji trang trí |
+| `tests/python/test_team_reactions.py` | 31 cases: TC28 (pick, change, remove, nonce, log, survives reopening the store, rejects bad input, only messages of the right agent in the right team), TC29 (no change to jobs, queue, no turn, no engine), TC30 (feedback block, instruction line, right team, right agent, removed means gone, at most 5, 30 days) |
+| `tests/python/test_team_api.py` | 6 more cases for the reaction route (200, message page carries the reaction, 400, 404 for another brain, opens no turn) |
+| `tests/js/test_teams_ui.js` | 22 more reaction UI cases |
+| `tests/python/test_icons.py` | all six reactions remain, only in the `REACTIONS` table; no decorative emoji |
 
-**Smoke giao diện** (sandbox cổng 7788, state trong worktree, nhóm tạm dừng, trần lượt ngày 0; tin của trợ lý chèn thẳng vào kho phiên, không gọi model). Ảnh ở `exports/reviews/team-t2-smoke/`:
-- desktop: chọn 😢 hiện chip; F5 vẫn còn; thêm lý do "Quá dài" và góp ý; bấm lại 😢 là bỏ emoji, lý do và góp ý còn; đổi sang 😂;
-- 375px: nút mặt cười hiện sẵn 44x44; nhấn giữ mở bộ chọn; sáu nút 44x48; không cuộn ngang;
-- smoke tìm ra và đã sửa: ở 375px hàng sáu nút tràn mép (😡 bị cắt) vì khe 6px và đệm 10px; chữ "1 reasons" sai ngữ pháp (đổi thành "Reasons: 1");
-- sổ lượt của nhóm sau smoke: 0 lượt.
+**UI smoke test** (sandbox on port 7788, state inside the worktree, team paused, daily turn cap 0; the assistant's message was inserted straight into the session store, no model call). Screenshots are in `exports/reviews/team-t2-smoke/`:
+- desktop: picking 😢 shows a chip; it is still there after F5; adding the reason "Too long" and feedback; pressing 😢 again removes the emoji while the reason and feedback stay; switching to 😂;
+- 375px: the smiley button is shown by default at 44x44; press and hold opens the picker; six buttons at 44x48; no horizontal scroll;
+- the smoke test found and fixed: at 375px the row of six buttons overflowed the edge (😡 was cut off) because of a 6px gap and 10px padding; the text "1 reasons" was ungrammatical (changed to "Reasons: 1");
+- the team's turn ledger after the smoke test: 0 turns.
 
-## Review cuối (người review mới, model mạnh nhất)
+## Final review (a fresh reviewer, strongest model)
 
-Kết luận "Ready with fixes": 1 Important, 6 Minor. Xếp lại theo tác động, sửa cả bảy:
-- **Important:** chi tiết việc (khung lọc theo việc) trả tin thiếu phản hồi, bấm emoji ở đó xoá mất lý do và góp ý đã lưu. Route `GET /teams/{id}/tasks/{task}` nay kèm `reaction` của từng tin.
-- Góp ý nhiều dòng phá khuôn một dòng mỗi mục (giả được đầu mục mới): gộp khoảng trắng.
-- Phản hồi của tin không còn vẫn vào khối với đoạn trích rỗng: bỏ qua.
-- Đang soạn góp ý mà có tin mới tới thì mất con trỏ, bị kéo xuống cuối: giữ con trỏ, chỗ cuộn.
-- Mở bộ chọn không đưa focus vào bảng (Escape không đóng được với bàn phím): focus emoji đầu, đóng thì trả focus về nút mặt cười.
-- Nhấn giữ chuột cũng mở bộ chọn, và đè menu nhấn giữ của máy chạm: chỉ chạm và bút; chặn menu ngữ cảnh của lần giữ đó; `-webkit-touch-callout: none` trên máy chạm.
-- Nonce đã dùng cho tin khác trả 200 "đã lưu": nay từ chối (0.120.0 trả 400; từ 0.154.0 trả 409 cho khớp hợp đồng T2); nonce dài quá 100 ký tự bị từ chối.
+Verdict "Ready with fixes": 1 Important, 6 Minor. Reordered by impact, all seven fixed:
+- **Important:** the job detail (the job filter view) returned messages without feedback, so pressing an emoji there wiped the saved reasons and feedback. The route `GET /teams/{id}/tasks/{task}` now carries each message's `reaction`.
+- Multi-line feedback broke the one-line-per-item format (a new item header could be faked): whitespace is collapsed.
+- Feedback on a message that no longer exists still entered the block with an empty excerpt: now skipped.
+- While composing feedback, a new incoming message lost the cursor and scrolled to the bottom: the cursor and scroll position are kept.
+- Opening the picker did not move focus into the panel (Escape could not close it with the keyboard): focus goes to the first emoji, and on close it returns to the smiley button.
+- A mouse press-and-hold also opened the picker and fought the touch long-press menu: now only touch and pen; the context menu of that hold is blocked; `-webkit-touch-callout: none` on touch devices.
+- A nonce already used for another message returned 200 "saved": now refused (0.120.0 returned 400; from 0.154.0 it returns 409 to match the T2 contract); a nonce longer than 100 characters is refused.
 
-Bốn lỗi phía server có test đỏ trước rồi xanh (`test_team_reactions.py`, `test_team_api.py`). Ba lỗi giao diện kiểm bằng test nguồn trong `test_teams_ui.js` viết sau khi sửa (hành vi DOM chưa chạy được dưới node; chưa soi lại trên trình duyệt).
+The four server-side bugs have tests that were red first and then green (`test_team_reactions.py`, `test_team_api.py`). The three UI bugs are checked with source tests in `test_teams_ui.js` written after the fix (DOM behavior cannot run under node yet; not re-checked in a browser).
 
-Phần reviewer không kết luận: nhấn giữ trên iOS Safari, Android Chrome thật; trình đọc màn hình đọc chip; `de.json` chưa có khoá `teams.*` (rơi về tiếng Anh, có từ trước T2).
+What the reviewer did not conclude: press and hold on real iOS Safari and Android Chrome; a screen reader reading the chip; `de.json` has no `teams.*` keys yet (falls back to English, present before T2).
 
 ---
 
-## Team chat T2 (0.154.0), phần máy chủ: reaction hai nơi, sổ lượt chung, lý do thức, bộ chiếu phản hồi
+## Team chat T2 (0.154.0), server side: reactions in two places, shared turn ledger, wake reasons, feedback projector
 
-Thiết kế gốc: `docs/superpowers/specs/2026-10-15-team-adaptive-design.md` mục 2, 3.1-3.5, 4.1-4.4, 9, 9.1, 12, 13. Hợp
-đồng với giao diện: `docs/dev/team-chat-t2-contract.md`. Phần giao diện (reactions.js, app.js, teams.js, mobile-chat.js)
-do nhánh UI làm riêng; tài liệu này chỉ nói phần máy chủ.
+Original design: `docs/superpowers/specs/2026-10-15-team-adaptive-design.md` sections 2, 3.1-3.5, 4.1-4.4, 9, 9.1, 12, 13. The contract
+with the UI: `docs/dev/team-chat-t2-contract.md`. The UI part (reactions.js, app.js, teams.js, mobile-chat.js)
+is done separately by the UI branch; this document covers only the server side.
 
-### 1. Làm gì
+### 1. What it does
 
-- **Sổ lượt chung và trần máy chủ (3.1, 9.1).** Bảng `agent_calls` trong `resonance.sqlite3`. Một phép đếm
-  `_ceiling_used(c)` = `SUM(goals.calls_used)` + `COUNT(call_ledger used)` + `COUNT(agent_calls counted = 1, chưa hoàn)`.
-  Lượt nghĩa vụ (goal A2, phép thử, bộ lập mục tiêu, lượt nhóm) dùng cả trần; lượt tự phát (`obligation = 0`) chỉ tới
-  `floor(trần * 0.8)`. Trần tính trên toàn bộ thời gian sống của kho, không theo ngày. Chỉ mục duy nhất từng phần
+- **Shared turn ledger and server ceiling (3.1, 9.1).** The `agent_calls` table in `resonance.sqlite3`. A single count
+  `_ceiling_used(c)` = `SUM(goals.calls_used)` + `COUNT(call_ledger used)` + `COUNT(agent_calls counted = 1, not refunded)`.
+  Obligation turns (goal A2, probe, goal planner, team turn) use the whole ceiling; spontaneous turns (`obligation = 0`) reach only
+  `floor(ceiling * 0.8)`. The ceiling counts over the whole life of the store, not per day. A partial unique index
   `UNIQUE(reason_ref) WHERE status IN ('reserved','running','ok')`.
-- **Lượt nhóm giữ chỗ trước engine.** `TeamRunner` có phụ thuộc `ceiling` (`agent_ledger.TeamCeiling`). Ngay sau khi giữ
-  chỗ `team_turns`, lượt giữ một dòng `counted = 1`, `mirror_ref = team_turn:<id>`. Trần đầy: hoàn `team_turns`, kết cục
-  `{"status": "cap", "cap": "server_ceiling"}`, không gọi engine. Lượt trả lời lỗi với lý do `server_ceiling`; bước việc
-  bị chặn với `block_kind = server_ceiling` (nút "Cho thêm lượt" không gỡ được). Mọi đường hoàn/mốc/chốt (`busy_long`,
-  lỗi trước engine, huỷ, hết giờ, `lease_lost` trước engine của T1, phục hồi) đi qua `_refund_if_unmarked`,
-  `_mark_engine`, `_settle_turn`, nên dòng sổ chốt theo. Lỗi kho chung lúc mốc/chốt không làm hỏng lượt nhóm.
-- **Đối soát** (`TeamCeiling.reconcile`): lúc khởi động (cuối `TeamRunner.recover`) và mỗi 60 giây (vòng của
-  `TeamApi.tick`). Dòng `team_turn:*` chỉ theo trạng thái của chính lượt nhóm (đã hoàn/không còn thì hoàn, đã chốt thì
-  chốt theo, còn `reserved`/`running` thì để nguyên), không bao giờ theo tuổi. Dòng và lượt mới hơn 120 giây bị bỏ qua.
-  Lượt nhóm đã tới mốc engine mà thiếu dòng sổ thì dựng lại dòng tính. Quy tắc 10 phút chỉ cho dòng `mirror_ref = ''`.
-- **Lý do thức theo agent (3.2-3.4).** `agent_wake_reasons` và `agent_wake_sources` với đủ vòng đời (pending, claimed,
-  served, superseded, failed). API ở `agent_ledger.WakeReasons`: `add_source`, `remove_source`, `remove_group`, `claim`
-  (thử khoá bận trước, bận không tốn lần thử; CAS và giữ chỗ sổ lượt trong một giao dịch), `settle`, `retry_failed`.
-  Chỉ T3 phục vụ lý do; T2 tạo chúng và có test đủ vòng đời.
-- **Bộ chiếu phản hồi (3.5)** `server/feedback_projector.py`: idempotent theo `source_ref`, chiếu theo thứ tự nhật ký,
-  trạng thái ròng, dòng cũ `superseded`. Chạy ngay sau khi ghi (lỗi nuốt và ghi log), mỗi nhịp scheduler và lúc khởi
-  động (`_feedback_pulse_tick` trong main.py). Định tuyến: tin gắn goal chỉ vào lý do `feedback` của A2; tin khác vào lý
-  do `reaction_review` ở `team:<id>` hay `dm:<agent_key>`; chỉ khi agent bật Cộng hưởng và sự kiện sau `resumed_at`.
-  Cộng hưởng tắt: `stored_only`. Trang Trò chuyện chính: `received`. Trạng thái reaction ghi ngược theo lý do.
-  Điểm nối để trống cho T3: `FeedbackProjector.record_pulse_signal`.
-- **`resumed_at`.** Bảng `agent_pulse` (đủ cột của mục 5.4). Mốc ghi trong `GoalStore.agent_set_enabled` cùng giao dịch
-  với công tắc, nên cả route của chủ lẫn lệnh `set_resonance` của trưởng nhóm đều có mốc. Nâng cấp: agent đang bật nhận
-  `resumed_at = lúc nâng cấp`.
-- **Reaction chat riêng (4.1, hợp đồng mục 4).** `dm_reactions`, `dm_reaction_log` trong `conversations.db`. Route
-  `POST /sessions/{session_id}/messages/{message_id}/reaction`. `GET /sessions/{id}/messages` và `GET /sessions/{id}` có
-  `content_sha` trên mọi tin và `reaction` trên tin `assistant`. Gói WS `chat_reaction` sau mỗi lần ghi và mỗi lần host đổi
-  trạng thái. `_persist_turn` trả mã tin và đẩy `turn_saved` ngay sau khi lưu (mọi đường gọi: dashboard, Telegram, giọng,
-  quy trình).
-- **Reaction nhóm mở rộng (4.1, hợp đồng mục 5).** Cột mới cho `team_reactions`/`team_reaction_log` (ALTER idempotent, có
-  mặc định). Gửi lại cùng nonce trả trạng thái hiện tại; nonce của tin khác: 409. Lệnh `react` của agent trong lượt nhóm
-  (mọi vai, tối đa 5 mỗi lượt, nonce `<turn_id>#rx<i>`): host gán `leader`/`member`, không thả lên tin của chính mình.
-  Tin mang `agent_reactions` và `content_sha`.
-- **Hiệu lực (4.3).** Emoji không chốt đạt, không đổi ưu tiên, không cấp gì, không đổi trạng thái việc hay goal (test cả
-  chat riêng). Khối phản hồi vào lượt kế tiếp đúng ngữ cảnh: nhóm (`_feedback_lines`, thêm trục nói/im) và chat riêng
-  (`_agent_turn_system_prompt` thêm `feedback_projector.dm_feedback_block`, chỉ của đúng agent đó).
+- **A team turn reserves before the engine.** `TeamRunner` has a `ceiling` dependency (`agent_ledger.TeamCeiling`). Right after reserving
+  the `team_turns` slot, the turn holds one `counted = 1` row, `mirror_ref = team_turn:<id>`. Ceiling full: refund `team_turns`, outcome
+  `{"status": "cap", "cap": "server_ceiling"}`, no engine call. A reply turn fails with the reason `server_ceiling`; a job step
+  is blocked with `block_kind = server_ceiling` (the "Allow more turns" button cannot lift it). Every refund/mark/settle path (`busy_long`,
+  failure before the engine, cancel, timeout, T1's pre-engine `lease_lost`, recovery) goes through `_refund_if_unmarked`,
+  `_mark_engine`, `_settle_turn`, so the ledger row settles with it. A shared store error at mark/settle time does not break the team turn.
+- **Reconciliation** (`TeamCeiling.reconcile`): at startup (the end of `TeamRunner.recover`) and every 60 seconds (the loop of
+  `TeamApi.tick`). A `team_turn:*` row follows only the state of the team turn itself (refunded or gone means refund, settled means
+  settle with it, still `reserved`/`running` means leave it), never by age. Rows and turns newer than 120 seconds are skipped.
+  A team turn that reached the engine mark but lacks a ledger row gets a counted row rebuilt. The 10-minute rule applies only to rows with `mirror_ref = ''`.
+- **Wake reasons per agent (3.2-3.4).** `agent_wake_reasons` and `agent_wake_sources` with a full lifecycle (pending, claimed,
+  served, superseded, failed). The API is in `agent_ledger.WakeReasons`: `add_source`, `remove_source`, `remove_group`, `claim`
+  (tries the busy lock first, and being busy costs no attempt; CAS and the turn ledger reservation in one transaction), `settle`, `retry_failed`.
+  Only T3 serves reasons; T2 creates them and has lifecycle tests.
+- **Feedback projector (3.5)** `server/feedback_projector.py`: idempotent by `source_ref`, projects in log order,
+  net state, old rows `superseded`. It runs right after a write (errors swallowed and logged), on every scheduler beat and at
+  startup (`_feedback_pulse_tick` in main.py). Routing: a message tied to a goal goes only to the A2 `feedback` reason; other messages go to the
+  `reaction_review` reason at `team:<id>` or `dm:<agent_key>`; only when the agent has Resonance on and the event is after `resumed_at`.
+  Resonance off: `stored_only`. Main Chat page: `received`. The reaction status is written back by reason.
+  The hook left empty for T3: `FeedbackProjector.record_pulse_signal`.
+- **`resumed_at`.** The `agent_pulse` table (all columns of section 5.4). The mark is written in `GoalStore.agent_set_enabled` in the same transaction
+  as the switch, so both the owner's route and the leader's `set_resonance` command get the mark. Upgrade: an agent already on gets
+  `resumed_at = upgrade time`.
+- **Private chat reactions (4.1, contract section 4).** `dm_reactions`, `dm_reaction_log` in `conversations.db`. Route
+  `POST /sessions/{session_id}/messages/{message_id}/reaction`. `GET /sessions/{id}/messages` and `GET /sessions/{id}` have
+  `content_sha` on every message and `reaction` on `assistant` messages. WS packet `chat_reaction` after every write and every time the host changes
+  the status. `_persist_turn` returns the message id and pushes `turn_saved` right after saving (every calling path: dashboard, Telegram, voice,
+  workflow).
+- **Extended team reactions (4.1, contract section 5).** New columns for `team_reactions`/`team_reaction_log` (idempotent ALTER, with
+  defaults). Resending the same nonce returns the current state; a nonce of another message: 409. The agent `react` command in a team turn
+  (every role, at most 5 per turn, nonce `<turn_id>#rx<i>`): the host assigns `leader`/`member` and does not allow reacting to the agent's own message.
+  Messages carry `agent_reactions` and `content_sha`.
+- **Effect (4.3).** An emoji does not settle a result, does not change priority, grants nothing, does not change job or goal state (tested for private
+  chat too). The feedback block goes into the next turn in the right context: team (`_feedback_lines`, with the speak/stay-quiet axis added) and private chat
+  (`_agent_turn_system_prompt` adds `feedback_projector.dm_feedback_block`, only for that agent).
 
-### 2. Ở đâu
+### 2. Where
 
-| File | Nội dung |
+| File | Content |
 |---|---|
-| `server/agent_ledger.py` (mới) | `CallLedger`, `TeamCeiling`, `WakeReasons` |
-| `server/feedback_projector.py` (mới) | bộ chiếu phản hồi, khối phản hồi chat riêng |
-| `server/reaction_values.py` (mới) | sáu giá trị, lý do, trục, kiểm đầu vào, khuôn R |
-| `server/resonance_store.py` | `_ceiling_used`, `ceiling_limit`, bảng T2, `resumed_at`, `agent_any`, A2 supersede |
-| `server/team_store.py` | cột reaction mới, `set_reaction_ex`, outbox, `NonceConflict`, `turns_since` |
-| `server/team_runner.py` | phụ thuộc `ceiling`/`projector`, lệnh `react`, `server_ceiling`, góp ý đồng đội |
-| `server/team_api.py` | nối phụ thuộc, nhịp đối soát, route reaction (axis, seen_sha, 409) |
-| `server/sessions.py` | `dm_reactions`, `dm_reaction_log`, `content_sha` trên tin |
-| `server/main.py` | route reaction chat riêng, `turn_saved`, khối phản hồi, nhịp bộ chiếu, nối trần |
+| `server/agent_ledger.py` (new) | `CallLedger`, `TeamCeiling`, `WakeReasons` |
+| `server/feedback_projector.py` (new) | feedback projector, the private chat feedback block |
+| `server/reaction_values.py` (new) | the six values, reasons, axis, input checks, the R shape |
+| `server/resonance_store.py` | `_ceiling_used`, `ceiling_limit`, T2 tables, `resumed_at`, `agent_any`, A2 supersede |
+| `server/team_store.py` | new reaction columns, `set_reaction_ex`, outbox, `NonceConflict`, `turns_since` |
+| `server/team_runner.py` | `ceiling`/`projector` dependencies, the `react` command, `server_ceiling`, teammate feedback |
+| `server/team_api.py` | wiring the dependencies, the reconcile beat, the reaction route (axis, seen_sha, 409) |
+| `server/sessions.py` | `dm_reactions`, `dm_reaction_log`, `content_sha` on messages |
+| `server/main.py` | the private chat reaction route, `turn_saved`, the feedback block, the projector beat, wiring the ceiling |
 | `dashboard/i18n/{vi,en}.json` | `teams.reply.why.server_ceiling`, `teams.block.server_ceiling` |
 
-### 3. Di trú
+### 3. Migration
 
-- `resonance.sqlite3`: chụp `resonance.sqlite3.pre-0.154.0` lần đầu (chưa có `agent_calls`), rồi tạo bảng mới. Không đổi
-  bảng cũ.
-- `team.sqlite3`: chụp `team.sqlite3.pre-0.154.0` lần đầu (chưa có cột `axis`), rồi ALTER thêm cột có mặc định. Dòng nhật
-  ký cũ có `effect_state = 'done'` (không backfill tác động).
-- `conversations.db`: chụp `conversations.db.pre-0.154.0` lần đầu (chưa có `dm_reactions`), rồi tạo hai bảng mới.
+- `resonance.sqlite3`: snapshot `resonance.sqlite3.pre-0.154.0` the first time (no `agent_calls` yet), then create the new tables. Old
+  tables are unchanged.
+- `team.sqlite3`: snapshot `team.sqlite3.pre-0.154.0` the first time (no `axis` column yet), then ALTER to add columns with defaults. Old log
+  rows get `effect_state = 'done'` (no effect backfill).
+- `conversations.db`: snapshot `conversations.db.pre-0.154.0` the first time (no `dm_reactions` yet), then create the two new tables.
 
-### 4. Quay về bản cũ
+### 4. Rolling back
 
-Bản 0.153.x bỏ qua bảng và cột mới, nên hạ phiên bản chạy được không cần khôi phục. Reaction của trưởng nhóm/thành viên
-(reactor `agent:...`) sẽ hiện như reaction thường ở bản cũ (ảnh hưởng đã biết, không mất dữ liệu). Muốn khôi phục hẳn:
-dùng công cụ ở mục dưới, đừng chép tay (chép thô file `.sqlite3` bỏ sót phần còn trong WAL và không có đường lui).
+Version 0.153.x ignores the new tables and columns, so a downgrade runs without a restore. The leader's/members' reactions
+(reactor `agent:...`) will show as ordinary reactions in the old version (a known effect, no data lost). To restore fully:
+use the tool in the section below, do not copy by hand (a raw copy of the `.sqlite3` file misses what is still in the WAL and has no way back).
 
-#### Khôi phục về trước 0.154.0
+#### Restore to before 0.154.0
 
-**Thường không cần khôi phục.** Mọi di trú của 0.154.0 chỉ THÊM (bảng mới, cột mới có mặc định), nên chạy lại bản 0.152.0
-hay 0.153.0 trên kho đã nâng vẫn được: bản cũ bỏ qua bảng mới, không thấy trạng thái reaction mới, reaction của agent
-(`reactor` dạng `agent:...`) hiện như reaction thường. Chỉ dùng công cụ dưới đây khi muốn kho về ĐÚNG trạng thái trước lúc
-nâng (mất mọi tin và thay đổi sau lúc đó).
+**Usually no restore is needed.** Every 0.154.0 migration only ADDS (new tables, new columns with defaults), so running 0.152.0
+or 0.153.0 again over an upgraded store still works: the old version ignores the new tables, does not see the new reaction status, and an agent's reactions
+(`reactor` of the form `agent:...`) show as ordinary reactions. Use the tool below only when you want the stores back in EXACTLY the state before
+the upgrade (every message and change after that point is lost).
 
-Công cụ nội bộ `tools/team_adaptive_restore_pre.py` (không ghi CHANGELOG). Chạy khi Jarvis 007 ĐÃ TẮT hẳn:
+The internal tool `tools/team_adaptive_restore_pre.py` (not in the CHANGELOG). Run it when Jarvis 007 is FULLY OFF:
 
 ```
-python tools/team_adaptive_restore_pre.py --to 0.154.0 --state-dir /duong/dan/state          # chỉ in kế hoạch
-python tools/team_adaptive_restore_pre.py --to 0.154.0 --state-dir /duong/dan/state --yes    # khôi phục thật
+python tools/team_adaptive_restore_pre.py --to 0.154.0 --state-dir /path/to/state          # only prints the plan
+python tools/team_adaptive_restore_pre.py --to 0.154.0 --state-dir /path/to/state --yes    # real restore
 ```
 
-Không có `--state-dir` thì lấy `JAVIS_STATE_DIR`. Trên VPS thì dừng container trước, chạy công cụ trên thư mục state, rồi
-mới chạy bản cũ.
+Without `--state-dir` it uses `JAVIS_STATE_DIR`. On a VPS, stop the container first, run the tool on the state folder, then
+run the old version.
 
-- Về snapshot `.pre-0.154.0`: `team.sqlite3`, `conversations.db`, `resonance.sqlite3`. Đã lên 0.156.0 thì
-  `agent_judge.sqlite3` (T3, trước đó không có) bị cất bản sao rồi gỡ, và `resonance.sqlite3.pre-0.156.0` đổi tên thành
-  `.superseded-<thời điểm>` (giữ lại; lần nâng sau chụp bản mới đúng dòng thời gian).
-- Mất khỏi kho chạy: mọi thay đổi của ba kho sau lúc nâng: tin và phiên chat (chat riêng lẫn nhóm), reaction ở cả hai nơi
-  (gồm reaction của agent), nhóm và sổ lượt nhóm, mục tiêu Cộng hưởng, sổ lượt chung, lý do thức, nhịp agent.
-- Giữ: bản sao `<kho>.post-0.154.0-<thời điểm>` cạnh mỗi file kho bị đụng (đọc lại bằng sqlite3 khi cần đối chiếu), và
-  snapshot `.pre-0.154.0` (nâng lại dùng lại đúng bản này, không chụp đè).
-- `kanban.sqlite3` KHÔNG đổi (mốc này không chụp nó): việc nhóm tạo sau lúc nâng còn trong Kanban dù nhóm hay tin của nó
-  đã về bản trước.
-- An toàn: kiểm cả bộ trước khi ghi (thiếu snapshot của kho đã nâng, snapshot hỏng hay đã có dấu T2 thì dừng, chưa ghi
-  gì); ghi xong kiểm lại; một bước hỏng thì trả MỌI kho đã đụng về bản `.post-*` và báo lỗi, không bao giờ báo thành công
-  cho lần khôi phục dở. File bị giữ (Jarvis 007 chưa tắt) thì báo rõ và gợi ý tắt hẳn.
-- Dấu "đã nâng" mà công cụ dùng: cột `team_reactions.source_kind`, bảng `dm_reactions`, bảng `agent_calls`
-  (`test_team_adaptive_restore.py` soi khớp với mã). Kho tạo mới từ 0.154.0 (không có snapshot) thì không có bản trước để
-  về: công cụ dừng và nói rõ.
-- `--to 0.156.0` (T3) đã có sẵn trong bảng `MILESTONES` của công cụ: gỡ `agent_judge.sqlite3`, về
-  `resonance.sqlite3.pre-0.156.0` nếu có. T3 điền bảng dấu của snapshot đó khi chốt.
+- Back to the `.pre-0.154.0` snapshots: `team.sqlite3`, `conversations.db`, `resonance.sqlite3`. If it already went up to 0.156.0, then
+  `agent_judge.sqlite3` (T3, did not exist before) is copied aside and removed, and `resonance.sqlite3.pre-0.156.0` is renamed to
+  `.superseded-<timestamp>` (kept; the next upgrade takes a new snapshot on the right timeline).
+- Lost from the running store: every change to the three stores after the upgrade: chat messages and sessions (private chat and team), reactions in both places
+  (agent reactions included), teams and the team turn ledger, Resonance goals, the shared turn ledger, wake reasons, agent pulse.
+- Kept: a copy `<store>.post-0.154.0-<timestamp>` next to each store file touched (read it back with sqlite3 when you need to compare), and
+  the `.pre-0.154.0` snapshot (upgrading again reuses exactly this copy and does not overwrite it).
+- `kanban.sqlite3` is NOT changed (this milestone does not snapshot it): team jobs created after the upgrade remain in Kanban even though the team or its messages
+  went back to the earlier version.
+- Safety: the whole set is checked before writing (a missing snapshot for an upgraded store, a broken snapshot, or one already carrying the T2 marker stops it, with nothing
+  written); it re-checks after writing; if a step fails it returns EVERY store already touched to its `.post-*` copy and reports an error, and never reports success
+  for a half restore. A file that is held open (Jarvis 007 not off) is reported clearly with a hint to turn it fully off.
+- The "already upgraded" markers the tool uses: the column `team_reactions.source_kind`, the table `dm_reactions`, the table `agent_calls`
+  (`test_team_adaptive_restore.py` checks they match the code). A store created fresh from 0.154.0 (no snapshot) has no earlier version to go
+  back to: the tool stops and says so.
+- `--to 0.156.0` (T3) is already in the tool's `MILESTONES` table: it removes `agent_judge.sqlite3` and goes back to
+  `resonance.sqlite3.pre-0.156.0` if present. T3 fills in that snapshot's marker table when it settles.
 
-### 5. Quyết định khi làm
+### 5. Decisions made along the way
 
-1. **Mã emoji `love`, không `heart`.** Thiết kế 4.1 ghi `heart`; hợp đồng giữ `love` để dữ liệu cũ đọc được. Theo hợp đồng.
-2. **Nonce của tin khác trong nhóm trả 409** (0.120.0 chọn 400, xem phần trên) để khớp hợp đồng T2 mục 4 và chat riêng; sửa `test_team_api.py` theo.
-3. **Chưa ghi dòng phản chiếu `goal_call:<id>` (`counted = 0`) cho lượt A2.** Chúng chỉ để quan sát; A2 không đổi hành vi.
-   T3 thêm khi `agent_daily_calls` cần.
-4. **Đối soát theo bản sửa thiết kế của điều phối (d408d89a):** dòng nhóm chỉ theo trạng thái lượt nhóm, ân hạn 120 giây,
-   quy tắc 10 phút chỉ cho `mirror_ref = ''`. Bản đầu của nhánh này có hoàn theo tuổi lúc khởi động; đã bỏ.
-5. **Kho chung lỗi lúc giữ chỗ:** có đặt trần thì hoàn lượt nhóm và báo lỗi `internal` (không chạy khi không kiểm được
-   trần); không đặt trần thì chạy tiếp, đối soát dựng lại dòng tính khi lượt tới mốc engine.
-6. **Tác giả chat riêng:** route cấp mã bền cho trợ lý (`agent_register`, Cộng hưởng vẫn tắt) và ghim phiên
-   (`session_agent`), như nhóm chat cấp mã cho thành viên. Không tra được thì `agent_key` rỗng.
-7. **Tin gắn goal đã kết thúc:** không tạo lý do, trạng thái `no_change` "Mục tiêu đã kết thúc".
-8. **Lý do A2 đã phục vụ:** trạng thái `no_change` kèm "Mục tiêu đã đọc phản hồi ở lượt việc kế tiếp" (A2 không báo kết
-   quả theo từng phản hồi). Lý do lớp 3 đã phục vụ và tiêu thụ: `no_change` mặc định; T3 ghi `adjusted`/`no_change` thật và
-   bộ chiếu không ghi đè.
-9. **`revision`** của R là số dòng nhật ký của cặp (tin, người phản hồi).
-10. **Reaction của agent vào lượt kế tiếp** của tác giả thành khối riêng "Góp ý của đồng đội"; khối "Phản hồi gần đây
-    của chủ nhóm" nay chỉ lấy reaction của chủ.
-11. **`agent_wake_sources.group_ref`** (cột thêm ngoài thiết kế) để gỡ nguồn theo cặp (tin, người phản hồi).
-12. **`attempt` của lý do tăng lúc nhận;** lượt hoàn không tốn lần thử; đủ 3 lần lỗi thì `failed`.
-13. **`waiting_quota`** chưa được ghi ở T2 (thuộc lượt xem xét của T3).
-14. **`content_sha`** thêm vào mọi dict tin của kho phiên (`_tin`, `_team_msg`).
-15. Câu `FIXED_LIMITS["server_call_ceiling"]` đổi thành "mục tiêu Auto và lượt nhóm".
-16. **Nâng cấp không tính lịch sử nhóm vào trần** (review T2 P1, quyết định của chủ): mốc `ceiling_state.t2_migrated_at` ghi một
-    lần lúc tạo bảng; đối soát chỉ dựng dòng cho lượt tạo sau mốc (trừ 120 giây) hay còn mở lúc nâng. Quét theo con trỏ bền
-    `ceiling_cursor` `(created_at, turn_id)`, tối đa 2000 dòng mỗi lần, cộng nhóm nhỏ lượt còn mở và vừa chốt.
-17. **Đổi/bỏ reaction khi lý do đang chạy** (P2-1): nguồn của lý do `claimed` cũng được đánh `removed_at`, nên không bị mang
-    sang lý do chờ kế tiếp.
-18. **Mọi đường bật Cộng hưởng ghi `resumed_at`**, kể cả đường bật người review của A5 (P2-3).
-19. **Route chat riêng** kiểm thân, tin và nonce gửi lại TRƯỚC khi tra tác giả; kho resonance lỗi lúc tra thì reaction vẫn lưu
-    (`effect_state = 'pending_author'`, trạng thái Đã nhận kèm lý do) và nhịp phản hồi tra lại rồi chiếu. Bộ chiếu khoá theo cặp
-    (tin, người phản hồi) trong tiến trình để request và nhịp không chiếu xen nhau.
-20. **Tin báo goal chỉ còn sáu emoji** (chủ quyết định 2026-10-15): hàng Hữu ích / Chưa ổn của A3 không vẽ nữa (cờ
-    `A3_REACT_ROW = false` trong `chat-resonance.js`); cảm xúc trên tin báo goal đánh thức goal qua lý do `feedback` của A2. API và
-    kho của A3 giữ nguyên, dữ liệu cũ vẫn đọc được. Route reaction chat riêng không kiểm `brain` (giống `GET /sessions/{id}`): phiên là khoá.
+1. **The emoji code is `love`, not `heart`.** Design 4.1 says `heart`; the contract keeps `love` so old data stays readable. Following the contract.
+2. **A nonce of another message in a team returns 409** (0.120.0 chose 400, see the section above) to match T2 contract section 4 and private chat; `test_team_api.py` was updated accordingly.
+3. **No mirror row `goal_call:<id>` (`counted = 0`) yet for A2 turns.** They are only for observation; A2 behavior does not change.
+   T3 adds them when `agent_daily_calls` needs them.
+4. **Reconciliation per the coordinator's design fix (d408d89a):** team rows follow only the team turn's state, a 120-second grace,
+   the 10-minute rule only for `mirror_ref = ''`. The first version of this branch had an age-based refund at startup; removed.
+5. **Shared store failing at reserve time:** if a ceiling is set, refund the team turn and report an `internal` error (does not run when the ceiling cannot be checked);
+   if no ceiling is set, carry on, and reconciliation rebuilds the counted row when the turn reaches the engine mark.
+6. **Private chat author:** the route issues a durable id for the assistant (`agent_register`, Resonance stays off) and pins the session
+   (`session_agent`), as team chat issues ids to members. If it cannot be looked up, `agent_key` is empty.
+7. **A message tied to a finished goal:** creates no reason, status `no_change` "Goal already finished".
+8. **A served A2 reason:** status `no_change` with "The goal read the feedback in its next job turn" (A2 does not report a
+   result per piece of feedback). A served and consumed layer-3 reason: `no_change` by default; T3 writes a real `adjusted`/`no_change` and
+   the projector does not overwrite it.
+9. **`revision`** of R is the number of log rows of the pair (message, reactor).
+10. **An agent's reaction in the author's next turn** becomes its own block "Teammate feedback"; the block "Recent feedback
+    from the team owner" now takes only the owner's reactions.
+11. **`agent_wake_sources.group_ref`** (a column added beyond the design) to remove sources by the pair (message, reactor).
+12. **A reason's `attempt` increases at claim time;** a refunded turn costs no attempt; at 3 failures it becomes `failed`.
+13. **`waiting_quota`** is not written in T2 yet (it belongs to T3's review turn).
+14. **`content_sha`** is added to every message dict of the session store (`_tin`, `_team_msg`).
+15. The sentence `FIXED_LIMITS["server_call_ceiling"]` changed to "Auto goals and team turns".
+16. **Upgrading does not count team history toward the ceiling** (review T2 P1, owner's decision): the mark `ceiling_state.t2_migrated_at` is written once when the tables are created; reconciliation
+    builds rows only for turns created after the mark (minus 120 seconds) or still open at upgrade time. It scans by a durable cursor
+    `ceiling_cursor` `(created_at, turn_id)`, at most 2000 rows per pass, plus a small group of still-open and just-settled turns.
+17. **Changing/removing a reaction while the reason is running** (P2-1): the source of a `claimed` reason also gets `removed_at`, so it is not
+    carried into the next pending reason.
+18. **Every path that turns on Resonance writes `resumed_at`**, including A5's reviewer-enable path (P2-3).
+19. **The private chat route** checks the body, the message and a resent nonce BEFORE looking up the author; if the resonance store fails during lookup the reaction is still saved
+    (`effect_state = 'pending_author'`, status Received with a reason) and the feedback beat looks it up again and then projects. The projector locks per pair
+    (message, reactor) in-process so a request and the beat do not project interleaved.
+20. **Goal report messages keep only the six emoji** (owner's decision 2026-10-15): A3's Helpful / Not good row is no longer drawn (flag
+    `A3_REACT_ROW = false` in `chat-resonance.js`); an emotion on a goal report message wakes the goal through A2's `feedback` reason. A3's API and
+    store are unchanged, and old data is still readable. The private chat reaction route does not check `brain` (like `GET /sessions/{id}`): the session is the key.
 
-### 6. Còn mở
+### 6. Still open
 
-- Đã có `tools/team_adaptive_restore_pre.py --to 0.154.0` (mục 4). `team_chat_restore_pre.py` vẫn chỉ cho `.pre-0.140.0`.
-- Khi gộp T1 `d408d89a`: `_REPLY_REASON` hai bên cùng thêm khoá (`lease_lost`, `server_ceiling`), gộp cả hai. Đường
-  `lease_lost` trước engine của T1 gọi `_refund_if_unmarked`, nên dòng sổ tự hoàn (test của nhánh này kiểm đúng hàm đó).
+- `tools/team_adaptive_restore_pre.py --to 0.154.0` exists (section 4). `team_chat_restore_pre.py` still handles only `.pre-0.140.0`.
+- When merging T1 `d408d89a`: both sides added keys to `_REPLY_REASON` (`lease_lost`, `server_ceiling`); merge both. T1's pre-engine
+  `lease_lost` path calls `_refund_if_unmarked`, so the ledger row refunds itself (this branch's test checks exactly that function).
 
-### Bằng chứng
+### Evidence
 
-Bản đầy đủ: `exports/reviews/team-adaptive/t2-be-evidence.txt` (ngoài repo). Tóm tắt, engine giả, không model thật:
+Full version: `exports/reviews/team-adaptive/t2-be-evidence.txt` (outside the repo). Summary, fake engine, no real model:
 
-- `test_agent_calls_ledger.py` 67 kiểm, `test_feedback_projector.py` 23, `test_feedback_wake.py` 22, `test_dm_reactions.py`
-  49, `test_team_reactions.py` 55 (mở rộng), `test_team_api.py` 83: đều xanh.
-- Bộ lọc `team route_table i18n resonance dm_reactions feedback agent_calls sessions`: 85/86, cái đỏ duy nhất (canary nguồn
-  của `test_resonance_a1_transport`) đã sửa và xanh ở lần chạy đầy đủ.
-- Cả bộ (Python và JS): 698/712. 14 cái đỏ đều đỏ y hệt trên `origin/claude/team-adaptive-t2` (46ae9471) trong một worktree
-  sạch (cùng mã thoát, cùng số FAIL): antigravity, grok, cài Windows, ollama máy nhà, terminal, khởi động nhẹ, bản dịch máy...
-  `test_link_file_uri` khác số FAIL chỉ vì ổ đĩa (thư mục tạm ở C:, worktree ở D:); đặt TEMP cùng ổ thì giống hệt bản gốc.
+- `test_agent_calls_ledger.py` 67 checks, `test_feedback_projector.py` 23, `test_feedback_wake.py` 22, `test_dm_reactions.py`
+  49, `test_team_reactions.py` 55 (extended), `test_team_api.py` 83: all green.
+- The filter `team route_table i18n resonance dm_reactions feedback agent_calls sessions`: 85/86, the only red one (a source canary
+  of `test_resonance_a1_transport`) was fixed and is green in the full run.
+- The whole suite (Python and JS): 698/712. All 14 reds are identically red on `origin/claude/team-adaptive-t2` (46ae9471) in a clean
+  worktree (same exit code, same FAIL count): antigravity, grok, Windows install, home-machine ollama, terminal, light startup, machine translation...
+  `test_link_file_uri` differs in FAIL count only because of the drive (temp folder on C:, worktree on D:); with TEMP on the same drive it is identical to the original.

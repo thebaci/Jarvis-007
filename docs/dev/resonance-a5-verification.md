@@ -1,423 +1,423 @@
-# Resonance A5: biên bản kiểm mã (12/10/2026)
+# Resonance A5: code verification record (2026-10-12)
 
-Đội một agent làm, một agent review. Thiết kế đã chốt: [2026-10-11-resonance-a5-maker-reviewer-design.md](../superpowers/specs/2026-10-11-resonance-a5-maker-reviewer-design.md) (`56f7ab50`; phương án A cho file sửa tay). Hướng dẫn: [resonance-a5-team.md](resonance-a5-team.md).
+A team of one maker agent and one reviewer agent. Final design: [2026-10-11-resonance-a5-maker-reviewer-design.md](../superpowers/specs/2026-10-11-resonance-a5-maker-reviewer-design.md) (`56f7ab50`; option A for hand-edited files). Guide: [resonance-a5-team.md](resonance-a5-team.md).
 
-**Trạng thái: mã đạt review mã vòng 2 tại `05e9b065` (Codex, 12/10/2026); cổng pilot đạt review vòng 3 tại `33cec518`; pilot thật real-2 tại `33cec518` được reviewer chấp nhận trong phạm vi một mẫu `pass_first` (1 lượt làm, 1 lượt review, 0 chat; chưa chứng minh vòng sửa bằng model thật). Đã tích hợp `main` 0.108.0 với số 0.109.0 (review tích hợp cuối đạt tại `bd5663da`).** A5 **đã phát hành 0.109.0** (`bfb1c29f`, PR #616, 13/10/2026; CI `main` run 38369853756 và build image run 38369852881 thành công; image `ghcr.io/blogminhquy/javis-os:0.109.0`, digest `sha256:3890f824…`; VPS chưa kéo). Kịch bản và bộ chạy pilot: [resonance-a5-pilot.md](resonance-a5-pilot.md). Các mục kiểm mã dùng engine GIẢ; lượt model thật chỉ có ở mục [Pilot thật](#pilot-thật-13102026).
+**Status: the code passed code review round 2 at `05e9b065` (Codex, 2026-10-12); the pilot gate passed review round 3 at `33cec518`; the real pilot real-2 at `33cec518` was accepted by the reviewer within the scope of one `pass_first` sample (1 maker call, 1 reviewer call, 0 chat; the fix round has not been proven with a real model). Integrated with `main` 0.108.0 under number 0.109.0 (final integration review passed at `bd5663da`).** A5 **shipped in 0.109.0** (`bfb1c29f`, PR #616, 2026-10-13; `main` CI run 38369853756 and image build run 38369852881 succeeded; image `ghcr.io/blogminhquy/javis-os:0.109.0`, digest `sha256:3890f824…`; the VPS has not pulled it). Pilot scenario and runner: [resonance-a5-pilot.md](resonance-a5-pilot.md). The code-verification sections use a FAKE engine; real model calls appear only in the section [Real pilot](#real-pilot-2026-10-13).
 
-## Test mới
+## New tests
 
-| File | Nội dung | Ca |
+| File | Content | Cases |
 |---|---|---|
-| `tests/python/test_resonance_a5_team.py` | Luồng chính, gắn đội qua đường host thật (plugin `javis_goal`, route `/goal-requests`), bộ ghim và lịch, đồng thời, khởi động lại, tắt/bật/mất/nghỉ reviewer, file sửa tay và ảnh chụp, quyền và dừng, tag | T1 tới T4, T10 tới T14, T17 tới T29, T31 tới T46, T55 tới T60; parse đóng khi lỗi (T5, T26) |
-| `tests/python/test_resonance_a5_budget.py` | Sổ vai, bảng vết V1, V2, V3, V5, V8, hoàn lượt, bộ đếm thử lại, lịch đối soát, vòng sửa | T5 tới T9, T15, T16, T47 tới T54, T61 tới T67 |
-| `tests/python/test_resonance_a5_rollback.py` | Mã 0.108.0 THẬT (`c4fb614d`, qua `git show`; trước tích hợp `main` là 0.100.0 `a02663cb`): nâng, hạ không khôi phục (ghi nhận giới hạn), script khôi phục, nâng lại | T30 |
-| `tests/python/test_resonance_a5_api.py` | Route thật: chọn và bỏ chọn người review, từ chối trợ lý chưa bật hay chính nó, khối `team` của goal view, lệnh `team_detach` | 4.2, 11, 12 |
-| `tests/python/test_resonance_a5_perf.py` | 200 mục tiêu có đội so với 200 không đội; timer 10 ms khi review lưu bằng chứng chậm | 14 |
-| `tests/js/test_resonance_a5_ui.js` | Ô Người review (chỉ trợ lý đã bật, không theo tag), dòng đội, góp ý, hai nút và request của chúng, i18n | 11 |
+| `tests/python/test_resonance_a5_team.py` | Main flow, team attachment through the real host path (the `javis_goal` plugin, the `/goal-requests` route), pin set and schedule, concurrency, restart, reviewer off/on/lost/retired, hand-edited file and snapshot, permission and stop, tag | T1 to T4, T10 to T14, T17 to T29, T31 to T46, T55 to T60; parse fails closed (T5, T26) |
+| `tests/python/test_resonance_a5_budget.py` | Role ledger, trace table V1, V2, V3, V5, V8, call refund, retry counter, reconciliation schedule, fix round | T5 to T9, T15, T16, T47 to T54, T61 to T67 |
+| `tests/python/test_resonance_a5_rollback.py` | REAL 0.108.0 code (`c4fb614d`, through `git show`; before integrating `main` it was 0.100.0 `a02663cb`): upgrade, downgrade without restoring (the limit is recorded), the restore script, upgrade again | T30 |
+| `tests/python/test_resonance_a5_api.py` | Real routes: choose and clear the reviewer, reject an assistant that is not enabled or the agent itself, the `team` block of the goal view, the `team_detach` command | 4.2, 11, 12 |
+| `tests/python/test_resonance_a5_perf.py` | 200 goals with a team versus 200 without; a 10 ms timer while the review saves evidence slowly | 14 |
+| `tests/js/test_resonance_a5_ui.js` | The Reviewer field (only enabled assistants, not by tag), the team row, feedback, the two buttons and their requests, i18n | 11 |
 
-Ca đi qua đường host thật dùng kho SQLite thật, `form_goal` thật (tool và API), cổng `_gate`, `R.advance` và `R.tick` thật; chỉ engine là giả (phân vai theo lời dặn hệ thống của lượt). Không chèn sẵn `goal_team` hay `reviews` vào fixture. Ngoại lệ có chủ đích, ghi rõ trong test: T12 sửa trực tiếp hàng review đang chạy để tạo kết luận lệch (chỉ có thể xảy ra khi dữ liệu bị can thiệp); T14, T15, T61, T62, T64, T66 gọi đúng các pha `_advance_prepare` và `_review_pre` của host rồi dừng giữa chừng để mô phỏng tiến trình chết hay huỷ ở đúng điểm đó.
+Cases that go through the real host path use a real SQLite store, the real `form_goal` (tool and API), the `_gate`, and the real `R.advance` and `R.tick`; only the engine is fake (roles are split by the call's system instructions). `goal_team` or `reviews` are not pre-inserted into fixtures. Deliberate exceptions, stated in the tests: T12 edits the running review row directly to create a mismatched verdict (which can only happen if the data was tampered with); T14, T15, T61, T62, T64, T66 call the host's own `_advance_prepare` and `_review_pre` phases and then stop midway to simulate a process dying or being cancelled at exactly that point.
 
-## Bảng yêu cầu và test
+## Requirements and tests
 
-| Yêu cầu (GOAL, thiết kế) | Test |
+| Requirement (GOAL, design) | Test |
 |---|---|
-| Gắn đội trong giao dịch tạo, cả tool lẫn goal-requests; idempotent; không qua `assign_goal` | T31, T32, T33; T36 (mục tiêu cũ không có đội) |
-| Danh tính bền hai vai, không chọn đội bằng tag | T46, T60; API (chọn theo slug, lưu mã); UI (ô không theo tag) |
-| Cổng quyền, snapshot, bundle, parser đóng khi lỗi; kiểm lại bundle khi lưu kết quả và khi chốt | parse (T5, T26); T11, T12, T19, T43, T58, T59; `finish` từ chối không có review hợp lệ (chốt chặn ở kho) |
-| Tổng 8, maker 4, reviewer 4, tối đa 2 vòng; không tự nâng | T1, T4, T7, T8, T47 tới T50 |
-| `seq` chỉ lưu vết; trần 3 và backoff đếm `charged` của đúng bundle | T5, T14, T39, T61, T62, T63 |
-| Chỉ hoàn khi chắc chưa gọi model; huỷ và engine không dựng được dùng chung đường hoàn, idempotent, không để `running` | T15, T53, T61, T64, T65 |
-| Model có thể đã chạy thì tính lượt | T6, T14, T16, T23, T63 |
-| Sau khởi động lại, đối soát bằng code, không thành lượt maker; thử lại đúng backoff và còn đủ lượt | T14, T39, T44, T66; T50 (không thử lượt cuối) |
-| needs_changes thứ 1 và 2 cho sửa, thứ 3 dừng; lỗi thời/sai bản không tăng vòng | T3, T4, T47, T67, T12 |
-| File sửa tay chờ, không gọi model, không chốt; chỉ dùng lại review khi bytes và bundle khớp; Bỏ yêu cầu review là thao tác chủ dự án | T10, T55, T56, T57; T24, T46 |
-| Reviewer không có quyền ghi; trường lạ không đổi quyền hay hạn mức | T1 (file đích là bản của vai làm), T26 |
-| Làn M của A3 bị kho chặn trên mục tiêu có đội | T51, T8 (không đề xuất phép thử) |
-| I/O không chặn event loop; huỷ chờ pha ghi xong | perf (timer 10 ms); T16 (huỷ trong lúc gọi engine) |
-| Hạ về 0.108.0 bằng snapshot | T30 |
+| Attach the team in the create transaction, for both the tool and goal-requests; idempotent; not through `assign_goal` | T31, T32, T33; T36 (an old goal has no team) |
+| Durable identity for both roles, the team is not chosen by tag | T46, T60; API (choose by slug, store the key); UI (the field does not go by tag) |
+| Permission gate, snapshot, bundle, parser that fails closed; re-check the bundle when saving the result and when closing | parse (T5, T26); T11, T12, T19, T43, T58, T59; `finish` refuses without a valid review (a guard in the store) |
+| Total 8, maker 4, reviewer 4, at most 2 rounds; no self-upgrade | T1, T4, T7, T8, T47 to T50 |
+| `seq` is only for tracing; the cap of 3 and the backoff count `charged` of the exact bundle | T5, T14, T39, T61, T62, T63 |
+| Refund only when sure the model was not called; cancel and engine-cannot-be-built share the refund path, idempotent, never left `running` | T15, T53, T61, T64, T65 |
+| The model may have run, so the call is counted | T6, T14, T16, T23, T63 |
+| After a restart, reconcile by code, never becoming a maker call; retry with the right backoff and enough calls left | T14, T39, T44, T66; T50 (the last call is not retried) |
+| needs_changes number 1 and 2 allow a fix, number 3 stops; a stale or wrong-version verdict does not increase the round | T3, T4, T47, T67, T12 |
+| A hand-edited file waits, no model call, no closing; a review is reused only when bytes and bundle match; Drop the review requirement is a project owner action | T10, T55, T56, T57; T24, T46 |
+| The reviewer has no write permission; an unknown field changes neither permission nor limit | T1 (the target file is the maker's version), T26 |
+| A3's lane M is blocked by the store on a goal with a team | T51, T8 (no experiment is proposed) |
+| I/O does not block the event loop; cancel waits for the write phase to finish | perf (10 ms timer); T16 (cancel during the engine call) |
+| Downgrade to 0.108.0 through the snapshot | T30 |
 
-## Kết quả chạy (máy local, `.venv` của checkout gốc, mã tại `0ae4cc2b`)
+## Results (local machine, the root checkout's `.venv`, code at `0ae4cc2b`)
 
-| Lệnh | Kết quả |
+| Command | Result |
 |---|---|
 | `python tests/python/test_resonance_a5_team.py` | 86 ok, exit 0 |
 | `python tests/python/test_resonance_a5_budget.py` | 31 ok, exit 0 |
-| `python tests/python/test_resonance_a5_rollback.py` | 11 ok, exit 0 (mã 0.100.0 thật) |
+| `python tests/python/test_resonance_a5_rollback.py` | 11 ok, exit 0 (real 0.100.0 code) |
 | `python tests/python/test_resonance_a5_api.py` | 10 ok, exit 0 |
-| `python tests/python/test_resonance_a5_perf.py` | 5 ok, exit 0 (200 thẻ có đội chậm hơn khoảng 7 ms mỗi thẻ so với không đội; timer 10 ms đúng giờ khi review lưu bằng chứng chậm 0,2 giây) |
+| `python tests/python/test_resonance_a5_perf.py` | 5 ok, exit 0 (200 cards with a team are about 7 ms slower per card than without; the 10 ms timer is on time when the review saves evidence slowly at 0.2 seconds) |
 | `node tests/js/test_resonance_a5_ui.js` | 32 ok, exit 0 |
-| `tests/run.py resonance route_table i18n version_khop_changelog nhat_ky_song_ngu tai_lieu_song_ngu ignore_files phien_ban_moi_nhat prompt_budget prefix_slim agent_tags workspace` | 63/63 file xanh, exit 0 |
-| Toàn repo `tests/run.py` (mã tại `5048fc4d`, trước các commit cuối chỉ đổi câu báo, test và tài liệu) | 639/654. 14 file đỏ trùng khít khi chạy cùng 14 file trên bản xuất `main` sạch `a02663cb` (các test phụ thuộc máy: agy_prompt_dai, antigravity_cli, ba_loi_mac_va_telegram, cai_windows, grok_cli, install_admin, khoi_dong_nhe, link_file_uri, machine_translations, memory_hoa_thuong, model_theo_phien, ollama_local, terminal, windows_no_console). File đỏ thứ 15 là `test_resonance_a2_ui.js`: đếm số nhãn lý do thức là 24, A5 thêm đúng 6 nhãn; đã cập nhật thành 30 và chạy xanh trong nhóm trên |
+| `tests/run.py resonance route_table i18n version_khop_changelog nhat_ky_song_ngu tai_lieu_song_ngu ignore_files phien_ban_moi_nhat prompt_budget prefix_slim agent_tags workspace` | 63/63 files green, exit 0 |
+| Whole repo `tests/run.py` (code at `5048fc4d`, before the last commits that only changed messages, tests and docs) | 639/654. The 14 red files match exactly when the same 14 files are run on an export of clean `main` `a02663cb` (machine-dependent tests: agy_prompt_dai, antigravity_cli, ba_loi_mac_va_telegram, cai_windows, grok_cli, install_admin, khoi_dong_nhe, link_file_uri, machine_translations, memory_hoa_thuong, model_theo_phien, ollama_local, terminal, windows_no_console). The 15th red file is `test_resonance_a2_ui.js`: it counted 24 wake-reason labels and A5 added exactly 6; it was updated to 30 and runs green in the group above |
 
-## Lỗi tìm ra khi viết mã, đã sửa, và đối chứng
+## Bugs found while writing the code, fixed, and controls
 
-Chạy test cuối trên đúng cây mã trước mỗi lần sửa (bản xuất `git archive`, chép test hiện tại vào):
+The final test was run on the exact code tree before each fix (a `git archive` export, with the current tests copied in):
 
-| Lỗi | Sửa ở | Đỏ trên mã trước sửa |
+| Bug | Fixed in | Red on the code before the fix |
 |---|---|---|
-| Kết luận `stale` hay `review_mismatch` không hẹn lần thức nào, mục tiêu đứng yên | `2b264122` (`record_review`, `review_interrupted` hẹn `review_done` chỉ-kiểm) | T12, T19, T43 trên `3c290b5c` |
-| So bản sửa tay bằng `current_artifact_ref`, mà hàm này trả rỗng ở revision mới chưa có lượt làm, nên revision mới bị coi là sửa tay | `2b264122` (`_disk_sha`) | T11, T37 trên `3c290b5c` |
-| Hẹn `action_recovery` chỉ-kiểm còn sau khi lượt review xong, kéo lịch vật lý sớm hơn backoff | `2b264122` (`_drop_idle_action_recovery`) | T39 trên `3c290b5c` |
-| Tin mới của người dùng trên mục tiêu có đội vấp cờ `use_hold` (tiếp quản lượt giữ nếu có), lượt làm bị từ chối | `2b3ab099` (bỏ qua `use_hold` khi có đội, chỉ từ chối `require_hold`) | T8, T51 trên `2b264122` |
-| Engine của lượt review không dựng được: hàng ghi lý do chung, và chờ kiểm lại so giờ kho (giờ thật) với giờ lần thức, nên lượt review thử dựng lại ngay | `2b3ab099` (lý do `engine_not_ready`; chờ theo hẹn `review_recheck` cùng đồng hồ với lần thức) | T53, T65 trên `2b264122` |
+| A `stale` or `review_mismatch` verdict scheduled no wake, so the goal stood still | `2b264122` (`record_review`, `review_interrupted` schedule a check-only `review_done`) | T12, T19, T43 on `3c290b5c` |
+| Comparing a hand edit with `current_artifact_ref`, but that function returns empty at a new revision that has no work call yet, so a new revision was treated as hand-edited | `2b264122` (`_disk_sha`) | T11, T37 on `3c290b5c` |
+| A check-only `action_recovery` schedule stayed after the review call finished, pulling the physical schedule earlier than the backoff | `2b264122` (`_drop_idle_action_recovery`) | T39 on `3c290b5c` |
+| A new user message on a goal with a team hit the `use_hold` flag (take over the held call if there is one), and the work call was refused | `2b3ab099` (ignore `use_hold` when there is a team, only refuse `require_hold`) | T8, T51 on `2b264122` |
+| The review call's engine could not be built: the row recorded a generic reason, and the re-check compared the store's time (real time) with the wake's time, so the review call tried to build again immediately | `2b3ab099` (reason `engine_not_ready`; wait by the `review_recheck` appointment on the same clock as the wake) | T53, T65 on `2b264122` |
 
-Output: `a5-control-team-on-3c290b5c.txt`, `a5-control-budget-on-2b264122.txt` (thư mục bằng chứng, ngoài git).
+Output: `a5-control-team-on-3c290b5c.txt`, `a5-control-budget-on-2b264122.txt` (evidence folder, outside git).
 
-## Test cũ phải sửa vì hành vi đổi theo thiết kế
+## Old tests that had to change because behavior changed by design
 
-- `test_resonance_a3_learning.py`: phiên bản chính sách nhịp tim `heartbeat.v2` thành `heartbeat.v3` (thiết kế mục 10); kiểm thêm hai lớp của A3 giữ nguyên.
-- `test_resonance_a2_ui.js`: số nhãn lý do thức trên thẻ 24 thành 30 (sáu mã A5).
-- `tests/python/route_table.json`: thêm đúng một route ở cuối (`POST /resonance/agents/reviewer`), thứ tự route cũ không đổi.
+- `test_resonance_a3_learning.py`: the heartbeat policy version `heartbeat.v2` became `heartbeat.v3` (design section 10); the two A3 class checks are unchanged.
+- `test_resonance_a2_ui.js`: the number of wake-reason labels on the card went from 24 to 30 (six A5 codes).
+- `tests/python/route_table.json`: added exactly one route at the end (`POST /resonance/agents/reviewer`); the order of the old routes is unchanged.
 
-## Smoke giao diện trên sandbox (engine giả)
+## UI smoke test on a sandbox (fake engine)
 
-Server sandbox cổng 7788 chạy mã của worktree; state và brain tạm (trong `.playwright-mcp/sbx`, đã gitignore, đường ngắn để tránh giới hạn 260 ký tự của Windows), nhịp Cộng hưởng chạy thật, `main._resonance_engine` thay bằng engine giả hai vai đọc kịch bản từ một file điều khiển. Chromium qua Playwright, tiếng Việt, desktop 1366x860 và khổ hẹp 375x812. Bật Cộng hưởng và chọn người review làm trên giao diện; mục tiêu gieo bằng `form_goal` thật (giả lập lượt chat lập mục tiêu, không có lượt chat thật).
+Sandbox server on port 7788 running the worktree's code; temporary state and brain (in `.playwright-mcp/sbx`, gitignored, a short path to avoid Windows' 260-character limit), the Resonance beat running for real, `main._resonance_engine` replaced by a two-role fake engine that reads a script from a control file. Chromium through Playwright, Vietnamese UI, desktop 1366x860 and narrow 375x812. Turning on Resonance and choosing the reviewer were done in the UI; goals were seeded with the real `form_goal` (simulating the chat call that creates a goal, with no real chat call).
 
-Đạt, đối chiếu kho:
-- Ô Người review chỉ liệt kê trợ lý đã bật Cộng hưởng (không có "Trợ lý tắt"); chọn xong host lưu cặp theo mã.
-- Mục tiêu 1: bấm Cho phép trên thẻ; lượt làm đăng bản đầu, review "cần sửa"; thẻ hiện "Làm: nguoi-lam · Review: nguoi-duyet", "Bản đã review: 7cdeda8d · Cần sửa (vòng 1/2)", "Đang chờ nguoi-lam sửa theo góp ý", "Lượt còn: làm 3/4 · review 3/4" và góp ý. Lượt sửa đăng bản mới, review đạt, mục tiêu đạt; lượt (2, 2, 4); file đích là bản sửa.
-- Mục tiêu 2: tắt người review trước nhịp đầu: `blocked/reviewer_off`, 0 lượt model; thẻ có hai nút. Bấm Bật lại người review, hộp xác nhận thật nói rõ "tính một lượt review", đồng ý: mục tiêu thức lại, làm, review, đạt; lượt (1, 1, 2).
-- Mục tiêu 3: người review tắt, bấm Bỏ yêu cầu review: Huỷ ở hộp xác nhận không gửi gì (kho không đổi); Đồng ý: thẻ "Đã bỏ yêu cầu review", mục tiêu chốt theo luật thường với 1 lượt làm, 0 lượt review.
-- Khổ 375 px: thẻ hiện đủ dòng đội, không cuộn ngang (`scrollWidth = innerWidth = 375`).
+Passed, cross-checked against the store:
+- The Reviewer field lists only assistants that have Resonance on (no "assistant off"); once chosen, the host stores the pair by key.
+- Goal 1: click Allow on the card; the maker call published the first version, the review said "needs changes"; the card shows "Maker: nguoi-lam · Reviewer: nguoi-duyet", "Reviewed version: 7cdeda8d · Needs changes (round 1/2)", "Waiting for nguoi-lam to apply the feedback", "Calls left: maker 3/4 · reviewer 3/4" and the feedback. The fix call published a new version, the review passed, the goal was met; calls (2, 2, 4); the target file is the fixed version.
+- Goal 2: turned the reviewer off before the first beat: `blocked/reviewer_off`, 0 model calls; the card has two buttons. Click "Turn the reviewer back on", the real confirm box clearly says "counts one review call", agree: the goal woke again, maker, review, met; calls (1, 1, 2).
+- Goal 3: reviewer off, click "Drop the review requirement": Cancel in the confirm box sends nothing (the store is unchanged); Agree: the card shows "Review requirement dropped", and the goal settles by the usual rules with 1 maker call, 0 review calls.
+- Width 375 px: the card shows the full team row, no horizontal scroll (`scrollWidth = innerWidth = 375`).
 
-Ảnh: `a5-s01-reviewer-picker.png`, `a5-s02-needs-changes.png`, `a5-s03-reviewer-off.png`, `a5-s04-narrow-375.png`.
+Screenshots: `a5-s01-reviewer-picker.png`, `a5-s02-needs-changes.png`, `a5-s03-reviewer-off.png`, `a5-s04-narrow-375.png`.
 
-Chưa quan sát trên giao diện (đã có test hành vi): file sửa tay trên thẻ (T10, T55 tới T57), hết vòng (T4), hết lượt (T7, T8), review không đọc được (T5, T50). Lỗi console trong smoke là của trang có sẵn (`/tools/optional` 401, mã phiên cũ của sandbox trước 404), không liên quan A5.
+Not observed in the UI (behavior tests exist): a hand-edited file on the card (T10, T55 to T57), running out of rounds (T4), running out of calls (T7, T8), an unreadable review (T5, T50). The console errors in the smoke test belong to pre-existing pages (`/tools/optional` 401, an old session code in the sandbox that 404'd earlier), unrelated to A5.
 
-## Ranh giới bằng chứng và giới hạn còn lại
+## Limits of the evidence and remaining limits
 
-- Mọi kiểm dùng engine giả; số lượt engine thật bằng 0. Chưa pilot, chưa đo VPS.
-- (Vòng 1 ghi ở đây giới hạn "mục tiêu `maintain` không bị review chặn"; review mã vòng 1 xác định đó là lỗi R3, đã sửa ở vòng 2 bên dưới.)
-- Sau `team_detach`, lượt mới tính vào tổng của mục tiêu nhưng không vào `team_calls` (sổ vai giữ nguyên làm hồ sơ), đúng thiết kế mục 6.2.
-- Lượt VIỆC của mục tiêu có đội khi engine không dựng được giữ hành vi A2 (kết sổ lỗi cố định `engine_blocked`) cộng hoàn phần maker; chỉ lượt REVIEW đi qua `_refund_not_run` đầy đủ. Hai đường đều hoàn đúng một lần.
+- Every check uses a fake engine; the number of real engine calls is 0. No pilot yet, no VPS measurement.
+- (Round 1 recorded here the limit "a `maintain` goal is not blocked by review"; code review round 1 identified that as bug R3, fixed in round 2 below.)
+- After `team_detach`, a new call counts toward the goal's total but not toward `team_calls` (the role ledger is kept as a record), as in design section 6.2.
+- A WORK call of a goal with a team, when the engine cannot be built, keeps A2 behavior (closes with the permanent error `engine_blocked`) plus a refund of the maker share; only the REVIEW call goes through the full `_refund_not_run`. Both paths refund exactly once.
 
-## Vòng 2: sửa ba P2 của review mã vòng 1 (nền được review `d22b6c66`)
+## Round 2: fixing the three P2s of code review round 1 (base reviewed: `d22b6c66`)
 
-Review: `exports/reviews/PR-616-A5-code-r1-review.md`. Hồi quy: `tests/python/test_resonance_a5_code_r1.py` (đường host thật, engine giả; request của nút dựng bằng `teamHtml`/`requestFor` thật qua node rồi gửi route FastAPI thật).
+Review: `exports/reviews/PR-616-A5-code-r1-review.md`. Regression: `tests/python/test_resonance_a5_code_r1.py` (real host path, fake engine; the button's request is built with the real `teamHtml`/`requestFor` through node and then sent to the real FastAPI route).
 
-| Lỗi | Sửa | Test |
+| Bug | Fix | Test |
 |---|---|---|
-| R1: lỗi trong pha chuẩn bị sau `begin_action` làm mất lượt reviewer và ăn trần thử | Mốc `mark_engine` (ghi `engine_at` và `running` một giao dịch) là bước cuối trước engine; lỗi trước mốc đi `_prepare_failed`: `abort_action(code='prepare_error', recheck_at)` hoàn tổng, vai, `charged`, lý do chờ VÀ gác kèm hẹn kiểm lại trong cùng giao dịch. Hoàn cũng lỗi thì đối soát sau khi hết khoá hoàn nhờ thiếu `engine_at`. Áp cho cả lượt việc (`blocked/prepare_error`, hẹn `prepare_recheck`) | R1a lỗi thường, R1b lỗi ở điểm khác, R1c lỗi kèm huỷ lặp (lease nhả sau khi hoàn), R1d hoàn cũng lỗi, R1w/R1w2 lượt việc, R1wn tin mới vẫn mở lượt; đối chứng R1e (đã qua mốc thì `interrupted`, tính), R1f (hành động cũ không có cờ giữ luật cũ), T16/T63 có sẵn (huỷ trong lúc engine chạy vẫn tính) |
-| R2: nút Bật lại người review trên thẻ cũ bật được agent mới cùng slug | Nút ghim `agent_key`; route `POST /goals/{id}/reviewer/enable`; `team_reviewer_enable` kiểm đội còn hiệu lực, vẫn ghim đúng mã, mã còn `active` trong một giao dịch rồi mới bật; sai thì 409 kèm goal view mới. Nút bật ở trang trợ lý không đổi | R2 thẻ cũ 409 (agent mới không bật, ghim giữ, sổ không đổi), R2 qua route cùng mã 200 không đổi sổ, bấm lại không tăng version, đội đã bỏ, mã sai, chỉ owner, toggle thường giữ hành vi; UI test `test_resonance_a5_ui.js` |
-| R3: mục tiêu duy trì và bước khám phá có đội nhưng không có lượt review nào | `_settle` gọi `_team_settle` cho mọi bản đạt kiểm của mục tiêu có đội TRƯỚC nhánh khám phá, duy trì, kết thúc hay chờ người xác nhận; `goal.maintained` chỉ phát sau `pass`; cùng bộ ghim đã `pass` thì đi thẳng | R3 duy trì pass rồi healthy, nhiều nhịp kiểm định kỳ không review lại, sửa tay chờ `source_drift`, ba lần cần sửa thì `review_rounds`, review không đọc được thì `review_unknown`, reviewer tắt; khám phá pass rồi `discovery_done`, cần sửa rồi pass; đối chứng achieve |
+| R1: an error in the prepare phase after `begin_action` lost the reviewer call and ate into the attempt cap | The `mark_engine` mark (writes `engine_at` and `running` in one transaction) is the last step before the engine; an error before the mark goes to `_prepare_failed`: `abort_action(code='prepare_error', recheck_at)` refunds the total, the role, `charged` and the pending reason AND parks the goal with a recheck appointment in the same transaction. If the refund also fails, reconciliation after the lock expires refunds thanks to the missing `engine_at`. Applies to work calls too (`blocked/prepare_error`, appointment `prepare_recheck`) | R1a ordinary error, R1b error at another point, R1c error plus repeated cancel (the lease is released after the refund), R1d the refund also fails, R1w/R1w2 work call, R1wn a new message still opens a call; controls R1e (past the mark it is `interrupted`, counted), R1f (an old action without the flag keeps the old rule), existing T16/T63 (cancel while the engine runs is still counted) |
+| R2: the "Turn the reviewer back on" button on an old card could enable a new agent with the same slug | The button pins `agent_key`; route `POST /goals/{id}/reviewer/enable`; `team_reviewer_enable` checks in one transaction that the team is still in effect, still pins exactly that key and the key is still `active`, and only then enables; otherwise 409 with a fresh goal view. The enable button on the assistants page is unchanged | R2 old card 409 (the new agent is not enabled, the pin holds, the ledger is unchanged), R2 through the route with the same key 200 without changing the ledger, clicking again does not raise the version, team dropped, wrong key, owner only, the ordinary toggle keeps its behavior; UI test `test_resonance_a5_ui.js` |
+| R3: maintain goals and the discovery step had a team but no review call | `_settle` calls `_team_settle` for every version that passes the check of a goal with a team BEFORE the discovery, maintain, finish or wait-for-human-confirmation branch; `goal.maintained` is only emitted after `pass`; if the same pin set already has `pass`, it goes straight through | R3 maintain pass then healthy, many periodic check beats do not review again, a hand edit waits at `source_drift`, three needs-changes verdicts give `review_rounds`, an unreadable review gives `review_unknown`, reviewer off; discovery pass then `discovery_done`, needs changes then pass; control achieve |
 
-Ghi chú không chặn đã làm cùng đợt (tách khỏi ba P2): receipt của lượt review giữ chẩn đoán engine (`engine`, `usage`, `tool_calls_observed`, `engine_error_code`, `engine_error_detail`), không dự phần quyết định; câu "Chưa có mã A5" ở đầu thiết kế đã sửa.
+Non-blocking notes done in the same batch (separate from the three P2s): the review call's receipt keeps the engine diagnostics (`engine`, `usage`, `tool_calls_observed`, `engine_error_code`, `engine_error_detail`), taking no part in the decision; the sentence "No A5 code yet" (Vietnamese: "Chưa có mã A5") at the top of the design was fixed.
 
-**Đổi theo hành vi mới (không nới kỳ vọng):**
-- Ba fixture mô phỏng "chết giữa lời gọi engine" (`test_resonance_a2_heartbeat.py`, `test_resonance_a3_learning.py` R5d, `test_resonance_mvp_run.py` restart) tạo hành động bằng `begin_action` trực tiếp; thêm `mark_engine` như host thật làm trước lời gọi. Kỳ vọng `interrupted` giữ nguyên.
-- `test_resonance_a2_ui.js`: số nhãn lý do thức 30 thành 31 (`prepare_recheck`).
-- `test_resonance_a5_ui.js`: nút mang `agent_key`, request tới route của thẻ.
-- `route_table.json`: thêm đúng một route ở cuối.
+**Changed to follow the new behavior (expectations were not loosened):**
+- Three fixtures that simulate "dies in the middle of an engine call" (`test_resonance_a2_heartbeat.py`, `test_resonance_a3_learning.py` R5d, `test_resonance_mvp_run.py` restart) create the action with `begin_action` directly; they now add `mark_engine` as the real host does before the call. The `interrupted` expectation is unchanged.
+- `test_resonance_a2_ui.js`: the number of wake-reason labels went from 30 to 31 (`prepare_recheck`).
+- `test_resonance_a5_ui.js`: the button carries `agent_key`, and the request goes to the card's route.
+- `route_table.json`: added exactly one route at the end.
 
-**Script độc lập của reviewer.** Bản gốc `PR-616-A5-code-r1-probe.py --expect-fixed` trên head mới: C1, R3 (2 ca), R1 mở lại kho, R2 PASS; ca R1 đầu FAIL vì điểm chèn `set_run_state(..., 'running')` không còn được gọi sau `begin_action` (`injected: false`, lượt review chạy thật nên sổ (1, 1, 2) là đúng). Bản chỉnh chỉ đổi điểm chèn sang `store.mark_engine` (cùng vị trí: sau giữ chỗ, trước engine), không đổi tình huống hay kỳ vọng: 6/6 PASS, exit 0.
+**The reviewer's independent script.** The original `PR-616-A5-code-r1-probe.py --expect-fixed` on the new head: C1, R3 (2 cases), R1 reopen store, R2 PASS; the first R1 case FAILs because the injection point `set_run_state(..., 'running')` is no longer called after `begin_action` (`injected: false`, the review call ran for real so the ledger (1, 1, 2) is correct). The adjusted version only moves the injection point to `store.mark_engine` (the same position: after the reservation, before the engine), with no change to the scenario or the expectation: 6/6 PASS, exit 0.
 
-**Đối chứng trên `d22b6c66`** (bản xuất `git archive`, chép test mới vào, chạy TỪNG CA): lỗi hành vi thật ở R1b (hàng `running`, `charged=1`, (1, 1, 2)), R2 thẻ cũ (request đi `/resonance/agents/toggle` theo slug, HTTP 200, agent mới được bật), R3 (8 kiểm: duy trì và khám phá không có lượt review). Các ca còn lại của R1 và hai ca R2 ném `AttributeError` vì thiếu API mới (`mark_engine`, `team_reviewer_enable`); hành vi của tình huống R1 đó trên `d22b6c66` đã được script của reviewer tái hiện. Đối chứng xanh như mong đợi trên mã cũ: R1e, R1f, toggle thường, reviewer tắt, achieve.
+**Control on `d22b6c66`** (a `git archive` export, the new tests copied in, run CASE BY CASE): real behavior bugs at R1b (a `running` row, `charged=1`, (1, 1, 2)), R2 old card (the request goes to `/resonance/agents/toggle` by slug, HTTP 200, the new agent gets enabled), R3 (8 checks: maintain and discovery had no review call). The remaining R1 cases and two R2 cases throw `AttributeError` because the new API is missing (`mark_engine`, `team_reviewer_enable`); the behavior of those R1 scenarios on `d22b6c66` was already reproduced by the reviewer's script. Controls green as expected on the old code: R1e, R1f, the ordinary toggle, reviewer off, achieve.
 
-**Smoke giao diện (sandbox cổng 7788, engine giả, Chromium 1366x860).** Thao tác mô phỏng bằng script gieo (ghi rõ): lập mục tiêu qua `form_goal`, cho phép phạm vi, tắt người review, và "xoá người review rồi tạo trợ lý mới cùng slug" (`agent_retire` rồi bật, tắt mã mới). Bấm trên giao diện:
-- Thẻ có nút Bật lại người review mang mã bền (`data-key="ag_…"`). Bấm, đồng ý hộp xác nhận: `POST /goals/{id}/reviewer/enable` 200, đúng mã cũ được bật, mục tiêu làm, review đạt, chốt với (1, 1, 2).
-- Thẻ cũ (sau khi đổi người review cùng slug): bấm, đồng ý: 409; agent mới vẫn tắt; mục tiêu vẫn ghim mã cũ; 0 lượt model; thẻ vẽ lại với câu "Mục tiêu vừa đổi so với lúc bạn xem". Ảnh `a5r2-s01-stale-card-409.png`. Lỗi console: 409 của chính request đó và `/tools/optional` 401 có sẵn.
-- Thẻ cũ vẫn hiện trạng thái `reviewer_off` cho tới lần thức kế tiếp của cổng (hẹn `agent_recheck`), khi đó thành `reviewer_retired`; bấm lại trong lúc đó tiếp tục nhận 409.
-- R3 không có thay đổi giao diện riêng (thẻ dùng chung dòng đội); hành vi kiểm bằng test.
+**UI smoke test (sandbox port 7788, fake engine, Chromium 1366x860).** Simulated actions done with a seeding script (stated): create the goal through `form_goal`, grant the scope, turn the reviewer off, and "delete the reviewer and create a new assistant with the same slug" (`agent_retire` then enable, turn the new key off). Clicks done in the UI:
+- The card has a "Turn the reviewer back on" button carrying the durable key (`data-key="ag_…"`). Click, agree in the confirm box: `POST /goals/{id}/reviewer/enable` 200, exactly the old key was enabled, the goal worked, the review passed, closed with (1, 1, 2).
+- An old card (after replacing the reviewer with one of the same slug): click, agree: 409; the new agent is still off; the goal still pins the old key; 0 model calls; the card is redrawn with the sentence "The goal changed since you looked. The card is updated; review it and click again if needed." (Vietnamese: "Mục tiêu vừa đổi so với lúc bạn xem"). Screenshot `a5r2-s01-stale-card-409.png`. Console errors: the 409 of that very request and the pre-existing `/tools/optional` 401.
+- The old card still shows the `reviewer_off` state until the gate's next wake (appointment `agent_recheck`), when it becomes `reviewer_retired`; clicking again in the meantime keeps getting 409.
+- R3 has no UI change of its own (the card shares the team row); the behavior is checked by tests.
 
-**Giới hạn còn lại.**
-- Engine giả; số lượt engine thật bằng 0; chưa pilot, chưa đo VPS.
-- Các lỗi cố định của `run_once` trước lời gọi (`output_scope`, `action_exists`, `invalid_action_id`) vẫn kết sổ `cancelled` theo A2, không hoàn lượt (không đổi ở vòng này; chúng là lỗi cố định, không phải ngoại lệ).
-- Pha chuẩn bị lỗi thì mục tiêu gác tới hẹn kiểm lại `ERROR_BACKOFF_S[0]` (một giờ); tin mới của người dùng vẫn mở lượt làm ngay.
+**Remaining limits.**
+- Fake engine; the number of real engine calls is 0; no pilot, no VPS measurement.
+- The permanent errors of `run_once` before the call (`output_scope`, `action_exists`, `invalid_action_id`) still close as `cancelled` under A2 and do not refund the call (unchanged in this round; they are permanent errors, not exceptions).
+- When the prepare phase fails, the goal parks until the recheck appointment `ERROR_BACKOFF_S[0]` (one hour); a new user message still opens a work call immediately.
 
-**Kết quả chạy vòng 2** (máy local, `.venv` của checkout gốc, mã tại `b10abf4b`):
+**Round 2 results** (local machine, the root checkout's `.venv`, code at `b10abf4b`):
 
-| Lệnh | Kết quả |
+| Command | Result |
 |---|---|
-| `test_resonance_a5_team.py` / `_budget` / `_rollback` / `_api` / `_perf` | 86 / 31 / 11 / 10 / 5 ok, đều exit 0 |
-| `test_resonance_a5_code_r1.py` (mới) | 45 ok, exit 0 |
+| `test_resonance_a5_team.py` / `_budget` / `_rollback` / `_api` / `_perf` | 86 / 31 / 11 / 10 / 5 ok, all exit 0 |
+| `test_resonance_a5_code_r1.py` (new) | 45 ok, exit 0 |
 | `node tests/js/test_resonance_a5_ui.js` / `test_resonance_a2_ui.js` | 36 / 10 ok, exit 0 |
-| Script reviewer bản chỉnh `--expect-fixed` | 6/6 PASS, exit 0 |
-| Script reviewer bản gốc `--expect-fixed` | 5/6, exit 1 (ca R1 đầu không chèn được lỗi, xem trên) |
-| Nhóm: resonance, route_table, i18n, version/changelog, tài liệu song ngữ, ignore_files, phiên bản, prompt_budget, prefix_slim, agent_tags, workspace | 63/64; đỏ duy nhất `test_ignore_files.py` vì file test mới lúc đó chưa `git add`; xanh trong lần chạy toàn repo sau commit |
-| Toàn repo `tests/run.py` | 641/655; 14 file đỏ trùng khít danh sách đỏ trên `main` sạch `a02663cb` (test phụ thuộc máy), không có đỏ mới |
+| Reviewer script, adjusted version `--expect-fixed` | 6/6 PASS, exit 0 |
+| Reviewer script, original version `--expect-fixed` | 5/6, exit 1 (the first R1 case could not inject the error, see above) |
+| Group: resonance, route_table, i18n, version/changelog, bilingual docs, ignore_files, version, prompt_budget, prefix_slim, agent_tags, workspace | 63/64; the only red is `test_ignore_files.py` because the new test file had not been `git add`ed at that moment; green in the whole-repo run after the commit |
+| Whole repo `tests/run.py` | 641/655; the 14 red files match exactly the red list on clean `main` `a02663cb` (machine-dependent tests), no new red |
 
-## Review mã vòng 2 và cổng pilot
+## Code review round 2 and the pilot gate
 
-**Review mã vòng 2 (Codex, 12/10/2026) đạt tại `05e9b065`.** Không có P1 hay P2 mới. Ba P2 của vòng 1 đã xử lý. Reviewer tự chạy:
-- script độc lập, bản chỉnh điểm chèn: 6/6;
-- năm kiểm bổ sung trên mục tiêu không có đội: 5/5;
-- `tests/run.py resonance_a5`: 7/7 file;
-- nhóm A2, A3, MVP, A2 UI, bảng route: 5/5 file.
+**Code review round 2 (Codex, 2026-10-12) passed at `05e9b065`.** No new P1 or P2. The three P2s of round 1 were handled. The reviewer ran by themselves:
+- the independent script, adjusted injection point: 6/6;
+- five extra checks on a goal without a team: 5/5;
+- `tests/run.py resonance_a5`: 7/7 files;
+- the A2, A3, MVP, A2 UI and route table group: 5/5 files.
 
-Reviewer không chạy lại toàn repo, và không lặp smoke trình duyệt.
+The reviewer did not re-run the whole repo and did not repeat the browser smoke test.
 
-Giới hạn reviewer đã ghi nhận (không chặn cổng chuẩn bị pilot):
-- bước chuẩn bị lỗi thì mục tiêu chờ một giờ;
-- thẻ cũ chậm cập nhật;
-- ba lỗi cố định trước engine (`output_scope`, `action_exists`, `invalid_action_id`) giữ đường cũ;
-- hai vai dùng chung engine việc nền.
+Limits the reviewer recorded (not blocking the pilot preparation gate):
+- when the prepare step fails, the goal waits one hour;
+- an old card updates slowly;
+- three permanent errors before the engine (`output_scope`, `action_exists`, `invalid_action_id`) keep the old path;
+- the two roles share the background-work engine.
 
-**A5 chưa nghiệm thu cuối, chưa phát hành.**
+**A5 is not finally accepted and not yet released.**
 
-**Cổng pilot (không đổi mã sản phẩm).** Kịch bản, hạn mức và bằng chứng: [resonance-a5-pilot.md](resonance-a5-pilot.md). Các file mới, cùng commit `18b2ab60`:
+**The pilot gate (no product code change).** Scenario, limits and evidence: [resonance-a5-pilot.md](resonance-a5-pilot.md). New files, same commit `18b2ab60`:
 
-| File | Vai trò |
+| File | Role |
 |---|---|
-| `tests/python/_a5_pilot_ledger.py` | Sổ lượt theo vai: giữ chỗ trước khi dựng engine; có trần vai, trần tổng, trần giai đoạn; kết cục khác `ok` đóng sổ; sổ hỏng không cấp lượt; lần bị chặn ghi `refused`; phân nhánh |
-| `tests/python/_a5_pilot_server.py` | Chạy `main.app` của checkout, chỉ bọc `main._resonance_engine` bằng sổ; dry thay bằng engine giả, đường "thật" là bẫy |
-| `tests/python/test_resonance_a5_pilot.py` | Bộ chạy real và dry (đặt `JAVIS_RESONANCE_A5_PILOT` mới chạy) |
-| `tests/python/test_resonance_a5_pilot_gate.py` | Logic sổ, không cần server hay model |
+| `tests/python/_a5_pilot_ledger.py` | Per-role call ledger: reserve before building the engine; has a role cap, a total cap and a phase cap; an outcome other than `ok` closes the ledger; a corrupt ledger grants no call; a blocked attempt records `refused`; branch classification |
+| `tests/python/_a5_pilot_server.py` | Runs the checkout's `main.app`, only wrapping `main._resonance_engine` with the ledger; dry swaps in a fake engine, and the "real" path is a tripwire |
+| `tests/python/test_resonance_a5_pilot.py` | The real and dry runner (it only runs when `JAVIS_RESONANCE_A5_PILOT` is set) |
+| `tests/python/test_resonance_a5_pilot_gate.py` | The ledger logic, needing no server or model |
 
-**Kết quả** (máy local, mã tại `18b2ab60`, mã sản phẩm bằng `05e9b065`):
+**Results** (local machine, code at `18b2ab60`, product code equal to `05e9b065`):
 
-| Lệnh | Kết quả |
+| Command | Result |
 |---|---|
-| `JAVIS_RESONANCE_A5_PILOT=dry python tests/python/test_resonance_a5_pilot.py` | 12/12 ca, exit 0. Mỗi ca: `commit 18b2ab60`, cây sạch, 0 lượt thật, sổ lượt engine của server sandbox đã xác minh bằng 0 |
+| `JAVIS_RESONANCE_A5_PILOT=dry python tests/python/test_resonance_a5_pilot.py` | 12/12 cases, exit 0. Every case: `commit 18b2ab60`, clean tree, 0 real calls, the sandbox server's engine-call ledger verified as 0 |
 | `python tests/python/test_resonance_a5_pilot_gate.py` | 35 ok, exit 0 |
-| `tests/run.py resonance_a5 ignore_files tai_lieu_song_ngu version_khop_changelog nhat_ky_song_ngu route_table phien_ban_moi_nhat` | 15/15 file, exit 0 |
+| `tests/run.py resonance_a5 ignore_files tai_lieu_song_ngu version_khop_changelog nhat_ky_song_ngu route_table phien_ban_moi_nhat` | 15/15 files, exit 0 |
 
-Chi tiết các ca dry:
+Details of the dry cases:
 
-| Ca dry | Nhánh | Sổ (làm, review) | Kết luận |
+| Dry case | Branch | Ledger (maker, reviewer) | Verdict |
 |---|---|---|---|
 | `main_pass` | `pass_first` | (1, 1) | dry_ok |
 | `main_fix` | `one_fix_then_pass` | (2, 2) | dry_ok |
-| `fix_cap` | `pilot_cap_after_two_reviews`; trần kho chặn lượt sửa thứ ba lúc giữ chỗ | (2, 2) | dry_ok |
-| `ledger_cap` | như trên; trần kho nâng lên 8 (chỉ dry), sổ chặn trước khi dựng engine, host hoàn lượt | (2, 2) | dry_ok |
-| `review_unknown` | `review_unknown`; không thử lại | (1, 1) | dry_ok |
-| `maker_error` | `maker_error`; sổ đóng | (1, 0) | dry_ok |
-| `cost`, `auth`, `ledger_exists`, `precondition` | dừng trước việc nền | 0 | stopped |
-| `ledger_corrupt` | sổ hỏng, không cấp lượt; sổ chưa xác minh | chưa xác minh | stopped |
-| `tripwire` | bẫy ghi sự kiện; một dòng `not_built` vì sổ giữ chỗ trước khi dựng (bảo thủ) | (1, 0) | stopped |
+| `fix_cap` | `pilot_cap_after_two_reviews`; the store ceiling blocks the third fix call at reservation | (2, 2) | dry_ok |
+| `ledger_cap` | as above; the store ceiling raised to 8 (dry only), the ledger blocks before the engine is built, the host refunds the call | (2, 2) | dry_ok |
+| `review_unknown` | `review_unknown`; no retry | (1, 1) | dry_ok |
+| `maker_error` | `maker_error`; the ledger closes | (1, 0) | dry_ok |
+| `cost`, `auth`, `ledger_exists`, `precondition` | stopped before background work | 0 | stopped |
+| `ledger_corrupt` | corrupt ledger, no call granted; ledger unverified | unverified | stopped |
+| `tripwire` | the tripwire records an event; one `not_built` row because the ledger reserves before building (conservative) | (1, 0) | stopped |
 
-Bộ chạy tìm thấy, chưa từng chạy real:
-- Phân nhánh ban đầu không nhận lớp chặn là trần kho. Ca `fix_cap` cho thấy trần kho chặn trước sổ, nên mục tiêu thành `blocked/budget` mà sổ không thấy gì. Đã sửa hàm phân nhánh và thêm ca `ledger_cap` để vẫn chứng minh được lớp sổ.
-- Kiểm hash ban đầu sai đích (`accepted_ref` là mốc đăng, không phải lượt làm). Đã đổi sang hai kiểm: hash là bytes chuẩn hoá của một đầu ra lượt làm, và ảnh chụp reviewer đã đọc băm lại đúng hash.
+Found by the runner, which had never run for real:
+- The branch classification at first did not recognize the store ceiling as a blocking layer. The `fix_cap` case showed that the store ceiling blocks before the ledger, so the goal became `blocked/budget` with the ledger seeing nothing. The classification function was fixed and the `ledger_cap` case was added so the ledger layer can still be proven.
+- The initial hash check had the wrong target (`accepted_ref` is the registration mark, not the work call). It was changed to two checks: the hash is the normalized bytes of one work call's output, and the snapshot the reviewer read hashes back to the same hash.
 
-**Chưa chứng minh** (pilot thật mới trả lời được):
-- model thật trên cả hai vai;
-- nội dung review có ích;
-- độ trễ thật;
-- hành vi của engine việc nền `anthropic-cli` trong sandbox.
+**Not yet proven** (only a real pilot can answer):
+- a real model in both roles;
+- the review content being useful;
+- real latency;
+- the behavior of the `anthropic-cli` background-work engine in the sandbox.
 
-Hiệu năng cục bộ không phải bằng chứng VPS.
+Local performance is not VPS evidence.
 
-### Review cổng pilot vòng 1 (head `3378832d`): ba P2 ở bộ chạy, đã sửa
+### Pilot gate review round 1 (head `3378832d`): three P2s in the runner, fixed
 
-Review: `exports/reviews/PR-616-A5-pilot-gate-r1-review.md`. Mã sản phẩm không đổi; review mã vòng 2 vẫn giữ. Sửa ở commit `2468919c`, chỉ đụng bộ chạy, test và tài liệu.
+Review: `exports/reviews/PR-616-A5-pilot-gate-r1-review.md`. Product code unchanged; code review round 2 still stands. Fixed in commit `2468919c`, touching only the runner, tests and docs.
 
-| Lỗi | Sửa | Test |
+| Bug | Fix | Test |
 |---|---|---|
-| R1: sổ ghi `ok` cho kết quả mà host coi là lỗi (`final` có `is_error` hay `dua_token`, lỗi sau `final`, gọi công cụ trong lượt chỉ chữ) | `Counted` áp đúng luật lỗi của `_ask` trên từng khung. `ok` chỉ là tạm: lỗi đến sau hạ nó xuống, không bao giờ nâng ngược lại. Thêm lớp bọc `GoalDeps._ask` để đối chiếu kết luận cuối của host (`host_<mã>`). Host ngừng đọc sau một `final` hợp lệ thì `ok` giữ nguyên | Test cổng: các ca chạy qua `_ask` thật; `final` rồi huỷ, ngoại lệ hay ngừng đọc; không nâng lỗi; lớp đối chiếu thứ hai. Dry: `final_is_error`, `maker_error`, `reviewer_error` |
-| R2: kết luận real không loại lỗi engine, hết giờ hay sổ mất ở lần đọc cuối | Hàm `decide_acceptance` có hợp đồng rõ: `stopped`, `technical_failed`, `pending_content_review`, `business_incomplete`; mã thoát 1, 1, 0, 2; đòi đủ bằng chứng của đúng nhánh. Thêm hai nhánh `maker_not_met` và `reviewer_error`. Real cũng đòi sổ usage xác minh được | Test cổng: 15 ca `technical_failed`, 3 nhánh nghiệp vụ, đối chứng. Dry: các ca âm đi qua đường điều phối và hàm kết luận thật |
-| R3: dọn sandbox làm mất log và kho khi lỗi | `preserve_sandbox` chép kho (SQLite backup), log đã che khoá, sổ usage, brain tạm vào thư mục mới trên MỌI nhánh, sau khi server đã dừng; xử lý đường dẫn dài của Windows. Real luôn giữ sandbox; ngoài ra chỉ dọn khi kỹ thuật đạt trọn và bảo toàn đủ. Có `a5-pilot-recovery.txt` | Test cổng: bảo toàn, không ghi đè, che khoá, lỗi khi lưu, thiếu mục bắt buộc, file hỏng, đường dẫn trên 260 ký tự, quyền dọn. Dry: `save_error`, `early_crash`, `ledger_corrupt`, `ledger_lost_end`, `timeout` |
-| Lưu ý 1: đơn gộp nền checkout với `main` | Đơn tách dòng: nền checkout pilot là 0.100.0 (`a02663cb`), `main` hiện tại là 0.102.0 (`57c40348`); pilot không phải nghiệm thu bản tích hợp | đơn |
-| Lưu ý 2: SHA và cây sạch chỉ được ghi lại, không phải cổng | `preflight_source` ở bước 0, trước mọi server: HEAD phải đúng `JAVIS_RESONANCE_A5_APPROVED_SHA` và cả checkout phải sạch (gồm chính bộ chạy). Real bắt buộc | Test cổng: repo git tạm. Dry: `sha_mismatch` |
+| R1: the ledger recorded `ok` for a result the host treats as an error (a `final` with `is_error` or `dua_token`, an error after `final`, a tool call inside a text-only call) | `Counted` applies `_ask`'s error rules to each frame. `ok` is only provisional: an error that arrives later downgrades it and is never upgraded back. Added a wrapper around `GoalDeps._ask` to cross-check the host's final conclusion (`host_<code>`). If the host stops reading after a valid `final`, `ok` stays | Gate test: cases that run through the real `_ask`; `final` then cancel, exception or stop reading; no error upgrade; the second cross-check layer. Dry: `final_is_error`, `maker_error`, `reviewer_error` |
+| R2: the real verdict did not rule out an engine error, a timeout or a ledger lost at the final read | The `decide_acceptance` function has an explicit contract: `stopped`, `technical_failed`, `pending_content_review`, `business_incomplete`; exit codes 1, 1, 0, 2; it demands the full evidence of the exact branch. Added two branches, `maker_not_met` and `reviewer_error`. Real also demands a verifiable usage ledger | Gate test: 15 `technical_failed` cases, 3 business branches, controls. Dry: the negative cases go through the real orchestration path and verdict function |
+| R3: cleaning up the sandbox lost the logs and the store on error | `preserve_sandbox` copies the store (SQLite backup), the key-masked logs, the usage ledger and the temporary brain into a new folder on EVERY branch, after the servers have stopped; handles Windows long paths. Real always keeps the sandbox; otherwise it only cleans up when the technical result is fully passing and preservation is complete. There is an `a5-pilot-recovery.txt` | Gate test: preservation, no overwrite, key masking, an error while saving, a missing required item, a corrupt file, paths over 260 characters, cleanup rights. Dry: `save_error`, `early_crash`, `ledger_corrupt`, `ledger_lost_end`, `timeout` |
+| Note 1: the run request merged the checkout's base with `main` | The request separates the lines: the pilot checkout's base is 0.100.0 (`a02663cb`), current `main` is 0.102.0 (`57c40348`); the pilot is not an acceptance of the integrated build | request |
+| Note 2: the SHA and clean tree were only recorded, not a gate | `preflight_source` at step 0, before any server: HEAD must be exactly `JAVIS_RESONANCE_A5_APPROVED_SHA` and the whole checkout must be clean (including the runner itself). Mandatory for real | Gate test: a temporary git repo. Dry: `sha_mismatch` |
 
-**Script của reviewer.** Bản gốc chạy trên head mới: năm kiểm R1 (gọi thẳng API của sổ) PASS, rồi dừng ở `StopIteration`, vì phép gán `rep["acceptance"] = <biểu thức>` và điều kiện quanh `rmtree` đã thành lời gọi `decide_acceptance` và `may_delete_sandbox`. Bản chỉnh chỉ đổi adapter để gọi đúng hai lời gọi đó lấy từ AST của bộ chạy, có nhánh lùi về cấu trúc cũ:
-- Mẫu đối chứng thành công được bổ sung cho đủ bằng chứng của một lần `pass_first`.
-- Mỗi mẫu R2 áp đúng tình huống của nó lên lần chạy đủ bằng chứng đó.
-- Điều kiện dọn được thử với đầu vào dễ dọn nhất (bảo toàn đạt, hồ sơ ngoài sandbox).
+**The reviewer's script.** The original run on the new head: the five R1 checks (calling the ledger API directly) PASS, then it stops at `StopIteration`, because the assignment `rep["acceptance"] = <expression>` and the condition around `rmtree` became calls to `decide_acceptance` and `may_delete_sandbox`. The adjusted version only changes the adapter to call exactly those two calls, taken from the runner's AST, with a fallback to the old structure:
+- A successful control sample was added so there is full evidence of one `pass_first` run.
+- Each R2 sample applies its own scenario on top of that fully evidenced run.
+- The cleanup condition is tried with the easiest input to clean up (preservation passes, record outside the sandbox).
 
-Không đổi tình huống hay kỳ vọng. Kết quả bản chỉnh:
-- trên `3378832d`: 9 tái hiện lỗi, 2 đối chứng đạt, exit 0, giống output gốc của reviewer;
-- trên head mới với `--expect-fixed`: 11/11, exit 0.
+No change to scenarios or expectations. Results of the adjusted version:
+- on `3378832d`: 9 reproduced bugs, 2 controls pass, exit 0, the same as the reviewer's original output;
+- on the new head with `--expect-fixed`: 11/11, exit 0.
 
-**Đối chứng trên `3378832d`** (bản xuất `git archive`, chép test cổng mới vào, chạy từng khối): các khối R1, R2, R3 và kiểm nguồn ném lỗi vì thiếu API mới (`host_text_verdict`, `decide_acceptance`, `preserve_sandbox`, `preflight_source`, tham số `reviewer_failed`). Hành vi lỗi của các tình huống đó trên mã cũ đã được script tái hiện như trên.
+**Control on `3378832d`** (a `git archive` export, the new gate test copied in, run block by block): the R1, R2, R3 and source-check blocks throw errors because the new API is missing (`host_text_verdict`, `decide_acceptance`, `preserve_sandbox`, `preflight_source`, the `reviewer_failed` parameter). The buggy behavior of those scenarios on the old code was already reproduced by the script, as above.
 
-**Kết quả vòng này** (máy local, bộ chạy tại `f4b79b58`, mã sản phẩm bằng `05e9b065`):
+**Results of this round** (local machine, runner at `f4b79b58`, product code equal to `05e9b065`):
 
-| Lệnh | Kết quả |
+| Command | Result |
 |---|---|
-| `JAVIS_RESONANCE_A5_PILOT=dry python tests/python/test_resonance_a5_pilot.py` | 21/21 ca, exit 0. Mỗi báo cáo: `commit f4b79b58`, 0 lượt thật, sổ lượt engine của server đã xác minh bằng 0 |
+| `JAVIS_RESONANCE_A5_PILOT=dry python tests/python/test_resonance_a5_pilot.py` | 21/21 cases, exit 0. Every report: `commit f4b79b58`, 0 real calls, the server's engine-call ledger verified as 0 |
 | `python tests/python/test_resonance_a5_pilot_gate.py` | 90 ok, exit 0 |
-| Script reviewer bản chỉnh `--expect-fixed` | 11/11, exit 0 |
-| `tests/run.py resonance_a5 ignore_files tai_lieu_song_ngu version_khop_changelog nhat_ky_song_ngu route_table phien_ban_moi_nhat` (tại `2468919c`) | 15/15 file, exit 0 |
+| Reviewer script, adjusted version `--expect-fixed` | 11/11, exit 0 |
+| `tests/run.py resonance_a5 ignore_files tai_lieu_song_ngu version_khop_changelog nhat_ky_song_ngu route_table phien_ban_moi_nhat` (at `2468919c`) | 15/15 files, exit 0 |
 
-Kết luận của các ca dry:
-- 2 ca `pending_content_review`: (1, 1) và (2, 2);
-- 4 ca `business_incomplete`: `fix_cap`, `ledger_cap`, `review_unknown`, `maker_not_met`;
-- 10 ca `technical_failed`, nhánh được giữ nguyên;
-- 5 ca `stopped`.
+Verdicts of the dry cases:
+- 2 `pending_content_review` cases: (1, 1) and (2, 2);
+- 4 `business_incomplete` cases: `fix_cap`, `ledger_cap`, `review_unknown`, `maker_not_met`;
+- 10 `technical_failed` cases, the branch kept as is;
+- 5 `stopped` cases.
 
-Ca `save_error` giữ nguyên sandbox gốc (kho cùng WAL còn) và có `a5-pilot-recovery.txt`. Các ca sự cố khác đều có bản sao kho, log và brain trong hồ sơ.
+The `save_error` case keeps the original sandbox (the store with its WAL remains) and has `a5-pilot-recovery.txt`. All the other incident cases have copies of the store, logs and brain in the record.
 
-Lỗi của bộ chạy mà dry tìm ra trong vòng này, đã sửa trước bản cuối:
-- bảo toàn lỗi khi thư mục hồ sơ nằm sâu (giới hạn 260 ký tự của Windows);
-- kiểm bộ ghim đòi hàng review cả ở nhánh không có review (`f4b79b58`).
+Runner bugs that dry found in this round, fixed before the final version:
+- preservation failed when the record folder was deep (Windows' 260-character limit);
+- the pin-set check demanded a review row even on a branch with no review (`f4b79b58`).
 
-### Review cổng pilot vòng 2 (head `4bcf3615`): một P2 ở pha ghi hồ sơ cuối, đã sửa
+### Pilot gate review round 2 (head `4bcf3615`): one P2 in the final-record phase, fixed
 
-Review: `exports/reviews/PR-616-A5-pilot-gate-r2-review.md`. Ba lỗi của vòng 1 và hai lưu ý đã được kiểm lại và đóng. Mã sản phẩm không đổi.
+Review: `exports/reviews/PR-616-A5-pilot-gate-r2-review.md`. The three round 1 bugs and two notes were re-checked and closed. Product code unchanged.
 
-**Lỗi.** Kết luận và quyền dọn sandbox được tính trước khi ghi báo cáo JSON và `a5-pilot-recovery.txt`. Lần ghi nào lỗi thì kết quả vẫn là `pending_content_review`, exit 0. Nếu file khôi phục hỏng, JSON đã ghi trước đó vẫn nói đạt. Ở dry, `sandbox_kept` còn ghi false trong khi sandbox thật được giữ.
+**Bug.** The verdict and the sandbox cleanup rights were computed before writing the JSON report and `a5-pilot-recovery.txt`. If either write failed, the result was still `pending_content_review`, exit 0. If the recovery file was corrupt, the JSON written earlier still said pass. In dry, `sandbox_kept` was also recorded as false while the real sandbox was kept.
 
-**Sửa** (`2eb79253`, chỉ bộ chạy, test, tài liệu): `finalize_record`.
-- Thứ tự ghi: file khôi phục trước, báo cáo JSON sau cùng.
-- Lần ghi bắt buộc nào lỗi thì kết luận thành `technical_failed`, mã thoát 1, có nguyên nhân cụ thể; nhánh giữ nguyên; sandbox giữ với `sandbox_kept = true`.
-- Báo cáo lỗi thì ghi lại file khôi phục với kết luận mới và thử ghi báo cáo đúng một lần nữa. Vẫn không được thì báo ra stdout và stderr kèm đường sandbox.
-- Dòng `A5_PILOT` in sau khi chốt, kèm `report_saved`.
-- Bộ điều phối dry đòi thêm: mã thoát đúng hợp đồng; báo cáo JSON bắt buộc có và khớp dòng `A5_PILOT`; dòng KEPT khớp `sandbox_kept`.
+**Fix** (`2eb79253`, runner, tests and docs only): `finalize_record`.
+- Write order: the recovery file first, the JSON report last.
+- If any required write fails, the verdict becomes `technical_failed`, exit code 1, with a specific cause; the branch is kept; the sandbox is kept with `sandbox_kept = true`.
+- If the report fails, the recovery file is rewritten with the new verdict and the report is tried exactly once more. If that still fails, it reports to stdout and stderr with the sandbox path.
+- The `A5_PILOT` line is printed after the verdict is final, with `report_saved`.
+- The dry orchestrator also demands: the exit code matches the contract; the required JSON report exists and matches the `A5_PILOT` line; the KEPT line matches `sandbox_kept`.
 
-**Test.**
-- Test cổng (100 kiểm) gọi `finalize_record` thật trên fixture pha kết thúc, real và dry, không engine. Các ca:
-  - đối chứng lưu thành công, giữ kết luận và exit 0;
-  - lỗi ghi báo cáo sau kết quả đạt;
-  - lỗi ghi file khôi phục;
-  - nghiệp vụ chưa đạt kèm lỗi ghi, không còn exit 2;
-  - lỗi kỹ thuật vốn có kèm lỗi ghi;
-  - lỗi tạm thời rồi ghi được: báo cáo lần hai vẫn nói `technical_failed`;
-  - nơi lưu không tồn tại.
-- Dry qua `run_case` với engine giả: `report_fault`, `recovery_fault`, `report_fault_technical`.
+**Tests.**
+- The gate test (100 checks) calls the real `finalize_record` on finish-phase fixtures, real and dry, with no engine. Cases:
+  - a control where saving succeeds, keeping the verdict and exit 0;
+  - a report write error after a passing result;
+  - a recovery file write error;
+  - a business-incomplete result plus a write error, no longer exit 2;
+  - an inherent technical error plus a write error;
+  - a transient error then a successful write: the second report still says `technical_failed`;
+  - a save location that does not exist.
+- Dry through `run_case` with a fake engine: `report_fault`, `recovery_fault`, `report_fault_technical`.
 
-**Đối chứng trên `4bcf3615`:**
-- Script finalization của reviewer ở chế độ tái hiện: 3 lỗi hành vi, 2 đối chứng, exit 0.
-- Test cổng mới chạy từng khối: chỉ khối pha kết thúc thiếu API `finalize_record`; các khối khác xanh.
+**Control on `4bcf3615`:**
+- The reviewer's finalization script in reproduce mode: 3 behavior bugs, 2 controls, exit 0.
+- The new gate test run block by block: only the finish-phase block lacks the `finalize_record` API; the other blocks are green.
 
-**Script của reviewer trên head mới:**
-- Script finalization vòng 2 không cần chỉnh: điểm neo `delete = PL.may_delete_sandbox(...)` vẫn giữ. Kết quả `--expect-fixed` 5/5, exit 0.
-- Script vòng 1 (adapter đã chỉnh ở vòng trước, không đổi thêm): `--expect-fixed` 11/11, exit 0.
+**The reviewer's scripts on the new head:**
+- The round 2 finalization script needed no adjustment: the anchor `delete = PL.may_delete_sandbox(...)` still holds. Result `--expect-fixed` 5/5, exit 0.
+- The round 1 script (adapter adjusted in the previous round, no further change): `--expect-fixed` 11/11, exit 0.
 
-**Lỗi khác của bộ chạy mà dry đủ ca tìm ra trong vòng này, đã sửa (`7211d4b7`).** Điều kiện "im lặng" để dừng giai đoạn việc nền bị xét đúng khe chuyển trạng thái: lượt làm vừa kết sổ, nhưng host còn giữ khoá mục tiêu để đăng bản và hẹn review, nên lịch thức tạm trống. Bốn ca dừng sớm, ra nhánh `maker_not_met` sai. Giờ bộ chạy chỉ coi là im lặng khi:
-- không có lượt nào đang chạy;
-- mục tiêu không ở `running`;
-- không lần thức nào giữ khoá mục tiêu;
-- điều kiện đó đúng ở hai lần quan sát liên tiếp.
+**Another runner bug that the full set of dry cases found in this round, fixed (`7211d4b7`).** The "quiet" condition for ending the background-work phase was evaluated exactly at the state-transition gap: the maker call had just closed, but the host still held the goal lock to publish the version and schedule the review, so the wake schedule was briefly empty. Four cases stopped early and ended in the wrong `maker_not_met` branch. Now the runner only counts it as quiet when:
+- no call is running;
+- the goal is not in `running`;
+- no wake holds the goal lock;
+- that holds on two consecutive observations.
 
-Lần chạy thật cũng có thể gặp khe này.
+A real run could also hit this gap.
 
-**Kết quả vòng này** (máy local, bộ chạy tại `7211d4b7`, mã sản phẩm bằng `05e9b065`):
+**Results of this round** (local machine, runner at `7211d4b7`, product code equal to `05e9b065`):
 
-| Lệnh | Kết quả |
+| Command | Result |
 |---|---|
-| `JAVIS_RESONANCE_A5_PILOT=dry python tests/python/test_resonance_a5_pilot.py` | 24/24 ca, exit 0. Mỗi ca: mã thoát đúng hợp đồng, báo cáo khớp dòng `A5_PILOT`, 0 lượt thật, sổ lượt engine của server đã xác minh bằng 0 |
+| `JAVIS_RESONANCE_A5_PILOT=dry python tests/python/test_resonance_a5_pilot.py` | 24/24 cases, exit 0. Every case: the exit code matches the contract, the report matches the `A5_PILOT` line, 0 real calls, the server's engine-call ledger verified as 0 |
 | `python tests/python/test_resonance_a5_pilot_gate.py` | 100 ok, exit 0 |
-| Script vòng 1 (adapter đã chỉnh) `--expect-fixed` | 11/11, exit 0 |
-| Script finalization vòng 2 `--expect-fixed` | 5/5, exit 0 |
-| Wrapper dry của reviewer (chặn ghi báo cáo `main_pass`, server thật, engine giả) | `technical_failed`, exit 1, sandbox giữ, không có báo cáo |
-| `tests/run.py resonance_a5 ignore_files tai_lieu_song_ngu version_khop_changelog nhat_ky_song_ngu route_table phien_ban_moi_nhat` | 15/15 file, exit 0 |
+| Round 1 script (adjusted adapter) `--expect-fixed` | 11/11, exit 0 |
+| Round 2 finalization script `--expect-fixed` | 5/5, exit 0 |
+| The reviewer's dry wrapper (blocks the `main_pass` report write, real server, fake engine) | `technical_failed`, exit 1, sandbox kept, no report |
+| `tests/run.py resonance_a5 ignore_files tai_lieu_song_ngu version_khop_changelog nhat_ky_song_ngu route_table phien_ban_moi_nhat` | 15/15 files, exit 0 |
 
-## Pilot thật (13/10/2026)
+## Real pilot (2026-10-13)
 
-Commit chạy: `33cec5184c7d825dfc08ba84a3ddf07f3b1d1424`, trên một checkout tách riêng, sạch trước và sau mỗi lần chạy; nền 0.100.0 (`a02663cb`), chưa tích hợp `main`. Đơn: bản cổng vòng 3 (review cổng vòng 3 đạt). Mỗi lần chạy có một lời duyệt riêng của chủ dự án.
+Commit run: `33cec5184c7d825dfc08ba84a3ddf07f3b1d1424`, on a separate checkout, clean before and after every run; base 0.100.0 (`a02663cb`), `main` not yet integrated. Run request: the gate round 3 build (gate review round 3 passed). Each run had its own approval from the project owner.
 
 | | |
 |---|---|
-| Đầu vào đóng băng | `d15720546f4d53d611735e9cf3bf0096f02b711f15bf246086a441f50e5f609e` |
-| Engine | việc nền `anthropic-cli/sonnet`, gói thuê bao Claude (`claude.ai`, `firstParty`, `max`); không API trả phí |
-| Trần | làm 2, review 2, tổng 4; 0 lượt chat |
-| Bằng chứng | `exports/reviews/a5-pilot-real-1/` và `exports/reviews/a5-pilot-real-2/` (ngoài repo): báo cáo JSON, sổ, đầu ra từng lượt, đường khôi phục, `sandbox/` (bản sao kho, log đã che khoá, brain tạm) |
+| Frozen input | `d15720546f4d53d611735e9cf3bf0096f02b711f15bf246086a441f50e5f609e` |
+| Engine | background work `anthropic-cli/sonnet`, Claude subscription plan (`claude.ai`, `firstParty`, `max`); no paid API |
+| Cap | maker 2, reviewer 2, total 4; 0 chat calls |
+| Evidence | `exports/reviews/a5-pilot-real-1/` and `exports/reviews/a5-pilot-real-2/` (outside the repo): JSON report, ledger, the output of each call, the recovery path, `sandbox/` (store copy, key-masked logs, temporary brain) |
 
-### real-1: `stopped` ở cổng token
+### real-1: `stopped` at the token gate
 
-Qua cổng nguồn, chi phí, xác thực và giai đoạn A (0 lượt). Cổng token trước việc nền hỏng: token gói thuê bao đã hết hạn 163 giây, cổng đòi còn ít nhất 30 phút. Kết luận `stopped`, mã thoát 1, **0 lượt model**; giai đoạn việc nền không bắt đầu. Hậu kiểm offline 19/19 kiểm. Lời duyệt của lần này đã dùng; real-2 có lời duyệt riêng sau khi chủ dự án làm mới đăng nhập.
+Passed the source, cost and auth gates and phase A (0 calls). The token gate before background work failed: the subscription plan token had expired 163 seconds earlier, and the gate demands at least 30 minutes left. Verdict `stopped`, exit code 1, **0 model calls**; the background-work phase did not start. Offline post-check 19/19 checks. This run's approval was used up; real-2 had its own approval after the project owner refreshed the login.
 
 | File | sha256 |
 |---|---|
 | `a5-pilot-real-1/a5-pilot-real-main.json` | `bb5a4b50184b20d8740b0536695e3d5fa3023587628dca523c7bdc97c661deb4` |
-| `a5-pilot-real-1/a5-pilot-ledger.json` (rỗng) | `f588a20b079ca1d16a25d2c57d6ee07aa74ae07c1f1139fc9f63d0ad917e26dc` |
+| `a5-pilot-real-1/a5-pilot-ledger.json` (empty) | `f588a20b079ca1d16a25d2c57d6ee07aa74ae07c1f1139fc9f63d0ad917e26dc` |
 | `a5-pilot-real-1-console.txt` | `58426d373afb028e21c5de14fa0a3f9fa1d74b03c406d504d61fed891fc04009` |
 
-### real-2: `pending_content_review`, nhánh `pass_first`
+### real-2: `pending_content_review`, branch `pass_first`
 
-Token còn 28698 giây ở cổng. Vai làm viết bản tóm tắt; vai review (mã ghim, khác agent làm) đọc ảnh chụp đúng hash và revision, cho `pass`; host đăng đúng bytes vào file đích, mục tiêu `succeeded`. Giai đoạn việc nền 95,7 giây. Dựng lại server (trần sổ 0): không có dòng sổ, hành động hay hàng review mới. Bộ chạy: 26 kiểm đều đạt, mã thoát 0. Hậu kiểm offline 33/33; reviewer chạy lại độc lập, 33/33.
+The token had 28698 seconds left at the gate. The maker role wrote the summary; the reviewer role (pinned key, different from the maker agent) read the snapshot with the right hash and revision and gave `pass`; the host published exactly those bytes into the target file, and the goal was `succeeded`. The background-work phase took 95.7 seconds. Rebuilding the server (ledger ceiling 0): no new ledger row, action or review row. Runner: 26 checks all passed, exit code 0. Offline post-check 33/33; the reviewer re-ran it independently, 33/33.
 
-| Lượt | Vai | Kết cục | Token vào / ra |
+| Call | Role | Outcome | Tokens in / out |
 |---|---|---|---|
-| 1 | làm (`nguoi-lam-tom-tat`) | ok | 18447 / 291 |
-| 2 | review (`nguoi-duyet-tom-tat`) | ok | 18651 / 258 |
+| 1 | maker (`nguoi-lam-tom-tat`) | ok | 18447 / 291 |
+| 2 | reviewer (`nguoi-duyet-tom-tat`) | ok | 18651 / 258 |
 
-Sổ pilot = sổ vai của kho (làm 1/4, review 1/4) = `calls_used` 2; một hàng review tính lượt.
+Pilot ledger = the store's role ledger (maker 1/4, reviewer 1/4) = `calls_used` 2; one review row counted a call.
 
 | File | sha256 |
 |---|---|
-| `a5-maker-1.md` (đầu ra lượt làm) | `a37808c46962a97075cc63b51b5be11fde0dff78c18ee2f0f3e96c42fce3e253` |
-| `a5-deliverable-final.md` (bản cuối, trùng bytes bản làm) | `a37808c46962a97075cc63b51b5be11fde0dff78c18ee2f0f3e96c42fce3e253` |
-| `a5-reviewer-1.txt` (đầu ra thô lượt review) | `5c5a7b19d3b332e6b924545defbb5e1b7965fafa0a2dc9d80b4047c55d93da20` |
+| `a5-maker-1.md` (the maker call's output) | `a37808c46962a97075cc63b51b5be11fde0dff78c18ee2f0f3e96c42fce3e253` |
+| `a5-deliverable-final.md` (the final version, same bytes as the maker's version) | `a37808c46962a97075cc63b51b5be11fde0dff78c18ee2f0f3e96c42fce3e253` |
+| `a5-reviewer-1.txt` (the raw output of the review call) | `5c5a7b19d3b332e6b924545defbb5e1b7965fafa0a2dc9d80b4047c55d93da20` |
 | `a5-pilot-real-main.json` | `3b935c3b23bc5f8f12b89c2c941214ea37219e0bce31262a91b4b037800e2b7b` |
 | `a5-pilot-ledger.json` | `f8d406063b917899ceb04cf45b8672839bda36c4ca24daaff082f387ae29dc65` |
 | `a5-pilot-real-2-console.txt` | `fe462dc6db1371ad9559a3f04d4b95d87c0556f690cb13910efcc6d7fe0e8c79` |
 
-Báo cáo JSON, sổ, đầu ra và bản cuối của cả hai lần giữ nguyên như bộ chạy ghi; hậu kiểm là biên bản riêng, không sửa chúng.
+The JSON report, ledger, outputs and final version of both runs are kept exactly as the runner recorded them; the post-check is a separate record and does not edit them.
 
-### Review nội dung
+### Content review
 
-Reviewer chấp nhận real-2 **trong phạm vi một mẫu `pass_first`**: bốn dữ kiện của cuộc họp (ra mắt 20/11; chị Lan gửi kế hoạch truyền thông trước thứ Sáu; anh Minh gửi bảng ngân sách quảng cáo trước thứ Năm; cả nhóm họp lại thứ Hai tuần sau) được giữ đúng người, việc và hạn.
+The reviewer accepted real-2 **within the scope of one `pass_first` sample**: the four facts of the meeting (launch on 20 Nov; Lan sends the communications plan before Friday; Minh sends the ad budget sheet before Thursday; the whole team meets again next Monday) were kept with the right person, task and deadline.
 
-Hai góp ý câu chữ, không chặn:
-1. "Kế hoạch truyền thông và ngân sách quảng cáo sẽ được hoàn thiện trước cuộc họp tới" là suy diễn: lời giao chỉ nói hạn gửi.
-2. "để rà soát tiến độ" là mục đích buổi họp do vai làm thêm, nguồn không nêu.
+Two wording notes, not blocking (the quoted sentences are translated from the Vietnamese pilot output):
+1. "The communications plan and the ad budget will be finalized before the next meeting" is an inference: the assignment only states the deadline for sending them.
+2. "to review progress" is a meeting purpose that the maker added, and the source does not state it.
 
-"Cả nhóm" làm người phụ trách việc họp lại là chấp nhận được (lời giao nói "cả nhóm họp lại"), nhưng không có nghĩa đã xác định người tổ chức. Bản pilot giữ nguyên làm bằng chứng; không sửa nó rồi dùng bản sửa để tuyên bố đạt.
+"The whole team" as the owner of the task of meeting again is acceptable (the assignment says "the whole team meets again"), but it does not mean an organizer has been determined. The pilot version is kept as evidence; it is not edited and then used to claim a pass.
 
-**Giới hạn của vai review trong A5 hiện tại.** `_review_prompt` chỉ đưa mô tả vai, cách hiểu mục tiêu, tiêu chí, ràng buộc và bản cần review; không đưa lời giao gốc (đúng thiết kế, mục 4.3 và D8: không đưa lịch sử chat). Trong pilot, cách hiểu mục tiêu chỉ mô tả cấu trúc bản tóm tắt, nên các dữ kiện vai review thấy đến từ chính bản cần kiểm. Kết quả `pass` **không** có nghĩa vai review đã đối chiếu trung thành với nguồn, hay đã phát hiện thông tin thêm vào.
+**Limit of the reviewer role in the current A5.** `_review_prompt` only supplies the role description, the interpretation of the goal, the criteria, the constraints and the version to review; it does not supply the original assignment (as designed, section 4.3 and D8: no chat history). In the pilot, the interpretation of the goal only described the structure of the summary, so the facts the reviewer saw came from the very version to be checked. A `pass` result does **not** mean the reviewer faithfully cross-checked against the source or caught added information.
 
-**Usage.** Sổ usage chung của server (`usage.json`) ghi 0 vì chỉ đếm lượt chat; lượt việc nền của Cộng hưởng nằm ở hành động và receipt của kho, và ở sổ pilot (2 lượt thật). Sổ usage chung báo 0 không có nghĩa lần chạy không tốn model.
+**Usage.** The server's shared usage ledger (`usage.json`) recorded 0 because it only counts chat calls; Resonance's background calls are in the store's actions and receipts, and in the pilot ledger (2 real calls). A shared usage ledger reporting 0 does not mean the run cost no model usage.
 
-### Giới hạn còn lại
+### Remaining limits
 
-- Một mẫu, nhánh đạt ngay. Nhánh yêu cầu sửa, chạm trần, review không đọc được và lỗi engine chỉ có bằng chứng bằng engine giả.
-- Hai vai dùng chung model việc nền: độc lập về vai và ngữ cảnh, không phải hai model khác nhau.
-- 0 lượt chat: không kiểm bộ não chat tự định tuyến tới `javis_goal`.
-- Máy local, nền 0.100.0; chưa đo hiệu năng VPS. Tích hợp `main` là diff riêng, review riêng.
+- One sample, the pass-immediately branch. The branches for requested fixes, hitting the cap, an unreadable review and engine errors only have evidence from a fake engine.
+- The two roles share the background-work model: independent in role and context, not two different models.
+- 0 chat calls: the chat brain routing by itself to `javis_goal` is not checked.
+- Local machine, base 0.100.0; VPS performance not measured. Integrating `main` is a separate diff with its own review.
 
-### Hai việc cải tiến riêng (chưa triển khai, ngoài PR này)
+### Two separate improvements (not implemented, outside this PR)
 
-1. Nguồn yêu cầu tối thiểu do host ghim đúng mục tiêu và revision, đưa cho vai review để đối chiếu việc thêm hay bớt dữ kiện. Không phải toàn bộ lịch sử chat, và vẫn không cho xem suy luận của vai làm.
-2. Đưa lượt và token việc nền của Cộng hưởng vào màn hình usage chung, không đếm trùng với sổ chat.
+1. A minimal source of requirements, pinned by the host to the exact goal and revision, given to the reviewer role to cross-check for added or dropped facts. Not the whole chat history, and still not showing the maker's reasoning.
+2. Put Resonance's background calls and tokens into the shared usage screen, without double counting against the chat ledger.
 
-## Tích hợp `main` tới 0.108.0, đánh số 0.109.0 (13/10/2026)
+## Integrating `main` up to 0.108.0, numbered 0.109.0 (2026-10-13)
 
-`main` đi tiếp bốn lần trong lúc tích hợp (0.103.0, 0.105.0, 0.107.0, 0.108.0). Mọi lượt theo cùng quy tắc:
-- merge `main` vào nhánh, không rebase;
-- xung đột chỉ giải ở `VERSION` và hai changelog: khối A5 ở đầu, các khối của `main` giữ nguyên;
-- đánh số lại và dời mốc quay về trong commit riêng, theo bản phát hành thật cuối cùng trước A5.
+`main` moved on four times during the integration (0.103.0, 0.105.0, 0.107.0, 0.108.0). Every round followed the same rules:
+- merge `main` into the branch, no rebase;
+- conflicts resolved only in `VERSION` and the two changelogs: the A5 block on top, the `main` blocks kept as is;
+- renumbering and moving the rollback marker in a separate commit, following the last real release before A5.
 
-Mốc lịch sử (kết quả các vòng trước, nền checkout pilot, số dòng dẫn theo `a02663cb`) giữ số cũ.
+Historical markers (the results of earlier rounds, the pilot checkout's base, line numbers cited against `a02663cb`) keep the old number.
 
-| Commit | Lượt | Nội dung |
+| Commit | Round | Content |
 |---|---|---|
-| `0840dc6e` | | Hồ sơ pilot real-1 và real-2 (chỉ tài liệu) |
-| `ba591f4f`, `371ff0ab`, `1db1d570` | 1 | Merge `main` 0.103.0 (`eb733834`, #622); A5 0.104.0; biên bản |
-| `d7276bc5`, `4b20001e` | 2 | `main` 0.105.0 (`1dd593ba`, #624) vượt 0.104.0, #623 cũng giữ 0.104.0; A5 0.106.0. **Đã review tích hợp tại `4b20001e`** |
-| `ef18c9f5`, `fecbb63d` | cuối | `main` 0.107.0 (`49c795ab`, #623) vượt 0.106.0, #625 giữ 0.108.0; A5 lấy **0.109.0**; hậu tố `.pre-0.109.0` |
-| `79724208` | cuối | Test mới `test_resonance_a5_engine_session_gate.py` (chỉ test) |
-| `6c4f0b5a`, `20d7c063` | cuối | `main` 0.108.0 (`c4fb614d`, #625); 0.109.0 vẫn trống và lớn hơn `main` nên giữ số; mốc quay về sang 0.108.0 thật (CI và build image GHCR của `main`) |
+| `0840dc6e` | | Pilot real-1 and real-2 record (docs only) |
+| `ba591f4f`, `371ff0ab`, `1db1d570` | 1 | Merge `main` 0.103.0 (`eb733834`, #622); A5 0.104.0; record |
+| `d7276bc5`, `4b20001e` | 2 | `main` 0.105.0 (`1dd593ba`, #624) overtook 0.104.0, #623 also held 0.104.0; A5 0.106.0. **Integration reviewed at `4b20001e`** |
+| `ef18c9f5`, `fecbb63d` | last | `main` 0.107.0 (`49c795ab`, #623) overtook 0.106.0, #625 held 0.108.0; A5 took **0.109.0**; suffix `.pre-0.109.0` |
+| `79724208` | last | New test `test_resonance_a5_engine_session_gate.py` (test only) |
+| `6c4f0b5a`, `20d7c063` | last | `main` 0.108.0 (`c4fb614d`, #625); 0.109.0 was still free and greater than `main`, so it kept the number; the rollback marker moved to the real 0.108.0 (CI and GHCR image build of `main`) |
 
-Cả năm commit merge (`ba591f4f`, `d7276bc5`, `ef18c9f5`, `6c4f0b5a`): `--remerge-diff` chỉ có `VERSION`, `CHANGELOG.md`, `CHANGELOG.en.md`.
+All five merge commits (`ba591f4f`, `d7276bc5`, `ef18c9f5`, `6c4f0b5a`): `--remerge-diff` shows only `VERSION`, `CHANGELOG.md`, `CHANGELOG.en.md`.
 
-### Mã chạy
+### Running code
 
-- **Mã A5 giữ nguyên.** Phần A5 thêm trên `main` trùng khít, từng file, với phần A5 đã review trên nền cũ (`a02663cb` tới `33cec518`): 9 file, cùng nội dung dòng thêm và bớt.
-  - Kiểm ở lượt 1 (`eb733834` tới `ba591f4f`), lượt 2 (`1dd593ba` tới `d7276bc5`) và lượt cuối (`49c795ab` tới `ef18c9f5`, so với `1dd593ba` tới `4b20001e` đã review).
-  - #625 (0.108.0) không đụng file nào của 9 file đó.
-- **File tự gộp** giữ đủ thay đổi của cả hai phía: `server/main.py` ở mọi lượt có đổi (lượt cuối: A5 thêm 2 dòng, #623 thêm 137 và bớt 38 dòng), hai file i18n ở lượt 1.
-- **Dòng mã chạy duy nhất đổi do tích hợp:** `A5_BACKUP_SUFFIX = ".pre-0.109.0"`, cùng chú thích. 0.104.0 và 0.106.0 chưa từng phát hành, nên đổi hậu tố không ảnh hưởng máy nào.
+- **The A5 code is unchanged.** The A5 part added on `main` matches, file by file, the A5 part reviewed on the old base (`a02663cb` to `33cec518`): 9 files, the same added and removed lines.
+  - Checked in round 1 (`eb733834` to `ba591f4f`), round 2 (`1dd593ba` to `d7276bc5`) and the last round (`49c795ab` to `ef18c9f5`, compared with `1dd593ba` to `4b20001e` which was reviewed).
+  - #625 (0.108.0) touches none of those 9 files.
+- **Auto-merged files** keep the changes of both sides in full: `server/main.py` in every round that changed it (last round: A5 adds 2 lines, #623 adds 137 and removes 38 lines), the two i18n files in round 1.
+- **The only running-code line changed by integration:** `A5_BACKUP_SUFFIX = ".pre-0.109.0"`, with its comment. 0.104.0 and 0.106.0 were never released, so changing the suffix affects no machine.
 
-### Tác động gián tiếp của `main` 0.107.0 và 0.108.0
+### Indirect impact of `main` 0.107.0 and 0.108.0
 
-- **`claude_sdk_engine` (#623):** phiên có `allowed_tools` giờ được nạp plugin tool khi danh sách nêu đích danh `mcp__javis-plugins__<tên>`. Lượt làm và lượt review của A5 dựng bằng `main._resonance_engine`, với một tên canh gác không khớp công cụ nào. Test mới `tests/python/test_resonance_a5_engine_session_gate.py` dựng ĐÚNG đường đó (swap, `strip_tools`, `pick_text_only_link`) cho system prompt của hai vai, thay `ClaudeSDKClient` bằng client giả để bắt `options` thật đưa cho SDK. Kết quả, 26 kiểm:
-  - MCP rỗng và strict: không hub, không server plugin;
-  - `allowed_tools` chỉ có tên canh gác, cổng `can_use_tool` bật; không nạp settings máy người dùng; công cụ native bị cấm sẵn;
-  - cổng từ chối 14 tên công cụ (native, hub, plugin có và không tiền tố);
-  - không chuỗi dự phòng; provider đã chọn chưa sẵn sàng thì không chạy thay bằng provider khác;
-  - đối chứng: phiên nêu đích danh một plugin tool thật thì có server plugin, nên test thấy được nếu A5 bị rò. Trên `4b20001e` (SDK 0.105.0), test dừng ở kiểm thứ hai vì `plugins_host.granted_plugin_tools` chưa có.
-- **`sessions` (#623):** thêm bảng `cli_session_history` và ghi lịch sử trong `set_cli_session_id`. Cùng file test: kho phiên kiểu cũ (bỏ đúng bảng mới, vì CI chỉ fetch nông một commit nền) mở được, tạo bảng; dòng phiên giữ nguyên; phiên agent vẫn ra đúng danh tính (`agent:<slug>`, nguồn danh tính A5); gắn phiên CLI mới ghi lịch sử.
-- **#625 (0.108.0):** chỉ đường Zalo, chatbot, hội thoại khách và danh mục MCP; không đụng file Cộng hưởng, `server/main.py`, engine hay `sessions`.
+- **`claude_sdk_engine` (#623):** a session with `allowed_tools` now loads the plugin tools when the list names `mcp__javis-plugins__<name>` explicitly. A5's work and review calls are built with `main._resonance_engine`, with a sentinel name that matches no tool. The new test `tests/python/test_resonance_a5_engine_session_gate.py` builds EXACTLY that path (swap, `strip_tools`, `pick_text_only_link`) for the system prompts of the two roles, replacing `ClaudeSDKClient` with a fake client to capture the real `options` handed to the SDK. Result, 26 checks:
+  - empty and strict MCP: no hub, no plugin server;
+  - `allowed_tools` holds only the sentinel name, the `can_use_tool` gate is on; the user's machine settings are not loaded; native tools are denied up front;
+  - the gate rejects 14 tool names (native, hub, plugin with and without the prefix);
+  - no fallback chain; if the chosen provider is not ready, it does not run on another provider instead;
+  - control: a session that names a real plugin tool explicitly does get a plugin server, so the test would notice if A5 leaked. On `4b20001e` (SDK 0.105.0), the test stops at the second check because `plugins_host.granted_plugin_tools` does not exist yet.
+- **`sessions` (#623):** added the `cli_session_history` table and writes history in `set_cli_session_id`. Same test file: an old-style session store (with exactly the new table dropped, because CI only shallow-fetches one base commit) opens and creates the table; the session row is kept; an agent session still produces the right identity (`agent:<slug>`, A5's identity source); attaching a new CLI session writes history.
+- **#625 (0.108.0):** only the Zalo path, chatbot, customer conversations and the MCP catalog; it touches no Resonance file, `server/main.py`, engine or `sessions`.
 
-### Kết quả
+### Results
 
-| Lệnh | Head | Kết quả |
+| Command | Head | Result |
 |---|---|---|
-| `python tests/python/test_resonance_a5_rollback.py` | `20d7c063` | 11 ok, exit 0, mã 0.108.0 thật qua `git show c4fb614d` |
+| `python tests/python/test_resonance_a5_rollback.py` | `20d7c063` | 11 ok, exit 0, real 0.108.0 code through `git show c4fb614d` |
 | `python tests/python/test_resonance_a5_engine_session_gate.py` | `20d7c063` | 26 ok, exit 0 |
-| `tests/run.py` theo tác động: mọi `resonance_*`, `sdk_engine`, `aux`, `session`, `strip`, `kanban`, `workflow`, `agent_rules`, `learn`, `usage`, `plugin`, `reminder`, `task`, test mới của #623, phiên bản, changelog, route, i18n, `ignore_files` | `fecbb63d` + test mới | 101/102; file đỏ duy nhất `test_ignore_files` vì test mới chưa commit, xanh sau commit `79724208` |
-| Theo tác động sau merge 0.108.0: test engine và kho phiên, phiên bản, changelog, route, tài liệu song ngữ, hai test mới của #625, `ignore_files` | `20d7c063` | 9/9 và 1/1, exit 0 |
-| `JAVIS_RESONANCE_A5_PILOT=dry JAVIS_RESONANCE_A5_DRY_ONLY=main_pass,main_fix python tests/python/test_resonance_a5_pilot.py` | `79724208` | 2/2 ca, exit 0; đúng nhánh, sổ (1, 1) và (2, 2), sổ engine server 0, 0 lượt model thật |
+| `tests/run.py` by impact: every `resonance_*`, `sdk_engine`, `aux`, `session`, `strip`, `kanban`, `workflow`, `agent_rules`, `learn`, `usage`, `plugin`, `reminder`, `task`, the new tests of #623, version, changelog, route, i18n, `ignore_files` | `fecbb63d` + new test | 101/102; the only red file is `test_ignore_files` because the new test was not yet committed; green after commit `79724208` |
+| By impact after the 0.108.0 merge: engine and session store tests, version, changelog, route, bilingual docs, the two new tests of #625, `ignore_files` | `20d7c063` | 9/9 and 1/1, exit 0 |
+| `JAVIS_RESONANCE_A5_PILOT=dry JAVIS_RESONANCE_A5_DRY_ONLY=main_pass,main_fix python tests/python/test_resonance_a5_pilot.py` | `79724208` | 2/2 cases, exit 0; right branch, ledger (1, 1) and (2, 2), server engine ledger 0, 0 real model calls |
 
-**Không chạy lại** cả 24 ca dry hay toàn repo ở lượt cuối, vì:
-- bộ chạy pilot không đổi kể từ `33cec518`;
-- mã A5 không đổi ngoài hậu tố;
-- các đường bị `main` đụng tới đã có kiểm riêng ở trên;
-- các kiểm theo tác động không phát hiện lỗi mới.
+**Not re-run:** all 24 dry cases or the whole repo in the last round, because:
+- the pilot runner has not changed since `33cec518`;
+- the A5 code did not change apart from the suffix;
+- the paths `main` touched already have their own checks above;
+- the by-impact checks found no new bugs.
 
-CI trên head cuối chạy đủ bộ test của repo.
+CI on the final head runs the repo's full test suite.
 
-Lượt 2 (`4b20001e`, đã review) có: quay về 11 ok trên mã 0.105.0; dry 24/24; toàn repo 647/661 với 14 file đỏ phụ thuộc máy khớp `main` sạch `1dd593ba`; CI `push` 38342887031 và `pull_request` 38342891054 thành công. Lượt 1 (`371ff0ab`) tương đương trên 0.103.0. 14 file đỏ: agy_prompt_dai, antigravity_cli, ba_loi_mac_va_telegram, cai_windows, grok_cli, install_admin, khoi_dong_nhe, link_file_uri, machine_translations, memory_hoa_thuong, model_theo_phien, ollama_local, terminal, windows_no_console.
+Round 2 (`4b20001e`, reviewed) has: rollback back to 11 ok on 0.105.0 code; dry 24/24; whole repo 647/661 with 14 machine-dependent red files matching clean `main` `1dd593ba`; CI `push` 38342887031 and `pull_request` 38342891054 succeeded. Round 1 (`371ff0ab`) was equivalent on 0.103.0. The 14 red files: agy_prompt_dai, antigravity_cli, ba_loi_mac_va_telegram, cai_windows, grok_cli, install_admin, khoi_dong_nhe, link_file_uri, machine_translations, memory_hoa_thuong, model_theo_phien, ollama_local, terminal, windows_no_console.
 
-Không gọi model thật, không chạy lại pilot, không merge, không phát hành, không đụng VPS. Giới hạn của pilot real-2 giữ nguyên như mục "Pilot thật".
+No real model was called, the pilot was not re-run, nothing was merged, nothing was released, the VPS was not touched. The limits of pilot real-2 stay as in the section "Real pilot".

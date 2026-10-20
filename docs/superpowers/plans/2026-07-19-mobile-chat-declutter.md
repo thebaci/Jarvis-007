@@ -1,60 +1,60 @@
-# Gọn khung chat trên điện thoại - Implementation Plan
+# Declutter the mobile chat frame - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Trên điện thoại, ô nhập chat nở to và màn hình bớt rối (bỏ 2 hàng điều khiển chật), theo hướng chat-là-chính đã duyệt.
+**Goal:** On phones, make the chat input big and the screen less cluttered (drop the 2 cramped control rows), following the approved chat-first direction.
 
-**Architecture:** Chỉ thêm rule CSS trong `@media (max-width: 860px)` + ít JS thuần, KHÔNG đụng bản desktop. Tái dùng thành phần sẵn có: bảng chọn model `#mbPop` (event-delegation ở `model-picker.js`), rail nav, nút reset `#resetBtn`. Ba khối: (1) ô nhập thành viên pill lớn; (2) rail thành ngăn kéo trượt trái + header mảnh ☰/model/＋; (3) dời nút hệ thống vào ngăn kéo.
+**Architecture:** Only add CSS rules inside `@media (max-width: 860px)` plus a little plain JS, and do NOT touch the desktop version. Reuse existing parts: the model picker `#mbPop` (event delegation in `model-picker.js`), the nav rail, the reset button `#resetBtn`. Three blocks: (1) the input becomes a large pill; (2) the rail becomes a left slide-in drawer plus a thin ☰/model/＋ header; (3) system buttons move into the drawer.
 
-**Tech Stack:** HTML tĩnh + CSS (`style.css`, `console.css`) + JS thuần (`app.js`/`console.js`), Alpine (rail store). Không build step. Font Tabler không dùng (đây là app riêng, giữ SVG sẵn có).
+**Tech Stack:** Static HTML + CSS (`style.css`, `console.css`) + plain JS (`app.js`/`console.js`), Alpine (rail store). No build step. The Tabler font is not used (this is a standalone app, keep the existing SVGs).
 
 ## Global Constraints
 
-- CHỈ sửa giao diện màn hẹp: mọi rule mới nằm trong `@media (max-width: 860px)`. Bản >860px (desktop) GIỮ NGUYÊN.
-- Mốc mobile = `max-width: 860px` (khớp `isNarrow()` ở `console.js:130` và block rail mobile `console.css:324`).
-- Không dùng ký tự em dash (U+2014). Chuỗi hiển thị tiếng Việt có dấu.
-- Tái dùng, không nhân bản: chip model = chính nút `#mbOpen`; ＋ = gọi lại `#resetBtn`.
-- `#chatInput` giữ `font-size: 16px` (chống iOS tự zoom khi focus).
-- Không có khung test UI tự động: JS đổi thì chạy `node --check <file>`; đúng/sai bố cục kiểm bằng smoke ở bề ngang mobile.
-- Bump `?v=` của asset dashboard ở bước cuối để trình duyệt nạp bản mới.
+- ONLY change the narrow-screen UI: every new rule lives inside `@media (max-width: 860px)`. The >860px (desktop) version STAYS AS IS.
+- The mobile breakpoint is `max-width: 860px` (matches `isNarrow()` at `console.js:130` and the mobile rail block at `console.css:324`).
+- Do not use the em dash character (U+2014). Displayed strings are in Vietnamese with diacritics.
+- Reuse, do not duplicate: the model chip is the existing `#mbOpen` button itself; ＋ calls `#resetBtn` again.
+- `#chatInput` keeps `font-size: 16px` (prevents iOS auto-zoom on focus).
+- There is no automated UI test framework: when JS changes, run `node --check <file>`; check layout correctness with a smoke test at mobile width.
+- Bump the `?v=` of the dashboard assets in the last step so browsers load the new version.
 
 ---
 
 ## File Structure
 
-- `dashboard/style.css` - CSS `.hud-voice`/`.voice-input`/`.mic-big`/`.send-btn` (định nghĩa gốc ~486-525) + thêm block mobile cho viên pill.
-- `dashboard/console.css` - block `@media (max-width: 860px)` (~324-354) đang biến rail thành thanh đáy; sửa thành ngăn kéo + thêm rule header mobile + ẩn sysbar/model-bar.
-- `dashboard/index.html` - thêm nút `#navToggle` (☰) + `#newChatBtn` (＋) vào `.hud-top` (mobile-only) + 1 lớp backdrop `#navBackdrop`.
-- `dashboard/app.js` hoặc `dashboard/console.js` - wiring ☰ (bật/tắt `body.nav-open` + backdrop + Esc), dời `#mbOpen`/`#mbPop` vào header ở mobile theo `matchMedia`.
-- Asset version bump: nơi index.html nạp css/js có `?v=` (tìm ở bước cuối).
+- `dashboard/style.css` - CSS for `.hud-voice`/`.voice-input`/`.mic-big`/`.send-btn` (original definitions ~486-525) + add the mobile block for the pill.
+- `dashboard/console.css` - the `@media (max-width: 860px)` block (~324-354) that currently turns the rail into a bottom bar; change it into a drawer + add the mobile header rules + hide sysbar/model-bar.
+- `dashboard/index.html` - add the `#navToggle` (☰) + `#newChatBtn` (＋) buttons to `.hud-top` (mobile-only) + 1 backdrop layer `#navBackdrop`.
+- `dashboard/app.js` or `dashboard/console.js` - wiring for ☰ (toggle `body.nav-open` + backdrop + Esc), move `#mbOpen`/`#mbPop` into the header on mobile via `matchMedia`.
+- Asset version bump: wherever index.html loads css/js with `?v=` (find it in the last step).
 
 ---
 
-## Task 1: Ô nhập thành viên pill lớn (mobile)
+## Task 1: Large pill-shaped input (mobile)
 
-Đây là phần sửa "ô nhập bé" - giá trị cao nhất, rủi ro thấp nhất, làm trước.
+This is the fix for the "tiny input" problem - highest value, lowest risk, so it goes first.
 
 **Files:**
-- Modify: `dashboard/style.css` (thêm block mobile sau các rule `.hud-voice` ~525)
+- Modify: `dashboard/style.css` (add a mobile block after the `.hud-voice` rules ~525)
 
 **Interfaces:**
-- Consumes: cấu trúc `.hud-voice` sẵn có (index.html:285-311): `.mic-big#voiceBtn`, `.attach-btn#attachBtn`, `.attach-btn.tts-bar-btn#ttsToggleBar`, `.voice-input#chatInput`, `.stop-btn#stopBtn`, `.send-btn#sendBtn`.
-- Produces: bố cục pill ở mobile (không đổi API JS).
+- Consumes: the existing `.hud-voice` structure (index.html:285-311): `.mic-big#voiceBtn`, `.attach-btn#attachBtn`, `.attach-btn.tts-bar-btn#ttsToggleBar`, `.voice-input#chatInput`, `.stop-btn#stopBtn`, `.send-btn#sendBtn`.
+- Produces: the pill layout on mobile (no JS API change).
 
-- [ ] **Step 1: Thêm block CSS mobile cho pill**
+- [ ] **Step 1: Add the mobile CSS block for the pill**
 
-Trong `dashboard/style.css`, thêm (sau khối `.send-btn` ~525):
+In `dashboard/style.css`, add (after the `.send-btn` block ~525):
 
 ```css
-/* ===== Mobile: ô nhập thành viên pill lớn (chat-là-chính) ===== */
+/* ===== Mobile: large pill-shaped input (chat-first) ===== */
 @media (max-width: 860px) {
   .hud-voice {
     margin: 6px 10px 8px; padding: 5px 6px 5px 8px; gap: 4px;
     border: 1px solid var(--border); border-radius: 24px; background: var(--bg2);
-    border-top: 1px solid var(--border);           /* ghi đè border-top gốc cho đồng nhất */
+    border-top: 1px solid var(--border);           /* override the original border-top for consistency */
     align-items: flex-end;
   }
-  #ttsToggleBar { display: none; }                 /* loa dời vào ngăn kéo (Task 3) */
+  #ttsToggleBar { display: none; }                 /* speaker moves into the drawer (Task 3) */
   .hud-voice .attach-btn { order: 1; width: 34px; height: 34px; border: none; background: transparent; }
   .hud-voice .voice-input {
     order: 2; border: none; background: transparent; border-radius: 0;
@@ -66,91 +66,91 @@ Trong `dashboard/style.css`, thêm (sau khối `.send-btn` ~525):
 }
 ```
 
-- [ ] **Step 2: Smoke bố cục pill**
+- [ ] **Step 2: Smoke-test the pill layout**
 
-Mở `dashboard/index.html` qua app ở bề ngang ~375px (trình duyệt thu nhỏ hoặc devtools mobile). Xác nhận: `.hud-voice` là MỘT viên bo tròn; thứ tự trong viên là ＋ (đính kèm) | ô gõ rộng | mic | gửi; KHÔNG còn nút loa; ô gõ chiếm gần hết bề ngang và cao lên khi gõ nhiều dòng; không tràn ngang. Trên desktop (>860px) `.hud-voice` KHÔNG đổi (vẫn hàng nút cũ). Tinh chỉnh số (padding/min-height) tại đây nếu lệch.
+Open `dashboard/index.html` through the app at ~375px width (shrunk browser or mobile devtools). Confirm: `.hud-voice` is ONE rounded pill; the order inside the pill is ＋ (attach) | wide input | mic | send; the speaker button is GONE; the input takes up almost the full width and grows taller as you type multiple lines; nothing overflows horizontally. On desktop (>860px) `.hud-voice` does NOT change (still the old button row). Tune the numbers (padding/min-height) here if they are off.
 
 - [ ] **Step 3: Commit**
 
 ```bash
 git add dashboard/style.css
-git commit -m "feat(mobile): o nhap chat thanh vien pill lon (attach|input|mic|send)
+git commit -m "feat(mobile): large pill chat input (attach|input|mic|send)
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ---
 
-## Task 2: Header mảnh (☰ + chip model + ＋) và ẩn hàng chật
+## Task 2: Thin header (☰ + model chip + ＋) and hide the cramped rows
 
 **Files:**
-- Modify: `dashboard/index.html` (thêm `#navToggle`, `#newChatBtn` vào `.hud-top`; thêm `#navBackdrop`)
-- Modify: `dashboard/console.css` (rule mobile: hiện ☰/＋, ẩn cụm hud-top cũ + sysbar + model-bar)
-- Modify: `dashboard/app.js` hoặc `dashboard/console.js` (dời `#mbOpen`/`#mbPop` vào header ở mobile; ＋ gọi reset)
-- Test: `node --check` file JS đã sửa
+- Modify: `dashboard/index.html` (add `#navToggle`, `#newChatBtn` to `.hud-top`; add `#navBackdrop`)
+- Modify: `dashboard/console.css` (mobile rules: show ☰/＋, hide the old hud-top cluster + sysbar + model-bar)
+- Modify: `dashboard/app.js` or `dashboard/console.js` (move `#mbOpen`/`#mbPop` into the header on mobile; ＋ calls reset)
+- Test: `node --check` on the edited JS file
 
 **Interfaces:**
 - Consumes: `.hud-top`, `.hud-top-left`, `.hud-top-right` (index.html:19-71); `#mbOpen`/`#mbPop` (index.html:263,270); `#resetBtn` (index.html:64); `isNarrow()` (console.js:130).
-- Produces: `#navToggle` (mở ngăn kéo - Task 3 dùng), `#newChatBtn`, `#navBackdrop`; hàm JS `syncModelChipPlacement()`.
+- Produces: `#navToggle` (opens the drawer - used by Task 3), `#newChatBtn`, `#navBackdrop`; JS function `syncModelChipPlacement()`.
 
-- [ ] **Step 1: Thêm nút ☰ và ＋ vào header + backdrop**
+- [ ] **Step 1: Add the ☰ and ＋ buttons to the header + backdrop**
 
-Trong `dashboard/index.html`, ngay sau thẻ mở `<header class="hud-top">` (dòng 19), thêm nút ☰ (mobile-only):
+In `dashboard/index.html`, right after the opening `<header class="hud-top">` tag (line 19), add the ☰ button (mobile-only):
 
 ```html
-      <button class="hud-icon-btn nav-toggle-btn" id="navToggle" title="Menu" aria-label="Mở menu">
+      <button class="hud-icon-btn nav-toggle-btn" id="navToggle" title="Menu" aria-label="Open menu">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
         </svg>
       </button>
 ```
 
-Trong `.hud-top-right` (sau nút `#resetBtn`, trước `</div>` đóng `.hud-actions` ~68), thêm nút ＋ mobile-only:
+In `.hud-top-right` (after the `#resetBtn` button, before the `</div>` closing `.hud-actions` ~68), add the mobile-only ＋ button:
 
 ```html
-          <button class="hud-icon-btn new-chat-btn" id="newChatBtn" title="Hội thoại mới" aria-label="Hội thoại mới">
+          <button class="hud-icon-btn new-chat-btn" id="newChatBtn" title="New conversation" aria-label="New conversation">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
           </button>
 ```
 
-Ngay TRƯỚC `</div>` đóng thẻ `.hud` (tìm thẻ đóng của khung `.hud`, cùng cấp `.hud-top`), thêm lớp backdrop:
+Right BEFORE the `</div>` that closes the `.hud` tag (find the closing tag of the `.hud` frame, same level as `.hud-top`), add the backdrop layer:
 
 ```html
     <div class="nav-backdrop" id="navBackdrop" hidden></div>
 ```
 
-- [ ] **Step 2: CSS mobile - hiện ☰/＋, ẩn cụm cũ + sysbar + model-bar**
+- [ ] **Step 2: Mobile CSS - show ☰/＋, hide the old cluster + sysbar + model-bar**
 
-Trong `dashboard/console.css`, thêm vào block `@media (max-width: 860px)` (trong khối bắt đầu ~324):
+In `dashboard/console.css`, add to the `@media (max-width: 860px)` block (inside the block starting ~324):
 
 ```css
   .nav-toggle-btn { display: inline-flex; }
   .new-chat-btn { display: inline-flex; }
-  /* Header mobile chỉ giữ: ☰ (trái) · chip model (giữa) · ＋ (phải). Ẩn phần rườm rà. */
+  /* Mobile header keeps only: ☰ (left) · model chip (center) · ＋ (right). Hide the clutter. */
   .hud-top .brand, .hud-top .navbar-brain,
   .hud-top #themeToggle, .hud-top #studioOpenBtn,
   .hud-top #settingsBtn, .hud-top #ttsToggle, .hud-top #resetBtn { display: none; }
   .hud-center-title { font-size: 13px; }
-  .sysbar { display: none; }                       /* dải HỆ THỐNG/MCP ẩn ở mobile */
-  .model-bar { display: none; }                    /* hàng model gốc ẩn; chip dời lên header (JS) */
-  /* Chip model khi đã nằm trong header */
+  .sysbar { display: none; }                       /* the SYSTEM/MCP strip is hidden on mobile */
+  .model-bar { display: none; }                    /* the original model row is hidden; the chip moves to the header (JS) */
+  /* Model chip once it sits in the header */
   .hud-top #mbOpen { display: inline-flex; }
 ```
 
-Ngoài block mobile, thêm mặc định ẩn cho 2 nút mới (desktop không thấy):
+Outside the mobile block, add a default hide for the 2 new buttons (desktop does not see them):
 
 ```css
 .nav-toggle-btn, .new-chat-btn { display: none; }
 ```
 
-- [ ] **Step 3: JS - dời chip model vào header ở mobile + ＋ gọi reset**
+- [ ] **Step 3: JS - move the model chip into the header on mobile + ＋ calls reset**
 
-Xác định file wiring: `grep -n "resetBtn\|mbOpen" dashboard/app.js dashboard/console.js`. Thêm đoạn sau vào file phù hợp (nơi các nút DOM khác được bind; nếu chưa rõ, đặt trong `dashboard/app.js` phần khởi tạo DOM):
+Find the wiring file: `grep -n "resetBtn\|mbOpen" dashboard/app.js dashboard/console.js`. Add the following snippet to the right file (where the other DOM buttons are bound; if unclear, put it in `dashboard/app.js` in the DOM init section):
 
 ```javascript
-  // ===== Mobile: dời chip model lên header, ẩn khi desktop =====
+  // ===== Mobile: move the model chip up to the header, put it back on desktop =====
   (function mobileHeaderSetup() {
     const mq = window.matchMedia("(max-width: 860px)");
     const mbOpen = document.getElementById("mbOpen");
@@ -160,12 +160,12 @@ Xác định file wiring: `grep -n "resetBtn\|mbOpen" dashboard/app.js dashboard
     const headerRoot = document.querySelector(".hud-top");
     function place() {
       if (!mbOpen || !modelBar || !headerRoot) return;
-      if (mq.matches) {                                  // mobile: chip + popover vào giữa header
+      if (mq.matches) {                                  // mobile: chip + popover go to the middle of the header
         if (headerCenter && mbOpen.parentElement !== headerRoot) {
           headerRoot.insertBefore(mbOpen, headerCenter.nextSibling);
           if (mbPop) headerRoot.insertBefore(mbPop, mbOpen.nextSibling);
         }
-      } else {                                           // desktop: trả về model-bar
+      } else {                                           // desktop: return them to the model-bar
         if (mbOpen.parentElement !== modelBar) {
           modelBar.insertBefore(mbOpen, modelBar.firstChild);
           if (mbPop) modelBar.insertBefore(mbPop, mbOpen.nextSibling);
@@ -176,17 +176,17 @@ Xác định file wiring: `grep -n "resetBtn\|mbOpen" dashboard/app.js dashboard
     mq.addEventListener ? mq.addEventListener("change", place) : mq.addListener(place);
   })();
 
-  // ===== Mobile: nút ＋ = hội thoại mới (dùng lại reset) =====
+  // ===== Mobile: the ＋ button = new conversation (reuses reset) =====
   const _newChat = document.getElementById("newChatBtn");
   const _reset = document.getElementById("resetBtn");
   if (_newChat && _reset) _newChat.addEventListener("click", () => _reset.click());
 ```
 
-Ghi chú: `#mbOpen` bind bằng event delegation ở `model-picker.js:89` (`e.target.closest("#mbOpen")`) nên dời DOM vẫn bấm được. `#mbPop` là `position:absolute` nên phải nằm trong offset-parent có `position:relative` - `.hud-top` cần `position: relative` (thêm ở Step 4 nếu chưa có).
+Note: `#mbOpen` is bound by event delegation in `model-picker.js:89` (`e.target.closest("#mbOpen")`), so moving it in the DOM keeps it clickable. `#mbPop` is `position:absolute`, so it must sit inside an offset parent with `position:relative` - `.hud-top` needs `position: relative` (added in Step 4 if not already there).
 
-- [ ] **Step 4: CSS - popover model mở XUỐNG dưới header ở mobile**
+- [ ] **Step 4: CSS - the model popover opens DOWNWARD below the header on mobile**
 
-Trong `dashboard/console.css` block mobile, thêm (mb-pop gốc mở LÊN `bottom: calc(100%+6px)`, ở header phải lật xuống):
+In the mobile block of `dashboard/console.css`, add (the original mb-pop opens UPWARD with `bottom: calc(100%+6px)`; in the header it has to flip down):
 
 ```css
   .hud-top { position: relative; }
@@ -196,37 +196,37 @@ Trong `dashboard/console.css` block mobile, thêm (mb-pop gốc mở LÊN `botto
 
 - [ ] **Step 5: node --check + smoke**
 
-Run: `node --check dashboard/app.js` (và/hoặc `dashboard/console.js` nếu sửa ở đó)
-Expected: không lỗi cú pháp.
+Run: `node --check dashboard/app.js` (and/or `dashboard/console.js` if edited there)
+Expected: no syntax errors.
 
-Smoke ở ~375px: header chỉ còn ☰ (trái) · chip "Jarvis 007 · model ▾" (giữa) · ＋ (phải); KHÔNG còn hàng model-bar và dải HỆ THỐNG ở dưới; bấm chip model mở bảng chọn NGAY DƯỚI header (không bị cắt trên); bấm ＋ reset hội thoại. Desktop (>860px): header + model-bar y như cũ, chip model nằm lại chỗ cũ.
+Smoke test at ~375px: the header has only ☰ (left) · the "Jarvis 007 · model ▾" chip (center) · ＋ (right); the model-bar row and the SYSTEM strip below are GONE; tapping the model chip opens the picker RIGHT BELOW the header (not clipped at the top); tapping ＋ resets the conversation. Desktop (>860px): header + model-bar exactly as before, the model chip stays in its old place.
 
 - [ ] **Step 6: Commit**
 
 ```bash
 git add dashboard/index.html dashboard/console.css dashboard/app.js dashboard/console.js
-git commit -m "feat(mobile): header manh ☰ + chip model + ＋; an sysbar/model-bar
+git commit -m "feat(mobile): thin header with ☰ + model chip + ＋; hide sysbar/model-bar
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ---
 
-## Task 3: Rail thành ngăn kéo trượt trái + dời nút hệ thống vào ngăn kéo
+## Task 3: Rail becomes a left slide-in drawer + move system buttons into the drawer
 
 **Files:**
-- Modify: `dashboard/console.css` (rail mobile: từ thanh đáy -> ngăn kéo trượt trái + backdrop)
-- Modify: `dashboard/app.js`/`dashboard/console.js` (☰ bật/tắt `body.nav-open`; backdrop/Esc/chọn mục đóng)
-- Modify: `dashboard/index.html` (thêm mục "Hệ thống" vào rail: bật/tắt loa, cài đặt, đổi tông, Studio, reset) - hoặc để nguyên rail-nav và chỉ hiện lại rail-top/foot
+- Modify: `dashboard/console.css` (mobile rail: from bottom bar -> left slide-in drawer + backdrop)
+- Modify: `dashboard/app.js`/`dashboard/console.js` (☰ toggles `body.nav-open`; backdrop/Esc/picking an item closes it)
+- Modify: `dashboard/index.html` (add a "System" section to the rail: speaker toggle, settings, theme switch, Studio, reset) - or leave the rail-nav alone and only show `rail-top/foot` again
 - Test: `node --check`
 
 **Interfaces:**
-- Consumes: `#navToggle`, `#navBackdrop` (Task 2); `.rail`, `.rail-nav`, `.rail-top`, `.rail-foot` (index.html:315-351); block rail mobile hiện có (console.css:324-338).
-- Produces: hành vi ngăn kéo (`body.nav-open`).
+- Consumes: `#navToggle`, `#navBackdrop` (Task 2); `.rail`, `.rail-nav`, `.rail-top`, `.rail-foot` (index.html:315-351); the existing mobile rail block (console.css:324-338).
+- Produces: the drawer behavior (`body.nav-open`).
 
-- [ ] **Step 1: CSS - rail thành ngăn kéo trượt trái (thay thanh đáy)**
+- [ ] **Step 1: CSS - rail becomes a left slide-in drawer (replacing the bottom bar)**
 
-Trong `dashboard/console.css`, THAY các rule rail trong block `@media (max-width: 860px)` (hiện đặt rail ở đáy, ~326-338) bằng:
+In `dashboard/console.css`, REPLACE the rail rules inside the `@media (max-width: 860px)` block (which currently puts the rail at the bottom, ~326-338) with:
 
 ```css
   .rail {
@@ -237,9 +237,9 @@ Trong `dashboard/console.css`, THAY các rule rail trong block `@media (max-widt
     overflow-y: auto;
   }
   body.nav-open .rail { transform: translateX(0); box-shadow: 8px 0 40px rgba(0,0,0,.5); }
-  .rail-top, .rail-foot { display: flex; }          /* hiện lại brand + version trong ngăn kéo */
+  .rail-top, .rail-foot { display: flex; }          /* show the brand + version again inside the drawer */
   .rail-nav { flex-direction: column; overflow-x: hidden; overflow-y: auto; gap: 2px; }
-  .rail-group, .rail-grp-items { display: block; }  /* trả lại nhóm dạng dọc */
+  .rail-group, .rail-grp-items { display: block; }  /* restore the vertical groups */
   .rail-grp-lbl { display: flex; }
   .rail-item { flex: none; flex-direction: row; gap: 10px; padding: 9px 10px; }
   .rail-item .rail-lbl { font-size: 13px; }
@@ -247,18 +247,18 @@ Trong `dashboard/console.css`, THAY các rule rail trong block `@media (max-widt
   .nav-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 55; }
   .nav-backdrop[hidden] { display: none; }
   body.nav-open .nav-backdrop { display: block; }
-  /* body không còn chừa 56px đáy cho rail nữa */
+  /* the body no longer reserves 56px at the bottom for the rail */
   body.has-rail .hud { margin-left: 0; width: 100%; height: 100vh; }
   .cview { left: 0; bottom: 0; }
-  .hud { grid-template-rows: 46px 1fr auto; }        /* voice tự cao theo pill, bỏ 62px cứng */
+  .hud { grid-template-rows: 46px 1fr auto; }        /* the voice row sizes itself to the pill, drop the hard 62px */
 ```
 
-- [ ] **Step 2: JS - ☰ bật/tắt ngăn kéo, đóng bằng backdrop/Esc/chọn mục**
+- [ ] **Step 2: JS - ☰ toggles the drawer, closes via backdrop/Esc/picking an item**
 
-Thêm vào file wiring (cạnh đoạn Task 2):
+Add to the wiring file (next to the Task 2 snippet):
 
 ```javascript
-  // ===== Mobile: ngăn kéo điều hướng =====
+  // ===== Mobile: navigation drawer =====
   (function navDrawerSetup() {
     const toggle = document.getElementById("navToggle");
     const backdrop = document.getElementById("navBackdrop");
@@ -269,103 +269,103 @@ Thêm vào file wiring (cạnh đoạn Task 2):
       document.body.classList.contains("nav-open") ? close() : open());
     if (backdrop) backdrop.addEventListener("click", close);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
-    if (rail) rail.addEventListener("click", (e) => {           // chọn một mục nav -> đóng
+    if (rail) rail.addEventListener("click", (e) => {           // picking a nav item -> close
       if (e.target.closest(".rail-item") && window.matchMedia("(max-width: 860px)").matches) close();
     });
   })();
 ```
 
-- [ ] **Step 3: (tuỳ chọn) Dời nút hệ thống vào ngăn kéo**
+- [ ] **Step 3: (optional) Move the system buttons into the drawer**
 
-Nếu muốn các nút header cũ (bật/tắt loa `#ttsToggle`, Cài đặt `#settingsBtn`, Đổi tông `#themeToggle`, Studio `#studioOpenBtn`, chọn brain) truy cập được trên mobile: thêm một khối "Hệ thống" vào cuối `.rail` trong index.html (mobile-only hiện). Cách gọn nhất KHÔNG nhân bản handler: thêm các nút mobile-only trong rail mà click ủy quyền sang nút gốc, ví dụ:
+If you want the old header buttons (speaker toggle `#ttsToggle`, Settings `#settingsBtn`, theme switch `#themeToggle`, Studio `#studioOpenBtn`, brain picker) reachable on mobile: add a "System" block at the end of `.rail` in index.html (shown on mobile only). The leanest way that does NOT duplicate handlers: add mobile-only buttons in the rail whose click delegates to the original button, for example:
 
 ```html
       <div class="rail-sys only-mobile">
-        <button class="rail-item" onclick="document.getElementById('themeToggle').click()"><span class="rail-lbl">Đổi tông</span></button>
-        <button class="rail-item" onclick="document.getElementById('settingsBtn').click()"><span class="rail-lbl">Cài đặt</span></button>
+        <button class="rail-item" onclick="document.getElementById('themeToggle').click()"><span class="rail-lbl">Switch theme</span></button>
+        <button class="rail-item" onclick="document.getElementById('settingsBtn').click()"><span class="rail-lbl">Settings</span></button>
         <button class="rail-item" onclick="document.getElementById('studioOpenBtn').click()"><span class="rail-lbl">Studio</span></button>
-        <button class="rail-item" onclick="document.getElementById('ttsToggle').click()"><span class="rail-lbl">Bật/tắt loa</span></button>
+        <button class="rail-item" onclick="document.getElementById('ttsToggle').click()"><span class="rail-lbl">Toggle speaker</span></button>
       </div>
 ```
 
-CSS: `.only-mobile { display: none; } @media (max-width:860px){ .only-mobile { display: block; } }`. (Nếu thấy chưa cần trên mobile thì bỏ qua Step này - YAGNI.)
+CSS: `.only-mobile { display: none; } @media (max-width:860px){ .only-mobile { display: block; } }`. (If you find this is not needed on mobile yet, skip this step - YAGNI.)
 
 - [ ] **Step 4: node --check + smoke**
 
-Run: `node --check dashboard/app.js` (và console.js nếu sửa)
-Expected: không lỗi.
+Run: `node --check dashboard/app.js` (and console.js if edited)
+Expected: no errors.
 
-Smoke ~375px: KHÔNG còn thanh nav ở đáy; bấm ☰ -> ngăn kéo trượt từ trái + nền mờ; bấm nền mờ / Esc / chọn một mục -> đóng; danh sách công cụ hiện dạng dọc dễ bấm; đáy màn hình giờ chỉ còn viên nhập. Desktop (>860px): rail vẫn là cột trái cũ, ☰ không hiện, không có backdrop.
+Smoke test at ~375px: the bottom nav bar is GONE; tapping ☰ -> the drawer slides in from the left + a dimmed backdrop; tapping the backdrop / Esc / picking an item -> it closes; the tool list shows vertically and is easy to tap; the bottom of the screen now holds only the input pill. Desktop (>860px): the rail is still the old left column, ☰ is not shown, no backdrop.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add dashboard/console.css dashboard/app.js dashboard/console.js dashboard/index.html
-git commit -m "feat(mobile): rail thanh ngan keo truot trai + ☰ mo/dong, bo thanh nav day
+git commit -m "feat(mobile): rail becomes left slide-in drawer + ☰ open/close, drop bottom nav bar
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```
 
 ---
 
-## Task 4: Bump asset + smoke tổng + push
+## Task 4: Bump assets + overall smoke + push
 
 **Files:**
-- Modify: `dashboard/index.html` (bump `?v=` các asset dashboard)
+- Modify: `dashboard/index.html` (bump the `?v=` of the dashboard assets)
 - Modify: `VERSION`, `CHANGELOG.md`
 
 **Interfaces:**
-- Consumes: mọi task trên.
+- Consumes: all the tasks above.
 
-- [ ] **Step 1: Bump ?v= của css/js dashboard**
+- [ ] **Step 1: Bump the ?v= of the dashboard css/js**
 
-`grep -n "?v=" dashboard/index.html` -> tăng số version của các asset đã sửa (style.css, console.css, app.js/console.js) để trình duyệt nạp bản mới. Nếu không có `?v=` thì bỏ qua (index.html đổi là trình duyệt tự nạp).
+`grep -n "?v=" dashboard/index.html` -> raise the version number of the edited assets (style.css, console.css, app.js/console.js) so browsers load the new version. If there is no `?v=`, skip it (index.html changed, so the browser reloads it anyway).
 
-- [ ] **Step 2: Smoke tổng ở mobile + desktop**
+- [ ] **Step 2: Overall smoke test on mobile + desktop**
 
-Ở ~375px: header 3 nút gọn, ô nhập pill to, ngăn kéo chạy, không hàng chật. Ở >900px: mọi thứ y như trước khi sửa (không regression desktop).
+At ~375px: compact 3-button header, big pill input, working drawer, no cramped rows. At >900px: everything exactly as before the change (no desktop regression).
 
 - [ ] **Step 3: Bump VERSION + CHANGELOG**
 
-Lấy VERSION kế tiếp (đọc `cat VERSION`, tăng patch). Thêm mục CHANGELOG:
+Get the next VERSION (read `cat VERSION`, bump the patch). Add a CHANGELOG entry:
 
 ```markdown
 ## [x.y.z] - 2026-07-19
-Giao diện chat trên điện thoại gọn hẳn: ô nhập thành viên bo tròn lớn, header chỉ còn menu ☰ + chip model + nút hội thoại mới, dãy công cụ chuyển thành ngăn kéo trượt. Chỉ đổi bản điện thoại (màn hẹp), bản máy tính giữ nguyên. Tải lại trang là thấy (đã bump ?v).
-### Cải thiện
-- **Khung chat điện thoại**: ô nhập nở to (viên pill: đính kèm | ô gõ | mic | gửi), bỏ 2 hàng điều khiển chật (dải HỆ THỐNG và thanh nav đáy), gom công cụ + nút hệ thống vào menu ☰; chip model dời lên header, bấm mở đúng bảng chọn cũ.
+The chat UI on phones is much tidier: a large rounded pill input, a header with just the ☰ menu + model chip + new-conversation button, and the tool row turned into a slide-in drawer. Only the phone (narrow screen) version changed, the desktop version stays as it was. Reload the page to see it (?v is bumped).
+### Improvements
+- **Phone chat frame**: the input grows large (pill: attach | input | mic | send), the 2 cramped control rows (the SYSTEM strip and the bottom nav bar) are gone, tools + system buttons are gathered in the ☰ menu; the model chip moved up to the header and opens the same old picker.
 ```
 
 - [ ] **Step 4: Commit + push**
 
 ```bash
 git add dashboard/index.html VERSION CHANGELOG.md
-git commit -m "chore(release): x.y.z - gon khung chat dien thoai
+git commit -m "chore(release): x.y.z - tidy phone chat frame
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 git fetch origin && git rebase origin/main
 git push origin main
 ```
 
-- [ ] **Step 5: Xác minh sau push**
+- [ ] **Step 5: Verify after the push**
 
-Đợi CI build image, rồi trên điện thoại (bản Hostinger) bấm nút Cập nhật ngay (đã bật Watchtower) hoặc chờ, mở lại trang kiểm giao diện mobile thực tế.
+Wait for CI to build the image, then on the phone (the Hostinger build) tap the "Update now" button (Watchtower is on) or wait, and reopen the page to check the real mobile UI.
 
 ---
 
-## Self-Review (đã rà)
+## Self-Review (done)
 
 **Spec coverage:**
-- Khối 1 ô nhập pill -> Task 1. ✓
-- Khối 2 header mảnh (☰/chip model/＋) + ẩn sysbar/model-bar + chip model dời lên header (JS, popover lật xuống) -> Task 2. ✓
-- Khối 2 ngăn kéo trượt trái thay thanh đáy -> Task 3. ✓
-- Khối 2 nút hệ thống vào ngăn kéo -> Task 3 Step 3 (tuỳ chọn). ✓
-- Khối 3 loa ẩn ở bar -> Task 1 (`#ttsToggleBar` display:none). ✓
-- Mobile-only, desktop giữ nguyên -> mọi rule trong @media 860px; nút mới mặc định display:none. ✓
+- Block 1 pill input -> Task 1. ✓
+- Block 2 thin header (☰/model chip/＋) + hide sysbar/model-bar + model chip moved to header (JS, popover flips down) -> Task 2. ✓
+- Block 2 left slide-in drawer replacing the bottom bar -> Task 3. ✓
+- Block 2 system buttons into the drawer -> Task 3 Step 3 (optional). ✓
+- Block 3 speaker hidden in the bar -> Task 1 (`#ttsToggleBar` display:none). ✓
+- Mobile-only, desktop unchanged -> every rule is in @media 860px; new buttons default to display:none. ✓
 - Bump ?v= + release -> Task 4. ✓
 
-**Placeholder scan:** không có TBD/TODO; mỗi step có code/lệnh thật. Task 3 Step 3 gắn nhãn tuỳ chọn (YAGNI) rõ ràng, không phải placeholder.
+**Placeholder scan:** no TBD/TODO; every step has real code/commands. Task 3 Step 3 is clearly labeled optional (YAGNI), not a placeholder.
 
-**Type/tên nhất quán:** id nhất quán giữa các task - `#navToggle`, `#newChatBtn`, `#navBackdrop`, `body.nav-open`, `#mbOpen`/`#mbPop`, `.hud-voice`/`.voice-input`/`.mic-big`/`.send-btn`/`.attach-btn#ttsToggleBar`. Mốc `860px` dùng thống nhất.
+**Type/name consistency:** ids are consistent across tasks - `#navToggle`, `#newChatBtn`, `#navBackdrop`, `body.nav-open`, `#mbOpen`/`#mbPop`, `.hud-voice`/`.voice-input`/`.mic-big`/`.send-btn`/`.attach-btn#ttsToggleBar`. The `860px` breakpoint is used uniformly.
 
-**Lưu ý thực thi:** đây là việc CSS trực quan - số pixel là điểm khởi đầu, bước smoke của mỗi task là nơi tinh chỉnh. Vì không có test tự động, smoke ở bề ngang mobile là cửa kiểm chính; nếu chạy bằng subagent, subagent nên chụp màn hình qua công cụ Browser ở viewport mobile để tự kiểm, hoặc để người dùng kiểm trên điện thoại.
+**Execution note:** this is visual CSS work - the pixel numbers are a starting point, and each task's smoke step is where you tune them. Since there are no automated tests, the smoke test at mobile width is the main gate; if run by a subagent, the subagent should take screenshots through the Browser tool at a mobile viewport to self-check, or let the user check on a phone.

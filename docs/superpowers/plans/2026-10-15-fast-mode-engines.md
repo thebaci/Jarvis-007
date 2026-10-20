@@ -8,7 +8,7 @@
 
 **Tech Stack:** FastAPI server (server/main.py, server/engine.py, server/claude_sdk_engine.py, server/codex_models.py), vanilla JS dashboard (dashboard/model-picker.js), node and Python test scripts.
 
-**Spec:** docs/superpowers/specs/2026-10-15-composer-plus-fast-mode-design.md (section "PR 2: nối Fast mode vào bộ não")
+**Spec:** docs/superpowers/specs/2026-10-15-composer-plus-fast-mode-design.md (section "PR 2: wire Fast mode into the brain")
 
 ## Global Constraints
 

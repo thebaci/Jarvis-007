@@ -1,247 +1,247 @@
-# T3 phần P: nhịp thích nghi lớp 3 (0.156.0)
+# T3 part P: adaptive pulse, layer 3 (0.156.0)
 
-Thiết kế gốc: `docs/superpowers/specs/2026-10-15-team-adaptive-design.md` mục 2, 3, 5, 6, 9, 9.1, 10, 12, 13. Hợp đồng với phần
-J (phán xử) và L (học): `docs/dev/team-chat-t3-contract.md`. Phần này không tự gọi model nào trong test; mọi đường qua
-`main.py` chặn engine thật ngay lúc dựng.
+Original design: `docs/superpowers/specs/2026-10-15-team-adaptive-design.md` sections 2, 3, 5, 6, 9, 9.1, 10, 12, 13. Contract with parts
+J (judge) and L (learning): `docs/dev/team-chat-t3-contract.md`. This part never calls a model itself in tests; every path through
+`main.py` blocks the real engine at build time.
 
-## 1. Bản đồ mã
+## 1. Code map
 
-| Phần | File | Việc |
+| Part | File | What it does |
 |---|---|---|
-| Chính sách thuần + kho | `server/agent_pulse.py` | `pulse.v1`: bậc, trạng thái, `decide`, `score`, `compute_k`, `attribute`, `effective_due`; bảng và thao tác kho (`record_signal`, `wake`, `set_state`, `evaluate`, `view`, `record_contrib`, cơ hội, đã xem, thay đổi chính sách) |
-| Host | `server/agent_pulse_host.py` | nhịp 30 giây (`PulseHost.tick`), lần thức, lượt quét, bộ chuyển tới `agent_judge` và `agent_budget`, sổ đăng ký mục hiển thị và lý do, route |
-| Bộ chiếu | `server/feedback_projector.py` | `record_pulse_signal` (móc T2 đã nối), `record_task_event`, `pulse_wake`, `void_task_event`, thay tín hiệu khi đổi reaction |
-| Nhóm | `server/team_runner.py`, `server/team_api.py` | tín hiệu chấp nhận đề xuất, chốt quyết định, sửa sau kết quả, huỷ; thức khi chủ @ hay giao việc; dòng `max_tier`, dự trữ 20% trong bảng giới hạn |
-| Kho Cộng hưởng | `server/resonance_store.py` | mở kho là tạo bảng nhịp và nâng cấp một lần; bật lại từ `off` về B3 |
-| Máy chủ | `server/main.py` | `_pulse_tick` trong `_scheduler_loop` (cờ bận riêng), phụ thuộc thật, thức khi chủ nhắn chat riêng, xoá agent thì `void` tín hiệu, đăng ký route |
-| Giao diện | `dashboard/agent-pulse.js`, `dashboard/pulse-seen.js`, `workspace.js`, `teams.js`, `console.css`, i18n | bảng Nhịp trên thẻ trợ lý và dòng thành viên, sổ `window.JavisPulseParts`, sự kiện đã xem |
+| Pure policy + store | `server/agent_pulse.py` | `pulse.v1`: tiers, states, `decide`, `score`, `compute_k`, `attribute`, `effective_due`; tables and store operations (`record_signal`, `wake`, `set_state`, `evaluate`, `view`, `record_contrib`, opportunities, seen, policy changes) |
+| Host | `server/agent_pulse_host.py` | the 30 second tick (`PulseHost.tick`), wake-ups, the scan turn, adapters to `agent_judge` and `agent_budget`, the registry of view sections and reasons, routes |
+| Projector | `server/feedback_projector.py` | `record_pulse_signal` (the T2 hook, now wired), `record_task_event`, `pulse_wake`, `void_task_event`, replacing a signal when a reaction changes |
+| Team | `server/team_runner.py`, `server/team_api.py` | signals for accepting a proposal, settling a decision, editing after a result, cancelling; wake when the owner @-mentions or assigns a job; the `max_tier` row and the 20% reserve in the limits table |
+| Resonance store | `server/resonance_store.py` | opening the store creates the pulse tables and upgrades once; re-enabling from `off` goes back to B3 |
+| Server | `server/main.py` | `_pulse_tick` inside `_scheduler_loop` (its own busy flag), real dependencies, wake when the owner messages a private chat, deleting an agent `void`s its signals, route registration |
+| UI | `dashboard/agent-pulse.js`, `dashboard/pulse-seen.js`, `workspace.js`, `teams.js`, `console.css`, i18n | the Pulse panel on the assistant card and the member row, the `window.JavisPulseParts` registry, the seen event |
 
-## 2. Chính sách `pulse.v1`
+## 2. Policy `pulse.v1`
 
-Bậc: B0 15 phút, B1 1 giờ, B2 4 giờ, B3 1 ngày, B4 3 ngày, B5 1 tuần, B6 2 tuần, B7 1 tháng, bậc 8 là ngủ đông (không lịch).
-Khởi tạo B3. Trạng thái theo bậc: `active` B0-B2, `awake` B3-B4, `slowed` B5-B7, `hibernating` bậc 8; ngoài ra `waiting_owner`,
-`paused`, `off` do chủ hay host đặt và chỉ dừng phần chủ động.
+Tiers: B0 15 minutes, B1 1 hour, B2 4 hours, B3 1 day, B4 3 days, B5 1 week, B6 2 weeks, B7 1 month, tier 8 is hibernation (no schedule).
+Initial tier is B3. State by tier: `active` B0-B2, `awake` B3-B4, `slowed` B5-B7, `hibernating` tier 8; in addition `waiting_owner`,
+`paused`, `off` are set by the owner or the host and only stop the proactive part.
 
-Mỗi kỳ đánh giá (`decide`):
+Each evaluation period (`decide`):
 
-1. `dwell = max(2 x khoảng, 1 ngày)` tính từ lần đổi bậc trước (hay mốc bật lại): chưa đủ thì giữ.
-2. Lên một bậc khi `u ≥ +0.25` và `new ≥ 1.0`, không nhanh hơn `max_tier` (mặc định B1; chỉ chủ đặt, tới B0).
-3. Xuống một bậc (`unhelpful`) khi `u ≤ -0.25` và `new ≥ 1.0`; từ B7 không vào ngủ đông bằng luật này.
-4. Xuống một bậc (`low_demand`, không ghi là agent sai) khi không có cơ hội chưa tiêu thụ lúc này và một trong hai:
-   (A) không tín hiệu tương tác mới từ lần đổi trước và không cơ hội trong hai lần khoảng; (B) tín hiệu tương tác và cơ hội
-   gần nhất đều cũ hơn `max(4 x khoảng, 3 ngày)`.
-5. Còn lại giữ. Hysteresis: đổi chiều chỉ sau ít nhất một kỳ giữ.
+1. `dwell = max(2 x interval, 1 day)` counted from the previous tier change (or the re-enable mark): if not enough time has passed, hold.
+2. Up one tier when `u >= +0.25` and `new >= 1.0`, no faster than `max_tier` (default B1; only the owner sets it, down to B0).
+3. Down one tier (`unhelpful`) when `u <= -0.25` and `new >= 1.0`; from B7 this rule does not enter hibernation.
+4. Down one tier (`low_demand`, not recorded as the agent being wrong) when there is no unconsumed opportunity right now and one of:
+   (A) no new interaction signal since the previous change and no opportunity within two intervals; (B) the most recent interaction signal and opportunity
+   are both older than `max(4 x interval, 3 days)`.
+5. Otherwise hold. Hysteresis: a change of direction only after at least one holding period.
 
-`new = Σ w·share·decay` của tín hiệu sau `max(last_change_at, resumed_at)` (không tính tín hiệu khởi tạo ngữ cảnh). "Tương tác"
-không gồm `seen_ignored`.
+`new = sum of w*share*decay` over signals after `max(last_change_at, resumed_at)` (context-init signals are not counted). "Interaction"
+does not include `seen_ignored`.
 
-Công thức (6.3): `decay = 0.5^(tuổi ngày / 21)` (tuổi âm kẹp 0); `estimate = Σ w·share·v·decay / (Σ w·share·decay + 2)`;
-`n_eff = Σ w·share·decay`; `confidence = n_eff / (n_eff + 4)`; `u = estimate x confidence`. Cá nhân hoá chỉ cho reaction
-không lý do: `p_s(e) = (số lần e + 3)/(n + 18)`, `k = clamp(1 + 0.3 x (1/6 - p_s)/(1/6) x n/(n + 20), 0.75, 1.25)`, `n` là số
-reaction không lý do của người đó trong loại ngữ cảnh (nhóm hay chat riêng), đếm mỗi nguồn một lần, tính lại mỗi kỳ.
+Formulas (6.3): `decay = 0.5^(age in days / 21)` (negative age clamped to 0); `estimate = sum of w*share*v*decay / (sum of w*share*decay + 2)`;
+`n_eff = sum of w*share*decay`; `confidence = n_eff / (n_eff + 4)`; `u = estimate x confidence`. Personalization only applies to reactions
+without a reason: `p_s(e) = (count of e + 3)/(n + 18)`, `k = clamp(1 + 0.3 x (1/6 - p_s)/(1/6) x n/(n + 20), 0.75, 1.25)`, `n` is the number of that person's
+reactions without a reason in the context kind (team or private chat), counting each source once, recomputed every period.
 
-Tín hiệu (6.1): ❤️ +0.8 w1, 😮 +0.6 w1, 👍 +0.4 w1, 😂 +0.2 w0.5, 😢 -0.2 w0.4, 😡 -0.4 w0.4; có lý do thì lý do thắng emoji
-(đúng ý +0.8, quá dài -0.3, sai dữ kiện/thiếu ý/khó hiểu/lạc đề -0.6, w1, nhiều lý do lấy trung bình); trục nói/im và góp ý
-chữ không tạo tín hiệu; chấp nhận đề xuất/chốt quyết định +0.6 w0.8; sửa sau kết quả, huỷ, bác đề xuất -0.4 w0.8; kiểm
-khách quan ±0.5 w0.8 (mục 2a); tin chủ động đã xem, qua 24 giờ không tương tác -0.15 w0.6; reaction của agent không bao giờ. `pulse_signals` UNIQUE `(source_ref, agent_key)`; thay reaction thì dòng cũ `superseded_by`, xoá tin/agent thì `void`.
+Signals (6.1): ❤️ +0.8 w1, 😮 +0.6 w1, 👍 +0.4 w1, 😂 +0.2 w0.5, 😢 -0.2 w0.4, 😡 -0.4 w0.4; when there is a reason, the reason wins over the emoji
+("On point" +0.8, "Too long" -0.3, "Wrong facts"/"Missing points"/"Unclear"/"Off topic" -0.6, w1, several reasons are averaged); the speak/silent axis and written feedback
+create no signal; accepting a proposal/settling a decision +0.6 w0.8; editing after a result, cancelling, rejecting a proposal -0.4 w0.8; an
+objective check +/-0.5 w0.8 (section 2a); a proactive message that was seen and got no interaction after 24 hours -0.15 w0.6; an agent's reaction never counts. `pulse_signals` is UNIQUE on `(source_ref, agent_key)`; replacing a reaction sets `superseded_by` on the old row, and deleting a message/agent `void`s it.
 
-## 2a. Kiểm khách quan và đề xuất: sự kiện host nào được tính
+## 2a. Objective check and proposals: which host events count
 
-- **Kiểm khách quan (±0.5 w 0.8), chỉ kết luận CUỐI**, một tín hiệu mỗi (mục tiêu, revision), nguồn `obj:<goal_id>:<revision>`:
-  - đạt: `GoalStore.finish(..., "succeeded")`, tức A2 vừa đánh giá `met`, mọi guard `clear`, không ở bước khám phá, và (mục tiêu
-    có đội) review A5 `pass` hợp lệ; đây là nơi duy nhất đóng mục tiêu là đạt;
-  - không đạt: `GoalStore.finish(..., "failed")` (API có, hiện chưa đường nào gọi), hay revision bị gác `blocked/budget` trong
-    `_settle` khi kiểm cuối là `not_met` (hết sạch lượt, không còn lần thử nào); kết luận `unknown` không tính;
-  - KHÔNG tính: mọi `add_assessment` trong vòng làm việc (`not_met` trung gian), hạn chót qua (chỉ báo), chủ huỷ.
-  - Cùng revision về sau có kết luận cuối khác (chủ nới hạn mức rồi đạt): sửa giá trị của chính tín hiệu đó, vẫn một dòng.
-  - Người nhận: agent của mục tiêu (`goal_agents`), ngữ cảnh `dm:<agent_key>`, chỉ khi bật Cộng hưởng. Mục tiêu A2 có một tác
-    giả sản phẩm, không có bước tổng hợp, nên luật 6.5 thu về tác giả.
-  - Việc nhóm: host KHÔNG có kiểm khách quan khi chốt việc (`team_finish` chỉ ghi kết quả), nên không có tín hiệu kiểm.
-- **Đề xuất** (`pulse_proposals`): lượt quét `propose` ghi sổ (nguồn, phiên bản). Cùng nguồn cùng phiên bản đã có đề xuất (chờ,
-  đã nhận, đã bác) thì không đề xuất lại (5.5). Chủ quyết:
-  - nhóm: thẻ trong khung chat (nút Tạo việc là nhận, +0.6, xếp việc vào hàng đợi chung của nhóm như cũ; nút Bỏ qua nay là bác,
-    `POST /teams/{id}/messages/{mid}/reject`, -0.4); trạng thái ghi lên tin nên mọi tab thấy, thẻ hết nút;
-  - bảng Nhịp: `POST /agents/{slug}/pulse/proposals/{id}/accept|reject`. Chat riêng: nhận thành việc giao cho trợ lý như nút
-    Giao việc (Kanban, báo về chat riêng, khoá chống trùng `pp<id>`), +0.6; bác -0.4. Đề xuất trong nhóm từ bảng Nhịp đi đúng
-    đường thẻ nhóm. Đã quyết rồi: 409.
-  - Trưởng nhóm có Toàn quyền tự xếp việc được (enqueue của lượt quét) nên không cần duyệt đề xuất của chính mình.
+- **Objective check (+/-0.5 w 0.8), the FINAL conclusion only**, one signal per (goal, revision), source `obj:<goal_id>:<revision>`:
+  - achieved: `GoalStore.finish(..., "succeeded")`, meaning A2 just judged `met`, every guard is `clear`, not in an exploration step, and (if the goal
+    has a team) a valid A5 review `pass`; this is the only place that closes a goal as achieved;
+  - not achieved: `GoalStore.finish(..., "failed")` (the API exists, no path calls it yet), or a revision parked as `blocked/budget` in
+    `_settle` when the final check is `not_met` (all turns used up, no attempt left); an `unknown` conclusion does not count;
+  - does NOT count: any `add_assessment` inside a working round (an intermediate `not_met`), a passed deadline (informational only), the owner cancelling.
+  - If the same revision later gets a different final conclusion (the owner raised the limit and then it succeeded): the value of that same signal is corrected, still one row.
+  - Recipient: the goal's agent (`goal_agents`), context `dm:<agent_key>`, only when Resonance is on. An A2 goal has a single
+    output author and no synthesis step, so rule 6.5 attributes to the author.
+  - Team jobs: the host has NO objective check when a job is settled (`team_finish` only records the result), so there is no check signal.
+- **Proposals** (`pulse_proposals`): a `propose` scan turn writes a ledger row (source, version). A proposal with the same source and the same version that already exists (waiting,
+  accepted, rejected) is not proposed again (5.5). The owner decides:
+  - team: a card in the chat window (the Create job button is accept, +0.6, and queues the job in the team's shared queue as before; the Skip button is now reject,
+    `POST /teams/{id}/messages/{mid}/reject`, -0.4); the status is written onto the message so every tab sees it, and the card loses its buttons;
+  - the Pulse panel: `POST /agents/{slug}/pulse/proposals/{id}/accept|reject`. Private chat: accepting turns it into a job assigned to the assistant like the
+    Assign job button (Kanban, reports back to the private chat, dedupe key `pp<id>`), +0.6; rejecting -0.4. A team proposal from the Pulse panel goes through the
+    team card path. Already decided: 409.
+  - A team lead with Full authority can queue jobs itself (enqueue of the scan turn), so it does not need approval for its own proposals.
 
-## 3. Vectơ đồng hồ giả (`tests/python/test_agent_pulse_policy.py`, đều xanh)
+## 3. Fake clock vectors (`tests/python/test_agent_pulse_policy.py`, all green)
 
-| Kịch bản | Số đo trong test | Kết quả |
+| Scenario | Measured in the test | Result |
 |---|---|---|
-| 1 ❤️ | k 0.9962, u 0.0531 | giữ B3 |
-| 2 ❤️ | k 0.9864, u 0.1315 | giữ B3 |
-| 5 ❤️ ở ngày 0,5..2,5 | ngày 2: u 0.2494 (giữ); ngày 3: k 0.935, u 0.2861 | lên B2 đúng một lần, không lên B1 |
-| 5 ❤️ cách nhau 3,5 ngày | u 0.2481 ở ngày 14 + 8 giờ, lớn nhất cả dải < 0.25 | giữ B3 suốt đợt |
-| 10 ❤️ trong 1 phút | k 0.8214, u 0.3912 | B2 ở kỳ sau dwell, kỳ sau nữa không lên |
-| rồi 10 ❤️ mỗi 1,4 ngày | | tới B1, không bao giờ B0, im lâu thì chậm lại |
-| 3 👍 1 ❤️ 1 😮 | k 0.997 / 0.966 / chưa dùng 1.013 | k luôn trong 0.75-1.25 |
-| Im lặng từ B3 | | ngày 2 B4, 8 B5, 22 B6, 50 B7, 110 ngủ đông (ngày 30 B6, 90 B7, 180 ngủ đông) |
-| 3 tin chủ động đã xem bị bỏ qua | u -0.0221 | không `unhelpful`; `low_demand` khi không có gì khác, giữ khi có cơ hội |
-| 5 / 6 "sai dữ kiện" | u -0.2378 / -0.2697 | giữ / xuống B4 (`unhelpful`) |
-| Im lặng đúng (có cơ hội, phán xử im) | estimate 0 | không phạt, không `low_demand` trong hai lần khoảng |
-| Gọi trực tiếp lúc ngủ đông | | về B3 ngay, giữ ước lượng |
+| 1 ❤️ | k 0.9962, u 0.0531 | hold B3 |
+| 2 ❤️ | k 0.9864, u 0.1315 | hold B3 |
+| 5 ❤️ on days 0.5..2.5 | day 2: u 0.2494 (hold); day 3: k 0.935, u 0.2861 | up to B2 exactly once, not up to B1 |
+| 5 ❤️ spaced 3.5 days apart | u 0.2481 at day 14 + 8 hours, maximum over the whole range < 0.25 | hold B3 throughout |
+| 10 ❤️ in 1 minute | k 0.8214, u 0.3912 | B2 at the period after dwell, no further rise the period after |
+| then 10 ❤️ every 1.4 days | | reaches B1, never B0, and slows down when quiet for long |
+| 3 👍 1 ❤️ 1 😮 | k 0.997 / 0.966 / not yet used 1.013 | k always within 0.75-1.25 |
+| Silence from B3 | | day 2 B4, 8 B5, 22 B6, 50 B7, 110 hibernation (day 30 B6, 90 B7, 180 hibernation) |
+| 3 proactive messages seen and ignored | u -0.0221 | not `unhelpful`; `low_demand` when nothing else, hold when there is an opportunity |
+| 5 / 6 "Wrong facts" | u -0.2378 / -0.2697 | hold / down to B4 (`unhelpful`) |
+| Correct silence (there was an opportunity, the judge stayed silent) | estimate 0 | no penalty, no `low_demand` within two intervals |
+| Direct call during hibernation | | straight back to B3, estimate kept |
 
 ## 4. Host (`tests/python/test_agent_pulse_host.py`)
 
-- `_scheduler_loop` tạo `_pulse_tick` mỗi 30 giây khi cờ bận của nó rảnh. Nhịp: chiếu outbox phản hồi (T2), tạo dòng ngữ cảnh
-  theo phạm vi (mỗi 5 phút), quét `seen_ignored`, nhắc chờ chủ một lần sau 24 giờ, đóng cửa sổ thay đổi chính sách, tìm lịch
-  tới hạn và nhận bằng CAS (`claim_token`, `claim_until` 10 phút), điều phối lý do cho phần đã đăng ký.
-- Agent bận (khoá bận, việc nhóm chạy/xếp hàng, goal A2 đang chạy): dời đúng 60 giây, không nhận.
-- Lần thức: lập cơ hội (việc nhóm của agent cũ hơn khoảng hiện tại, việc bị chặn có tin mới, đề xuất của trưởng nhóm chưa ai
-  xử lý, goal của agent chờ chủ quá 24 giờ), lọc theo `pulse_opportunities` (tiêu thụ một lần cho tới phiên bản mới), đánh
-  giá bậc, rồi chỉ khi có cơ hội mới (hay tới lượt quét giới hạn: mỗi 3 lần thức ở active/awake, tối đa một lần mỗi ngày mỗi
-  ngữ cảnh) mới gọi model.
-- Lượt quét: thử khoá bận KHÔNG chờ trước (bận: dời 60 giây, không tốn lần thử), hỏi `agent_budget.try_spend` (chưa có module
-  thì qua), giữ chỗ `agent_calls` purpose `scan`, `obligation = 0`, `reason_ref = pulse:<agent>:<ngữ cảnh>:<mốc>` TRƯỚC engine.
-  Lịch đó đã có lượt tới model (khởi động lại) thì không chạy lần hai. Đầu ra `{"action": none|propose|enqueue|say}`; enqueue
-  chỉ khi là trưởng nhóm có Toàn quyền, không thì thành đề xuất; quét giới hạn không có nguồn thì không tạo gì; `say` luôn qua
-  `agent_judge.judge_proactive`, thiếu module thì `silent` với lý do `judge_unavailable`.
-- Nghĩa vụ không đi qua lớp 3: test chạy bộ chạy nhóm thật với agent đang tạm dừng, ngủ đông, tắt nhịp và kiểm lời gọi trực
-  tiếp và việc nhóm vẫn chạy.
+- `_scheduler_loop` creates `_pulse_tick` every 30 seconds when its busy flag is free. The tick: projects the feedback outbox (T2), creates the context rows
+  per scope (every 5 minutes), scans `seen_ignored`, nudges the waiting owner once after 24 hours, closes policy change windows, finds due
+  schedules and claims them with CAS (`claim_token`, `claim_until` 10 minutes), and dispatches reasons to the registered handlers.
+- Agent busy (busy lock, a team job running/queued, an A2 goal running): postponed by exactly 60 seconds, not claimed.
+- Wake-up: builds opportunities (the agent's team job older than the current interval, a blocked job with a new message, a team lead proposal nobody
+  has handled, the agent's goal waiting for the owner for more than 24 hours), filters by `pulse_opportunities` (consumed once until a new version), evaluates
+  the tier, and only calls the model when there is a new opportunity (or it is the limited scan's turn: every 3 wake-ups in active/awake, at most once a day per
+  context).
+- Scan turn: try the busy lock WITHOUT waiting first (busy: postpone 60 seconds, no attempt spent), ask `agent_budget.try_spend` (if the module does not exist
+  yet, let it through), reserve an `agent_calls` slot with purpose `scan`, `obligation = 0`, `reason_ref = pulse:<agent>:<context>:<mark>` BEFORE the engine.
+  A schedule that already had a turn reach the model (a restart) does not run a second time. Output `{"action": none|propose|enqueue|say}`; enqueue
+  only for a team lead with Full authority, otherwise it becomes a proposal; a limited scan with no source creates nothing; `say` always goes through
+  `agent_judge.judge_proactive`, and if the module is missing it is `silent` with reason `judge_unavailable`.
+- Obligations do not go through layer 3: the test runs the real team runner with a paused, hibernating and pulse-off agent and checks that direct calls
+  and team jobs still run.
 
-## 5. Di trú và quay về
+## 5. Migration and rollback
 
-- Mở `resonance.sqlite3` bằng mã này: tạo `agent_pulse_events`, `pulse_signals`, `pulse_contrib`, `message_seen`,
-  `pulse_opportunities`, `pulse_proactive`, `pulse_policy_changes`, `pulse_proposals`, `pulse_meta`, thêm cột có mặc định cho
-  `agent_pulse`. Lần
-  đầu (mốc `pulse_v1_upgraded_at`): mọi dòng nhịp về B3, `resumed_at = lúc nâng cấp`, agent tắt Cộng hưởng ở `off`; reaction cũ
-  không thành tín hiệu.
-- Quay về 0.154.x: bản cũ bỏ qua bảng và cột mới (cột đều có mặc định). Khôi phục hẳn dùng bản chụp `.pre-0.154.0` như T2.
+- Opening `resonance.sqlite3` with this code creates `agent_pulse_events`, `pulse_signals`, `pulse_contrib`, `message_seen`,
+  `pulse_opportunities`, `pulse_proactive`, `pulse_policy_changes`, `pulse_proposals`, `pulse_meta`, and adds columns with defaults to
+  `agent_pulse`. The first
+  time (mark `pulse_v1_upgraded_at`): every pulse row goes back to B3, `resumed_at = upgrade time`, agents with Resonance off stay at `off`; old reactions
+  do not become signals.
+- Rollback to 0.154.x: the old version ignores the new tables and columns (all columns have defaults). A full restore uses the `.pre-0.154.0` snapshot as in T2.
 
-## 6. Quyết định khi làm
+## 6. Decisions made along the way
 
-1. **Luật `low_demand` (B):** đọc đúng chữ luật 4 (không tín hiệu mới từ lần đổi, không cơ hội trong hai lần khoảng) thì một
-   reaction ngay sau lần đổi giữ bậc nhanh mãi mãi, trái câu "im lâu thì chậm lại". Thêm (B) "im quá `max(4 x khoảng, 3
-   ngày)`". Ngưỡng 4 lần khoảng là để vectơ "5 ❤️ rải 2 tuần" (cách 3,5 ngày) vẫn giữ B3 và vectơ "10 ❤️ mỗi 1,4 ngày" vẫn tới B1.
-2. **Ở B1-B2 agent dao động một bậc** khi tương tác thưa hơn dwell (luật A). Có hysteresis và dwell nên mỗi lần đổi cách nhau ít
-   nhất một ngày; test ghim điều đó.
-3. **Giá trị khởi tạo ngữ cảnh mới "0,5 x tổng hợp"** là một tín hiệu khởi tạo (`context_init`) mang ước lượng tổng hợp với
-   `w = min(1, 0.5 x n_eff tổng hợp)`, suy giảm như tín hiệu khác, không phải bằng chứng mới, không vào `k`.
-4. **Nhiều lý do chất lượng** trên một reaction: lấy trung bình giá trị.
-5. **`k` chỉ đếm reaction không lý do** (reaction có lý do dùng giá trị của lý do, `k = 1`).
-6. **Kiểm khách quan chỉ tính kết luận cuối** (mục 2a), không bao giờ đánh giá trung gian.
-7. **Bỏ qua trên thẻ đề xuất nhóm nay là bác** (ghi máy chủ, -0.4); trước đây chỉ ẩn ở trang.
-8. **Bỏ chốt rồi chốt lại** cùng tin không tính lại (nguồn đã `void` giữ chỗ UNIQUE), chống bấm qua lại để nâng điểm.
-9. **Lý do lớp 3 khi tạm dừng:** host không điều phối lý do của ngữ cảnh `paused`/`off`; ngủ đông và chờ chủ vẫn được.
-10. **`POST /seen`** nhận thêm `context_ref = "session:<mã phiên>"` (trang không biết `agent_key`); máy chủ đổi sang
-    `dm:<agent_key>` và trả `agent: false` cho phiên không phải của trợ lý để trang thôi gửi.
-11. **Đề xuất ở chat riêng** là một tin đề xuất có nguồn (chưa có thẻ riêng); ở nhóm là tin mang `proposal` (nút Tạo việc sẵn có).
-12. **Không có `agent_budget`** (phần L chưa có) thì lượt quét không bị trần ngày; trần chung máy chủ và dự trữ 20% vẫn áp.
-13. **Đặt lại nhịp ngữ cảnh** giữ lịch sử và ước lượng, chỉ đưa về B3 và coi bằng chứng trước mốc là cũ.
-14. **Khoá bận khi chưa có kho nhóm:** khoá trong tiến trình (chưa có lượt nhóm nào để tranh khoá).
+1. **Rule `low_demand` (B):** read literally, rule 4 (no new signal since the change, no opportunity within two intervals) means one
+   reaction right after a change keeps the fast tier forever, against the line "slows down when quiet for long". Added (B) "quiet for more than `max(4 x interval, 3
+   days)`". The threshold of 4 intervals is so the vector "5 ❤️ spread over 2 weeks" (3.5 days apart) still holds B3 and the vector "10 ❤️ every 1.4 days" still reaches B1.
+2. **At B1-B2 the agent oscillates by one tier** when interaction is sparser than dwell (rule A). Hysteresis and dwell keep each change at least
+   a day apart; a test pins that.
+3. **The initial value for a new context, "0.5 x aggregate"**, is an initialization signal (`context_init`) carrying the aggregate estimate with
+   `w = min(1, 0.5 x aggregate n_eff)`, decaying like other signals, not new evidence, and not part of `k`.
+4. **Several quality reasons** on one reaction: the value is averaged.
+5. **`k` only counts reactions without a reason** (a reaction with a reason uses the reason's value, `k = 1`).
+6. **The objective check only counts the final conclusion** (section 2a), never an intermediate assessment.
+7. **Skip on a team proposal card is now reject** (recorded on the server, -0.4); before, it only hid the card on the page.
+8. **Un-settling then settling again** the same message does not count again (a `void`ed source keeps the UNIQUE slot), preventing toggling back and forth to raise the score.
+9. **Layer 3 reasons while paused:** the host does not dispatch reasons for a `paused`/`off` context; hibernating and waiting for the owner are still served.
+10. **`POST /seen`** also accepts `context_ref = "session:<session id>"` (the page does not know `agent_key`); the server converts it to
+    `dm:<agent_key>` and returns `agent: false` for a session that is not an assistant's so the page stops sending.
+11. **A proposal in a private chat** is a proposal message with a source (no dedicated card yet); in a team it is a message carrying `proposal` (the existing Create job button).
+12. **Without `agent_budget`** (part L did not exist yet) the scan turn has no daily cap; the server-wide ceiling and the 20% reserve still apply.
+13. **Resetting a context's pulse** keeps the history and estimate, only returns it to B3 and treats evidence before the mark as old.
+14. **Busy lock when there is no team store yet:** an in-process lock (there is no team turn yet to contend for the lock).
 
-### 6.1 Sửa sau review T3 (nhánh `claude/team-adaptive-t3-fix`)
+### 6.1 Fixes after the T3 review (branch `claude/team-adaptive-t3-fix`)
 
-15. **Phạm vi đã giao (P2-1):** `_code_pass` đọc `deps.contexts(key)` mỗi nhịp: dòng ngoài phạm vi bị gỡ lịch (sự kiện
-    `out_of_scope`), lý do lớp 3 của nó không được phục vụ; trở lại phạm vi thì có lịch lại. Đọc phạm vi lỗi thì bỏ qua lần đó, không
-    gỡ. `main._pulse_team_live` (nhóm hoạt động, thành viên đang tham gia) chặn mọi đường đăng/đề xuất/xếp việc tự phát.
-16. **Tín hiệu "huỷ" (P2-2):** chỉ route chủ huỷ việc (`owner_cancel=True`); trưởng nhóm ngắt, lưu trữ nhóm, huỷ việc treo không ghi.
-17. **Event loop (P2-3):** route reaction chat riêng, `_pulse_wake_dm` cuối lượt chat và `deps.store()` của route nhịp chạy ở luồng phụ.
-18. **P3:** thức lại, dòng mới, đặt lại, bật lại kẹp theo `max_tier`; lease 15 phút, lượt quét tối đa 9 phút; `ledger_busy` nhả
-    lịch; nhãn "Chờ hạn mức" gỡ khi hạn mức đủ; nguồn bịa ra `none` (`bad_source`); huỷ/sửa yêu cầu sau bản tổng hợp phân bổ theo
-    6.5; xếp việc của lượt quét ghi `team_events` và tin hệ thống; `record_contrib` không hồi sinh dòng `void`; route chỉ nhận nhóm
-    agent đang tham gia (hay đã có dòng); lý do lớp 3 theo `sort_by_priority`; bảng Nhịp có ô B0..B7 và nút quay lại đổi chính sách.
+15. **Delegated scope (P2-1):** `_code_pass` reads `deps.contexts(key)` every tick: a row outside the scope loses its schedule (event
+    `out_of_scope`) and its layer 3 reasons are not served; when it comes back into scope it gets a schedule again. If reading the scope fails, that pass is skipped and nothing
+    is removed. `main._pulse_team_live` (active team, member currently participating) blocks every autonomous post/propose/enqueue path.
+16. **The "cancel" signal (P2-2):** only the owner's cancel-job route (`owner_cancel=True`); a team lead interrupt, archiving the team, or cancelling a hanging job writes nothing.
+17. **Event loop (P2-3):** the private chat reaction route, `_pulse_wake_dm` at the end of a chat turn, and `deps.store()` of the pulse route run in a worker thread.
+18. **P3:** wake-up, new row, reset, re-enable are clamped by `max_tier`; 15 minute lease, scan turn at most 9 minutes; `ledger_busy` releases
+    the schedule; the "Waiting for quota" label is lifted when the quota is enough; an invented source makes it `none` (`bad_source`); cancelling/editing a request after a synthesis is attributed per
+    6.5; a scan turn's enqueue writes `team_events` and a system message; `record_contrib` does not revive a `void` row; routes only accept a team the
+    agent participates in (or already has a row for); layer 3 reasons by `sort_by_priority`; the Pulse panel has B0..B7 cells and a revert button for policy changes.
 
-## 7. Chỗ phần J và L cắm vào
+## 7. Where parts J and L plug in
 
-- `agent_pulse_host.register_view_part(name, fn(store, agent_key) -> dict)`: mục trong `GET /agents/{slug}/pulse` (`parts`).
-- `window.JavisPulseParts.push({name, render(view) -> html})`: mục trên bảng Nhịp (tự escape).
-- `agent_pulse_host.register_reason_handler(code, fn(host, reason))`: phục vụ `reaction_review` (L), `related_review`,
-  `wait_unblocked` (J). Hàm tự nhận lý do bằng `WakeReasons.claim(reason_id, try_busy=..., release_busy=...)` với
+- `agent_pulse_host.register_view_part(name, fn(store, agent_key) -> dict)`: a section in `GET /agents/{slug}/pulse` (`parts`).
+- `window.JavisPulseParts.push({name, render(view) -> html})`: a section on the Pulse panel (escapes itself).
+- `agent_pulse_host.register_reason_handler(code, fn(host, reason))`: serves `reaction_review` (L), `related_review`,
+  `wait_unblocked` (J). The function claims the reason itself with `WakeReasons.claim(reason_id, try_busy=..., release_busy=...)` using
   `host.busy_pair(agent_key)`.
-- `agent_judge.judge_proactive(*, agent_key, context_ref, draft, source_event, engine)`: `engine` là hàm không đối số trả
-  `(engine, model, run)` của host (dựng lười). Trả `Decision`; `speak` mới gửi.
-- `agent_budget.try_spend(agent_key, purpose, at=None) -> (ok, reason)`: host gọi với purpose `scan` trước khi giữ chỗ.
+- `agent_judge.judge_proactive(*, agent_key, context_ref, draft, source_event, engine)`: `engine` is a no-argument function returning the host's
+  `(engine, model, run)` (built lazily). Returns a `Decision`; only `speak` sends.
+- `agent_budget.try_spend(agent_key, purpose, at=None) -> (ok, reason)`: the host calls it with purpose `scan` before reserving a slot.
 - `agent_pulse.register_policy_reverter(kind, fn(change))`, `apply_policy_change`, `record_policy_labels`,
   `revert_policy_change`, `observe_policy_changes` (6.4).
-- `agent_pulse.wake(store, agent_key, context_ref, why)` cho lượt xem xét liên quan và gỡ chờ; `agent_pulse.record_event(...)`
-  ghi quyết định vào `agent_pulse_events`.
+- `agent_pulse.wake(store, agent_key, context_ref, why)` for the related review turn and lifting waits; `agent_pulse.record_event(...)`
+  writes a decision into `agent_pulse_events`.
 
-## 8. Kiểm
+## 8. Checks
 
-Engine giả ở mọi nơi; không lời gọi model thật. (Phiên làm việc không ghi được ra `exports/reviews/`, nên bằng chứng nằm ở đây.)
+Fake engines everywhere; no real model calls. (The working session could not write to `exports/reviews/`, so the evidence lives here.)
 
-- `test_agent_pulse_policy.py` 100 kiểm, `test_agent_pulse_host.py` 66 kiểm (gồm chặn engine thật qua `main.py`, route,
-  `POST /seen`, nhận/bác đề xuất), `test_pulse_contrib.py` 49 kiểm (gồm kiểm khách quan, bác đề xuất),
-  `tests/js/test_agent_pulse_ui.js` 45 kiểm: đều xanh.
-- `tests/run.py pulse team resonance feedback agent_calls i18n icons route_table`: 88/89, cái đỏ là `test_resonance_perf.py`
-  (trễ event loop 0,114 giây > 0,1). So với `origin/claude/team-adaptive-t3` trong worktree sạch: bản gốc 4/4 xanh, nhánh 3/4 đỏ,
-  nên là lỗi thật của nhánh: `GoalStore` dựng trong event loop ở GET đầu tiên và `agent_pulse.ensure` ghi nhiều lần. Sửa ở
-  `865758bf` (kho đã đủ bảng thì không ghi gì; lần đầu tạo bảng trong một giao dịch): 4/4 xanh. Chạy lại `pulse feedback
-  agent_calls team_adaptive rollback resonance_a1`: 20/20 xanh.
-- `tests/run.py --js`: 193/193 xanh.
-- Soi giao diện (khung tĩnh dùng đúng `console.css`, `style.css`, `agent-pulse.js`, i18n; phục vụ cục bộ; 375x812): tối và
-  sáng, vi và en, không cuộn ngang (scrollWidth 375), chữ nhỏ nhất 16px, nút và ô chọn cao 44px. Chưa soi trên dashboard thật
-  (sandbox cổng 7788) và chưa soi trên điện thoại thật.
+- `test_agent_pulse_policy.py` 100 checks, `test_agent_pulse_host.py` 66 checks (including blocking the real engine through `main.py`, routes,
+  `POST /seen`, accepting/rejecting proposals), `test_pulse_contrib.py` 49 checks (including the objective check and rejecting proposals),
+  `tests/js/test_agent_pulse_ui.js` 45 checks: all green.
+- `tests/run.py pulse team resonance feedback agent_calls i18n icons route_table`: 88/89, the red one is `test_resonance_perf.py`
+  (event loop lag 0.114 seconds > 0.1). Compared with `origin/claude/team-adaptive-t3` in a clean worktree: the base was 4/4 green, the branch 3/4 red,
+  so it is a real bug of the branch: `GoalStore` was built inside the event loop on the first GET and `agent_pulse.ensure` wrote many times. Fixed in
+  `865758bf` (a store that already has all its tables writes nothing; the first time it creates the tables in one transaction): 4/4 green. Rerun of `pulse feedback
+  agent_calls team_adaptive rollback resonance_a1`: 20/20 green.
+- `tests/run.py --js`: 193/193 green.
+- UI inspection (a static frame using the real `console.css`, `style.css`, `agent-pulse.js`, i18n; served locally; 375x812): dark and
+  light, vi and en, no horizontal scroll (scrollWidth 375), smallest text 16px, buttons and selects 44px tall. Not yet inspected on the real dashboard
+  (sandbox port 7788) and not yet on a real phone.
 
-## 9. Hiệu năng (sửa sau bench T4)
+## 9. Performance (fix after the T4 bench)
 
-GOAL mục 10: học, lưu lịch, tìm kiếm hay tự rà soát không được làm lag các tab. Quy ước R5 của T1: mọi đọc/ghi SQLite và
-file trong đường async chạy ở luồng phụ (`run_io` / `asyncio.to_thread`). Bench T4 thấy hai chỗ vi phạm: lô phán xử ghi kho
-ngay trên event loop, và nhịp pulse 0,5 tới 3,4 giây mỗi nhịp, trễ loop tới 217 ms chỉ với nhịp.
+GOAL section 10: learning, saving schedules, searching or self-review must not make tabs lag. T1 convention R5: every SQLite and
+file read/write in an async path runs in a worker thread (`run_io` / `asyncio.to_thread`). The T4 bench found two violations: the judge batch wrote to the store
+right on the event loop, and the pulse tick took 0.5 to 3.4 seconds per tick, with loop lag up to 217 ms from the tick alone.
 
-### 9.1 Đã chuyển khỏi event loop
+### 9.1 Moved off the event loop
 
-- `io_offload.py` (mới): `run_io` (dời từ `team_runner`, tên `team_runner.run_io` giữ nguyên), `run_io_quiet` cho bước dọn ở
-  nhánh huỷ, `call_hook` (hàm móc thường chạy ở luồng phụ, coroutine function chạy trên loop), `LoopMarker` (mốc engine do
-  engine gọi đồng bộ được ghi ở luồng phụ, chờ xong trước khi chốt dòng sổ).
-- Bộ phán xử: `judge_team_message`, `judge_proactive`, xét lại chat riêng (`serve_reason`, `_rejudge_dm`,
-  `_rejudge_with_call`), hết hạn chờ (`_expire_dm`) tách thành phần ĐỒNG BỘ `_..._prepare` / `_..._finish` chạy qua `run_io`;
-  coroutine chỉ còn phần chờ model. Kho phán xử, `resonance_on` (`agent_any`), giữ chỗ/mốc/chốt/hoàn sổ lượt, lý do thức,
-  lịch sử, hạn mức, chờ, người gửi thường (`_judge_send`) đều ở luồng phụ. Ngữ nghĩa giữ nguyên: giữ chỗ TRƯỚC engine, hoàn
-  khi engine chưa dựng được hay chờ chỗ quá hạn, `interrupted` khi bị huỷ sau mốc engine. Mới: bị huỷ ngay sau khi giữ chỗ
-  (đang ở bước chuẩn bị, hay đang chờ chỗ trong 2 lô) thì dòng sổ được hoàn (`_undo_reserve`, như mẫu `undo` của `run_io`);
-  bị huỷ ngay sau khi nhận lý do thì lý do được trả về (`_undo_claim`).
-- Nhịp pulse: `tick` kiểm kho ở luồng phụ và chạy hàm `project_pending` thường ở luồng phụ; `wake_step` gom toàn bộ phần code
-  (cơ hội, ước lượng, đếm lý do, nhả lịch) vào MỘT lần chuyển luồng (`_wake_code`); hạn mức, `engine_for`, `persona`,
-  `can_enqueue` và lần ghi cuối của lượt quét ở luồng phụ. `_learn_tick` đọc danh sách agent ở luồng phụ; lượt xem xét
-  reaction và tự rà soát (`agent_review`) đọc kho, hạn mức, nguồn, sự kiện và nhả khoá bận ở luồng phụ. Gỡ chờ khi chủ nhắn
-  chat riêng (`_judge_dm_owner_message`) chạy nền ở luồng phụ, lượt chat không chờ. `_reply_turn` đọc nhóm qua `_io`.
-- `_pulse_busy`: trước đây mỗi agent tới hạn quét lại MỌI việc nhóm hai lần. Nay `busy_snapshot` (dep mới của `PulseHostDeps`,
-  `main._pulse_busy_snapshot`) đọc khoá bận (`team_store.busy_keys`), việc nhóm đang chạy/xếp hàng và goal đang chạy MỘT lần
-  mỗi nhịp.
+- `io_offload.py` (new): `run_io` (moved from `team_runner`, the name `team_runner.run_io` is kept), `run_io_quiet` for the cleanup step in the
+  cancel branch, `call_hook` (a plain hook function runs in a worker thread, a coroutine function runs on the loop), `LoopMarker` (an engine milestone that the
+  engine calls synchronously is written in a worker thread, and the ledger row is settled only after it finishes).
+- The judge: `judge_team_message`, `judge_proactive`, the private chat re-judge (`serve_reason`, `_rejudge_dm`,
+  `_rejudge_with_call`), and wait expiry (`_expire_dm`) are split into SYNCHRONOUS `_..._prepare` / `_..._finish` parts that run through `run_io`;
+  the coroutine only keeps the wait for the model. The judge store, `resonance_on` (`agent_any`), reserve/milestone/settle/refund of the turn ledger, wake reasons,
+  history, quota, waits, and the plain sender (`_judge_send`) are all in a worker thread. Semantics unchanged: reserve BEFORE the engine, refund
+  when the engine cannot be built or the wait for a slot timed out, `interrupted` when cancelled after the engine milestone. New: if cancelled right after reserving
+  (during the prepare step, or while waiting for a slot in 2 batches) the ledger row is refunded (`_undo_reserve`, like the `undo` pattern of `run_io`);
+  if cancelled right after claiming a reason, the reason is returned (`_undo_claim`).
+- The pulse tick: `tick` checks the store in a worker thread and runs the plain `project_pending` function in a worker thread; `wake_step` gathers all the code parts
+  (opportunities, estimate, counting reasons, releasing the schedule) into ONE thread hop (`_wake_code`); quota, `engine_for`, `persona`,
+  `can_enqueue` and the last write of the scan turn run in a worker thread. `_learn_tick` reads the agent list in a worker thread; the reaction review turn
+  and self-review (`agent_review`) read the store, quota, sources, events and release the busy lock in a worker thread. Lifting the wait when the owner messages a
+  private chat (`_judge_dm_owner_message`) runs in the background in a worker thread, so the chat turn does not wait. `_reply_turn` reads the team through `_io`.
+- `_pulse_busy`: before, every due agent rescanned ALL team jobs twice. Now `busy_snapshot` (a new dep of `PulseHostDeps`,
+  `main._pulse_busy_snapshot`) reads the busy lock (`team_store.busy_keys`), running/queued team jobs and running goals ONCE
+  per tick.
 
-### 9.2 Bộ chiếu: có làm lại việc không
+### 9.2 The projector: does it redo work
 
-Đã kiểm: `project_pending` CHỈ chiếu dòng `effect_state = 'pending'` (dòng `pending_author` của chat riêng đi
-`_dm_resolve_pending_authors` trước rồi mới về `pending`); dòng `done` không bao giờ được chiếu lại; ghi ngược trạng thái chỉ
-ghi khi trạng thái tính ra khác trạng thái đang có. Phần lặp là ĐỌC: mỗi nhịp 30 giây, với tối đa 200 reaction đang "Chờ xem
-xét"/"Đang xem xét", đọc lại từng dòng (dòng nhật ký, nguồn lý do, reaction hiện tại: ba kết nối SQLite mỗi dòng). Nay đối soát
-theo lô (`_refresh_open`): một câu đọc reaction (`open_reaction_rows`), một câu đọc nhật ký (`reaction_log_rows`), một câu đọc
-nguồn (`WakeReasons.sources_by_ref`), rồi chỉ ghi reaction có trạng thái lý do đổi. Kho không có hàm đọc theo lô (kho giả của
-test cũ) đi đường từng dòng như trước. Giới hạn 200 dòng mỗi nhịp giữ nguyên (đã có từ T2: quá 200 reaction mở thì các dòng
-sau không được đối soát; đọc theo lô làm việc nâng giới hạn này về sau rẻ).
+Checked: `project_pending` ONLY projects rows with `effect_state = 'pending'` (a private chat `pending_author` row goes through
+`_dm_resolve_pending_authors` first and only then becomes `pending`); a `done` row is never projected again; writing the status back
+only writes when the computed status differs from the current one. What repeated was READING: every 30 second tick, with up to 200 reactions in "Waiting for
+review"/"Under review", it re-read each row (log row, reason source, current reaction: three SQLite connections per row). Now it reconciles
+in batches (`_refresh_open`): one query reads the reactions (`open_reaction_rows`), one reads the log (`reaction_log_rows`), one reads the
+sources (`WakeReasons.sources_by_ref`), and then it only writes reactions whose reason status changed. A store without a batch read function (the fake store of
+old tests) takes the row by row path as before. The 200 rows per tick limit stays (it has existed since T2: beyond 200 open reactions the later rows are not
+reconciled; batch reading makes raising this limit cheap later).
 
-### 9.3 Số đo (bench T4, engine giả)
+### 9.3 Measurements (T4 bench, fake engine)
 
-Điều kiện: `tools/team_adaptive_bench.py` của nhánh `claude/team-adaptive-t4-work` (không commit vào nhánh này), chạy ngoài
-repo bằng wrapper trỏ `ROOT` vào mã cần đo; tham số mặc định (12 nhóm x 1.500 tin, 1.500 reaction seed, 8 trợ lý, 30 lần mỗi
-API, 8 luồng, 24 tin mở lô phán xử, 5 nhịp, engine giả 5 ms), `--no-ui`. Máy local Windows 11, Python 3.12.10, 8 CPU; KHÔNG
-phải số đo VPS. Gốc = mã `server/` của `origin/claude/team-adaptive-t3` (`92202224`), nhánh = `46b49f1f`. Hai vòng chạy xen kẽ
-gốc/nhánh liền nhau trên cùng máy (máy có tải nền từ phiên khác, nên so trong cùng vòng):
+Conditions: `tools/team_adaptive_bench.py` of branch `claude/team-adaptive-t4-work` (not committed to this branch), run outside the
+repo through a wrapper that points `ROOT` at the code under test; default parameters (12 teams x 1,500 messages, 1,500 seeded reactions, 8 assistants, 30 calls per
+API, 8 threads, 24 messages opening a judge batch, 5 ticks, 5 ms fake engine), `--no-ui`. Local Windows 11 machine, Python 3.12.10, 8 CPUs; NOT
+VPS numbers. Base = the `server/` code of `origin/claude/team-adaptive-t3` (`92202224`), branch = `46b49f1f`. Two rounds ran base/branch interleaved
+back to back on the same machine (the machine had background load from other sessions, so compare within the same round):
 
-| Chỉ số | Gốc v1 | Nhánh v1 | Gốc v2 | Nhánh v2 |
+| Metric | Base v1 | Branch v1 | Base v2 | Branch v2 |
 |---|---|---|---|---|
-| Một lần chiếu outbox ổn định (ms) | 788-837 | 13-16 | 1.408-2.069 | 12-13 |
-| Nhịp pulse riêng: thời gian mỗi nhịp (ms) | 3.198-6.093 | 237-3.197 | 6.011-8.230 | 321-2.718 |
-| Nhịp pulse riêng: trễ loop lớn nhất (ms) | 172 | 68 | 715 | 51 |
-| Pha đồng thời: trễ loop lớn nhất (ms) | 477 | 103 | 331 | 139 |
-| Pha đồng thời: request p95 (ms) | 1.572 | 822 | 1.454 | 966 |
-| Sóng lô phán xử riêng: trễ loop lớn nhất (ms) | 36 | 116 | 40 | 53 |
-| Chỉ request: trễ loop lớn nhất (ms) | 31 | 46 | 62 | 29 |
+| One steady outbox projection (ms) | 788-837 | 13-16 | 1,408-2,069 | 12-13 |
+| Pulse tick alone: time per tick (ms) | 3,198-6,093 | 237-3,197 | 6,011-8,230 | 321-2,718 |
+| Pulse tick alone: max loop lag (ms) | 172 | 68 | 715 | 51 |
+| Concurrent phase: max loop lag (ms) | 477 | 103 | 331 | 139 |
+| Concurrent phase: request p95 (ms) | 1,572 | 822 | 1,454 | 966 |
+| Judge batch wave alone: max loop lag (ms) | 36 | 116 | 40 | 53 |
+| Requests only: max loop lag (ms) | 31 | 46 | 62 | 29 |
 
-Nhịp đầu tiên của mỗi lần chạy dài hơn (làm mới phạm vi `CONTEXT_REFRESH_S` cho mọi agent). Chẩn đoán `--stall-watch` (chụp
-ngăn xếp luồng loop mỗi lần bị giữ quá 50 ms, một lần chạy mỗi bên): gốc có 40 lần trong mã phán xử và sổ lượt (`add_decision`,
-`get_decision`, `agent_any`, `_reserve`, `mark_engine`, `settle`, `cases`, `get_offset`); nhánh không còn lần nào trong mã phán
-xử hay nhịp. Còn lại ngoài phạm vi: `team_runner._reply_turn` và nhả khoá trong `agent_review` (đã chuyển sau lần đo, commit
-kế tiếp) và route `POST /sessions/{id}/messages/{mid}/reaction` (ghi kho trên loop, chưa sửa ở đây). Trễ loop còn lại ở pha
-đồng thời (khoảng 100 tới 140 ms, một hai mẫu) không có ngăn xếp trong mã Jarvis 007: tranh GIL giữa nhiều luồng phụ cùng chạy.
-Sóng lô phán xử riêng dao động (một lần 116 ms) cùng lý do. Số lô phán xử giả trong pha đồng thời có lúc dưới 24 vì bench chỉ
-chờ việc nền của bộ phán xử, không chờ tác vụ `run_message` do route sinh ra (cửa sổ đo, không phải mất lượt).
+The first tick of each run is longer (it refreshes the `CONTEXT_REFRESH_S` scope for every agent). The `--stall-watch` diagnostic (captures the loop thread's
+stack every time it is held more than 50 ms, one run per side): the base has 40 hits in the judge and turn ledger code (`add_decision`,
+`get_decision`, `agent_any`, `_reserve`, `mark_engine`, `settle`, `cases`, `get_offset`); the branch has none left in the judge
+or tick code. What remains is out of scope: `team_runner._reply_turn` and the lock release in `agent_review` (moved after the measurement, in the next
+commit) and the route `POST /sessions/{id}/messages/{mid}/reaction` (writes the store on the loop, not fixed here). The remaining loop lag in the
+concurrent phase (about 100 to 140 ms, one or two samples) has no stack in Jarvis 007 code: it is GIL contention between several worker threads running at once.
+The judge batch wave alone fluctuates (once 116 ms) for the same reason. The number of fake judge batches in the concurrent phase is sometimes below 24 because the bench only
+waits for the judge's background work, not for the `run_message` task the route spawns (a measurement window, not a lost turn).
 
-Test hồi quy: `tests/python/test_t3_event_loop.py` (kho phán xử và kho resonance chậm ở MỖI lần mở kết nối 110 ms và ở hàm kho
-chính 250 ms: lô nhóm có lượt tự lên tiếng, tin chủ động + chờ + gỡ chờ + xét lại + gửi ở chat riêng, nhịp pulse với mọi hàm
-host chậm: khoảng trống loop < 100 ms và không hàm kho nào chạy trên luồng loop; huỷ ngay sau giữ chỗ thì hoàn; bộ chiếu hai
-nhịp không chiếu lại, không ghi lại, đọc theo lô). Trên mã gốc test này đỏ (trễ 4,1 giây ở lô nhóm, 2,8 giây ở chat riêng).
+Regression test: `tests/python/test_t3_event_loop.py` (the judge store and the resonance store slow at EVERY connection open by 110 ms and at the
+main store function by 250 ms: a team batch with a self-initiated turn, a proactive message + wait + lift wait + re-judge + send in a private chat, the pulse tick with every
+slow host function: loop gap < 100 ms and no store function runs on the loop thread; cancelling right after reserving refunds; the projector over two
+ticks does not project again, does not write again, reads in batches). On the base code this test is red (4.1 seconds lag in the team batch, 2.8 seconds in the private chat).
