@@ -1,138 +1,138 @@
-# Chatbot (hòm thư bot, tài khoản bot, tạo chatbot)
+# Chatbot (bot inbox, bot accounts, create a chatbot)
 
 ***Tiếng Việt** · [English](en/28-customer-conversations.md)*
 
-Mọi tin khách nhắn cho **bot chuyên trách** (Telegram hoặc Zalo Bot) và cho **tài khoản Zalo cá nhân** đã nối đều được gom về một hộp thư trong Javis. Bạn đọc lại cuộc trò chuyện giữa khách và bot, thấy cuộc nào bot đang bí, và **tiếp quản** một cuộc chat khi cần người thật.
+Every message a customer sends to a **dedicated bot** (Telegram or Zalo Bot) and to a connected **personal Zalo account** is gathered into one inbox inside Jarvis 007. You read the exchange between the customer and the bot, see which chats the bot is stuck on, and **take over** a chat when a human is needed.
 
-Từ bản 0.61.0 trang này gộp luôn phần Chatbot: **một mục trên thanh bên, hai tab** (Hòm thư bot và Bot; từ 0.65.9, trước đó là ba tab Hòm thư bot, Tài khoản bot, Tạo chatbot), và bạn **trả lời khách ngay trong Hòm thư bot**.
+Since version 0.61.0 this page also holds the Chatbot section: **one item on the sidebar, two tabs** (Bot inbox and Bots; since 0.65.9, before that there were three tabs: Bot inbox, Bot accounts, Create chatbot), and you **reply to customers right inside the Bot inbox**.
 
-## Mở ở đâu trong Javis
+## Where to open it in Jarvis 007
 
-Thanh điều hướng bên trái, nhóm **Năng lực**, mục **Chatbot**. Trong trang có hai tab:
+Left navigation bar, group **Capabilities**, item **Chatbot**. Inside the page there are two tabs:
 
-- **Hòm thư bot**: mọi tin khách, đọc lại, tiếp quản, trả lời.
-- **Bot**: nhân viên AI đứng trực các kênh, kèm mục **Kênh chưa có bot** ngay dưới (bot Telegram, bot Zalo, Zalo cá nhân... trong brain đang mở, thêm kênh, bật ghi). Kênh đã có bot hiện thành chip trên thẻ bot; bấm chip để sửa hoặc xoá kênh đó. Xem [Chatbot](25-chatbot.md).
+- **Bot inbox**: every customer message, read back, take over, reply.
+- **Bots**: the AI staff on duty for your channels, with a **Channels without a bot** section right below (Telegram bots, Zalo bots, personal Zalo... in the open brain, add a channel, turn recording on). A channel that already has a bot shows as a chip on the bot's card; click the chip to edit or delete that channel. See [Chatbot](25-chatbot.md).
 
-Nói bằng lời cũng được: "mở hộp thư khách", "hòm thư bot", "tài khoản bot", và "mở chatbot" vẫn tới đúng tab Bot. Nói "hội thoại" trần vẫn ra trang Trò chuyện như trước.
+Voice works too: "open the customer inbox", "bot inbox", "bot accounts", and "open chatbot" still land on the Bots tab. Saying just "conversation" still opens the Chat page as before.
 
-## Mô hình
+## The model
 
-Bốn khái niệm, đọc một lần rồi khỏi đoán:
+Four concepts, read once and never guess again:
 
-| | Là gì |
+| | What it is |
 |---|---|
-| **Chatbot** | Một nhân viên AI: Agent, brain riêng, mức quyền, và những tài khoản kênh nó đứng trực (một bot trực được nhiều tài khoản). |
-| **Kênh** | Nơi khách nhắn tới. Mỗi kênh có nhiều **tài khoản**: một token bot Telegram, một token Zalo Bot, một tài khoản Zalo cá nhân đã quét QR. Sau này thêm Zalo OA, Facebook, Web Chat. |
-| **Hội thoại** | Một phiên trao đổi với một khách (hoặc một nhóm) trên một kênh. |
-| **Hòm thư bot** | Nơi AI và người thật cùng vận hành hội thoại: đọc, tiếp quản, trả lại AI. |
+| **Chatbot** | An AI employee: an Agent, its own brain, a permission level, and the channel accounts it is on duty for (one bot can serve several accounts). |
+| **Channel** | Where customers write. Each channel has several **accounts**: a Telegram bot token, a Zalo Bot token, a personal Zalo account you scanned a QR code for. Later Zalo OA, Facebook, Web Chat. |
+| **Conversation** | One exchange with one customer (or one group) on one channel. |
+| **Bot inbox** | Where AI and humans run conversations together: read, take over, hand back to the AI. |
 
-Bên dưới, mọi kênh đều đưa tin về **một khuôn chung** rồi vào cùng một kho: tài khoản kênh, khách, hội thoại, tin. Hòm thư bot không cần biết tin đến từ Telegram hay Zalo.
+Underneath, every channel normalizes its messages into **one common event** and writes into one store: channel account, customer, conversation, message. The Bot inbox never needs to know whether a message came from Telegram or Zalo.
 
-## Tab Hòm thư bot
+## The Bot inbox tab
 
-Từ 0.65.10 đầu trang gọn hơn để khung làm việc chiếm gần hết màn hình: tiêu đề **Chatbot**, hai tab, ô tìm và hàng lọc nằm trên cùng, còn danh sách và khung tin lấp đầy phần còn lại, mỗi bên cuộn riêng và ô soạn tin ghim ở đáy. Bốn thẻ số liệu và dòng phụ đề đã bỏ. Số **chưa đọc** vẫn hiện thành huy hiệu trên tab, và "người thật đang xử lý" xem bằng ô lọc **Tình trạng**.
+Since 0.65.10 the top is more compact so the working area takes almost the whole screen: the **Chatbot** title, the two tabs, the search box and the filter row sit on top, and the list and the message pane fill the rest, each scrolling on its own with the reply box pinned at the bottom. The four number cards and the subtitle are gone. The **unread** count still shows as a badge on the tab, and "a human is handling it" is available in the **Status** filter.
 
-Bên trái là danh sách hội thoại, mới nhất trước. Mỗi dòng: tên khách (hoặc tên nhóm), logo kênh, tin cuối, giờ, và số tin chưa đọc. Phía trên có ô tìm theo tên hoặc nội dung và **một hàng dropdown lọc** (từ 0.65.3, thay cho hàng chip): **Bot**, **Tình trạng** (chưa đọc, cần trả lời, tôi tiếp quản), **Loại** (chỉ nhóm hay chỉ chat riêng), và **Kênh** (chỉ hiện khi có từ hai kênh). Số hội thoại nằm ngay trong từng lựa chọn, tính trên cả hòm thư nên không nhảy khi lọc. Bộ lọc được nhớ ở trình duyệt; dòng ngay trên danh sách ghi "N hội thoại · M bộ lọc" kèm nút **Xoá lọc**. Khi có từ hai bot, mỗi dòng có thẻ tên bot (mỗi bot một màu cố định), và dòng đáng chú ý có thẻ **Cần trả lời** hoặc **Người thật**.
+The left column lists conversations, newest first. Each row: the customer (or group) name, the channel logo, the last message, the time, and the unread count. Above it there is a search box for names or text and **a row of filter dropdowns** (since 0.65.3, replacing the row of chips): **Bot**, **Status** (unread, needs a reply, I took over), **Type** (groups only or direct chats only), and **Channel** (shown only when there are two or more channels). The conversation count sits inside each option and is computed over the whole inbox, so it does not jump around when you filter. Filters are remembered in the browser; the line right above the list reads "N conversations · M filters" with a **Clear filters** button. When there are two or more bots, each row carries a bot name tag (each bot has its own fixed color), and notable rows carry a **Needs a reply** or **Human** tag.
 
-**"Cần trả lời" nghĩa là gì.** Khách nhắn cuối, chưa ai đáp, chưa có người tiếp quản, và: là chat riêng, hoặc là nhóm mà bot vừa **cân nhắc nói rồi im** (chưa chắc, hết hạn mức tự nói, hay bộ phán xử lỗi, trong 24 giờ qua và bạn chưa bấm Đúng/Sai). Nhóm thì phải có điều kiện thứ hai, vì bot chỉ nói khi được gọi thì khách nhắn cuối trong nhóm là chuyện bình thường; đếm hết vào thì bộ lọc đầy rác. Cần bật Tự đánh giá thì mới có dấu "bot cân nhắc" này (xem [Bộ phán xử](25-chatbot.md#bộ-phán-xử-bot-tự-quyết-nói-hay-im-và-học-từ-nhóm)).
+**What "Needs a reply" means.** The customer wrote last, nobody has answered, no human has taken over, and either: it is a direct chat, or it is a group where the bot just **considered speaking and then stayed silent** (not sure enough, out of its self-reply allowance, or the judge failed, within the last 24 hours, and you have not pressed Right/Wrong yet). A group needs that second condition because the bot only speaks when called, so the customer having the last message in a group is normal; counting all of those would fill the filter with noise. This "bot considered" mark exists only when Auto-judge is on (see the reply judge section of [Chatbot](25-chatbot.md)).
 
-**Nhóm chỉ giữ 100 tin gần nhất** (từ 0.65.12). Hòm thư lưu hết tin của chat riêng với khách, nhưng mỗi **nhóm** chỉ giữ 100 tin mới nhất; tin cũ hơn tự xoá khi có tin mới về. Lý do: kho không phình mãi, và Javis không giữ lời của người lạ trong nhóm lâu hơn cần thiết (nick Zalo cá nhân ở nhiều nhóm thì Hòm thư ghi cả nhóm bot chưa được phép trả lời). Lần đầu sau khi cập nhật, các nhóm cũ đang có hơn 100 tin được cắt xuống 100; Javis **sao lưu nguyên file kho một lần** trước khi cắt (file `customer_conversations.sqlite3.bak-truoc-cat-nhom-...` cạnh file kho) và **tự xoá bản sao lưu sau 14 ngày**. Muốn lấy lại tin đã cắt thì chép bản sao lưu đè lên file kho trong vòng 14 ngày đó. Số "tin từng nhận" của hội thoại không giảm theo.
+**Groups keep only the latest 100 messages** (since 0.65.12). The inbox stores every message of direct chats with customers, but each **group** keeps just its 100 newest; older ones are deleted as new ones arrive. The reasons: the store does not grow forever, and Jarvis 007 does not keep strangers' words in a group longer than needed (a personal Zalo account in many groups records even the groups the bot is not allowed to answer in). The first time after updating, existing groups with more than 100 messages are cut down to 100; Jarvis 007 **backs up the whole store file once** before cutting (a `customer_conversations.sqlite3.bak-truoc-cat-nhom-...` file next to the store file) and **deletes that backup automatically after 14 days**. To get the cut messages back, copy the backup over the store file within those 14 days. A conversation's "messages ever received" counter does not go down.
 
-**Tải dần, không đơ máy** (từ 0.65.11). Danh sách chỉ tải 40 dòng đầu; cuộn gần tới cuối thì tự tải 40 dòng nữa (hoặc bấm **Xem thêm**), dòng đếm ghi "40+ hội thoại" cho tới khi hết. Khung tin cũng vậy: mở một hội thoại chỉ tải 40 tin **mới nhất**, kéo lên gần đầu (hoặc bấm **Xem tin cũ hơn**) thì tải thêm 40 tin cũ hơn và giữ nguyên chỗ bạn đang đọc. Cứ 5 giây Javis chỉ hỏi các tin **mới hơn tin cuối** rồi chèn vào cuối khung; đang đọc tin cũ mà có tin mới về thì khung đứng yên, không kéo bạn về đầu như trước.
+**Loads gradually, no lag** (since 0.65.11). The list loads only the first 40 rows; scrolling near the bottom loads 40 more (or press **Show more**), and the counter reads "40+ conversations" until it runs out. The message pane works the same way: opening a conversation loads only the **latest** 40 messages, scrolling up near the top (or pressing **Show older messages**) loads 40 older ones and keeps your place. Every 5 seconds Jarvis 007 only asks for messages **newer than the last one** and appends them to the end of the pane; if you are reading older messages when a new one arrives the pane stays still, instead of pulling you back to the top as before.
 
-Bấm một hội thoại là lịch sử tin hiện bên phải: tin khách bên trái, câu bot và câu bạn tự nhắn từ điện thoại bên phải. Lượt bot bị gãy cũng nằm đó kèm lý do kỹ thuật, để bạn phân biệt "bot trả lời sai" với "bot đang hỏng".
+Click a conversation and its message history opens on the right: customer messages on the left, bot replies and messages you sent yourself from your phone on the right. A failed bot turn sits there too, with its technical reason, so you can tell "the bot answered wrong" from "the bot is broken".
 
-Trên điện thoại trang chỉ một cột: bấm một hội thoại là mở lịch sử, có nút quay lại. Trang tự làm mới mỗi vài giây, không cần tải lại.
+On a phone the page is a single column: tap a conversation to open its history, with a back button. The page refreshes itself every few seconds, with no need to reload.
 
-## Trả lời khách, tiếp quản và trả lại AI
+## Reply, take over and hand back to the AI
 
-**Công tắc Tự động | Tôi trả lời** (từ 0.65.4) nằm ở đầu mỗi cuộc chat có bot, thay cho nút Tiếp quản nhỏ. Gạt sang **Tôi trả lời** là bạn tiếp quản; gạt về **Tự động** là trả cuộc chat lại cho bot. Bấm đúng nấc đang bật thì không làm gì. Trên điện thoại công tắc xuống một hàng riêng, rộng hết chiều ngang. Ngay trên ô nhập có **một dòng trạng thái** nói ai đang trực ("Nhi Mai đang trực cuộc chat này" hoặc "Bạn đang tiếp quản, bot im"), đứng riêng một dòng nên không lệch với ô nhập.
+**The Automatic | I reply switch** (since 0.65.4) sits at the top of every chat that has a bot, replacing the small Take over button. Flip it to **I reply** and you take over; flip it back to **Automatic** to hand the chat back to the bot. Pressing the position that is already on does nothing. On a phone the switch drops to its own row, full width. Right above the input box there is **one status line** saying who is on duty ("Mai is on duty in this chat" or "You took over, the bot is silent"), on a line of its own so it does not misalign with the input box.
 
-**Hai nút hành động** nằm ngay dưới dòng trạng thái (từ 0.65.5), cùng cao và chia đôi bề ngang:
+**Two action buttons** sit right under the status line (since 0.65.5), the same height and splitting the width in half:
 
-- **Trả lời giúp tin này**: bot trả lời NGAY tin khách cuối bằng đúng Agent của nó, dù lúc nãy bộ phán xử đã chọn im. Câu trả lời được gửi qua kênh (nhóm Zalo đi đúng kiểu nhóm), ghi vào Hộp thư như lời của bot, và cuộc chat **vẫn ở Tự động** (khác gõ tay là tiếp quản). Nếu đó đúng là tin bộ phán xử đã im, bot còn **học thêm một ca** (nhãn "im nhầm" nặng nhất): lần sau gặp tin giống vậy bot sẽ nói. Không đi qua cổng "có nên nói", bộ phán xử hay hạn mức tự nói, vì đây là lời nhờ của chính bạn; quyền và giới hạn của Agent thì nguyên vẹn.
-- **Gợi ý câu trả lời**: bot soạn nháp vào ô nhập, chưa gửi. Bạn sửa rồi bấm Gửi (gửi là tiếp quản). Bản nháp **không để lại dấu vết**: không vào kho phiên, không vào Hộp thư, lịch sử tạm của bot được dọn, nên nháp bỏ đi thì bot không "nhớ" mình từng nói câu đó với khách. Dùng được cả lúc bạn đang tiếp quản; ô nhập đang có chữ thì hỏi trước khi thay.
-- Chế độ **Tôi trả lời** thì nút thứ nhất thành **Trả lại cho bot**.
+- **Reply for me**: the bot answers the customer's last message RIGHT NOW with its own Agent, even if the judge chose silence earlier. The reply is sent through the channel (a Zalo group gets a group-style message), recorded in the inbox as the bot's words, and the chat **stays on Automatic** (unlike typing by hand, which is a takeover). If that was exactly the message the judge stayed silent on, the bot also **learns one more case** (the "wrongly silent" label, the heaviest one): next time it meets a message like that, the bot will speak. It does not go through the "should I speak" gate, the judge or the self-reply allowance, because this is your own request; the Agent's permissions and limits stay intact.
+- **Suggest a reply**: the bot writes a draft into the input box without sending it. You edit it and press Send (sending is a takeover). The draft **leaves no trace**: it does not enter the session store or the inbox, and the bot's temporary history is cleaned up, so if you discard the draft the bot does not "remember" having said it to the customer. It also works while you are in charge; if the input box already has text, it asks before replacing it.
+- In **I reply** mode the first button becomes **Hand back to the bot**.
 
-**Nút chưa dùng được vẫn hiện** (viền đứt) và chạm vào thì nói lý do: đang tiếp quản, bot đang tắt (dòng trạng thái cũng nói thẳng "đang tắt nên không tự trả lời"), tin cuối không phải của khách, hay kênh chưa gửi được từ Javis. Bot soạn xong mà gửi hỏng thì câu đã soạn nằm trong ô nhập để bạn gửi tay. Agent chọn im thì báo, không gửi gì. Mỗi cuộc chat chỉ chạy một lượt nhờ-bot một lúc. Tệp đính kèm bot soạn không đi kèm (chỉ chữ).
+**A button that cannot be used yet still shows** (dashed border) and tapping it tells you why: you have taken over, the bot is off (the status line also says plainly "is off, so it will not reply on its own"), the last message is not from the customer, or the channel cannot send from Jarvis 007 yet. If the bot finishes writing but sending fails, the reply it wrote stays in the input box so you can send it by hand. If the Agent chooses silence, that is reported and nothing is sent. Each chat runs only one ask-the-bot turn at a time. Attachments the bot composes do not come along (text only).
 
-Dưới tin khách cuối có dòng **"Bot im: lý do"** khi bộ phán xử đã ghi lý do (ví dụ "Điểm thấp hơn ngưỡng (0.52 / 0.60)"), kèm nút **Vì sao** mở thẳng bảng Bộ phán xử của bot đó. Dòng này chỉ hiện khi cuộc chat đang ở Tự động, tin cuối là của khách và quyết định gần nhất là im cho đúng tin đó; người thật đang tiếp quản thì bot im là hiển nhiên nên không nói.
+Under the customer's last message there is a **"Bot stayed silent: reason"** line when the judge has recorded a reason (for example "Score below threshold (0.52 / 0.60)"), with a **Why** button that opens that bot's reply judge panel directly. The line only appears when the chat is on Automatic, the last message is the customer's, and the most recent decision was silence for exactly that message; when a human has taken over, the bot being silent is obvious, so it says nothing.
 
-Dưới cùng một hội thoại là ô soạn tin: gõ rồi **Enter** để gửi (Shift+Enter xuống dòng). Tin đi qua đúng kênh của cuộc chat: bot Telegram hay Zalo Bot gửi bằng token của tài khoản đó, Zalo cá nhân gửi qua chính tài khoản bạn đã quét QR, **dưới tên bạn** (ô soạn tin nói rõ điều này). Kênh nào chưa gửi được từ Javis thì ô soạn tin thay bằng một dòng nói vậy.
+At the bottom of a conversation is the compose box: type and press **Enter** to send (Shift+Enter for a new line). The message goes out through the chat's own channel: a Telegram bot or Zalo Bot sends with that account's token, personal Zalo sends through the very account you scanned, **under your own name** (the compose box says so). A channel that cannot send from Jarvis 007 yet shows a line saying so instead of the box.
 
-Gửi từ đây ở một cuộc chat có bot là bạn **tiếp quản** cuộc đó: bot im với khách này cho tới khi bạn gạt về **Tự động**. Không thì khách đọc hai giọng một lúc. Gạt công tắc sang **Tôi trả lời** làm y như vậy mà không cần gửi gì; gạt xong bạn trả lời trong app của kênh cũng được.
+Sending from here in a chat that has a bot **takes the chat over**: the bot stays quiet with this customer until you flip the switch back to **Automatic**. Otherwise the customer would read two voices at once. Flipping the switch to **I reply** does the same without sending anything; after that you can also reply in the channel's own app.
 
-Hai điều nên biết:
+Two things to know:
 
-- Lượt bot đang soạn dở đúng lúc bạn tiếp quản vẫn gửi nốt câu đó. Cắt ngang một câu đang gửi còn khó hiểu hơn với khách.
-- Tiếp quản là theo **từng cuộc chat**, không tắt bot. Các khách khác vẫn được bot trả lời.
+- A bot turn that is still being written at the moment you take over still sends that reply. Cutting off a message mid-send would confuse the customer more.
+- Takeover is **per chat**, not a bot switch. Other customers keep getting bot replies.
 
-## Kênh chưa có bot (tab Bot)
+## Channels without a bot (Bots tab)
 
-Mọi tài khoản khách nhắn tới hiện thành **cùng một kiểu thẻ**, bất kể kênh: logo và tên kênh, tên tài khoản, trạng thái (đang chạy, đang tắt, lỗi kèm lý do), bot đang trực, số hội thoại và số chưa đọc, và các năng lực của kênh đó (vào nhóm, gửi file, trả lời từ Javis). Không kênh nào có mục riêng, kể cả Zalo. Kênh thêm về sau chỉ việc xuất hiện thêm một thẻ.
+Every account customers write to appears as **the same kind of card**, whatever the channel: channel logo and name, account name, state (running, off, error with the reason), the bot on duty, conversation and unread counts, and that channel's capabilities (join groups, send files, reply from Jarvis 007). No channel gets its own section, Zalo included. A channel added later simply shows up as one more card.
 
-Có hai loại tài khoản, khác nhau ở cách có nó chứ không ở cách hiện ra:
+There are two kinds of account, differing in how you get them, not in how they look:
 
-**Tài khoản bot** (Telegram, Zalo Bot) là một token. Bấm **Thêm kênh**, chọn loại kênh, dán token, bấm **Kiểm tra** để Javis hỏi đúng nền tảng token đó là bot nào, đặt tên gợi nhớ rồi Lưu. Tài khoản bot ghi vào hộp thư khi bot trực nó đang bật; chưa có bot trực thì thẻ nói thẳng và có nút **Tạo bot cho kênh này** mở sẵn form Bot mới với kênh đó được tick. Mục **Kênh chưa có bot** chỉ liệt kê kênh chưa có bot; tự mở khi có kênh cần xử lý, tự gập khi hết.
+**Bot accounts** (Telegram, Zalo Bot) are a token. Press **Add a channel**, pick the channel type, paste the token, press **Check** so Jarvis 007 asks the platform that issued the token which bot it is, give it a display name and Save. A bot account records into the inbox while the bot on duty for it is enabled; with no bot on duty the card says so plainly and offers a **Create a bot for this channel** button that opens the New bot form with that channel already ticked. The **Channels without a bot** section lists only channels with no bot; it opens by itself when a channel needs attention and folds away when none does.
 
-### Tài khoản bot thuộc về một brain (0.62.4)
+### Bot accounts belong to a brain (0.62.4)
 
-Trước 0.62.4 mục này hiện tài khoản của **mọi** brain, vì một token Telegram là tài khoản có thật ngoài đời nên nó không thuộc brain nào cả. Đúng về kỹ thuật nhưng khó dùng: đứng ở brain của mình mà nhìn một danh sách trộn lẫn thì không biết cái nào là của mình.
+Before 0.62.4 this section showed the accounts of **every** brain, because a Telegram token is a real account outside Jarvis 007 and so belongs to no brain. That was technically correct but hard to use: standing in your own brain and looking at a mixed list, you could not tell which ones were yours.
 
-Từ 0.62.4 mỗi tài khoản có một **brain chủ**:
+Since 0.62.4 each account has an **owner brain**:
 
-- **Thêm ở brain nào thì thuộc brain đó.** Mục chỉ hiện tài khoản của brain đang mở.
-- **Form tạo bot cũng chỉ cho chọn tài khoản trong brain đó**, nên không còn tạo ra liên kết chéo brain.
-- **Công tắc "Xem mọi brain"** ở đầu mục để tìm lại một tài khoản lỡ thêm nhầm chỗ. Khi đó mỗi thẻ tự ghi brain của nó, và mục liệt kê cả kênh đang do bot của brain khác trực (bot đó không hiện ở trang này, nên đây là chỗ duy nhất để sửa hoặc xoá kênh ấy). Zalo cá nhân là kết nối ở trang Kết nối nên không thuộc brain nào và brain nào cũng thấy.
-- **Đổi chủ:** bấm **Sửa**, chọn lại ở mục **Brain của tài khoản**. Lịch sử hội thoại giữ nguyên, vì nó khoá theo id tài khoản chứ không theo brain.
-- **Tài khoản cũ không đoán ra được chủ** (lúc nâng cấp không có bot nào trực nó) thì để **chưa gán** và hiện ở **mọi** brain kèm ghi chú. Chủ ý: thà thấy thừa một thẻ còn hơn có một token tồn tại mà không màn hình nào hiện ra, không ai xoá hay gắn lại được. Gắn nó vào một bot là nó nhận brain của bot đó.
+- **An account belongs to the brain where you added it.** The section only shows accounts of the open brain.
+- **The create-bot form also only offers accounts of that brain**, so cross-brain links can no longer be created.
+- **The "Show all brains" switch** at the top of the section is for finding an account you added in the wrong place. Each card then names its brain, and the section also lists channels served by another brain's bot (that bot does not appear on this page, so this is the only place to edit or delete that channel). Personal Zalo is a connection on the Connections page, so it belongs to no brain and every brain sees it.
+- **Changing the owner:** press **Edit**, then pick again under **Channel's brain**. Conversation history stays, because it is keyed by account id, not by brain.
+- **Old accounts whose owner cannot be guessed** (no bot was serving them at upgrade time) are left **unassigned** and show in **every** brain with a note. This is deliberate: better to see one card too many than to have a token that exists with no screen showing it, that nobody can delete or reattach. Attach it to a bot and it takes that bot's brain.
 
-Zalo cá nhân (`kind: account`) không bị lọc: nó là một kết nối ở trang **Kết nối**, không thuộc brain nào, nên luôn hiện.
+Personal Zalo (`kind: account`) is not filtered: it is a connection on the **Connections** page, belongs to no brain, so it always shows.
 
-Đây là bước đầu của hướng dài hơn: chia quyền quản lý tài khoản cho brain, rồi tới agent, skill, workflow và chatbot, để sau này lên được bản nhiều người dùng.
+This is the first step of a longer direction: splitting account management by brain, then agents, skills, workflows and chatbots, so that a multi-user edition becomes possible later.
 
-**Xoá một tài khoản:** bấm **Xoá**. Nếu đang có bot trực nó, Javis nói rõ bot nào, ở brain nào, rồi hỏi một câu duy nhất: gỡ khỏi bot đó rồi xoá luôn? Đồng ý là xong trong một lần, không phải đổi brain rồi đi tìm bot để tự gỡ. Bot vẫn còn và vẫn trực các tài khoản khác của nó. Nếu đó là tài khoản **duy nhất** của bot thì Javis nói trước, và sau khi xoá sẽ tắt bot đó đi (bản ghi bot vẫn còn, gắn tài khoản khác vào là bật lại được). Hội thoại đã ghi vẫn nằm nguyên trong hộp thư.
+**Deleting an account:** press **Delete**. If a bot is on duty for it, Jarvis 007 says plainly which bot, in which brain, then asks a single question: take it off that bot and delete it too? Agree and it is done in one go, with no need to switch brains and hunt for the bot to detach it by hand. The bot stays and keeps serving its other accounts. If it is the bot's **only** account, Jarvis 007 says so up front, and after deleting turns that bot off (the bot record stays; attaching another account turns it back on). Conversations already recorded stay in the inbox.
 
-**Tài khoản của chính bạn** (Zalo cá nhân) đến từ trang **Kết nối** (quét QR ở Zalo Agent MCP) và hiện ở đây với công tắc **Ghi hội thoại**. Bật lên là Javis đọc tin mới mỗi 20 giây qua MCP và đổ vào hộp thư. Ba điều về kênh này, nói thẳng:
+**Your own account** (personal Zalo) comes from the **Connections** page (QR scan in Zalo Agent MCP) and appears here with a **Record conversations** switch. Turn it on and Jarvis 007 reads new messages every 20 seconds through the MCP and writes them into the inbox. Three plain facts about this channel:
 
-- **Mặc định tắt.** Bật là giữ phiên Zalo của bạn sống liên tục qua API không chính thức, tức tài khoản đăng nhập 24/7 trên máy chạy Javis. Đó là lựa chọn của bạn, không phải của Javis. Nên dùng tài khoản phụ.
-- **Chỉ lưu từ lúc bật.** Không kéo lịch sử cũ. Tin do chính bạn (hay nhân viên dùng chung nick) gửi từ điện thoại hiện là tin "Bạn". Với Zalo cá nhân điều này cần Javis 0.108.0 trở lên: các bản trước dùng javis-zalo 1.2.0, bản đó bỏ mọi tin của chính tài khoản khỏi luồng tin mới nên tin bạn nhắn tay không bao giờ vào Hộp thư.
-- **Không có bot trực.** Trả lời từ Hòm thư bot là gửi dưới tên bạn. Muốn nick này tự trả lời khách thì tạo một Bot chuyên trách và chọn kênh Zalo cá nhân (chat riêng từ 0.64.80, nhóm và chế độ Tự đánh giá từ 0.64.82), xem [Chatbot](25-chatbot.md).
+- **Off by default.** Turning it on keeps your Zalo session alive continuously through an unofficial API, meaning the account is signed in 24/7 on the machine running Jarvis 007. That is your choice, not Jarvis 007's. Use a secondary account.
+- **Stored from the moment you turn it on.** No old history is pulled. Messages you send yourself from your phone (or that staff sharing the same account send) show as "You". For personal Zalo this needs Jarvis 007 0.108.0 or newer: earlier versions used javis-zalo 1.2.0, which dropped every message from the account itself out of the new-message stream, so messages you typed by hand never reached the inbox.
+- **No bot on duty.** Replying from the Bot inbox sends under your own name. If you want this account to answer customers by itself, create a dedicated Bot and choose the personal Zalo channel (direct chats since 0.64.80, groups and Auto-judge mode since 0.64.82), see [Chatbot](25-chatbot.md).
 
-## Dữ liệu lưu ở đâu, giữ gì
+## Where data lives and what is kept
 
-Kho nằm trong thư mục trạng thái của Javis (`customer_conversations.sqlite3`), tách khỏi kho phiên chat. Giữ **chữ** lâu dài; ảnh, file, tin thoại chỉ giữ loại tin và mô tả, file gốc theo hạn dọn của Javis. Tin trùng (đọc lại cùng một tin sau khi khởi động lại) không sinh dòng thứ hai.
+The store sits in the Jarvis 007 state folder (`customer_conversations.sqlite3`), separate from the chat session store. **Text** is kept long term; images, files and voice messages keep only the message type and a description, and the original files follow Jarvis 007's cleanup schedule. A message read twice (after a restart, say) never creates a second row.
 
-Xoá một bot **không** xoá hội thoại của nó, và cũng không xoá tài khoản kênh nó trực: lịch sử khách là tài sản của bạn, token là thứ dùng lại được. Bot tạo trước 0.61.0 (token nằm trong bot) tự chuyển sang mô hình tài khoản khi bạn cập nhật; token, hội thoại, nhóm cho phép đều giữ nguyên.
+Deleting a bot does **not** delete its conversations, nor the channel accounts it served: customer history is your asset, a token is reusable. Bots created before 0.61.0 (token stored inside the bot) move to the account model automatically when you update; token, conversations and allowed groups are all kept.
 
-## Cho ai muốn nối thêm kênh
+## For anyone adding a channel
 
-Từ 0.61.0 mọi thứ lõi biết về một kênh nằm trong **sổ đăng ký kênh** (`server/channels/`, mỗi kênh một file). Một file kênh khai: id, tên, khoá logo, loại (`bot` dùng token, `account` dùng phiên đăng nhập sẵn có, `webhook` cho nền tảng gọi ngược), năng lực (nhóm, gửi chữ, gửi file), cách lấy token; và một bộ hàm: kiểm token và lớp long-poll (loại bot), liệt kê tài khoản và bật ghi (loại account), `gui` để trả lời từ Javis. Tin nhận về thì đưa về khuôn chung (`channel`, `account_id`, `external_chat_id`, `sender_type`, `text`, `external_message_id`, `created_at`) rồi gọi kho.
+Since 0.61.0 everything the core knows about a channel lives in the **channel registry** (`server/channels/`, one file per channel). A channel file declares: id, name, logo key, kind (`bot` uses a token, `account` uses an existing signed-in session, `webhook` for platforms that call back), capabilities (groups, send text, send files), how to get a token; and a set of functions: token check and the long-poll transport (bot kind), listing accounts and turning recording on (account kind), `gui` to reply from Jarvis 007. Incoming messages are normalized into the common event (`channel`, `account_id`, `external_chat_id`, `sender_type`, `text`, `external_message_id`, `created_at`) and then the store is called.
 
-Thêm một kênh = thêm một file ở sổ, một dòng đăng ký, một logo trong `icons.js`. Kho bot, bộ giám sát, API và cả hai tab tự nhận, không sửa gì khác. Chi tiết ở `docs/dev/2026-09-kenh-hoi-thoai-spec.md`. Đường API:
+Adding a channel = one file in the registry, one registration line, one logo in `icons.js`. The bot store, the supervisor, the API and both tabs pick it up; nothing else needs editing. Details in `docs/dev/2026-09-kenh-hoi-thoai-spec.md`. API routes:
 
-- `GET /channels` các loại kênh và năng lực; `GET /channels/accounts` mọi tài khoản, một khuôn.
-- `POST /channels/verify-token`, `POST /channels/accounts`, `POST /channels/accounts/{id}/update`, `.../watch` (loại account), `.../delete`.
-- `POST /conversations/{id}/ai-reply` (từ 0.65.5): `mode=send` hoặc `draft`; lỗi trả `code` (`human`, `bot_off`, `no_bot`, `already_answered`, `busy`, `no_message`, `send_failed`, `engine`).
-- `GET /conversations` danh sách kèm số liệu, lọc theo `channel`, `bot_id` (`-` = cuộc chat không có bot), `account_id`, `q`, và từ 0.65.3 `status` (`unread`, `need_reply`, `human`) và `chat_type` (`group`, `private`; giá trị lạ thì bỏ qua bộ lọc đó). Trả thêm `bot_name` và `need_reply` cho từng dòng, `facets` (số đếm cho dropdown, toàn hòm thư) và `bots` (bot có hội thoại, kèm tên).
-- `GET /conversations/{id}/messages` lịch sử tin; `POST /conversations/{id}/reply` trả lời qua kênh.
-- `POST /conversations/{id}/read`, `POST /conversations/{id}/mode` (`ai` hoặc `human`).
-- `GET /conversations/channels` và `POST /conversations/zalo/{conn_id}/watch` là bí danh cũ, còn giữ.
+- `GET /channels` channel types and capabilities; `GET /channels/accounts` every account, one shape.
+- `POST /channels/verify-token`, `POST /channels/accounts`, `POST /channels/accounts/{id}/update`, `.../watch` (account kind), `.../delete`.
+- `POST /conversations/{id}/ai-reply` (since 0.65.5): `mode=send` or `draft`; on error it returns a `code` (`human`, `bot_off`, `no_bot`, `already_answered`, `busy`, `no_message`, `send_failed`, `engine`).
+- `GET /conversations` list with stats, filtered by `channel`, `bot_id` (`-` = chats with no bot), `account_id`, `q`, and since 0.65.3 `status` (`unread`, `need_reply`, `human`) and `chat_type` (`group`, `private`; an unknown value makes that filter ignored). It also returns `bot_name` and `need_reply` for each row, `facets` (counts for the dropdowns, over the whole inbox) and `bots` (bots that have conversations, with names).
+- `GET /conversations/{id}/messages` message history; `POST /conversations/{id}/reply` reply through the channel.
+- `POST /conversations/{id}/read`, `POST /conversations/{id}/mode` (`ai` or `human`).
+- `GET /conversations/channels` and `POST /conversations/zalo/{conn_id}/watch` are old aliases, still served.
 
-## Xử lý lỗi
+## Troubleshooting
 
-- **Bot đang bật mà không thấy hội thoại nào**: kho chỉ ghi từ lúc kênh được nối; nhắn thử cho bot một câu. Nếu vẫn trống, bấm Nhật ký trên thẻ bot ở tab Bot.
-- **Thẻ bot báo "chưa có tài khoản kênh nào"**: bot chưa trực token nào. Bấm Sửa, tích một tài khoản có sẵn hoặc dán token mới.
-- **Gửi từ Hòm thư bot báo lỗi**: câu lỗi là của chính nền tảng (token bị thu hồi, khách đã chặn bot, phiên Zalo hết hạn). Tin không đi thì không được ghi vào kho.
-- **Zalo cá nhân báo lỗi đỏ ở mục Kênh chưa có bot**: thường là phiên QR hết hạn hoặc máy thiếu Node.js 20. Vào trang Kết nối kiểm tra kết nối Zalo, quét QR lại nếu cần. Vòng đọc tự thử lại sau 90 giây.
-- **Gạt sang Tôi trả lời mà bot vẫn trả lời một câu**: đó là lượt đã chạy dở từ trước khi bấm. Từ tin sau bot im.
+- **Bot enabled but no conversations show**: the store only records from the moment the channel was connected; send the bot a test message. If it is still empty, press Log on the bot's card in the Bots tab.
+- **Bot card says "No channel account yet"**: the bot is not on duty for any token. Press Edit, tick an existing account or paste a new token.
+- **Sending from the Bot inbox fails**: the error text comes from the platform itself (token revoked, customer blocked the bot, Zalo session expired). A message that did not go out is not written to the store.
+- **Personal Zalo shows a red error under Channels without a bot**: usually an expired QR session or a machine without Node.js 20. Go to the Connections page, check the Zalo connection, and rescan the QR if needed. The reader retries by itself after 90 seconds.
+- **Flipped to I reply but the bot still answered once**: that turn was already running before the click. From the next message on, the bot stays quiet.
 
-## Muốn hơn thế: gói Quản lý khách hàng (CRM)
+## Want more: the Customer management (CRM) pack
 
-Kho cài đặt có gói **Quản lý khách hàng (CRM)** (`javis.khach-hang-crm`, cần bản 0.60.1 trở lên) đặt lên chính hộp thư này. Cài xong hỏi Javis bằng lời: "khách nào chờ hơn 2 tiếng chưa được trả lời", "chị Lan đã hỏi gì", "gắn tag VIP cho chị Lan", "tuần này bao nhiêu khách mới", "xuất danh sách khách đã hỏi giá ra Excel". Kèm một trợ lý chăm sóc khách và một quy trình rà soát mỗi ngày. Gói chỉ đọc hộp thư và ghi tag, ghi chú lên khách; không gửi tin cho ai.
+The Store has a **Customer management (CRM)** pack (`javis.khach-hang-crm`, needs version 0.60.1 or newer) that sits on this very inbox. Once installed, just ask Jarvis 007: "which customers have waited more than 2 hours without a reply", "what did Lan ask", "tag Lan as VIP", "how many new customers this week", "export the customers who asked for a price to Excel". It ships a customer-care assistant and a daily review workflow. The pack only reads the inbox and writes tags and notes on customers; it never messages anyone.
 
-## Tham khảo
+## See also
 
-- [Chatbot (Bot chuyên trách)](25-chatbot.md)
-- [Kênh Zalo Bot](26-kenh-zalo-bot.md)
+- [Chatbot (a dedicated bot)](25-chatbot.md)
+- [The Zalo Bot channel](26-kenh-zalo-bot.md)
 - [Zalo Agent MCP](12-zalo.md)

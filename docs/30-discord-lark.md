@@ -1,86 +1,86 @@
-# 30 - Discord và Lark/Feishu
+# 30 - Discord and Lark/Feishu
 
 ***Tiếng Việt** · [English](en/30-discord-lark.md)*
 
-Từ 0.85.0 bạn nói chuyện được với Javis ngay trong Discord và Lark (hay Feishu, bản Trung Quốc của Lark). Hai kênh này là **kênh admin**: người nhắn là chính bạn, đủ quyền như trên dashboard (brain, công cụ, việc nền). Cài ở trang **Kênh Admin**, mỗi kênh một tab.
+Since 0.85.0 you can talk to Jarvis 007 right inside Discord and Lark (or Feishu, Lark's mainland China edition). Both are **admin channels**: the person messaging is you, with the same power as the dashboard (your brain, tools, background work). Set them up on the **Admin channels** page, one tab per channel.
 
-Bot trả lời **khách hàng** là chuyện khác, nằm ở trang **Chatbot**. Từ 0.102.0 Lark có ở đó (xem mục [Bot khách hàng trên Lark](#bot-khách-hàng-trên-lark)); Discord thì chưa.
+Bots that answer **customers** are a different thing, on the **Chatbot** page. Since 0.102.0 Lark is available there (see [Customer bot on Lark](#customer-bot-on-lark)); Discord is not yet.
 
 | | Discord | Lark / Feishu |
 |---|---|---|
-| Javis kết nối thế nào | Gateway: Javis tự mở kết nối, **không cần tên miền** | Kết nối dài: Javis tự mở kết nối, **không cần tên miền** |
-| Cần gì | Một bot token | App ID và App Secret của một app tự dùng |
-| Trong nhóm | Javis trả lời khi được @nhắc hoặc khi bạn trả lời tin của bot | Javis trả lời khi được @nhắc |
-| File | Ảnh và tài liệu, cả hai chiều (tối đa 10 MB khi gửi đi) | Ảnh và tài liệu, cả hai chiều |
-| Tin thoại | Chép thành chữ (cần key Groq ở trang Models) | Chép thành chữ (như trên) |
-| Lệnh bot | `!stop`, `!new`... (Discord giữ dấu `/` cho lệnh riêng của nó) | `/stop` hoặc `!stop` đều được |
+| How Jarvis 007 connects | Gateway: Jarvis 007 opens the connection, **no domain needed** | Persistent connection: Jarvis 007 opens the connection, **no domain needed** |
+| What you need | A bot token | App ID and App Secret of a custom app |
+| In groups | Jarvis 007 answers when @mentioned or when you reply to the bot | Jarvis 007 answers when @mentioned |
+| Files | Images and documents, both ways (10 MB max when sending) | Images and documents, both ways |
+| Voice messages | Transcribed (needs a Groq key on the Models page) | Transcribed (same) |
+| Bot commands | `!stop`, `!new`... (Discord keeps `/` for its own commands) | `/stop` or `!stop` both work |
 
-Cả hai kênh **khoá mặc định**: chưa cho phép ai thì không ai dùng được. Người lạ nhắn cho bot sẽ nhận một mã ghép nối 4 số và hiện ở tab của kênh đó, bạn bấm **Cho phép** là xong. Không phải đi tra ID bằng tay.
+Both channels are **locked by default**: until you allow someone, nobody can use them. A stranger who messages the bot gets a 4-digit pairing code and shows up on that channel's tab; click **Allow** and you are done. No hunting for IDs by hand.
 
 ---
 
 ## Discord
 
-### 1. Tạo bot (một lần, khoảng 3 phút)
+### 1. Create the bot (once, about 3 minutes)
 
-1. Mở [discord.com/developers/applications](https://discord.com/developers/applications), bấm **New Application**, đặt tên (ví dụ "Javis").
-2. Vào mục **Bot**, bấm **Reset Token**, chép chuỗi token. Token chỉ hiện một lần, mất thì reset lại.
-3. Vào mục **OAuth2** → **URL Generator**: tích scope **bot**, rồi tích quyền **View Channels**, **Send Messages**, **Read Message History**, **Attach Files**. Mở link được tạo ra để mời bot vào server của bạn.
+1. Open [discord.com/developers/applications](https://discord.com/developers/applications), click **New Application**, name it (for example "Jarvis 007").
+2. Open **Bot**, click **Reset Token**, copy the token. It is shown only once; if you lose it, reset again.
+3. Open **OAuth2** → **URL Generator**: tick the **bot** scope, then the **View Channels**, **Send Messages**, **Read Message History** and **Attach Files** permissions. Open the generated link to invite the bot to your server.
 
-Không cần bật **Message Content Intent** hay intent đặc quyền nào. Javis chỉ đọc tin nhắn riêng gửi cho bot và tin @nhắc bot, hai loại này Discord vẫn giao đủ chữ khi không có intent đó.
+There is no need to turn on **Message Content Intent** or any privileged intent. Jarvis 007 only reads direct messages to the bot and messages that @mention it, and Discord delivers the full text of both without that intent.
 
-### 2. Nối vào Javis
+### 2. Connect it to Jarvis 007
 
-1. Trang **Kênh Admin** → tab **Discord**: dán token vào ô **Bot token**, bấm **Lưu và bật kênh**.
-2. Nhãn cạnh tên kênh chuyển sang **Đang chạy**.
-3. Nhắn riêng cho bot một câu trên Discord (bạn phải ở chung ít nhất một server với bot). Bot trả về mã ghép nối, còn trên tab Discord hiện tên bạn kèm đúng mã đó. Bấm **Cho phép**.
-4. Bấm **Gửi tin thử** để chắc chiều Javis gửi đi cũng thông.
+1. **Admin channels** page → **Discord** tab: paste the token into **Bot token**, click **Save and turn on**.
+2. The label next to the channel name turns **Running**.
+3. DM the bot once on Discord (you must share at least one server with it). The bot replies with a pairing code, and the Discord tab shows your name with that same code. Click **Allow**.
+4. Click **Send a test** to make sure messages from Jarvis 007 get through too.
 
-Trong kênh của server, gõ `@Javis câu hỏi`: Javis trả lời ngay bên dưới, dạng trả lời tin của bạn. Tin nhắn qua lại giữa mọi người trong kênh, không ai @nhắc bot, thì Javis bỏ qua.
+In a server channel, type `@Jarvis 007 your question`: Jarvis 007 answers right below, as a reply to your message. Conversation between people in the channel that does not @mention the bot is ignored.
 
-### Sự cố thường gặp
+### Common problems
 
-- **"Discord từ chối bot token"**: token sai, hoặc bạn đã bấm Reset Token sau khi chép. Reset lại, dán token mới, Lưu.
-- **"Bot đang xin một intent chưa được bật"**: không xảy ra với Javis bản này. Nếu gặp, bạn đang chạy bản cũ hơn 0.85.0.
-- **Gửi tin thử báo không mở được tin nhắn riêng**: người được phép phải ở chung một server với bot và không chặn tin nhắn riêng từ thành viên server.
-- **Bot im trong kênh**: thiếu quyền **View Channels** hoặc **Send Messages** ở kênh đó. Kiểm tra quyền của vai trò bot trong cài đặt kênh.
+- **"Discord rejected the bot token"**: the token is wrong, or you clicked Reset Token after copying it. Reset, paste the new one, Save.
+- **"The bot asks for an intent that is not enabled"**: does not happen with this version. If you see it, you are running something older than 0.85.0.
+- **The test cannot open a DM**: the allowed person must share a server with the bot and accept direct messages from server members.
+- **The bot is silent in a channel**: it lacks **View Channels** or **Send Messages** there. Check the bot role's permissions in the channel settings.
 
 ---
 
 ## Lark / Feishu
 
-Lark (open.larksuite.com) và Feishu (open.feishu.cn) là hai nền tảng tách biệt: app tạo bên này không tồn tại bên kia. Doanh nghiệp ở ngoài Trung Quốc đại lục gần như luôn dùng **Lark**, và đó là lựa chọn mặc định ở ô **Nền tảng**.
+Lark (open.larksuite.com) and Feishu (open.feishu.cn) are separate platforms: an app made on one does not exist on the other. Businesses outside mainland China almost always use **Lark**, and that is the default in the **Platform** field.
 
-### 1. Tạo app (một lần, khoảng 5 phút)
+### 1. Create the app (once, about 5 minutes)
 
-1. Mở console nhà phát triển: [open.larksuite.com/app](https://open.larksuite.com/app) cho Lark, [open.feishu.cn/app](https://open.feishu.cn/app) cho Feishu. Bấm **Create Custom App**, đặt tên.
-2. Mục **Add features**: thêm **Bot**.
-3. Mục **Permissions & Scopes**: thêm quyền đọc tin nhắn riêng gửi cho bot, đọc tin @nhắc bot trong nhóm, gửi tin với tư cách bot, và đọc file trong tin nhắn (tìm theo chữ `im:message` và `im:resource`).
-4. Mục **Credentials & Basic Info**: chép **App ID** (dạng `cli_...`) và **App Secret**.
+1. Open the developer console: [open.larksuite.com/app](https://open.larksuite.com/app) for Lark, [open.feishu.cn/app](https://open.feishu.cn/app) for Feishu. Click **Create Custom App** and name it.
+2. **Add features**: add **Bot**.
+3. **Permissions & Scopes**: add the permissions to read direct messages to the bot, read group messages that @mention the bot, send messages as the bot, and read files in messages (search for `im:message` and `im:resource`).
+4. **Credentials & Basic Info**: copy the **App ID** (looks like `cli_...`) and the **App Secret**.
 
-### 2. Nối vào Javis, rồi bật nhận sự kiện
+### 2. Connect it to Jarvis 007, then turn on events
 
-Thứ tự quan trọng: console Lark chỉ cho lưu chế độ "kết nối dài" khi đã có một kết nối đang mở, nên bật Javis trước.
+The order matters: the Lark console only lets you save "persistent connection" mode while a connection is open, so turn Jarvis 007 on first.
 
-1. Trang **Kênh Admin** → tab **Lark**: chọn **Nền tảng** (Lark hoặc Feishu), dán **App ID** và **App Secret**, bấm **Lưu và bật kênh**. Nhãn chuyển sang **Đang chạy**.
-2. Quay lại console, mục **Events & Callbacks**: ở cách nhận sự kiện chọn **Receive events through persistent connection** (nhận qua kết nối dài), lưu. Bấm **Add Events**, thêm sự kiện **Message received** (`im.message.receive_v1`).
-3. Mục **Version Management & Release**: tạo phiên bản và phát hành. Công ty có quản trị viên thì cần họ duyệt.
-4. Trong Lark, tìm bot theo tên rồi nhắn riêng một câu. Bot trả mã ghép nối, tab Lark hiện bạn kèm mã đó: bấm **Cho phép**.
+1. **Admin channels** page → **Lark** tab: pick the **Platform** (Lark or Feishu), paste the **App ID** and **App Secret**, click **Save and turn on**. The label turns **Running**.
+2. Back in the console, **Events & Callbacks**: choose **Receive events through persistent connection** and save. Click **Add Events** and add **Message received** (`im.message.receive_v1`).
+3. **Version Management & Release**: create a version and publish it. If your company has an admin, they need to approve it.
+4. In Lark, find the bot by name and DM it once. The bot replies with a pairing code, the Lark tab shows you with that code: click **Allow**.
 
-Trong nhóm, thêm bot vào nhóm rồi gõ `@Javis câu hỏi`. Javis trả lời ngay dưới tin đó. Khi đang làm, Javis thả một biểu tượng cảm xúc "đang làm" lên câu hỏi của bạn, vì Lark không có dấu "đang nhập" cho bot.
+In a group, add the bot to the group and type `@Jarvis 007 your question`. Jarvis 007 answers right under that message. While it works, Jarvis 007 puts an "on it" reaction on your question, since Lark has no typing indicator for bots.
 
-### Bot khách hàng trên Lark
+### Customer bot on Lark
 
-Từ 0.102.0 một bot ở trang **Chatbot** trả lời được khách trên Lark hoặc Feishu, mọi cuộc chat vào **Hộp thư** chung, tiếp quản được khi cần người thật.
+Since 0.102.0 a bot on the **Chatbot** page can answer customers on Lark or Feishu, with every chat in the shared **Inbox** and takeover when a human is needed.
 
-1. Tạo một app **riêng** cho bot (làm lại bước 1 với tên khác). Không dùng chung app với kênh admin: Lark chia tin ngẫu nhiên giữa các kết nối cùng một app, Javis cũng từ chối app đó.
-2. Ngoài các quyền ở bước 1, nên cấp thêm: đọc **mọi tin trong nhóm** (không chỉ tin gọi tên bot) nếu muốn bot tự theo dõi nhóm, đọc **thông tin người dùng** (contact) và **thông tin nhóm** (`im:chat`) để Hộp thư hiện tên khách và tên nhóm thay vì mã `ou_...`. Thiếu hai quyền sau thì bot vẫn chạy, chỉ hiện mã.
-3. Trang **Chatbot** → **Tài khoản** → thêm tài khoản, kênh **Lark**, dán **App ID** và **App Secret** cách nhau một dấu cách: `cli_... SECRET`. Javis tự dò app thuộc Lark hay Feishu; muốn chỉ định thì thêm chữ `feishu` (hoặc `lark`) ở cuối.
-4. Tạo bot ở cùng trang và gắn tài khoản vừa thêm, rồi bật bot. Sau đó làm bước 2 ở trên trong console (chọn kết nối dài, thêm sự kiện `im.message.receive_v1`, phát hành phiên bản).
+1. Create a **separate** app for the bot (repeat step 1 with another name). Do not reuse the admin channel's app: Lark splits messages at random between connections of one app, and Jarvis 007 refuses it anyway.
+2. On top of the permissions in step 1, consider granting: read **all group messages** (not only those that @mention the bot) if the bot should follow groups on its own, and read **user info** (contact) and **chat info** (`im:chat`) so the Inbox shows customer and group names instead of `ou_...` ids. Without those two the bot still works and shows the ids.
+3. **Chatbot** page → **Bots** tab → **Add a channel**, channel **Lark**, paste the **App ID** and **App Secret** separated by a space: `cli_... SECRET`. Jarvis 007 finds out whether the app is on Lark or Feishu; to pin it, add the word `feishu` (or `lark`) at the end.
+4. Create the bot on the same page, attach the account and turn the bot on. Then do step 2 above in the console (persistent connection, the `im.message.receive_v1` event, publish a version).
 
-### Sự cố thường gặp
+### Common problems
 
-- **"Lark từ chối App ID / App Secret"**: chép thiếu ký tự, hoặc chọn nhầm nền tảng (app Lark mà ô Nền tảng để Feishu, hay ngược lại).
-- **Đang chạy mà nhắn không thấy trả lời**: chưa thêm sự kiện `im.message.receive_v1`, chưa chọn nhận sự kiện qua kết nối dài, hoặc chưa phát hành phiên bản mới sau khi đổi quyền. Mỗi lần đổi quyền đều phải phát hành lại.
-- **"Lark từ chối kết nối ... too many connections"**: cùng một app đang được một máy Javis khác kết nối. Mỗi app chỉ nên gắn với một Javis.
-- **Gửi tin thử lỗi "người này chưa thấy được bot"**: phạm vi phát hành của app chưa gồm người đó. Sửa ở phần phạm vi người dùng khi phát hành.
+- **"Lark refused the App ID / App Secret"**: a character is missing, or the platform is wrong (a Lark app with Platform set to Feishu, or the other way round).
+- **Running, but messages get no answer**: the `im.message.receive_v1` event is not added, persistent connection mode is not selected, or no new version was published after changing permissions. Every permission change needs a new release.
+- **"Lark refused the connection ... too many connections"**: another Jarvis 007 is connected with the same app. Use one app per Jarvis 007.
+- **The test fails with "this user cannot see the bot"**: the app's availability does not include that person. Fix the user scope when publishing.

@@ -1,35 +1,35 @@
-# 29 - Slack và WhatsApp
+# 29 - Slack and WhatsApp
 
 ***Tiếng Việt** · [English](en/29-slack-whatsapp.md)*
 
-Từ 0.71.0 Javis nói chuyện được trên Slack và WhatsApp, theo đúng hai cách như Telegram và Zalo:
+Since 0.71.0 Jarvis 007 talks on Slack and WhatsApp, in the same two ways as Telegram and Zalo:
 
-- **Kênh điều khiển:** bạn chat với chính Javis (brain, công cụ, việc nền của bạn). Cài ở trang **Kênh Admin**.
-- **Bot khách hàng:** một agent chuyên trách trả lời khách hoặc đội nhóm, mọi cuộc chat vào hộp thư chung, tiếp quản được khi cần người thật. Cài ở trang **Chatbot**.
+- **Control channel:** you chat with Jarvis 007 itself (your brain, your tools, background work). Set it up on the **Admin channels** page.
+- **Customer bot:** a dedicated agent answers your customers or team, with every chat in the shared inbox and takeover when a human is needed. Set it up on the **Chatbot** page.
 
 | | Slack | WhatsApp |
 |---|---|---|
-| Javis kết nối thế nào | Socket Mode: Javis tự mở kết nối, **không cần tên miền** | Webhook: Meta gọi vào Javis, **cần tên miền HTTPS** |
-| Nhóm | Kênh (Javis trả lời khi được gọi tên, trong thread) | Chỉ chat riêng |
-| File | Ảnh và tài liệu, cả hai chiều | Ảnh và tài liệu, cả hai chiều |
-| Tin thoại | Chép thành chữ (cần key Groq ở trang Models) | Chép thành chữ (như trên) |
-| Nhắn trước | Lúc nào cũng được | Chỉ trong 24 giờ kể từ tin cuối của người đó |
+| How Jarvis 007 connects | Socket Mode: Jarvis 007 opens the connection, **no domain needed** | Webhook: Meta calls Jarvis 007, **needs an HTTPS domain** |
+| Groups | Channels (Jarvis 007 answers when mentioned, in the thread) | Private chats only |
+| Files | Images and documents, both ways | Images and documents, both ways |
+| Voice messages | Transcribed (needs a Groq key on the Models page) | Transcribed (same) |
+| Writing first | Anytime | Only within 24 hours of the person's last message |
 
 ---
 
 ## Slack
 
-### 1. Tạo app Slack (một lần, khoảng 3 phút)
+### 1. Create the Slack app (once, about 3 minutes)
 
-1. Mở [api.slack.com/apps](https://api.slack.com/apps), bấm **Create New App**, chọn **From an app manifest**, chọn workspace.
-2. Dán manifest này (YAML) rồi bấm **Create**:
+1. Open [api.slack.com/apps](https://api.slack.com/apps), click **Create New App**, choose **From an app manifest**, pick your workspace.
+2. Paste this manifest (YAML), then **Create**:
 
 ```yaml
 display_information:
-  name: Javis
+  name: Jarvis 007
 features:
   bot_user:
-    display_name: Javis
+    display_name: Jarvis 007
     always_online: true
   app_home:
     messages_tab_enabled: true
@@ -59,71 +59,71 @@ settings:
   token_rotation_enabled: false
 ```
 
-3. **Basic Information → App-Level Tokens → Generate Token and Scopes**: thêm scope `connections:write`, tạo, chép token bắt đầu bằng `xapp-`.
-4. **Install App → Install to Workspace**, rồi chép **Bot User OAuth Token** bắt đầu bằng `xoxb-`.
+3. **Basic Information → App-Level Tokens → Generate Token and Scopes**: add the scope `connections:write`, generate, copy the token that starts with `xapp-`.
+4. **Install App → Install to Workspace**, then copy the **Bot User OAuth Token** that starts with `xoxb-`.
 
-### 2a. Kênh điều khiển (bạn chat với Javis)
+### 2a. Control channel (you talk to Jarvis 007)
 
-1. Trang **Kênh Admin** → tab **Slack**: dán bot token và app token, bấm **Lưu và bật kênh**.
-2. Mở Slack, tìm app trong mục **Apps**, nhắn một câu bất kỳ. Bạn sẽ hiện trên thẻ kèm mã 4 số; đối chiếu mã rồi bấm **Cho phép**. Danh sách để trống là cố ý: chưa ai chạm được vào brain của bạn cho tới khi bạn cho phép.
-3. Từ đó: nhắn riêng cho bot, hoặc gọi `@Javis` trong kênh đã mời bot vào (`/invite @Javis`); bot trả lời trong thread.
+1. **Admin channels** page → **Slack** tab: paste the bot token and the app token, click **Save and turn on**.
+2. Open Slack, find the app under **Apps**, send it any message. You appear on the card with a 4-digit code; check the code and click **Allow**. The list starts empty on purpose: nobody can reach your brain until you allow them.
+3. From then on: DM the bot, or mention `@Jarvis 007` in a channel it was invited to (`/invite @Jarvis 007`); it answers in the thread.
 
-Lệnh bot trên Slack bắt đầu bằng `!` thay cho `/`, vì Slack giữ `/` cho lệnh của chính nó: `!stop`, `!new`.
+Bot commands start with `!` instead of `/` on Slack, because Slack keeps `/` for its own commands: `!stop`, `!new`.
 
-### 2b. Bot khách hàng
+### 2b. Customer bot
 
-1. Dùng một app Slack **riêng** (làm lại bước 1 với tên khác) để khách không bao giờ chạm tới kênh điều khiển của bạn.
-2. Trang **Chatbot** → **Tài khoản** → thêm tài khoản, kênh **Slack**, dán cả hai token **cách nhau một dấu cách**: `xoxb-... xapp-...`.
-3. Tạo bot ngay trên trang đó và gắn tài khoản vào.
+1. Use a **separate** Slack app (repeat step 1 with another name) so customers never reach your control channel.
+2. **Chatbot** page → **Bots** tab → **Add a channel**, channel **Slack**, paste both tokens **separated by a space**: `xoxb-... xapp-...`.
+3. Create the bot on the same page and attach the account to it.
 
 ---
 
 ## WhatsApp
 
-WhatsApp chỉ chạy qua **WhatsApp Business Cloud API** chính thức của Meta. Javis không đăng nhập WhatsApp cá nhân (làm vậy là vi phạm điều khoản WhatsApp và số rất dễ bị khoá).
+WhatsApp only works through Meta's official **WhatsApp Business Cloud API**. Jarvis 007 never logs into a personal WhatsApp account (that breaks WhatsApp's terms and gets numbers banned).
 
-### Trước khi bắt đầu
+### Before you start
 
-- Javis phải truy cập được qua **HTTPS bằng tên miền** (VPS có tên miền, xem [DEPLOY.md](../DEPLOY.md)). Meta từ chối `http://` và địa chỉ IP.
-- Khi chưa đặt mật khẩu đăng nhập, tên miền phải là tên Javis biết (tên miền riêng, xem [15 - Thương hiệu và tên miền](15-thuong-hieu-ten-mien.md), hoặc `JAVIS_ALLOWED_HOSTS`), nếu không Javis trả Meta mã 403.
-- Meta có thể tính phí một số cuộc hội thoại; xem trang bảng giá hiện tại của họ.
+- Jarvis 007 must be reachable over **HTTPS on a domain** (a VPS with a domain, see [DEPLOY.md](../DEPLOY.md)). Meta refuses plain `http://` and IP addresses.
+- When no login password is set, the domain must be one Jarvis 007 knows (your custom domain, see [15 - Branding and domains](15-thuong-hieu-ten-mien.md), or `JAVIS_ALLOWED_HOSTS`), otherwise Jarvis 007 answers Meta with 403.
+- Meta may charge for some conversations; check their current pricing page.
 
-### 1. Tạo app Meta (một lần)
+### 1. Create the Meta app (once)
 
-1. [developers.facebook.com](https://developers.facebook.com) → **My Apps → Create App** → loại **Business** → thêm sản phẩm **WhatsApp**.
-2. **WhatsApp → API Setup**: ghi lại **Phone number ID** (là một mã, không phải số điện thoại). Số thử nghiệm miễn phí chỉ nhắn được tối đa 5 số bạn xác minh ở đó; muốn chạy thật thì thêm số thật.
-3. **Access token vĩnh viễn**: Business Settings → **Users → System users** → thêm một người dùng hệ thống, gán app với toàn quyền, **Generate token** với `whatsapp_business_messaging` và `whatsapp_business_management`. (Token ở trang API Setup hết hạn sau 24 giờ.)
-4. **App settings → Basic**: hiện và chép **App secret**. Javis dùng nó để kiểm mọi lời gọi webhook có đúng là từ Meta.
+1. [developers.facebook.com](https://developers.facebook.com) → **My Apps → Create App** → type **Business** → add the **WhatsApp** product.
+2. **WhatsApp → API Setup**: note the **Phone number ID** (an ID, not the phone number). The free test number can only message up to 5 numbers you verify there; add a real number for production.
+3. A **permanent access token**: Business Settings → **Users → System users** → add one, assign your app with full control, **Generate token** with `whatsapp_business_messaging` and `whatsapp_business_management`. (The token on the API Setup page dies after 24 hours.)
+4. **App settings → Basic**: show and copy the **App secret**. Jarvis 007 uses it to check that every webhook call really comes from Meta.
 
-### 2a. Kênh điều khiển
+### 2a. Control channel
 
-1. Trang **Kênh Admin** → tab **WhatsApp**: điền Phone number ID, Access token, App secret, bấm **Lưu và bật kênh**.
-2. Thẻ hiện **Callback URL** và **Verify token**. Bên Meta: **WhatsApp → Configuration → Webhook → Edit**, dán cả hai, **Verify and save**, rồi đăng ký trường **messages**.
-3. Nhắn cho số doanh nghiệp từ WhatsApp của bạn. Bạn hiện trên thẻ kèm mã; bấm **Cho phép**.
+1. **Admin channels** page → **WhatsApp** tab: fill in Phone number ID, Access token, App secret, click **Save and turn on**.
+2. The card shows a **Callback URL** and a **Verify token**. In Meta: **WhatsApp → Configuration → Webhook → Edit**, paste both, **Verify and save**, then subscribe to the **messages** field.
+3. Message the business number from your own WhatsApp. You appear on the card with a code; click **Allow**.
 
-### 2b. Bot khách hàng
+### 2b. Customer bot
 
-1. Dùng một số khác (mỗi số thuộc về một bot).
-2. Trang **Chatbot** → **Tài khoản** → thêm tài khoản, kênh **WhatsApp**, dán ba giá trị **cách nhau dấu cách**: `<phone number id> <access token> <app secret>`.
-3. Webhook dùng chung Callback URL và Verify token ở trang Kênh Admin: một địa chỉ phục vụ mọi số, Javis tự chia tin theo số mà khách nhắn tới.
+1. Use another number (each number belongs to one bot).
+2. **Chatbot** page → **Bots** tab → **Add a channel**, channel **WhatsApp**, paste the three values **separated by spaces**: `<phone number id> <access token> <app secret>`.
+3. The webhook is the same Callback URL and Verify token as on the Admin channels page: one URL serves every number, and Jarvis 007 routes each message by the number it was sent to.
 
-### Cửa sổ 24 giờ
+### The 24-hour window
 
-WhatsApp chỉ cho doanh nghiệp nhắn tự do trong vòng **24 giờ** kể từ tin cuối người đó gửi. Quá thời gian đó chỉ gửi được tin mẫu (template) đã duyệt. Thực tế là:
+WhatsApp lets a business write freely only within **24 hours** of the person's last message. After that only pre-approved templates go through. In practice:
 
-- Trả lời tin nhắn thì không bao giờ bị ảnh hưởng.
-- Kết quả việc nền (loop, việc Kanban, nhắc hẹn) xong sau hơn 24 giờ kể từ lần cuối bạn nhắn sẽ không gửi được qua WhatsApp. Nó không mất: mọi kết quả đều nằm sẵn trong hộp thư trên dashboard (quả chuông). Nhắn cho bot một câu bất kỳ là mở lại cửa sổ.
+- Answers to messages are never affected.
+- A background result (loop, Kanban task, reminder) that finishes more than 24 hours after you last wrote cannot be delivered on WhatsApp. It is not lost: every result also lands in the dashboard inbox (the bell). Send the bot any message to reopen the window.
 
 ---
 
-## Khắc phục sự cố
+## Troubleshooting
 
-| Hiện tượng | Nguyên nhân và cách sửa |
+| Symptom | Cause and fix |
 |---|---|
-| Thẻ Slack báo `invalid_auth` | Bot token sai hoặc bị thu hồi. Cài lại app rồi chép token `xoxb-` mới. |
-| Thẻ Slack: app token bị từ chối | Token `xapp-` thiếu `connections:write`, hoặc chưa bật Socket Mode. |
-| Slack: không trả lời trong kênh | Mời bot vào (`/invite @Javis`) rồi gọi tên nó. |
-| WhatsApp: Meta báo không xác minh được callback | Địa chỉ không phải HTTPS, tên miền chưa được phép, hoặc gõ sai verify token. |
-| WhatsApp: tin nhắn không tới đâu cả | Chưa đăng ký trường **messages**, hoặc Phone number ID là của số khác. |
-| WhatsApp lỗi 190 | Access token hết hạn: dùng token của System User, không dùng token 24 giờ. |
-| WhatsApp lỗi 131047 | Ngoài cửa sổ 24 giờ, xem ở trên. |
+| Slack card: `invalid_auth` | Wrong or revoked bot token. Reinstall the app and copy the new `xoxb-` token. |
+| Slack card: app token refused | The `xapp-` token is missing `connections:write`, or Socket Mode is off. |
+| Slack: no answer in a channel | Invite the bot (`/invite @Jarvis 007`) and mention it. |
+| WhatsApp: Meta says the callback could not be verified | The URL is not HTTPS, the domain is not allowed, or the verify token was mistyped. |
+| WhatsApp: messages arrive nowhere | The **messages** field is not subscribed, or the Phone number ID belongs to another number. |
+| WhatsApp error 190 | The access token expired: use a System User token, not the 24-hour one. |
+| WhatsApp error 131047 | Outside the 24-hour window, see above. |

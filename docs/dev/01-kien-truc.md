@@ -1,82 +1,83 @@
-# 01 - Kiến trúc tổng quan
+# 01 - Architecture overview
 
-## Ý tưởng cốt lõi (đọc cái này trước hết)
+## The core idea (read this first)
 
-Javis **không gọi thẳng API model**. Javis mượn **CLI dạng agent** của nhà cung cấp (Claude Code, Codex) làm bộ não, để tận dụng chính **gói subscription** người dùng đang trả thay vì bắt họ mua API riêng. Bộ não đó vốn đã biết đọc/ghi file, gọi MCP, chạy lệnh, dùng skill. Javis bọc quanh nó một dashboard, một Second Brain, và một lớp kiểm soát quyền.
+Jarvis 007 **does not call a model API directly**. Jarvis 007 borrows the vendor's **agent-style CLI** (Claude Code, Codex) as its brain, so it can use the very **subscription plan** the user is already paying for instead of making them buy a separate API. That brain already knows how to read and write files, call MCPs, run commands and use skills. Jarvis 007 wraps a dashboard, a Second Brain, and a permission-control layer around it.
 
-Hệ quả kiến trúc quan trọng: **Javis là lớp điều phối, không phải lớp inference.** Khi debug "sao Javis trả lời sai", hãy hỏi trước: prompt bơm vào là gì, tool nào được phép, cwd trỏ vào brain nào. Đừng sửa model.
+An important architectural consequence: **Jarvis 007 is an orchestration layer, not an inference layer.** When you debug "why did Jarvis 007 answer wrong", ask first: what prompt was injected, which tools are allowed, which brain does the cwd point to. Do not fix the model.
 
-Vẫn có đường API thuần (OpenRouter/OpenAI/Anthropic/Gemini) cho ai không có subscription CLI, nhưng đường đó **chat thuần, không có MCP native của CLI** - bù lại bằng hub in-process (xem [trang 04](04-engine-hub-plugin-skill.md)).
+There is still a pure API path (OpenRouter/OpenAI/Anthropic/Gemini) for people without a CLI subscription, but that path is **plain chat, without the CLI's native MCP**, compensated by the in-process hub (see [page 04](04-engine-hub-plugin-skill.md)).
 
-## Bốn lớp
+## Four layers
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ 1. DASHBOARD  (dashboard/*.js, thuần JS + Alpine)       │
-│  Đồ thị tri thức + rail điều hướng + giọng nói (Web Speech) │
+│ 1. DASHBOARD  (dashboard/*.js, plain JS + Alpine)       │
+│  Knowledge graph + navigation rail + voice (Web Speech) │
 └───────────────┬─────────────────────────────────────────┘
                 │ WebSocket /ws  (chat streaming)
                 │ REST  /settings /skills /files /kanban ...
 ┌───────────────▼─────────────────────────────────────────┐
-│ 2. SERVER  (server/main.py - FastAPI, ~120 endpoint)    │
-│    + feature module: learn, tasks, reminders,           │
-│      self_improve  (mỗi cái tự mang APIRouter riêng)    │
+│ 2. SERVER  (server/main.py - FastAPI, ~120 endpoints)   │
+│    + feature modules: learn, tasks, reminders,          │
+│      self_improve  (each carries its own APIRouter)     │
 └───────────────┬─────────────────────────────────────────┘
                 │
         ┌───────┴────────┐
         │                │
 ┌───────▼──────┐  ┌──────▼──────────────────────────────┐
 │ 3. ENGINE    │  │ 4. MCP HUB  (mcp_hub.py)            │
-│  bộ não      │◄─┤  cổng tool DUY NHẤT cho mọi engine  │
-│  claude_sdk  │  │  - Claude/Codex thấy hub như 1 MCP  │
-│  codex CLI   │  │    server http tên "javis"          │
-│  engine.py   │  │  - engine API gọi in-process        │
-│  (API thuần) │  │  Hub enforce 3 mức quyền + audit    │
-└──────────────┘  └──────┬──────────────────────────────┘
+│  the brain   │◄─┤  the ONLY tool gateway for engines  │
+│  claude_sdk  │  │  - Claude/Codex see the hub as one  │
+│  codex CLI   │  │    http MCP server named "javis"    │
+│  engine.py   │  │  - API engines call it in-process   │
+│  (plain API) │  │  Hub enforces 3 permission levels   │
+└──────────────┘  │  plus audit                         │
+                  └──────┬──────────────────────────────┘
                          │
               ┌──────────┴───────────┬──────────────┐
               ▼                      ▼              ▼
-        MCP ngoài (POS,        Plugin Python    Skill router
-        Ads, Calendar...)      (system/plugins) (SKILL.md)
+        External MCPs (POS,     Python plugins   Skill router
+        Ads, Calendar...)       (system/plugins) (SKILL.md)
 ```
 
-Và nằm ngang qua tất cả: **BRAIN (vault)** - một thư mục `.md` là toàn bộ trí nhớ + năng lực của Javis. Xem [trang 05](05-brain-vault.md).
+And running across all of them: the **BRAIN (vault)** - a folder of `.md` files that is the whole memory plus capability of Jarvis 007. See [page 05](05-brain-vault.md).
 
-## Một lượt chat đi qua đâu
+## Where a chat turn goes
 
-Đây là đường đi cần thuộc để debug bất cứ thứ gì:
+This is the path to memorize for debugging anything:
 
-1. **Trình duyệt** - user nói hoặc gõ. `dashboard/voice.js` (Web Speech API) hoặc `#chatInput`. `dashboard/app.js` mở WebSocket `/ws` và đẩy tin lên.
-2. **`main.py` `/ws`** (khoảng dòng 4155) - nhận tin, dựng **system prompt**: nội dung `CLAUDE.md` + `MEMORY.md` của brain + chỉ mục skill + ngữ cảnh kênh (`channel_context.py`) + số liệu dùng.
-3. **Chọn bộ não** - `_effective_main(cfg)` (`main.py:488`) đọc `settings.json → model.main = {provider, model}` và trả về provider đang là MAIN.
-   - `anthropic-cli` → `claude_sdk_engine.py` (qua factory `claude_cli.claude_engine`)
-   - `openai-oauth` → `CodexCLI` trong `claude_cli.py`
-   - `openrouter` / `openai` / `anthropic-api` / `gemini` → `engine.py` (chat thuần, stream token)
-4. **Engine chạy** và stream ra các event `{type: text | tool_call | tool_result | final | error}`. Đây là **hợp đồng chung** mà mọi engine phải tuân, xem docstring `claude_sdk_engine.py:1`.
-5. **Tool call** (nếu có) đi qua **MCP Hub**: hub gộp tool của mọi connection, kiểm quyền, chạy, ghi audit.
-6. **Stream về trình duyệt** qua WebSocket. `chat-render.js` render markdown, `voice.js` đọc thành tiếng.
-7. **Sau lượt** - `learn.py` rewire bộ nhớ (có debounce, chỉ đọc, hoàn tác được); `sessions.py` lưu hội thoại vào SQLite + FTS5.
+1. **Browser** - the user speaks or types. `dashboard/voice.js` (Web Speech API) or `#chatInput`. `dashboard/app.js` opens the WebSocket `/ws` and pushes the message up.
+2. **`main.py` `/ws`** (around line 4155) - receives the message and builds the **system prompt**: the contents of `CLAUDE.md` + the brain's `MEMORY.md` + the skill index + channel context (`channel_context.py`) + usage figures.
+3. **Pick the brain** - `_effective_main(cfg)` (`main.py:488`) reads `settings.json → model.main = {provider, model}` and returns the provider that is currently MAIN.
+   - `anthropic-cli` → `claude_sdk_engine.py` (through the factory `claude_cli.claude_engine`)
+   - `openai-oauth` → `CodexCLI` in `claude_cli.py`
+   - `openrouter` / `openai` / `anthropic-api` / `gemini` → `engine.py` (plain chat, streams tokens)
+4. **The engine runs** and streams out `{type: text | tool_call | tool_result | final | error}` events. This is the **shared contract** every engine must follow, see the docstring at `claude_sdk_engine.py:1`.
+5. **A tool call** (if any) goes through the **MCP Hub**: the hub merges the tools of every connection, checks permission, runs it, writes the audit.
+6. **Streams back to the browser** over the WebSocket. `chat-render.js` renders markdown, `voice.js` reads it aloud.
+7. **After the turn** - `learn.py` rewires memory (debounced, read-only, undoable); `sessions.py` saves the conversation into SQLite + FTS5.
 
-## State nằm ở đâu (hay nhầm chỗ này)
+## Where state lives (easy to get wrong)
 
-Có **ba** kho state khác nhau, đừng lẫn:
+There are **three** different state stores, do not mix them up:
 
-| Kho | Đường dẫn | Chứa gì | Ai sở hữu |
+| Store | Path | Holds | Owner |
 |-----|-----------|---------|-----------|
-| **STATE_DIR** | `server/` (mặc định), hoặc `$JAVIS_STATE_DIR` = `/data/state` trên Docker | `settings.json` (có secret, đã mã hoá), branding, token hub, plugin enable-state, `conversations.db` | Javis, gitignored |
-| **BRAIN (vault)** | `brains/<tên>/` | Ghi chú, Wiki, Memory, skills, agents, workflows, loops | Người dùng, đẩy được lên GitHub |
-| **Code tree** | `server/`, `dashboard/`, `system/` | Mã nguồn + plugin/loop/catalog bundled | Repo. **Trên Docker là read-only** |
+| **STATE_DIR** | `server/` (default), or `$JAVIS_STATE_DIR` = `/data/state` on Docker | `settings.json` (has secrets, encrypted), branding, hub token, plugin enable-state, `conversations.db` | Jarvis 007, gitignored |
+| **BRAIN (vault)** | `brains/<name>/` | Notes, Wiki, Memory, skills, agents, workflows, loops | The user, can be pushed to GitHub |
+| **Code tree** | `server/`, `dashboard/`, `system/` | Source code plus bundled plugins/loops/catalog | The repo. **Read-only on Docker** |
 
-Cái bẫy: trong container, code tree read-only. Mọi thứ Javis tự ghi **phải** đi qua `STATE_DIR`. Đó là lý do logo tuỳ chỉnh nằm ở `STATE_DIR/branding` chứ không phải `dashboard/`, và enable-state của plugin bundled nằm ở `STATE_DIR/plugins.json` chứ không sửa vào `plugin.yaml` của app.
+The trap: inside the container, the code tree is read-only. Anything Jarvis 007 writes by itself **must** go through `STATE_DIR`. That is why a custom logo lives in `STATE_DIR/branding` and not in `dashboard/`, and why the enable-state of bundled plugins lives in `STATE_DIR/plugins.json` instead of editing the app's `plugin.yaml`.
 
-## Vào code từ đâu
+## Where to enter the code
 
-| Muốn hiểu | Mở file |
+| To understand | Open this file |
 |-----------|---------|
-| Toàn bộ API + vòng đời app | `server/main.py` (đọc các dải banner `# =====`, xem [trang 02](02-backend.md)) |
-| Cấu hình, đường dẫn, auth | `server/config.py` |
-| Bộ não Claude | `server/claude_sdk_engine.py` |
-| Bộ não API thuần | `server/engine.py` |
-| Tool đi đâu, quyền chặn ở đâu | `server/mcp_hub.py` + `server/mcp_catalog.py` |
-| Giao diện, rail, các trang | `dashboard/console.js` |
-| Chat, WebSocket, giọng nói | `dashboard/app.js` + `dashboard/voice.js` |
+| The whole API plus the app lifecycle | `server/main.py` (read the `# =====` banner bands, see [page 02](02-backend.md)) |
+| Configuration, paths, auth | `server/config.py` |
+| The Claude brain | `server/claude_sdk_engine.py` |
+| The plain-API brain | `server/engine.py` |
+| Where tools go, where permission blocks them | `server/mcp_hub.py` + `server/mcp_catalog.py` |
+| The UI, the rail, the pages | `dashboard/console.js` |
+| Chat, WebSocket, voice | `dashboard/app.js` + `dashboard/voice.js` |

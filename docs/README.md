@@ -1,79 +1,79 @@
-# 📚 Tài liệu Javis OS
+# 📚 Jarvis 007 documentation
 
 ***Tiếng Việt** · [English](en/README.md)*
 
-Hướng dẫn sử dụng chi tiết từng chức năng của Javis OS. Mỗi trang là một how-to độc lập: mở ở đâu, bấm gì, dùng thế nào.
+Detailed guides for every feature of Jarvis 007. Each page is a standalone how-to: where to open it, what to click, how to use it.
 
-> Mới bắt đầu? Đọc [Cài đặt trong README](i18n/vi/README.md#-cài-đặt) trước, rồi qua [01 - Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md).
+> Just starting? Read [Installation in the README](i18n/vi/README.md#-cài-đặt) first (the Vietnamese README; its installation section is headed "Cài đặt"), then go to [01 - Getting started and first setup](01-bat-dau-thiet-lap.md).
 
-Thanh điều hướng của dashboard gom **19 trang** thành **7 nhóm**: Trợ lý · Bộ não · Code · Năng lực · Việc · Kết nối · Hệ thống. Mục lục dưới đây xếp theo cùng logic đó.
+The dashboard's navigation bar groups **19 pages** into **7 groups**: Assistant · Brain · Code · Capabilities · Work · Connections · System. The table of contents below follows the same logic.
 
-## Mục lục
+## Table of contents
 
-### Bắt đầu
-- [01 - Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md) - tạo admin, đăng nhập bộ não, chọn engine/model, trang Cài đặt.
+### Getting started
+- [01 - Getting started and first setup](01-bat-dau-thiet-lap.md) - creating the admin, signing the brain in, choosing an engine and model, the Settings page.
 
-### Dùng hằng ngày (nhóm Trợ lý & Bộ não)
-- [02 - Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md) - chat, nói rảnh tay, lệnh gạch chéo, nút trả lời nhanh, gửi file, tạo ảnh.
-- [03 - Đồ thị tri thức](03-do-thi-tri-thuc.md) - wikilink, màu danh mục, timelapse và công tắc đồ thị.
-- [04 - Phiên hội thoại](04-phien-hoi-thoai.md) - lưu, mở lại, đổi tên, xoá, tìm kiếm toàn văn, nén phiên dài.
-- [05 - Quản lý tệp tin](05-quan-ly-tep-tin.md) - duyệt brain, tìm file theo tên/nội dung, sửa .md/.txt trực tiếp, tải lên/về.
+### Everyday use (the Assistant and Brain groups)
+- [02 - Chat and voice](02-tro-chuyen-va-giong-noi.md) - chatting, hands-free speech, slash commands, quick-reply buttons, sending files, generating images.
+- [03 - Knowledge graph](03-do-thi-tri-thuc.md) - wikilinks, category colors, the timelapse and the graph switches.
+- [04 - Sessions](04-phien-hoi-thoai.md) - saving, reopening, renaming, deleting, full-text search, compacting a long session.
+- [05 - File manager](05-quan-ly-tep-tin.md) - browsing the brain, finding files by name or content, editing .md/.txt directly, uploading and downloading.
 
-### Code (nhóm Code)
-- [27 - Nhóm Code: Terminal](27-tab-code-terminal.md) - dòng lệnh thật của máy chạy Javis, mở ngay trong dashboard, không cần SSH.
+### Code (the Code group)
+- [27 - The Code group: Terminal](27-tab-code-terminal.md) - a real command line on the machine running Jarvis 007, opened right in the dashboard, no SSH needed.
 
-### Mở rộng năng lực (nhóm Năng lực)
-- [06 - Skills](06-skills.md) - gom nhóm, tìm kiếm, bật/tắt, thêm/sửa/xoá, nhập/xuất skill.
-- [07 - Agents & Workflows](07-agents-va-workflows.md) - tạo trợ lý chuyên biệt + chuỗi tự động nhiều bước.
-- [20 - Plugins](20-plugins.md) - thêm tool/hook native cho mọi engine bằng một thư mục Python.
-- [25 - Chatbot (Bot chuyên trách)](25-chatbot.md) - đem Agent ra trả lời khách qua bot Telegram hoặc Zalo riêng, brain riêng, chuyển nhân viên khi bí.
-- [28 - Hội thoại khách (Hộp thư)](28-hoi-thoai-khach.md) - đọc lại mọi cuộc chat khách nhắn cho bot và Zalo cá nhân ở một chỗ, tiếp quản khi cần người thật.
-- [29 - Slack và WhatsApp](29-slack-whatsapp.md) - chat với Javis và đặt bot khách hàng trên Slack (không cần tên miền) và WhatsApp (API chính thức của Meta).
-- [30 - Discord và Lark/Feishu](30-discord-lark.md) - chat với Javis từ Discord và Lark/Feishu ở trang Kênh Admin, không cần tên miền.
-- [31 - Messenger](31-messenger.md) - đặt bot khách hàng trả lời hộp thư Fanpage Facebook (API chính thức của Meta, cần tên miền HTTPS).
+### Extending capabilities (the Capabilities group)
+- [06 - Skills](06-skills.md) - grouping, searching, turning on and off, adding, editing and deleting, importing and exporting skills.
+- [07 - Agents & Workflows](07-agents-va-workflows.md) - creating specialist assistants plus automated multi-step chains.
+- [20 - Plugins](20-plugins.md) - adding native tools and hooks for every engine with one Python folder.
+- [25 - Chatbot (a dedicated bot)](25-chatbot.md) - putting an Agent in front of customers through a dedicated Telegram or Zalo bot, with its own brain and a handover to a human when it is stuck.
+- [28 - Customer conversations (Inbox)](28-hoi-thoai-khach.md) - every chat customers have with your bots and personal Zalo in one place, with takeover when a human is needed.
+- [29 - Slack and WhatsApp](29-slack-whatsapp.md) - chat with Jarvis 007 and run customer bots on Slack (no domain needed) and WhatsApp (Meta's official API).
+- [30 - Discord and Lark/Feishu](30-discord-lark.md) - chat with Jarvis 007 from Discord and Lark/Feishu on the Admin channels page, no domain needed.
+- [31 - Messenger](31-messenger.md) - a customer bot that answers your Facebook Page inbox (Meta's official API, needs an HTTPS domain).
 
-### Việc chạy nền (nhóm Việc & Bộ não)
-- [08 - Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md) - nhiều vòng lặp chạy nền + nhắc hẹn theo giờ hoặc cron.
-- [21 - Việc (Kanban)](21-viec-kanban.md) - giao goal bằng lời, AI tự đặc tả và chạy task nền.
-- [22 - Tự học](22-tu-hoc.md) - Javis tự rút ký ức, đúc Wiki và kỹ năng sau mỗi hội thoại, hoàn tác được.
+### Background work (the Work and Brain groups)
+- [08 - Recurring jobs and reminders](08-viec-dinh-ky.md) - several background loops plus reminders on a clock or a cron schedule.
+- [21 - Work (Kanban)](21-viec-kanban.md) - handing over a goal in words, with the AI specifying and running the background task.
+- [22 - Self-learning](22-tu-hoc.md) - Jarvis 007 extracting memories, distilling Wiki pages and skills after each conversation, undoably.
 
-### Kết nối & kênh (nhóm Kết nối)
-- [09 - Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md) - kho dịch vụ ngoài đa tài khoản, phân quyền, báo cáo số thật.
-- [10 - Models & engine](10-models-va-engine.md) - đổi bộ não giữa Claude Code, ChatGPT/Codex, Antigravity CLI, OpenRouter, OpenAI, Gemini, Anthropic, Groq, Ollama mà không mất chức năng; mức suy nghĩ, model việc nền.
-- [11 - Kênh Telegram](11-telegram.md) - hỏi Javis qua điện thoại, gửi và nhận file.
-- [26 - Kênh Zalo Bot](26-kenh-zalo-bot.md) - hỏi Javis trên Zalo bằng API chính thức, ghép nối bằng một cú bấm.
-- [12 - Zalo Agent MCP](12-zalo.md) - đăng nhập QR, đọc/tìm lịch sử và gửi tin qua MCP chuẩn.
-- [24 - Javis CLI (terminal)](24-cli-terminal.md) - gõ `javis "..."` từ terminal, token API, ghép vào script.
+### Connections and channels (the Connections group)
+- [09 - Connections and business data](09-mcp-va-so-lieu.md) - the multi-account store of external services, permissions, reporting real figures.
+- [10 - Models and engines](10-models-va-engine.md) - switching the brain between Claude Code, ChatGPT/Codex, Antigravity CLI, OpenRouter, OpenAI, Gemini, Anthropic, Groq and Ollama without losing capability; thinking levels, the background work model.
+- [11 - The Telegram channel](11-telegram.md) - asking Jarvis 007 from a phone, sending and receiving files.
+- [26 - The Zalo Bot channel](26-kenh-zalo-bot.md) - asking Jarvis 007 on Zalo through the official API, paired with one click.
+- [12 - Zalo Agent MCP](12-zalo.md) - signing in by QR, reading and searching history, sending messages through the standard MCP.
+- [24 - The Jarvis 007 CLI (terminal)](24-cli-terminal.md) - typing `javis "..."` from a terminal, API tokens, composing in scripts.
 
-### Bộ não & dữ liệu
-- [13 - Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) - đa brain, bộ nhớ sống, tiêu hoá tri thức.
-- [18 - Sao lưu brain lên GitHub](18-sao-luu-github.md) - đồng bộ 2 chiều lên repo riêng, khôi phục khi mất máy/VPS.
-- [19 - Task & Dataview trong note](19-task-va-dataview.md) - tick checkbox tự lưu kiểu Obsidian, khối ```dataview chạy thật.
+### The brain and data
+- [13 - Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) - multiple brains, living memory, digesting knowledge.
+- [18 - Backing the brain up to GitHub](18-sao-luu-github.md) - two-way sync to a private repo, recovering after losing a machine or VPS.
+- [19 - Tasks and Dataview in notes](19-task-va-dataview.md) - Obsidian-style self-saving checkboxes, ```dataview blocks that really run.
 
-### Tài khoản, thương hiệu, cấu hình (nhóm Hệ thống)
-- [14 - Bảo mật & tài khoản](14-bao-mat-tai-khoan.md) - đăng nhập bắt buộc, mật khẩu, rate-limit, mã hoá khoá bí mật.
-- [15 - Thương hiệu & tên miền riêng](15-thuong-hieu-ten-mien.md) - đổi logo/avatar, trỏ tên miền và bật HTTPS.
-- [16 - Cấu hình .env](16-cau-hinh-env.md) - tham chiếu mọi biến môi trường.
-- [23 - Mức dùng: token & chi phí](23-muc-dung-token.md) - Javis tự đo token vào/ra theo ngày, theo nhà cung cấp, theo nguồn.
+### Accounts, branding, configuration (the System group)
+- [14 - Security and accounts](14-bao-mat-tai-khoan.md) - forced login, passwords, rate limiting, secret-key encryption.
+- [15 - Branding and custom domains](15-thuong-hieu-ten-mien.md) - changing the logo and avatar, pointing a domain and turning on HTTPS.
+- [16 - .env configuration](16-cau-hinh-env.md) - a reference for every environment variable.
+- [23 - Usage: tokens and cost](23-muc-dung-token.md) - Jarvis 007 measuring input and output tokens by day, by provider and by source.
 
-### Khi có sự cố
-- [17 - Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md) - lỗi thường gặp và cách xử lý.
-
----
-
-## Bản tiếng Anh
-
-**Toàn bộ tài liệu đã có bản tiếng Anh.** Mỗi trang có dòng chuyển ngôn ngữ ngay dưới tiêu đề,
-bấm là sang đúng trang tương ứng. Mục lục tiếng Anh ở [docs/en/](en/README.md); ngoài ra ở gốc
-repo có [README.md](../README.md), [QUICKSTART.en.md](../QUICKSTART.en.md),
-[DEPLOY.en.md](../DEPLOY.en.md) và [CONTRIBUTING.md](../CONTRIBUTING.md) (bản tiếng Việt: [i18n/vi/CONTRIBUTING.md](i18n/vi/CONTRIBUTING.md)).
-
-Bản tiếng Việt là bản gốc của tài liệu: sửa nội dung thì sửa bên tiếng Việt trước rồi cập nhật
-bản tiếng Anh tương ứng, đừng để hai bên nói khác nhau. Riêng README thì ngược lại: từ 0.66.0
-`README.md` ở gốc repo là bản tiếng Anh, bản tiếng Việt nằm ở
-[i18n/vi/README.md](i18n/vi/README.md). Thêm một ngôn ngữ vào chính Javis (không phải tài
-liệu) thì theo [sổ tay thêm ngôn ngữ](dev/them-mot-ngon-ngu.md).
+### When something goes wrong
+- [17 - Troubleshooting and FAQ](17-khac-phuc-su-co.md) - common errors and how to handle them.
 
 ---
 
-> Quy ước viết tài liệu: tiếng Việt, thực tế, ngắn gọn. Không dùng ký tự em dash (U+2014), luôn thay bằng dấu gạch nối "-". Xem thêm [CLAUDE.md](../CLAUDE.md) cho quy ước hệ thống dành cho AI agent.
+## English edition
+
+**All the documentation is available in English.** Every page has a language switch line right under the title;
+click it to go to the matching page. The English table of contents is at [docs/en/](en/README.md); in addition, the repo
+root has [README.md](../README.md), [QUICKSTART.en.md](../QUICKSTART.en.md),
+[DEPLOY.en.md](../DEPLOY.en.md) and [CONTRIBUTING.md](../CONTRIBUTING.md) (Vietnamese edition: [i18n/vi/CONTRIBUTING.md](i18n/vi/CONTRIBUTING.md)).
+
+The Vietnamese edition is the original of the documentation: to change content, change the Vietnamese side first and then update
+the matching English page, so the two never say different things. README is the exception, the other way round: since 0.66.0
+the `README.md` at the repo root is the English edition, and the Vietnamese edition lives at
+[i18n/vi/README.md](i18n/vi/README.md). To add a language to Jarvis 007 itself (not the
+documentation), follow the [language playbook](dev/them-mot-ngon-ngu.md).
+
+---
+
+> Documentation conventions: practical and concise (the Vietnamese pages are written in Vietnamese). Never use the em dash character (U+2014), always replace it with the hyphen "-". See [CLAUDE.md](../CLAUDE.md) for the system conventions aimed at AI agents.

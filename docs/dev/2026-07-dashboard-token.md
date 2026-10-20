@@ -1,200 +1,200 @@
-# Dashboard Token - Thiết kế (v1)
+# Dashboard Token - Design (v1)
 
-Ngày: 2026-07-18
-Trạng thái: Spec, chờ duyệt
-Người yêu cầu: Minh Quy
+Date: 2026-07-18
+Status: Spec, awaiting approval
+Requested by: Minh Quy
 
-## 1. Mục tiêu
+## 1. Goal
 
-Một dashboard trong Javis để theo dõi mức tiêu thụ token, trả lời được 4 câu hỏi:
+A dashboard inside Jarvis 007 to track token consumption, able to answer 4 questions:
 
-1. Tổng quan: kỳ này tiêu bao nhiêu token, so kỳ trước tăng hay giảm, có đang phình bất thường không.
-2. Bóc tách: token đi vào đâu nhiều nhất - provider nào (Claude / Codex / OpenRouter-API), model nào, dự án nào, và của Javis thì là chat hay hoạt động ngầm (loop, lịch, subagent).
-3. Hiệu quả: đang dùng tiết kiệm hay lãng phí (cache hit, token/phiên, output/input, chi phí quy đổi).
-4. Hành động: sinh ra vài đề xuất cụ thể để tối ưu (giảm loop, hạ model, tách phiên, /compact...).
+1. Overview: how many tokens this period, up or down against the previous period, and is it bloating abnormally.
+2. Breakdown: where the tokens go the most - which provider (Claude / Codex / OpenRouter-API), which model, which project, and for Jarvis 007's own share, whether it is chat or hidden activity (loops, schedules, subagents).
+3. Efficiency: is usage economical or wasteful (cache hit, tokens per session, output/input, converted cost).
+4. Action: produce a few concrete suggestions to optimize (fewer loops, a cheaper model, splitting sessions, /compact...).
 
-Người xem chính là Minh Quy (human-facing). Endpoint tổng hợp có thể tái dùng sau này cho một tool để chính Javis đọc, nhưng v1 không làm phần đó.
+The main viewer is Minh Quy (human-facing). The aggregate endpoint can be reused later for a tool that lets Jarvis 007 itself read it, but v1 does not do that part.
 
-## 2. Nguồn dữ liệu và sự thật lịch sử
+## 2. Data sources and the historical truth
 
-Có 3 nguồn, mức độ sẵn sàng khác nhau. Đây là điểm quan trọng nhất của thiết kế.
+There are 3 sources, with different levels of readiness. This is the most important point of the design.
 
-| Provider | Nguồn | Trường token | Lịch sử |
+| Provider | Source | Token fields | History |
 |---|---|---|---|
-| Claude (Code + Javis-SDK) | `~/.claude/projects/**/*.jsonl` | input, output, cache_read, cache_creation (tách riêng) + model, cwd, entrypoint, isSidechain, sessionId, timestamp, gitBranch | Có đầy đủ, backfill được toàn bộ |
-| Codex / ChatGPT | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` | `total_token_usage` {input_tokens, cached_input_tokens, output_tokens, total_tokens} theo phiên | Có, backfill được |
-| OpenRouter / OpenAI / Anthropic API (Javis chat thuần) | Hiện KHÔNG lưu. `engine.py` có trích `usage` mỗi lượt rồi ném đi; `conversations.db` không có cột token | Không có lịch sử | Chỉ có từ lúc bật ghi-log (forward-only) |
+| Claude (Code + Jarvis 007 SDK) | `~/.claude/projects/**/*.jsonl` | input, output, cache_read, cache_creation (separate) + model, cwd, entrypoint, isSidechain, sessionId, timestamp, gitBranch | Complete, fully backfillable |
+| Codex / ChatGPT | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` | `total_token_usage` {input_tokens, cached_input_tokens, output_tokens, total_tokens} per session | Yes, backfillable |
+| OpenRouter / OpenAI / Anthropic API (Jarvis 007 plain chat) | NOT stored today. `engine.py` extracts `usage` each turn and then throws it away; `conversations.db` has no token column | No history | Only from the moment logging is switched on (forward-only) |
 
-Hệ quả thiết kế: Claude và Codex có số ngay từ lịch sử. Nhánh API phải cắm một sink ghi-log nhẹ, và dashboard phải nói rõ "nhánh API chỉ có số từ ngày bật".
+Design consequence: Claude and Codex have numbers from history right away. The API branch needs a light logging sink plugged in, and the dashboard must say clearly "the API branch only has numbers from the day it was switched on".
 
-### Chi tiết trường Claude JSONL (đã xác minh trên máy)
+### Claude JSONL field details (verified on the machine)
 
-Mỗi dòng `type=assistant` có:
-- `timestamp` (UTC, hậu tố Z) - phải đổi sang giờ địa phương (Asia/Ho_Chi_Minh) khi chia theo ngày.
-- `message.model`: `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-fable-5`, `claude-haiku-4-5-...`, `<synthetic>` (bỏ qua synthetic).
+Each `type=assistant` line has:
+- `timestamp` (UTC, suffix Z) - must be converted to local time (Asia/Ho_Chi_Minh) when splitting by day.
+- `message.model`: `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-fable-5`, `claude-haiku-4-5-...`, `<synthetic>` (skip synthetic).
 - `message.usage`: `input_tokens`, `output_tokens`, `cache_creation_input_tokens`, `cache_read_input_tokens`, `server_tool_use.web_search_requests/web_fetch_requests`.
-- `entrypoint`: `sdk-cli`/`sdk-py`/`sdk-ts` (= Javis) vs `claude-desktop`/`claude-vscode` (= gõ tay).
-- `cwd` (= dự án), `gitBranch`, `sessionId`, `isSidechain` (= token subagent).
-- Tên thư mục project là slug hoá cwd; ưu tiên đọc `cwd` trong dòng để lấy dự án thật.
+- `entrypoint`: `sdk-cli`/`sdk-py`/`sdk-ts` (= Jarvis 007) vs `claude-desktop`/`claude-vscode` (= typed by hand).
+- `cwd` (= project), `gitBranch`, `sessionId`, `isSidechain` (= subagent tokens).
+- The project folder name is a slugified cwd; prefer reading `cwd` in the line to get the real project.
 
-### Chi tiết Codex rollout
+### Codex rollout details
 
-File JSONL theo phiên, có event mang `total_token_usage` (cộng dồn theo phiên) và `token_count`. Vì là cộng dồn, lấy giá trị lớn nhất hoặc dòng cuối của phiên làm tổng phiên; timestamp lấy từ tên file / event để xếp vào ngày.
+A per-session JSONL file, with events carrying `total_token_usage` (cumulative per session) and `token_count`. Because it is cumulative, take the largest value or the last line of the session as the session total; take the timestamp from the file name / events to place it in a day.
 
-## 3. Schema chuẩn hoá (usage event)
+## 3. Normalized schema (usage event)
 
-Mọi nguồn quy về một record chung trước khi gộp:
+Every source is reduced to one common record before merging:
 
 ```
 UsageEvent {
-  ts            : epoch (đã đổi về local để bucket ngày)
+  ts            : epoch (converted to local to bucket the day)
   provider      : 'claude' | 'codex' | 'api'
-  engine        : entrypoint gốc (sdk-cli, claude-desktop, codex, openrouter...)
-  model         : chuỗi model chuẩn hoá
-  project       : cwd hoặc '(codex)' / '(api)' nếu không có
-  session_id    : id phiên (để đếm phiên, join, dedup)
-  source        : 'javis' | 'manual'      # Claude: theo entrypoint; Codex/API = 'javis'
+  engine        : original entrypoint (sdk-cli, claude-desktop, codex, openrouter...)
+  model         : normalized model string
+  project       : cwd, or '(codex)' / '(api)' if there is none
+  session_id    : session id (to count sessions, join, dedup)
+  source        : 'javis' | 'manual'      # Claude: by entrypoint; Codex/API = 'javis'
   activity      : 'chat' | 'background' | 'subagent' | 'manual'
-  input         : token nạp mới (không gồm cache)
-  output        : token sinh ra
-  cache_read    : token đọc từ cache (rẻ)
-  cache_create  : token tạo cache
-  billable_in   : input + cache_read + cache_create  # tổng input tính tiền
+  input         : newly loaded tokens (excluding cache)
+  output        : generated tokens
+  cache_read    : tokens read from cache (cheap)
+  cache_create  : tokens that create the cache
+  billable_in   : input + cache_read + cache_create  # total billed input
 }
 ```
 
-## 4. Phân loại nguồn / hoạt động (attribution)
+## 4. Source / activity classification (attribution)
 
-- `source`: Claude theo `entrypoint` (sdk-* = javis, desktop/vscode = manual). Codex và API luôn = javis.
-- `activity` cho phần Javis:
-  - `subagent`: dòng có `isSidechain = true` (token của agent con chạy ngầm trong bất kỳ phiên nào).
-  - `chat`: `sessionId` của phiên Claude-SDK có mặt trong `conversations.db.cli_session_id` (tức phiên do người dùng mở qua dashboard/Telegram).
-  - `background`: phiên Claude-SDK KHÔNG có trong `conversations.db` (loop, lịch hẹn, tự cải tiến, cron). Đây là "hoạt động ngầm".
-  - `manual`: entrypoint gõ tay.
-- Tinh chỉnh loop vs lịch (để sau v1): hiện gộp chung `background`. Muốn tách "loop X tốn bao nhiêu" cần Javis gắn nhãn khi spawn phiên (ví dụ ghi một map `sessionId -> {kind: loop, slug}` vào một sidecar). Ghi nhận là việc v1.1, không chặn v1.
+- `source`: Claude by `entrypoint` (sdk-* = javis, desktop/vscode = manual). Codex and API are always = javis.
+- `activity` for the Jarvis 007 part:
+  - `subagent`: lines with `isSidechain = true` (tokens of a child agent running in the background inside any session).
+  - `chat`: the `sessionId` of a Claude-SDK session is present in `conversations.db.cli_session_id` (that is, a session the user opened through the dashboard/Telegram).
+  - `background`: a Claude-SDK session NOT in `conversations.db` (loops, scheduled reminders, self-improvement, cron). This is the "hidden activity".
+  - `manual`: a hand-typed entrypoint.
+- Loop vs schedule refinement (after v1): for now they are merged as `background`. To split out "how much does loop X cost", Jarvis 007 would have to label the session when it spawns it (for example by writing a map `sessionId -> {kind: loop, slug}` into a sidecar). Recorded as a v1.1 item, it does not block v1.
 
-Join key: `conversations.db.sessions.cli_session_id` = `sessionId` trong Claude JSONL. Đã xác minh 31/43 phiên có key này.
+Join key: `conversations.db.sessions.cli_session_id` = `sessionId` in the Claude JSONL. Verified: 31 of 43 sessions have this key.
 
-## 5. Bộ chỉ số
+## 5. The set of metrics
 
-### 5.1 Thẻ KPI (đầu trang, đổi theo kỳ đang chọn + so kỳ trước)
+### 5.1 KPI cards (top of the page, changing with the selected period + comparison with the previous period)
 
-- Tổng token trong kỳ (+ % delta so kỳ trước).
-- Token/ngày trung bình (run-rate) và phóng chiếu hết kỳ (nếu kỳ chưa đóng).
-- Cache hit rate = cache_read / billable_in. Chỉ số hiệu quả chính.
-- Số phiên và token trung bình mỗi phiên (phát hiện phiên phình).
-- Tỉ lệ output / input.
-- Chi phí quy đổi ước tính (xem mục 7).
+- Total tokens in the period (+ % delta against the previous period).
+- Average tokens/day (run-rate) and the projection to the end of the period (if the period is not closed).
+- Cache hit rate = cache_read / billable_in. The main efficiency metric.
+- Number of sessions and average tokens per session (to spot bloated sessions).
+- Output / input ratio.
+- Estimated converted cost (see section 7).
 
-### 5.2 Bóc tách (biểu đồ)
+### 5.2 Breakdown (charts)
 
-- Theo provider: Claude / Codex / API (đây là bộ lọc chính; chọn provider thì cả trang lọc theo).
-- Theo source: Javis vs gõ tay (chỉ áp dụng phần Claude).
-- Theo activity của Javis: chat / background / subagent.
-- Theo model: xếp hạng model ngốn token (kèm cột chi phí quy đổi).
-- Theo dự án (cwd): top dự án.
-- Theo thời gian: cột token mỗi ngày trong kỳ (stacked theo provider hoặc theo activity); thêm heatmap 24 giờ để thấy giờ nào chạy ngầm nhiều.
+- By provider: Claude / Codex / API (this is the main filter; choose a provider and the whole page filters by it).
+- By source: Jarvis 007 vs typed by hand (applies to the Claude part only).
+- By Jarvis 007 activity: chat / background / subagent.
+- By model: a ranking of token-hungry models (with a converted-cost column).
+- By project (cwd): top projects.
+- Over time: tokens per day in the period (stacked by provider or by activity); plus a 24-hour heatmap to see which hours the most background work runs.
 
-### 5.3 Insight tự động (danh sách đề xuất)
+### 5.3 Automatic insights (a list of suggestions)
 
-Sinh từ luật, mỗi luật ra 0..n dòng cảnh báo:
+Generated from rules, each rule producing 0..n warning lines:
 
-- Cache hit trung bình một dự án/phiên dưới ngưỡng (ví dụ < 50%) khi phiên dài -> gợi ý /compact hoặc chia phiên.
-- Một nhóm `background` (loop/lịch) chiếm tỉ trọng token lớn (ví dụ > 25% kỳ) mà output nhỏ -> "hoạt động ngầm đang ngốn, xem lại tần suất".
-- Model đắt (opus) chiếm phần lớn token cho phiên ngắn/việc vặt -> gợi ý hạ model.
-- Phiên vượt ngưỡng token tuyệt đối (ví dụ > 1M billable_in) -> gợi ý tách.
-- Token/ngày kỳ này vượt run-rate kỳ trước quá X% -> cảnh báo spike, chỉ ra nguồn tăng chính.
+- The average cache hit of a project/session is below a threshold (for example < 50%) when the session is long -> suggest /compact or splitting the session.
+- A `background` group (loops/schedules) takes a large share of tokens (for example > 25% of the period) with small output -> "hidden activity is eating a lot, review the frequency".
+- An expensive model (opus) takes most of the tokens for short sessions/small jobs -> suggest a cheaper model.
+- A session exceeds an absolute token threshold (for example > 1M billable_in) -> suggest splitting.
+- Tokens/day this period exceed the previous period's run-rate by more than X% -> spike warning, pointing out the main source of the increase.
 
-Ngưỡng để trong config, chỉnh được.
+Thresholds live in config and can be adjusted.
 
-## 6. Kỳ thời gian và so sánh
+## 6. Time periods and comparison
 
-Bộ lọc kỳ: hôm nay, hôm qua, tuần này, tuần trước, tháng này, tháng trước, 3 tháng gần nhất, năm nay. Cho phép chọn khoảng tuỳ ý (from/to) là bonus.
+Period filter: today, yesterday, this week, last week, this month, last month, last 3 months, this year. Letting the user choose an arbitrary range (from/to) is a bonus.
 
-Mỗi kỳ tự so với kỳ tương đương liền trước (hôm nay vs hôm qua, tuần này vs tuần trước, tháng này vs tháng trước, 3 tháng vs 3 tháng trước đó, năm nay vs năm ngoái). Delta hiển thị ở thẻ KPI.
+Each period is automatically compared with the equivalent period right before it (today vs yesterday, this week vs last week, this month vs last month, 3 months vs the 3 months before, this year vs last year). The delta shows on the KPI cards.
 
-Timezone: Asia/Ho_Chi_Minh. JSONL Claude là UTC nên phải convert trước khi bucket ngày, nếu không ranh giới "hôm nay" sẽ lệch.
+Timezone: Asia/Ho_Chi_Minh. The Claude JSONL is UTC so it must be converted before bucketing by day, otherwise the "today" boundary shifts.
 
-## 7. Chi phí quy đổi (pricing)
+## 7. Converted cost (pricing)
 
-Một file `pricing.json` (đơn giá USD trên 1 triệu token) cho từng model: giá input, output, cache_read, cache_write. Cost ước tính = input*giá_in + output*giá_out + cache_read*giá_cacheread + cache_create*giá_cachewrite.
+A `pricing.json` file (unit price in USD per 1 million tokens) for each model: input price, output price, cache_read, cache_write. Estimated cost = input*price_in + output*price_out + cache_read*price_cacheread + cache_create*price_cachewrite.
 
-Ý nghĩa: với Claude/ChatGPT là gói subscription nên đây KHÔNG phải tiền thật, mà là "nếu tính theo API thì tốn ngần này" - cho thấy gói cước đang tiết kiệm bao nhiêu. Với OpenRouter/API là tiền thật. Dashboard ghi rõ nhãn "ước tính quy đổi" để không hiểu nhầm.
+Meaning: Claude/ChatGPT are subscription plans, so this is NOT real money, it is "if billed by API it would cost this much" - showing how much the plan is saving. For OpenRouter/API it is real money. The dashboard labels it clearly as "converted estimate" to avoid misunderstanding.
 
-Bảng giá cần cập nhật tay khi có model mới; để trong config, không hard-code rải rác.
+The price table needs a manual update when a new model appears; keep it in config, not hard-coded in scattered places.
 
-## 8. Kiến trúc kỹ thuật
+## 8. Technical architecture
 
-Khớp stack hiện có: FastAPI (`server/main.py`) + JS thuần (`dashboard/`), không build tool.
+Matches the existing stack: FastAPI (`server/main.py`) + plain JS (`dashboard/`), no build tool.
 
 ### 8.1 `server/usage_index.py` (indexer)
 
-- Quét 3 nguồn. Với mỗi file, ghi nhớ `(path, size, mtime)` đã xử lý; chỉ đọc file mới hoặc đã đổi (parse tăng dần). 594MB/1581 file nên bắt buộc incremental.
-- Parse -> chuẩn hoá về `UsageEvent` -> ghi vào SQLite `server/usage_index.db` (gitignore, là dữ liệu dẫn xuất).
-- Hai bảng: `files_seen(path, size, mtime, provider)` để biết đã index tới đâu; `usage_events(...)` hoặc bảng gộp sẵn `usage_daily(day, provider, source, activity, model, project, input, output, cache_read, cache_create, sessions)` để query nhanh. Có thể giữ cả event thô cho drill-down phiên, cân nhắc dung lượng.
-- Hàm query: `summary(period, compare, provider=None)` trả KPI + breakdowns + timeseries; `insights(period)` chạy luật mục 5.3.
-- Đọc `conversations.db` (read-only) để lấy tập `cli_session_id` phục vụ phân loại chat vs background.
+- Scans the 3 sources. For each file, remembers the `(path, size, mtime)` already processed; reads only new or changed files (incremental parse). With 594MB / 1581 files, incremental is mandatory.
+- Parse -> normalize to `UsageEvent` -> write into the SQLite `server/usage_index.db` (gitignored, it is derived data).
+- Two tables: `files_seen(path, size, mtime, provider)` to know how far indexing has gone; `usage_events(...)` or a pre-aggregated table `usage_daily(day, provider, source, activity, model, project, input, output, cache_read, cache_create, sessions)` for fast queries. It may also keep the raw events for session drill-down; weigh the disk size.
+- Query functions: `summary(period, compare, provider=None)` returns KPIs + breakdowns + timeseries; `insights(period)` runs the section 5.3 rules.
+- Reads `conversations.db` (read-only) to get the set of `cli_session_id` used to classify chat vs background.
 
-### 8.2 Ghi-log nhánh API (forward)
+### 8.2 API branch logging (forward)
 
-- `engine.py` đã có 3 chỗ `yield {"type":"usage", ...}` (khoảng dòng 316, 492, 588). Thêm một hàm `usage_log.record(provider='api', engine, model, session_id, input, output, ...)` gọi tại các điểm đó, append vào `server/logs/usage-api.jsonl` (append-only, crash-safe). Indexer đọc file này như nguồn thứ 3.
-- Thay đổi engine tối thiểu: một dòng gọi hàm ở mỗi điểm yield. Không đổi luồng chính.
+- `engine.py` already has 3 places with `yield {"type":"usage", ...}` (around lines 316, 492, 588). Add a function `usage_log.record(provider='api', engine, model, session_id, input, output, ...)` called at those points, appending to `server/logs/usage-api.jsonl` (append-only, crash-safe). The indexer reads this file as the 3rd source.
+- Minimal engine change: one function-call line at each yield point. The main flow does not change.
 
 ### 8.3 Endpoints (FastAPI)
 
-- `GET /usage/summary?period=&compare=&provider=&project=` -> JSON KPI + breakdowns + timeseries.
-- `GET /usage/insights?period=` -> danh sách đề xuất.
-- `POST /usage/refresh` -> chạy index tăng dần, trả số file mới xử lý.
-- (tuỳ chọn) `GET /usage/session/{id}` -> chi tiết một phiên để drill-down.
-- Bảo vệ bằng cùng cơ chế auth như các route dashboard khác.
+- `GET /usage/summary?period=&compare=&provider=&project=` -> JSON KPIs + breakdowns + timeseries.
+- `GET /usage/insights?period=` -> the list of suggestions.
+- `POST /usage/refresh` -> runs the incremental index, returns the number of newly processed files.
+- (optional) `GET /usage/session/{id}` -> details of one session for drill-down.
+- Protect with the same auth mechanism as the other dashboard routes.
 
-### 8.4 Tab dashboard (UI)
+### 8.4 Dashboard tab (UI)
 
-- Thêm một tab "Token" vào `dashboard/index.html` + file `dashboard/usage.js` + style trong `style.css`.
-- Thành phần: hàng chip lọc kỳ; dropdown/segmented lọc provider; hàng thẻ KPI; các biểu đồ breakdown; biểu đồ timeseries + heatmap; khối insight.
-- Biểu đồ: dùng thư viện nhẹ nhúng sẵn (cân nhắc Chart.js một file, hoặc vẽ SVG tay để khỏi thêm dependency). Chốt ở bước lập kế hoạch.
-- Nút "Làm mới" gọi `/usage/refresh` rồi reload số.
+- Add a "Token" tab to `dashboard/index.html` + the file `dashboard/usage.js` + styles in `style.css`.
+- Components: a row of period filter chips; a provider filter dropdown/segmented control; a row of KPI cards; the breakdown charts; the timeseries chart + heatmap; the insights block.
+- Charts: use a lightweight library that is already embedded (consider the one-file Chart.js, or hand-draw SVG to avoid adding a dependency). Decide at the planning step.
+- A "Refresh" button calls `/usage/refresh` and then reloads the numbers.
 
-## 9. Phạm vi v1 và để sau
+## 9. v1 scope and what comes later
 
-v1 (làm ngay):
-- Indexer cho Claude + Codex (có lịch sử đầy đủ).
-- Cắm ghi-log forward cho nhánh API (số tích dần từ khi bật).
-- Đủ bộ KPI, breakdown (provider/source/activity/model/project/time), insight cơ bản, pricing quy đổi.
-- Tab dashboard với đủ bộ lọc kỳ + lọc provider.
+v1 (do now):
+- Indexer for Claude + Codex (with complete history).
+- Plug in forward logging for the API branch (numbers accumulate from the moment it is switched on).
+- The full set of KPIs, breakdowns (provider/source/activity/model/project/time), basic insights, converted pricing.
+- A dashboard tab with the full period filter + provider filter.
 
-Để sau (v1.1+):
-- Tách `background` thành loop vs lịch vs tự-cải-tiến (cần Javis gắn nhãn sessionId khi spawn).
-- Drill-down tới từng phiên.
-- Tool cho chính Javis đọc báo cáo token qua chat.
-- Cảnh báo chủ động (đẩy Telegram khi spike).
+Later (v1.1+):
+- Split `background` into loop vs schedule vs self-improvement (needs Jarvis 007 to label the sessionId when it spawns).
+- Drill-down to each session.
+- A tool for Jarvis 007 itself to read the token report through chat.
+- Proactive alerts (push to Telegram on a spike).
 
-## 10. Edge cases / rủi ro
+## 10. Edge cases / risks
 
-- Timezone UTC->local: sai là lệch ranh giới ngày. Phải test.
-- Codex `total_token_usage` là cộng dồn: đừng cộng mọi dòng, chỉ lấy tổng phiên.
-- Model `<synthetic>` và dòng thiếu usage: bỏ qua, không tính.
-- File đang được ghi (phiên đang chạy): đọc phần đọc được, lần refresh sau bù. Không khoá file.
-- Dung lượng index: nếu giữ event thô, `usage_index.db` có thể lớn. Cân nhắc chỉ giữ `usage_daily` + tổng theo phiên, drop event thô cũ.
-- Dedup: cùng một requestId/uuid không được đếm hai lần khi re-parse. Dùng khoá tự nhiên (uuid dòng) hoặc chỉ parse file chưa đổi.
-- Fork sạch: `usage_index.db`, `usage-api.jsonl` là dữ liệu máy, phải vào `.gitignore`, không lên git.
+- Timezone UTC->local: getting it wrong shifts the day boundary. Must be tested.
+- Codex `total_token_usage` is cumulative: do not add up every line, take only the session total.
+- The `<synthetic>` model and lines missing usage: skip, do not count.
+- A file that is being written (a running session): read the readable part, the next refresh makes up the rest. Do not lock the file.
+- Index size: if raw events are kept, `usage_index.db` can get large. Consider keeping only `usage_daily` + per-session totals, and dropping old raw events.
+- Dedup: the same requestId/uuid must not be counted twice on a re-parse. Use a natural key (the line uuid) or parse only unchanged files.
+- Clean fork: `usage_index.db`, `usage-api.jsonl` are machine data, must go into `.gitignore`, never to git.
 
-## 11. Kiểm thử
+## 11. Testing
 
-- Unit: parser Claude (một dòng mẫu -> UsageEvent đúng), parser Codex (lấy tổng phiên đúng), phân loại activity (chat vs background theo có/không trong conversations.db), gom kỳ + so sánh, đổi timezone ranh giới ngày.
-- Integration: chạy indexer trên một thư mục fixture nhỏ, gọi `/usage/summary` kiểm tra tổng khớp tay.
-- Chạy test qua `.venv` của dự án (theo ghi chú: python hệ thống thiếu lib).
+- Unit: the Claude parser (one sample line -> a correct UsageEvent), the Codex parser (takes the session total correctly), activity classification (chat vs background by presence/absence in conversations.db), period grouping + comparison, timezone conversion at the day boundary.
+- Integration: run the indexer on a small fixture folder, call `/usage/summary` and check that the total matches the hand count.
+- Run tests through the project's `.venv` (per the note: the system python lacks libs).
 
-## 12. Danh sách việc (đưa sang bước lập kế hoạch)
+## 12. Task list (carried into the planning step)
 
-1. `usage_index.py`: khung SQLite + files_seen + incremental scan.
-2. Parser Claude JSONL -> UsageEvent (gồm entrypoint, isSidechain, cwd, cache).
-3. Parser Codex rollout -> UsageEvent (tổng phiên).
-4. Phân loại activity qua join `conversations.db`.
-5. `pricing.json` + hàm tính chi phí quy đổi.
-6. Hàm `summary()` + `insights()` + gom kỳ/so sánh + timezone.
-7. `usage_log.record()` + cắm 3 điểm trong `engine.py` + parser đọc `usage-api.jsonl`.
+1. `usage_index.py`: the SQLite skeleton + files_seen + incremental scan.
+2. Claude JSONL parser -> UsageEvent (including entrypoint, isSidechain, cwd, cache).
+3. Codex rollout parser -> UsageEvent (session total).
+4. Activity classification through a join on `conversations.db`.
+5. `pricing.json` + the converted cost function.
+6. The `summary()` + `insights()` functions + period grouping/comparison + timezone.
+7. `usage_log.record()` + plug in the 3 points in `engine.py` + a parser reading `usage-api.jsonl`.
 8. Endpoints `/usage/summary`, `/usage/insights`, `/usage/refresh`.
-9. Tab "Token" trong dashboard + `usage.js` + style + chọn thư viện biểu đồ.
-10. Test unit + integration; cập nhật `.gitignore`.
+9. The "Token" tab in the dashboard + `usage.js` + styles + choosing a chart library.
+10. Unit + integration tests; update `.gitignore`.
 ```
