@@ -4,7 +4,7 @@
 
 The **Models** page is where you pick Jarvis 007's "brain": which engine and model answers you, signing into AI providers, choosing a cheap model for background work, and enabling deeper reasoning. This page decides how smart Jarvis 007 is and whose quota it spends.
 
-If you are just starting, read [Getting started & first-run setup](01-getting-started.md) first. To attach external tools to Jarvis 007, see [Connections & business data](09-mcp-va-so-lieu.md).
+If you are just starting, read [Getting started & first-run setup](01-bat-dau-thiet-lap.md) first. To attach external tools to Jarvis 007, see [Connections & business data](09-mcp-va-so-lieu.md).
 
 ## What this feature is
 
@@ -45,7 +45,7 @@ Beyond those, every capability is identical. Specifically: calling every connect
 
 > **Queueing Kanban work from API engines arrived in 0.17.1.** Before that the only route was `POST /kanban/task`, which requires Bash and curl, so only Claude Code and Codex could do it, even though the documentation promised every brain could. The `javis_task` tool through the hub now makes that promise true.
 
-In short: **capability lives in Jarvis 007, not in the model.** The three CLI engines (**Claude Code** on a Claude plan, **Codex** on a ChatGPT plan, **Antigravity CLI** on a Google plan) use the subscription you already pay for and can additionally run shell commands; the six API providers need only an API key and do everything else, orchestration, loops and skills included. Agents in a Workflow can also pick a model per provider, see [Agents & Workflows](07-agents-and-workflows.md).
+In short: **capability lives in Jarvis 007, not in the model.** The three CLI engines (**Claude Code** on a Claude plan, **Codex** on a ChatGPT plan, **Antigravity CLI** on a Google plan) use the subscription you already pay for and can additionally run shell commands; the six API providers need only an API key and do everything else, orchestration, loops and skills included. Agents in a Workflow can also pick a model per provider, see [Agents & Workflows](07-agents-va-workflows.md).
 
 ## Where to find it in Jarvis 007
 
@@ -283,7 +283,7 @@ Still not connecting after three steps? On the host run `ss -ltnp | grep 11434`:
 
 Since 0.9.37, Jarvis 007's Claude engine runs **exclusively through the Claude Agent SDK** (Anthropic's own library). The old branch that invoked the `claude` command as a separate process was removed. Two things users need to know:
 
-- **The machine still MUST have the `claude` CLI.** The SDK calls that CLI underneath, and both sign-in and native MCP go through it. Without the CLI the Claude Code card reports an error and the engine does not run, see [Getting started & first-run setup](01-getting-started.md).
+- **The machine still MUST have the `claude` CLI.** The SDK calls that CLI underneath, and both sign-in and native MCP go through it. Without the CLI the Claude Code card reports an error and the engine does not run, see [Getting started & first-run setup](01-bat-dau-thiet-lap.md).
 - **Tool permissions in background sessions are enforced PER CALL.** When a loop or workflow runs in safe background mode, every attempt to call a tool outside the allow list is refused on the spot and logged, rather than only being declared at startup. The refusal message says explicitly that this is the background session's permission guard and **not** a broken MCP connection, so seeing that line is no reason to go re-authenticate a connector.
 
 ## How Claude Code (full tools) differs from a direct API
@@ -354,14 +354,14 @@ Up to and including 0.42.1 there was a bug in exactly this place: only ChatGPT/C
 ## Tips
 
 - If you just want Jarvis 007 to remember and work smoothly, do not move Main off Claude Code. The other providers are for specific needs.
-- Set the **Background model** to something cheap so loops, Kanban work, reminders, self-learning and ingestion do not eat your main plan's quota. To see what is burning most, look at [Usage: tokens & cost](23-usage-and-cost.md).
+- Set the **Background model** to something cheap so loops, Kanban work, reminders, self-learning and ingestion do not eat your main plan's quota. To see what is burning most, look at [Usage: tokens & cost](23-muc-dung-token.md).
 - Turn **Reasoning** to Medium or High for hard questions (analysis, strategy); turn it off for quick questions to avoid waiting.
 - OpenRouter is convenient if you want to try many models from many vendors with one key.
 - To let ChatGPT call your sales tools: wire the connection on the [Connections & business data](09-mcp-va-so-lieu.md) page first, and Jarvis 007 pushes it into Codex.
 
 ## Common problems
 
-- **The Claude Code card reports that the Claude CLI is not installed**: the machine has no Claude Code CLI. The Claude engine requires it (the SDK calls that CLI underneath). Install it and click **↻ Check again**. See [Getting started & first-run setup](01-getting-started.md).
+- **The Claude Code card reports that the Claude CLI is not installed**: the machine has no Claude Code CLI. The Claude engine requires it (the SDK calls that CLI underneath). Install it and click **↻ Check again**. See [Getting started & first-run setup](01-bat-dau-thiet-lap.md).
 - **ChatGPT sign-in produces no code, or errors immediately**: your workspace may block device codes. Use the **Through the browser** button in section B.
 - **ChatGPT sign-in reports "Expired, try again"**: Jarvis 007 waits about 16 minutes before giving up. Click **Sign into ChatGPT** again for a new code.
 - **A provider is selectable but its model column is empty**: that provider is not connected, or has no models. Reconnect it in the Providers block, or add models in `settings.json` (under `model.catalog`). See [.env configuration](16-cau-hinh-env.md).
@@ -375,8 +375,8 @@ Up to and including 0.42.1 there was a bug in exactly this place: only ChatGPT/C
 ## Related
 
 - [Connections & business data](09-mcp-va-so-lieu.md) - wiring data sources and tools shared by every engine.
-- [Usage: tokens & cost](23-usage-and-cost.md) - seeing which model and which work burns most.
-- [Agents & Workflows](07-agents-and-workflows.md) - picking a model per agent.
-- [Getting started & first-run setup](01-getting-started.md) - installing the Claude Code CLI and the Codex CLI.
+- [Usage: tokens & cost](23-muc-dung-token.md) - seeing which model and which work burns most.
+- [Agents & Workflows](07-agents-va-workflows.md) - picking a model per agent.
+- [Getting started & first-run setup](01-bat-dau-thiet-lap.md) - installing the Claude Code CLI and the Codex CLI.
 
 Still stuck? See [Troubleshooting & FAQ](17-khac-phuc-su-co.md).

@@ -155,7 +155,7 @@ import lang_registry
 for _ma in lang_registry.cho_giao_dien():
     check(f"sổ tay có nhắc ngôn ngữ `{_ma['ma']}`", f"`{_ma['ma']}`" in _sotay)
 check("sổ tay nói rõ bước bộ từ vựng là TUỲ CHỌN nhưng nửa vời thì nguy hiểm",
-      "tuỳ chọn" in _sotay.lower() and "MỘT NỬA" in _sotay)
+      "optional" in _sotay.lower() and "HALF" in _sotay)
 
 
 # ============================================================

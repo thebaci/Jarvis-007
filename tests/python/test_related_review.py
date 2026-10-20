@@ -29,7 +29,7 @@ w.eng.script[(w.k("lan"), "leader_reply")] = [
 
 def rel_only(p):
     """Chỉ lô xem xét liên quan chọn nói; lô của tin chủ thì mọi người im (để đếm đúng lượt tự lên tiếng)."""
-    v = ("speak", 0.9) if "vừa đăng một tin" in p else ("silent", 0.1)
+    v = ("speak", 0.9) if "just posted a message" in p else ("silent", 0.1)
     return batch(**{k: v for k in keys_in(p)})
 
 
@@ -40,10 +40,10 @@ check("ask_peer: người được nhờ có một quyết định loại relate
 reasons = w.wake.reasons(agent_key=w.k("minh"), code="related_review")
 check("ask_peer: tạo lý do related_review (served bởi chính lô phán xử)", len(reasons) == 1
       and reasons[0]["status"] == "served", reasons)
-rel_prompt = [p for p in w.jeng.prompts if "đồng đội" in p and "quan hệ có cấu trúc" in p]
+rel_prompt = [p for p in w.jeng.prompts if "(a teammate)" in p and "structured relation" in p]
 check("lô xem xét liên quan: prompt có đúng người được nhờ, kèm quan hệ", rel_prompt
-      and keys_in(rel_prompt[0]) == [w.k("minh")] and "được đồng đội nhờ xem" in rel_prompt[0], w.jeng.prompts)
-check("trích dẫn bị bỏ trước khi phán xử", rel_prompt and "trích dẫn cũ" not in rel_prompt[0].split("## Tin cần xét")[1])
+      and keys_in(rel_prompt[0]) == [w.k("minh")] and "asked by a teammate to take a look" in rel_prompt[0], w.jeng.prompts)
+check("trích dẫn bị bỏ trước khi phán xử", rel_prompt and "trích dẫn cũ" not in rel_prompt[0].split("## Message to consider")[1])
 vt = w.eng.roles("member_volunteer")
 check("người được nhờ chọn nói: chạy lượt member_volunteer trả lời tin của đồng đội",
       [c["agent"] for c in vt] == [w.k("minh")] and "Lan" in vt[0]["prompt"], vt)
