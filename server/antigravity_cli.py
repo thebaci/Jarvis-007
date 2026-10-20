@@ -471,13 +471,13 @@ def _do_stdin(cli: str, timeout: float = 75.0) -> str:
         try:
             r = subprocess.run(
                 [cli] + co,
-                input=f"Trả lời đúng một dòng, chỉ gồm mã này, không thêm chữ nào: {_MA_CANARY}",
+                input=f"Reply with exactly one line containing only this code, no other words: {_MA_CANARY}",
                 capture_output=True, text=True, encoding="utf-8", errors="replace",
                 timeout=timeout, creationflags=_no_window())
         except Exception:
             continue
         if _MA_CANARY in ((r.stdout or "") + (r.stderr or "")):
-            print(f"[antigravity] công thức stdin dùng được: {ten}", file=sys.stderr)
+            print(f"[antigravity] working stdin recipe: {ten}", file=sys.stderr)
             return ten
     return ""
 
@@ -645,18 +645,18 @@ def _loi_nhac_file(duong_dan: str, cau_hoi: str) -> str:
         # Cắt đầu là mất câu chốt, cắt đuôi là mất câu mở; đoạn giữa mới là phần ít quan
         # trọng nhất và vẫn có đủ trong file ngữ cảnh.
         hoi = (hoi[:_DAU_NHAC_CAU_HOI].rstrip()
-               + "\n[... đoạn giữa đã lược, bản đầy đủ nằm trong file ngữ cảnh ...]\n"
+               + "\n[... middle section omitted, the full version is in the context file ...]\n"
                + hoi[-_DUOI_NHAC_CAU_HOI:].lstrip())
     return (
-        f"BẮT BUỘC LÀM TRƯỚC: mở và đọc HẾT file `{duong_dan}`.\n"
-        "File đó chứa toàn bộ chỉ dẫn hệ thống, bộ nhớ và lịch sử hội thoại của bạn. Đọc xong "
-        "thì hành xử đúng theo nó và trả lời tin nhắn mới nhất của người dùng (nằm ở cuối file, "
-        "và được chép lại ở cuối lời nhắc này). Các câu hỏi cũ hơn trong file ĐÃ được trả lời "
-        "rồi, không trả lời lại. Không nhắc tới file này trong câu trả lời, không tóm tắt nó.\n"
-        "Nếu KHÔNG mở được file (không có quyền, không tìm thấy), đừng im lặng và cũng đừng đoán: "
-        "trả lời câu hỏi dưới đây rồi nói thẳng ở cuối là bạn không đọc được file ngữ cảnh.\n"
-        "(Phải đi qua file vì hệ điều hành chặn độ dài dòng lệnh, không nhét thẳng vào đây được.)\n\n"
-        f"Tin nhắn mới nhất của người dùng:\n{hoi}"
+        f"MANDATORY FIRST STEP: open and read the ENTIRE file `{duong_dan}`.\n"
+        "That file holds all of your system instructions, memory and conversation history. Once you have read it, "
+        "behave exactly as it says and answer the user's latest message (it sits at the end of the file "
+        "and is copied again at the end of this prompt). Older questions in the file HAVE already been answered, "
+        "do not answer them again. Do not mention this file in your answer and do not summarize it.\n"
+        "If you can NOT open the file (no permission, not found), do not stay silent and do not guess: "
+        "answer the question below, then say plainly at the end that you could not read the context file.\n"
+        "(It has to go through a file because the operating system limits the command-line length, so it cannot be pasted straight in here.)\n\n"
+        f"The user's latest message:\n{hoi}"
     )
 
 
@@ -974,7 +974,7 @@ def auth_status_nen() -> dict:
             try:
                 auth_status(bo_qua_cache=True)
             except Exception as e:   # không để thread nền chết câm mang theo cờ single-flight
-                print(f"[antigravity] làm mới auth_status lỗi: {e}", file=sys.stderr)
+                print(f"[antigravity] auth_status refresh failed: {e}", file=sys.stderr)
             finally:
                 _AUTH_LAM_MOI["dang_chay"] = False
 
@@ -1192,7 +1192,7 @@ def ghi_mcp_settings(vault_root, hub: Optional[dict]) -> Optional[str]:
                 if p.exists():
                     _ghi_mot_mcp(p, None, xoa_khi_rong=True)
             except Exception as e:
-                print(f"[antigravity mcp settings] dọn {ten}: {e}", file=sys.stderr)
+                print(f"[antigravity mcp settings] cleaning {ten}: {e}", file=sys.stderr)
     return ra
 
 
@@ -1340,7 +1340,7 @@ class AntigravityCLI:
         # `model_khoa_effort`). Bỏ cờ rồi chạy lại NGAY trong lượt này - người dùng vẫn nhận
         # câu trả lời, chỉ mất phần độ sâu mà chính tên model đã ấn định sẵn.
         if self.effort and any(_la_loi_xung_effort(x) for x in ket.get("cac_loi") or []):
-            print(f"[antigravity] model {self.model} không nhận --effort, chạy lại không cờ",
+            print(f"[antigravity] model {self.model} does not accept --effort, rerunning without the flag",
                   file=sys.stderr)
             nho_model_xung_effort(self.model)
             self.effort = None
@@ -1361,7 +1361,7 @@ class AntigravityCLI:
             if not any(_la_loi_tam_thoi(x) for x in ket.get("cac_loi") or []):
                 break
             _da_thu += 1
-            print(f"[antigravity] nhà cung cấp gãy tạm thời, chờ {_nhip}s rồi hỏi lại",
+            print(f"[antigravity] provider failed temporarily, waiting {_nhip}s then retrying",
                   file=sys.stderr)
             await asyncio.sleep(_nhip)
             _ket_hong = ket
@@ -1377,7 +1377,7 @@ class AntigravityCLI:
             _duong_lui = await asyncio.to_thread(duong_prompt_dai, self.cli_path)
             if _duong_lui == "argv":      # cửa thoát env đang ép argv, mà argv vừa nổ
                 _duong_lui = "file"
-            print(f"[antigravity] prompt vượt trần dòng lệnh, chuyển sang {_duong_lui}",
+            print(f"[antigravity] prompt exceeds the command-line limit, switching to {_duong_lui}",
                   file=sys.stderr)
             ket = {}
             async for ev in self._mot_luot(full, prompt, _duong_lui, ket, giu_loi=True):
@@ -1435,15 +1435,15 @@ class AntigravityCLI:
             # sai âm thầm mà file này viết ra để tránh. Nhưng chỉ nói khi BIẾT CHẮC - dán một câu
             # cảnh báo vào mọi lượt vì không đo được cũng là một kiểu nói sai.
             if ket.get("biet_doc_hay_khong", True) and not ket.get("doc_duoc", True):
-                print(f"[antigravity] model không đọc được file ngữ cảnh "
-                      f"{ket.get('ten_ngu_canh')} (đã thử: {ket.get('da_thu_doc')})",
+                print(f"[antigravity] model could not read the context file "
+                      f"{ket.get('ten_ngu_canh')} (tried: {ket.get('da_thu_doc')})",
                       file=sys.stderr)
                 text += (localefmt.chu(_CANH_BAO_DOC_HONG, _CANH_BAO_DOC_HONG_EN) if ket.get("da_thu_doc")
                          else localefmt.chu(_CANH_BAO_CHUA_DOC, _CANH_BAO_CHUA_DOC_EN))
             # Đổi đường rồi mà chữ vẫn hỏng dấu: hết cách trong tầm Javis. Nói thẳng, đừng để
             # người dùng ngồi đoán xem mình gõ sai hay máy hỏng.
             elif "�" in text:
-                print("[antigravity] câu trả lời vẫn còn ký tự hỏng sau khi đổi đường",
+                print("[antigravity] the answer still has corrupted characters after switching route",
                       file=sys.stderr)
                 text += localefmt.chu(_CANH_BAO_HONG_DAU, _CANH_BAO_HONG_DAU_EN)
             yield {"type": "final", "content": text}
@@ -1857,7 +1857,7 @@ def kiem_tra_nhanh(timeout: float = 60.0) -> dict:
     args = [cli]
     if co_co("--output-format"):
         args += ["--output-format", "json"]
-    args += ["-p", "Trả lời đúng một chữ: ok"]
+    args += ["-p", "Reply with exactly one word: ok"]
     try:
         # stdin=DEVNULL: chưa đăng nhập thì `agy` mở menu "Select login method" chờ bàn phím
         # (xem chú thích dưới) - cắt stdin để nó thoát ngay với mã lỗi thay vì treo đủ timeout.

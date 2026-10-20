@@ -118,13 +118,13 @@ check("việc nền không cấu hình gì thì về mặc định",
 _khoi_bam = lang_mod.khoi_ngon_ngu(lang_mod.resolve(turn_text="show me the revenue by channel"))
 _khoi_ghim = lang_mod.khoi_ngon_ngu(lang_mod.resolve(turn_text="cho anh xem", reply_pref="en"))
 check("khối BÁM bảo model theo người dùng, không nêu tên ngôn ngữ nào",
-      "thứ tiếng người dùng vừa viết" in _khoi_bam
-      and "Ngôn ngữ trả lời:" not in _khoi_bam)
+      "the language the user wrote in" in _khoi_bam
+      and "Reply language:" not in _khoi_bam)
 check("khối GHIM nêu đúng tên ngôn ngữ",
-      "Ngôn ngữ trả lời: English (en)." in _khoi_ghim
-      and "thứ tiếng người dùng vừa viết" not in _khoi_ghim)
+      "Reply language: English (en)." in _khoi_ghim
+      and "the language the user wrote in" not in _khoi_ghim)
 check("khối BÁM vẫn dặn giữ nguyên tên riêng, đường dẫn, khối mã",
-      "KHÔNG dịch" in _khoi_bam)
+      "UNTRANSLATED" in _khoi_bam)
 
 
 # ============================================================

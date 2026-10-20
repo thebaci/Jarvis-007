@@ -15,47 +15,47 @@ from .client import LoiJavis
 def _parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="javis",
-        description="Nói chuyện với Javis OS từ terminal. Cần một máy chủ Javis đang chạy.",
-        epilog="Gõ nhanh:  javis \"doanh thu tuần này thế nào\"")
-    p.add_argument("--profile", default="", help="hồ sơ kết nối (mặc định: hồ sơ default)")
-    p.add_argument("--brain", default="", help="brain dùng cho lệnh này")
+        description="Talk to Jarvis 007 from the terminal. Needs a running Jarvis 007 server.",
+        epilog="Quick use:  javis \"how is revenue this week\"")
+    p.add_argument("--profile", default="", help="connection profile (default: the default profile)")
+    p.add_argument("--brain", default="", help="brain to use for this command")
     p.add_argument("-q", "--quiet", action="store_true",
-                   help="không in tiến độ, chỉ in câu trả lời")
+                   help="do not print progress, only the answer")
 
     sub = p.add_subparsers(dest="lenh")
 
-    s = sub.add_parser("chat", help="phiên hỏi đáp liên tục")
-    s.add_argument("--session", default="", help="mã phiên (giữ mạch giữa các lần chạy)")
+    s = sub.add_parser("chat", help="continuous Q&A session")
+    s.add_argument("--session", default="", help="session id (keeps the thread across runs)")
 
-    s = sub.add_parser("login", help="lưu địa chỉ + token của một Javis")
+    s = sub.add_parser("login", help="save the address + token of a Jarvis 007 server")
     s.add_argument("url")
     s.add_argument("--token", default="")
-    s.add_argument("--name", default="", help="tên hồ sơ (mặc định: mac-dinh)")
+    s.add_argument("--name", default="", help="profile name (default: mac-dinh)")
     s.add_argument("--brain", default="")
 
-    sub.add_parser("status", help="phiên bản, bộ não, mức tiết kiệm")
-    sub.add_parser("profiles", help="các hồ sơ đã lưu")
+    sub.add_parser("status", help="version, brain, savings level")
+    sub.add_parser("profiles", help="saved profiles")
 
-    s = sub.add_parser("up", help="bật Javis đã cài trên máy này rồi gắn vào")
+    s = sub.add_parser("up", help="start the Jarvis 007 installed on this machine and attach to it")
     s.add_argument("--port", type=int, default=7777)
     s.add_argument("--url", default="")
 
-    s = sub.add_parser("task", help="việc Kanban")
+    s = sub.add_parser("task", help="Kanban tasks")
     ts = s.add_subparsers(dest="task_lenh")
-    a = ts.add_parser("add", help="giao một việc")
+    a = ts.add_parser("add", help="assign a task")
     a.add_argument("title")
     a.add_argument("--mode", default="suggest", choices=["suggest", "auto", "full"])
 
-    sub.add_parser("tasks", help="liệt kê việc")
+    sub.add_parser("tasks", help="list tasks")
 
-    s = sub.add_parser("brain", help="duyệt brain")
+    s = sub.add_parser("brain", help="browse the brain")
     bs = s.add_subparsers(dest="brain_lenh")
-    a = bs.add_parser("ls", help="liệt kê thư mục")
+    a = bs.add_parser("ls", help="list a folder")
     a.add_argument("path", nargs="?", default="")
-    a = bs.add_parser("cat", help="in nội dung file")
+    a = bs.add_parser("cat", help="print file content")
     a.add_argument("path")
 
-    sub.add_parser("loops", help="liệt kê loop")
+    sub.add_parser("loops", help="list loops")
     return p
 
 

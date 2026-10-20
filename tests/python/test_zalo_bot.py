@@ -204,12 +204,12 @@ tam.write_bytes(b"%PDF-1.4 gia")
 try:
     ok, err = asyncio.run(bot(chat_id="c1").send_file(str(tam)))
     check("PDF: từ chối và NÓI RÕ vì sao (Zalo chưa có API gửi tài liệu)",
-          not ok and "gửi tài liệu" in err and "sendPhoto" in err, err)
+          not ok and "sending documents" in err and "sendPhoto" in err, err)
 finally:
     tam.unlink(missing_ok=True)
 
 ok, err = asyncio.run(bot(chat_id="c1").send_file("khong-co-that.png"))
-check("file không tồn tại thì báo đúng lý do", not ok and "không tồn tại" in err, err)
+check("file không tồn tại thì báo đúng lý do", not ok and "does not exist" in err, err)
 
 
 # ---- 8. Kho bot: kênh là trường thật, nhưng KHÔNG đổi được sau khi tạo ----

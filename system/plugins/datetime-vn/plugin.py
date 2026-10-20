@@ -67,13 +67,13 @@ def _date_add(args, ctx):
     try:
         days = int(args.get("days", 0))
     except (TypeError, ValueError):
-        return "ERROR: 'days' phải là số nguyên (âm = lùi về trước)."
+        return "ERROR: 'days' must be an integer (negative = go back)."
     base_s = args.get("from")
     if base_s:
         try:
             base = datetime.strptime(str(base_s), "%Y-%m-%d").replace(tzinfo=_tz())
         except ValueError:
-            return "ERROR: 'from' phải dạng YYYY-MM-DD."
+            return "ERROR: 'from' must be in YYYY-MM-DD format."
     else:
         base = datetime.now(_tz())
     d = base + timedelta(days=days)
@@ -83,18 +83,18 @@ def _date_add(args, ctx):
 def register(ctx):
     ctx.register_tool(
         name="javis_now",
-        description=("Ngày giờ hiện tại theo múi giờ đã cấu hình: iso, date, time, thứ trong tuần. "
-                     "Dùng khi cần biết 'hôm nay', 'bây giờ mấy giờ', đặt nhắc hẹn, hay đóng dấu thời gian báo cáo."),
+        description=("Current date and time in the configured timezone: iso, date, time, day of the week. "
+                     "Use it when you need to know 'today', 'what time is it now', to set a reminder, or to timestamp a report."),
         handler=_now, min_mode="readonly",
         schema={"type": "object", "properties": {}},
     )
     ctx.register_tool(
         name="javis_date_add",
-        description=("Tính ngày cách hôm nay (hoặc cách ngày 'from') N ngày. Tham số: days (số nguyên, "
-                     "âm = trước), from (YYYY-MM-DD, tuỳ chọn). Dùng cho 'ngày mai', '3 ngày nữa', 'tuần trước'."),
+        description=("Work out the date N days from today (or from the date 'from'). Parameters: days (integer, "
+                     "negative = before), from (YYYY-MM-DD, optional). Use it for 'tomorrow', 'in 3 days', 'last week'."),
         handler=_date_add, min_mode="readonly",
         schema={"type": "object",
-                "properties": {"days": {"type": "integer", "description": "Số ngày cộng thêm (âm = lùi)"},
-                               "from": {"type": "string", "description": "Ngày gốc YYYY-MM-DD (bỏ trống = hôm nay)"}},
+                "properties": {"days": {"type": "integer", "description": "Number of days to add (negative = go back)"},
+                               "from": {"type": "string", "description": "Start date YYYY-MM-DD (empty = today)"}},
                 "required": ["days"]},
     )

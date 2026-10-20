@@ -282,7 +282,7 @@ def _set_engine(name, ok, message="", source="probe"):
             if asyncio.iscoroutine(coro):
                 asyncio.ensure_future(coro)
         except Exception as e:
-            print(f"[engine health] notify lỗi: {e}", file=sys.stderr)
+            print(f"[engine health] notify failed: {e}", file=sys.stderr)
 
 
 def flag_engine_auth_error(name, raw) -> bool:
@@ -445,7 +445,7 @@ def engine_reconnected(name) -> None:
     try:
         probe_engines()
     except Exception as e:
-        print(f"[engine health] probe sau kết nối lỗi: {e}", file=sys.stderr)
+        print(f"[engine health] probe after connect failed: {e}", file=sys.stderr)
 
 
 def engines_snapshot() -> dict:
@@ -465,7 +465,7 @@ async def _loop():
             probe_engines()
             await sweep()
         except Exception as e:
-            print(f"[connect health] vòng quét lỗi: {type(e).__name__}: {e}",
+            print(f"[connect health] sweep failed: {type(e).__name__}: {e}",
                   file=sys.stderr)
         await asyncio.sleep(HEALTH_INTERVAL)
 

@@ -128,7 +128,7 @@ with tempfile.TemporaryDirectory() as td:
         gian = [p for p in packs.installed() if p["id"] == "acme.gian"][0]
         check("gói ship id trùng connector gốc thì connector đó bị từ chối",
               gian["connectors"] == [])
-        check("và nói rõ lý do", "đã có trong kho" in (gian["error"] or ""))
+        check("và nói rõ lý do", "already exists in the store" in (gian["error"] or ""))
         pc = mcp_catalog.get("composio")
         check("Composio gốc vẫn nguyên (không bị bẻ hướng)",
               bool(pc) and not pc.get("_pack"))
@@ -146,7 +146,7 @@ with tempfile.TemporaryDirectory() as td:
         # ─────────────── 3. Trường bị cấm ───────────────
         for ten, kw, dau_hieu in (
             ("transport internal", {"transport": "internal"}, "transport"),
-            ("đăng nhập QR", {"auth": "qr"}, "đăng nhập"),
+            ("đăng nhập QR", {"auth": "qr"}, "sign-in"),
             ("icon trỏ ra URL ngoài", {"icon": "https://theo-doi.dev/px.png"}, "icon"),
             ("icon leo ra ngoài gói", {"icon": "../../.secret_key"}, "icon"),
         ):
@@ -166,18 +166,18 @@ with tempfile.TemporaryDirectory() as td:
         lam_moi()
         rn = [p for p in packs.installed() if p["id"] == "acme.ra-ngoai"][0]
         check("từ chối: connector trỏ ra ngoài thư mục gói",
-              rn["connectors"] == [] and "ngoài" in (rn["error"] or ""))
+              rn["connectors"] == [] and "outside" in (rn["error"] or ""))
         shutil.rmtree(d)
 
         # ─────────────── 4. Manifest sai thì cả gói không nạp ───────────────
         for ten, mf, dau_hieu in (
             ("thiếu format", "spec: 1\nid: acme.x\n", "format"),
             ("spec lạ", "format: javis-pack\nspec: 99\nid: acme.x\n", "spec"),
-            ("YAML hỏng", "format: javis-pack\nspec: 1\n  id: [khong dong\n", "lỗi"),
+            ("YAML hỏng", "format: javis-pack\nspec: 1\n  id: [khong dong\n", "error"),
             ("compat không khớp",
-             "format: javis-pack\nspec: 1\nid: acme.x\ncompat: {app: '>=99.0.0'}\n", "cần Javis"),
+             "format: javis-pack\nspec: 1\nid: acme.x\ncompat: {app: '>=99.0.0'}\n", "needs Jarvis"),
             ("id khai lệch tên thư mục",
-             "format: javis-pack\nspec: 1\nid: khac-han\n", "khác tên thư mục"),
+             "format: javis-pack\nspec: 1\nid: khac-han\n", "differs from the folder name"),
         ):
             lam_goi(kho, "acme.x", manifest=mf)
             lam_moi()
@@ -191,7 +191,7 @@ with tempfile.TemporaryDirectory() as td:
         lam_moi()
         b = [p for p in packs.installed() if p["id"] == "acme.trong"][0]
         check("thư mục không có manifest thì báo thiếu, không nổ",
-              not b["ok"] and "thiếu" in b["error"])
+              not b["ok"] and "missing" in b["error"])
         shutil.rmtree(kho / "acme.trong")
 
         # Id trùng tên module của server.

@@ -98,7 +98,7 @@ check("khong_dau: bỏ dấu, đ->d, gộp khoảng trắng", m.khong_dau("  Má
 _goc = deploy_info.deploy_mode
 deploy_info.deploy_mode = lambda: "docker"
 why = m.check_ready()
-check("docker: check_fn trả lý do nhắc máy chủ", isinstance(why, str) and "máy chủ" in why)
+check("docker: check_fn trả lý do nhắc máy chủ", isinstance(why, str) and "server" in why)
 deploy_info.deploy_mode = lambda: "windows"
 # CI chạy trên Linux không màn hình: giả DISPLAY để nhánh "Linux không có DISPLAY" không bắt nhầm.
 _disp = os.environ.get("DISPLAY")
@@ -133,7 +133,7 @@ m._launch = _launch_goc
 state["running"] = [r for r in RUNNING if r["image"] != "chrome.exe"]
 out = m._open({"name": "zalo"}, ctx)
 check("mở app: không thấy tiến trình nào -> [unverified], dặn đừng nói là đã mở",
-      out.startswith("[unverified]") and "Đừng nói là đã mở" in out)
+      out.startswith("[unverified]") and "Do not say it was opened" in out)
 # Already running with a window: raised, not launched a second time.
 state["running"] = list(RUNNING)
 raised = []
@@ -192,7 +192,7 @@ check("đóng: khớp theo tiêu đề/ảnh 'sublime'", img == "sublime_text.ex
 img, why = m.resolve_close("bài viết", RUNNING)
 check("đóng: khớp theo tiêu đề cửa sổ tiếng Việt", img == "sublime_text.exe")
 img, why = m.resolve_close("explorer", RUNNING)
-check("đóng: explorer là hệ thống -> chặn", img == "" and "hệ thống" in why)
+check("đóng: explorer là hệ thống -> chặn", img == "" and "system process" in why)
 img, why = m.resolve_close("python", RUNNING)
 check("đóng: python (chính Javis) -> chặn", img == "")
 img, why = m.resolve_close("photoshop", RUNNING)
@@ -200,16 +200,16 @@ check("đóng: không chạy -> lý do nêu javis_app_list", img == "" and "javi
 
 out = m._close({"name": "chrome"}, ctx)
 check("đóng lịch sự: gọi _kill force=False", calls["kill"][-1] == ("chrome.exe", False))
-check("đóng lịch sự còn sống: [unverified], gợi ý force", out.startswith("[unverified]") and "force=true" in out and "vẫn đang chạy" in out)
+check("đóng lịch sự còn sống: [unverified], gợi ý force", out.startswith("[unverified]") and "force=true" in out and "still running" in out)
 out = m._close({"name": "chrome", "force": True}, ctx)
 check("ép tắt: gọi _kill force=True", calls["kill"][-1] == ("chrome.exe", True))
-check("ép tắt: đọc lại thấy đã tắt -> [done]", out.startswith("[done] Đã đóng") and "ép tắt" in out)
+check("ép tắt: đọc lại thấy đã tắt -> [done]", out.startswith("[done] Closed") and "force closed" in out)
 out = m._close({"name": "sublime"}, ctx)
-check("đóng lịch sự mà app tắt thật: [done]", out.startswith("[done] Đã đóng sublime_text.exe"))
+check("đóng lịch sự mà app tắt thật: [done]", out.startswith("[done] Closed sublime_text.exe"))
 state["running"] = list(RUNNING)
 m._kill = lambda image, force: ""   # the OS refuses: the process survives even a forced kill
 out = m._close({"name": "excel", "force": True}, ctx)
-check("ép tắt mà vẫn chạy -> ERROR [failed], không báo đã đóng", out.startswith("ERROR: [failed]") and "vẫn đang chạy" in out)
+check("ép tắt mà vẫn chạy -> ERROR [failed], không báo đã đóng", out.startswith("ERROR: [failed]") and "still running" in out)
 m._kill = _fake_kill
 out = m._close({"name": "explorer"}, ctx)
 check("đóng explorer qua handler: ERROR, không gọi _kill", out.startswith("ERROR") and calls["kill"][-1][0] != "explorer.exe")

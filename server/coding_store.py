@@ -573,9 +573,9 @@ def rollback(sid: str, tag: str) -> Dict[str, Any]:
 # Khối prompt gắn vào lượt chat
 # ============================================================
 KHOI_PLAN = (
-    "Chế độ PLAN đang bật. Đọc mã nguồn, tìm hiểu, rồi TRẢ VỀ MỘT KẾ HOẠCH: sửa file nào, "
-    "vì sao, rủi ro gì, thứ tự làm. KHÔNG sửa file, không chạy lệnh thay đổi trạng thái. "
-    "Chờ người dùng duyệt rồi họ sẽ đổi sang Tự động."
+    "PLAN mode is on. Read the source code, investigate, then RETURN A PLAN: which files to edit, "
+    "why, what the risks are, and the order of work. Do NOT edit files and do not run commands that change state. "
+    "Wait for the user to approve, then they will switch to Auto."
 )
 
 
@@ -594,8 +594,8 @@ def khoi_prompt(sid: str) -> str:
     mq = rb.get("muc_quyen") or MUC_QUYEN_MAC_DINH
     dong = [
         "",
-        "# === PHIÊN CODING ===",
-        f"Thư mục làm việc: {cwd}",
+        "# === CODING SESSION ===",
+        f"Working folder: {cwd}",
     ]
     # Thư mục PHỤ (0.63.8). Engine chỉ đứng được ở MỘT chỗ, nên các thư mục còn lại đi vào
     # prompt bằng đường dẫn tuyệt đối. Đường chat chạy ở mức bỏ qua hỏi quyền nên engine có
@@ -603,22 +603,22 @@ def khoi_prompt(sid: str) -> str:
     phu = [r["duong_dan"] for r in thu_muc_cua_phien(sid)
            if r["duong_dan"] != cwd and Path(r["duong_dan"]).is_dir()]
     if phu:
-        dong.append("Thư mục khác cũng thuộc việc này, dùng ĐƯỜNG DẪN TUYỆT ĐỐI để đọc và sửa:")
+        dong.append("Other folders also belong to this job, use the ABSOLUTE PATH to read and edit:")
         dong += [f"  - {p}" for p in phu]
-        dong.append("Khi việc đụng tới nhiều thư mục, nói rõ mình đang sửa file ở thư mục nào.")
+        dong.append("When the job touches several folders, say clearly which folder you are editing files in.")
     if la_git(cwd):
         nh = nhanh_hien_tai(cwd)
         if nh:
-            dong.append(f"Nhánh git: {nh}")
+            dong.append(f"Git branch: {nh}")
         if phu:
-            dong.append("Thao tác git (nhánh, worktree, điểm hồi) chỉ chạy ở thư mục làm việc.")
+            dong.append("Git operations (branch, worktree, restore point) only run in the working folder.")
     if mq == "suggest":
         dong.append(KHOI_PLAN)
     elif mq == "auto":
-        dong.append("Mức Tự động: sửa file và chạy test trong thư mục này được. "
-                    "KHÔNG commit, không push, không deploy.")
+        dong.append("Auto level: you may edit files and run tests in this folder. "
+                    "Do NOT commit, push or deploy.")
     else:
-        dong.append("Mức Toàn quyền: được commit, push và deploy khi việc yêu cầu.")
+        dong.append("Full access level: you may commit, push and deploy when the job asks for it.")
     return "\n".join(dong) + "\n"
 
 
@@ -634,7 +634,7 @@ def pinned_folder_prompt(sid: str, brain_root: str) -> str:
     cwd = cwd_cua_phien(sid)
     if not cwd:
         return ""
-    lines = ["", "# === THƯ MỤC LÀM VIỆC ===", f"Thư mục làm việc: {cwd}"]
+    lines = ["", "# === WORKING FOLDER ===", f"Working folder: {cwd}"]
     rel = ""
     if brain_root:
         try:
@@ -642,15 +642,15 @@ def pinned_folder_prompt(sid: str, brain_root: str) -> str:
         except (ValueError, OSError):
             rel = ""
     if rel and rel != ".":
-        lines.append(f"Thư mục này nằm trong brain: {rel} (công cụ file của brain dùng đường dẫn này).")
+        lines.append(f"This folder is inside the brain at: {rel} (the brain file tools use this path).")
     extra = [r["duong_dan"] for r in thu_muc_cua_phien(sid)
              if r["duong_dan"] != cwd and Path(r["duong_dan"]).is_dir()]
     if extra:
-        lines.append("Thư mục khác cũng thuộc việc này, dùng ĐƯỜNG DẪN TUYỆT ĐỐI:")
+        lines.append("Other folders also belong to this job, use the ABSOLUTE PATH:")
         lines += [f"  - {p}" for p in extra]
     if la_git(cwd):
         branch = nhanh_hien_tai(cwd)
         if branch:
-            lines.append(f"Nhánh git: {branch}")
-    lines.append("Đọc, sửa và tạo file trong thư mục này trừ khi người dùng nói khác.")
+            lines.append(f"Git branch: {branch}")
+    lines.append("Read, edit and create files in this folder unless the user says otherwise.")
     return "\n".join(lines) + "\n"

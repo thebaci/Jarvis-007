@@ -12,9 +12,9 @@ class Client:
     def __init__(self, url: str, token: str = "", timeout: float = 900.0):
         if not url:
             raise LoiJavis(
-                "Chưa biết Javis của bạn ở đâu.\n"
-                "Chạy:  javis login <địa-chỉ>      ví dụ: javis login https://javis.example.com\n"
-                "Hoặc đặt biến môi trường JAVIS_URL.")
+                "Jarvis 007 does not know where your server is.\n"
+                "Run:  javis login <address>      for example: javis login https://javis.example.com\n"
+                "Or set the JAVIS_URL environment variable.")
         self.url = url.rstrip("/")
         self.token = token or ""
         # 900 giây, và đây là chủ ý: một lượt agentic có thể đọc file, gọi vài tool rồi mới
@@ -31,15 +31,15 @@ class Client:
     def _kiem(self, r):
         if r.status_code == 401:
             raise LoiJavis(
-                "Máy chủ từ chối: token thiếu hoặc đã bị thu hồi.\n"
-                "Tạo token mới ở dashboard (Tài khoản > Token API) rồi chạy lại `javis login`.")
+                "The server refused: the token is missing or has been revoked.\n"
+                "Create a new token in the dashboard (Account > API tokens) and run `javis login` again.")
         if r.status_code == 403:
-            raise LoiJavis("Máy chủ từ chối: token này không có quyền cho lệnh đó.")
+            raise LoiJavis("The server refused: this token does not have permission for that command.")
         if r.status_code == 429:
-            raise LoiJavis("Máy chủ tạm khoá vì có quá nhiều lần thử token sai từ máy này. "
-                           "Chờ ít phút rồi thử lại.")
+            raise LoiJavis("The server has temporarily locked this machine out because of too many wrong token attempts. "
+                           "Wait a few minutes and try again.")
         if r.status_code >= 400:
-            raise LoiJavis(f"Máy chủ trả lỗi {r.status_code}: {r.text[:300]}")
+            raise LoiJavis(f"The server returned error {r.status_code}: {r.text[:300]}")
         return r
 
     def get(self, path: str, params: dict = None):
@@ -83,7 +83,7 @@ class Client:
             raise LoiJavis(self._loi_mang(e))
 
     def _loi_mang(self, e) -> str:
-        return (f"Không kết nối được tới {self.url}.\n"
-                f"Chi tiết: {type(e).__name__}: {e}\n"
-                "Kiểm tra: Javis có đang chạy không, địa chỉ có đúng không, "
-                "và máy này có ra được tới đó không.")
+        return (f"Could not connect to {self.url}.\n"
+                f"Details: {type(e).__name__}: {e}\n"
+                "Check: is Jarvis 007 running, is the address correct, "
+                "and can this machine reach it?")

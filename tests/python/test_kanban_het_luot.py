@@ -135,7 +135,7 @@ def test_worker_nhan_dien_het_luot_va_hoan_dung_moc(tmp_path, monkeypatch):
     cho = float(t["not_before"]) - time.time()
     assert 47 * 60 - 30 <= cho <= 47 * 60 + tasks_mod.LIMIT_GRACE_SECONDS + 30, cho
     assert int(t["attempts"]) == 0
-    assert "Google Antigravity" in t["block_reason"] and "Tự chạy lại" in t["block_reason"]
+    assert "Google Antigravity" in t["block_reason"] and "run again on its own" in t["block_reason"]
     assert feature.store.next_candidate(root) is None   # dispatcher không nhặt lại sau 5 giây
 
     # 2. 429 RESOURCE_EXHAUSTED không nói giờ -> hoãn khoảng cố định, CÓ tính lượt.
@@ -201,7 +201,7 @@ def test_worker_moc_qua_xa_thi_chan_han_kem_ly_do(tmp_path, monkeypatch):
     tid = feature.store.enqueue(root, "Xa", "lam", capability="files", status="ready")
     assert feature.store.claim(tid, "w1")
     t = feature._hoan_vi_het_luot(tid, "w1", hit)
-    assert t["status"] == "blocked" and "quá xa" in t["block_reason"]
+    assert t["status"] == "blocked" and "too far away" in t["block_reason"]
     feature.store.close()
 
 

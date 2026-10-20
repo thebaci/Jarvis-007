@@ -113,12 +113,12 @@ check("khối web không dính em dash", "—" not in _WEB)
 # Đường này KHÔNG đọc CLAUDE.md. Bỏ quên nó thì bật "Siêu tiết kiệm" là văn xuôi quay lại,
 # mà người dùng không có cách nào đoán ra vì sao cùng một câu hỏi lại ra hai kiểu trình bày.
 _hd_web = context_compiler.ContextCompiler._channel_contract("dashboard")
-check("capsule web: dạy chia đoạn", "chia đoạn" in _hd_web)
-check("capsule web: dạy gạch đầu dòng", "gạch đầu dòng" in _hd_web)
-check("capsule web: cho dùng bảng khi so sánh", "bảng" in _hd_web)
+check("capsule web: dạy chia đoạn", "paragraphs" in _hd_web)
+check("capsule web: dạy gạch đầu dòng", "bullet points" in _hd_web)
+check("capsule web: cho dùng bảng khi so sánh", "table" in _hd_web)
 _loi = context_compiler.ContextCompiler._output_contract_text("dashboard")
-check("phần 'Cách trả lời' vẫn còn (Core Contract trỏ vào đây)", "Cách trả lời" in _loi)
-check("phần 'Cách trả lời' nay có luật trình bày", "gạch đầu dòng" in _loi)
+check("phần 'Cách trả lời' vẫn còn (Core Contract trỏ vào đây)", "How to answer" in _loi)
+check("phần 'Cách trả lời' nay có luật trình bày", "bullet points" in _loi)
 check("capsule không dính em dash", "—" not in _hd_web and "—" not in _loi)
 
 
@@ -132,9 +132,9 @@ check("CLI: vẫn cấm ảnh nhúng và link markdown",
       "không nhúng ảnh" in _CLI and "không dùng link markdown" in _CLI)
 # Hợp đồng capsule của hai kênh này cũng vậy - cùng một luật, hai đường đi.
 check("capsule Telegram: vẫn cấm bảng",
-      "không dùng bảng Markdown" in context_compiler.ContextCompiler._channel_contract("telegram"))
+      "no Markdown tables" in context_compiler.ContextCompiler._channel_contract("telegram"))
 check("capsule CLI: vẫn cấm bảng",
-      "KHÔNG bảng Markdown" in context_compiler.ContextCompiler._channel_contract("cli"))
+      "NO Markdown tables" in context_compiler.ContextCompiler._channel_contract("cli"))
 # Nhưng gạch đầu dòng thì kênh nào cũng hiện được, nên kênh nào cũng được dạy dùng.
 for ten, khoi in (("Telegram", _TG), ("Zalo", _ZL), ("CLI", _CLI)):
     check(f"{ten}: vẫn được dùng gạch đầu dòng khi liệt kê", "gạch đầu dòng" in khoi)

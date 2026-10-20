@@ -221,7 +221,7 @@ class ZaloBot(HangLuot):
         """
         if not str(text or "").strip() and self.giau_trang_thai:
             return
-        text = text or "(không có nội dung)"
+        text = text or "(no content)"
         chunks = [text[i:i + MAX_TIN] for i in range(0, len(text), MAX_TIN)] or [text]
         for chunk in chunks:
             # Markdown trước, hỏng thì gửi lại chữ trơn. Cùng vòng hai bước với Telegram, và
@@ -235,7 +235,7 @@ class ZaloBot(HangLuot):
                 if d.get("ok"):
                     break
                 if not co_md:
-                    print(f"[zalo send] chữ trơn vẫn lỗi: {str(d.get('description'))[:200]}",
+                    print(f"[zalo send] plain text failed too: {str(d.get('description'))[:200]}",
                           file=sys.stderr)
 
     async def _typing(self, client, chat):
@@ -262,7 +262,7 @@ class ZaloBot(HangLuot):
                 self.vao_duoc_nhom = bool(me.get("can_join_groups"))
                 self.loi_danh_tinh = ""
                 return True
-            loi = str(d.get("description") or "getMe lỗi")
+            loi = str(d.get("description") or "getMe failed")
             if i < lan - 1:
                 await asyncio.sleep(2 ** i)
         self.loi_danh_tinh = (
@@ -314,7 +314,7 @@ class ZaloBot(HangLuot):
             ra.append((str(item.get("event_name") or SK_TEXT), msg))
         if not ra and tho and not self._da_bao_khuon_la:
             self._da_bao_khuon_la = True
-            print(f"[zalo getUpdates] khuôn phản hồi lạ, không bóc được tin nào: "
+            print(f"[zalo getUpdates] unfamiliar response shape, could not extract any message: "
                   f"{str(data)[:400]}", file=sys.stderr)
         return ra
 
@@ -387,19 +387,19 @@ class ZaloBot(HangLuot):
         if not url:
             if not self._da_bao_khuon_thoai:
                 self._da_bao_khuon_thoai = True
-                print(f"[zalo voice] không tìm ra đường dẫn file thoại trong payload: "
+                print(f"[zalo voice] could not find the voice file path in the payload: "
                       f"{str(msg)[:400]}", file=sys.stderr)
-            return stt.loi_thanh_dong("loi", "Zalo không kèm đường dẫn file ghi âm nên Javis "
-                                             "không tải về nghe được")
+            return stt.loi_thanh_dong("loi", "Zalo did not include a path to the recording file, so Jarvis 007 "
+                                             "could not download it to listen")
         try:
             rr = await client.get(url, timeout=httpx.Timeout(180.0))
             rr.raise_for_status()
             data = rr.content
         except Exception as e:
-            return stt.loi_thanh_dong("loi", f"không tải được file ghi âm ({type(e).__name__}: {e})")
+            return stt.loi_thanh_dong("loi", f"could not download the recording file ({type(e).__name__}: {e})")
         if len(data) > MAX_TAI_MB * 1024 * 1024:
             return stt.loi_thanh_dong("qua_lon", f"({len(data) // (1024 * 1024)}MB, "
-                                                 f"trần tải về của Javis là {MAX_TAI_MB}MB)")
+                                                 f"Jarvis 007's download limit is {MAX_TAI_MB}MB)")
         ten = f"zalo_{msg.get('message_id') or int(time.time())}.ogg"
         try:
             kq = await self.stt_fn(data, ten)
@@ -466,7 +466,7 @@ class ZaloBot(HangLuot):
         """Gửi MỘT tin chữ và nói kết quả: (ok, lỗi). Cùng lý do với `TelegramBot.send_text`."""
         text = str(text or "").strip()
         if not text:
-            return False, "tin rỗng"
+            return False, "empty message"
         async with httpx.AsyncClient(timeout=httpx.Timeout(30.0)) as client:
             for chunk in [text[i:i + MAX_TIN] for i in range(0, len(text), MAX_TIN)]:
                 loi = ""
@@ -478,7 +478,7 @@ class ZaloBot(HangLuot):
                     if d.get("ok"):
                         loi = ""
                         break
-                    loi = str(d.get("description") or "Zalo từ chối")
+                    loi = str(d.get("description") or "Zalo refused")
                     if d.get("loi_mang"):
                         return False, loi
                 if loi:
@@ -495,17 +495,17 @@ class ZaloBot(HangLuot):
         """
         chat = chat or (self.chat_ids[0] if self.chat_ids else "")
         if not chat:
-            return False, "Chưa cấu hình chat_id"
+            return False, "chat_id is not configured"
         p = Path(str(path))
         try:
             if not p.is_file():
-                return False, f"File không tồn tại: {path}"
+                return False, f"File does not exist: {path}"
             noi_dung = p.read_bytes()
         except Exception as e:
             return False, f"{type(e).__name__}: {e}"
         if p.suffix.lower() not in (".jpg", ".jpeg", ".png", ".webp", ".gif"):
-            return False, ("Zalo Bot chưa có API gửi tài liệu (chỉ có sendPhoto), nên không gửi "
-                           f"được {p.name} qua Zalo")
+            return False, ("Zalo Bot has no API for sending documents (only sendPhoto), so "
+                           f"{p.name} cannot be sent over Zalo")
         data = {"chat_id": chat}
         if caption:
             data["caption"] = str(caption)[:2000]
@@ -521,7 +521,7 @@ class ZaloBot(HangLuot):
                 if d.get("ok"):
                     return True, ""
                 return False, (str(d.get("description") or f"sendPhoto HTTP {r.status_code}") +
-                               " (Zalo có thể chỉ nhận ảnh qua URL công khai)")
+                               " (Zalo may only accept photos by public URL)")
             except Exception as e:
                 return False, f"{type(e).__name__}: {e}"
 
@@ -547,11 +547,11 @@ class ZaloBot(HangLuot):
             except asyncio.CancelledError:
                 return   # /stop tự báo, không gửi trùng
             except Exception as e:
-                print(f"[zalo lượt hỏng] {type(e).__name__}: {e}", file=sys.stderr)
+                print(f"[zalo turn failed] {type(e).__name__}: {e}", file=sys.stderr)
                 # Chế độ người thật: trục trặc kỹ thuật không gửi gì cho khách (chủ repo 15/10/2026).
                 from telegram_bot import _im_khi_hong
                 reply = (_im_khi_hong() if self.giau_trang_thai
-                         else f"⚠ Lỗi: {type(e).__name__}: {e}")
+                         else f"⚠ Error: {type(e).__name__}: {e}")
             im_lang = False
             if isinstance(reply, dict):
                 files = reply.get("files") or []
@@ -570,10 +570,10 @@ class ZaloBot(HangLuot):
                 fpath, fcap = (f.get("path"), f.get("caption", "")) if isinstance(f, dict) else (f, "")
                 ok, err = await self.send_file(fpath, fcap, chat=chat)
                 if not ok:
-                    print(f"[zalo gửi file] {fpath}: {err}", file=sys.stderr)
+                    print(f"[zalo send file] {fpath}: {err}", file=sys.stderr)
                     if not self.giau_trang_thai:
                         await self._send(client, chat,
-                                         f"⚠ Không gửi được file {Path(str(fpath)).name}: {err}")
+                                         f"⚠ Could not send the file {Path(str(fpath)).name}: {err}")
         finally:
             giu.cancel()
 
@@ -590,7 +590,7 @@ class ZaloBot(HangLuot):
                     self._da_thay(msg.get("message_id"))
             except Exception:
                 pass
-            print(f"[zalo] bot started (chat_id={','.join(self.chat_ids) or 'mọi người'})",
+            print(f"[zalo] bot started (chat_id={','.join(self.chat_ids) or 'everyone'})",
                   file=sys.stderr)
             self.status = "polling"
             while not self._stop:
@@ -633,7 +633,7 @@ class ZaloBot(HangLuot):
                             self.last_error = localefmt.chu(f"{mo_ta} (gãy {self._gay_lien_tiep} vòng liên tiếp)",
                                                             f"{mo_ta} (failed {self._gay_lien_tiep} rounds in a row)")
                         else:
-                            print(f"[zalo] getUpdates gãy vòng {self._gay_lien_tiep}: {mo_ta[:160]}",
+                            print(f"[zalo] getUpdates failed on round {self._gay_lien_tiep}: {mo_ta[:160]}",
                                   file=sys.stderr)
                         await asyncio.sleep(min(10, 2 * self._gay_lien_tiep))
                         continue
@@ -654,7 +654,7 @@ class ZaloBot(HangLuot):
                         if meta["chat_type"] != "private":
                             await self._bao_su_kien(meta)
                         if self.chat_ids and chat not in self.chat_ids:
-                            await self._send(client, chat, "Bạn không có quyền dùng bot Javis này.")
+                            await self._send(client, chat, "You are not allowed to use this Jarvis 007 bot.")
                             continue
                         text = str(msg.get("text") or "").strip()
                         if not text:
@@ -685,7 +685,7 @@ class ZaloBot(HangLuot):
                 "chat_id_moi": "",
             })
         except Exception as e:
-            print(f"[zalo sự kiện nhóm] {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"[zalo group event] {type(e).__name__}: {e}", file=sys.stderr)
 
     def start(self):
         self._stop = False

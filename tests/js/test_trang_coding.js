@@ -155,7 +155,7 @@ check("the block is appended to the turn prompt (with the brain, for the pinned-
 })());
 check("và nói cho engine biết nó đang đứng ở thư mục nào", (() => {
   const ST = fs.readFileSync(path.join(ROOT, "server", "coding_store.py"), "utf8");
-  return /Thư mục làm việc: \{cwd\}/.test(ST);
+  return /Working folder: \{cwd\}/.test(ST);
 })());
 
 // ---- 5. Luật mượn (giữ từ bản đầu) ----

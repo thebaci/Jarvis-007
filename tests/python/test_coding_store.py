@@ -203,11 +203,11 @@ check("bỏ lại id đã bỏ trả False", coding_store.bo_thu_muc(r["id"]) is
 coding_store.dat_rang_buoc(SID, thu_muc_id=tm_thuong["id"], muc_quyen="auto")
 k = coding_store.khoi_prompt(SID)
 check("khối prompt nói rõ thư mục làm việc", str(Path(khong_git).resolve()) in k)
-check("mức Tự động nói KHÔNG commit/push/deploy", "KHÔNG commit" in k)
+check("mức Tự động nói KHÔNG commit/push/deploy", "Do NOT commit" in k)
 coding_store.dat_rang_buoc(SID, muc_quyen="suggest")
 k2 = coding_store.khoi_prompt(SID)
 check("chế độ Plan BẢO engine trả về kế hoạch rồi dừng",
-      "KHÔNG sửa file" in k2 and "KẾ HOẠCH" in k2.upper())
+      "Do NOT edit files" in k2 and "PLAN" in k2.upper())
 coding_store.dat_rang_buoc(SID, muc_quyen="full")
 check("mức Toàn quyền nói rõ được commit/push/deploy", "Toàn quyền" in coding_store.khoi_prompt(SID))
 coding_store.dat_rang_buoc(SID, thu_muc_id="")
@@ -247,16 +247,16 @@ check("trường cũ `thu_muc` vẫn trỏ đúng thư mục chính (mã cũ kh�
       coding_store.rang_buoc("pnhieu").get("thu_muc") == a["id"])
 
 _kp = coding_store.khoi_prompt("pnhieu")
-check("prompt nói rõ thư mục làm việc", f"Thư mục làm việc: {_A}" in _kp)
+check("prompt nói rõ thư mục làm việc", f"Working folder: {_A}" in _kp)
 check("prompt liệt kê thư mục phụ bằng đường dẫn TUYỆT ĐỐI", str(_thuong.resolve()) in _kp)
-check("và dặn dùng đường dẫn tuyệt đối", "ĐƯỜNG DẪN TUYỆT ĐỐI" in _kp)
+check("và dặn dùng đường dẫn tuyệt đối", "ABSOLUTE PATH" in _kp)
 
 # Bỏ tích cái chính thì cái kế tiếp lên thay, không để phiên mất chỗ đứng.
 coding_store.dat_rang_buoc("pnhieu", thu_muc_ids=[b["id"]])
 check("bỏ thư mục chính thì cái còn lại lên thay",
       coding_store.cwd_cua_phien("pnhieu") == str(_thuong.resolve()))
 check("prompt lúc chỉ còn một thư mục thì KHÔNG bịa ra mục thư mục phụ",
-      "Thư mục khác cũng thuộc việc này" not in coding_store.khoi_prompt("pnhieu"))
+      "Other folders also belong to this job" not in coding_store.khoi_prompt("pnhieu"))
 
 coding_store.dat_rang_buoc("pnhieu", thu_muc_ids=[])
 check("gỡ hết thì về chat trong bộ não", coding_store.cwd_cua_phien("pnhieu") == "")

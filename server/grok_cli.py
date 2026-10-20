@@ -363,7 +363,7 @@ def _doc_toml_ky(p: Path) -> tuple:
             d = tomllib.load(f)
         return True, (d if isinstance(d, dict) else {})
     except Exception as e:
-        print(f"[grok mcp settings] `{p}` không đọc được, KHÔNG ghi đè: {e}", file=sys.stderr)
+        print(f"[grok mcp settings] `{p}` could not be read, NOT overwriting: {e}", file=sys.stderr)
         return False, {}
 
 
@@ -695,7 +695,7 @@ def _che_bi_mat(dong: str) -> str:
         _BIMAT_RE = re.compile(r"\b(?![A-Z0-9]{4,}-)[A-Za-z0-9_\-]{32,}\b")
     if "://" in dong:
         return dong          # link đăng nhập: người dùng cần nguyên vẹn để bấm
-    return _BIMAT_RE.sub("[đã che]", dong)
+    return _BIMAT_RE.sub("[redacted]", dong)
 
 
 def _ghi_nhat_ky(dong: str) -> None:
@@ -763,13 +763,13 @@ def _doc_luong(proc) -> None:
                     _ghi_nhat_ky(buf)
                     buf = ""
     except Exception as e:
-        _ghi_nhat_ky(f"[Javis đọc output lỗi] {type(e).__name__}: {e}")
+        _ghi_nhat_ky(f"[Jarvis 007 failed reading output] {type(e).__name__}: {e}")
     if buf.strip():
         _bat_url_code(buf)
         _ghi_nhat_ky(buf)
     try:
         _LOGIN["ma_thoat"] = proc.wait(timeout=5)
-        _ghi_nhat_ky(f"[grok login kết thúc, mã thoát {_LOGIN['ma_thoat']}]")
+        _ghi_nhat_ky(f"[grok login finished, exit code {_LOGIN['ma_thoat']}]")
     except Exception:
         pass
 
@@ -800,7 +800,7 @@ def login_start(cho_giay: float = 30.0) -> dict:
                   log=deque(maxlen=NHAT_KY_TOI_DA), ma_thoat=None)
     # Ghi luôn lệnh đã chạy: bản CLI không khai `--device-auth` thì Javis chạy `grok login`
     # trần, và hai đường đó hỏng theo hai kiểu khác nhau. Không ghi lại thì đoán mò.
-    _ghi_nhat_ky("[Javis chạy] " + " ".join(args[1:]))
+    _ghi_nhat_ky("[Jarvis 007 ran] " + " ".join(args[1:]))
     threading.Thread(target=_doc_luong, args=(proc,), name="javis-grok-login",
                      daemon=True).start()
     han = time.time() + cho_giay
@@ -1020,7 +1020,7 @@ def _chan_dong(chan: dict) -> list:
     duoi = list(chan.get("duoi") or [])
     bo = int(chan.get("so_dong") or 0) - len(dau) - len(duoi)
     if bo > 0:
-        return dau + [f"... (lược {bo} dòng giữa) ..."] + duoi
+        return dau + [f"... ({bo} middle lines omitted) ..."] + duoi
     return dau + duoi
 
 
@@ -1151,8 +1151,8 @@ class GrokCLI:
             text = "".join(manh2).strip() or self._vot_chu(chan2)
             if text:
                 # Ghi lại để còn biết mà đổi hẳn định dạng mặc định nếu đường kia luôn hụt.
-                print("[grok] `--output-format streaming-json` không ra nội dung, `json` qua "
-                      "argv thì được. Sơ đồ sự kiện của bản CLI này khác bảng Javis đang đoán.",
+                print("[grok] `--output-format streaming-json` produced no content, `json` via "
+                      "argv worked. This CLI version's event schema differs from the table Jarvis 007 assumes.",
                       file=sys.stderr)
             else:
                 # Giữ cả hai để câu lỗi kể được cả hai lần, không chỉ lần sau.
@@ -1527,7 +1527,7 @@ def kiem_tra_nhanh(timeout: float = 30.0) -> dict:
         args += ["--output-format", "json"]
     if co_co("--no-auto-update"):
         args.append("--no-auto-update")
-    args += ["-p", "Trả lời đúng một chữ: ok"]
+    args += ["-p", "Reply with exactly one word: ok"]
     try:
         r = subprocess.run(args, capture_output=True, text=True, encoding="utf-8",
                            errors="replace", timeout=timeout, creationflags=_no_window(),

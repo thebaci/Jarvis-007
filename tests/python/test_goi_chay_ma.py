@@ -167,7 +167,7 @@ with tempfile.TemporaryDirectory() as td:
         tat = pack_install.quet_tuong_thich()
         check("quét lúc khởi động TẮT gói không còn khớp phiên bản",
               any(x["id"] == "acme.cu" for x in tat))
-        check("và nêu lý do đọc được", "cần Javis" in (tat[0]["reason"] if tat else ""))
+        check("và nêu lý do đọc được", "needs Jarvis" in (tat[0]["reason"] if tat else ""))
         check("tool của nó biến mất", not route_co("tool_cu"))
         check("nhưng gói KHÔNG bị xoá (hạ cấp rồi nâng lại là chạy tiếp)",
               (packs.PACKS_DIR / "acme.cu").is_dir())

@@ -97,9 +97,9 @@ _PROTECTED = {"explorer.exe", "csrss.exe", "winlogon.exe", "wininit.exe", "servi
 # spoken as; keep the two in step.
 DONE, UNVERIFIED, ASK, STARTED = "[done]", "[unverified]", "[ask]", "[started]"
 FAILED = "ERROR: [failed]"
-OUTCOME_RULE = ("Kết quả mở đầu bằng [done] (đã kiểm tra thật), [unverified] (đã gửi lệnh nhưng không "
-                "xác nhận được: KHÔNG BAO GIỜ nói là đã xong, nói rõ là chưa chắc), [ask] (chưa làm vì "
-                "phải đoán: hỏi lại người dùng), [started] (đang chạy) hoặc ERROR: [failed] (không làm được).")
+OUTCOME_RULE = ("The result starts with [done] (really verified), [unverified] (the command was sent but "
+                "could not be confirmed: NEVER say it is done, say plainly that it is uncertain), [ask] (not done "
+                "because it would be a guess: ask the user again), [started] (running) or ERROR: [failed] (could not be done).")
 
 # Names shorter than this must match exactly: "wp" is a prefix of far too many programs (it
 # matched wps.exe and the assistant reported WPS Office as WhatsApp in the project this came from).
@@ -304,7 +304,7 @@ def _launch(target: str, kind: str) -> str:
         if IS_MAC:
             cmd = ["open", "-a", target] if kind == "app" else ["open", target]
             r = subprocess.run(cmd, capture_output=True, text=True, timeout=10, creationflags=_no_window())
-            return "" if r.returncode == 0 else (r.stderr or "open lỗi").strip()
+            return "" if r.returncode == 0 else (r.stderr or "open failed").strip()
         if kind == "url" or kind == "path":
             subprocess.Popen(["xdg-open", target], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                              creationflags=_no_window())
@@ -371,12 +371,12 @@ def _raise_window(entry: dict, running: List[dict]) -> Tuple[bool, bool]:
 def check_ready() -> Optional[str]:
     mode = deploy_info.deploy_mode() if deploy_info else ("windows" if IS_WIN else "native")
     if mode == "docker":
-        return ("Javis đang chạy trong Docker trên máy chủ, không phải trên máy của bạn, nên không "
-                "mở hay đóng app trên máy bạn được. Muốn dùng tính năng này hãy chạy Javis ngay "
-                "trên máy tính đang ngồi.")
+        return ("Jarvis 007 is running in Docker on the server, not on your computer, so it cannot "
+                "open or close apps on your machine. To use this feature, run Jarvis 007 directly "
+                "on the computer you are sitting at.")
     if not IS_WIN and not IS_MAC and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
-        return ("Máy chạy Javis là Linux không có màn hình (không có DISPLAY), nên không mở app "
-                "đồ hoạ được.")
+        return ("The machine running Jarvis 007 is Linux with no display (no DISPLAY), so it cannot open "
+                "graphical apps.")
     return None
 
 
@@ -447,8 +447,8 @@ def _list(args, ctx) -> str:
         "installed": sorted(installed, key=khong_dau)[:_LIST_MAX],
         "installed_total": len(installed),
         "running": dang_chay[:_LIST_MAX],
-        "hint": "Gọi javis_app_open với name là tên trong installed (hoặc bí danh như chrome, "
-                "word, máy tính); javis_app_close với name khớp app/title trong running.",
+        "hint": "Call javis_app_open with name set to a name from installed (or an alias such as chrome, "
+                "word, máy tính); javis_app_close with name matching an app/title in running.",
     }, ensure_ascii=False)
 
 
@@ -456,7 +456,7 @@ def resolve_open(name: str, vault_root: Optional[str]) -> Tuple[str, str, str]:
     """(target, kind, mô tả) hoặc ("", "", lý do không tìm thấy)."""
     n = str(name or "").strip()
     if not n:
-        return "", "", "thiếu name: tên app, URL hoặc đường dẫn."
+        return "", "", "missing name: an app name, URL or path."
     low = n.lower()
     if low.startswith(("http://", "https://")):
         return n, "url", n
@@ -464,14 +464,14 @@ def resolve_open(name: str, vault_root: Optional[str]) -> Tuple[str, str, str]:
     p = Path(n)
     if p.is_absolute():
         if not p.exists():
-            return "", "", f"không thấy đường dẫn {n}."
+            return "", "", f"path not found: {n}."
         if not _duong_dan_cho_phep(p, vault_root):
-            return "", "", ("đường dẫn nằm ngoài thư mục người dùng và ngoài brain, tool không mở "
-                            "để tránh chạy nhầm file hệ thống.")
+            return "", "", ("the path is outside the user's folder and outside the brain, so the tool will not open it "
+                            "to avoid running a system file by mistake.")
         if _la_file_chay_duoc(p):
-            return "", "", ("đây là file CHẠY ĐƯỢC (script, chương trình, lối tắt), tool không mở "
-                            "để không chạy mã vừa được ghi trong lượt chat. Mở app thì dùng tên app; "
-                            "muốn chạy file này thì người dùng tự mở.")
+            return "", "", ("this is an EXECUTABLE file (script, program, shortcut), so the tool will not open it "
+                            "to avoid running code that was just written during the chat turn. To open an app use the app name; "
+                            "if this file should be run, the user opens it themselves.")
         return str(p), "path", str(p)
     installed = _installed()
     ten = [a["name"] for a in installed]
@@ -489,9 +489,9 @@ def resolve_open(name: str, vault_root: Optional[str]) -> Tuple[str, str, str]:
     goi_y = [c for c, sc in ((c, best_match(n, [c])[1]) for c in ten) if sc >= 0.5][:5]
     if goi_y:
         # Close but not sure: opening the nearest name would be a guess.
-        return "", "ask", (f"không chắc '{n}' là app nào. Gần giống: {', '.join(goi_y)}. Hỏi lại người dùng "
-                           "muốn mở app nào, hoặc gọi javis_app_list để xem danh sách.")
-    return "", "", (f"không thấy app nào tên giống '{n}' trong máy. Gọi javis_app_list để xem danh sách.")
+        return "", "ask", (f"not sure which app '{n}' is. Close matches: {', '.join(goi_y)}. Ask the user "
+                           "which app to open, or call javis_app_list to see the list.")
+    return "", "", (f"no app named like '{n}' was found on this machine. Call javis_app_list to see the list.")
 
 
 def _running_for(name: str, running: List[dict]) -> List[dict]:
@@ -504,14 +504,14 @@ def _open(args, ctx) -> str:
     name = str((args or {}).get("name") or "")
     target, kind, mo_ta = resolve_open(name, getattr(ctx, "vault_root", None))
     if not target:
-        return (f"{ASK} Chưa mở gì: " + mo_ta) if kind == "ask" else (f"{FAILED} " + mo_ta)
+        return (f"{ASK} Nothing opened yet: " + mo_ta) if kind == "ask" else (f"{FAILED} " + mo_ta)
     if kind in ("url", "path"):
         err = _launch(target, kind)
         if err:
-            return f"{FAILED} không mở được {mo_ta} ({err})."
-        where = "trình duyệt" if kind == "url" else "app mặc định của loại file này"
+            return f"{FAILED} could not open {mo_ta} ({err})."
+        where = "the browser" if kind == "url" else "the default app for this file type"
         # Nothing can be read back here: the default handler may already be open on another tab.
-        return f"{UNVERIFIED} Đã gửi {mo_ta} tới {where}, không kiểm tra được nó đã hiện lên chưa."
+        return f"{UNVERIFIED} Sent {mo_ta} to {where}; could not check whether it showed up."
     before = _list_running()
     # Already running with a window: bring it forward instead of starting a second copy.
     if not IS_MAC:
@@ -519,14 +519,14 @@ def _open(args, ctx) -> str:
         if mine:
             asked, verified = _raise_window(mine[0], before)
             if asked and verified:
-                return f"{DONE} {mo_ta} đang chạy sẵn, đã đưa cửa sổ lên trước."
+                return f"{DONE} {mo_ta} is already running; brought its window to the front."
             if asked:
-                return (f"{UNVERIFIED} {mo_ta} đang chạy sẵn, đã yêu cầu đưa cửa sổ lên trước nhưng không "
-                        "xác nhận được (Windows có thể chỉ nháy biểu tượng ở thanh tác vụ).")
+                return (f"{UNVERIFIED} {mo_ta} is already running; asked to bring its window to the front but could not "
+                        "confirm it (Windows may only flash the taskbar icon).")
             # Could not raise (no window API, a tray-only app): launching brings it back.
     err = _launch(target, kind)
     if err:
-        return f"{FAILED} không mở được {mo_ta} ({err})."
+        return f"{FAILED} could not open {mo_ta} ({err})."
     old_pids = {str(r.get("pid")) for r in before}
     waited = 0.0
     while waited < VERIFY_S:
@@ -534,19 +534,19 @@ def _open(args, ctx) -> str:
         waited += VERIFY_STEP_S
         now = _list_running()
         if any(str(r.get("pid")) not in old_pids for r in _running_for(mo_ta, now)):
-            return f"{DONE} Đã mở app {mo_ta} (đã thấy tiến trình của nó chạy)."
+            return f"{DONE} Opened app {mo_ta} (its process was seen running)."
     if _running_for(mo_ta, before):
         # Single-instance apps hand the request to the copy already running and exit at once.
-        return f"{UNVERIFIED} Đã gửi lệnh mở {mo_ta}; nó vốn đang chạy nên không thấy tiến trình mới để xác nhận."
-    return (f"{UNVERIFIED} Đã gửi lệnh mở {mo_ta} nhưng sau {int(VERIFY_S)} giây chưa thấy app chạy. "
-            "Có thể app khởi động chậm, hoặc lối tắt đã hỏng. Đừng nói là đã mở.")
+        return f"{UNVERIFIED} Sent the open command for {mo_ta}; it was already running, so there is no new process to confirm."
+    return (f"{UNVERIFIED} Sent the open command for {mo_ta} but the app was not seen running after {int(VERIFY_S)} seconds. "
+            "It may start slowly, or the shortcut may be broken. Do not say it was opened.")
 
 
 def resolve_close(name: str, running: List[dict]) -> Tuple[str, str]:
     """(image, lý do rỗng) hoặc ("", lý do)."""
     n = str(name or "").strip()
     if not n:
-        return "", "thiếu name: tên app đang chạy."
+        return "", "missing name: the name of a running app."
     images = sorted({r["image"] for r in running})
     # Khớp theo ảnh tiến trình trước, rồi theo tiêu đề cửa sổ.
     hit, s = best_match(n, images, nguong=0.8)
@@ -562,9 +562,9 @@ def resolve_close(name: str, running: List[dict]) -> Tuple[str, str]:
                         best, best_s = r["image"], sc
         hit = best
     if not hit:
-        return "", f"không thấy app nào đang chạy khớp '{n}'. Gọi javis_app_list để xem app đang chạy."
+        return "", f"no running app matches '{n}'. Call javis_app_list to see the running apps."
     if hit.lower() in _PROTECTED:
-        return "", f"'{hit}' là tiến trình hệ thống hoặc chính Javis, tool không đóng."
+        return "", f"'{hit}' is a system process or Jarvis 007 itself, so the tool will not close it."
     return hit, ""
 
 
@@ -584,45 +584,45 @@ def _close(args, ctx) -> str:
         return f"{FAILED} " + why
     out = _kill(image, force)
     if out.startswith("__ERR__"):
-        return f"{FAILED} không đóng được {image} ({out[8:]})."
+        return f"{FAILED} could not close {image} ({out[8:]})."
     # Read back in both modes: a polite close may sit on a "save changes?" dialog, and even a
     # forced one can be refused (another user's process, access denied).
     time.sleep(1.5)
     con = [r for r in _list_running() if r["image"].lower() == image.lower()]
     if con and not force:
-        return (f"{UNVERIFIED} Đã gửi lệnh đóng tới {image} nhưng nó vẫn đang chạy ({len(con)} cửa sổ), có thể "
-                f"đang hỏi lưu tài liệu. Người dùng muốn ép tắt thì gọi lại với force=true.")
+        return (f"{UNVERIFIED} Sent the close command to {image} but it is still running ({len(con)} windows); it may "
+                f"be asking to save a document. If the user wants to force it closed, call again with force=true.")
     if con:
-        return f"{FAILED} đã ép tắt {image} nhưng nó vẫn đang chạy ({len(con)} tiến trình)."
-    return f"{DONE} Đã đóng {image}." + (" (ép tắt)" if force else "")
+        return f"{FAILED} force-closed {image} but it is still running ({len(con)} processes)."
+    return f"{DONE} Closed {image}." + (" (force closed)" if force else "")
 
 
 def register(ctx):
     ctx.register_tool(
         name="javis_app_list",
-        description=("Liệt kê app đã cài và app đang chạy trên máy đang chạy Javis. Dùng khi người "
-                     "dùng hỏi 'đang mở app nào', 'máy có app gì', hoặc trước khi mở/đóng mà chưa chắc tên. "
-                     "filter: lọc theo chuỗi (tuỳ chọn)."),
+        description=("List the installed apps and the running apps on the machine running Jarvis 007. Use when the "
+                     "user asks 'đang mở app nào' (which apps are open), 'máy có app gì' (what apps are installed), or before opening/closing "
+                     "when the name is uncertain. filter: filter by string (optional)."),
         handler=_list, min_mode="readonly", check_fn=check_ready,
         schema={"type": "object", "properties": {"filter": {"type": "string"}}},
     )
     ctx.register_tool(
         name="javis_app_open",
-        description=("MỞ một app / địa chỉ web / file trên máy đang chạy Javis, làm ngay không hỏi lại. "
-                     "name: tên app (khớp mờ, có bí danh: chrome, edge, word, excel, máy tính, notepad, "
-                     "vscode, zalo...), hoặc URL http(s), hoặc đường dẫn tuyệt đối trong thư mục người "
-                     "dùng / trong brain. Dùng khi người dùng nói 'mở Chrome', 'bật Excel lên', "
-                     "'mở trang youtube.com'. App đang chạy sẵn thì đưa cửa sổ lên trước, không mở bản thứ hai. "
+        description=("OPEN an app / web address / file on the machine running Jarvis 007, right away without asking again. "
+                     "name: the app name (fuzzy match, with aliases: chrome, edge, word, excel, máy tính, notepad, "
+                     "vscode, zalo...), or an http(s) URL, or an absolute path inside the user's "
+                     "folder / inside the brain. Use when the user says 'mở Chrome' (open Chrome), 'bật Excel lên' (turn Excel on), "
+                     "'mở trang youtube.com' (open youtube.com). If the app is already running, bring its window to the front instead of opening a second copy. "
                      + OUTCOME_RULE),
         handler=_open, min_mode="safe", check_fn=check_ready,
         schema={"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]},
     )
     ctx.register_tool(
         name="javis_app_close",
-        description=("ĐÓNG một app đang chạy trên máy đang chạy Javis, làm ngay không hỏi lại. name: tên "
-                     "app hoặc tiêu đề cửa sổ. Mặc định đóng lịch sự (app có tài liệu chưa lưu sẽ tự hỏi "
-                     "lưu); force=true chỉ khi người dùng nói 'ép tắt' / 'tắt hẳn'. Dùng khi người dùng nói "
-                     "'tắt Chrome', 'đóng Excel'. " + OUTCOME_RULE),
+        description=("CLOSE a running app on the machine running Jarvis 007, right away without asking again. name: the "
+                     "app name or window title. Closes politely by default (an app with unsaved documents will ask "
+                     "to save); force=true only when the user says 'ép tắt' / 'tắt hẳn' (force quit). Use when the user says "
+                     "'tắt Chrome' (turn off Chrome), 'đóng Excel' (close Excel). " + OUTCOME_RULE),
         handler=_close, min_mode="full", check_fn=check_ready,
         schema={"type": "object", "properties": {"name": {"type": "string"},
                                                  "force": {"type": "boolean"}},

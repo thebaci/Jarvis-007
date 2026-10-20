@@ -455,10 +455,10 @@ def khoi_ngon_ngu(quyet_dinh: LangDecision) -> str:
     """
     l = lang_registry.get(quyet_dinh.lang)
     chung = [
-        "Giữ nguyên KHÔNG dịch: tên riêng, đường dẫn file, tên tool, tên brain, khối mã, và "
-        "đoạn trích nguyên văn từ brain hoặc từ kết quả tool.",
-        "Nội dung trong brain viết bằng ngôn ngữ khác thì cứ đọc bình thường, chỉ TRẢ LỜI "
-        "theo luật trên.",
+        "Leave UNTRANSLATED: proper nouns, file paths, tool names, brain names, code blocks, and "
+        "verbatim excerpts from the brain or from tool results.",
+        "If content in the brain is written in another language, read it as usual and only ANSWER "
+        "by the rule above.",
     ]
 
     if quyet_dinh.theo_nguoi_dung:
@@ -468,13 +468,13 @@ def khoi_ngon_ngu(quyet_dinh: LangDecision) -> str:
             "",
             "",
             "# === NGÔN NGỮ ===",
-            "Trả lời bằng ĐÚNG thứ tiếng người dùng vừa viết trong tin nhắn cuối cùng. Họ gõ "
-            "tiếng Việt thì trả lời tiếng Việt, gõ tiếng Anh thì trả lời tiếng Anh, gõ thứ "
-            "tiếng nào khác thì trả lời bằng chính thứ tiếng đó.",
-            "Viết TOÀN BỘ câu trả lời bằng ngôn ngữ ấy, kể cả tiêu đề, nhãn, đơn vị và câu "
-            "cảnh báo. Đừng trộn hai thứ tiếng trong một câu trả lời.",
-            "Tin nhắn quá ngắn để đoán (\"ok\", \"thanks\") thì giữ nguyên thứ tiếng đang dùng "
-            "trong cuộc trò chuyện này.",
+            "Reply in EXACTLY the language the user wrote in their last message. If they type "
+            "Vietnamese, reply in Vietnamese; if they type English, reply in English; if they type "
+            "any other language, reply in that same language.",
+            "Write the ENTIRE answer in that language, including headings, labels, units and "
+            "warnings. Do not mix two languages in one answer.",
+            "If the message is too short to tell (\"ok\", \"thanks\"), keep the language already in use "
+            "in this conversation.",
             *chung,
         ])
 
@@ -482,13 +482,13 @@ def khoi_ngon_ngu(quyet_dinh: LangDecision) -> str:
         "",
         "",
         "# === NGÔN NGỮ ===",
-        f"Ngôn ngữ trả lời: {l.lang_directive} ({l.code}).",
+        f"Reply language: {l.lang_directive} ({l.code}).",
     ]
     if quyet_dinh.detected and quyet_dinh.detected != l.code:
-        dong.append(f"(Người dùng đang viết bằng: {quyet_dinh.detected}. Vẫn trả lời bằng "
-                    f"{l.lang_directive} theo lựa chọn đã ghim.)")
+        dong.append(f"(The user is writing in: {quyet_dinh.detected}. Still reply in "
+                    f"{l.lang_directive} as per the pinned choice.)")
     dong += [
-        "Viết TOÀN BỘ câu trả lời bằng ngôn ngữ này, kể cả tiêu đề, nhãn, đơn vị và câu cảnh báo.",
+        "Write the ENTIRE answer in this language, including headings, labels, units and warnings.",
         *chung,
         l.nudge,
     ]
