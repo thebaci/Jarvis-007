@@ -10,7 +10,7 @@ Open it at: the **Self-learning** page (**Brain** group on the left nav rail), s
 
 ## Why turn it on
 
-The brain is all the knowledge Javis has accumulated about you and your work. It sits on the machine's or VPS's disk. With only one copy, one accident loses everything. Syncing with GitHub gives you:
+The brain is all the knowledge Jarvis 007 has accumulated about you and your work. It sits on the machine's or VPS's disk. With only one copy, one accident loses everything. Syncing with GitHub gives you:
 
 - An off-machine copy, safe when hardware fails.
 - A history of every change (review it, restore an earlier point).
@@ -40,7 +40,7 @@ The brain is all the knowledge Javis has accumulated about you and your work. It
 4. **Permissions** → Repository permissions → **Contents** → choose **Read and write**.
 5. Click Generate and **copy the token** (shaped `github_pat_...`). The token is shown once only, so copy it immediately.
 
-### Step 3 - Paste it into Javis
+### Step 3 - Paste it into Jarvis 007
 
 1. Open the **Self-learning** page → the **⇅ Sync brain with GitHub (two-way)** section.
 2. Paste the **repo URL (https)** and the **GitHub token (fine-grained, Contents permission)** into their fields.
@@ -71,7 +71,7 @@ Each sync does 4 things in order:
 1. **Snapshots** the brains folder into a clean copy (dropping sensitive files and each brain's raw git) and records this machine's changes.
 2. **Pulls** the latest version from GitHub and **merges**: different files are combined automatically; when two machines edited THE SAME file, the **more recent edit wins**, and the losing version is kept alongside as `.conflict-<local|remote>-<timestamp>` for you to decide; when one side edited and the other deleted, the edit wins (nothing is lost silently).
 3. **Applies the result** back into the machine's brains folder (a file you edited by hand during the sync itself is not overwritten, the machine keeps your copy and the next round merges it).
-4. **Pushes** to GitHub (an ordinary push, NOT a force). If another machine pushed in between, Javis pulls, merges again and pushes again.
+4. **Pushes** to GitHub (an ordinary push, NOT a force). If another machine pushed in between, Jarvis 007 pulls, merges again and pushes again.
 
 Safety notes about the mechanism:
 
@@ -100,20 +100,20 @@ For text, that property is a strength. Git compresses very well and stores only 
 
 For media it is the exact opposite. An `.mp4` or `.jpg` is already codec-compressed, git cannot compress it further, and two renders of the same clip are, to git, two entirely different files rather than one lightly edited file. Every re-export adds another whole object to the store, permanently. A brain with a few hundred MB of media plus a habit of re-editing each clip a few times pushes the repo into multiple GB within months, and a new machine cloning it has to download even the renders you abandoned last year.
 
-Cleaning that up then requires **rewriting the entire history** (`git filter-repo` or BFG). That changes every commit's hash, so every copy on other machines becomes incompatible and has to be downloaded from scratch. For a Javis syncing two ways across several machines, that is a disaster rather than a maintenance task. So the right approach is to keep media out from the start.
+Cleaning that up then requires **rewriting the entire history** (`git filter-repo` or BFG). That changes every commit's hash, so every copy on other machines becomes incompatible and has to be downloaded from scratch. For a Jarvis 007 syncing two ways across several machines, that is a disaster rather than a maintenance task. So the right approach is to keep media out from the start.
 
 ### So where do you back media up
 
 Use something that stores the **current state**: Google Drive, OneDrive, an external disk, a NAS. There, deleting really deletes and really reclaims space, exactly what you want for images and video. The two tools divide the work rather than replacing one another: git holds knowledge and its whole history, Drive holds the heavy files at their latest state.
 
-After every **⇅ Sync now**, if media was skipped Javis states it right under the status line: how many files, how many MB in total. Skipping silently would one day leave you believing your images were backed up too, only to learn otherwise when the machine is gone.
+After every **⇅ Sync now**, if media was skipped Jarvis 007 states it right under the status line: how many files, how many MB in total. Skipping silently would one day leave you believing your images were backed up too, only to learn otherwise when the machine is gone.
 
 ### If you want images to travel too: the "Sync images too" switch
 
 Some people genuinely need the images in their brain (screenshots, product photos of a few hundred KB) to follow the knowledge to another machine. Since version 0.46.0, the sync block has an extra **Sync images too** switch (off by default). Turning it on means:
 
 - **jpg / png / gif / webp** images, each up to **10 MB** (change it with the `JAVIS_SYNC_ANH_MAX_MB` environment variable), also reach the repo and sync two ways like text files. Video, audio, PDFs and images over the ceiling still never go; nor does `inbox/`, which is a one-chat transit area.
-- Javis **stops clearing `attachments/`** on that machine (it still clears `inbox/`): if backed-up images were cleared by the age rule, the deletion would propagate to every machine and the backup images would vanish, so the two must go together.
+- Jarvis 007 **stops clearing `attachments/`** on that machine (it still clears `inbox/`): if backed-up images were cleared by the age rule, the deletion would propagate to every machine and the backup images would vanish, so the two must go together.
 
 Three things to weigh BEFORE turning it on:
 
@@ -123,11 +123,11 @@ Three things to weigh BEFORE turning it on:
 
 ### Media in the brain still expires as before
 
-With "Sync images too" OFF, Javis treats `attachments/` and `inbox/` as a cache: every 6 hours, files over **30 days** old are deleted, and if the total passes the **300 MB** ceiling it deletes oldest first until it is back under. This rule has nothing to do with sync, but it is worth knowing because it is why old images vanish from the machine. To keep something long term, pull its content into an `.md` note, move the file into another folder of the brain, or loosen or disable the clearing rule (the `media` key in `settings.json`). How to disable it: [Troubleshooting and FAQ](17-troubleshooting.md).
+With "Sync images too" OFF, Jarvis 007 treats `attachments/` and `inbox/` as a cache: every 6 hours, files over **30 days** old are deleted, and if the total passes the **300 MB** ceiling it deletes oldest first until it is back under. This rule has nothing to do with sync, but it is worth knowing because it is why old images vanish from the machine. To keep something long term, pull its content into an `.md` note, move the file into another folder of the brain, or loosen or disable the clearing rule (the `media` key in `settings.json`). How to disable it: [Troubleshooting and FAQ](17-troubleshooting.md).
 
 ## Restoring the brain on a new machine
 
-No manual git needed: install Javis, go to **Self-learning → ⇅ Sync brain with GitHub (two-way)**, paste the repo, the token and the right branch, click **⇅ Sync now**, and every brain comes back in full. (The old way, `git clone` straight into the brains folder, still works.)
+No manual git needed: install Jarvis 007, go to **Self-learning → ⇅ Sync brain with GitHub (two-way)**, paste the repo, the token and the right branch, click **⇅ Sync now**, and every brain comes back in full. (The old way, `git clone` straight into the brains folder, still works.)
 
 ## Handling .conflict-* files
 
@@ -141,7 +141,7 @@ When two machines edit the same file between syncs, you get an extra file such a
 
 - **Always use a Private repo.** A brain can hold business figures, customer names, sometimes even a key you happened to paste into a conversation, and as the section above says, the files you send into chat travel too.
 - Give the token an expiry and grant only the **Contents** permission on exactly that repo, nothing broader.
-- One repo serves ONE set of brains. Do not point two Javis systems with entirely different purposes at the same repo, as they will mix their data together exactly as sync is designed to.
+- One repo serves ONE set of brains. Do not point two Jarvis 007 systems with entirely different purposes at the same repo, as they will mix their data together exactly as sync is designed to.
 
 ## Common problems
 
@@ -149,7 +149,7 @@ When two machines edit the same file between syncs, you get an extra file such a
 |---|---|
 | "git is not installed on this machine" | Install git on the machine or VPS. The official Docker image already has it. |
 | Test connection reports a 403 | The token lacks Contents: Read and write, or the right repo was not selected. |
-| The push succeeds but GitHub shows no files on the branch you expected | The **Branch** field differs from the repo's default branch (Javis defaults to `main`). Fix the Branch field to match, Save configuration and sync again. |
+| The push succeeds but GitHub shows no files on the branch you expected | The **Branch** field differs from the repo's default branch (Jarvis 007 defaults to `main`). Fix the Branch field to match, Save configuration and sync again. |
 | "the push keeps being overtaken" | Several machines are syncing at once, continuously. Click again in a few minutes and the merge mechanism will settle it. |
 | "applying the sync locally failed for N files" | Some files are locked or unwritable on the machine (open in another app, say). Nothing is pushed this round (which is safe); close the app holding the file and sync again. |
 | Many `.conflict-*` files appear | Two machines frequently edit the same file between syncs. Shorten the Automatic cycle, or split the work so each machine owns an area; handle the conflict files as described above. |

@@ -6,7 +6,7 @@ Status: approved by the owner on 2026-10-15 (chat). Follows PR #663 (0.153.0, co
 
 1. The "+" menu item "Add folder" uploads every file of a folder as attachments. The owner does not want
    that: a folder is a place to work in (a code project), not a pile of attachments. Claude Code shows the
-   working folder as a small chip under its input; Javis should do the same, as compactly as possible.
+   working folder as a small chip under its input; Jarvis 007 should do the same, as compactly as possible.
 2. The Coding page has its own "Pick a folder" chip and menu. Once the composer can pin a folder, that
    duplicate is not needed.
 3. The agent Work tab ("Công việc") filters with two horizontally scrolling chip rows and 16px text in a

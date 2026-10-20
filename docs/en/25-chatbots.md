@@ -6,7 +6,7 @@ Put an **Agent** you created in front of other people: they message a dedicated 
 
 It suits anything you answer over and over for other people: questions about a product or a service, explaining internal rules to colleagues, fielding students' questions, guiding members of a community, filtering questions before they reach you.
 
-It differs from [the Telegram channel](11-telegram.md) in one decisive way: the Telegram bot on the **Admin channels** page is **your own Javis** (full power, reading the main brain, able to call every data source, and only you can message it). The bot on the **Chatbot** page is **an Agent on duty** (read-only by default, seeing only its own brain, and strangers can message it). Do not use one in place of the other.
+It differs from [the Telegram channel](11-telegram.md) in one decisive way: the Telegram bot on the **Admin channels** page is **your own Jarvis 007** (full power, reading the main brain, able to call every data source, and only you can message it). The bot on the **Chatbot** page is **an Agent on duty** (read-only by default, seeing only its own brain, and strangers can message it). Do not use one in place of the other.
 
 A dedicated bot **can do real work** if you raise its permission level: writing files, calling data sources, even acting outside. But whoever drives it is the person messaging it, not you, so read [The four permission levels](#the-four-permission-levels-what-the-bot-may-do) carefully before raising it.
 
@@ -16,14 +16,14 @@ A dedicated bot **can do real work** if you raise its permission level: writing 
 - **The channel is a choice**: Telegram or Zalo. For Vietnamese customers Zalo is almost always the right one, because they already have the app. See [Choosing Telegram or Zalo](#choosing-telegram-or-zalo).
 - The Chatbot page **belongs to the open brain**: switching brains at the top of the page shows that brain's bots, just like the Agents and Skills pages.
 - People message the bot directly, or you drop the bot into a group.
-- **The bot follows your Agent file exactly.** Javis inserts no rules of its own.
+- **The bot follows your Agent file exactly.** Jarvis 007 inserts no rules of its own.
 - **Four permission levels**, chosen at creation and changeable later: Read only (the default), Reads documents, Can write, Full power. The first two write nothing and call no source; the last two require ticking a consent box after reading the risks.
 - Two rails **do not change with the level**, and they are locked in code rather than in wording: **the bot only sees its own brain**, and **it cannot run machine commands**.
 - Questions beyond its knowledge are handed to the human on duty you nominate.
 - The Chatbot page is built for **many bots** from the start: a card grid, a search field, add/edit/delete, and enable/disable in place. Running one bot or ten uses the same interface.
 - Every chat a customer has with a bot is kept in the **conversation inbox** (the **Conversations** page): read it back, see where the bot got stuck, press Take over to answer yourself. See [Customer conversations](28-customer-conversations.md).
 
-## Where to open it in Javis
+## Where to open it in Jarvis 007
 
 The left navigation rail, the **Capabilities** group, the **Conversations** item, **Bots** tab. The page has two tabs, **Bot inbox** and **Bots** (since 0.65.9; before that there were three, Inbox, Channels and Create chatbot, and people had to jump between "add a channel" and "create a bot"). Saying "open chatbots" lands on the Bots tab.
 
@@ -57,9 +57,9 @@ If the bot runs on **Telegram**: go to **@BotFather**, type `/newbot`, set a nam
 
 If the bot runs on **Zalo**: open the Zalo app, find the Official Account **Zalo Bot Manager** and choose **Create bot**. The bot name must start with the word "Bot" (for example "Bot Kim Khí Hà Lộc"). The token arrives as a Zalo message, shaped `123456789:abc-xyz`, and it **does not expire** until you reset it yourself.
 
-**Each bot needs its own token, and do not use your main Javis bot's token.** One token can only run one process; sharing kills both and the server returns a 409. Javis blocks this when you click Test, but knowing in advance is better.
+**Each bot needs its own token, and do not use your main Jarvis 007 bot's token.** One token can only run one process; sharing kills both and the server returns a 409. Jarvis 007 blocks this when you click Test, but knowing in advance is better.
 
-Pasting one channel's token into the other makes Javis say so outright rather than leaving you guessing: the **Test** button asks the platform you actually selected.
+Pasting one channel's token into the other makes Jarvis 007 say so outright rather than leaving you guessing: the **Test** button asks the platform you actually selected.
 
 ## Choosing Telegram or Zalo
 
@@ -84,12 +84,12 @@ On the card grid, each bot carries a **channel marker** in two places: a small b
 
 ### How the Zalo Bot differs from Zalo Agent MCP
 
-Javis has two ways into Zalo, and they do not replace each other:
+Jarvis 007 has two ways into Zalo, and they do not replace each other:
 
 - **The Zalo Bot** (this page) is a **separate identity** using the official API. No risk of the account being locked, but it only sees what people send directly to it.
 - **[Zalo Agent MCP](12-zalo-agent-mcp.md)** signs into **your own Zalo account** through the unofficial API. It reads real conversations and can message anyone, at the cost of the account possibly being restricted or locked.
 
-The first is for **other people talking to Javis**. The second is for **Javis acting on your behalf**. Using both is fine.
+The first is for **other people talking to Jarvis 007**. The second is for **Jarvis 007 acting on your behalf**. Using both is fine.
 
 ## How to use it (step by step)
 
@@ -112,7 +112,7 @@ With only a Zalo Bot account the last two fields **disappear** rather than appea
 
 **There is no brain field**, and that is deliberate: the bot belongs to the brain you have open. For a bot in another brain, switch brains at the top of the page and create it there; one place to look, with no two layers to keep in sync.
 
-When pasting a new token, click **Check** before saving: Javis asks the platform you selected whether the token is real, returns the actual bot name, and reports at once if that token is already an account in Javis (free: just tick that account; on duty: it names the bot). For Zalo Bot, if your tier does not allow groups it says so right here.
+When pasting a new token, click **Check** before saving: Jarvis 007 asks the platform you selected whether the token is real, returns the actual bot name, and reports at once if that token is already an account in Jarvis 007 (free: just tick that account; on duty: it names the bot). For Zalo Bot, if your tier does not allow groups it says so right here.
 
 **A newly created bot is always OFF.** That is deliberate: turning it on makes the bot talk to real people immediately, so turning it on has to be a conscious click rather than a side effect of creating it.
 
@@ -120,7 +120,7 @@ When pasting a new token, click **Check** before saving: Javis asks the platform
 
 Turn the bot on with the **Enable** button on the card, then open Telegram and message that bot directly with a few questions as a real outsider would. Ask a few questions within its scope, then one you know is not in the documents. See whether it answers in the right voice, whether it invents things, and whether it is willing to say it does not have that information.
 
-If it is not right, turn it off, edit the Agent or add documents to the brain, then try again. Turning off takes effect immediately, with no Javis restart.
+If it is not right, turn it off, edit the Agent or add documents to the brain, then try again. Turning off takes effect immediately, with no Jarvis 007 restart.
 
 ### Step 3: Handing over to a human
 
@@ -154,20 +154,20 @@ To make it answer **every message in the group**, change the "When the bot speak
 
 ### The reply judge reviews and tunes itself (from 0.77.0)
 
-In "Self-assess" mode a **reply judge** decides, message by message, whether a group bot speaks or stays silent, and learns from thumbs up/down and from how people react. From 0.77.0 a **self-review** also looks at the whole picture: once a bot has gathered enough new evidence (about 8 labels, or 40 silences) and a day has passed since the last review, Javis sends that bot's report to your **main brain** (the model chosen on the **Models** page, usually stronger than the cheap model that judges each message). It looks for repeated patterns and changes at most 3 things, or nothing when there is no clear pattern.
+In "Self-assess" mode a **reply judge** decides, message by message, whether a group bot speaks or stays silent, and learns from thumbs up/down and from how people react. From 0.77.0 a **self-review** also looks at the whole picture: once a bot has gathered enough new evidence (about 8 labels, or 40 silences) and a day has passed since the last review, Jarvis 007 sends that bot's report to your **main brain** (the model chosen on the **Models** page, usually stronger than the cheap model that judges each message). It looks for repeated patterns and changes at most 3 things, or nothing when there is no clear pattern.
 
 - **What it can change:** lessons (it only ever removes its own, never yours), example messages, each group's threshold, the bot's overall eagerness, and whether messages that start by tagging someone else ("@Quy, when is class?") are considered at all. The bot still only speaks when its documents match and the judge agrees. Rate limits, yielding to you, permissions and what the bot says stay out of reach.
 - **Every change must cite this bot's own messages as evidence**, so text a customer types cannot become an instruction.
 - **It measures itself:** if the bot is marked wrong noticeably more often after a review, that review is undone and you get a message. Issues only a code change can fix are written to `Javis/gop-y-bo-phan-xu.md` in the bot's brain.
 - **You hear about it** in one message to the inbox (the bell) and Telegram per review that changed something.
 
-**To step in, just tell Javis:** "show me Javis Vu's reply judge stats this week", "let Javis Vu answer for me when customers tag me about class times", "undo review a1b2c3 of Javis Vu". Javis reads the same report, proposes, and applies when you agree; every change is logged and can be undone. Customer-facing bots never see these tools, even at the "can write" or "full" levels.
+**To step in, just tell Jarvis 007:** "show me Jarvis 007 Vu's reply judge stats this week", "let Jarvis 007 Vu answer for me when customers tag me about class times", "undo review a1b2c3 of Jarvis 007 Vu". Jarvis 007 reads the same report, proposes, and applies when you agree; every change is logged and can be undone. Customer-facing bots never see these tools, even at the "can write" or "full" levels.
 
 If your main brain runs on a Claude Pro/Max plan, note that the review is background work on that plan, which Anthropic does not count as ordinary personal use. It runs at most once a day per bot and only with evidence, but the safest setup is a ChatGPT or Grok plan or an API key for the main brain. Operators can turn the review off with the environment variable `JAVIS_REPLY_POLICY_REVIEW=0`.
 
 ### Telegram's privacy mode (read this if the bot is silent in a group)
 
-Every new bot has privacy mode **on**. While it is on, Telegram **does not forward** most group messages to the bot, blocking them on Telegram's side, so Javis never sees those messages whatever you set in the dashboard.
+Every new bot has privacy mode **on**. While it is on, Telegram **does not forward** most group messages to the bot, blocking them on Telegram's side, so Jarvis 007 never sees those messages whatever you set in the dashboard.
 
 What **certainly** reaches the bot while it is on:
 
@@ -184,7 +184,7 @@ Fix it in **one of two ways**:
 
 Then **turn the bot off and on again** on the Chatbot page so it re-reads the new state. The bot card shows this state for every bot that uses groups, and `/id` in the group states it too.
 
-**When an ordinary group is upgraded to a supergroup, Telegram changes its id** (adding the `-100` prefix). Javis hears that and updates the list itself, so you do not have to re-declare it; this used to be a way for the bot to go silent leaving no clue at all.
+**When an ordinary group is upgraded to a supergroup, Telegram changes its id** (adding the `-100` prefix). Jarvis 007 hears that and updates the list itself, so you do not have to re-declare it; this used to be a way for the bot to go silent leaving no clue at all.
 
 ## Reading a bot card
 
@@ -223,13 +223,13 @@ On the line under an answer and in the measurement table, a bot turn shows as **
 
 A bot still counts towards **Usage** like any other turn, under the provider and model actually running.
 
-Do not confuse a bot with **your own Telegram channel**: that channel *does* go through the two saving levels (since 0.24.0), because your Javis really does have a CLAUDE.md and a MEMORY.md to trim. A bot has nothing to trim.
+Do not confuse a bot with **your own Telegram channel**: that channel *does* go through the two saving levels (since 0.24.0), because your Jarvis 007 really does have a CLAUDE.md and a MEMORY.md to trim. A bot has nothing to trim.
 
 ## What the bot answers from
 
-Every time someone asks, Javis **looks up documents in the bot's brain first**, takes the few best-matching passages, then puts them straight into that turn's prompt.
+Every time someone asks, Jarvis 007 **looks up documents in the bot's brain first**, takes the few best-matching passages, then puts them straight into that turn's prompt.
 
-That differs from "the bot has permission to read the brain". Permission to read does not mean it will read: the model can answer straight from its general knowledge, the sentence flows just as confidently, and **you cannot tell from the outside**. So Javis looks up first rather than leaving that decision to the model.
+That differs from "the bot has permission to read the brain". Permission to read does not mean it will read: the model can answer straight from its general knowledge, the sentence flows just as confidently, and **you cannot tell from the outside**. So Jarvis 007 looks up first rather than leaving that decision to the model.
 
 ### Google Docs and Google Sheets linked from the Agent (from 0.84.10)
 
@@ -248,29 +248,29 @@ The difference lies only in **what happens when no matching document is found**.
 
 | Mode | What the bot does with no document found | Suits |
 |---|---|---|
-| **The Agent's expertise** (default) | Javis adds nothing; the Agent handles it by the rules you wrote | Advisory, coaching, training and know-how bots |
+| **The Agent's expertise** (default) | Jarvis 007 adds nothing; the Agent handles it by the rules you wrote | Advisory, coaching, training and know-how bots |
 | **Documents only** | One rule is added: say there is no information, do not use general knowledge | Bots quoting figures and rules, where a wrong sentence is a real loss |
 
 Choosing wrong is obvious immediately: a coaching Agent running in "documents only" answers "I do not have that information" to questions squarely in its expertise, however carefully you wrote the role instructions. Change the mode with the **Edit** button, effective immediately.
 
-### Javis does NOT write rules for the bot
+### Jarvis 007 does NOT write rules for the bot
 
 This is the most important thing to know about this page.
 
-The bot runs on **exactly the content of your Agent file**, nothing more. Javis inserts no rules on top: it does not tell it how to address people, does not forbid a topic, does not force short answers. The rules you write in the Agent are the only rules the bot has.
+The bot runs on **exactly the content of your Agent file**, nothing more. Jarvis 007 inserts no rules on top: it does not tell it how to address people, does not forbid a topic, does not force short answers. The rules you write in the Agent are the only rules the bot has.
 
-The one exception is the "documents only" mode above, and that is a rule **you deliberately turned on**, not a Javis default.
+The one exception is the "documents only" mode above, and that is a rule **you deliberately turned on**, not a Jarvis 007 default.
 
 So **the Agent file decides the bot's quality almost entirely**. Write it like briefing a new hire: how to speak, how far the scope goes, what must not be promised, and in which cases to hand over to a human. When the bot behaves wrongly, fix the Agent rather than hunting for another button.
 
-### Two rails Javis locks at the first three levels
+### Two rails Jarvis 007 locks at the first three levels
 
 The two points below hold at Read only, Reads documents and Can write. They do not hold at **Full power** (since 0.85.3 it runs exactly like the admin channel, see the Full power level below). They live in the source code rather than in wording, so no clever phrasing gets around them:
 
 - The bot **cannot see another brain**, your main brain included. Every file read and write is clamped inside the bot's own brain folder; climbing out with `../` or an absolute path is refused outright.
 - The bot **cannot run machine commands**, cannot open an unfamiliar web page to read, cannot spawn child agents. The bot also has **no admin commands**: `/brain`, `/model`, `/status` do nothing.
 
-How Javis guarantees it: **the bot never touches the engine's native tools.** At the Read only level it has no tools at all; at Reads documents it has only the three document-reading tools; at Can write every tool goes through Javis's connection hub, where file paths are clamped and the permission level is applied right at the call site. The bot does not open a CLI, so Claude Code's `Bash` and absolute-path `Read` are simply not present here.
+How Jarvis 007 guarantees it: **the bot never touches the engine's native tools.** At the Read only level it has no tools at all; at Reads documents it has only the three document-reading tools; at Can write every tool goes through Jarvis 007's connection hub, where file paths are clamped and the permission level is applied right at the call site. The bot does not open a CLI, so Claude Code's `Bash` and absolute-path `Read` are simply not present here.
 
 Documents are still looked up by Python before the model runs and placed into the prompt, at every level. The bot reads its own brain without needing any tool.
 
@@ -287,9 +287,9 @@ Chosen in the **What the bot may do** field when creating or editing a bot. The 
 
 ### The Reads documents level (from 0.80.0)
 
-At Read only, Javis searches the documents **by keyword** before each turn and hands the bot the few best chunks. That keeps the bot from making things up, but it misses when a customer uses other words than the document: the document says "refund" and the customer types "money back", nothing matches, and the bot stays silent or says it has no information.
+At Read only, Jarvis 007 searches the documents **by keyword** before each turn and hands the bot the few best chunks. That keeps the bot from making things up, but it misses when a customer uses other words than the document: the document says "refund" and the customer types "money back", nothing matches, and the bot stays silent or says it has no information.
 
-The **Reads documents** level keeps that pre-search and gives the bot three tools to read its brain **itself**, the way the main Javis reads its notebook:
+The **Reads documents** level keeps that pre-search and gives the bot three tools to read its brain **itself**, the way the main Jarvis 007 reads its notebook:
 
 - **Search** the documents, retrying with other words when the first try finds nothing.
 - **List** the documents with their section titles, to pick the right one.
@@ -301,15 +301,15 @@ The bot is told: when a question needs specific information the pre-search did n
 
 **Why this level asks for no consent tick:** it takes nothing the pre-search did not already expose.
 
-- No write tool, no data source, no plugin, even if you connected many sources. Javis enforces this where tools are called, not with instructions.
-- The bot opens only files the pre-search already reads: not `memory/`, `inbox/` (customer uploads), skills, plugins or Javis' convention files, and also not `agents/` or `workflows/` (your internal instructions). The path a customer types is only compared against that list, so `../`, absolute paths and links pointing out of the brain open nothing.
+- No write tool, no data source, no plugin, even if you connected many sources. Jarvis 007 enforces this where tools are called, not with instructions.
+- The bot opens only files the pre-search already reads: not `memory/`, `inbox/` (customer uploads), skills, plugins or Jarvis 007' convention files, and also not `agents/` or `workflows/` (your internal instructions). The path a customer types is only compared against that list, so `../`, absolute paths and links pointing out of the brain open nothing.
 - Only the bot's own brain. Without it the bot gets no tools at all, rather than the brain you have open.
 
 The **Try** button runs this level as is (it only reads), so you can test it right away. It costs a few extra model calls when the bot searches, and depends on the engine like the two levels above (see [Which engines can run the raised levels](#which-engines-can-run-the-raised-levels)).
 
 ### What you lose by raising the level
 
-This is the part of the page most worth reading carefully, because it is the fundamental difference between a dedicated bot and your own Javis: **the person typing into the bot is somebody else, not you.**
+This is the part of the page most worth reading carefully, because it is the fundamental difference between a dedicated bot and your own Jarvis 007: **the person typing into the bot is somebody else, not you.**
 
 At Read only that is harmless: however cleverly someone talks it around, the bot can only say something off topic, because it has nothing with which to do harm. Raising the level removes exactly that property.
 
@@ -317,7 +317,7 @@ At Read only that is harmless: however cleverly someone talks it around, the bot
 
 - The bot can write files in its brain. One message from someone genuinely changes content in the brain, **with no approval step**.
 - The bot can call the data sources you attached, at read and write level. Everything in those sources is within reach of whoever is chatting with the bot.
-- Javis still **hard-blocks** the outward-action group at this level: no sending, no payments, no booking or cancelling, no deleting, no publishing. Blocked at the tool-call layer, not by wording.
+- Jarvis 007 still **hard-blocks** the outward-action group at this level: no sending, no payments, no booking or cancelling, no deleting, no publishing. Blocked at the tool-call layer, not by wording.
 
 **The Full power level (since 0.85.3 it runs exactly like the admin channel):**
 
@@ -333,7 +333,7 @@ The Grok Build and Antigravity brains can use tools only at Full power. At Reads
 
 1. Click **Edit** on the bot card (or choose it while creating).
 2. Pick the level in the **What the bot may do** field. That level's risk list appears right below.
-3. Tick **I have read and accept the risks above**. Without the tick it cannot be saved, and Javis blocks it in both the interface and the server, so removing the tick box with devtools does not raise it either.
+3. Tick **I have read and accept the risks above**. Without the tick it cannot be saved, and Jarvis 007 blocks it in both the interface and the server, so removing the tick box with devtools does not raise it either.
 4. Full power asks once more before saving.
 5. Enabling the bot asks again too, because creation may have been days ago and whoever clicks Enable may not remember what level this one is at.
 
@@ -372,9 +372,9 @@ That route also does not open a CLI, so a bot answers faster than your own chat 
 
 ### Making documents match well
 
-- **Give files clear headings.** Javis splits documents by markdown headings (`##`), and each passage is retrieved on its own. A long file with no headings can let the bot read half a condition and answer as if it were the whole condition. Splitting into "Retail price", "Wholesale price", "Returns", "Delivery" and so on matches best.
+- **Give files clear headings.** Jarvis 007 splits documents by markdown headings (`##`), and each passage is retrieved on its own. A long file with no headings can let the bot read half a condition and answer as if it were the whole condition. Splitting into "Retail price", "Wholesale price", "Returns", "Delivery" and so on matches best.
 - **Files outsiders upload do NOT count as documents.** They sit in `inbox/khach/` and are excluded from the lookup entirely. Otherwise anyone could upload a file overriding your rules, ask a question, and have the bot quote it as official documentation.
-- **Javis's own convention files are excluded too.** `CLAUDE.md`, `AGENTS.md`, `wiki/index.md`, `wiki/log.md` and a few other navigation files exist in every brain but are system innards, not content to answer outsiders with. Your real Wiki notes are used normally.
+- **Jarvis 007's own convention files are excluded too.** `CLAUDE.md`, `AGENTS.md`, `wiki/index.md`, `wiki/log.md` and a few other navigation files exist in every brain but are system innards, not content to answer outsiders with. Your real Wiki notes are used normally.
 - **Typing with or without diacritics both find things**, but typing with diacritics is more accurate: "bán" does not match "bản", "cà" does not match "cả". Documents should be spelled correctly and accented correctly.
 
 ## The log and where documents are missing
@@ -399,7 +399,7 @@ A single stuck question does not call. Reporting every stray question makes the 
 
 The third case is the bot **breaking** (unable to reach the model). That is reported on the first occurrence rather than waiting for two questions, because every silent minute makes the person messaging feel abandoned. But it is reported **once** until a turn works again, otherwise the on-duty inbox becomes an error log.
 
-Before considering it broken, Javis has already retried up to three times if the error was **transient** (the provider returning 429 for too many calls, a 5xx overload, a network blip). A momentary 429 no longer wakes the person on duty. A break notice carrying *(retried 3 times)* means everything was tried, so go and look at the **Models** page or the account's quota. Details in [Troubleshooting](17-troubleshooting.md#the-provider-reports-a-rate-limit).
+Before considering it broken, Jarvis 007 has already retried up to three times if the error was **transient** (the provider returning 429 for too many calls, a 5xx overload, a network blip). A momentary 429 no longer wakes the person on duty. A break notice carrying *(retried 3 times)* means everything was tried, so go and look at the **Models** page or the account's quota. Details in [Troubleshooting](17-troubleshooting.md#the-provider-reports-a-rate-limit).
 
 The log keeps the 2000 most recent turns per bot, trimming older ones. Deleting a bot deletes its log with it.
 
@@ -411,31 +411,31 @@ The log keeps the 2000 most recent turns per bot, trimming older ones. Deleting 
 
 **Everything else depends on the permission level** you set: writing files, calling data sources, acting outside. See the table in [The four permission levels](#the-four-permission-levels-what-the-bot-may-do). The default is Read only, meaning none of those.
 
-The bot's Telegram command menu has only three items (`/help`, `/nhanvien`, `/id`), not the main Javis bot's admin menu. Listing commands the bot refuses to run there would only teach people to go looking for a different command set.
+The bot's Telegram command menu has only three items (`/help`, `/nhanvien`, `/id`), not the main Jarvis 007 bot's admin menu. Listing commands the bot refuses to run there would only teach people to go looking for a different command set.
 
-And **how it speaks, what scope it accepts, what it refuses** are decided by your Agent file, not by Javis. To make the bot avoid a topic, not make promises on your behalf, or not change role when talked around, write those things into the Agent.
+And **how it speaks, what scope it accepts, what it refuses** are decided by your Agent file, not by Jarvis 007. To make the bot avoid a topic, not make promises on your behalf, or not change role when talked around, write those things into the Agent.
 
 The right way to understand the limits above: they live in the **permission level in the source code**, not in wording inside the prompt. Wording can be talked around by clever phrasing; a permission level cannot, because the tool is simply not granted for that run. The flip side of the same truth: when you **do** grant tools for that run, the wording in the Agent cannot hold it back either.
 
 ## The bot sends images (since 0.84.3)
 
-A bot can send images on Telegram, personal Zalo, Slack, WhatsApp and Lark, at **every permission level**. To use it, tell the Agent file when to send which image, for example "when a customer asks about shirts, send `![Shirt](attachments/shirt.jpg)`". The Agent puts that image syntax in its reply; Javis removes it from the text and sends the real image right after the text message. In a Zalo group the text still tags the person who asked.
+A bot can send images on Telegram, personal Zalo, Slack, WhatsApp and Lark, at **every permission level**. To use it, tell the Agent file when to send which image, for example "when a customer asks about shirts, send `![Shirt](attachments/shirt.jpg)`". The Agent puts that image syntax in its reply; Jarvis 007 removes it from the text and sends the real image right after the text message. In a Zalo group the text still tags the person who asked.
 
-Javis only sends an image when all of these hold:
+Jarvis 007 only sends an image when all of these hold:
 
 - It is **inside the bot's own brain** (paths count from that brain's root). Images in another brain or elsewhere on the machine are refused.
 - It really is an image (`.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`), exists, and is at most 10 MB. Documents such as PDFs or `.md` notes are not sent.
 - At most 4 images per reply.
 
-An image that fails these checks stays in the text as written, so you can see in the inbox what the bot tried to send. Javis does **not** attach files the bot just created on its own: a stranger is steering the bot, so only images the Agent names on purpose go out.
+An image that fails these checks stays in the text as written, so you can see in the inbox what the bot tried to send. Jarvis 007 does **not** attach files the bot just created on its own: a stranger is steering the bot, so only images the Agent names on purpose go out.
 
 ## The bot speaks like a person, exposing no machine state
 
-A dedicated bot **shows no Javis status lines** to the person messaging it. This is the sharp difference from your own main Javis bot (which does show everything, see [Telegram](11-telegram.md), because the owner needs to see how far Javis has got).
+A dedicated bot **shows no Jarvis 007 status lines** to the person messaging it. This is the sharp difference from your own main Jarvis 007 bot (which does show everything, see [Telegram](11-telegram.md), because the owner needs to see how far Jarvis 007 has got).
 
 Specifically, someone messaging a dedicated bot will NEVER see:
 
-- the "🤔 Javis is working…" message and its "⏳ ⚙ Calling a tool…" updates
+- the "🤔 Jarvis 007 is working…" message and its "⏳ ⚙ Calling a tool…" updates
 - the sentence "⏳ Still handling the previous question. Send /stop to stop then ask again."
 - a technical error line like "⚠ Error: TimeoutError: ..."
 - the words "(no content)" when a turn returns empty
@@ -444,17 +444,17 @@ Instead, while the bot thinks, Telegram shows the **"typing…"** dots at the to
 
 **Messaging again while the bot is answering is not blocked.** The bot gathers those messages and, having finished the previous answer, answers them together, exactly like a person reading the rest of the messages before replying. It gathers at most 5 messages per conversation so a stranger cannot spam its memory into bloat.
 
-**On a personal Zalo account the bot waits until the customer has finished typing** (since 0.128.0). In a private chat, messages that arrive in a row ("Hello", "can I ask", "is there a seat left in grade 9?") are gathered and answered once, in order, after the customer has been quiet for **5 seconds**. A photo followed by "can you check this" becomes one question with the photo, and so does a file (since 0.133.0): a bot with Can write or higher saves it to `inbox/khach` in its brain (up to 20 MB, text files read directly), while a read-only bot does not download it but still knows a file was sent. If you type into that chat yourself while it waits, or turn the bot off, nothing is sent. To keep the wait short, an account that just had a private customer message is read every 2 seconds instead of 20 for one minute; this only reads the buffer on the machine running Javis and makes no extra calls to Zalo. Groups are unchanged: each message is still judged on its own.
+**On a personal Zalo account the bot waits until the customer has finished typing** (since 0.128.0). In a private chat, messages that arrive in a row ("Hello", "can I ask", "is there a seat left in grade 9?") are gathered and answered once, in order, after the customer has been quiet for **5 seconds**. A photo followed by "can you check this" becomes one question with the photo, and so does a file (since 0.133.0): a bot with Can write or higher saves it to `inbox/khach` in its brain (up to 20 MB, text files read directly), while a read-only bot does not download it but still knows a file was sent. If you type into that chat yourself while it waits, or turn the bot off, nothing is sent. To keep the wait short, an account that just had a private customer message is read every 2 seconds instead of 20 for one minute; this only reads the buffer on the machine running Jarvis 007 and makes no extra calls to Zalo. Groups are unchanged: each message is still judged on its own.
 
 **Photos in a private chat** (personal Zalo). A photo sent without text (a problem, a worked solution) now reaches the bot, which can look at it and answer; before, a caption-less photo in a private chat was dropped. The latest photo is attached again to the text messages of the next 10 minutes (say a photo followed by "is this right?", or the bot asking who they are before checking), so the bot no longer says it cannot read the photo in the earlier message.
 
-**If you typed into a chat yourself but have not answered the customer within 10 minutes, the bot answers** (since 0.136.0, private chats). The bot still steps aside for 10 minutes after you type into a chat, but customer messages that arrive meanwhile are no longer dropped. Javis holds them; if you answer (on the phone or from the Inbox) they are dropped. Once 10 minutes have passed since **your last hand-typed message** without another one from you, the bot answers them all once (since 0.172.0; in 0.136.0 the clock started at the customer's first message). It is told that the customer has been waiting and what they attached (file names, photos), so a message with only a file or a photo also gets a fitting reply, such as confirming it arrived. The bot cannot open the file itself. Before 0.136.0 these messages were never answered, because after 10 minutes they were older than the 3-minute limit. For a bot whose step-aside time is not set (the box is blank), groups are not affected: the bot stays silent in a group for the whole step-aside time, as before 0.172.0, because answering a ten-minute-old message in a group can read as out of place; see below for a bot with the time set. If Javis restarts meanwhile, held messages are forgotten: at worst one message goes unanswered, never answered twice.
+**If you typed into a chat yourself but have not answered the customer within 10 minutes, the bot answers** (since 0.136.0, private chats). The bot still steps aside for 10 minutes after you type into a chat, but customer messages that arrive meanwhile are no longer dropped. Jarvis 007 holds them; if you answer (on the phone or from the Inbox) they are dropped. Once 10 minutes have passed since **your last hand-typed message** without another one from you, the bot answers them all once (since 0.172.0; in 0.136.0 the clock started at the customer's first message). It is told that the customer has been waiting and what they attached (file names, photos), so a message with only a file or a photo also gets a fitting reply, such as confirming it arrived. The bot cannot open the file itself. Before 0.136.0 these messages were never answered, because after 10 minutes they were older than the 3-minute limit. For a bot whose step-aside time is not set (the box is blank), groups are not affected: the bot stays silent in a group for the whole step-aside time, as before 0.172.0, because answering a ten-minute-old message in a group can read as out of place; see below for a bot with the time set. If Jarvis 007 restarts meanwhile, held messages are forgotten: at worst one message goes unanswered, never answered twice.
 
 **The step-aside time can be changed or turned off** (since 0.172.0). The **Step aside after you type (minutes)** box is in the Active hours section of the bot form. **Left blank** (the default, and every bot created before 0.172.0), nothing changes: the bot steps aside for 10 minutes, private chats get an answer when the 10 minutes are up, and groups stay silent for the whole time, direct tags included. **Entering a number** (10 included) opts groups into the newer rule: a message that **tags the account directly** or replies to one of its messages is answered at once, even inside the step-aside time; messages that call no one are held and answered when the time is up (see below). A number other than 10 (e.g. 5) makes the bot step aside for exactly that long, and in private chats it also waits that long before answering customer messages you have not answered. **Set 0** and typing into a chat yourself never silences the bot there, groups included, so the bot may answer while you are in the middle of a conversation. Even then, a private customer message you have already answered by hand is not answered again by the bot.
 
 **The hand-typing rule in short** (since 0.172.0): if you do not type by hand, the bot keeps answering as usual. Once you type into a chat yourself, the clock starts at **that message**: when the step-aside minutes pass without another message from you, the bot picks up the customer messages that are waiting. A private chat gets one merged turn; a group (only when the bot has a step-aside time entered) gets one turn per person (the last 5 people at most), still under the bot's group rules, so a group set to "always reply" can get up to 5 replies in a row when the time is up. Each new message you type restarts the clock.
 
-**Accept friend requests and read their introduction** (since 0.172.0, personal Zalo only, off by default). Tick **Accept friend requests and read their introduction** in the Active hours section of the bot form. Once an hour Javis asks Zalo for the account's pending friend requests (at most 24 Zalo calls a day per account, so a request may wait up to about an hour before it is accepted), accepts each one (at most 10 per round, a few seconds apart), saves the message sent with the request in the Inbox as that person's first message and hands it to the bot as if they had just written it. A complete introduction (parent name, child name, class) is not asked again; a partial one, or none, gets a question for what is missing. Why it needs switching on: the message only exists while the request is pending; once accepted (on the phone too) Zalo drops it. Outside active hours, or when the bot answers only chosen people, nothing is accepted: requests stay pending and are accepted once active hours begin. When Zalo refuses an accept the round stops and that person is left alone for a while (longer each time); after 3 failures they are skipped until Javis restarts, so they never hold up newer requests. This runs on its own, so a slow Zalo never slows down reading messages. Needs javis-zalo 1.0.0 or later (Javis pins 1.4.0).
+**Accept friend requests and read their introduction** (since 0.172.0, personal Zalo only, off by default). Tick **Accept friend requests and read their introduction** in the Active hours section of the bot form. Once an hour Jarvis 007 asks Zalo for the account's pending friend requests (at most 24 Zalo calls a day per account, so a request may wait up to about an hour before it is accepted), accepts each one (at most 10 per round, a few seconds apart), saves the message sent with the request in the Inbox as that person's first message and hands it to the bot as if they had just written it. A complete introduction (parent name, child name, class) is not asked again; a partial one, or none, gets a question for what is missing. Why it needs switching on: the message only exists while the request is pending; once accepted (on the phone too) Zalo drops it. Outside active hours, or when the bot answers only chosen people, nothing is accepted: requests stay pending and are accepted once active hours begin. When Zalo refuses an accept the round stops and that person is left alone for a while (longer each time); after 3 failures they are skipped until Jarvis 007 restarts, so they never hold up newer requests. This runs on its own, so a slow Zalo never slows down reading messages. Needs javis-zalo 1.0.0 or later (Jarvis 007 pins 1.4.0).
 
 One place still deliberately speaks plainly: when someone calls the bot in **a group you have not allowed**, the bot says one sentence once, stating it is not enabled for this group. Staying entirely silent there would make the bot look broken with no way for you to know to click **Allow**.
 
@@ -476,15 +476,15 @@ Click **Delete** on the card. The bot stops answering immediately.
 
 **Which model does a bot use?** The very model you chose on the Models page. Changing the model changes the bot's model, and how it works does not change, since every brain takes the same route.
 
-**Can a bot call the data sources I attached?** Not by default; the Read only level has nothing but the documents in its brain. Raising it to **Can write** grants that, and **Full power** grants the outward-action group too. Weigh the fact that whoever drives it is whoever messages it; for something only you need, asking Javis on the dashboard or your own Telegram channel is still safer.
+**Can a bot call the data sources I attached?** Not by default; the Read only level has nothing but the documents in its brain. Raising it to **Can write** grants that, and **Full power** grants the outward-action group too. Weigh the fact that whoever drives it is whoever messages it; for something only you need, asking Jarvis 007 on the dashboard or your own Telegram channel is still safer.
 
-**Is a Full power bot dangerous?** Yes, which is why Javis requires a consent tick then asks once more. The danger is not the model misbehaving but that **anyone can message the bot**: one clever sentence makes the bot call a real tool, unrecoverably and without checking with you. Only use it where you control the list of people who can message it.
+**Is a Full power bot dangerous?** Yes, which is why Jarvis 007 requires a consent tick then asks once more. The danger is not the model misbehaving but that **anyone can message the bot**: one clever sentence makes the bot call a real tool, unrecoverably and without checking with you. Only use it where you control the list of people who can message it.
 
-**What do I do right now if a Full power bot looks wrong?** Click **Disable** on the card, effective within seconds and needing no Javis restart. Then click Edit and lower it to Read only; lowering asks nothing. Review what the bot did under **Log**, the Recent conversations tab.
+**What do I do right now if a Full power bot looks wrong?** Click **Disable** on the card, effective within seconds and needing no Jarvis 007 restart. Then click Edit and lower it to Read only; lowering asks nothing. Review what the bot did under **Log**, the Recent conversations tab.
 
 **Can I run several bots at once?** Yes. Each bot has its own token and its own process. The Chatbot page is built for it.
 
-**Can two bots share one Agent?** Yes, and sometimes it makes sense: the same role but two different brains for two different audiences. The reverse, two bots sharing one token, is not allowed and Javis blocks it.
+**Can two bots share one Agent?** Yes, and sometimes it makes sense: the same role but two different brains for two different audiences. The reverse, two bots sharing one token, is not allowed and Jarvis 007 blocks it.
 
 **What happens when people send the bot images?** Uploaded files land in `inbox/khach/` in that bot's brain, kept apart from your files, and do not count as documents for answering. Since 0.81.0 the photo is also sent straight into the chat turn, so the bot's own model looks at it (Claude, GPT, Gemini, OpenRouter, Groq, Ollama, the ChatGPT plan, the Claude Code plan); ChatGPT is no longer needed. A brain that cannot see images (Antigravity, Grok Build, text-only models) makes the bot say plainly that it cannot see the photo. In a Telegram group: tag the bot in the caption, reply to the photo while tagging the bot, or send the photo and tag the bot right after (within 3 minutes, same person; needs privacy mode off).
 
@@ -496,9 +496,9 @@ Click **Delete** on the card. The bot stops answering immediately.
 
 **I dropped the bot into a group, tagged its name and it does not answer, but direct messages work?** Type **`/id`** in that very group and the bot will answer and state the cause. Three causes produce this one symptom: the group is not enabled yet (click **Allow this group** on the bot card), Telegram's privacy mode is still on (see [Privacy mode](#telegrams-privacy-mode-read-this-if-the-bot-is-silent-in-a-group)), or the bot could not ask for its own identity (turn the bot off and on again). If even `/id` gets no response, the bot is not running, so check the status dot on the card.
 
-**The bot is set to "answer every message" but still only answers when named?** Telegram's privacy mode is still on, blocking those messages on Telegram's side so Javis never sees them. Turn it off in @BotFather (`/setprivacy` → Disable) or make the bot a group administrator, then turn the bot off and on again. The bot card warns you when this situation applies.
+**The bot is set to "answer every message" but still only answers when named?** Telegram's privacy mode is still on, blocking those messages on Telegram's side so Jarvis 007 never sees them. Turn it off in @BotFather (`/setprivacy` → Disable) or make the bot a group administrator, then turn the bot off and on again. The bot card warns you when this situation applies.
 
-**Does the bot run when Javis is off?** No. The bot runs inside the Javis process, so the machine or VPS has to be on. Restarting Javis restarts every enabled bot by itself.
+**Does the bot run when Jarvis 007 is off?** No. The bot runs inside the Jarvis 007 process, so the machine or VPS has to be on. Restarting Jarvis 007 restarts every enabled bot by itself.
 
 ## See also
 

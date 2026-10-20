@@ -1,40 +1,40 @@
 ---
 name: Ingest Source
-description: Tiêu hoá một source thô vào Second Brain, chưng cất thành tri thức wiki tích luỹ.
+description: Digest one raw source into the Second Brain and distil it into wiki knowledge that compounds.
 description_en: "Digest one raw source into the Second Brain and distil it into wiki knowledge that compounds."
 group: AI
 ---
 
-# INGEST - tiêu hoá 1 source thành wiki (compounding)
+# INGEST - digest 1 source into the wiki (compounding)
 
-## Khi nào dùng
+## When to use
 
-Kích hoạt khi người dùng nói những câu như: "tiêu hoá source này", "xử lý bài này vào
-wiki", "đọc file này rồi ghi lại kiến thức", hoặc khi có file mới thả vào `sources/`.
+Activate when the user says things like: "digest this source", "process this article into the
+wiki", "read this file and write down the knowledge", or when a new file is dropped into `sources/`.
 
-Skill làm theo đúng 3 kỷ luật của vault.
+The skill follows the vault's 3 disciplines exactly.
 
-Đọc schema vault (`CLAUDE.md`/`AGENTS.md` ở gốc brain) trước; đây là bản thao tác của phép INGEST.
+Read the vault schema (`CLAUDE.md`/`AGENTS.md` at the brain root) first; this is the operational version of the INGEST operation.
 
-## Trước khi làm
-- Kiểm frontmatter source: `status: processed` -> DỪNG, báo đã xử lý, hỏi có re-ingest không. `unprocessed`/chưa có -> làm.
-- Phân loại độ dài. Source dài (>= ~10.000 dòng / sách / transcript) -> BẮT BUỘC 3-pass:
-  1. Đọc lướt, lập mục lục theo số dòng (vd "1-1300: giới thiệu"). Báo người dùng xác nhận trọng tâm.
-  2. Đọc sâu từng đoạn ~1.000-1.500 dòng, viết wiki NGAY từng đoạn (đừng nén cả file 1 lần - mất 25-40% chi tiết).
-  3. Tự hỏi 5 câu về các vùng khác nhau; wiki không trả lời được câu nào -> quét bổ sung vùng đó.
+## Before you start
+- Check the source frontmatter: `status: processed` -> STOP, say it was already processed, ask whether to re-ingest. `unprocessed`/missing -> go ahead.
+- Classify the length. A long source (>= ~10,000 lines / a book / a transcript) -> a 3-pass approach is MANDATORY:
+  1. Skim and build a table of contents by line numbers (e.g. "1-1300: introduction"). Ask the user to confirm the focus.
+  2. Read each section in depth, ~1,000-1,500 lines at a time, and write the wiki IMMEDIATELY for each section (do not compress the whole file in one go - it loses 25-40% of the detail).
+  3. Ask yourself 5 questions about different areas; if the wiki cannot answer one, do an extra scan of that area.
 
-## Các bước
-1. Đọc source (kèm ảnh nếu có).
-2. Tóm tắt 3-5 ý chính; rút insight/framework; liên hệ khái niệm đã có.
-3. Xác định trang wiki: mới cần tạo / cần cập nhật / cần merge (đọc `wiki/index.md` để dedup).
-4. Viết/cập nhật wiki (1 trang = 1 ý, có `[[...]]` ngược lại trang liên quan) - TUÂN THỦ 3 KỶ LUẬT:
-   - Citation cứng: mỗi câu cụ thể kết bằng `[[Nguồn]]`.
-   - Mục tiêu vs thực tế: gắn nhãn "(mục tiêu)" / "(thực tế tính đến ...)" / "(cần xác minh)".
-   - Mâu thuẫn với trang cũ: thêm `## Mâu thuẫn` (giữ cả 2 quan điểm + nguồn) + append `wiki/_open-questions.md`, KHÔNG ghi đè.
-   Ngoài 3 kỷ luật, mỗi trang phải TỰ ĐỦ NGỮ CẢNH (contextual retrieval - trang tách khỏi source vẫn hiểu và tìm thấy được):
-   - Mở đầu trang bằng 1-2 câu định vị: khái niệm này là gì, thuộc chủ đề/nguồn nào, dùng khi nào. Nhất là khi ingest source dài theo từng đoạn - đoạn giữa sách mà thiếu câu định vị là sau này đọc lẻ không hiểu.
-   - Frontmatter thêm `aliases: [tên gọi khác, viết tắt, thuật ngữ tiếng Anh]` - để sau này hỏi bằng từ khác thì grep/search vẫn bắt trúng trang.
-5. Cập nhật `wiki/index.md` (thêm dòng link + mô tả 1 dòng).
-6. Set source `status: processed`, `processed_at`, `wiki_links: [...]`. Không đáng vào wiki -> `status: skipped` + `note`.
-7. Append `wiki/log.md`: `## [YYYY-MM-DD] ingest | <tên source>` + nguồn/đã tạo/đã cập nhật/insight.
-8. Đề xuất task nếu source mở ra hành động (chỉ đề xuất). Báo cáo ngắn: tóm tắt + trang đã chạm + insight + task.
+## Steps
+1. Read the source (with images if any).
+2. Summarize 3-5 key points; extract insights/frameworks; connect them to existing concepts.
+3. Decide the wiki pages: which are new and need creating / need updating / need merging (read `wiki/index.md` to dedupe).
+4. Write/update the wiki (1 page = 1 idea, with `[[...]]` links back to related pages) - FOLLOW THE 3 DISCIPLINES:
+   - Hard citation: end every specific sentence with `[[Source]]`.
+   - Target vs actual: label with "(target)" / "(actual as of ...)" / "(needs verification)".
+   - Contradiction with an old page: add `## Mâu thuẫn` ("Contradiction"; keep both views + sources) + append to `wiki/_open-questions.md`, do NOT overwrite.
+   Beyond the 3 disciplines, every page must be SELF-CONTAINED in context (contextual retrieval - a page detached from its source must still be understandable and findable):
+   - Open the page with 1-2 positioning sentences: what this concept is, which topic/source it belongs to, when to use it. Especially when ingesting a long source section by section - a page from the middle of a book without a positioning sentence is unreadable on its own later.
+   - Add `aliases: [other names, abbreviations, English terms]` to the frontmatter - so that later a question using different words is still caught by grep/search.
+5. Update `wiki/index.md` (add a link line + a 1-line description).
+6. Set the source to `status: processed`, `processed_at`, `wiki_links: [...]`. If it is not worth putting in the wiki -> `status: skipped` + `note`.
+7. Append to `wiki/log.md`: `## [YYYY-MM-DD] ingest | <source name>` + source/created/updated/insight.
+8. Propose a task if the source opens up an action (propose only). Short report: summary + pages touched + insight + task.

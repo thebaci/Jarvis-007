@@ -1,4 +1,4 @@
-# Adaptive Context Runtime cho Javis OS
+# Adaptive Context Runtime cho Jarvis 007
 
 Ngày: 2026-08-01
 Trạng thái: **Code Phase 0-9 đã hoàn tất; Phase 0-4 chạy `shadow`, canary Phase 5-9 tắt mặc định**
@@ -68,7 +68,7 @@ Còn nợ, phải làm trong hoặc trước Phase 9:
 
 ## 0. Quyết định kiến trúc
 
-Javis sẽ chuyển từ cách dựng request theo kiểu "nối mọi thứ có thể hữu ích vào prompt" sang một runtime biên dịch context theo từng bước của nhiệm vụ.
+Jarvis 007 sẽ chuyển từ cách dựng request theo kiểu "nối mọi thứ có thể hữu ích vào prompt" sang một runtime biên dịch context theo từng bước của nhiệm vụ.
 
 Mục tiêu bất biến là:
 
@@ -86,7 +86,7 @@ Không triển khai bằng một lần viết lại lớn. Runtime mới phải 
 
 | Thành phần | Kích thước ký tự |
 |---|---:|
-| `CLAUDE.md` gốc của Javis | 21.479 |
+| `CLAUDE.md` gốc của Jarvis 007 | 21.479 |
 | `Memory/MEMORY.md` được nạp | 18.723 |
 | Khối capability và skill router | khoảng 4.600 |
 | System prompt hoàn chỉnh | 45.625 |
@@ -117,7 +117,7 @@ Các phần có thể tái sử dụng:
 
 ### 2.1 Mục tiêu chức năng
 
-1. Giữ nguyên toàn bộ năng lực hiện có của Javis.
+1. Giữ nguyên toàn bộ năng lực hiện có của Jarvis 007.
 2. Thêm MCP, skill, workflow, agent hoặc model mà không phải sửa system prompt trung tâm.
 3. Context ban đầu không chứa danh sách đầy đủ capability.
 4. Mỗi bước chỉ nhận schema chính xác của capability được chọn cho bước đó.
@@ -247,7 +247,7 @@ flowchart TD
 Registry cung cấp một giao diện thống nhất cho:
 
 - MCP tool từ mọi connection;
-- builtin tool trong Javis;
+- builtin tool trong Jarvis 007;
 - plugin tool;
 - skill;
 - workflow và agent;
@@ -1638,7 +1638,7 @@ Guard thực thi:
   mọi tín hiệu live data, external source, capability, side effect, memory/history và attachment
   đều fallback legacy.
 - Provider/model phải match một hard-quota rule versioned do operator khai theo tài khoản thật.
-  Javis không hardcode quota thương mại theo tên provider.
+  Jarvis 007 không hardcode quota thương mại theo tên provider.
 - Estimator được cộng safety factor trước reservation. Rolling TPM được reserve atomically trong
   SQLite; request vượt budget bị chặn với `model_rounds=0`, không replay legacy cùng provider.
 - Sau khi model bắt đầu, Quality Gate chỉ đánh dấu kết quả; không gọi model lần hai trong Phase 5.
@@ -1872,7 +1872,7 @@ Contract đã triển khai:
   `allow_unreconcilable: true` cho group đó.
 - **Raw arguments vẫn không vào runtime store.** Ledger chỉ giữ hash. Tham số đã duyệt
   nằm trong RAM, nên restart giữa lúc chờ xác nhận làm lượt xác nhận fail-closed thay
-  vì chạy một hành động mà Javis không còn đọc lại được tham số. Đây là đánh đổi có
+  vì chạy một hành động mà Jarvis 007 không còn đọc lại được tham số. Đây là đánh đổi có
   chủ đích, không phải thiếu sót.
 - Audit nối được `task_id`, `step_id`, capability revision, `idempotency_key`,
   `provider_request_id` và evidence ref; chuỗi sự kiện `write.prepared` →
@@ -2390,4 +2390,4 @@ Mốc đầu tiên đáng đưa vào production là hết Phase 6:
 
 Chỉ bắt đầu Phase 8 khi read-only Orchestrator đã ổn định, vì memory retrieval có rủi ro giảm chất lượng âm thầm. Chỉ bắt đầu Phase 9 khi idempotency, reconciliation và restart tests đã pass, vì write là ranh giới không thể rollback bằng cách chạy lại. Workflow, agent và model routing phải giữ thành ba phase riêng để mỗi lần chỉ thêm một nguồn biến động.
 
-Kiến trúc này không cam kết mọi task đều dùng ít token. Nó cam kết runtime chỉ chi token khi giá trị thông tin của bước tiếp theo xứng đáng, có ngân sách toàn task, có trace và có đường dừng. Đó là điều giúp Javis mở rộng số capability mà vẫn giữ hiệu suất và chất lượng trả lời.
+Kiến trúc này không cam kết mọi task đều dùng ít token. Nó cam kết runtime chỉ chi token khi giá trị thông tin của bước tiếp theo xứng đáng, có ngân sách toàn task, có trace và có đường dừng. Đó là điều giúp Jarvis 007 mở rộng số capability mà vẫn giữ hiệu suất và chất lượng trả lời.

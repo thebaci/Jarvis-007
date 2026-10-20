@@ -1,4 +1,4 @@
-# Gọi điện với Javis: ChatGPT Live
+# Gọi điện với Jarvis 007: ChatGPT Live
 
 Ngày 01/10/2026. Chủ dự án đã duyệt thiết kế trong phiên cùng ngày. Đây là tài liệu thiết kế
 DUY NHẤT cho giọng nói: các spec giọng nói cũ (Voice V1, V2, tai nghe lại, nhịp thích nghi, tập
@@ -10,21 +10,21 @@ tắt (Phụ lục A8).
 
 ## 1. Mục tiêu và các quyết định đã chốt
 
-Người dùng muốn nói chuyện với Javis như gọi điện: nghe và nói cùng lúc, chen ngang lúc nào
+Người dùng muốn nói chuyện với Jarvis 007 như gọi điện: nghe và nói cùng lúc, chen ngang lúc nào
 cũng được, đáp gần như ngay, và phải cài đặt ít nhất có thể.
 
 | Quyết định | Chốt |
 |---|---|
 | Bấm nút mic | **Gọi điện**: bấm một lần mở cuộc gọi, bấm lần nữa (hoặc Esc) là cúp |
 | Màn hình lúc gọi | **Thanh gọi mỏng trên khung chat**, lời hai bên thành bong bóng chat thường |
-| Ai trả lời | **Chia việc**: chuyện trò thì model nói chuyện đáp ngay; cần dữ liệu, MCP, file, ghi nhớ, mở trang thì giao bộ não Javis người dùng đã chọn |
+| Ai trả lời | **Chia việc**: chuyện trò thì model nói chuyện đáp ngay; cần dữ liệu, MCP, file, ghi nhớ, mở trang thì giao bộ não Jarvis 007 người dùng đã chọn |
 | Đường chính | **ChatGPT Live** (Codex realtime, không cần API key) |
 | Im lặng lâu | Im 30 giây thì **ngắt kết nối nghe**, câu nói thật đầu tiên là nối lại, không cần gọi tên (0.65.22); thanh gọi vẫn giữ |
 | Phím Space | **Bỏ** phím tắt nói. Chỉ còn nút mic, Esc để cúp |
 | Giọng mặc định | **juniper** |
 | Tên hiện ra | Chỉ ghi **ChatGPT Live** (nhãn, thông báo, CHANGELOG). Không dùng chữ "song công" ở chỗ người dùng đọc |
 | Cài đặt | Trang chính còn 3 thứ; máy tự suy ra mọi thứ còn lại (mục 5) |
-| Tai Claude | Không làm: model Claude không nhận âm thanh, giọng nói của Claude Code cần token claude.ai mà Javis không đọc |
+| Tai Claude | Không làm: model Claude không nhận âm thanh, giọng nói của Claude Code cần token claude.ai mà Jarvis 007 không đọc |
 
 ## 2. Số đo làm căn cứ
 
@@ -43,9 +43,9 @@ thông tin, nên sửa chữ sau khi nghe không phải đường chính.
 
 **Thử ChatGPT Live** (Codex 0.153.4 và 0.159.3, 01/10, kịch bản giọng tổng hợp):
 - Tiếng Việt tự nhiên, xưng hô đúng ("Dạ, em vẫn ổn anh ơi, cảm ơn anh").
-- Tiếng đầu tiên của Javis ra **0,44 đến 0,85 giây** sau khi người dùng nói xong (lượt đầu ~2 giây).
+- Tiếng đầu tiên của Jarvis 007 ra **0,44 đến 0,85 giây** sau khi người dùng nói xong (lượt đầu ~2 giây).
 - Handoff tới **0,5 giây** sau câu hỏi; trả kết quả bằng `appendSpeech`, model đọc gần nguyên văn.
-- Chen ngang khi Javis đang kể chuyện: Javis dừng, đáp "Dạ vâng, em dừng đây ạ".
+- Chen ngang khi Jarvis 007 đang kể chuyện: Jarvis 007 dừng, đáp "Dạ vâng, em dừng đây ạ".
 - Phiên 15 phút không rớt. Lỗi lẻ: câu đầu sau 3 phút im bị tách đôi ("Doanh" / "là bao nhiêu
   em") và chữ về trễ ~29 giây. Ngắt khi im 30 giây và ghép yêu cầu ngắn (mục 3.2) xử lý chuyện này.
 
@@ -81,7 +81,7 @@ approvalPolicy: "never", developerInstructions: "Reply only: [FINAL]"}`.
 - `version: "v3"`, `outputModality: "audio"`, `transport: {type: "webrtc", sdp: <offer của trình duyệt>}`.
 - `voice`: `voice.chatgpt_voice`, mặc định `juniper`. Danh sách hợp lệ của v3: juniper, maple,
   spruce, ember, vale, breeze, arbor, sol, cove (marin, alloy... bị từ chối).
-- `prompt`: nhân cách Javis cho giọng nói (mục 3.3).
+- `prompt`: nhân cách Jarvis 007 cho giọng nói (mục 3.3).
 - `includeStartupContext: false`. BẮT BUỘC: mặc định Codex nhét ~5.300 token quét máy và thư mục
   làm việc vào prompt.
 - `clientManagedHandoffs: true`, `delegationAckFiller: true`, `flushTranscriptTailOnSessionEnd: false`.
@@ -89,10 +89,10 @@ approvalPolicy: "never", developerInstructions: "Reply only: [FINAL]"}`.
 - `initialItems`: mục lục bộ nhớ (`memory/MEMORY.md`) và ~12 lượt chat gần nhất của phiên, trong
   trần 128 mục và 8.192 token.
 
-Âm thanh đi THẲNG trình duyệt tới OpenAI. Máy chủ Javis chỉ chuyển gói bắt tay SDP, nên chạy được
-cả khi Javis nằm trên VPS. Javis không bao giờ đọc token: app-server tự lo đăng nhập.
+Âm thanh đi THẲNG trình duyệt tới OpenAI. Máy chủ Jarvis 007 chỉ chuyển gói bắt tay SDP, nên chạy được
+cả khi Jarvis 007 nằm trên VPS. Jarvis 007 không bao giờ đọc token: app-server tự lo đăng nhập.
 
-**Handoff về bộ não Javis.**
+**Handoff về bộ não Jarvis 007.**
 1. Sự kiện tới là `thread/realtime/itemAdded` với `item.type == "handoff_request"`, kèm
    `input_transcript`. Không có method riêng (khung `GPTLive` cũ đoán sai tên).
 2. Yêu cầu quá ngắn (dưới 3 tiếng) thì ghép với lời người dùng vừa nói trong ~10 giây trước.
@@ -129,7 +129,7 @@ cả khi Javis nằm trên VPS. Javis không bao giờ đọc token: app-server 
      ngay sau mỗi lần giao việc, đánh dấu sẽ nuốt nhầm câu đệm đó;
    - việc mới thật chạy SONG SONG, mạch engine riêng (`key` dùng một lần, `_voice_ask_javis` dọn
      phiên RAM của nó), kết quả về khi nào đọc khi đó, mỗi kết quả trả đúng handoff của nó;
-   - `_heartbeat`: việc chạy quá `STATUS_FIRST_S` (60 giây) thì mỗi `STATUS_EVERY_S` (90 giây) Javis tự
+   - `_heartbeat`: việc chạy quá `STATUS_FIRST_S` (60 giây) thì mỗi `STATUS_EVERY_S` (90 giây) Jarvis 007 tự
      nói một câu tiến độ, chỉ khi `is_quiet()` (không ai nói, hàng lời đọc trống). Câu này là
      `readback` nên không thành bong bóng, không vào lịch sử;
    - `ChatGPTLive.say_status` đi chung hàng với lời đọc kết quả (không chen giữa câu đang nói) và bị
@@ -159,24 +159,24 @@ không đoán; có kết quả thì đọc lại, không thêm số; bị chen n
 
 `dashboard/voice-live.js` thêm nhánh WebRTC: `RTCPeerConnection` với transceiver audio
 `sendrecv` lấy track mic (`echoCancellation`, `noiseSuppression`), kênh dữ liệu `oai-events`
-(bắt buộc phải có trong offer), tiếng Javis phát qua một phần tử `<audio>`; mức âm hai phía cho
+(bắt buộc phải có trong offer), tiếng Jarvis 007 phát qua một phần tử `<audio>`; mức âm hai phía cho
 orb lấy từ analyser (track remote phải gắn vào một phần tử media thì mới chảy vào WebAudio). Bỏ
 qua đường PCM của các Live khác. Điện thoại chạy được vì WebRTC chỉ dùng MỘT đường mic.
 
 ### 3.5 Im lâu thì ngắt, nói là nối lại (0.65.22)
 
 Im 30 giây (đếm từ lúc cả hai bên cùng im) thì `thread/realtime/stop`, đóng WebRTC, thanh gọi
-chuyển sang "Đang chờ, cứ nói là Javis nghe". Bộ nghe miễn phí của trình duyệt (`liveWake` trong
+chuyển sang "Đang chờ, cứ nói là Jarvis 007 nghe". Bộ nghe miễn phí của trình duyệt (`liveWake` trong
 app.js) chờ CÂU NÓI THẬT (`attention.wakes`: có tên gọi, hoặc từ hai chữ trở lên); nghe được thì mở
 thread mới và gửi câu đó làm lời đầu (`appendText`). Từ 0.65.24 nối SỚM: chữ tạm đầu tiên đủ hai
 chữ là bắt tay WebRTC ngay mà chưa giữ mic (`deferMic`, bộ nghe còn giữ mic, điện thoại chỉ cho một
 bên), câu chốt xong mới `attachMic` và gửi câu; câu chốt chỉ là tiếng ậm ừ hay 12 giây không có câu
 thì đóng. Lúc chờ, câu trọn ý chốt sau 0,7 giây (câu dở dang giữ độ chờ dài). Đo trên server thử
-(Codex 0.153.4): từ câu chốt tới chữ đầu của Javis 3,29 giây xuống 1,35 giây. Lợi ích: đỡ hạn mức lúc im, và
+(Codex 0.153.4): từ câu chốt tới chữ đầu của Jarvis 007 3,29 giây xuống 1,35 giây. Lợi ích: đỡ hạn mức lúc im, và
 tránh lỗi phiên ngồi im lâu. Chữ đang nghe hiện thành nháp, `console.debug` ghi câu nghe được và
 quyết định.
 
-Bản 0.65.15 đến 0.65.21 bắt phải gọi "Javis" và có công tắc "Tập trung" (tắt thì giữ kết nối suốt).
+Bản 0.65.15 đến 0.65.21 bắt phải gọi "Jarvis 007" và có công tắc "Tập trung" (tắt thì giữ kết nối suốt).
 Chủ dự án bỏ cả hai ngày 01/10: trình duyệt hay chép tên thành "David" nên gọi tên không nối lại
 được (không dùng Groq cho việc này vì người dùng cơ bản không cài), và lúc còn nối thì Live vốn đã
 nghe mọi tiếng trong phòng nên bắt gọi tên không chặn được TV bao nhiêu. Đường Cơ bản không có kết
@@ -188,8 +188,8 @@ Máy không có bộ nhận giọng của trình duyệt (hay nó bị chặn): 
 **Nối lại hỏng giữa cuộc gọi (0.65.25).** Cuộc gọi đã nối ChatGPT Live ít nhất một lần
 (`_cuocGoiDaNoi`) thì nối lại hỏng KHÔNG chuyển sang đường Cơ bản: thử lại một lần sau 0,8 giây
 với đúng câu vừa nói, vẫn hỏng thì báo một dòng ("Chưa nối lại được ChatGPT Live. Cứ nói lại là
-Javis thử tiếp.") và quay về chờ. Chủ dự án báo 02/10: nối lại hỏng rơi xuống đường Cơ bản đọc
-bằng giọng Edge nên nghe như Javis tự đổi giọng nữ sang giọng nam giữa chừng, trong khi ý muốn là
+Jarvis 007 thử tiếp.") và quay về chờ. Chủ dự án báo 02/10: nối lại hỏng rơi xuống đường Cơ bản đọc
+bằng giọng Edge nên nghe như Jarvis 007 tự đổi giọng nữ sang giọng nam giữa chừng, trong khi ý muốn là
 ChatGPT lo trọn cuộc gọi. Chỉ lần mở ĐẦU cuộc gọi hỏng mới chuyển đường Cơ bản như mục 3.1. Nối sớm
 không nằm trong cú bấm nào, nên `AudioContext.resume()` chỉ được chờ tối đa 1 giây (iPhone có thể
 treo nó mãi).
@@ -209,10 +209,10 @@ chế độ rảnh tay hiện nay, chỉ đổi vỏ.
 
 - **Nút mic** đổi thành **Cúp máy** khi đang gọi. Esc cũng cúp. Phím Space không còn làm gì.
 - **Thanh gọi** nằm ngay trên khung chat, ở mọi trang có khung chat (cả trang Trò chuyện):
-  chấm trạng thái + chữ ("Đang nghe", "Javis đang nói", "Đang làm: <tên việc>", "Đang chờ, gọi
-  Javis để nói tiếp", "Đang nối lại"), đồng hồ cuộc gọi, nút **Tắt mic** (`track.enabled =
-  false`, Javis vẫn nói được) và nút **Cúp máy**.
-- **Bong bóng**: lời người dùng hiện dạng nháp trong lúc nói rồi chốt; lời Javis chạy theo tiếng
+  chấm trạng thái + chữ ("Đang nghe", "Jarvis 007 đang nói", "Đang làm: <tên việc>", "Đang chờ, gọi
+  Jarvis 007 để nói tiếp", "Đang nối lại"), đồng hồ cuộc gọi, nút **Tắt mic** (`track.enabled =
+  false`, Jarvis 007 vẫn nói được) và nút **Cúp máy**.
+- **Bong bóng**: lời người dùng hiện dạng nháp trong lúc nói rồi chốt; lời Jarvis 007 chạy theo tiếng
   đọc; kết quả handoff là một bong bóng đầy đủ. Tất cả vào lịch sử phiên như tin thường.
 - **Orb** (trang chủ) và linh vật vẫn theo trạng thái thật, vẽ qua `capNhatOrb()`.
 - **Lỗi**: không nối được đường đang dùng thì báo một dòng và tự chuyển xuống đường kế tiếp trong
@@ -225,7 +225,7 @@ chế độ rảnh tay hiện nay, chỉ đổi vỏ.
 ```
 GIỌNG NÓI
   Đang dùng: ChatGPT Live                            <- kèm lý do khi đang ở đường dự phòng
-  Giọng Javis   [ juniper                 v ] [▶]    <- danh sách đổi theo đường gọi
+  Giọng Jarvis 007   [ juniper                 v ] [▶]    <- danh sách đổi theo đường gọi
   > Nâng cao
       Đường gọi      [ Tự động v ]  (Tự động / ChatGPT Live / Live API key / Cơ bản)
       Bộ não trả lời nhanh [ Tự động (đang là ...) v ]  (chỉ đường Cơ bản)
@@ -235,7 +235,7 @@ GIỌNG NÓI
 ```
 
 - **Mọi ô tự lưu khi đổi**, không còn nút Lưu. Xếp một cột.
-- **Giọng Javis**: đường chatgpt hiện 9 giọng v3, "Nghe thử" phát mẫu thu sẵn
+- **Giọng Jarvis 007**: đường chatgpt hiện 9 giọng v3, "Nghe thử" phát mẫu thu sẵn
   (`dashboard/voices/<giọng>.mp3`, vài chục KB mỗi giọng); đường api hiện giọng của nhà cung
   cấp đó; đường basic hiện giọng Edge, giọng OpenAI khi đã có key ở trang Models, và giọng
   ElevenLabs riêng (key và Voice ID ở Nâng cao). Ở đường basic, chọn giọng là chọn luôn nhà
@@ -273,7 +273,7 @@ GIỌNG NÓI
 ## 6. Thứ tự làm (mỗi bước một PR, đặt số phiên bản trước theo `docs/quy-uoc-dev.md`)
 
 1. **ChatGPT Live**: nhà cung cấp `codex-plan`, khung WebRTC trên `/ws/voice-live`, nhánh
-   WebRTC trong `voice-live.js`, handoff về bộ não Javis + bong bóng kết quả, ngắt khi im 20 giây,
+   WebRTC trong `voice-live.js`, handoff về bộ não Jarvis 007 + bong bóng kết quả, ngắt khi im 20 giây,
    giọng juniper, mẫu thu sẵn 9 giọng. Chọn được trong ô nhà cung cấp Live hiện có.
 2. **Trải nghiệm gọi điện cho mọi đường**: thanh gọi, nút Cúp máy, Tắt mic, bỏ Space, chọn đường
    gọi tự động (mục 3.1), đường basic dùng vỏ mới.
@@ -300,7 +300,7 @@ GIỌNG NÓI
 - **Hạn mức gói ChatGPT**: cả cuộc gọi lẫn mỗi lượt Codex bị interrupt đều tính vào hạn mức. Chủ
   dự án chấp nhận. Ngắt khi im 30 giây giảm đáng kể.
 - **Điều khoản dùng gói**: OpenAI chưa nói rõ giới hạn cho cách dùng này. Một người ngồi gọi thì
-  gần với dùng cá nhân thường; nhiều người dùng chung một gói qua cùng một Javis thì nằm ngoài
+  gần với dùng cá nhân thường; nhiều người dùng chung một gói qua cùng một Jarvis 007 thì nằm ngoài
   cách dùng cá nhân, giống lưu ý trong CLAUDE.md về gói Claude và gói xAI. Đừng hứa suông.
 - **Giọng và tính cách lớp ngoài là của OpenAI**: bộ não người dùng chọn chỉ làm phần việc phía
   sau. Ai muốn giọng khác thì ép đường gọi sang Cơ bản.
@@ -315,15 +315,15 @@ giữ phần đã đối chiếu đúng với code ngày 01/10/2026. Code trỏ 
 ### A1. Đạo diễn lượt nói (voice-turn.js) và trạng thái orb
 - Module thuần, không đụng DOM hay audio. voice.js và app.js gửi sự kiện vào, nhận về một MẢNG hành động (`commit`, `hold`, `stop_tts`, `stop_turn`, `pause_tts`, `resume_tts`, `listen`, `speak_filler`, `flush_deferred`) rồi tự thực hiện.
 - Trạng thái suy ra từ cờ theo một danh sách ưu tiên (`_recompute`): reconnecting, error, interrupted, user_speaking, waiting_for_user, speaking, processing, listening, idle. Thêm trạng thái thì thêm vào danh sách này, không viết tay từng cặp chuyển.
-- Chờ hết lượt theo hai ngưỡng, một đồng hồ duy nhất, có lời mới thì đặt lại. Câu kết bằng liên từ, giới từ, dấu phẩy, tiếng ậm ừ ("ừm", "ờ", "kiểu") hoặc chỉ gọi "Javis" thì chờ `maxDelay` 2200 ms; còn lại chờ `minDelay` 1200 ms (`javis.endpoint`). Không bao giờ chốt lượt rỗng. Không có "à" trong danh sách vì "vậy à" là câu đã xong. Không dùng mô hình dò hết lượt vì LiveKit không hỗ trợ tiếng Việt.
-- Cụm CHỜ/DỪNG phải khớp trọn câu sau khi bỏ "Javis ơi" và tiểu từ đuôi; bản nói lắp vẫn nhận nếu mọi từ thuộc bộ từ vựng; câu có từ lạ ("khoan, mở Chrome") là tin thường. CHỜ thì không gửi và giữ tối đa 90 giây. DỪNG thì chỉ dừng đọc (0.65.28): lượt đang chạy viết nốt câu trả lời vào khung chat, phần còn lại không đọc.
-- **Trong cuộc gọi không có gì tự dừng lượt** (0.65.28, chủ dự án chốt 02/10 sau khi thấy "Đã dừng lượt này" liên tục ở đường Cơ bản): lượt chỉ dừng khi cúp máy hoặc bấm Dừng. Câu nói lúc Javis đang trả lời xếp hàng (`xepCauChoLuot`, nhiều câu thì ghép), hiện thành nháp, và chỉ gửi khi lượt cũ xong VÀ loa đọc xong (`guiCauChoLuot`, gọi từ `turn_done`, `onSpeakEnd` và nhịp canh loa). Cắt lời hay nói "thôi" thì `stop_tts` đánh dấu lượt đang chạy `imLoa`: không đọc thêm, chữ hiện đủ thay vì theo lời. Ngoài cuộc gọi (mic một lần) vẫn dừng lượt cũ rồi gửi như trước.
+- Chờ hết lượt theo hai ngưỡng, một đồng hồ duy nhất, có lời mới thì đặt lại. Câu kết bằng liên từ, giới từ, dấu phẩy, tiếng ậm ừ ("ừm", "ờ", "kiểu") hoặc chỉ gọi "Jarvis 007" thì chờ `maxDelay` 2200 ms; còn lại chờ `minDelay` 1200 ms (`javis.endpoint`). Không bao giờ chốt lượt rỗng. Không có "à" trong danh sách vì "vậy à" là câu đã xong. Không dùng mô hình dò hết lượt vì LiveKit không hỗ trợ tiếng Việt.
+- Cụm CHỜ/DỪNG phải khớp trọn câu sau khi bỏ "Jarvis 007 ơi" và tiểu từ đuôi; bản nói lắp vẫn nhận nếu mọi từ thuộc bộ từ vựng; câu có từ lạ ("khoan, mở Chrome") là tin thường. CHỜ thì không gửi và giữ tối đa 90 giây. DỪNG thì chỉ dừng đọc (0.65.28): lượt đang chạy viết nốt câu trả lời vào khung chat, phần còn lại không đọc.
+- **Trong cuộc gọi không có gì tự dừng lượt** (0.65.28, chủ dự án chốt 02/10 sau khi thấy "Đã dừng lượt này" liên tục ở đường Cơ bản): lượt chỉ dừng khi cúp máy hoặc bấm Dừng. Câu nói lúc Jarvis 007 đang trả lời xếp hàng (`xepCauChoLuot`, nhiều câu thì ghép), hiện thành nháp, và chỉ gửi khi lượt cũ xong VÀ loa đọc xong (`guiCauChoLuot`, gọi từ `turn_done`, `onSpeakEnd` và nhịp canh loa). Cắt lời hay nói "thôi" thì `stop_tts` đánh dấu lượt đang chạy `imLoa`: không đọc thêm, chữ hiện đủ thay vì theo lời. Ngoài cuộc gọi (mic một lần) vẫn dừng lượt cũ rồi gửi như trước.
 - Câu tiến độ: đang xử lý quá 2,5 giây (đang gọi tool thì 1,2 giây) mà chưa có chữ thật nào ra loa thì nói đúng một lần mỗi lượt.
 - Tin nền (frame `push`) chỉ đọc khi ở `idle`/`listening`, trạng thái khác thì hoãn; chữ vẫn hiện ngay.
 - Orb chỉ hiện trạng thái thật lấy từ đạo diễn (`ORB_LABEL` trong app.js), chỉ vẽ qua `capNhatOrb()`. Hậu tố MẠNG CHẬM chỉ hiện khi khúc TTS mất hơn 2500 ms mới phát.
 
 ### A2. Tai và miệng ở trình duyệt (voice.js, voice-chunker.js)
-- Web Speech thu mic bằng luồng riêng, không được khử vọng, nên phải ngừng nhận dạng khi TTS phát, không thì nó chép giọng Javis thành lời người dùng. Cũng vì thế cố ý không làm tiếng đệm "ừ, à".
+- Web Speech thu mic bằng luồng riêng, không được khử vọng, nên phải ngừng nhận dạng khi TTS phát, không thì nó chép giọng Jarvis 007 thành lời người dùng. Cũng vì thế cố ý không làm tiếng đệm "ừ, à".
 - Ngắt lời bằng NHÁ TIẾNG: 2 nhịp 100 ms vượt ngưỡng chỉ là nghi ngờ; hạ loa còn 12% trong 4 nhịp rồi đo lại, tiếng vọng tụt theo âm lượng còn giọng người thì không (còn trên 45%). Là người thì `bargeConfirmed` dừng hẳn lời đọc (không chờ chữ); lượt đang chạy KHÔNG bị dừng (0.65.28, xem A1). Mức vọng của phòng tự học, lưu `javis.nenVong`, chặn trên 0.3.
 - Điện thoại chỉ cho MỘT đường thu mic: mobile không ghi âm song song và không có tai nghe lại ở đường Web Speech. WebRTC (mục 3.4) dùng đúng một đường nên chạy được.
 - Chrome Android giao final là cả câu và còn sửa câu giữa các mảnh: ghép bằng `ghepManh`, không `+=`. iOS ép `continuous=false` và hay không chốt final (ghép `_duoiTam`). Mỗi lượt tối đa 30 giây.
@@ -338,7 +338,7 @@ giữ phần đã đối chiếu đúng với code ngày 01/10/2026. Code trỏ 
 - `JAVIS_ASK_MAIN`: lượt giọng kết thúc ngay, việc chạy nền dưới khoá `voice:<sid>:<id>`. Task phải được giữ tham chiếu (`_nho_viec_nen_giong`) kẻo bộ gom rác nuốt. Chặn việc trùng (độ giống từ 0,8), tối đa 3 việc song song. "Dừng việc nền" là luật cứng trong code, không thành việc mới.
 - `JAVIS_UI` không đánh thức bộ não chính (lượt đó có lúc mang hơn 200 nghìn token ngữ cảnh).
 - `MODES`, `BRAIN_PROVIDERS`, `STT_PROVIDERS` là nguồn duy nhất cho cả trang Cài đặt lẫn nhánh lưu `POST /settings`.
-- Lớp sửa tên tất định `nghe_sua.sua` ("David" thành "Javis") chạy trước khi lưu; gỡ nó thì Javis đáp "anh nói là David".
+- Lớp sửa tên tất định `nghe_sua.sua` ("David" thành "Jarvis 007") chạy trước khi lưu; gỡ nó thì Jarvis 007 đáp "anh nói là David".
 
 ### A4. Tai nghe lại (voice_ear.py, stt.py, nghe_sua.py)
 - `voice.ear` = auto | groq | off, CỐ Ý không có mặc định trong config.py; khoá cũ `stt_provider: "groq"` vẫn tính là chọn tay.
@@ -365,7 +365,7 @@ giữ phần đã đối chiếu đúng với code ngày 01/10/2026. Code trỏ 
 - Công tắc `focus_mode` đã gỡ khỏi trang Cài đặt; khoá cũ server vẫn nhận nhưng app.js không đọc. Không xoá lời đã nhận dựa trên việc đoán tạp âm từ chữ.
 - Câu mở đầu gần giống tên gọi ("David ơi") không mở cửa, chỉ được đưa cho tai nghe lại.
 - Live khi đang chờ: đóng kết nối, gửi câu gọi đúng một lần sau `ready`, nạp lại tối đa 12 tin hoặc 8.000 ký tự.
-- Giới hạn đã biết: TV nói "Javis" vẫn đánh thức được.
+- Giới hạn đã biết: TV nói "Jarvis 007" vẫn đánh thức được.
 
 ### A8. Nhịp hội thoại thích nghi (đã gỡ khỏi giao diện ở 0.65.19, code còn chờ dọn)
 - Từng bật qua `javis.adaptive` (off | observe | natural). Từ 0.65.19 `voice-adaptive-ui.js` ép `off`, bỏ qua giá trị đã lưu, và không còn ô nào trên trang; code điều khiển (`voice-adaptive.js`, nhánh `adaptive` trong `app.js`) chờ một PR gỡ hẳn.
@@ -383,7 +383,7 @@ giữ phần đã đối chiếu đúng với code ngày 01/10/2026. Code trỏ 
 - `test_tts_stream.py`: Edge stream, lỗi ngay thành 502. `test_voice_privacy.py`: query `/tts` không vào log.
 - `test_luu_cai_dat_giong.py`: lưu rồi đọc lại cài đặt giọng (bẫy: phải dùng `base_url=http://127.0.0.1:7777`, không thì 403).
 - `test_stt_ao_giac.py`, `test_stt_route.py`, `test_voice_ear_select.py`, `test_voice_ear_upload.js`: tai nghe lại.
-- `test_voice_brain.py`, `test_voice_transcript_integrity.py`, `test_voice_turn_integrity.py`, `test_voice_ten_javis.py`, `test_nghe_sua.py`, `test_voice_tap_am.py`: marker, rào `JAVIS_NGHE`, sửa tên Javis.
+- `test_voice_brain.py`, `test_voice_transcript_integrity.py`, `test_voice_turn_integrity.py`, `test_voice_ten_javis.py`, `test_nghe_sua.py`, `test_voice_tap_am.py`: marker, rào `JAVIS_NGHE`, sửa tên Jarvis 007.
 - `test_viec_nen_giong_khong_chet_lang.py`, `test_viec_nen_giong_dung_khung_chat.py`: việc nền giữ tham chiếu, báo về đúng khung chat.
 - `test_voice_attention.js`, `test_voice_focus_app.js`, `test_voice_live_focus.py`: tập trung.
 - `test_voice_live.py`, `test_voice_live_transcription.py`, `test_voice_live_language.py`, `test_voice_live_lifecycle.js`: Live.

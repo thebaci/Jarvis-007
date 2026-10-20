@@ -1,4 +1,4 @@
-# Javis Resonance Runtime Implementation Plan
+# Jarvis 007 Resonance Runtime Implementation Plan
 
 **Trạng thái sau phản biện vòng 2:** tham chiếu cho kiến trúc mở rộng. Bắt đầu bằng [MVP một agent](2026-10-06-resonance-00-mvp.md); các phần context, bằng chứng và quyền cần cho MVP được làm ở phạm vi hẹp. Nhóm, transport đa worker và undo tổng quát không phải điều kiện của mốc đầu. Không dựng hai scheduler hoặc hai kho goal khi mở rộng.
 
@@ -8,7 +8,7 @@
 
 **Architecture:** Goal service dùng executor/Kanban/workflow hiện có, bổ sung authorization theo goal và scheduler dựa trên sự kiện. Một mục tiêu có một chủ sở hữu lịch. Group runtime giữ leader epoch và phân công bằng hợp đồng con.
 
-**Tech Stack:** Python/FastAPI/SQLite, engine adapters và workflow graph của Javis, JavaScript dashboard. Dùng clock và executor giả trong test.
+**Tech Stack:** Python/FastAPI/SQLite, engine adapters và workflow graph của Jarvis 007, JavaScript dashboard. Dùng clock và executor giả trong test.
 
 **Spec:** [Thiết kế tổng thể](../specs/2026-10-06-javis-resonance-design.md), mục 7 đến 10, 12 đến 17. Phụ thuộc [Foundation](2026-10-06-resonance-01-foundation.md).
 

@@ -237,7 +237,7 @@ ngăn xếp luồng loop mỗi lần bị giữ quá 50 ms, một lần chạy m
 `get_decision`, `agent_any`, `_reserve`, `mark_engine`, `settle`, `cases`, `get_offset`); nhánh không còn lần nào trong mã phán
 xử hay nhịp. Còn lại ngoài phạm vi: `team_runner._reply_turn` và nhả khoá trong `agent_review` (đã chuyển sau lần đo, commit
 kế tiếp) và route `POST /sessions/{id}/messages/{mid}/reaction` (ghi kho trên loop, chưa sửa ở đây). Trễ loop còn lại ở pha
-đồng thời (khoảng 100 tới 140 ms, một hai mẫu) không có ngăn xếp trong mã Javis: tranh GIL giữa nhiều luồng phụ cùng chạy.
+đồng thời (khoảng 100 tới 140 ms, một hai mẫu) không có ngăn xếp trong mã Jarvis 007: tranh GIL giữa nhiều luồng phụ cùng chạy.
 Sóng lô phán xử riêng dao động (một lần 116 ms) cùng lý do. Số lô phán xử giả trong pha đồng thời có lúc dưới 24 vì bench chỉ
 chờ việc nền của bộ phán xử, không chờ tác vụ `run_message` do route sinh ra (cửa sổ đo, không phải mất lượt).
 

@@ -2,7 +2,7 @@
 
 ## Vấn đề
 
-Chủ dự án (30/09/2026): trong nhóm Zalo, Javis không tag được tên chính xác người cần phản hồi (kiểu "@minhquy"), và chưa tạo được
+Chủ dự án (30/09/2026): trong nhóm Zalo, Jarvis 007 không tag được tên chính xác người cần phản hồi (kiểu "@minhquy"), và chưa tạo được
 ghi chú, nhắc hẹn hay poll trên Zalo.
 
 MCP của `zalo-agent-cli` bản 1.6.2 chỉ phơi bảy tool và tool gửi tin (`zalo_send_message`) chỉ nhận chữ. Nhưng chính CLI đó đã có đủ bốn
@@ -35,7 +35,7 @@ Phần chạy CLI dùng chung được tách ra `server/zalo_cli.py` cho cả `z
    Tham số bắt đầu bằng `-` bị coi là cờ, khi đó cờ đứng trước rồi `--`.
 4. **Mã thoát nói dối.** CLI không thoát mã khác 0 khi Zalo từ chối (`error()` chỉ in "✗ ..." ra stderr). Thành công = mã 0 **và** có JSON ở stdout.
    Cũng vá luôn cho `zalo_send_image`, trước đó báo "đã gửi" cả khi Zalo từ chối.
-5. **Giờ nhắc hẹn.** CLI đọc `--time` theo múi giờ của MÁY; người dùng nói theo giờ Javis. VPS ở UTC thì "9 giờ sáng" thành 16 giờ nếu gửi nguyên chữ.
+5. **Giờ nhắc hẹn.** CLI đọc `--time` theo múi giờ của MÁY; người dùng nói theo giờ Jarvis 007. VPS ở UTC thì "9 giờ sáng" thành 16 giờ nếu gửi nguyên chữ.
    Đổi qua đồng hồ máy trước khi gọi, từ chối giờ đã qua.
 6. **Windows + cmd.exe.** `npx.cmd` chạy qua `cmd /c` thì `& | ^ %` trong nội dung tin bị cmd diễn giải (hỏng tin và là lỗ hổng chèn lệnh).
    Chạy `node npx-cli.js` thẳng; rơi về cmd thì từ chối tham số nguy hiểm.

@@ -1,76 +1,76 @@
-# Spec: Kênh Zalo Bot (API chính thức)
+# Spec: Zalo Bot channel (official API)
 
-> Bản spec dev, viết 2026-08-08 trên nền v0.26.3. Nguồn: tài liệu chính thức
-> <https://bot.zaloplatforms.com/docs/> (đọc ngày 2026-08-08).
+> Dev spec, written 2026-08-08 on top of v0.26.3. Source: the official documentation
+> <https://bot.zaloplatforms.com/docs/> (read on 2026-08-08).
 >
-> **Trạng thái: ĐÃ LÀM XONG PHASE 1, 2, 3 (chiều vào), 4 và 5.** Bot chuyên trách chạy trên
-> Zalo từ v0.26.5; kênh Zalo của CHỦ và định tuyến thông báo xong ở v0.26.8. Bốn chỗ lệch so
-> với bản spec này, ghi ngay đây thay vì để người đọc tự đối chiếu:
+> **Status: PHASES 1, 2, 3 (inbound), 4 and 5 ARE DONE.** The dedicated bot has run on
+> Zalo since v0.26.5; the OWNER's Zalo channel and notification routing were finished in v0.26.8. Four
+> deviations from this spec are recorded right here instead of leaving the reader to cross-check:
 >
-> - **Làm PHASE 5 TRƯỚC PHASE 4**, theo yêu cầu của chủ repo (2026-08-08): giá trị nằm ở bot
->   chuyên trách nói chuyện với khách Việt, không ở kênh của chủ.
-> - **Phần dùng chung tách ra `server/bot_gateway.py`** chứ không để `zalo_bot.py` chép lại:
->   hàng đợi lượt, luật `/stop`, cổng precheck và dòng vết công cụ là luật hành vi của Javis,
->   không phải chi tiết của một nhà cung cấp. `TelegramBot` cũng đã chuyển sang dùng nó.
-> - **Danh sách trắng RỖNG = CHƯA AI ĐƯỢC PHÉP** (mục 5 chỉ nói tới hàng chờ, không nói tới
->   luật này). Bên Telegram ô trống nghĩa là mở cho tất cả; giữ nguyên nết đó ở Zalo thì chính
->   luồng "bật bot với ô trống rồi tự nhắn cho nó" mà giao diện đang hướng dẫn sẽ tạo ra một
->   con bot ai cũng chạm được vào brain, trong khoảng giữa lúc bật và lúc bấm Cho phép.
-> - **Phase 0 (thăm dò API thật) mới trả lời được MỘT câu**, xem mục 7. Còn lại vẫn chờ token
->   thật. Mã viết theo hướng chịu được cả ba khuôn phản hồi `getUpdates` có thể có, và kêu ra
->   stderr khi gặp khuôn lạ.
+> - **PHASE 5 WAS DONE BEFORE PHASE 4**, at the repo owner's request (2026-08-08): the value is in the
+>   dedicated bot talking to Vietnamese customers, not in the owner's channel.
+> - **The shared part was split out into `server/bot_gateway.py`** instead of letting `zalo_bot.py` copy it:
+>   the turn queue, the `/stop` rule, the precheck gate and the tool trace line are Jarvis 007 behavior
+>   rules, not details of one provider. `TelegramBot` now uses it too.
+> - **An EMPTY whitelist = NOBODY IS ALLOWED YET** (section 5 only talks about the waiting queue, not this
+>   rule). On Telegram an empty field means open to everyone; keeping that habit on Zalo would turn the very
+>   "enable the bot with an empty field, then message it yourself" flow the UI walks people through into a
+>   bot that anyone can use to reach the brain, in the gap between enabling it and clicking Allow.
+> - **Phase 0 (probing the real API) has answered only ONE question so far**, see section 7. The rest still waits
+>   for a real token. The code is written to tolerate all three possible `getUpdates` response shapes, and it
+>   complains on stderr when it meets an unfamiliar shape.
 >
-> **Còn lại: Phase 3 chiều RA (gửi ảnh) và Phase 6 (webhook).** Cả hai phụ thuộc kết quả thăm
-> dò và phụ thuộc Javis đang chạy ở đâu.
+> **Remaining: Phase 3 OUTBOUND (sending images) and Phase 6 (webhook).** Both depend on the probe
+> results and on where Jarvis 007 is running.
 
-## 1. Quyết định cốt lõi
+## 1. Core decision
 
-**Zalo Bot là KÊNH THỨ TƯ, không phải một runtime thứ hai.**
+**Zalo Bot is the FOURTH CHANNEL, not a second runtime.**
 
-Javis đã có ba kênh đi qua đúng một lõi: dashboard, Telegram, CLI. `main.py` cấp cho
-`telegram_bot.TelegramBot` đúng mấy hàm gọi ngược (`answer_fn`, `command_fn`,
-`callback_fn`, `precheck_fn`, `event_fn`) rồi thôi; toàn bộ phần khớp phiên, chọn brain,
-gọi engine, lưu hội thoại nằm ở nhóm hàm `_tg_*` trong `main.py` và đã nhận tham số
-`channel` từ trước (CLI và bot chuyên trách dùng chung).
+Jarvis 007 already has three channels that pass through exactly one core: dashboard, Telegram, CLI. `main.py` hands
+`telegram_bot.TelegramBot` exactly a few callbacks (`answer_fn`, `command_fn`,
+`callback_fn`, `precheck_fn`, `event_fn`) and that is all; the whole part that matches sessions, picks the brain,
+calls the engine and saves the conversation lives in the `_tg_*` group of functions in `main.py`, which already took a
+`channel` parameter before (the CLI and the dedicated bot share it).
 
-Nghĩa là **việc phải làm là viết một lớp vận chuyển mới, không phải một gateway mới.**
-`server/zalo_bot.py` giữ đúng khế ước của `TelegramBot`, cắm vào đúng `_tg_answer` hiện
-có. Không đụng `telegram_bot.py` ở giai đoạn đầu, nên kênh đang được dùng nhiều nhất
-không chịu rủi ro nào.
+That means **the job is to write a new transport layer, not a new gateway.**
+`server/zalo_bot.py` keeps the exact contract of `TelegramBot` and plugs into the existing `_tg_answer`.
+It does not touch `telegram_bot.py` in the first stage, so the most heavily used channel
+takes no risk.
 
-**Zalo Bot KHÔNG thay Zalo Agent MCP.** Hai thứ khác bản chất, cùng tồn tại:
+**Zalo Bot does NOT replace the Zalo Agent MCP.** They are different in nature and coexist:
 
-- `zalo-agent-cli` (zca-js) đăng nhập **chính tài khoản Zalo của bạn**: đọc được hội
-  thoại thật, nhắn cho bất kỳ ai, và có thể bị Zalo khoá tài khoản.
-- Zalo Bot là **một danh tính riêng**, chính thức, không bị khoá, nhưng chỉ thấy được
-  những gì người ta nhắn thẳng cho nó.
+- `zalo-agent-cli` (zca-js) logs in **your own Zalo account**: it can read real conversations,
+  message anyone, and Zalo may lock the account.
+- Zalo Bot is **a separate identity**, official, not subject to locking, but it only sees
+  what people message to it directly.
 
-Cái đầu để Javis **thao tác thay bạn**. Cái sau để **người khác nói chuyện với Javis**.
-Ai gộp hai cái làm một sẽ mất một nửa năng lực.
+The first lets Jarvis 007 **act on your behalf**. The second lets **other people talk to Jarvis 007**.
+Anyone who merges the two into one loses half the capability.
 
-## 2. Zalo Bot API: những gì tài liệu nói
+## 2. Zalo Bot API: what the documentation says
 
-Về hình dạng, đây gần như một bản sao của Telegram Bot API.
+In shape, this is almost a copy of the Telegram Bot API.
 
-| Mục | Giá trị |
+| Item | Value |
 |---|---|
 | Base URL | `https://bot-api.zaloplatforms.com/bot<TOKEN>/<method>` |
-| Token | dạng `12345689:abc-xyz`, **không hết hạn** cho tới khi chủ tự reset |
-| Lấy token ở đâu | mở app Zalo, tìm OA **Zalo Bot Manager**, chọn Tạo bot; tên bot bắt buộc mở đầu bằng chữ "Bot". Token được gửi về bằng tin nhắn Zalo |
-| Vỏ phản hồi | `{ok, result, description, error_code}` |
-| Nhận tin | `getUpdates` (long polling, tài liệu ghi rõ **chỉ nên dùng khi chạy local**) hoặc webhook |
-| Method có | getMe, getUpdates, setWebhook, deleteWebhook, getWebhookInfo, sendMessage, sendPhoto, sendSticker, sendVoice, sendChatAction |
+| Token | looks like `12345689:abc-xyz`, **does not expire** until the owner resets it |
+| Where to get the token | open the Zalo app, find the OA **Zalo Bot Manager**, choose Create bot; the bot name must start with the word "Bot". The token is sent back as a Zalo message |
+| Response envelope | `{ok, result, description, error_code}` |
+| Receiving messages | `getUpdates` (long polling, the docs say explicitly it should **only be used when running locally**) or webhook |
+| Available methods | getMe, getUpdates, setWebhook, deleteWebhook, getWebhookInfo, sendMessage, sendPhoto, sendSticker, sendVoice, sendChatAction |
 
-`sendMessage` nhận `chat_id`, `text` (1 tới 2000 ký tự), `parse_mode` (`markdown` hoặc
-`html`), hoặc `text_styles` dạng mảng. Trả về `{message_id, date}`.
+`sendMessage` takes `chat_id`, `text` (1 to 2000 characters), `parse_mode` (`markdown` or
+`html`), or `text_styles` as an array. It returns `{message_id, date}`.
 
-`sendPhoto` nhận `chat_id`, `photo` (tài liệu ghi "đường dẫn hình ảnh"), `caption` tối đa
-2000 ký tự. `sendChatAction` mới có đúng `typing`, `upload_photo` ghi Coming soon.
+`sendPhoto` takes `chat_id`, `photo` (the docs say "image path"), and `caption` up to
+2000 characters. `sendChatAction` has only `typing` so far; `upload_photo` is marked Coming soon.
 
-Webhook: `setWebhook` cần `url` HTTPS và `secret_token` dài 8 tới 256 ký tự. Zalo POST
-JSON về, kèm header `X-Bot-Api-Secret-Token` phải đối chiếu. Sự kiện gồm
+Webhook: `setWebhook` needs an HTTPS `url` and a `secret_token` of 8 to 256 characters. Zalo POSTs
+JSON back, with an `X-Bot-Api-Secret-Token` header that must be checked. Events are
 `message.text.received`, `message.image.received`, `message.sticker.received`,
-`message.voice.received`, `message.unsupported.received`. Payload thật của sự kiện chữ:
+`message.voice.received`, `message.unsupported.received`. The real payload of a text event:
 
 ```json
 { "ok": true, "result": {
@@ -81,273 +81,278 @@ JSON về, kèm header `X-Bot-Api-Secret-Token` phải đối chiếu. Sự ki�
   "event_name": "message.text.received" } }
 ```
 
-Mã lỗi: 400 sai đường dẫn hoặc tên API, 401 token sai hoặc hết hạn, 403 lỗi máy chủ,
-404 không tìm thấy, 408 quá thời gian, **429 vượt hạn mức**. Tài liệu không công bố con
-số hạn mức, và trang Giá gói lẫn FAQ đang trả HTTP 500 tại thời điểm khảo sát.
+(`"Xin chào"` is Vietnamese for "Hello", kept as the original sample payload.)
 
-`getMe` trả `account_type: "BASIC"` và `can_join_groups: false`.
+Error codes: 400 wrong path or API name, 401 wrong or expired token, 403 server error,
+404 not found, 408 timeout, **429 rate limit exceeded**. The docs do not publish the limit
+figures, and both the Pricing page and the FAQ were returning HTTP 500 at the time of the survey.
 
-## 3. Bảy chỗ Zalo Bot KHÁC Telegram, và chỗ nào làm gãy UX hiện tại
+`getMe` returns `account_type: "BASIC"` and `can_join_groups: false`.
 
-Đây là phần quan trọng nhất của spec. Chép nguyên hành vi Telegram sang là hỏng ngay.
+## 3. Seven places Zalo Bot DIFFERS from Telegram, and which of them break the current UX
 
-1. **Không có `editMessageText`, không có `deleteMessage`.** Cái tin "🤔 Javis đang xử
-   lý…" tự đổi chữ theo tiến trình rồi tự xoá, thứ đã được viết hẳn một mục trong
-   `docs/11-telegram.md`, **không làm được trên Zalo**. Xem mục 3.1 bên dưới, vì đây là
-   chỗ phải thiết kế lại chứ không phải chỗ cắt bớt.
-2. **Không có nút bấm inline, không có callback.** Bảng chọn provider và lưới model của
-   `/model`, bảng chọn brain của `/brain` đều dựa vào `callback_query`. Trên Zalo phải hạ
-   xuống **danh sách đánh số** rồi đọc con số ở lượt sau. Javis đã có sẵn đường này cho
-   khối `JAVIS_ASK`, tái dùng chứ đừng viết bản thứ hai.
-3. **Trần chữ 2000 chứ không phải 4096.** Hằng số chia tin phải theo kênh.
-4. **Không có `sendDocument`.** PDF, xlsx, docx không có cửa gửi ra. Đây là khoảng hụt
-   chức năng lớn nhất so với Telegram, phải nói thẳng trong tài liệu người dùng chứ
-   không được im lặng nuốt file.
-5. **`sendPhoto` nhận đường dẫn ảnh, nhiều khả năng là URL công khai.** Trang "Sử dụng
-   API" có liệt kê `multipart/form-data` cho upload file, nên có thể đẩy file trực tiếp
-   được, nhưng tài liệu `sendPhoto` không xác nhận. **Phải thử thật trước khi thiết kế**
-   (xem Phase 0). Nếu chỉ nhận URL thì máy chạy local không gửi ảnh ra được, và Javis
-   phải nói thật điều đó thay vì báo thành công.
-6. **`getUpdates` không có `offset` hay `update_id`.** Tham số duy nhất là `timeout`.
-   Không có cơ chế xác nhận đã nhận, nên **phải tự chống trùng bằng `message_id`** (LRU
-   vài nghìn id trong bộ nhớ). Đây là chỗ dễ sinh lỗi trả lời hai lần một câu.
-7. **`can_join_groups: false` ở gói BASIC.** Kịch bản bot chăm sóc khách trong nhóm, thứ
-   `chatbot_runtime` làm khá kỹ trên Telegram, có thể không dùng được ở gói miễn phí.
-   Giao diện phải ẩn phần cấu hình nhóm khi `getMe` trả `false`, chứ không hiện ra rồi
-   để nó chết lặng.
+This is the most important part of the spec. Copying the Telegram behavior over as is breaks things immediately.
 
-### 3.1. Hiện tiến trình mà không gửi tin rồi xoá
+1. **No `editMessageText`, no `deleteMessage`.** The "🤔 Jarvis 007 is processing…" message that changes
+   its text with progress and then deletes itself, which has a whole section in
+   `docs/11-telegram.md`, **cannot be done on Zalo**. See section 3.1 below, because this is
+   something to redesign, not something to trim.
+2. **No inline buttons, no callbacks.** The provider picker and the model grid of
+   `/model`, and the brain picker of `/brain`, all rely on `callback_query`. On Zalo they must be reduced to
+   **numbered lists**, reading the number on the next turn. Jarvis 007 already has this path for the
+   `JAVIS_ASK` block; reuse it instead of writing a second one.
+3. **A 2000-character cap, not 4096.** The message-splitting constant has to be per channel.
+4. **No `sendDocument`.** PDF, xlsx, docx have no way out. This is the biggest functional
+   gap compared with Telegram, and it must be stated plainly in the user docs rather than
+   silently swallowing the file.
+5. **`sendPhoto` takes an image path, most likely a public URL.** The "Using the API" page lists
+   `multipart/form-data` for file upload, so pushing a file directly may be possible,
+   but the `sendPhoto` docs do not confirm it. **It must be tried for real before designing**
+   (see Phase 0). If it only accepts a URL, a machine running locally cannot send images out, and Jarvis 007
+   must say so honestly instead of reporting success.
+6. **`getUpdates` has no `offset` or `update_id`.** The only parameter is `timeout`.
+   There is no acknowledgement mechanism, so **deduplication must be done by hand using `message_id`** (an LRU
+   of a few thousand ids in memory). This is where the bug of answering one message twice is easy to create.
+7. **`can_join_groups: false` on the BASIC plan.** The scenario of a customer-care bot in a group, which
+   `chatbot_runtime` does quite carefully on Telegram, may not be usable on the free plan.
+   The UI must hide the group configuration when `getMe` returns `false`, rather than showing it
+   and letting it die silently.
 
-Chủ repo đã nói rõ (2026-08-08): **cách gửi tin trạng thái rồi xoá là sai**, thứ cần là
-thấy được các trạng thái thao tác ("đang gọi công cụ X"), còn tin nhấp nháy rồi biến mất
-thì không. Chốt lại thiết kế cho cả hai kênh.
+### 3.1. Showing progress without sending a message and then deleting it
 
-Trước hết một sự thật kỹ thuật phải nắm: **`sendChatAction` không mang được chữ tuỳ ý.**
-Cả Telegram lẫn Zalo đều chỉ nhận một bộ hành động cố định (typing, upload_photo...).
-Nghĩa là muốn hiện tên công cụ thì **bắt buộc phải là một tin nhắn thật**, không có
-đường thứ hai. Vấn đề cần giải không phải "bỏ tin nhắn" mà là "đừng để tin nào biến
-mất".
+The repo owner stated clearly (2026-08-08): **sending a status message and then deleting it is wrong**; what is needed is
+to see the operation states ("calling tool X"), while a message that flashes and disappears
+is not. This settles the design for both channels.
 
-**Telegram: tin trạng thái gửi im lặng rồi ở lại thành dòng vết. ĐÃ LÀM ở v0.26.4.**
+First, a technical fact to keep in mind: **`sendChatAction` cannot carry arbitrary text.**
+Both Telegram and Zalo accept only a fixed set of actions (typing, upload_photo...).
+So to show a tool name, **it has to be a real message**, there is no
+second route. The problem to solve is not "drop the message" but "do not let any message
+disappear".
 
-`_send_status` thêm `disable_notification: true`, nên tin trạng thái hiện ra mà không
-rung máy. Nó vẫn được sửa tại chỗ theo tiến trình như cũ. Xong việc thì **không xoá**:
-lần sửa cuối biến nó thành một dòng vết gọn (`⚙ pos_statistics · Read · 8s`, hoặc
-`✓ Trả lời trực tiếp · 3s` khi lượt không gọi công cụ nào), rồi câu trả lời đi thành một
-tin MỚI có chuông. `/stop` sửa dòng đó thành `⏹ Đã dừng.`. `_del_msg` bị xoá khỏi mã.
+**Telegram: the status message is sent silently and stays as a trace line. DONE in v0.26.4.**
 
-Kết quả: mỗi lượt đúng một tiếng chuông, và thông báo trên điện thoại hiện đúng nội dung
-trả lời.
+`_send_status` adds `disable_notification: true`, so the status message appears without
+buzzing the phone. It is still edited in place as before to follow progress. When the work is done it is **not deleted**:
+the last edit turns it into a compact trace line (`⚙ pos_statistics · Read · 8s`, or
+`✓ Direct answer · 3s` when the turn called no tool), then the answer goes out as a NEW
+message with a notification sound. `/stop` edits that line into `⏹ Stopped.`. `_del_msg` was removed from the code.
 
-**Đã cân nhắc rồi bỏ: cho tin trạng thái tự biến thành câu trả lời** (một bong bóng duy
-nhất cho cả lượt). Chat gọn hơn thật, nhưng `editMessageText` **không nổ thông báo**, nên
-người dùng sẽ không được báo khi câu trả lời xong. Với trợ lý cầm tay thì đó là mất mát
-lớn hơn phần chat gọn. Bỏ.
+Result: exactly one notification sound per turn, and the phone notification shows exactly the content of the
+answer.
 
-**Zalo: chấm "đang nhập" cộng một dòng vết công cụ đi kèm câu trả lời.**
+**Considered and rejected: letting the status message turn into the answer itself** (a single
+bubble for the whole turn). The chat is tidier, true, but `editMessageText` **does not trigger a notification**, so
+the user would not be alerted when the answer is done. For a handheld assistant that is a
+bigger loss than the tidier chat. Rejected.
 
-Zalo không sửa và không xoá được tin, nên **không có trạng thái động nào cả**. Chỉ còn
-`sendChatAction typing` giữ sáng suốt lượt (Phase 0 phải đo xem chấm tắt sau bao lâu để
-biết nhịp nhắc lại). Tuyệt đối không gửi tin trạng thái rời trên Zalo: gửi ra là nằm đó
-vĩnh viễn.
+(The Vietnamese status strings `Trả lời trực tiếp` = "Direct answer" and `Đã dừng.` = "Stopped." are code
+output; they are rendered here in English for the reader.)
 
-Bù lại, kẹp **một dòng vết gọn** vào câu trả lời, kiểu `⚙ pos_statistics · Read · 8s`.
-Nó nằm lại vĩnh viễn nhưng không phải rác, và là bằng chứng công cụ đã chạy thật, đúng
-vai trò mà dòng "⚙ Đang gọi..." đang giữ trên Telegram. Dòng này nên làm chung cho cả
-hai kênh, vì trên Telegram sau khi bong bóng hoá thành câu trả lời thì lịch sử tiến
-trình cũng mất theo.
+**Zalo: a "typing" dot plus a tool trace line attached to the answer.**
 
-**Đã cân nhắc rồi bỏ:** thả cảm xúc lên chính tin người dùng vừa gửi (`setMessageReaction`,
-Bot API 7.0) là trạng thái thật, không sinh tin nào. Nhưng chỉ chọn được trong bộ emoji
-cố định nên không nói được tên công cụ. Dùng kèm thì được, dùng thay thì mất thông tin.
-Zalo không có API tương đương.
+Zalo can neither edit nor delete messages, so **there is no dynamic status at all**. All that is left is
+`sendChatAction typing` kept alive through the turn (Phase 0 has to measure how long until the dot goes out
+to know the refresh interval). Never send a separate status message on Zalo: once sent it stays
+there permanently.
 
-## 4. Vì sao đáng làm
+To compensate, attach **one compact trace line** to the answer, like `⚙ pos_statistics · Read · 8s`.
+It stays permanently but is not junk, and it is proof the tool really ran, exactly the
+role the "⚙ Calling..." line plays on Telegram. This line should be shared by both
+channels, because on Telegram once the bubble turns into the answer the progress history
+is lost with it.
 
-Ngắn gọn: **khách hàng Việt Nam không dùng Telegram.**
+**Considered and rejected:** reacting to the very message the user just sent (`setMessageReaction`,
+Bot API 7.0) is a real state and creates no message. But it can only pick from a fixed emoji set,
+so it cannot say the tool name. Using it alongside is fine; using it instead loses information.
+Zalo has no equivalent API.
 
-Kênh Telegram hiện là cửa duy nhất để hỏi Javis từ điện thoại, và là nơi mọi thông báo
-nền (vòng loop, việc Kanban, nhắc hẹn) rơi về. Với một chủ cửa hàng kim khí ở Việt Nam,
-Telegram là một app lạ phải cài thêm. Zalo thì đã nằm sẵn trên máy.
+## 4. Why it is worth doing
 
-Hai sản phẩm mở ra từ đúng một lớp vận chuyển:
+In short: **Vietnamese customers do not use Telegram.**
 
-- **Kênh của chủ.** Hỏi Javis qua Zalo, nhận báo cáo loop và nhắc hẹn qua Zalo.
-- **Bot chuyên trách trên Zalo.** `chatbot_store` đã có sẵn trường `"channel":
-  "telegram"` từ lúc thiết kế. Cho nó nhận thêm `"zalo"` là bot tư vấn của cửa hàng nói
-  chuyện được với khách thật, trên app khách thật đang mở. Đây mới là phần có giá trị
-  kinh doanh, và nó gần như miễn phí về mặt kiến trúc một khi Phase 1 xong.
+The Telegram channel is currently the only door for asking Jarvis 007 from a phone, and it is where every
+background notification (loops, Kanban jobs, reminders) lands. For a hardware shop owner in Vietnam,
+Telegram is a strange app they would have to install. Zalo is already on the phone.
 
-## 5. Ghép người dùng: đừng chép cách của Telegram
+Two products open up from exactly one transport layer:
 
-Telegram bắt chủ đi tìm Chat ID bằng @userinfobot rồi tự dán vào ô whitelist. Zalo
-**không có** công cụ tương đương, và id là chuỗi hex như `6ede9afa66b88fe6d6a9`, không
-ai đọc ra được nó là ai.
+- **The owner's channel.** Ask Jarvis 007 through Zalo, receive loop reports and reminders through Zalo.
+- **A dedicated bot on Zalo.** `chatbot_store` has had the field `"channel":
+  "telegram"` since it was designed. Letting it accept `"zalo"` as well means the shop's consulting bot can
+  talk to real customers, on the real app they already have open. This is the part with
+  business value, and it is almost free architecturally once Phase 1 is done.
 
-Phương án: **mã ghép nối**. Người lạ nhắn cho bot thì bot đáp "Bạn chưa được cấp quyền
-dùng Javis. Mã ghép nối của bạn: 4821". Trang Kênh trên dashboard hiện một thẻ nhỏ liệt
-kê các cuộc chat đang chờ, kèm `display_name` thật và mã, cùng nút **Cho phép**. Bấm một
-cái là id vào whitelist.
+## 5. User pairing: do not copy Telegram's way
 
-Chi tiết cần chốt sẵn: hàng chờ giữ tối đa 20 mục, mỗi mục sống 30 phút rồi rụng, một
-chat_id lạ chỉ được nhận đúng một câu từ chối trong 10 phút (chống người lạ bơm tin để
-làm ngập hàng chờ). Mã ghép nối để chủ đối chiếu đúng người khi hai người cùng tên.
+Telegram makes the owner look up the Chat ID with @userinfobot and paste it into the whitelist field. Zalo
+**has no** equivalent tool, and the id is a hex string like `6ede9afa66b88fe6d6a9`, from which
+nobody can tell who it is.
 
-Cách này vừa đúng thói quen (`feedback_khong-bat-user-chay-lenh`: đừng bắt người dùng đi
-làm phần ống nước), vừa là thứ nên đem ngược về cho Telegram sau này.
+The approach: a **pairing code**. When a stranger messages the bot, the bot replies "You have not been granted
+access to Jarvis 007. Your pairing code: 4821". The Channels page on the dashboard shows a small card
+listing the waiting chats, with the real `display_name` and the code, plus an **Allow** button. One
+click puts the id into the whitelist.
 
-## 6. Kiến trúc và những file sẽ đụng
+Details to settle up front: the waiting queue holds at most 20 entries, each entry lives 30 minutes and then drops off, and an unknown
+chat_id receives only one rejection message per 10 minutes (to stop strangers pumping messages
+to flood the queue). The pairing code lets the owner match the right person when two people share a name.
 
-**File mới**
+This fits the habit (`feedback_khong-bat-user-chay-lenh`, i.e. "do not make the user run commands": do not make users
+do the plumbing work), and is also something that should be brought back to Telegram later.
 
-- `server/zalo_bot.py`: lớp `ZaloBot`, giữ đúng khế ước của `TelegramBot`
+## 6. Architecture and the files to touch
+
+**New files**
+
+- `server/zalo_bot.py`: class `ZaloBot`, keeping the exact contract of `TelegramBot`
   (`answer_fn`, `command_fn`, `precheck_fn`, `event_fn`, `download_dir`, `commands`,
-  `giau_trang_thai`). Bỏ `callback_fn` vì Zalo không có nút. Bên trong: vòng long poll,
-  chống trùng theo `message_id`, hàng đợi mỗi chat như bản Telegram, chia tin ở 2000,
-  giữ chấm "đang nhập" bằng `sendChatAction`.
-- `tests/python/test_zalo_bot.py`: whitelist, chia tin ở 2000, chống trùng, hàng chờ
-  ghép nối, đối chiếu secret webhook.
-- `docs/26-zalo-bot.md`: tài liệu người dùng, tách hẳn khỏi `docs/12-zalo.md` để không
-  ai lẫn hai thứ.
+  `giau_trang_thai`). It drops `callback_fn` because Zalo has no buttons. Inside: the long poll loop,
+  deduplication by `message_id`, a per-chat queue like the Telegram version, message splitting at 2000,
+  and keeping the "typing" dot alive with `sendChatAction`.
+- `tests/python/test_zalo_bot.py`: whitelist, splitting at 2000, deduplication, the pairing
+  waiting queue, webhook secret comparison.
+- `docs/26-zalo-bot.md`: the user doc, kept entirely separate from `docs/12-zalo.md` so that
+  nobody confuses the two.
 
-**File sửa**
+**Files to edit**
 
-- `server/main.py`: biến `_ZALO_BOT`, khởi động và dừng theo settings, các endpoint
+- `server/main.py`: the `_ZALO_BOT` variable, start and stop following settings, the endpoints
   `/zalo-bot/status`, `/zalo-bot/restart`, `/zalo-bot/test`, `/zalo-bot/pending`,
-  `/zalo-bot/allow`. Gọi `_tg_answer(..., channel="zalo")` với khoá phiên
-  `zalo:<chat_id>` (id Zalo là hex, id Telegram là số, nhưng vẫn phải gắn tiền tố kẻo
-  trùng ngẫu nhiên và trộn hai mạch hội thoại vào nhau).
-- `server/config.py`: thêm khối mặc định `"zalo_bot": {"enabled": False, "token": "",
-  "chat_id": "", "mode": "poll", "webhook_secret": ""}`, và thêm `zalo_bot.token` cùng
-  `zalo_bot.webhook_secret` vào danh sách khoá được mã hoá (quanh dòng 381).
-- `server/channel_context.py`: `build_channel_block` nhận `source="zalo"`, thêm "Zalo
-  Bot" vào danh sách nền tảng. Thêm nhắc nhở về giọng văn giống Telegram (không bảng
-  markdown, viết ngắn kiểu tin nhắn).
-- `server/main.py` phần thông báo: `_notify_owner` và `_tg_send_to` hiện chỉ biết tiền
-  tố `web:` rồi mặc định rơi về Telegram. Thêm nhánh `zalo:<chat_id>`. Việc giao từ Zalo
-  phải báo kết quả về Zalo, đúng luật báo cáo mặc định trong `CLAUDE.md`.
-- `server/reminders.py`: cửa `can_force` đang coi "chưa đấu Telegram" là chưa có kênh
-  báo. Zalo Bot bật cũng phải tính là có kênh, nếu không nó chặn nhầm.
-- `server/chatbot_store.py`: `channel` thành trường thật, nhận `"telegram"` hoặc
-  `"zalo"`. `token_owner` (chặn hai poller cùng token) phải xét theo từng kênh.
-- `server/chatbot_runtime.py`: `start_bot` chọn lớp vận chuyển theo `channel`.
-- `dashboard/console.js`: thẻ Zalo Bot trên trang Kênh, cạnh thẻ Telegram, kèm thẻ hàng
-  chờ ghép nối.
-- `server/web_security.py`: miễn CSRF cho `POST /hook/zalo-bot` (Phase 6) nhưng vẫn giới
-  hạn tần suất.
+  `/zalo-bot/allow`. It calls `_tg_answer(..., channel="zalo")` with the session key
+  `zalo:<chat_id>` (Zalo ids are hex and Telegram ids are numbers, but the prefix is still needed so that
+  accidental collisions cannot mix the two conversation threads together).
+- `server/config.py`: add the default block `"zalo_bot": {"enabled": False, "token": "",
+  "chat_id": "", "mode": "poll", "webhook_secret": ""}`, and add `zalo_bot.token` and
+  `zalo_bot.webhook_secret` to the list of encrypted keys (around line 381).
+- `server/channel_context.py`: `build_channel_block` accepts `source="zalo"`, and adds "Zalo
+  Bot" to the platform list. Add a tone reminder like the Telegram one (no markdown tables,
+  short message-style writing).
+- `server/main.py`, notification part: `_notify_owner` and `_tg_send_to` currently only know the `web:`
+  prefix and otherwise fall back to Telegram. Add a `zalo:<chat_id>` branch. Work assigned from Zalo
+  must report its result back to Zalo, per the default reporting rule in `CLAUDE.md`.
+- `server/reminders.py`: the `can_force` gate currently treats "Telegram not connected" as having no reporting
+  channel. An enabled Zalo Bot must also count as a channel, or it will block wrongly.
+- `server/chatbot_store.py`: `channel` becomes a real field, accepting `"telegram"` or
+  `"zalo"`. `token_owner` (which blocks two pollers on the same token) must be checked per channel.
+- `server/chatbot_runtime.py`: `start_bot` picks the transport class by `channel`.
+- `dashboard/console.js`: a Zalo Bot card on the Channels page, next to the Telegram card, plus the pairing
+  waiting queue card.
+- `server/web_security.py`: exempt `POST /hook/zalo-bot` from CSRF (Phase 6) but still rate
+  limit it.
 
-## 7. Các giai đoạn
+## 7. Phases
 
-### Phase 0: Thăm dò API thật
+### Phase 0: Probe the real API
 
-**Đã trả lời được một câu mà không cần token** (2026-08-08): gọi `getMe` với một token rác
-thì Zalo trả `{"ok":false,"description":"Unauthorized","error_code":401}` kèm **HTTP 200**,
-chứ không phải HTTP 401 như Telegram. Nghĩa là **bắt buộc đọc trường `ok`, không được nhìn mã
-HTTP**. Mã hiện tại đang làm đúng vậy.
+**One question has been answered without a token** (2026-08-08): calling `getMe` with a junk token
+makes Zalo return `{"ok":false,"description":"Unauthorized","error_code":401}` with **HTTP 200**,
+not HTTP 401 like Telegram. That means **you must read the `ok` field and never look at the HTTP
+code**. The current code already does this.
 
-Năm câu còn lại vẫn cần một bot token thật:
+The other five questions still need a real bot token:
 
-1. `getUpdates` có trả lại tin cũ sau khi đã nhận không? Trùng ở mức nào?
-2. `sendPhoto` có nhận `multipart/form-data` không, hay bắt buộc URL công khai?
-3. Payload thật của `message.image.received` và `message.voice.received` có trường gì,
-   URL ảnh sống được bao lâu?
-4. Hạn mức thật là bao nhiêu trước khi ăn 429?
-5. Bot có nhắn được cho một `chat_id` chưa từng nhắn cho nó không?
-6. `parse_mode: markdown` hiện ra sao trên điện thoại thật?
+1. Does `getUpdates` return old messages again after they have been received? How much duplication?
+2. Does `sendPhoto` accept `multipart/form-data`, or does it require a public URL?
+3. What fields does the real payload of `message.image.received` and `message.voice.received` have,
+   and how long does the image URL stay alive?
+4. What is the real rate limit before getting a 429?
+5. Can the bot message a `chat_id` that has never messaged it?
+6. How does `parse_mode: markdown` look on a real phone?
 
-Câu 2 quyết định Phase 3 có tồn tại hay không, câu 5 quyết định nhắc hẹn qua Zalo có
-dùng được không. Không đoán, vì đoán sai ở đây là thiết kế lại từ đầu.
+Question 2 decides whether Phase 3 exists at all, and question 5 decides whether reminders over Zalo are
+usable. Do not guess, because guessing wrong here means redesigning from scratch.
 
-### Phase 1: Lớp vận chuyển và kênh của chủ
+### Phase 1: Transport layer and the owner's channel
 
-`server/zalo_bot.py` cộng phần cấu hình, endpoint, thẻ trên dashboard, ghép nối bằng mã.
-Hết phase này là chủ nhắn cho bot Zalo và Javis trả lời bằng đúng brain, đúng engine,
-đúng MCP như trên Telegram.
+`server/zalo_bot.py` plus configuration, endpoints, a dashboard card, and pairing by code.
+At the end of this phase the owner messages the Zalo bot and Jarvis 007 answers with the right brain, the right
+engine and the right MCPs as on Telegram.
 
-### Phase 2: Lệnh gõ nhanh và các tương tác đã hạ cấp
+### Phase 2: Quick commands and the downgraded interactions
 
-Bộ lệnh cho Zalo: `/help`, `/status`, `/stop`, `/reset`, `/retry`, `/model`, `/brain`,
-`/notes`, `/skills`. `/model` và `/brain` vẽ danh sách đánh số thay cho lưới nút, đọc
-con số ở lượt kế. Khối `JAVIS_ASK` dùng lại đường hạ cấp sẵn có.
+The command set for Zalo: `/help`, `/status`, `/stop`, `/reset`, `/retry`, `/model`, `/brain`,
+`/notes`, `/skills`. `/model` and `/brain` draw a numbered list in place of the button grid, reading
+the number on the next turn. The `JAVIS_ASK` block reuses the existing downgrade path.
 
-Phần Telegram của chuyện này **đã làm trước, ở v0.26.4** vì nó độc lập với Zalo: tin
-trạng thái gửi im lặng, không xoá, chốt thành dòng vết công cụ. Hàm dựng dòng vết
-(`TelegramBot._dong_vet`) và biểu thức bóc tên công cụ (`RE_TEN_TOOL`) nên **kéo ra dùng
-chung** khi viết `zalo_bot.py`, đừng chép lại. Chi tiết ở mục 3.1.
+The Telegram part of this **was done first, in v0.26.4** because it is independent of Zalo: the status
+message is sent silently, not deleted, and settled into a tool trace line. The function that builds the trace line
+(`TelegramBot._dong_vet`) and the expression that extracts the tool name (`RE_TEN_TOOL`) should therefore be **pulled out and
+shared** when writing `zalo_bot.py`; do not copy them. Details in section 3.1.
 
-### Phase 3: Media hai chiều (phụ thuộc Phase 0)
+### Phase 3: Two-way media (depends on Phase 0)
 
-Chiều vào: tải ảnh và voice về `inbox/zalo/` của brain đang chọn cho phiên, theo đúng
-luật dọn cache 30 ngày và trần 300MB của `media_gc.py`.
+Inbound: download images and voice to `inbox/zalo/` of the brain selected for the session, following the
+30-day cache cleanup rule and the 300MB cap of `media_gc.py`.
 
-Chiều ra: nếu multipart chạy thì làm giống `send_file` của Telegram. Nếu chỉ nhận URL
-thì phải có một endpoint media công khai, ký, sống ngắn, và **chỉ khả dụng khi Javis
-đang chạy trên máy có tên miền công khai**. Bản chạy local phải nói thẳng "chưa gửi được
-ảnh qua Zalo từ máy này" chứ không được báo thành công giả. Không có `sendDocument`
-nghĩa là PDF và bảng tính không gửi được, ghi rõ trong tài liệu.
+Outbound: if multipart works, do it like Telegram's `send_file`. If it only accepts a URL
+there must be a public, signed, short-lived media endpoint, and it is **only available when Jarvis 007
+runs on a machine with a public domain name**. The local build must say plainly "cannot send
+images over Zalo from this machine yet" and must not report a false success. With no `sendDocument`,
+PDFs and spreadsheets cannot be sent; state this in the docs.
 
-### Phase 4: Định tuyến thông báo nền
+### Phase 4: Background notification routing
 
-Tiền tố `zalo:` cho `owner_chat`. Loop, việc Kanban và nhắc hẹn sinh ra từ Zalo báo kết
-quả về Zalo. Sửa cửa `can_force` ở `reminders.py`. Nếu Phase 0 cho biết bot không nhắn
-trước được thì nhắc hẹn tới giờ mà người nhận chưa từng nhắn cho bot sẽ hỏng, phải bắt
-lỗi đó và nói ra, không nuốt.
+The `zalo:` prefix for `owner_chat`. Loops, Kanban jobs and reminders created from Zalo report their
+result back to Zalo. Fix the `can_force` gate in `reminders.py`. If Phase 0 shows the bot cannot
+message first, then a reminder that fires for a recipient who never messaged the bot will fail; that
+error must be caught and surfaced, not swallowed.
 
-### Phase 5: Bot chuyên trách trên Zalo
+### Phase 5: Dedicated bot on Zalo
 
-`channel` thành trường thật, `chatbot_runtime` chọn lớp vận chuyển theo nó. Ẩn phần cấu
-hình nhóm khi `getMe` báo `can_join_groups: false`. Đây là phần đem lại giá trị kinh
-doanh thật, và sau Phase 1 thì nó gần như chỉ là đấu dây.
+`channel` becomes a real field and `chatbot_runtime` picks the transport class by it. Hide the group
+configuration when `getMe` reports `can_join_groups: false`. This is the part that delivers real business
+value, and after Phase 1 it is almost only wiring.
 
-### Phase 6: Chế độ webhook (chỉ cho VPS)
+### Phase 6: Webhook mode (VPS only)
 
-`POST /hook/zalo-bot`, đối chiếu `X-Bot-Api-Secret-Token` bằng so sánh hằng thời gian,
-miễn CSRF nhưng có giới hạn tần suất. Hai chế độ loại trừ nhau nên khi chuyển phải
-`deleteWebhook` trước.
+`POST /hook/zalo-bot`, check `X-Bot-Api-Secret-Token` with a constant-time comparison,
+exempt from CSRF but rate limited. The two modes are mutually exclusive, so when switching
+`deleteWebhook` must be called first.
 
-Cẩn thận một chuyện: bản Zalo cũ **đã từng có** `/hook/zalo` rồi bị gỡ hẳn cùng listener
-(xem mục "Khác với tích hợp Zalo cũ" trong `docs/12-zalo.md`). Đường dẫn mới phải khác
-tên và khác bản chất, đừng để người đọc code sau này tưởng listener quay lại.
+One thing to be careful about: the old Zalo version **once had** `/hook/zalo` and it was removed entirely along with the
+listener (see the section "Different from the old Zalo integration" in `docs/12-zalo.md`). The new path must differ
+in name and in nature, so that a later reader of the code does not think the listener is back.
 
-### Phase 7: Tài liệu và kiểm thử
+### Phase 7: Docs and testing
 
-`docs/26-zalo-bot.md` cho người dùng, nói rõ khi nào dùng Zalo Bot khi nào dùng Zalo
-Agent MCP. Cập nhật `docs/12-zalo.md` trỏ sang. Bộ test như liệt kê ở mục 6.
+`docs/26-zalo-bot.md` for users, stating clearly when to use Zalo Bot and when to use Zalo
+Agent MCP. Update `docs/12-zalo.md` to point to it. The test suite as listed in section 6.
 
-## 8. Rủi ro và câu hỏi còn mở
+## 8. Risks and open questions
 
-- **Hạn mức không được công bố.** Trang Giá gói và FAQ đang lỗi 500. Phải cài lùi thời
-  gian khi gặp 429 và **phơi lỗi hạn mức ra dòng trạng thái**, đừng nuốt. Gói trả phí
-  xuất hiện sau có thể đổi luật chơi.
-- **Bot nhiều khả năng không nhắn trước được.** Nếu đúng vậy thì mọi thông báo nền chỉ
-  tới được người đã từng nhắn cho bot. Phải nói ra ở giao diện.
-- **Gói BASIC không vào nhóm được**, chặn một phần kịch bản bot chuyên trách.
-- **Không sửa và không xoá được tin đã gửi.** UX trạng thái khác hẳn Telegram, viết vào
-  tài liệu để nó không bị đọc thành lỗi.
-- **Nền tảng còn non.** `event_name` và tên trường có thể đổi. Giữ phần bóc payload gọn
-  trong một hàm để chỉ phải sửa một chỗ.
-- **Chống trùng là chỗ dễ chảy máu nhất**, vì không có `update_id`. Test phải phủ.
+- **The rate limit is not published.** The Pricing and FAQ pages are returning 500. Back off
+  over time on a 429 and **expose the rate limit error in the status line**, do not swallow it. A paid plan
+  appearing later may change the rules.
+- **The bot most likely cannot message first.** If so, every background notification only
+  reaches people who have messaged the bot before. This must be said in the UI.
+- **The BASIC plan cannot join groups**, which blocks part of the dedicated bot scenario.
+- **Sent messages cannot be edited or deleted.** The status UX is very different from Telegram; write it into the
+  docs so it is not read as a bug.
+- **The platform is young.** `event_name` and field names may change. Keep the payload extraction compact
+  in one function so only one place needs fixing.
+- **Deduplication is where it bleeds most easily**, because there is no `update_id`. Tests must cover it.
 
-## 9. Ước lượng và thứ tự nên làm
+## 9. Estimate and suggested order
 
-Phase 0 nửa ngày. Phase 1 và 2 khoảng hai tới ba ngày. Phase 3 một ngày. Phase 4 nửa
-ngày. Phase 5 một tới hai ngày. Phase 6 nửa ngày. Phase 7 nửa ngày. Tổng khoảng một tuần
-làm tập trung.
+Phase 0 half a day. Phases 1 and 2 about two to three days. Phase 3 one day. Phase 4 half a
+day. Phase 5 one to two days. Phase 6 half a day. Phase 7 half a day. Total about one week
+of focused work.
 
-Thứ tự đề xuất: ra **Phase 0 tới 2 trước** thành một bản dùng được (chủ hỏi Javis qua
-Zalo), rồi **Phase 4** (thông báo nền về đúng Zalo), rồi **Phase 5** (bot chuyên trách,
-phần mở khoá giá trị kinh doanh). Phase 3 và 6 phụ thuộc kết quả thăm dò và phụ thuộc
-Javis đang chạy ở đâu, nên xếp sau.
+Suggested order: ship **Phases 0 to 2 first** as a usable build (the owner asks Jarvis 007 through
+Zalo), then **Phase 4** (background notifications to the right Zalo), then **Phase 5** (the dedicated bot,
+the part that unlocks business value). Phases 3 and 6 depend on the probe results and on where
+Jarvis 007 is running, so they come later.
 
-## 10. Nguồn
+## 10. Sources
 
-- [Tài liệu Zalo Bot](https://bot.zaloplatforms.com/docs/), đọc 2026-08-08
-- [Tạo bot](https://bot.zaloplatforms.com/docs/create-bot/),
-  [Xác thực](https://bot.zaloplatforms.com/docs/authorize/),
-  [Gọi API](https://bot.zaloplatforms.com/docs/call-api/),
+- [Zalo Bot documentation](https://bot.zaloplatforms.com/docs/), read 2026-08-08
+- [Create a bot](https://bot.zaloplatforms.com/docs/create-bot/),
+  [Authorization](https://bot.zaloplatforms.com/docs/authorize/),
+  [Calling the API](https://bot.zaloplatforms.com/docs/call-api/),
   [Webhook](https://bot.zaloplatforms.com/docs/webhook/),
-  [Bảng mã lỗi](https://bot.zaloplatforms.com/docs/error-code/)
-- [Kênh Zalo của OpenClaw](https://docs.openclaw.ai/channels/zalo) - một bản triển khai
-  thật để đối chiếu; họ mặc định long polling, chia tin ở 2000, trần media 5MB
-- Trong repo: [Kênh Telegram](../11-telegram.md), [Zalo Agent MCP](../12-zalo.md),
-  [Spec Javis CLI](2026-08-cli-spec.md), [Spec Bot chuyên trách](2026-08-bot-chuyen-trach-spec.md)
+  [Error code table](https://bot.zaloplatforms.com/docs/error-code/)
+- [OpenClaw's Zalo channel](https://docs.openclaw.ai/channels/zalo) - a real implementation to compare
+  against; they default to long polling, split messages at 2000, with a 5MB media cap
+- In the repo: [Telegram channel](../11-telegram.md), [Zalo Agent MCP](../12-zalo.md),
+  [Jarvis 007 CLI spec](2026-08-cli-spec.md), [Dedicated bot spec](2026-08-bot-chuyen-trach-spec.md)

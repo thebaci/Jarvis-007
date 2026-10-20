@@ -1,12 +1,12 @@
 name: Build & Publish Docker image (GHCR)
 
-# Mỗi lần push lên main → build image Docker và đẩy lên GitHub Container Registry
-# (ghcr.io/blogminhquy/javis-os). Hostinger Docker Manager / VPS chỉ cần PULL image này.
+# Every push to main → build the Docker image and push it to GitHub Container Registry
+# (ghcr.io/blogminhquy/javis-os). Hostinger Docker Manager / a VPS only needs to PULL this image.
 on:
   push:
     branches: [main]
-    # Chỉ bỏ qua build khi push THUẦN tài liệu (không ảnh hưởng image).
-    # CLAUDE.md là system prompt nạp vào image → KHÔNG ignore, để sửa nó là build lại.
+    # Skip the build only for a push that is PURELY documentation (does not affect the image).
+    # CLAUDE.md is the system prompt loaded into the image → do NOT ignore it, so editing it triggers a rebuild.
     paths-ignore:
       - "README.md"
       - "DEPLOY.md"
@@ -42,9 +42,9 @@ jobs:
           echo "CODEX_CLI_VERSION=$version" >> "$GITHUB_ENV"
           echo "Codex CLI: $version" >> "$GITHUB_STEP_SUMMARY"
 
-      # Cùng lý do với Codex ở trên: `@latest` trong Dockerfile là chuỗi KHÔNG đổi, nên cache
-      # gha giữ nguyên lớp npm cũ mãi và ảnh mới vẫn mang Claude Code cũ. Model mới (Sonnet 5.5)
-      # vì thế không bao giờ tới VPS. Truyền số phiên bản thật thì lớp đổi khi có bản mới.
+      # Same reason as Codex above: `@latest` in the Dockerfile is a string that NEVER changes, so the gha
+      # cache keeps the old npm layer forever and new images still carry the old Claude Code. A new model (Sonnet 5.5)
+      # therefore never reaches the VPS. Passing the real version number makes the layer change when a new release ships.
       - name: Resolve current Claude Code version
         shell: bash
         run: |

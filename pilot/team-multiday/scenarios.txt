@@ -26,7 +26,7 @@ Ngày 2: đề xuất và duyệt hành động
   Mong đợi: đề xuất đó không quay lại khi dữ liệu không đổi.
 
 Ngày 3: khởi động lại và hết hạn
-  Chủ làm:  để một thẻ duyệt treo, khởi động lại Javis (systemctl restart hay docker restart theo run_guide).
+  Chủ làm:  để một thẻ duyệt treo, khởi động lại Jarvis 007 (systemctl restart hay docker restart theo run_guide).
   Mong đợi: sau restart thẻ vẫn chờ, việc vẫn dừng, không bước nào chạy lại tác động cũ. Duyệt sau restart thì chạy
             đúng một lần.
   Chủ làm:  cho Vận hành một việc Kanban lỗi giả (một việc nền trỏ file không có).

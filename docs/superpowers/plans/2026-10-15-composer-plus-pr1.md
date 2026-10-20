@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Màu hiệu ứng: cam Javis `var(--accent)` (#ff7a3c); không màu cứng trong cp-css của console.js (test_theme_tokens).
+- Màu hiệu ứng: cam Jarvis 007 `var(--accent)` (#ff7a3c); không màu cứng trong cp-css của console.js (test_theme_tokens).
 - Bo góc khung: **24px** (đổi từ 18px, sửa có chủ ý test_theme_tokens dòng 51-58 và cp-css).
 - Nhãn mức suy nghĩ tiếng Anh ở cả vi và en: Off, Light, Medium, High, Extra, Ultra. Giá trị lưu giữ nguyên `off/low/medium/high/xhigh/ultra` và các chuỗi có ngoặc kép đó phải còn trong model-picker.js.
 - Tia sét: không có chữ bật/tắt bên cạnh; chỉ tooltip (`title`) "Fast mode" + một dòng lưu ý.
@@ -286,7 +286,7 @@ console.log("\nOK - test_khung_go: tất cả pass");
           </button>
         </div>
         <span class="cp-gap"></span>
-        <button type="button" class="mic-big" id="voiceBtn" title="Bấm để gọi Javis" data-i18n-title="bar.mic">
+        <button type="button" class="mic-big" id="voiceBtn" title="Bấm để gọi Jarvis 007" data-i18n-title="bar.mic">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>

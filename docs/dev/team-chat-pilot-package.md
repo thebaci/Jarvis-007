@@ -13,7 +13,7 @@ engine giả KHÔNG chứng minh chất lượng thảo luận, phán xử hay h
   riêng gồm 4 trợ lý có vai khác nhau: điều phối (Lan), số liệu (Minh), nội dung (Hoa), kiểm chứng (Tuấn).
 - Server sandbox trên cổng 7788 (không bao giờ 7777), `JAVIS_STATE_DIR` trỏ state tạm. Tắt bằng cổng
   (`Get-NetTCPConnection -LocalPort 7788 | Stop-Process`), không theo dòng lệnh.
-- Engine và provider do chủ chọn trên trang Models của sandbox (Javis không tự chọn model). Ghi lại: engine nhóm (model riêng
+- Engine và provider do chủ chọn trên trang Models của sandbox (Jarvis 007 không tự chọn model). Ghi lại: engine nhóm (model riêng
   của từng trợ lý hay model chính), engine việc nền (lô phán xử, lượt quét). Không API trả phí nếu chủ không nói rõ.
 - `JAVIS_PULSE_TICK_PAUSED=0` chỉ khi kịch bản P4 chạy; các kịch bản khác để nhịp nền dừng (`=1`) và gọi tick bằng tay để đếm
   được lượt.

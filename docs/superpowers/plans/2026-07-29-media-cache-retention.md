@@ -125,7 +125,7 @@ Kỳ vọng: ĐỎ với `ModuleNotFoundError: No module named 'media_gc'`.
 """
 media_gc.py - Dọn vùng cache media của brain.
 
-Vì sao tồn tại: ảnh Javis tự tạo (image_gen.py:202) và file user gửi qua Telegram
+Vì sao tồn tại: ảnh Jarvis 007 tự tạo (image_gen.py:202) và file user gửi qua Telegram
 (main.py:6242) rơi vào `<brain>/attachments/` và `<brain>/inbox/` rồi nằm đó vĩnh viễn.
 Không ai dọn, mà trước đây chúng còn được commit vào git của brain nên xoá file cũng
 không lấy lại được dung lượng. Quyết định: hai thư mục đó là VÙNG CACHE, không phải tri
@@ -363,7 +363,7 @@ Chèn NGAY SAU dòng `"image": {"strip_c2pa": False},` (hiện là dòng 83):
 ```python
     # Vùng cache media của brain: attachments/ + inbox/. Ảnh là NGUYÊN LIỆU đi qua, không
     # phải tri thức - đọc xong rút thành .md là đủ dùng, nên chúng tự hết hạn thay vì nằm
-    # mãi làm phình đĩa VPS. Muốn giữ ảnh lâu dài thì đấu kho ngoài (Drive), đừng để Javis ôm.
+    # mãi làm phình đĩa VPS. Muốn giữ ảnh lâu dài thì đấu kho ngoài (Drive), đừng để Jarvis 007 ôm.
     # max_age_days / max_mb <= 0 = tắt luật tương ứng. enabled=False = không dọn gì cả.
     "media": {"enabled": True, "max_age_days": 30, "max_mb": 300},
 ```
@@ -414,7 +414,7 @@ _MEDIA_GC_LAST = [0.0]
 
 - [ ] **Step 3: Thêm mục 6 vào vòng lặp**
 
-Chèn NGAY SAU khối `# 5) Javis index` (kết thúc ở `server/main.py:4266`), vẫn nằm trong `try` ngoài cùng của vòng lặp:
+Chèn NGAY SAU khối `# 5) Jarvis 007 index` (kết thúc ở `server/main.py:4266`), vẫn nằm trong `try` ngoài cùng của vòng lặp:
 
 ```python
                 # 6) Dọn media quá hạn: attachments/ + inbox/ là VÙNG CACHE chứ không phải
@@ -562,7 +562,7 @@ Sửa hằng `_GITIGNORE` (dòng 63-74) thành:
 
 ```python
 _GITIGNORE = (
-    "# Javis brain - KHÔNG commit: khoá, log thô (có thể chứa secret), nhật ký nền.\n"
+    "# Jarvis 007 brain - KHÔNG commit: khoá, log thô (có thể chứa secret), nhật ký nền.\n"
     "# Git chỉ version TRI THỨC ĐÃ CHƯNG CẤT (facts/wiki/skills/MEMORY.md) → undo sạch, an toàn.\n"
     ".javis-learn.lock\n"
     "Javis/learn-staging/\n"

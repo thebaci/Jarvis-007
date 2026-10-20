@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Javis OS - watchdog cho Mac chạy dưới launchd.
+# Jarvis 007 - watchdog cho Mac chạy dưới launchd.
 #
 # Vì sao có file này: vụ treo 14/08/2026. Server SỐNG (vẫn giữ cổng 7777, kernel vẫn nhận
 # TCP) nhưng event loop đông cứng - /health không trả lời, SIGTERM bị phớt, phải kill -9.
@@ -19,7 +19,7 @@
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-# Đọc .env như update.sh: nhiều bản Javis trên một máy thì mỗi bản một cổng/nhãn riêng.
+# Đọc .env như update.sh: nhiều bản Jarvis 007 trên một máy thì mỗi bản một cổng/nhãn riêng.
 # Env truyền vào thắng .env (`:=` chỉ gán khi biến chưa đặt).
 if [ -f .env ]; then
   _env() { sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" .env | tail -1; }

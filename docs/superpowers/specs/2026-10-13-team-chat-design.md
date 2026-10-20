@@ -15,7 +15,7 @@
 
 ### 1.1 Trải nghiệm
 
-Anh làm việc với nhiều agent trong các nhóm chat, quen như nhóm Zalo nhưng nằm trong Javis:
+Anh làm việc với nhiều agent trong các nhóm chat, quen như nhóm Zalo nhưng nằm trong Jarvis 007:
 - **Danh sách nhóm**, tạo được nhiều nhóm theo việc hay chủ đề. Mỗi nhóm có tên, mô tả, thành viên, lịch sử và công việc riêng.
 - **Thành viên:** thêm agent có sẵn, hoặc tạo agent mới rồi đưa vào nhóm. Một agent ở được nhiều nhóm.
 - **Trưởng nhóm:** mỗi nhóm có một trưởng nhóm là agent do anh chọn.
@@ -211,7 +211,7 @@ Các cột thêm đều cho phép null, mã cũ bỏ qua:
   - Việc @ trực tiếp vẫn chạy.
   - Việc chung mới vẫn vào hàng nhưng không bắt đầu.
   - Không bao giờ âm thầm mất điều phối.
-- **Khi trưởng nhóm bị xoá khỏi Javis:** xử lý như bỏ trưởng nhóm.
+- **Khi trưởng nhóm bị xoá khỏi Jarvis 007:** xử lý như bỏ trưởng nhóm.
 
 ### 6.4 Bỏ thành viên đang có việc
 
@@ -219,7 +219,7 @@ Các cột thêm đều cho phép null, mã cũ bỏ qua:
 - **Bước đã gọi engine:** chạy hết, kết quả lưu với `applied=0` và nhãn "thành viên đã rời nhóm".
 - Việc quay về điểm điều phối để trưởng nhóm phân công lại.
 - Nếu việc được giao trực tiếp cho người đó, việc vào `team_blocked` với lý do `assignee_removed`; chủ chọn giao lại hay huỷ.
-- Bỏ khỏi nhóm không xoá agent khỏi Javis hay khỏi nhóm khác. Bộ nhớ của agent giữ nguyên.
+- Bỏ khỏi nhóm không xoá agent khỏi Jarvis 007 hay khỏi nhóm khác. Bộ nhớ của agent giữ nguyên.
 
 ## 7. Luồng chat và phối hợp
 
@@ -855,7 +855,7 @@ Mọi ca chạy bằng **engine giả** trừ khi ghi khác. Mã ca: TC. "Mốc"
 | Mã | Ca | Mốc | Đường mã dự kiến | Bằng chứng |
 |---|---|---|---|---|
 | TC1 | Tạo ba nhóm; cùng một agent ở hai nhóm, làm trưởng nhóm ở một nhóm, thành viên ở nhóm kia | T1 | `team_store.create`, `add_member`, `agent_register` | Test kho và route; ảnh chụp danh sách nhóm |
-| TC2 | Thêm agent có sẵn; tạo agent mới trong cài đặt nhóm (qua `POST /agents`) rồi thêm; bỏ thành viên; agent vẫn còn ở Javis và nhóm khác | T1 | route `members` | Test |
+| TC2 | Thêm agent có sẵn; tạo agent mới trong cài đặt nhóm (qua `POST /agents`) rồi thêm; bỏ thành viên; agent vẫn còn ở Jarvis 007 và nhóm khác | T1 | route `members` | Test |
 | TC3 | Tạo agent trùng slug trả 409, không ghi đè file cũ | T1 | `POST /agents` | Test so bytes file cũ |
 | TC4 | Đổi tag của thành viên: tư cách thành viên, trưởng nhóm, quyền không đổi | T1 | `/capability/meta` | Test |
 | TC5 | Đổi tên agent: vẫn là thành viên; xoá rồi tạo lại cùng slug: mã mới, không là thành viên, không nhận việc cũ | T1 | `agent_retire`, `team_members.status` | Test |

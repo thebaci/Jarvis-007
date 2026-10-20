@@ -153,7 +153,7 @@ hay 0.153.0 trên kho đã nâng vẫn được: bản cũ bỏ qua bảng mới
 (`reactor` dạng `agent:...`) hiện như reaction thường. Chỉ dùng công cụ dưới đây khi muốn kho về ĐÚNG trạng thái trước lúc
 nâng (mất mọi tin và thay đổi sau lúc đó).
 
-Công cụ nội bộ `tools/team_adaptive_restore_pre.py` (không ghi CHANGELOG). Chạy khi Javis ĐÃ TẮT hẳn:
+Công cụ nội bộ `tools/team_adaptive_restore_pre.py` (không ghi CHANGELOG). Chạy khi Jarvis 007 ĐÃ TẮT hẳn:
 
 ```
 python tools/team_adaptive_restore_pre.py --to 0.154.0 --state-dir /duong/dan/state          # chỉ in kế hoạch
@@ -174,7 +174,7 @@ mới chạy bản cũ.
   đã về bản trước.
 - An toàn: kiểm cả bộ trước khi ghi (thiếu snapshot của kho đã nâng, snapshot hỏng hay đã có dấu T2 thì dừng, chưa ghi
   gì); ghi xong kiểm lại; một bước hỏng thì trả MỌI kho đã đụng về bản `.post-*` và báo lỗi, không bao giờ báo thành công
-  cho lần khôi phục dở. File bị giữ (Javis chưa tắt) thì báo rõ và gợi ý tắt hẳn.
+  cho lần khôi phục dở. File bị giữ (Jarvis 007 chưa tắt) thì báo rõ và gợi ý tắt hẳn.
 - Dấu "đã nâng" mà công cụ dùng: cột `team_reactions.source_kind`, bảng `dm_reactions`, bảng `agent_calls`
   (`test_team_adaptive_restore.py` soi khớp với mã). Kho tạo mới từ 0.154.0 (không có snapshot) thì không có bản trước để
   về: công cụ dừng và nói rõ.

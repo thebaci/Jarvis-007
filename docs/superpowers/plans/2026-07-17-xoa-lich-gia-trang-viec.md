@@ -20,7 +20,7 @@ Spec: `docs/superpowers/specs/2026-07-17-hop-nhat-viec-dinh-ky-design.md`
 - Tiếng Việt là ngôn ngữ chính cho comment, docstring, tên hiển thị, thông báo lỗi.
 - Test là **script thuần, không pytest**. Quy ước nhà: `server/test_*.py`, có `def check(name, cond)`, gom `_fails`, `sys.exit(1)` khi có lỗi. CI chạy `for f in test_*.py; do python "$f"; done` (`.github/workflows/ci.yml:35-37`), nên mọi file `server/test_*.py` tự động vào CI.
 - Chạy test bằng venv: `.venv/Scripts/python.exe` (python hệ thống thiếu lib).
-- Test phải tự cô lập: `os.environ.setdefault("JAVIS_STATE_DIR", tempfile.mkdtemp(prefix="..."))` **trước** khi import module Javis.
+- Test phải tự cô lập: `os.environ.setdefault("JAVIS_STATE_DIR", tempfile.mkdtemp(prefix="..."))` **trước** khi import module Jarvis 007.
 - **Helper của `dashboard/console.js`** (dùng cho Task 2): chỉ có `esc(s)` (`:116`) và `fbrain()` (`:363`), gọi HTTP bằng `fetch()` trần với `FormData` dựng tại chỗ. **KHÔNG** có `api()`, `fd()`, `brain()` - đó là helper của `studio.js`, không dùng được ở console.js.
 - Không chạm `Javis/loops/*.md`, `loop-state.json`, hay `system_sync.LEGACY_HASHES` trong giai đoạn này. Loop giữ nguyên hành vi.
 - Không sửa `self_improve.py:105-113` (`_isolate`). Nó là nhánh chết trong production (`main.py:3029` luôn inject `apply_mcp`) nhưng `test_loop_ambient.py` đang dựa vào nó.
@@ -113,7 +113,7 @@ check("helper: _automations_path đã xoá", not hasattr(main, "_automations_pat
 # tử), và comment mới ở đầu khối cũng nhắc nó để giải thích vì sao đã xoá. Assert trần sẽ
 # BẤT KHẢ THI dù code đã đúng.
 check("nguồn: không còn code dựng đường dẫn tới automations.json",
-      '"Javis" / "automations.json"' not in src)
+      '"Jarvis 007" / "automations.json"' not in src)
 
 # ---- 2b. Hai lớp chiếu vào hình dạng Lịch giả cũng chết theo ----
 # Caller duy nhất của cả hai là /automations GET (main.py:3199). Chúng chiếu loop/nhắc hẹn

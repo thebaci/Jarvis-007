@@ -57,7 +57,7 @@ Mốc A2 của lộ trình [agent scope](../superpowers/specs/2026-10-08-resonan
 |---|---|
 | Chưa đạt, chờ thử lại | "Lần làm tiếp: ... (làm lại phần chưa đạt)", 15 phút sau lượt đầu |
 | Duy trì đạt, có guard | "(xem lại định kỳ)" và "Theo dõi điều kiện bảo vệ, lần kiểm tới: ..." |
-| File bị sửa tay | trạng thái "File bị sửa ngoài Javis, đang chờ", dòng cảnh báo kèm giờ tự kiểm lại |
+| File bị sửa tay | trạng thái "File bị sửa ngoài Jarvis 007, đang chờ", dòng cảnh báo kèm giờ tự kiểm lại |
 | Cả ba | Mục "Các lần thức gần đây" ghi lý do và "làm một lượt" hay "không gọi model" |
 
 ## Sau review mã (trong đợt kiểm tích hợp)

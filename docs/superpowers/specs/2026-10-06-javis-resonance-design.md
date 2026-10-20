@@ -1,4 +1,4 @@
-# Javis Resonance thiết kế và lộ trình thực thi mục tiêu
+# Jarvis 007 Resonance thiết kế và lộ trình thực thi mục tiêu
 
 Ngày 06 tháng 10 năm 2026. Bản thiết kế để triển khai theo giai đoạn.
 
@@ -6,7 +6,7 @@ Ngày 06 tháng 10 năm 2026. Bản thiết kế để triển khai theo giai đ
 
 **Phạm vi ưu tiên sau phản biện vòng 2:** triển khai [MVP một agent](../plans/2026-10-06-resonance-00-mvp.md) trước. Tài liệu này mô tả kiến trúc đích; các thành phần mở rộng không phải danh sách phải xây ngay. Ba kế hoạch Foundation/Runtime/Evolution là tài liệu tham chiếu cho giai đoạn sau, không thực hiện song song với MVP.
 
-Javis Resonance giúp một agent, một nhóm hoặc toàn bộ hệ thống nhận nhu cầu bằng ngôn ngữ tự nhiên, tự hình thành mục tiêu phù hợp, tự chọn phương pháp, thu thập bằng chứng và cải thiện cả cách hiểu lẫn cách làm trong phạm vi người dùng đã ủy quyền. Người dùng không phải biết cách đặt mục tiêu hoặc chọn chỉ số. Lõi dùng chung cho mọi lĩnh vực; tri thức chuyên môn nằm trong công cụ, bộ thu thập bằng chứng và bộ đánh giá có thể thay thế.
+Jarvis 007 Resonance giúp một agent, một nhóm hoặc toàn bộ hệ thống nhận nhu cầu bằng ngôn ngữ tự nhiên, tự hình thành mục tiêu phù hợp, tự chọn phương pháp, thu thập bằng chứng và cải thiện cả cách hiểu lẫn cách làm trong phạm vi người dùng đã ủy quyền. Người dùng không phải biết cách đặt mục tiêu hoặc chọn chỉ số. Lõi dùng chung cho mọi lĩnh vực; tri thức chuyên môn nằm trong công cụ, bộ thu thập bằng chứng và bộ đánh giá có thể thay thế.
 
 **Quyết định trung tâm:** nhu cầu người dùng định hướng; agent hình thành mục tiêu như một giả thuyết có thể điều chỉnh; bằng chứng xác định tiến triển; sự ủy quyền xác định phạm vi. Agent chịu trách nhiệm tìm đúng đích và tìm cách đạt đích. Beat là thời điểm hoạt động tiếp theo có ích. Reaction không quyết định hiệu suất, quyền hạn hoặc mức tồn tại của agent.
 
@@ -49,7 +49,7 @@ Hệ thống chấp nhận kết luận chưa biết. Thay đổi tiêu chí t�
 
 Người dùng có thể dừng, đổi hướng hoặc thu hồi quyền. Mọi phiên bản agent chịu các thao tác này. Lưu được quyết định, tác động, bằng chứng, thay đổi và lý do. Khôi phục phần mềm không được mô tả là đã hoàn tác những tác động bên ngoài chưa được đảo ngược.
 
-Với chế độ sửa code Javis, bộ phận thực thi quyền, giữ bằng chứng và dừng worker phải có ranh giới quyền truy cập thực sự. File nằm ngoài repo nhưng cùng tài khoản có toàn quyền ghi không tạo ra ranh giới đó.
+Với chế độ sửa code Jarvis 007, bộ phận thực thi quyền, giữ bằng chứng và dừng worker phải có ranh giới quyền truy cập thực sự. File nằm ngoài repo nhưng cùng tài khoản có toàn quyền ghi không tạo ra ranh giới đó.
 
 ## 3 Mục tiêu và tiêu chí thành công của sản phẩm
 
@@ -130,7 +130,7 @@ Không có một hàm lợi ích chung xác định điều tốt nhất cho m�
 
 ### 4.6 SMART giúp agent làm rõ mục tiêu
 
-Agent dùng SMART để rà soát mục tiêu sau bước phân luồng: Specific, Measurable, Achievable, Relevant, Time-bound, theo cách diễn giải phổ biến trong [hướng dẫn SMART của CDC](https://www.cdc.gov/youth-advisory-councils/action-plans/smart-framework.html). Ánh xạ vào Javis dưới đây là đề xuất thiết kế, không phải yêu cầu người dùng điền biểu mẫu.
+Agent dùng SMART để rà soát mục tiêu sau bước phân luồng: Specific, Measurable, Achievable, Relevant, Time-bound, theo cách diễn giải phổ biến trong [hướng dẫn SMART của CDC](https://www.cdc.gov/youth-advisory-councils/action-plans/smart-framework.html). Ánh xạ vào Jarvis 007 dưới đây là đề xuất thiết kế, không phải yêu cầu người dùng điền biểu mẫu.
 
 | Thành phần | Cách agent áp dụng |
 |---|---|
@@ -288,7 +288,7 @@ Giữ tên và nghĩa suggest, auto, full hiện có. Tự chủ và quyền s�
 - sửa code: workspace/phạm vi code được cho phép;
 - áp dụng phiên bản: có được tự đưa bản đã kiểm chứng vào chạy hay chỉ chuẩn bị bản đề xuất.
 
-Đây là các capability trong grant, UI có thể cung cấp preset dễ hiểu. Full không tự mang quyền sửa code Javis. Người dùng có thể bật quyền đó một lần cho đúng agent/nhóm/phạm vi và không bị hỏi lại mỗi thay đổi hợp lệ.
+Đây là các capability trong grant, UI có thể cung cấp preset dễ hiểu. Full không tự mang quyền sửa code Jarvis 007. Người dùng có thể bật quyền đó một lần cho đúng agent/nhóm/phạm vi và không bị hỏi lại mỗi thay đổi hợp lệ.
 
 Mỗi grant có principal, brain_id, scope, capability revisions, expires_at nếu có, parent_grant_id và generation thu hồi. Kiểm tra ở lúc quyết định và ngay trước tác động. Quyền ghi qua shell/API khác phải nằm trong cùng biên thực thi, không chỉ qua MCP.
 
@@ -324,7 +324,7 @@ Quan sát mới vào sổ bằng chứng trước. Bài học có status propose
 
 Tận dụng đường JAVIS_LESSON đang có nhưng bổ sung xác nhận cho nguồn từ Resonance. Không biến mỗi emoji thành một bài học. Bài học bị bằng chứng mới bác bỏ được rút khỏi ngữ cảnh sử dụng, giữ lịch sử để giải thích.
 
-### 11.4 Sửa chính Javis
+### 11.4 Sửa chính Jarvis 007
 
 Code candidate chạy trong checkout và worker riêng. Supervisor ngoài candidate giữ quyền cấp run, kiểm chứng, áp dụng và khôi phục. Bản thử không ghi được evaluator được bảo vệ, bằng chứng gốc, grant hoặc thông tin xác thực của supervisor.
 
@@ -402,7 +402,7 @@ Không dùng tỷ lệ phần trăm sẵn sàng để ước lượng công vi�
 | C1 Phép thử cải thiện nhỏ | So sánh hai phương pháp trên fixture, áp dụng cấu hình trong quyền | Cải thiện được xác nhận bằng receipt độc lập, candidate không sửa được phép chấm |
 | B2 Nhóm và beat thích nghi | Phân công, chốt, chờ sự kiện, ngủ đông, tiếp tục | Leader failover không chốt trùng; con không vượt quyền/ngân sách cha |
 | C2 Tự sửa phương pháp | Bài học, skill/workflow, thư viện biến thể có giới hạn | Bản kém không được áp dụng; rút được bài học sai |
-| C3 Tự sửa và cập nhật Javis | Candidate code, supervisor, thử hạn chế, khôi phục | Test ranh giới thực và phục hồi qua crash/migration đạt |
+| C3 Tự sửa và cập nhật Jarvis 007 | Candidate code, supervisor, thử hạn chế, khôi phục | Test ranh giới thực và phục hồi qua crash/migration đạt |
 
 Thứ tự là A -> B1 -> C1 -> B2 -> C2 -> C3. Không chờ làm xong cảm xúc hoặc nhiều tuần sử dụng mới kiểm tra tự cải thiện. Không ấn định thời gian lịch trước khi hoàn thành giai đoạn A và đo điểm nghẽn tích hợp.
 
@@ -460,7 +460,7 @@ Những lựa chọn hoãn: reward market giữa agent; một chỉ số xếp h
 
 ## 18 Nguồn tham khảo
 
-- [FranklinCovey về bốn nguyên tắc thực thi](https://www.franklincovey.com/courses/the-4-disciplines/): tập trung mục tiêu, chỉ số dẫn dắt, bảng điểm và nhịp trách nhiệm. Ánh xạ vào agent trong tài liệu này là thiết kế của Javis.
+- [FranklinCovey về bốn nguyên tắc thực thi](https://www.franklincovey.com/courses/the-4-disciplines/): tập trung mục tiêu, chỉ số dẫn dắt, bảng điểm và nhịp trách nhiệm. Ánh xạ vào agent trong tài liệu này là thiết kế của Jarvis 007.
 - [FranklinCovey về mục tiêu có điểm xuất phát và thời hạn](https://www.franklincovey.com/blog/strategic-execution-in-uncertainty-and-complexity/).
 - [FranklinCovey về chỉ số dẫn dắt và kết quả](https://www.franklincovey.com/courses/the-4-disciplines/discipline-2-act/).
 - [FranklinCovey về nhịp trách nhiệm](https://www.franklincovey.com/courses/the-4-disciplines/discipline-4-accountability/).

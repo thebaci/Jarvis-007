@@ -5,12 +5,12 @@ Trạng thái: đã duyệt thiết kế, chờ kế hoạch triển khai
 
 ## Bối cảnh
 
-So sánh Javis với `NousResearch/hermes-agent` cho thấy Javis tạo skill/agent/workflow
+So sánh Jarvis 007 với `NousResearch/hermes-agent` cho thấy Jarvis 007 tạo skill/agent/workflow
 không kém, nhưng thiếu hoàn toàn **vòng đời sau khi tạo**: không đo, không gộp, không dọn.
-Javis có hệ miễn dịch mạnh (fork học read-only, Python là người ghi duy nhất, provenance
+Jarvis 007 có hệ miễn dịch mạnh (fork học read-only, Python là người ghi duy nhất, provenance
 tier, secret/injection scan, git undo) nhưng không có trao đổi chất. Hermes ngược lại.
 
-Định hướng: ghép cơ chế trao đổi chất của Hermes vào bộ khung an toàn sẵn có của Javis,
+Định hướng: ghép cơ chế trao đổi chất của Hermes vào bộ khung an toàn sẵn có của Jarvis 007,
 không phải ngược lại.
 
 Toàn bộ lộ trình gồm 4 hệ con. Spec này CHỈ phủ A và B.
@@ -27,7 +27,7 @@ biết gộp về hình gì.
 
 Đây là lỗi CÓ THẬT, đang chạy, đo được, không phải suy đoán từ Hermes.
 
-Javis cắt description ở **ba** nơi, với **ba** hạn mức khác nhau:
+Jarvis 007 cắt description ở **ba** nơi, với **ba** hạn mức khác nhau:
 
 - `server/mcp_hub.py:256` - `(s['description'] or '')[:60]`, `metas[:20]`
 - `server/main.py:3471` - `(s.get("description") or "")[:100]`, `metas[:15]`
@@ -92,7 +92,7 @@ Kiến trúc: **index để tìm, thân file để làm.**
 
 File `<brain>/Javis/skill-usage.json`. Module mới `server/skill_usage.py`.
 
-Đặt ở `Javis/` chứ không phải `skills/.usage.json` như Hermes, để bám quy ước Javis đã có.
+Đặt ở `Javis/` chứ không phải `skills/.usage.json` như Hermes, để bám quy ước Jarvis 007 đã có.
 `server/self_improve.py` ghi rõ: "STATE runtime tách riêng, server sở hữu:
 `<vault>/Javis/loop-state.json`". Telemetry là state runtime, cùng loại với loop-state,
 nên nằm cạnh nhau.
@@ -127,7 +127,7 @@ Hệ quả bắt buộc, áp cho toàn bộ spec và mọi vòng sau:
 
 Hermes tự nó cũng ra đúng luật này vì lý do khác (bộ đếm còn mới): "use=0 is not evidence a
 skill is valuable; it's absence of evidence either way. Corollary: use=0 is ALSO not a reason
-to PRUNE." Với Javis luật đó còn bắt buộc hơn vì có điểm mù thật.
+to PRUNE." Với Jarvis 007 luật đó còn bắt buộc hơn vì có điểm mù thật.
 
 ### A4. Không có máy trạng thái
 
@@ -217,7 +217,7 @@ Nội dung:
   Dài hơn thì đẩy xuống `references/`.
 - Cấm skill kiểu router chỉ trỏ sang skill khác.
 - Nội dung lớn đẩy xuống `scripts/` và `references/`, tham chiếu bằng đường dẫn tương đối.
-- Giữ luật hiện có của Javis: `group` bắt buộc, slug ASCII không dấu, cấm em dash.
+- Giữ luật hiện có của Jarvis 007: `group` bắt buộc, slug ASCII không dấu, cấm em dash.
 
 ### B4. Skill thành package
 

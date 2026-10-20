@@ -1,370 +1,403 @@
-# Spec: 10 ý tưởng trong sổ tay phát triển (08/2026)
+# Spec: 10 ideas from the development notebook (08/2026)
 
-Chốt cách làm cho 10 ý ghi trong sổ "Ý tưởng phát triển Javis" ngày 2026-08-04, rồi làm luôn.
-Tài liệu này là **hồ sơ quyết định**: đọc để biết vì sao mỗi ý được làm theo cách đang thấy
-trong mã, và vì sao ba trong số đó hoá ra dễ hơn hẳn cái sổ tưởng.
+Settles how to do the 10 ideas recorded in the "Jarvis 007 development ideas" notebook of
+2026-08-04, then does them straight away. This document is a **decision record**: read it to
+know why each idea was built the way you see it in the code, and why three of them turned out
+far easier than the notebook assumed.
 
-Trạng thái ở cuối mỗi mục là trạng thái THẬT tại thời điểm ghi, không phải mong muốn.
+The status at the end of each section is the REAL status at the time of writing, not the hoped-for one.
 
-## Trước khi đọc từng mục: ba phát hiện đổi cục diện
+## Before reading each item: three findings that changed the picture
 
-Sổ tay ghi ba ý kèm câu "chưa biết có làm được không". Đào thử thì cả ba đều đã có sẵn đường:
+The notebook records three ideas with the remark "don't know if it's doable". On digging, all
+three already had a path:
 
-1. **NotebookLM không cần viết MCP server.** Sổ ghi "viết MCP server wrapper". Thực tế
-   `notebooklm-py` 0.8.0 đã đóng gói sẵn một MCP server: khai `console_scripts` tên
-   `notebooklm-mcp`, chạy transport stdio, có cả HTTP kèm bearer token. Việc còn lại chỉ là
-   thêm **một mục vào kho connector** như 20 connector khác, không viết dòng Python nào.
-2. **Zalo gửi ảnh: thư viện làm được, chỉ là MCP không phơi ra.** `zca-js` nhận
-   `sendMessage({ msg, attachments: [đường-dẫn] }, threadId, type)`, và chính `zalo-agent-cli`
-   dùng đúng dạng đó cho lệnh `msg send-image`. Nhưng `mcp-tools.js` chỉ khai `text` cho
-   `zalo_send_message`. Bản 1.6.2 là bản mới nhất trên npm, nên **chờ upstream là chờ vô hạn**.
-3. **Trình sửa dính vào khung chat đã tồn tại từ 0.15.2**, chỉ là link trong chat không dùng
-   nó mà bật popup riêng. Ý số 8 do đó không phải viết layout mới, chỉ là đổi chỗ gọi.
+1. **NotebookLM does not need an MCP server written.** The notebook says "write an MCP server
+   wrapper". In fact `notebooklm-py` 0.8.0 already ships an MCP server: it declares a
+   `console_scripts` entry named `notebooklm-mcp`, runs the stdio transport, and also has HTTP
+   with a bearer token. All that is left is to add **one entry to the connector catalog** like
+   the 20 other connectors, without writing a line of Python.
+2. **Zalo image sending: the library can do it, the MCP just does not expose it.** `zca-js`
+   accepts `sendMessage({ msg, attachments: [path] }, threadId, type)`, and `zalo-agent-cli`
+   itself uses exactly that form for its `msg send-image` command. But `mcp-tools.js` only
+   declares `text` for `zalo_send_message`. Version 1.6.2 is the newest on npm, so **waiting for
+   upstream is waiting forever**.
+3. **The editor docked into the chat frame has existed since 0.15.2**, it is just that links in
+   chat do not use it and open a separate popup instead. Idea number 8 is therefore not about
+   writing a new layout, only about changing what gets called.
 
-## Quy tắc chung khi làm 10 ý này
+## General rules for doing these 10 ideas
 
-- **Không dựng bản thứ hai của thứ đã có.** Đây là bài học 0.15.0 và 0.15.1 (cây Vault) và
-  0.17.0 (Javis CLI). Ba ý trong đợt này bị nó chi phối trực tiếp: ý 7 và 8 mượn lại trình sửa
-  và cây Vault sẵn có, ý 10 mượn lại đúng khối phân trang đã viết cho trang Việc định kỳ.
-- **Cột mới trong SQLite phải có migration.** `CREATE TABLE IF NOT EXISTS` không thêm cột cho
-  DB cũ. `sessions.py` đã có sẵn vòng `ALTER TABLE ... ADD COLUMN` cho việc này, cột mới đi
-  qua đó (`server/sessions.py:203`).
-- **Mọi thứ mới phải chạy được trên DB và vault đang có sẵn dữ liệu**, không đòi xoá làm lại.
+- **Do not build a second copy of something that already exists.** This is the lesson of 0.15.0
+  and 0.15.1 (the Vault tree) and 0.17.0 (the Jarvis 007 CLI). Three ideas in this batch are
+  directly governed by it: ideas 7 and 8 reuse the existing editor and Vault tree, and idea 10
+  reuses exactly the pagination block already written for the Scheduled page.
+- **A new column in SQLite needs a migration.** `CREATE TABLE IF NOT EXISTS` does not add columns
+  to an old DB. `sessions.py` already has an `ALTER TABLE ... ADD COLUMN` loop for this, and new
+  columns go through it (`server/sessions.py:203`).
+- **Everything new must work on a DB and vault that already hold data**, without demanding a wipe
+  and redo.
 
 ---
 
-## 1. Tích hợp MCP NotebookLM
+## 1. NotebookLM MCP integration
 
-**Vấn đề.** Muốn hỏi Javis về nội dung đang nằm trong NotebookLM (nguồn, ghi chú, chat của
-notebook) mà không phải mở trình duyệt copy sang.
+**Problem.** Wanting to ask Jarvis 007 about content sitting in NotebookLM (sources, notes, the
+notebook's chat) without opening a browser and copying it over.
 
-**Quyết định.** Thêm connector `notebooklm` vào `system/mcp-catalog.json`, chạy server MCP
-sẵn có của `notebooklm-py` qua `uvx`. Không viết wrapper.
+**Decision.** Add the `notebooklm` connector to `system/mcp-catalog.json`, running the existing
+MCP server of `notebooklm-py` via `uvx`. No wrapper is written.
 
-**Thiết kế.**
+**Design.**
 
 - `transport: stdio`, `command: uvx`, args `["--from", "notebooklm-py[mcp]", "notebooklm-mcp"]`.
-  Dùng `--from` vì tên package (`notebooklm-py`) khác tên lệnh (`notebooklm-mcp`), và phải
-  kèm extra `[mcp]` vì `fastmcp` nằm ngoài dependency lõi. Đây đúng bẫy đã ghi ở connector
-  `google-keep` trong cùng kho.
-- **Đăng nhập**: NotebookLM không có API chính thức, thư viện đọc cookie phiên Google. Đường
-  ổn định nhất trên VPS là dán sẵn cookie đã lấy từ trình duyệt, nên connector nhận hai ô:
-  `NOTEBOOKLM_COOKIES` (chuỗi cookie) và `NOTEBOOKLM_PROFILE` (tên hồ sơ để cache phiên).
-  `isolate_home: true` giống connector Zalo, để mỗi kết nối một hồ sơ riêng và xoá kết nối là
-  phiên đi theo.
-- **Phân loại tool** theo `tool_meta`: đọc notebook/nguồn/ghi chú/chat là `read`; tạo và sửa
-  notebook, thêm nguồn, ghi note là `write`; xoá notebook, xoá nguồn, chia sẻ ra ngoài là
-  `danger`. `default_perm: readonly` - đây là kho tri thức cá nhân, mở quyền ghi phải là hành
-  động có ý thức.
-- **Ghi rõ rủi ro** trong field `risk`: cookie phiên Google không phải OAuth giới hạn phạm vi;
-  thư viện là bản không chính thức nên Google đổi giao thức lúc nào cũng có thể gãy.
+  `--from` is used because the package name (`notebooklm-py`) differs from the command name
+  (`notebooklm-mcp`), and the `[mcp]` extra is required because `fastmcp` sits outside the core
+  dependencies. This is exactly the trap already recorded on the `google-keep` connector in the
+  same catalog.
+- **Sign-in**: NotebookLM has no official API, the library reads the Google session cookie. The
+  most stable route on a VPS is to paste a cookie already taken from the browser, so the connector
+  takes two fields: `NOTEBOOKLM_COOKIES` (the cookie string) and `NOTEBOOKLM_PROFILE` (the profile
+  name used to cache the session). `isolate_home: true` like the Zalo connector, so each
+  connection gets its own profile and removing the connection takes the session with it.
+- **Tool classification** by `tool_meta`: reading notebooks/sources/notes/chat is `read`; creating
+  and editing notebooks, adding sources, writing notes is `write`; deleting notebooks, deleting
+  sources, sharing outside is `danger`. `default_perm: readonly` - this is a personal knowledge
+  store, so opening write access has to be a deliberate act.
+- **State the risk plainly** in the `risk` field: the Google session cookie is not OAuth with a
+  limited scope; the library is unofficial, so Google changing the protocol can break it at any time.
 
-**Chỗ chạm.** `system/mcp-catalog.json` (thêm 1 connector), `docs/09-mcp-va-so-lieu.md`.
+**Where it touches.** `system/mcp-catalog.json` (add 1 connector), `docs/09-mcp-va-so-lieu.md`.
 
-**Không làm.** Không tự cài `notebooklm-py` vào `requirements.txt` của Javis: nó chạy trong
-tiến trình con do `uvx` dựng, kéo vào lõi là thêm `fastmcp` + `playwright` cho một thứ đa số
-người dùng không đấu.
+**Not doing.** Not adding `notebooklm-py` to Jarvis 007's `requirements.txt`: it runs in a child
+process built by `uvx`, and pulling it into the core adds `fastmcp` + `playwright` for something
+most users will not connect.
 
-**Trạng thái.** Đã làm. Chưa test được đăng nhập thật vì máy dựng không có tài khoản Google,
-đúng mức "beta" như 20 connector cùng loại trong kho.
-
----
-
-## 2. Cho Agent gắn chatbot AI
-
-**Trạng thái: ĐÃ RÕ Ý, tách thành tài liệu riêng.** Chủ repo nêu rõ cuối ngày 2026-08-04:
-tận dụng các Agent sẵn có để tạo ra nhiều chatbot, mỗi con chuyên một lĩnh vực, trả lời khách
-qua Telegram và thả được vào nhóm chăm sóc khách hàng.
-
-Đó là cách hiểu thứ 3 dưới đây, nhưng cụ thể hơn hẳn, nên bàn tiếp ở
-**[Bot chuyên trách](2026-08-bot-chuyen-trach-spec.md)**.
-
-Giữ lại ba cách đoán ban đầu để thấy đoán lệch tới đâu - hai cách đầu là em tự nghĩ ra, không
-phải thứ chủ repo cần:
-
-1. **Khung chat riêng cho từng Agent.** Bấm vào một agent trong Studio thì mở một hội thoại
-   hỏi thẳng nó, agent chạy với vai trò + skill + model của chính nó. Dùng lại được gần như
-   toàn bộ lõi chat: phiên lưu ở `sessions.py` (thêm cột `agent_slug`), engine đi qua đúng
-   đường `_tg_answer` mà dashboard/Telegram/CLI đang dùng. Đây là hướng thêm giá trị rõ nhất.
-2. **Agent chọn engine riêng.** Agent đã có field `model` (`server/main.py:3432`) nhưng chưa
-   chọn được ENGINE. Thêm `engine` vào frontmatter là xong phần dữ liệu; phần khó là
-   `workflow_runtime` phải định tuyến theo nó.
-3. **Agent làm bot cho kênh ngoài** (Zalo OA, bot Telegram riêng, Messenger). Nặng nhất, và
-   đụng thẳng vào rào an toàn "không tự gửi tin ra ngoài" nên phải thiết kế quyền trước.
-
-Ba hướng không loại trừ nhau: 1 và 2 ghép được, 3 nên tách hẳn thành việc riêng.
+**Status.** Done. Real sign-in could not be tested because the build machine has no Google
+account, which fits the "beta" level of the 20 connectors of the same kind in the catalog.
 
 ---
 
-## 3. Gửi tin nhắn Zalo kèm ảnh
+## 2. Letting an Agent attach an AI chatbot
 
-**Vấn đề.** `zalo_send_message` của `zalo-agent-cli` chỉ nhận `text`. Muốn gửi ảnh (vd ảnh
-Javis vừa tạo, ảnh báo cáo) thì phải tự tay mở Zalo.
+**Status: THE INTENT IS NOW CLEAR, split into a separate document.** The repo owner stated it
+clearly at the end of 2026-08-04: make use of the existing Agents to create many chatbots, each
+specialized in one field, answering customers through Telegram and droppable into customer care
+groups.
 
-**Quyết định.** Viết plugin bundled `zalo-image` phơi tool `zalo_send_image`, gọi CLI
-`zalo-agent-cli msg send-image` bằng **đúng home cô lập của kết nối Zalo đang đăng nhập**.
+That is interpretation number 3 below, but far more specific, so it is discussed further in
+**[Dedicated bots](2026-08-bot-chuyen-trach-spec.md)**.
 
-**Vì sao đường này chứ không đường khác.**
+The three original guesses are kept to show how far off the guessing was - the first two are
+things I thought up myself, not what the repo owner needed:
 
-- *Chờ upstream thêm tham số*: 1.6.2 đã là bản mới nhất, không có gì để chờ.
-- *Fork zalo-agent-cli*: gánh cả một package Node chỉ để thêm một tham số, và mỗi bản mới lại
-  phải merge tay.
-- *Gọi thẳng zca-js từ Python*: không có, zca-js là thư viện Node.
-- *Gọi CLI có sẵn*: chính `zalo-agent-cli` đã có lệnh `msg send-image <threadId> <paths...>`
-  hoạt động đúng bằng cách Javis cần. Phiên đăng nhập nằm trong thư mục HOME
-  (`STATE_DIR/connector-home/zalo-*`, xem `server/zalo_login.py:157`), và `mcp_store` đã đặt
-  `HOME` theo `config.home_dir` khi chạy MCP (`server/mcp_store.py:424`). Nên chỉ cần đặt lại
-  đúng biến đó cho tiến trình con là dùng chung phiên, không đăng nhập lại, không quét QR lại.
+1. **A separate chat frame for each Agent.** Clicking an agent in Studio opens a conversation
+   that asks it directly, the agent running with its own role + skills + model. This reuses almost
+   the whole chat core: the session stored in `sessions.py` (adding an `agent_slug` column), the
+   engine going through exactly the `_tg_answer` path that the dashboard/Telegram/CLI already use.
+   This is the direction that adds the clearest value.
+2. **An Agent picking its own engine.** An agent already has a `model` field
+   (`server/main.py:3432`) but cannot yet choose an ENGINE. Adding `engine` to the frontmatter
+   finishes the data side; the hard part is that `workflow_runtime` must route by it.
+3. **An Agent acting as a bot for an outside channel** (Zalo OA, a separate Telegram bot,
+   Messenger). The heaviest, and it hits the "never send messages outside on its own" safety
+   barrier head-on, so permissions must be designed first.
 
-**Thiết kế.**
+The three directions are not mutually exclusive: 1 and 2 can be combined, and 3 should be split
+out as a separate piece of work.
+
+---
+
+## 3. Sending Zalo messages with images
+
+**Problem.** `zalo_send_message` of `zalo-agent-cli` only accepts `text`. To send an image (for
+example an image Jarvis 007 just created, or a report image) you have to open Zalo by hand.
+
+**Decision.** Write a bundled plugin `zalo-image` that exposes the tool `zalo_send_image`, calling
+the CLI `zalo-agent-cli msg send-image` with **exactly the isolated home of the currently
+signed-in Zalo connection**.
+
+**Why this route and not another.**
+
+- *Wait for upstream to add a parameter*: 1.6.2 is already the newest, there is nothing to wait for.
+- *Fork zalo-agent-cli*: carries a whole Node package just to add one parameter, and every new
+  release has to be merged by hand.
+- *Call zca-js directly from Python*: not possible, zca-js is a Node library.
+- *Call the existing CLI*: `zalo-agent-cli` itself already has the command
+  `msg send-image <threadId> <paths...>`, which works exactly the way Jarvis 007 needs. The login
+  session lives in the HOME directory (`STATE_DIR/connector-home/zalo-*`, see
+  `server/zalo_login.py:157`), and `mcp_store` already sets `HOME` from `config.home_dir` when
+  running the MCP (`server/mcp_store.py:424`). So all that is needed is to set that same variable
+  for the child process to share the session, with no new sign-in and no new QR scan.
+
+**Design.**
 
 - Tool `zalo_send_image(thread_id, paths[], caption?, thread_type?, connection_id?)`.
-- `paths` nhận đường dẫn **tương đối gốc vault** (đúng quy ước AI vẫn ghi trong chat, vd
-  `attachments/anh.jpg`) hoặc tuyệt đối. Tương đối thì ghép `ctx.vault_root`. File không tồn
-  tại thì báo lỗi NGAY, không đẩy sang CLI để nhận một câu lỗi Node khó hiểu.
-- **Chặn thoát khỏi vault**: resolve xong phải nằm trong `vault_root`; đường dẫn tuyệt đối
-  ngoài vault bị từ chối. Không có rào này thì một câu chat khéo là gửi được `/etc/passwd`
-  ra ngoài qua Zalo.
-- `min_mode: full`. Gửi tin ra ngoài là hành động thật, không hoàn tác được, đúng hạng với
-  `zalo_send_message` đang là `danger` trong `tool_meta`.
-- Nhiều kết nối Zalo thì `connection_id` chọn tài khoản; bỏ trống mà có đúng một kết nối thì
-  dùng luôn, có nhiều thì **từ chối và liệt kê** chứ không đoán (gửi nhầm tài khoản là gửi
-  nhầm danh tính).
-- Giới hạn 10 file mỗi lần, timeout 120 giây.
+- `paths` accepts paths **relative to the vault root** (exactly the convention the AI already uses
+  in chat, e.g. `attachments/anh.jpg`) or absolute. A relative path is joined with `ctx.vault_root`.
+  If the file does not exist, report the error IMMEDIATELY, do not push it to the CLI to get a
+  hard-to-read Node error.
+- **Block escaping the vault**: after resolving, the path must lie inside `vault_root`; an
+  absolute path outside the vault is rejected. Without this barrier, one clever chat message would
+  send `/etc/passwd` out through Zalo.
+- `min_mode: full`. Sending a message outside is a real action that cannot be undone, in the same
+  class as `zalo_send_message`, which is `danger` in `tool_meta`.
+- With several Zalo connections, `connection_id` picks the account; left empty with exactly one
+  connection, use it directly, and with several **refuse and list them** rather than guess
+  (sending from the wrong account is sending under the wrong identity).
+- Limit of 10 files per call, timeout 120 seconds.
 
-**Chỗ chạm.** `system/plugins/zalo-image/{plugin.yaml,plugin.py}`, `docs/12-zalo.md`,
-`CLAUDE.md` (mục Zalo).
+**Where it touches.** `system/plugins/zalo-image/{plugin.yaml,plugin.py}`, `docs/12-zalo.md`,
+`CLAUDE.md` (the Zalo section).
 
-**Trạng thái.** Đã làm. Test phủ phần dựng lệnh, phần chọn kết nối và rào đường dẫn; phần gửi
-thật cần một tài khoản Zalo đã quét QR nên không chạy được trên CI.
+**Status.** Done. Tests cover command building, connection selection and the path barrier; the
+real send needs a Zalo account that has scanned the QR, so it cannot run on CI.
 
 ---
 
-## 4, 5, 6. Ghim hội thoại, gom thành Project, gắn icon
+## 4, 5, 6. Pinning conversations, grouping into Projects, attaching icons
 
-Ba ý này đi chung một chỗ dữ liệu nên làm chung một lượt. Tách ra làm ba lần là ba lần
-migration cho cùng một bảng.
+These three ideas share one place in the data, so they are done in one pass. Splitting them into
+three passes is three migrations for the same table.
 
-**Vấn đề.** Danh sách hội thoại xếp thuần theo thời gian: cuộc quan trọng dùng đi dùng lại bị
-trôi xuống dưới, và toàn chữ nên nhìn lâu không phân biệt được cái nào là cái nào.
+**Problem.** The conversation list is ordered purely by time: important conversations that get
+used again and again sink to the bottom, and it is all text, so after a while you cannot tell
+which is which.
 
-**Quyết định.**
+**Decision.**
 
-- Ghim: cột `pinned` trên `sessions`, mục ghim gom thành nhóm **Đã ghim** trên đầu danh sách.
-- Project: bảng `projects` mới + cột `project_id` trên `sessions`.
-- Icon: cột `icon` **chỉ trên `projects`**, lưu **tên icon Lucide** (vd `star`), khuôn `^[a-z0-9][a-z0-9-]{0,39}$`. Hội thoại KHÔNG có icon riêng - xem mục bổ sung ở cuối.
+- Pin: a `pinned` column on `sessions`, pinned items gathered into a **Pinned** group at the top
+  of the list.
+- Project: a new `projects` table + a `project_id` column on `sessions`.
+- Icon: an `icon` column **on `projects` only**, storing a **Lucide icon name** (e.g. `star`), in
+  the pattern `^[a-z0-9][a-z0-9-]{0,39}$`. Conversations do NOT get their own icon - see the
+  addendum at the end.
 
-**Thiết kế.**
+**Design.**
 
-*Kho (`server/sessions.py`).*
+*Store (`server/sessions.py`).*
 
 ```
 projects(id TEXT PK, name TEXT, icon TEXT, brain TEXT, created_at REAL, updated_at REAL)
 sessions  + pinned INTEGER NOT NULL DEFAULT 0
           + icon TEXT
-          + project_id TEXT            -- NULL = chưa xếp vào project nào
+          + project_id TEXT            -- NULL = not in any project yet
 ```
 
-- `project_id` **không** khai `REFERENCES projects(id)`: cột thêm bằng `ALTER TABLE` thì
-  SQLite không cho khai khoá ngoại, và dù có thì `PRAGMA foreign_keys=ON` sẽ chặn xoá project
-  còn hội thoại. Thay vào đó xoá project là **gỡ nhãn** các hội thoại về `NULL` trong cùng một
-  transaction. Xoá project KHÔNG bao giờ xoá hội thoại - đó là thứ người dùng sẽ không ngờ tới
-  và không hoàn tác được.
-- `list_sessions` sắp `pinned DESC, updated_at DESC` và nhận thêm `project`:
-  bỏ trống là tất cả, `<id>` là đúng project đó, `none` là các cuộc chưa xếp.
+- `project_id` does **not** declare `REFERENCES projects(id)`: a column added with `ALTER TABLE`
+  cannot declare a foreign key in SQLite, and even if it could, `PRAGMA foreign_keys=ON` would
+  block deleting a project that still has conversations. Instead, deleting a project **removes the
+  label** from its conversations back to `NULL` in the same transaction. Deleting a project NEVER
+  deletes conversations - that is something a user would not expect and could not undo.
+- `list_sessions` orders by `pinned DESC, updated_at DESC` and takes an extra `project`: empty
+  means all, `<id>` means exactly that project, `none` means the ungrouped ones.
 
 *API (`server/main.py`).*
 
 ```
 GET    /projects?brain=            -> [{id,name,icon,session_count}]
-POST   /projects                   name, icon, brain            -> tạo
-POST   /projects/{id}/update       name?, icon?                 -> đổi tên / đổi icon
-POST   /projects/{id}/delete                                    -> xoá, hội thoại về NULL
+POST   /projects                   name, icon, brain            -> create
+POST   /projects/{id}/update       name?, icon?                 -> rename / change icon
+POST   /projects/{id}/delete                                    -> delete, conversations go to NULL
 POST   /sessions/{id}/pin          pinned=1|0
-POST   /sessions/{id}/project      project_id=<id|rỗng>, brain?
-GET    /sessions?...&project=      lọc theo project
+POST   /sessions/{id}/project      project_id=<id|empty>, brain?
+GET    /sessions?...&project=      filter by project
 ```
 
-- `/sessions/{id}/project` **tạo hàng nếu chưa có** khi có `brain`. Lý do: dashboard tự sinh
-  id hội thoại ở phía client ngay lúc bấm gửi (`dashboard/app.js:253`), còn hàng trong DB thì
-  tới lượt server xử lý mới có. Muốn "đang mở project nào thì chat mới tự rơi vào project đó"
-  thì phải gắn được nhãn ngay tại lúc bấm gửi. `create_session` đã dùng
-  `ON CONFLICT DO NOTHING` nên hai đường tạo cùng lúc không giẫm nhau, và lượt chat sau đó chỉ
-  cập nhật `engine`/`model` chứ không đụng `brain`.
+- `/sessions/{id}/project` **creates the row if it does not exist** when `brain` is given. Reason:
+  the dashboard generates the conversation id on the client side the moment send is clicked
+  (`dashboard/app.js:253`), while the row in the DB only exists once the server handles the turn.
+  To get "whichever project is open, a new chat automatically falls into that project", the label
+  has to be attachable right at the moment of clicking send. `create_session` already uses
+  `ON CONFLICT DO NOTHING`, so two creation paths at the same time do not step on each other, and
+  the chat turn after that only updates `engine`/`model` and does not touch `brain`.
 
-*Giao diện (`dashboard/sessions-ui.js`).*
+*UI (`dashboard/sessions-ui.js`).*
 
-- Thanh Project trên đầu cột trái: nút chọn project đang mở, nút tạo project, đổi tên, đổi
-  icon, xoá.
-- Đang mở project thì danh sách lọc theo nó, và **chat mới tạo tự gắn project đó** qua
-  `window.JavisProjects.claim(sid)` mà `app.js` gọi ngay sau khi mint id.
-- Mỗi mục hội thoại: icon (nếu có) + tên; hover ra hàng nút ghim / icon / đổi tên / xoá.
-- Bộ chọn icon là một popover hiện **toàn bộ icon Lucide app đã vendor**, kèm ô lọc theo tên
-  và nút Xoá icon. **Không dùng emoji** - chủ repo chốt ngày 2026-08-04. Lý do đúng và đáng
-  ghi lại: icon Lucide vẽ bằng `stroke="currentColor"` nên tự đổi màu theo tông sáng/tối và
-  theo màu chữ chỗ nó đứng, lại giống hệt nhau trên mọi máy; emoji thì mỗi hệ điều hành vẽ
-  một kiểu và màu cứng. Cả dashboard đã bỏ emoji đúng vì lý do đó và có `test_icons.py` canh,
-  nên để riêng chỗ này dùng emoji vừa lệch khỏi phần còn lại, vừa phải nới chính cái test đang
-  giữ luật ấy.
-- Giá trị lưu là **TÊN** icon, không phải ký tự. Danh sách tên lấy qua `Icons.names()` (thêm
-  mới ở đợt này) chứ không đọc thẳng `window.LucideIcons`: cả `icons.js` sinh ra để làm tầng
-  duy nhất đứng giữa dashboard và bộ icon đã vendor.
-- Tên lạ (bộ icon đổi giữa hai phiên bản, hay ai đó sửa tay DB) thì phía hiển thị bỏ qua, chứ
-  không để `ic()` vẽ dấu hỏi kèm một dòng cảnh báo console mỗi lần render. Phía kho thì chặn
-  dạng rác ngay khi ghi.
-- **Trạng thái project đang mở lưu ở `localStorage`** theo brain, không lưu server. Nó là chỗ
-  đứng của người dùng trên MỘT máy, không phải dữ liệu chung.
+- A Project bar at the top of the left column: a button to pick the open project, a button to
+  create a project, rename, change icon, delete.
+- While a project is open, the list filters by it, and **a newly created chat is automatically
+  attached to that project** through `window.JavisProjects.claim(sid)`, which `app.js` calls right
+  after minting the id.
+- Each conversation item: icon (if any) + name; on hover a row of buttons appears for pin / icon /
+  rename / delete.
+- The icon picker is a popover showing **every Lucide icon the app has vendored**, with a name
+  filter box and a Clear icon button. **No emoji** - the repo owner settled this on 2026-08-04.
+  The right reason, worth recording: Lucide icons are drawn with `stroke="currentColor"` so they
+  change color automatically with the light/dark tone and with the text color where they sit, and
+  look identical on every machine; emoji are drawn differently by each operating system and have
+  fixed color. The whole dashboard dropped emoji for exactly that reason and has `test_icons.py`
+  guarding it, so letting this one place use emoji would both stand out from the rest and require
+  loosening the very test that holds that rule.
+- The stored value is the icon **NAME**, not a character. The list of names comes through
+  `Icons.names()` (newly added in this batch) rather than reading `window.LucideIcons` directly:
+  the whole point of `icons.js` is to be the single layer between the dashboard and the vendored
+  icon set.
+- An unknown name (the icon set changed between two versions, or someone hand-edited the DB) is
+  skipped on the display side, rather than letting `ic()` draw a question mark with a console
+  warning on every render. On the store side, garbage forms are blocked at write time.
+- **The open project state is kept in `localStorage`** per brain, not on the server. It is where
+  the user is standing on ONE machine, not shared data.
 
-**Rủi ro đã tính.** Ghim rồi đổi brain: hội thoại ghim thuộc brain khác không hiện lộn sang, vì
-`list_sessions` vẫn lọc brain trước. Project cũng gắn brain, nên đổi brain là danh sách project
-đổi theo.
+**Risks considered.** Pin then switch brain: pinned conversations belonging to another brain do
+not show up mixed in, because `list_sessions` still filters by brain first. Projects are also tied
+to a brain, so switching brain switches the project list too.
 
-**Trạng thái.** Đã làm cả ba.
-
----
-
-## 7. Link trong file .md phải bấm được và cây tự sổ tới nơi
-
-**Vấn đề.** Mở một file .md ra đọc, trong đó có link tới file khác, bấm vào không đi đâu cả.
-Wikilink `[[..]]` thì đi được, link markdown `[chữ](đường-dẫn)` thì không, mà nhìn hai cái
-giống hệt nhau.
-
-**Nguyên nhân thật.** `chat-render.js` xử lý click theo hai lớp: wikilink được xử lý TRƯỚC hàng
-rào "đang soạn trong editor thì đừng mở gì cả", còn link file thường (`a.jv-floc`) nằm SAU hàng
-rào đó (`dashboard/chat-render.js:818`). Mà bản render của trình sửa là `contenteditable`, nên
-mọi link markdown trong file .md rơi đúng vào vùng bị hàng rào chặn. Link http cũng vậy: trong
-`contenteditable` trình duyệt không tự mở tab, nó chỉ đặt con trỏ.
-
-**Quyết định.** Trong bản render của trình sửa, link là để **đi**, không phải để sửa chữ - đúng
-luật đã áp cho wikilink từ trước. Muốn sửa chữ của link thì bật chế độ Nguồn.
-
-**Thiết kế.**
-
-- Đưa nhánh `a.jv-floc` lên TRƯỚC hàng rào contenteditable, cùng chỗ với wikilink.
-- Thêm nhánh cho link ngoài (`http/https/mailto`) trong bản render: mở tab mới.
-- **Ảnh vẫn không đụng vào**: ảnh trong bản render phải kéo thả và xoá được như một ký tự, nên
-  giữ nguyên đường cũ.
-- CSS `cursor: pointer` cho link trong `.ne-wys` và `.jvfe-prev`, để hover là biết bấm được.
-- **Cây tự sổ**: `_vtRevealInTree(path)` đã tồn tại từ 0.15.0 (nút "Vị trí" của khung tìm
-  kiếm, `dashboard/console.js:5016`). Phơi nó ra thành `window.JavisRevealInTree` và gọi mỗi
-  khi điều hướng tới một file bằng link. Không viết cơ chế sổ cây thứ hai.
-
-**Trạng thái.** Đã làm.
+**Status.** All three done.
 
 ---
 
-## 8. Mở file trong chat: bỏ popup, dùng khung dính
+## 7. Links in .md files must be clickable and the tree must expand to the target
 
-**Vấn đề.** Bấm link file trong chat thì bật `.jvfe-modal` che giữa màn hình. Trong khi mở file
-từ tab Thư mục ngay bên cạnh lại cho một trải nghiệm khác hẳn: trình sửa chiếm chỗ khung chat.
-Hai đường vào cùng một file, hai bộ mặt.
+**Problem.** Open a .md file to read, it has a link to another file, and clicking does nothing.
+Wikilinks `[[..]]` navigate, markdown links `[text](path)` do not, yet the two look identical.
 
-**Quyết định.** Link file trong chat đi vào **đúng trình sửa dính** đã có từ 0.15.2.
+**Real cause.** `chat-render.js` handles clicks in two layers: wikilinks are handled BEFORE the
+"currently editing in the editor, so open nothing" barrier, while ordinary file links
+(`a.jv-floc`) sit AFTER that barrier (`dashboard/chat-render.js:818`). And the editor's rendered
+view is `contenteditable`, so every markdown link in a .md file falls right into the zone the
+barrier blocks. The same goes for http links: inside `contenteditable` the browser does not open a
+tab by itself, it only places the caret.
 
-**Thiết kế.**
+**Decision.** In the editor's rendered view, links are for **going**, not for editing text - the
+same rule already applied to wikilinks. To edit a link's text, switch to Source mode.
 
-- `chat-render.js` gọi `window.JavisOpenNote(rel)` thay cho `window.JavisEditFile(rel)`.
-  `openNote` tự biết: đang ở trang Trò chuyện thì mượn `#chatPageEdit` (chiếm chỗ khung chat),
-  ở màn chính thì nổi lên trên visual não - chỗ đó rỗng nên đè là hợp lý.
-- **Fallback theo đúng thứ tự**: màn hẹp (dưới 860px) hoặc `JavisOpenNote` chưa nạp thì giữ
-  popup cũ. Màn hẹp không đủ chỗ cho khung dính, và popup vốn đã có `@media` riêng cho nó.
-- **Loại file không sửa được** (pdf, docx, zip...) thì `openNote` đã có sẵn nhánh
-  `_neRenderDownload`: hiện thẻ file kèm nút Mở tab mới và Tải về. Đúng yêu cầu "fallback
-  hiện trạng thái đang tải, hoặc cho xem như file bình thường trên trình duyệt", và không phải
-  viết gì thêm.
-- `JavisOpenNote` đang từ chối chạy trên màn hẹp kèm toast "sửa note trên điện thoại đã tắt".
-  Lý do gốc là chạm nhầm node đồ thị, không áp cho việc bấm một link có chủ đích. Nhưng vì
-  chat-render đã chặn màn hẹp từ trước khi gọi, không cần đụng vào luật đó.
+**Design.**
 
-**Trạng thái.** Đã làm.
+- Move the `a.jv-floc` branch up BEFORE the contenteditable barrier, alongside wikilinks.
+- Add a branch for external links (`http/https/mailto`) in the rendered view: open a new tab.
+- **Images are still left alone**: images in the rendered view must be draggable and deletable like
+  a character, so they keep the old path.
+- CSS `cursor: pointer` for links in `.ne-wys` and `.jvfe-prev`, so hovering shows they are clickable.
+- **Auto-expanding tree**: `_vtRevealInTree(path)` has existed since 0.15.0 (the Location button
+  of the search frame, `dashboard/console.js:5016`). Expose it as `window.JavisRevealInTree` and
+  call it every time navigation to a file happens through a link. No second tree-expanding
+  mechanism is written.
 
----
-
-## 9. Khung chọn skill trong màn sửa Agent
-
-**Vấn đề.** Danh sách skill trong form sửa Agent là một mớ checkbox phẳng. Brain hiện có 55+
-skill, nên tìm đúng cái muốn tick là dò bằng mắt qua cả danh sách.
-
-**Quyết định.** Thêm ô tìm kiếm + gom nhóm theo field `group` sẵn có của skill, mỗi nhóm là
-một khối sổ ra thu vào được.
-
-**Thiết kế.**
-
-- Nhóm lấy từ `group` trong frontmatter skill (`/skills` đã trả sẵn). Trống thì vào "Chung" -
-  đúng quy ước đang dùng ở trang Skills (`dashboard/studio.js:541`).
-- Ô tìm lọc theo **tên + slug + mô tả**, bỏ dấu tiếng Việt (gõ "viet email" ra được "Viết
-  email"). Đang tìm thì mọi nhóm khớp tự sổ ra, hết tìm thì thu về.
-- Nhóm nào có skill đã tick thì mở sẵn khi vào form - người sửa agent quan tâm cái đang bật
-  trước tiên.
-- Đầu khung có dòng đếm "đã chọn N/M" và nút **Bỏ chọn hết**.
-- **Tick vẫn phải giữ khi lọc.** Đây là chỗ dễ hỏng nhất: vẽ lại danh sách theo bộ lọc mà đọc
-  trạng thái từ DOM thì skill bị lọc ra khỏi màn hình sẽ mất tick lúc lưu. Nên trạng thái chọn
-  giữ trong một `Set` trong bộ nhớ, DOM chỉ là hình chiếu, và lúc lưu đọc từ `Set`.
-
-**Trạng thái.** Đã làm.
+**Status.** Done.
 
 ---
 
-## 10. Phân trang cho nhật ký tự học và bảng log dưới trang Tiết kiệm
+## 8. Opening files in chat: drop the popup, use the docked frame
 
-**Vấn đề.** Trang Tự học chỉ hiện 10 dòng nhật ký gần nhất và 12 commit, hết. Trang Tiết kiệm
-đổ thẳng cả bảng "Lượt gần nhất" ra một lượt.
+**Problem.** Clicking a file link in chat raises `.jvfe-modal` covering the middle of the screen.
+Meanwhile opening a file from the Files tab right next to it gives a very different experience:
+the editor takes the place of the chat frame. Two entrances to the same file, two faces.
 
-**Quyết định.** Dùng lại **đúng khối phân trang đã viết cho trang Việc định kỳ**
-(`dashboard/console.js:2211`): tải một lần rồi lật trang phía client.
+**Decision.** File links in chat go into **exactly the docked editor** that has existed since 0.15.2.
 
-**Thiết kế.**
+**Design.**
 
-- Tách khối đó thành helper dùng chung `_pager(box, items, perPage, renderRow)` thay vì chép
-  lần thứ ba. Chép lần thứ ba là bắt đầu ba bản trôi lệch.
-- Trang Tự học: `/learn/log` nâng `limit` 10 lên 200, hiện 10 mỗi trang;
-  `/learn/review` nâng 12 lên 60, hiện 6 mỗi trang.
-- Trang Tiết kiệm: bảng "Lượt gần nhất" hiện 20 dòng mỗi trang.
-- Không dùng cuộn vô hạn: các khung này nằm giữa trang có nội dung khác phía dưới, cuộn vô hạn
-  sẽ nuốt luôn đường xuống phần đó.
+- `chat-render.js` calls `window.JavisOpenNote(rel)` instead of `window.JavisEditFile(rel)`.
+  `openNote` already knows: on the Chat page it borrows `#chatPageEdit` (taking the place of the
+  chat frame), on the main screen it floats above the brain visual - that spot is empty, so
+  covering it is reasonable.
+- **Fallback in exactly this order**: a narrow screen (under 860px) or `JavisOpenNote` not loaded
+  yet keeps the old popup. A narrow screen has no room for a docked frame, and the popup already
+  has its own `@media` for it.
+- **File types that cannot be edited** (pdf, docx, zip...) already have a `_neRenderDownload`
+  branch in `openNote`: it shows a file card with an Open in new tab button and a Download button.
+  That meets the requirement "the fallback shows a loading state, or lets it be viewed like a
+  normal file in the browser", and nothing extra has to be written.
+- `JavisOpenNote` currently refuses to run on a narrow screen with the toast "editing notes on
+  phone is turned off" (Vietnamese: "sửa note trên điện thoại đã tắt"). The original reason was
+  accidentally tapping a graph node, which does not apply to deliberately clicking a link. But
+  since chat-render already blocks narrow screens before calling, that rule does not need touching.
 
-**Trạng thái.** Đã làm.
-
----
-
-## Những gì KHÔNG làm trong đợt này
-
-- Ý số 2 (chatbot cho Agent) - chờ brainstorm, xem mục 2.
-- Không đụng vào giao thức chat, engine, hay runtime tiết kiệm token. Cả 9 ý làm được đều nằm
-  ở tầng kho dữ liệu hội thoại, giao diện dashboard, kho connector và plugin.
-- Không đổi hành vi mặc định của thứ đang chạy: hội thoại cũ không có project, không ghim,
-  không icon, và hiện đúng như trước.
+**Status.** Done.
 
 ---
 
-## Bổ sung 0.18.1: icon ở ĐÂU cho đúng
+## 9. A skill picker in the Agent edit screen
 
-Bản 0.18.0 hiểu sai ý số 6 trong sổ tay ("thêm icon cho hội thoại và thư mục"). Nó làm thành
-**bộ chọn icon cho từng cuộc hội thoại**. Chủ repo chỉ ra ngay khi nhìn màn hình thật: ý là
-thêm **một icon phù hợp ở ĐẦU hai tab** "Hội thoại" và "Thư mục", còn chỗ đổi icon thì thuộc
-về **Project**, nơi thật sự cần nhiều icon khác nhau để phân loại.
+**Problem.** The skill list in the Agent edit form is a flat heap of checkboxes. The brain
+currently has 55+ skills, so finding the one to tick means scanning the whole list by eye.
 
-Đúng, và đúng ở chỗ có thể suy ra được từ trước nếu chịu hỏi "icon này phân loại cái gì":
+**Decision.** Add a search box + grouping by the skill's existing `group` field, each group being
+a collapsible block.
 
-- **Danh sách hội thoại**: hàng nào cũng là một cuộc trò chuyện. Icon ở đó không tách được
-  nhóm nào ra khỏi nhóm nào, nên nó chỉ là trang trí phải bấm tay từng cái, cộng thêm một nút
-  nữa vào hàng nút vốn đã có bốn cái và chỉ hiện khi rê chuột.
-- **Hai tab**: chúng là hai thứ KHÁC LOẠI đứng cạnh nhau và chỉ phân biệt bằng chữ, nên liếc
-  qua phải đọc mới biết đang ở đâu. Đây đúng là chỗ một icon cố định giúp được.
-- **Project**: mỗi nhóm thật sự là một thứ khác nhau (Khách hàng, Nội dung, Kỹ thuật...).
-  Đây mới là chỗ icon có việc để làm.
+**Design.**
 
-Đã đổi ở 0.18.1:
+- Groups come from `group` in the skill frontmatter (`/skills` already returns it). Empty goes
+  into "General" - the same convention used on the Skills page (`dashboard/studio.js:541`).
+- The search box filters by **name + slug + description**, ignoring Vietnamese diacritics (typing
+  "viet email" finds "Viết email"). While searching, every matching group expands itself, and when
+  the search ends they collapse back.
+- A group that has a ticked skill is open by default when entering the form - whoever edits an
+  agent cares about what is on first.
+- At the top of the frame is a count line "selected N/M" and a **Clear selection** button.
+- **Ticks must still be kept while filtering.** This is the easiest place to break: if you redraw
+  the list per the filter and read the state from the DOM, skills filtered off the screen lose
+  their tick at save time. So the selection state is kept in an in-memory `Set`, the DOM is only a
+  projection, and saving reads from the `Set`.
 
-- Gỡ hẳn icon của từng hội thoại: cột `sessions.icon`, `SessionStore.set_icon`, endpoint
-  `POST /sessions/{id}/icon`, nút bấm và phần render. Không để lại UI chết.
-- Thêm icon cố định ở đầu hai tab, lấy đúng icon rail đang dùng cho hai thứ đó
-  (`message-circle` cho Trò chuyện, `folder-tree` cho Tệp tin) để cả app nói cùng một ngôn ngữ
-  hình, chứ không đặt icon mới chỉ riêng chỗ này.
-- Project chưa đặt icon thì mượn `folder` làm mặc định, và hai dòng đầu menu ("Tất cả hội
-  thoại", "Chưa xếp nhóm") cũng có icon. Hàng nào cũng có icon thì mắt quét được theo cột
-  icon, và người dùng nhìn là biết chỗ này đổi icon được.
+**Status.** Done.
 
-**Bài học ghi lại.** Cả hai lần hiểu sai ý này đều do nhảy thẳng vào "làm bộ chọn icon" mà
-không hỏi trước **icon đó dùng để phân biệt cái gì với cái gì**. Trả lời được câu đó là biết
-ngay nó thuộc về Project và hai tab, không thuộc về từng hàng hội thoại.
+---
+
+## 10. Pagination for the self-learning log and the log table under the Savings page
+
+**Problem.** The Self-learning page shows only the 10 most recent log lines and 12 commits, then
+nothing. The Savings page pours the whole "Recent turns" table out in one go.
+
+**Decision.** Reuse **exactly the pagination block already written for the Scheduled page**
+(`dashboard/console.js:2211`): load once then flip pages on the client side.
+
+**Design.**
+
+- Extract that block into a shared helper `_pager(box, items, perPage, renderRow)` instead of
+  copying it a third time. Copying a third time is the start of three drifting versions.
+- Self-learning page: `/learn/log` raises `limit` from 10 to 200, showing 10 per page;
+  `/learn/review` raises 12 to 60, showing 6 per page.
+- Savings page: the "Recent turns" table shows 20 rows per page.
+- No infinite scroll: these frames sit in the middle of a page with other content below, and
+  infinite scroll would swallow the way down to that part.
+
+**Status.** Done.
+
+---
+
+## What is NOT done in this batch
+
+- Idea number 2 (chatbots for Agents) - waiting for brainstorming, see section 2.
+- No touching the chat protocol, the engines, or the token-saving runtime. All 9 doable ideas sit
+  at the conversation data store layer, the dashboard UI, the connector catalog and plugins.
+- No change to the default behavior of what is running: old conversations have no project, no pin,
+  no icon, and look exactly as before.
+
+---
+
+## Addendum 0.18.1: where the icon belongs
+
+Version 0.18.0 misread idea number 6 in the notebook ("add icons for conversations and folders").
+It built an **icon picker for each individual conversation**. The repo owner pointed it out the
+moment he saw the real screen: the idea was to add **a fitting icon at the HEAD of the two tabs**
+"Conversations" and "Files", while the place to change icons belongs to **Project**, where many
+different icons are really needed to tell groups apart.
+
+Correct, and correct in a way that could have been deduced beforehand if we had bothered to ask
+"what does this icon classify":
+
+- **The conversation list**: every row is a conversation. An icon there cannot separate any group
+  from any other, so it is only decoration that has to be set by hand one by one, plus one more
+  button in a row of buttons that already has four and only appears on hover.
+- **The two tabs**: they are two DIFFERENT kinds of thing standing side by side, told apart only
+  by text, so a glance is not enough, you have to read to know where you are. This is exactly where
+  a fixed icon helps.
+- **Project**: each group really is a different thing (Customers, Content, Engineering...). This is
+  where an icon has work to do.
+
+Changed in 0.18.1:
+
+- Removed the per-conversation icon entirely: the `sessions.icon` column, `SessionStore.set_icon`,
+  the endpoint `POST /sessions/{id}/icon`, the button and the rendering. No dead UI left behind.
+- Added a fixed icon at the head of the two tabs, taking exactly the rail icons already used for
+  those two things (`message-circle` for Chat, `folder-tree` for Files) so the whole app speaks one
+  visual language, instead of placing a new icon only here.
+- A project with no icon set borrows `folder` as the default, and the first two lines of the menu
+  ("All conversations", "Ungrouped") also have icons. When every row has an icon, the eye can scan
+  down the icon column, and the user knows at a glance that icons can be changed here.
+
+**Lesson recorded.** Both misreadings came from jumping straight to "build an icon picker" without
+first asking **what that icon is used to tell apart from what**. Answering that question shows at
+once that it belongs to Project and the two tabs, not to each conversation row.

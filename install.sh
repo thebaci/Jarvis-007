@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Javis OS - Linux/macOS native installer (no Docker)
+# Jarvis 007 - Linux/macOS native installer (no Docker)
 #   ./install.sh
 # Installs python3 + node + Claude Code CLI, creates a venv, installs deps,
 # seeds .env, and registers a systemd service (or falls back to nohup).
@@ -122,7 +122,7 @@ ok "Claude CLI $(claude --version 2>/dev/null || echo installed)"
 
 # --- 4b. Codex CLI (gói ChatGPT) ---
 #
-# BEST-EFFORT, cố ý khác Claude ở trên: thiếu Claude thì Javis không còn bộ não mặc định nào
+# BEST-EFFORT, cố ý khác Claude ở trên: thiếu Claude thì Jarvis 007 không còn bộ não mặc định nào
 # để chạy, còn thiếu cái này chỉ mất đúng một engine. Nên lỗi ở đây chỉ cảnh báo chứ không cho
 # `set -e` giết cả lần cài.
 #
@@ -145,13 +145,13 @@ cai_them_cli @openai/codex@latest codex "Codex CLI"
 # --- 4c. agy (Antigravity CLI, đường Google) + grok (Grok Build, đường xAI) ---
 #
 # Hai engine này KHÔNG cài bằng npm: mỗi nhà một script tải về chạy thẳng. Trước 0.59.13 cài
-# xong Javis là người dùng còn phải tự mở terminal gõ hai dòng của hai nhà khác nhau, và chủ
+# xong Jarvis 007 là người dùng còn phải tự mở terminal gõ hai dòng của hai nhà khác nhau, và chủ
 # dự án báo đúng chỗ đó làm người không quen kỹ thuật tắc ở màn Models với hai thẻ "CLI chưa
 # cài" (16/09). Nay cài luôn một lượt.
 #
 # BEST-EFFORT tuyệt đối: chạy script của nhà thứ ba nên hỏng là chuyện bình thường (mạng, máy
 # lạ, nhà cung cấp đổi URL) - hỏng thì nói một dòng rồi đi tiếp, không được giết lần cài.
-# ĐĂNG NHẬP thì vẫn là việc của người dùng, làm ở trang Models sau khi Javis chạy.
+# ĐĂNG NHẬP thì vẫn là việc của người dùng, làm ở trang Models sau khi Jarvis 007 chạy.
 cai_cli_script() {   # <tên binary> <tên hiển thị> <URL script cài>
   if command -v "$1" >/dev/null 2>&1; then ok "$2 da co san"; return 0; fi
   log "Installing $2 (best-effort, script cua nha cung cap)..."
@@ -194,7 +194,7 @@ grep -q '^JAVIS_HOST=' .env || echo "JAVIS_HOST=127.0.0.1" >> .env
 
 # --- 7b. Tài khoản quản trị: ĐẶT SẴN ngay lúc cài ---
 #
-# Trước đây bước này không tồn tại, nên ai mở Javis ra công khai đều đụng "MÃ THIẾT LẬP":
+# Trước đây bước này không tồn tại, nên ai mở Jarvis 007 ra công khai đều đụng "MÃ THIẾT LẬP":
 # server in một chuỗi ngẫu nhiên vào log lúc khởi động, và người dùng phải SSH vào VPS đọc log
 # rồi dán vào trình duyệt mới tạo được tài khoản. Cái mã đó có lý do tồn tại - nó chặn người
 # lạ chỉ-có-URL chiếm quyền admin lần đầu - nhưng bắt người ta đi đọc log là một trải nghiệm
@@ -243,7 +243,7 @@ else
   ADMIN_PW=""
   if [ -t 0 ]; then
     echo ""
-    log "Javis admin account (required: the AI brain runs with full rights on this machine):"
+    log "Jarvis 007 admin account (required: the AI brain runs with full rights on this machine):"
     read -rp "  Username [admin]: " AU || true
     [ -n "${AU:-}" ] && ADMIN_USER="$AU"
     while :; do
@@ -300,7 +300,7 @@ if command -v systemctl >/dev/null 2>&1 && [ -d /run/systemd/system ]; then
   log "Installing systemd service ($SVC.service, port $PORT)..."
   $SUDO tee "/etc/systemd/system/$SVC.service" >/dev/null <<UNIT
 [Unit]
-Description=Javis OS ($SVC)
+Description=Jarvis 007 ($SVC)
 After=network-online.target
 Wants=network-online.target
 StartLimitIntervalSec=0
@@ -333,7 +333,7 @@ else
 fi
 
 echo ""
-ok "Javis OS is up at: http://127.0.0.1:$PORT"
+ok "Jarvis 007 is up at: http://127.0.0.1:$PORT"
 log "Remote access (SSH tunnel): ssh -L $PORT:localhost:$PORT $(whoami)@<vps-ip>"
 
 # Mật khẩu tự sinh chỉ in ra ĐÚNG chỗ này, đúng một lần. Không ghi vào log service, không in

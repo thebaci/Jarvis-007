@@ -8,12 +8,12 @@ Nối tiếp đặc tả gốc `2026-09-30-bo-phan-xu-nhom-design.md`; đọc m�
 Bộ phán xử (0.65.x) học tức thì từ phản ứng trong nhóm và từ nút Đúng/Sai, nhưng:
 
 - **Không AI nào đọc được kho của nó.** Kho `chatbot_reply_policy.sqlite3` chỉ đi ra qua route của
-  trang Chatbot. Hỏi Javis "vì sao bot im" thì Javis đoán theo tài liệu, không nhìn số liệu thật
-  (ca 05/10: Javis trên VPS khẳng định tin tag chủ "không để lại dòng nào", sai, dòng có ghi).
+  trang Chatbot. Hỏi Jarvis 007 "vì sao bot im" thì Jarvis 007 đoán theo tài liệu, không nhìn số liệu thật
+  (ca 05/10: Jarvis 007 trên VPS khẳng định tin tag chủ "không để lại dòng nào", sai, dòng có ghi).
 - **Có chỗ học không chạm tới được.** `coarse_gate` trả `addressed_other` cho tin mở đầu bằng
   `@người khác` TRƯỚC khi xét ca dương, nên chủ bấm Sai hay dạy bằng lời cũng không gỡ được.
 - Chủ muốn tự động hoá: máy tự soát, tự chỉnh; người chỉ can thiệp khi muốn, và can thiệp bằng
-  cách NÓI với Javis chứ không tự tay sửa (nguyên tắc chung [ít cài đặt, đẩy về AI]).
+  cách NÓI với Jarvis 007 chứ không tự tay sửa (nguyên tắc chung [ít cài đặt, đẩy về AI]).
 
 ## 2. Mục tiêu và không làm
 
@@ -105,7 +105,7 @@ tệ hơn quá 0.15 (và có ít nhất 3 lỗi) thì hoàn CẢ lượt, trạn
 `<brain của bot>/Javis/gop-y-bo-phan-xu.md` (ngày, tên bot, nội dung, id bằng chứng).
 
 **Báo lại**: có thay đổi, có góp ý, hoặc có tự hoàn thì gửi đúng một tin qua `_notify_owner("")`
-(hộp thư + Telegram của chủ), viết thường, có câu "không vừa ý thì nhắn Javis hoàn lại".
+(hộp thư + Telegram của chủ), viết thường, có câu "không vừa ý thì nhắn Jarvis 007 hoàn lại".
 
 **Model**: `main._reply_policy_review_ask` dựng engine giống `_reply_policy_ask` (thư mục trống,
 không MCP, không công cụ) nhưng chọn **bộ não chính** qua `aux_engine.swap(spec=main_spec())`.
@@ -177,5 +177,5 @@ Script chạy thẳng như các test bộ phán xử cũ (`tests/python/test_rep
 
 ## 6. Tài liệu
 
-`docs/25-chatbot.md` (và bản tiếng Anh nếu có): mục "Bộ phán xử tự soát", cách nhờ Javis xem và
+`docs/25-chatbot.md` (và bản tiếng Anh nếu có): mục "Bộ phán xử tự soát", cách nhờ Jarvis 007 xem và
 chỉnh, cách hoàn lại, biến tắt, lưu ý gói thuê bao. CHANGELOG hai thứ tiếng cho 0.77.0.

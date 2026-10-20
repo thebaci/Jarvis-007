@@ -1,11 +1,11 @@
-# Khối hỏi-lại có lựa chọn trong khung chat Javis
+# Khối hỏi-lại có lựa chọn trong khung chat Jarvis 007
 
 Ngày: 2026-07-16
 Trạng thái: đã chốt thiết kế, chờ lập kế hoạch triển khai
 
 ## Mục tiêu
 
-Khi Javis cần hỏi lại người dùng, khung chat hiện các lựa chọn bấm được ngay dưới câu
+Khi Jarvis 007 cần hỏi lại người dùng, khung chat hiện các lựa chọn bấm được ngay dưới câu
 trả lời, thay vì bắt người dùng đọc câu hỏi rồi tự gõ đáp án. Mục đích là làm trải
 nghiệm khung chat quen thuộc với người đã dùng Claude Code.
 
@@ -19,7 +19,7 @@ Khung chat chạy qua WebSocket. Server đẩy về `status` / `tool_call` / `to
 `stream` / `response` / `error` / `turn_done`; chiều ngược lại client chỉ gửi được một
 loại tin nhắn văn bản (`{message, brain, session_id}`).
 
-Dự án đã có sẵn đúng một tiền lệ cho việc này: khối `JAVIS_METRICS`. Javis nhúng một
+Dự án đã có sẵn đúng một tiền lệ cho việc này: khối `JAVIS_METRICS`. Jarvis 007 nhúng một
 HTML comment ở cuối phản hồi, `app.js:1126` bóc nó ra bằng regex rồi bơm vào panel trái.
 Thiết kế này đi theo đúng vết đó.
 
@@ -38,7 +38,7 @@ người dùng bấm, trả kết quả làm tool result). Đây là cách Claud
 phép hỏi giữa chừng lúc đang làm dở. Loại vì giá quá đắt so với phần dùng được: hub là
 HTTP nên phải nhét session vào header config MCP cho từng lượt (file config hiện cache
 theo mode chứ không theo phiên), phải lo timeout, lo người dùng F5 giữa lúc đang chờ,
-và phải làm ba lần cho ba đường engine. Trong khi ở khung chat Javis gần như mọi câu
+và phải làm ba lần cho ba đường engine. Trong khi ở khung chat Jarvis 007 gần như mọi câu
 hỏi lại đều rơi vào cuối lượt.
 
 Nếu sau này thật sự cần hỏi giữa chừng thì đắp hướng tool lên trên vẫn được: phần giao
@@ -46,7 +46,7 @@ diện chip dùng lại nguyên, chỉ thay nguồn phát câu hỏi.
 
 ## Hợp đồng dữ liệu
 
-Javis kết thúc câu trả lời bằng:
+Jarvis 007 kết thúc câu trả lời bằng:
 
 ```
 <!-- JAVIS_ASK: {"question":"Anh muốn xem doanh thu kỳ nào?","header":"Kỳ","options":[{"label":"Tuần này","desc":"7 ngày gần nhất"},{"label":"Tháng này","desc":"Từ mùng 1"},{"label":"So tháng trước","desc":"Có đối chiếu"}]} -->
@@ -68,7 +68,7 @@ nằm ở tooltip để hàng chip không phình. Chip cuối cùng luôn là "�
 gửi gì, chỉ đưa con trỏ xuống ô nhập liệu.
 
 Bấm một chip thì gửi đúng `label` đó đi như một tin nhắn người dùng bình thường, cùng
-phiên. Lịch sử hội thoại đọc vẫn xuôi, không có tin nhắn ma, và Javis không cần biết
+phiên. Lịch sử hội thoại đọc vẫn xuôi, không có tin nhắn ma, và Jarvis 007 không cần biết
 người dùng bấm hay gõ.
 
 **Chỉ tin nhắn cuối cùng mới có chip sống.** Sau khi người dùng trả lời (bấm chip hoặc
@@ -111,11 +111,11 @@ Anh muốn xem doanh thu kỳ nào?
 3. So tháng trước
 ```
 
-Người dùng nhắn "1" là xong. Javis đọc "1" trong ngữ cảnh câu hỏi vừa hỏi thì tự hiểu,
+Người dùng nhắn "1" là xong. Jarvis 007 đọc "1" trong ngữ cảnh câu hỏi vừa hỏi thì tự hiểu,
 không cần lưu state. Bot Telegram đã có sẵn hạ tầng nút inline (`reply_markup`,
 `_handle_callback`) nhưng lần này không dùng.
 
-**Sửa `CLAUDE.md`**: dạy Javis khi nào nhúng khối, gắn vào mục "Làm rõ trước khi trả
+**Sửa `CLAUDE.md`**: dạy Jarvis 007 khi nào nhúng khối, gắn vào mục "Làm rõ trước khi trả
 lời" đã có sẵn chứ không mở luật mới. Mục đó đang nói chỉ hỏi lại khi thực sự tắc, tối
 đa 1-3 câu. Khối này là cách trình bày cho bước "chỉ hỏi lại khi thực sự tắc" đó. Điểm
 dùng điển hình: phải đoán một tham số mà đoán sai thì hại, ví dụ kỳ thời gian hay chọn
@@ -134,7 +134,7 @@ hệt nếu không xử. Hàm bóc khối điều khiển nói trên vá cả ha
 ## Đường lỗi
 
 - JSON hỏng: bỏ qua khối im lặng, vẫn hiện câu trả lời. Tuyệt đối không để một khối sai
-  cú pháp nuốt mất câu trả lời của Javis.
+  cú pháp nuốt mất câu trả lời của Jarvis 007.
 - Thừa lựa chọn: cắt còn 4.
 - Nhãn quá dài: cắt gọn khi vẽ.
 - Khối nằm giữa bài thay vì cuối: vẫn bóc được, vì bắt bằng regex chứ không theo vị trí.
@@ -151,6 +151,6 @@ Thuần, không cần trình duyệt:
 
 Bấm tay để xác nhận (hành vi DOM):
 - Chip mọc sau khi lượt xong, không nhấp nháy lúc stream.
-- Bấm chip thì ra tin nhắn người dùng đúng nhãn, Javis chạy tiếp.
+- Bấm chip thì ra tin nhắn người dùng đúng nhãn, Jarvis 007 chạy tiếp.
 - Chip đông cứng sau khi trả lời; cuộn lên lịch sử không bấm được.
 - F5 rồi khôi phục: chip sống lại đúng ở tin cuối chưa trả lời.

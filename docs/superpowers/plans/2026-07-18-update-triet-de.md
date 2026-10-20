@@ -1,4 +1,4 @@
-# Update triệt để cho Javis OS - Implementation Plan
+# Update triệt để cho Jarvis 007 - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -527,7 +527,7 @@ Expected: FAIL (updater.py chưa tồn tại → returncode != 0).
 
 ```python
 #!/usr/bin/env python
-"""Updater tách rời của Javis cho bản GIT checkout (Windows + native Linux). Server spawn DETACHED:
+"""Updater tách rời của Jarvis 007 cho bản GIT checkout (Windows + native Linux). Server spawn DETACHED:
 
     python updater.py --old-sha <sha> --old-version <v> --target <v> --port <p>
 
@@ -798,7 +798,7 @@ Trong `dashboard/console.js`, thay khối `<div class="cview-section"><h3>Phiên
       <div class="cview-section">
         <h3>Phiên bản</h3>
         <div class="gcard" style="max-width:640px">
-          <div class="gcard-top"><span class="gcard-name">Javis OS</span><span class="gcard-tag" id="ovVerTag">…</span></div>
+          <div class="gcard-top"><span class="gcard-name">Jarvis 007</span><span class="gcard-tag" id="ovVerTag">…</span></div>
           <div class="gcard-meta" id="ovVerMeta">Đang kiểm tra bản mới…</div>
           <div id="ovVerChangelog" style="display:none;margin:8px 0;padding:8px 10px;border-left:3px solid var(--accent,#6aa);background:rgba(120,140,160,.08);border-radius:6px;font-size:13px;line-height:1.6"></div>
           <div class="js-actions">
@@ -909,7 +909,7 @@ Thay khối `if (verUpd) verUpd.onclick = async () => { ... };` (dòng 1411-1444
 
 ```javascript
     if (verUpd) verUpd.onclick = async () => {
-      if (!confirm("Cập nhật Javis lên bản mới nhất?\nApp sẽ tự khởi động lại. Nếu bản mới lỗi, hệ thống sẽ tự quay về bản cũ (bản git) hoặc hiện cách lùi (Docker).")) return;
+      if (!confirm("Cập nhật Jarvis 007 lên bản mới nhất?\nApp sẽ tự khởi động lại. Nếu bản mới lỗi, hệ thống sẽ tự quay về bản cũ (bản git) hoặc hiện cách lùi (Docker).")) return;
       const st = document.getElementById("ovVerStatus");
       const rb = document.getElementById("ovVerRollback");
       const oldCur = window._ovVerCur || "";

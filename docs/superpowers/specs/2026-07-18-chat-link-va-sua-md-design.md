@@ -5,9 +5,9 @@ Trạng thái: đã duyệt hướng (cách A)
 
 ## Bối cảnh và vấn đề
 
-Trong khung chat, Javis thỉnh thoảng gửi file .md, file text và link. Hiện tại:
+Trong khung chat, Jarvis 007 thỉnh thoảng gửi file .md, file text và link. Hiện tại:
 
-- Link markdown `[chữ](https://...)` đã bấm mở tab mới được. Nhưng URL "trần" (Javis gõ thẳng
+- Link markdown `[chữ](https://...)` đã bấm mở tab mới được. Nhưng URL "trần" (Jarvis 007 gõ thẳng
   `https://...` không bọc markdown) chỉ hiện thành chữ, không bấm được.
 - Bấm link file .md trong chat chỉ nhảy sang trang Tệp tin và tô sáng file đó, người dùng phải
   bấm thêm lần nữa mới mở được khung sửa.

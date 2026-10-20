@@ -276,7 +276,7 @@ Hiện tại, `_publish` không thay file khi hash trên đĩa khác mốc đã 
   - `drift_recheck` bắt đầu `DRIFT_RECHECK_MIN_S` (1 giờ), mỗi lần vẫn sửa ngoài luồng thì nhân đôi, tối đa `DRIFT_RECHECK_MAX_S` (24 giờ).
   - Mỗi lần đọc một file tối đa 1 MB, không gọi model.
   - Sự kiện mới (góp ý, tiếp tục) thì kiểm ngay một lần.
-  - Thẻ nói rõ: "File bị sửa ngoài Javis. Javis tự kiểm lại lúc <giờ>; góp ý để kiểm ngay." Thời gian phát hiện chậm nhất là `DRIFT_RECHECK_MAX_S`.
+  - Thẻ nói rõ: "File bị sửa ngoài Jarvis 007. Jarvis 007 tự kiểm lại lúc <giờ>; góp ý để kiểm ngay." Thời gian phát hiện chậm nhất là `DRIFT_RECHECK_MAX_S`.
 - **Thoát trạng thái chờ:**
   - Người dùng đưa file về đúng mốc đã đăng: hết sửa ngoài luồng, đánh giá như thường. Góp ý đang gác được xử lý đúng một lần ở lần thức đó.
   - Người dùng xoá file: không còn xung đột. Bản đang hiệu lực là lượt việc nền thì `_publish_latest` đăng lại mà không gọi model. Bản đang hiệu lực là bản tiếp nhận từ chat thì hiện chưa có đường đăng lại (`_publish_latest` trả `superseded`), nên A2 coi như sửa ngoài luồng: chờ, báo một lần, không gọi model.
@@ -389,7 +389,7 @@ Review chỉ ra rằng chặn `javis_schedule` theo cờ toàn lượt (`goal_to
 
 **A2 không bảo đảm:** người dùng hay model tạo thêm loop hay nhắc hẹn riêng cho cùng việc.
 - Chưa có liên kết lịch với mục tiêu do host kiểm, và không dùng model để đoán hai yêu cầu có cùng nghĩa không.
-- `_RESONANCE_GOAL_HINT` thêm một câu gợi ý (không ràng buộc): "việc đã thành mục tiêu thì Javis tự giữ lịch; chỉ tạo nhắc hẹn khi đó là việc khác".
+- `_RESONANCE_GOAL_HINT` thêm một câu gợi ý (không ràng buộc): "việc đã thành mục tiêu thì Jarvis 007 tự giữ lịch; chỉ tạo nhắc hẹn khi đó là việc khác".
 - Nhắc hẹn và loop độc lập dùng như cũ, ở mọi thứ tự.
 
 Liên kết rõ từ lịch tới mục tiêu (trường `goal_id` do host kiểm trong `javis_schedule`) là hạng mục sau, nằm ngoài phạm vi.

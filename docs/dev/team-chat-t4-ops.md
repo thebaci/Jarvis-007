@@ -92,7 +92,7 @@ T4 **không** tạo kho, bảng hay cột. Chỉ thêm bốn chỉ mục (`CREAT
 `pulse_contrib_result` (resonance.sqlite3, tạo lần đầu khi đọc nguồn đóng góp). `tools/team_adaptive_restore_pre.py --to
 0.170.0` báo rõ không có gì để khôi phục và không ghi gì (kiểm ở `test_team_adaptive_restore.py`).
 
-Chạy công cụ khi Javis ĐÃ TẮT. Không có `--yes` thì chỉ in kế hoạch. Mọi bước giữ bản sao `.post-<mốc>-<thời điểm>`.
+Chạy công cụ khi Jarvis 007 ĐÃ TẮT. Không có `--yes` thì chỉ in kế hoạch. Mọi bước giữ bản sao `.post-<mốc>-<thời điểm>`.
 
 Chuỗi đã được đánh số lại khi ghép với main: T1 phát hành 0.167.0, T2 0.168.0, T3 0.169.0, T4 0.170.0. Tên mốc
 của công cụ khôi phục và đuôi snapshot giữ tên nội bộ cũ (`--to 0.154.0` là T2, `--to 0.156.0` là T3, file

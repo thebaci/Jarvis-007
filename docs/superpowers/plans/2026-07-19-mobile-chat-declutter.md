@@ -199,7 +199,7 @@ Trong `dashboard/console.css` block mobile, thêm (mb-pop gốc mở LÊN `botto
 Run: `node --check dashboard/app.js` (và/hoặc `dashboard/console.js` nếu sửa ở đó)
 Expected: không lỗi cú pháp.
 
-Smoke ở ~375px: header chỉ còn ☰ (trái) · chip "Javis · model ▾" (giữa) · ＋ (phải); KHÔNG còn hàng model-bar và dải HỆ THỐNG ở dưới; bấm chip model mở bảng chọn NGAY DƯỚI header (không bị cắt trên); bấm ＋ reset hội thoại. Desktop (>860px): header + model-bar y như cũ, chip model nằm lại chỗ cũ.
+Smoke ở ~375px: header chỉ còn ☰ (trái) · chip "Jarvis 007 · model ▾" (giữa) · ＋ (phải); KHÔNG còn hàng model-bar và dải HỆ THỐNG ở dưới; bấm chip model mở bảng chọn NGAY DƯỚI header (không bị cắt trên); bấm ＋ reset hội thoại. Desktop (>860px): header + model-bar y như cũ, chip model nằm lại chỗ cũ.
 
 - [ ] **Step 6: Commit**
 

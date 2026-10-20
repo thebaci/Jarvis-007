@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Vá lỗi cắt cụt description đang âm thầm phá routing của mọi skill, và cho Javis biết skill nào thực sự được dùng.
+**Goal:** Vá lỗi cắt cụt description đang âm thầm phá routing của mọi skill, và cho Jarvis 007 biết skill nào thực sự được dùng.
 
 **Architecture:** Gom ba điểm cắt description rời rạc về một hằng số duy nhất ở `skill_router.py` rồi ép hằng số đó ở mọi chỗ GHI (API, learn). Thêm một sidecar telemetry `Javis/skill-usage.json` do `skill_usage.py` sở hữu, bump tại một điểm nghẽn duy nhất là handler `_skill` trong `mcp_hub.py`. Không máy trạng thái, không job nền: `stale` là hàm thuần tính lúc đọc.
 
@@ -397,18 +397,18 @@ Việc skill làm: đọc HTML, tái dựng thành page_source đúng khuôn Web
 
 `.claude/skills/javis-builder/SKILL.md` (110 ký tự):
 ```yaml
-description: Tạo hoặc sửa năng lực của Javis: agent, skill, workflow, loop, plugin. Kèm mẫu file chuẩn và luật chống trùng.
+description: Tạo hoặc sửa năng lực của Jarvis 007: agent, skill, workflow, loop, plugin. Kèm mẫu file chuẩn và luật chống trùng.
 ```
 ```markdown
 ## Khi nào dùng
 
 Kích hoạt khi người dùng nói những câu như: "tạo agent chuyên X", "thêm kỹ năng Y",
 "dựng workflow nghiên cứu rồi viết", "tạo loop mỗi 2 tiếng làm Z", "viết tool/plugin
-tính ...", "làm cho Javis biết làm ...".
+tính ...", "làm cho Jarvis 007 biết làm ...".
 ```
 LƯU Ý: `description` này chứa dấu hai chấm. YAML sẽ hiểu nhầm thành mapping. PHẢI bọc cả giá trị trong nháy kép:
 ```yaml
-description: "Tạo hoặc sửa năng lực của Javis: agent, skill, workflow, loop, plugin. Kèm mẫu file chuẩn và luật chống trùng."
+description: "Tạo hoặc sửa năng lực của Jarvis 007: agent, skill, workflow, loop, plugin. Kèm mẫu file chuẩn và luật chống trùng."
 ```
 
 `.claude/skills/ingest-source/SKILL.md` (81 ký tự):
@@ -499,7 +499,7 @@ thành:
 ```markdown
 ### Skill -> `skills/<slug>/SKILL.md`
 ```
-(canonical phẳng; Javis tự mirror sang `.claude/skills` cho Claude Code nạp native)
+(canonical phẳng; Jarvis 007 tự mirror sang `.claude/skills` cho Claude Code nạp native)
 
 - [ ] **Step 2: Sửa dòng 23-24**
 
@@ -912,7 +912,7 @@ check("bump slug khác tạo bản ghi riêng", u.get("skill-khac", {}).get("use
 
 # ---- đúng vị trí ----
 check("sidecar nằm ở Javis/skill-usage.json",
-      skill_usage.usage_path(_ROOT) == _ROOT / "Javis" / "skill-usage.json")
+      skill_usage.usage_path(_ROOT) == _ROOT / "Jarvis 007" / "skill-usage.json")
 check("sidecar thật sự tồn tại trên đĩa", skill_usage.usage_path(_ROOT).is_file())
 
 # ---- file hỏng: KHÔNG được làm gãy ----
@@ -988,7 +988,7 @@ Tạo `server/skill_usage.py`:
 skill_usage.py - Sidecar TELEMETRY cho skill: đo skill nào THẬT SỰ được dùng.
 
 Vị trí: <brain>/Javis/skill-usage.json. Đặt cạnh Javis/loop-state.json theo đúng quy ước
-đã có của Javis ("STATE runtime tách riêng, server sở hữu" - xem self_improve.py). KHÔNG
+đã có của Jarvis 007 ("STATE runtime tách riêng, server sở hữu" - xem self_improve.py). KHÔNG
 nhét vào frontmatter SKILL.md: brain là git repo, mỗi lần dùng skill sẽ đẻ một commit rác
 và tạo áp lực xung đột lên file do người viết.
 
@@ -1020,7 +1020,7 @@ _LOCK = threading.Lock()   # serialize read-modify-write trong process
 
 
 def usage_path(brain_root) -> Path:
-    return Path(brain_root) / "Javis" / "skill-usage.json"
+    return Path(brain_root) / "Jarvis 007" / "skill-usage.json"
 
 
 def read_usage(brain_root) -> dict:
@@ -1286,7 +1286,7 @@ Trong `dashboard/studio.js`, trong `renderSkillList()`, ngay SAU dòng khai báo
         const when = s.last_used_at ? new Date(s.last_used_at * 1000).toLocaleDateString("vi-VN") : "";
         usageHtml = ` · <span class="sk-usage">đã dùng ${s.use_count} lần${when ? ", gần nhất " + when : ""}</span>`;
       } else if (s.stale) {
-        usageHtml = ` · <span class="sk-usage sk-stale" title="Javis chỉ đếm được skill nạp qua tool javis_use_skill. Claude Code nạp native qua .claude/skills thì không đếm được, nên đây chỉ là tham khảo - không có nghĩa skill vô dụng.">chưa thấy dùng</span>`;
+        usageHtml = ` · <span class="sk-usage sk-stale" title="Jarvis 007 chỉ đếm được skill nạp qua tool javis_use_skill. Claude Code nạp native qua .claude/skills thì không đếm được, nên đây chỉ là tham khảo - không có nghĩa skill vô dụng.">chưa thấy dùng</span>`;
       }
 ```
 
@@ -1610,7 +1610,7 @@ Trong `server/git_brain.py`, đổi khối 62-72 thành (chèn 1 dòng sau `Javi
 
 ```python
 _GITIGNORE = (
-    "# Javis brain - KHÔNG commit: khoá, log thô (có thể chứa secret), nhật ký nền.\n"
+    "# Jarvis 007 brain - KHÔNG commit: khoá, log thô (có thể chứa secret), nhật ký nền.\n"
     "# Git chỉ version TRI THỨC ĐÃ CHƯNG CẤT (facts/wiki/skills/MEMORY.md) → undo sạch, an toàn.\n"
     ".javis-learn.lock\n"
     "Javis/learn-staging/\n"
@@ -1751,7 +1751,7 @@ Expected: `vi pham: 0`. Mọi skill in `ok` với độ dài <= 150. Trước kh
 
 - [ ] **Step 3: Chạy app, xác nhận skill vẫn route được**
 
-Khởi động server, mở chat, hỏi một câu khớp trigger của một skill (vd "chuyển file html này sang webcake"). Expected: Javis nạp đúng skill `html-to-webcake`. Sau đó mở trang Skill, expected: `html-to-webcake` hiện `Đã dùng 1 lần`, chứng minh telemetry chạy end-to-end.
+Khởi động server, mở chat, hỏi một câu khớp trigger của một skill (vd "chuyển file html này sang webcake"). Expected: Jarvis 007 nạp đúng skill `html-to-webcake`. Sau đó mở trang Skill, expected: `html-to-webcake` hiện `Đã dùng 1 lần`, chứng minh telemetry chạy end-to-end.
 
 - [ ] **Step 4: Bump VERSION + CHANGELOG**
 

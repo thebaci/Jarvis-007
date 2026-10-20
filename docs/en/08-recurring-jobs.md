@@ -2,7 +2,7 @@
 
 *[Tiếng Việt](../08-viec-dinh-ky.md) · **English***
 
-The **Recurring jobs** page is where you hand Javis work that runs while you are not at the computer: jobs that repeat on a cycle (called **loops**) and reminders at a set time. Each loop wakes on its cycle, does exactly the one task you described, verifies itself, writes a log entry and messages the result to you on Telegram.
+The **Recurring jobs** page is where you hand Jarvis 007 work that runs while you are not at the computer: jobs that repeat on a cycle (called **loops**) and reminders at a set time. Each loop wakes on its cycle, does exactly the one task you described, verifies itself, writes a log entry and messages the result to you on Telegram.
 
 This page aggregates jobs from **every brain**, not just the one selected in the sidebar.
 
@@ -17,15 +17,15 @@ Two kinds of job share one page:
 
 The key difference: a loop counts the **gap** between runs, a reminder counts a **clock time**. "Scan orders every 2 hours" is a loop; "report revenue at 7am every day" is a reminder using cron.
 
-You can create **many loops in parallel**, each in its own file. But they run **sequentially**: at any moment the whole system runs exactly one iteration. Javis's scheduler checks every 30 seconds, and each check picks **one** loop, the one most overdue. So the real run time can drift a few dozen seconds from the cycle you set, and several loops due at once queue rather than overlapping.
+You can create **many loops in parallel**, each in its own file. But they run **sequentially**: at any moment the whole system runs exactly one iteration. Jarvis 007's scheduler checks every 30 seconds, and each check picks **one** loop, the one most overdue. So the real run time can drift a few dozen seconds from the cycle you set, and several loops due at once queue rather than overlapping.
 
 A loop **can read real data through MCP** (POS, ads, calendar, analytics...) to do its work. Whether it can write files or take real outside actions depends on the **permission level** you pick, see "The three permission levels" below.
 
 Loops can be edited directly by opening the `.md` file in Obsidian or the [File manager](05-file-manager.md) page. Run state (last run, iterations today, error streak) lives separately in `Javis/loop-state.json`, owned by the server, so you can edit the definition file without stepping on it.
 
-## Where to find it in Javis
+## Where to find it in Jarvis 007
 
-1. Open the Javis dashboard (`http://localhost:7777` by default).
+1. Open the Jarvis 007 dashboard (`http://localhost:7777` by default).
 2. In the left navigation rail, open the **Work** group.
 3. Click **Recurring jobs**.
 
@@ -48,9 +48,9 @@ Note: clicking **Edit** on an existing card locks and dims these two buttons. Th
 ### Step 3: Name and describe it
 
 - **Name**: the short name shown on the card, for example "Read email every 2 hours". Leaving it empty reports "Enter a name".
-- **Task description (each iteration, Javis does exactly this)**: this field is **required** and is the most important thing here. Javis does not invent work; each iteration it does exactly what you wrote here, then stops. Leaving it empty reports that Javis needs to know what each iteration should do.
+- **Task description (each iteration, Jarvis 007 does exactly this)**: this field is **required** and is the most important thing here. Jarvis 007 does not invent work; each iteration it does exactly what you wrote here, then stops. Leaving it empty reports that Jarvis 007 needs to know what each iteration should do.
 
-Choosing **⏰ Reminder** relabels the field to "Reminder content (Javis will remind you or do exactly this)", and the empty-field error becomes "Enter the reminder content".
+Choosing **⏰ Reminder** relabels the field to "Reminder content (Jarvis 007 will remind you or do exactly this)", and the empty-field error becomes "Enter the reminder content".
 
 Write the description as specifically as possible: say what to read, what to do, where to save it. Make it self-contained rather than relying on the current chat context, because it runs when nobody is there. For example:
 
@@ -69,8 +69,8 @@ Under the form there is a reminder line: Full power (default) = does everything 
 
 - **When**: the time field. See the full list of accepted forms in "What the When field understands" below. Leaving it empty reports an error with examples such as "in 30 minutes", "8:30", "0 7 * * *".
 - **Type**: two buttons, **⏰ Remind only** (preselected) and **🤖 Do it and report**.
-  - **⏰ Remind only**: at the set time, Javis sends a Telegram message starting with "⏰ Reminder: " followed by your text. No model call, no tokens.
-  - **🤖 Do it and report**: at the set time, Javis runs the engine to actually **do** the job and sends the result to Telegram.
+  - **⏰ Remind only**: at the set time, Jarvis 007 sends a Telegram message starting with "⏰ Reminder: " followed by your text. No model call, no tokens.
+  - **🤖 Do it and report**: at the set time, Jarvis 007 runs the engine to actually **do** the job and sends the result to Telegram.
 - **What it may do** (only shown for 🤖 Do it and report): three levels, defaulting to **Full power**.
   - **Read only**: reads real data through MCP and reads files, then reports. Writes nothing, does nothing outside.
   - **Write files**: adds permission to write draft files in the brain. The hub still blocks outside actions at this level.
@@ -94,19 +94,19 @@ Reminders are different: once created they are already queued, with nothing to s
 
 ## The three permission levels (loop modes)
 
-| Button in the form | Label on the card | What Javis may do |
+| Button in the form | Label on the card | What Jarvis 007 may do |
 |---|---|---|
 | **Full power** | full power | Everything open: every tool and every MCP, **real outside actions** without asking: create orders, run ads, publish posts, send messages. **The default** since 0.55.62. |
 | **Auto (drafts)** | auto (drafts) | Reads MCP and **can write files** in the brain (creating or editing draft notes). The hub blocks outside actions. Adds a self-verification step after each iteration. |
 | **Suggest (read-only)** | suggest | Read-only tools, including reading real data through MCP. **No file writes**. Each iteration gives 2 to 3 concrete suggested actions. |
 
-Before 0.55.62 Javis had a safety rule: background jobs could never spend money, create orders, publish or message customers on their own, so the default was Suggest and picking Full power went through two confirmation dialogs. The project owner removed that rule: Javis now acts on its own, and the two lighter levels remain as options for a specific loop you want read-only or drafts-only. A full-power loop runs in the background on a schedule with nobody approving each step, so describe its task with a clear scope.
+Before 0.55.62 Jarvis 007 had a safety rule: background jobs could never spend money, create orders, publish or message customers on their own, so the default was Suggest and picking Full power went through two confirmation dialogs. The project owner removed that rule: Jarvis 007 now acts on its own, and the two lighter levels remain as options for a specific loop you want read-only or drafts-only. A full-power loop runs in the background on a schedule with nobody approving each step, so describe its task with a clear scope.
 
 ## What the "When" field understands
 
 It accepts four shapes, with the placeholder showing `in 30 minutes · 8:30 · 0 7 * * * · 2026-07-20 09:00`:
 
-| You type | Javis reads it as |
+| You type | Jarvis 007 reads it as |
 |---|---|
 | `in 30 minutes`, `in 2 hours`, `1.5 hours`, `3 days` | A countdown from now. Units accepted: minutes, hours, days. |
 | `8h30`, `8:30`, `8h` | A time of day. If it already passed, it moves to **tomorrow**. |
@@ -131,7 +131,7 @@ Next to it, three filters: **All**, **Repeating job** and **Reminder**.
 
 **10 cards** a page, with **← Previous** and **Next →** and a count line such as "Page 1/2 · 14 items". Changing the brain, the filter or the search goes back to the first page.
 
-If the brain has no jobs, it reads "No jobs in this brain yet. Click **+ Add job**, or tell Javis in chat."
+If the brain has no jobs, it reads "No jobs in this brain yet. Click **+ Add job**, or tell Jarvis 007 in chat."
 
 ### The search box
 
@@ -144,7 +144,7 @@ The card starts with `🔁 <job name>` and its slug (the file name) dimmed besid
 | Status | Meaning |
 |---|---|
 | ⏳ running | This job's iteration is running right now |
-| ⚠ auto-paused | It failed 3 times in a row so Javis locked it, see "Auto-pause" |
+| ⚠ auto-paused | It failed 3 times in a row so Jarvis 007 locked it, see "Auto-pause" |
 | ● on | Enabled, running on its cycle |
 | ○ off | Disabled, not running (the card is dimmed) |
 
@@ -176,7 +176,7 @@ On a loop card:
 - **▶ Run now**: run one iteration immediately, without waiting for the cycle. The button reads "Running..." and the list reloads after about 2.5 seconds. Note: this button does **not** save an open form; it runs what is saved in the file. Running now also clears an auto-pause, because it is a deliberate action on your part.
 - **Edit**: reopen the form with this job's content.
 - **Delete**: asks to confirm, then removes `Javis/loops/<slug>.md` entirely.
-- **Move to brain…**: a picker to move the job to another brain, keeping its file and run state. If the target brain already has a job with the same name, Javis refuses and reports the error rather than overwriting. A running job cannot be moved; try again later.
+- **Move to brain…**: a picker to move the job to another brain, keeping its file and run state. If the target brain already has a job with the same name, Jarvis 007 refuses and reports the error rather than overwriting. A running job cannot be moved; try again later.
 
 On a reminder card:
 
@@ -185,17 +185,17 @@ On a reminder card:
 - **Delete**: remove it entirely, with no undo.
 - **Move to brain…**: move it to another brain, keeping its id and every setting.
 
-## Without Telegram connected, Javis will not create a schedule
+## Without Telegram connected, Jarvis 007 will not create a schedule
 
-Reminders and "do it and report" jobs are only worth anything if, when the time comes, they can **tell someone**, and the only reporting channel today is Telegram. If the Telegram bot is off, has no token, or has no allowed Chat ID, Javis **refuses to create** the job and says exactly what is missing, with a link to the [Channels](11-telegram.md) page to connect it.
+Reminders and "do it and report" jobs are only worth anything if, when the time comes, they can **tell someone**, and the only reporting channel today is Telegram. If the Telegram bot is off, has no token, or has no allowed Chat ID, Jarvis 007 **refuses to create** the job and says exactly what is missing, with a link to the [Channels](11-telegram.md) page to connect it.
 
-This used to be the biggest source of confusion: Javis would build a "report email and calendar every morning" job, the job would run on time, and the result reached nobody, with nothing telling you Telegram was missing.
+This used to be the biggest source of confusion: Jarvis 007 would build a "report email and calendar every morning" job, the job would run on time, and the result reached nobody, with nothing telling you Telegram was missing.
 
-If you still want to create it (planning to connect Telegram later), click **Create anyway** next to the warning. The job runs on time and its result is stored in Javis, it simply goes nowhere.
+If you still want to create it (planning to connect Telegram later), click **Create anyway** next to the warning. The job runs on time and its result is stored in Jarvis 007, it simply goes nowhere.
 
 When the Recurring jobs page detects that no reporting channel exists, it shows a warning strip at the top, because jobs created earlier are still running and still not reaching you.
 
-Scheduling in words through chat follows the same rule: Javis must check first whether the data sources are connected and whether there is a place to report to, and if something is missing it says so and asks, rather than creating something for the sake of it.
+Scheduling in words through chat follows the same rule: Jarvis 007 must check first whether the data sources are connected and whether there is a place to report to, and if something is missing it says so and asks, rather than creating something for the sake of it.
 
 ## Run now and stopping the running iteration
 
@@ -207,7 +207,7 @@ While an iteration is running, the page refreshes the list every 5 seconds so yo
 
 ## The self-verification step
 
-In **Auto (drafts)** and **Full power** modes, after the work is done Javis runs an independent check: a reviewer assumes the result is WRONG, then rereads the relevant files to compare. This verification pass is **always read-only**, even for full-power jobs.
+In **Auto (drafts)** and **Full power** modes, after the work is done Jarvis 007 runs an independent check: a reviewer assumes the result is WRONG, then rereads the relevant files to compare. This verification pass is **always read-only**, even for full-power jobs.
 
 The step is skipped if the iteration failed, or if the result says there was no new work.
 
@@ -224,13 +224,13 @@ The result appears as **✓ Pass** or **✗ Fail** with a short reason, both on 
 
 ## Auto-pause after 3 failures
 
-If a loop fails **3 times in a row** (engine errors, or ✗ Fail verifications), Javis locks it and records the reason, for example "Auto-paused 20/07 14:35: 3 consecutive failures or failed verifications". The card switches to **⚠ auto-paused** and stops running until you intervene.
+If a loop fails **3 times in a row** (engine errors, or ✗ Fail verifications), Jarvis 007 locks it and records the reason, for example "Auto-paused 20/07 14:35: 3 consecutive failures or failed verifications". The card switches to **⚠ auto-paused** and stops running until you intervene.
 
 That reason is written to runtime state and does **not** modify your `.md` file. To resume, click **Enable** or **▶ Run now** on the card; both clear the lock and reset the failure streak. Before resuming, read the log to see what broke.
 
 ## Reporting to Telegram
 
-This is Javis's default behaviour: **every finished iteration sends its result to Telegram**, to whoever asked for that job. The message starts with `✅ Loop '<job name>' just ran...` (or `⚠` on failure), then the summary and the verification line.
+This is Jarvis 007's default behaviour: **every finished iteration sends its result to Telegram**, to whoever asked for that job. The message starts with `✅ Loop '<job name>' just ran...` (or `⚠` on failure), then the summary and the verification line.
 
 Who receives it:
 
@@ -250,7 +250,7 @@ On the **Log** tab. Next to the title is a picker to filter:
 - **Log for the brain you are viewing**: every loop of the brain selected in the sidebar.
 - Or one specific job, shown as `<job name> · <brain name>`.
 
-Javis loads the 200 most recent entries and paginates **10 per page**, with **← Previous** and **Next →** buttons and a counter reading "Page 1/5 · 47 entries". With nothing yet it reads "No log entries."
+Jarvis 007 loads the 200 most recent entries and paginates **10 per page**, with **← Previous** and **Next →** buttons and a counter reading "Page 1/5 · 47 entries". With nothing yet it reads "No log entries."
 
 Each entry starts with a heading such as `## [2026-07-20 14:35] doc-source · loop (custom/auto) - scheduled`, where `scheduled` means it ran on schedule and `manual` means you clicked **▶ Run now**. Below is the summary of what it did, a **Verification** line where present, and a warning line if that iteration is what auto-paused the job.
 
@@ -258,7 +258,7 @@ The log also exists in the brain as real files: `Javis/loop-log/YYYY-MM-DD.md`, 
 
 ## Scheduling in words through chat
 
-You do not have to use this page. Tell Javis directly in [Chat](02-chat-and-voice.md) or over Telegram, for example:
+You do not have to use this page. Tell Jarvis 007 directly in [Chat](02-chat-and-voice.md) or over Telegram, for example:
 
 - "Create a job that scans new orders every 2 hours and summarises them."
 - "Remind me every day at 7am to check yesterday's revenue."
@@ -266,16 +266,16 @@ You do not have to use this page. Tell Javis directly in [Chat](02-chat-and-voic
 - "Is anything still running?"
 - "Cancel the order scanning job."
 
-Javis uses the `javis_schedule` tool (a bundled plugin) to pick the right store: interval schedules become files in `Javis/loops/`; fixed repeating times and one-shots go into the reminder store. The tool sets a proper slug and **blocks duplicate names**: if a job with that name exists, it reports an error and tells you to edit the old one rather than spawning a copy.
+Jarvis 007 uses the `javis_schedule` tool (a bundled plugin) to pick the right store: interval schedules become files in `Javis/loops/`; fixed repeating times and one-shots go into the reminder store. The tool sets a proper slug and **blocks duplicate names**: if a job with that name exists, it reports an error and tells you to edit the old one rather than spawning a copy.
 
 Two hard safety rails on this path, which no parameter can change:
 
 - A loop created through chat is **always** `enabled: false`, and defaults to `mode: full` (say "read only" or "drafts only" for a lighter one). You must open the Recurring jobs page and click **Enable** for it to run for real.
 - If the cycle is unclear (you said "every morning" without a time), the tool reports an error and asks back, never guessing.
 
-## Webhooks: outside systems start work in Javis
+## Webhooks: outside systems start work in Jarvis 007
 
-Reminders run on the clock. A webhook runs on an **event**: a customer just filled the form on a landing page, just paid, or another app just has new data, and Javis starts at once instead of waiting for the next scheduled run.
+Reminders run on the clock. A webhook runs on an **event**: a customer just filled the form on a landing page, just paid, or another app just has new data, and Jarvis 007 starts at once instead of waiting for the next scheduled run.
 
 **Create a webhook:** from 0.204.0 webhooks have their own page: open the **Work** group in the sidebar, choose **Webhooks**, click **+ Add webhook**. Name it, pick a brain, then choose what runs:
 
@@ -284,38 +284,38 @@ Reminders run on the clock. A webhook runs on an **event**: a customer just fill
 
 Pick the permission level as for a reminder (Read only, Can write files, Full access), then **Save**.
 
-**The secret is shown only once**, right after saving, together with a `curl` command to test it. The calling system sends it in the `Authorization: Bearer <token>` header (or the `X-Javis-Token` header, or `?token=` at the end of the link when it cannot set headers). Javis keeps only a hash, so if you lose it press **New token**; the old one stops working at once.
+**The secret is shown only once**, right after saving, together with a `curl` command to test it. The calling system sends it in the `Authorization: Bearer <token>` header (or the `X-Javis-Token` header, or `?token=` at the end of the link when it cannot set headers). Jarvis 007 keeps only a hash, so if you lose it press **New token**; the old one stops working at once.
 
-**Where results go:** like a reminder, to the brain's Javis Core chat, the inbox (bell) and your Telegram. A result starting with `[SILENT]` is not reported.
+**Where results go:** like a reminder, to the brain's Jarvis 007 Core chat, the inbox (bell) and your Telegram. A result starting with `[SILENT]` is not reported.
 
 **Safety rails:**
 
 - A wrong token, a switched-off webhook and an unknown one all get the same refusal, so nobody can probe.
 - The event data reaches the brain as **data**, not instructions. 32 KB per call at most.
 - Each webhook runs one job at a time, queues at most 5, and runs at most 30 times an hour.
-- When the sender retries after a network glitch (sending an `Idempotency-Key` or `X-Request-Id` header), Javis acknowledges it without running twice.
+- When the sender retries after a network glitch (sending an `Idempotency-Key` or `X-Request-Id` header), Jarvis 007 acknowledges it without running twice.
 
-**The link must be reachable from the Internet.** On a VPS with a domain it works as is. On a home machine you need a tunnel (Cloudflare Tunnel, Tailscale Funnel) pointing at Javis.
+**The link must be reachable from the Internet.** On a VPS with a domain it works as is. On a home machine you need a tunnel (Cloudflare Tunnel, Tailscale Funnel) pointing at Jarvis 007.
 
-## Background health: Javis Core handles incidents
+## Background health: Jarvis 007 Core handles incidents
 
-When a background run breaks (a Kanban job, a loop that paused itself, a Do it and report reminder, a webhook), the brain's **Javis Core** hears first and decides one of three things:
+When a background run breaks (a Kanban job, a loop that paused itself, a Do it and report reminder, a webhook), the brain's **Jarvis 007 Core** hears first and decides one of three things:
 
 - **Run it again once** for a passing failure (a network glitch, a timeout, a busy machine). Only for Kanban jobs and reminders; loops and webhooks are not re-run on their own.
 - **Tell you** in one or two sentences when only you can fix it: a sign-in, an API key, a permission, a plan out of quota, a connection not made, a job switched off.
 - **Stay quiet** when it already recovered.
 
-The background model decides in text-only mode (no tools), but Javis keeps the hard rules: a sign-in or key error is never re-run, each incident is re-run at most once, and a retry that fails again sends exactly one message. With no model ready, Javis classifies by the error text.
+The background model decides in text-only mode (no tools), but Jarvis 007 keeps the hard rules: a sign-in or key error is never re-run, each incident is re-run at most once, and a retry that fails again sends exactly one message. With no model ready, Jarvis 007 classifies by the error text.
 
-The **Incidents** tab of the Recurring jobs page lists open incidents (press **Done** to close one) and the last 24 hours of failures grouped by cause. To stop reporting to Javis Core, set `incidents.enabled` to `false` in the settings.
+The **Incidents** tab of the Recurring jobs page lists open incidents (press **Done** to close one) and the last 24 hours of failures grouped by cause. To stop reporting to Jarvis 007 Core, set `incidents.enabled` to `false` in the settings.
 
-**When Javis will not open:** run `python tools/sentinel.py` on the server. It only reads data, calls no model, and prints the failures grouped by cause; add `--json` for a machine-readable copy and `--out <folder>` to save a report (the folder must be outside Javis's data folder).
+**When Jarvis 007 will not open:** run `python tools/sentinel.py` on the server. It only reads data, calls no model, and prints the failures grouped by cause; add `--json` for a machine-readable copy and `--out <folder>` to save a report (the folder must be outside Jarvis 007's data folder).
 
 ## Reminders that remember the last result
 
 A **Do it and report** reminder has a **Remember the last result** box. With it on, each run receives the previous report (up to 2,000 characters), so it reports only what is new or changed. Good for watching competitor prices, a metric or an inbox.
 
-A cron schedule also shows its **next three runs** on the card. A run missed because the machine was off still runs once when it comes back, and Javis is told it is running late so it works from the current time.
+A cron schedule also shows its **next three runs** on the card. A run missed because the machine was off still runs once when it comes back, and Jarvis 007 is told it is running late so it works from the current time.
 
 ## Advanced fields (editable only in the .md file)
 
@@ -388,13 +388,13 @@ The **file body** (below the second `---`) is exactly the "Task description" you
 
 **A loop complains that there is no business data.** It can only read real numbers once you connect a source. Go to [Connections & business data](09-connections-and-business-data.md) to connect a POS, ads account or sales channel. With no source, the iteration stops and says so in one line.
 
-**The job list will not load.** The page shows "Could not load the job list (slow network or timeout)" with a **Retry** link. On a weak VPS or a very large brain, the first load can take too long; Javis already retried once before reporting. Click **Retry**.
+**The job list will not load.** The page shows "Could not load the job list (slow network or timeout)" with a **Retry** link. On a weak VPS or a very large brain, the first load can take too long; Jarvis 007 already retried once before reporting. Click **Retry**.
 
 **You created a job over Telegram and cannot see it on the dashboard.** It landed in another brain. This page aggregates every brain, so scroll to the other `🧠` blocks, or type the job name into the search box. To move it where it belongs, use **Move to brain…** on the card.
 
 **No Telegram messages arrive.** Check that the bot is enabled and the Chat ID is in the allow list, see [Telegram channel](11-telegram.md). Also check whether the job file has `notify: false`.
 
-**You edited the .md file and the loop vanished from the list.** The file has broken frontmatter (a missing `---` pair, or invalid YAML), so Javis skips it. Reopen the file, compare it with another working loop file, and fix the shape.
+**You edited the .md file and the loop vanished from the list.** The file has broken frontmatter (a missing `---` pair, or invalid YAML), so Jarvis 007 skips it. Reopen the file, compare it with another working loop file, and fix the shape.
 
 ## Related
 

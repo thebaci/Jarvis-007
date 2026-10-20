@@ -9,7 +9,7 @@ Dashboard đang dùng ~400 emoji dán trực tiếp vào chuỗi HTML làm icon.
 
 1. **Mỗi máy vẽ một kiểu.** Emoji do font hệ thống vẽ, nên Windows, macOS, Android
    và Linux ra bốn hình khác nhau. Không kiểm soát được hình dạng.
-2. **Cứng màu, không theo tông.** Javis có tông TỐI và tông SÁNG. Emoji không nhận
+2. **Cứng màu, không theo tông.** Jarvis 007 có tông TỐI và tông SÁNG. Emoji không nhận
    `color`, nên ở tông sáng nó chọc vào mắt và lệch hẳn khỏi bảng màu.
 3. **Nét không đồng bộ.** Emoji màu đứng cạnh ký hiệu hình học (`✕ ↻ ▾`) cho ra
    giao diện chắp vá, không có cảm giác một bộ.
@@ -34,7 +34,7 @@ tông và theo màu chữ chỗ nó đứng, giống nhau trên mọi máy.
 - **Emoji trong tin nhắn Telegram phía server.** Telegram tự render emoji đều trên
   mọi thiết bị nên không có vấn đề hiển thị, và tin nhắn không phải giao diện web.
 - **`dashboard/vendor/`** (mã của người khác), `dashboard/docs/`, `voice-test.html`
-  (trang lẻ đứng riêng, không thuộc giao diện Javis).
+  (trang lẻ đứng riêng, không thuộc giao diện Jarvis 007).
 
 ## Cách làm: vendor bộ rút gọn + hàm trả chuỗi
 
@@ -128,7 +128,7 @@ Không phải thay máy móc từng ký tự: cùng một ký tự mang nghĩa k
 
 | Cũ | Mới | Mục |
 |---|---|---|
-| `⬡` | `hexagon` | Javis OS |
+| `⬡` | `hexagon` | Jarvis 007 |
 | `💬` | `message-circle` | Trò chuyện |
 | `🤖` | `bot` | Agents |
 | `🧩` | `puzzle` | Skills |

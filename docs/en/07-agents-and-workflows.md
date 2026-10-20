@@ -6,14 +6,14 @@ This is where you create specialised AI assistants (Agents) and chain them into 
 
 ## What this feature is
 
-- **An Agent** is an "AI employee" with a fixed role. Each agent has: a name, a role description, a detailed working instruction (system prompt), a list of skills it may use, a **model to run on**, and its **own memory** that accumulates over time. The model can come from **any provider you connected** on the Models page: Claude (Claude Code), ChatGPT (Codex), Grok Build CLI, Antigravity CLI, OpenRouter, Anthropic API, OpenAI, Google Gemini, Groq. The picker reads straight from your connected providers, so connecting more adds more choices. Every provider can read and write vault files and use MCP; Claude Code and Codex additionally have shell commands and can browse the web. If the chosen provider fails at runtime, Javis falls back to another brain rather than leaving the agent silent. (Ollama cannot run agents yet, so it does not appear here.) An agent's model is REALLY applied when the workflow runs.
+- **An Agent** is an "AI employee" with a fixed role. Each agent has: a name, a role description, a detailed working instruction (system prompt), a list of skills it may use, a **model to run on**, and its **own memory** that accumulates over time. The model can come from **any provider you connected** on the Models page: Claude (Claude Code), ChatGPT (Codex), Grok Build CLI, Antigravity CLI, OpenRouter, Anthropic API, OpenAI, Google Gemini, Groq. The picker reads straight from your connected providers, so connecting more adds more choices. Every provider can read and write vault files and use MCP; Claude Code and Codex additionally have shell commands and can browse the web. If the chosen provider fails at runtime, Jarvis 007 falls back to another brain rather than leaving the agent silent. (Ollama cannot run agents yet, so it does not appear here.) An agent's model is REALLY applied when the workflow runs.
   - Safety note: when a workflow runs **automatically in the background** (the Kanban dispatcher, restricted file-tool mode), the agent always uses Claude Code to keep the safe tool restrictions, even if you picked another provider. Your chosen model applies when you send a message on the **Partners** page.
 - **A Workflow** is a chain of steps, each handing one task to one agent. The result of a step can flow into the next. You can attach a **verification step**: another agent playing the reviewer, which by default assumes the result is wrong and must be proven otherwise; if it fails, the workflow retries a few times.
-- Every agent and workflow is stored as an **.md file in the vault** (the selected brain), so you can read them, edit them by hand, and Javis can create them from chat.
+- Every agent and workflow is stored as an **.md file in the vault** (the selected brain), so you can read them, edit them by hand, and Jarvis 007 can create them from chat.
 
 Related: choosing an agent model in [Models & engines](10-models-and-engines.md); creating and enabling skills to assign in [Skills](06-skills.md).
 
-## Where to find it in Javis
+## Where to find it in Jarvis 007
 
 Open **Capabilities > Partners** in the dashboard sidebar (port 7777 by default). The page has **Agents | Workflows** tabs. Skills and Plugins remain in Capabilities.
 
@@ -30,19 +30,19 @@ On narrow screens, use the list and details buttons to open the side drawers. Sw
 3. Edit its name, role, instructions, skills or model on the right and click **Save**.
 4. Use the new conversation button to start a separate chat with the same agent. Each agent can have several conversations; reopen recent conversations on the right to continue.
 
-Partner conversations are separate from Javis's main chat history. Returning to a partner resumes its most recent conversation.
+Partner conversations are separate from Jarvis 007's main chat history. Returning to a partner resumes its most recent conversation.
 
 ### Unread messages and muting
 
 From 0.205.0 the partner list works like a message list:
 
-- A partner with a new message (you wrote, the partner replied, or a background job reported into its chat) **moves to the top**. Javis Core and the **Pinned** ones still come first.
+- A partner with a new message (you wrote, the partner replied, or a background job reported into its chat) **moves to the top**. Jarvis 007 Core and the **Pinned** ones still come first.
 - A partner card shows its **unread count** in the bottom corner, next to the time. Opening that partner's chat clears it, in every open tab.
 - Each card's **⋮** button has **Mute notifications**, with **For 1 hour**, **For 4 hours**, **Until 8:00 AM** or **Until turned back on**. A muted card shows a crossed-out bell and a grey unread count. Messages still reach the chat and the bell, just without a sound or a push notification. Press **Unmute notifications** to turn them back on.
 
-## Creating, searching and Javis Store
+## Creating, searching and Jarvis 007 Store
 
-Choose a tab and use the create agent or workflow button at the bottom of the left column. **Javis Store** opens the matching package catalogue. Agents are sorted by **tags**, workflows by **group** (see below).
+Choose a tab and use the create agent or workflow button at the bottom of the left column. **Jarvis 007 Store** opens the matching package catalogue. Agents are sorted by **tags**, workflows by **group** (see below).
 
 Search matches names, slugs, roles, descriptions and tag names, and supports accent-free typing. Search and the tag filter (group filter on the Workflows tab) work together. Unused items follow recently used items, ordered by name.
 
@@ -71,7 +71,7 @@ A tag is **not** a chat group: tagging adds the agent to no group chat. It also 
 | **Skills** | The skills available in the vault; tick the ones the agent may use. | Pick skills matching the role |
 | **Model** | A picker with 8 options, see the table below. | Sonnet for balance, Opus for deep reasoning, Haiku for fast and cheap |
 
-4. Click **Save**. If you forget the Name, Javis says "Enter a name".
+4. Click **Save**. If you forget the Name, Jarvis 007 says "Enter a name".
 5. The new agent card appears in the list with a 🤖 icon, the model name and the assigned skill labels. With no skills assigned, the card reads "no skills assigned".
 
 A note on the Skills field: the list comes from the vault's skill folder. If the vault has no skills, the panel says so and notes that you can create the agent now and assign skills later. Creating skills is covered on the [Skills](06-skills.md) page.
@@ -91,18 +91,18 @@ A note on the Skills field: the list comes from the vault's skill folder. If the
 
 Under the Model field there is a note: agents run through the provider's CLI, so choosing Claude means Claude Code and choosing ChatGPT means Codex (which requires being signed into ChatGPT on the machine or VPS). Both read and write vault files and use MCP.
 
-**What "Default (per CLI)" really does:** left empty, Javis takes the **auxiliary model** you set on the **Models** page first (only when that auxiliary model is a Claude model); with no Claude auxiliary model it falls back to the CLI's default. If you want an agent to always run on one specific model regardless of the global configuration, pick that model explicitly instead of leaving it empty.
+**What "Default (per CLI)" really does:** left empty, Jarvis 007 takes the **auxiliary model** you set on the **Models** page first (only when that auxiliary model is a Claude model); with no Claude auxiliary model it falls back to the CLI's default. If you want an agent to always run on one specific model regardless of the global configuration, pick that model explicitly instead of leaving it empty.
 
 ### An agent's own memory and run log
 
 Besides the `.md` file, each agent has two more things inside the brain's `memory/agents/<slug>/` folder:
 
-- **`MEMORY.md`, its own memory.** Every time the agent runs, Javis reads this file and injects it into the agent's system prompt under the heading `# Your memory:`. This is where long-term knowledge accumulates: house conventions, a client list, mistakes it was corrected on. The file has **two writers**: you by hand, and the agent **adding to it as it runs**. At the end of a task, if it learned something reusable, the agent proposes it and Javis writes it into the `## Lessons (self-learned)` section. Javis holds the pen rather than the model, so there are hard rails: duplicate lessons are dropped, only the 15 newest lines are kept so the memory gets denser rather than longer, and the part you wrote by hand outside that section is never touched. That means the agent gets smarter with each use, with no bulk background job.
-- **`runs/`, the run log.** After each workflow step (verification steps included), Javis appends an entry to `runs/<YYYY-MM-DD>.md` with the time, the task given and the result (trimmed). This is where you check "what did this agent do yesterday" without reopening the run panel. This raw log does not go into the brain's git history.
+- **`MEMORY.md`, its own memory.** Every time the agent runs, Jarvis 007 reads this file and injects it into the agent's system prompt under the heading `# Your memory:`. This is where long-term knowledge accumulates: house conventions, a client list, mistakes it was corrected on. The file has **two writers**: you by hand, and the agent **adding to it as it runs**. At the end of a task, if it learned something reusable, the agent proposes it and Jarvis 007 writes it into the `## Lessons (self-learned)` section. Jarvis 007 holds the pen rather than the model, so there are hard rails: duplicate lessons are dropped, only the 15 newest lines are kept so the memory gets denser rather than longer, and the part you wrote by hand outside that section is never touched. That means the agent gets smarter with each use, with no bulk background job.
+- **`runs/`, the run log.** After each workflow step (verification steps included), Jarvis 007 appends an entry to `runs/<YYYY-MM-DD>.md` with the time, the task given and the result (trimmed). This is where you check "what did this agent do yesterday" without reopening the run panel. This raw log does not go into the brain's git history.
 
 Both are ordinary text files: open, read and edit them through [File manager](05-file-manager.md). To teach an agent something, write it straight into `memory/agents/<slug>/MEMORY.md` and it knows on the next run.
 
-To be clear: this memory belongs to **one agent**; Javis's shared memory about you and the business lives in `memory/MEMORY.md` and `memory/facts/`, see [Second Brain: memory, Wiki, INGEST](13-second-brain.md).
+To be clear: this memory belongs to **one agent**; Jarvis 007's shared memory about you and the business lives in `memory/MEMORY.md` and `memory/facts/`, see [Second Brain: memory, Wiki, INGEST](13-second-brain.md).
 
 ### Editing or deleting an agent
 
@@ -126,7 +126,7 @@ Create at least one agent in the **Agents** tab before creating a workflow.
      - `{{prev}}` = the result of the immediately preceding step.
    - A **Verification** section (optional): pick an agent to review this step, and how many retries are allowed. Leave it at "- no verification -" if not needed. The retry count defaults to 1 and ranges from 0 to 5.
 5. Click **+ Step** to add another step.
-6. Click **Save**. If you forget the Name, Javis says "Enter a name". New workflows are saved in the ready (active) state.
+6. Click **Save**. If you forget the Name, Jarvis 007 says "Enter a name". New workflows are saved in the ready (active) state.
 
 ### A step's header row
 
@@ -143,7 +143,7 @@ Each step has a header row, left to right:
 
 **Collapsing and expanding steps:** click the header row (an empty part, not a button or picker) to collapse or expand that step's body. Opening an existing workflow to **edit** collapses every step by default so you see the whole pipeline first; click a step to open it. A **new** workflow has only one step, so it opens expanded.
 
-Text you are typing is not lost when you collapse, reorder or delete another step; Javis captures every step's content before each redraw.
+Text you are typing is not lost when you collapse, reorder or delete another step; Jarvis 007 captures every step's content before each redraw.
 
 ### A 2-step example
 
@@ -163,19 +163,19 @@ Select a workflow in the left column. The right column has **Edit**, **Export** 
 4. If approval is required, read the request and use the approval button on the right to continue. Errors and waiting states also appear in chat.
 5. The final result arrives in chat. The next message in the same conversation includes the previous result, so you can request a revision, such as "Keep the main points but make it shorter".
 
-**Run history** on the right lists recent runs. Select a run to inspect its details and reopen its conversation when it has a chat session. Recently run workflows move to the top of the list. In Javis's main chat you can also ask "How did the latest workflow run go?" to query saved runs from Partners and Kanban.
+**Run history** on the right lists recent runs. Select a run to inspect its details and reopen its conversation when it has a chat session. Recently run workflows move to the top of the list. In Jarvis 007's main chat you can also ask "How did the latest workflow run go?" to query saved runs from Partners and Kanban.
 
 Each step still writes its agent log under `memory/agents/<slug>/runs/`. After a connection loss, check run history before sending the request again to avoid duplicate runs.
 
 ## Creating agents and workflows in words (through chat)
 
-You are not required to use the form. In the chat with Javis (see [Chat & voice](02-chat-and-voice.md)) you can ask in words, for example:
+You are not required to use the form. In the chat with Jarvis 007 (see [Chat & voice](02-chat-and-voice.md)) you can ask in words, for example:
 
 - "Create an agent that writes sales emails."
 - "Create a workflow that researches then writes an article."
 - "Add an editing step to workflow X."
 
-Javis then writes the matching .md file into the vault, sets an accent-free slug, tags an agent or files a workflow in a group (reading the tags and groups already used in the brain and picking the closest), assigns sensible skills from what exists, and if a workflow references an agent that does not exist yet, creates that agent first. Afterwards Javis reports briefly which files it created or edited. Return to the Partners page and they are there, with nothing else to do.
+Jarvis 007 then writes the matching .md file into the vault, sets an accent-free slug, tags an agent or files a workflow in a group (reading the tags and groups already used in the brain and picking the closest), assigns sensible skills from what exists, and if a workflow references an agent that does not exist yet, creates that agent first. Afterwards Jarvis 007 reports briefly which files it created or edited. Return to the Partners page and they are there, with nothing else to do.
 
 This is handy when you can describe the intent in words but do not want to fill in forms, or when you want to adjust several steps at once.
 
@@ -183,14 +183,14 @@ This is handy when you can describe the intent in words but do not want to fill 
 
 In the current brain layout, each agent is a file at `agents/<slug>.md` and each workflow at `workflows/<slug>.md`. The `slug` is lowercase, hyphenated and accent-free (so "viết email" becomes `viet-email`).
 
-**Older brains that have not migrated** keep those two folders at `Javis/agents/` and `Javis/workflows/`. Javis detects it: if the new folder exists it uses it, otherwise it uses the old path. So if the Files page shows no `agents/` at the brain root, look inside `Javis/`.
+**Older brains that have not migrated** keep those two folders at `Javis/agents/` and `Javis/workflows/`. Jarvis 007 detects it: if the new folder exists it uses it, otherwise it uses the old path. So if the Files page shows no `agents/` at the brain root, look inside `Javis/`.
 
 Because they are text files, you can open them through [File manager](05-file-manager.md) to read or edit by hand. The file structure:
 
 - Agent: the frontmatter holds the name, role, tags (`tags`, a list), skill list and model; the body is the detailed system prompt. Its own memory and run log live outside this file, in `memory/agents/<slug>/`.
 - Workflow: the frontmatter holds the name, status (active or off), group (`group`), description and the list of steps (each with an agent, a task, and optionally a verifying agent plus a retry count).
 
-Editing by hand works too. Agent: write `tags: [Marketing, Writing]`; once `tags` is present (even `tags: []`) Javis reads only it. An old agent file with just `group: Marketing` still reads as one Marketing tag; the first save adds `tags` and keeps `group` as the first tag so an older Javis can still read it. Workflows and skills use `group`; without it they land in "Chung".
+Editing by hand works too. Agent: write `tags: [Marketing, Writing]`; once `tags` is present (even `tags: []`) Jarvis 007 reads only it. An old agent file with just `group: Marketing` still reads as one Marketing tag; the first save adds `tags` and keeps `group` as the first tag so an older Jarvis 007 can still read it. Workflows and skills use `group`; without it they land in "Chung".
 
 Edit and save a file and the Partners page picks up the new content on the next load.
 
@@ -210,7 +210,7 @@ Edit and save a file and the Partners page picks up the new content on the next 
 You can package an agent, skill or workflow into **one `.zip`** to send to someone else, and take someone else's package into your brain.
 
 - **Export:** each agent / skill / workflow card has a **⤓ Export** button that downloads a `.zip`. The package **includes dependencies** so the recipient can run it immediately: exporting a workflow includes the agents it uses and those agents' skills; exporting an agent includes its skills. **System** skills are not packaged, because every brain already has them.
-- **Safety:** on import, Javis blocks unusual paths inside the package (nothing may be written outside the agent/skill/workflow folders) and limits the size to guard against malicious files. Even so, only import packages from sources you trust, because skill content is instructions the AI follows.
+- **Safety:** on import, Jarvis 007 blocks unusual paths inside the package (nothing may be written outside the agent/skill/workflow folders) and limits the size to guard against malicious files. Even so, only import packages from sources you trust, because skill content is instructions the AI follows.
 
 Note: an exported package only contains definition files. **An agent's memory and run log do not travel with it**, so the recipient gets the role and the skills, not the memories.
 
@@ -218,7 +218,7 @@ Note: an exported package only contains definition files. **An agent's memory an
 
 On the Teams page, a team's **⋯** menu has **Share team**: it downloads one `.team.javis.zip` file with the team's partners, their skills, the leader and the pinned messages (as shared instructions). The file holds **no** chat history, keys, passwords, models or Auto switches; text that looks like an API key, a bot token or a `password: ...` line is replaced with `[REDACTED]` before writing.
 
-The person who receives it presses **Import team** at the top of the team list, picks the file, sees which partners and how many skills come in, and confirms. A partner already in the brain under the same name keeps the receiver's version; models and Auto are the receiver's choice afterwards. An older Javis can still open the file with the Import button on the Partners page (it then adds the partners without building the team).
+The person who receives it presses **Import team** at the top of the team list, picks the file, sees which partners and how many skills come in, and confirms. A partner already in the brain under the same name keeps the receiver's version; models and Auto are the receiver's choice afterwards. An older Jarvis 007 can still open the file with the Import button on the Partners page (it then adds the partners without building the team).
 
 Every chat turn that creates, edits or removes a schedule, loop, partner, workflow or skill also leaves a small line under the answer ("Created schedule: ..."). New items get an **Undo** button: it cancels the schedule or deletes the loop, partner, workflow or skill just created.
 
@@ -248,7 +248,7 @@ The Team tab has a **Department mandate** section. Older teams have none, so not
 - **Scope**, **observe every**, **observations per day**, **jobs it may open per day**, and **stop opening jobs at N open jobs**.
 - For each kind of opportunity (documents changed, Kanban job failed, check command failing, connection down) pick: **Only record it**, **Propose it to me**, **Open a job, wait for my approval** or **Open the job itself**.
 
-Javis reads the sources with code, no model. A source it cannot read shows as **missing** with the reason; no problem is made up. A change becomes an **opportunity** with its source, data version, a reason tied to the outcome and the benefit. The same data never opens twice, an opportunity you **Skip** only returns when the data changes, each source has a cooldown, and a proposal left for 48 hours expires. Past the day's job budget or the open-job limit it only proposes.
+Jarvis 007 reads the sources with code, no model. A source it cannot read shows as **missing** with the reason; no problem is made up. A change becomes an **opportunity** with its source, data version, a reason tied to the outcome and the benefit. The same data never opens twice, an opportunity you **Skip** only returns when the data changes, each source has a cooldown, and a proposal left for 48 hours expires. Past the day's job budget or the open-job limit it only proposes.
 
 A job the mandate opens carries the trace (mandate, version, observation, opportunity) in its request, and its outside actions still go through the approval gate. **Pause** stops observing; **Revoke** cancels the mandate's jobs that have not started and closes open proposals. Every edit is a new version with history.
 
@@ -262,7 +262,7 @@ On the Jobs tab, a waiting or running job has an **Acceptance** button to set cr
 - `cmd: pytest -q`: a check command must exit 0 (runs at the Coding page's auto level).
 - `confirm: reports/week.md`: you confirm it yourself.
 
-When a member hands in the result, Javis checks the product itself (the files) against each criterion: **pass**, **fail** or **unclear**, with evidence (path, sha256 hash, size, modified time). A model's opinion is never the verdict.
+When a member hands in the result, Jarvis 007 checks the product itself (the files) against each criterion: **pass**, **fail** or **unclear**, with evidence (path, sha256 hash, size, modified time). A model's opinion is never the verdict.
 
 - All pass: only then is the job **done**.
 - A criterion fails: that member gets a fix step saying what failed. Past the fix rounds (2 by default) the job stops at **did not meet the criteria**; edit the job to try again.
@@ -272,7 +272,7 @@ Editing the job voids the old evidence. After acceptance, editing a product file
 
 ## Quick actions and troubleshooting
 
-- **Create:** choose a tab and use the create button at the bottom left, or open **Javis Store**.
+- **Create:** choose a tab and use the create button at the bottom left, or open **Jarvis 007 Store**.
 - **New conversation:** start a separate session with the selected partner.
 - **Edit / Export / Delete:** use the selected partner's right column.
 - **Empty list:** check the selected brain, search and tag (or group) filter, then create a partner if needed.
@@ -287,5 +287,5 @@ Editing the job voids the old evidence. After acceptance, editing a product file
 - [Plugins](20-plugins.md) - an item in the Capabilities group, for tools that run real code.
 - [Models & engines](10-models-and-engines.md) - picking the main model, the auxiliary model and the providers.
 - [Work / Kanban](21-kanban-work.md) - where workflows run automatically in the background per task.
-- [Second Brain: memory, Wiki, INGEST](13-second-brain.md) - telling an agent's private memory apart from Javis's shared memory.
+- [Second Brain: memory, Wiki, INGEST](13-second-brain.md) - telling an agent's private memory apart from Jarvis 007's shared memory.
 - [File manager](05-file-manager.md) - opening and hand-editing agent, workflow and memory files.

@@ -1,6 +1,6 @@
-# Spec: Đa ngôn ngữ cho Javis OS
+# Spec: Đa ngôn ngữ cho Jarvis 007
 
-> Bản spec dev, viết 2026-08-10 trên nền v0.26.16. Mục tiêu: Javis nói được nhiều thứ tiếng
+> Bản spec dev, viết 2026-08-10 trên nền v0.26.16. Mục tiêu: Jarvis 007 nói được nhiều thứ tiếng
 > mà **thêm ngôn ngữ thứ N+1 là thêm DỮ LIỆU, không phải sửa mã**.
 >
 > **Trạng thái: ĐỢT 1 ĐÃ TRIỂN KHAI** (2026-08-14, trên nền v0.34.1) cho hai ngôn ngữ
@@ -18,13 +18,13 @@ nhất để làm xong tầng dễ nhất rồi tưởng đã xong.
 
 | # | Tầng | Câu hỏi thật sự | Khó ở đâu |
 |---|------|-----------------|-----------|
-| 1 | **Ngôn ngữ TRẢ LỜI** | Javis đáp lại bằng tiếng gì | Gần như đã xong sẵn, chỉ vướng một dòng luật trong `CLAUDE.md` |
+| 1 | **Ngôn ngữ TRẢ LỜI** | Jarvis 007 đáp lại bằng tiếng gì | Gần như đã xong sẵn, chỉ vướng một dòng luật trong `CLAUDE.md` |
 | 2 | **Ngôn ngữ GIAO DIỆN** | Chữ trên nút, nhãn, thông báo lỗi | 3.520 dòng tiếng Việt nhúng cứng, không có bước build |
 | 3 | **Ngôn ngữ của LOGIC** | Cổng chặn, bộ phân loại, bộ dò lời hứa | **Nguy hiểm nhất. Hỏng trong im lặng.** |
 | 4 | **Locale** | Múi giờ, tiền tệ, định dạng ngày, giọng đọc | UTC+7 nhúng cứng ở 6 chỗ |
 
 **Tầng 3 là lý do spec này tồn tại.** Tầng 1 và 2 hỏng thì người dùng NHÌN THẤY ngay và phàn
-nàn. Tầng 3 hỏng thì không ai thấy gì cả: một người dùng tiếng Thái sẽ được Javis phục vụ y như
+nàn. Tầng 3 hỏng thì không ai thấy gì cả: một người dùng tiếng Thái sẽ được Jarvis 007 phục vụ y như
 thường, chỉ khác là đường tắt tiết kiệm token nuốt luôn câu hỏi cần dữ liệu live, bộ bắt "nói dối
 đã làm xong" không bao giờ nổ, và cổng chặn thao tác lịch không bao giờ đóng. Không có log đỏ,
 không có ngoại lệ, chỉ có câu trả lời sai một cách lịch sự.
@@ -118,7 +118,7 @@ giao diện cộng 182 chuỗi lỗi, không phải hai vạn dòng.
 
 ### 2.3. Tầng LOGIC - chỗ chảy máu
 
-Đây là danh sách đầy đủ những nơi hành vi của Javis phụ thuộc vào việc người dùng gõ tiếng Việt.
+Đây là danh sách đầy đủ những nơi hành vi của Jarvis 007 phụ thuộc vào việc người dùng gõ tiếng Việt.
 Mỗi mục đều đọc mã, có số dòng.
 
 | Chỗ | Mã | Hỏng thế nào khi người dùng nói tiếng khác |
@@ -126,11 +126,11 @@ Mỗi mục đều đọc mã, có số dòng.
 | Cổng đường tắt nhanh | `fast_path_runtime.py:52-100` - `_DENY` bắt `dinh kem`, `hom nay`, `doanh thu`, `dat lich` | Câu hỏi cần dữ liệu live LỌT qua đường tắt vốn không phát tool. Model bịa. Chính là ca đã ghi trong docstring `dong_ho()`. |
 | Cổng một bước chỉ đọc | `readonly_path_runtime.py:44-49` - `_WRITE_INTENT`, `_STATE_REF` | Câu có ý ĐỊNH GHI bị coi là chỉ đọc |
 | Điều phối chỉ đọc | `readonly_orchestrator.py:79` | Như trên |
-| Bộ bắt khai man hành động | `context_compiler.py:1093-1110` - `_FALSE_ACTION`, `_ACTION_VERBS`, `_QUANTITATIVE` | **Javis nói "đã gửi xong" mà chưa gửi thì không ai chặn.** Đây là rào chắn an toàn, không phải tính năng. |
+| Bộ bắt khai man hành động | `context_compiler.py:1093-1110` - `_FALSE_ACTION`, `_ACTION_VERBS`, `_QUANTITATIVE` | **Jarvis 007 nói "đã gửi xong" mà chưa gửi thì không ai chặn.** Đây là rào chắn an toàn, không phải tính năng. |
 | Bộ dò lời hứa suông | `background_status.py:60-85` - `_PROMISE` | Luật "KHÔNG hứa em sẽ báo lại" trong `CLAUDE.md` mất hiệu lực im lặng |
 | Cổng thao tác lịch | `engine.py:1143-1220` - danh sách từ khoá `hom nay`, `nhac hen`, `dat lich tu van`... | Vừa bỏ sót lệnh thật, vừa nổ nhầm khi khách chỉ nói chuyện phiếm |
 | Tìm kiếm cho chatbot khách | `chatbot_grounding.py:70-115` - bỏ dấu tiếng Việt, danh sách từ đụng nhau soạn tay | Chatbot phục vụ khách nước ngoài tra tài liệu kém hẳn |
-| Cò ưu tiên ghi ký ức **[ĐÍNH CHÍNH]** | `learn.py:313` - `_REMEMBER_RE` | Bản đầu của spec viết *"Javis không học gì cả"*. **Sai mức độ.** Đọc lại mã: mẫu này chỉ bật cờ `urgent` (dòng 341) để `_should_fire` nổ sau 30 giây thay vì chờ đủ 3 lượt. Cổng quyết định HỌC HAY KHÔNG là `_classify_turn` trả `"low"`, và cổng đó độc lập ngôn ngữ. Sự thật: người dùng tiếng Anh học **CHẬM HƠN**, không phải không học. Bù lại tìm ra một lỗ spec không thấy: mẫu không bỏ dấu nên `"ghi nho gium anh"` (tiếng Việt KHÔNG DẤU) cũng trượt |
+| Cò ưu tiên ghi ký ức **[ĐÍNH CHÍNH]** | `learn.py:313` - `_REMEMBER_RE` | Bản đầu của spec viết *"Jarvis 007 không học gì cả"*. **Sai mức độ.** Đọc lại mã: mẫu này chỉ bật cờ `urgent` (dòng 341) để `_should_fire` nổ sau 30 giây thay vì chờ đủ 3 lượt. Cổng quyết định HỌC HAY KHÔNG là `_classify_turn` trả `"low"`, và cổng đó độc lập ngôn ngữ. Sự thật: người dùng tiếng Anh học **CHẬM HƠN**, không phải không học. Bù lại tìm ra một lỗ spec không thấy: mẫu không bỏ dấu nên `"ghi nho gium anh"` (tiếng Việt KHÔNG DẤU) cũng trượt |
 | **Dò bot bí** | `chatbot_runtime.py:497` - `_DAU_BI` gồm `chưa có thông tin`, `chuyển nhân viên`, `em chưa rõ`... | **Thuần tiếng Việt, không một chữ tiếng Anh.** Bot chăm khách nước ngoài không bao giờ được tính là bí, tab "Bot bí" rỗng, chủ nhìn vào tưởng bot chạy hoàn hảo |
 | Rút trạng thái hội thoại | `conversation_state.py:26-29` - `_GOAL_RE`, `_DECISION_RE`, `_CONSTRAINT_RE`, `_DONE_RE` | Mục tiêu, quyết định, ràng buộc và việc đã xong không được mang sang lượt sau |
 | Gợi ý tra bộ nhớ | `memory_index.py:28` - `_MEMORY_HINT_RE` | Không kích hoạt tra ký ức khi đáng tra |
@@ -138,7 +138,7 @@ Mỗi mục đều đọc mã, có số dòng.
 | Cắt câu để đặt tên phiên | `sessions.py:153` - cắt ở dấu chấm vì "tiếng Việt chấm nhiều" | Tên phiên xấu, không nguy hiểm |
 
 Mười ba chỗ, không phải chín như bản khảo sát đầu. Bốn chỗ tìm ra sau lại **tệ hơn** nhóm tìm
-ra trước, vì hai trong số đó đánh vào chính hai thứ làm Javis là Javis: **nó có học được từ
+ra trước, vì hai trong số đó đánh vào chính hai thứ làm Jarvis 007 là Jarvis 007: **nó có học được từ
 người dùng không**, và **chủ có biết bot của mình đang bí không**.
 
 **[ĐÍNH CHÍNH] Nguy hiểm nằm ở NỬA bộ từ vựng, không phải ở việc thiếu bộ từ vựng.** Bản
@@ -225,7 +225,7 @@ không, và đó là chuyện tốt: được chọn thứ vừa vặn thay vì 
   chỉ với 4 skill hệ thống.
 - **Không đổi slug plugin `datetime-vn`.** Đổi slug là bắt mọi brain đang chạy phải di trú, đổi
   lấy con số không giá trị. Giữ slug, đổi hành vi.
-- **Không đụng chữ phải-viết-hoa của thương hiệu**: "Javis", tên bộ não, tên tool.
+- **Không đụng chữ phải-viết-hoa của thương hiệu**: "Jarvis 007", tên bộ não, tên tool.
 
 ## 4. Kiến trúc chốt
 
@@ -233,7 +233,7 @@ không, và đó là chuyện tốt: được chọn thứ vừa vặn thay vì 
 
 ```
 ui_lang       Ngôn ngữ CHỮ TRÊN MÀN HÌNH. Người dùng chọn. Lưu theo thiết bị.
-reply_lang    Ngôn ngữ Javis TRẢ LỜI. Mặc định "auto" (bám người dùng từng lượt).
+reply_lang    Ngôn ngữ Jarvis 007 TRẢ LỜI. Mặc định "auto" (bám người dùng từng lượt).
 content_lang  Ngôn ngữ NỘI DUNG brain. Chỉ dùng để gợi ý, không ép.
 ```
 
@@ -327,7 +327,7 @@ mỗi cổng suy biến theo **loại của nó**, không phải theo một lu�
 | **Cổng BẮT LỖI** (rào chắn an toàn) | bắt khai man hành động, dò lời hứa suông | **KHÔNG được lặng lẽ cho qua.** Hạ xuống một lượt gọi model phụ rẻ (`aux_engine`), phân loại nhị phân, nhớ tạm theo băm của câu trả lời. Model phụ hỏng thì đánh dấu trace `unverified` và ghi log, chứ không giả vờ đã kiểm. |
 | **Cổng TRÌNH BÀY** (chỉ để hiển thị) | cắt câu đặt tên phiên, cron ra chữ | Suy biến thô: cắt theo ký tự, in nguyên biểu thức cron. `describe_cron` đã sẵn đường này rồi. |
 
-Nói cách khác: **thiếu bộ từ vựng làm Javis TỐN HƠN, không làm Javis LỎNG HƠN.** Đó là câu duy
+Nói cách khác: **thiếu bộ từ vựng làm Jarvis 007 TỐN HƠN, không làm Jarvis 007 LỎNG HƠN.** Đó là câu duy
 nhất cần nhớ từ mục này.
 
 ### 4.4. i18n giao diện, không có bước build
@@ -395,12 +395,12 @@ lấy từ sổ đăng ký, không phải từ `_THU_VN` nhúng cứng.
 
 **Một điểm phải nói thật, không được giấu.** Model mạnh trả lời đúng ngôn ngữ được yêu cầu dù
 luật viết bằng tiếng Việt. Model yếu thì **trôi theo ngôn ngữ của prompt** - đây là chuyện thật
-với các model nhỏ chạy qua Groq hay Ollama Cloud, hai đường Javis đang đấu. Cách xử: hồ sơ ngôn
+với các model nhỏ chạy qua Groq hay Ollama Cloud, hai đường Jarvis 007 đang đấu. Cách xử: hồ sơ ngôn
 ngữ có sẵn trường `nudge`, một câu viết bằng CHÍNH ngôn ngữ đích; với engine bị đánh dấu yếu thì
 dán câu đó lên đầu tin nhắn cuối. Một dòng, đúng chỗ, và vẫn là dữ liệu chứ không phải mã.
 
 **Chi phí token.** Khối NGÔN NGỮ khoảng 60 token mỗi lượt. Không đáng kể so với 30KB `CLAUDE.md`,
-và không làm hỏng thêm lần đệm prompt nào: prompt hệ thống của Javis vốn đã đổi mỗi lượt vì khối
+và không làm hỏng thêm lần đệm prompt nào: prompt hệ thống của Jarvis 007 vốn đã đổi mỗi lượt vì khối
 MỨC DÙNG HÔM NAY đếm theo thời gian thật (lập luận đã ghi trong docstring `dong_ho()`,
 context_compiler.py:56).
 
@@ -483,7 +483,7 @@ dùng không đụng tới.
 2. `dashboard/i18n/th.json`: chép `vi.json`, dịch. Thiếu key thì tự rơi về tiếng Việt, không vỡ
    giao diện.
 3. `server/lexicon/th.py`: **tuỳ chọn**. Không có thì đường tắt tiết kiệm token tự tắt cho người
-   dùng tiếng Thái, còn rào chắn an toàn hạ xuống tầng model phụ. Javis vẫn chạy ĐÚNG, chỉ tốn
+   dùng tiếng Thái, còn rào chắn an toàn hạ xuống tầng model phụ. Jarvis 007 vẫn chạy ĐÚNG, chỉ tốn
    hơn. Viết sau khi có người dùng thật cũng được.
 4. Chạy `python tests/run.py`. Bộ test đối chiếu key và test bất biến sổ đăng ký phải xanh.
 
@@ -510,11 +510,11 @@ Bản trực giác nghe rất hợp lý: *chèn "Reply in English" vào prompt, 
 ship, có 50 người nước ngoài dùng thật thì mới đầu tư sâu.* Một tới hai ngày công.
 
 Vấn đề: kế hoạch đó **bật tiếng Anh mà không đụng vào 13 cái cổng ở mục 2.3**. Nghĩa là 50
-người dùng thử đó nhận một Javis mà:
+người dùng thử đó nhận một Jarvis 007 mà:
 
 - đường tắt tiết kiệm token nuốt câu hỏi cần dữ liệu live rồi model bịa,
-- bộ bắt khai man không nổ khi Javis nói "đã gửi xong" mà chưa gửi,
-- **cò ghi ký ức không kích hoạt, nên Javis không học được gì từ họ** - đúng cái làm Javis khác
+- bộ bắt khai man không nổ khi Jarvis 007 nói "đã gửi xong" mà chưa gửi,
+- **cò ghi ký ức không kích hoạt, nên Jarvis 007 không học được gì từ họ** - đúng cái làm Jarvis 007 khác
   một khung chat thường,
 - bot chăm khách không bao giờ được tính là bí.
 
@@ -552,7 +552,7 @@ Ba thứ **KHÔNG** có trong bản nhỏ nhất: dịch giao diện (không c�
 
 Bản trực giác chĩa vào **chủ shop nước ngoài**: dịch giao diện, chờ người Mỹ tới. Phép thử đó
 đắt (phải dịch giao diện trước mới thử được), chậm (phải có kênh phân phối ở thị trường mới), và
-**đánh vào chỗ Javis yếu nhất** - ra khỏi Zalo, ra khỏi POS Việt, vào một cái chợ có hàng trăm
+**đánh vào chỗ Jarvis 007 yếu nhất** - ra khỏi Zalo, ra khỏi POS Việt, vào một cái chợ có hàng trăm
 AI dashboard đang đánh nhau.
 
 Chĩa đúng là vào **chủ shop Việt phục vụ khách ngoại**:
@@ -575,7 +575,7 @@ ba đường dùng nó, và đường thứ hai mới là đường nên thử t
 
 | Hướng | Ai trả tiền | Có phải dịch giao diện không | Quan hệ với hào Zalo/POS |
 |-------|-------------|------------------------------|--------------------------|
-| Chủ ngoại dùng Javis | khách hoàn toàn mới | Có, toàn bộ | Bỏ hào |
+| Chủ ngoại dùng Jarvis 007 | khách hoàn toàn mới | Có, toàn bộ | Bỏ hào |
 | **Chủ Việt, khách ngoại** | **khách đã có** | **Không** | **Đào sâu hào** |
 | Chủ Việt thích dùng UI tiếng Anh | khách đã có | Có, một phần | Trung tính |
 
@@ -588,7 +588,7 @@ còn bật sau hai tuần"*. Chỉ số "còn bật sau hai tuần" quan trọng
 một lần là tò mò chứ chưa phải nhu cầu.
 
 Chạm ngưỡng thì đi tiếp Phase 2 và 3. Không chạm thì dừng ở đây, và cái đã làm vẫn không phí:
-luật suy biến ở bước 3 là một rào an toàn có giá trị tự thân, kể cả khi Javis mãi mãi chỉ nói
+luật suy biến ở bước 3 là một rào an toàn có giá trị tự thân, kể cả khi Jarvis 007 mãi mãi chỉ nói
 tiếng Việt.
 
 ### 6.5. ĐÃ TRIỂN KHAI (2026-08-14, trên v0.34.1)
@@ -656,7 +656,7 @@ chuỗi lỗi server, locale (múi giờ, định dạng số), và `description
 ### 6.7. ĐỢT 4 - LOCALE (2026-08-14)
 
 **Locale tách hẳn khỏi ngôn ngữ.** Đây là điểm của cả đợt: một người đọc giao diện tiếng Anh,
-bảo Javis trả lời tiếng Anh, mà vẫn ngồi ở Việt Nam nên vẫn xài UTC+7 và VND. Gộp hai thứ là
+bảo Jarvis 007 trả lời tiếng Anh, mà vẫn ngồi ở Việt Nam nên vẫn xài UTC+7 và VND. Gộp hai thứ là
 ép họ chọn giữa "hiểu được chữ" và "xem đúng giờ".
 
 `server/localefmt.py` là nguồn duy nhất: `now()`, `tz()`, `today_str()`, `fmt_tien()`,
@@ -811,7 +811,7 @@ tuý, nới rộng hơn là chặn oan chính nó.
 **Lỗi 4, tìm ra sau cùng và nặng nhất: cổng bắt KHAI MAN bỏ sót cách nói tự nhiên nhất của
 tiếng Anh.** Mẫu `FALSE_ACTION` cho ĐÚNG MỘT ô trợ động từ (`have` HOẶC `just` HOẶC `already`),
 nên `I have created the order` bắt được mà `I have **already** sent the report` thì lọt. Đây là
-cổng chặn Javis khai đã làm một việc mà đường chỉ-đọc không cho phép làm, nên bỏ sót ở đây là
+cổng chặn Jarvis 007 khai đã làm một việc mà đường chỉ-đọc không cho phép làm, nên bỏ sót ở đây là
 rào chắn mất tác dụng trong im lặng.
 
 Bản tiếng Việt không dính vì tiếng Việt hiếm khi xếp chồng trợ từ ("đã vừa gửi" không ai nói).
@@ -900,7 +900,7 @@ ngôn ngữ, `toLocaleString` theo locale, plugin `datetime-vn` đọc múi gi�
 `README.md`, `QUICKSTART.md`, `docs/01`. Viết `docs/dev/` mục "thêm một ngôn ngữ" trỏ về mục 5
 của spec này.
 
-**Thứ tự nên ra bản dùng được**: Phase 0 tới 2 thành một bản trọn vẹn (Javis trả lời đúng ngôn
+**Thứ tự nên ra bản dùng được**: Phase 0 tới 2 thành một bản trọn vẹn (Jarvis 007 trả lời đúng ngôn
 ngữ, các cổng an toàn không bị vô hiệu), rồi Phase 3 theo nhịp có sức, rồi Phase 4 và 5. Tổng
 khoảng hai tuần làm tập trung.
 
@@ -950,7 +950,7 @@ có ô chữ trống. Lấy tiếng Anh làm gốc nghĩa là phải dịch 3.52
 được - trả trước toàn bộ chi phí để đổi lấy một sự gọn gàng trên giấy.
 
 **Có tự đổi ngôn ngữ giao diện theo `Accept-Language` của trình duyệt không?** Chốt **chỉ gợi ý
-lần đầu**, không tự đổi. Javis chạy trên VPS, người dùng mở từ nhiều máy nhiều trình duyệt; giao
+lần đầu**, không tự đổi. Jarvis 007 chạy trên VPS, người dùng mở từ nhiều máy nhiều trình duyệt; giao
 diện tự nhảy sang ngôn ngữ khác vì hôm nay mở bằng máy khác là kiểu "thông minh" gây khó chịu.
 Lần đầu chưa chọn gì thì gợi ý một dòng, chọn rồi thì nhớ theo thiết bị.
 
@@ -961,7 +961,7 @@ làm thụt lùi một hành vi đang đúng. Ai muốn ghim thì ghim theo brai
 ## 11. Nguồn trong repo
 
 - [Kiến trúc tổng quan](01-kien-truc.md) - một lượt chat chạy qua đâu
-- [Spec Javis CLI](2026-08-cli-spec.md) - tiền lệ "kênh thứ ba" và bài học không nhân bản runtime
+- [Spec Jarvis 007 CLI](2026-08-cli-spec.md) - tiền lệ "kênh thứ ba" và bài học không nhân bản runtime
 - [Spec Bot chuyên trách](2026-08-bot-chuyen-trach-spec.md) - vì sao bot phục vụ khách lạ cần
   giả định riêng
 - [Spec Adaptive Context Runtime](2026-08-adaptive-context-runtime-spec.md) - Context Compiler,

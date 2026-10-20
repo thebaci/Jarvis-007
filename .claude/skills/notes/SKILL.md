@@ -1,57 +1,57 @@
 ---
 name: Notes
-description: Lưu tin nhắn hiện tại nguyên văn vào sources/ (kèm ảnh), tự chưng cất lên wiki nếu note đáng.
+description: Save the current message verbatim into sources/ (images included), then distil it up to the wiki if it earns a place.
 description_en: "Save the current message verbatim into sources/ (images included), then distil it up to the wiki if it earns a place."
 group: AI
 ---
 
-# NOTES - lưu nhanh 1 note vào Second Brain (giữ nguyên văn), wiki nếu đáng
+# NOTES - quickly save 1 note into the Second Brain (kept verbatim), wiki if worthy
 
-## Khi nào dùng
+## When to use
 
-Kích hoạt khi người dùng gõ lệnh `/notes` (web hoặc Telegram), hoặc nói "lưu note này",
-"ghi nhanh cái này vào brain". Đây là bản CHỘP NHANH: lưu nguyên văn trước, chưng cất sau
-nếu đáng. Khác `ingest-source` (dành cho source đã nằm sẵn trong `sources/` và luôn distill).
+Activate when the user types the `/notes` command (web or Telegram), or says "save this note",
+"jot this into the brain". This is the QUICK-CAPTURE version: save verbatim first, distil later
+if worthy. Different from `ingest-source` (for a source already sitting in `sources/`, which always distils).
 
-Đọc schema vault (`CLAUDE.md`/`AGENTS.md` ở gốc brain) trước khi ghi.
+Read the vault schema (`CLAUDE.md`/`AGENTS.md` at the brain root) before writing.
 
-## Nội dung note lấy từ đâu
+## Where the note content comes from
 
-- Phần "yêu cầu" người dùng gõ SAU `/notes` = thân note. Giữ ĐÚNG NGUYÊN VĂN, không sửa,
-  không tóm tắt, không thêm bớt chữ nào.
-- File/ảnh đính kèm trong CÙNG tin nhắn (đường dẫn được đưa kèm) = tài liệu của note.
-- CHỈ tin nhắn hiện tại. Không kéo câu trả lời trước hay các lượt cũ vào.
+- The "request" part the user types AFTER `/notes` = the note body. Keep it EXACTLY VERBATIM, do not edit,
+  do not summarize, do not add or remove a single word.
+- Files/images attached in the SAME message (paths are provided) = the note's documents.
+- ONLY the current message. Do not pull in the previous answer or earlier turns.
 
-## Các bước
+## Steps
 
-1. Xác định thư mục brain hiện tại: `sources/`, `attachments/`, `wiki/`.
-2. Đặt tên file: `sources/note-YYYY-MM-DD-HHmm-<vài-chữ-đầu-không-dấu>.md` (dùng ngày giờ thật,
-   lấy qua tool datetime nếu có; slug từ ~4-6 chữ đầu của note, bỏ dấu, nối gạch ngang).
-3. Ghi file source với frontmatter:
+1. Identify the current brain folder: `sources/`, `attachments/`, `wiki/`.
+2. Name the file: `sources/note-YYYY-MM-DD-HHmm-<first-few-words-without-diacritics>.md` (use the real date and time,
+   taken via the datetime tool if available; the slug comes from the first ~4-6 words of the note, diacritics removed, joined with hyphens).
+3. Write the source file with frontmatter:
    - `type: source`
    - `source_kind: own-note`
    - `status: unprocessed`
    - `created: <YYYY-MM-DD HH:mm>`
    - `tags: [note]`
-   Thân file = văn bản gốc NGUYÊN VĂN. Với ảnh đính kèm: chuyển/đảm bảo file nằm trong
-   `attachments/`, nhúng `![[tên-ảnh]]` trong thân. Nếu file đã nằm sẵn trong `sources/`/
-   `attachments/` do web upload thì dùng chính nó, KHÔNG nhân đôi.
-4. Đánh giá đáng-wiki (cùng tiêu chí ingest-source): có khái niệm / framework / nguyên lý /
-   quy trình / insight tái dùng được -> ĐÁNG. Tâm sự, việc vặt, nhắc nhất thời, danh sách mua
-   đồ -> KHÔNG đáng.
-5. Nếu ĐÁNG: áp phép INGEST - viết/cập nhật trang `wiki/` đủ 3 kỷ luật (mỗi claim cụ thể kèm
-   `[[Nguồn]]`; phân biệt "(mục tiêu)"/"(thực tế tính đến ...)"; mâu thuẫn với trang cũ thì
-   thêm `## Mâu thuẫn` + append `wiki/_open-questions.md`, KHÔNG ghi đè). Mỗi trang tự đủ ngữ
-   cảnh (1-2 câu định vị đầu trang) + `aliases:` nếu có tên gọi khác. Cập nhật `wiki/index.md`
-   (thêm dòng link + mô tả 1 dòng). Append `wiki/log.md`:
-   `## [YYYY-MM-DD] notes | <tên note>` + nguồn/đã tạo/đã cập nhật/insight. Set source
+   Body = the original text VERBATIM. For attached images: move/ensure the file is in
+   `attachments/`, embed `![[image-name]]` in the body. If the file is already in `sources/`/
+   `attachments/` because of a web upload, use that one, do NOT duplicate it.
+4. Judge wiki-worthiness (same criteria as ingest-source): a reusable concept / framework / principle /
+   procedure / insight -> WORTHY. Confessions, small chores, passing reminders, shopping
+   lists -> NOT worthy.
+5. If WORTHY: apply the INGEST operation - write/update `wiki/` pages with all 3 disciplines (every specific claim with
+   `[[Source]]`; distinguish "(target)"/"(actual as of ...)"; a contradiction with an old page means
+   adding `## Mâu thuẫn` ("Contradiction") + appending to `wiki/_open-questions.md`, do NOT overwrite). Every page self-contained in
+   context (1-2 positioning sentences at the top) + `aliases:` if there are other names. Update `wiki/index.md`
+   (add a link line + a 1-line description). Append to `wiki/log.md`:
+   `## [YYYY-MM-DD] notes | <note name>` + source/created/updated/insight. Set the source
    `status: processed`, `processed_at: <...>`, `wiki_links: [...]`.
-6. Nếu KHÔNG đáng: giữ source (`status: unprocessed`), KHÔNG đụng wiki.
-7. Báo NGẮN bằng văn nói (không bảng, không gạch ngang dài, không em dash): đã lưu note vào
-   `[[tên-source]]`; có lên wiki không, nếu có thì trang nào. Có ảnh thì nhúng lại `![...](...)`
-   cho người dùng xem.
+6. If NOT worthy: keep the source (`status: unprocessed`), do NOT touch the wiki.
+7. Report BRIEFLY in spoken prose (no tables, no long dashes, no em dash): the note was saved to
+   `[[source-name]]`; whether it went up to the wiki, and if so which page. If there is an image, embed it again with `![...](...)`
+   so the user can see it.
 
-## Phạm vi
+## Scope
 
-Ghi `sources/` + `wiki/` là mức `safe`, chạy được vì người dùng chủ động gõ lệnh. Skill này chỉ
-ghi file trong vault; nó không cần gọi tool nào ra ngoài.
+Writing `sources/` + `wiki/` is `safe` level, allowed to run because the user deliberately typed the command. This skill only
+writes files in the vault; it does not need to call any outside tool.

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Một trang "Cộng sự" thay hai trang Trợ lý/Quy trình, chat được với từng trợ lý và từng quy trình trên cùng khung chat của app, mọi lần chạy quy trình được lưu lại và Javis tra được.
+**Goal:** Một trang "Cộng sự" thay hai trang Trợ lý/Quy trình, chat được với từng trợ lý và từng quy trình trên cùng khung chat của app, mọi lần chạy quy trình được lưu lại và Jarvis 007 tra được.
 
 **Architecture:** Mọi thứ là một phiên chat: phiên kênh `agent:<slug>` đổi system prompt sang prompt của trợ lý, phiên kênh `workflow:<slug>` biến mỗi tin thành một lần chạy `execute_workflow` và trả kết quả như một lượt chat. Kho `workflow_runs.sqlite3` ghi mọi lần chạy (từ trang Cộng sự lẫn Kanban). Dashboard mượn khung chat có sẵn, thêm cột trái (danh sách) và cột phải (cài đặt / tiến độ / lịch sử).
 
@@ -50,7 +50,7 @@
     python tests/run.py workflow_runs
 
 Vì sao có kho này: trước đây bấm Chạy ở trang Quy trình thì kết quả stream vào một ngăn kéo
-tạm, đóng là mất. Hỏi Javis "quy trình chạy gần nhất ra sao" là không có gì để tra.
+tạm, đóng là mất. Hỏi Jarvis 007 "quy trình chạy gần nhất ra sao" là không có gì để tra.
 """
 from _paths import ROOT, SERVER  # noqa: E402,F401
 import os
@@ -141,7 +141,7 @@ Expected: FAIL / ModuleNotFoundError: workflow_runs
 """Kho lịch sử chạy quy trình - SQLite trong JAVIS_STATE_DIR.
 
 Vì sao có: tới 0.58.5, bấm Chạy ở trang Quy trình thì kết quả chỉ stream vào một ngăn kéo tạm,
-đóng là mất, và Javis không có chỗ nào để tra "quy trình chạy gần nhất ra sao". Kho này ghi
+đóng là mất, và Jarvis 007 không có chỗ nào để tra "quy trình chạy gần nhất ra sao". Kho này ghi
 MỌI lần chạy, bất kể khởi phát từ trang Cộng sự, Kanban, nhắc hẹn hay loop, vì nó được bọc
 ngay trong `execute_workflow` (main.py) chứ không ở từng chỗ gọi.
 
@@ -1112,7 +1112,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - [ ] **Step 1: Viết test đỏ**
 
 ```python
-"""Chat với một trợ lý ở trang Cộng sự: system prompt là prompt của trợ lý, không phải Javis.
+"""Chat với một trợ lý ở trang Cộng sự: system prompt là prompt của trợ lý, không phải Jarvis 007.
 
     python tests/run.py agent_chat_prompt
 
@@ -1147,7 +1147,7 @@ ag_dir = main._agents_dir("brain"); ag_dir.mkdir(parents=True, exist_ok=True)
 p = main._agent_chat_prompt("brain", "nguoi-viet")
 check("prompt la cua tro ly", "Bạn là agent **Người viết**" in p and "Viết súc tích." in p and "JAVIS_LESSON" in p)
 check("prompt noi ro dang chat truc tiep", "trò chuyện trực tiếp" in p)
-check("prompt KHONG keo CLAUDE.md cua Javis", "SWAPPABLE BRAIN" not in p and "# === LỚP AGENTIC" not in p)
+check("prompt KHONG keo CLAUDE.md cua Jarvis 007", "SWAPPABLE BRAIN" not in p and "# === LỚP AGENTIC" not in p)
 try:
     main._agent_chat_prompt("brain", "khong-co")
     check("tro ly khong co -> FileNotFoundError", False)
@@ -1189,13 +1189,13 @@ def _agent_chat_prompt(brain, slug) -> str:
     Là ĐÚNG prompt mà workflow dùng cho trợ lý đó (vai, thân file, kỹ năng, bộ nhớ riêng, luật
     JAVIS_LESSON), cộng một câu nói rõ đây là trò chuyện chứ không phải một bước quy trình.
     Cố ý KHÔNG nối CLAUDE.md, bộ nhớ của chủ hay khối kênh: người dùng đang muốn nói chuyện với
-    "Người viết", không phải với Javis đội mũ Người viết.
+    "Người viết", không phải với Jarvis 007 đội mũ Người viết.
     """
     if not (_agents_dir(brain) / f"{slug}.md").exists():
         raise FileNotFoundError(slug)
     _mk, _agent_sysprompt, _log, _learn = _workflow_agent_helpers(brain, None)
     _name, sysprompt, _model, _prov = _agent_sysprompt(slug)
-    return (sysprompt + "\n\n# Kênh: bạn đang trò chuyện trực tiếp với chủ trên dashboard Javis "
+    return (sysprompt + "\n\n# Kênh: bạn đang trò chuyện trực tiếp với chủ trên dashboard Jarvis 007 "
             "(trang Cộng sự). Trả lời như đang nói chuyện, theo ngôn ngữ chủ đang dùng; "
             "không cần báo cáo dạng nhiệm vụ trừ khi được giao việc cụ thể.")
 
@@ -1580,7 +1580,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - [ ] **Step 1: Viết test đỏ**
 
 ```python
-"""Plugin javis-workflow: Javis tra được lịch sử chạy quy trình từ mọi engine.
+"""Plugin javis-workflow: Jarvis 007 tra được lịch sử chạy quy trình từ mọi engine.
 
     python tests/run.py javis_workflow_plugin
 """
@@ -1665,8 +1665,8 @@ Expected: FileNotFoundError plugin.py
 name: Lịch sử quy trình
 slug: javis-workflow
 version: 1.0.0
-description: Xem các lần chạy quy trình gần đây và kết quả từng lần, ngay từ chat. Trước tool này, chạy quy trình xong là kết quả mất, hỏi "quy trình chạy gần nhất ra sao" Javis không có gì để tra.
-author: Javis (bundled)
+description: Xem các lần chạy quy trình gần đây và kết quả từng lần, ngay từ chat. Trước tool này, chạy quy trình xong là kết quả mất, hỏi "quy trình chạy gần nhất ra sao" Jarvis 007 không có gì để tra.
+author: Jarvis 007 (bundled)
 enabled: true
 min_mode: readonly
 tools:
@@ -1680,7 +1680,7 @@ hooks: []
 """Plugin bundled: tool `javis_workflow` - đọc lịch sử chạy quy trình, từ MỌI engine.
 
 Vì sao tồn tại: kho `workflow_runs` (server/workflow_runs.py) ghi mọi lần chạy quy trình, nhưng
-bộ não chính không có đường nào tới nó. Người dùng hỏi "quy trình vừa chạy ra sao" là Javis
+bộ não chính không có đường nào tới nó. Người dùng hỏi "quy trình vừa chạy ra sao" là Jarvis 007
 trả lời trống, đúng lỗi chủ dự án báo 2026-09-15. Tool này chỉ ĐỌC (min_mode readonly), nên
 chạy được cả ở chế độ suggest. Muốn chạy quy trình thì giao việc Kanban (javis_task, route
 wf:<slug>) hoặc vào trang Cộng sự.
@@ -1793,7 +1793,7 @@ Trong main.py, ngay trên `_javis_capability_summary`:
 ```python
 def _dong_lan_chay_gan_nhat(brain) -> str:
     """Một dòng cho system prompt: lần chạy quy trình gần nhất của brain, rỗng nếu chưa có.
-    Nhờ dòng này, hỏi "quy trình chạy gần nhất ra sao" ở khung chat chính là Javis biết ngay
+    Nhờ dòng này, hỏi "quy trình chạy gần nhất ra sao" ở khung chat chính là Jarvis 007 biết ngay
     có gì để tra và tra bằng tool nào."""
     try:
         import workflow_runs
@@ -2001,7 +2001,7 @@ function check(name, cond) { console.log((cond ? "ok   " : "FAIL ") + name); if 
 // Sắp xếp: mốc gần nhất lên đầu, chưa có mốc xếp sau theo tên
 const wfs = [{ slug: "a", name: "Bản tin", last_run_at: 0 }, { slug: "b", name: "Viết bài", last_run_at: 50 }, { slug: "c", name: "Ads", last_run_at: 99 }, { slug: "d", name: "Zalo", last_run_at: 0 }];
 check("xep quy trinh theo lan chay gan nhat", W.sapXep(wfs, "last_run_at").map(x => x.slug).join(",") === "c,b,a,d");
-const ags = [{ slug: "x", name: "Người viết", last_chat_at: 0 }, { slug: "y", name: "Javis", last_chat_at: 3 }];
+const ags = [{ slug: "x", name: "Người viết", last_chat_at: 0 }, { slug: "y", name: "Jarvis 007", last_chat_at: 3 }];
 check("xep tro ly theo lan chat gan nhat", W.sapXep(ags, "last_chat_at").map(x => x.slug).join(",") === "y,x");
 
 // Lọc: tìm không dấu + nhóm
@@ -2132,7 +2132,7 @@ Run: `node tests/js/test_workspace.js` -> FAIL (module chưa có).
           '<select class="ws-group" id="wsGroup"></select>' +
           '<div class="ws-list" id="wsList"></div>' +
           '<div class="ws-left-foot"><button type="button" class="ws-btn" id="wsNew">' + ic("plus") + ' ' + esc(t("ws.new_item")) + '</button>' +
-          '<button type="button" class="ws-btn" id="wsStore">' + ic("package") + ' Javis Store</button></div>' +
+          '<button type="button" class="ws-btn" id="wsStore">' + ic("package") + ' Jarvis 007 Store</button></div>' +
         '</aside>' +
         '<div class="ws-main">' +
           '<div class="ws-bar">' +
@@ -2354,7 +2354,7 @@ vi.json:
   "ws.new_workflow": "Tạo quy trình",
   "ws.toggle_list": "Ẩn/hiện danh sách",
   "ws.toggle_panel": "Ẩn/hiện cột phải",
-  "ws.empty": "Chưa có mục phù hợp. Tạo mới hoặc tìm trong Javis Store.",
+  "ws.empty": "Chưa có mục phù hợp. Tạo mới hoặc tìm trong Jarvis 007 Store.",
   "ws.pick_one": "Chọn một cộng sự ở cột trái",
   "ws.wf_sub": "Quy trình · {n} bước",
   "ws.ph_agent": "Nhắn cho {ten}...",
@@ -2380,7 +2380,7 @@ vi.json:
   "ws.step_n": "Bước {n}",
 ```
 
-en.json: bản dịch tương ứng (Agents, Workflows, Search partners..., All groups, New, New agent, New workflow, Toggle list, Toggle panel, Nothing matches. Create one or browse Javis Store., Pick a partner on the left, Workflow · {n} steps, Message {ten}..., Describe the result you want; each message is one run..., Could not open conversation, Agent settings, Recent chats, No chats yet, (untitled), Progress, Edit steps, Run history, No runs yet. Send a message to run., Running · Step {a}/{b}, Completed, Stopped on error, Waiting for approval, Ready, Waiting, In progress..., Done, Error, Step {n}).
+en.json: bản dịch tương ứng (Agents, Workflows, Search partners..., All groups, New, New agent, New workflow, Toggle list, Toggle panel, Nothing matches. Create one or browse Jarvis 007 Store., Pick a partner on the left, Workflow · {n} steps, Message {ten}..., Describe the result you want; each message is one run..., Could not open conversation, Agent settings, Recent chats, No chats yet, (untitled), Progress, Edit steps, Run history, No runs yet. Send a message to run., Running · Step {a}/{b}, Completed, Stopped on error, Waiting for approval, Ready, Waiting, In progress..., Done, Error, Step {n}).
 
 - [ ] **Step 7: index.html**
 
@@ -2398,7 +2398,7 @@ Khởi động server cục bộ (memory: port 7777, start-javis.bat, kill trự
 4. Gửi tin thứ hai "ngắn lại một nửa" -> tin "Lần chạy #2".
 5. Lịch sử chạy có 2 dòng; bấm dòng -> mở đúng phiên.
 6. Quay lại tab Quy trình: quy trình vừa chạy nằm đầu danh sách.
-7. Trang Trò chuyện: thanh lịch sử KHÔNG có phiên cộng sự. Hỏi Javis "quy trình chạy gần nhất ra sao?" -> trả lời có tên quy trình và kết quả (qua tool javis_workflow).
+7. Trang Trò chuyện: thanh lịch sử KHÔNG có phiên cộng sự. Hỏi Jarvis 007 "quy trình chạy gần nhất ra sao?" -> trả lời có tên quy trình và kết quả (qua tool javis_workflow).
 8. Nói/gõ ở chat chính "mở trang trợ lý" -> tới Cộng sự.
 9. Thu cửa sổ xuống 400px: hai cột thành ngăn kéo, khung chat dùng được.
 
@@ -2418,12 +2418,12 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 10: Tài liệu, CHANGELOG, VERSION, PR và merge
 
 **Files:**
-- Modify: `docs/07-agents-va-workflows.md` (mục "Mở ở đâu trong Javis" và cách chạy), `docs/en/07-agents-and-workflows.md`
+- Modify: `docs/07-agents-va-workflows.md` (mục "Mở ở đâu trong Jarvis 007" và cách chạy), `docs/en/07-agents-and-workflows.md`
 - Modify: `CHANGELOG.md`, `VERSION`
 
 - [ ] **Step 1: Docs**
 
-Trong `docs/07-agents-va-workflows.md`: mục "Mở ở đâu" đổi thành nhóm Năng lực có mục **Cộng sự** với hai tab Trợ lý | Quy trình; thêm mục "Trò chuyện với một trợ lý" (chọn ở cột trái, chat ở giữa, cài đặt ở cột phải, mỗi trợ lý có nhiều hội thoại); mục "Chạy quy trình" viết lại: gửi một tin là một lần chạy, tiến độ ở cột phải, kết quả về chat, tin sau nhớ kết quả trước, lịch sử chạy ở cột phải và Javis tra được bằng câu hỏi ở khung chat chính. Sửa câu "bấm ▶ Chạy trực tiếp ở trang Workflows" thành "gửi tin ở trang Cộng sự". Bản tiếng Anh sửa tương ứng.
+Trong `docs/07-agents-va-workflows.md`: mục "Mở ở đâu" đổi thành nhóm Năng lực có mục **Cộng sự** với hai tab Trợ lý | Quy trình; thêm mục "Trò chuyện với một trợ lý" (chọn ở cột trái, chat ở giữa, cài đặt ở cột phải, mỗi trợ lý có nhiều hội thoại); mục "Chạy quy trình" viết lại: gửi một tin là một lần chạy, tiến độ ở cột phải, kết quả về chat, tin sau nhớ kết quả trước, lịch sử chạy ở cột phải và Jarvis 007 tra được bằng câu hỏi ở khung chat chính. Sửa câu "bấm ▶ Chạy trực tiếp ở trang Workflows" thành "gửi tin ở trang Cộng sự". Bản tiếng Anh sửa tương ứng.
 
 - [ ] **Step 2: CHANGELOG + VERSION**
 
@@ -2434,7 +2434,7 @@ Trong `docs/07-agents-va-workflows.md`: mục "Mở ở đâu" đổi thành nh�
 ### Thêm mới
 - **Trang Cộng sự thay cho hai trang Trợ lý và Quy trình.** Chọn một trợ lý là chat được ngay với đúng vai đó, mỗi trợ lý có hội thoại riêng và cài đặt nằm ở cột phải.
 - **Quy trình chạy ngay trong khung chat.** Gửi một tin là một lần chạy, tiến độ từng bước hiện ở cột phải, kết quả về chat và tin sau vẫn nhớ kết quả trước để bạn góp ý tiếp.
-- **Lịch sử chạy được lưu lại.** Cột phải liệt kê các lần chạy gần nhất, bấm vào là mở lại; hỏi Javis "quy trình chạy gần nhất ra sao" ở khung chat chính là có câu trả lời thật. Quy trình vừa chạy tự lên đầu danh sách.
+- **Lịch sử chạy được lưu lại.** Cột phải liệt kê các lần chạy gần nhất, bấm vào là mở lại; hỏi Jarvis 007 "quy trình chạy gần nhất ra sao" ở khung chat chính là có câu trả lời thật. Quy trình vừa chạy tự lên đầu danh sách.
 ```
 
 - [ ] **Step 3: Chạy toàn bộ test**

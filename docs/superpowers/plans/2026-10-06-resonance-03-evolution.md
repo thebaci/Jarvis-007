@@ -1,10 +1,10 @@
-# Javis Resonance Evolution Implementation Plan
+# Jarvis 007 Resonance Evolution Implementation Plan
 
 **Trạng thái sau phản biện vòng 2:** tham chiếu cho kiến trúc mở rộng. Phép thử phương pháp nhỏ được làm sớm trong [MVP một agent](2026-10-06-resonance-00-mvp.md); chưa cần toàn bộ ExperimentService, kho biến thể hoặc supervisor. C3 đến C5 chỉ mở sau khi vòng nhỏ đã chạy và có bằng chứng cần mở rộng; không tự sửa code ở MVP.
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (- [ ]) syntax for tracking. Đây là kế hoạch, không phải chỉ dẫn tự bắt đầu cập nhật Javis đang chạy.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (- [ ]) syntax for tracking. Đây là kế hoạch, không phải chỉ dẫn tự bắt đầu cập nhật Jarvis 007 đang chạy.
 
-**Goal:** Cho agent cải thiện khả năng hiểu nhu cầu, hình thành mục tiêu và thực hiện công việc bằng thử nghiệm có bằng chứng; sau đó mở rộng tới sửa code Javis với khả năng khôi phục thực tế.
+**Goal:** Cho agent cải thiện khả năng hiểu nhu cầu, hình thành mục tiêu và thực hiện công việc bằng thử nghiệm có bằng chứng; sau đó mở rộng tới sửa code Jarvis 007 với khả năng khôi phục thực tế.
 
 **Architecture:** Experiment service quản lý baseline/candidate, dữ liệu kiểm chứng và điều kiện áp dụng. Candidate chỉ có quyền của worker; supervisor độc lập giữ phép chấm, quyền áp dụng, bản phục hồi và nhật ký. Sửa phương pháp và sửa ứng dụng là hai đích áp dụng riêng.
 
@@ -121,7 +121,7 @@
 - [ ] Bảo vệ evaluator/receipt và nội dung hợp đồng ở phía supervisor. Cùng process/cùng quyền host chỉ được đánh dấu trusted-development, không phải chế độ live self-update được bảo vệ.
 - [ ] Chạy lại unit test và integration boundary trên host mục tiêu; ghi môi trường và kết quả. Review rồi commit.
 
-## Task C5 Candidate code và áp dụng phiên bản Javis
+## Task C5 Candidate code và áp dụng phiên bản Jarvis 007
 
 **Files:** Create server/resonance_deployment.py, tests/python/test_resonance_deployment.py. Modify server/resonance_supervisor.py, server/resonance_experiments.py. Tái sử dụng server/updater.py và server/update_state.py qua adapter, chỉ sửa giao diện nếu kiểm thử chứng minh cần. Create docs/dev/resonance-recovery.md.
 

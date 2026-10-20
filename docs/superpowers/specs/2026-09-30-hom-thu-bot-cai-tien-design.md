@@ -6,7 +6,7 @@ Giao làm ba lát, mỗi lát một PR nhỏ. Lát 1 đã giao ở 0.65.3.
 
 ## 1. Vấn đề
 
-- Chạy ba bot khác lĩnh vực (Javis Vũ, Nhi Mai, Ngọc Thu) thì hòm thư lẫn vào nhau: mỗi dòng chỉ có logo kênh, không có tên bot.
+- Chạy ba bot khác lĩnh vực (Jarvis 007 Vũ, Nhi Mai, Ngọc Thu) thì hòm thư lẫn vào nhau: mỗi dòng chỉ có logo kênh, không có tên bot.
 - Bộ lọc cũ chỉ có chip kênh (chỉ hiện khi có từ hai kênh) và một ô chọn bot bị ẩn khi có dưới hai bot có tài khoản.
   Không lọc được theo chưa đọc, cần trả lời, đang tiếp quản, nhóm hay chat riêng. Hàng chip lại tốn diện tích.
 - Trả lời: gửi tay là tiếp quản ngầm (bot im), nút Tiếp quản nhỏ ở góc. Chưa có cách nhờ bot trả lời một tin nó đã im, chưa có

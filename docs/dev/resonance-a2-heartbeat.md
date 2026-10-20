@@ -22,14 +22,14 @@ Bản chat trợ lý viết ngay trong cuộc trò chuyện được tính là l
 - **Bế tắc:** hai lượt liên tiếp không tiến thêm theo tiêu chí thì trợ lý dừng thử và chờ. Mục tiêu vẫn mở; góp ý hay nói rõ hơn là làm tiếp.
 - **Lỗi:** tối đa 3 lượt lỗi, rồi dừng. Lỗi cố định (bộ não việc nền không chạy được) không thử lại.
 - **Thử lại tự động chừa một lượt:** không dùng lượt cuối của hạn mức. Việc mới hay góp ý của bạn thì dùng được lượt đó.
-- **Hạn chót:** gần hạn thì kiểm dày hơn. Qua hạn mà chưa đạt thì báo một lần; Javis không tự gia hạn hay tự kết luận.
+- **Hạn chót:** gần hạn thì kiểm dày hơn. Qua hạn mà chưa đạt thì báo một lần; Jarvis 007 không tự gia hạn hay tự kết luận.
 
 ## File bạn sửa tay
 
-File sản phẩm bị sửa ngoài Javis sau lần Javis ghi:
-- Javis không ghi đè, không gọi model làm lại, báo một lần mỗi phiên bản file;
+File sản phẩm bị sửa ngoài Jarvis 007 sau lần Jarvis 007 ghi:
+- Jarvis 007 không ghi đè, không gọi model làm lại, báo một lần mỗi phiên bản file;
 - tự kiểm lại sau 1 giờ, giãn dần tới 24 giờ; góp ý thì kiểm ngay;
-- đưa file về đúng bản Javis đã ghi thì Javis làm tiếp; bản bạn sửa vẫn đạt tiêu chí thì Javis ghi nhận và không làm gì thêm.
+- đưa file về đúng bản Jarvis 007 đã ghi thì Jarvis 007 làm tiếp; bản bạn sửa vẫn đạt tiêu chí thì Jarvis 007 ghi nhận và không làm gì thêm.
 
 ## Điều kiện bảo vệ (guard)
 
@@ -45,8 +45,8 @@ Không có ô cài đặt mới. Các khoảng thời gian là hằng có phiên
 
 ## Nâng cấp từ 0.87.x
 
-- **Không phải làm gì tay.** Lần đầu mở kho, Javis chép `resonance.sqlite3` thành `resonance.sqlite3.pre-a2.bak` cạnh file gốc, chỉ một lần.
-- **Kho chỉ có thêm bốn bảng mới:** `wake_reasons` (lý do thức), `wake_log` (sổ thức, chỉ để xem), `source_observations` (bản file bị sửa ngoài Javis), `heartbeat_state` (chuỗi lỗi và tiến bộ dùng để quyết định thử lại). Không bảng cũ nào đổi cột.
+- **Không phải làm gì tay.** Lần đầu mở kho, Jarvis 007 chép `resonance.sqlite3` thành `resonance.sqlite3.pre-a2.bak` cạnh file gốc, chỉ một lần.
+- **Kho chỉ có thêm bốn bảng mới:** `wake_reasons` (lý do thức), `wake_log` (sổ thức, chỉ để xem), `source_observations` (bản file bị sửa ngoài Jarvis 007), `heartbeat_state` (chuỗi lỗi và tiến bộ dùng để quyết định thử lại). Không bảng cũ nào đổi cột.
 - **Mục tiêu đang mở được dựng lại lý do từ lịch sử sự kiện:**
   - chưa làm lượt nào thì có lý do "việc mới";
   - góp ý chưa xử lý thì vẫn được xử lý một lần.

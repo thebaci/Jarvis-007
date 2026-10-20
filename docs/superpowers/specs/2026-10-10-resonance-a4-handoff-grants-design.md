@@ -42,9 +42,9 @@ A5 dùng lại đúng hợp đồng này cho cặp làm/review.
 **Người dùng thấy:**
 
 - Anh giao kết quả một lần.
-- **Đích mới hay đổi phạm vi:** anh bấm Cho phép trên thẻ, kèm đúng đường file. Kể cả khi lời giao đã nêu đích, Javis vẫn hỏi một lần; A4 không suy quyền ghi từ lời chat.
+- **Đích mới hay đổi phạm vi:** anh bấm Cho phép trên thẻ, kèm đúng đường file. Kể cả khi lời giao đã nêu đích, Jarvis 007 vẫn hỏi một lần; A4 không suy quyền ghi từ lời chat.
 - **Phạm vi đã cấp:** trợ lý tự làm tiếp, không hỏi lại từng bước hay từng lần sửa.
-- **Bản nháp được giữ:** bản trợ lý soạn trước khi anh cho phép được giữ làm nháp. Anh bấm Cho phép thì Javis đăng đúng bản đó, bước này không gọi model. Mục tiêu chưa có bản nháp thì sau khi cho phép, việc nền chạy theo ngân sách lượt như thường.
+- **Bản nháp được giữ:** bản trợ lý soạn trước khi anh cho phép được giữ làm nháp. Anh bấm Cho phép thì Jarvis 007 đăng đúng bản đó, bước này không gọi model. Mục tiêu chưa có bản nháp thì sau khi cho phép, việc nền chạy theo ngân sách lượt như thường.
 - Thẻ mục tiêu hiện: được làm gì, trên file nào, tối đa bao nhiêu lượt, có được giao tiếp không, nút Thu hồi.
 
 **Giữ nguyên:**
@@ -346,7 +346,7 @@ Bốn bước, không giữ khoá trong lúc gọi model hay ghi file:
 
 **Thông báo khi thu hồi chen giữa:**
 
-- Có `commit_at`, chưa có bằng chứng ở đích: "Lần đăng đã được chốt trước khi thu hồi; Javis đang hoàn tất." Chưa nói file đã đăng.
+- Có `commit_at`, chưa có bằng chứng ở đích: "Lần đăng đã được chốt trước khi thu hồi; Jarvis 007 đang hoàn tất." Chưa nói file đã đăng.
 - Bước 4 khớp hash: "Đã hoàn tất lần đăng được chốt trước khi thu hồi" kèm sha. Không nói "đã đăng trước khi thu hồi", vì file có thể được thay sau lúc thu hồi.
 - Bước 4 không khớp: báo xung đột như mọi lần đăng khác.
 
@@ -615,7 +615,7 @@ Review vòng 1 chỉ ra `apply_command(..., "resume")` của 0.95.1 gỡ tạm d
   1. `GoalStore._backup_before("grants", ".pre-0.96.0")`: dùng lại helper có sẵn, SQLite backup API (lấy cả phần trong WAL), chỉ khi kho chưa có bảng `grants`, không ghi đè bản đã có.
   2. Tạo bảng mới.
   3. Đóng băng legacy (mục 5.2) trong cùng giao dịch tạo bảng, trước khi server nhận lời gọi.
-- **Hạ đúng cách,** bằng script đi kèm `tools/resonance_restore_pre_a4.py`, chạy khi Javis đã tắt:
+- **Hạ đúng cách,** bằng script đi kèm `tools/resonance_restore_pre_a4.py`, chạy khi Jarvis 007 đã tắt:
   1. Chép kho **hiện tại** sang `resonance.sqlite3.post-0.96.0-<thời điểm>` bằng SQLite backup API, để giữ hồ sơ sau nâng.
   2. Khôi phục snapshot vào đường kho bằng backup API, rồi dọn `-wal`/`-shm` cũ.
   3. Chạy 0.95.1.
@@ -637,7 +637,7 @@ Review vòng 1 chỉ ra `apply_command(..., "resume")` của 0.95.1 gỡ tạm d
   - Có bản nháp: thêm "Trợ lý đã soạn sẵn một bản (3,2 KB). Cho phép sẽ đăng đúng bản này" và nút Xem trước.
   - Thẻ gửi `request_id`, `path`, `submission_id`, `sha256` đã hiển thị. Thẻ cũ nhận lời "Thẻ đã cũ, tải lại để xem yêu cầu hiện tại".
 - **Bản nháp:** "1 bản nháp chờ đăng", hay "Bản nháp bị xung đột với file hiện có; xem trong lịch sử".
-- **Thu hồi chen giữa lần đăng:** "Lần đăng đã được chốt trước khi thu hồi; Javis đang hoàn tất", rồi "Đã hoàn tất lần đăng được chốt trước khi thu hồi" khi có bằng chứng ở đích.
+- **Thu hồi chen giữa lần đăng:** "Lần đăng đã được chốt trước khi thu hồi; Jarvis 007 đang hoàn tất", rồi "Đã hoàn tất lần đăng được chốt trước khi thu hồi" khi có bằng chứng ở đích.
 - **Trang Cộng sự:** bảng khả năng engine (mục 6.1).
 - Chữ qua `vi.json` và `en.json`. Không có ô cấu hình quyền kỹ thuật.
 

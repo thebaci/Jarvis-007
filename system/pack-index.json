@@ -3,10 +3,10 @@
   "format_version": 1,
   "updated": "2026-09-05",
   "store": {
-    "name": "Kho cài đặt Javis",
+    "name": "Kho cài đặt Jarvis 007",
     "url": "https://github.com/blogminhquy/javis-store"
   },
-  "_doc": "ĐÃ ĐÔNG LẠI - kho thật chuyển sang repo riêng https://github.com/blogminhquy/javis-store từ 0.55.30. Tệp này ở lại để bản Javis 0.55.24-0.55.29 (vốn trỏ cứng vào đây) vẫn xem và cài được, nên mục bên dưới dùng địa chỉ TUYỆT ĐỐI trỏ sang kho mới. Không thêm gì vào đây nữa; thêm gói mới ở repo kho.",
+  "_doc": "ĐÃ ĐÔNG LẠI - kho thật chuyển sang repo riêng https://github.com/blogminhquy/javis-store từ 0.55.30. Tệp này ở lại để bản Jarvis 007 0.55.24-0.55.29 (vốn trỏ cứng vào đây) vẫn xem và cài được, nên mục bên dưới dùng địa chỉ TUYỆT ĐỐI trỏ sang kho mới. Không thêm gì vào đây nữa; thêm gói mới ở repo kho.",
   "packs": [
     {
       "id": "javis.tinh-gia",
@@ -17,7 +17,7 @@
         "en": "Turn cost into a shelf price: margin or markup, VAT, rounded up to a tidy number."
       },
       "version": "1.0.0",
-      "author": { "name": "Javis" },
+      "author": { "name": "Jarvis 007" },
       "category": "ban-hang",
       "category_label": { "vi": "Bán hàng", "en": "Sales" },
       "tier": "code",

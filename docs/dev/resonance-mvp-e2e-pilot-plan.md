@@ -310,7 +310,7 @@ Danh sách tool trong tin `init` của Claude Code không đọc được từ n
 2. **Lộ một chỗ hở thật của sản phẩm**, đúng ca review đã lường ("làm phần hữu ích ngay và vẫn lưu trách nhiệm vào mục tiêu"). Khi bộ não viết bản đầu trong lượt rồi lập mục tiêu:
    - host vẫn tiêu một lượt việc nền làm lại bản đầu;
    - bản đó không đăng được vì xung đột;
-   - tin báo nói sai nguồn gốc ("file đã được sửa sau lần Javis ghi trước", trong khi Javis chưa từng ghi).
+   - tin báo nói sai nguồn gốc ("file đã được sửa sau lần Jarvis 007 ghi trước", trong khi Jarvis 007 chưa từng ghi).
    Hướng sửa cần review trước khi làm, ví dụ: lúc lập mục tiêu, host nhận file bộ não vừa ghi trong chính lượt đó làm bản đầu (có hash, đúng phiên, đúng file của tiêu chí) và không xếp lượt việc nền cho tới khi có góp ý.
 3. **Bản Sonnet bị mất** vì vùng làm việc nằm trong sandbox. Bộ chạy nên lưu cả đầu ra việc nền khi không đăng được.
 4. ~~Trace thiếu kết quả của khung công cụ~~ (sai, xem trên): `javis_goal` gọi hai lần vì lần đầu thiếu `at_iso`.

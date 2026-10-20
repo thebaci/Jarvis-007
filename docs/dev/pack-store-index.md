@@ -1,43 +1,45 @@
-# Kho gói: định dạng danh mục và cách phát hành
+# Pack store: catalog format and how to publish
 
-Kho gói của Javis là **đúng một file JSON công khai**. Không có máy chủ nào phải nuôi, không có
-cơ sở dữ liệu, không có tài khoản. Sửa file đó là kho đổi.
+The Jarvis 007 pack store is **exactly one public JSON file**. There is no server to run, no
+database, no accounts. Edit that file and the store changes.
 
-Đơn giản được đến vậy vì kho chỉ làm MỘT việc: giúp người dùng **tìm ra** gói. Việc khó (mở
-gói, kiểm, hỏi, cài, gỡ sạch) nằm ở `server/pack_install.py` và nó không quan tâm gói đến từ
-đâu. Cài từ kho đi qua **đúng** màn hình xác nhận như kéo một tệp `.zip` vào.
+It can be this simple because the store does only ONE job: helping users **find** a pack. The hard work (opening the
+pack, checking, asking, installing, uninstalling cleanly) lives in `server/pack_install.py`, which does not care where a pack comes from.
+Installing from the store goes through **exactly** the same confirmation screen as dragging in a `.zip` file.
 
-Kho nằm ở **REPO RIÊNG**: [blogminhquy/javis-store](https://github.com/blogminhquy/javis-store),
-Javis đọc `index.json` ở đó qua `raw.githubusercontent.com`. Người dùng đổi sang kho khác được ở
-`settings.json` khoá `packs.store_url`.
+The store lives in a **SEPARATE REPO**: [blogminhquy/javis-store](https://github.com/blogminhquy/javis-store),
+and Jarvis 007 reads `index.json` there through `raw.githubusercontent.com`. Users can switch to another store with the
+`packs.store_url` key in `settings.json`.
 
-Tách repo là điểm mấu chốt của cả tầng này, không phải chuyện gọn gàng. Hai thứ nó mở ra:
+Splitting the repo is the key point of this whole layer, not tidiness. It opens up two things:
 
-- **Thêm gói không còn dính tới việc ra bản mới của app.** Đẩy một commit vào repo kho là mọi
-  máy đang chạy thấy ngay ở lần làm mới danh mục kế tiếp.
-- **Người lạ đóng góp được.** Họ gửi Pull Request vào repo kho, chủ kho đọc mã rồi mới trộn - mà
-  không ai phải có quyền ghi vào mã nguồn Javis.
+- **Adding a pack no longer depends on shipping a new app release.** Push one commit to the store repo and every
+  running machine sees it on its next catalog refresh.
+- **Strangers can contribute.** They send a Pull Request to the store repo, the store owner reads the code and only then merges - and
+  nobody needs write access to the Jarvis 007 source code.
 
-`system/pack-index.json` trong repo này đã **đông lại**, chỉ còn để bản 0.55.24-0.55.29 (vốn trỏ
-cứng vào đó) vẫn xem và cài được. Đừng thêm gì vào đó nữa.
+`system/pack-index.json` in this repo is now **frozen**, kept only so releases 0.55.24-0.55.29 (which point
+straight at it) can still browse and install. Do not add anything to it any more.
 
 ---
 
-## Định dạng
+## Format
+
+The `"vi"` values below are the Vietnamese-locale strings of the example pack, kept as they are (the keys select the display language).
 
 ```json
 {
   "format": "javis-pack-index",
   "format_version": 1,
   "updated": "2026-09-04",
-  "store": {"name": "Kho gói Javis", "url": "https://github.com/..."},
+  "store": {"name": "Kho gói Jarvis 007", "url": "https://github.com/..."},
   "packs": [
     {
       "id": "javis.tinh-gia",
       "name": {"vi": "Tính giá bán", "en": "Pricing helper"},
       "description": {"vi": "Tính giá bán từ giá vốn và biên lợi nhuận."},
       "version": "1.0.0",
-      "author": {"name": "Javis"},
+      "author": {"name": "Jarvis 007"},
       "kind": "tool",
       "category": "sales",
       "category_label": {"vi": "Bán hàng", "en": "Sales"},
@@ -58,139 +60,139 @@ cứng vào đó) vẫn xem và cài được. Đừng thêm gì vào đó nữa
 }
 ```
 
-Bắt buộc: `id` và `download.url`. Mục thiếu một trong hai bị **bỏ qua** chứ không hiện ra, vì
-một thẻ bấm vào không cài được thì tệ hơn là không có thẻ.
+Required: `id` and `download.url`. An entry missing either one is **skipped** rather than shown, because
+a card that cannot be installed when clicked is worse than no card.
 
-`download.url` viết tương đối cũng được, Javis ghép với địa chỉ của chính file index.
+`download.url` may also be relative; Jarvis 007 joins it with the address of the index file itself.
 
-`icon` là logo trên thẻ trong Kho cài đặt: đường dẫn **tương đối** so với file index, trỏ vào
-một ảnh `.png` / `.webp` / `.jpg` / `.gif`. Javis ghép nó như `download.url` và chỉ giữ khi kết
-quả nằm **cùng host** với index; URL tuyệt đối, `data:` hay `.svg` đều bị bỏ và thẻ rơi về ô chữ
-cái. Luật cùng host là để một mục trong kho không thành beacon gõ về máy chủ của bên thứ ba mỗi
-lần người dùng mở lưới. Kho chính đặt logo ngay trong gói (`packs/<id>/assets/`), nên thẻ trong
-kho và trang Kết nối sau khi cài dùng đúng một tệp.
-
----
-
-## Năm điều dễ hiểu sai
-
-**`kind` là thứ chia lưới thành các tab.** Một trong `agent`, `skill`, `workflow`, `tool`,
-`connector`, `bundle`. Nó quyết định mục hiện dưới chip nào và mang nhãn gì, và nó là đường
-người dùng đi tới: bấm tab "Kho cài đặt" ở trang Kỹ năng là vào kho đã lọc sẵn `skill`. Giá trị
-lạ hay thiếu rơi về `bundle` chứ KHÔNG bị loại - một thẻ lọc không trúng vẫn tốt hơn một thẻ
-biến mất mà không ai hiểu vì sao. Dùng `bundle` cho gói thật sự gồm nhiều thứ.
-
-**`tier` là lời khai, không phải sự thật.** Nó chỉ để lọc và hiện nhãn trên lưới. Bậc THẬT do
-trình cài tự tính từ tệp đã tải về (`pack_install.soi` quét tìm `.py`, `transport: stdio`, khối
-`env`...). Khai `data` mà đóng gói `code` thì màn hình xác nhận vẫn nói đúng, và vẫn hiện khối cảnh
-báo đỏ.
-
-**`sha256` là chốt CHỐNG ĐỔI, không phải chốt xác thực người phát hành.** Nó và địa chỉ tải
-cùng nằm trong một file, nên ai sửa được file đó thì sửa được cả hai. Cái nó thật sự bắt là
-trường hợp tệp tải về **khác** thứ kho công bố, tức đường tải bị chen ngang. Có `sha256` thì
-Javis dừng ngay ở bước tải, chưa kịp hỏi gì.
-
-**Mọi trường đều bị cắt và ép kiểu khi đọc.** `packs_store._lam_sach` là chỗ duy nhất quyết
-định trường nào đi tiếp; khoá lạ bị bỏ. Lý do: `name` và `description` đi thẳng vào giao diện,
-còn mô tả tool của gói thì đi thẳng vào danh sách tool của những engine đang cầm Bash.
-
-**Kho không tới được KHÔNG làm hỏng gì.** Còn cache thì vẫn vẽ lưới kèm một dòng nói số liệu
-đã cũ; không cache thì trạng thái rỗng kèm lời nhắc vẫn cài được từ tệp. Gói đã cài không phụ
-thuộc kho chút nào.
+`icon` is the logo on the card in the Store: a path **relative** to the index file, pointing at
+a `.png` / `.webp` / `.jpg` / `.gif` image. Jarvis 007 joins it like `download.url` and keeps it only when the
+result is on the **same host** as the index; an absolute URL, `data:` or `.svg` is dropped and the card falls back to the
+letter tile. The same-host rule exists so that a store entry cannot become a beacon calling a third party's server every
+time a user opens the grid. The main store puts the logo inside the pack (`packs/<id>/assets/`), so the card in the
+store and the Connections page after install use exactly one file.
 
 ---
 
-## Phát hành một gói
+## Five easy misunderstandings
 
-Làm trong repo kho, không phải repo này.
+**`kind` is what splits the grid into tabs.** One of `agent`, `skill`, `workflow`, `tool`,
+`connector`, `bundle`. It decides which chip an entry appears under and what label it carries, and it is the path
+users take to get there: clicking the Store tab on the Skills page opens the store already filtered to `skill`. An
+unknown or missing value falls back to `bundle` and is NOT dropped - a card that a filter misses is still better than a card
+that vanishes with nobody knowing why. Use `bundle` for a pack that really contains several things.
 
-1. Đặt mã nguồn ở `packs/<id>/`, rồi đóng gói và lấy luôn dấu vân tay:
+**`tier` is a claim, not the truth.** It is only for filtering and showing a label on the grid. The REAL tier
+is computed by the installer from the downloaded file (`pack_install.soi` scans for `.py`, `transport: stdio`, an `env`
+block...). Claim `data` while packaging `code` and the confirmation screen still tells the truth, and still shows the red warning
+block.
+
+**`sha256` is a TAMPER-PROOF lock, not a check of who published it.** It and the download address
+sit in the same file, so whoever can edit that file can edit both. What it really catches is the case where the downloaded file is
+**different** from what the store announced, that is, the download path was intercepted. With a `sha256`,
+Jarvis 007 stops right at the download step, before it has asked anything.
+
+**Every field is trimmed and type-coerced on read.** `packs_store._lam_sach` is the only place that
+decides which fields pass through; unknown keys are dropped. The reason: `name` and `description` go straight into the UI,
+and a pack's tool descriptions go straight into the tool list of engines that hold Bash.
+
+**An unreachable store does NOT break anything.** With a cache, the grid is still drawn with a line saying the data
+is stale; without a cache, the empty state with a reminder still lets you install from a file. Installed packs do not depend
+on the store at all.
+
+---
+
+## Publishing a pack
+
+Do this in the store repo, not this one.
+
+1. Put the source in `packs/<id>/`, then package it and get the fingerprint in the same step:
    ```bash
    python tools/dong-goi.py javis.tinh-gia
    ```
-   Lệnh in ra đường dẫn tệp và `sha256`. Đóng bằng `zip -r` cũng được, nhưng nhớ loại
-   `__pycache__` ra: nó lọt vào chữ ký nội dung mã nên hai máy sẽ ra hai `sha256` khác nhau.
-   Manifest `javis-pack.yaml` phải nằm ở gốc tệp nén, hoặc trong đúng một thư mục bọc kiểu
-   zipball của GitHub, Javis tự bóc.
-   Lệnh tự đặt tệp vào `dist/` với tên kèm phiên bản và in sẵn khối JSON để dán.
+   The command prints the file path and the `sha256`. Packing with `zip -r` also works, but remember to exclude
+   `__pycache__`: it leaks into the code's content signature so two machines would produce two different `sha256` values.
+   The manifest `javis-pack.yaml` must be at the root of the archive, or inside exactly one wrapper folder like a GitHub
+   zipball, which Jarvis 007 unwraps by itself.
+   The command puts the file into `dist/` automatically with a name that includes the version and prints the JSON block ready to paste.
 
-2. Thêm một mục vào `packs[]` trong `index.json`, khai `download.url` **tương đối**
-   (`dist/javis-tinh-gia-1.0.0.zip`). Javis ghép nó với địa chỉ của chính file index.
+2. Add an entry to `packs[]` in `index.json`, declaring `download.url` as **relative**
+   (`dist/javis-tinh-gia-1.0.0.zip`). Jarvis 007 joins it with the address of the index file itself.
 
-   Tệp và mục danh mục nằm trong CÙNG một commit, nên không bao giờ có cảnh index đã trỏ sang
-   bản mới mà tệp thì chưa lên. Gói lớn thì dùng Release và khai địa chỉ tuyệt đối.
+   The file and the catalog entry go in the SAME commit, so there is never a moment when the index already points to
+   the new version while the file is not uploaded yet. For large packs use a Release and declare an absolute address.
 
-3. Đẩy lên nhánh `main` của repo kho, hoặc mở Pull Request nếu bạn không phải chủ kho.
+3. Push to the `main` branch of the store repo, or open a Pull Request if you are not the store owner.
 
-Mã nguồn nằm cạnh tệp phát hành là có chủ ý: gói bậc `code` chạy Python thật trong máy chủ Javis
-của người cài, nên họ phải đọc được nó mà không cần tải gì về trước. `packs/javis.tinh-gia/` là
-gói chạy được để chép làm khuôn.
+Keeping the source next to the release file is deliberate: a `code`-tier pack runs real Python inside the installer's Jarvis 007 server,
+so they must be able to read it without downloading anything first. `packs/javis.tinh-gia/` is a
+working pack to copy as a template.
 
-Javis cache danh mục 6 giờ, nên sau khi đẩy thì bấm **Làm mới** trên trang Kho cài đặt để thấy ngay.
-
----
-
-## Ra bản mới cho một gói đã phát hành
-
-Tăng `version` trong CẢ HAI chỗ: manifest bên trong gói, và mục trong index. Đóng gói lại (tên
-tệp tự mang số bản mới), GIỮ tệp cũ trong `dist/` - người dùng cần tải lại bản trước khi bản mới
-hỏng - rồi đổi `download.url` và `sha256`.
-
-Người đã cài bản cũ sẽ thấy nút đổi thành **Có bản mới vX**. Bấm vào là đi qua đúng luồng cài
-lại: tải, mở ra xem, xác nhận. **Javis không bao giờ tự cập nhật một gói có mã** - bản mới có
-thể đổi mã, và mã đổi mà không ai xem thì toàn bộ chốt chữ ký nội dung ở
-`plugins_host._pack_duoc_nap` thành vô nghĩa.
-
-**MCP của bên thứ 3 thì khác** (chủ repo chốt 2026-10-05): bên đó có bản phát hành chính thức thì
-connector đi theo bản đó. Connector chạy qua `npx`/`uvx` lấy MCP từ npm/PyPI và ghi tên gói kèm
-`@latest`; để trống phiên bản là chưa đủ, vì `npx`/`uvx` dùng lại bản đã tải lần đầu. Bên thứ 3 ra
-bản mới thì máy chạy bản đó ở lần khởi động kế tiếp, không cần ra bản gói hay bản Javis. Ngoại lệ
-khai bằng `ngoai_le_ban_chinh_thuc` kèm lý do. Ngoại lệ duy nhất hiện có là Zalo: không đi theo bản
-gốc nữa, Javis chuyển sang bản CLI riêng và chỉ giữ thư viện `zca-js` đi theo bản chính thức.
-`tests/python/test_mcp_official_release.py` canh catalog của app, `tools/kiem-tra.py` canh kho, và
-job `soi-ban-moi` trong CI của kho chạy thử bản mới nhất thật mỗi ngày để bắt tool mới chưa phân
-loại.
+Jarvis 007 caches the catalog for 6 hours, so after pushing, click **Refresh** on the Store page to see it right away.
 
 ---
 
-## Gói mang theo agent, workflow, skill
+## Releasing a new version of a published pack
 
-Tệp đặt ở `agents/`, `workflows/`, `skills/<slug>/` bên trong gói; Javis tìm chúng **theo thư
-mục**. Chỉ `provides.connectors` là bắt buộc khai trong manifest, vì mỗi connector là một tệp
-phải trỏ đúng tên; khai thêm `provides.plugins` hay `provides.skills` là để người đọc manifest
-biết gói có gì mà không phải mở từng thư mục, chứ trình cài không đọc.
+Raise `version` in BOTH places: the manifest inside the pack, and the entry in the index. Repackage (the file
+name carries the new version number by itself), KEEP the old file in `dist/` - users need to download the previous version when the new one is
+broken - then change `download.url` and `sha256`.
 
-Chúng được ghi vào **brain đang mở lúc bấm Cài**, không phải mọi brain.
+People who installed the old version will see the button change to **Update to vX**. Clicking it goes through exactly the reinstall
+flow: download, open and inspect, confirm. **Jarvis 007 never auto-updates a pack that contains code** - a new version can
+change the code, and if the code changes without anyone looking, the whole content-signature lock in
+`plugins_host._pack_duoc_nap` becomes meaningless.
 
-Ba luật, và chúng là lý do phần này có một module riêng (`server/pack_vault.py`):
+**Third-party MCPs are different** (the repo owner decided on 2026-10-05): when that party has an official release,
+the connector follows that release. A connector that runs through `npx`/`uvx` fetches the MCP from npm/PyPI and writes the package name with
+`@latest`; leaving the version empty is not enough, because `npx`/`uvx` reuses the version downloaded the first time. When the third party ships a
+new version, the machine runs it on the next start, with no pack release or Jarvis 007 release needed. An exception is
+declared with `ngoai_le_ban_chinh_thuc` plus a reason. The only exception today is Zalo: it no longer follows the
+upstream release, Jarvis 007 moved to its own CLI build and only keeps the `zca-js` library following the official release.
+`tests/python/test_mcp_official_release.py` guards the app's catalog, `tools/kiem-tra.py` guards the store, and
+the `soi-ban-moi` job in the store's CI really runs the latest release every day to catch new tools that are not yet
+classified.
 
-1. Cài **không ghi đè** một mục đã có mà gói không phải người đặt vào đó. Người dùng tự đặt tên
-   trùng thì tệp của họ thắng, và màn hình xác nhận nói trước điều đó.
-2. Bản cập nhật của gói chỉ ghi đè khi mục **còn y nguyên** như lúc gói đặt vào. Đã sửa thì giữ
-   bản của người dùng, y hệt cách `system_sync` đối xử với skill hệ thống.
-3. Gỡ **chỉ xoá thứ còn y nguyên**. Đã sửa thì giữ lại và hộp thoại nói rõ giữ lại những gì.
+---
 
-So sánh hash dùng lại `system_sync` nên đã chuẩn hoá kiểu xuống dòng: mở tệp bằng trình soạn
-thảo Windows rồi lưu **không** bị hiểu nhầm là đã sửa.
+## Packs that carry agents, workflows, skills
 
-## Kho riêng cần mã truy cập
+Files go in `agents/`, `workflows/`, `skills/<slug>/` inside the pack; Jarvis 007 finds them **by
+folder**. Only `provides.connectors` must be declared in the manifest, because each connector is a file
+that must point at the right name; declaring `provides.plugins` or `provides.skills` as well is so that someone reading the manifest
+can see what the pack has without opening every folder, and the installer does not read it.
 
-Lưu ở Cài đặt, **một mã cho mỗi tên máy** (một mã GitHub dùng được cho mọi repo nó có quyền).
-Mã được mã hoá khi ghi xuống đĩa, đi bằng header chứ không nhét vào địa chỉ, và **bị bỏ khi bị
-chuyển hướng sang tên máy khác** - gửi tiếp mã của máy cũ sang máy mới là cách rò mã quen thuộc
-nhất.
+They are written into the **brain that is open when you click Install**, not every brain.
 
-## Kho hiện ra ở đâu trong app
+Three rules, and they are the reason this part has its own module (`server/pack_vault.py`):
 
-Kho là **một** kho, ở trang **Kho cài đặt** trên thanh bên. Bốn trang năng lực (Trợ lý, Kỹ
-năng, Quy trình, Plugin) mỗi trang có một tab dẫn sang đó, đã lọc sẵn đúng loại của trang.
+1. Installing **does not overwrite** an existing entry that the pack did not put there. If the user picked the same name,
+   their file wins, and the confirmation screen says so in advance.
+2. A pack update overwrites only when the entry is **still exactly as** the pack placed it. If it was edited, the user's
+   version is kept, exactly how `system_sync` treats system skills.
+3. Uninstalling **deletes only what is still unchanged**. Edited items are kept and the dialog says clearly what it kept.
 
-Tab chỉ ĐIỀU HƯỚNG, không nhúng một bản sao của lưới. Bốn bản sao là bốn thứ sẽ lệch nhau sau
-vài tháng, và người dùng thì phải học hai lần cùng một giao diện.
+The hash comparison reuses `system_sync`, so line endings are normalized: opening a file in a Windows editor
+and saving it is **not** mistaken for an edit.
 
-## Giới hạn cố ý của bản này
+## Private stores that need an access token
 
-Chưa có: trang hướng dẫn riêng của gói; ghim gói theo commit; kiểm bản mới định kỳ; và số lượt
-tải.
+Stored in Settings, **one token per hostname** (one GitHub token works for every repo it has access to).
+The token is encrypted when written to disk, travels in a header rather than in the address, and is **dropped when
+redirected to a different hostname** - forwarding the old host's token to the new host is the most common
+way tokens leak.
 
-Trần: 500 gói mỗi index, 4MB cho file index, 25MB cho một gói.
+## Where the store shows up in the app
+
+The store is **one** store, on the **Store** page in the sidebar. Four capability pages (Agents, Skills,
+Workflows, Plugins) each have a tab that leads there, already filtered to that page's kind.
+
+The tab only NAVIGATES, it does not embed a copy of the grid. Four copies are four things that drift apart after
+a few months, and users would have to learn the same interface twice.
+
+## Deliberate limits of this version
+
+Not yet there: a dedicated guide page per pack; pinning a pack to a commit; periodic checks for new versions; and download
+counts.
+
+Ceilings: 500 packs per index, 4MB for the index file, 25MB for one pack.

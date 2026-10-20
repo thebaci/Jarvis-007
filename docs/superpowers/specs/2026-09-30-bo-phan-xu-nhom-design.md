@@ -20,9 +20,9 @@ dần dần tự học cách trả lời trong nhóm; học TRỰC TIẾP chứ 
 nick riêng nên nói nhầm là rẻ.
 
 Và điều quan trọng nhất, chủ nói rõ sau bản đặc tả đầu: chủ chạy NHIỀU bot với lĩnh vực và nhóm không
-liên quan nhau (ví dụ Javis Vũ hỗ trợ về Javis, Nhi Mai và Ngọc Thu mỗi người một ngành khác). Cách
+liên quan nhau (ví dụ Jarvis 007 Vũ hỗ trợ về Jarvis 007, Nhi Mai và Ngọc Thu mỗi người một ngành khác). Cách
 trả lời của mỗi bot phải đến từ Agent của chính nó. Bản thiết kế không được mượn giọng, ca hay ví dụ
-của bot này cho bot kia, và không được thiên về trường hợp của Javis Vũ.
+của bot này cho bot kia, và không được thiên về trường hợp của Jarvis 007 Vũ.
 
 ## 2. Mục tiêu và không mục tiêu
 
@@ -93,10 +93,10 @@ Ba khối dữ liệu tách rời, đổi cái này không đụng cái kia:
 | Bot | phạm vi đảm nhiệm và không đảm nhiệm, giọng, xưng hô, ngôn ngữ, khi nào nên lên tiếng | biên dịch từ file Agent và mục lục tài liệu brain của CHÍNH bot (5.10) | chủ sửa tay; tự soạn lại khi Agent đổi |
 | Cuộc chat | ngưỡng lệch, ca đã học, bài học | phản ứng trong chính nhóm đó | học tự động; chủ xoá được |
 
-Ví dụ với ba bot: Javis Vũ nhận câu hỏi về Javis, Nhi Mai và Ngọc Thu mỗi người nhận đúng ngành của
+Ví dụ với ba bot: Jarvis 007 Vũ nhận câu hỏi về Jarvis 007, Nhi Mai và Ngọc Thu mỗi người nhận đúng ngành của
 mình. Cả ba dùng CÙNG một bộ máy, nhưng hồ sơ vai, ca khởi tạo, ca đã học, ngưỡng và bài học đều tách
 riêng theo `bot_id` (và theo cuộc chat). Bộ phán xử của Nhi Mai không bao giờ đọc thấy ca, ví dụ hay
-giọng của Javis Vũ. Ai học gì ở nhóm nào thì chỉ ở nhóm đó.
+giọng của Jarvis 007 Vũ. Ai học gì ở nhóm nào thì chỉ ở nhóm đó.
 
 Mã mới nằm trong `server/chatbot_reply_policy.py` (bộ máy, thuần và test được) và
 `server/chatbot_reply_policy_store.py` (SQLite). Không nhét vào `chatbot_runtime.py` thêm nữa.
@@ -162,7 +162,7 @@ Tên gọi (`aliases`) gồm: nhãn kết nối, tên hiển thị học đượ
 thêm. KHÔNG tự lấy tên Agent hay tên bot ("@Lan" trong nhóm thường là một thành viên tên Lan). Tên
 tự suy phải dài từ 4 ký tự trở lên sau chuẩn hoá; tên do chủ thêm không bị luật này.
 
-Ví dụ phải đúng (chạy cả bản không dấu): "javis vũ ơi" certain; "Javis Vũ giúp anh cái này" certain;
+Ví dụ phải đúng (chạy cả bản không dấu): "javis vũ ơi" certain; "Jarvis 007 Vũ giúp anh cái này" certain;
 "alo javis vu" certain; "hỏi javis vũ xem" possible; "mai họp mấy giờ" none; "@Lan xem giúp" none.
 
 `certain` thì trả lời luôn như chat riêng, KHÔNG qua người phán xử, KHÔNG cần tài liệu, không đếm

@@ -4,7 +4,7 @@ slug: javis-team
 version: 1.0.0
 description: Tạo, sửa, lưu trữ và xoá nhóm chat, thêm bớt trợ lý, chọn trưởng nhóm, tạo trợ lý mới với model riêng rồi ghép vào nhóm, ngay từ chat và trên mọi engine. Trước tool này phải vào trang Nhóm bấm tay, hoặc điều khiển trình duyệt.
 description_en: "Creates, edits, archives and deletes team chats, adds or removes assistants, picks the leader, and creates new assistants with their own model then adds them, right from chat on every engine. Before this tool it took clicks on the Teams page or driving a browser."
-author: Javis (bundled)
+author: Jarvis 007 (bundled)
 enabled: true
 min_mode: safe
 tools:

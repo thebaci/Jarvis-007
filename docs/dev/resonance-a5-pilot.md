@@ -1,166 +1,166 @@
-# Resonance A5: kịch bản và bộ chạy pilot
+# Resonance A5: pilot scenario and runner
 
-**Trạng thái:** mã A5 đạt review mã vòng 2 tại `05e9b065` (Codex, 12/10/2026); bộ chạy đạt review cổng vòng 3 tại `33cec518`. **Pilot thật đã chạy hai lần tại `33cec518`, mỗi lần một lời duyệt riêng của chủ dự án:** real-1 dừng `stopped` ở cổng token (0 lượt); real-2 ra `pending_content_review`, nhánh `pass_first`, và được reviewer chấp nhận trong phạm vi một mẫu đó. Kết quả, hash và giới hạn: [biên bản, mục Pilot thật](resonance-a5-verification.md#pilot-thật-13102026). A5 **đã phát hành 0.109.0** (`bfb1c29f`, PR #616, 13/10/2026; CI `main` run 38369853756 và build image run 38369852881 thành công; image `ghcr.io/blogminhquy/javis-os:0.109.0`, digest `sha256:3890f824…`; VPS chưa kéo). Mọi lần chạy real tiếp theo vẫn cần chủ dự án duyệt riêng; review mã không cấp quyền đó.
+**Status:** the A5 code passed code review round 2 at `05e9b065` (Codex, 2026-10-12); the runner passed gate review round 3 at `33cec518`. **The real pilot ran twice at `33cec518`, each time with its own approval from the project owner:** real-1 stopped (`stopped`) at the token gate (0 calls); real-2 ended as `pending_content_review`, branch `pass_first`, and was accepted by the reviewer within the scope of that one sample. Results, hashes and limits: [verification record, section Real pilot](resonance-a5-verification.md#real-pilot-2026-10-13). A5 **shipped in 0.109.0** (`bfb1c29f`, PR #616, 2026-10-13; `main` CI run 38369853756 and image build run 38369852881 succeeded; image `ghcr.io/blogminhquy/javis-os:0.109.0`, digest `sha256:3890f824…`; the VPS has not pulled it). Every later real run still needs its own approval from the project owner; code review does not grant that permission.
 
-Thiết kế: [2026-10-11-resonance-a5-maker-reviewer-design.md](../superpowers/specs/2026-10-11-resonance-a5-maker-reviewer-design.md). Biên bản kiểm mã: [resonance-a5-verification.md](resonance-a5-verification.md).
+Design: [2026-10-11-resonance-a5-maker-reviewer-design.md](../superpowers/specs/2026-10-11-resonance-a5-maker-reviewer-design.md). Code verification record: [resonance-a5-verification.md](resonance-a5-verification.md).
 
-## Pilot chứng minh gì, và không chứng minh gì
+## What the pilot proves, and what it does not
 
-Chứng minh bằng model thật, trên đường host thật (server thật, kho thật, nhịp Cộng hưởng thật, API thật của trang trợ lý và thẻ):
+Proven with a real model, on the real host path (real server, real store, real Resonance beat, the real API of the assistants page and the card):
 
-1. Việc nền của **vai làm** (agent làm, engine việc nền) viết một bản đạt kiểm khách quan. Host đăng đúng bytes vào file đích theo quyền A4 mà chủ đã cấp.
-2. Việc nền của **vai review** (agent khác danh tính, lời dặn review, cùng engine việc nền theo thiết kế) đọc ảnh chụp của đúng bản đã tiếp nhận (hash, revision, mã reviewer đã ghim) và ra một kết luận đọc được.
-3. Nhánh xảy ra thật được ghi đúng như nó xảy ra:
-   - đạt ngay; hoặc
-   - cần sửa, vai làm sửa theo góp ý, rồi review lại.
+1. The background call of the **maker role** (the maker agent, the background-work engine) writes a version that passes the objective check. The host registers exactly those bytes into the target file under the A4 permission the owner granted.
+2. The background call of the **reviewer role** (a different agent identity, review instructions, the same background-work engine by design) reads the snapshot of exactly the accepted version (hash, revision, pinned reviewer key) and produces a readable verdict.
+3. The branch that actually happens is recorded exactly as it happened:
+   - passes immediately; or
+   - needs changes, the maker fixes it following the feedback, then it is reviewed again.
 
-   Không ép nhánh, không chạy lại để có kết quả đẹp.
-4. Giết rồi dựng lại server: không lượt nào được gọi thêm, kể cả thử gọi.
+   No branch is forced, and nothing is re-run to get a nicer result.
+4. Kill and rebuild the server: no further call is made, not even an attempted one.
 
-Không chứng minh:
-- Bộ não chat tự định tuyến tới `javis_goal`: mục tiêu được lập bằng `form_goal` với đề xuất đóng băng, xem mục "Lập mục tiêu"; điểm này đã có ở pilot A4.
-- Hai vai là hai model độc lập: theo thiết kế, hai vai dùng chung engine việc nền.
-- Nhánh hai vòng sửa tới cùng, thử lại sau `unknown` hay sau lỗi engine: các nhánh đó cần thêm lượt hoặc hẹn một giờ, vượt trần pilot đề xuất. Chúng đã có test bằng engine giả.
-- Hiệu năng hay độ trễ trên VPS: pilot chạy trên máy local.
+Not proven:
+- The chat brain routing by itself to `javis_goal`: the goal is created with `form_goal` and a frozen proposal, see the section "Creating the goal"; this point was already covered by the A4 pilot.
+- The two roles being two independent models: by design, both roles share the background-work engine.
+- The branch where the two fix rounds run to the end, retry after `unknown` or after an engine error: those branches need extra calls or a one-hour wait, beyond the proposed pilot cap. They are covered by tests with a fake engine.
+- Performance or latency on the VPS: the pilot runs on a local machine.
 
-## Kịch bản
+## Scenario
 
-**Đầu vào đóng băng** (`FROZEN` trong `tests/python/test_resonance_a5_pilot.py`), băm thành `frozen_sha256`. Real từ chối chạy nếu hash khác bộ đã duyệt.
-- Hai trợ lý: `nguoi-lam-tom-tat` (làm) và `nguoi-duyet-tom-tat` (review), thân file cố định.
-- Lời giao (dữ liệu mô phỏng): bản tóm tắt cuộc họp ở `Inbox/tom-tat-hop-a5.md`, có mục Kết luận và mục Việc tiếp theo (mỗi việc một dòng, có người phụ trách và hạn), kèm nội dung họp.
-- Đề xuất mục tiêu: hai tiêu chí `artifact_contract` trên file đích, phải có "Kết luận" và "Việc tiếp theo"; `achieve/delivery`.
+**Frozen input** (`FROZEN` in `tests/python/test_resonance_a5_pilot.py`), hashed into `frozen_sha256`. Real refuses to run if the hash differs from the approved set.
+- Two assistants: `nguoi-lam-tom-tat` (maker) and `nguoi-duyet-tom-tat` (reviewer), with fixed file bodies.
+- The assignment (simulated data): a meeting summary at `Inbox/tom-tat-hop-a5.md`, with a Conclusions section and a Next steps section (one item per line, with an owner and a deadline), plus the meeting content. The section headings are the Vietnamese words "Kết luận" (Conclusions) and "Việc tiếp theo" (Next steps); they stay in Vietnamese because the frozen criteria match them verbatim.
+- The goal proposal: two `artifact_contract` criteria on the target file, which must contain "Kết luận" and "Việc tiếp theo"; `achieve/delivery`.
 
-**Lập mục tiêu.** Không dùng lượt chat. Bộ chạy gọi `form_goal` với lời giao và đề xuất đóng băng, trong phiên của agent làm. Đây đúng là hàm mà tool `javis_goal` và route `/goal-requests` dùng, và không gọi model. `/goal-requests` không dùng được vì nó để bộ lập mục tiêu gọi một lượt model và tự đặt tiêu chí, nên tiêu chí không đóng băng được. Đây là gieo trạng thái bằng hàm host thật, không phải engine giả.
+**Creating the goal.** No chat call is used. The runner calls `form_goal` with the assignment and the frozen proposal, inside the maker agent's session. This is exactly the function that the `javis_goal` tool and the `/goal-requests` route use, and it does not call a model. `/goal-requests` cannot be used because it makes the goal creator call a model once and set the criteria itself, so the criteria could not be frozen. This seeds the state through the real host function; it is not a fake engine.
 
-**Các bước:**
+**Steps:**
 
-| Bước | Server | Việc | Lượt model |
+| Step | Server | Work | Model calls |
 |---|---|---|---|
-| 0 | không | Kiểm nguồn: HEAD đúng SHA đã duyệt (`JAVIS_RESONANCE_A5_APPROVED_SHA`) và cả checkout sạch, gồm mã sản phẩm, chính bộ chạy và không file lạ (`preflight_source`). Cổng chi phí: trần pilot ≤ số đã duyệt, đủ cho nhánh ngắn nhất. Tạo sổ (từ chối nếu đã có). Cổng engine và xác thực: engine việc nền đúng cấu hình đã duyệt; `claude auth status` là gói thuê bao gốc; không có apiKeyHelper, env chọn nhà cung cấp hay settings do quản trị đặt | 0 |
-| A | nhịp tạm dừng, trần kho 0, trần sổ 0 | Bật hai trợ lý qua `/resonance/agents/toggle`. Chọn người review qua `/resonance/agents/reviewer`. Lập mục tiêu (`form_goal`). Cho phép phạm vi qua lệnh `approve_scope` của thẻ. Kiểm đội đã gắn (ghim mã reviewer, 8 lượt chia 4/4, hai vòng), phạm vi đã cấp, chưa có file đích | 0 |
-| B | nhịp chạy, trần kho = trần tổng pilot, trần sổ theo vai | Tiền điều kiện (hai trợ lý còn bật, đội còn ghim đúng mã, không kiểm nào hỏng), cổng token (còn ít nhất 30 phút). Quan sát tới khi mục tiêu kết thúc, sổ đóng, hay không còn lịch làm việc trong 5 phút, không có lượt đang chạy, mục tiêu không ở `running`, không lần thức nào giữ khoá mục tiêu, đúng ở hai lần quan sát liên tiếp; trần thời gian 30 phút | theo nhánh, tối đa 4 |
-| C | nhịp chạy, trần kho = số đã dùng, trần sổ 0 | Chờ khoảng 95 giây (hơn ba nhịp). Sổ không có lượt hay lần thử mới; hành động và hàng review không đổi. Tạm dừng mục tiêu nếu còn mở | 0 |
+| 0 | none | Source check: HEAD is the approved SHA (`JAVIS_RESONANCE_A5_APPROVED_SHA`) and the whole checkout is clean, including product code, the runner itself and no stray files (`preflight_source`). Cost gate: the pilot cap is at most the approved number and enough for the shortest branch. Create the ledger (refuse if one already exists). Engine and auth gate: the background-work engine is exactly the approved configuration; `claude auth status` is the original subscription plan; there is no apiKeyHelper, no provider-selecting env and no admin-set settings | 0 |
+| A | beat paused, store ceiling 0, ledger ceiling 0 | Enable the two assistants through `/resonance/agents/toggle`. Choose the reviewer through `/resonance/agents/reviewer`. Create the goal (`form_goal`). Grant the scope through the card's `approve_scope` command. Check the team is attached (reviewer key pinned, 8 calls split 4/4, two rounds), the scope was granted, and the target file does not exist yet | 0 |
+| B | beat running, store ceiling = pilot total cap, ledger ceiling per role | Preconditions (both assistants still enabled, the team still pins the right keys, no check broken), token gate (at least 30 minutes left). Observe until the goal ends, the ledger closes, or there is no work scheduled for 5 minutes, no running call, the goal is not in `running`, no wake holds the goal lock, true on two consecutive observations; time cap 30 minutes | per branch, at most 4 |
+| C | beat running, store ceiling = number already used, ledger ceiling 0 | Wait about 95 seconds (more than three beats). The ledger has no new call or attempt; actions and review rows are unchanged. Pause the goal if it is still open | 0 |
 
-**Nhánh có thể xảy ra** (bộ chạy đọc từ kho, ghi `branch`):
+**Branches that can happen** (the runner reads them from the store and records `branch`):
 
-| Nhánh | Diễn biến | Lượt làm / review | Kết luận |
+| Branch | What happens | Maker / reviewer calls | Verdict |
 |---|---|---|---|
-| `pass_first` | Làm, review pass, chốt đạt | 1 / 1 | `pending_content_review` |
-| `one_fix_then_pass` | Làm, review cần sửa, sửa theo góp ý, review pass, chốt đạt | 2 / 2 | `pending_content_review` |
-| `pilot_cap_after_two_reviews` | Hai lần cần sửa; lượt sửa thứ hai bị trần pilot chặn, không gọi model. Lớp chặn trước là trần kho, chặn ngay lúc giữ chỗ (`blocked/budget`, dry thấy đúng như vậy). Nếu trần kho không chặn thì sổ pilot chặn trước khi dựng engine (`blocked/engine_blocked`, host hoàn lượt) | 2 / 2 | `business_incomplete` |
-| `review_unknown` | Review không đọc được (engine chạy bình thường); host hẹn thử lại sau một giờ, pilot không chờ | 1 / 1 | `business_incomplete` |
-| `maker_not_met` | Bản làm chưa đạt kiểm khách quan, chưa có review; host hẹn thử lại sau 15 phút, pilot không chờ | 1 / 0 | `business_incomplete` |
-| `maker_error`, `reviewer_error` | Lượt của vai làm hay vai review lỗi ở engine hay host (mọi kết cục lỗi, xem "Hạn mức"); sổ đóng | 1 / 0, 1 / 1 | `technical_failed` |
-| `no_review`, `other` | Không khớp các nhánh trên; ghi nguyên, không suy diễn | | `technical_failed` |
+| `pass_first` | Work, review passes, closes as met | 1 / 1 | `pending_content_review` |
+| `one_fix_then_pass` | Work, review says needs changes, fix following the feedback, review passes, closes as met | 2 / 2 | `pending_content_review` |
+| `pilot_cap_after_two_reviews` | Two needs-changes verdicts; the second fix call is blocked by the pilot cap, no model call. The first layer to block is the store ceiling, blocking right at reservation (`blocked/budget`, dry sees exactly this). If the store ceiling does not block, the pilot ledger blocks before the engine is built (`blocked/engine_blocked`, the host refunds the call) | 2 / 2 | `business_incomplete` |
+| `review_unknown` | The review cannot be read (the engine ran normally); the host schedules a retry in one hour, the pilot does not wait | 1 / 1 | `business_incomplete` |
+| `maker_not_met` | The maker's version did not pass the objective check, no review yet; the host schedules a retry in 15 minutes, the pilot does not wait | 1 / 0 | `business_incomplete` |
+| `maker_error`, `reviewer_error` | A maker or reviewer call fails in the engine or the host (every error outcome, see "Limits"); the ledger closes | 1 / 0, 1 / 1 | `technical_failed` |
+| `no_review`, `other` | Matches none of the branches above; recorded as is, no inference | | `technical_failed` |
 
-Mục tiêu còn mở thì bộ chạy tạm dừng nó sau khi kiểm dựng lại.
+If the goal is still open, the runner pauses it after the rebuild check.
 
-## Hạn mức
+## Limits
 
-| | Sản phẩm (A5, không đổi) | Pilot đề xuất |
+| | Product (A5, unchanged) | Proposed pilot |
 |---|---|---|
-| Tổng lượt việc nền của mục tiêu | 8 | 4 |
-| Vai làm | 4 | 2 |
-| Vai review | 4 | 2 |
-| Vòng sửa | 2 | 1 vòng trọn (vòng sửa thứ hai bị trần pilot chặn) |
-| Lượt chat | không áp dụng | 0 |
+| Total background calls per goal | 8 | 4 |
+| Maker role | 4 | 2 |
+| Reviewer role | 4 | 2 |
+| Fix rounds | 2 | 1 full round (the second fix round is blocked by the pilot cap) |
+| Chat calls | not applicable | 0 |
 
-Đơn vị là **lượt engine cấp host**: một lần dựng engine cho một lượt làm hay review. Không phải request nội bộ của SDK, cũng không phải token.
+The unit is a **host-level engine call**: one engine build for one work or review call. It is not an internal SDK request, and it is not tokens.
 
-Các lớp chặn (không lớp nào thay lớp nào):
-- **Sổ lượt theo vai của pilot** (`tests/python/_a5_pilot_ledger.py`, launcher `tests/python/_a5_pilot_server.py`).
-  - Giữ chỗ và fsync TRƯỚC khi dựng engine cho mỗi lượt.
-  - Có trần vai, trần tổng và trần theo giai đoạn (A và C là 0).
-  - Kết cục của lượt theo đúng luật lỗi của host (`GoalDeps._ask`): khung `error`; `final` có `is_error` hay `dua_token`; gọi công cụ trong lượt chỉ chữ (trước hay sau `final`); đầu ra rỗng, quá dài, hay là lời báo lỗi đăng nhập; ngoại lệ; huỷ khi host còn đọc (hết giờ); thiếu khung kết thúc; không dựng được. Lớp thứ hai bọc chính `_ask` của host: host kết luận lỗi sau khi đã gọi engine thì dòng sổ thành `host_<mã>`.
-  - `ok` chỉ là tạm: lỗi đến sau hạ nó xuống (ghi `downgraded_from`), không bao giờ nâng lỗi thành `ok`. Host ngừng đọc sau một `final` hợp lệ thì `ok` giữ nguyên.
-  - Mọi kết cục lỗi vẫn tính lượt, và sổ đóng ngay.
-  - Bị chặn thì không chạm hàm dựng engine thật; host hoàn lượt theo đường not-run của A5. Sổ chỉ ghi một sự kiện `refused`.
-  - Sổ đã có thì từ chối chạy; sổ hỏng thì không cấp lượt và không ghi đè.
-- **Trần kho** `JAVIS_RESONANCE_CALL_CEILING`, áp cho mọi tiến trình server.
-- **Trần sản phẩm** của đội (8, 4/4, hai vòng).
-- **Hậu kiểm.** Sổ pilot phải khớp sổ vai của kho (`team_calls`) và `calls_used`; mỗi hàng review tính (`charged=1`) ứng với một lượt reviewer. Sổ thiếu, hỏng hay lệch là **chưa xác minh**, không bao giờ là 0.
+The blocking layers (none replaces another):
+- **The pilot's per-role call ledger** (`tests/python/_a5_pilot_ledger.py`, launcher `tests/python/_a5_pilot_server.py`).
+  - Reserves a slot and fsyncs BEFORE building the engine for each call.
+  - Has a role cap, a total cap and a per-phase cap (A and C are 0).
+  - The outcome of a call follows the host's own error rules (`GoalDeps._ask`): an `error` frame; a `final` with `is_error` or `dua_token`; a tool call inside a text-only call (before or after `final`); empty output, output that is too long, or a login-error message; an exception; cancellation while the host is still reading (timeout); a missing end frame; failure to build. A second layer wraps the host's own `_ask`: if the host concludes an error after the engine was called, the ledger row becomes `host_<code>`.
+  - `ok` is only provisional: an error that arrives later downgrades it (recorded as `downgraded_from`), and an error is never upgraded to `ok`. If the host stops reading after a valid `final`, `ok` stays.
+  - Every error outcome still counts the call, and the ledger closes immediately.
+  - When blocked, the real engine-building function is never touched; the host refunds the call through A5's not-run path. The ledger only records one `refused` event.
+  - If a ledger already exists, the run is refused; if the ledger is corrupt, no call is granted and nothing is overwritten.
+- **The store ceiling** `JAVIS_RESONANCE_CALL_CEILING`, applied to every server process.
+- **The product ceiling** of the team (8, 4/4, two rounds).
+- **Post-check.** The pilot ledger must match the store's role ledger (`team_calls`) and `calls_used`; every counted review row (`charged=1`) corresponds to one reviewer call. A missing, corrupt or mismatched ledger is **unverified**, never 0.
 
-Không thử lại, không nâng trần, không chuyển sang API trả phí. Settings của sandbox chỉ chép tên provider/model (`auxiliary`, `main`, `engine`, `claude_model`), không chép khoá hay chế độ xác thực.
+No retry, no raising the cap, no switching to a paid API. The sandbox settings copy only the provider/model names (`auxiliary`, `main`, `engine`, `claude_model`), not keys or the auth mode.
 
-## Bằng chứng mỗi điểm
+## Evidence for each point
 
-| Điều cần chứng minh | Bằng chứng (`a5-pilot-real-main.json` và các file kèm) |
+| What must be proven | Evidence (`a5-pilot-real-main.json` and the attached files) |
 |---|---|
-| Người làm | Hành động `work` mang `agent_key` của agent làm, `role=maker`, mốc `engine_at`; dòng sổ `maker` với provider/model; đầu ra `a5-maker-<n>.md` |
-| Người review | Hành động `review` và hàng `reviews` mang mã reviewer đã ghim (khác mã agent làm), `role=reviewer`, mốc `engine_at`; dòng sổ `reviewer`; đầu ra thô `a5-reviewer-<n>.txt` (đọc từ bằng chứng đã mã hoá của host); kết luận, tiêu chí, góp ý trong `store_B.reviews` |
-| Đúng hash, revision | `bundle_ref` mang đúng revision, mốc đăng, hash, mã reviewer. Hash là bytes chuẩn hoá của một đầu ra lượt làm. Ảnh chụp reviewer đã đọc băm lại đúng hash. Chốt đạt: file đích đúng bytes bản được review pass, cùng revision |
-| Vòng sửa (nếu xảy ra) | Hàng `needs_changes`, lượt làm sau đó, lượt review mới trên bộ ghim mới |
-| Dựng lại không gọi thêm | `restart`: không có dòng sổ, sự kiện, hành động hay hàng review mới |
-| Không đụng file khác | Ảnh chụp brain trước và sau giai đoạn B: chỉ file đích đổi; ghi chú cũ còn nguyên |
+| The maker | A `work` action carrying the maker agent's `agent_key`, `role=maker`, the `engine_at` mark; a `maker` ledger row with provider/model; output `a5-maker-<n>.md` |
+| The reviewer | A `review` action and `reviews` row carrying the pinned reviewer key (different from the maker agent's key), `role=reviewer`, the `engine_at` mark; a `reviewer` ledger row; raw output `a5-reviewer-<n>.txt` (read from the host's encrypted evidence); verdict, criteria and feedback in `store_B.reviews` |
+| Right hash and revision | `bundle_ref` carries the right revision, registration mark, hash and reviewer key. The hash is the normalized bytes of one maker call's output. The snapshot the reviewer read hashes back to the same hash. On a met close: the target file has exactly the bytes of the version the review passed, at the same revision |
+| Fix round (if it happens) | A `needs_changes` row, the maker call after it, a new review call on the new pin set |
+| Rebuild makes no more calls | `restart`: no new ledger row, event, action or review row |
+| No other file touched | Brain snapshots before and after phase B: only the target file changed; the old notes are intact |
 
-## Kết luận của một lần chạy
+## The verdict of a run
 
-Một hàm duy nhất, `decide_acceptance` (`tests/python/_a5_pilot_ledger.py`), quyết kết luận từ bằng chứng CUỐI. Real và dry dùng cùng luật. Thiếu trường nào thì coi như không đạt.
+A single function, `decide_acceptance` (`tests/python/_a5_pilot_ledger.py`), decides the verdict from the FINAL evidence. Real and dry use the same rule. Any missing field counts as not passing.
 
-| Kết luận | Khi nào | Mã thoát |
+| Verdict | When | Exit code |
 |---|---|---|
-| `stopped` | Dừng ở một cổng trước giai đoạn việc nền (không server nào có thể gọi model) | 1 |
-| `technical_failed` | Một trong: kiểm hỏng; dừng sau khi việc nền đã bắt đầu; giai đoạn việc nền dừng bất thường (hết giờ, sổ hỏng, bẫy); sổ ở lần đọc cuối không xác minh được; có lượt kết cục khác `ok`; sổ lượt engine của server không xác minh được; dựng lại chưa kiểm hay có lượt mới; nhánh lạ; số lượt (sổ, sổ vai của kho) khác số của nhánh; trạng thái mục tiêu khác của nhánh; thiếu đầu ra đã lưu của mỗi lượt làm, mỗi lượt review, hay file đích khi chốt; ảnh chụp review chưa băm lại đúng; bảo toàn bằng chứng lỗi | 1 |
-| `pending_content_review` | Kỹ thuật đạt trọn và mục tiêu chốt đạt (`pass_first`, `one_fix_then_pass`): chờ người đọc nội dung. Không có "đạt" tự động | 0 |
-| `business_incomplete` | Kỹ thuật đạt trọn, nhánh nghiệp vụ chưa đạt nhưng đã định nghĩa (`pilot_cap_after_two_reviews`, `review_unknown`, `maker_not_met`); giữ nguyên `branch` | 2 |
+| `stopped` | Stopped at a gate before the background-work phase (no server could have called a model) | 1 |
+| `technical_failed` | Any of: a broken check; stopped after background work had started; the background-work phase ended abnormally (timeout, corrupt ledger, tripwire); the ledger at the final read cannot be verified; a call whose outcome is not `ok`; the server's engine-call ledger cannot be verified; the rebuild is unchecked or made new calls; an unknown branch; the number of calls (ledger, the store's role ledger) differs from the branch's; the goal state differs from the branch's; a missing saved output for any maker call, any review call, or the target file at close; a review snapshot that did not hash back correctly; evidence preservation failed | 1 |
+| `pending_content_review` | Fully technically passed and the goal closed as met (`pass_first`, `one_fix_then_pass`): waiting for a person to read the content. There is no automatic "pass" | 0 |
+| `business_incomplete` | Fully technically passed, the business branch did not pass but is defined (`pilot_cap_after_two_reviews`, `review_unknown`, `maker_not_met`); `branch` is kept as is | 2 |
 
-Ca âm ở dry đạt kỳ vọng nghĩa là bộ chạy ra đúng `technical_failed` hay `stopped`. Đó là test của bộ chạy đạt, không phải một lần pilot kỹ thuật đạt.
+A negative case in dry meeting its expectation means the runner produced exactly `technical_failed` or `stopped`. That is a passing test of the runner, not a technically passed pilot.
 
-**Ghi hồ sơ cuối là một phần của kết luận** (`finalize_record`, review cổng vòng 2):
-- Khi giữ sandbox, `a5-pilot-recovery.txt` được ghi TRƯỚC; báo cáo JSON ghi SAU CÙNG. Vì vậy không bao giờ còn một báo cáo nói đạt mà file bắt buộc ghi sau nó lại hỏng.
-- Lần ghi bắt buộc nào lỗi: kết luận thành `technical_failed` (mã thoát 1, kể cả khi trước đó là `pending_content_review` hay `business_incomplete`), thêm nguyên nhân cụ thể, nhánh giữ nguyên, sandbox giữ (`sandbox_kept = true`).
-- Báo cáo lỗi thì ghi lại đường khôi phục với kết luận mới và thử ghi báo cáo đúng một lần nữa. Vẫn không ghi được thì in "KHÔNG GHI ĐƯỢC HỒ SƠ CUỐI" kèm đường sandbox ra stdout và stderr.
-- Dòng `A5_PILOT` in sau khi chốt, kèm `report_saved`. Dòng này, báo cáo (nếu có), mã thoát và trạng thái giữ sandbox luôn cùng một kết luận.
+**Writing the final record is part of the verdict** (`finalize_record`, gate review round 2):
+- When the sandbox is kept, `a5-pilot-recovery.txt` is written FIRST; the JSON report is written LAST. So there is never a report that says pass while a required file written after it is broken.
+- If any required write fails: the verdict becomes `technical_failed` (exit code 1, even if it was `pending_content_review` or `business_incomplete` before), a specific cause is added, the branch is kept, and the sandbox is kept (`sandbox_kept = true`).
+- If the report fails, the recovery path is rewritten with the new verdict and the report is tried exactly once more. If it still cannot be written, it prints "KHÔNG GHI ĐƯỢC HỒ SƠ CUỐI" (Vietnamese for "could not write the final record") with the sandbox path to stdout and stderr; the string stays in Vietnamese because the tests match it.
+- The `A5_PILOT` line is printed after the verdict is final, with `report_saved`. This line, the report (if any), the exit code and the sandbox-kept state always carry the same verdict.
 
-## Bảo toàn bằng chứng
+## Evidence preservation
 
-Trên MỌI nhánh, sau khi mọi server đã dừng, bộ chạy chép bằng chứng sang một thư mục MỚI `sandbox/` trong thư mục hồ sơ (không ghi đè gì có sẵn):
-- kho mục tiêu và kho hội thoại, chép bằng SQLite backup (nhất quán, gồm WAL);
-- sổ usage và settings (chỉ có tên provider/model);
-- log của mọi server, đã che khoá và token;
-- toàn bộ brain tạm (trợ lý, file đích, đầu ra các lượt làm) và kịch bản dry.
+On EVERY branch, after every server has stopped, the runner copies the evidence into a NEW `sandbox/` folder inside the record folder (nothing existing is overwritten):
+- the goal store and the conversation store, copied with SQLite backup (consistent, WAL included);
+- the usage ledger and settings (only provider/model names);
+- the log of every server, with keys and tokens masked;
+- the whole temporary brain (assistants, the target file, the outputs of the maker calls) and the dry scenario.
 
-Kho và log của mọi server đã dựng là mục bắt buộc. Không chép kho bí mật hay khoá mã hoá.
+The store and log of every server that was started are required items. The secrets store and the encryption key are not copied.
 
-**Sandbox gốc giữ nguyên** khi chạy real (luôn giữ), khi kết luận khác `pending_content_review`, khi bảo toàn lỗi, hay khi hồ sơ nằm trong sandbox. Khi đó bộ chạy in `A5_PILOT_KEPT <đường dẫn>` và ghi `a5-pilot-recovery.txt` (đường dẫn sandbox, bản sao, kết luận, lý do). Nguồn không bị sửa hay xoá; file hỏng chép nguyên bytes; sổ hỏng không bao giờ bị ghi đè. Người chạy không cần đặt biến nào thêm.
+**The original sandbox is kept** on real runs (always kept), when the verdict is not `pending_content_review`, when preservation fails, or when the record folder is inside the sandbox. In that case the runner prints `A5_PILOT_KEPT <path>` and writes `a5-pilot-recovery.txt` (sandbox path, copy, verdict, reason). The source is never modified or deleted; a corrupt file is copied byte for byte; a corrupt ledger is never overwritten. The person running it does not need to set any extra variable.
 
 ## Dry
 
-`JAVIS_RESONANCE_A5_PILOT=dry python tests/python/test_resonance_a5_pilot.py` chạy 24 ca, mỗi ca một tiến trình con với server thật, đi qua đúng đường điều phối, hàm kết luận và pha ghi hồ sơ của real. Một ca chỉ đạt khi mã thoát đúng hợp đồng của kết luận và báo cáo JSON bắt buộc có (trừ ca chặn ghi báo cáo) cùng kết luận, nhánh, trạng thái giữ sandbox với dòng `A5_PILOT`. Dry chặn đường tới engine thật ngay từ cấu hình và đường gọi, không chỉ đếm sau khi chạy:
-- settings dùng provider không tồn tại (`pilot-dry`);
-- launcher thay hàm dựng engine việc nền bằng engine giả đọc kịch bản; hàm dựng "thật" là bẫy;
-- không có lượt chat nào.
+`JAVIS_RESONANCE_A5_PILOT=dry python tests/python/test_resonance_a5_pilot.py` runs 24 cases, each in a child process with a real server, going through exactly the same orchestration path, verdict function and record-writing phase as real. A case passes only when its exit code matches the verdict's contract and the required JSON report (except in the case that blocks the report write) carries the same verdict, branch and sandbox-kept state as the `A5_PILOT` line. Dry blocks the path to the real engine right from the configuration and the call path, not just by counting after the run:
+- the settings use a provider that does not exist (`pilot-dry`);
+- the launcher replaces the background-work engine builder with a fake engine that reads a script; the "real" builder is a tripwire;
+- there is no chat call at all.
 
-Mỗi ca còn xác minh sổ lượt engine của chính server sandbox (`usage.json` và `usage-events.jsonl`) bằng 0.
+Each case also verifies that the sandbox server's own engine-call ledger (`usage.json` and `usage-events.jsonl`) is 0.
 
-| Ca | Kết luận | Nhánh, sổ (làm, review) | Kiểm thêm |
+| Case | Verdict | Branch, ledger (maker, reviewer) | Extra check |
 |---|---|---|---|
-| `main_pass` | `pending_content_review` | `pass_first` (1, 1) | mọi kiểm bằng chứng |
-| `main_fix` | `pending_content_review` | `one_fix_then_pass` (2, 2) | lượt sửa riêng sau hàng cần sửa |
-| `fix_cap` | `business_incomplete` | `pilot_cap_after_two_reviews` (2, 2) | trần kho chặn lượt sửa thứ ba lúc giữ chỗ |
-| `ledger_cap` | `business_incomplete` | như trên (2, 2) | trần kho nâng lên 8 (chỉ dry); sổ chặn trước khi dựng engine, host hoàn lượt |
-| `review_unknown` | `business_incomplete` | `review_unknown` (1, 1) | không thử lại |
-| `maker_not_met` | `business_incomplete` | `maker_not_met` (1, 0) | không thử lại |
-| `maker_error`, `final_is_error` | `technical_failed` | `maker_error` (1, 0) | lỗi khung `error`, hay `final` có `is_error`; sổ đóng; sandbox giữ |
-| `reviewer_error` | `technical_failed` | `reviewer_error` (1, 1) | lỗi engine của vai review không gộp với review không đọc được |
-| `timeout` | `technical_failed` | `maker_error` (1, 0) | engine treo quá trần thời gian (60 giây ở ca này); lượt còn giữ chỗ là chưa xác minh |
-| `missing_output` | `technical_failed` | `pass_first` (1, 1) | đầu ra lượt làm không còn trước bước lưu |
-| `ledger_lost_end` | `technical_failed` | `pass_first`, sổ chưa xác minh | sổ mất ngay trước lần đọc cuối (đổi tên, còn file `.lost`) |
-| `save_error` | `technical_failed` | `pass_first` (1, 1) | lỗi lúc chép kho; bảo toàn lỗi; sandbox giữ, kho gốc còn, có đường khôi phục |
-| `early_crash` | `technical_failed` | (0, 0) | bộ chạy lỗi trước bước lưu thông thường; log và kho vẫn được chép |
-| `ledger_corrupt` | `technical_failed` | sổ chưa xác minh | sổ hỏng trước B: không cấp lượt; file hỏng giữ nguyên bytes |
-| `tripwire` | `technical_failed` | (1, 0) | đường dựng engine "thật" bị gọi ở dry: bẫy ghi sự kiện |
-| `report_fault` | `technical_failed` | `pass_first` (1, 1) | ghi báo cáo cuối lỗi sau một kết quả đạt: mã thoát 1, không có báo cáo, sandbox giữ, có đường khôi phục |
-| `recovery_fault` | `technical_failed` | `review_unknown` (1, 1) | ghi đường khôi phục lỗi ở kết quả nghiệp vụ chưa đạt: mã thoát 1 (không phải 2); báo cáo nói technical_failed |
-| `report_fault_technical` | `technical_failed` | `maker_error` (1, 0) | lỗi kỹ thuật vốn có cộng lỗi ghi báo cáo: vẫn thất bại, sandbox giữ |
-| `cost`, `auth`, `ledger_exists`, `precondition`, `sha_mismatch` | `stopped` | | dừng ở cổng trước việc nền |
+| `main_pass` | `pending_content_review` | `pass_first` (1, 1) | every evidence check |
+| `main_fix` | `pending_content_review` | `one_fix_then_pass` (2, 2) | a separate fix call after the needs-changes row |
+| `fix_cap` | `business_incomplete` | `pilot_cap_after_two_reviews` (2, 2) | the store ceiling blocks the third fix call at reservation |
+| `ledger_cap` | `business_incomplete` | same as above (2, 2) | the store ceiling raised to 8 (dry only); the ledger blocks before the engine is built, the host refunds the call |
+| `review_unknown` | `business_incomplete` | `review_unknown` (1, 1) | no retry |
+| `maker_not_met` | `business_incomplete` | `maker_not_met` (1, 0) | no retry |
+| `maker_error`, `final_is_error` | `technical_failed` | `maker_error` (1, 0) | an `error` frame error, or a `final` with `is_error`; the ledger closes; sandbox kept |
+| `reviewer_error` | `technical_failed` | `reviewer_error` (1, 1) | a reviewer engine error is not merged with an unreadable review |
+| `timeout` | `technical_failed` | `maker_error` (1, 0) | the engine hangs past the time cap (60 seconds in this case); a call that still holds its reservation is unverified |
+| `missing_output` | `technical_failed` | `pass_first` (1, 1) | the maker call's output is gone before the save step |
+| `ledger_lost_end` | `technical_failed` | `pass_first`, ledger unverified | the ledger is lost right before the final read (renamed, the `.lost` file remains) |
+| `save_error` | `technical_failed` | `pass_first` (1, 1) | an error while copying the store; preservation failure; sandbox kept, original store remains, a recovery path exists |
+| `early_crash` | `technical_failed` | (0, 0) | the runner fails before the normal save step; logs and stores are still copied |
+| `ledger_corrupt` | `technical_failed` | ledger unverified | a corrupt ledger before B: no call is granted; the corrupt file keeps its bytes |
+| `tripwire` | `technical_failed` | (1, 0) | the "real" engine-building path was called in dry: the tripwire records an event |
+| `report_fault` | `technical_failed` | `pass_first` (1, 1) | writing the final report fails after a passing result: exit code 1, no report, sandbox kept, a recovery path exists |
+| `recovery_fault` | `technical_failed` | `review_unknown` (1, 1) | writing the recovery path fails on a business-incomplete result: exit code 1 (not 2); the report says technical_failed |
+| `report_fault_technical` | `technical_failed` | `maker_error` (1, 0) | an inherent technical error plus a report write error: still a failure, sandbox kept |
+| `cost`, `auth`, `ledger_exists`, `precondition`, `sha_mismatch` | `stopped` | | stopped at a gate before background work |
 
-Logic của sổ, kết cục lượt qua `_ask` thật, kết luận, bảo toàn, quyền dọn và kiểm nguồn có test riêng, không cần server: `tests/python/test_resonance_a5_pilot_gate.py`.
+The ledger logic, call outcomes through the real `_ask`, the verdict, preservation, cleanup rights and the source check have their own tests that need no server: `tests/python/test_resonance_a5_pilot_gate.py`.
 
-## Chạy real (chỉ sau khi được duyệt)
+## Real run (only after approval)
 
 ```bash
-JAVIS_RESONANCE_A5_PILOT=real JAVIS_RESONANCE_PILOT_SETTINGS=<settings.json thật> JAVIS_RESONANCE_A5_OUT=<thư mục mới, ngoài checkout> JAVIS_RESONANCE_A5_APPROVED='{"aux": {"provider": "anthropic-cli", "model": "sonnet"}}' JAVIS_RESONANCE_A5_MAX_CALLS=4 JAVIS_RESONANCE_A5_INPUTS_SHA=<frozen_sha256> JAVIS_RESONANCE_A5_APPROVED_SHA=<SHA đã duyệt> python tests/python/test_resonance_a5_pilot.py
+JAVIS_RESONANCE_A5_PILOT=real JAVIS_RESONANCE_PILOT_SETTINGS=<real settings.json> JAVIS_RESONANCE_A5_OUT=<new folder, outside the checkout> JAVIS_RESONANCE_A5_APPROVED='{"aux": {"provider": "anthropic-cli", "model": "sonnet"}}' JAVIS_RESONANCE_A5_MAX_CALLS=4 JAVIS_RESONANCE_A5_INPUTS_SHA=<frozen_sha256> JAVIS_RESONANCE_A5_APPROVED_SHA=<approved SHA> python tests/python/test_resonance_a5_pilot.py
 ```
 
-Đúng một lần, trên một bản checkout sạch ở SHA đã duyệt. Bộ chạy tự kiểm (bước 0, trước mọi server) rằng HEAD đúng `JAVIS_RESONANCE_A5_APPROVED_SHA` và cả checkout sạch; sai hay không đọc được thì dừng, không lượt nào. Thư mục hồ sơ phải nằm ngoài checkout.
+Exactly once, on a clean checkout at the approved SHA. The runner checks for itself (step 0, before any server) that HEAD is exactly `JAVIS_RESONANCE_A5_APPROVED_SHA` and the whole checkout is clean; if it is wrong or unreadable, it stops, with no calls. The record folder must be outside the checkout.

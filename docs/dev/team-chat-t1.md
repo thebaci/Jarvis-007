@@ -107,7 +107,7 @@ Sáu ca vòng 1 giữ đạt. Reviewer tái hiện thêm 1 P1 và 2 P2 bằng `e
 ## Nâng, hạ phiên bản
 
 - Lần đầu 0.111.0 mở `kanban.sqlite3` và `conversations.db` có từ trước, mỗi kho được chụp một bản `<tên>.pre-0.111.0` bằng SQLite backup, trước khi thêm cột. Kho mới tinh thì không chụp.
-- **Hạ về 0.109.0:** tắt Javis, chạy `python tools/team_chat_restore_pre.py --yes`. Công cụ khôi phục CẢ BỘ ba kho (review vòng 1, R6):
+- **Hạ về 0.109.0:** tắt Jarvis 007, chạy `python tools/team_chat_restore_pre.py --yes`. Công cụ khôi phục CẢ BỘ ba kho (review vòng 1, R6):
   1. Kiểm trước cả bộ, chưa ghi gì: kho nào đã nâng thì phải có snapshot hợp lệ. Thiếu hay hỏng một snapshot là dừng, không đụng kho nào.
   2. Chép mọi kho hiện có (kể cả `team.sqlite3`) sang `<tên>.post-0.111.0-<thời điểm>`.
   3. Gỡ `team.sqlite3` khỏi chỗ chạy: trước 0.111.0 không có kho này.

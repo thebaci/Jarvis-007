@@ -1,245 +1,262 @@
-# Còn thiếu gì để đạt mục đích gốc
+# What is still missing to reach the original goal
 
-> **Trạng thái: cả 7 việc ở mục 4 ĐÃ LÀM XONG** (2026-08-02). Mục 3 giữ nguyên như bản phân
-> tích ban đầu để còn đối chiếu, kèm ba đính chính ở cuối tài liệu về những chỗ bản đầu quy
-> sai. Xem mục 6 để biết cái gì đã thay đổi thật.
+> **Status: all 7 items in section 4 are DONE** (2026-08-02). Section 3 is kept as the original
+> analysis so it can be checked against, with three corrections at the end of the document for
+> places where the first version blamed the wrong cause. See section 6 for what really changed.
 
-Đi cùng `2026-08-adaptive-context-runtime-spec.md` (xây cái gì) và
-`2026-08-adaptive-runtime-trien-khai.md` (đưa lên bằng cách nào).
+Goes with `2026-08-adaptive-context-runtime-spec.md` (what to build) and
+`2026-08-adaptive-runtime-trien-khai.md` (how to roll it out).
 
-Tài liệu này soi lại 12 phase dưới góc nhìn **mục đích gốc**, chứ không phải dưới góc nhìn
-spec. Mục đích gốc không phải hiệu năng trừu tượng, mà rất cụ thể: gói Groq on_demand miễn phí
-với `llama-3.3-70b-versatile` cho 12.000 token mỗi phút, còn một lượt Javis gửi đi 21.446
-token, nên bị chặn ngay trước khi kịp trả lời.
+This document re-examines the 12 phases from the angle of the **original goal**, not from the
+spec's angle. The original goal is not abstract performance, it is very concrete: the free Groq
+on_demand plan with `llama-3.3-70b-versatile` allows 12,000 tokens per minute, while a single
+Jarvis 007 turn sends 21,446 tokens, so it gets blocked before it can answer.
 
-## 1. Cấu thành 21.446 token, đo lại hôm nay
+## 1. Breakdown of the 21,446 tokens, re-measured today
 
-| Khối | Lúc chẩn đoán | Hôm nay | Có phase nào chạm tới chưa |
+| Block | At diagnosis time | Today | Has any phase touched it yet |
 |---|---|---|---|
-| `CLAUDE.md` làm system prompt | 21.479 ký tự | 21.479, y nguyên | Có, Phase 8 |
-| `Memory/MEMORY.md` | 18.723 ký tự | trần 20.000 | Có, `memory_canary` |
-| 30 skill + context động | ~5.400 ký tự | trần theo `SKILL_LIST_MAX` | Có, `lazy_skill_canary` |
-| **26 schema MCP/tool** | **17.161 ký tự** | vẫn nguyên | **Chưa. Xem mục 3.1** |
+| `CLAUDE.md` as the system prompt | 21,479 characters | 21,479, unchanged | Yes, Phase 8 |
+| `Memory/MEMORY.md` | 18,723 characters | capped at 20,000 | Yes, `memory_canary` |
+| 30 skills + dynamic context | ~5,400 characters | capped by `SKILL_LIST_MAX` | Yes, `lazy_skill_canary` |
+| **26 MCP/tool schemas** | **17,161 characters** | still intact | **Not yet. See section 3.1** |
 
-## 2. Phần kiến trúc đã làm được thật
+## 2. The architecture that is really done
 
-Đây là tin tốt, và cần nói rõ để khỏi làm lại:
+This is the good news, and it needs saying clearly so nobody redoes it:
 
-- **Thay system prompt bằng capsule biên dịch.** `build_adaptive_source_prompt` cố ý **không**
-  bọc `CLAUDE.md`. Khi `context_sources` bật, prompt lõi là `CORE_CONTRACT` của Context
-  Compiler. Đo thật: **724 ký tự (~207 token) thay cho 26.505 ký tự (~7.573 token), giảm 97%**
-  riêng khối này.
-- **TPM có thật, không phải chỗ để trống.** `context_runtime.py:1031` có admission cửa sổ
-  trượt 60 giây, atomic, fail-closed khi không biết hạn mức. Cả 5 đường canary đều truyền
-  `rolling_tpm` xuống Context Compiler, và compiler đưa nó vào công thức ngân sách cùng
-  `context_window` và `output_reserve`.
-- **Evidence Store** để không gửi lại JSON kết quả tool qua mỗi vòng.
-- **Model Router theo bước**, lọc cứng theo capability, cửa sổ ngữ cảnh, hạn chót, chi phí.
+- **Replace the system prompt with a compiled capsule.** `build_adaptive_source_prompt`
+  deliberately does **not** wrap `CLAUDE.md`. When `context_sources` is on, the core prompt is the
+  Context Compiler's `CORE_CONTRACT`. Measured for real: **724 characters (~207 tokens) in place of
+  26,505 characters (~7,573 tokens), a 97% reduction** for this block alone.
+- **TPM is real, not a blank.** `context_runtime.py:1031` has a 60-second sliding-window
+  admission, atomic, fail-closed when the limit is unknown. All 5 canary paths pass
+  `rolling_tpm` down to the Context Compiler, and the compiler feeds it into the budget formula
+  together with `context_window` and `output_reserve`.
+- **Evidence Store** so tool result JSON is not resent on every round.
+- **Per-step Model Router**, with hard filtering by capability, context window, deadline and cost.
 
-Nói cách khác: **kiến trúc giải được bài toán Groq. Nó chỉ đang tắt.**
+In other words: **the architecture solves the Groq problem. It is just switched off.**
 
-## 3. Những chỗ thật sự còn thiếu
+## 3. What is genuinely still missing
 
-### 3.1 Schema tool chưa bao giờ vào tầng lazy (lỗ lớn nhất)
+### 3.1 Tool schemas never entered the lazy layer (the biggest hole)
 
-Đây là việc chính chủ đã chỉ ra ngay trong đoạn chat gốc, và **12 phase không đụng tới**.
+This is what the owner pointed out directly in the original chat, and **the 12 phases did not
+touch it**.
 
-`mcp_hub._apply_lazy` chỉ giấu tool đến từ connector MCP:
+`mcp_hub._apply_lazy` only hides tools that come from an MCP connector:
 
 ```python
 pool = [t for t in tools_spec if (route.get(t["fn"]) or {}).get("conn")]
-# Builtins + plugin (entry 'call' không 'conn') LUÔN hiện trực tiếp
+# Builtins + plugin (entry has 'call', not 'conn') are ALWAYS shown directly
 ```
 
-Cộng thêm `lazy_threshold: 40` mặc định, mà máy đang có 26 tool, nên **lazy chưa từng kích
-hoạt lần nào**. Toàn bộ 17.161 ký tự schema đi thẳng vào mọi request, cho mọi model.
+Add the default `lazy_threshold: 40`, while this machine has 26 tools, and **lazy has never
+once activated**. All 17,161 characters of schema go straight into every request, for every
+model.
 
-Đây là khối lớn thứ hai sau `CLAUDE.md`, và quan trọng hơn cả: **sửa nó có tác dụng ngay trên
-đường legacy đang chạy hôm nay, không cần bật canary nào.** Mọi thứ khác trong 12 phase đều
-phải chờ rollout mới có tác dụng. Riêng cái này thì không.
+This is the second biggest block after `CLAUDE.md`, and more important than that: **fixing it
+takes effect immediately on the legacy path that is running today, with no canary needed.**
+Everything else in the 12 phases has to wait for a rollout before it does anything. This one
+does not.
 
-### 3.2 Chưa ai khai hạn mức Groq, nên mọi lớp bảo vệ đều fail-closed thành vô dụng
+### 3.2 Nobody has declared the Groq limits, so every safeguard fails closed into uselessness
 
-`quota_profiles` mặc định là `[]`. Fail-closed nghĩa là thiếu profile thì rơi về legacy.
+`quota_profiles` defaults to `[]`. Fail-closed means a missing profile falls back to legacy.
 
-Hệ quả trớ trêu: cỗ máy dựng ra để cứu Groq, khi gặp đúng tình huống Groq, sẽ **không làm gì
-cả** vì nó không biết Groq bị giới hạn bao nhiêu. `config.py:136` đã có sẵn khuôn
-(`"rolling_tpm":12000, "context_window":131072`), chỉ là chưa ai điền.
+The ironic result: the machine built to rescue Groq, when it meets exactly the Groq situation,
+**does nothing** because it does not know how limited Groq is. `config.py:136` already has the
+template (`"rolling_tpm":12000, "context_window":131072`), nobody has just filled it in.
 
-### 3.3 Fail-closed đang đi ngược chiều với bài toán TPM
+### 3.3 Fail-closed runs in the opposite direction from the TPM problem
 
-Khi compiler thấy `estimate.input_tokens + reserved > rolling_tpm_remaining`, nó thêm lý do
-`rolling_tpm` và trả về **legacy**. Nhưng legacy chính là đường gửi 21.446 token.
+When the compiler sees `estimate.input_tokens + reserved > rolling_tpm_remaining`, it adds the
+reason `rolling_tpm` and returns **legacy**. But legacy is exactly the path that sends 21,446
+tokens.
 
-Tức là: phát hiện "request này quá to so với hạn mức" rồi phản ứng bằng cách **gửi một
-request còn to hơn**. Với đường đọc thì fail-closed về legacy là đúng. Với ràng buộc TPM thì
-nó sai chiều.
+That is: detect that "this request is too big for the limit" and react by **sending an even
+bigger request**. For the read path, failing closed to legacy is right. For the TPM constraint
+it points the wrong way.
 
-Yêu cầu gốc nói rõ điều cần làm: *"Nếu vẫn vượt thì chuyển sang engine khác hoặc báo cần đổi
-model. Không gửi một request chắc chắn vượt TPM rồi mới để Groq trả lỗi."* Phần "chuyển engine
-hoặc báo" chưa được xây.
+The original requirement says what to do: *"If it still exceeds, switch to another engine or
+report that the model needs to change. Do not send a request that is certain to exceed TPM and
+only then let Groq return the error."* The "switch engine or report" part has not been built.
 
-### 3.4 Không có gì canh kích thước prompt lõi
+### 3.4 Nothing guards the size of the core prompt
 
-**Đính chính một khẳng định sai của chính tài liệu này ở bản đầu:** bản đầu ghi `CLAUDE.md`
-đã phình 23%, từ 21.479 lên 26.505. Sai. Đó là so **byte** với **ký tự**: `wc -c` trả 26.505
-byte, còn `len()` trả 21.479 ký tự, và chẩn đoán gốc đếm bằng ký tự. Tiếng Việt có dấu nên
-mỗi ký tự chiếm nhiều hơn một byte. `CLAUDE.md` **không hề phình, nó y nguyên**.
+**A correction to a false claim in the first version of this document:** the first version said
+`CLAUDE.md` had grown 23%, from 21,479 to 26,505. Wrong. That compared **bytes** with
+**characters**: `wc -c` returns 26,505 bytes, while `len()` returns 21,479 characters, and the
+original diagnosis counted characters. Vietnamese with diacritics takes more than one byte per
+character. `CLAUDE.md` **did not grow at all, it is unchanged**.
 
-Nhưng kết luận thì vẫn giữ, chỉ đổi lý do: không có gì canh. Không có test, không có cảnh
-báo. Việc nó chưa trôi cho tới giờ là may, không phải do có rào.
+But the conclusion stands, only the reason changes: nothing guards it. No test, no warning. That
+it has not drifted so far is luck, not a guardrail.
 
-Chừng nào Phase 8 chưa bật thì mỗi dòng thêm vào `CLAUDE.md` là thuế đánh lên mọi lượt chat
-của mọi model, và không ai nhìn thấy khoản thuế đó tăng.
+As long as Phase 8 is not on, every line added to `CLAUDE.md` is a tax on every chat turn of
+every model, and nobody sees that tax grow.
 
-### 3.5 Chưa có `capability_index.py`, mới chỉ có keyword
+### 3.5 No `capability_index.py` yet, only keyword
 
-Registry đang dùng FTS5, tức là **chỉ keyword**. Kế hoạch gốc yêu cầu hybrid: keyword cộng
-semantic cộng graph, kèm dynamic widening khi độ tin cậy thấp.
+The registry uses FTS5, which is **keyword only**. The original plan asked for hybrid: keyword
+plus semantic plus graph, with dynamic widening when confidence is low.
 
-Với vài chục capability thì keyword đủ. Nhưng mục tiêu chủ repo nói rõ là "sau này cắm thêm
-nhiều hơn nữa MCP, model, workflow". Đến lúc đó resolver keyword sẽ bắt đầu trượt im lặng, và
-`miss_class` trên trang Chẩn đoán là chỗ nhìn thấy điều đó trước khi nó thành vấn đề.
+With a few dozen capabilities, keyword is enough. But the repo owner's stated goal is "plug in
+many more MCPs, models and workflows later". By then a keyword resolver will start missing
+silently, and `miss_class` on the Diagnostics page is where you will see it before it becomes a
+problem.
 
-Đây là rủi ro chất lượng khi mở rộng, không phải lỗi hôm nay.
+This is a quality risk when scaling, not a bug today.
 
-### 3.6 Module theo kế hoạch gốc: có, gộp, và thiếu
+### 3.6 Modules per the original plan: present, merged, and missing
 
-- Có riêng: `capability_registry`, `capability_resolver`, `context_compiler`, `evidence_store`,
-  `model_router`.
-- Gộp vào chỗ khác, chấp nhận được: quality gate nằm trong `context_compiler`; task state và
-  orchestrator nằm trong `context_runtime` cộng `readonly_orchestrator`; policy engine nằm rải
-  trong resolver và executor.
-- **Thiếu thật:** `capability_index` (mục 3.5) và `quota_scheduler` như một dịch vụ chung. TPM
-  hiện được tính trong `context_runtime`, đủ cho từng đường canary, nhưng chưa có ai điều phối
-  hạn mức **giữa** chat, loop, task nền và nhắc hẹn. Bốn nguồn đó cùng ăn một hạn mức Groq mà
-  không ai biết ai.
+- Separate and present: `capability_registry`, `capability_resolver`, `context_compiler`,
+  `evidence_store`, `model_router`.
+- Merged into other places, acceptable: the quality gate sits inside `context_compiler`; task
+  state and orchestrator sit inside `context_runtime` plus `readonly_orchestrator`; the policy
+  engine is spread across the resolver and executor.
+- **Truly missing:** `capability_index` (section 3.5) and `quota_scheduler` as a shared service.
+  TPM is currently computed in `context_runtime`, enough for each canary path, but nobody
+  coordinates the quota **across** chat, loops, background tasks and reminders. Those four
+  sources eat the same Groq quota without knowing about each other.
 
-## 4. Kế hoạch bổ sung
+## 4. Supplementary plan
 
-Xếp theo nguyên tắc: thứ có tác dụng sớm nhất và rẻ nhất lên trước.
+Ordered by the principle: whatever takes effect earliest and is cheapest goes first.
 
-### Việc 1: Đưa builtin và plugin vào tầng lazy, hạ ngưỡng
+### Item 1: Bring builtins and plugins into the lazy layer, lower the threshold
 
-**Vì sao trước tiên:** đây là thứ duy nhất có tác dụng **ngay trên đường legacy hôm nay**,
-không cần bật canary, không cần chờ baseline. Nhắm giảm khoảng 17.000 ký tự xuống còn vài
-nghìn.
+**Why first:** this is the only thing that takes effect **right now on the legacy path**, with no
+canary to turn on and no baseline to wait for. Aim to cut about 17,000 characters down to a few
+thousand.
 
-- Mở rộng `pool` trong `_apply_lazy` để nhận cả builtin và plugin, giữ lại một nhóm nhỏ tool
-  hạt nhân luôn hiện: tìm tool, chạy tool, đọc file, và các tool phiên bắt buộc.
-- Hạ `lazy_threshold` xuống mức làm nó thật sự kích hoạt ở cấu hình hiện tại.
-- Nhóm hạt nhân phải **khai bằng danh sách tường minh**, không suy ra từ việc có `conn` hay
-  không. Suy ra ngầm chính là nguyên nhân của lỗ này.
-- Rào: test đối chiếu hai chiều, mọi tool hạt nhân phải tồn tại thật trong route, để đổi tên
-  tool mà quên sửa danh sách thì CI đỏ chứ không hỏng câm.
+- Widen `pool` in `_apply_lazy` to accept builtins and plugins too, keeping a small group of core
+  tools always visible: find tool, run tool, read file, and the mandatory session tools.
+- Lower `lazy_threshold` to a level that makes it actually activate on the current config.
+- The core group must be **declared as an explicit list**, not inferred from whether `conn` is
+  present. Implicit inference is exactly what caused this hole.
+- Guardrail: a two-way cross-check test, every core tool must really exist in the route, so that
+  renaming a tool and forgetting to fix the list turns CI red instead of breaking silently.
 
-Nghiệm thu: đo tổng ký tự schema trước và sau trên cùng một cấu hình. Và một test canh trần,
-tổng schema gửi đi không được vượt ngưỡng khai báo.
+Acceptance: measure total schema characters before and after on the same config. Plus a test
+guarding the ceiling: the total schema sent must not exceed the declared threshold.
 
-### Việc 2: Canh kích thước prompt lõi
+### Item 2: Guard the core prompt size
 
-Một test đọc `CLAUDE.md` và fail khi vượt ngân sách khai báo. Kèm một dòng trong tài liệu nói
-rõ đây là thuế trên mọi lượt chat. Rẻ, và nó chặn đúng kiểu trôi đã xảy ra suốt tám phase.
+A test that reads `CLAUDE.md` and fails when it exceeds the declared budget. Plus one line in the
+docs saying this is a tax on every chat turn. Cheap, and it blocks exactly the kind of drift that
+went on through eight phases.
 
-### Việc 3: Endpoint đặt canary an toàn, và merge đệ quy
+### Item 3: A safe endpoint to set the canary, and recursive merge
 
-Đã mô tả ở mục 3 của tài liệu triển khai. Phải làm trước Việc 4, vì nếu không thì khai hạn
-mức Groq bằng tay sẽ dính bẫy merge một tầng và `quota_profiles` biến mất im lặng.
+Already described in section 3 of the rollout document. It must come before Item 4, because
+otherwise declaring the Groq limits by hand would hit the one-level merge trap and
+`quota_profiles` would silently disappear.
 
-Sửa `read_settings()` thành merge đệ quy là phần quan trọng nhất ở đây.
+Changing `read_settings()` to merge recursively is the most important part here.
 
-### Việc 4: Khai hạn mức thật cho Groq và các model đang dùng
+### Item 4: Declare the real quota for Groq and the models in use
 
-Không code, chỉ dữ liệu, nhưng phải sau Việc 3. Điền `rolling_tpm`, `context_window`, giá.
-Đây là thứ mở khoá toàn bộ cỗ máy đã xây.
+No code, only data, but it must come after Item 3. Fill in `rolling_tpm`, `context_window` and
+prices. This is what unlocks the whole machine that was built.
 
-Nghiệm thu bằng trang Chẩn đoán: `quota_rules` khác 0.
+Acceptance via the Diagnostics page: `quota_rules` is non-zero.
 
-### Việc 5: Sửa chiều fail-closed cho ràng buộc TPM
+### Item 5: Fix the fail-closed direction for the TPM constraint
 
-Khi lý do từ chối là `rolling_tpm`, không được rơi về legacy. Ba nấc, theo đúng yêu cầu gốc:
+When the reason for rejection is `rolling_tpm`, it must not fall back to legacy. Three rungs, as
+the original requirement says:
 
-1. Nén mạnh hơn: bỏ bớt context item giá trị thấp rồi biên dịch lại.
-2. Vẫn vượt thì chuyển provider theo Model Router, dựa trên hạn mức thật của từng model.
-3. Vẫn không được thì **nói với người dùng**, kèm con số ước lượng và hạn mức, gợi ý đổi model.
+1. Compress harder: drop low-value context items and compile again.
+2. If it still exceeds, switch provider via the Model Router, based on each model's real quota.
+3. If that still fails, **tell the user**, with the estimated figure and the limit, and suggest
+   changing model.
 
-Tuyệt đối không im lặng gửi một request chắc chắn vượt.
+Never silently send a request that is certain to exceed.
 
-Nghiệm thu: dựng model giả có `rolling_tpm` rất nhỏ, khẳng định hệ thống **không** gọi
-provider đó, và khẳng định nó không rơi về legacy.
+Acceptance: build a fake model with a very small `rolling_tpm`, assert the system does **not**
+call that provider, and assert it does not fall back to legacy.
 
-### Việc 6: `quota_scheduler` dùng chung cho mọi nguồn
+### Item 6: A shared `quota_scheduler` for every source
 
-Chat, loop, task nền và nhắc hẹn đang cùng ăn một hạn mức mà không biết nhau. Gom kế toán TPM
-và RPM về một chỗ, mọi đường gọi model đều xin phép qua đó.
+Chat, loops, background tasks and reminders currently eat the same quota without knowing each
+other. Gather TPM and RPM accounting into one place, and every model call path asks permission
+through it.
 
-Chưa cấp bách khi chỉ có một người dùng, nhưng sẽ thành cấp bách ngay khi loop chạy nền cùng
-lúc với chat.
+Not urgent with a single user, but it becomes urgent the moment a loop runs in the background at
+the same time as a chat.
 
-### Việc 7: `capability_index` hybrid
+### Item 7: Hybrid `capability_index`
 
-Thêm semantic và graph bên cạnh keyword, kèm dynamic widening khi độ tin cậy thấp. Làm khi
-`miss_classes` trên trang Chẩn đoán cho thấy resolver bắt đầu trượt, chứ không làm trước.
+Add semantic and graph next to keyword, with dynamic widening when confidence is low. Do it when
+`miss_classes` on the Diagnostics page shows the resolver starting to miss, not before.
 
-Đây là việc bảo vệ **chất lượng** khi số capability tăng, và nó là điều kiện để lời hứa
-"cắm thêm bao nhiêu MCP cũng được" đứng vững.
+This protects **quality** as the number of capabilities grows, and it is the condition for the
+promise "plug in as many MCPs as you like" to hold.
 
-## 5. Thứ tự và lý do
+## 5. Order and reasons
 
-Việc 1 và 2 độc lập với toàn bộ chuyện canary, làm được ngay, có tác dụng ngay hôm nay.
+Items 1 and 2 are independent of the whole canary topic, can be done now, and take effect today.
 
-Việc 3, 4, 5 là một chuỗi phải theo thứ tự, và chúng mới là thứ thật sự làm Groq chạy được.
+Items 3, 4, 5 are a chain that must go in order, and they are what actually makes Groq work.
 
-Việc 6 và 7 là chuyện mở rộng, làm khi có tín hiệu từ trang Chẩn đoán chứ không làm theo linh
-cảm.
+Items 6 and 7 are about scaling, done when the Diagnostics page gives a signal, not on a hunch.
 
-Điểm cần nhớ: sau 12 phase, thứ chặn Groq hôm nay **không phải kiến trúc còn thiếu**, mà là
-một khối schema tool chưa ai đưa vào tầng lazy, cộng với một dòng cấu hình hạn mức chưa ai
-điền.
+The point to remember: after 12 phases, what blocks Groq today is **not a missing architecture**,
+but one block of tool schemas nobody put into the lazy layer, plus one line of quota
+configuration nobody filled in.
 
-## 6. Đã làm gì, và ba chỗ bản phân tích này nói sai
+## 6. What was done, and three places this analysis was wrong
 
-### 6.1 Kết quả đo được
+### 6.1 Measured results
 
-| Khối | Trước | Sau |
+| Block | Before | After |
 |---|---|---|
-| Schema tool gửi mỗi lượt (26 tool, 30 skill) | 11.994 ký tự | **2.001** (giảm 83%) |
-| System prompt đường biên dịch | 21.479 ký tự | **724** (giảm 97%) |
-| Chi phí cố định đường biên dịch | - | **~772 token**, còn ~11.200 dưới hạn mức Groq |
+| Tool schemas sent per turn (26 tools, 30 skills) | 11,994 characters | **2,001** (down 83%) |
+| System prompt on the compiled path | 21,479 characters | **724** (down 97%) |
+| Fixed cost of the compiled path | - | **~772 tokens**, about 11,200 left under the Groq limit |
 
-Phần giảm schema tool có tác dụng **ngay trên đường legacy**, không cần bật canary nào.
+The tool schema reduction takes effect **right on the legacy path**, with no canary to turn on.
 
-### 6.2 Bảy việc
+### 6.2 The seven items
 
-1. **Tầng lazy nhận cả builtin và plugin.** Pool không còn suy ngầm từ `conn` mà khai tường
-   minh qua `CORE_TOOL_FNS`. Thêm ngưỡng theo KÍCH THƯỚC bên cạnh ngưỡng số lượng, vì đếm
-   tool không nói lên chi phí.
-2. **Canh ngân sách prompt** bằng `test_prompt_budget.py`: ba trần cộng một phép thử tổng
-   phải vừa hạn mức Groq miễn phí.
-3. **Merge cấu hình đệ quy** (diệt bẫy mất `quota_profiles` im lặng) cộng `POST /runtime/canary`
-   và nút Đặt trên trang Chẩn đoán.
-4. **`model_limits.py`** - hạn mức gợi ý có ghi nguồn, `POST /runtime/quota`, nút Khai.
-5. **Chiều fail-closed** cho ràng buộc ngân sách: từ chối và nói, kèm số và lối ra.
-6. **`quota_scheduler.py`** - sổ cái TPM dùng chung, móc vào `usage_store.record` nên phủ
-   mọi nguồn.
-7. **`capability_index.py`** - RRF fusion, nới rộng động, affinity nguồn.
+1. **The lazy layer accepts builtins and plugins too.** The pool is no longer implicitly derived
+   from `conn` but declared explicitly through `CORE_TOOL_FNS`. Added a SIZE threshold next to the
+   count threshold, because counting tools says nothing about cost.
+2. **Prompt budget guard** via `test_prompt_budget.py`: three ceilings plus one total check that
+   must fit the free Groq limit.
+3. **Recursive config merge** (kills the silent `quota_profiles` loss trap) plus
+   `POST /runtime/canary` and a Set button on the Diagnostics page.
+4. **`model_limits.py`** - suggested limits with their source noted, `POST /runtime/quota`, a
+   Declare button.
+5. **Fail-closed direction** for the budget constraint: refuse and say so, with the numbers and a
+   way out.
+6. **`quota_scheduler.py`** - a shared TPM ledger, hooked into `usage_store.record` so it covers
+   every source.
+7. **`capability_index.py`** - RRF fusion, dynamic widening, source affinity.
 
-### 6.3 Ba đính chính
+### 6.3 Three corrections
 
-Ghi lại vì chúng cho thấy phân tích đọc code mà chưa chạy thì sai ở đâu.
+Recorded because they show where an analysis that reads code without running it goes wrong.
 
-- **`CLAUDE.md` không hề phình 23%.** Bản đầu so `wc -c` (26.505 **byte**) với con số chẩn
-  đoán gốc (21.479 **ký tự**). Tiếng Việt có dấu nên mỗi ký tự hơn một byte. File y nguyên.
-  Rào vẫn cần, nhưng vì chưa từng có rào, không phải vì đã trôi.
-- **Fast path và readonly path KHÔNG sai chiều fail-closed.** Chúng đã từ chối-và-nói từ
-  đầu. Đường sai chiều là Phase 8, và nó là đường quan trọng nhất cho bài toán Groq.
-- **TPM không phải "chỗ để trống".** Admission cửa sổ trượt 60 giây có thật và fail-closed
-  đúng. Lỗ nằm ở chỗ chỉ 4 đường canary đi qua nó, trong khi 10 chỗ gọi model khác thì không.
+- **`CLAUDE.md` did not grow 23%.** The first version compared `wc -c` (26,505 **bytes**) with
+  the original diagnosis figure (21,479 **characters**). Vietnamese with diacritics takes more
+  than one byte per character. The file is unchanged. The guardrail is still needed, but because
+  there never was one, not because it drifted.
+- **The fast path and readonly path are NOT wrong-direction fail-closed.** They have refused and
+  said so from the start. The wrong-direction path is Phase 8, and it is the most important path
+  for the Groq problem.
+- **TPM is not "a blank".** The 60-second sliding-window admission is real and fails closed
+  correctly. The hole is that only 4 canary paths go through it, while 10 other places that call
+  a model do not.
 
-### 6.4 Vẫn chưa có
+### 6.4 Still not there
 
-- Baseline production, gold benchmark. Không code nào thay được, phải chạy shadow rồi đọc
-  trang Chẩn đoán.
-- Embedding thật cho `capability_index`: khung fusion đã sẵn sàng nhưng chưa có adapter nào
-  được cấu hình, nên phần semantic hiện luôn rỗng và fusion trở về đúng thứ tự lexical.
-- Hạn mức trong `model_limits` mới có Groq. Provider khác trả rỗng, và đó là cố ý.
+- Production baseline, gold benchmark. No code can replace them, you have to run shadow and then
+  read the Diagnostics page.
+- Real embeddings for `capability_index`: the fusion framework is ready but no adapter is
+  configured yet, so the semantic part is always empty and fusion falls back to exactly the
+  lexical order.
+- The limits in `model_limits` only cover Groq so far. Other providers return empty, and that is
+  deliberate.

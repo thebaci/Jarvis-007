@@ -2,9 +2,9 @@
 
 *[Tiếng Việt](../13-second-brain-bo-nho-wiki.md) · **English***
 
-The Second Brain is Javis's "external brain": a folder of Markdown notes that Javis reads, accumulates and remembers long term. Because of it, Javis does not just answer questions during a chat but remembers you, remembers your business, and understands you better over time.
+The Second Brain is Jarvis 007's "external brain": a folder of Markdown notes that Jarvis 007 reads, accumulates and remembers long term. Because of it, Jarvis 007 does not just answer questions during a chat but remembers you, remembers your business, and understands you better over time.
 
-This page covers: what the Second Brain contains, how to create and switch between several "brains", how to make Javis remember (long-term memory), and how to "digest" documents (INGEST) so raw files become reusable knowledge.
+This page covers: what the Second Brain contains, how to create and switch between several "brains", how to make Jarvis 007 remember (long-term memory), and how to "digest" documents (INGEST) so raw files become reusable knowledge.
 
 ## What this feature is
 
@@ -14,9 +14,9 @@ A Second Brain (a "brain" or "vault" for short) is a folder on your machine or V
 |---|---|---|
 | Sources | `sources/` | Raw notes: articles, screenshots, files you drop in. These are the "originals". |
 | Wiki | `wiki/` | Distilled knowledge: concepts, frameworks, procedures, cross-linked with `[[...]]`. |
-| Memory | `memory/` | Living memory: what Javis remembers about you and the business. |
+| Memory | `memory/` | Living memory: what Jarvis 007 remembers about you and the business. |
 | Agents / Workflows | `agents/`, `workflows/` | The operating layer (see [Agents and Workflows](07-agents-and-workflows.md)). |
-| Skills | `skills/` | The canonical copy of each skill, one folder per skill at `skills/<slug>/SKILL.md`. Javis mirrors them into `.claude/skills` so Claude Code loads them natively (see [Skills](06-skills.md)). |
+| Skills | `skills/` | The canonical copy of each skill, one folder per skill at `skills/<slug>/SKILL.md`. Jarvis 007 mirrors them into `.claude/skills` so Claude Code loads them natively (see [Skills](06-skills.md)). |
 | Operating layer | `Javis/` | Whatever chat creates: loops at `Javis/loops/<slug>.md`, per-chat Zalo rules at `Javis/zalo/<slug>.md`, reminders at `Javis/reminders.json`, and the capability index `Javis/index.md` (auto-generated from files, do not edit by hand). |
 | Bullet journal | `00 - Dashboard/`, `01 - Daily Log/`, `02 - Weekly Log/`... | Where daily notes and tasks live; Dataview blocks pull from here (see [Tasks and Dataview in notes](19-tasks-and-dataview.md)). |
 | Cache area | `attachments/`, `inbox/` | Images and attachments; `inbox/telegram/` is where files sent over Telegram land. **Both folders are caches and expire on their own**, read the dedicated section below before leaving anything valuable here. |
@@ -24,31 +24,31 @@ A Second Brain (a "brain" or "vault" for short) is a folder on your machine or V
 The three core layers of a "second brain" in the proper sense are **Sources + Wiki + Memory**:
 
 - **Sources** holds raw, unprocessed material.
-- **Wiki** is refined knowledge, linked into a network, which is exactly what Javis draws in the [Knowledge graph](03-knowledge-graph.md).
-- **Memory** is the long-term memory that lets Javis "remember you".
+- **Wiki** is refined knowledge, linked into a network, which is exactly what Jarvis 007 draws in the [Knowledge graph](03-knowledge-graph.md).
+- **Memory** is the long-term memory that lets Jarvis 007 "remember you".
 
 The operating principle: **Sources -> (INGEST) -> Wiki**. Knowledge accumulates gradually, thickening the brain, instead of being rediscovered on every question.
 
 ## Where a brain lives on disk
 
-Every brain sits under one parent folder named `brains/`, one subfolder per brain. On a local install that is `brains/` inside the Javis folder; on Docker/VPS it defaults to `/brains` (mounted separately so it can be backed up). Move it with the `BRAINS_DIR` environment variable, see [.env configuration](16-env-configuration.md).
+Every brain sits under one parent folder named `brains/`, one subfolder per brain. On a local install that is `brains/` inside the Jarvis 007 folder; on Docker/VPS it defaults to `/brains` (mounted separately so it can be backed up). Move it with the `BRAINS_DIR` environment variable, see [.env configuration](16-env-configuration.md).
 
 The starting brain is named **Brain Default** and lives at `brains/Brain Default`.
 
-`BRAIN_PATH` is only a legacy variable from when Javis had a single brain, kept around to migrate data into the new structure. Do not use it to point at the working brain.
+`BRAIN_PATH` is only a legacy variable from when Jarvis 007 had a single brain, kept around to migrate data into the new structure. Do not use it to point at the working brain.
 
-## Where to open it in Javis
+## Where to open it in Jarvis 007
 
 The Second Brain does not live on one dedicated page but is spread across several places on the dashboard (default port `7777`). The left navigation rail groups pages, so you have to open a group to see its items:
 
 1. **Top bar, left corner**: the brain selector plus 3 small buttons ➕ 🗑 📁. This is where you create, choose and delete brains.
-2. **The chat box** (the **Javis** screen or the **Chat** page, **Assistant** group): where you drop files to INGEST and say "remember this".
+2. **The chat box** (the **Jarvis 007** screen or the **Chat** page, **Assistant** group): where you drop files to INGEST and say "remember this".
 3. **The Self-learning page** (**Brain** group): number of memories learned, the learn-now button, the Curator cleanup, and the block that syncs the brain to GitHub. See [Self-learning](22-self-learning.md).
 4. **The Files page** (**Brain** group): browse, edit, upload and download every file in the brain. See [File manager](05-file-manager.md).
-5. **The Recurring jobs page** (**Work** group): set up a loop so Javis digests sources on a schedule. See [Recurring jobs and reminders](08-recurring-jobs.md).
+5. **The Recurring jobs page** (**Work** group): set up a loop so Jarvis 007 digests sources on a schedule. See [Recurring jobs and reminders](08-recurring-jobs.md).
 6. **The Settings page** (**System** group): the **Interface and Brain** group, item **Brain structure**, to normalise the folders.
 
-## Multi-brain: several brains in one Javis
+## Multi-brain: several brains in one Jarvis 007
 
 You can keep several separate brains, for example one for the business and one for personal study. Each brain is an independent second brain: sources, wiki, memory, skills and agents are all its own.
 
@@ -65,14 +65,14 @@ The starting brain is named **Brain Default** and cannot be deleted (it is the "
 ### Choosing the working brain
 
 1. Click the brain selector in the left corner of the top bar.
-2. Pick the brain you want. Each row shows as `🧠 Brain name · 128`, the number being how many `.md` notes Javis counted in that brain. If the count hits the counting ceiling (5000) a `+` is appended, meaning "at least this many" rather than the true total.
-3. All of Javis (chat, graph, memory, agents) switches to that brain immediately. No page reload needed.
+2. Pick the brain you want. Each row shows as `🧠 Brain name · 128`, the number being how many `.md` notes Jarvis 007 counted in that brain. If the count hits the counting ceiling (5000) a `+` is appended, meaning "at least this many" rather than the true total.
+3. All of Jarvis 007 (chat, graph, memory, agents) switches to that brain immediately. No page reload needed.
 
 ### Creating a new brain
 
 1. Click the ➕ button next to the brain selector.
 2. Type a name in the prompt that appears ("New brain name:") and confirm.
-3. Javis creates a new subfolder in `brains/` with the standard structure ready (sources, agents, workflows, memory, skills, wiki, attachments and the bullet journal set) and immediately switches to the brain you just created.
+3. Jarvis 007 creates a new subfolder in `brains/` with the standard structure ready (sources, agents, workflows, memory, skills, wiki, attachments and the bullet journal set) and immediately switches to the brain you just created.
 
 The brain name has special characters stripped (`: * ? " < > |`), leading and trailing dots removed, and is cut to at most 60 characters for safety.
 
@@ -82,20 +82,20 @@ If you already have a store of `.md` notes somewhere on the machine (an Obsidian
 
 1. Click the 📁 button.
 2. Pick the folder that holds the `.md` files.
-3. Javis uses that folder as a brain. Note: an external folder is only "pointed at", the 🗑 button will not delete it from disk (it only removes it from the list).
+3. Jarvis 007 uses that folder as a brain. Note: an external folder is only "pointed at", the 🗑 button will not delete it from disk (it only removes it from the list).
 
-Javis tidies the external-folder list itself: any entry whose path collides with a real brain, or that points at a folder deleted from disk, disappears from the menu on its own. When it cannot verify (the server hiccuped) the entry is kept, so nothing is removed by mistake.
+Jarvis 007 tidies the external-folder list itself: any entry whose path collides with a real brain, or that points at a folder deleted from disk, disappears from the menu on its own. When it cannot verify (the server hiccuped) the entry is kept, so nothing is removed by mistake.
 
 ### Deleting a brain (to the trash, kept 30 days)
 
-Deleting a brain is **not permanent loss**. Javis moves the whole folder to a local trash and only clears it after 30 days. At the same time Javis writes a "tombstone" so the deletion propagates to every machine syncing along, and if you have GitHub backup on, the delete is pushed to the remote right away rather than waiting for the next cycle.
+Deleting a brain is **not permanent loss**. Jarvis 007 moves the whole folder to a local trash and only clears it after 30 days. At the same time Jarvis 007 writes a "tombstone" so the deletion propagates to every machine syncing along, and if you have GitHub backup on, the delete is pushed to the remote right away rather than waiting for the next cycle.
 
 1. Select the brain you want to delete in the brain selector.
 2. Click the 🗑 button.
 3. The dialog that appears states clearly: the brain will be moved to the TRASH (kept 30 days, then deleted for good), and the deletion will SYNC to every other machine. It requires you to **type the brain name EXACTLY** to confirm.
-4. Type it correctly and the brain goes to the trash, Javis returns to Brain Default, and a notice says the brain was deleted (moved to the 30-day trash, deletion synced to other machines). Type it wrong and you get "the name does not match, deletion cancelled".
+4. Type it correctly and the brain goes to the trash, Jarvis 007 returns to Brain Default, and a notice says the brain was deleted (moved to the 30-day trash, deletion synced to other machines). Type it wrong and you get "the name does not match, deletion cancelled".
 
-The trash is the `brain-trash` folder inside Javis's state folder (`JAVIS_STATE_DIR`; the local install uses the `server/` folder, Docker uses the state volume). Each deletion creates a subfolder shaped like `Brain name__20260729-153012`. Clearing trash older than 30 days runs alongside each brain sync to GitHub.
+The trash is the `brain-trash` folder inside Jarvis 007's state folder (`JAVIS_STATE_DIR`; the local install uses the `server/` folder, Docker uses the state volume). Each deletion creates a subfolder shaped like `Brain name__20260729-153012`. Clearing trash older than 30 days runs alongside each brain sync to GitHub.
 
 **Brain Default** cannot be deleted; clicking 🗑 while it is selected reports that the default brain (the starting brain) cannot be removed.
 
@@ -113,40 +113,40 @@ The operation is safe: it only moves when the destination folder does not exist 
 
 ## `attachments/` and `inbox/` are cache, not storage
 
-This is the rule most likely to lose data if you do not know it in advance. Since version 0.9.247, Javis treats these two folders as a **cache**: material passing through, not knowledge.
+This is the rule most likely to lose data if you do not know it in advance. Since version 0.9.247, Jarvis 007 treats these two folders as a **cache**: material passing through, not knowledge.
 
-- Files in those two folders older than **30 days** are cleared automatically. If total size exceeds the **300MB** ceiling, Javis clears oldest first until it is back under the ceiling.
+- Files in those two folders older than **30 days** are cleared automatically. If total size exceeds the **300MB** ceiling, Jarvis 007 clears oldest first until it is back under the ceiling.
 - `.md` notes that happen to sit in those folders are spared and never cleared.
-- Javis sweeps every 6 hours. The temporary stage folder (where a file you just pasted into the chat box lands) has its own shorter limit: **3 days**.
+- Jarvis 007 sweeps every 6 hours. The temporary stage folder (where a file you just pasted into the chat box lands) has its own shorter limit: **3 days**.
 - Both folders are **outside the brain's git**, so they do not travel with the GitHub backup and do not bloat repo history.
 - An expired image reappearing in a conversation shows as a grey dashed box reading **"Image expired"** instead of a broken-image icon.
 - To turn automatic clearing off entirely, set `enabled: false` under the `media` key in `settings.json`. The day and size thresholds are configured there too.
 
 The practical conclusion: move documents you want to keep long term into `sources/` or `wiki/`, do not leave them in `attachments/` or `inbox/`. Details in [File manager](05-file-manager.md).
 
-## Long-term memory: making Javis "remember you"
+## Long-term memory: making Jarvis 007 "remember you"
 
 The living memory sits at `memory/` inside the selected brain and contains:
 
-- `memory/MEMORY.md`: the index, one line per memory. This file is preloaded ahead of every question, so Javis always has a baseline memory of you.
+- `memory/MEMORY.md`: the index, one line per memory. This file is preloaded ahead of every question, so Jarvis 007 always has a baseline memory of you.
 - `memory/facts/*.md`: the detail of each memory, one file per fact.
 - `memory/conversations/YYYY-MM-DD.md`: raw conversation logs, the raw material for learning.
 
-Javis sorts memories into 4 kinds: information about you (`user`), how you like to work (`preference`), facts about the business (`business`), and settled decisions (`decision`).
+Jarvis 007 sorts memories into 4 kinds: information about you (`user`), how you like to work (`preference`), facts about the business (`business`), and settled decisions (`decision`).
 
 ### The MEMORY.md index has a context ceiling
 
-Because `MEMORY.md` is loaded into **every** chat turn, it has a ceiling of about **20,000 characters** (change it with the `JAVIS_MEMORY_INDEX_MAX` environment variable). When a thickening brain goes over the ceiling, Javis steps down gradually, favouring keeping the memory count intact:
+Because `MEMORY.md` is loaded into **every** chat turn, it has a ceiling of about **20,000 characters** (change it with the `JAVIS_MEMORY_INDEX_MAX` environment variable). When a thickening brain goes over the ceiling, Jarvis 007 steps down gradually, favouring keeping the memory count intact:
 
 1. Shorten each line's description to 100 characters, then to 60.
 2. Keep only the title and file path, dropping the description.
-3. Only as a last resort drop lines, and when it does Javis states how many memories are not listed plus where to read on in `Memory/facts/`.
+3. Only as a last resort drop lines, and when it does Jarvis 007 states how many memories are not listed plus where to read on in `Memory/facts/`.
 
-So no memory is lost, the index just displays more tersely; the full detail stays in `memory/facts/` and Javis can read it at any time.
+So no memory is lost, the index just displays more tersely; the full detail stays in `memory/facts/` and Jarvis 007 can read it at any time.
 
 ### Conversation logs are masked for secrets before being written
 
-Before writing into `memory/conversations/`, Javis masks anything that looks like a secret you happened to paste into chat: API keys (`sk-`, `xai-`, `gsk_`, `hf_`, `tvly-`), GitHub tokens (`ghp_`, `gho_`, `github_pat_`), Google keys (`AIza`), JWTs, Telegram bot tokens, the `Authorization` header, and passwords inside database connection strings. They are replaced by a shortened form like `sk-abc...wxyz` or `***`.
+Before writing into `memory/conversations/`, Jarvis 007 masks anything that looks like a secret you happened to paste into chat: API keys (`sk-`, `xai-`, `gsk_`, `hf_`, `tvly-`), GitHub tokens (`ghp_`, `gho_`, `github_pat_`), Google keys (`AIza`), JWTs, Telegram bot tokens, the `Authorization` header, and passwords inside database connection strings. They are replaced by a shortened form like `sk-abc...wxyz` or `***`.
 
 On top of that, any message longer than 4,000 characters has its middle cut out (keeping the first 2,800 and last 1,000 characters) with a line stating how much was cut, so the log does not balloon.
 
@@ -161,53 +161,53 @@ The memory count is on the **Metrics** line of the **Self-learning** page (**Bra
 
 The old "LONG-TERM MEMORY" widget in the chat column has been removed; everything about learning and memory now lives on the Self-learning page.
 
-### Forcing Javis to remember something
+### Forcing Jarvis 007 to remember something
 
 While chatting, just say it plainly:
 
 - "remember this"
 - "make a note that ..."
 
-When you use those phrases, Javis is required to create a new memory immediately: it writes a file in `memory/facts/` and adds a line to `MEMORY.md`. For example "Remember this: my shop is closed on Sundays" is stored as a `business` fact.
+When you use those phrases, Jarvis 007 is required to create a new memory immediately: it writes a file in `memory/facts/` and adds a line to `MEMORY.md`. For example "Remember this: my shop is closed on Sundays" is stored as a `business` fact.
 
-Javis only records durable, memorable things. It skips the transient and does not duplicate an existing memory (a duplicate updates the old file).
+Jarvis 007 only records durable, memorable things. It skips the transient and does not duplicate an existing memory (a duplicate updates the old file).
 
 ### Learning from conversations (the consolidation loop)
 
-This is the loop that makes Javis smarter over time: re-read recent conversations, extract new facts, merge duplicates, drop memories that are now wrong, and **distil reusable concepts into the Wiki**.
+This is the loop that makes Jarvis 007 smarter over time: re-read recent conversations, extract new facts, merge duplicates, drop memories that are now wrong, and **distil reusable concepts into the Wiki**.
 
 The loop now runs automatically at the server layer after each chat turn (with a debounce delay), through a read-only, isolated learning process; the writer is trusted code, not the AI. It is on by default.
 
-The key point of this loop: Javis clearly separates two things. Facts about you and the business go to `memory/facts/`. Reusable concepts, frameworks and procedures are distilled into Wiki pages (with `[[wikilink]]`). Each in its own place, which is how the knowledge graph thickens rather than getting mixed up with personal notes.
+The key point of this loop: Jarvis 007 clearly separates two things. Facts about you and the business go to `memory/facts/`. Reusable concepts, frameworks and procedures are distilled into Wiki pages (with `[[wikilink]]`). Each in its own place, which is how the knowledge graph thickens rather than getting mixed up with personal notes.
 
-Turning it on and off, choosing the write mode, choosing what to learn, learning now, seeing "what Javis taught itself", and undoing one learning run: all on the **Self-learning** page. See [Self-learning](22-self-learning.md).
+Turning it on and off, choosing the write mode, choosing what to learn, learning now, seeing "what Jarvis 007 taught itself", and undoing one learning run: all on the **Self-learning** page. See [Self-learning](22-self-learning.md).
 
 ## INGEST: digesting documents into knowledge
 
-INGEST is the process that turns a raw file (an article, a screenshot, a note) into a source in `sources/`, and from there distils it up into the Wiki. The result: Javis summarises, extracts insight, writes the Wiki and may suggest tasks.
+INGEST is the process that turns a raw file (an article, a screenshot, a note) into a source in `sources/`, and from there distils it up into the Wiki. The result: Jarvis 007 summarises, extracts insight, writes the Wiki and may suggest tasks.
 
 ### How to use it (step by step)
 
-1. Open the chat box (the **Javis** screen or the **Chat** page).
+1. Open the chat box (the **Jarvis 007** screen or the **Chat** page).
 2. Drop a file into the chat input (drag and drop, the drop zone reads "📎 Drop files here → saved to Sources"), or click the paperclip attach button next to the input (tooltip "Attach a file (image, text, document) → saved to Sources"). Images and text files both work. The file uploads and waits in the staging area.
-3. By default Javis **only reads the file and answers**, saving nothing anywhere. If you just want a quick summary, type your question normally.
-4. To make Javis save and digest it, say one of these phrases in the message: **"save to source"**, **"ingest"**, or **"write to the second brain"**.
-5. Javis then:
+3. By default Jarvis 007 **only reads the file and answers**, saving nothing anywhere. If you just want a quick summary, type your question normally.
+4. To make Jarvis 007 save and digest it, say one of these phrases in the message: **"save to source"**, **"ingest"**, or **"write to the second brain"**.
+5. Jarvis 007 then:
    - For a text file: reads it fully and creates a clean `.md` file in `sources/` with source frontmatter.
    - For an image: reads and describes the image content, creates the `.md` in `sources/`, moves the original image into `attachments/` and embeds it back.
-6. From that source, Javis extracts insight and updates the Wiki, and may propose tasks if the document opens up work to do.
+6. From that source, Jarvis 007 extracts insight and updates the Wiki, and may propose tasks if the document opens up work to do.
 
 Remember the cache rule above: the original image in `attachments/` expires after 30 days, while the `.md` in `sources/` stays forever. That is exactly why you should ingest rather than just drop a file and leave it.
 
-### Letting Javis process a batch of sources on a schedule
+### Letting Jarvis 007 process a batch of sources on a schedule
 
-If you have piled up unprocessed sources, you can hand Javis a **loop** running in the background:
+If you have piled up unprocessed sources, you can hand Jarvis 007 a **loop** running in the background:
 
 1. Go to **Recurring jobs** (**Work** group on the rail).
 2. Click **+ Add job**.
 3. Under **Job type**, keep **🔁 Loop**.
 4. Set a **Name** (for example "Digest new sources").
-5. Fill in **Task description (each cycle Javis does exactly this)**, for example: "Each cycle read 1 unprocessed source in sources and propose the Wiki page to create".
+5. Fill in **Task description (each cycle Jarvis 007 does exactly this)**, for example: "Each cycle read 1 unprocessed source in sources and propose the Wiki page to create".
 6. Choose the **Mode**: **Full power** (the default) lets it act for real, **Auto (drafts)** limits it to writing draft files in the brain, **Suggest (read only)** gives suggestions only.
 7. Set the **Cycle (minutes, minimum 5)**, choose the **Brain (where the job is stored)**, then click **💾 Save**.
 
@@ -221,9 +221,9 @@ The standalone "LINT Wiki" button of old is gone. LINT now runs inside the **Cur
 
 1. Go to **Self-learning** in the **Brain** group on the rail.
 2. Click **🧹 Curator now** to run one pass immediately. The button changes to "Cleaning...".
-3. Or click the status button under **Curator (periodic maintenance)** to flip it from "○ Off" to "● On", then click **💾 Save configuration** so Javis runs it on a cycle (the Curator is off by default, and the cycle when on is 24 hours).
+3. Or click the status button under **Curator (periodic maintenance)** to flip it from "○ Off" to "● On", then click **💾 Save configuration** so Jarvis 007 runs it on a cycle (the Curator is off by default, and the cycle when on is 24 hours).
 
-The result changes nothing, it only pours into the **Learning log** block as "Wiki LINT (suggestions, nothing changed)". It looks for: duplicate pages, pages nobody links to (orphans), broken `[[...]]` links, unresolved contradictions, and thin areas of knowledge (gaps). Read the list and decide yourself what to fix, do not let Javis fix everything at once.
+The result changes nothing, it only pours into the **Learning log** block as "Wiki LINT (suggestions, nothing changed)". It looks for: duplicate pages, pages nobody links to (orphans), broken `[[...]]` links, unresolved contradictions, and thin areas of knowledge (gaps). Read the list and decide yourself what to fix, do not let Jarvis 007 fix everything at once.
 
 ## Quick reference of buttons and states
 
@@ -246,20 +246,20 @@ The result changes nothing, it only pours into the **Learning log** block as "Wi
 ## Tips
 
 - **Split brains by purpose.** One brain for business and one for personal keeps the knowledge graph and the memory tidy and less noisy.
-- **Say "remember this" for what is durable.** Product niche, main sales channel, pricing decisions. Do not record the transient (busy today, a message just sent), which Javis skips anyway.
-- **To digest a document you must say so.** Dropping a file is not enough to save it, you have to add "save to source" or "ingest". Ask an ordinary question and Javis just reads and moves on.
-- **Memory travels with the folder.** Change machines or move to a VPS and you only need to point Javis at the right brain folder for every memory and Wiki page to be intact.
-- **Do not hand-roll git to sync.** Javis already has the **⇅ Sync brain with GitHub (two-way)** block on the Self-learning page: it pushes the whole brains folder to a private repo and pulls changes back from another machine. Step by step in [Backing the brain up to GitHub](18-github-backup.md).
+- **Say "remember this" for what is durable.** Product niche, main sales channel, pricing decisions. Do not record the transient (busy today, a message just sent), which Jarvis 007 skips anyway.
+- **To digest a document you must say so.** Dropping a file is not enough to save it, you have to add "save to source" or "ingest". Ask an ordinary question and Jarvis 007 just reads and moves on.
+- **Memory travels with the folder.** Change machines or move to a VPS and you only need to point Jarvis 007 at the right brain folder for every memory and Wiki page to be intact.
+- **Do not hand-roll git to sync.** Jarvis 007 already has the **⇅ Sync brain with GitHub (two-way)** block on the Self-learning page: it pushes the whole brains folder to a private repo and pulls changes back from another machine. Step by step in [Backing the brain up to GitHub](18-github-backup.md).
 - **See the knowledge visually** in the [Knowledge graph](03-knowledge-graph.md): every source and Wiki page is a node, `[[...]]` links are the edges.
 
 ## Common problems
 
 - **The "LONG-TERM MEMORY" section or the "Learn from conversation now" button is missing from the chat column.** That widget was removed. Everything about learning and memory is now on the **Self-learning** page (**Brain** group): the memory count on the **Metrics** line, manual learning through **▶ Learn now**.
 - **The memory count is still 0 after a lot of chatting.** A memory is only written when durable, memorable information appears, or when you say "remember this", or after a learning pass runs. Small talk creates no memories. Also check on the Self-learning page whether self-learning is on and whether the write mode is **Write automatically**.
-- **A dropped file never appears in Sources.** That is by design: reading only is the default. You have to include "save to source" or "ingest" in the message for Javis to create the `.md` in `sources/`.
+- **A dropped file never appears in Sources.** That is by design: reading only is the default. You have to include "save to source" or "ingest" in the message for Jarvis 007 to create the `.md` in `sources/`.
 - **Old images in a conversation turn into a grey "Image expired" box.** By design: `attachments/` is a cache and images over 30 days are cleared. Content already extracted into an `.md` in `sources/` at ingest time is still there.
-- **You deleted the wrong brain.** It is not lost right away: the folder is in `brain-trash` inside Javis's state folder, named like `Brain name__20260729-153012`, kept 30 days. The safe way to recover: click ➕ and recreate the brain with **exactly the old name** (this removes the tombstone so the brain is not deleted again on sync), then copy the contents from the trash into that folder.
-- **A brain reports a non-standard structure.** Go to Settings, the Interface and Brain group, the Brain structure item, and click **Normalise the selected brain** so Javis collapses the folders.
+- **You deleted the wrong brain.** It is not lost right away: the folder is in `brain-trash` inside Jarvis 007's state folder, named like `Brain name__20260729-153012`, kept 30 days. The safe way to recover: click ➕ and recreate the brain with **exactly the old name** (this removes the tombstone so the brain is not deleted again on sync), then copy the contents from the trash into that folder.
+- **A brain reports a non-standard structure.** Go to Settings, the Interface and Brain group, the Brain structure item, and click **Normalise the selected brain** so Jarvis 007 collapses the folders.
 - **Memories did not follow to a new machine.** Check that you pointed at the right brain folder, the one containing `memory/`. Memory lives in the folder, not in the account. To keep two machines matched automatically, turn on GitHub sync, see [Backing the brain up to GitHub](18-github-backup.md).
 - **After a GitHub backup, conversation logs and images are missing.** By design: `memory/conversations/`, `attachments/` and `inbox/` are all outside the brain's git. The backup only keeps distilled knowledge.
 

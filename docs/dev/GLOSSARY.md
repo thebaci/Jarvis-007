@@ -1,6 +1,6 @@
-# Glossary: Vietnamese words in the Javis code base
+# Glossary: Vietnamese words in the Jarvis 007 code base
 
-Javis was written by a Vietnamese team, so most identifiers, file names, comments and UI keys
+Jarvis 007 was written by a Vietnamese team, so most identifiers, file names, comments and UI keys
 are Vietnamese. This page lets an English reader decode names like `_doi_ngon_ngu_hat_giong`
 ("change the language of the seed files") or `NGOAI_LE_DU_LIEU` ("data exceptions").
 Start with [ARCHITECTURE.md](../../ARCHITECTURE.md) for how the system fits together.

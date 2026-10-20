@@ -1,4 +1,4 @@
-# Thêm một ngôn ngữ vào Javis
+# Thêm một ngôn ngữ vào Jarvis 007
 
 ***Tiếng Việt** · [English](adding-a-language.md)*
 
@@ -12,9 +12,9 @@ Ví dụ xuyên suốt: thêm **tiếng Thái (`th`)**.
 
 ---
 
-## ĐỌC TRƯỚC: Javis đã trả lời được tiếng Thái rồi
+## ĐỌC TRƯỚC: Jarvis 007 đã trả lời được tiếng Thái rồi
 
-Không đăng ký gì cả, người dùng gõ tiếng Thái thì Javis vẫn đáp tiếng Thái. Từ 0.35.0, ngôn
+Không đăng ký gì cả, người dùng gõ tiếng Thái thì Jarvis 007 vẫn đáp tiếng Thái. Từ 0.35.0, ngôn
 ngữ TRẢ LỜI do **model** lo: prompt bảo nó bám theo thứ tiếng người dùng vừa viết, và nó làm
 được với mọi thứ tiếng.
 
@@ -27,7 +27,7 @@ Vậy đăng ký để được gì. Đúng bốn thứ, đều là chỗ **khô
 | Múi giờ, tiền tệ, định dạng số mặc định | dùng của Việt Nam cho tới khi user tự đổi |
 | Đường tắt tiết kiệm token bật được | vẫn chạy, chỉ tốn hơn |
 
-Nói cách khác đây là việc **nên** làm, không phải việc **phải** làm để Javis nói được thứ
+Nói cách khác đây là việc **nên** làm, không phải việc **phải** làm để Jarvis 007 nói được thứ
 tiếng đó. Đừng để ai chờ hết bốn bước dưới rồi mới dám mời người dùng Thái vào.
 
 ---
@@ -86,7 +86,7 @@ Hai key kỹ thuật phải sửa: `_meta.name` (tên hiện trong ô chọn) v�
 Đây là chỗ dễ sai nhất trong cả tầng đa ngôn ngữ, nên nói cho rõ vì sao:
 
 - **Không có `th.py`**: `lexicon.get("th")` trả `None`, các cổng biết là mình mù, đường tắt tiết
-  kiệm token tự tắt, rào chắn hạ xuống tầng model phụ. Javis chạy **đúng**, chỉ tốn hơn.
+  kiệm token tự tắt, rào chắn hạ xuống tầng model phụ. Jarvis 007 chạy **đúng**, chỉ tốn hơn.
 - **Có `th.py` nhưng thiếu tập DENY**: cổng tưởng mình đọc được tiếng Thái. Câu khớp ALLOW thì
   đi thẳng, mà không gì chặn lại. **Rò rỉ, và rò trong im lặng.**
 
@@ -158,7 +158,7 @@ và thanh chọn ngôn ngữ đầu README.md phải có thêm thứ tiếng m�
 Liệt kê ra đây vì đây là chỗ người ta hay đi thừa:
 
 - **Không** dịch system prompt hay `CLAUDE.md`. Prompt giữ tiếng Việt; khối
-  `# === NGÔN NGỮ ===` ở cuối mới là thứ quyết định Javis trả lời tiếng gì. Model đọc được
+  `# === NGÔN NGỮ ===` ở cuối mới là thứ quyết định Jarvis 007 trả lời tiếng gì. Model đọc được
   hướng dẫn tiếng Việt rồi trả lời tiếng Thái - đó là chuyện bình thường, và một bộ prompt
   cho mỗi thứ tiếng là một bộ nữa để trôi lệch.
 - **Không** dịch nhãn mốc trong prompt (`# === SKILL KHẢ DỤNG`, `# === BÂY GIỜ ===`...). Chúng
@@ -172,7 +172,7 @@ Liệt kê ra đây vì đây là chỗ người ta hay đi thừa:
 
 ## Ngôn ngữ ĐÃ ĐĂNG KÝ
 
-Nhắc lại: đây KHÔNG phải danh sách thứ tiếng Javis nói được. Javis trả lời được mọi thứ tiếng.
+Nhắc lại: đây KHÔNG phải danh sách thứ tiếng Jarvis 007 nói được. Jarvis 007 trả lời được mọi thứ tiếng.
 Đây là danh sách thứ tiếng đã có giao diện, giọng đọc và cổng chặn riêng.
 
 | Mã | Tên | Từ điển giao diện | Bộ từ vựng cổng | Mô tả skill |

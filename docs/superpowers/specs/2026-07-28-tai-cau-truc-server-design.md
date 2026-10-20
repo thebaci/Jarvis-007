@@ -1,4 +1,4 @@
-# Tái cấu trúc server Javis OS
+# Tái cấu trúc server Jarvis 007
 
 Ngày: 2026-07-28
 Trạng thái: giai đoạn 0 XONG (0.9.235 + 0.9.236). Giai đoạn 1-4 chờ kế hoạch thực thi.
@@ -158,9 +158,9 @@ và spec này được xây trên phần còn đúng.
 **Bác bỏ 1: hermes-agent không gọn hơn.** Bản clone tại `.learn/hermes` là repo thật
 (remote NousResearch/hermes-agent, HEAD 972b1620). `gateway/run.py` 18.911 dòng, `cli.py` 15.695,
 `hermes_cli/web_server.py` 14.142, `hermes_cli/config.py` 7.731. Có 12 file source của hermes lớn
-hơn `server/main.py` (6.442). Trung bình 712 dòng/file so với 558 của Javis. Về đăng ký route hermes
+hơn `server/main.py` (6.442). Trung bình 712 dòng/file so với 558 của Jarvis 007. Về đăng ký route hermes
 còn kém hơn: 200 route treo `@app.*` trong một file 14k dòng, `APIRouter` chỉ dùng ở 4 chỗ phụ,
-trong khi Javis đã có 5 module feature dùng `APIRouter` + `register(app, Deps)`.
+trong khi Jarvis 007 đã có 5 module feature dùng `APIRouter` + `register(app, Deps)`.
 Kết luận: không lấy hermes làm khuôn mẫu cấu trúc. Bốn thứ duy nhất đáng học là `pyproject.toml`,
 `tools/registry.py` (tự đăng ký + discovery lazy bằng AST), `PluginContext` 18 điểm mở rộng có kiểu,
 và `tests/` soi gương cây source.

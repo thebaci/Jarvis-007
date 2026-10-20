@@ -5,7 +5,7 @@ Trạng thái: Đã duyệt thiết kế, chờ lập kế hoạch triển khai.
 
 ## 1. Bối cảnh và vấn đề
 
-Javis đồng bộ 2 chiều toàn bộ thư mục `brains/` giữa nhiều máy qua một repo GitHub riêng
+Jarvis 007 đồng bộ 2 chiều toàn bộ thư mục `brains/` giữa nhiều máy qua một repo GitHub riêng
 (`git_brain.sync_brains`, mô hình `máy A ⇄ repo ⇄ máy B/VPS`). Topology thực tế của user:
 **2+ máy chạy song song**, đều có thể sửa/xóa.
 

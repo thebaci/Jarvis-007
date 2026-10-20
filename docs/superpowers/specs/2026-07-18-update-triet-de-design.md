@@ -1,11 +1,11 @@
-# Update triệt để cho Javis OS - Thiết kế
+# Update triệt để cho Jarvis 007 - Thiết kế
 
 Ngày: 2026-07-18
 Trạng thái: đã duyệt thiết kế, chuẩn bị lập kế hoạch.
 
 ## Mục tiêu
 
-Làm cho tính năng cập nhật của Javis chắc chắn và an toàn: người dùng bấm một nút
+Làm cho tính năng cập nhật của Jarvis 007 chắc chắn và an toàn: người dùng bấm một nút
 "Cập nhật ngay" là lên được bản mới trên mọi môi trường, trong lúc chạy hiện tiến
 trình rõ ràng, và nếu bản mới lỗi thì có đường quay về bản cũ.
 

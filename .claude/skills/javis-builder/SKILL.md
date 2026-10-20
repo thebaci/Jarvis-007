@@ -1,209 +1,209 @@
 ---
-name: Javis Builder
-description: "Tạo hoặc sửa năng lực của Javis: agent, skill, workflow, loop, plugin. Kèm mẫu file chuẩn và luật chống trùng."
-description_en: "Create or edit a Javis capability: agent, skill, workflow, loop, plugin. Ships file templates and the rules against duplicates."
+name: Jarvis 007 Builder
+description: "Create or edit a Jarvis 007 capability: agent, skill, workflow, loop, plugin. Ships file templates and the rules against duplicates."
+description_en: "Create or edit a Jarvis 007 capability: agent, skill, workflow, loop, plugin. Ships file templates and the rules against duplicates."
 group: AI
 ---
 
-# Javis Builder - tạo agent / skill / workflow / loop
+# Jarvis 007 Builder - create an agent / skill / workflow / loop
 
-## Khi nào dùng
+## When to use
 
-Kích hoạt khi người dùng nói những câu như: "tạo agent chuyên X", "thêm kỹ năng Y",
-"dựng workflow nghiên cứu rồi viết", "tạo loop mỗi 2 tiếng làm Z", "viết tool/plugin
-tính ...", "làm cho Javis biết làm ...".
+Activate when the user says things like: "create an agent for X", "add a skill for Y",
+"build a workflow that researches then writes", "create a loop that does Z every 2 hours", "write a tool/plugin
+that calculates ...", "make Jarvis 007 able to ...".
 
-Khi người dùng muốn Javis có thêm một năng lực, bạn TỰ GHI FILE .md đúng chuẩn dưới đây vào
-vault (brain đang chọn). Studio / trang tương ứng tự nhận file mới. Luôn báo cáo ngắn sau khi tạo.
+When the user wants Jarvis 007 to gain a capability, you WRITE THE .md FILE YOURSELF in the standard below into the
+vault (the brain currently selected). Studio / the matching page picks up the new file on its own. Always give a short report after creating it.
 
-## Quy trình (làm đúng thứ tự)
+## Procedure (follow this order)
 
-1. **Hiểu nhu cầu.** Nếu mô tả đủ rõ thì làm luôn; thiếu điểm cốt lõi (mục tiêu, đầu ra mong
-   muốn) thì hỏi 1 câu ngắn rồi làm. Đừng hỏi lan man.
-2. **Chọn đúng LOẠI năng lực:**
-   - Việc trả lời/kiến thức cách-làm tái dùng nhiều lần -> **skill**.
-   - Một "vai" chuyên môn có system prompt riêng -> **agent**.
-   - Chuỗi nhiều bước, nhiều vai nối nhau -> **workflow** (tạo trước các agent còn thiếu).
-   - Việc LẶP theo chu kỳ, tự chạy nền -> **loop**.
-   - Cần một TOOL native mới (làm được bằng Python, tái dùng, mọi engine gọi được) mà chưa có MCP -> **plugin**. Chỉ là hướng dẫn cách làm bằng tool sẵn -> skill. Nguồn dữ liệu ngoài có sẵn MCP -> đấu MCP.
-   - Việc làm 1 lần -> KHÔNG tạo gì, cứ làm luôn hoặc đề xuất task Kanban.
-3. **Chống trùng.** TRƯỚC khi tạo, đọc folder tương ứng (agents/ workflows/ skills/
-   loops/). Nếu đã có cái gần giống -> cập nhật cái cũ, đừng đẻ bản sao.
-4. **Ghi file** đúng frontmatter (mẫu bên dưới). slug = ASCII không dấu, gạch nối. Tên hiển thị
-   tiếng Việt. TUYỆT ĐỐI không dùng ký tự em dash, dùng "-".
-   **Phân loại là BẮT BUỘC.** Agent dùng `tags` (danh sách, gắn được nhiều tag); skill và workflow
-   dùng `group` (một nhóm). Trước khi chọn, đọc tag đang dùng trong `agents/*.md` và nhóm đang dùng
-   trong `workflows/*.md`, `skills/*/SKILL.md` rồi lấy cái sát nhất; không cái nào hợp thì đặt tên
-   mới ngắn theo lĩnh vực. Agent bỏ trống `tags` thì nằm ở "Chưa gắn tag", skill/workflow bỏ trống
-   `group` thì rơi vào "Chung". Tag chỉ để phân loại và tìm agent: không thêm agent vào nhóm chat,
-   không chọn reviewer, không cấp quyền.
-5. **Báo cáo ngắn** bằng văn nói: đã tạo loại gì, tên/đường dẫn file, dùng ở đâu.
+1. **Understand the need.** If the description is clear enough, just do it; if a core point is missing (goal, desired
+   output), ask 1 short question and then do it. Do not ask rambling questions.
+2. **Pick the right TYPE of capability:**
+   - A reusable how-to or knowledge for answering, needed many times -> **skill**.
+   - A specialist "role" with its own system prompt -> **agent**.
+   - A chain of several steps, several roles linked together -> **workflow** (create any missing agents first).
+   - Work that REPEATS on a cycle and runs by itself in the background -> **loop**.
+   - A new native TOOL is needed (doable in Python, reusable, callable by every engine) and no MCP exists -> **plugin**. Only instructions on how to work with existing tools -> skill. An external data source that already has an MCP -> connect the MCP.
+   - A one-off job -> create NOTHING, just do it or propose a Kanban task.
+3. **Avoid duplicates.** BEFORE creating, read the matching folder (agents/ workflows/ skills/
+   loops/). If something similar already exists -> update the old one, do not spawn a copy.
+4. **Write the file** with the right frontmatter (templates below). slug = ASCII without diacritics, hyphenated. The display name
+   is in the user's language. NEVER use the em dash character, use "-".
+   **Classification is MANDATORY.** An agent uses `tags` (a list, several tags allowed); a skill and a workflow
+   use `group` (a single group). Before choosing, read the tags in use in `agents/*.md` and the groups in use
+   in `workflows/*.md` and `skills/*/SKILL.md`, then take the closest one; if none fits, make up
+   a new short name by domain. An agent with empty `tags` lands in "Untagged", a skill/workflow with empty
+   `group` falls into "General". A tag is only for sorting and finding agents: it does not add an agent to a chat group,
+   does not pick a reviewer, does not grant permissions.
+5. **Short report** in spoken prose: what type you created, the name/file path, where it is used.
 
-## Mẫu file (ghi CHÍNH XÁC theo đây)
+## File templates (write EXACTLY like this)
 
-### Agent -> `<brain>/agents/<slug>.md` (PHẲNG ở gốc brain - KHÔNG phải Javis/agents, ghi vào đó là app không thấy)
+### Agent -> `<brain>/agents/<slug>.md` (FLAT at the brain root - NOT Javis/agents, the app will not see anything written there)
 ```
 ---
 type: agent
-name: <Tên tiếng Việt>
+name: <display name>
 slug: <ascii>
-role: <vai trò 1 câu>
-tags: [Marketing, Viết nội dung]   # một hay nhiều tag; ví dụ Marketing, Bán hàng, Nội dung, Vận hành, Tài chính, AI, Năng suất, Cá nhân
-skills: [slug-skill]      # [] nếu chưa gán; chỉ gán skill đã có trong skills/
-model: ""                 # "" mặc định | sonnet|opus|haiku|fable (Claude) | gpt-5.5|gpt-5.4|gpt-5.3-codex (ChatGPT/Codex)
+role: <role in 1 sentence>
+tags: [Marketing, Copywriting]   # one or more tags; examples: Marketing, Sales, Content, Operations, Finance, AI, Productivity, Personal
+skills: [slug-skill]      # [] if none assigned yet; only assign skills that already exist in skills/
+model: ""                 # "" default | sonnet|opus|haiku|fable (Claude) | gpt-5.5|gpt-5.4|gpt-5.3-codex (ChatGPT/Codex)
 updated: <YYYY-MM-DD>
 ---
-<system prompt: cách làm việc, nguyên tắc, định dạng đầu ra mong muốn>
+<system prompt: how to work, principles, desired output format>
 ```
 
-**Viết system prompt cho agent theo khung metaprompt** (rút từ metaprompt của Anthropic - ĐỪNG viết 1-2 câu chung chung kiểu "bạn là chuyên gia X"):
-1. Vai + mục tiêu: 1 câu nêu vai, 1 câu nêu kết quả tốt trông như thế nào.
-2. Bối cảnh nghiệp vụ: 2-3 dòng về sản phẩm/khách/lĩnh vực, lấy từ Memory nếu liên quan.
-3. Quy trình: các bước làm việc đánh số, đúng thứ tự agent nên làm thật.
-4. Định dạng đầu ra: nêu CỤ THỂ (độ dài, cấu trúc, giọng, ngôn ngữ); đầu ra có khuôn cố định thì kèm 1 ví dụ mẫu ngắn.
-5. Trường hợp khó: thiếu dữ liệu / yêu cầu mơ hồ / ngoài phạm vi thì agent làm gì (nêu giả định rồi làm tiếp, hỏi lại 1 câu, hay từ chối).
-6. Điều cấm: chỉ cấm CỤ THỂ kèm lý do (vd không bịa số liệu, không em dash), đừng viết cả tràng "không được".
-Prompt tốt thường 10-25 dòng. Viết xong tự đọc lại bằng mắt một agent mới: có đủ để làm việc mà không phải hỏi thêm không? Thân skill cũng áp khung này (bỏ mục 1, thay bằng mô tả trigger).
+**Write the agent's system prompt in the metaprompt frame** (taken from Anthropic's metaprompt - do NOT write 1-2 generic sentences like "you are an expert in X"):
+1. Role + goal: 1 sentence naming the role, 1 sentence saying what a good result looks like.
+2. Business context: 2-3 lines about the product/customers/field, taken from Memory if relevant.
+3. Procedure: numbered working steps, in the order the agent should really do them.
+4. Output format: be SPECIFIC (length, structure, tone, language); if the output has a fixed shape, attach 1 short sample.
+5. Hard cases: what the agent does when data is missing / the request is ambiguous / out of scope (state an assumption and continue, ask 1 question, or refuse).
+6. Prohibitions: only SPECIFIC ones with a reason (e.g. do not invent numbers, no em dash), do not write a whole string of "must not".
+A good prompt is usually 10-25 lines. After writing, read it as a fresh agent would: is it enough to do the work without asking anything more? A skill body follows the same frame (drop item 1, replace it with a description of the trigger).
 
 ### Skill -> `skills/<slug>/SKILL.md`
 ```
 ---
-name: <Tên skill>
-description: <nêu THẲNG năng lực, TỐI ĐA 150 ký tự - vd "Tóm tắt biên bản họp thành danh sách việc cần làm.">
-group: <Marketing|Bán hàng|Nội dung|Vận hành|Tài chính|AI|Năng suất|Cá nhân>
+name: <Skill name>
+description: <state the capability DIRECTLY, AT MOST 150 characters - e.g. "Summarize meeting minutes into a to-do list.">
+group: <Marketing|Sales|Content|Operations|Finance|AI|Productivity|Personal>
 ---
-<hướng dẫn chi tiết cho AI khi skill kích hoạt>
+<detailed instructions for the AI when the skill activates>
 ```
 
-#### Chuẩn viết skill (bắt buộc - KHÔNG có ai gác, tự bạn phải giữ)
+#### Skill writing standard (mandatory - NOBODY is guarding this, you must hold the line yourself)
 
-**Không có lưới an toàn.** Skill viết theo tài liệu này là GHI THẲNG RA ĐĨA: không qua
-`POST /skills` nên không có kiểm tra phía server, và lint CI chỉ soi skill HỆ THỐNG, không
-soi skill trong `skills/` của brain. Vi phạm chuẩn dưới đây sẽ KHÔNG có thông báo lỗi nào -
-skill cứ thế hỏng âm thầm lúc chạy. Bạn là lớp phòng thủ duy nhất.
+**There is no safety net.** A skill written by following this document is WRITTEN STRAIGHT TO DISK: it does not go through
+`POST /skills`, so there is no server-side check, and the CI lint only inspects SYSTEM skills, not
+skills in the brain's `skills/`. Breaking the standard below produces NO error message at all -
+the skill just silently breaks at run time. You are the only line of defense.
 
-1. `description` **TỐI ĐA 150 ký tự**. **Viết xong hãy ĐẾM, đừng ước lượng** - đây là việc
-   bắt buộc, không phải lời khuyên. Router cắt đúng ở đó (`skill_router.SKILL_DESC_MAX`) ở
-   cả system prompt lẫn mô tả tool, nên viết dài hơn là phần đuôi MẤT IM LẶNG và skill không
-   route được. Không ai cảnh báo bạn: không đếm là hỏng mà không biết.
-2. `description` nêu THẲNG năng lực. KHÔNG mở đầu bằng "Kích hoạt khi...", "Sử dụng skill
-   này khi..." - mọi skill đều mở như vậy nên nó đốt 29 ký tự mà không phân biệt gì.
-   Tốt: `Tóm tắt biên bản họp thành danh sách việc cần làm.`
-   Xấu: `Kích hoạt khi người dùng muốn tóm tắt biên bản...`
-3. `description` có dấu hai chấm thì phải bọc cả giá trị trong nháy kép, kẻo YAML hiểu
-   nhầm thành mapping.
-4. Ví dụ trigger đầy đủ đưa vào THÂN file, mục `## Khi nào dùng` - nơi không bị cắt và chỉ
-   đọc khi skill đã nạp. Index để TÌM, thân file để LÀM.
-5. Thứ tự mục trong thân: `## Khi nào dùng` / `## Chuẩn bị` / `## Cách chạy` /
-   `## Quy trình` / `## Bẫy` / `## Kiểm chứng`. Mục nào không có nội dung thật thì bỏ,
-   đừng bịa cho đủ.
-6. KHÔNG bịa flag, đường dẫn, API chưa thấy trong nguồn. Không thấy thì đừng viết.
-7. Thân file khoảng 100 dòng cho skill đơn giản, 200 cho skill phức tạp. Dài hơn thì tách
-   nội dung xuống `skills/<slug>/references/<chủ-đề>.md`, script xuống
-   `skills/<slug>/scripts/`, và trỏ tới bằng đường dẫn tương đối. Từ bản 0.9.64: bản mirror
-   sang `.claude/skills` (đường Claude Code nạp NATIVE) copy ĐỆ QUY cả cây, nên với skill
-   trong brain, `references/`/`scripts/` tới được CẢ đường router lẫn đường native. Từ bản
-   0.33.0, skill HỆ THỐNG (bundled theo app, cài vào brain qua system sync) cũng ship CẢ cây
-   con - trước đó nó chỉ chuyển mỗi `SKILL.md` nên skill hệ thống nào cần `tools/` là hỏng ở
-   mọi brain. Giờ viết skill hệ thống có cây con là hợp lệ.
-8. KHÔNG viết skill kiểu router chỉ trỏ sang skill khác.
+1. `description` is **AT MOST 150 characters**. **After writing, COUNT, do not estimate** - this is
+   mandatory, not advice. The router cuts at exactly that point (`skill_router.SKILL_DESC_MAX`) in
+   both the system prompt and the tool description, so anything longer has its tail LOST SILENTLY and the skill cannot be
+   routed. Nobody warns you: not counting means it breaks without you knowing.
+2. `description` states the capability DIRECTLY. Do NOT open with "Activate when...", "Use this skill
+   when..." - every skill opens that way, so it burns 29 characters and distinguishes nothing.
+   Good: `Summarize meeting minutes into a to-do list.`
+   Bad: `Activate when the user wants to summarize meeting minutes...`
+3. If `description` contains a colon, the whole value must be wrapped in double quotes, or YAML
+   reads it as a mapping.
+4. Put the full trigger examples in the BODY, in the `## When to use` section - where nothing is cut and which is only
+   read once the skill is loaded. The index is for FINDING, the body is for DOING.
+5. Order of sections in the body: `## When to use` / `## Preparation` / `## How to run` /
+   `## Procedure` / `## Pitfalls` / `## Verification`. Drop any section with no real content,
+   do not invent filler.
+6. Do NOT invent flags, paths or APIs you have not seen in the source. If you did not see it, do not write it.
+7. Keep the body around 100 lines for a simple skill, 200 for a complex one. Longer than that, move
+   the content down to `skills/<slug>/references/<topic>.md`, scripts down to
+   `skills/<slug>/scripts/`, and point to them by relative path. Since version 0.9.64: the mirror
+   into `.claude/skills` (the route Claude Code loads NATIVELY) copies the whole tree RECURSIVELY, so for a skill
+   in the brain, `references/`/`scripts/` are reachable by BOTH the router route and the native route. Since version
+   0.33.0, SYSTEM skills (bundled with the app, installed into the brain via system sync) also ship the WHOLE
+   subtree - before that it carried only `SKILL.md`, so any system skill that needed `tools/` was broken in
+   every brain. Writing a system skill with a subtree is now valid.
+8. Do NOT write a router-style skill that only points to another skill.
 
-### Workflow -> `<brain>/workflows/<slug>.md` (PHẲNG ở gốc brain - KHÔNG phải Javis/workflows)
+### Workflow -> `<brain>/workflows/<slug>.md` (FLAT at the brain root - NOT Javis/workflows)
 ```
 ---
 type: workflow
-name: <Tên>
+name: <Name>
 slug: <ascii>
-status: 'off'             # tạo mới để 'off' cho user xem trước rồi bật; GIỮ dấu nháy (off trần = boolean). Quy trình tắt không chạy nền
-group: <Marketing|Bán hàng|Nội dung|Vận hành|Tài chính|AI|Năng suất|Cá nhân>
-description: <mô tả ngắn>
+status: 'off'             # new ones start 'off' so the user can preview and then turn them on; KEEP the quotes (bare off = boolean). A workflow that is off does not run in the background
+group: <Marketing|Sales|Content|Operations|Finance|AI|Productivity|Personal>
+description: <short description>
 steps:
   - agent: <agent-slug>
-    task: "<việc; {{input}}=đầu vào user, {{prev}}=kết quả bước trước>"
-    verify_agent: <agent-slug>   # tùy chọn: agent soi lỗi, PHẢI trả JSON {"pass":true|false,...}; vẫn trượt sau max_retries thì quy trình DỪNG
-    max_retries: 1               # tùy chọn
-    tools: [javis_generate_image] # tùy chọn: tool plugin riêng bước này cần khi chạy nền dưới Toàn quyền (vd tạo/xem ảnh); WebFetch, WebSearch cũng nhận
+    task: "<the job; {{input}}=user input, {{prev}}=result of the previous step>"
+    verify_agent: <agent-slug>   # optional: an agent that checks for errors, MUST return JSON {"pass":true|false,...}; if it still fails after max_retries the workflow STOPS
+    max_retries: 1               # optional
+    tools: [javis_generate_image] # optional: the plugin tool this step needs when running in the background under Full access (e.g. create/view images); WebFetch, WebSearch are also accepted
 updated: <YYYY-MM-DD>
 ---
-<mô tả>
+<description>
 ```
-Nếu workflow tham chiếu agent chưa tồn tại -> TẠO agent đó trước.
+If the workflow references an agent that does not exist yet -> CREATE that agent first.
 
-### Nhóm chat -> tool `javis_team` (KHÔNG ghi file tay, KHÔNG điều khiển trình duyệt)
-Người dùng muốn một nhóm chat gồm vài trợ lý: gọi `javis_team` op=create một lần, `members` là slug trợ lý có sẵn, `new_agents`
-là trợ lý cần tạo mới (`name`, `role`, `prompt`, `model`, `model_provider` nếu muốn model riêng), `leader` là slug hay tên trưởng
-nhóm. Sửa: op=update, add_member, remove_member, set_leader, set_agent_model. Xoá: op=archive trước, op=delete kèm confirm=true chỉ
-khi người dùng nói rõ là xoá. Xem trước trợ lý đang có bằng op=list_agents để khỏi tạo trùng.
+### Chat group -> tool `javis_team` (do NOT write files by hand, do NOT drive the browser)
+The user wants a chat group made of several assistants: call `javis_team` op=create once, `members` are the slugs of existing assistants, `new_agents`
+are the assistants to create new (`name`, `role`, `prompt`, `model`, `model_provider` if a separate model is wanted), `leader` is the slug or name of the group
+leader. To edit: op=update, add_member, remove_member, set_leader, set_agent_model. To delete: op=archive first, then op=delete with confirm=true only
+when the user clearly says to delete. Preview the existing assistants with op=list_agents to avoid creating duplicates.
 
 ### Loop -> `Javis/loops/<slug>.md`
 
-**Việc LẶP MỚI: ưu tiên GỌI TOOL `javis_schedule`** (op=create, name/prompt/schedule - vd
-schedule="120m" hoặc "mỗi 2 tiếng") thay vì tự ghi file. Tool tự đặt đúng slug, đúng frontmatter
-(kể cả `goal: custom` bên dưới - thiếu field này là lỗi thật đã xảy ra: self_improve.py mặc định
-`goal: business`, loop chỉ đọc số liệu MCP và BỎ QUA HOÀN TOÀN nhiệm vụ ở thân file), và chặn
-trùng tên. **CHỈ tự ghi file tay** (mẫu dưới) khi: (a) SỬA loop ĐÃ CÓ, hoặc (b) cần trường nâng
-cao mà tool chưa nhận - `quiet_hours` (giờ im lặng, vd "23-07"), `max_runs_per_day`, `workspace`
-(+ `tools_profile: code` khi loop sửa mã trên thư mục ngoài - có Bash/Web, KHÔNG MCP),
-`ambient_mcp` (cho loop THẤY connector claude.ai của máy - Gmail/Drive/lịch; MẶC ĐỊNH tắt để bản
-fork sạch, chỉ bật khi user yêu cầu rõ; vẫn chặn cứng Bash/Web), `notify: false` (loop quá ồn thì
-ngừng báo mỗi vòng), hoặc `goal` khác `custom` (`business`/`brain`/`product`).
+**For a NEW repeating job: prefer CALLING the tool `javis_schedule`** (op=create, name/prompt/schedule - e.g.
+schedule="120m" or "every 2 hours") instead of writing the file yourself. The tool sets the right slug, the right frontmatter
+(including `goal: custom` below - missing this field is a real bug that has happened: self_improve.py defaults to
+`goal: business`, so the loop only reads MCP numbers and COMPLETELY IGNORES the task in the file body), and blocks
+duplicate names. **Write the file by hand ONLY** (template below) when: (a) EDITING an EXISTING loop, or (b) you need an advanced
+field the tool does not accept yet - `quiet_hours` (quiet hours, e.g. "23-07"), `max_runs_per_day`, `workspace`
+(+ `tools_profile: code` when the loop edits code in an outside folder - it has Bash/Web, NO MCP),
+`ambient_mcp` (lets the loop SEE the machine's claude.ai connectors - Gmail/Drive/calendar; OFF BY DEFAULT so a clean
+fork stays clean, turn it on only when the user clearly asks; Bash/Web remain hard-blocked), `notify: false` (when a loop is too noisy,
+stop it reporting every iteration), or a `goal` other than `custom` (`business`/`brain`/`product`).
 ```
 ---
 type: loop
-name: <Tên>
+name: <Name>
 slug: <ascii>
-enabled: false            # LUÔN tạo ở trạng thái TẮT - user bấm Bật ở trang Việc
-mode: full                # full=toàn quyền (MẶC ĐỊNH) | auto=chỉ ghi nháp | suggest=chỉ đọc/đề xuất
-goal: custom              # BẮT BUỘC khi ghi tay - thiếu dòng này self_improve.py mặc định
-                           # 'business' (chỉ đọc số liệu MCP, bỏ qua hoàn toàn thân file dưới đây)
-interval_min: 120         # tối thiểu 5
-owner_chat: "<chat_id>"   # chat_id NGƯỜI YÊU CẦU (tạo qua chat Telegram) - để báo đúng người;
-                           # bỏ trống nếu tạo trên web (báo về ID Telegram đầu tiên)
+enabled: false            # ALWAYS create it OFF - the user presses Turn on on the Work page
+mode: full                # full=full access (DEFAULT) | auto=drafts only | suggest=read/suggest only
+goal: custom              # REQUIRED when writing by hand - without this line self_improve.py defaults to
+                           # 'business' (reads MCP numbers only, ignores the file body below entirely)
+interval_min: 120         # minimum 5
+owner_chat: "<chat_id>"   # chat_id of the PERSON WHO ASKED (created through Telegram chat) - so reports reach the right person;
+                           # leave empty if created on the web (reports go to the first Telegram ID)
 updated: <YYYY-MM-DD>
 ---
-<mô tả nhiệm vụ: mỗi vòng loop làm ĐÚNG việc này - đây chính là prompt của loop, viết tự-đủ>
+<task description: each loop iteration does EXACTLY this work - this IS the loop's prompt, write it self-contained>
 ```
 
-### Plugin -> mặc định TOÀN CỤC `<JAVIS_STATE_DIR>/plugins/<slug>/` (chung mọi brain); riêng 1 brain thì `<vault>/plugins/<slug>/`. 2 file: plugin.yaml + plugin.py
+### Plugin -> GLOBAL by default `<JAVIS_STATE_DIR>/plugins/<slug>/` (shared by every brain); for one brain only, `<vault>/plugins/<slug>/`. 2 files: plugin.yaml + plugin.py
 `plugin.yaml`:
 ```
-name: <Tên tiếng Việt>
+name: <display name>
 slug: <ascii>
 version: 1.0.0
-description: <tool này làm gì, khi nào engine nên gọi>
-author: <ai tạo>
-enabled: false            # LUÔN tạo ở trạng thái TẮT
-min_mode: readonly        # readonly=chỉ đọc/tính (mặc định) | safe=có ghi | full=hành động thật
+description: <what this tool does, when engines should call it>
+author: <who created it>
+enabled: false            # ALWAYS create it OFF
+min_mode: readonly        # readonly=read/compute only (default) | safe=writes | full=real actions
 tools: [<ten_tool>]
-hooks: []                 # vd [post_tool_call] nếu dùng hook
+hooks: []                 # e.g. [post_tool_call] if a hook is used
 ```
 `plugin.py`:
 ```python
 def register(ctx):
-    def handler(args, ctx):            # args=dict; trả str (hoặc dict). Lỗi -> "ERROR: ...". Có thể async.
+    def handler(args, ctx):            # args=dict; return str (or dict). On error -> "ERROR: ...". May be async.
         return "..."
     ctx.register_tool(
-        name="ten_tool", description="mô tả cho engine + tham số",
+        name="ten_tool", description="description for the engine + parameters",
         handler=handler, min_mode="readonly",
         schema={"type":"object","properties":{},"required":[]})
-    # tuỳ chọn hook: ctx.register_hook("post_tool_call", lambda tool_name="", **_: None)
+    # optional hook: ctx.register_hook("post_tool_call", lambda tool_name="", **_: None)
 ```
-ctx có `ctx.vault_root`, `ctx.data_dir` (state riêng plugin, không đụng vault), `ctx.slug`.
+ctx has `ctx.vault_root`, `ctx.data_dir` (the plugin's own state, does not touch the vault), `ctx.slug`.
 
-## Rào an toàn (BẮT BUỘC)
+## Safety rails (MANDATORY)
 
-- Loop tạo qua chat LUÔN `enabled: false` (user bấm Bật ở trang Việc) và mặc định `mode: full`:
-  chủ dự án đã bỏ luật "không giao tự động tiền/đơn/đăng bài/nhắn khách" (2026-09-10), nên
-  loop tự thao tác ra ngoài và KHÔNG cần cảnh báo rủi ro. Chỉ hạ `mode: auto/suggest` khi user
-  muốn loop đó nhẹ hơn.
-- KHÔNG bao giờ để một loop/automation tự tạo hoặc tự bật loop khác (chống phình vô hạn) - chỉ ĐỀ XUẤT.
-- Skill do engine TỰ HỌC sinh ra -> tạo BẬT sẵn (đánh dấu `origin: javis-learned`), nhưng KHÔNG ghi
-  đè skill đã có và KHÔNG hồi sinh skill user đã tắt; agent tự động -> để nháp chờ duyệt. Skill do
-  user yêu cầu trực tiếp -> tạo bật luôn nhưng phải kiểm trùng + `description` nêu rõ năng lực,
-  phân biệt được với skill khác (mô tả mơ hồ làm Javis chọn skill sai). Đừng tạo skill trùng
-  chức năng skill đã có.
-- Plugin user (toàn cục lẫn vault) chạy CODE PYTHON THẬT trong tiến trình server -> tạo `enabled: false`,
-  `min_mode: readonly`, và NÓI RÕ với user: plugin nằm tắt cho tới khi họ bật nó trong app. Từ 15/10/2026
-  Javis cho tải plugin người dùng mặc định; máy nào muốn chặn hẳn thì đặt env `JAVIS_ENABLE_USER_PLUGINS=false`
-  rồi khởi động lại. Plugin làm hành động ra ngoài thì khai `min_mode: full` cho đúng, hub xét theo mức quyền của chỗ gọi.
-- Sau khi tạo, KHÔNG tự chạy thứ có side-effect; để user xem trước.
+- A loop created through chat is ALWAYS `enabled: false` (the user presses Turn on on the Work page) and defaults to `mode: full`:
+  the project owner dropped the rule "never hand money/orders/posting/customer messaging to automation" (2026-09-10), so a
+  loop that acts on the outside by itself needs NO risk warning. Only lower to `mode: auto/suggest` when the user
+  wants that loop to be lighter.
+- NEVER let one loop/automation create or turn on another loop by itself (stops unbounded growth) - only PROPOSE.
+- A skill produced by the engine's SELF-LEARNING -> created already ON (marked `origin: javis-learned`), but it must NOT overwrite
+  an existing skill and must NOT resurrect a skill the user turned off; an automatic agent -> left as a draft awaiting approval. A skill
+  the user asked for directly -> created ON right away, but you must check for duplicates and make `description` state the capability clearly,
+  distinguishable from other skills (a vague description makes Jarvis 007 pick the wrong skill). Do not create a skill that duplicates
+  the function of an existing skill.
+- User plugins (global and vault) run REAL PYTHON CODE in the server process -> create them `enabled: false`,
+  `min_mode: readonly`, and TELL the user clearly: the plugin stays off until they turn it on in the app. Since 2026-10-15
+  Jarvis 007 loads user plugins by default; a machine that wants to block them entirely sets the env `JAVIS_ENABLE_USER_PLUGINS=false`
+  and restarts. A plugin that performs outside actions declares `min_mode: full` correctly, and the hub judges by the permission level of the caller.
+- After creating, do NOT run anything with side effects on your own; let the user preview it.

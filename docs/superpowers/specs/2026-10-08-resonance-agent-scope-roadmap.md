@@ -12,7 +12,7 @@ Ngày chốt hướng: 08/10/2026. Mã đối chiếu: main `09f254d0e4d009451dc
 - Luật nền ít và cố định; cách làm, lịch, bài học và cách trình bày được thay đổi trong phạm vi đó.
 - M1–M5 không làm lại: giữ kho mục tiêu, revision, receipt, bằng chứng, guard, hạn mức, bàn giao sản phẩm, thẻ và thử phương pháp.
 
-Phạm vi “toàn bộ tiến độ” trong đợt rà này là chương trình Resonance cùng các hệ agent/workflow/loop/học có liên quan trong Javis. Không phải kiểm toán mọi tính năng khác của Javis hay kiểm chứng lại toàn bộ suite.
+Phạm vi “toàn bộ tiến độ” trong đợt rà này là chương trình Resonance cùng các hệ agent/workflow/loop/học có liên quan trong Jarvis 007. Không phải kiểm toán mọi tính năng khác của Jarvis 007 hay kiểm chứng lại toàn bộ suite.
 
 ## 2. Bốn bất biến làm khung chung
 

@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Cho Javis một tool để tạo/liệt kê/huỷ việc định kỳ và nhắc hẹn ngay từ chat, thay cho việc gõ YAML bằng tay hoặc shell ra `curl`.
+**Goal:** Cho Jarvis 007 một tool để tạo/liệt kê/huỷ việc định kỳ và nhắc hẹn ngay từ chat, thay cho việc gõ YAML bằng tay hoặc shell ra `curl`.
 
 **Architecture:** `javis_schedule` là **plugin bundled** (`system/plugins/javis-schedule/`), KHÔNG phải tool trong hub. Nó route theo bản chất công việc: nhắc/cron/một-lần → kho `reminders` (đã chạy sẵn, có cron đầy đủ); việc lặp + bền + cần prompt sửa được trong Obsidian → file `.md` trong `Javis/loops/`. Người dùng và model chỉ thấy MỘT khái niệm "việc"; chuyện nó rơi vào kho nào là chi tiết triển khai.
 
-**Tech Stack:** Python 3.12, hệ plugin của Javis (`plugins_host.py`), test script thuần.
+**Tech Stack:** Python 3.12, hệ plugin của Jarvis 007 (`plugins_host.py`), test script thuần.
 
 Spec: `docs/superpowers/specs/2026-07-17-hop-nhat-viec-dinh-ky-design.md` (mục "Tool `javis_schedule`")
 
@@ -28,7 +28,7 @@ Spec viết: *"Thêm vào hub cạnh `javis_use_skill` (`mcp_hub.py:272`)"*. **S
 
 `PluginContext.vault_root` (`plugins_host.py:218`) nhận thẳng tham số `vault_root`. Đường SDK truyền `None` (`claude_sdk_engine.py:169`, comment "None = plugin toàn cục"). Nên **mọi plugin gọi từ Claude Code đều có `ctx.vault_root is None`**.
 
-Hậu quả đang xảy ra HÔM NAY (không phải giả thuyết): `image-chatgpt` truyền `vault_root=cctx.vault_root` (`plugin.py:33`) xuống `image_gen._resolve_vault` (`image_gen.py:95-98`), hàm này thấy rỗng thì **rơi về `brains/Brain Default`**. Tức: anh Quy đang làm việc ở brain "My Bullet Journal", bảo Javis tạo ảnh, **ảnh lưu vào Brain Default** và link `![](attachments/...)` trong chat trỏ vào chỗ không có file. Bug im lặng, chưa ai báo.
+Hậu quả đang xảy ra HÔM NAY (không phải giả thuyết): `image-chatgpt` truyền `vault_root=cctx.vault_root` (`plugin.py:33`) xuống `image_gen._resolve_vault` (`image_gen.py:95-98`), hàm này thấy rỗng thì **rơi về `brains/Brain Default`**. Tức: anh Quy đang làm việc ở brain "My Bullet Journal", bảo Jarvis 007 tạo ảnh, **ảnh lưu vào Brain Default** và link `![](attachments/...)` trong chat trỏ vào chỗ không có file. Bug im lặng, chưa ai báo.
 
 `javis_schedule` mà copy mẫu này thì sẽ ghi loop vào sai brain và đặt nhắc vào sai kho. **Task 1 sửa đường ống đó**, và sửa luôn `image-chatgpt` như hiệu ứng phụ.
 
@@ -37,7 +37,7 @@ Hậu quả đang xảy ra HÔM NAY (không phải giả thuyết): `image-chatg
 - **TUYỆT ĐỐI không dùng ký tự em dash (U+2014)** trong bất kỳ file nào: code, comment, test, doc, commit message. Dùng "-" hoặc viết lại câu. (CLAUDE.md, nguyên tắc 8.)
 - Tiếng Việt cho comment, docstring, mô tả tool, thông báo lỗi.
 - Test là **script thuần, không pytest**: `server/test_*.py`, có `def check(name, cond)`, gom `_fails`, `sys.exit(1)` khi lỗi. CI chạy `for f in test_*.py; do python "$f"; done` (`.github/workflows/ci.yml:35-37`).
-- Chạy test bằng venv: `.venv/Scripts/python.exe`. Test tự cô lập bằng `os.environ.setdefault("JAVIS_STATE_DIR", tempfile.mkdtemp(prefix="..."))` TRƯỚC khi import module Javis.
+- Chạy test bằng venv: `.venv/Scripts/python.exe`. Test tự cô lập bằng `os.environ.setdefault("JAVIS_STATE_DIR", tempfile.mkdtemp(prefix="..."))` TRƯỚC khi import module Jarvis 007.
 - **Mô tả tool phải nói rõ KHI NÀO gọi**, vì đó là thứ duy nhất model đọc để quyết định. Bám giọng `image-chatgpt`.
 - Plugin bundled (`system/plugins/`) đi theo app, `enabled: true`. **Không** áp luật "plugin do chat tạo thì `enabled: false`" - luật đó dành cho plugin user tự viết.
 - Không sửa `server/self_improve.py` phần executor (`_eligible_overdue`, `run_cycle`). Plan này chỉ TẠO việc, không đổi cách chạy.
@@ -53,7 +53,7 @@ Hậu quả đang xảy ra HÔM NAY (không phải giả thuyết): `image-chatg
 | `system/plugins/javis-schedule/plugin.yaml` | **Mới.** Khai báo plugin, `min_mode: safe`. |
 | `system/plugins/javis-schedule/plugin.py` | **Mới.** Tool `javis_schedule`: op create/list/cancel, route hai kho. |
 | `server/test_javis_schedule.py` | **Mới.** Phủ: route đúng kho, parse lịch, list thấy CẢ HAI kho, cancel. |
-| `CLAUDE.md` | Mục điều phối: nói cho Javis biết đã có tool này, đừng gõ YAML tay nữa. |
+| `CLAUDE.md` | Mục điều phối: nói cho Jarvis 007 biết đã có tool này, đừng gõ YAML tay nữa. |
 
 ---
 
@@ -66,7 +66,7 @@ Hậu quả đang xảy ra HÔM NAY (không phải giả thuyết): `image-chatg
 
 **Interfaces:**
 - Consumes: chữ ký HIỆN TẠI đã verify: `plugin_tools(mode: str = "full", vault_root: Optional[str] = None) -> Tuple[List[dict], Dict[str, dict]]` (`plugins_host.py:415`). Task này THÊM keyword-only `scope_vault: bool = True`.
-- Produces: `ctx.vault_root` **không còn là None** ở đường chat. **Cơ chế THẬT (đã sửa lúc chạy, khác bản nháp plan):** brain đi TƯỜNG MINH qua `_apply_mcp(cli, mode="full", brain=None)` (`main.py:693`) đặt `cli.javis_vault = _brain_root(brain) if brain else None`, y khuôn `cli.javis_mode` sẵn có; `_plugins_server` đọc `self.javis_vault`. Bản nháp plan bảo suy từ `cwd` (`_brain_root()` kiểm `(cwd/"Javis").is_dir()`) - **SAI và đã xoá hẳn**: `CLAUDE_CWD` (`main.py:318`) là gốc project, không có `Javis/`, mà chat (`main.py:4213`, `:4537`) dùng đúng cwd đó, nên suy-từ-cwd luôn trượt ở chính đường chat.
+- Produces: `ctx.vault_root` **không còn là None** ở đường chat. **Cơ chế THẬT (đã sửa lúc chạy, khác bản nháp plan):** brain đi TƯỜNG MINH qua `_apply_mcp(cli, mode="full", brain=None)` (`main.py:693`) đặt `cli.javis_vault = _brain_root(brain) if brain else None`, y khuôn `cli.javis_mode` sẵn có; `_plugins_server` đọc `self.javis_vault`. Bản nháp plan bảo suy từ `cwd` (`_brain_root()` kiểm `(cwd/"Jarvis 007").is_dir()`) - **SAI và đã xoá hẳn**: `CLAUDE_CWD` (`main.py:318`) là gốc project, không có `Javis/`, mà chat (`main.py:4213`, `:4537`) dùng đúng cwd đó, nên suy-từ-cwd luôn trượt ở chính đường chat.
 
 **Vì sao task riêng:** đây là bug có sẵn, độc lập với `javis_schedule`, và một reviewer có thể duyệt/từ chối nó riêng. Nó cũng sửa `image-chatgpt` (đang lưu ảnh nhầm brain) mà không cần đụng file plugin đó.
 
@@ -188,7 +188,7 @@ Và thêm helper vào cùng class:
         (vd chat chạy với cwd = thư mục project) - khi đó plugin tự lo fallback như cũ."""
         try:
             root = Path(self.cwd)
-            return str(root) if (root / "Javis").is_dir() else None
+            return str(root) if (root / "Jarvis 007").is_dir() else None
         except Exception:
             return None
 ```
@@ -358,7 +358,7 @@ _vault = tempfile.mkdtemp(prefix="javis-vault-")
 res = sched._create_loop_file(_vault, name="Quét đơn mỗi 2 tiếng",
                               prompt="Mỗi vòng đọc số đơn hôm nay qua MCP POS rồi ghi nháp.",
                               schedule="120m", owner_chat="123")
-f = Path(_vault) / "Javis" / "loops" / "quet-don-moi-2-tieng.md"
+f = Path(_vault) / "Jarvis 007" / "loops" / "quet-don-moi-2-tieng.md"
 check("loop: ghi đúng <vault>/Javis/loops/<slug>.md", f.is_file())
 body = f.read_text(encoding="utf-8") if f.is_file() else ""
 check("loop: frontmatter có type: loop", "type: loop" in body)
@@ -425,7 +425,7 @@ name: Đặt việc định kỳ & nhắc hẹn
 slug: javis-schedule
 version: 1.0.0
 description: Tạo/liệt kê/huỷ việc chạy định kỳ và nhắc hẹn ngay từ chat. Tự chọn kho - việc lặp và bền thì ghi Javis/loops/<slug>.md để sửa được trong Obsidian; nhắc một lần hoặc lịch cron thì vào kho nhắc hẹn (đã có sẵn cron 5 trường). Thay cho việc gõ YAML tay hoặc curl.
-author: Javis (bundled)
+author: Jarvis 007 (bundled)
 enabled: true
 min_mode: safe
 tools:
@@ -543,7 +543,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
-### Task 3: Dạy Javis dùng tool + tài liệu
+### Task 3: Dạy Jarvis 007 dùng tool + tài liệu
 
 **Files:**
 - Modify: `CLAUDE.md` (mục "Điều phối", bậc 2/6/7)
@@ -605,7 +605,7 @@ Expected: không output.
 
 ```bash
 git add CLAUDE.md CHANGELOG.md VERSION
-git commit -m "docs(schedule): day Javis goi javis_schedule thay vi go YAML tay
+git commit -m "docs(schedule): day Jarvis 007 goi javis_schedule thay vi go YAML tay
 
 Tool ton tai ma system prompt van day 'ghi file Javis/loops/<slug>.md' thi model
 van go YAML tay: mo ta tool canh tranh truc tiep voi chi dan trong prompt, va
@@ -624,7 +624,7 @@ Giai đoạn 1 dạy một bài đắt: **mọi kiểm chứng tĩnh đều xanh
 Nên sau Task 3, phải làm bằng tay:
 
 1. Khởi động lại server (code mới), mở dashboard, đăng nhập.
-2. Chat: *"tạo cho anh một việc mỗi 2 tiếng đọc source mới rồi đề xuất wiki"*. Kỳ vọng: Javis **gọi tool** (không gõ YAML), báo đã tạo, và `brains/<brain đang dùng>/Javis/loops/doc-source-*.md` xuất hiện với `enabled: false`.
+2. Chat: *"tạo cho anh một việc mỗi 2 tiếng đọc source mới rồi đề xuất wiki"*. Kỳ vọng: Jarvis 007 **gọi tool** (không gõ YAML), báo đã tạo, và `brains/<brain đang dùng>/Javis/loops/doc-source-*.md` xuất hiện với `enabled: false`.
 3. Kiểm tra file rơi vào **ĐÚNG brain đang mở**, không phải Brain Default. Đây là điểm chính Task 1 sửa.
 4. Chat: *"30 phút nữa nhắc anh gọi cho khách"*. Kỳ vọng: vào kho nhắc hẹn (không đẻ file .md), và hiện ở khối "Nhắc hẹn đang chờ" trên trang Việc định kỳ.
 5. Chat: *"anh đang có những việc định kỳ nào"*. Kỳ vọng: `op=list` liệt kê **cả hai** thứ vừa tạo.

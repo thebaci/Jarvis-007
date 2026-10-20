@@ -7,7 +7,7 @@ Ngày: 2026-09-15. Trạng thái: đã duyệt (chủ dự án chốt trong chat
 - Trang Trợ lý hiện chỉ là danh sách thẻ (Sửa, Xuất, Xoá). Không chat được với một trợ lý.
 - Trang Quy trình bấm Chạy thì hiện hộp `prompt()` của trình duyệt, kết quả stream vào một
   ngăn kéo tạm (`#runDrawer`). Đóng ngăn kéo là mất, không lưu ở đâu.
-- Không có kho lịch sử chạy. Hỏi Javis "quy trình chạy gần nhất ra sao" thì Javis không có
+- Không có kho lịch sử chạy. Hỏi Jarvis 007 "quy trình chạy gần nhất ra sao" thì Jarvis 007 không có
   gì để tra, nên trả lời trống.
 
 ## 2. Quyết định đã chốt
@@ -28,7 +28,7 @@ Ngày: 2026-09-15. Trạng thái: đã duyệt (chủ dự án chốt trong chat
 Bố cục ba cột, theo bản concept `javis-workspace-concept.html`:
 
 - Cột trái: nút chuyển Trợ lý | Quy trình, ô tìm, ô lọc theo `group`, danh sách, nút Tạo
-  mới, nút Javis Store (mở kho có sẵn qua `JavisPacks.moKho`, lọc đúng loại). Mỗi dòng: icon
+  mới, nút Jarvis 007 Store (mở kho có sẵn qua `JavisPacks.moKho`, lọc đúng loại). Mỗi dòng: icon
   (trợ lý dùng icon `bot`, quy trình dùng icon `workflow`), tên, nhóm và vai trò/số bước.
 - Cột giữa: khung chat MƯỢN từ app bằng `_borrowChatNodes` (đúng cách trang Trò chuyện đang
   làm). Thanh đầu có tên cộng sự, dòng phụ (nhóm và trạng thái với trợ lý; "Quy trình, N
@@ -68,14 +68,14 @@ nguyên.
   test được độc lập.
 - Nếu kind là `agent`: system prompt của lượt là prompt của chính trợ lý đó, dựng bằng
   `_agent_sysprompt` từ `_workflow_agent_helpers` (đã gồm bộ nhớ riêng
-  `memory/agents/<slug>/MEMORY.md` và luật `JAVIS_LESSON`). Bỏ lớp prompt Javis (CLAUDE.md,
+  `memory/agents/<slug>/MEMORY.md` và luật `JAVIS_LESSON`). Bỏ lớp prompt Jarvis 007 (CLAUDE.md,
   bộ nhớ chủ, khối kênh) và bỏ bộ nén ngữ cảnh (`_subscription_system_prompt` trả về prompt
   trợ lý). Tool vẫn qua hub như lượt thường.
 - Cuối lượt: bóc `JAVIS_LESSON` khỏi câu trả lời và ghi vào bộ nhớ trợ lý (dùng `_learn`),
   ghi nhật ký `memory/agents/<slug>/runs/` (dùng `_log_agent_run`), rồi lưu phiên qua
   `_persist_turn` như lượt thường.
 - Trợ lý không còn file: lượt trả khung `error` "Trợ lý <slug> không còn trong brain này",
-  không rơi về Javis.
+  không rơi về Jarvis 007.
 
 ## 6. Chạy quy trình như một lượt chat
 
@@ -144,7 +144,7 @@ HTTP:
   `last_chat_at` (updated_at của phiên `agent:<slug>` mới nhất). Trang Cộng sự sắp xếp theo
   hai trường này, giảm dần, rỗng xếp sau theo tên.
 
-## 8. Javis biết về lần chạy gần nhất
+## 8. Jarvis 007 biết về lần chạy gần nhất
 
 - Plugin hệ thống mới `system/plugins/javis-workflow/` (plugin.yaml + plugin.py) với tool
   `javis_workflow`, `min_mode: readonly`. Op `runs` (tham số `slug` tuỳ chọn, `limit` mặc
@@ -167,7 +167,7 @@ HTTP:
 
 ## 10. Ngoài phạm vi
 
-- Chợ mới: dùng Javis Store có sẵn.
+- Chợ mới: dùng Jarvis 007 Store có sẵn.
 - Avatar màu và hình dạng theo concept: dùng icon Lucide đang có.
 - Sửa bước quy trình inline ở cột phải: giữ modal hiện có.
 - Chạy quy trình từ khung chat chính bằng tool: vẫn đi đường Kanban `wf:<slug>` như cũ.

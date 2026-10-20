@@ -4,13 +4,13 @@
     {
       "id": "community-notification-inbox-launch",
       "kind": "community",
-      "title": "Hộp thư Thông báo đã sẵn sàng",
-      "summary": "Từ nay bản cập nhật mới và tin dành cho cộng đồng Javis OS sẽ xuất hiện ngay trên thanh điều hướng.",
-      "body": "Bấm biểu tượng chuông để xem, đánh dấu đã đọc hoặc mở nhật ký phiên bản. Các thông báo quan trọng sẽ có huy hiệu nổi bật để bạn không bỏ lỡ.",
+      "title": "The Notification inbox is ready",
+      "summary": "From now on, new updates and news for the Jarvis 007 community will show up right in the navigation bar.",
+      "body": "Click the bell icon to view, mark as read, or open the version changelog. Important notices carry a prominent badge so you do not miss them.",
       "published_at": "2026-07-26",
       "priority": "high",
       "cta": {
-        "label": "Xem nhật ký cập nhật →",
+        "label": "View the changelog →",
         "action": "changelog"
       }
     }

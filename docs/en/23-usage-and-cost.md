@@ -2,7 +2,7 @@
 
 *[Tiếng Việt](../23-muc-dung-token.md) · **English***
 
-The **Usage** page answers two questions that go together: *how many tokens you burned* and *how to burn fewer*. Javis measures these numbers itself from the real logs on the machine rather than asking the provider, so you also see the part Claude and ChatGPT never reveal: what Javis's own background runs consumed.
+The **Usage** page answers two questions that go together: *how many tokens you burned* and *how to burn fewer*. Jarvis 007 measures these numbers itself from the real logs on the machine rather than asking the provider, so you also see the part Claude and ChatGPT never reveal: what Jarvis 007's own background runs consumed.
 
 At the very top of the page is the **Token saving mode** block with three buttons. It has been here since version 0.24.7; before that it was a separate "Saving" page on the sidebar. They were merged because when they were apart, people read the whole bill and never saw the switch.
 
@@ -10,7 +10,7 @@ This page covers choosing the saving level, then reading each card, each chart a
 
 ## What this feature is
 
-Javis sees the input and output tokens of **every** answer, whichever engine ran it (Claude Code, ChatGPT/Codex, OpenRouter, OpenAI, Anthropic). So the numbers here are consistent, **regardless of whether the provider exposes quotas at all**.
+Jarvis 007 sees the input and output tokens of **every** answer, whichever engine ran it (Claude Code, ChatGPT/Codex, OpenRouter, OpenAI, Anthropic). So the numbers here are consistent, **regardless of whether the provider exposes quotas at all**.
 
 Two things to remember before reading any number:
 
@@ -19,7 +19,7 @@ Two things to remember before reading any number:
 
 The page gives you: a filter of 8 periods and 4 providers, summary cards with a comparison against the previous period, a per-day token chart, three breakdown bar charts (consumption source / activity / provider), two ranking tables (models and projects), and an auto-generated list of saving suggestions.
 
-## Where to open it in Javis
+## Where to open it in Jarvis 007
 
 Open the dashboard (default port 7777). On the left navigation rail, open the **System** group (pinned at the bottom of the rail), then choose **Settings → Usage**.
 
@@ -27,7 +27,7 @@ The **Usage** tab contains the filters, token statistics and costs.
 
 ## Token saving mode (the block at the top)
 
-Every time you chat, Javis has to send the model a pile of background information: who it is, which tools it has, what it remembers about you, what was said before. That pile costs money and eats quota. The three buttons here decide how big it is.
+Every time you chat, Jarvis 007 has to send the model a pile of background information: who it is, which tools it has, what it remembers about you, what was said before. That pile costs money and eats quota. The three buttons here decide how big it is.
 
 - **Off** - the Full mode. Everything, every turn. The safest, the most expensive.
 - **Optimised** - only what relates to the question just asked: selective memory, skills loaded on demand.
@@ -39,7 +39,7 @@ If the brain you are running does not support a level, that level's button says 
 
 Once enough turns have run in both modes within 24 hours, a **measured** number block appears right under the three buttons: tokens per turn in Full mode, tokens per turn while saving, and the percentage saved. Those are real numbers, not estimates.
 
-**A level change takes effect immediately**, no restart needed. If Javis starts answering worse, clicking **Off** returns it to how it was at once.
+**A level change takes effect immediately**, no restart needed. If Jarvis 007 starts answering worse, clicking **Off** returns it to how it was at once.
 
 ### Why the default is Ultra-saving
 
@@ -47,13 +47,13 @@ Before 0.24.7 the default was **Off**, and almost nobody turned it on, meaning m
 
 This is a safe default rather than a gamble: every path in this mode is **fail-closed**. Missing a prerequisite makes that turn drop back to Full mode rather than answering wrong.
 
-If you **ever clicked a level yourself**, Javis pins that choice and no update changes it again, even when you deliberately clicked **Off**. The line under the three buttons tells you whether you are on the default or on your own choice.
+If you **ever clicked a level yourself**, Jarvis 007 pins that choice and no update changes it again, even when you deliberately clicked **Off**. The line under the three buttons tells you whether you are on the default or on your own choice.
 
 ## How to use it (step by step)
 
 ### Step 1: Open the page and wait for the first scan
 
-On arrival, the page reads "Building the token index...". The first opening makes Javis **re-scan the logs** before drawing, so it can take a few seconds if you have used it for months. Later filter changes do not scan again, only reading the index, so they are very fast.
+On arrival, the page reads "Building the token index...". The first opening makes Jarvis 007 **re-scan the logs** before drawing, so it can take a few seconds if you have used it for months. Later filter changes do not scan again, only reading the index, so they are very fast.
 
 If the page reports "Could not load token data", the server has not returned anything, see Common problems.
 
@@ -100,7 +100,7 @@ The horizontal axis shows days of the month. Hovering a bar shows a tooltip like
 
 Below the chart are three horizontal bar charts, the most important part of the page:
 
-- **Consumption source (you vs Javis)** - two rows: "You typing" and "Javis (running itself)".
+- **Consumption source (you vs Jarvis 007)** - two rows: "You typing" and "Jarvis 007 (running itself)".
 - **Activity** - four rows: "Chat", "Background (loop/schedule)", "Subagent", "Manual".
 - **Provider** - "Claude Code", "ChatGPT/Codex", "API (OpenRouter...)".
 
@@ -109,11 +109,11 @@ The meaning of each label is in [Consumption source and activity type](#consumpt
 Next are two ranking tables, each showing at most 8 rows:
 
 - **Hungriest models**: the Model, Tokens and Converted columns. Model names are shortened to fit (dropping the `claude-` / `gpt-` prefix, trimming long tails). The Converted column shows "-" when that model is not in the price table.
-- **Hungriest projects**: the Project, Tokens and Sessions columns. "Project" is the brain name when Javis recognises which brain the session belonged to, otherwise the working folder name.
+- **Hungriest projects**: the Project, Tokens and Sessions columns. "Project" is the brain name when Jarvis 007 recognises which brain the session belonged to, otherwise the working folder name.
 
 ### Step 7: Read the Suggestions section
 
-When the figures cross a threshold, Javis generates suggestion cards at the bottom of the page. An ⚠️ card with an orange border is something you should do, a 💡 card with a blue border is a hint. Threshold details are in [Saving suggestions](#saving-suggestions).
+When the figures cross a threshold, Jarvis 007 generates suggestion cards at the bottom of the page. An ⚠️ card with an orange border is something you should do, a 💡 card with a blue border is a hint. Threshold details are in [Saving suggestions](#saving-suggestions).
 
 No cards at all means every metric is within normal bounds, not that something is broken.
 
@@ -142,21 +142,21 @@ This is where you learn **what is eating your quota**, and it is exactly what th
 
 | Label | What it means |
 |---|---|
-| **You typing** | Sessions where you opened `claude` in a terminal yourself, not through Javis |
-| **Javis (running itself)** | Sessions Javis started through the Agent SDK: dashboard chat, Telegram chat, background work, workflows |
+| **You typing** | Sessions where you opened `claude` in a terminal yourself, not through Jarvis 007 |
+| **Jarvis 007 (running itself)** | Sessions Jarvis 007 started through the Agent SDK: dashboard chat, Telegram chat, background work, workflows |
 
 **Activity** splits in four:
 
 | Label | What it means |
 |---|---|
 | **Chat** | Turns tied to a real conversation session in your history |
-| **Background (loop/schedule)** | Turns Javis ran with no conversation session attached: recurring jobs, reminders, Kanban work, digesting sources, self-learning |
+| **Background (loop/schedule)** | Turns Jarvis 007 ran with no conversation session attached: recurring jobs, reminders, Kanban work, digesting sources, self-learning |
 | **Subagent** | Turns from a child agent the engine spawned for a side job |
-| **Manual** | Turns from sessions you typed yourself outside Javis |
+| **Manual** | Turns from sessions you typed yourself outside Jarvis 007 |
 
 A swelling **Background (loop/schedule)** bar is the clearest sign you have loops running too often. Review them on the **Recurring jobs** page ([Recurring jobs and reminders](08-recurring-jobs.md)) or the **Work** page ([Work / Kanban](21-kanban-work.md)).
 
-One limitation to know: **this split is only accurate for Claude Code.** For ChatGPT/Codex, Javis cannot yet separate background from chat, so every turn falls into "Javis (running itself)" + "Chat". The API branch is the same.
+One limitation to know: **this split is only accurate for Claude Code.** For ChatGPT/Codex, Jarvis 007 cannot yet separate background from chat, so every turn falls into "Jarvis 007 (running itself)" + "Chat". The API branch is the same.
 
 ## Converted cost and real money
 
@@ -164,7 +164,7 @@ The **Converted cost** card and the **Converted** column in the model table are 
 
 So the converted figure is always an estimate, and always lower than reality if you use a model not in the price table. For more accuracy, edit that file by hand and restart the server.
 
-**OpenRouter's real balance** is the one thing on this page that is real money. The "OpenRouter left" card only appears once you have saved an OpenRouter key on the **Models** page (the Connections group). Javis asks OpenRouter directly how much credit was added and used, then shows the remainder with the line "real money spent $...". With no key there is no card, and no other provider exposes an equivalent figure.
+**OpenRouter's real balance** is the one thing on this page that is real money. The "OpenRouter left" card only appears once you have saved an OpenRouter key on the **Models** page (the Connections group). Jarvis 007 asks OpenRouter directly how much credit was added and used, then shows the remainder with the line "real money spent $...". With no key there is no card, and no other provider exposes an equivalent figure.
 
 ## Saving suggestions
 
@@ -182,7 +182,7 @@ Each card carries a specific suggested action, for example the low-cache suggest
 
 ## Where these figures come from
 
-Javis calls no provider API for statistics. It **re-reads the raw logs on your own machine** then builds its own index:
+Jarvis 007 calls no provider API for statistics. It **re-reads the raw logs on your own machine** then builds its own index:
 
 | Source | Where | What it gives |
 |---|---|---|
@@ -197,7 +197,7 @@ The scan is **incremental**: a file whose size and modification time are unchang
 
 The API branch has no raw log to read, so it only has figures **from the moment you upgraded to the version with this feature**. Claude and Codex have history back to when you started using them, because their logs were already on the machine.
 
-If the install cannot read raw logs (typically the Docker build on a VPS, where your `~/.claude` folder is not in the container), Javis builds the figures from the internal journal instead, so the page still shows numbers rather than the zeros it used to. On a day with both sources, the raw log wins so nothing is double counted. The tell: in the "Hungriest projects" table, a row named `(events)` was built from the internal journal, and an `(api)` row is a turn through an API provider.
+If the install cannot read raw logs (typically the Docker build on a VPS, where your `~/.claude` folder is not in the container), Jarvis 007 builds the figures from the internal journal instead, so the page still shows numbers rather than the zeros it used to. On a day with both sources, the raw log wins so nothing is double counted. The tell: in the "Hungriest projects" table, a row named `(events)` was built from the internal journal, and an `(api)` row is a turn through an API provider.
 
 ## Quick reference of buttons and states
 
@@ -217,25 +217,25 @@ If the install cannot read raw logs (typically the Docker build on a VPS, where 
 ## Tips
 
 - Open **This month** first to see the trend, then click **Today** to inspect a specific day. Reading it the other way round is alarming, because a single day always looks abnormal.
-- Suspecting loops run too often, filter to **Claude Code** then look at the "Background (loop/schedule)" bar in the Activity section. It is the one number that tells you outright how much Javis spends while you are not at the machine.
+- Suspecting loops run too often, filter to **Claude Code** then look at the "Background (loop/schedule)" bar in the Activity section. It is the one number that tells you outright how much Jarvis 007 spends while you are not at the machine.
 - A low cache hit with high total tokens means the problem is session length, not the number of chat turns. Splitting the session is the cheapest way to bring it down.
 - The "Hungriest projects" table is the quick way to see which brain costs most when you use several.
 - Only click **↻ Refresh** when you just finished something big and want to see it now. Ordinarily opening the page already scans.
 
 ## Common problems
 
-- **The page shows all zeros.** Usually the install cannot read the raw logs, most commonly on Docker/VPS because your `~/.claude` and `~/.codex` folders are not inside the container. In recent builds Javis uses the internal journal as a fallback so figures still appear, but only from your upgrade onwards. If it is still zero after upgrading, no chat turn has been recorded since, so chat a few messages then click **↻ Refresh**.
-- **The numbers are far lower than they feel.** Check whether a provider filter is on, and check the selected period. Also, the "You typing" share can only be counted when you run Claude Code on the **same machine** as Javis.
+- **The page shows all zeros.** Usually the install cannot read the raw logs, most commonly on Docker/VPS because your `~/.claude` and `~/.codex` folders are not inside the container. In recent builds Jarvis 007 uses the internal journal as a fallback so figures still appear, but only from your upgrade onwards. If it is still zero after upgrading, no chat turn has been recorded since, so chat a few messages then click **↻ Refresh**.
+- **The numbers are far lower than they feel.** Check whether a provider filter is on, and check the selected period. Also, the "You typing" share can only be counted when you run Claude Code on the **same machine** as Jarvis 007.
 - **A Google Gemini key is attached but the API column does not move.** Gemini turns are written into the internal journal, but the index builder currently only accepts OpenRouter, OpenAI and Anthropic into the API column, so the Gemini share does not reach this chart yet.
 - **There is no "OpenRouter left" card.** The card only appears when an OpenRouter key is in the model settings and OpenRouter responds. Go to the **Models** page (the Connections group) and check the key, see [Models and engines](10-models-and-engines.md).
 - **The page shows a simple "Today / Cumulative total" table instead of the period filter.** That is the fallback interface, appearing when the new interface file could not load. Reload the page, clearing the browser cache if needed.
 - **The converted cost shows "-" for the model you use.** That model is not in the `server/usage_pricing.json` price table. It is maintained by hand, so add a row for your model then restart the server.
-- **You just upgraded Javis but the page has not changed.** This page has a backend component, so after an update you need to **restart the server** before reloading the page.
+- **You just upgraded Jarvis 007 but the page has not changed.** This page has a backend component, so after an update you need to **restart the server** before reloading the page.
 
 ## Related
 
 - [Models and engines](10-models-and-engines.md) - switching models, attaching an OpenRouter key, understanding where each engine records its figures.
 - [Recurring jobs and reminders](08-recurring-jobs.md) - where to turn loops down when the "Background (loop/schedule)" bar swells.
-- [Work / Kanban](21-kanban-work.md) - background work also counts into the "Javis (running itself)" share.
+- [Work / Kanban](21-kanban-work.md) - background work also counts into the "Jarvis 007 (running itself)" share.
 - [.env configuration](16-env-configuration.md) - the `JAVIS_STATE_DIR` variable decides where the token index lives.
 - [Troubleshooting and FAQ](17-troubleshooting.md) - general dashboard errors.

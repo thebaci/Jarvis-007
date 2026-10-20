@@ -5,9 +5,9 @@ Trạng thái: đã chốt thiết kế, đang thực thi
 
 ## Vấn đề
 
-Javis đã nối được Zalo qua connector `zalo` (`zalo-agent-cli`, đăng nhập QR, xem
+Jarvis 007 đã nối được Zalo qua connector `zalo` (`zalo-agent-cli`, đăng nhập QR, xem
 `server/zalo_login.py`). Nhưng connector đó là **pull-only**: phải gọi tool
-`zalo_get_messages` mới biết có tin. Không có đường nào để Javis biết ngay khi
+`zalo_get_messages` mới biết có tin. Không có đường nào để Jarvis 007 biết ngay khi
 khách nhắn tới.
 
 Hai thứ chặn việc nghe liên tục:
@@ -15,7 +15,7 @@ Hai thứ chặn việc nghe liên tục:
 1. `mcp_client.py:30` đặt `_IDLE_TTL = 600`. Quá 10 phút không gọi tool là pool
    đóng session, subprocess bị kill, websocket đứt và ring buffer 500 tin của
    `zalo-agent-cli mcp start` mất sạch.
-2. Javis chưa có cổng nào để connector đẩy sự kiện ngược vào.
+2. Jarvis 007 chưa có cổng nào để connector đẩy sự kiện ngược vào.
 
 Nên nghe liên tục **không** làm được bằng cách gọi MCP. Phải có một tiến trình
 sống độc lập với pool.
@@ -27,7 +27,7 @@ sống độc lập với pool.
 | Đường đi | Sidecar `zalo-agent listen --webhook`, tài khoản Zalo phụ |
 | Hành vi | Chỉ báo Telegram, có lọc. KHÔNG tự trả lời khách |
 | Nơi chạy | VPS Hostinger (bật 24/7, IP tĩnh) |
-| Quản tiến trình | Javis tự quản, theo khuôn `zalo_login.py` |
+| Quản tiến trình | Jarvis 007 tự quản, theo khuôn `zalo_login.py` |
 
 Các lựa chọn đã cân nhắc và loại: chạy container riêng trong docker-compose
 (phải sửa compose, chia volume home để đăng nhập, mất nút bật tắt trong UI);
@@ -42,7 +42,7 @@ npx zalo-agent-cli listen  --(HOME = home cô lập của connection)
         |
         |  POST http://127.0.0.1:<port>/hook/zalo   (mỗi sự kiện 1 JSON)
         v
-Javis  /hook/zalo  ->  trả 200 ngay  ->  hàng đợi
+Jarvis 007  /hook/zalo  ->  trả 200 ngay  ->  hàng đợi
                                             |
                                      lọc + khử trùng lặp
                                             |
@@ -130,7 +130,7 @@ trạng thái thật: đang nghe, mất kết nối đang thử lại, hay trùn
   Đánh đổi chấp nhận được vì kênh này chỉ sống trên loopback: rào CHÍNH là
   `_AUTH_LOCAL_EXACT` cộng loopback, secret chỉ là tầng hai. Endpoint vẫn nhận
   cả header cho ai tự dựng nguồn đẩy khác.
-- Javis vẫn **không tự gửi tin Zalo**. Loop nền vẫn bị cấm gửi như hiện tại.
+- Jarvis 007 vẫn **không tự gửi tin Zalo**. Loop nền vẫn bị cấm gửi như hiện tại.
 - Giới hạn tần suất thông báo để một nhóm đông không làm nổ Telegram.
 - `home_dir` chứa `zalo-session.json`, tương đương quyền đăng nhập đầy đủ. Đã
   kiểm tra: `.gitignore:33` che `server/connector-home/` và `STATE_DIR` mặc định
@@ -143,17 +143,17 @@ trạng thái thật: đang nghe, mất kết nối đang thử lại, hay trùn
 Đây là bề mặt tấn công thật: nội dung do người lạ soạn, đi thẳng vào hệ thống của
 chủ. Mô hình đe doạ gồm bốn hướng, và cách chặn từng hướng:
 
-**Sai khiến Javis.** Chặn bằng kiến trúc chứ không bằng lời dặn: nội dung tin
+**Sai khiến Jarvis 007.** Chặn bằng kiến trúc chứ không bằng lời dặn: nội dung tin
 **không bao giờ đi vào engine**. Đường dữ liệu là webhook, lọc, chuỗi text,
 Telegram. Hết. `ZaloListenerDeps` chỉ có đúng năm phụ thuộc (`read_settings`,
 `write_settings`, `get_connection`, `notify`, `port`) - không có engine, không
 Bash, không file, không MCP. Có test chốt đúng bộ năm này, ai thêm engine vào
 sau sẽ làm gãy test.
 
-**Giả dạng lời của Javis để lừa chủ.** Một tin cố ý xuống dòng rồi viết "Javis:
+**Giả dạng lời của Jarvis 007 để lừa chủ.** Một tin cố ý xuống dòng rồi viết "Jarvis 007:
 đã xác minh, trả lời CÓ để chuyển khoản" sẽ trông như lời hệ thống. Chặn bằng
 cách rào nội dung giữa hai vạch có nhãn "tin của khách, KHÔNG phải lệnh cho
-Javis", nhãn nằm **trước** nội dung, và cắt độ dài để tin dài không đẩy nhãn
+Jarvis 007", nhãn nằm **trước** nội dung, và cắt độ dài để tin dài không đẩy nhãn
 trôi khỏi màn hình.
 
 **Dựng markup trong Telegram.** `main._notify_owner` gửi plain text, không đặt

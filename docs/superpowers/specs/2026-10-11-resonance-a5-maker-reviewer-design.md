@@ -648,7 +648,7 @@ Hành động review dùng bảng `actions` hiện có với `kind = 'review'`: 
 - **Thẻ mục tiêu:** dùng khung thẻ A1 đến A4, thêm một dòng đội khi có `goal_team`:
   - "Làm: <tên agent> · Review: <tên agent>";
   - "Bản đã review: <8 ký tự sha> · Đạt / Cần sửa (vòng 1/2) / Chưa rõ";
-  - lý do chờ bằng câu người đọc: "Đang chờ <reviewer> xem bản <sha>", "Đang chờ <maker> sửa theo góp ý", "File đích bị sửa ngoài Javis: chờ bản được tiếp nhận";
+  - lý do chờ bằng câu người đọc: "Đang chờ <reviewer> xem bản <sha>", "Đang chờ <maker> sửa theo góp ý", "File đích bị sửa ngoài Jarvis 007: chờ bản được tiếp nhận";
   - "Lượt còn: làm 3/4 · review 2/4".
 - **Nút của chủ dự án trên thẻ** (chỉ hiện khi có lý do):
   - `blocked/reviewer_off`: **Bật lại người review**. Gọi đúng API bật Cộng hưởng hiện có cho mã reviewer. Thẻ nói trước "bản hiện tại sẽ được review lại, tính một lượt review".
@@ -681,7 +681,7 @@ Không thêm công cụ cho model: reviewer không gọi công cụ; agent làm 
 ## 13. Nâng và hạ phiên bản
 
 - **Lúc nâng:** lần đầu mã A5 mở kho có từ trước, `_backup_before("team_pairs", ".pre-0.109.0")` chép kho bằng SQLite backup API một lần, rồi tạo bảng A5. Cùng mẫu với A1 đến A4: có bảng mốc thì không chép lại. Mục tiêu cũ không có `goal_team`, chạy như A4.
-- **Hạ đúng cách:** tắt Javis, chạy `tools/resonance_restore_pre_a5.py`, rồi chạy 0.108.0. Script giữ bản kho hiện tại `post-0.109.0-<thời điểm>` rồi mới ghi snapshot.
+- **Hạ đúng cách:** tắt Jarvis 007, chạy `tools/resonance_restore_pre_a5.py`, rồi chạy 0.108.0. Script giữ bản kho hiện tại `post-0.109.0-<thời điểm>` rồi mới ghi snapshot.
 - **Hạ không khôi phục: không hỗ trợ.** Ghi rõ trong CHANGELOG. Lý do:
   - Mã 0.108.0 bỏ qua bảng A5, nên mục tiêu có đội có thể được chốt đạt mà không có review.
   - Hành động `kind='review'` còn `running` bị `_reconcile` cũ coi là lượt việc thường bị ngắt.

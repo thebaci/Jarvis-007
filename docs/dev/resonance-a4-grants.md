@@ -58,4 +58,4 @@ Mọi engine nộp sản phẩm qua cùng một cửa: host xác định lượt
 
 ## Hạ phiên bản
 
-Lần đầu mã A4 mở một kho có từ trước, `_backup_before("grants", ".pre-0.96.0")` chép kho bằng SQLite backup API, rồi một giao dịch tạo bảng và đóng băng legacy. Hạ về 0.95.1 chỉ hỗ trợ bằng `tools/resonance_restore_pre_a4.py --yes` khi Javis đã tắt: chép kho hiện tại sang `resonance.sqlite3.post-0.96.0-<thời điểm>`, rồi ghi snapshot vào. Chạy 0.95.1 trên kho A4 mà không khôi phục là không hỗ trợ (mã cũ gỡ tạm dừng của mục tiêu đã thu hồi; test G48 ghi nhận đúng giới hạn này).
+Lần đầu mã A4 mở một kho có từ trước, `_backup_before("grants", ".pre-0.96.0")` chép kho bằng SQLite backup API, rồi một giao dịch tạo bảng và đóng băng legacy. Hạ về 0.95.1 chỉ hỗ trợ bằng `tools/resonance_restore_pre_a4.py --yes` khi Jarvis 007 đã tắt: chép kho hiện tại sang `resonance.sqlite3.post-0.96.0-<thời điểm>`, rồi ghi snapshot vào. Chạy 0.95.1 trên kho A4 mà không khôi phục là không hỗ trợ (mã cũ gỡ tạm dừng của mục tiêu đã thu hồi; test G48 ghi nhận đúng giới hạn này).

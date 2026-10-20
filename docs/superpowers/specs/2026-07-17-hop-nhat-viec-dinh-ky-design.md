@@ -77,7 +77,7 @@ Nên hôm nay:
 - Tạo loop = model **tự tay gõ YAML frontmatter** vào `Javis/loops/<slug>.md` qua
   `javis_write_file`.
 - Tạo nhắc hẹn = model **shell ra `curl` POST /reminders qua Bash** (`reminders.py:17` ghi
-  thẳng: "engine (Javis) tự gọi POST /reminders qua Bash curl từ localhost").
+  thẳng: "engine (Jarvis 007) tự gọi POST /reminders qua Bash curl từ localhost").
 - Tạo task Kanban = tương tự, curl.
 
 Đường thứ hai còn tự mâu thuẫn: loop ở mode suggest/auto bị chặn Bash (`self_improve.py:112`,
@@ -95,7 +95,7 @@ phải mỗi job một file markdown). `parse_schedule()` chuẩn hoá **mọi**
 Bài học cốt lõi: **"mỗi 2 tiếng" và "7h sáng" là cùng một primitive; `kind` chỉ là một
 field.** Claude Code xác nhận độc lập: nó convert interval thành cron ngay lúc tạo.
 
-Bên Javis hôm nay chúng là hai code path không chung một dòng:
+Bên Jarvis 007 hôm nay chúng là hai code path không chung một dòng:
 - Loop: interval-since-last-run (`self_improve.py:465`), nên nó **trôi** dần theo thời gian
   chạy.
 - Reminders: wall-clock tuyệt đối `due_at`, lặp qua `cron_next` (`reminders.py:391-399`) dùng
@@ -196,7 +196,7 @@ Cái được hợp nhất giữa hai kho:
 mà loop không nên phủ.
 
 **Lưu trữ việc bền: giữ nguyên `<brain>/Javis/loops/<slug>.md`.** Frontmatter sửa được trong Obsidian
-là giá trị thật của Javis (`self_improve.py:11` có comment cố ý tách state ra
+là giá trị thật của Jarvis 007 (`self_improve.py:11` có comment cố ý tách state ra
 `loop-state.json` để "tránh giẫm chân user đang mở file trong Obsidian"). Đổi tên thư mục phải
 đụng 6 file loop trên 4 brain cộng `LEGACY_HASHES` (`system_sync.py:536`) và loop builtin
 `tu-cai-tien-javis` có mặt ở cả 4 brain, để đổi lấy đúng con số không. Đường dẫn là chi tiết
@@ -241,7 +241,7 @@ mới bị `_ascii_slug`. Comment giải thích vì sao: nếu không, toggle m�
 San cửa sổ 5 phút đang ép ở 3 chỗ (`self_improve.py:257, 929, 213`) cần rà lại cho `cron`:
 "mỗi 5 phút tối thiểu" là luật của interval, không phải của cron.
 
-**Jitter (cho bản fork):** cron cộng jitter suy từ `hash(slug)`, 0 tới 5 phút. Nếu Javis được
+**Jitter (cho bản fork):** cron cộng jitter suy từ `hash(slug)`, 0 tới 5 phút. Nếu Jarvis 007 được
 fork rộng thì mọi bản đều `0 7 * * *` và cùng đập vào Pancake lúc 7:00:00. Deterministic theo
 slug nên ổn định qua các lần chạy.
 
@@ -298,7 +298,7 @@ bắt đầu phụ thuộc context chat.
   `tasks_feature.tick(["brain"])` với brain **hardcode**, trong khi `tick(brains)` nhận list.
   Board ở brain khác không bao giờ được dispatch. Đây là bug độc lập, nên tách issue riêng.)
 - TTL/auto-expire bắt buộc cho việc bị bỏ quên. Prior art nói nên có (Claude Code hết hạn sau
-  7 ngày, ChatGPT tự pause khi user thôi tương tác); Javis mới có `max_runs_per_day` tuỳ chọn
+  7 ngày, ChatGPT tự pause khi user thôi tương tác); Jarvis 007 mới có `max_runs_per_day` tuỳ chọn
   và auto-pause theo `fail_streak`. Đáng làm, nhưng vòng sau.
 - Bọc dữ liệu MCP trả về như untrusted (kiểu `<routine-fire-payload>`). Đáng làm, vòng sau.
 

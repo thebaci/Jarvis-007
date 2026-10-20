@@ -1,5 +1,5 @@
 name: Bug report
-description: Something in Javis does not work as it should.
+description: Something in Jarvis 007 does not work as it should.
 title: "[Bug] "
 labels: ["bug"]
 body:
@@ -29,7 +29,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Javis version
+      label: Jarvis 007 version
       description: Shown under Settings → Updates, or in the VERSION file.
       placeholder: "0.68.0"
     validations:
@@ -37,7 +37,7 @@ body:
   - type: dropdown
     id: deploy
     attributes:
-      label: How is Javis running?
+      label: How is Jarvis 007 running?
       options:
         - Docker on a VPS
         - Hostinger Docker Manager

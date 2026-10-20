@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Javis OS - cập nhật lên bản mới nhất từ GitHub.
+# Jarvis 007 - cập nhật lên bản mới nhất từ GitHub.
 #   ./update.sh            (tự nhận Docker hay native)
 #   ./update.sh docker     (ép chế độ Docker)
 #   ./update.sh native     (ép chế độ native/systemd)
@@ -10,7 +10,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 MODE="${1:-auto}"
 SUDO=""; [ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null 2>&1 && SUDO="sudo"
 
-# Tên bản Javis Ở THƯ MỤC NÀY. Nhiều bản trên cùng VPS thì mỗi bản một .env riêng; không đọc
+# Tên bản Jarvis 007 Ở THƯ MỤC NÀY. Nhiều bản trên cùng VPS thì mỗi bản một .env riêng; không đọc
 # .env ở đây thì `./update.sh` của bản này đi restart container/dịch vụ của bản khác.
 if [ -z "${JAVIS_NAME:-}" ] && [ -f .env ]; then
   JAVIS_NAME="$(sed -n 's/^[[:space:]]*JAVIS_NAME[[:space:]]*=[[:space:]]*//p' .env | tail -1)"
@@ -63,7 +63,7 @@ else
     TARGET="gui/$(id -u)/${JAVIS_LAUNCHD_LABEL:-com.javis.os}"
     echo "==> launchd ($TARGET) detected → kickstart -k..."
     launchctl kickstart -k "$TARGET"
-    echo "==> Asked launchd to restart Javis. Logs: server/javis.log"
+    echo "==> Asked launchd to restart Jarvis 007. Logs: server/javis.log"
   else
     # Mac / Linux không systemd: kill tiến trình đang giữ cổng rồi chạy lại nền (như install.sh)
     PORT="${JAVIS_PORT:-7777}"

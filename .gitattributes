@@ -1,8 +1,8 @@
-# Chuẩn hoá line-ending để deploy đa nền tảng.
-# Mặc định: tự nhận text, lưu LF trong repo.
+# Normalize line endings for cross-platform deploys.
+# Default: auto-detect text, store LF in the repo.
 * text=auto eol=lf
 
-# Shell script + file config Linux BẮT BUỘC LF (CRLF sẽ làm bash lỗi "bad interpreter").
+# Shell scripts + Linux config files MUST be LF (CRLF makes bash fail with "bad interpreter").
 *.sh        text eol=lf
 *.yml       text eol=lf
 *.yaml      text eol=lf
@@ -10,12 +10,12 @@ Dockerfile  text eol=lf
 .dockerignore text eol=lf
 javis.service text eol=lf
 
-# Script Windows giữ CRLF.
+# Windows scripts keep CRLF.
 *.bat       text eol=crlf
 *.vbs       text eol=crlf
 *.ps1       text eol=crlf
 
-# Nhị phân - không đụng.
+# Binary - leave alone.
 *.png binary
 *.jpg binary
 *.jpeg binary

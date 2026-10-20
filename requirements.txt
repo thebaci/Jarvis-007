@@ -15,16 +15,16 @@
 # sniffio); mcp 1.30 chỉ cần starlette>=0.27. Đã kiểm lại bằng pip install --dry-run khi nâng:
 # cả hai đi cùng starlette 1.6.0 không xung đột.
 #
-# VÌ SAO NÂNG (issue #267): starlette 0.38.6 có 7 advisory. Đã soi từng cái xem Javis có chạm
+# VÌ SAO NÂNG (issue #267): starlette 0.38.6 có 7 advisory. Đã soi từng cái xem Jarvis 007 có chạm
 # tới, và hai cái chạm thật:
 #   - PYSEC-2026-1943 (vá 0.40.0): field form không phải file bị đệm KHÔNG giới hạn, đẩy vài
-#     request song song là ăn hết RAM. Javis nhận Form(...) ở rất nhiều endpoint, và code
-#     Javis KHÔNG tự vá được. Đây là lý do chính của lần nâng này.
+#     request song song là ăn hết RAM. Jarvis 007 nhận Form(...) ở rất nhiều endpoint, và code
+#     Jarvis 007 KHÔNG tự vá được. Đây là lý do chính của lần nâng này.
 #   - PYSEC-2026-2281 (vá 1.1.0) CHỈ TRÊN WINDOWS: StaticFiles gặp đường UNC là lộ NTLM.
-#     Javis có mount /static nên máy Windows mở ra Internet bị ảnh hưởng thật.
+#     Jarvis 007 có mount /static nên máy Windows mở ra Internet bị ảnh hưởng thật.
 #   - PYSEC-2026-1941 (vá 0.47.2) chạm nhẹ: upload lớn nghẽn event loop. Chậm, không hở.
 #   - PYSEC-2026-161 (vá 1.0.1) chạm THẬT và nặng (url.path bị header Host bẻ được, lách hẳn
-#     cổng đăng nhập) nhưng Javis đã TỰ vá ở 0.59.16 (duong_dan_router + host_hop_le). Bản vá
+#     cổng đăng nhập) nhưng Jarvis 007 đã TỰ vá ở 0.59.16 (duong_dan_router + host_hop_le). Bản vá
 #     đó GIỮ NGUYÊN sau khi nâng: hàng rào đọc scope["path"] là đúng ở mọi phiên bản.
 #   - PYSEC-2026-248 / 2280 / 249: không chạm (248 bị uvicorn trả 400 trước khi vào app, đã
 #     thử bằng socket thô; không dùng HTTPEndpoint lớp; không đặt max_fields/max_part_size).
@@ -77,7 +77,7 @@ tzdata>=2026.1
 # SÀN PHIÊN BẢN QUAN TRỌNG: yt-dlp giữ danh sách client InnerTube và phải theo kịp từng đợt
 # YouTube siết. Bản 2025.x không biết client `visionos` (mặc định số một của 2026) và còn ghim
 # `tv_embedded` - cái tên đã bị xoá. Cài bản cũ thì quân dự bị coi như không có. Máy nào cập
-# nhật Javis từ trước 0.41.1 nên chạy thẳng: pip install -U yt-dlp
+# nhật Jarvis 007 từ trước 0.41.1 nên chạy thẳng: pip install -U yt-dlp
 yt-dlp>=2026.8.19
 
 # pypdf: bóc chữ PDF cho tool javis_read_file (server/doc_text.py, 0.92.2), để engine API và Ollama máy nhà đọc được PDF

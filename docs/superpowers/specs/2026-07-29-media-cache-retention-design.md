@@ -7,7 +7,7 @@ Trạng thái: đã brainstorm + duyệt hướng, chờ triển khai.
 
 Media chảy vào vault qua ba đường và không đường nào có cơ chế dọn:
 
-- Ảnh Javis tự tạo lưu vào `<vault>/attachments/` - `server/image_gen.py:202` (`save_png_b64`).
+- Ảnh Jarvis 007 tự tạo lưu vào `<vault>/attachments/` - `server/image_gen.py:202` (`save_png_b64`).
 - File/ảnh user gửi qua Telegram tải về `<vault>/inbox/telegram/` - `server/main.py:6242` (`_tg_inbox_dir`).
 - Ingest source chép ảnh gốc sang thư mục Attachments khi user yêu cầu - `server/main.py:1888`.
 
@@ -17,14 +17,14 @@ Chỗ đắt hơn nằm ở git. Mẫu `.gitignore` của brain (`server/git_bra
 
 ## Đối chiếu hermes
 
-Hermes để media ở `~/.hermes/cache/images` (`.learn/hermes/agent/image_gen_provider.py:234`), cùng họ với `cache/audio`, `cache/videos`, `cache/documents`, `cache/screenshots` (`.learn/hermes/gateway/platforms/base.py:950`). Media nằm trong thư mục state của app, đặt tên thẳng là **cache**, tách hẳn khỏi tầng tri thức, không dính git. Chỗ này hermes làm đúng hơn Javis.
+Hermes để media ở `~/.hermes/cache/images` (`.learn/hermes/agent/image_gen_provider.py:234`), cùng họ với `cache/audio`, `cache/videos`, `cache/documents`, `cache/screenshots` (`.learn/hermes/gateway/platforms/base.py:950`). Media nằm trong thư mục state của app, đặt tên thẳng là **cache**, tách hẳn khỏi tầng tri thức, không dính git. Chỗ này hermes làm đúng hơn Jarvis 007.
 
 Nhưng hermes chỉ giải nửa bài. Nó prune session 90 ngày (`.learn/hermes/gateway/session.py:1429`) và checkpoint 7 ngày (`.learn/hermes/gateway/run.py:2821`), còn `cache/images` thì không có dòng dọn nào. Gọi là cache nhưng không ai xoá, vẫn phình vô hạn. Nên lấy ý tưởng "media là cache" của hermes, không lấy cách nó bỏ mặc.
 
 ## Quyết định đã chốt
 
 - Media là **nguyên liệu đi qua**, không phải tài sản. Đọc xong, rút thành text .md là đủ dùng.
-- Muốn lưu ảnh lâu dài thì về sau đấu Drive làm kho, không để Javis ôm. Hiện tại chưa làm.
+- Muốn lưu ảnh lâu dài thì về sau đấu Drive làm kho, không để Jarvis 007 ôm. Hiện tại chưa làm.
 - Không backup media lên GitHub.
 - Chấp nhận lịch sử chat cũ bị mất ảnh, miễn là chỗ đó ghi rõ "ảnh đã hết hạn" chứ không phải icon vỡ trơ.
 - Lịch sử git đã lỡ commit ảnh thì **kệ**, không viết lại history. Chỉ chặn từ nay về sau.
@@ -42,7 +42,7 @@ Thêm vào `_GITIGNORE` ở `server/git_brain.py:63`. `_ensure_gitignore_lines` 
 
 Hai bẫy phải xử đúng:
 
-**Bẫy tên thư mục.** Javis dò thư mục attachments bằng regex `^(\d+\s*[-_.]\s*)?attachments$` không phân biệt hoa thường (`server/image_gen.py:40`, `server/main.py:1931`), nên trên thực tế nó có thể tên là `attachments`, `Attachments`, `05 - attachments`, `05-attachments`, `05_attachments` hay `05.attachments`. Git thì phân biệt hoa thường trên Linux (VPS chạy Linux). Một dòng `attachments/` là không đủ.
+**Bẫy tên thư mục.** Jarvis 007 dò thư mục attachments bằng regex `^(\d+\s*[-_.]\s*)?attachments$` không phân biệt hoa thường (`server/image_gen.py:40`, `server/main.py:1931`), nên trên thực tế nó có thể tên là `attachments`, `Attachments`, `05 - attachments`, `05-attachments`, `05_attachments` hay `05.attachments`. Git thì phân biệt hoa thường trên Linux (VPS chạy Linux). Một dòng `attachments/` là không đủ.
 
 Dùng bốn dòng: `attachments/`, `Attachments/`, `*attachments/`, `*Attachments/`, cộng `inbox/`. Dấu `*` phủ mọi tiền tố số thứ tự mà regex chấp nhận mà không phải liệt kê từng dấu phân cách. Hai dòng không có `*` giữ lại cho dễ đọc, dù về mặt cú pháp `*` cũng khớp chuỗi rỗng.
 
@@ -71,7 +71,7 @@ Trần là van an toàn cho trường hợp sinh một trăm tấm ảnh trong m
 
 File `.md` nằm trong hai thư mục đó thì chừa ra, phòng khi có note lạc vào.
 
-Janitor **không** phân biệt ảnh Javis tự tạo với ảnh user chủ động bảo "lưu vào source". Ảnh ingest nhúng trong note Sources cũng hết hạn như mọi ảnh khác, note .md giữ lại nội dung đã trích còn chỗ nhúng ảnh thành ô xám. Đây là hệ quả đã được chấp nhận, đúng với quyết định "media là nguyên liệu đi qua". Muốn giữ ảnh lâu dài thì đường đi là Drive, không phải chừa ngoại lệ trong janitor.
+Janitor **không** phân biệt ảnh Jarvis 007 tự tạo với ảnh user chủ động bảo "lưu vào source". Ảnh ingest nhúng trong note Sources cũng hết hạn như mọi ảnh khác, note .md giữ lại nội dung đã trích còn chỗ nhúng ảnh thành ô xám. Đây là hệ quả đã được chấp nhận, đúng với quyết định "media là nguyên liệu đi qua". Muốn giữ ảnh lâu dài thì đường đi là Drive, không phải chừa ngoại lệ trong janitor.
 
 Phần chạm đĩa là hàm riêng: quét thư mục, gọi `plan_deletions`, xoá, trả về số file và số byte đã dọn.
 
@@ -81,7 +81,7 @@ Phần chạm đĩa là hàm riêng: quét thư mục, gọi `plan_deletions`, x
 
 Thêm một mục vào `_scheduler_loop` (`server/main.py:4220`), nhưng **không** chạy theo nhịp 30 giây của vòng lặp đó. Giữ mốc `last_run` trong bộ nhớ tiến trình, đủ 6 tiếng mới chạy một lượt, và bọc trong `asyncio.to_thread`. Bọc `try/except` riêng in ra stderr theo đúng khuôn các mục đang có, để janitor hỏng không kéo sập tick của loop, kanban hay reminders.
 
-Quét theo danh sách brain của `loop_feature.scheduler_brains()`, giống mục Javis index ở `server/main.py:4263`.
+Quét theo danh sách brain của `loop_feature.scheduler_brains()`, giống mục Jarvis 007 index ở `server/main.py:4263`.
 
 ### Phần 4 - Cấu hình
 

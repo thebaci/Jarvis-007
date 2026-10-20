@@ -5,7 +5,7 @@ Trạng thái: chờ duyệt
 
 ## Mục tiêu
 
-Cho Javis đọc và thao tác note trong Google Keep, đấu qua MCP server cộng đồng
+Cho Jarvis 007 đọc và thao tác note trong Google Keep, đấu qua MCP server cộng đồng
 [feuerdev/keep-mcp](https://github.com/feuerdev/keep-mcp) (PyPI `keep-mcp` 0.3.1, Python >=3.10).
 
 ## Bối cảnh: vì sao phải dùng master token
@@ -19,7 +19,7 @@ Master token KHÔNG phải OAuth token giới hạn phạm vi. Nó là token c�
 `aas_et/...`, [có toàn quyền trên tài khoản và tương đương mật khẩu](https://gkeepapi.readthedocs.io/en/latest/):
 nắm nó là mint được token cho gần như mọi dịch vụ Google khác (Gmail, Drive, Photos, Contacts).
 
-Javis mã hoá secret at rest bằng Fernet qua `secrets_store.encrypt_map` (xem `mcp_store.save`),
+Jarvis 007 mã hoá secret at rest bằng Fernet qua `secrets_store.encrypt_map` (xem `mcp_store.save`),
 nên token không nằm plaintext trên đĩa. Nhưng mã hoá at rest không đổi được bản chất
 "token = toàn quyền tài khoản", và token sẽ nằm cả trên VPS Hostinger.
 
@@ -27,7 +27,7 @@ Rủi ro này đã được nêu rõ với người dùng và người dùng ch�
 
 ## Quyết định đã chốt
 
-1. **Phạm vi thao tác**: bật `UNSAFE_MODE` để Javis sửa được MỌI note, kể cả note viết tay
+1. **Phạm vi thao tác**: bật `UNSAFE_MODE` để Jarvis 007 sửa được MỌI note, kể cả note viết tay
    trong app Keep (mặc định của server chỉ cho sửa note nó tự tạo, gắn nhãn `keep-mcp`).
 2. **Tài khoản**: dùng tài khoản chính, không lập tài khoản phụ.
 3. **Runner**: `uvx` chứ không `pipx` như README gợi ý, cho khớp các connector stdio sẵn có
@@ -35,7 +35,7 @@ Rủi ro này đã được nêu rõ với người dùng và người dùng ch�
 4. **`UNSAFE_MODE` là ô nhập tuỳ chọn**, KHÔNG hardcode trong catalog.
 
 Về quyết định 4, lý do: hardcode `UNSAFE_MODE=true` sẽ bật sẵn chế độ sửa-mọi-note cho mọi người
-fork Javis về, trái nguyên tắc đã chốt là năng lực chạm dữ liệu cá nhân phải opt-in mặc định TẮT.
+fork Jarvis 007 về, trái nguyên tắc đã chốt là năng lực chạm dữ liệu cá nhân phải opt-in mặc định TẮT.
 Để thành ô nhập thì người dùng này vẫn được đúng cái họ chọn (gõ `true`), bản fork vẫn sạch, và
 công tắc nguy hiểm hiện rõ trên trang Kết nối nên sau này gỡ được. Cách này cũng KHÔNG cần sửa lõi,
 vì `mcp_catalog.build_env` hiện chỉ dựng env từ `auth.fields` có khai `env`, chưa hỗ trợ env tĩnh
@@ -84,13 +84,13 @@ Giữ lại cho khớp tiền lệ và để người sau biết connector cần
       },
       {
         "key": "unsafe_mode",
-        "label": "Cho sửa MỌI note - gõ true nếu muốn (để trống = chỉ sửa note do Javis tạo)",
+        "label": "Cho sửa MỌI note - gõ true nếu muốn (để trống = chỉ sửa note do Jarvis 007 tạo)",
         "placeholder": "để trống cho an toàn",
         "optional": true,
         "env": "UNSAFE_MODE"
       }
     ],
-    "guide": "Google Keep KHÔNG có API chính chủ cho gmail thường nên phải dùng master token. CẢNH BÁO: token này có TOÀN QUYỀN tài khoản Google của bạn (Gmail, Drive, Photos...), tương đương mật khẩu - đừng chia sẻ cho ai. Lấy 1 lần: (1) Bật xác minh 2 bước cho tài khoản. (2) Vào myaccount.google.com/apppasswords tạo App Password 16 ký tự. (3) Chạy lệnh này trong terminal (cần cài uv: winget install astral-sh.uv): uv run --no-project --with gpsoauth python -c \"import gpsoauth; print(gpsoauth.perform_master_login('EMAIL_CUA_BAN','APP_PASSWORD_16_KY_TU','0123456789abcdef')['Token'])\" (4) Dán chuỗi bắt đầu bằng aas_et/ vào ô Master token. Ô cuối để trống thì Javis chỉ sửa được note do chính nó tạo; gõ true thì Javis sửa được mọi note kể cả note bạn viết tay.",
+    "guide": "Google Keep KHÔNG có API chính chủ cho gmail thường nên phải dùng master token. CẢNH BÁO: token này có TOÀN QUYỀN tài khoản Google của bạn (Gmail, Drive, Photos...), tương đương mật khẩu - đừng chia sẻ cho ai. Lấy 1 lần: (1) Bật xác minh 2 bước cho tài khoản. (2) Vào myaccount.google.com/apppasswords tạo App Password 16 ký tự. (3) Chạy lệnh này trong terminal (cần cài uv: winget install astral-sh.uv): uv run --no-project --with gpsoauth python -c \"import gpsoauth; print(gpsoauth.perform_master_login('EMAIL_CUA_BAN','APP_PASSWORD_16_KY_TU','0123456789abcdef')['Token'])\" (4) Dán chuỗi bắt đầu bằng aas_et/ vào ô Master token. Ô cuối để trống thì Jarvis 007 chỉ sửa được note do chính nó tạo; gõ true thì Jarvis 007 sửa được mọi note kể cả note bạn viết tay.",
     "guide_url": "https://github.com/feuerdev/keep-mcp"
   },
   "validate": { "tool": "list_labels", "args": {} },
@@ -108,7 +108,7 @@ Giữ lại cho khớp tiền lệ và để người sau biết connector cần
     ]
   },
   "default_perm": "readonly",
-  "risk": "Kết nối này dùng Google MASTER TOKEN - token có TOÀN QUYỀN tài khoản Google (Gmail, Drive, Photos), không phải OAuth giới hạn phạm vi. Mức Ghi nháp cho Javis tạo/sửa note, ghim, lưu trữ, gắn nhãn thật trong Keep. Mức Toàn quyền thêm quyền VỨT/XOÁ note và CHIA SẺ note cho người khác. Nếu đã gõ true vào ô UNSAFE_MODE thì Javis đụng được cả note bạn viết tay, không chỉ note nó tạo."
+  "risk": "Kết nối này dùng Google MASTER TOKEN - token có TOÀN QUYỀN tài khoản Google (Gmail, Drive, Photos), không phải OAuth giới hạn phạm vi. Mức Ghi nháp cho Jarvis 007 tạo/sửa note, ghim, lưu trữ, gắn nhãn thật trong Keep. Mức Toàn quyền thêm quyền VỨT/XOÁ note và CHIA SẺ note cho người khác. Nếu đã gõ true vào ô UNSAFE_MODE thì Jarvis 007 đụng được cả note bạn viết tay, không chỉ note nó tạo."
 }
 ```
 
@@ -143,7 +143,7 @@ phân loại phải khai tường minh chứ không dựa heuristic `WRITE_HINTS
 
 Hai chủ ý đáng chú ý:
 
-- `restore_note` xếp **write** còn `trash_note` xếp **danger**. Nghĩa là ở mức Ghi nháp, Javis
+- `restore_note` xếp **write** còn `trash_note` xếp **danger**. Nghĩa là ở mức Ghi nháp, Jarvis 007
   luôn gỡ lại được note bị vứt nhầm nhưng không tự vứt được. Bất đối xứng này là cố ý.
 - `add_note_collaborator` và `remove_note_collaborator` xếp **danger** vì chúng chia sẻ note ra
   người khác, tức là rò dữ liệu ra ngoài, khác về chất với sửa nội dung trong nhà.
@@ -226,7 +226,7 @@ Ngoài ra đã kiểm bằng tay ngoài test suite:
 
 ## Ngoài phạm vi
 
-- Không viết skill hay agent riêng cho Keep. Tool MCP đủ để Javis dùng qua chat; có nhu cầu lặp
+- Không viết skill hay agent riêng cho Keep. Tool MCP đủ để Jarvis 007 dùng qua chat; có nhu cầu lặp
   lại thật thì mới cân nhắc sau.
 - Không đồng bộ hai chiều Keep với Second Brain. Đây là việc lớn và riêng.
 - Không tự động hoá bước lấy master token. Bước đó buộc phải người dùng tự làm vì dính App Password.

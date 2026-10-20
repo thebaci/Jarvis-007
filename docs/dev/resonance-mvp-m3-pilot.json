@@ -2,8 +2,8 @@
   "commit": "9f3dad13d20271140ebbbca625e704007bb263b8",
   "server_dirty": false,
   "user_messages": [
-    "Dữ liệu mô phỏng, không phải việc thật. Duy trì giúp anh ghi chú Inbox/viec-tuan.md liệt kê việc đang dở: gửi báo giá cho khách B, kiểm kho bút bi, đặt lịch họp nhóm thứ Năm. Đừng xoá ghi chú cũ.",
-    "Thêm việc: gia hạn tên miền trước cuối tháng."
+    "Simulated data, not real tasks. Please keep a note at Inbox/viec-tuan.md listing my unfinished tasks: send the quote to customer B, check the ballpoint pen stock, schedule the team meeting for Thursday. Do not delete the old notes.",
+    "Add a task: renew the domain name before the end of the month."
   ],
   "seconds": {
     "tick1": 6.1,
@@ -93,28 +93,28 @@
     {
       "revision": 1,
       "verdict": "met",
-      "rationale": "c1: đạt",
+      "rationale": "c1: met",
       "guards": []
     },
     {
       "revision": 2,
       "verdict": "met",
-      "rationale": "c1: đạt",
+      "rationale": "c1: met",
       "guards": []
     }
   ],
   "wakes_after": [
     {
       "kind": "observe",
-      "reason": "quan sát guard"
+      "reason": "observe guard"
     },
     {
       "kind": "work",
-      "reason": "xem lại có giới hạn (không có nguồn sự kiện)"
+      "reason": "bounded review (no event source)"
     }
   ],
   "calls_used": 2,
   "budget_calls": 3,
   "notices": [],
-  "final_output": "# Việc đang dở trong tuần\n\n*(Dữ liệu mô phỏng, không phải việc thật.)*\n\n## Danh sách việc cần làm\n\n- [ ] **Báo giá:** Gửi báo giá cho khách B.\n- [ ] **Kiểm kho:** Kiểm kho bút bi, đối chiếu số lượng thực tế với sổ sách.\n- [ ] **Họp nhóm:** Đặt lịch họp nhóm vào thứ Năm.\n- [ ] **Tên miền:** Gia hạn tên miền trước cuối tháng.\n\n## Ghi chú\n\n- Các ghi chú cũ trong `Inbox/viec-tuan.md` được giữ nguyên, không xoá. Mục này chỉ bổ sung thêm danh sách việc đang dở ở trên.\n- Khi hoàn thành việc nào, đánh dấu `[x]` thay vì xoá dòng đó.\n"
+  "final_output": "# Unfinished tasks this week\n\n*(Simulated data, not real tasks.)*\n\n## To-do list\n\n- [ ] **Quote:** Send the quote to customer B.\n- [ ] **Stock check:** Check the ballpoint pen stock and compare the actual count against the records.\n- [ ] **Team meeting:** Schedule the team meeting for Thursday.\n- [ ] **Domain name:** Renew the domain name before the end of the month.\n\n## Notes\n\n- The old notes in `Inbox/viec-tuan.md` are kept as they are and not deleted. This section only adds the list of unfinished tasks above.\n- When a task is done, mark it `[x]` instead of deleting the line.\n"
 }

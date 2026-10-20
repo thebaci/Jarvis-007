@@ -104,7 +104,7 @@ phán xử vẫn có lúc giữ loop khoảng 70 ms ở máy này. Chưa đo VPS
    `resonance_store.agent_any` (qua `_agent_judge_resonance_on`) và `agent_ledger._tx` ngay trên luồng loop. Thuộc phần J;
    hướng sửa là đưa phần kho của lô sang luồng phụ. Lưu ý: bật `--stall-watch` làm chậm cả tiến trình (chụp ngăn xếp tranh
    GIL), chỉ dùng để chẩn đoán, không dùng số đo của lần chạy đó.
-2. **Nhịp pulse:** ở pha chỉ nhịp, không ngăn xếp nào của code Javis bị bắt trên luồng loop; độ trễ lớn nhất khoảng 0,2 s
+2. **Nhịp pulse:** ở pha chỉ nhịp, không ngăn xếp nào của code Jarvis 007 bị bắt trên luồng loop; độ trễ lớn nhất khoảng 0,2 s
    nhiều khả năng do luồng phụ của bộ chiếu (đối soát trạng thái từng reaction, mỗi dòng mở vài kết nối SQLite) tranh GIL.
    Phần L chưa ghép thì reaction "Chờ xem xét" không bao giờ được phục vụ, nên phần đối soát này lặp lại mỗi nhịp 30 giây
    (tối đa 200 dòng).

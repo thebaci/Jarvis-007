@@ -441,7 +441,7 @@ Mọi route mới đi qua `_ctx(brain)` và principal owner như M4; agent khôn
 
 ## 11. Giao diện
 
-- **Tin báo trong khung chat** (`chat-resonance.js`): dưới thẻ của tin có biên nhận, một hàng nhỏ 👍 / 👎. Bấm 👎 mở ba chip lý do. Hiện giá trị hiện tại; bấm lại đúng giá trị là thu hồi. Không hiện trên tin thường. Sau khi bấm, nếu vừa có đề xuất thì hiện một dòng "Javis có một gợi ý cách báo, xem ở trang trợ lý".
+- **Tin báo trong khung chat** (`chat-resonance.js`): dưới thẻ của tin có biên nhận, một hàng nhỏ 👍 / 👎. Bấm 👎 mở ba chip lý do. Hiện giá trị hiện tại; bấm lại đúng giá trị là thu hồi. Không hiện trên tin thường. Sau khi bấm, nếu vừa có đề xuất thì hiện một dòng "Jarvis 007 có một gợi ý cách báo, xem ở trang trợ lý".
 - **Trang trợ lý** (`resonance-agent.js`, phần Cộng hưởng của A1): mục **Bài học** một cột (luật trang cài đặt xếp một cột):
   - Đề xuất làn P: câu cũ và câu mới cạnh nhau (xếp dọc trên điện thoại), số tin làm căn cứ, nút Áp dụng / Bỏ qua.
   - Bài học đang áp dụng: phạm vi, nguồn, ngày, nút Thu hồi.

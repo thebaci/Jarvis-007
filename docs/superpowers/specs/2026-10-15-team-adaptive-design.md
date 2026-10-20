@@ -42,7 +42,7 @@ phiên bản**, không phải kết luận nghiên cứu; chúng được kiểm
 - **Ngữ cảnh (`context_ref`):** `team:<team_id>` hoặc `dm:<agent_key>` (toàn bộ chat riêng của chủ với agent đó, mọi phiên kênh
   `agent:<slug>` gộp chung; ranh giới riêng tư là chat riêng khác nhóm, mã phiên chỉ dùng ở tham chiếu tin). Phần tổng hợp
   theo agent dùng `context_ref = "*"` (chỉ để hiển thị và khởi tạo). Không đưa nội dung của ngữ cảnh này vào prompt ngữ cảnh khác.
-- **Câu trả lời ở trang Trò chuyện chính** (không có agent, tác giả là Javis): có sáu reaction để lưu và hiển thị (`agent_key`
+- **Câu trả lời ở trang Trò chuyện chính** (không có agent, tác giả là Jarvis 007): có sáu reaction để lưu và hiển thị (`agent_key`
   rỗng); không vào ước lượng hữu ích hay phán xử của agent nào.
 - **Sự kiện nguồn:** mọi tác động trỏ về một `source_ref` duy nhất (`rx:dm:<log_id>`, `rx:team:<log_id>`, `decision:<id>`,
   `step:<id>`, `seen:<context>:<message_id>`). Mỗi loại tác động có chỉ mục duy nhất theo `source_ref`.
@@ -297,7 +297,7 @@ mở lượt quét nữa và **không** được tính là "có cơ hội" ở l
 ### 6.2 Sự kiện "đã xem" (`message_seen`, resonance.sqlite3)
 
 Dashboard gửi `POST /seen {context_ref, message_ids}` khi tin của agent nằm trong khung nhìn ≥ 1,5 giây và tab đang hiển thị (nhóm
-và chat riêng). Host ghi lần đầu. Chỉ tin của agent trong Javis; không theo dõi gì khác.
+và chat riêng). Host ghi lần đầu. Chỉ tin của agent trong Jarvis 007; không theo dõi gì khác.
 
 ### 6.3 Công thức (`pulse.v1`)
 
@@ -452,7 +452,7 @@ Các trần mới vào **bảng giới hạn** của T1 (loại: chủ chỉnh, 
 
 Sửa sau review T1: bản trước chỉ cộng `goals.calls_used` và `call_ledger`, nên lượt nhóm (lưu ở `team_turns`, kho khác) nằm ngoài trần.
 
-- **Phạm vi:** mọi lượt engine cấp host do Javis tự chạy ở đường nhóm và Cộng hưởng: lượt goal A2 và phép thử, bộ lập mục tiêu, lượt
+- **Phạm vi:** mọi lượt engine cấp host do Jarvis 007 tự chạy ở đường nhóm và Cộng hưởng: lượt goal A2 và phép thử, bộ lập mục tiêu, lượt
   nhóm (trả lời tin nhóm, bước việc nhóm), phán xử theo lô, lượt chủ động, quét, xem xét, xem xét reaction, gỡ chờ. **Ngoài phạm vi:**
   lượt chat riêng chủ tự gõ (chủ đang ngồi đó, không phải lượt tự chạy), loop và nhắc hẹn (có trần riêng). Đây là trần của pilot có
   hạn mức do chủ duyệt; không đặt biến thì không có trần chung.

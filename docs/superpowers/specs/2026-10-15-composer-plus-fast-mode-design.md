@@ -10,7 +10,7 @@ Fast mode do 9 agent đọc song song (workflow `composer-map-fastmode`), các r
 - **Mức suy nghĩ tách khỏi chọn model**: đổi mức là việc làm thường xuyên, không được bắt mở danh sách model
   rồi cuộn xuống đáy.
 - **Fast mode** bật bằng một nút tia sét, giống ChatGPT: bật thì cam và sóng sánh chạy, tắt thì đứng yên.
-- Hiệu ứng dùng màu cam của Javis (`--accent`, #ff7a3c), chạy đúng ở giao diện sáng và tối.
+- Hiệu ứng dùng màu cam của Jarvis 007 (`--accent`, #ff7a3c), chạy đúng ở giao diện sáng và tối.
 
 Thành công khi: mọi thao tác cũ vẫn chạy (gõ, Enter gửi, dán và kéo thả file, giọng nói, chọn model, ghim
 model theo phiên, trang Chat/Coding/Workspace mượn khung gõ, điện thoại), và hàng điều khiển chỉ còn một.
@@ -144,7 +144,7 @@ Mỗi chỗ đặt cạnh chỗ đang truyền mức suy nghĩ. Không bao giờ
 
 - `codex_models._chuan_hoa` giữ trường `serviceTiers` để biết model nào nhận Fast mode.
 - Đọc lại trạng thái thật: Claude Code báo `fast_mode_state` (`off|cooldown|on`) và `fast_mode_disabled_reason`;
-  API báo `usage.speed` hoặc `service_tier` trong phản hồi. Javis nhớ trạng thái cuối theo bộ não, tooltip của tia
+  API báo `usage.speed` hoặc `service_tier` trong phản hồi. Jarvis 007 nhớ trạng thái cuối theo bộ não, tooltip của tia
   sét đọc nó: "đang tạm chạy thường vì vượt giới hạn tốc độ", "cần bật usage credits"...
 
 ## Kiểm thử

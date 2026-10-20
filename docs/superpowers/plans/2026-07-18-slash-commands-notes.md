@@ -165,7 +165,7 @@ check("parse: /notes hello", (() => { const r = S.parseSlash("/notes hello"); re
 check("parse: /notes tron -> arg rong", (() => { const r = S.parseSlash("/notes"); return r && r.cmd === "notes" && r.arg === ""; })());
 check("parse: chu HOA -> thuong", (() => { const r = S.parseSlash("/Notes X"); return r && r.cmd === "notes" && r.arg === "X"; })());
 check("parse: dau / tron -> null", S.parseSlash("/") === null);
-check("parse: khong phai lenh -> null", S.parseSlash("chao Javis") === null);
+check("parse: khong phai lenh -> null", S.parseSlash("chao Jarvis 007") === null);
 check("parse: khoang trang dau -> null", S.parseSlash("  /notes") === null);
 check("parse: arg nhieu dong giu nguyen", (() => { const r = S.parseSlash("/notes dong1\ndong2"); return r && r.arg === "dong1\ndong2"; })());
 
@@ -458,7 +458,7 @@ Chèn NGAY sau dòng `const atts = ...`:
 Sau đó, để skill-command gửi ĐÚNG chuỗi bung (không phải chữ `/notes ...` thô), sửa phần dựng `outMsg`. Tìm khối (dòng ~209-221):
 
 ```javascript
-  // Soạn message gửi Javis (kèm đường dẫn file trong Sources)
+  // Soạn message gửi Jarvis 007 (kèm đường dẫn file trong Sources)
   let outMsg = msg;
   if (atts.length) {
     const lines = atts.map(a => `- ${a.path}`).join("\n");
@@ -477,7 +477,7 @@ Sau đó, để skill-command gửi ĐÚNG chuỗi bung (không phải chữ `/n
 Thay bằng:
 
 ```javascript
-  // Soạn message gửi Javis (kèm đường dẫn file trong Sources)
+  // Soạn message gửi Jarvis 007 (kèm đường dẫn file trong Sources)
   const _isSkill = _slash.type === "skill";
   let outMsg = _isSkill ? _slash.message : msg;
   if (atts.length) {

@@ -12,7 +12,7 @@ Thiết kế dùng biên bản này: [2026-10-13-team-chat-design.md](../superpo
 
 ## 1. Kết luận ngắn
 
-- **Javis chưa có nhóm chat nội bộ.**
+- **Jarvis 007 chưa có nhóm chat nội bộ.**
   - Không có bảng nhóm hay thành viên. Một phiên chỉ gắn một agent (`sessions.channel`, `workflow_chat.persona_cua_phien`).
   - Tin nhắn chỉ có `role`, không có người gửi (`server/sessions.py:101-108`).
   - Dashboard chưa có @mention.

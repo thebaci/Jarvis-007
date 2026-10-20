@@ -48,7 +48,7 @@ Cộng hưởng của trợ lý đang tắt, hay phản hồi có trước lúc 
     lượt (`_persist_turn` trả mã tin và CHỜ gửi xong gói này trước khi trả về, nên gói luôn tới trước `turn_done` của
     lượt đó). Gói tới sau `response`, trước `turn_done`. Bong bóng vừa trả lời nhận
     `data-mid` từ gói này; chưa có mã thì chưa hiện nút reaction.
-- Tác giả: phiên kênh `agent:<slug>` (hay có dòng `session_agents`) là agent đó, `agent_key` do host tra; phiên Javis chính là
+- Tác giả: phiên kênh `agent:<slug>` (hay có dòng `session_agents`) là agent đó, `agent_key` do host tra; phiên Jarvis 007 chính là
   `agent_key` rỗng (lưu và hiện, không vào học hay phán xử của agent nào, `status` luôn `received`).
 
 ## 5. Chat nhóm

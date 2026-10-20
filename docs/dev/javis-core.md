@@ -1,150 +1,150 @@
-# Javis Core - kiến trúc thực tế và bàn giao
+# Jarvis 007 Core - actual architecture and handover
 
-Spec gốc: yêu cầu của chủ repo ngày 16/10/2026 ("Javis Core thành trợ lý hệ thống mặc định, được ghim trong mọi
-brain, nhận báo cáo đúng người, hỗ trợ trao đổi tiếp và thích nghi qua Second Brain"). Triển khai qua ba bản:
+Original spec: the repo owner's request of 16/10/2026 ("make Jarvis 007 Core the default system assistant, pinned in every
+brain, delivering reports to the right person, supporting follow-up questions and adapting through the Second Brain").
+Delivered across four releases:
 
-| Bản | Nội dung |
+| Release | Content |
 |---|---|
-| 0.185.0 | Javis Core: định nghĩa chung, ghim, khoá ở máy chủ, chat mặc định mỗi brain |
-| 0.186.0 | Định tuyến báo cáo về Javis Core, bỏ mọi kiểu gửi đoán |
-| 0.187.0 | Tin hệ thống (đã đọc ở máy chủ, hỏi Javis Core), thông báo đẩy theo đăng nhập, kiểm soát trí nhớ |
-| 0.188.0 | Sau rà soát: lượt chat theo brain của chat, Javis Core gọn hơn, chặn cứng ghi trí nhớ cho Claude Code, máy chủ tự ghi nguồn ghi nhớ |
+| 0.185.0 | Jarvis 007 Core: shared definition, pinning, server-side locks, a default chat per brain |
+| 0.186.0 | Report routing to Jarvis 007 Core, every guess-based delivery removed |
+| 0.187.0 | System notices (read state on the server, ask Jarvis 007 Core), push notifications tied to login, memory controls |
+| 0.188.0 | After review: chat turns follow the chat's brain, a slimmer Jarvis 007 Core, a hard block on memory writes for Claude Code, the server fills in the memory source itself |
 
-## 1. Kiến trúc tìm thấy khi rà soát (trước 0.185.0)
+## 1. Architecture found during review (before 0.185.0)
 
-- **Một tài khoản mỗi bản Javis.** `settings.json` có đúng một `auth` (chủ). Phiên đăng nhập là token trần, không
-  gắn người. Nhiều người dùng = nhiều bản Javis độc lập (`docker-compose.multi.yml`). Các chat ID Telegram trong danh
-  sách cho phép đều được coi là chủ.
-- **Brain đang mở do trình duyệt chọn** và đi kèm mọi request; server không có danh sách thành viên theo brain.
-- **Một cửa báo cáo duy nhất:** `_notify_owner` → hòm thư (`inbox.json`) + MỘT kênh ngoài. `owner_chat` rỗng thì gửi
-  **ID Telegram đầu tiên**; chat ID lạ cũng dồn về ID đầu; Zalo rỗng/lạ thì gửi **mọi** ID; `_loop_notify` (loop tự
-  dừng, bộ não chết) gửi **mọi** ID Telegram. Mục hòm thư có trường `brain` nhưng không ai điền.
-- **Tin tức (bản phát hành, thông báo cộng đồng)** tính lại mỗi lần, đã-đọc nằm ở localStorage từng trình duyệt.
-- **Thông báo đẩy** gửi tới mọi trình duyệt đã đăng ký, không gắn đăng nhập, còn nhận sau khi đăng xuất.
-- **Trí nhớ** ở `<brain>/memory/` (MEMORY.md + facts/). Không có chỗ xem/sửa/quên, không có danh sách đã quên, công
-  tắc tự học là một cờ chung cho mọi brain. Bài học trợ lý (`agent_lessons`) bị thu hồi vẫn học lại được.
-- **Trợ lý** chỉ là file `<brain>/agents/<slug>.md`; skill hệ thống được CHÉP vào từng brain; plugin hệ thống thì đọc
-  thẳng từ `system/plugins/` (mẫu dùng lại cho Javis Core).
+- **One account per Jarvis 007 install.** `settings.json` holds exactly one `auth` (the owner). A login session is a bare
+  token, not tied to a person. Several users = several independent Jarvis 007 installs (`docker-compose.multi.yml`). Every
+  Telegram chat ID in the allow list is treated as the owner.
+- **The open brain is chosen by the browser** and sent with every request; the server has no per-brain member list.
+- **A single reporting gate:** `_notify_owner` → inbox (`inbox.json`) + ONE outside channel. An empty `owner_chat` sends to the
+  **first Telegram ID**; an unknown chat ID is also funneled to the first ID; an empty or unknown Zalo target sends to **every** ID;
+  `_loop_notify` (loop stopped on its own, dead brain) sends to **every** Telegram ID. Inbox entries have a `brain` field but nobody fills it in.
+- **News (releases, community announcements)** is recomputed every time, and the read state lives in each browser's localStorage.
+- **Push notifications** go to every registered browser, are not tied to a login, and are still received after logging out.
+- **Memory** lives in `<brain>/memory/` (MEMORY.md + facts/). There is no place to view, edit or forget, no forgotten list, and the
+  self-learning switch is one flag shared by every brain. Assistant lessons (`agent_lessons`) that were revoked could still be relearned.
+- **Assistants** are just `<brain>/agents/<slug>.md` files; system skills are COPIED into each brain; system plugins are read
+  straight from `system/plugins/` (the pattern reused for Jarvis 007 Core).
 
-## 2. Quyết định thiết kế
+## 2. Design decisions
 
-- **Javis Core không phải một agent persona.** Chat với nó là một lượt Javis đầy đủ (CLAUDE.md, MEMORY.md, mọi tool)
-  cộng khối `# === JAVIS CORE ===` lấy từ `system/agents/javis-core.md`. Kênh phiên là `agent:javis-core` để trang Cộng
-  sự, hòm thư và lịch sử coi nó như một trợ lý, còn `workflow_chat.persona_cua_phien` trả None cho kênh này.
-- **Một định nghĩa ở cấp nền tảng**, không chép vào brain. Slug `javis-core` được giữ chỗ: file `agents/javis-core.md`
-  lạc trong brain bị bỏ qua (`agents_index`, `_agent_file`), gói nhập không ghi được, tạo trợ lý trùng tên bị từ chối.
-- **"Đúng người" = đúng tài khoản của bản Javis đó.** Với kiến trúc một-chủ-một-bản, người nhận là chủ; điều cần đúng
-  là brain nguồn và kênh. Không dựng hệ thống tài khoản mới (xem mục 6).
-- **Chat mặc định mỗi brain** do server giữ con trỏ trong `STATE_DIR/javis_core.json`; xoá hoặc lưu trữ thì lần sau
-  tạo chat mới trống, không hồi sinh nội dung.
-- **Không đoán người nhận.** `_report_route` quyết định nơi nhận từ đích + brain CỦA VIỆC (do nơi sinh việc truyền),
-  không bao giờ dùng brain đang mở trên màn hình.
+- **Jarvis 007 Core is not an agent persona.** Chatting with it is a full Jarvis 007 turn (CLAUDE.md, MEMORY.md, every tool)
+  plus the `# === JARVIS 007 CORE ===` block taken from `system/agents/javis-core.md`. The session channel is `agent:javis-core`, so the
+  Partners page, the inbox and the history treat it like an assistant, while `workflow_chat.persona_cua_phien` returns None for this channel.
+- **One definition at the platform level**, not copied into brains. The slug `javis-core` is reserved: a stray `agents/javis-core.md`
+  file inside a brain is ignored (`agents_index`, `_agent_file`), pack import cannot write it, and creating an assistant with the same name is refused.
+- **"The right person" = the right account of that Jarvis 007 install.** With the one-owner-per-install architecture, the recipient is the owner;
+  what has to be right is the source brain and the channel. No new account system is built (see section 6).
+- **The default chat per brain** is tracked by a pointer the server keeps in `STATE_DIR/javis_core.json`; if it is deleted or archived,
+  the next time a new empty chat is created and the old content is not resurrected.
+- **No guessing the recipient.** `_report_route` decides where to deliver from the target + the brain OF THE JOB (passed in by whatever created the job),
+  and never uses the brain currently open on screen.
 
-## 3. Ánh xạ spec → mã
+## 3. Spec → code mapping
 
-| Spec | Chỗ trong mã |
+| Spec | Place in the code |
 |---|---|
-| 3.1 định nghĩa chung | `system/agents/javis-core.md`, `server/javis_core.py` |
-| 3.2, 11, 12, 14 vai trò, khởi đầu, tự học, giới hạn | thân file định nghĩa (khối JAVIS CORE trong prompt) |
-| 3.3 quyền | Javis Core chạy bằng quyền của lượt; không có route nào cấp quyền theo nhãn |
-| 4 ghim, khoá | `GET /agents?system=1`, `_core_refusal` (xoá, sửa, đổi tên, bỏ ghim, tag, Auto, tài sản, nhập gói, trưởng nhóm tạo) |
-| 4, 5 chat mặc định | `POST /javis-core/session`, `javis_core.default_session` |
-| 6 định tuyến | `_report_route`, `_notify_owner`, `_owner_telegram_id` |
-| 6.4 thiếu thông tin | mục hòm thư `routing: no_target / lost_origin`, không gửi đi đâu |
-| 7.1 tin chung, đã-đọc | `GET/POST /notifications/read`, `inbox.news_*` |
-| 7.2 tin giới hạn | `_loop_notify` → hòm thư + Telegram của chính chủ, không còn phát cho mọi ID |
-| 7.3, 15 hỏi tiếp | `POST /javis-core/cite` (chép thông báo kèm nguồn, thời điểm vào chat Javis Core riêng) |
-| 8 đẩy, Telegram | `telegram.owner_chat_id`, `webpush` gắn `phien`, `/auth/logout` gỡ thiết bị, `push.preview` |
-| 8 trùng khi thử lại | `inbox.add(dedup=...)`; khoá theo việc/lần chạy ở Kanban, loop, nhắc hẹn, việc chạy nền |
-| 10.2 hồ sơ người dùng | `STATE_DIR/user_profile.md`, `GET/POST /profile`, tool `javis_memory op=profile`, nạp TRƯỚC bộ nhớ brain |
-| 12, 13 xem/sửa/quên/tắt | `server/memory_control.py`, `/memory/items|edit|forget|learning`; từ 0.190.0 làm qua chat bằng tool `javis_memory` (`server/memory_chat.py`, plugin `system/plugins/javis-memory`) |
-| 12.4 không học lại điều đã quên | `memory/forgotten.json` (dấu vân tay), `learn._promote_sync`, `agent_lessons.add` |
+| 3.1 shared definition | `system/agents/javis-core.md`, `server/javis_core.py` |
+| 3.2, 11, 12, 14 role, start, self-learning, limits | body of the definition file (the JARVIS 007 CORE block in the prompt) |
+| 3.3 permissions | Jarvis 007 Core runs with the permissions of the turn; no route grants permissions by label |
+| 4 pinning, locks | `GET /agents?system=1`, `_core_refusal` (delete, edit, rename, unpin, tag, Auto, assets, pack import, team lead creation) |
+| 4, 5 default chat | `POST /javis-core/session`, `javis_core.default_session` |
+| 6 routing | `_report_route`, `_notify_owner`, `_owner_telegram_id` |
+| 6.4 missing information | inbox entry `routing: no_target / lost_origin`, sent nowhere |
+| 7.1 general news, read state | `GET/POST /notifications/read`, `inbox.news_*` |
+| 7.2 scoped news | `_loop_notify` → inbox + the owner's own Telegram, no longer broadcast to every ID |
+| 7.3, 15 follow-up questions | `POST /javis-core/cite` (copies the notice, with source and time, into a dedicated Jarvis 007 Core chat) |
+| 8 push, Telegram | `telegram.owner_chat_id`, `webpush` tagged with `phien` (session), `/auth/logout` removes the device, `push.preview` |
+| 8 duplicates on retry | `inbox.add(dedup=...)`; keys per job/run in Kanban, loops, reminders, background jobs |
+| 10.2 user profile | `STATE_DIR/user_profile.md`, `GET/POST /profile`, tool `javis_memory op=profile`, loaded BEFORE the brain memory |
+| 12, 13 view/edit/forget/turn off | `server/memory_control.py`, `/memory/items|edit|forget|learning`; since 0.190.0 done through chat with the `javis_memory` tool (`server/memory_chat.py`, plugin `system/plugins/javis-memory`) |
+| 12.4 do not relearn what was forgotten | `memory/forgotten.json` (fingerprints), `learn._promote_sync`, `agent_lessons.add` |
 
-## 4. Kết quả kiểm thử theo nhóm nghiệm thu
+## 4. Test results by acceptance group
 
-Mỗi dòng là một phép kiểm có thật trong test (chạy `python tests/python/<file>`).
+Each line is a real check in the tests (run `python tests/python/<file>`).
 
-- **Trợ lý mặc định** (`test_javis_core.py`, 34 phép): brain cũ và mới đều có Javis Core đứng đầu; xoá, đổi tên, bỏ
-  ghim, gắn tag, tắt Auto, sửa qua form, gắn tài sản, nhập gói, trưởng nhóm tạo trùng slug đều bị máy chủ từ chối;
-  12 lời gọi đồng thời chỉ tạo một chat; xoá hay lưu trữ chat mặc định thì có chat mới trống, Javis Core vẫn còn.
-  Giao diện: `tests/js/test_javis_core_ui.js`, kèm ảnh chụp thật trên máy tính và iPhone 13.
-- **Định tuyến** (`test_javis_core_routing.py`): có chat gốc thì về đúng chat đó; không có thì về Javis Core của đúng
-  brain của việc (hai brain hai nơi); chat gốc đã xoá thì về Javis Core khi biết brain, không biết thì chỉ giữ ở hòm
-  thư; không đích không brain thì không gửi; Telegram/Zalo/Slack... không còn dồn về ID đầu hay phát cho mọi ID.
-- **Tin hệ thống, đẩy** (`test_javis_core_notices.py`): đã-đọc ở máy chủ, đánh dấu một lần thấy ở mọi thiết bị; hỏi
-  Javis Core chép đúng thông báo vào chat của brain đúng, hỏi lại không chép trùng, thông báo chung không đổi; thiết
-  bị gắn với đăng nhập, đăng xuất là gỡ, đăng nhập hết hạn không nhận; ẩn nội dung thì bản đẩy không mang chữ.
-- **Tự học và cá nhân hoá** (`test_javis_core_memory.py`, `test_memory_chat.py`): xem, sửa, quên; đã quên
-  thì vòng tự học không ghi lại (cùng slug hay cùng chữ); quên không xoá chat; tắt tự học thì vòng học, bài học trợ
-  lý và tool ghi file của model đều không ghi vào `memory/`, model được báo; model không sửa được công tắc hay danh
-  sách đã quên; bài học bị thu hồi không học lại; hồ sơ dùng chung mọi brain, nằm trước bộ nhớ brain.
+- **Default assistant** (`test_javis_core.py`, 34 checks): old and new brains both have Jarvis 007 Core at the top; delete, rename, unpin,
+  tag, turn off Auto, edit through the form, attach assets, import a pack, and a team lead creating a duplicate slug are all refused by the server;
+  12 concurrent calls create only one chat; deleting or archiving the default chat yields a new empty chat while Jarvis 007 Core stays.
+  UI: `tests/js/test_javis_core_ui.js`, with real screenshots on desktop and iPhone 13.
+- **Routing** (`test_javis_core_routing.py`): with an origin chat the report goes to that chat; without one it goes to the Jarvis 007 Core of the job's own
+  brain (two brains, two places); if the origin chat was deleted it goes to Jarvis 007 Core when the brain is known and stays only in the inbox when it is not;
+  no target and no brain means nothing is sent; Telegram/Zalo/Slack... no longer funnel to the first ID or broadcast to every ID.
+- **System news, push** (`test_javis_core_notices.py`): read state on the server, marked once and seen on every device; asking
+  Jarvis 007 Core copies the exact notice into the right brain's chat, asking again does not copy a duplicate, the general notice is unchanged; devices
+  are tied to a login, logging out removes them, an expired login receives nothing; with content hidden, the push carries no text.
+- **Self-learning and personalization** (`test_javis_core_memory.py`, `test_memory_chat.py`): view, edit, forget; once forgotten
+  the learning loop does not write it back (same slug or same text); forgetting does not delete chats; with self-learning off, the learning loop, assistant
+  lessons and the model's file-writing tool all refrain from writing to `memory/`, and the model is told; the model cannot change the switch or the forgotten
+  list; revoked lessons are not relearned; the profile is shared across all brains and sits ahead of the brain memory.
 
-## 5. Chuyển đổi dữ liệu và quay lui
+## 5. Data migration and rollback
 
-- Không có migration phá huỷ. File mới: `STATE_DIR/javis_core.json`, `news_read.json`, `user_profile.md`,
-  `<brain>/memory/forgotten.json`, `<brain>/memory/learning.json`. Trường mới: `inbox` (`dedup`, `routing`),
+- No destructive migration. New files: `STATE_DIR/javis_core.json`, `news_read.json`, `user_profile.md`,
+  `<brain>/memory/forgotten.json`, `<brain>/memory/learning.json`. New fields: `inbox` (`dedup`, `routing`),
   `push_subs` (`phien`), `settings.telegram.owner_chat_id`, `settings.push.preview`.
-- Thông báo cũ trong hòm thư giữ nguyên, không phát lại thông báo đẩy cũ, không hồi sinh chat đã xoá. Mục cũ không có
-  `brain` nên không chuyển sang Javis Core được: chúng vẫn mở như trước (chat gốc, nếu còn).
-- Tin tức: lần đầu mở chuông sau khi cập nhật, danh sách đã-đọc trong localStorage của trình duyệt đó được đẩy lên
-  máy chủ; trình duyệt chưa mở thì không có gì để đẩy.
-- **Quay lui:** cài lại bản trước. Các file mới bị bỏ qua; chat Javis Core vẫn nằm trong kho với kênh
-  `agent:javis-core` (bản cũ báo "trợ lý không còn" khi mở, nội dung đọc được qua lịch sử). Báo cáo không đích sẽ lại
-  rơi về ID Telegram đầu tiên như hành vi cũ.
+- Old notices in the inbox are kept as they are, old push notifications are not re-sent, deleted chats are not resurrected. Old entries have no
+  `brain`, so they cannot be moved to Jarvis 007 Core: they still open as before (the origin chat, if it still exists).
+- News: the first time the bell is opened after the update, the read list in that browser's localStorage is pushed to the
+  server; a browser that has not been opened has nothing to push.
+- **Rollback:** reinstall the previous release. The new files are ignored; Jarvis 007 Core chats remain in the store with channel
+  `agent:javis-core` (the old release says "assistant no longer exists" when you open one, and the content can still be read through the history). Reports with no target
+  fall back to the first Telegram ID again, as in the old behavior.
 
-## 6. Giới hạn và phần chưa làm
+## 6. Limits and what is not done
 
-- **Nhiều người dùng trên MỘT bản Javis chưa có.** Kiến trúc hiện tại là một chủ mỗi bản; các tiêu chí "hai người
-  cùng brain giữ chat riêng", "trạng thái đọc riêng theo người", "thu hồi quyền theo brain" chỉ đúng ở dạng mỗi người
-  một bản Javis. Làm thật cần: bảng người dùng, phiên gắn người, cột chủ sở hữu trên `sessions`, ACL theo brain chặn
-  ở `_brain_root`, ánh xạ Telegram ID → người. Đây là dự án riêng, cần chủ repo quyết.
-- **Mọi ID trong danh sách Telegram được phép vẫn là "chủ"** khi chat (như trước). 0.186.0 chỉ ngừng GỬI báo cáo
-  không đích cho họ.
-- **Tắt tự học chặn cứng ở hai đường:** tool ghi file của hub (engine API) và luật từ chối `Write/Edit/MultiEdit/
-  NotebookEdit(memory/**)` cho Claude Code (0.188.0, giữ hiệu lực cả khi bypassPermissions). Chưa chặn: lệnh Bash
-  của Claude Code tự ghi file, và tool file riêng của Codex, Grok, Antigravity; các đường này chỉ có lời dặn
-  "GHI NHỚ MỚI ĐANG TẮT" trong prompt.
-- **Quên có giới hạn:** brain lưu bằng git (tự học dùng git commit) vẫn còn bản cũ trong lịch sử git; bản sao lưu
-  làm trước đó cũng vậy. Câu trả lời của tool nói rõ điều này sau khi quên.
-- **Hồ sơ người dùng do người dùng tự viết.** Javis không tự suy diễn tính cách hay ghi vào hồ sơ này.
-- Từ 0.188.0 ghi nhớ model viết trong một lượt chat mà thiếu `source` được máy chủ tự gắn "chat <ngày> (<mã chat>)".
-  `status` (xác nhận hay suy luận) và `scope` vẫn chỉ có khi đường ghi tự điền.
+- **Multiple users on ONE Jarvis 007 install is not supported.** The current architecture is one owner per install; the criteria "two people
+  in the same brain keep private chats", "per-person read state", "revoke access per brain" only hold in the form of one Jarvis 007 install
+  per person. Doing it for real needs: a users table, sessions tied to a person, an owner column on `sessions`, a per-brain ACL enforced
+  at `_brain_root`, and a Telegram ID → person mapping. That is a separate project and needs a decision from the repo owner.
+- **Every ID in the allowed Telegram list is still the "owner"** when chatting (as before). 0.186.0 only stopped SENDING
+  reports with no target to them.
+- **Turning self-learning off is hard-blocked on two paths:** the hub's file-writing tool (API engines) and the deny rule for `Write/Edit/MultiEdit/
+  NotebookEdit(memory/**)` on Claude Code (0.188.0, which stays in force even under bypassPermissions). Not blocked: Claude Code's Bash
+  commands that write files by themselves, and the own file tools of Codex, Grok and Antigravity; these paths only get the
+  "NEW MEMORY IS OFF" reminder in the prompt (the prompt text itself is Vietnamese: "GHI NHỚ MỚI ĐANG TẮT").
+- **Forgetting has limits:** a brain stored with git (self-learning uses git commits) still has the old version in its git history; a backup
+  made earlier does too. The tool's reply says so after forgetting.
+- **The user profile is written by the user.** Jarvis 007 does not infer personality or write into this profile on its own.
+- Since 0.188.0, a memory the model writes during a chat turn without a `source` gets "chat <date> (<chat id>)" attached by the server
+  (the Vietnamese text is "chat <ngày> (<mã chat>)").
+  `status` (confirmed or inferred) and `scope` are still only present when the writing path fills them in.
 
-## 7. Bổ sung 0.188.0 (sau rà soát)
+## 7. Additions in 0.188.0 (after review)
 
-- **Lượt chat theo brain của chat** (spec 9): mở chat của brain B khi đang chọn brain A thì lượt chạy trên B (máy chủ
-  đổi brain theo phiên và báo `brain_follow`); chat hiện dòng "thuộc brain B" kèm nút chuyển; bấm thông báo của brain
-  khác thì dashboard chuyển brain TRƯỚC rồi mới mở. Báo cáo đến thì không tự chuyển gì.
-- **Javis Core gọn hơn:** vòng chạy trót lọt (`quiet`) chỉ ở chuông (nút "Hỏi Javis Core" vẫn đưa vào được); báo cáo
-  gửi Telegram chỉ chép vào Javis Core khi đó là Telegram của chính chủ.
-- **Ô "Telegram của bạn"** là ô chọn từ danh sách ID được phép.
+- **Chat turns follow the chat's brain** (spec 9): opening a chat of brain B while brain A is selected runs the turn on B (the server
+  switches brain per session and reports `brain_follow`); the chat shows a "belongs to brain B" line with a switch button; clicking a notice from another
+  brain makes the dashboard switch brain FIRST and then open it. Incoming reports do not switch anything on their own.
+- **Slimmer Jarvis 007 Core:** a loop run that finished fine (`quiet`) shows only in the bell (the "Ask Jarvis 007 Core" button still gets it in); a report
+  sent to Telegram is copied into Jarvis 007 Core only when it is the owner's own Telegram.
+- **The "Your Telegram" field** is a picker over the list of allowed IDs.
 
-## 8. Cài đặt tối giản, trí nhớ qua chat (0.190.0)
+## 8. Minimal settings, memory through chat (0.190.0)
 
-Chủ repo 16/10/2026, sau khi xem thẻ Javis Core và cột trợ lý: tự học của Core hiện quá nhiều thứ trong khi Javis đã có
-ngữ cảnh trong brain; bài học cũ của trợ lý lòng vòng, nút Thu hồi và Dùng ở mọi nơi người dùng không biết dùng. "Thà
-nhắn tin bảo xoá sửa thu hồi rồi AI làm giúp còn tốt hơn." Cài đặt chỉ giữ thứ thị trường quen dùng (đổi ảnh đại diện,
-tên, mô tả, hướng dẫn, tài liệu, kỹ năng, model).
+Repo owner, 16/10/2026, after seeing the Jarvis 007 Core card and the assistants column: Core's self-learning shows too many things while Jarvis 007 already has
+context in the brain; the old assistant lessons are convoluted, and the Revoke and Use Everywhere buttons are something users do not know how to use. "It is better to
+just message to delete, edit or revoke and let the AI do it for me." Settings keep only what the market is used to (change avatar,
+name, description, instructions, documents, skills, model).
 
-- **Thẻ Javis Core:** chỉ còn ảnh, tên, nhãn Hệ thống, vai trò và một câu "muốn nhớ, sửa hay quên thì nhắn trong chat".
-  `dashboard/core-memory.js` đã gỡ.
-- **Cột một trợ lý:** form cài đặt đứng đầu. Khối Auto (mục tiêu, nhịp, hạn mức tự chạy) nằm dưới và chỉ hiện khi Auto
-  của trợ lý đang bật (`veAuto` trong `workspace.js`). Mục Bài học A3 (`resonance-agent.js`) và danh sách bài học theo
-  phạm vi, bài học cũ, thay đổi tự rà soát, đề xuất (`agent-lessons-ui.js`) rời màn hình; mục còn lại là "Hạn mức tự
-  chạy".
-- **Tool `javis_memory`** (chỉ phiên của chủ, mức `safe`, mọi engine): `list`, `edit`, `forget`, `learning`, `profile`,
-  `lessons`, `lesson_add`, `lesson_revoke`. Luật giữ nguyên: quên chỉ còn dấu vân tay và không học lại, bài học bị thu
-  hồi không tự học lại, tool ghi file của model vẫn không ghi được công tắc.
-- **Chưa đưa vào tool:** bài học trình bày A3 (báo gọn hay đủ) đã áp dụng trước đây; đề xuất mới loại này không còn
-  nút Áp dụng nên không phát sinh thêm. Các route `/memory/*`, `/profile`, `/agents/{slug}/lessons/*` vẫn còn cho
-  công cụ ngoài.
-- **Dòng "Đã nhớ · Hoàn tác"** (`server/memory_receipt.py`, `dashboard/chat-nho.js`): đầu lượt chat dashboard chụp
-  `memory/` (bỏ `conversations/`, `runs/`), cuối lượt so lại; ghi nhớ mới, đã sửa, đã quên thành một dòng đẩy vào
-  chat (khối ẩn `JAVIS_NHO`, F5 vẫn còn). Hoàn tác gọi `/memory/forget` nên không học lại. Câu trả lời khai "đã nhớ,
-  đã quên, đã thu hồi" (tập `MEMORY_CLAIM` trong `server/lexicon`) mà không file nào đổi và không tool trí nhớ nào ghi
-  (`memory_control.note_change`) thì có dòng đính chính. Chỉ đường dashboard; Telegram chưa có dòng này.
-- **Thẻ trợ lý:** giờ chat (12px) và công tắc Auto chung cụm `.ws-item-end` ở góc dưới phải, công tắc có trên mọi
-  trợ lý (bỏ luật ẩn khi tắt của 0.175.0). Khối Auto trong cột Cài đặt dùng bảng Nhịp bản gọn (`compact`): một dòng
-  hạn mức bằng lời thường và đề xuất đang chờ; bảng đầy đủ vẫn ở ngăn Nhóm.
-- **Tin tức không vào Javis Core:** thẻ tab Tin tức bỏ nút "Hỏi Javis Core"; thông báo việc của chính chủ vẫn có.
-
+- **The Jarvis 007 Core card:** only the avatar, name, System label, role and one sentence "to remember, edit or forget, just message in chat".
+  `dashboard/core-memory.js` is removed.
+- **Single assistant column:** the settings form comes first. The Auto block (goal, rhythm, auto-run limit) sits below and only shows when the assistant's
+  Auto is on (`veAuto` in `workspace.js`). The A3 Lessons section (`resonance-agent.js`) and the lessons list by scope, old lessons, self-review
+  changes and proposals (`agent-lessons-ui.js`) leave the screen; the remaining section is "Auto limit".
+- **The `javis_memory` tool** (owner sessions only, `safe` level, every engine): `list`, `edit`, `forget`, `learning`, `profile`,
+  `lessons`, `lesson_add`, `lesson_revoke`. The rules stay the same: forgetting leaves only a fingerprint and is never relearned, revoked lessons are not
+  relearned, and the model's file-writing tool still cannot write the switch.
+- **Not put into the tool:** the A3 presentation lessons (short or full reports) were applied earlier; new proposals of this kind no longer
+  have an Apply button, so none are generated. The routes `/memory/*`, `/profile`, `/agents/{slug}/lessons/*` remain for
+  external tools.
+- **The "Remembered · Undo" line** (`server/memory_receipt.py`, `dashboard/chat-nho.js`): at the start of a dashboard chat turn it snapshots
+  `memory/` (excluding `conversations/`, `runs/`), and at the end compares again; new, edited and forgotten memories become one line pushed into the
+  chat (hidden block `JAVIS_NHO`, which survives F5). Undo calls `/memory/forget`, so it is not relearned. If the answer claims "remembered,
+  forgotten, revoked" (the `MEMORY_CLAIM` set in `server/lexicon`) while no file changed and no memory tool wrote anything
+  (`memory_control.note_change`), a correction line is added. Dashboard path only; Telegram does not have this line yet.
+- **Assistant card:** the chat time (12px) and the Auto switch share the `.ws-item-end` cluster at the bottom right, and the switch is on every
+  assistant (the hide-when-off rule from 0.175.0 is dropped). The Auto block in the Settings column uses the compact rhythm table (`compact`): one
+  plain-language limit line and the pending proposals; the full table stays in the Group pane.
+- **News does not go into Jarvis 007 Core:** the News tab card drops the "Ask Jarvis 007 Core" button; notices about the owner's own jobs still have it.

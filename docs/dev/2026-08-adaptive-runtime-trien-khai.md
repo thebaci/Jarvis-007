@@ -1,194 +1,206 @@
-# Kế hoạch triển khai Adaptive Context Runtime v2
+# Adaptive Context Runtime v2 rollout plan
 
-Tài liệu này nối tiếp `2026-08-adaptive-context-runtime-spec.md`. Spec trả lời "xây cái gì".
-Tài liệu này trả lời "đưa nó tới người dùng bằng cách nào mà không gãy".
+This document continues `2026-08-adaptive-context-runtime-spec.md`. The spec answers "what to
+build". This document answers "how to get it to users without breaking anything".
 
-Trạng thái lúc viết: 12 phase đã code xong, đã kiểm chứng là **nằm im ở mặc định**. Chưa một
-request thật nào đi qua đường mới.
+Status at time of writing: all 12 phases are coded, and verified to **sit idle at the defaults**.
+Not a single real request has gone through the new path yet.
 
-## 0. Điểm xuất phát thật
+## 0. The real starting point
 
-Hai thứ cần nói rõ trước khi lập kế hoạch, vì chúng đổi khối lượng công việc:
+Two things need saying before planning, because they change the amount of work:
 
-- `main` **đã mang sẵn** code Phase 0 tới 12 (PR #53 tới #57 đã merge). Phần còn lại trên
-  nhánh chỉ là 5 commit của PR #58. Nghĩa là bước "đưa vào bản chính" nhỏ hơn nhiều so với
-  cảm giác.
-- Cơ chế cập nhật VPS là `git pull` trên nhánh đang checkout, kèm **rollback tự động**: nếu
-  `/health` không lên trong khoảng 90 giây thì updater `git reset --hard <sha cũ>`, cài lại
-  deps rồi khởi động lại. Đây là lưới an toàn mạnh nhất đang có, và nó miễn phí.
+- `main` **already carries** the Phase 0 to 12 code (PRs #53 to #57 are merged). What remains on
+  the branch is only the 5 commits of PR #58. So the "get it into the main build" step is much
+  smaller than it feels.
+- The VPS update mechanism is `git pull` on the checked-out branch, with an **automatic
+  rollback**: if `/health` does not come up within about 90 seconds, the updater runs
+  `git reset --hard <old sha>`, reinstalls deps and restarts. This is the strongest safety net
+  available, and it is free.
 
-Nâng cấp schema DB **không cần thao tác tay**: `runtime.db` và registry đều dùng
-`CREATE TABLE IF NOT EXISTS` cộng `ALTER TABLE ADD COLUMN` chạy lúc mở kết nối, idempotent.
-DB dựng bởi bản cũ tự lên schema mới, không mất dữ liệu.
+DB schema upgrades need **no manual work**: `runtime.db` and the registry both use
+`CREATE TABLE IF NOT EXISTS` plus `ALTER TABLE ADD COLUMN`, run when the connection opens,
+idempotent. A DB built by an older version upgrades itself to the new schema with no data loss.
 
-## 1. Hai tính chất vận hành đã kiểm bằng thực nghiệm
+## 1. Two operational properties verified by experiment
 
-Cả hai đều quyết định cách viết quy trình bên dưới, nên đã chạy thử chứ không suy luận.
+Both decide how the procedure below is written, so they were run rather than reasoned out.
 
-### 1.1 Bật/tắt canary KHÔNG cần restart
+### 1.1 Turning a canary on/off does NOT need a restart
 
-`read_settings()` cache theo `(mtime_ns, size)` của `settings.json`, còn `_policy()` đọc
-settings ở mỗi lượt. Sửa file là lượt kế tiếp ăn ngay.
+`read_settings()` caches by `(mtime_ns, size)` of `settings.json`, and `_policy()` reads the
+settings on every turn. Edit the file and the next turn picks it up immediately.
 
-Hệ quả quan trọng: **rollback một canary là tức thì**. Đặt allocation về 0, lưu file, xong.
-Không cần deploy, không cần restart, không có cửa sổ downtime. Điều này cho phép bật thử
-mạnh dạn hơn bình thường.
+An important consequence: **rolling back a canary is instant**. Set the allocation to 0, save the
+file, done. No deploy, no restart, no downtime window. This allows trying things more boldly than
+usual.
 
-### 1.2 Cái bẫy merge một tầng (phải đọc trước khi sửa settings)
+### 1.2 The one-level merge trap (read before editing settings)
 
-`read_settings()` gộp cấu hình người dùng đè lên mặc định bằng `.update()` **chỉ một tầng**:
+`read_settings()` merges the user config over the defaults with `.update()` **at one level
+only**:
 
 ```python
 for k, v in (data or {}).items():
     if isinstance(v, dict) and isinstance(cfg.get(k), dict):
-        cfg[k].update(v)      # <-- một tầng, KHÔNG đệ quy
+        cfg[k].update(v)      # <-- one level, NOT recursive
 ```
 
-Các knob canary nằm sâu **hai tầng** (`context_runtime.canary.allocation_basis_points`).
-Nên nếu sửa tay kiểu này:
+The canary knobs sit **two levels** deep (`context_runtime.canary.allocation_basis_points`). So
+if you hand-edit like this:
 
 ```json
 { "context_runtime": { "canary": { "allocation_basis_points": 100 } } }
 ```
 
-thì toàn bộ sub-dict `canary` bị **thay thế**, không phải bổ sung. Đã chạy thử, kết quả:
+the whole `canary` sub-dict is **replaced**, not extended. Run for real, the result:
 
 ```
-canary sau khi chỉ ghi 1 field: {"allocation_basis_points": 100}
-=> quota_profiles còn không: False
+canary after writing only 1 field: {"allocation_basis_points": 100}
+=> quota_profiles still there: False
 ```
 
-`quota_profiles` biến mất. Mà thiết kế fail-closed nói rằng thiếu quota profile thì **rơi về
-legacy**. Nghĩa là anh bật 1 phần trăm, tưởng đã bật, và **không có gì xảy ra cả**, im lặng,
-không lỗi, không cảnh báo.
+`quota_profiles` disappears. And the fail-closed design says a missing quota profile **falls back
+to legacy**. Meaning you turn on 1 percent, think it is on, and **nothing happens at all**,
+silently, with no error and no warning.
 
-Đây đúng là kiểu hỏng tệ nhất: knob xoay được, đèn không sáng, không ai biết vì sao.
+This is exactly the worst kind of failure: the knob turns, the light does not come on, and nobody
+knows why.
 
-**Luật khi sửa tay:** phải ghi **trọn vẹn** sub-dict của canary đó, copy đủ mọi field từ
-`_DEFAULT` trong `server/config.py` rồi mới đổi giá trị cần đổi.
+**Rule when editing by hand:** you must write the **complete** canary sub-dict, copying every
+field from `_DEFAULT` in `server/config.py` and only then changing the value you need to change.
 
-**Cách tự kiểm sau khi sửa:** mở trang Chẩn đoán, xem mục canary. Nó hiện `quota_rules` và
-`allowlist` dạng số đếm. Thấy `quota_rules: 0` là biết vừa dính bẫy.
+**How to self-check after editing:** open the Diagnostics page and look at the canary section. It
+shows `quota_rules` and `allowlist` as counts. Seeing `quota_rules: 0` means you just hit the
+trap.
 
-## 2. Lộ trình
+## 2. Roadmap
 
-### Bước 1: Đưa code vào bản chính và lên VPS
+### Step 1: Get the code into the main build and onto the VPS
 
-Không bật gì cả. Mục tiêu duy nhất là đưa cỗ máy lên chỗ nó sẽ chạy, và xác nhận nó nằm im
-đúng như thiết kế.
+Turn nothing on. The only goal is to put the machine where it will run, and confirm it sits idle
+exactly as designed.
 
-1. Merge PR #58 (5 commit) vào `main`.
-2. Nâng version. Đề xuất `0.10.0` chứ không phải một bản patch: đây là mốc nền tảng mới, dù
-   chưa đổi hành vi. Viết changelog **trung thực**, nói thẳng là chạy shadow và chưa đổi gì
-   cho người dùng, kèm trang Chẩn đoán là thứ duy nhất nhìn thấy được.
-3. Cập nhật VPS bằng luồng cập nhật sẵn có.
+1. Merge PR #58 (5 commits) into `main`.
+2. Bump the version. Suggest `0.10.0` rather than a patch: this is a new foundation milestone,
+   even though behavior is unchanged. Write the changelog **honestly**, say plainly that it runs
+   in shadow and changes nothing for users, and that the Diagnostics page is the only thing
+   visible.
+3. Update the VPS using the existing update flow.
 
-Nghiệm thu bước 1, làm ngay sau khi VPS lên:
+Acceptance for step 1, done right after the VPS is up:
 
-- Mở trang Chẩn đoán. Banner phải ghi `mode: shadow`.
-- Bảng canary phải cho thấy **tất cả** allocation bằng 0.
-- Chat vài câu bình thường, quay lại trang Chẩn đoán, phải thấy task mới hiện ra với
-  `execution_path` là `legacy` hoặc `unassigned`. Thấy đúng nghĩa là trace đang ghi thật.
-- Nếu `/health` không lên, updater tự rollback. Không cần làm gì.
+- Open the Diagnostics page. The banner must say `mode: shadow`.
+- The canary table must show **all** allocations at 0.
+- Chat a few normal messages, go back to the Diagnostics page, and a new task must appear with
+  `execution_path` of `legacy` or `unassigned`. Seeing it means the trace is really being
+  recorded.
+- If `/health` does not come up, the updater rolls back by itself. Nothing to do.
 
-### Bước 2: Gom baseline (2 tới 3 tuần, không code)
+### Step 2: Collect a baseline (2 to 3 weeks, no code)
 
-Đây là bước không hào nhoáng và là bước hay bị bỏ nhất. Không có nó thì không có cách nào
-biết đường mới tốt hơn hay tệ hơn đường cũ, và mọi con số sau này đều là cảm tính.
+This is the unglamorous step and the one most often skipped. Without it there is no way to know
+whether the new path is better or worse than the old one, and every later number is a feeling.
 
-Việc phải làm: dùng Javis như bình thường. Không đụng gì.
+What to do: use Jarvis 007 as normal. Touch nothing.
 
-Mỗi tuần mở trang Chẩn đoán một lần và ghi lại bốn thứ:
+Once a week, open the Diagnostics page and record four things:
 
-- `estimate_error_pct`. Đây là chỉ số quan trọng nhất. Nó nói bộ ước lượng token lệch bao
-  nhiêu so với thực tế. Lệch lớn thì mọi quyết định ngân sách phía sau đều xây trên cát.
-- `capsule` median và max. Cho biết capsule đang to cỡ nào so với prompt hiện tại.
-- `miss_classes`. Resolver trượt vì gì. Nếu trượt chủ yếu vì thiếu capability trong registry
-  thì vấn đề nằm ở registry chứ không phải ở resolver.
-- `quality`. Quality Gate kêu gì ở shadow.
+- `estimate_error_pct`. This is the most important metric. It says how far the token estimator is
+  off from reality. If it is far off, every budget decision after it is built on sand.
+- `capsule` median and max. Tells you how big the capsule is compared with the current prompt.
+- `miss_classes`. Why the resolver misses. If it mostly misses because the capability is not in
+  the registry, then the problem is in the registry, not the resolver.
+- `quality`. What the Quality Gate complains about in shadow.
 
-Điều kiện ra khỏi bước 2: có đủ vài trăm task trong cửa sổ quan sát, và `estimate_error_pct`
-ổn định chứ không nhảy loạn giữa các tuần.
+Exit condition for step 2: a few hundred tasks in the observation window, and `estimate_error_pct`
+stable rather than jumping around between weeks.
 
-### Bước 3: Vá cái bẫy trước khi bật (nên làm trong lúc chờ bước 2)
+### Step 3: Fix the trap before turning anything on (do it while waiting for step 2)
 
-Hiện **không có UI nào** để chỉnh `context_runtime`. Đã tìm cả `dashboard/`, không có một
-tham chiếu nào ngoài trang Chẩn đoán đọc ra để hiển thị.
+Right now there is **no UI at all** to edit `context_runtime`. Searched all of `dashboard/`:
+there is not a single reference other than the Diagnostics page reading it for display.
 
-Cộng với cái bẫy merge một tầng ở mục 1.2, nghĩa là quy trình bật hiện tại là: SSH vào VPS,
-sửa tay JSON lồng hai tầng, và nếu sửa thiếu thì hỏng im lặng.
+Together with the one-level merge trap in section 1.2, this means the current enabling procedure
+is: SSH into the VPS, hand-edit two-level nested JSON, and if you edit it incompletely it breaks
+silently.
 
-Ba lựa chọn, xếp theo công sức:
+Three options, ordered by effort:
 
-1. **Chỉ viết quy trình.** Rẻ nhất, nhưng để nguyên cái bẫy. Không khuyến nghị.
-2. **Thêm endpoint đặt canary.** Một `POST /runtime/canary` nhận tên đường và allocation, tự
-   đọc `_DEFAULT`, merge đệ quy đúng cách rồi ghi. Diệt cái bẫy tận gốc, không cần đụng giao
-   diện. **Đây là lựa chọn em khuyến nghị.**
-3. **Thêm UI vào trang Chẩn đoán.** Đẹp nhất nhưng tốn nhất, và chỉ có một người dùng là chủ
-   repo nên chưa đáng.
+1. **Just write the procedure.** Cheapest, but leaves the trap in place. Not recommended.
+2. **Add an endpoint that sets the canary.** A `POST /runtime/canary` that takes a path name and
+   an allocation, reads `_DEFAULT` itself, merges recursively the right way and then writes. Kills
+   the trap at the root, no UI changes needed. **This is the option I recommend.**
+3. **Add UI to the Diagnostics page.** Nicest but costliest, and there is only one user, the repo
+   owner, so it is not yet worth it.
 
-Dù chọn gì cũng nên sửa `read_settings()` thành merge **đệ quy**. Cái bẫy này không chỉ hại
-`context_runtime`, nó hại mọi cấu hình lồng từ hai tầng trở lên trong tương lai.
+Whichever you choose, `read_settings()` should also be changed to merge **recursively**. This
+trap does not only hurt `context_runtime`, it hurts every config nested two or more levels deep
+in the future.
 
-### Bước 4: Bật đường đầu tiên
+### Step 4: Turn on the first path
 
-Bật **fast path** (`canary`) trước, không bật cái nào khác. Lý do: nó đơn giản nhất trong 11
-đường, chỉ ảnh hưởng một lượt chat, không ghi gì ra ngoài, không có nhiều bước để hỏng ở
-giữa. Nếu có gì sai thì sai ở chỗ dễ đọc nhất.
+Turn on the **fast path** (`canary`) first, and nothing else. Reason: it is the simplest of the
+11 paths, it affects only one chat turn, writes nothing outside, and has few steps in the
+middle that can break. If something goes wrong, it goes wrong in the most readable place.
 
-Trình tự:
+Sequence:
 
-1. Khai `quota_profiles` thật cho model đang dùng, gồm giá và cửa sổ ngữ cảnh. Thiếu giá thật
-   thì router và ngân sách đều fail-closed, tức là bật cũng như không.
-2. Đặt `allocation_basis_points` lên **100** (tức 1 phần trăm), ghi trọn sub-dict theo luật ở
-   mục 1.2.
-3. Mở trang Chẩn đoán, xác nhận `quota_rules` khác 0. Đây là bước bắt lỗi im lặng.
-4. Chat vài chục lượt. Xem histogram `paths` đã xuất hiện `fast` chưa. Chưa xuất hiện thì đọc
-   `fallback_reasons` để biết nó từ chối vì gì.
+1. Declare the real `quota_profiles` for the model in use, including price and context window.
+   Without real prices both the router and the budget fail closed, meaning turning it on is the
+   same as not turning it on.
+2. Set `allocation_basis_points` to **100** (1 percent), writing the complete sub-dict per the
+   rule in section 1.2.
+3. Open the Diagnostics page and confirm `quota_rules` is non-zero. This is the step that catches
+   the silent failure.
+4. Chat a few dozen turns. Check whether `fast` has appeared in the `paths` histogram. If it has
+   not, read `fallback_reasons` to learn why it refuses.
 
-Điều kiện giữ lại: chất lượng không tệ hơn baseline ở bước 2, và `estimate_error_pct` không
-xấu đi. Điều kiện gỡ: bất cứ dấu hiệu nào cho thấy câu trả lời tệ đi. Gỡ bằng cách đặt
-allocation về 0, có hiệu lực ngay, không cần deploy.
+Keep condition: quality is no worse than the step 2 baseline, and `estimate_error_pct` does not
+get worse. Remove condition: any sign that answers got worse. Remove it by setting the allocation
+to 0, which takes effect immediately, with no deploy.
 
-Nâng dần 100 rồi 500 rồi 2000 basis points, mỗi mức để chạy ít nhất vài ngày.
+Raise it gradually, 100 then 500 then 2000 basis points, letting each level run for at least a
+few days.
 
-### Bước 5: Mở rộng theo đúng thứ tự rủi ro
+### Step 5: Expand in order of risk
 
-Chỉ bật đường kế tiếp khi đường trước đã ở mức cao và ổn định. Thứ tự theo mức độ hậu quả khi
-sai, nhẹ trước nặng sau:
+Turn on the next path only when the previous one is at a high, stable level. The order follows the
+consequence of a mistake, light first and heavy last:
 
-1. `canary` (fast path). Một lượt chat, không ghi.
-2. `readonly_canary`. Có gọi MCP nhưng chỉ đọc.
-3. `context_sources`, `memory_canary`, `lazy_skill_canary`. Đổi cách nạp ngữ cảnh.
-4. `orchestrator_canary`. Nhiều vòng, vẫn chỉ đọc.
-5. `model_router_canary`. Đổi model, cần bảng giá thật.
-6. `workflow_canary`, `agent_canary`. Có nhánh dừng chờ người.
-7. `write_canary`. **Cuối cùng, luôn luôn.** Đây là đường duy nhất tạo ra hành động không hoàn
-   tác được ra thế giới thật.
+1. `canary` (fast path). One chat turn, no writes.
+2. `readonly_canary`. Calls MCP but read-only.
+3. `context_sources`, `memory_canary`, `lazy_skill_canary`. Changes how context is loaded.
+4. `orchestrator_canary`. Multiple rounds, still read-only.
+5. `model_router_canary`. Switches the model, needs a real price table.
+6. `workflow_canary`, `agent_canary`. Have branches that stop and wait for a human.
+7. `write_canary`. **Always last.** This is the only path that produces actions in the real world
+   that cannot be undone.
 
-Trước khi tới nhóm 6 và 7, phải có bộ gold benchmark. Đường có tác dụng phụ mà chỉ đánh giá
-bằng cảm tính là đánh bạc.
+Before reaching groups 6 and 7, a gold benchmark set must exist. A path with side effects that is
+evaluated only by feel is gambling.
 
-## 3. Lưới an toàn đang có
+## 3. Safety nets already in place
 
-Ghi lại để khỏi phát minh lại:
+Written down so nobody reinvents them:
 
-- **Rollback deploy tự động** khi `/health` không lên.
-- **Rollback canary tức thì** bằng cách sửa settings, không cần restart (mục 1.1).
-- **Fail-closed ở mọi chỗ**: allowlist rỗng, thiếu quota profile, thiếu giá đều rơi về legacy.
-- **Test hàng rào bất biến** `test_repository_defaults_activate_no_canary_path` chạy admission
-  thật của cả 8 đường bằng chính hằng trong `config.py`. Ai lỡ tay bật một đường ở mặc định
-  thì CI đỏ.
-- **Trang Chẩn đoán** là nơi duy nhất nhìn thấy sự thật. Mọi bước ở trên đều nghiệm thu bằng
-  nó chứ không bằng cảm giác.
+- **Automatic deploy rollback** when `/health` does not come up.
+- **Instant canary rollback** by editing settings, no restart needed (section 1.1).
+- **Fail-closed everywhere**: an empty allowlist, a missing quota profile, or a missing price all
+  fall back to legacy.
+- **Invariant guard test** `test_repository_defaults_activate_no_canary_path` runs the real
+  admission of all 8 paths using the constants in `config.py` itself. If anyone slips and turns a
+  path on at the defaults, CI goes red.
+- **The Diagnostics page** is the only place that shows the truth. Every step above is accepted by
+  it, not by feel.
 
-## 4. Thứ vẫn chưa có
+## 4. What is still missing
 
-Nói thẳng để không ai tưởng là đã đủ:
+Said plainly so nobody thinks it is enough:
 
-- Chưa có baseline production. Bước 2 sinh ra nó.
-- Chưa có `quota_profiles` và bảng giá do người vận hành khai. Bước 4 cần.
-- Chưa có gold benchmark. Nhóm 6 và 7 ở bước 5 cần.
-- Chưa có UI hoặc endpoint đặt canary an toàn. Bước 3 giải quyết.
+- No production baseline yet. Step 2 produces it.
+- No `quota_profiles` and no operator-declared price table yet. Step 4 needs them.
+- No gold benchmark yet. Groups 6 and 7 in step 5 need it.
+- No safe UI or endpoint to set the canary yet. Step 3 solves it.
 
-Chừng nào bốn thứ này còn thiếu thì con số đúng cho mọi allocation vẫn là 0.
+As long as these four are missing, the correct number for every allocation is still 0.

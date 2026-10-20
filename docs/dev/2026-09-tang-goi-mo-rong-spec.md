@@ -1,4 +1,4 @@
-# Kế hoạch: Tầng Gói mở rộng (Pack Layer) cho Javis OS
+# Kế hoạch: Tầng Gói mở rộng (Pack Layer) cho Jarvis 007
 
 > Bản kế hoạch dev, viết 2026-09-03 trên nền code v0.55.7. Mục tiêu: đưa connector và plugin
 > thành GÓI cài được lúc chạy (zip, URL hoặc repo riêng, và về sau là kho công khai), giữ
@@ -6,7 +6,7 @@
 
 ## Bối cảnh
 
-Javis đã có nền. Vấn đề bây giờ không phải thiếu tính năng mà là **mọi năng lực mới đều phải đi qua một bản phát hành**. Đo trên repo:
+Jarvis 007 đã có nền. Vấn đề bây giờ không phải thiếu tính năng mà là **mọi năng lực mới đều phải đi qua một bản phát hành**. Đo trên repo:
 
 - **524 lần bump VERSION trong 3 tháng** (tháng 7: 326, tháng 8: 181, tháng 9: 17).
 - **60 lần trong số đó chỉ để sửa `system/mcp-catalog.json`**, tức thêm hoặc vá một connector.
@@ -135,9 +135,9 @@ Cổng env vì thế **không bị gỡ**, chỉ thôi chắn con đường vố
 **TỪ CHỐI thẳng ở spec 1**, nêu đích danh trường sai:
 `transport: internal` và khoá `internal:` (vì `mcp_client.py:37 _INTERNAL` là **allowlist bảo vệ** `importlib.import_module`, không phải bảng tra); `auth.type: qr` (Zalo là đường riêng); `provider` OAuth lạ; và **id connector trùng với catalog gốc hoặc với gói khác**. Không có `override: true` trong spec 1. Một luật này giết luôn đòn hiểm nhất: một gói ship `id: pancake-pos` kèm `url_template: https://evil.host/mcp` sẽ **âm thầm bẻ hướng một kết nối đang đăng nhập thật**, vì `mcp_store.py:383-388, 489-495` dựng lại url và header **từ connector** ở mỗi lần resolve.
 
-**Ai tin nguồn nào là lựa chọn của người cài, và Javis phải cho họ thấy đủ để chọn.** Chính chủ review gói của chính mình thì đủ; nhưng khi có kho công khai, người fork Javis cài gói của người thứ ba, ở đó "tác giả đã review" không còn là bảo đảm cho họ. Nên gói mang **nhãn nguồn** (chính chủ / kho công khai / zip tự tải / repo riêng) hiện cạnh tên ở mọi chỗ, và màn hình đồng ý của gói chưa qua review nói dài hơn một dòng. Javis không thay người dùng quyết định tin ai; nó chỉ không được để họ bấm mà không biết mình đang bấm gì.
+**Ai tin nguồn nào là lựa chọn của người cài, và Jarvis 007 phải cho họ thấy đủ để chọn.** Chính chủ review gói của chính mình thì đủ; nhưng khi có kho công khai, người fork Jarvis 007 cài gói của người thứ ba, ở đó "tác giả đã review" không còn là bảo đảm cho họ. Nên gói mang **nhãn nguồn** (chính chủ / kho công khai / zip tự tải / repo riêng) hiện cạnh tên ở mọi chỗ, và màn hình đồng ý của gói chưa qua review nói dài hơn một dòng. Jarvis 007 không thay người dùng quyết định tin ai; nó chỉ không được để họ bấm mà không biết mình đang bấm gì.
 
-**Nói thẳng trên màn hình xác nhận, không làm mềm:** `min_mode` chỉ chặn cái **model** được gọi, không chặn cái `register()` được làm. `permissions.network` và `permissions.filesystem` là lời khai, không có tầng chặn. Không có sandbox. Câu chữ bắt buộc: **"Gói này chạy Python thật bên trong server Javis. Nó đọc được mọi khoá API, token và file mà Javis đọc được. Chỉ cài gói từ nguồn bạn tin."** Không icon ổ khoá.
+**Nói thẳng trên màn hình xác nhận, không làm mềm:** `min_mode` chỉ chặn cái **model** được gọi, không chặn cái `register()` được làm. `permissions.network` và `permissions.filesystem` là lời khai, không có tầng chặn. Không có sandbox. Câu chữ bắt buộc: **"Gói này chạy Python thật bên trong server Jarvis 007. Nó đọc được mọi khoá API, token và file mà Jarvis 007 đọc được. Chỉ cài gói từ nguồn bạn tin."** Không icon ổ khoá.
 
 ---
 
@@ -159,7 +159,7 @@ Nên làm lớp gỡ, đừng di trú. Xem mục "Bộ lõi và cái cài thêm"
 
 ## Bộ lõi và cái cài thêm
 
-Đích đến chủ dự án đặt ra: **bao giờ có kho thì xoá bớt, để lại đúng cấu trúc mặc định của Javis, còn lại người dùng tự chọn cài thêm plugin, skill hay kết nối.** Bây giờ chưa xoá gì, nhưng cấu trúc phải sẵn.
+Đích đến chủ dự án đặt ra: **bao giờ có kho thì xoá bớt, để lại đúng cấu trúc mặc định của Jarvis 007, còn lại người dùng tự chọn cài thêm plugin, skill hay kết nối.** Bây giờ chưa xoá gì, nhưng cấu trúc phải sẵn.
 
 Cấu trúc đó chỉ cần một ý: **mọi năng lực mặc định đều gỡ được, và trạng thái "đã gỡ" ghi ở `STATE_DIR` chứ không sửa vào cây code.** Cây code là read-only trên Docker và bị `git pull` ghi đè trên bản native, nên đó là chỗ duy nhất trạng thái sống được qua một lần cập nhật.
 
@@ -331,9 +331,9 @@ Không chuyển `meta-ads-graph`, `meta-pages-graph`, `fb-monitor-apify` thành 
 
 `sha256` **ghim từ lần cài đầu**, trong sổ. Kiểm một bản tải về bằng hash do chính index đó cấp thì không chứng minh gì về người phát hành; từ chối một hiện vật **đã đổi** ở **cùng một phiên bản** thì có.
 
-**Kho công khai liệt kê được gói bậc CODE**, nhưng một chạm từ kho vẫn phải đi qua đúng màn hình đồng ý như zip và URL - không có đường tắt "cài ngay" cho gói chứa Python. Kèm hai thứ để người cài thấy mình đang chọn gì: **nhãn nguồn** (chính chủ / cộng đồng / chưa review) và một dòng nói rõ gói này chạy mã. Gói của chính chủ dán nhãn `verified` trong index; gói cộng đồng thì không, và màn hình đồng ý của nó nói dài hơn. Javis không thay người dùng quyết định tin ai.
+**Kho công khai liệt kê được gói bậc CODE**, nhưng một chạm từ kho vẫn phải đi qua đúng màn hình đồng ý như zip và URL - không có đường tắt "cài ngay" cho gói chứa Python. Kèm hai thứ để người cài thấy mình đang chọn gì: **nhãn nguồn** (chính chủ / cộng đồng / chưa review) và một dòng nói rõ gói này chạy mã. Gói của chính chủ dán nhãn `verified` trong index; gói cộng đồng thì không, và màn hình đồng ý của nó nói dài hơn. Jarvis 007 không thay người dùng quyết định tin ai.
 
-Ba trạng thái suy giảm, không cái nào là stack trace: có cache thì hiện dòng hổ phách và vẫn vẽ lưới; không cache thì trạng thái rỗng kèm "vẫn cài được từ zip hoặc URL"; `format_version` lạ thì nói thẳng "kho này cần Javis mới hơn", không bao giờ parse nửa vời.
+Ba trạng thái suy giảm, không cái nào là stack trace: có cache thì hiện dòng hổ phách và vẫn vẽ lưới; không cache thì trạng thái rỗng kèm "vẫn cài được từ zip hoặc URL"; `format_version` lạ thì nói thẳng "kho này cần Jarvis 007 mới hơn", không bao giờ parse nửa vời.
 
 Thêm biến môi trường `JAVIS_DISABLE_PACKS` đọc live, deny thắng, tắt sạch mọi gói không-bundled mà không cần vào dashboard.
 

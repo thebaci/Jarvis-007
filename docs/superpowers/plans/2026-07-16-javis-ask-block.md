@@ -1,8 +1,8 @@
-# Khối hỏi-lại có lựa chọn trong khung chat Javis - Implementation Plan
+# Khối hỏi-lại có lựa chọn trong khung chat Jarvis 007 - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Javis nhúng một khối ẩn ở cuối câu trả lời, dashboard bóc ra vẽ thành các nút bấm được ngay dưới bong bóng chat, bấm một nút thì gửi đi như người dùng gõ tay.
+**Goal:** Jarvis 007 nhúng một khối ẩn ở cuối câu trả lời, dashboard bóc ra vẽ thành các nút bấm được ngay dưới bong bóng chat, bấm một nút thì gửi đi như người dùng gõ tay.
 
 **Architecture:** Đi theo đúng vết khối `JAVIS_METRICS` đã chạy sẵn trong dự án: model nhúng HTML comment `<!-- JAVIS_ASK: {...} -->` ở cuối phản hồi, client bóc bằng regex ở nhánh `response` của WebSocket. Không đụng MCP hub, không đụng engine, nên chạy trên mọi bộ não chỉ nhờ system prompt. Logic mới nằm gọn trong một file `dashboard/chat-ask.js`; `app.js` chỉ thêm ba chỗ móc. Phía server thêm một hàm thuần trong `channel_context.py` hạ khối xuống thành danh sách đánh số cho Telegram.
 
@@ -123,9 +123,9 @@ Expected: FAIL, `Error: Cannot find module './chat-ask.js'`
 Tạo `dashboard/chat-ask.js`:
 
 ```js
-/* chat-ask.js - khoi hoi-lai co lua chon cho khung chat Javis.
+/* chat-ask.js - khoi hoi-lai co lua chon cho khung chat Jarvis 007.
 
-   Javis ket thuc cau tra loi bang mot khoi an:
+   Jarvis 007 ket thuc cau tra loi bang mot khoi an:
      <!-- JAVIS_ASK: {"question":"...","header":"...","options":[{"label":"..","desc":".."}]} -->
    File nay boc khoi do ra, ve thanh hang chip duoi bong bong tra loi, va bat su kien bam.
    Bam mot chip = gui dung nhan do di nhu mot tin nhan nguoi dung binh thuong.
@@ -148,7 +148,7 @@ Tạo `dashboard/chat-ask.js`:
   }
 
   // Boc khoi JAVIS_ASK khoi text. LUON tra clean da bo khoi (ke ca khi JSON hong) -
-  // mot khoi sai cu phap KHONG duoc phep nuot mat cau tra loi cua Javis.
+  // mot khoi sai cu phap KHONG duoc phep nuot mat cau tra loi cua Jarvis 007.
   function extract(text) {
     if (typeof text !== "string") return { clean: "", ask: null };
     var m = text.match(ASK_RE);
@@ -232,7 +232,7 @@ Trong `dashboard/chat-ask.js`, chèn khối dưới đây vào NGAY TRƯỚC đo
     return s.length > MAX_LABEL ? s.slice(0, MAX_LABEL - 1) + "…" : s;
   }
 
-  // Ve hang chip vao cuoi .bubble cua thu tin nhan Javis.
+  // Ve hang chip vao cuoi .bubble cua thu tin nhan Jarvis 007.
   // live=false -> ve san o trang thai dong cung (dung khi khoi phuc lich su).
   function render(msgEl, ask, live) {
     if (!msgEl || !ask || !ask.options || !ask.options.length) return null;
@@ -512,7 +512,7 @@ Trả lời "Xong rồi anh." rồi nhúng đúng khối này vào cuối, giữ
 Expected, theo đúng thứ tự:
 1. Lúc chữ đang chảy về: KHÔNG thấy khối JSON thô nào nhấp nháy trên màn hình.
 2. Lượt xong: hàng chip mọc ra dưới bong bóng, câu trả lời "Xong rồi anh." vẫn còn nguyên.
-3. Bấm "Tuần này": hiện tin nhắn người dùng "Tuần này" y như gõ tay, Javis bắt đầu trả lời tiếp, hàng chip cứng lại với dấu tích ở "Tuần này".
+3. Bấm "Tuần này": hiện tin nhắn người dùng "Tuần này" y như gõ tay, Jarvis 007 bắt đầu trả lời tiếp, hàng chip cứng lại với dấu tích ở "Tuần này".
 4. Cuộn lên bấm lại vào hàng chip cũ: không có gì xảy ra.
 5. F5: chip vẫn còn, vẫn ở trạng thái đã trả lời, không bấm được.
 6. Làm lại bước 1-2 rồi F5 NGAY (chưa trả lời): chip sống lại và bấm được.
@@ -643,7 +643,7 @@ Rồi thêm vào CUỐI `server/channel_context.py`:
 # ============================================================
 # Hạ khối điều khiển xuống chữ cho kênh không phải web
 # ============================================================
-# Javis nhúng khối điều khiển dạng HTML comment ở cuối câu trả lời cho dashboard
+# Jarvis 007 nhúng khối điều khiển dạng HTML comment ở cuối câu trả lời cho dashboard
 # đọc (JAVIS_METRICS bơm panel trái, JAVIS_ASK vẽ nút lựa chọn). Kênh chữ thuần
 # như Telegram không hiểu mấy khối này, mà md_to_mdv2 chỉ escape chứ không bóc,
 # nên không lọc là người dùng nhìn thấy nguyên cụm "<\!\-\- JAVIS\_METRICS: ...".
@@ -654,7 +654,7 @@ _MAX_ASK_OPTS = 4
 def _ask_to_text(payload: str) -> str:
     """JSON của khối JAVIS_ASK -> câu hỏi + danh sách đánh số. JSON hỏng -> chuỗi rỗng.
 
-    Người dùng Telegram nhắn lại "1" là xong: Javis đọc "1" trong ngữ cảnh câu hỏi
+    Người dùng Telegram nhắn lại "1" là xong: Jarvis 007 đọc "1" trong ngữ cảnh câu hỏi
     vừa hỏi thì tự hiểu, không cần lưu state.
     """
     try:
@@ -697,7 +697,7 @@ Expected: PASS, dòng cuối `OK - test_channel_ask: tất cả pass`
 
 - [ ] **Step 5: Nối vào đường trả lời Telegram**
 
-`_tg_answer` có ĐÚNG HAI lệnh `return` mang text của model, phải sửa cả hai. Các lệnh `return "⚠ " + ev["content"]` thì để nguyên: đó là câu báo lỗi do Javis tự sinh, không bao giờ chứa khối.
+`_tg_answer` có ĐÚNG HAI lệnh `return` mang text của model, phải sửa cả hai. Các lệnh `return "⚠ " + ev["content"]` thì để nguyên: đó là câu báo lỗi do Jarvis 007 tự sinh, không bao giờ chứa khối.
 
 **Đường 1, engine API** (`server/main.py`, khoảng dòng 4655). Hiện là:
 
@@ -764,7 +764,7 @@ git commit -m "fix(telegram): hạ khối điều khiển xuống chữ, vá l�
 
 ---
 
-### Task 5: Dạy Javis khi nào hỏi lại, và phát hành
+### Task 5: Dạy Jarvis 007 khi nào hỏi lại, và phát hành
 
 **Files:**
 - Modify: `CLAUDE.md` (mục "Làm rõ trước khi trả lời")
@@ -811,15 +811,15 @@ sau vào CUỐI câu trả lời (vô hình với user, dashboard tự vẽ thà
 
 - [ ] **Step 2: Kiểm tra đầu cuối bằng tay**
 
-Bật app, mở dashboard, hỏi một câu cố tình mơ hồ để Javis phải hỏi lại:
+Bật app, mở dashboard, hỏi một câu cố tình mơ hồ để Jarvis 007 phải hỏi lại:
 
 ```
 Báo cáo doanh thu cho anh
 ```
 
-Expected: Javis nhận ra thiếu kỳ thời gian, viết câu hỏi thành lời trong câu trả lời, và hiện hàng chip lựa chọn kỳ ở dưới. Bấm một chip thì nó gửi đi và Javis báo cáo đúng kỳ đó.
+Expected: Jarvis 007 nhận ra thiếu kỳ thời gian, viết câu hỏi thành lời trong câu trả lời, và hiện hàng chip lựa chọn kỳ ở dưới. Bấm một chip thì nó gửi đi và Jarvis 007 báo cáo đúng kỳ đó.
 
-Nếu Javis trả lời mà không có chip, đó là chuyện bình thường chứ không phải lỗi: luật prompt nói rõ đoán được thì đừng hỏi. Thử câu mơ hồ hơn hoặc kiểm tra brain đang chạy có nạp `CLAUDE.md` gốc không.
+Nếu Jarvis 007 trả lời mà không có chip, đó là chuyện bình thường chứ không phải lỗi: luật prompt nói rõ đoán được thì đừng hỏi. Thử câu mơ hồ hơn hoặc kiểm tra brain đang chạy có nạp `CLAUDE.md` gốc không.
 
 - [ ] **Step 3: Bump VERSION**
 
@@ -832,7 +832,7 @@ Thêm mục mới lên ĐẦU phần nội dung của `CHANGELOG.md`, theo đún
 ```markdown
 ## 0.9.61 - Khối hỏi-lại có lựa chọn trong khung chat
 
-- Javis hỏi lại được bằng nút bấm ngay trong chat, kiểu Claude Code: nhúng khối ẩn
+- Jarvis 007 hỏi lại được bằng nút bấm ngay trong chat, kiểu Claude Code: nhúng khối ẩn
   `JAVIS_ASK` ở cuối câu trả lời, dashboard vẽ thành hàng chip dưới bong bóng. Bấm một
   nút là gửi đi như gõ tay, cùng phiên. Chỉ tin nhắn cuối mới bấm được; cuộn lên lịch sử
   thì chip đã đông cứng.
@@ -857,7 +857,7 @@ git push origin main
 
 ## Ghi chú cho người triển khai
 
-**Vì sao không làm tool thật `javis_ask_user` qua MCP hub.** Đó là cách Claude Code làm thật và nó cho phép hỏi GIỮA CHỪNG lúc đang làm dở việc. Đã cân nhắc và loại: hub là HTTP nên phải nhét session vào header config MCP cho từng lượt (file config đang cache theo mode chứ không theo phiên), phải lo timeout, lo người dùng F5 giữa lúc server đang treo chờ, và phải làm ba lần cho ba đường engine. Trong khi ở khung chat Javis gần như mọi câu hỏi lại đều rơi vào cuối lượt. Nếu sau này cần hỏi giữa chừng thật thì đắp hướng tool lên trên vẫn được: `JavisAsk.render()` dùng lại nguyên, chỉ thay nguồn phát câu hỏi từ `data.type === "response"` sang một sự kiện WebSocket mới.
+**Vì sao không làm tool thật `javis_ask_user` qua MCP hub.** Đó là cách Claude Code làm thật và nó cho phép hỏi GIỮA CHỪNG lúc đang làm dở việc. Đã cân nhắc và loại: hub là HTTP nên phải nhét session vào header config MCP cho từng lượt (file config đang cache theo mode chứ không theo phiên), phải lo timeout, lo người dùng F5 giữa lúc server đang treo chờ, và phải làm ba lần cho ba đường engine. Trong khi ở khung chat Jarvis 007 gần như mọi câu hỏi lại đều rơi vào cuối lượt. Nếu sau này cần hỏi giữa chừng thật thì đắp hướng tool lên trên vẫn được: `JavisAsk.render()` dùng lại nguyên, chỉ thay nguồn phát câu hỏi từ `data.type === "response"` sang một sự kiện WebSocket mới.
 
 **Vì sao chip không nằm ngoài `.bubble`.** `.msg-javis` là flex-row chứa `.bubble` và nút copy (`style.css:401`). Nhét chip làm con thứ ba của nó thì chip sẽ nằm bên PHẢI bong bóng. Nên `render()` gắn chip vào trong `.bubble`.
 

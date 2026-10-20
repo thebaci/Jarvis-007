@@ -5,7 +5,7 @@ Trạng thái: đã duyệt, chuẩn bị triển khai
 
 ## Mục tiêu
 
-Trang bị cho khung chat web của Javis khả năng dùng lệnh `/` (giống Claude/Telegram),
+Trang bị cho khung chat web của Jarvis 007 khả năng dùng lệnh `/` (giống Claude/Telegram),
 và làm lệnh đầu tiên là `/notes`: gõ lệnh thì lưu nội dung tin nhắn vào `sources/` nguyên
 văn (kèm ảnh/file), rồi tự chưng cất lên wiki nếu note đó đáng.
 
@@ -40,7 +40,7 @@ văn (kèm ảnh/file), rồi tự chưng cất lên wiki nếu note đó đáng
 
 ## Kiến trúc
 
-Nguyên tắc hợp nhất: trên Javis, `/<slug>` = gọi skill `<slug>` (đúng ngữ nghĩa Telegram đang
+Nguyên tắc hợp nhất: trên Jarvis 007, `/<slug>` = gọi skill `<slug>` (đúng ngữ nghĩa Telegram đang
 dùng). Web sẽ áp cùng luật đó, cộng một nhúm lệnh phiên xử lý tại chỗ.
 
 ### Phần A - Khung lệnh `/` cho dashboard
@@ -114,7 +114,7 @@ không đơn, không đăng bài, không gửi tin.
 
 - Menu `/` web đầy đủ như Telegram (`/model`, `/brain`, `/status`, `/agents`, `/workflows`)
   cần handler lệnh riêng cho phiên web - để sau.
-- `/notes` chộp câu trả lời gần nhất của Javis khi gõ trơ - để sau.
+- `/notes` chộp câu trả lời gần nhất của Jarvis 007 khi gõ trơ - để sau.
 - Chộp cả đoạn hội thoại nhiều lượt - để sau.
 
 ## File chạm vào

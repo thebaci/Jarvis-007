@@ -1,15 +1,15 @@
-# Tag của agent (0.100.0)
+# Agent tags (0.100.0)
 
-Agent được phân loại bằng **nhiều tag** thay cho một nhóm. Quyết định của chủ dự án: "Tag thực sự: mỗi agent gắn được nhiều tag, nhóm cũ chuyển thành một tag."
+Agents are classified by **multiple tags** instead of a single group. Project owner's decision: "Real tags: every agent can carry several tags, and the old group becomes one tag."
 
-**Chỉ agent đổi.** Workflow và skill giữ trường `group` và hợp đồng hiện có. Nhóm Zalo, nhóm chat của team và đội làm/review của Cộng hưởng là ba khái niệm khác, không liên quan tới tag:
-- **Tag** chỉ để phân loại và tìm agent (Marketing, Viết nội dung, Kỹ thuật).
-- **Nhóm chat** là nơi người dùng và nhiều agent trò chuyện. Gắn tag không thêm ai vào nhóm chat.
-- **Đội thực hiện** (Cộng hưởng A5, đang thiết kế) là maker và reviewer của một mục tiêu. Tag không chọn reviewer, không cấp quyền, không bật Cộng hưởng, không đổi hạn mức, không mở lượt model.
+**Only agents change.** Workflows and skills keep the `group` field and their existing contract. The Zalo group, the team chat group and the Resonance work/review team are three different concepts, unrelated to tags:
+- A **tag** is only for classifying and finding agents (Marketing, Content writing, Engineering).
+- A **chat group** is where the user and several agents talk. Attaching a tag does not add anyone to a chat group.
+- An **execution team** (Resonance A5, being designed) is the maker and reviewer of one goal. A tag does not pick a reviewer, grant permission, turn on Resonance, change a quota or open a model turn.
 
-## Hợp đồng dữ liệu
+## Data contract
 
-### Frontmatter của `agents/<slug>.md`
+### Frontmatter of `agents/<slug>.md`
 
 ```yaml
 tags:
@@ -17,62 +17,64 @@ tags:
 - Viết nội dung
 ```
 
-- `tags` là **nguồn chuẩn** khi khoá này có mặt, kể cả `tags: []` (người dùng đã bỏ hết tag).
-- File cũ **chưa có khoá `tags`**: đọc `group` thật trong frontmatter. `group` là chuỗi không rỗng thì thành đúng một tag (`group: Chung` thật thì thành tag "Chung"). Không có `group` hay `group` rỗng thì chưa có tag. Không suy ra tag từ nhãn "Chung" mà API cũ tự điền.
-- `tags` là chuỗi đơn (người hay model ghi tay `tags: Marketing`) thì đọc thành một tag. Phần tử không phải chuỗi, rỗng sau chuẩn hoá thì bỏ qua khi đọc.
-- **Gương `group`** (để hạ phiên bản vẫn có nhãn): mỗi lần ghi chuẩn, `group` = tag đầu tiên; không còn tag thì xoá khoá `group`. Khi đã có `tags`, mã 0.100.0 trở đi KHÔNG đọc `group` của agent.
-- Ghi bằng `yaml.safe_dump` như mọi frontmatter khác, đọc bằng `fastyaml.safe_load`: danh sách ra danh sách, chuỗi có ký tự đặc biệt được trích dẫn.
+(`Viết nội dung` = "Content writing", kept in Vietnamese here because tags are free-form user text and the Vietnamese diacritics matter below.)
 
-### Chuẩn hoá và trùng
+- `tags` is the **source of truth** whenever this key is present, even `tags: []` (the user removed every tag).
+- An old file **without a `tags` key**: read the real `group` in the frontmatter. A non-empty string `group` becomes exactly one tag (a real `group: Chung` becomes the tag "Chung"). No `group`, or an empty `group`, means no tag yet. Do not infer a tag from the "Chung" label that the old API fills in on its own.
+- `tags` as a single string (a human or model hand-writing `tags: Marketing`) is read as one tag. Elements that are not strings, or are empty after normalisation, are skipped on read.
+- **`group` mirror** (so a downgrade still has a label): on every canonical write, `group` = the first tag; with no tags left, delete the `group` key. Once `tags` exists, code from 0.100.0 on does NOT read the agent's `group`.
+- Written with `yaml.safe_dump` like every other frontmatter, read with `fastyaml.safe_load`: a list comes back as a list, and strings with special characters are quoted.
 
-- Unicode NFC; bỏ ký tự điều khiển; gộp mọi khoảng trắng liên tiếp thành một dấu cách; cắt hai đầu.
-- Rỗng sau chuẩn hoá: không phải tag.
-- **Giới hạn chỉ cho đầu vào MỚI** (review vòng 1, R1): tag người dùng thêm, thay cả tập hay đổi tên tới dài quá 40 ký tự thì từ chối (`tag_too_long`); thêm làm tập vượt 20 tag thì từ chối (`too_many_tags`).
-- **Dữ liệu ĐANG CÓ không bao giờ bị cắt:** nhóm cũ dài hơn 40 ký tự (hợp lệ ở 0.96.1) hay file có hơn 20 tag được đọc nguyên, hiện nguyên (chip cắt chữ bằng CSS, tên đủ ở title), và ghim, lưu form, nhập gói ghi lại đúng như đã đọc. Bỏ, đổi tên (tên nguồn) hay xoá một tag dài vẫn làm được; bỏ tag khi đang quá 20 luôn được.
-- **Khoá định danh** = dạng chuẩn hoá rồi Unicode `casefold()` (`agent_tags.tag_key`): "Marketing" và "marketing" là một tag; "Straße" và "STRASSE" là một tag; "Viết" dạng NFC và NFD là một tag. Dấu tiếng Việt là một phần của tag: "Viết" và "Viet" là hai tag khác nhau. Tìm kiếm không dấu chỉ để tìm, không gộp tag. Trong một agent giữ cách viết gặp trước; giữa các agent, cách viết có thể khác nhau nhưng cùng khoá.
-- **Một định danh cho mọi tầng** (R3): API trả `tag_keys` song song với `tags`; trang Cộng sự và Studio đếm, lọc, đánh dấu tick theo khoá đó, không tự tính (`toLowerCase` của trình duyệt khác `casefold`). Giao diện chỉ hiển thị cách viết server trả về.
+### Normalisation and duplicates
+
+- Unicode NFC; strip control characters; collapse every run of whitespace into one space; trim both ends.
+- Empty after normalisation: not a tag.
+- **Limits apply to NEW input only** (review round 1, R1): a tag the user adds, a whole-set replacement or a rename that goes past 40 characters is rejected (`tag_too_long`); an add that makes the set exceed 20 tags is rejected (`too_many_tags`).
+- **Existing data is never truncated:** an old group longer than 40 characters (valid in 0.96.1) or a file with more than 20 tags is read whole and shown whole (the chip clips the text with CSS, the full name is in the title), and pinning, saving a form and importing a pack write back exactly what was read. Removing, renaming (the source name) or deleting a long tag still works; removing a tag while over 20 always works.
+- **Identity key** = the normalised form, then Unicode `casefold()` (`agent_tags.tag_key`): "Marketing" and "marketing" are one tag; "Straße" and "STRASSE" are one tag; "Viết" in NFC and in NFD are one tag. Vietnamese diacritics are part of the tag: "Viết" and "Viet" are two different tags. Diacritic-free search is only for finding, it does not merge tags. Within one agent the first spelling seen is kept; across agents the spellings may differ but share a key.
+- **One identity for every layer** (R3): the API returns `tag_keys` alongside `tags`; the Partners page and Studio count, filter and tick by that key and never compute their own (the browser's `toLowerCase` differs from `casefold`). The UI only displays the spelling the server returns.
 
 ### API
 
-| Đường | Agent | Ghi chú |
+| Route | Agent | Notes |
 |---|---|---|
-| `GET /agents`, `GET /agents/get` | Trả `tags` (danh sách đã chuẩn hoá) và `tag_keys` (khoá định danh, cùng thứ tự) | Vẫn trả `group` = tag đầu tiên hoặc "Chung" cho trang cũ còn trong cache. Không gửi một request riêng cho từng agent |
-| `POST /capability/meta`, `kind=agent` | `add_tags` (JSON danh sách): thêm vào tập hiện có. `remove_tags` (JSON danh sách): bỏ đúng các tag đó. `tags` (JSON danh sách): thay cả tập, `[]` là bỏ hết | Không gửi trường nào = giữ nguyên. Đọc và ghi trong một bước của server, nên hai tab thêm/bỏ khác tag không ghi đè nhau |
-| `POST /capability/meta`, `kind=agent`, chỉ có `group` (client cũ) | Agent đang có từ hai tag trở lên: từ chối `409 stale_client` ("Trang đã cũ, tải lại trang"), không đổi gì. Có không quá một tag: `group` không rỗng thành đúng một tag, rỗng là bỏ tag (đúng nghĩa cũ "về Chưa xếp nhóm") | Không bao giờ âm thầm thay nhiều tag bằng một tag |
-| `group` gửi cùng `tags`/`add_tags`/`remove_tags` | Từ chối `400 group_and_tags` | Luật xung đột rõ, không đoán |
-| `POST /agents` (form sửa agent) | Không gửi `tags` = giữ nguyên tag. Gửi `tags` (JSON) = thay cả tập. `group` của client cũ theo đúng luật hàng trên | Agent mới không gửi tag thì `tags: []` |
-| `POST /agents/tags/rename` (`brain`, `from_tag`, `to_tag`) | Đổi tên tag (so theo khoá) trên mọi agent đang có nó, giữ các tag khác. `to_tag` trùng khoá với một tag đã có thì gộp, không nhân đôi, dùng cách viết của tag đã có | Trả `changed`, `failed`, `merged`, `tag`, `tag_key`. Có agent ghi lỗi thì `ok: false` kèm danh sách đã làm và chưa làm |
-| `POST /agents/tags/delete` (`brain`, `tag`) | Gỡ nhãn đó khỏi mọi agent | Không xoá agent, phiên chat, mục tiêu hay đội. Trả như trên |
-| `kind=workflow` | Không đổi; gửi tham số tag cho workflow bị từ chối `400` | |
+| `GET /agents`, `GET /agents/get` | Returns `tags` (the normalised list) and `tag_keys` (identity keys, same order) | Still returns `group` = the first tag or "Chung" for old pages still in cache. Does not send a separate request per agent |
+| `POST /capability/meta`, `kind=agent` | `add_tags` (JSON list): add to the existing set. `remove_tags` (JSON list): remove exactly those tags. `tags` (JSON list): replace the whole set, `[]` removes all | Sending no field = keep as is. Read and write happen in one server step, so two tabs adding/removing different tags do not overwrite each other |
+| `POST /capability/meta`, `kind=agent`, only `group` (old client) | Agent already has two or more tags: reject with `409 stale_client` ("Trang đã cũ, tải lại trang", meaning "The page is out of date, reload it"), change nothing. Has at most one tag: a non-empty `group` becomes exactly one tag, an empty one removes the tag (the old meaning "back to Ungrouped") | Never silently replaces several tags with one |
+| `group` sent together with `tags`/`add_tags`/`remove_tags` | Reject with `400 group_and_tags` | A clear conflict rule, no guessing |
+| `POST /agents` (agent edit form) | No `tags` sent = keep the tags. `tags` sent (JSON) = replace the whole set. An old client's `group` follows the rule in the row above | A new agent with no tags sent gets `tags: []` |
+| `POST /agents/tags/rename` (`brain`, `from_tag`, `to_tag`) | Renames a tag (compared by key) on every agent that has it, keeping the other tags. If `to_tag` has the same key as an existing tag they are merged, not doubled, using the spelling of the existing tag | Returns `changed`, `failed`, `merged`, `tag`, `tag_key`. If an agent write fails, `ok: false` with the lists of what was done and not done |
+| `POST /agents/tags/delete` (`brain`, `tag`) | Removes that label from every agent | Does not delete agents, chat sessions, goals or teams. Returns as above |
+| `kind=workflow` | Unchanged; sending a tag parameter for a workflow is rejected with `400` | |
 
-Mọi tag thuộc phạm vi **một brain** (thư mục `agents/` của brain đó). Đổi tên hay xoá tag ở brain này không chạm brain khác.
+Every tag belongs to **one brain** (that brain's `agents/` folder). Renaming or deleting a tag in this brain does not touch other brains.
 
-**Đồng bộ ghi và event loop** (R4, R5): mọi đường đọc, sửa, ghi hay XOÁ file agent chạy ở worker (`asyncio.to_thread`) và đi tuần tự qua CÙNG một khoá (`_AGENT_META_LOCK`):
-- `/capability/meta` (agent), đổi tên tag, xoá tag, `POST /agents` của form, sáu route tài liệu/link của agent (`/agents/{slug}/assets/...`), và `POST /agents/delete`.
-- Đọc `previous`, kiểm file còn tồn tại, rồi ghi, đều nằm trong khoá. Đợi khoá cũng ở worker, nên thao tác nhiều agent hay xoá đang đợi khoá không chặn event loop khi đĩa chậm.
-- Form lưu xen với thêm/bỏ tag không ghi đè nhau.
-- **Xoá agent không bị hoàn tác** (R5): thao tác ghi đang giữ khoá thì xoá đợi nó ghi xong rồi mới xoá. Thao tác tới sau lúc xoá thấy file đã mất và không tạo lại: `/capability/meta` và route tài liệu trả 404; đổi tên hay xoá tag hàng loạt bỏ qua agent đó (không vào `changed`, không vào `failed`).
-- `POST /agents` (form) vẫn là tạo-hoặc-sửa như trước: lưu form sau khi agent đã bị xoá là tạo một agent MỚI cùng tên, không mang tag hay vai cũ, và theo luật A1 phải bật lại Cộng hưởng.
-- Workflow giữ nguyên như trước 0.100.0: `/capability/meta` cho workflow sửa ngay trên event loop như các route workflow khác (lưu, bật/tắt, xoá), không qua worker hay khoá này.
+**Write synchronisation and the event loop** (R4, R5): every path that reads, edits, writes or DELETES an agent file runs in a worker (`asyncio.to_thread`) and goes in sequence through the SAME lock (`_AGENT_META_LOCK`):
+- `/capability/meta` (agent), tag rename, tag delete, the form's `POST /agents`, the six agent document/link routes (`/agents/{slug}/assets/...`), and `POST /agents/delete`.
+- Reading `previous`, checking the file still exists, and then writing all sit inside the lock. Waiting for the lock also happens in the worker, so a multi-agent operation or a delete waiting for the lock does not block the event loop when the disk is slow.
+- A form save interleaved with adding/removing tags does not overwrite them.
+- **Deleting an agent is not undone** (R5): if a write is holding the lock, the delete waits for it to finish and then deletes. An operation arriving after the delete sees the file gone and does not recreate it: `/capability/meta` and the document routes return 404; a bulk tag rename or delete skips that agent (it goes in neither `changed` nor `failed`).
+- `POST /agents` (form) is still create-or-edit as before: saving the form after the agent was deleted creates a NEW agent with the same name, carrying no old tags or role, and under rule A1 Resonance has to be turned on again.
+- Workflows stay as they were before 0.100.0: `/capability/meta` for a workflow edits directly on the event loop like the other workflow routes (save, toggle, delete), not through a worker or this lock.
 
-Số đo trong test là I/O giả lập (ghi chậm 80 ms, barrier giữ worker), không phải số đo máy thật.
+The numbers in the tests are simulated I/O (a write slowed by 80 ms, a barrier holding the worker), not measurements on a real machine.
 
-## Chuyển đổi
+## Migration
 
-- **Đọc tương thích, ghi chuẩn khi lưu.** Không có migration hàng loạt và không quét ghi lại file khi tải danh sách.
-- Một agent cũ được ghi sang dạng chuẩn (`tags` + gương `group`) ở lần đầu có thao tác lưu chạm vào nó: Lưu form, ghim, gắn hay bỏ tag, đổi tên hay xoá tag. Ghi chuẩn hai lần cho cùng kết quả (lặp an toàn): tag đã có `tags` thì đọc `tags`, không đọc lại `group`.
-- Mọi khoá frontmatter khác và thân prompt giữ nguyên (đọc rồi chỉ sửa khoá tag). Ghi nguyên tử bằng `_atomic_write_text`.
+- **Read compatibly, write canonically on save.** There is no bulk migration, and no sweep that rewrites files when the list loads.
+- An old agent is rewritten into the canonical form (`tags` + the `group` mirror) the first time a save operation touches it: saving the form, pinning, attaching or removing a tag, renaming or deleting a tag. Writing canonically twice gives the same result (safe to repeat): once a tag set exists it reads `tags` and does not read `group` again.
+- Every other frontmatter key and the prompt body stay as they are (read, then only the tag key is edited). Written atomically with `_atomic_write_text`.
 
-## Nhập, xuất, chỉ mục, tạo từ chat
+## Import, export, index, creating from chat
 
-- **Xuất** chép nguyên file agent: gói mới mang `tags`.
-- **Nhập** ghi nguyên file: gói mới giữ đủ tag; gói cũ chỉ có `group` thì được đọc thành đúng một tag theo luật file cũ, và thành dạng chuẩn ở lần lưu đầu.
-- **Chỉ mục** `Javis/index.md`: agent liệt kê một lần mỗi agent, kèm "tags: A, B"; workflow và skill vẫn chia theo nhóm.
-- **Tạo agent từ chat** (`javis-builder`, `CLAUDE.md`): mẫu agent dùng `tags:` (danh sách), đọc các tag đang dùng trong `agents/*.md` trước khi chọn.
+- **Export** copies the agent file as is: a new pack carries `tags`.
+- **Import** writes the file as is: a new pack keeps all its tags; an old pack with only `group` is read as exactly one tag under the old-file rule, and becomes canonical on the first save.
+- **Index** `Javis/index.md`: each agent is listed once, with "tags: A, B"; workflows and skills are still split by group.
+- **Creating an agent from chat** (`javis-builder`, `CLAUDE.md`): the agent template uses `tags:` (a list), and reads the tags in use in `agents/*.md` before choosing.
 
-## Quay về
+## Rolling back
 
-- **Hạ về 0.96.1 (mã cũ):** mã cũ đọc `group`, nên agent hiện dưới nhóm = tag đầu tiên (gương), agent không còn tag hiện là "Chung". Khoá `tags` còn nguyên trong file, mã cũ giữ nó khi lưu (đã giữ mọi khoá lạ từ 0.59.x). Đã kiểm trên trình duyệt với `main` 0.96.1 mở bản sao dữ liệu đã chuyển.
-- **Giới hạn:** file agent có `tags` mà chưa từng được mã 0.100.0 lưu (người hay model ghi tay chỉ `tags`, hay gói nhập từ nơi khác) thì chưa có gương `group`, nên mã cũ hiện nó là "Chung" cho tới khi được lưu một lần bằng mã mới. Không mất tag.
-- **Nâng lại 0.100.0:** `tags` là nguồn chuẩn. Thay đổi nhóm làm bằng mã cũ trong lúc hạ phiên bản (sửa `group`) **không** được đưa vào tag; muốn giữ thì gắn lại tag. Đây là giới hạn đã biết, đổi lại tag đã bỏ không bao giờ sống lại từ `group`.
-- Không có bản sao file riêng: chuyển đổi chỉ thêm khoá `tags` và đồng bộ `group`, không xoá nội dung nào.
+- **Downgrade to 0.96.1 (old code):** old code reads `group`, so an agent appears under the group = the first tag (the mirror), and an agent with no tags appears as "Chung" (General). The `tags` key stays in the file and old code keeps it on save (it has kept every unknown key since 0.59.x). Checked in a browser with `main` 0.96.1 opening a copy of the migrated data.
+- **Limit:** an agent file that has `tags` but was never saved by 0.100.0 code (a human or model hand-writing only `tags`, or a pack imported from elsewhere) has no `group` mirror yet, so old code shows it as "Chung" until it is saved once by the new code. No tag is lost.
+- **Upgrading to 0.100.0 again:** `tags` is the source of truth. Group changes made with old code during the downgrade (editing `group`) are **not** carried into tags; to keep them, attach the tags again. This is a known limit; in exchange a removed tag never comes back to life from `group`.
+- There is no separate file backup: the migration only adds the `tags` key and syncs `group`, and deletes no content.

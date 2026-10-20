@@ -1,4 +1,4 @@
-# Javis Resonance Foundation Implementation Plan
+# Jarvis 007 Resonance Foundation Implementation Plan
 
 **Trạng thái sau phản biện vòng 2:** tham chiếu cho kiến trúc mở rộng. Bắt đầu bằng [MVP một agent](2026-10-06-resonance-00-mvp.md); không triển khai toàn bộ kế hoạch này trước demo. Những đường đã làm trong MVP được dùng lại, không tạo bản thứ hai. Giao diện/kiểu dữ liệu dưới đây được đối chiếu và migrate khi mở rộng.
 
@@ -10,7 +10,7 @@
 
 **Tech Stack:** Python hiện có của repo, FastAPI, SQLite, standard-library unittest, dashboard JavaScript và i18n vi/en. Không thêm framework agent hoặc dịch vụ cơ sở dữ liệu.
 
-**Spec:** [Javis Resonance thiết kế và lộ trình thực thi mục tiêu](../specs/2026-10-06-javis-resonance-design.md), đặc biệt mục 2 đến 7, 12 đến 17.
+**Spec:** [Jarvis 007 Resonance thiết kế và lộ trình thực thi mục tiêu](../specs/2026-10-06-javis-resonance-design.md), đặc biệt mục 2 đến 7, 12 đến 17.
 
 ## Global Constraints
 
@@ -152,7 +152,7 @@ Khi hợp đồng cần so sánh chuỗi thời gian, bổ sung adapter metric_s
 - GoalService.create(raw: dict, principal: Principal, key: str) -> GoalSnapshot.
 - GoalService.evaluate(goal_id: str, principal: Principal, now: float) -> Assessment.
 - GoalService.command(goal_id: str, command: str, expected_revision: int, principal: Principal) -> GoalSnapshot; command trong activate/pause/resume/cancel.
-- GoalDeps gồm service và get_principal(request) -> Principal lấy từ auth của Javis; register(app, deps: GoalDeps) -> None.
+- GoalDeps gồm service và get_principal(request) -> Principal lấy từ auth của Jarvis 007; register(app, deps: GoalDeps) -> None.
 - API hội thoại: POST /goal-requests; POST /goal-clarifications/{id}/answers; POST /goals/{id}/reframe. Input chính là tham chiếu tin nhắn người dùng, không bắt client điền GoalContract. Nhu cầu thiếu thông tin vẫn được lưu và trả next_step/clarification, không lỗi 422 chỉ vì diễn đạt mơ hồ.
 - API quản lý/chi tiết: POST /goals; GET /goals; GET /goals/{id}; POST /goals/{id}/revisions; POST /goals/{id}/commands; POST /goals/{id}/evaluate; GET /goals/{id}/events; GET /goals/{id}/assessments. Create cấu trúc dùng cho adapter/test hoặc người dùng nâng cao, không phải bước bắt buộc của giao diện.
 - Mutation nhận idempotency key; revise/commands nhận expected_revision; 409 nếu stale, 422 nếu contract không hợp lệ, 404 cho id ngoài phạm vi, 403 cho thiếu quyền trong brain hợp lệ.

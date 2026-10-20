@@ -137,7 +137,7 @@ THÀNH VIÊN (4)                                           [+ Thêm] [+ Tạo ag
 (ảnh) Lan     Trưởng nhóm   Cộng hưởng: Bật  [công tắc]   [Đổi trưởng nhóm] [Bỏ khỏi nhóm]
 (ảnh) Minh    Thành viên    Cộng hưởng: Tắt  [công tắc]   [Đặt làm trưởng nhóm] [Bỏ khỏi nhóm]
 (ảnh) Hà      Thành viên    Cộng hưởng: Cần xác nhận (mở trang Cộng sự)
-(ảnh) Tú      Đã xoá khỏi Javis · 1 việc chuyển về chờ giao lại
+(ảnh) Tú      Đã xoá khỏi Jarvis 007 · 1 việc chuyển về chờ giao lại
 ```
 
 - **Công tắc ở đây** gọi cùng route với trang Cộng sự. Chỉ báo xong khi server xác nhận.

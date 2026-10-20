@@ -2,9 +2,9 @@
 
 *[Tiếng Việt](../17-khac-phuc-su-co.md) · **English***
 
-This page gathers the problems people hit most often with Javis OS and how to work through each one. Most of them need only one of two actions: restart the server, or reload the browser with Ctrl+Shift+R. A short FAQ closes the page.
+This page gathers the problems people hit most often with Jarvis 007 and how to work through each one. Most of them need only one of two actions: restart the server, or reload the browser with Ctrl+Shift+R. A short FAQ closes the page.
 
-If you have just installed Javis for the first time, read [Getting started and first setup](01-getting-started.md) first. If you are editing environment variables, see [.env configuration](16-env-configuration.md).
+If you have just installed Jarvis 007 for the first time, read [Getting started and first setup](01-getting-started.md) first. If you are editing environment variables, see [.env configuration](16-env-configuration.md).
 
 ## Before you read on: the two rescue actions used most
 
@@ -26,20 +26,20 @@ A great many errors disappear after one of these, so try them before worrying:
 | **Port 7777 is held** and the new build will not come up | Kill the old process FIRST, then start again. Windows: run `stop-javis.bat`, or `taskkill /F /PID <pid>` with the PID holding the port. Docker: `docker compose down` then `docker compose up -d`. |
 | **Hostinger cannot pull the image** | Set the GHCR package to **Public** (GitHub, the repo, Packages, choose `javis-os`, Package settings, Visibility = Public). Then wait for the GitHub Action build to finish (the repo's Actions tab) and Deploy again. |
 | Opening the app shows the **create-admin screen** on a public server | No admin exists yet, so whoever opens the link first can create it. Create the account now (password at least 8 characters), or next time preset the env vars `JAVIS_ADMIN_USER` and `JAVIS_ADMIN_PASSWORD` at deploy time and sign straight in. Once inside, turn on 2FA. |
-| **Claude reports it is not signed in** (Javis cannot answer) | Sign the Claude "brain" in once. In the app: open **Models**, on the Claude Code card click **Sign in to Claude**, open the link, paste the code if asked. By command: `claude auth login --claudeai` (on Docker, run it in the App terminal). |
+| **Claude reports it is not signed in** (Jarvis 007 cannot answer) | Sign the Claude "brain" in once. In the app: open **Models**, on the Claude Code card click **Sign in to Claude**, open the link, paste the code if asked. By command: `claude auth login --claudeai` (on Docker, run it in the App terminal). |
 | **The Files page errors at "Loading..."** | The server has no Files endpoint yet (a 404). **Restart the server** to load the new endpoint, then press **Ctrl+Shift+R**. |
 | Images in old conversations show a grey **Image expired** box | By design: `attachments/` and `inbox/` are a cache, and files over 30 days (or when the 300MB ceiling is passed) are cleared. See "Old images and files disappear" below for how to keep them or turn clearing off. |
 | Voice / microphone will not turn on | Browsers only grant microphone permission over **HTTPS** (or on localhost). Opening `http://<ip>:7777` is always blocked. Use an `https://` URL (Hostinger `*.hstgr.cloud`, Cloudflare Tunnel, or a custom domain with SSL). See [Branding and custom domains](15-branding-and-domains.md). |
 | You updated in the app but **the version did not change** | Wait a little longer; if it still reports the old build, check the update log: `update.log` in the state folder (`server/update.log` locally, `/data/state/update.log` on Docker), or `docker compose logs`. |
-| **`javis` reports 401** or "invalid token" | The token is wrong or was revoked. Create a new one at **Account > API tokens** then run `javis login <address>` again. See [The Javis CLI](24-cli.md). |
+| **`javis` reports 401** or "invalid token" | The token is wrong or was revoked. Create a new one at **Account > API tokens** then run `javis login <address>` again. See [The Jarvis 007 CLI](24-cli.md). |
 | **`javis task add` / `javis brain ls` report 403** | Your token is the **chat only** kind. These commands need a **full power** token, so create one at Account > API tokens. |
-| **`javis up` reports it cannot find a Javis install** | Exactly as it says: the CLI package does NOT contain the server. Point `JAVIS_HOME` at the Javis folder, run the command from inside that folder, or use `javis login <address>` to connect to a Javis running elsewhere. |
+| **`javis up` reports it cannot find a Jarvis 007 install** | Exactly as it says: the CLI package does NOT contain the server. Point `JAVIS_HOME` at the Jarvis 007 folder, run the command from inside that folder, or use `javis login <address>` to connect to a Jarvis 007 running elsewhere. |
 
 The sections below explain each row in more detail.
 
 ## You edited code and nothing changed
 
-Javis has two parts that run differently, so refreshing them differs too:
+Jarvis 007 has two parts that run differently, so refreshing them differs too:
 
 1. **Changing the core (Python `.py` files in `server/`)**: the running server still holds the old build in memory. You must **stop and start the server**:
    - Windows: run `stop-javis.bat`, wait a few seconds, then run `start-javis.vbs`.
@@ -51,7 +51,7 @@ If neither helps, check that you are on the right port and the right brain.
 
 ## Port 7777 is held and the new build will not come up
 
-Javis's default port is **7777**. When an old process has not fully stopped and you start a new build, the new one errors because the port is busy. Work through it in order:
+Jarvis 007's default port is **7777**. When an old process has not fully stopped and you start a new build, the new one errors because the port is busy. Work through it in order:
 
 1. Stop the old process first. Windows: run `stop-javis.bat`. If it persists, find the PID holding the port then `taskkill /F /PID <pid>`. Docker: `docker compose down`.
 2. Start again. Windows: `start-javis.vbs`. Docker: `docker compose up -d`.
@@ -67,7 +67,7 @@ When deploying through Hostinger Docker Manager and it cannot download the image
 
 ## Opening the app shows the create-admin screen on a public server
 
-When Javis runs public (Docker/VPS/Hostinger) with no admin yet, opening the app the first time shows the create-account screen, which only asks for a username and password. That means **whoever opens the link first can create the admin** (and the engine runs with full power on the machine), so:
+When Jarvis 007 runs public (Docker/VPS/Hostinger) with no admin yet, opening the app the first time shows the create-account screen, which only asks for a username and password. That means **whoever opens the link first can create the admin** (and the engine runs with full power on the machine), so:
 
 1. **Preset the admin at deploy time (recommended)**: the two env vars `JAVIS_ADMIN_USER` and `JAVIS_ADMIN_PASSWORD` in the compose file or `.env`. Then opening the app takes you straight to sign-in.
 2. **Without the env vars**: create the account right after deploying, with a password of at least 8 characters.
@@ -77,7 +77,7 @@ Security details and how to set a password: [Security and accounts](14-security-
 
 ## Claude reports it is not signed in
 
-When you run the Claude engine, Javis borrows the `claude` CLI's own login session on the machine: sign in once and it survives every restart and update. If Javis does not answer or reports it is not signed in:
+When you run the Claude engine, Jarvis 007 borrows the `claude` CLI's own login session on the machine: sign in once and it survives every restart and update. If Jarvis 007 does not answer or reports it is not signed in:
 
 1. **In the interface:** open **Models** (the **Connections** group on the left nav rail). On the Claude Code card, the status line reads **○ Not signed in**. Click **Sign in to Claude**, the app shows a link; open it to sign in to claude.ai; if the page shows a code, paste it into the field and click **Send code**. When it finishes, the status changes to **● Connected**. There is a **↻ Check again** button to refresh the status.
 2. **By command:** run `claude auth login --claudeai` once (on Docker, run it in the **App terminal**), open the link, paste the code.
@@ -94,7 +94,7 @@ If it reports an expired session (a 401), just reload the page and sign in again
 
 Scrolling back through an old conversation and finding only a grey box reading **Image expired**, or a file you once uploaded no longer opening: this is deliberate behaviour, not a bug.
 
-A brain's `attachments/` and `inbox/` folders (images Javis generated, files you sent through chat or Telegram) are treated as a **cache**, not as knowledge. Knowledge is the `.md` files. Javis clears them under two rules:
+A brain's `attachments/` and `inbox/` folders (images Jarvis 007 generated, files you sent through chat or Telegram) are treated as a **cache**, not as knowledge. Knowledge is the `.md` files. Jarvis 007 clears them under two rules:
 
 | Rule | Default | Meaning |
 |---|---|---|
@@ -118,34 +118,34 @@ A note if you have GitHub sync on: `attachments/` and `inbox/` ARE within the sy
 
 ## The provider reports a rate limit
 
-The free tiers of API providers (Groq most visibly) tighten **four things in parallel**, and each demands a completely different response. Javis reads the error message and classifies it, so reading the notice in chat tells you which one you hit:
+The free tiers of API providers (Groq most visibly) tighten **four things in parallel**, and each demands a completely different response. Jarvis 007 reads the error message and classifies it, so reading the notice in chat tells you which one you hit:
 
-- **Tokens per minute, this turn is too large.** Javis shortens the context itself and resends. If it still does not fit, turn on the **Optimised** level at the top of the Usage page, or ask a shorter question.
-- **Tokens per minute, the window is full.** Earlier turns have not aged out. Javis waits exactly the number of seconds the provider states then resends. Shortening the question does not help.
+- **Tokens per minute, this turn is too large.** Jarvis 007 shortens the context itself and resends. If it still does not fit, turn on the **Optimised** level at the top of the Usage page, or ask a shorter question.
+- **Tokens per minute, the window is full.** Earlier turns have not aged out. Jarvis 007 waits exactly the number of seconds the provider states then resends. Shortening the question does not help.
 - **Requests per minute.** Calls came too thick and fast. Wait a moment then ask again.
 - **A DAILY limit** (tokens or requests). The day's quota is spent. Shortening the question does not help at all. You have to wait for the new day, switch temporarily to another brain on the **Models** page, or upgrade your plan with the provider.
 
-If Javis cannot classify it, it shows the **provider's error message verbatim** rather than guessing. Sending that exact sentence in a bug report makes it far easier to trace.
+If Jarvis 007 cannot classify it, it shows the **provider's error message verbatim** rather than guessing. Sending that exact sentence in a bug report makes it far easier to trace.
 
-To hit this far less often: choose the **Optimised** or **Ultra-saving** level at the top of the **Usage** page (since 0.24.7 new machines default to Ultra-saving). After the first refusal, Javis remembers that account's real limits (as stated by the provider itself) and keeps the context under the threshold on later turns, with nothing to declare.
+To hit this far less often: choose the **Optimised** or **Ultra-saving** level at the top of the **Usage** page (since 0.24.7 new machines default to Ultra-saving). After the first refusal, Jarvis 007 remembers that account's real limits (as stated by the provider itself) and keeps the context under the threshold on later turns, with nothing to declare.
 
-### When the provider stumbles once, Javis re-asks by itself
+### When the provider stumbles once, Jarvis 007 re-asks by itself
 
-Since version 0.24.4, a model call that fails on a **transient** error (429 too many calls, 5xx overload, a network blip) is retried automatically up to three times, seconds apart. If the provider sends `Retry-After`, Javis obeys that exact number of seconds. You usually see nothing at all, only an answer arriving a second or two later.
+Since version 0.24.4, a model call that fails on a **transient** error (429 too many calls, 5xx overload, a network blip) is retried automatically up to three times, seconds apart. If the provider sends `Retry-After`, Jarvis 007 obeys that exact number of seconds. You usually see nothing at all, only an answer arriving a second or two later.
 
-Two cases where Javis **deliberately does not** retry:
+Two cases where Jarvis 007 **deliberately does not** retry:
 
 - **The answer already started appearing.** Retrying would make you read the answer twice.
 - **The turn already ran tools** (sent a message, wrote a file, scheduled something). Retrying the whole round would do those things a second time. Better to report the error.
 
-If all three attempts fail, Javis reports the provider's error verbatim with the note *(retried 3 times)* so you know it was not a momentary blip. **Non**-transient errors (a wrong key, a wrong model name, a spent daily quota, exceeding the context size) are reported on the first attempt, because retrying identically only burns another call to receive the same error.
+If all three attempts fail, Jarvis 007 reports the provider's error verbatim with the note *(retried 3 times)* so you know it was not a momentary blip. **Non**-transient errors (a wrong key, a wrong model name, a spent daily quota, exceeding the context size) are reported on the first attempt, because retrying identically only burns another call to receive the same error.
 
 ## Where to see the logs
 
 There are several places, depending on what you want to see:
 
-1. **The log of Javis running in the background**: open the **Work** group on the left nav rail, choose **Recurring jobs**, and scroll to **Recent log**. This is where turns of Javis waking to do a job are recorded, filterable per loop. See [Recurring jobs and reminders](08-recurring-jobs.md).
-2. **The self-learning log**: the **Self-learning** page (**Brain** group) has two separate panels, **What Javis taught itself (latest commit)** and **Learning log**. See [Self-learning](22-self-learning.md).
+1. **The log of Jarvis 007 running in the background**: open the **Work** group on the left nav rail, choose **Recurring jobs**, and scroll to **Recent log**. This is where turns of Jarvis 007 waking to do a job are recorded, filterable per loop. See [Recurring jobs and reminders](08-recurring-jobs.md).
+2. **The self-learning log**: the **Self-learning** page (**Brain** group) has two separate panels, **What Jarvis 007 taught itself (latest commit)** and **Learning log**. See [Self-learning](22-self-learning.md).
 3. **The Updates page** (**System** group, the page title is **Update log**): this is where you see the running version and the feature history per release. There is no separate "Logs" or "Activity log" page any more; the `logs` item on the rail is this page.
 4. **The server's technical log** (when you need to dig into an error):
    - Windows running in the background through `start-javis.vbs`: the log is at `server\javis.log`.
@@ -161,25 +161,25 @@ No, if you run Docker. Every note, brain, setting and even the Claude login toke
 
 ### How does in-app updating work?
 
-Open **System → Settings → Updates**; the **Javis OS** card shows the running version and checks GitHub for a newer one. If there is one, the status line reads **🆕 New version available** with a **What's new** panel, and the **⬆ Update now** button appears when the environment supports it. Click it, confirm, and the app runs through the 6 steps shown on the progress bar (Prepare, Download code, Install libraries, Restart, Health check, Done) then reloads the page. If the new build is broken, Javis **rolls back by itself** and reports **↩ The new build failed, rolled back**. Below the card is the update-log timeline of released versions.
+Open **System → Settings → Updates**; the **Jarvis 007** card shows the running version and checks GitHub for a newer one. If there is one, the status line reads **🆕 New version available** with a **What's new** panel, and the **⬆ Update now** button appears when the environment supports it. Click it, confirm, and the app runs through the 6 steps shown on the progress bar (Prepare, Download code, Install libraries, Restart, Health check, Done) then reloads the page. If the new build is broken, Jarvis 007 **rolls back by itself** and reports **↩ The new build failed, rolled back**. Below the card is the update-log timeline of released versions.
 
 An install directly on the machine (Windows, Linux, macOS) can always update itself. The Docker build only updates in place when the **Watchtower** container is running.
 
 Since 0.55.56 Watchtower **ships by default** in both the VPS compose and the Hostinger compose, so a fresh install has the button. Still missing it means the stack is running from an older compose file: Watchtower used to sit under `profiles: ["update"]` (which `docker compose up -d` does not start) and the Hostinger stack shipped without it. The way out is to fetch the new compose and bring it up again - on a VPS run `curl -fsSLO https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.yml` then `docker compose up -d --pull always`; on Hostinger hit **Redeploy** in Docker Manager. Not ready to swap the file? `docker compose --profile update up -d` starts it on its own. The Updates panel tells you which case your machine is in.
 
-**The stack reports "Partially running" after updating the compose file**: almost always the `<name>-watchtower` container failing to reach the host's Docker socket (Hostinger has hit exactly this). The Javis app is unaffected - it is a separate container and keeps running; you simply lose the "Update now" button and fall back to Redeploy. The real reason is in the log: `docker logs javis-watchtower`.
+**The stack reports "Partially running" after updating the compose file**: almost always the `<name>-watchtower` container failing to reach the host's Docker socket (Hostinger has hit exactly this). The Jarvis 007 app is unaffected - it is a separate container and keeps running; you simply lose the "Update now" button and fall back to Redeploy. The real reason is in the log: `docker logs javis-watchtower`.
 
 **A compose command reporting `not found`** comes in three shapes with three entirely different causes:
 
 | Error | Cause | What to do |
 |---|---|---|
 | `no configuration file provided: not found` | You are in the wrong folder. The folder name depends on how you cloned: `javis` if you followed the command in DEPLOY.md, `javis-os` if you cloned straight without renaming | `cd` into the folder holding `docker-compose.yml`. If you cannot remember where it is, ask Docker: `docker ps --format '{{.Names}}\t{{.Label "com.docker.compose.project.working_dir"}}'` |
-| `docker: command not found` | You are typing **inside** the Javis container (the app's terminal) rather than on the host | SSH into the VPS and type it there |
+| `docker: command not found` | You are typing **inside** the Jarvis 007 container (the app's terminal) rather than on the host | SSH into the VPS and type it there |
 | `docker: 'compose' is not a docker command` | An old Compose (v1) | Write it hyphenated: `docker-compose --profile update up -d` |
 
 ### Can I run several brains (second brains)?
 
-Yes. Javis manages several brains in the `brains/` folder. From the brain dropdown in the interface you can:
+Yes. Jarvis 007 manages several brains in the `brains/` folder. From the brain dropdown in the interface you can:
 
 1. Create a new brain: click the add-brain button and give it a name when asked.
 2. Switch brain: pick another one in the dropdown; the Files page, the graph and the memory all follow the selected brain.
@@ -189,15 +189,15 @@ Details in [Second Brain: memory, Wiki, INGEST](13-second-brain.md).
 
 ### Can a deleted brain be recovered?
 
-Yes, within 30 days. Deleting a brain is not permanent: Javis moves the whole brain folder to a **local trash** at `brain-trash` inside the state folder (`server/brain-trash` locally, `/data/state/brain-trash` on Docker), named `<brain name>__<date time>`. That copy is kept 30 days before being cleared, and it does **not** go to the sync repo. To recover, copy the folder back into `brains/` and reload the page.
+Yes, within 30 days. Deleting a brain is not permanent: Jarvis 007 moves the whole brain folder to a **local trash** at `brain-trash` inside the state folder (`server/brain-trash` locally, `/data/state/brain-trash` on Docker), named `<brain name>__<date time>`. That copy is kept 30 days before being cleared, and it does **not** go to the sync repo. To recover, copy the folder back into `brains/` and reload the page.
 
-Conversely, the deletion **propagates to other machines** syncing the same repo (Javis writes a "tombstone" so the other machine does not resurrect the deleted brain). So if you want to recover, do it soon and do it on the machine that still holds the trash copy.
+Conversely, the deletion **propagates to other machines** syncing the same repo (Jarvis 007 writes a "tombstone" so the other machine does not resurrect the deleted brain). So if you want to recover, do it soon and do it on the machine that still holds the trash copy.
 
 ### Are uploaded images and files kept forever?
 
 No. `attachments/` and `inbox/` are a cache: by default files over **30 days** old, or the excess above the **300 MB** ceiling, are cleared, and the temporary stage folder after **3 days**. A cleared image shows as a grey **Image expired** box in the old conversation. How to keep them or turn clearing off is in "Old images and files disappear" above.
 
-### How do I change Javis's voice?
+### How do I change Jarvis 007's voice?
 
 The default voice is `en-US-EmmaMultilingualNeural` (multilingual Edge TTS) at `+5%` speed. To change the voice or speed, set two variables in `.env` and restart the server:
 

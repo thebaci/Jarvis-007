@@ -5,7 +5,7 @@ Trạng thái: đã duyệt thiết kế (mockup), chuẩn bị lập kế hoạ
 
 ## Mục tiêu
 
-Trên điện thoại, khung chat của Javis đang rối và ô nhập bị bé. Làm lại theo hướng "chat là chính, gọn tối đa" (đã chốt với chủ dự án): ô nhập nở to, các thứ phụ gom vào một header mảnh và một ngăn kéo.
+Trên điện thoại, khung chat của Jarvis 007 đang rối và ô nhập bị bé. Làm lại theo hướng "chat là chính, gọn tối đa" (đã chốt với chủ dự án): ô nhập nở to, các thứ phụ gom vào một header mảnh và một ngăn kéo.
 
 Phạm vi: CHỈ giao diện điện thoại (màn hẹp, breakpoint 860px - đúng chỗ app đã coi là mobile). Bản máy tính (>860px) GIỮ NGUYÊN, không đụng.
 
@@ -26,7 +26,7 @@ Ba khối, đều là thay đổi mobile-only (thêm rule trong @media + ít JS)
 
 Ở mobile, `.hud-top` rút gọn còn ba thứ, căn đều một hàng:
 - Trái: nút **☰** (`#navToggle`, mobile-only) mở/đóng ngăn kéo điều hướng (Khối 2).
-- Giữa: **chip model** "Javis · <model> ▾" - bấm mở đúng `#mbPop` sẵn có (đổi model + effort + engine). Chốt cách làm: JS DỜI chính nút `#mbOpen` (và `#mbPop`) sẵn có vào header khi ở mobile, trả về `.model-bar` khi về desktop (theo dõi bằng matchMedia). Tái dùng nút gốc nên chữ model (`#mbModelTxt`) do `model-picker.js` cập nhật vẫn đúng, không phải đồng bộ bản sao.
+- Giữa: **chip model** "Jarvis 007 · <model> ▾" - bấm mở đúng `#mbPop` sẵn có (đổi model + effort + engine). Chốt cách làm: JS DỜI chính nút `#mbOpen` (và `#mbPop`) sẵn có vào header khi ở mobile, trả về `.model-bar` khi về desktop (theo dõi bằng matchMedia). Tái dùng nút gốc nên chữ model (`#mbModelTxt`) do `model-picker.js` cập nhật vẫn đúng, không phải đồng bộ bản sao.
 - Phải: nút **＋** (hội thoại mới) - dùng lại handler của `#resetBtn` (reset = hội thoại mới).
 
 Các nút cũ của `.hud-top` (brand, chọn brain, số liệu, đổi tông, Studio, cài đặt, loa, reset) ở mobile ẩn khỏi header và đưa vào ngăn kéo (Khối 2, phần "Hệ thống"). `.model-bar` cũ (nguyên hàng) ẩn ở mobile; riêng `.sysbar` (HỆ THỐNG/MCP - chỉ là thông tin trạng thái) ẩn hẳn ở mobile.
@@ -45,7 +45,7 @@ Các nút cũ của `.hud-top` (brand, chọn brain, số liệu, đổi tông, 
 - Bố cục trong pill: **＋ (đính kèm, `#attachBtn`)** trái | **`#chatInput`** chiếm gần hết bề ngang | **mic (`.mic-big` thu nhỏ ~34px)** | **nút gửi tròn (`#sendBtn`)** phải. Nút dừng `#stopBtn` chỉ hiện khi đang chạy (thay chỗ nút gửi), như hiện tại.
 - `#chatInput`: min-height ~40px, tự cao lên khi gõ dài (max-height cao hơn hiện tại, vd 40vh), font 16px (chống iOS zoom).
 - Nút loa trong bar (`#ttsToggleBar`) ẩn ở mobile (bật/tắt loa đã có trong ngăn kéo phần Hệ thống).
-- Mic + gửi LUÔN hiện (Javis dùng giọng nói nhiều); không làm swap mic/gửi để đơn giản.
+- Mic + gửi LUÔN hiện (Jarvis 007 dùng giọng nói nhiều); không làm swap mic/gửi để đơn giản.
 
 ## Không làm (ngoài phạm vi)
 

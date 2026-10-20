@@ -1,75 +1,75 @@
 ---
-name: HTML sang Webcake
-description: Chuyển trang HTML thành file .pke mở được trong trình dựng Webcake, giữ đúng màu, cỡ chữ, ảnh và bố cục của bản gốc.
+name: HTML to Webcake
+description: Turn an HTML page into a .pke file the Webcake builder can open, keeping the original colours, type sizes, images and layout.
 name_en: "HTML to Webcake"
 description_en: "Turn an HTML page into a .pke file the Webcake builder can open, keeping the original colours, type sizes, images and layout."
 group: Marketing
 ---
 
-# HTML sang Webcake (.pke)
+# HTML to Webcake (.pke)
 
-## Khi nào dùng
+## When to use
 
-Người dùng nói những câu như: "chuyển file html này sang webcake", "đổi html thành pke",
-"tạo file webcake từ html", "làm landing này thành file sửa được trên webcake",
-"html to webcake", "convert html sang webcake", "bài sales page vừa viết đưa lên webcake".
+The user says things like: "convert this html file to webcake", "turn html into pke",
+"create a webcake file from html", "make this landing page into a file I can edit on webcake",
+"html to webcake", "convert html to webcake", "put the sales page I just wrote onto webcake".
 
-## Hiểu đúng bản chất trước khi làm
+## Understand the nature of the job before starting
 
-- File `.pke` = `base64( MessagePack( envelope ) )`, trong đó `envelope.source` chính là
-  **page_source** của editor Webcake (`settings, popup, page, options, cartConfigs`).
-- Webcake là **canvas định vị TUYỆT ĐỐI theo pixel**, mỗi phần tử ghi `top/left/width/height`
-  RIÊNG cho 2 khổ: mobile rộng 420, desktop rộng 960. Không phải HTML trôi theo dòng.
-- Vì vậy bố cục được **TÁI DỰNG** thành các section xếp dọc + hàng nhiều cột. Còn **màu, cỡ chữ,
-  line-height, letter-spacing, ảnh, nội dung, thứ tự** thì lấy nguyên từ nguồn - bộ công cụ đọc
-  cascade CSS thật chứ không nhìn bằng mắt. Nói rõ ranh giới này với người dùng.
-- HTML do Webcake publish (bản đã xuất) không chứa source biên tập; vẫn đọc lại nội dung được.
+- A `.pke` file = `base64( MessagePack( envelope ) )`, where `envelope.source` is the
+  **page_source** of the Webcake editor (`settings, popup, page, options, cartConfigs`).
+- Webcake is a **canvas positioned in ABSOLUTE pixels**, and every element records its own `top/left/width/height`
+  for 2 sizes: mobile at width 420, desktop at width 960. It is not HTML that flows line by line.
+- So the layout is **REBUILT** as vertically stacked sections plus multi-column rows. But **colors, font sizes,
+  line-height, letter-spacing, images, content, order** are taken exactly from the source - the toolkit reads the real
+  CSS cascade rather than eyeballing it. State this boundary clearly to the user.
+- HTML published by Webcake (the exported version) does not contain the editing source; its content can still be read back.
 
-## Công cụ (đi kèm skill, không cần cài gói)
+## Tools (shipped with the skill, no package to install)
 
-Ở thư mục `tools/` cạnh file SKILL.md này. Chạy bằng `node`, không phụ thuộc npm.
+In the `tools/` folder next to this SKILL.md file. Run with `node`, no npm dependencies.
 
-- `webcake-from-html.js` - **HTML -> spec.json**. Đọc DOM + cascade CSS thật (biến `var(--x)`,
-  `clamp()`, `@media`, class, inline style), suy ra section/heading/text/ảnh/nút/form/bảng giá/
-  card/hàng nhiều cột, rồi in ra danh sách cảnh báo.
-  `node tools/webcake-from-html.js trang.html spec.json [--name "Tên trang"]`
-- `webcake-build.js` - **spec.json -> .pke**. Tự chạy lint sau khi build.
-  `node tools/webcake-build.js spec.json out.pke [--check]` (`--check`: exit 1 nếu lint có lỗi)
-- `webcake-lint.js` - soát layout (chồng nhau, tràn section, khoảng chết) **và tương phản chữ/nền**.
+- `webcake-from-html.js` - **HTML -> spec.json**. Reads the DOM + the real CSS cascade (`var(--x)` variables,
+  `clamp()`, `@media`, classes, inline styles), infers sections/headings/text/images/buttons/forms/price tables/
+  cards/multi-column rows, then prints a list of warnings.
+  `node tools/webcake-from-html.js trang.html spec.json [--name "Page name"]`
+- `webcake-build.js` - **spec.json -> .pke**. Runs the lint automatically after building.
+  `node tools/webcake-build.js spec.json out.pke [--check]` (`--check`: exit 1 if the lint finds errors)
+- `webcake-lint.js` - checks the layout (overlaps, section overflow, dead gaps) **and text/background contrast**.
   `node tools/webcake-lint.js out.pke`
-- `webcake-preview.js` - render page_source thành HTML tĩnh mô phỏng đúng canvas để SOI TRƯỚC.
+- `webcake-preview.js` - renders page_source into static HTML that simulates the canvas exactly, to LOOK AT it first.
   `node tools/webcake-preview.js out.pke previewBase [--debug]`
-- `webcake-pke.js` - codec 2 chiều: `decode file.pke file.json` / `encode file.json file.pke`.
-- `webcake-html.js` - thư viện đọc HTML/CSS dùng chung (không gọi trực tiếp).
+- `webcake-pke.js` - two-way codec: `decode file.pke file.json` / `encode file.json file.pke`.
+- `webcake-html.js` - the shared HTML/CSS reading library (do not call it directly).
 
-Ví dụ spec chuẩn viết tay: `examples/salepage-16-buoc-spec.json`. Ví dụ HTML nguồn: `examples/sample.html`.
+A standard hand-written spec example: `examples/salepage-16-buoc-spec.json`. A source HTML example: `examples/sample.html`.
 
-## Quy trình khi kích hoạt (BẮT BUỘC đủ 6 bước)
+## Procedure when activated (all 6 steps are MANDATORY)
 
-1. **Xác định HTML nguồn.** Người dùng đưa file `.html` hoặc dán HTML. Dán thì ghi ra file tạm trước.
-2. **Chuyển tự động**: `node tools/webcake-from-html.js trang.html spec.json`.
-   **ĐỌC KỸ mục "CẦN LƯU Ý"** nó in ra - đó là những thứ nó KHÔNG mang sang được (ảnh local,
-   svg/canvas, hiệu ứng hover, CSS từ file ngoài). Đừng bỏ qua rồi giao file thiếu.
-3. **Soát lại spec bằng mắt** rồi sửa tay những chỗ máy không đoán được: `ratio` của ảnh không khai
-   kích thước, section nào nên gộp/tách, nút nào là CTA chính. Đây là bước cho "đẹp", không phải
-   bước cho "giống" - phần giống máy đã làm xong.
+1. **Identify the source HTML.** The user hands over an `.html` file or pastes HTML. If pasted, write it to a temp file first.
+2. **Convert automatically**: `node tools/webcake-from-html.js trang.html spec.json`.
+   **READ the "CAN LUU Y" section it prints carefully** ("CAN LUU Y" = "Things to note", a heading the tool prints in Vietnamese without diacritics) - these are the things it could NOT carry over (local images,
+   svg/canvas, hover effects, CSS from external files). Do not skip it and then hand over an incomplete file.
+3. **Review the spec by eye** and hand-fix what the machine cannot guess: the `ratio` of images that do not declare
+   a size, which sections should be merged/split, which button is the main CTA. This step is for "looks good", not
+   for "looks the same" - the "looks the same" part the machine has already done.
 4. **Build**: `node tools/webcake-build.js spec.json out.pke`.
-5. **Lint phải 0 ERROR.** Còn lỗi chồng/tràn/chữ chìm vào nền thì sửa spec rồi build lại - KHÔNG
-   giao file đang lỗi. Cảnh báo tương phản thấp cũng nên xử, đó là chữ khó đọc thật.
-6. **Soi trước khi giao**: `node tools/webcake-preview.js out.pke preview` rồi mở
-   `preview.desktop.html` + `preview.mobile.html`. Chụp được màn hình thì đặt cạnh trang gốc mà so:
-   thứ tự section, màu nền từng dải, cỡ tiêu đề, vị trí ảnh. Lệch đâu sửa spec rồi lặp lại.
-7. **Giao file**: đặt `out.pke` cạnh HTML gốc hoặc trong vault, nhúng link markdown cho user tải,
-   báo cáo NGẮN: bao nhiêu section, đã QA những gì, nhắc "upload lên Webcake để sửa" + các giới hạn.
+5. **Lint must show 0 ERROR.** If overlap/overflow/text-sinking-into-background errors remain, fix the spec and build again - do NOT
+   hand over a file with errors. Low-contrast warnings should also be dealt with, that is text that is genuinely hard to read.
+6. **Inspect before delivering**: `node tools/webcake-preview.js out.pke preview` then open
+   `preview.desktop.html` + `preview.mobile.html`. If you can take screenshots, place them beside the original page and compare:
+   section order, background color of each band, heading size, image position. Fix the spec wherever it differs and repeat.
+7. **Deliver the file**: put `out.pke` next to the original HTML or in the vault, embed a markdown link for the user to download,
+   and report BRIEFLY: how many sections, what QA was done, remind them to "upload to Webcake to edit" + the limitations.
 
-## Schema của spec.json
+## spec.json schema
 
 ```json
 {
-  "name": "Tên trang", "title": "Tiêu đề SEO", "description": "Mô tả SEO",
-  "font": "Montserrat", "favicon": "https://... (tùy chọn)",
-  "extraScript": "JS chạy khi publish/preview (vd đếm ngược)",
-  "extraCss": "CSS phụ trợ khi publish",
+  "name": "Page name", "title": "SEO title", "description": "SEO description",
+  "font": "Montserrat", "favicon": "https://... (optional)",
+  "extraScript": "JS that runs on publish/preview (e.g. a countdown)",
+  "extraCss": "Extra CSS on publish",
   "theme": {
     "colors": { "ink": "rgba(242,240,232,1)", "amber": "rgba(232,168,92,1)", "cta": "linear-gradient(...)" },
     "text":    { "color": "$soft", "size": 16 },
@@ -79,87 +79,87 @@ Ví dụ spec chuẩn viết tay: `examples/salepage-16-buoc-spec.json`. Ví d�
     "button":  { "bg": "$cta", "color": "$bg0", "radius": 99, "size": 17 },
     "textMaxWidth": 700, "headingMaxWidth": 800, "cardMaxWidth": 800
   },
-  "sections": [ { "name": "hero", "background": "$bg0 hoặc chuỗi CSS gradient", "padTop": 56, "gap": 18, "padBottom": 56,
+  "sections": [ { "name": "hero", "background": "$bg0 or a CSS gradient string", "padTop": 56, "gap": 18, "padBottom": 56,
     "elements": [ ] } ]
 }
 ```
 
-**Token màu**: `"$ten"` (nguyên chuỗi) hoặc `${ten}` (nhúng trong html dài) -> tự thay bằng `theme.colors.ten`. Tên không tồn tại thì giữ nguyên chuỗi (an toàn với chuỗi kiểu "$50").
-Mỗi mục `theme.text/heading/badge/card/button/testimonial/priceTable/guarantee/progress/divider/ctaBlock` là **default cho kind tương ứng** - element chỉ ghi field khác default.
+**Color tokens**: `"$name"` (the whole string) or `${name}` (embedded in long html) -> automatically replaced with `theme.colors.name`. A name that does not exist is left as is (safe for strings like "$50").
+Each of `theme.text/heading/badge/card/button/testimonial/priceTable/guarantee/progress/divider/ctaBlock` is the **default for the matching kind** - an element only states the fields that differ from the default.
 
-### Element LÁ
+### LEAF elements
 
-| kind | field chính | ghi chú |
+| kind | main fields | notes |
 |---|---|---|
-| `heading` | `text` (HTML inline OK), `size`, `tag` h1/h2/h3, `align`, `kicker`, `lineHeight`, `letterSpacing` | `kicker: "01"` tự sinh pill nhỏ phía trên |
-| `text` | `html`, `size`, `color`, `align`, `maxWidth`, `lineHeight`, `letterSpacing` | mặc định tự bó về `textMaxWidth` (~700) và căn giữa khối |
+| `heading` | `text` (inline HTML OK), `size`, `tag` h1/h2/h3, `align`, `kicker`, `lineHeight`, `letterSpacing` | `kicker: "01"` automatically generates a small pill above |
+| `text` | `html`, `size`, `color`, `align`, `maxWidth`, `lineHeight`, `letterSpacing` | by default it is automatically bounded to `textMaxWidth` (~700) and the block is centered |
 | `image` | `src`, `ratio` (w/h), `width` 0..1, `widthMobile`, `radius`, `boxShadow` | |
-| `button` | `text`, `href` hoặc `scrollTo`, `width`, `bg`, `color`, `radius`, `boxShadow`, `animation` | glow tự suy từ màu bg; text dài tự tăng height |
-| `badge` | `text`, `align`, `bg`, `color`, `borderColor`, `padX`, `padY` | text dài tự HẠ cỡ chữ; vẫn dài nữa thì tự wrap và pill cao lên |
-| `card` | `icon`, `iconTop`, `title`, `text`, `accent`, `pad`, `align`, `maxWidth` | hộp nền bo góc + tiêu đề + mô tả |
-| `divider` | `width` 0..1, `color`, `thickness` | đường kẻ mảnh căn giữa |
-| `progress` | `value` 0..1, `width`, `label`, `fillColor`, `trackColor`, `glow` | thanh tiến trình |
-| `priceTable` | `title`, `rows: [{label, price}]`, `total`, `strike`, `today` | bảng giá trị, hàng tổng, dòng gạch giá |
-| `testimonial` | `quote`, `author`, `stars` 1..5 | tự bọc card |
-| `guarantee` | `icon`, `title`, `text` | icon lớn bên trái, nội dung bên phải |
-| `ctaBlock` | `text`, `href`, `sub`, `arrow` + mọi field button | mũi tên + nút + dòng phụ thành 1 khối |
+| `button` | `text`, `href` or `scrollTo`, `width`, `bg`, `color`, `radius`, `boxShadow`, `animation` | the glow is inferred from the bg color; long text automatically increases the height |
+| `badge` | `text`, `align`, `bg`, `color`, `borderColor`, `padX`, `padY` | long text automatically LOWERS the font size; if it is still too long it wraps and the pill grows taller |
+| `card` | `icon`, `iconTop`, `title`, `text`, `accent`, `pad`, `align`, `maxWidth` | a rounded background box + title + description |
+| `divider` | `width` 0..1, `color`, `thickness` | a thin centered line |
+| `progress` | `value` 0..1, `width`, `label`, `fillColor`, `trackColor`, `glow` | a progress bar |
+| `priceTable` | `title`, `rows: [{label, price}]`, `total`, `strike`, `today` | a value table, a total row, a struck-through price line |
+| `testimonial` | `quote`, `author`, `stars` 1..5 | wrapped in a card automatically |
+| `guarantee` | `icon`, `title`, `text` | a large icon on the left, content on the right |
+| `ctaBlock` | `text`, `href`, `sub`, `arrow` + every button field | an arrow + button + sub line as 1 block |
 | `spacer` | `height` | |
-| `window` | `title`, `lines: [{who: "you\|bot", text}]` | khung cửa sổ chat |
-| `form` | `fields`, `submitText`, `submitBg`, `redirect` | input + nút gửi |
+| `window` | `title`, `lines: [{who: "you\|bot", text}]` | a chat window frame |
+| `form` | `fields`, `submitText`, `submitBg`, `redirect` | inputs + a submit button |
 
-Mọi kind còn nhận `customCss` (khai báo CSS thuần cho riêng element đó, đi qua `specials.custom_css`
-của Webcake). Chỉ dùng cho thứ TRÔNG THẤY: gradient, bóng, bo, filter, transition. **Cấm** đặt
-`position/top/left/width/height/display/flex/grid` ở đây - engine sẽ ném lỗi, vì chúng đè lên hộp
-tuyệt đối của canvas và làm vỡ bố cục.
+Every kind also accepts `customCss` (plain CSS declarations for that element only, passed through Webcake's
+`specials.custom_css`). Use it only for things you can SEE: gradients, shadows, rounding, filters, transitions. **Never** set
+`position/top/left/width/height/display/flex/grid` here - the engine will throw an error, because they override the canvas's
+absolute box and break the layout.
 
-### Element BỐ CỤC (chống trang 1 cột đơn điệu)
+### LAYOUT elements (against the monotonous single-column page)
 
-- `row` `{ "gap": 44, "valign": "center", "cols": [ {"w": 0.55, "items": []}, {"w": 0.45, "items": []} ] }` - desktop xếp cột cạnh nhau, mobile tự xếp dọc.
-- `hero` `{ "side": "right|left", "mediaW": 0.4, "media": {element ảnh/window}, "items": [] }` - đường tắt "chữ 1 bên, hình 1 bên".
-- `cardsRow` `{ "gap": 18, "cards": [ {icon,title,text} ] }` - 1 hàng card đều nhau.
-- `testimonialRow` `{ "items": [ {quote,author} ] }` - hàng testimonial ngang.
-- `iconRow` `{ "items": [ {icon, text} ] }` - hàng icon + chú thích ngắn.
+- `row` `{ "gap": 44, "valign": "center", "cols": [ {"w": 0.55, "items": []}, {"w": 0.45, "items": []} ] }` - on desktop the columns sit side by side, on mobile they stack automatically.
+- `hero` `{ "side": "right|left", "mediaW": 0.4, "media": {image/window element}, "items": [] }` - the shortcut for "text on one side, picture on the other".
+- `cardsRow` `{ "gap": 18, "cards": [ {icon,title,text} ] }` - 1 row of equal cards.
+- `testimonialRow` `{ "items": [ {quote,author} ] }` - a horizontal row of testimonials.
+- `iconRow` `{ "items": [ {icon, text} ] }` - a row of icons + short captions.
 
-## Design pass (checklist thẩm mỹ - chấm TRƯỚC khi giao)
+## Design pass (aesthetic checklist - score it BEFORE delivering)
 
-1. **Nhịp nền**: luân phiên nền section đậm / nhạt; tối đa 1 radial-gradient nhấn cho hero + 1 cho khối giá.
-2. **>= 3 pattern bố cục** mỗi trang (hero 2 cột, cardsRow, priceTable, testimonial...). Cấm 100% một cột.
-3. **Khổ chữ đọc được**: đoạn văn <= ~90 ký tự/dòng (`textMaxWidth` lo việc này).
-4. **Heading scale nhất quán**: vd h1 42 / h2 31 / h3 19 desktop (mobile tự nhân ~0.84).
-5. **Spacing bội số 8** cho padTop/padBottom/gap; đừng cắt vụn mỗi dòng một section.
-6. **CTA lặp 2-3 lần**, cùng màu cùng radius; nút chính nổi bật nhất trang.
-7. **Lint 0 ERROR + preview 2 khổ**: không chồng chữ, không hụt nền, không chữ chìm vào nền.
+1. **Background rhythm**: alternate dark / light section backgrounds; at most 1 accent radial-gradient for the hero + 1 for the price block.
+2. **>= 3 layout patterns** per page (2-column hero, cardsRow, priceTable, testimonial...). 100% single column is forbidden.
+3. **Readable text width**: paragraphs <= ~90 characters per line (`textMaxWidth` takes care of this).
+4. **Consistent heading scale**: e.g. h1 42 / h2 31 / h3 19 on desktop (mobile is automatically multiplied by ~0.84).
+5. **Spacing in multiples of 8** for padTop/padBottom/gap; do not chop it into one section per line.
+6. **Repeat the CTA 2-3 times**, same color and same radius; the main button is the most prominent on the page.
+7. **Lint 0 ERROR + preview at 2 sizes**: no overlapping text, no missing backgrounds, no text sinking into the background.
 
-## Nguyên tắc chuyển đổi
+## Conversion principles
 
-- **Chữ nhấn mạnh**: thẻ inline trong html - `<span style='font-weight:700;color:${ink};'>...</span>`,
-  gạch giá `<span style='text-decoration:line-through;'>...</span>`. Xuống dòng `<br>`, KHÔNG lồng `<p>`.
-- **Chữ tô gradient**: `<span style='background:linear-gradient(...);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;'>`.
-  Đây là HTML nằm TRONG `specials.text` nên chạy bình thường; khác hẳn `styles.background` của cả text-block.
-- **Màu**: dạng `rgba(r,g,b,a)` hoặc token `$ten`. Nút nổi bật dùng gradient.
-- **Ảnh**: Webcake tải theo URL public. Ảnh local/base64 -> CẢNH BÁO user cần upload rồi thay `src`,
-  không thì ảnh sẽ trống (lint cũng bắt lỗi này).
-- **Đo chữ**: engine dùng bảng độ rộng TỪNG ký tự Montserrat đo thật từ Chromium (chuẩn cả tiếng Việt,
-  CHỮ HOA, emoji, số), có tính `line-height`/`letter-spacing`/span đổi cỡ chữ, cộng biên an toàn 1.5%.
-  Font khác Montserrat sẽ kém chính xác hơn - cứ chạy preview để soi.
-- **Script/CSS động**: `extraScript` / `extraCss` map vào Cài đặt > HTML/JavaScript của Webcake;
-  CHỈ chạy khi Xem trước / Xuất bản, KHÔNG chạy trong editor - dặn user bấm Preview mới thấy.
-- **KHÔNG dùng ký tự em dash** ở bất cứ đâu (text, spec, báo cáo) - dùng "-".
+- **Emphasized text**: inline tags in the html - `<span style='font-weight:700;color:${ink};'>...</span>`,
+  struck-through price `<span style='text-decoration:line-through;'>...</span>`. Line break `<br>`, do NOT nest `<p>`.
+- **Gradient-filled text**: `<span style='background:linear-gradient(...);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;'>`.
+  This is HTML sitting INSIDE `specials.text` so it runs normally; quite different from the `styles.background` of the whole text block.
+- **Colors**: in the form `rgba(r,g,b,a)` or a `$name` token. Use a gradient for the standout button.
+- **Images**: Webcake loads by public URL. Local/base64 images -> WARN the user they need to upload and then replace `src`,
+  otherwise the image will be empty (the lint also catches this error).
+- **Text measuring**: the engine uses a table of the width of EACH Montserrat character measured for real from Chromium (accurate for Vietnamese too,
+  UPPERCASE, emoji, digits), accounting for `line-height`/`letter-spacing`/spans that change font size, plus a 1.5% safety margin.
+  Fonts other than Montserrat are less accurate - always run the preview to check.
+- **Dynamic script/CSS**: `extraScript` / `extraCss` map into Webcake's Settings > HTML/JavaScript;
+  they ONLY run on Preview / Publish, NOT inside the editor - tell the user to press Preview to see them.
+- **Do NOT use the em dash character** anywhere (text, spec, report) - use "-".
 
-## Cách nâng cao (tự dựng page_source rồi encode)
+## Advanced route (build the page_source yourself, then encode)
 
-Cần kiểm soát sâu (group lồng nhau, popup, radio/checkbox sản phẩm) thì tự dựng nguyên object `source`
-(`{settings, popup, page, options, cartConfigs}`) đúng schema node Webcake, ghi ra JSON rồi:
-`node tools/webcake-pke.js encode source.json out.pke` (thêm `--name` `--owner` nếu cần).
+When you need deep control (nested groups, popups, product radio/checkbox), build the whole `source` object yourself
+(`{settings, popup, page, options, cartConfigs}`) in the correct Webcake node schema, write it to JSON, then:
+`node tools/webcake-pke.js encode source.json out.pke` (add `--name` `--owner` if needed).
 
-Có kết nối **Webcake Landing MCP** thì còn đường thứ hai: dựng thẳng trang trên tài khoản qua
-`create_page` / `add_section` / `validate_page`. Đường `.pke` này dành cho lúc chưa đấu MCP,
-hoặc khi user muốn một file để tự upload.
+With a **Webcake Landing MCP** connection there is a second route: build the page directly on the account through
+`create_page` / `add_section` / `validate_page`. This `.pke` route is for when the MCP is not connected yet,
+or when the user wants a file to upload themselves.
 
-## Giới hạn cần nói thẳng với người dùng
+## Limitations to state plainly to the user
 
-Bố cục được tái dựng theo lưới dọc + hàng nhiều cột, không sao chép y hệt vị trí pixel của HTML gốc.
-Hiệu ứng nền động (canvas, orb blur, svg) không mang sang editor được. Hiệu ứng `:hover` phải thêm lại
-tay trong Cài đặt > CSS. Radio/checkbox chọn sản phẩm (gắn `product_id`/`variation` của Pancake)
-không tự sinh được - user thêm trong Webcake sau khi upload.
-Khuyến khích upload thử file `.pke` trước, lệch đâu chỉnh spec rồi build lại.
+The layout is rebuilt on a vertical grid + multi-column rows, not a copy of the original HTML's exact pixel positions.
+Animated background effects (canvas, blurred orbs, svg) cannot be carried into the editor. `:hover` effects must be added back
+by hand in Settings > CSS. Product-selection radio/checkbox (tied to Pancake's `product_id`/`variation`)
+cannot be generated automatically - the user adds them in Webcake after uploading.
+We encourage uploading the `.pke` file as a trial first, adjusting the spec wherever it differs, and building again.

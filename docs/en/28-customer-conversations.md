@@ -2,7 +2,7 @@
 
 *[Tiếng Việt](../28-hoi-thoai-khach.md) · **English***
 
-Every message a customer sends to a **dedicated bot** (Telegram or Zalo Bot) and to a connected **personal Zalo account** is gathered into one inbox inside Javis. You read the exchange between the customer and the bot, see which chats the bot is stuck on, and **take over** a chat when a human is needed.
+Every message a customer sends to a **dedicated bot** (Telegram or Zalo Bot) and to a connected **personal Zalo account** is gathered into one inbox inside Jarvis 007. You read the exchange between the customer and the bot, see which chats the bot is stuck on, and **take over** a chat when a human is needed.
 
 Since 0.61.0 this page also holds the Chatbots: **one item on the rail, three tabs** (Inbox, Channels, Chatbots), and you **reply to customers right inside the Inbox**.
 
@@ -35,9 +35,9 @@ Since 0.65.10 the top is compact so the working area takes most of the screen: t
 
 The left column lists conversations, newest first. Each row: the customer (or group) name, the channel logo, the last message, the time, and the unread count. There is a search box for names or text, channel chips (shown only once two channels exist) and a bot selector (shown only once two bots exist).
 
-**Groups keep only the latest 100 messages** (since 0.65.12). The inbox stores every message of private chats with customers, but each **group** keeps just its 100 newest; older ones are deleted as new ones arrive. This keeps the store from growing forever and stops Javis from holding strangers' words longer than needed (a personal Zalo account in many groups records even groups the bot is not allowed to answer in). The first time after updating, existing groups with more than 100 messages are cut down to 100; Javis **backs up the whole store file once** before cutting (a `customer_conversations.sqlite3.bak-truoc-cat-nhom-...` file next to the store) and **deletes that backup after 14 days**. To get the cut messages back, copy the backup over the store file within those 14 days. A conversation's "messages ever received" counter does not go down.
+**Groups keep only the latest 100 messages** (since 0.65.12). The inbox stores every message of private chats with customers, but each **group** keeps just its 100 newest; older ones are deleted as new ones arrive. This keeps the store from growing forever and stops Jarvis 007 from holding strangers' words longer than needed (a personal Zalo account in many groups records even groups the bot is not allowed to answer in). The first time after updating, existing groups with more than 100 messages are cut down to 100; Jarvis 007 **backs up the whole store file once** before cutting (a `customer_conversations.sqlite3.bak-truoc-cat-nhom-...` file next to the store) and **deletes that backup after 14 days**. To get the cut messages back, copy the backup over the store file within those 14 days. A conversation's "messages ever received" counter does not go down.
 
-**Loads gradually, no lag** (since 0.65.11). The list loads the first 40 rows; scrolling near the bottom loads 40 more (or press **Show more**), and the counter reads "40+ conversations" until it runs out. The message pane works the same way: opening a conversation loads only the **latest** 40 messages, scrolling up near the top (or pressing **Show older messages**) loads 40 older ones and keeps your place. Every 5 seconds Javis only asks for messages **newer than the last one** and appends them; if you are reading older messages when a new one arrives the pane stays still instead of jumping to the top.
+**Loads gradually, no lag** (since 0.65.11). The list loads the first 40 rows; scrolling near the bottom loads 40 more (or press **Show more**), and the counter reads "40+ conversations" until it runs out. The message pane works the same way: opening a conversation loads only the **latest** 40 messages, scrolling up near the top (or pressing **Show older messages**) loads 40 older ones and keeps your place. Every 5 seconds Jarvis 007 only asks for messages **newer than the last one** and appends them; if you are reading older messages when a new one arrives the pane stays still instead of jumping to the top.
 
 Click a conversation and its history opens on the right: customer messages on the left, bot replies and messages you sent from your phone on the right. A failed bot turn sits there too, with its technical reason, so you can tell "the bot answered wrong" from "the bot is broken".
 
@@ -45,7 +45,7 @@ On a phone the page is one column: tap a conversation to open its history, with 
 
 ## Reply, take over and hand back
 
-At the bottom of a conversation is a compose box: type and press **Enter** to send (Shift+Enter for a new line). The message goes out through the chat's own channel: a Telegram or Zalo bot sends with that account's token, personal Zalo sends through the very account you scanned, **under your own name** (the compose box says so). A channel that cannot send from Javis yet shows a line saying so instead of the box.
+At the bottom of a conversation is a compose box: type and press **Enter** to send (Shift+Enter for a new line). The message goes out through the chat's own channel: a Telegram or Zalo bot sends with that account's token, personal Zalo sends through the very account you scanned, **under your own name** (the compose box says so). A channel that cannot send from Jarvis 007 yet shows a line saying so instead of the box.
 
 Sending from here in a chat that has a bot **takes the chat over**: the bot stays quiet with this customer until you press **Hand back to AI**. Otherwise the customer would read two voices at once. The **Take over** button at the top of the conversation does the same without sending anything; after pressing it you can also reply in the channel's own app.
 
@@ -56,27 +56,27 @@ Two things to know:
 
 ## The Channels tab
 
-Every account customers write to appears as **the same kind of card**, whatever the channel: channel logo and name, account name, state (running, off, error with the reason), the bot on duty, conversation and unread counts, and the channel's capabilities (groups, files, reply from Javis). No channel gets its own section, Zalo included. A channel added later simply shows up as one more card.
+Every account customers write to appears as **the same kind of card**, whatever the channel: channel logo and name, account name, state (running, off, error with the reason), the bot on duty, conversation and unread counts, and the channel's capabilities (groups, files, reply from Jarvis 007). No channel gets its own section, Zalo included. A channel added later simply shows up as one more card.
 
 Two kinds of account, differing in how you get them, not in how they look:
 
-**Bot accounts** (Telegram, Zalo Bot) are a token. Press **Add account**, pick the channel type, paste the token, press **Check** so Javis asks the right platform which bot it is, give it a display name and Save. A bot account records into the inbox while the bot serving it is enabled; with no bot on duty the card says so and offers **Create a bot**, which opens the form on the Chatbots tab with that account ticked. It can be deleted once no bot serves it; recorded conversations stay.
+**Bot accounts** (Telegram, Zalo Bot) are a token. Press **Add account**, pick the channel type, paste the token, press **Check** so Jarvis 007 asks the right platform which bot it is, give it a display name and Save. A bot account records into the inbox while the bot serving it is enabled; with no bot on duty the card says so and offers **Create a bot**, which opens the form on the Chatbots tab with that account ticked. It can be deleted once no bot serves it; recorded conversations stay.
 
-**Your own accounts** (personal Zalo) come from the **Connections** page (QR scan in Zalo Agent MCP) and appear here with a **Record conversations** switch. Turn it on and Javis reads new messages every 20 seconds through the MCP and writes them into the inbox. Three plain facts about this channel:
+**Your own accounts** (personal Zalo) come from the **Connections** page (QR scan in Zalo Agent MCP) and appear here with a **Record conversations** switch. Turn it on and Jarvis 007 reads new messages every 20 seconds through the MCP and writes them into the inbox. Three plain facts about this channel:
 
-- **Off by default.** Turning it on keeps your Zalo session alive continuously through an unofficial API, meaning the account is signed in 24/7 on the machine running Javis. That is your choice, not Javis's. Use a secondary account.
+- **Off by default.** Turning it on keeps your Zalo session alive continuously through an unofficial API, meaning the account is signed in 24/7 on the machine running Jarvis 007. That is your choice, not Jarvis 007's. Use a secondary account.
 - **Stored from the moment you turn it on.** No old history is pulled. Messages you send from your phone show as "You".
 - **No bot on duty.** Replying from the Inbox sends under your own name; a bot answering over this channel deserves its own decision.
 
 ## Where data lives and what is kept
 
-The store sits in the Javis state folder (`customer_conversations.sqlite3`), separate from the chat session store. **Text** is kept long term; images, files and voice keep only the message type and a description, the original files follow Javis's normal cleanup. A message read twice (after a restart, say) never creates a second row.
+The store sits in the Jarvis 007 state folder (`customer_conversations.sqlite3`), separate from the chat session store. **Text** is kept long term; images, files and voice keep only the message type and a description, the original files follow Jarvis 007's normal cleanup. A message read twice (after a restart, say) never creates a second row.
 
 Deleting a bot does **not** delete its conversations, nor the channel accounts it served: customer history is your asset, a token is reusable. Bots created before 0.61.0 (token stored inside the bot) move to the account model automatically on update; token, conversations and allowed groups are all kept.
 
 ## For anyone adding a channel
 
-Since 0.61.0 everything the core knows about a channel lives in the **channel registry** (`server/channels/`, one file per channel). A channel file declares: id, name, logo key, kind (`bot` uses a token, `account` uses an existing signed-in session, `webhook` for platforms that call back), capabilities (groups, text, files), how to get a token; and a set of functions: token check and the long-poll transport (bot kind), listing accounts and toggling recording (account kind), `gui` to reply from Javis. Incoming messages are normalized into the common event (`channel`, `account_id`, `external_chat_id`, `sender_type`, `text`, `external_message_id`, `created_at`) and written to the store.
+Since 0.61.0 everything the core knows about a channel lives in the **channel registry** (`server/channels/`, one file per channel). A channel file declares: id, name, logo key, kind (`bot` uses a token, `account` uses an existing signed-in session, `webhook` for platforms that call back), capabilities (groups, text, files), how to get a token; and a set of functions: token check and the long-poll transport (bot kind), listing accounts and toggling recording (account kind), `gui` to reply from Jarvis 007. Incoming messages are normalized into the common event (`channel`, `account_id`, `external_chat_id`, `sender_type`, `text`, `external_message_id`, `created_at`) and written to the store.
 
 Adding a channel = one file in the registry, one registration line, one logo in `icons.js`. The bot store, the supervisor, the API and all three tabs pick it up; nothing else changes. Details in `docs/dev/2026-09-kenh-hoi-thoai-spec.md`. API:
 
@@ -97,7 +97,7 @@ Adding a channel = one file in the registry, one registration line, one logo in 
 
 ## Want more: the Customer management (CRM) pack
 
-The Store has a **Customer management (CRM)** pack (`javis.khach-hang-crm`, needs 0.60.1 or newer) that sits on this very inbox. Once installed, just ask Javis: "who has waited over 2 hours without a reply", "what did Lan ask", "tag Lan as VIP", "how many new customers this week", "export customers who asked for a price to Excel". It ships a customer-care agent and a daily review workflow. The pack only reads the inbox and writes tags and notes on customers; it never messages anyone.
+The Store has a **Customer management (CRM)** pack (`javis.khach-hang-crm`, needs 0.60.1 or newer) that sits on this very inbox. Once installed, just ask Jarvis 007: "who has waited over 2 hours without a reply", "what did Lan ask", "tag Lan as VIP", "how many new customers this week", "export customers who asked for a price to Excel". It ships a customer-care agent and a daily review workflow. The pack only reads the inbox and writes tags and notes on customers; it never messages anyone.
 
 ## See also
 

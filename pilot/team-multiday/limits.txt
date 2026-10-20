@@ -6,11 +6,11 @@ trước khi chạy và ghi vào báo cáo)
     nhiều ngày; gói Pro/Max của Anthropic dành cho dùng cá nhân thông thường, chạy nền 24/7 hay trên VPS có rủi ro bị
     khoá tài khoản. Gói xAI cũng chưa nói rõ chuyện này.
   - Claude Code chạy được ở quyền "cần duyệt" khi bản claude-agent-sdk có móc PreToolUse (bản ghim trong
-    requirements.txt có); thiếu thì Javis từ chối bước và nói rõ.
+    requirements.txt có); thiếu thì Jarvis 007 từ chối bước và nói rõ.
   - Codex (gói ChatGPT) chạy được ở quyền "cần duyệt" khi: MCP Hub bật, sandbox riêng của Codex bật (KHÔNG đặt
     JAVIS_CODEX_SANDBOX=off, nên trong Docker không bubblewrap thì Codex không dùng được cho nhóm cần duyệt), và
-    ~/.codex/config.toml không có MCP riêng ngoài Javis.
-  - KHÔNG dùng Grok Build hay Antigravity cho nhóm ở quyền "cần duyệt": Javis từ chối bước có công cụ trên hai engine
+    ~/.codex/config.toml không có MCP riêng ngoài Jarvis 007.
+  - KHÔNG dùng Grok Build hay Antigravity cho nhóm ở quyền "cần duyệt": Jarvis 007 từ chối bước có công cụ trên hai engine
     này (không chặn được trước khi chạy). Muốn dùng thì phải bật "Nhóm tự làm", và khi đó không còn cổng duyệt.
 
 Ngân sách mặc định cho mỗi nhóm (đặt ở tab Nhóm > Nâng cao và mục Mục tiêu phòng ban). config/teams.json đặt riêng

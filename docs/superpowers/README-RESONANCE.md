@@ -1,4 +1,4 @@
-# Javis Resonance: tiến độ và hướng triển khai hiện hành
+# Jarvis 007 Resonance: tiến độ và hướng triển khai hiện hành
 
 Cập nhật 08/10/2026. MVP M1–M5 đã phát hành trong 0.86.0 qua PR #587; main khi rà là 0.86.1 (`09f254d0`). Hướng tiếp theo theo yêu cầu chủ dự án: Cộng hưởng dành cho từng agent, có công tắc riêng, heartbeat thích nghi và học từ phản hồi.
 

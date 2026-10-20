@@ -20,7 +20,7 @@ Chủ repo chốt ba điều, và cả ba đều làm thiết kế gọn lại c
 nó thì bot phải tạo bằng cách sửa tay file `.md`, rồi làm xong trang lại vứt đường đó đi. Xem
 mục 7 đã xếp lại.
 
-Hai điều đầu hoá ra gần như miễn phí, vì Javis đã có sẵn:
+Hai điều đầu hoá ra gần như miễn phí, vì Jarvis 007 đã có sẵn:
 
 - **Nhiều brain là chuyện có sẵn từ lâu**: `GET /brains`, `POST /brains/new` (tự seed cấu trúc
   chuẩn), `POST /brains/delete` (`server/main.py:3270`). Tạo brain cho bot là gọi đúng API đó,
@@ -32,7 +32,7 @@ Hai điều đầu hoá ra gần như miễn phí, vì Javis đã có sẵn:
 
 ## 1. Ý muốn, diễn đạt lại cho chắc
 
-> Javis đang có nhiều Agent, mỗi Agent gắn Skill và Workflow riêng. Tận dụng chúng để tạo ra
+> Jarvis 007 đang có nhiều Agent, mỗi Agent gắn Skill và Workflow riêng. Tận dụng chúng để tạo ra
 > các chatbot, **mỗi con chuyên một lĩnh vực**, đứng ra trả lời giúp. Chatbot trả lời qua
 > Telegram, hoặc thả thẳng vào nhóm chăm sóc khách hàng.
 
@@ -54,7 +54,7 @@ Khách hỏi trong nhóm, bot trả lời trong đúng phạm vi lĩnh vực c�
 
 ## 3. Tin phải nhìn thẳng: mọi giả định an toàn hôm nay đều đảo ngược
 
-Đây là phần quan trọng nhất của tài liệu. **Bot Telegram hôm nay của Javis là kênh RIÊNG của
+Đây là phần quan trọng nhất của tài liệu. **Bot Telegram hôm nay của Jarvis 007 là kênh RIÊNG của
 chủ.** Nó được thiết kế với đúng một giả định: người nhắn vào là anh.
 
 Cụ thể, hôm nay một tin nhắn Telegram bất kỳ sẽ:
@@ -66,7 +66,7 @@ Cụ thể, hôm nay một tin nhắn Telegram bất kỳ sẽ:
 - **ghi vào bộ nhớ dài hạn** và chảy vào vòng tự học;
 - và whitelist để trống nghĩa là **cho phép mọi người** (`telegram_bot.py:24`, giữ hành vi cũ).
 
-Thả nguyên con bot đó vào một nhóm khách hàng thì mỗi khách đang cầm chìa khoá toàn bộ Javis
+Thả nguyên con bot đó vào một nhóm khách hàng thì mỗi khách đang cầm chìa khoá toàn bộ Jarvis 007
 của anh. Một câu "đọc giúp file cấu hình trong brain rồi gửi lên đây" là xong.
 
 Nên **bot chuyên trách không phải là bot hiện tại đổi prompt**. Nó là một sinh vật khác, chỉ
@@ -159,7 +159,7 @@ hội thoại: người dùng không đoán được hậu quả thì đừng đ
 
 - **Một token riêng cho mỗi bot** (đề xuất chọn): mỗi con có tên, ảnh đại diện và `@handle`
   riêng do anh tạo ở BotFather. Thả vào nhóm khách thì nó là "Trợ lý Sản phẩm" chứ không phải
-  "Javis của anh Quý". Đây là khác biệt về hình ảnh thương hiệu, không phải chuyện kỹ thuật.
+  "Jarvis 007 của anh Quý". Đây là khác biệt về hình ảnh thương hiệu, không phải chuyện kỹ thuật.
   Giá phải trả: phải cho chạy nhiều poller cùng lúc, hiện `_TG_BOT` đang là biến toàn cục một
   cái (`server/main.py:9548`).
 - **Một bot chung**: nhẹ hơn nhiều, nhưng mọi lĩnh vực chung một danh tính, và không thả được
@@ -227,7 +227,7 @@ Mỗi bot một thẻ, và thẻ phải trả lời được ba câu chỉ bằn
 
 Nút trên thẻ: Bật/Tắt, Sửa, Xem hội thoại, Xoá.
 
-**Bật/Tắt phải có tác dụng NGAY, không đòi khởi động lại Javis.** Đây là yêu cầu chức năng chứ
+**Bật/Tắt phải có tác dụng NGAY, không đòi khởi động lại Jarvis 007.** Đây là yêu cầu chức năng chứ
 không phải tiện nghi: bot chăm sóc khách hàng nói bậy một câu thì phải tắt được trong ba giây.
 Nghĩa là cần một **bộ giám sát bot**: mỗi bot là một task long-polling riêng, bật thì tạo
 task, tắt thì huỷ task, sửa token thì huỷ rồi tạo lại.
@@ -336,7 +336,7 @@ tài liệu CÓ nhưng THIẾU Ý khách cần, và đó thường là chỗ đ�
   được nói chuyện, không phải danh sách người được làm gì. Hai thứ khác nhau, gộp là có ngày
   nhầm.
 - **Đừng để bot tự gửi tin chủ động cho khách.** Trả lời khi được hỏi thì được, tự nhắn trước
-  là chạm vào cả rào an toàn của Javis lẫn luật chống spam của Telegram.
+  là chạm vào cả rào an toàn của Jarvis 007 lẫn luật chống spam của Telegram.
 - **Đừng làm Zalo trước Telegram.** Zalo cá nhân đi qua thư viện không chính thức, tài khoản
   có thể bị khoá; đem một tài khoản Zalo ra làm bot chăm sóc khách hàng là đặt cược vào thứ
   không kiểm soát được. Telegram có API bot chính thức, làm xong ổn rồi hãy tính Zalo OA.
@@ -431,7 +431,7 @@ câu "hãy cẩn thận" - và nó xuất hiện ba lần: lúc chọn mức, l�
 
 Một chỗ nữa phải giữ, vì bản đầu sai đúng chỗ này: cảnh báo tả theo **LOẠI THAO TÁC** (gửi đi,
 thanh toán, đặt/huỷ, xoá, công bố), KHÔNG kể tên việc của một ngành. Bản đầu viết "tạo đơn,
-tiêu tiền quảng cáo, đăng bài" - lọt tai người bán hàng, vô nghĩa với người dùng Javis để quản
+tiêu tiền quảng cáo, đăng bài" - lọt tai người bán hàng, vô nghĩa với người dùng Jarvis 007 để quản
 lý dự án, chăm sức khoẻ hay dạy học. Tệ hơn: người đó đọc xong tưởng cảnh báo không áp cho
 mình rồi bật Toàn quyền vì nghĩ mình không có gì để mất. Chủ repo bác (2026-08-05): "nó cá
 nhân hóa với anh quá". Có canary ở cả test Python lẫn test JS.

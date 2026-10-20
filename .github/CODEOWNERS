@@ -1,3 +1,3 @@
-# Tự gắn người review cho MỌI Pull Request, dù không bật "Require review" trong branch
-# protection. Xem CONTRIBUTING.md (tiếng Anh) hoặc docs/i18n/vi/CONTRIBUTING.md để biết quy trình đóng góp.
+# Automatically assigns a reviewer to EVERY Pull Request, even when "Require review" is not enabled in branch
+# protection. See CONTRIBUTING.md (English) or docs/i18n/vi/CONTRIBUTING.md (Vietnamese) for the contribution process.
 * @blogminhquy

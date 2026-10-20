@@ -222,12 +222,12 @@ Không có lỗi chặn. Đã sửa, mỗi mục có test:
 ### Smoke với provider thật (sandbox cổng 7788, state và brain tạm, không Zalo, Telegram hay khách)
 
 Cấu hình như máy thật trong audit: model chính và model việc nền đều OpenAI OAuth (Codex CLI 0.160.0 trên máy),
-`gpt-6.1-sol`. Javis Vũ Zalo đặt riêng Codex `gpt-6.1-sol`, lời nhắc có luật chatbot Zalo "im lặng khi không được gọi";
+`gpt-6.1-sol`. Jarvis 007 Vũ Zalo đặt riêng Codex `gpt-6.1-sol`, lời nhắc có luật chatbot Zalo "im lặng khi không được gọi";
 Coach không đặt model (theo model chính); hai trợ lý cùng tên One đặt Claude `haiku`.
 
 Năm lần gọi model, dừng ở đó:
 
-1. Tin thường: Javis Vũ Zalo (điều phối) trả lời sau 10 giây bằng `openai-oauth gpt-6.1-sol`, không im theo luật chatbot.
+1. Tin thường: Jarvis 007 Vũ Zalo (điều phối) trả lời sau 10 giây bằng `openai-oauth gpt-6.1-sol`, không im theo luật chatbot.
 2. @One chọn bản A bằng phím mũi tên: đúng bản A trả lời (`anthropic-cli haiku`).
 3. Giao việc ngắn cho Coach: chạy bằng model chính Codex, kết quả về nhóm, hiện ở tab Công việc ngăn Đã xong sau tải lại;
    Mở đưa về đúng nhóm.
