@@ -1,343 +1,343 @@
-# Quản lý tệp tin
+# File manager
 
 ***Tiếng Việt** · [English](en/05-file-manager.md)*
 
-Trang "Tệp tin" là trình quản lý tệp ngay trong dashboard Javis. Bạn tìm file, duyệt thư mục, mở và sửa file văn bản (.md, .txt...) trực tiếp trên trình duyệt rồi lưu, tải file lên, tải file về (mọi loại file), tải cả thư mục về dạng .zip, tạo thư mục, đổi tên và xoá. Điểm vào luôn là "brain" (bộ não) bạn đang chọn, không cần mở File Explorer hay dùng lệnh.
+The "Files" page is a file manager built into the Jarvis 007 dashboard. You search for files, browse folders, open and edit text files (.md, .txt...) straight in the browser and save them, upload files, download files (any type), download a whole folder as a .zip, create folders, rename and delete. The entry point is always the "brain" you have selected, with no File Explorer and no shell needed.
 
-## Tính năng này là gì
+## What this feature is
 
-Mỗi brain của Javis thực chất là một thư mục trên máy/VPS chứa toàn bộ tri thức: ghi chú nguồn, Wiki, bộ nhớ, agents, workflows... Trang "Tệp tin" cho bạn xem và chỉnh sửa các file đó một cách trực quan:
+Each Jarvis 007 brain is really a folder on your machine or VPS holding all of its knowledge: source notes, the Wiki, memory, agents, workflows and so on. The "Files" page lets you see and edit those files visually:
 
-- Tìm file trong toàn brain theo **tên** hoặc theo **nội dung**.
-- Duyệt cây thư mục (nhấp vào thư mục để đi sâu vào, có breadcrumb để quay lại).
-- Mở file để đọc: trình sửa mở **ngay trong trang**, chiếm chỗ danh sách file (không phải cửa sổ bật lên). Đúng trình sửa mà bạn dùng ở khung chat, nên .md có soạn thảo trực quan, thanh định dạng, Lùi/Tiến giữa các note; ảnh và PDF xem tại chỗ.
-- Sửa file dạng chữ (.md, .txt, .json...) rồi bấm lưu.
-- Tải file từ máy bạn lên brain, hoặc tải file trong brain về máy (mọi loại file, không riêng .md).
-- Tải cả một thư mục về máy: Javis nén thành .zip rồi mới gửi.
-- Tạo thư mục mới, tạo file mới, đổi tên, xoá.
+- Search the whole brain by **name** or by **content**.
+- Browse the folder tree (click a folder to go in, use the breadcrumb to come back).
+- Open a file to read: the editor opens **inside the page**, taking the place of the file list (not a popup window). It is the same editor you use from the chat, so `.md` gets visual editing, a formatting bar and Back/Forward between notes; images and PDFs are viewed in place.
+- Edit text files (.md, .txt, .json...) and click save.
+- Upload files from your computer into the brain, or download files from the brain (any type, not just .md).
+- Download a whole folder: Jarvis 007 zips it first, then sends it.
+- Create folders, create files, rename and delete.
 
-## Phạm vi duyệt: tới đâu là hết
+## Browsing scope: how far up you can go
 
-Điểm vào mặc định luôn là thư mục gốc của brain đang chọn. Nhưng **trần duyệt** (chỗ nút "↑ Lên" không đi lên được nữa) thì tuỳ cách bạn chạy Javis:
+The default entry point is always the root of the selected brain. But the **browse ceiling** (where "↑ Up" stops going up) depends on how you run Jarvis 007:
 
-| Cách chạy | Trần duyệt | Ý nghĩa |
+| How you run it | Ceiling | Meaning |
 |---|---|---|
-| Chạy cục bộ, không bắt đăng nhập (localhost) | **Ổ đĩa chứa brain** | Bạn duyệt và sửa được cả file ngoài brain, vì máy là của chính bạn |
-| Nghe public / bắt buộc đăng nhập (Docker, VPS) | Thư mục brain | Khoá cứng trong brain, không hở ổ đĩa ra web |
-| Đặt `JAVIS_FILES_ROOT=brain` (hoặc `vault`) | Thư mục brain | Khoá trong brain kể cả khi chạy cục bộ |
-| Đặt `JAVIS_FILES_ROOT=drive` (hoặc `root`) | Ổ đĩa chứa brain | Ép mở rộng tới ổ đĩa |
-| Đặt `JAVIS_FILES_ROOT=<đường dẫn>` | Đúng thư mục đó | Trần tuỳ ý, phải là thư mục có chứa brain |
+| Locally, without a login gate (localhost) | **The disk holding the brain** | You can browse and edit files outside the brain, because the machine is yours |
+| Public bind / login required (Docker, VPS) | The brain folder | Locked inside the brain, so the disk is never exposed to the web |
+| `JAVIS_FILES_ROOT=brain` (or `vault`) | The brain folder | Locked inside the brain even when running locally |
+| `JAVIS_FILES_ROOT=drive` (or `root`) | The disk holding the brain | Forces the wider scope |
+| `JAVIS_FILES_ROOT=<path>` | Exactly that folder | A custom ceiling, which must contain the brain |
 
-Vì thế trên máy cá nhân, bấm **↑ Lên** nhiều lần có thể đưa bạn ra ngoài brain tới tận gốc ổ đĩa. Nút **⌂ Brain** đưa bạn về nhà ngay lập tức. Khi đã đứng ở trần, nút **↑ Lên** tự ẩn đi. Javis luôn chặn các đường dẫn cố vượt quá trần (kiểu `../../`), và brain luôn nằm trong trần.
+So on a personal machine, clicking **↑ Up** repeatedly can take you out of the brain all the way to the disk root. The **⌂ Brain** button takes you home instantly. Once you stand at the ceiling, **↑ Up** hides itself. Jarvis 007 always blocks paths trying to escape the ceiling (`../../` style), and the brain is always inside the ceiling.
 
-Cách chỉnh biến môi trường xem [Cấu hình .env](16-cau-hinh-env.md).
+How to set environment variables is in [.env configuration](16-cau-hinh-env.md).
 
-## Mở ở đâu trong Javis
+## Where to find it in Jarvis 007
 
-1. Mở dashboard Javis (mặc định ở cổng 7777).
-2. Trên rail điều hướng bên trái, mở nhóm **Bộ não** rồi bấm mục **Tệp tin**.
-3. Trang hiện ô tìm kiếm ở trên cùng, dưới đó là thanh công cụ, dưới nữa là danh sách file/thư mục. Lần đầu vào, Javis hiển thị thư mục gốc của brain đang chọn.
+1. Open the Jarvis 007 dashboard (port 7777 by default).
+2. In the left navigation rail, open the **Brain** group and click **Files**.
+3. The page shows a search box on top, a toolbar under it, then the file and folder list. On first entry, Jarvis 007 shows the root of the selected brain.
 
-Nếu danh sách báo lỗi kiểu "Máy chủ Javis chưa có chức năng Tệp tin", hãy khởi động lại server (chạy `stop-javis.bat` rồi `start-javis.vbs`) và tải lại trang. Xem thêm [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+If the list reports something like "The Jarvis 007 server does not have the Files feature", restart the server (run `stop-javis.bat` then `start-javis.vbs`) and reload the page. See [Troubleshooting & FAQ](17-khac-phuc-su-co.md).
 
-## Chọn brain đang làm việc
+## Choosing the brain you work in
 
-Trình quản lý tệp luôn thao tác trên brain đang được chọn. Bạn đổi brain bằng ô chọn ở góc trái thanh trên cùng của dashboard:
+The file manager always acts on the selected brain. You switch brains in the picker at the left of the dashboard top bar:
 
-1. Tìm ô danh sách brain trên thanh trên cùng (mặc định là "Brain Default").
-2. Bấm vào ô đó và chọn brain bạn muốn. Mỗi brain hiển thị dạng "🧠 tên brain" (kèm số note nếu có).
-3. Trang Tệp tin **tự nạp lại** theo brain mới ngay khi bạn đổi, không cần bấm ↻ cũng không cần F5. Cây vault ở cột trái cũng làm mới theo.
+1. Find the brain picker in the top bar (default: "Brain Default").
+2. Click it and choose the brain you want. Each brain shows as "🧠 brain name" (with a note count when available).
+3. The Files page **reloads itself** for the new brain as soon as you switch, with no ↻ and no F5 needed. The vault tree in the left column refreshes too.
 
-Cạnh ô chọn brain còn có ba nút nhỏ:
+Next to the brain picker sit three small buttons:
 
-| Nút | Ý nghĩa |
+| Button | Meaning |
 |---|---|
-| ➕ | Tạo brain mới trong thư mục brains |
-| 🗑 | Xoá brain đang chọn (phải gõ đúng tên để xác nhận) |
-| 📁 | Chọn brain từ folder ngoài bất kỳ |
+| ➕ | Create a new brain in the brains folder |
+| 🗑 | Delete the selected brain (you must type its exact name to confirm) |
+| 📁 | Pick a brain from any external folder |
 
-Về nút 🗑, có ba điều cần nhớ:
+Three things to remember about 🗑:
 
-- Với brain thật (🧠): xoá **toàn bộ** brain, không phải xoá một file. Hộp xác nhận ghi rõ não này sẽ được chuyển vào **THÙNG RÁC (giữ 30 ngày rồi tự xoá hẳn)**, và việc xoá sẽ **ĐỒNG BỘ sang mọi máy khác**. Bạn phải gõ chính xác tên brain mới xoá được.
-- Với mục folder ngoài (📁): nút này chỉ **gỡ khỏi danh sách chọn**, không đụng dữ liệu trên ổ đĩa. Hộp xác nhận nói rõ "Chỉ gỡ khỏi menu chọn não, KHÔNG xoá dữ liệu trên ổ đĩa."
-- Brain mặc định không xoá được, Javis báo "Không thể xoá Brain mặc định (não khởi đầu)."
+- For a real brain (🧠): it deletes the **whole** brain, not one file. The confirmation says the brain goes into the **RECYCLE BIN (kept 30 days, then permanently deleted)** and that the deletion **SYNCS to every other machine**. You must type the brain name exactly.
+- For an external folder entry (📁): it only **removes it from the picker**, touching no data on disk. The confirmation says so explicitly: "Only removes it from the brain picker, does NOT delete data on disk."
+- The default brain cannot be deleted; Jarvis 007 says "Cannot delete the default Brain (the starter brain)."
 
-Đừng nhầm nút này với nút "Xoá" từng dòng file bên trong trang Tệp tin. Chi tiết về brain và bộ nhớ xem [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
+Do not confuse this button with the per-row "Delete" button inside the Files page. Details on brains and memory are in [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
 
-## Giao diện trang Tệp tin
+## The Files page layout
 
-**Hàng trên cùng - tìm kiếm**, gồm:
+**Top row, search**, with:
 
-- Ô tìm với biểu tượng 🔍, chữ mờ **Tìm file trong toàn brain...**. Có chữ rồi thì hiện nút **✕** (chú thích: "Xoá tìm kiếm").
-- Hai chip chọn phạm vi: **Tên** (chú thích: "Tìm theo tên file") và **Nội dung** (chú thích: "Tìm trong nội dung file text"). Mặc định đang ở **Tên**.
-- Dòng meta bên phải cho biết trạng thái: lúc rảnh là "Tìm trong toàn brain" (hoặc "Quét nội dung file text" nếu đang ở chip Nội dung), lúc có kết quả là "12 kết quả · tên file".
+- A search box with a 🔍 icon and the placeholder **Search files across the brain...**. Once it has text, a **✕** button appears (tooltip: "Clear search").
+- Two scope chips: **Name** (tooltip: "Search by file name") and **Content** (tooltip: "Search inside text files"). **Name** is the default.
+- A meta line on the right showing status: at rest "Search across the brain" (or "Scan text file contents" on the Content chip), and with results "12 results · file name".
 
-**Hàng thứ hai - thanh công cụ**, gồm:
+**Second row, the toolbar**, with:
 
-- **Breadcrumb** bên trái: bắt đầu bằng "🏠 tên thư mục gốc", rồi lần lượt các thư mục con bạn đang đứng. Bấm vào bất kỳ mắt xích nào để nhảy thẳng về cấp đó.
-- Nút **↑ Lên**: lùi lên thư mục cha một cấp. Tự ẩn khi bạn đã ở trần duyệt.
-- Nút **⌂ Brain** (chú thích: "Về thư mục brain"): quay thẳng về gốc brain, dù bạn đang lạc ở đâu.
-- Nút **+ Thư mục**: tạo thư mục mới.
-- Nút **+ File**: tạo file mới (rỗng).
-- Nút **⤒ Tải lên**: chọn file từ máy để tải lên (chọn được nhiều file cùng lúc).
-- Nút **⤓ Tải thư mục**: nén cả thư mục đang mở thành .zip rồi tải về máy.
-- Nút **↻**: tải lại danh sách hiện tại.
+- A **breadcrumb** on the left: it starts with "🏠 root folder name", then each subfolder you have entered. Click any link to jump straight back to that level.
+- **↑ Up**: go one level up. It hides itself once you are at the ceiling.
+- **⌂ Brain** (tooltip: "Back to the brain folder"): return to the brain root from wherever you are.
+- **+ Folder**: create a folder.
+- **+ File**: create a new (empty) file.
+- **⤒ Upload**: pick files from your computer (several at once).
+- **⤓ Download folder**: zip the current folder and download it.
+- **↻**: reload the current list.
 
-Bên dưới là danh sách. Mỗi dòng gồm biểu tượng loại file, tên, dung lượng (với file), và một nhóm nút thao tác. Nhóm nút này luôn hiện (hơi mờ) và rõ hẳn khi bạn rê chuột vào dòng; trên điện thoại và máy tính bảng nó hiện rõ sẵn vì màn hình cảm ứng không có thao tác rê chuột.
+Below sits the list. Each row shows a file type icon, the name, the size (for files) and a group of action buttons. That group is always present (slightly dimmed) and becomes fully visible when you hover the row; on phones and tablets it is visible by default because touchscreens have no hover.
 
-## Cách dùng (từng bước)
+## How to use it (step by step)
 
-### Tìm file trong toàn brain
+### Searching files across the brain
 
-1. Bấm vào ô **Tìm file trong toàn brain...** ở trên cùng trang.
-2. Chọn phạm vi: chip **Tên** để khớp tên file, chip **Nội dung** để quét chữ bên trong file.
-3. Gõ từ khoá. Javis tự tìm sau khi bạn ngừng gõ một chút; muốn tìm ngay thì nhấn **Enter**.
-4. Danh sách bên dưới đổi thành kết quả tìm kiếm. Mỗi dòng gồm: tên file, đường dẫn của nó, đoạn trích (nếu tìm theo nội dung), và nhãn loại khớp - **Tên file** hoặc **Trong nội dung · dòng 42**.
-5. Bấm nút **Mở** (hoặc bấm thẳng vào tên file) để mở file đó ngay.
-6. Bấm nút **⤓ Tải** để tải thẳng file đó về máy, khỏi cần đi vào thư mục chứa nó.
-7. Bấm nút **Vị trí** để nhảy về thư mục chứa file, Javis cuộn tới đúng dòng và tô sáng nó.
-8. Xoá hết chữ trong ô tìm (hoặc bấm **✕**, hoặc nhấn **Esc**) để quay lại danh sách thư mục.
+1. Click the **Search files across the brain...** box at the top.
+2. Pick a scope: the **Name** chip matches file names, the **Content** chip scans text inside files.
+3. Type a keyword. Jarvis 007 searches shortly after you stop typing; press **Enter** to search immediately.
+4. The list below turns into search results. Each row shows the file name, its path, an excerpt (for content searches) and a match label: **File name** or **In content · line 42**.
+5. Click **Open** (or click the file name) to open the file.
+6. Click **⤓ Download** to download that file directly, without navigating to its folder.
+7. Click **Location** to jump to the containing folder; Jarvis 007 scrolls to the row and highlights it.
+8. Clear the search box (or click **✕**, or press **Esc**) to return to the folder list.
 
-Vài điều nên biết về tìm kiếm:
+A few things to know about search:
 
-- Phạm vi quét luôn là **gốc brain**, kể cả khi trần duyệt của bạn đang mở tới cả ổ đĩa. Javis cố ý không quét cả ổ đĩa vì sẽ rất chậm.
-- Tìm theo **tên** không phân biệt dấu tiếng Việt: gõ `bao cao` vẫn ra `báo-cáo.md`. Áp dụng cho mọi loại file.
-- Tìm theo **nội dung** chỉ quét file dạng chữ (.md, .txt, .json, .yaml, .csv, .py, .js...), bỏ qua file nặng hơn 1MB, và bỏ qua các thư mục kỹ thuật `.git`, `node_modules`, `__pycache__`, `.obsidian`, `.trash`, `.venv` cùng mọi thư mục ẩn.
-- Chế độ **Nội dung** cần ít nhất 2 ký tự. Gõ 1 ký tự thì Javis nhắc "Nhập ít nhất 2 ký tự để tìm trong nội dung."
-- Không có kết quả thì hiện `Không tìm thấy file phù hợp với "<từ khoá>".`
-- Ô **Tìm note...** ở cột VAULT bên trái dùng chung đường tìm này từ bản **0.52.9**. Trước đó nó tự bò cả vault từ trình duyệt, mỗi thư mục một lượt hỏi máy chủ, nên qua mạng tới VPS thì chậm hẳn so với ô tìm ở trang này. Nay hai ô nhanh như nhau.
+- The scan scope is always the **brain root**, even when your browse ceiling reaches the whole disk. Jarvis 007 deliberately does not scan the entire disk because it would be very slow.
+- **Name** search ignores Vietnamese diacritics: typing `bao cao` still finds `báo-cáo.md`. This applies to every file type.
+- **Content** search only scans text files (.md, .txt, .json, .yaml, .csv, .py, .js...), skips files over 1MB, and skips the technical folders `.git`, `node_modules`, `__pycache__`, `.obsidian`, `.trash`, `.venv` plus every hidden folder.
+- **Content** mode needs at least 2 characters. With one character Jarvis 007 says "Enter at least 2 characters to search inside content."
+- With no matches it shows `No file matches "<keyword>".`
+- The **Find note...** box in the left VAULT column has shared this same path since version **0.52.9**. Before that it crawled the whole vault from the browser, one server request per folder, so over the network to a VPS it was much slower than this page's box. Now both are equally fast.
 
-### Duyệt thư mục
+### Browsing folders
 
-1. Bấm vào **tên thư mục** (dòng có biểu tượng 📁) để đi vào trong.
-2. Dùng breadcrumb ở trên, nút **↑ Lên**, hoặc nút **⌂ Brain** để quay ra.
-3. Bấm vào **tên file** (hoặc biểu tượng của nó) cũng mở file luôn: file chữ, ảnh và PDF mở trong trình sửa ngay tại trang, các loại còn lại mở ở tab mới.
-4. Thư mục trống thì danh sách hiện "Thư mục trống."
+1. Click a **folder name** (the row with the 📁 icon) to go in.
+2. Use the breadcrumb, **↑ Up** or **⌂ Brain** to come back out.
+3. Clicking a **file name** (or its icon) opens the file too: text files, images and PDFs open in the editor on the page, and everything else opens in a new tab.
+4. An empty folder shows "Empty folder."
 
-### Mở và sửa file văn bản
+### Opening and editing text files
 
-1. Rê chuột vào dòng file, bấm nút **Sửa**. (Hoặc bấm thẳng vào tên file.)
-2. Trình sửa mở **ngay trong trang**, thế chỗ danh sách file - không phải cửa sổ bật lên đè lên màn hình. Đây đúng là trình sửa bạn vẫn dùng khi mở file từ khung chat, nên mọi thứ giống hệt: với file dạng chữ (.md, .txt, .json, .yaml, .yml, .csv, .js, .ts, .py, .html, .css, .toml, .ini, .log, .sh, .bat, .xml, .svg, .env) có ô soạn thảo, và riêng .md có thêm hai chế độ **Sửa** (soạn trực quan như Word) / **Nguồn** (markdown thô) cùng thanh định dạng.
-3. Sửa xong bấm **💾 Lưu** (hoặc `Ctrl` + `S`). Khi lưu thành công, nút đổi thành **✓ Đã lưu** rồi trở lại như cũ.
-4. Bấm **✕** (hoặc phím `Esc`) để đóng và quay lại danh sách file. Danh sách tự nạp lại, nên file bạn vừa đổi tên hay xoá ngay trong trình sửa hiện đúng trạng thái mới.
-5. Thanh trên trình sửa còn có: đổi tên, xoá, **↗** mở tab mới, **⤓ Tải** về máy, và nút phóng to toàn màn hình.
-6. **Số từ và số ký tự** hiện ở cuối thanh công cụ, tự cập nhật khi bạn gõ. Ghi chú `.md` chỉ đếm chữ hiện ra, không tính ký hiệu định dạng (`#`, `**`, đường link). Rê chuột vào con số để xem số ký tự không tính khoảng trắng.
+1. Hover the file row and click **Edit**. (Or click the file name directly.)
+2. The editor opens **inside the page**, replacing the file list, not as a popup covering the screen. It is exactly the editor you use when opening a file from the chat, so everything matches: text files (.md, .txt, .json, .yaml, .yml, .csv, .js, .ts, .py, .html, .css, .toml, .ini, .log, .sh, .bat, .xml, .svg, .env) get an editing area, and `.md` additionally gets two modes, **Edit** (visual, like a word processor) and **Source** (raw markdown), plus a formatting bar.
+3. When done, click **💾 Save** (or `Ctrl` + `S`). On success the button briefly reads **✓ Saved** and then returns to normal.
+4. Click **✕** (or press `Esc`) to close and return to the list. The list reloads itself, so a file you renamed or deleted from inside the editor shows its new state.
+5. The editor bar also has: rename, delete, **↗** open in a new tab, **⤓ Download**, and a full-screen button.
+6. **Word and character counts** show at the end of the toolbar and update as you type. For a `.md` note only visible text is counted, not formatting symbols (`#`, `**`, link addresses). Hover the number to see the character count without spaces.
 
-**Khối "Thuộc tính" ở đầu note .md.** Nếu file mở đầu bằng khối `---` (frontmatter: `type`, `status`, `created`...), Javis hiện nó thành một khối riêng, **khoá lại không cho sửa** trong chế độ Sửa. Đó là metadata chứ không phải văn bản, và khoá lại chính là thứ giữ cho nó nguyên vẹn từng ký tự sau mỗi lần lưu. Muốn sửa metadata thì chuyển sang chế độ **Nguồn**.
+**The "Properties" block at the top of a `.md` note.** If the file starts with a `---` block (frontmatter: `type`, `status`, `created`...), Jarvis 007 renders it as a separate block and **locks it against editing** in Edit mode. That is metadata rather than prose, and locking it is exactly what keeps it byte-for-byte intact across saves. To edit metadata, switch to **Source** mode.
 
-### Lùi về / Tiến lên giữa các note
+### Back / Forward between notes
 
-Đọc một note wiki là đi theo chuỗi liên kết: bấm một `[[wikilink]]` là sang note khác. Hai nút mũi tên **‹ ›** ở **góc trên bên trái**, ngay trước tên file, đưa bạn đi lại trên vệt đó - đúng như nút Lùi/Tiến của trình duyệt.
+Reading a wiki note means following a chain of links: click a `[[wikilink]]` and you are in another note. The two arrow buttons **‹ ›** in the **top left**, right before the file name, walk that trail, exactly like a browser's Back/Forward.
 
-- **Bấm mũi tên trái** để quay lại note vừa đọc, **mũi tên phải** để tiến lên lại.
-- **Rê chuột vào nút là biết sẽ tới đâu.** Tooltip gọi thẳng tên file, ví dụ "Lùi về: Bát Giác Offer.md". Đi sâu bốn năm tầng liên kết thì nhớ mình từ đâu tới là chuyện không dễ, nên nút nói hộ.
-- **Hết chỗ để đi thì nút mờ đi chứ không biến mất.** Nút ẩn hiện làm thanh tiêu đề nhảy, và bạn sẽ không bao giờ biết là có nút đó.
-- **Phím tắt: `Alt` + `←` và `Alt` + `→`.** Chuột có nút lùi/tiến bên hông cũng dùng được luôn.
-- Vệt đường đi **giữ nguyên khi bạn đóng trình sửa** rồi mở lại (đóng ra để chat về chính note đó là chuyện thường), và **tự xoá khi bạn đổi sang brain khác** - vì mọi bước trong vệt đều thuộc brain cũ.
-- Đang đứng giữa vệt mà mở một note mới thì phần phía trước bị cắt, y như trình duyệt.
+- **Click the left arrow** to return to the note you just read, the **right arrow** to go forward again.
+- **Hover a button to see where it leads.** The tooltip names the file, for example "Back to: Octagon Offer.md". Four or five links deep, remembering where you came from is not easy, so the button says it for you.
+- **When there is nowhere to go, the button dims rather than disappearing.** Buttons that appear and vanish make the title bar jump, and you would never learn they exist.
+- **Shortcuts: `Alt` + `←` and `Alt` + `→`.** A mouse with side buttons works too.
+- The trail **survives closing the editor** and reopening it (closing it to chat about that same note is common), and **clears when you switch brains**, because every step in the trail belongs to the old brain.
+- Opening a new note from the middle of the trail truncates what was ahead, exactly like a browser.
 
-**Rời một file đang sửa dở thì Javis tự lưu trước.** Bấm mũi tên, bấm một wikilink, hay bấm file khác trong cây - nếu bạn có sửa gì mà chưa bấm Lưu, Javis lưu lại rồi mới đi. Nếu lưu hỏng (mất mạng, file bị khoá) thì **Javis không đi đâu cả** và nút Lưu hiện lỗi, để bài bạn vừa viết không bị vứt đi âm thầm. File bạn chỉ mở ra đọc rồi rời đi thì không bị ghi lại gì cả.
+**Leaving a file with unsaved edits makes Jarvis 007 save first.** Clicking an arrow, a wikilink or another file in the tree: if you edited something and did not click Save, Jarvis 007 saves before moving. If the save fails (network down, file locked), **Jarvis 007 does not move at all** and the Save button shows the error, so what you just wrote is never thrown away silently. A file you only opened to read is never written back.
 
-**Mở file nào thì Javis làm việc trên file đó.** Ngay khi mở một file văn bản để sửa, Javis tự **ghim** file đó vào khung chat: một thẻ màu cam hiện phía trên thanh nhập, ghi tên file kèm dòng "đang mở - bấm để sửa tiếp". Từ lúc đó bạn hỏi gì thì Javis cũng đã có sẵn file đó làm đầu vào, khỏi phải dán đường dẫn hay mô tả lại. Bảo "dọn lại phần quá hạn giúp anh" hay "viết thêm mục kết luận" mà không nói file nào thì Javis ghi thẳng vào chính file đang mở.
+**Whichever file is open is the file Jarvis 007 works on.** As soon as you open a text file for editing, Jarvis 007 **pins** it to the chat: an orange chip appears above the input with the file name and the line "open, click to keep editing". From then on, whatever you ask already has that file as an input, so you never paste a path or describe it again. Saying "clean up the overdue section" or "add a conclusion" without naming a file makes Jarvis 007 write straight into the open file.
 
-Thẻ ghim khác thẻ file đính kèm ở ba chỗ:
-- **Chỉ có một.** Mở file khác là thẻ đổi theo file mới, không cộng dồn.
-- **Không mất sau khi gửi.** File đính kèm gửi xong là biến mất; thẻ ghim ở lại suốt cuộc trò chuyện vì nó là file bạn đang làm việc trên đó. Đóng cửa sổ sửa cũng không bỏ ghim - đóng ra để quay sang chat về chính file đó là chuyện thường.
-- **Bấm vào thẻ là quay lại sửa file đó.** Đóng trình sửa rồi chat vài lượt, muốn sửa tiếp thì bấm thẳng vào thẻ (hoặc chọn thẻ bằng phím Tab rồi Enter) - file mở lại trong trình sửa, cây vault bên trái tự xổ tới đúng nhánh chứa nó, khỏi đi tìm lại từ đầu. Nếu file đang mở sẵn thì Javis chỉ đưa bạn về đó chứ không nạp lại, nên chữ đang gõ dở không mất. Trên điện thoại, thẻ mở file trong khung sửa bung giữa màn hình. Bấm dấu **✕** trên thẻ vẫn là bỏ ghim chứ không mở file.
+The pinned chip differs from an attachment chip in three ways:
+- **There is only one.** Opening another file replaces it rather than stacking.
+- **It does not disappear after you send.** Attachments vanish once sent; the pin stays for the whole conversation because it is the file you are working on. Closing the editor does not unpin it either, since closing it to chat about that same file is normal.
+- **Clicking the chip takes you back to editing.** After closing the editor and chatting for a few turns, click the chip (or focus it with Tab and press Enter) and the file reopens in the editor, with the vault tree on the left expanding to the branch that holds it, so you do not go hunting again. If the file is already open, Jarvis 007 just brings you back to it without reloading, so unsaved text survives. On phones the chip opens the file in an editor sheet in the middle of the screen. Clicking **✕** on the chip still unpins rather than opening.
 
-Bỏ ghim bằng cách bấm **✕** trên thẻ. Ghim cũng tự bỏ khi bạn đổi sang brain khác hoặc xoá chính file đang ghim, và nó sống qua F5 nên tải lại trang không mất mạch làm việc.
+Unpin with **✕** on the chip. The pin also clears when you switch brains or delete the pinned file, and it survives F5, so reloading the page does not break your flow.
 
-Lưu ý:
-- Nút **Sửa** chỉ xuất hiện với các loại file văn bản nêu trên.
-- File lớn hơn 2MB sẽ không mở để xem trong trình duyệt. Javis báo bạn tải về thay vì mở.
-- Nếu file là dạng nhị phân (không phải văn bản), trình sửa đề nghị **⤓ Tải** về thay vì hiển thị ô soạn thảo.
+Notes:
+- The **Edit** button only appears for the text file types listed above.
+- Files larger than 2MB are not opened for viewing in the browser. Jarvis 007 suggests downloading instead.
+- If the file is binary rather than text, the editor offers **⤓ Download** instead of an editing area.
 
-### Chữa file .md hỏng từ bản cũ
+### Repairing `.md` files broken by older builds
 
-Bản Javis **trước 0.33.4** có một lỗi âm thầm: mở note `.md` trong trình sửa trực quan rồi bấm Lưu là khối `---` ở đầu note (frontmatter: `type`, `status`, `created`...) bị biến thành `* * *`, và mỗi lần mở ra sửa lại thêm một lớp dấu gạch chéo vào chữ (`1.` → `1\.` → `1\\.`). File vẫn mở được, nhưng metadata coi như mất - Javis, dataview và Obsidian đều đọc trượt từ đó.
+Jarvis 007 **before 0.33.4** had a silent bug: opening a `.md` note in the visual editor and clicking Save turned the `---` block at the top of the note (frontmatter: `type`, `status`, `created`...) into `* * *`, and each further edit added another layer of backslashes to the text (`1.` → `1\.` → `1\\.`). The file still opened, but the metadata was effectively lost, and Jarvis 007, dataview and Obsidian all read it wrong from then on.
 
-Bản này đã bịt đường đó. Với file lỡ hỏng rồi:
+This build closed that path. For files already damaged:
 
-1. Vào trang **Tệp tin**. Javis tự soi cả brain một lượt ngay khi bạn vào. **Không có file nào hỏng thì không hiện gì cả** - im lặng là tin tốt.
-2. Có thì hiện một khung vàng ở đầu trang, kèm danh sách file và hỏng ở chỗ nào.
-3. Bấm **Chữa hết N file**. Javis dựng lại khối thuộc tính và gỡ dấu gạch chéo thừa, rồi báo lại số file đã chữa.
+1. Open the **Files** page. Jarvis 007 scans the whole brain once when you arrive. **If nothing is broken, nothing appears**: silence is good news.
+2. If something is, a yellow panel appears at the top with the file list and what is wrong in each.
+3. Click **Repair all N files**. Jarvis 007 rebuilds the properties block, strips the extra backslashes, and reports how many files it fixed.
 
-Từ 0.52.8, brain nào soi ra **sạch** thì Javis nhớ và **thôi soi lại** ở những lần mở trang sau. Vòng soi này đọc toàn bộ file `.md` của brain, nên với brain vài nghìn note nó làm trang Tệp tin mở chậm hẳn và cả ô tìm kiếm cũng ì theo. Vết hỏng thì do một bản không còn tồn tại gây ra, nên sạch một lần là sạch hẳn. Brain còn file hỏng thì vẫn soi lại mỗi lần vào, tới khi bạn bấm chữa. Chép một vault cũ từ máy khác vào và muốn soi lại thì mở `/files/md-hong?force=1`.
+Since 0.52.8, a brain that scans **clean** is remembered and **not scanned again** on later visits. That scan reads every `.md` file in the brain, so on a brain with a few thousand notes it made the Files page noticeably slow to open, and the search box sluggish with it. The damage came from a build that no longer exists, so clean once means clean for good. A brain that still has broken files is rescanned on every visit until you click repair. If you copy an old vault in from another machine and want a rescan, open `/files/md-hong?force=1`.
 
-Javis chỉ sửa thứ mà **chỉ lỗi đó mới tạo ra được**: khối `* * *` ở ngay đầu file kẹp giữa toàn dòng trông như metadata, và chuỗi từ hai dấu gạch chéo trở lên. Đường kẻ ngang giữa bài, file có frontmatter còn lành, hay một dấu gạch chéo lẻ bạn cố ý gõ - đều không bị đụng tới.
+Jarvis 007 only fixes what **only that bug could produce**: a `* * *` block at the very top of the file wrapping lines that look like metadata, and runs of two or more backslashes. A horizontal rule in the middle of an article, a file with intact frontmatter, or a single backslash you typed deliberately are all left alone.
 
-### Khi link trỏ trượt: Javis đi tìm hộ
+### When a link misses: Jarvis 007 goes looking
 
-Đường dẫn trong chat có lúc lệch tên file trên đĩa - hay gặp nhất là chat ghi có dấu ("Kế hoạch...") còn file lưu không dấu ("Ke Hoach..."). Trước đây bấm vào là rơi vào một trang trống ghi "Không phải thư mục". Nay:
+Paths in the chat sometimes differ from the file name on disk, most often when the chat writes accents ("Kế hoạch...") while the file is saved without them ("Ke Hoach..."). Previously, clicking it landed on an empty page reading "Not a folder". Now:
 
-- Đường dẫn trỏ vào **một file** (dù trông như tên thư mục) thì Javis mở thẳng file đó ra sửa.
-- Đường dẫn **không có gì ở đó** thì Javis mở thư mục gần nhất còn tồn tại, nói rõ đã tìm cái gì, rồi **tự dò cả brain theo tên** (không phân biệt dấu tiếng Việt) và bày ra danh sách file tên gần giống - bấm một phát là mở.
-- Mở file trực tiếp trong trình sửa mà không thấy file cũng vậy: trình sửa gợi ý luôn các file tên gần giống thay vì báo lỗi rồi thôi.
+- If the path points at **a file** (even when it looks like a folder name), Jarvis 007 opens that file for editing.
+- If **nothing is there**, Jarvis 007 opens the nearest folder that does exist, says exactly what it was looking for, then **searches the brain by name** (ignoring Vietnamese diacritics) and lists files with similar names, one click from opening.
+- Opening a file directly in the editor behaves the same: if the file is missing, the editor suggests similar file names instead of just reporting an error.
 
-### Xem ảnh và PDF ngay trong dashboard
+### Viewing images and PDFs in the dashboard
 
-1. Rê chuột vào dòng file ảnh (.png, .jpg, .jpeg, .gif, .webp, .bmp, .ico) hoặc .pdf, bấm nút **Xem** (chú thích: "Xem trước"). Bấm thẳng vào tên file cũng ra kết quả y hệt.
-2. Ảnh hiện luôn trong trình sửa; PDF nhúng vào khung đọc ngay tại chỗ.
-3. Trên thanh còn có **↗** để mở file ở tab riêng và **⤓ Tải** để tải về máy. Bấm **✕** (hoặc `Esc`) để quay lại danh sách.
+1. Hover an image row (.png, .jpg, .jpeg, .gif, .webp, .bmp, .ico) or a .pdf and click **View** (tooltip: "Preview"). Clicking the file name gives exactly the same result.
+2. Images render in the editor; PDFs embed in a reader in place.
+3. The bar also has **↗** to open the file in its own tab and **⤓ Download**. Click **✕** (or `Esc`) to return to the list.
 
-Các loại file còn lại (video, file nén, file dữ liệu...) không có nút Sửa cũng không có nút Xem, mà có nút **Mở** (chú thích: "Mở trong tab mới"). Nói cách khác, mỗi dòng file luôn có đúng một nút xem/mở, chỉ khác tên tuỳ loại.
+Other file types (video, archives, data files...) have no Edit and no View button, but an **Open** button (tooltip: "Open in a new tab"). In other words, every file row always has exactly one view/open button; only its name changes with the type.
 
-### Tạo file mới
+### Creating a file
 
-1. Bấm **+ File** trên thanh công cụ.
-2. Nhập tên file, nhớ kèm đuôi. Ví dụ: `ghi-chu.md`.
-3. Javis tạo file rỗng ngay trong thư mục hiện tại. Bạn có thể bấm **Sửa** để nhập nội dung.
+1. Click **+ File** in the toolbar.
+2. Type the file name including the extension, for example `notes.md`.
+3. Jarvis 007 creates an empty file in the current folder. Click **Edit** to write content.
 
-### Tạo thư mục mới
+### Creating a folder
 
-1. Bấm **+ Thư mục**.
-2. Nhập tên thư mục.
-3. Thư mục mới xuất hiện trong thư mục hiện tại.
+1. Click **+ Folder**.
+2. Type the folder name.
+3. The new folder appears in the current folder.
 
-### Tải file lên
+### Uploading files
 
-1. Bấm **⤒ Tải lên**.
-2. Chọn một hoặc nhiều file từ máy của bạn.
-3. Javis tải lần lượt vào thư mục hiện tại rồi làm mới danh sách.
+1. Click **⤒ Upload**.
+2. Pick one or more files from your computer.
+3. Jarvis 007 uploads them into the current folder one by one, then refreshes the list.
 
-Nếu trong thư mục đã có file trùng tên, Javis tự thêm hậu tố số vào tên file mới (ví dụ `bao-cao_1.pdf`) để không ghi đè file cũ.
+If the folder already has a file with the same name, Jarvis 007 appends a number to the new one (for example `report_1.pdf`) rather than overwriting.
 
-### Tải file về máy
+### Downloading a file
 
-1. Bấm nút **⤓ Tải** ở dòng file.
-2. File về máy theo cơ chế tải xuống của trình duyệt, giữ nguyên tên gốc kể cả tên tiếng Việt có dấu.
+1. Click **⤓ Download** on the file row.
+2. The browser downloads it, keeping the original name including Vietnamese accents.
 
-Nút này có ở **mọi loại file**, không riêng .md: ảnh, PDF, video, file nén, bảng tính, file dữ liệu đều tải về được. Kết quả tìm kiếm cũng có nút **⤓ Tải** ngay cạnh nút Mở, nên tìm thấy là tải được luôn, không cần đi vào thư mục chứa nó.
+This button exists for **every file type**, not just .md: images, PDFs, video, archives, spreadsheets and data files can all be downloaded. Search results carry a **⤓ Download** button next to Open, so finding a file is enough to download it without navigating to its folder.
 
-Cửa sổ xem/sửa file cũng luôn có nút **⤓ Tải** trên đầu, kể cả khi file đang mở ở chế độ sửa (trước đây file sửa được chỉ có nút Lưu).
+The view/edit window always has a **⤓ Download** button at the top too, even for a file open in edit mode (previously an editable file only had Save).
 
-### Tải cả thư mục về máy (nén .zip)
+### Downloading a whole folder (as .zip)
 
-Có hai đường, dùng đường nào cũng ra kết quả như nhau:
+Two routes, with identical results:
 
-- Bấm **⤓ Zip** ở dòng thư mục trong danh sách.
-- Đi vào thư mục đó rồi bấm **⤓ Tải thư mục** trên thanh công cụ.
+- Click **⤓ Zip** on the folder row in the list.
+- Enter the folder and click **⤓ Download folder** in the toolbar.
 
-Javis đo thư mục trước, rồi nén toàn bộ bên trong (giữ nguyên cây thư mục con) thành một file .zip đặt theo tên thư mục, ví dụ `attachments.zip`. Vài điều nên biết:
+Jarvis 007 measures the folder first, then zips everything inside (keeping the subfolder tree) into a .zip named after the folder, for example `attachments.zip`. A few things to know:
 
-- Thư mục nặng hơn 200MB thì Javis hỏi lại trước khi nén, kèm số file và dung lượng ước tính, để bạn khỏi ngồi chờ oan.
-- Trần an toàn là 20.000 file hoặc 2GB. Vượt trần Javis báo thẳng và đề nghị bạn tải từng thư mục con - rào này để một cú bấm nhầm ở thư mục gốc ổ đĩa không kéo cả ổ đĩa vào file nén.
-- Thư mục rỗng thì Javis báo không có gì để tải thay vì đưa bạn một file .zip trống.
-- Thư mục con rỗng vẫn được giữ trong file .zip.
+- For folders over 200MB, Jarvis 007 asks first, showing the file count and estimated size so you do not wait for nothing.
+- The safety ceiling is 20,000 files or 2GB. Beyond that Jarvis 007 says so plainly and suggests downloading subfolders one at a time; this guard exists so one misclick at the disk root does not pull the whole disk into an archive.
+- An empty folder makes Jarvis 007 say there is nothing to download rather than handing you an empty .zip.
+- Empty subfolders are still preserved inside the .zip.
 
-Cây file bên trang ghi chú cũng có nút **⤓** y hệt: đứng ở file thì tải file, đứng ở thư mục thì tải cả thư mục dạng .zip.
+The file tree on the notes page has the same **⤓** button: on a file it downloads the file, on a folder it downloads the folder as .zip.
 
-### Đổi tên
+### Renaming
 
-1. Rê chuột vào dòng file hoặc thư mục, bấm **Đổi tên**.
-2. Nhập tên mới rồi xác nhận. Bỏ trống hoặc giữ nguyên tên cũ thì không có gì thay đổi.
+1. Hover the file or folder row and click **Rename**.
+2. Type the new name and confirm. An empty name or the same name changes nothing.
 
-Ký tự lạ trong tên sẽ được Javis thay bằng dấu gạch dưới cho an toàn, nên tên thực tế có thể khác nhẹ so với tên bạn gõ. Chữ tiếng Việt có dấu, dấu chấm, gạch ngang, gạch dưới, khoảng trắng và ngoặc đơn thì được giữ nguyên.
+Unusual characters in a name are replaced with underscores for safety, so the actual name may differ slightly from what you typed. Vietnamese accents, dots, hyphens, underscores, spaces and parentheses are preserved.
 
-### Xoá
+### Deleting
 
-1. Rê chuột vào dòng cần xoá, bấm **Xoá** (nút màu cảnh báo).
-2. Javis hỏi xác nhận: `Xoá "<tên>"? Không thể hoàn tác.` Bấm đồng ý mới xoá.
-3. Với thư mục, thao tác xoá sẽ xoá luôn toàn bộ file bên trong.
+1. Hover the row and click **Delete** (the warning-coloured button).
+2. Jarvis 007 asks to confirm: `Delete "<name>"? This cannot be undone.` It only deletes after you agree.
+3. For a folder, deleting removes every file inside it.
 
-Cảnh báo: thao tác xoá không có thùng rác, không hoàn tác được. Hãy chắc chắn trước khi xác nhận. Javis không cho phép xoá thư mục gốc của brain cũng như thư mục trần duyệt, báo "Không thể xoá thư mục gốc / brain".
+Warning: deletion has no recycle bin and cannot be undone. Be sure before you confirm. Jarvis 007 refuses to delete the brain root or the browse-ceiling folder and says so.
 
-### Chia sẻ một file ra ngoài (link `/s/`)
+### Sharing a file outside (the `/s/` link)
 
-Trong khung mở file có nút **Chia sẻ**: nó cho ra một đường link gửi cho ai người đó cũng xem được, không cần đăng nhập Javis. File `.md` hiện thành trang đã dựng sẵn (đậm, nghiêng, ảnh), còn file `.html` thì **chạy thật** như một app nhỏ.
+The open-file pane has a **Share** button: it produces a link that anyone you send it to can view, with no Jarvis 007 login. A `.md` file shows as a rendered page (bold, italics, images), while an `.html` file **really runs** as a small app.
 
-Trang chia sẻ chạy trong một hộp cách ly: script trong đó không đọc được cookie đăng nhập của bạn và không gọi được API của Javis. Đó là điều kiện để dám mở một file `.html` do AI viết ra cho người lạ xem. Cái giá của nó là ba điều cần biết khi làm app để chia sẻ:
+A shared page runs inside an isolated box: scripts in it cannot read your login cookie and cannot call the Jarvis 007 API. That is the condition for daring to show an AI-written `.html` file to strangers. The price is three things to know when building an app to share:
 
-- **Đọc dữ liệu bằng đường dẫn tương đối** (`./data.json`), đừng trỏ vào `/files/raw`. Link chia sẻ phục vụ được các file nằm **cạnh** trang; còn `/files/raw` đòi cookie đăng nhập nên người xem nhận lỗi 401 và app hiện trống trơn.
-- **Để app trong một thư mục riêng** (`apps/bang-gia/index.html` cùng dữ liệu của nó), đừng để ngay gốc brain. Chỉ trang nằm trong thư mục riêng mới được đọc file dữ liệu bên cạnh, vì "thư mục" của một trang ở gốc brain chính là cả kho ghi chú của bạn.
-- **Lưu tạm (localStorage) vẫn dùng được** nhưng chỉ sống tới khi đóng tab. Javis tự vá chỗ này khi phục vụ trang, nên app không bị chết giữa chừng như trước; đừng để trong đó thứ người xem không được phép mất.
+- **Read data through a relative path** (`./data.json`), not `/files/raw`. A share link serves the files that sit **next to** the page; `/files/raw` demands the login cookie, so the viewer gets a 401 and the app shows up blank.
+- **Keep the app in its own folder** (`apps/price-list/index.html` with its data), not at the brain root. Only a page in its own folder may read the data files beside it, because the "folder" of a page at the brain root is your entire notes vault.
+- **Local storage (localStorage) still works** but only lives until the tab is closed. Jarvis 007 patches this when serving the page, so the app no longer dies midway as it used to; do not keep anything in it that the viewer must not lose.
 
-Thu hồi link: bấm lại nút Chia sẻ rồi chọn thu hồi. Link chết ngay, và mọi file kèm theo nó cũng ngừng phục vụ.
+To revoke a link, click Share again and choose revoke. The link dies at once, and every file attached to it stops being served.
 
-Mọi link đang sống nằm ở trang **Chia sẻ**. Mỗi link có một **tên** tự lấy theo tiêu đề file: thẻ `<title>` của trang `.html`, `title:` hoặc dòng `#` đầu tiên của ghi chú `.md`. File không có tiêu đề thì lấy tên file, riêng `index.html` lấy tên thư mục chứa nó, nên năm app nhỏ không còn cùng hiện là "index.html". Bấm **Đổi tên** để đặt tên khác; để trống là quay về tên theo tiêu đề. Đổi tên không đổi đường link đã gửi đi. Ô tìm kiếm tìm theo tên link, tên file và thư mục.
+Every live link is listed on the **Share links** page. Each link has a **name** taken automatically from the file's title: the `<title>` tag of an `.html` page, the `title:` field or the first `#` line of a `.md` note. A file with no title uses its file name, except `index.html`, which uses the name of the folder holding it, so five small apps no longer all show as "index.html". Click **Rename** to set a different name; leave it empty to go back to the title-based name. Renaming does not change a link you already sent. The search box searches link names, file names and folders.
 
-## Hai thư mục là vùng cache, đừng để dữ liệu quý ở đó
+## Two folders are cache areas, keep nothing precious there
 
-`attachments/` và `inbox/` của mỗi brain được Javis coi là **vùng cache**, không phải kho lưu trữ:
+Each brain's `attachments/` and `inbox/` are treated by Jarvis 007 as **cache**, not storage:
 
-- File trong hai thư mục đó quá **30 ngày** sẽ tự bị dọn, và nếu tổng dung lượng vượt trần **300MB** thì Javis dọn từ cũ tới mới cho tới khi xuống dưới trần.
-- Riêng ghi chú `.md` lỡ nằm trong hai thư mục đó thì được chừa ra, không bị dọn.
-- Muốn tắt hẳn việc tự dọn, đặt `enabled: false` ở khoá `media` trong `settings.json`. Ngưỡng ngày và dung lượng cũng chỉnh ở đó.
-- Ảnh cũ đã hết hạn khi hiện lại trong hội thoại sẽ thành một ô xám viền đứt ghi **"Ảnh đã hết hạn"** thay vì biểu tượng ảnh vỡ.
+- Files in those two folders older than **30 days** are cleaned automatically, and if their total size passes the **300MB** ceiling, Jarvis 007 cleans oldest first until it is under the ceiling.
+- `.md` notes that happen to live there are exempt and never cleaned.
+- To disable the cleanup entirely, set `enabled: false` under the `media` key in `settings.json`. The age and size thresholds live there too.
+- An expired image reappearing in a conversation becomes a grey dashed box reading **"Image expired"** instead of a broken image icon.
 
-Kết luận thực dụng: tài liệu bạn muốn giữ lâu dài thì chuyển sang thư mục nguồn hoặc Wiki của brain, đừng để nằm trong `attachments/` hay `inbox/`.
+The practical conclusion: move anything you want to keep long term into the brain's sources or Wiki folders, not `attachments/` or `inbox/`.
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference: buttons and states
 
-| Bạn muốn | Bấm | Ghi chú |
+| You want | Click | Note |
 |---|---|---|
-| Tìm file theo tên | Ô tìm + chip `Tên` | Không phân biệt dấu tiếng Việt |
-| Tìm chữ trong file | Ô tìm + chip `Nội dung` | Chỉ file text, bỏ file >1MB, cần ≥2 ký tự |
-| Mở kết quả tìm | `Mở` | Hoặc bấm thẳng vào tên |
-| Nhảy tới thư mục chứa file | `Vị trí` | Cuộn tới và tô sáng dòng đó |
-| Thoát tìm kiếm | `✕` hoặc phím `Esc` | Về lại danh sách thư mục |
-| Vào thư mục | Tên thư mục (📁) | Có breadcrumb để quay ra |
-| Lùi một cấp | ↑ Lên | Tự ẩn khi đã ở trần duyệt |
-| Về gốc brain | ⌂ Brain | Cần khi bạn duyệt lạc ra ngoài brain |
-| Làm mới danh sách | ↻ | Đổi brain thì tự làm mới, không cần bấm |
-| Đọc/sửa file chữ | Sửa → 💾 Lưu | Chỉ với file văn bản, dưới 2MB |
-| Xem ảnh / PDF | Xem | Kèm nút ↗ Tab mới và ⤓ Tải |
-| Mở file loại khác | Mở | Mở ở tab mới |
-| Tạo file rỗng | + File | Nhớ gõ đuôi, vd `.md` |
-| Tạo thư mục | + Thư mục | |
-| Đưa file từ máy vào | ⤒ Tải lên | Chọn được nhiều file |
-| Lấy file về máy | ⤓ Tải | Có ở MỌI loại file, cả trong kết quả tìm kiếm |
-| Lấy cả thư mục về máy | ⤓ Zip (ở dòng thư mục) hoặc ⤓ Tải thư mục (thanh công cụ) | Nén .zip; trần 20.000 file / 2GB |
-| Đổi tên | Đổi tên | Ký tự lạ bị thay bằng `_` |
-| Xoá | Xoá | Có hỏi xác nhận, không hoàn tác |
+| Find a file by name | Search box + `Name` chip | Ignores Vietnamese diacritics |
+| Find text inside files | Search box + `Content` chip | Text files only, skips >1MB, needs ≥2 characters |
+| Open a search result | `Open` | Or click the name directly |
+| Jump to the containing folder | `Location` | Scrolls to and highlights the row |
+| Exit search | `✕` or `Esc` | Back to the folder list |
+| Enter a folder | The folder name (📁) | The breadcrumb brings you back |
+| Go up one level | ↑ Up | Hides itself at the ceiling |
+| Back to the brain root | ⌂ Brain | Needed when you wander outside the brain |
+| Refresh the list | ↻ | Switching brains refreshes automatically |
+| Read/edit a text file | Edit → 💾 Save | Text files under 2MB only |
+| View an image / PDF | View | With ↗ New tab and ⤓ Download |
+| Open other file types | Open | Opens in a new tab |
+| Create an empty file | + File | Remember the extension, e.g. `.md` |
+| Create a folder | + Folder | |
+| Bring files in from your computer | ⤒ Upload | Multiple files allowed |
+| Take a file to your computer | ⤓ Download | On EVERY file type, search results included |
+| Take a whole folder | ⤓ Zip (folder row) or ⤓ Download folder (toolbar) | Zipped; ceiling 20,000 files / 2GB |
+| Rename | Rename | Unusual characters become `_` |
+| Delete | Delete | Asks to confirm, cannot be undone |
 
-## Mẹo
+## Tips
 
-- Không nhớ file nằm ở đâu thì đừng duyệt tay: gõ vào ô tìm là nhanh nhất. Nhớ mang máng nội dung thì chuyển sang chip **Nội dung**, nó tìm cả trong thân file.
-- File Wiki và ghi chú trong vault đều là .md, nên bạn có thể sửa nhanh ngay tại đây thay vì mở app khác. Nhưng nếu chỉ chỉnh nội dung tri thức, thường tiện hơn khi để Javis làm qua trò chuyện. Xem [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md) và [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
-- Đặt tên file mô tả rõ ý chính, tránh tên chung chung. Điều này giúp bạn và Javis tìm lại dễ hơn.
-- Muốn đưa một bài viết, ảnh chụp kiến thức hay tài liệu vào cho Javis tiêu hoá, hãy tải lên thư mục nguồn của brain rồi yêu cầu Javis xử lý trong khung trò chuyện.
-- Trên máy cá nhân bạn duyệt được ra cả ổ đĩa, nên hãy nhìn breadcrumb trước khi xoá. Thấy "🏠" không phải tên brain của bạn là đang đứng ngoài brain.
-- Trước khi thao tác hàng loạt, kiểm tra lại đang đứng đúng brain qua ô chọn brain trên thanh trên cùng. Sửa nhầm brain là lỗi hay gặp nhất.
+- When you cannot remember where a file is, do not browse by hand: the search box is fastest. If you vaguely remember the content, switch to the **Content** chip, which searches inside files.
+- Wiki files and vault notes are all .md, so you can fix them quickly here instead of opening another app. For knowledge edits, though, it is usually easier to let Jarvis 007 do it through chat. See [Chat & voice](02-tro-chuyen-va-giong-noi.md) and [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
+- Name files after their main point rather than generically. It helps both you and Jarvis 007 find them again.
+- To feed Jarvis 007 an article, a screenshot of knowledge or a document, upload it into the brain's sources folder and then ask Jarvis 007 to process it in the chat.
+- On a personal machine you can browse out to the whole disk, so look at the breadcrumb before deleting. If "🏠" is not your brain name, you are standing outside the brain.
+- Before bulk operations, check that you are in the right brain through the top-bar picker. Editing the wrong brain is the most common mistake.
 
-## Sự cố thường gặp
+## Common problems
 
-**Danh sách báo "Máy chủ Javis chưa có chức năng Tệp tin".** Server đang chạy bản cũ chưa có tính năng này. Khởi động lại server (`stop-javis.bat` rồi `start-javis.vbs`) và tải lại trang.
+**The list reports "The Jarvis 007 server does not have the Files feature".** The server is running an older build without it. Restart it (`stop-javis.bat` then `start-javis.vbs`) and reload the page.
 
-**Báo "Phiên đăng nhập hết hạn" hoặc lỗi 401.** Tải lại trang và đăng nhập lại. Xem [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md).
+**"Session expired" or a 401 error.** Reload the page and sign in again. See [Security & accounts](14-bao-mat-tai-khoan.md).
 
-**Bấm ↑ Lên mà không thấy nút đâu.** Bạn đã ở trần duyệt rồi, nút tự ẩn. Bấm **⌂ Brain** để về gốc brain.
+**The ↑ Up button is nowhere to be found.** You are already at the ceiling and it hid itself. Click **⌂ Brain** to return to the brain root.
 
-**Duyệt lạc ra ngoài brain, không biết đường về.** Bấm **⌂ Brain**. Đây đúng là hành vi thiết kế khi chạy cục bộ: trần duyệt là ổ đĩa chứ không phải thư mục brain. Muốn khoá cứng trong brain thì đặt `JAVIS_FILES_ROOT=brain` rồi khởi động lại server.
+**You browsed outside the brain and cannot find the way back.** Click **⌂ Brain**. That is the designed behaviour when running locally: the ceiling is the disk, not the brain folder. To lock it inside the brain, set `JAVIS_FILES_ROOT=brain` and restart the server.
 
-**Tìm kiếm không ra file mà bạn biết chắc là có.** Ba nguyên nhân hay gặp: file nằm ngoài gốc brain (tìm kiếm chỉ quét trong brain); file nằm trong thư mục bị bỏ qua như `.git`, `node_modules`, `.trash`; hoặc bạn đang ở chip **Nội dung** mà file đó không phải dạng chữ hay nặng hơn 1MB. Thử đổi sang chip **Tên**.
+**Search does not find a file you know exists.** Three common causes: the file is outside the brain root (search only scans the brain); it is inside a skipped folder such as `.git`, `node_modules`, `.trash`; or you are on the **Content** chip and the file is not text or is over 1MB. Try the **Name** chip.
 
-**Tìm kiếm báo "Cần ít nhất 2 ký tự".** Chế độ **Nội dung** cần từ khoá dài tối thiểu 2 ký tự. Gõ thêm một ký tự nữa, hoặc chuyển sang chip **Tên**.
+**Search says "At least 2 characters needed".** **Content** mode needs a keyword of at least 2 characters. Type one more, or switch to the **Name** chip.
 
-**Mở file báo "File quá lớn để xem (>2MB) - hãy tải về".** File vượt giới hạn xem trực tiếp. Dùng nút **Tải** để tải về máy rồi mở bằng phần mềm phù hợp.
+**Opening a file reports it is too large to view (>2MB).** It exceeds the in-browser viewing limit. Use **Download** and open it with a suitable application.
 
-**Mở file báo "File nhị phân - không xem được dạng văn bản".** File không phải văn bản (ví dụ file nén, file dữ liệu). Không sửa được trong trình duyệt, chỉ tải về.
+**Opening a file reports it is binary and cannot be shown as text.** The file is not text (an archive or a data file, for example). It cannot be edited in the browser, only downloaded.
 
-**Tải thư mục báo "Thư mục quá lớn để nén".** Thư mục vượt trần an toàn 20.000 file hoặc 2GB. Đi vào trong rồi tải từng thư mục con. Hay gặp nhất khi bạn đứng ở thư mục gốc ổ đĩa chứ không phải trong brain - nhìn breadcrumb để kiểm tra.
+**Downloading a folder reports it is too large to zip.** The folder exceeds the 20,000 file / 2GB safety ceiling. Go inside and download subfolders one at a time. This happens most often when you are standing at the disk root rather than inside the brain; check the breadcrumb.
 
-**Tải thư mục báo "không có file nào để tải".** Thư mục rỗng. Javis không tạo file .zip trống.
+**Downloading a folder reports there is nothing to download.** The folder is empty. Jarvis 007 does not create empty .zip files.
 
-**Bấm Tải mà không thấy file về đâu.** Kiểm tra thư mục Downloads của trình duyệt, và xem trình duyệt có chặn tải xuống tự động không. Riêng thư mục lớn cần vài giây để nén trước khi trình duyệt bắt đầu nhận file.
+**You clicked Download but no file arrived.** Check the browser's Downloads folder and whether the browser blocks automatic downloads. Large folders also need a few seconds to zip before the browser starts receiving.
 
-**Sửa xong bấm Lưu nhưng nút hiện "⚠ Lỗi".** Lưu thất bại. Thử lại; nếu vẫn lỗi, kiểm tra quyền ghi của thư mục brain và tình trạng ổ đĩa, hoặc xem [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+**Saving shows "⚠ Error" on the button.** The save failed. Try again; if it persists, check write permissions on the brain folder and the state of the disk, or see [Troubleshooting & FAQ](17-khac-phuc-su-co.md).
 
-**Không thấy file vừa tải lên hoặc vừa tạo.** Bấm **↻** để làm mới danh sách. Nếu vẫn không thấy, kiểm tra bạn có đang đứng đúng thư mục và đúng brain hay không.
+**A file you just uploaded or created is not visible.** Click **↻** to refresh the list. If it is still missing, check that you are in the right folder and the right brain.
 
-**Ảnh trong attachments biến mất.** Rất có thể ảnh đã quá 30 ngày hoặc thư mục vượt trần 300MB nên bị dọn tự động. Xem mục "Hai thư mục là vùng cache" bên trên.
+**Images in attachments disappeared.** Most likely they passed 30 days or the folder crossed the 300MB ceiling and was cleaned automatically. See "Two folders are cache areas" above.
 
-**Lỡ xoá nhầm file.** Không có thùng rác trong trình quản lý này, thao tác xoá không hoàn tác được. Nếu brain của bạn được đặt trong thư mục có sao lưu git, có thể khôi phục từ đó; ngoài ra thì file đã mất. Xem [Sao lưu brain lên GitHub](18-sao-luu-github.md).
+**You deleted a file by mistake.** This manager has no recycle bin and the deletion cannot be undone. If your brain sits in a folder backed up by git, you can restore from there; otherwise the file is gone. See [Backing the brain up to GitHub](18-sao-luu-github.md).
 
-**Lỡ xoá nhầm cả một brain.** Cái này thì cứu được: brain bị xoá vào thùng rác và giữ 30 ngày trước khi mất hẳn.
+**You deleted a whole brain by mistake.** That one is recoverable: a deleted brain goes into the recycle bin and is kept for 30 days before being removed for good.
 
-## Liên quan
+## Related
 
-- [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) - cấu trúc bên trong một brain.
-- [Sao lưu brain lên GitHub](18-sao-luu-github.md) - giữ lịch sử thay đổi và cứu file lỡ xoá.
-- [Task & Dataview trong note](19-task-va-dataview.md) - viết task và bảng truy vấn trong file .md.
-- [Cấu hình .env](16-cau-hinh-env.md) - biến `JAVIS_FILES_ROOT` và các biến khác.
-- [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md)
+- [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) - what lives inside a brain.
+- [Backing the brain up to GitHub](18-sao-luu-github.md) - keeping change history and recovering deleted files.
+- [Tasks & Dataview in notes](19-task-va-dataview.md) - writing tasks and query tables in .md files.
+- [.env configuration](16-cau-hinh-env.md) - the `JAVIS_FILES_ROOT` variable and the rest.
+- [Troubleshooting & FAQ](17-khac-phuc-su-co.md)

@@ -2,307 +2,307 @@
 
 ***Tiếng Việt** · [English](en/07-agents-and-workflows.md)*
 
-Đây là nơi bạn tạo ra các trợ lý AI chuyên biệt (Agent) và ghép chúng thành dây chuyền làm việc tự động (Workflow). Ví dụ: một agent chuyên nghiên cứu, một agent chuyên viết bài, một agent chuyên kiểm tra lại, nối thành chuỗi "nghiên cứu > viết > kiểm chứng" chạy một phát ra kết quả.
+This is where you create specialised AI assistants (Agents) and chain them into automated pipelines (Workflows). For example: a research agent, a writing agent and a reviewing agent, chained into "research > write > verify" that produces a result in one run.
 
-## Tính năng này là gì
+## What this feature is
 
-- **Agent** là một "nhân viên AI" có vai trò cố định. Mỗi agent gồm: một cái tên, một mô tả vai trò, một hướng dẫn làm việc chi tiết (system prompt), danh sách kỹ năng (skill) được phép dùng, một **model chạy**, và một **bộ nhớ riêng** tích luỹ theo thời gian. Model chọn được từ **mọi nhà cung cấp bạn đã kết nối** ở trang Models: Claude (Claude Code), ChatGPT (Codex), Grok Build CLI, Antigravity CLI, OpenRouter, Anthropic API, OpenAI, Google Gemini, Groq. Danh sách trong ô chọn lấy thẳng từ các nhà đã kết nối, nên kết nối thêm là có thêm lựa chọn. Nhà nào cũng đọc/ghi được file trong vault và dùng được MCP; riêng Claude Code và Codex có thêm lệnh máy cùng khả năng tự mở web. Nhà đã chọn trục trặc lúc chạy thì Javis tự lùi sang bộ não khác thay vì để agent chết lặng. (Ollama chưa chạy được agent nên không xuất hiện ở đây.) Model của agent được áp THẬT khi workflow chạy.
-  - Lưu ý an toàn: khi workflow chạy **nền tự động** (dispatcher Kanban, chế độ giới hạn công cụ file), agent luôn dùng Claude Code để giữ giới hạn công cụ an toàn - kể cả khi bạn chọn nhà khác. Model bạn chọn chỉ áp khi bạn gửi tin ở trang **Cộng sự**.
-- **Workflow** là một chuỗi nhiều bước, mỗi bước giao cho một agent làm một nhiệm vụ. Kết quả bước trước có thể chảy sang bước sau. Bạn có thể gắn thêm một **bước kiểm chứng**: một agent khác đóng vai người soi lỗi, mặc định giả định kết quả đang sai và phải tự chứng minh; nếu chưa đạt, workflow tự sửa lại vài lần.
-- Mọi agent và workflow được lưu thành **file .md trong vault** (bộ não đang chọn), nên bạn xem được, sửa tay được, và Javis cũng tạo được bằng lời qua chat.
+- **An Agent** is an "AI employee" with a fixed role. Each agent has: a name, a role description, a detailed working instruction (system prompt), a list of skills it may use, a **model to run on**, and its **own memory** that accumulates over time. The model can come from **any provider you connected** on the Models page: Claude (Claude Code), ChatGPT (Codex), Grok Build CLI, Antigravity CLI, OpenRouter, Anthropic API, OpenAI, Google Gemini, Groq. The picker reads straight from your connected providers, so connecting more adds more choices. Every provider can read and write vault files and use MCP; Claude Code and Codex additionally have shell commands and can browse the web. If the chosen provider fails at runtime, Jarvis 007 falls back to another brain rather than leaving the agent silent. (Ollama cannot run agents yet, so it does not appear here.) An agent's model is REALLY applied when the workflow runs.
+  - Safety note: when a workflow runs **automatically in the background** (the Kanban dispatcher, restricted file-tool mode), the agent always uses Claude Code to keep the safe tool restrictions, even if you picked another provider. Your chosen model applies when you send a message on the **Partners** page.
+- **A Workflow** is a chain of steps, each handing one task to one agent. The result of a step can flow into the next. You can attach a **verification step**: another agent playing the reviewer, which by default assumes the result is wrong and must be proven otherwise; if it fails, the workflow retries a few times.
+- Every agent and workflow is stored as an **.md file in the vault** (the selected brain), so you can read them, edit them by hand, and Jarvis 007 can create them from chat.
 
-Liên quan: chọn model cho agent xem [Models & engine](10-models-va-engine.md); tạo và bật/tắt skill để gán cho agent xem [Skills](06-skills.md).
+Related: choosing an agent model in [Models & engines](10-models-va-engine.md); creating and enabling skills to assign in [Skills](06-skills.md).
 
-## Mở ở đâu trong Javis
+## Where to find it in Jarvis 007
 
-Mở **Năng lực > Cộng sự** trên thanh bên của dashboard (mặc định tại cổng 7777). Trang có hai tab **Trợ lý | Quy trình**. Skills và Plugins vẫn nằm trong nhóm Năng lực.
+Open **Capabilities > Partners** in the dashboard sidebar (port 7777 by default). The page has **Agents | Workflows** tabs. Skills and Plugins remain in Capabilities.
 
-- Cột trái: chọn tab, tìm theo tên hoặc lọc theo tag (quy trình: theo nhóm), rồi chọn cộng sự. Trợ lý vừa trò chuyện và quy trình vừa chạy được xếp lên đầu.
-- Cột giữa: khung chat của cộng sự đang chọn.
-- Cột phải: cài đặt và hội thoại của trợ lý, hoặc tiến độ và lịch sử chạy của quy trình.
+- Left: choose a tab, search or filter by tag (workflows: by group), then select a partner. Recently used agents and workflows appear first.
+- Centre: chat with the selected partner.
+- Right: agent settings and conversations, or workflow progress and run history.
 
-Trên màn hình hẹp, dùng nút mở danh sách hoặc cột chi tiết để xem ngăn kéo. Đổi brain sẽ đổi danh sách và hội thoại tương ứng.
+On narrow screens, use the list and details buttons to open the side drawers. Switching brains switches the lists and conversations.
 
-## Trò chuyện với một trợ lý
+## Chatting with an agent
 
-1. Chọn tab **Trợ lý**, rồi chọn một trợ lý ở cột trái.
-2. Gửi tin ở giữa trang. Trợ lý trả lời theo vai trò, hướng dẫn và bộ nhớ riêng đã cấu hình.
-3. Sửa tên, vai trò, hướng dẫn, skills hoặc model ở cột phải rồi bấm **Lưu**.
-4. Bấm nút tạo hội thoại mới để bắt đầu một cuộc trò chuyện riêng với cùng trợ lý. Mỗi trợ lý có nhiều hội thoại; mở lại hội thoại gần đây ở cột phải để tiếp tục.
+1. Choose **Agents**, then select an agent in the left column.
+2. Send a message in the centre. Replies use the agent's configured role, instructions and private memory.
+3. Edit its name, role, instructions, skills or model on the right and click **Save**.
+4. Use the new conversation button to start a separate chat with the same agent. Each agent can have several conversations; reopen recent conversations on the right to continue.
 
-Hội thoại cộng sự tách khỏi lịch sử chat chính của Javis. Quay lại một cộng sự sẽ mở tiếp phiên gần nhất của cộng sự đó.
+Partner conversations are separate from Jarvis 007's main chat history. Returning to a partner resumes its most recent conversation.
 
-### Tin chưa đọc và tắt thông báo
+### Unread messages and muting
 
-Từ 0.205.0 danh sách cộng sự chạy như danh sách tin nhắn:
+From 0.205.0 the partner list works like a message list:
 
-- Cộng sự vừa có tin mới (bạn nhắn, cộng sự trả lời, hay một việc nền báo kết quả vào hội thoại của cộng sự) **tự lên đầu** danh sách. Javis Core và các mục **Đã ghim** vẫn đứng trước.
-- Thẻ cộng sự hiện **số tin chưa đọc** ở góc dưới, cạnh giờ nhắn. Mở hội thoại của cộng sự đó là số này tự xoá, ở mọi tab đang mở.
-- Nút **⋮** của mỗi thẻ có **Tắt thông báo**, chọn **Trong 1 giờ**, **Trong 4 giờ**, **Cho đến 8:00 sáng** hoặc **Cho đến khi được mở lại**. Thẻ đang tắt có biểu tượng chuông gạch và số chưa đọc màu xám. Tin vẫn vào hội thoại và chuông thông báo, chỉ là không kêu và không gửi thông báo đẩy. Bấm **Bật thông báo** để mở lại.
+- A partner with a new message (you wrote, the partner replied, or a background job reported into its chat) **moves to the top**. Jarvis 007 Core and the **Pinned** ones still come first.
+- A partner card shows its **unread count** in the bottom corner, next to the time. Opening that partner's chat clears it, in every open tab.
+- Each card's **⋮** button has **Mute notifications**, with **For 1 hour**, **For 4 hours**, **Until 8:00 AM** or **Until turned back on**. A muted card shows a crossed-out bell and a grey unread count. Messages still reach the chat and the bell, just without a sound or a push notification. Press **Unmute notifications** to turn them back on.
 
-## Tạo mới, tìm kiếm và Javis Store
+## Creating, searching and Jarvis 007 Store
 
-Chọn tab cần dùng rồi bấm nút tạo trợ lý hoặc quy trình ở cuối cột trái. **Javis Store** mở kho gói tương ứng để thêm cộng sự có sẵn. Trợ lý được phân loại bằng **tag**, quy trình bằng **nhóm** (xem dưới).
+Choose the tab you need, then click the button to create an agent or workflow at the bottom of the left column. **Jarvis 007 Store** opens the matching package catalogue so you can add ready-made partners. Agents are sorted by **tags**, workflows by **group** (see below).
 
-Ô tìm lọc theo tên, slug, vai trò, mô tả và tên tag, hỗ trợ gõ không dấu. Bộ lọc tag (ở tab Quy trình là bộ lọc nhóm) kết hợp với ô tìm. Mục chưa dùng nằm sau các mục đã dùng và được xếp theo tên.
+Search matches names, slugs, roles, descriptions and tag names, and supports typing without accents. The tag filter (the group filter on the Workflows tab) works together with search. Unused items follow the items you have used, ordered by name.
 
-## Tạo một Agent (từng bước, qua form)
+## Creating an Agent (step by step, through the form)
 
-1. Mở **Cộng sự > Trợ lý**.
-2. Bấm nút tạo trợ lý ở cuối cột trái. Một khung soạn thảo mở ra bên phải màn hình.
-3. Điền các ô sau:
+1. Open **Partners > Agents**.
+2. Click the create agent button at the bottom of the left column. An editor opens on the right of the screen.
+3. Fill in the following fields:
 
-| Ô | Ý nghĩa | Gợi ý điền |
+| Field | Meaning | Suggestion |
 |---|---|---|
-| **Tên** | Tên agent, hiện trên thẻ. Bắt buộc. | VD: "Chuyên viên email" |
-| **Vai trò (mô tả ngắn)** | Một câu mô tả agent làm gì. | VD: "Viết email bán hàng, giọng thân mật" |
-| **Tài liệu & link** | Nút mở khung gắn file trong brain và đường link cho riêng trợ lý này. Xem mục ngay dưới. | Bảng giá, brief thương hiệu, link tài liệu sản phẩm |
-| **System prompt (cách làm việc chi tiết)** | Hướng dẫn dài, chi tiết cách agent làm việc, nguyên tắc, đầu ra mong muốn. | VD: quy tắc viết, cấm dùng từ nào, format đầu ra |
-| **Skills** | Danh sách skill có sẵn trong vault, bấm tick để cho agent được dùng. | Chọn skill hợp với vai trò |
-| **Model** | Ô chọn có 8 lựa chọn, xem bảng ngay dưới. | Sonnet cho cân bằng, Opus khi cần suy luận sâu, Haiku khi cần nhanh và rẻ |
+| **Name** | The agent name, shown on the card. Required. | e.g. "Email specialist" |
+| **Role (short description)** | One sentence describing what the agent does. | e.g. "Writes sales emails in a friendly voice" |
+| **Documents & links** | A button that opens a pane for attaching brain files and links to this agent alone. See the section right below. | A price list, a brand brief, product document links |
+| **System prompt (detailed working instructions)** | A long, detailed instruction: how the agent works, its principles, the output you expect. | e.g. writing rules, banned words, output format |
+| **Skills** | The skills available in the vault; tick the ones the agent may use. | Pick skills matching the role |
+| **Model** | A picker with 8 options, see the table right below. | Sonnet for balance, Opus for deep reasoning, Haiku for fast and cheap |
 
-4. Bấm **Lưu**. Nếu bạn quên nhập Tên, Javis sẽ nhắc "Nhập tên".
-5. Thẻ agent mới hiện trong danh sách, có biểu tượng 🤖, kèm tên model và các nhãn skill đã gán. Nếu chưa gán skill nào, thẻ ghi "chưa gán skill".
+4. Click **Save**. If you forget the Name, Jarvis 007 says "Enter a name".
+5. The new agent card appears in the list with a 🤖 icon, the model name and the assigned skill labels. With no skills assigned, the card reads "no skills assigned".
 
-Ghi chú về ô Skills: danh sách skill lấy từ thư mục skill của vault. Nếu vault chưa có skill nào, khung sẽ báo "Vault chưa có skill trong skills/ - vẫn tạo agent được, gán skill sau." Bạn vẫn tạo agent bình thường và quay lại gán sau. Cách tạo skill xem trang [Skills](06-skills.md).
+A note on the Skills field: the list comes from the vault's skill folder. If the vault has no skills, the panel says "The vault has no skills in skills/ - you can still create the agent and assign skills later." You create the agent as usual and come back to assign skills later. Creating skills is covered on the [Skills](06-skills.md) page.
 
-### Ô Model có gì
+### What the Model picker offers
 
-| Lựa chọn | Thuộc nhóm | Chạy bằng |
+| Option | Group | Runs on |
 |---|---|---|
-| **Mặc định (theo CLI)** | (không nhóm) | Xem giải thích ngay dưới bảng |
+| **Default (per CLI)** | (no group) | See the explanation under the table |
 | **Sonnet** | Claude (Claude Code) | Claude Code |
 | **Opus** | Claude (Claude Code) | Claude Code |
 | **Haiku** | Claude (Claude Code) | Claude Code |
 | **Fable** | Claude (Claude Code) | Claude Code |
-| **GPT-5.5** | ChatGPT (Codex - cần đăng nhập ChatGPT) | Codex CLI |
-| **GPT-5.4** | ChatGPT (Codex - cần đăng nhập ChatGPT) | Codex CLI |
-| **GPT-5.3 Codex** | ChatGPT (Codex - cần đăng nhập ChatGPT) | Codex CLI |
+| **GPT-5.5** | ChatGPT (Codex - requires a ChatGPT login) | Codex CLI |
+| **GPT-5.4** | ChatGPT (Codex - requires a ChatGPT login) | Codex CLI |
+| **GPT-5.3 Codex** | ChatGPT (Codex - requires a ChatGPT login) | Codex CLI |
 
-Dưới ô Model có dòng ghi chú: "Agent chạy qua CLI của nhà cung cấp: chọn Claude → Claude Code; chọn ChatGPT → Codex (cần đã đăng nhập ChatGPT ở máy/VPS). Cả hai đều đọc/ghi file vault + dùng MCP."
+Under the Model field there is a note: "The agent runs through the provider's CLI: choose Claude and it runs on Claude Code; choose ChatGPT and it runs on Codex (you must already be signed in to ChatGPT on the machine/VPS). Both read/write vault files and use MCP."
 
-**"Mặc định (theo CLI)" thật ra làm gì:** để trống thì Javis lấy **model phụ** bạn đặt ở trang **Models** trước (chỉ khi model phụ là một model Claude); không có model phụ Claude nào thì mới rơi về model mặc định của CLI. Nếu bạn muốn một agent luôn chạy đúng một model bất kể cấu hình chung, hãy chọn thẳng model cho nó thay vì để trống.
+**What "Default (per CLI)" really does:** left empty, Jarvis 007 takes the **auxiliary model** you set on the **Models** page first (only when that auxiliary model is a Claude model); with no Claude auxiliary model it falls back to the CLI's default model. If you want an agent to always run on one specific model regardless of the global configuration, pick that model explicitly instead of leaving it empty.
 
-### Tài liệu và link của một trợ lý
+### An agent's documents and links
 
-Mỗi trợ lý có một tủ tài liệu riêng: mở **Cài đặt trợ lý** ở cột phải rồi bấm **Mở khung tài liệu & link**. Khung mở ra đúng là khung bạn đã dùng cho project và cho một cuộc trò chuyện, chỉ khác phạm vi.
+Every agent has its own document cabinet: open **Assistant settings** in the right column and click **Open the documents & links pane**. The pane is the same one you already use for a project and for a single conversation, only the scope differs.
 
-- **Tab File**: tìm một file có sẵn trong brain để gắn vào, hoặc tải file từ máy lên (file tải lên nằm ở thư mục `sources` của brain). Kéo thả file vào khung cũng được.
-- **Tab Link**: dán một địa chỉ `http://` hoặc `https://` kèm tên gợi nhớ.
-- **Nút ghim** trên mỗi file: ghim là Javis **nạp sẵn nội dung file** vào đầu mỗi lượt trợ lý làm việc (tối đa 2000 ký tự mỗi file, 6000 ký tự tổng), thay vì chỉ cho nó biết tên file rồi tự mở khi cần. Ghim bảng giá vào là trợ lý trả lời được ngay mà không phải đi đọc.
-- **Nút X** gỡ khỏi trợ lý nhưng **không** xoá file trong brain. Muốn xoá hẳn thì dùng nút thùng rác bên cạnh.
+- **File tab**: find an existing file in the brain to attach, or upload a file from your computer (uploaded files go into the brain's `sources` folder). You can also drag and drop files onto the pane.
+- **Link tab**: paste an `http://` or `https://` address together with a memorable name.
+- **Pin button** on each file: pinning makes Jarvis 007 **preload the file's content** at the start of every turn the agent works (at most 2000 characters per file and 6000 in total), instead of only telling it the file name and letting it open the file when needed. Pin a price list and the agent can answer straight away without going to read it.
+- **X button** detaches it from the agent but does **not** delete the file in the brain. To delete it for good, use the trash button next to it.
 
-Phạm vi: danh sách này thuộc về **trợ lý**, nên mọi cuộc trò chuyện với nó và mọi bước quy trình gọi tới nó đều thấy. Muốn gắn tài liệu cho riêng một cuộc trò chuyện thì dùng nút **File & link** ở thanh trên khung chat. Chỗ lưu là chính file `.md` của trợ lý (khoá `assets` trong frontmatter), nên xuất trợ lý ra hay copy brain sang máy khác thì danh sách đi theo.
+Scope: this list belongs to the **agent**, so every conversation with it and every workflow step that calls it sees the list. To attach documents to a single conversation only, use the **Files & links** button in the bar above the chat. It is stored in the agent's own `.md` file (the `assets` key in the frontmatter), so exporting the agent or copying the brain to another machine carries the list along.
 
-Trợ lý mới chưa bấm Lưu lần nào thì nút này còn mờ: phải có trợ lý trước rồi mới gắn tài liệu vào được.
+A new agent that has never been saved has this button dimmed: the agent must exist before you can attach documents to it.
 
-### Tag của một trợ lý
+### Agent tags
 
-Từ bản 0.100.0 mỗi trợ lý gắn được **nhiều tag** (ví dụ Marketing, Viết nội dung, Kỹ thuật); nhóm cũ của trợ lý tự thành một tag. Tag chỉ để phân loại và tìm trợ lý:
+Since version 0.100.0 each agent can carry **several tags** (for example Marketing, Content writing, Engineering); an agent's old group automatically became one tag. Tags are only for sorting and finding agents:
 
-- **Gắn tag, bỏ tag:** nút **...** trên từng trợ lý, mục **Gắn tag**. Bấm một tag để gắn hay bỏ đúng tag đó; ô **Tag mới** tạo và gắn tag mới. Các tag khác giữ nguyên.
-- **Lọc:** thanh phía trên danh sách chọn **Tất cả agent**, **Chưa gắn tag** hay một tag. Trợ lý có nhiều tag hiện ở mọi tag của nó nhưng chỉ một lần trong danh sách.
-- **Đổi tên, xoá tag:** nút **...** cạnh tên tag trong thanh lọc. Đổi tên áp cho mọi trợ lý mang tag đó; đổi sang tên đã có thì hai tag gộp làm một. Xoá tag chỉ gỡ nhãn, không xoá trợ lý, cuộc trò chuyện hay mục tiêu.
-- Tag không nằm trong form cài đặt: bấm Lưu trong form không đổi tag.
+- **Add or remove a tag:** the **...** button on each agent, item **Tags**. Click a tag to add or remove just that tag; the **New tag** box creates and adds a new one. Other tags stay as they are.
+- **Filter:** the bar above the list lets you choose **All agents**, **Untagged** or one tag. An agent with several tags shows under each of its tags but only once in the list.
+- **Rename or delete a tag:** the **...** button next to the tag name in the filter bar. Renaming applies to every agent carrying that tag; renaming to a name that already exists merges the two tags into one. Deleting a tag only removes the label, never the agent, its conversations or its goals.
+- Tags are not in the settings form: clicking Save in the form never changes tags.
 
-Tag **khác** nhóm chat: gắn tag không thêm trợ lý vào cuộc trò chuyện nhóm nào. Tag cũng không chọn người review, không cấp quyền, không bật Cộng hưởng. Quy trình vẫn xếp theo **nhóm** như trước.
+A tag is **not** a chat group: tagging does not add the agent to any group conversation. A tag also does not pick a reviewer, grant permissions or turn on Resonance. Workflows are still sorted by **group** as before.
 
-### Bộ nhớ riêng và nhật ký chạy của agent
+### An agent's own memory and run log
 
-Ngoài file `.md`, mỗi agent còn có hai thứ nằm trong thư mục `memory/agents/<slug>/` của brain:
+Besides the `.md` file, each agent has two more things inside the brain's `memory/agents/<slug>/` folder:
 
-- **`MEMORY.md` - bộ nhớ riêng.** Mỗi lần agent chạy, Javis đọc file này và chèn thẳng vào system prompt của agent dưới tiêu đề `# Bộ nhớ của bạn:`. Đây là chỗ để tích luỹ những gì agent cần nhớ lâu dài: quy ước riêng, danh sách khách, những lỗi đã bị nhắc. File này có **hai nguồn ghi**: bạn viết tay, và chính agent **tự bồi đắp lúc chạy** - cuối một nhiệm vụ, nếu rút ra được bài học tái dùng, agent đề xuất và Javis ghi hộ vào mục `## Bài học (tự học)` của file. Javis (chứ không phải model) cầm bút nên có rào cứng: tự loại bài học trùng, chỉ giữ 15 dòng mới nhất để bộ nhớ đặc dần thay vì dài dần, và phần bạn viết tay ngoài mục đó không bao giờ bị chạm. Nghĩa là agent thông minh dần lên theo mỗi lần dùng, không có job nền nào quét hàng loạt. Từ 0.105.0, luật bạn **dặn thẳng** agent trong chat (ví dụ "nhắn Zalo thì không dùng markdown") vào một mục riêng `## Luật chủ dặn`: không có trần, không bao giờ bị đẩy ra như bài học. Tự học cũng không còn viết lại cả thân agent, chỉ được thêm luật vào mục `## Bổ sung (tự học)` cuối thân, và mọi lần ghi phải giữ nguyên từng dòng bạn đã viết, thiếu một dòng là Javis không ghi.
-- **`runs/` - nhật ký chạy.** Mỗi bước workflow chạy xong (kể cả bước kiểm chứng), Javis ghi thêm một mục vào `runs/<YYYY-MM-DD>.md` gồm giờ chạy, nhiệm vụ đã giao, và kết quả (cắt gọn). Đây là chỗ để soi lại "hôm qua agent này đã làm gì" mà không cần mở lại bảng theo dõi. Nhật ký thô này không đi vào git của brain.
+- **`MEMORY.md`, its own memory.** Every time the agent runs, Jarvis 007 reads this file and injects it straight into the agent's system prompt under the heading `# Bộ nhớ của bạn` (Vietnamese for "Your memory"; the code matches this exact heading, so it stays in Vietnamese). This is where long-term knowledge accumulates: house conventions, a client list, mistakes it was corrected on. The file has **two writers**: you by hand, and the agent itself, which **builds it up as it runs**. At the end of a task, if it learned something reusable, the agent proposes it and Jarvis 007 writes it into the file's `## Bài học (tự học)` section (that heading means "Lessons (self-learned)" and is matched by code, so it stays as is). Jarvis 007 holds the pen, not the model, so there are hard rails: duplicate lessons are dropped, only the 15 newest lines are kept so the memory gets denser rather than longer, and the part you wrote by hand outside that section is never touched. That means the agent gets smarter with each use, with no background job scanning in bulk. Since 0.105.0, rules you **tell the agent directly** in chat (for example "no markdown when messaging on Zalo") go into a separate `## Luật chủ dặn` section ("Rules from the owner", also matched by code): no ceiling, and they are never pushed out like lessons. Self-learning also no longer rewrites the whole agent body: it may only add rules to the `## Bổ sung (tự học)` section ("Additions (self-learned)") at the end of the body, and every write must keep every line you wrote intact, or Jarvis 007 does not write.
+- **`runs/`, the run log.** Each time a workflow step finishes (verification steps included), Jarvis 007 appends an entry to `runs/<YYYY-MM-DD>.md` with the run time, the task given and the result (trimmed). This is where you look back at "what did this agent do yesterday" without reopening the tracking panel. This raw log does not go into the brain's git.
 
-Cả hai đều là file văn bản thường: mở, đọc và sửa tay được qua [Quản lý tệp tin](05-quan-ly-tep-tin.md). Muốn dạy một agent nhớ điều gì, cứ viết thẳng vào `memory/agents/<slug>/MEMORY.md` là lần chạy sau nó đã biết.
+Both are ordinary text files: open, read and edit them by hand through the [File manager](05-quan-ly-tep-tin.md). To teach an agent something, write it straight into `memory/agents/<slug>/MEMORY.md` and it knows on the next run.
 
-Phân biệt: bộ nhớ này là của **riêng một agent**; bộ nhớ chung của Javis về bạn và doanh nghiệp nằm ở `memory/MEMORY.md` và `memory/facts/`, xem [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
+To be clear: this memory belongs to **one agent**; Jarvis 007's shared memory about you and the business lives in `memory/MEMORY.md` and `memory/facts/`, see [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
 
-### Sửa hoặc xoá agent
+### Editing or deleting an agent
 
-- **Sửa**: chọn trợ lý, chỉnh ở cột phải rồi bấm **Lưu**.
-- **⤓ Xuất**: đóng gói agent (kèm skill của nó) thành file `.zip` để chia sẻ, xem mục "Chia sẻ" cuối trang.
-- **Xoá**: bấm **Xoá**, xác nhận ở hộp thoại "Xoá agent ...?". Lưu ý: nếu một workflow đang dùng agent này thì bước đó sẽ trỏ tới agent không còn tồn tại, nên xoá xong hãy kiểm tra lại các workflow liên quan. Xoá agent **không** xoá thư mục `memory/agents/<slug>/`, nên bộ nhớ và nhật ký cũ vẫn còn trên đĩa.
+- **Edit**: select the agent, change it in the right column and click **Save**.
+- **⤓ Export**: package the agent (with its skills) into a `.zip` to share, see "Sharing" at the end of this page.
+- **Delete**: click **Delete** and confirm in the "Delete agent ...?" dialog. Note: if a workflow uses this agent, that step will point to an agent that no longer exists, so after deleting, check the related workflows. Deleting an agent does **not** delete its `memory/agents/<slug>/` folder, so the old memory and log stay on disk.
 
-## Tạo một Workflow (từng bước, qua form)
+## Creating a Workflow (step by step, through the form)
 
-Tạo ít nhất một trợ lý ở tab **Trợ lý** trước khi tạo quy trình.
+Create at least one agent on the **Agents** tab before creating a workflow.
 
-1. Mở **Cộng sự > Quy trình**.
-2. Bấm **Tạo quy trình** ở cuối cột trái.
-3. Điền:
-   - **Tên**: tên workflow. Bắt buộc.
-   - **Mô tả**: một dòng nói workflow này làm gì (không bắt buộc nhưng nên có; dòng này hiện trên thẻ workflow).
-   - **Nhóm**: tên nhóm để xếp workflow vào cột nhóm bên trái, gõ tên mới hoặc chọn từ nhóm đang có. Để trống thì nó nằm ở nhóm "Chung".
-4. Ở phần **Các bước (mỗi bước = 1 agent · dùng {{input}} và {{prev}})**, mỗi bước là một khối gồm:
-   - Ô **Nhiệm vụ** (task): mô tả bước này phải làm gì. Trong nhiệm vụ, bạn dùng được hai biến đặc biệt:
-     - `{{input}}` = nội dung tin nhắn bạn gửi để chạy quy trình.
-     - `{{prev}}` = kết quả của bước ngay trước đó.
-   - Phần **Kiểm chứng** (không bắt buộc): chọn một agent đóng vai người soi lỗi cho bước này, và số lần cho phép sửa lại. Để mặc định "- không kiểm chứng -" nếu không cần. Số lần sửa mặc định là 1, cho phép từ 0 đến 5.
-5. Bấm **+ Bước** để thêm bước mới.
-6. Bấm **Lưu**. Nếu quên nhập Tên, Javis nhắc "Nhập tên". Workflow mới lưu ở trạng thái sẵn sàng (active).
+1. Open **Partners > Workflows**.
+2. Click **New workflow** at the bottom of the left column.
+3. Fill in:
+   - **Name**: the workflow name. Required.
+   - **Description**: one line saying what this workflow does (optional but worth having; this line shows on the workflow card).
+   - **Group**: the group name that files the workflow into the group column on the left. Type a new name or pick an existing group. Left empty, it goes into the "General" group.
+4. In **Steps (each step = 1 agent · use {{input}} and {{prev}})**, every step is a block with:
+   - A **Task** field: describe what this step must do. In the task you can use two special variables:
+     - `{{input}}` = the content of the message you send to run the workflow.
+     - `{{prev}}` = the result of the step immediately before.
+   - A **Verification** section (optional): pick an agent to play the reviewer for this step, and how many retries are allowed. Leave it at "- no verification -" if not needed. The retry count defaults to 1 and ranges from 0 to 5.
+5. Click **+ Step** to add a new step.
+6. Click **Save**. If you forget the Name, Jarvis 007 says "Enter a name". A newly saved workflow is in the ready (active) state.
 
-### Hàng tiêu đề của một bước
+### The header row of a step
 
-Mỗi bước có một hàng tiêu đề, đọc từ trái sang phải:
+Each step has a header row, read left to right:
 
-| Phần tử | Ý nghĩa |
+| Element | Meaning |
 |---|---|
-| Số thứ tự | 1, 2, 3... theo đúng thứ tự chạy |
-| Dòng tóm tắt | "tên agent · nhiệm vụ" rút gọn trên một dòng |
-| Ô chọn agent | Đổi agent phụ trách bước này |
-| **↑** | Đẩy bước lên trên một nấc (mờ ở bước đầu) |
-| **↓** | Đẩy bước xuống dưới một nấc (mờ ở bước cuối) |
-| **✕** | Xoá bước này (nằm ở CUỐI hàng tiêu đề) |
+| Step number | 1, 2, 3... in the exact run order |
+| Summary line | "agent name · task" condensed to one line |
+| Agent picker | Change the agent in charge of this step |
+| **↑** | Move the step up one place (dimmed on the first step) |
+| **↓** | Move the step down one place (dimmed on the last step) |
+| **✕** | Delete this step (at the END of the header row) |
 
-**Gập và mở bước:** bấm vào hàng tiêu đề (chỗ trống, không phải nút hay ô chọn) để gập hoặc mở phần thân của bước đó. Khi bạn mở một workflow đã có để **sửa**, tất cả các bước mặc định gập hết lại để bạn thấy toàn cảnh dây chuyền trước; bấm vào bước nào thì bước đó mở ra cho sửa. Workflow **mới tạo** chỉ có một bước nên mở sẵn.
+**Collapsing and expanding steps:** click the header row (on an empty spot, not a button or the picker) to collapse or expand that step's body. When you open an existing workflow to **edit** it, all steps start collapsed so you see the whole chain first; click a step to open it for editing. A **newly created** workflow has just one step, so it starts open.
 
-Chữ đang gõ dở không bị mất khi bạn gập/mở, đổi thứ tự hay xoá bước khác - Javis lưu tạm nội dung mọi bước trước mỗi lần vẽ lại.
+Text you are half way through typing is not lost when you collapse or expand, reorder or delete another step: Jarvis 007 keeps every step's content aside before each redraw.
 
-### Ví dụ một workflow 2 bước
+### Example: a 2-step workflow
 
-- Bước 1: agent **Researcher**, nhiệm vụ: `Nghiên cứu kỹ chủ đề: {{input}}. Tìm nguồn, tổng hợp insight chính.`
-- Bước 2: agent **Writer**, nhiệm vụ: `Viết một bài hoàn chỉnh về '{{input}}' dựa trên nghiên cứu sau:` rồi xuống dòng và thêm `{{prev}}`. Ở phần Kiểm chứng, chọn agent **Kiểm chứng viên**, số lần sửa 2.
+- Step 1: agent **Researcher**, task: `Research this topic thoroughly: {{input}}. Find sources, summarise the key insights.`
+- Step 2: agent **Writer**, task: `Write a complete article about '{{input}}' based on this research:` then a line break and `{{prev}}`. In Verification, pick the **Verifier** agent with 2 retries.
 
 
-### Sửa, xuất hoặc xoá quy trình
+### Editing, exporting or deleting a workflow
 
-Chọn quy trình ở cột trái. Cột phải có nút **Sửa**, **Xuất** và **Xoá**, cùng danh sách các bước. Nút Sửa mở trình sửa quy trình; lưu xong danh sách và chi tiết được cập nhật.
+Select the workflow in the left column. The right column has **Edit**, **Export** and **Delete** buttons, plus the list of steps. Edit opens the workflow editor; after saving, the list and details update.
 
-## Chạy quy trình
+## Running a workflow
 
-1. Mở **Cộng sự > Quy trình**, chọn một quy trình ở cột trái.
-2. Gửi yêu cầu vào khung chat. Mỗi tin nhắn bắt đầu một lần chạy; nội dung tin là đầu vào `{{input}}`.
-3. Theo dõi tiến độ từng bước ở cột phải. Nếu quy trình có kiểm chứng, bước đó có thể chạy lại theo phản hồi của người kiểm chứng và số lần thử đã cấu hình.
-4. Nếu cần duyệt, đọc yêu cầu và dùng nút duyệt ở cột phải để tiếp tục. Lỗi và trạng thái chờ cũng được báo trong chat.
-5. Khi hoàn tất, kết quả về khung chat. Tin tiếp theo trong cùng hội thoại nhớ kết quả lần trước, nên bạn có thể góp ý và chạy lại, ví dụ: "Giữ ý chính, viết ngắn hơn".
+1. Open **Partners > Workflows** and select a workflow in the left column.
+2. Send your request in the chat. Each message starts one run; the message text is the `{{input}}` input.
+3. Follow each step's progress in the right column. If the workflow has verification, that step may run again based on the verifier's feedback and the configured number of attempts.
+4. If approval is needed, read the request and use the approval button in the right column to continue. Errors and waiting states are also reported in the chat.
+5. When it finishes, the result comes back to the chat. The next message in the same conversation remembers the previous result, so you can give feedback and run again, for example: "Keep the main idea, make it shorter".
 
-**Lịch sử chạy** ở cột phải liệt kê các lần chạy gần nhất. Bấm một lần chạy để xem chi tiết và mở lại hội thoại nếu lần chạy có phiên chat. Quy trình vừa chạy tự lên đầu danh sách. Bạn cũng có thể hỏi Javis ở khung chat chính: "Quy trình chạy gần nhất ra sao?" để tra lịch sử đã lưu, bao gồm lần chạy từ Cộng sự và Kanban.
+The **run history** in the right column lists the most recent runs. Click a run to see the details and reopen its conversation if the run had a chat session. A workflow that just ran moves to the top of the list. You can also ask Jarvis 007 in the main chat: "How did the latest workflow run go?" to look up the saved history, including runs from Partners and from Kanban.
 
-Mỗi bước vẫn ghi nhật ký của trợ lý tại `memory/agents/<slug>/runs/`. Nếu mất kết nối, kiểm tra lịch sử chạy trước khi gửi lại để tránh chạy trùng.
+Each step still writes the agent's log under `memory/agents/<slug>/runs/`. If the connection drops, check the run history before sending again, to avoid running twice.
 
-## Tạo agent và workflow bằng lời (qua chat)
+## Creating agents and workflows in words (through chat)
 
-Bạn không bắt buộc phải dùng form. Trong khung trò chuyện với Javis (xem [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md)), bạn có thể ra lệnh bằng lời, ví dụ:
+You do not have to use the form. In the chat with Jarvis 007 (see [Chat & voice](02-tro-chuyen-va-giong-noi.md)) you can ask in words, for example:
 
-- "Tạo agent chuyên viết email bán hàng."
-- "Tạo workflow nghiên cứu rồi viết bài."
-- "Thêm bước biên tập vào workflow X."
+- "Create an agent that writes sales emails."
+- "Create a workflow that researches then writes an article."
+- "Add an editing step to workflow X."
 
-Khi đó Javis tự ghi file .md tương ứng vào vault, tự đặt slug không dấu, tự gắn tag cho agent hay xếp nhóm cho workflow (đọc tag và nhóm đang dùng trong brain rồi lấy cái sát nhất), tự gán skill hợp lý từ skill có sẵn, và nếu workflow nhắc tới một agent chưa tồn tại thì tạo agent đó trước. Sau khi làm xong, Javis báo ngắn gọn đã tạo/sửa file nào. Bạn quay lại trang Cộng sự là thấy ngay, không cần thao tác thêm.
+Jarvis 007 then writes the matching .md file into the vault, sets an accent-free slug, tags the agent or files the workflow into a group on its own (it reads the tags and groups already used in the brain and takes the closest), assigns sensible skills from the available ones, and if the workflow mentions an agent that does not exist yet, creates that agent first. When done, Jarvis 007 reports briefly which files it created or edited. Go back to the Partners page and you see it at once, with nothing more to do.
 
-Cách này tiện khi bạn mô tả được ý định bằng lời nhưng ngại điền form, hoặc muốn chỉnh nhiều bước cùng lúc.
+This is handy when you can describe the intent in words but would rather not fill in a form, or want to change several steps at once.
 
-## Agent và workflow được lưu ở đâu
+## Where agents and workflows are stored
 
-Trong brain theo cấu trúc mới, mỗi agent là một file `agents/<slug>.md` và mỗi workflow là một file `workflows/<slug>.md`. `slug` là tên viết thường, có gạch ngang, không dấu (ví dụ "viết email" thành `viet-email`).
+In a brain with the new layout, each agent is a file at `agents/<slug>.md` and each workflow at `workflows/<slug>.md`. The `slug` is lowercase, hyphenated and accent-free (for example "viết email" becomes `viet-email`).
 
-**Brain cũ chưa chuyển cấu trúc** thì hai thư mục đó nằm ở `Javis/agents/` và `Javis/workflows/`. Javis tự dò: có thư mục mới thì dùng thư mục mới, không có thì dùng đường cũ. Nên nếu bạn mở trang Tệp tin mà không thấy `agents/` ở gốc brain, hãy tìm trong `Javis/`.
+**An old brain that has not been migrated** keeps those two folders at `Javis/agents/` and `Javis/workflows/`. Jarvis 007 detects this itself: if the new folder exists it uses it, otherwise it uses the old path. So if you open the Files page and do not see `agents/` at the brain root, look inside `Javis/`.
 
-Vì là file văn bản, bạn có thể mở qua [Quản lý tệp tin](05-quan-ly-tep-tin.md) để xem hoặc sửa tay. Cấu trúc file:
+Because they are text files, you can open them through the [File manager](05-quan-ly-tep-tin.md) to read or edit by hand. The file structure:
 
-- Agent: phần đầu (frontmatter) chứa tên, vai trò, tag (`tags`, một danh sách), danh sách skill, model, và tài liệu đã gắn (`assets` gồm `files` và `links`); phần thân là system prompt chi tiết. Bộ nhớ riêng và nhật ký chạy nằm ngoài file này, ở `memory/agents/<slug>/`.
-- Workflow: phần đầu chứa tên, trạng thái (active hoặc off), nhóm (`group`), mô tả và danh sách các bước (mỗi bước có agent, task, và tuỳ chọn agent kiểm chứng cùng số lần sửa).
-  - Viết tay thì để `status: 'off'` CÓ dấu nháy: `off` trần bị YAML đọc thành giá trị đúng/sai. Từ 0.107.0 Javis hiểu được cả hai cách viết, nhưng giữ nháy cho chắc. Quy trình tắt không chạy nền từ Kanban hay nhắc hẹn; bấm Chạy ở Cộng sự thì vẫn chạy để bạn thử trước khi bật.
-  - Một bước có thể khai `tools: [javis_generate_image, javis_describe_image]` để lấy đúng tool đó khi quy trình chạy nền dưới Toàn quyền (bình thường lúc đó agent chỉ có công cụ file). Nhận tên tool plugin và `WebFetch`, `WebSearch`; Bash không bao giờ được cấp theo cách này. Mức quyền riêng của tool vẫn được kiểm khi gọi, nên một bước không tự nâng mức được.
+- Agent: the frontmatter holds the name, role, tags (`tags`, a list), skill list, model, and the attached documents (`assets`, with `files` and `links`); the body is the detailed system prompt. Its own memory and run log live outside this file, in `memory/agents/<slug>/`.
+- Workflow: the frontmatter holds the name, status (active or off), group (`group`), description and the list of steps (each step has an agent, a task, and optionally a verification agent with a retry count).
+  - When writing it by hand, write `status: 'off'` WITH quotes: a bare `off` is read by YAML as a true/false value. Since 0.107.0 Jarvis 007 understands both spellings, but keep the quotes to be safe. A workflow that is off does not run in the background from Kanban or reminders; clicking Run in Partners still runs it so you can try it before turning it on.
+  - A step may declare `tools: [javis_generate_image, javis_describe_image]` to get exactly those tools when the workflow runs in the background under Full access (normally the agent has only file tools then). It accepts plugin tool names plus `WebFetch` and `WebSearch`; Bash is never granted this way. The tool's own permission level is still checked at call time, so a step cannot raise its own level.
 
-Sửa tay trong file cũng được. Agent: ghi `tags: [Marketing, Viết nội dung]`; có trường `tags` (kể cả `tags: []`) thì Javis chỉ đọc nó. File agent cũ chỉ có `group: Marketing` vẫn đọc thành một tag Marketing; lần lưu đầu Javis ghi thêm `tags` và giữ `group` bằng tag đầu tiên để bản cũ hơn vẫn đọc được. Workflow và skill dùng `group`; thiếu trường này thì vào nhóm "Chung".
+Editing the file by hand works too. Agent: write `tags: [Marketing, Content writing]`; once a `tags` field is present (even `tags: []`) Jarvis 007 reads only it. An old agent file that has just `group: Marketing` still reads as a single Marketing tag; on the first save Jarvis 007 adds `tags` and keeps `group` set to the first tag so older builds can still read it. Workflows and skills use `group`; without this field they go into the "General" group.
 
-Sửa file rồi lưu thì trang Cộng sự tự nhận nội dung mới ở lần tải lại.
+After you edit and save a file, the Partners page picks up the new content on the next reload.
 
-## Mẹo
+## Tips
 
-- **Luôn tách một bước kiểm chứng cho khâu quan trọng.** Đặt agent kiểm chứng là một agent khác với agent làm, vì nó được ép đóng vai "giả định kết quả đang sai". Đây là cách giảm chuyện AI viết ẩu hoặc bịa.
-- **Agent kiểm chứng phải trả JSON** `{"pass": true|false, "reason": "...", "fixes": "..."}`. Từ 0.107.0 kiểm chứng là đóng-khi-lỗi: agent kiểm chứng lỗi, trả lời không đọc được, hay hết số lần sửa mà vẫn trượt đều tính là CHƯA ĐẠT, và quy trình dừng ở bước đó thay vì chạy tiếp như trước.
-- **Mỗi bước làm đúng một việc.** Đừng nhồi "nghiên cứu và viết và đăng" vào một bước. Chia nhỏ để dễ kiểm soát và dễ sửa từng khâu.
-- **Dùng `{{prev}}` để nối mạch.** Bước sau muốn dùng kết quả bước trước thì phải nhắc `{{prev}}` trong nhiệm vụ, nếu không agent sẽ không thấy đầu ra bước trước.
-- **Dựng thứ tự bằng ↑/↓ thay vì xoá đi làm lại.** Sắp nhầm thứ tự thì chỉ cần đẩy bước lên xuống, nội dung đi theo nguyên vẹn.
-- **Đặt số lần sửa vừa phải.** 1 đến 2 lần thường đủ. Đặt quá cao khiến workflow chạy lâu và tốn khi kết quả khó đạt.
-- **Chọn model theo việc.** Bước nặng suy luận (phân tích, kiểm chứng) dùng Opus; bước đơn giản, số lượng nhiều dùng Haiku cho nhanh và tiết kiệm. Chi tiết ở [Models & engine](10-models-va-engine.md).
-- **Gán skill đúng chỗ.** Agent chỉ mạnh khi có skill phù hợp. Ví dụ agent viết sales page nên gán skill viết sales page. Quản lý skill ở [Skills](06-skills.md).
-- **Dùng bộ nhớ riêng cho thứ lặp đi lặp lại.** Cùng một lời dặn phải nhắc lại mỗi lần chạy thì viết thẳng vào `memory/agents/<slug>/MEMORY.md`, khỏi nhồi hết vào system prompt.
+- **Always add a separate verification step for important work.** Make the verifier a different agent from the doer, because it is forced into the "assume the result is wrong" role. That is how you reduce sloppy or invented output.
+- **The verification agent must return JSON** `{"pass": true|false, "reason": "...", "fixes": "..."}`. Since 0.107.0 verification fails closed: a verifier that errors, an unreadable answer, or running out of retries while still failing all count as NOT PASSED, and the workflow stops at that step instead of carrying on as it used to.
+- **Each step does exactly one thing.** Do not cram "research and write and publish" into one step. Split it so each stage is easy to control and fix.
+- **Use `{{prev}}` to link steps.** If a later step wants the previous step's result, it must mention `{{prev}}` in its task, otherwise the agent will not see the previous output.
+- **Reorder with ↑/↓ instead of deleting and redoing.** A wrong order only needs a nudge up or down; the content moves intact.
+- **Set a moderate retry count.** 1 to 2 is usually enough. Setting it too high makes the workflow slow and costly when the result is hard to reach.
+- **Match the model to the job.** Reasoning-heavy steps (analysis, verification) suit Opus; simple, high-volume steps suit Haiku for speed and cost. Details in [Models & engines](10-models-va-engine.md).
+- **Assign skills where they belong.** An agent is only strong with the right skills. For example, a sales page agent should carry the sales page skill. Skill management is in [Skills](06-skills.md).
+- **Use the agent's own memory for things that repeat.** If the same instruction has to be repeated on every run, write it straight into `memory/agents/<slug>/MEMORY.md` rather than cramming it all into the system prompt.
 
-## Chia sẻ: Xuất / Nhập (agent, skill, workflow)
+## Sharing: Export / Import (agent, skill, workflow)
 
-Bạn có thể đóng gói một agent, skill hoặc workflow thành **một file `.zip`** để gửi cho người khác, và nhận file của người khác về brain của mình.
+You can package an agent, skill or workflow into **one `.zip` file** to send to someone else, and bring someone else's file into your own brain.
 
-- **Xuất:** mỗi thẻ agent / skill / workflow có nút **⤓ Xuất**. Bấm là tải về một gói `.zip`. Gói này **tự kèm phụ thuộc** để bên nhận chạy được ngay: xuất một workflow sẽ kèm luôn các agent mà workflow đó dùng và các skill của những agent đó; xuất một agent sẽ kèm skill của agent. Skill **hệ thống** không được đóng gói vì brain nào cũng đã có sẵn.
-- **An toàn:** khi nhập, Javis chặn các đường dẫn bất thường trong gói (không cho ghi ra ngoài các thư mục agent/skill/workflow) và giới hạn dung lượng để tránh file độc. Dù vậy, chỉ nên nhập gói từ nguồn bạn tin tưởng, vì nội dung skill là hướng dẫn cho AI làm theo.
+- **Export:** each agent / skill / workflow card has a **⤓ Export** button. Click it to download a `.zip` package. The package **includes dependencies** so the recipient can run it immediately: exporting a workflow also includes the agents that workflow uses and those agents' skills; exporting an agent also includes the agent's skills. **System** skills are not packaged because every brain already has them.
+- **Safety:** on import, Jarvis 007 blocks unusual paths inside the package (it will not write outside the agent/skill/workflow folders) and caps the size to avoid malicious files. Even so, only import packages from sources you trust, because skill content is instructions for the AI to follow.
 
-Lưu ý: gói xuất chỉ chứa file định nghĩa. **Bộ nhớ riêng và nhật ký chạy của agent không đi theo gói** - bên nhận có được vai trò và kỹ năng, không có ký ức.
+Note: an exported package holds only the definition files. **An agent's own memory and run log do not travel with the package**: the recipient gets the role and the skills, but not the memories.
 
-## Chia sẻ cả một Team
+## Sharing a whole Team
 
-Ở trang Team, menu **⋯** của một team có **Chia sẻ team**: tải về một file `.team.javis.zip` gồm các cộng sự của team, kỹ năng của họ, trưởng nhóm và các tin đã ghim (thành hướng dẫn chung). File **không** có lịch sử chat, khoá, mật khẩu, model hay công tắc Auto; chữ trông giống khoá API, mã bot hay dòng `password: ...` bị thay bằng `[REDACTED]` trước khi ghi.
+On the Team page, a team's **⋯** menu has **Share team**: it downloads one `.team.javis.zip` file containing the team's partners, their skills, the leader and the pinned messages (as shared instructions). The file has **no** chat history, keys, passwords, models or Auto switch; text that looks like an API key, a bot token or a `password: ...` line is replaced with `[REDACTED]` before writing.
 
-Người nhận bấm **Nhập team** ở đầu danh sách team, chọn file, xem trước có những cộng sự nào và bao nhiêu kỹ năng rồi xác nhận. Cộng sự trùng tên đã có trong brain thì giữ nguyên bản của người nhận; model và Auto người nhận tự chọn sau. File này vẫn mở được bằng nút Nhập ở trang Cộng sự của bản Javis cũ (khi đó chỉ nhập cộng sự, không dựng team).
+The recipient clicks **Import team** at the top of the team list, picks the file, previews which partners and how many skills it holds, then confirms. A partner with the same name that already exists in the brain keeps the recipient's own version; the recipient picks models and Auto later. This file can also be opened with the Import button on the Partners page of an older Jarvis 007 build (which then imports only the partners, without building the team).
 
-Mỗi lượt chat tạo, sửa hay gỡ lịch, việc lặp, cộng sự, quy trình hay kỹ năng còn để lại một dòng nhỏ dưới câu trả lời ("Đã tạo lịch: ..."). Cái mới tạo có nút **Hoàn tác**: huỷ lịch, xoá việc lặp, cộng sự, quy trình hay kỹ năng vừa tạo.
+Each chat turn that creates, edits or removes a schedule, recurring job, partner, workflow or skill also leaves a small line under the answer ("Schedule created: ..."). Something newly created has an **Undo** button: it cancels the schedule, or deletes the recurring job, partner, workflow or skill that was just created.
 
-## Team chờ bạn duyệt (từ 0.207.0)
+## Team waiting for your approval (since 0.207.0)
 
-Trong việc giao cho Team, một cộng sự cần bạn quyết (chọn phương án, chi tiền, gửi tin hay đăng bài ra ngoài) thì bước đó **dừng thật**: việc chuyển sang **Chờ bạn duyệt**, nhả chỗ cho việc khác của nhóm, và trong khung chat hiện một **thẻ Xin duyệt** ghi rõ sẽ làm gì, phạm vi, ảnh hưởng, bằng chứng và đúng các lời gọi sẽ chạy. Trước đây câu "@Chủ nhóm anh duyệt nhé?" vẫn bị coi là kết quả và việc tự chốt xong.
+In a job given to a Team, when a partner needs a decision from you (choosing an option, spending money, sending a message or posting something outside), that step **really stops**: the job moves to **Waiting for your review**, frees its slot for the team's other jobs, and an **Approval request** card appears in the chat stating what will be done, the scope, the impact, the evidence and exactly the calls that will run. Previously a line like "@Lead, do you approve?" was treated as a result and the job closed itself.
 
-- **Duyệt**: cộng sự làm tiếp ở một bước mới, và chỉ đúng lời gọi đã duyệt được chạy, mỗi lời gọi một lần. Máy khởi động lại hay chạy lại bước cũng không làm lại hành động đã chạy.
-- **Yêu cầu sửa**: ghi điều muốn đổi, cộng sự đưa phương án mới (thành một thẻ mới).
-- **Từ chối**: ghi lý do, việc dừng ở đó; bạn sửa yêu cầu để giao hướng khác hoặc huỷ việc.
-- **Thu hồi duyệt**: rút lại một duyệt chưa dùng tới.
+- **Approve**: the partner continues in a new step, and only exactly the approved calls run, each call once. A restart or re-running the step does not redo an action that already ran.
+- **Ask for changes**: write what you want changed, and the partner offers a new option (as a new card).
+- **Reject**: write the reason, and the job stops there; you edit the request to send it in another direction, or cancel the job.
+- **Revoke approval**: take back an approval that has not been used yet.
 
-Sửa yêu cầu của việc hay huỷ việc làm thẻ cũ hết hiệu lực. Chữ trong chat (của bạn hay của cộng sự) không bao giờ thay cho nút Duyệt. Mỗi lần bấm có mã riêng, nên mạng chập chờn bấm lại không làm hai lần, và mở hai tab thì tab sau được báo là đã quyết.
+Editing the job's request or cancelling the job voids the old card. Text in the chat (yours or a partner's) never substitutes for the Approve button. Each click carries its own code, so clicking again on a flaky network does not act twice, and with two tabs open the later tab is told it was already decided.
 
-**Quyền của nhóm** (tab Nhóm, mục **Hành động ra ngoài của nhóm**):
-- **Cần chủ duyệt** (mặc định, cả nhóm cũ): cộng sự tự đọc, tìm, ghi file trong bộ não và thư mục của nhóm, chạy lệnh chỉ đọc. Gửi, đăng, thanh toán, đặt hàng, xoá dữ liệu hay lệnh máy khác bị chặn TRƯỚC khi chạy và thành thẻ xin duyệt.
-- **Nhóm tự làm, không hỏi**: quyền như khi bạn chat riêng với từng cộng sự (cách Team chạy ở 0.194.0 tới 0.206.0).
+**Team permissions** (Team tab, **The team's outside actions** section):
+- **Needs your approval** (the default, including existing teams): partners read, search and write files in the brain and the team's folder on their own, and run read-only commands. Sending, posting, paying, ordering, deleting data or any other shell command is blocked BEFORE it runs and becomes an approval card.
+- **The team acts without asking**: the same rights as when you chat privately with each partner (how Teams ran from 0.194.0 to 0.206.0).
 
-Ở chế độ Cần chủ duyệt, Claude Code, Codex (có sandbox riêng) và các bộ não dùng API key chặn được hành động trước khi chạy. Grok Build chỉ làm phần trong phạm vi (hành động đã duyệt không chạy được trên Grok). Antigravity không chặn được công cụ của chính nó nên bước đó bị từ chối kèm lời giải thích: đổi trợ lý sang bộ não khác hoặc bật "Nhóm tự làm".
+In Needs your approval mode, Claude Code, Codex (with its own sandbox) and the brains that use an API key can block the action before it runs. Grok Build only does the part within scope (an approved action cannot run on Grok). Antigravity cannot block its own tools, so that step is refused with an explanation: switch the assistant to another brain or turn on "The team acts without asking".
 
-## Mục tiêu phòng ban của Team (từ 0.208.0)
+## A Team's department mandate (since 0.208.0)
 
-Ở tab Nhóm có mục **Mục tiêu phòng ban**. Nhóm cũ không có mục tiêu nên không có gì tự chạy cho tới khi bạn đặt và bấm **Bật**.
+The Team tab has a **Department mandate** section. Existing teams have no mandate, so nothing runs by itself until you set one and click **Turn on**.
 
-- **Mục tiêu**: nhóm này để làm gì. **Cách đo**: mỗi dòng một tiêu chí.
-- **Nguồn được giao**, mỗi dòng một nguồn: `folder:bao-cao` (thư mục trong bộ não), `kanban` (việc Kanban lỗi của bộ não), `mcp:<mã kết nối>` (kết nối có đang lỗi không), `test:<lệnh kiểm tra>` (lệnh chạy ở mức Ghi nháp của trang Coding nên chạy được mã như `pytest` hay `npm test`, chỉ bạn đặt được; mã thoát khác 0 hay chạy quá 2 phút là lỗi).
-- **Phạm vi**, **chu kỳ quan sát**, **số lần quan sát mỗi ngày**, **số việc tự mở mỗi ngày**, và **dừng mở việc khi đang có N việc**.
-- Với mỗi loại cơ hội (tài liệu thay đổi, việc Kanban lỗi, lệnh kiểm tra báo lỗi, kết nối lỗi) chọn: **Chỉ ghi nhận**, **Đề xuất cho tôi**, **Mở việc, chờ tôi duyệt** hay **Tự mở việc**.
+- **Outcome**: what this team is for. **How it is measured**: one criterion per line.
+- **Granted sources**, one per line: `folder:bao-cao` (a folder in the brain), `kanban` (the brain's failed Kanban jobs), `mcp:<connection id>` (whether a connection is down), `test:<check command>` (a command that runs at the Coding page's draft-writing level, so it can run code such as `pytest` or `npm test`; only you can set it; a non-zero exit code or running over 2 minutes counts as a failure).
+- **Scope it may work in**, **observation cadence**, **observations per day**, **jobs it may open per day**, and **stop opening jobs when N are open**.
+- For each kind of opportunity (documents changed, Kanban job failed, check command failing, connection down) choose: **Only record it**, **Propose it to me**, **Open a job, wait for my approval** or **Open the job itself**.
 
-Javis đọc các nguồn bằng mã, không gọi model. Nguồn đọc không được thì hiện **thiếu nguồn** kèm lý do, không bịa ra vấn đề. Một thay đổi thành **cơ hội** có nguồn, phiên bản dữ liệu, lý do gắn mục tiêu và lợi ích. Cùng dữ liệu không mở lại lần hai, cơ hội bạn **Bỏ qua** chỉ quay lại khi dữ liệu đổi, mỗi nguồn có thời gian nghỉ, đề xuất để quá 48 giờ thì hết hạn. Hết số việc trong ngày hay chạm giới hạn việc đang mở thì chỉ đề xuất.
+Jarvis 007 reads the sources with code, without calling a model. A source that cannot be read shows **missing** with the reason, and no problem is invented. A change becomes an **opportunity** carrying its source, data version, and the reason tying it to the mandate and the benefit. The same data is not opened twice; an opportunity you **Skip** comes back only when the data changes; each source has a cooldown; and a proposal left over 48 hours expires. Once the day's job quota is used up or the open-job limit is hit, it only proposes.
 
-Việc do mục tiêu mở ghi dấu vết mục tiêu, bản, quan sát, cơ hội ngay trong yêu cầu, và mọi hành động ra ngoài của nó vẫn qua cổng duyệt. **Tạm dừng** ngừng quan sát; **Thu hồi** huỷ việc mục tiêu đã mở mà chưa chạy và đóng đề xuất đang mở. Mỗi lần sửa là một bản mới, có lịch sử.
+A job opened by a mandate records the mandate, version, observation and opportunity right in its request, and every outside action it takes still goes through the approval gate. **Pause** stops observing; **Revoke** cancels mandate jobs that were opened but have not started and closes open proposals. Every edit is a new version, with history.
 
-## Nghiệm thu sản phẩm của Team (từ 0.209.0)
+## Product acceptance for a Team (since 0.209.0)
 
-Ở tab Việc, việc đang chờ hay đang làm có nút **Nghiệm thu** để đặt tiêu chí, mỗi dòng một tiêu chí:
+On the Tasks tab, a job that is waiting or running has an **Acceptance** button to set criteria, one per line:
 
-- `file: bao-cao/tuan.md`: file phải có.
-- `contains: bai-viet/a.md | 300 | giá, liên hệ`: ít nhất 300 ký tự và có đủ các cụm chữ.
-- `json: data.json | doanh_thu, don`: JSON hợp lệ, có đủ các khoá.
-- `cmd: pytest -q`: lệnh kiểm tra phải trả mã 0 (chạy ở mức Ghi nháp của trang Coding).
-- `confirm: bao-cao/tuan.md`: bạn tự xác nhận.
+- `file: bao-cao/tuan.md`: the file must exist.
+- `contains: bai-viet/a.md | 300 | giá, liên hệ`: at least 300 characters and every one of the phrases (the Vietnamese phrases "giá, liên hệ" mean "price, contact").
+- `json: data.json | doanh_thu, don`: valid JSON with all of the keys (`doanh_thu` = revenue, `don` = orders).
+- `cmd: pytest -q`: the check command must return code 0 (runs at the Coding page's draft-writing level).
+- `confirm: bao-cao/tuan.md`: you confirm it yourself.
 
-Khi cộng sự nộp kết quả, Javis kiểm chính sản phẩm (file) theo từng tiêu chí: **đạt**, **chưa đạt** hay **chưa rõ**, kèm bằng chứng (đường dẫn, mã băm sha256, kích thước, giờ sửa). Ý kiến của model không bao giờ là kết luận.
+When a partner hands in its result, Jarvis 007 checks the product itself (the files) against each criterion: **pass**, **fail** or **unclear**, with evidence (path, sha256 hash, size, modified time). A model's opinion is never the verdict.
 
-- Đạt hết: việc mới chốt **xong**.
-- Có tiêu chí chưa đạt: cộng sự đó nhận một bước sửa ghi rõ chỗ chưa đạt. Quá số vòng sửa (mặc định 2) thì việc dừng ở **Chưa đạt tiêu chí**; bạn sửa yêu cầu để thử lại.
-- Có tiêu chí chưa rõ hay cần bạn xác nhận: chat hiện thẻ **Nghiệm thu sản phẩm** với **Đạt, chốt việc** hoặc **Chưa đạt, trả lại** (kèm ghi chú). File đã đổi sau lần kiểm thì không chốt được, phải kiểm lại.
+- All pass: only then is the job closed as **done**.
+- Some criterion fails: that partner gets a fix step stating what failed. Past the fix-round limit (default 2) the job stops at **Not up to the criteria**; you edit the request to try again.
+- Some criterion unclear or needing your confirmation: the chat shows a **Product acceptance** card with **Passes, close the job** or **Not yet, send back** (with a note). A file that changed after the check cannot be closed; it must be checked again.
 
-Sửa yêu cầu của việc làm bằng chứng cũ hết hiệu lực. Sau khi đã nghiệm thu, sửa file sản phẩm thì thẻ ghi "Sản phẩm đã đổi sau lần kiểm". Điểm học của cộng sự chỉ được cộng khi nghiệm thu đạt hay bạn xác nhận, mỗi việc một lần.
+Editing the job's request voids the old evidence. After acceptance, editing the product file makes the card read "The product changed after the check". A partner's learning score is only added when acceptance passes or you confirm, once per job.
 
-## Thao tác nhanh và khắc phục sự cố
+## Quick actions and troubleshooting
 
-- **Tạo mới:** chọn tab rồi bấm nút tạo ở cuối cột trái; hoặc mở **Javis Store**.
-- **Hội thoại mới:** bắt đầu phiên riêng với cộng sự đang chọn.
-- **Sửa / Xuất / Xoá:** nằm ở cột phải của cộng sự.
-- **Danh sách trống:** kiểm tra brain đang chọn, ô tìm và bộ lọc tag (hay nhóm), rồi tạo cộng sự nếu chưa có.
-- **Không thấy cài đặt hay lịch sử:** mở cột chi tiết bằng nút ở đầu khung chat, nhất là trên màn hình hẹp.
-- **Thiếu trợ lý trong quy trình:** tạo trợ lý đó trước rồi sửa bước để chọn đúng trợ lý.
-- **Mất kết nối hoặc chạy lỗi:** đọc thông báo trong chat và lịch sử chạy trước khi gửi lại yêu cầu.
-- **Trang tải mãi:** kiểm tra server ở cổng 7777, rồi xem [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+- **Create new:** choose the tab and click the create button at the bottom of the left column; or open **Jarvis 007 Store**.
+- **New conversation:** starts a separate session with the selected partner.
+- **Edit / Export / Delete:** in the partner's right column.
+- **Empty list:** check the selected brain, the search box and the tag (or group) filter, then create a partner if there is none.
+- **Settings or history not visible:** open the details column with the button at the top of the chat, especially on narrow screens.
+- **Agent missing in a workflow:** create that agent first, then edit the step to pick the right agent.
+- **Connection lost or run error:** read the message in the chat and the run history before sending the request again.
+- **Page stuck loading:** check the server on port 7777 and see [Troubleshooting & FAQ](17-khac-phuc-su-co.md).
 
-## Liên quan
+## Related
 
-- [Skills](06-skills.md) - tạo, bật/tắt và gán kỹ năng cho agent.
-- [Plugins](20-plugins.md) - mục trong nhóm Năng lực, dành cho tool chạy code thật.
-- [Models & engine](10-models-va-engine.md) - chọn model chính, model phụ và các nhà cung cấp.
-- [Việc / Kanban](21-viec-kanban.md) - nơi workflow chạy nền tự động theo task.
-- [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) - phân biệt bộ nhớ riêng của agent với bộ nhớ chung của Javis.
-- [Quản lý tệp tin](05-quan-ly-tep-tin.md) - mở và sửa tay file agent, workflow, bộ nhớ.
+- [Skills](06-skills.md) - creating, enabling and assigning skills to agents.
+- [Plugins](20-plugins.md) - an item in the Capabilities group, for tools that run real code.
+- [Models & engines](10-models-va-engine.md) - picking the main model, the auxiliary model and the providers.
+- [Work / Kanban](21-viec-kanban.md) - where workflows run automatically in the background per task.
+- [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) - telling an agent's private memory apart from Jarvis 007's shared memory.
+- [File manager](05-quan-ly-tep-tin.md) - opening and hand-editing agent, workflow and memory files.

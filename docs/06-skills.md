@@ -2,247 +2,247 @@
 
 ***Tiếng Việt** · [English](en/06-skills.md)*
 
-Skill là "kỹ năng đóng gói" cho Javis: một hướng dẫn viết sẵn để AI làm đúng một loại việc theo chuẩn của bạn (ví dụ viết email bán hàng, dựng trang bán hàng, nghiên cứu chuyên sâu). Khi bạn nói một câu khớp với mô tả của skill, Javis tự lấy hướng dẫn đó ra dùng, không cần bạn dán lại quy trình mỗi lần.
+A skill is a packaged capability for Jarvis 007: a written instruction that makes the AI do one kind of job your way (writing sales emails, building a sales page, deep research). When you say something matching the skill's description, Jarvis 007 pulls that instruction in by itself, so you never paste the procedure again.
 
-Trang này hướng dẫn quản lý skill trong dashboard: xem theo nhóm, tìm kiếm, bật/tắt, thêm, sửa, xoá, xuất/nhập, gọi tay bằng menu lệnh, và cách nhờ Javis tự tạo skill bằng lời.
+This page covers managing skills in the dashboard: browsing by group, searching, enabling and disabling, adding, editing, deleting, exporting and importing, calling one by hand from the command menu, and asking Jarvis 007 to write a skill for you.
 
-## Tính năng này là gì
+## What this feature is
 
-Một skill trong Javis là một thư mục chứa file `SKILL.md`, đặt tại `skills/<slug>/SKILL.md` bên trong brain đang chọn (Javis tự mirror sang `.claude/skills` để Claude Code nạp native; brain cũ để ở `.claude/skills` sẽ được tự dời sang `skills/`). File này có 3 phần đầu (frontmatter) quan trọng:
+A skill in Jarvis 007 is a folder containing a `SKILL.md` file at `skills/<slug>/SKILL.md` inside the selected brain (Jarvis 007 mirrors it into `.claude/skills` so Claude Code can load it natively; older brains that keep skills in `.claude/skills` are migrated into `skills/` automatically). That file has 3 important frontmatter fields:
 
-- `name`: tên hiển thị của skill.
-- `description`: mô tả ngắn, chính là **trigger** - quyết định KHI NÀO skill được kích hoạt. Trường này có luật viết riêng, đọc kỹ mục ngay bên dưới trước khi điền.
-- `group`: tên nhóm để dashboard gom skill lại cho gọn (ví dụ Marketing, Bán hàng, Nội dung). Trường này bắt buộc; nếu để trống skill sẽ rơi vào nhóm "Chung".
+- `name`: the display name of the skill.
+- `description`: a short summary, and this is the **trigger** that decides WHEN the skill activates. This field has its own rules, so read the section below before filling it in.
+- `group`: a group name so the dashboard can tidy skills together (Marketing, Sales, Content...). This field is required; leaving it empty drops the skill into "Chung" (General).
 
-Phần còn lại của file là nội dung hướng dẫn chi tiết cho AI khi skill chạy.
+The rest of the file is the detailed instruction the AI follows when the skill runs.
 
-Bản chuẩn (canonical) của skill nằm ở `skills/<slug>/SKILL.md` - đúng cái dashboard hiển thị và đúng cái Javis nạp qua router. Ngoài ra Javis còn giữ một bản **mirror** ở `.claude/skills/<slug>` để Claude Code nạp native. Bản mirror giống hệt bản gốc, chỉ khác một chỗ: nếu `description` dài quá 150 ký tự thì bản mirror bị rút xuống 150 ký tự kèm dấu "…" (bản trong `skills/` giữ nguyên chữ bạn viết). Chuyện này chỉ xảy ra với skill nhập từ gói ngoài hoặc viết tay qua trang Tệp tin, vì skill lưu qua biểu mẫu đã bị chặn từ trước.
+The canonical copy lives at `skills/<slug>/SKILL.md`, which is exactly what the dashboard shows and what Jarvis 007 loads through the router. Jarvis 007 also keeps a **mirror** at `.claude/skills/<slug>` for Claude Code's native loading. The mirror is identical except for one thing: if `description` is longer than 150 characters, the mirror is trimmed to 150 with an ellipsis (the copy in `skills/` keeps your full text). That only happens with skills imported from an external package or written by hand through the Files page, because skills saved through the form are blocked earlier.
 
-## Luật viết `description` (đọc trước khi tạo skill)
+## The `description` rules (read before creating a skill)
 
-Đây là chỗ hay làm người dùng tắc mà không hiểu vì sao. Khi bạn bấm **💾 Lưu**, server kiểm tra `description` và **từ chối lưu** nếu vi phạm một trong hai luật:
+This is where people get stuck without knowing why. When you click **💾 Save**, the server checks `description` and **refuses to save** if it breaks either rule:
 
-**1. Tối đa 150 ký tự.** Đây không phải chuyện thẩm mỹ. Javis cắt mô tả đúng ở 150 ký tự khi bơm vào system prompt và vào mô tả tool `javis_use_skill`, nên phần dư mất im lặng và skill không route được. Lý do từ chối hiện đúng chữ: "description dài N ký tự, vượt trần 150. Router cắt đúng ở 150 nên phần dư MẤT IM LẶNG và skill không route được. Đưa ví dụ trigger xuống mục '## Khi nào dùng' trong thân file."
+**1. At most 150 characters.** This is not cosmetic. Jarvis 007 truncates the description at exactly 150 characters when injecting it into the system prompt and into the `javis_use_skill` tool description, so the excess is lost silently and the skill cannot be routed. The rejection message says exactly that, and tells you to move trigger examples into a `## When to use` section in the body.
 
-**2. Không mở đầu bằng cụm sáo rỗng.** Các cụm bị chặn: "Kích hoạt khi...", "Sử dụng skill này khi...", "Dùng skill này khi...", "Skill này dùng / Skill này được dùng...", "Use this skill when...", "Activate when...". Mọi skill đều mở y hệt nhau nên cụm đó đốt ngân sách ký tự mà không phân biệt được skill nào với skill nào. Lý do từ chối gợi ý luôn cách viết đúng: nêu thẳng năng lực, ví dụ "Tóm tắt biên bản họp thành danh sách việc cần làm."
+**2. No hollow opening phrases.** Blocked openings include "Activate when...", "Use this skill when...", "This skill is used for...", "Kích hoạt khi..." (Activate when...), "Sử dụng skill này khi..." and "Dùng skill này khi..." (Use this skill when...), and "Skill này dùng..." / "Skill này được dùng..." (This skill is used for...). Every skill opens the same way, so that phrase burns character budget without distinguishing anything. The rejection message suggests the right shape: state the capability directly, for example "Summarise meeting minutes into a task list."
 
-Cách viết đúng: một câu nêu thẳng skill **làm được gì**, dưới 150 ký tự. Ví dụ trigger dài, danh sách từ khoá, các tình huống chi tiết thì đưa xuống mục `## Khi nào dùng` trong **thân** file `SKILL.md` - chỗ đó không bị cắt và chỉ được đọc khi skill đã nạp. Nói gọn: phần mô tả để TÌM, thân file để LÀM.
+The right way: one sentence stating what the skill **can do**, under 150 characters. Long trigger examples, keyword lists and detailed situations belong in a `## When to use` section in the **body** of `SKILL.md`, where nothing is truncated and which is only read once the skill is loaded. Put briefly: the description is for FINDING, the body is for DOING.
 
-Luật này áp cho cả biểu mẫu trên dashboard lẫn skill do trang **Tự học** đề xuất (skill vi phạm bị chặn, ghi vào danh sách bỏ qua).
+These rules apply both to the dashboard form and to skills proposed by the **Self-learning** page (a violating skill is blocked and listed as skipped).
 
-## Trigger hoạt động thế nào
+## How triggering works
 
-Skill tự kích hoạt dựa trên trường `description` (và bạn cũng gọi tay được, xem mục kế tiếp). Khi bạn gõ hoặc nói một yêu cầu, Javis so khớp yêu cầu với `description` của các skill đang bật, thấy khớp thì nạp hướng dẫn tương ứng. Trên Claude Code là nạp native; trên các engine khác Javis bơm danh sách skill vào system prompt và nạp qua tool `javis_use_skill`.
+A skill activates on its `description` (and you can also call it by hand, see the next section). When you type or say a request, Jarvis 007 matches it against the `description` of every enabled skill and loads the matching instruction. On Claude Code that is a native load; on other engines Jarvis 007 injects the skill list into the system prompt and loads through the `javis_use_skill` tool.
 
-Vì vậy chất lượng của một skill phụ thuộc lớn vào cách bạn viết `description`. Mô tả nêu đúng năng lực và đúng từ khoá thì skill "bắt" đúng lúc. Mô tả chung chung sẽ khiến skill hoặc không bao giờ chạy, hoặc chạy nhầm.
+So a skill's quality depends heavily on how you write `description`. A description that states the capability and the right keywords fires at the right time. A vague description either never fires or fires on the wrong thing.
 
-Lưu ý: skill dùng được trên **mọi engine**. Claude Code nạp native; ChatGPT/Codex, OpenRouter và OpenAI/Anthropic/Google Gemini API dùng skill qua router (Javis bơm danh sách skill vào system prompt) và tool `javis_use_skill`. Xem [Models & engine](10-models-va-engine.md) để biết chi tiết từng engine.
+Note: skills work on **every engine**. Claude Code loads natively; ChatGPT/Codex, OpenRouter and the OpenAI/Anthropic/Google Gemini APIs use skills through the router (Jarvis 007 injects the skill list into the system prompt) plus the `javis_use_skill` tool. See [Models & engines](10-models-va-engine.md) for the per-engine details.
 
-## Gọi skill bằng tay: menu lệnh "/"
+## Calling a skill by hand: the "/" command menu
 
-Không phải lúc nào cũng phải chờ trigger tự bắt. Gõ dấu **`/`** ở ô chat là một menu hiện ra ngay phía trên ô nhập:
+You do not always have to wait for the trigger. Typing **`/`** in the chat opens a menu right above the input:
 
-- Ba lệnh phiên đứng đầu: **`/new` Hội thoại mới**, **`/reset` Reset phiên**, **`/stop` Dừng**.
-- Bên dưới là danh sách skill của brain đang chọn, mỗi dòng gồm `/slug`, tên skill và dòng mô tả.
+- Three session commands lead: **`/new` New conversation**, **`/reset` Reset session**, **`/stop` Stop**.
+- Below them is the skill list for the selected brain, each row showing `/slug`, the skill name and its description.
 
-Cách dùng: gõ tiếp vài chữ để lọc dần (khớp theo slug trước, rồi tới tên), dùng phím **mũi tên lên/xuống** để chọn, **Enter** hoặc **Tab** để chốt, **Esc** để đóng menu. Bấm chuột vào một dòng cũng được.
+How to use it: keep typing to narrow the list (slug matches first, then names), use **arrow up/down** to move, **Enter** or **Tab** to confirm, **Esc** to close. Clicking a row works too.
 
-Chọn một skill thì ô chat được điền sẵn `/slug ` và con trỏ đứng chờ - bạn gõ tiếp nội dung yêu cầu rồi Enter để gửi. Javis dịch câu đó thành lời nhắc: "Hãy dùng skill `<slug>` với yêu cầu: ... Nếu không có skill tên này thì cứ xử lý yêu cầu của tôi bình thường." Chọn một lệnh phiên thì nó chạy ngay, không cần Enter.
+Picking a skill fills the chat box with `/slug ` and leaves the cursor waiting; type the request and press Enter. Jarvis 007 turns that into a prompt: "Use the skill `<slug>` for this request: ... If no skill by that name exists, just handle my request normally." Picking a session command runs it immediately, with no Enter.
 
-Trên Telegram, nhắn `/<slug>` (kèm nội dung phía sau nếu cần) cho ra đúng mẫu tương tự. Riêng khi engine đang là OpenRouter, Javis trả lời "⚠ Skill cần engine Claude CLI. Gửi /cli để đổi, rồi /<slug> lại."
+On Telegram, sending `/<slug>` (with content after it if needed) produces the same shape. One exception: while the engine is OpenRouter, Jarvis 007 replies that skills need the Claude CLI engine and tells you to send /cli first.
 
-## Trần 20 skill của router
+## The router's 20-skill ceiling
 
-Danh sách skill mà Javis bơm vào system prompt và vào mô tả tool `javis_use_skill` bị **cắt ở 20 skill**. Phần dư chỉ còn một dòng "…(+N skill nữa - xem `Javis/index.md`)".
+The skill list Jarvis 007 injects into the system prompt and into the `javis_use_skill` tool description is **cut at 20 skills**. The rest collapses into a single line: "…(+N more skills, see `Javis/index.md`)".
 
-Hệ quả cần biết: nếu brain của bạn bật nhiều hơn 20 skill, những skill từ thứ 21 trở đi **không nằm trong router**, nên trên các engine dùng router (ChatGPT/Codex, OpenRouter, OpenAI/Anthropic/Google Gemini API) chúng sẽ không tự kích hoạt. Chúng vẫn còn nguyên và vẫn nạp được: gọi tay bằng `/slug` là chạy bình thường, vì tool `javis_use_skill` nhận mọi slug đang bật chứ không chỉ 20 cái được liệt kê.
+The consequence: if your brain enables more than 20 skills, skills 21 and beyond are **not in the router**, so on router-based engines (ChatGPT/Codex, OpenRouter, OpenAI/Anthropic/Google Gemini API) they will not self-activate. They are still intact and still loadable: calling `/slug` by hand works normally, because the `javis_use_skill` tool accepts any enabled slug, not just the 20 listed.
 
-Cách xử lý: tắt bớt skill không dùng tới để 20 chỗ trong router dành cho những skill bạn thật sự muốn Javis tự bắt.
+The fix: turn off skills you do not use so the 20 router slots go to the ones you actually want Jarvis 007 to catch on its own.
 
-## Skill hệ thống và skill của bạn
+## System skills versus your skills
 
-Javis chia skill làm 2 loại:
+Jarvis 007 has 2 kinds of skill:
 
-- **Skill hệ thống** (thẻ có nhãn "hệ thống"): chức năng mặc định của Javis OS, hiện gồm 6 cái:
+- **System skills** (cards labelled "system"): default Jarvis 007 features, currently 6:
 
-  | Slug | Làm gì |
+  | Slug | What it does |
   |---|---|
-  | `javis-builder` | Tạo hoặc sửa năng lực của Javis: agent, skill, workflow, loop, plugin |
-  | `ingest-source` | Tiêu hoá một source thô vào Second Brain, chưng cất thành tri thức wiki |
-  | `query-wiki` | Khai thác tri thức trong Second Brain, trả lời có trích dẫn |
-  | `lint-wiki` | Rà soát sức khoẻ wiki, trả về danh sách vấn đề |
-  | `notes` | Lưu tin nhắn hiện tại nguyên văn vào `sources/` (kèm ảnh), tự chưng cất lên wiki nếu note đáng |
-  | `html-to-webcake` | Chuyển một trang HTML thành file `.pke` mở được trong trình dựng trang Webcake |
+  | `javis-builder` | Create or edit a Jarvis 007 capability: agent, skill, workflow, loop, plugin |
+  | `ingest-source` | Digest a raw source into the Second Brain, distilled into wiki knowledge |
+  | `query-wiki` | Mine knowledge in the Second Brain, answering with citations |
+  | `lint-wiki` | Audit wiki health and return a list of issues |
+  | `notes` | Save the current message verbatim into `sources/` (images included), distilling it into the wiki when it deserves it |
+  | `html-to-webcake` | Turn an HTML page into a `.pke` file that opens in the Webcake page builder |
 
-  Bản gốc nằm trong thư mục cài đặt của app (không nằm trong brain), nên chúng **có mặt ở mọi brain** và **tự cập nhật khi bạn cập nhật Javis OS** lên phiên bản mới. Loại này không xoá được từ dashboard (lỡ xoá file thủ công thì lần khởi động sau tự cài lại); muốn ngừng dùng thì **tắt** như skill thường - trạng thái tắt được giữ nguyên qua mọi lần cập nhật.
-- **Skill của bạn**: tạo qua nút + Skill, qua chat, nhập từ gói `.zip`, hoặc do trang Tự học đề xuất. Đây là dữ liệu của brain - đổi brain thì bộ skill đổi theo, cập nhật app không đụng tới.
+  The originals live in the app installation folder, not in the brain, so they are **present in every brain** and **update themselves when you update Jarvis 007**. They cannot be deleted from the dashboard (deleting the files by hand only makes them reinstall on the next start); to stop using one, **disable** it like any skill, and that disabled state survives every update.
+- **Your skills**: created with + Skill, through chat, imported from a `.zip`, or proposed by the Self-learning page. These are brain data: switching brains switches the skill set, and app updates never touch them.
 
-Bạn vẫn **Sửa** được skill hệ thống. Khi đó bản trong brain trở thành bản riêng của bạn: Javis giữ đúng chỉnh sửa đó và ngừng tự cập nhật đè lên. Muốn quay về bản chuẩn (kèm tự cập nhật), xoá thư mục skill đó trong `skills/` của brain (bằng trang Tệp tin) rồi khởi động lại - bản hệ thống mới nhất sẽ được cài lại sạch.
+You can still **Edit** a system skill. When you do, the copy in the brain becomes yours: Jarvis 007 keeps your edit and stops updating over it. To go back to the standard version (with automatic updates), delete that skill folder from the brain's `skills/` (through the Files page) and restart; the newest system version is reinstalled clean.
 
-## Skill khác Plugin chỗ nào
+## How a Skill differs from a Plugin
 
-Hai thứ này dễ lẫn vì cùng nằm trong nhóm **Năng lực** trên thanh điều hướng.
+These two are easy to confuse because both sit in the **Capabilities** group in the navigation.
 
 | | Skill | Plugin |
 |---|---|---|
-| Bản chất | Tri thức **CÁCH LÀM**: một file hướng dẫn cho AI đọc rồi làm theo | **CODE Python thật** chạy trong tiến trình server |
-| Cho ra cái gì | Một quy trình, khung mẫu, bộ quy tắc | Một **tool** mới mà mọi engine gọi được, và/hoặc **hook** chạy quanh mỗi lần gọi tool |
-| Nằm ở đâu | `skills/<slug>/SKILL.md` trong brain | Thư mục `plugins/<slug>/` (gồm `plugin.yaml` + `plugin.py`) |
-| Bật thế nào | Tích ô đánh dấu trên thẻ là xong | Cũng tích ô trên thẻ. Máy nào đặt `JAVIS_ENABLE_USER_PLUGINS=false` thì plugin do bạn cài không chạy |
+| Nature | **KNOW-HOW**: a file of instructions the AI reads and follows | **Real Python CODE** running inside the server process |
+| What it produces | A procedure, a template, a set of rules | A new **tool** every engine can call, and/or a **hook** running around each tool call |
+| Where it lives | `skills/<slug>/SKILL.md` in the brain | The `plugins/<slug>/` folder (`plugin.yaml` + `plugin.py`) |
+| How to enable | Tick the checkbox on the card | Also tick the checkbox on the card. A machine with `JAVIS_ENABLE_USER_PLUGINS=false` does not run plugins you install |
 
-Chọn thế nào: cần **hướng dẫn** làm việc bằng công cụ sẵn có thì viết Skill. Cần một **hành động Python cụ thể** chưa có nguồn nào phủ (tính toán, biến đổi dữ liệu, gọi một API đơn giản) thì viết Plugin. Còn nếu là một nguồn dữ liệu ngoài đã có sẵn server thì đấu MCP ở trang Kết nối, đừng viết plugin. Chi tiết ở [Plugins](20-plugins.md) và [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md).
+How to choose: if you need **instructions** for working with existing tools, write a Skill. If you need a **specific Python action** no source covers (a computation, a data transformation, a simple API call), write a Plugin. And if it is an external data source that already has a server, connect an MCP on the Connections page rather than writing a plugin. Details in [Plugins](20-plugins.md) and [Connections & business data](09-mcp-va-so-lieu.md).
 
-## Mở ở đâu trong Javis
+## Where to find it in Jarvis 007
 
-Mở dashboard (mặc định tại cổng 7777), nhìn thanh điều hướng bên trái, mở nhóm **Năng lực** rồi bấm mục **Skills**. Nhóm này có 4 mục: Agents, Skills, Workflows, Plugins.
+Open the dashboard (port 7777 by default), look at the left navigation, open the **Capabilities** group and click **Skills**. That group has 4 items: Agents, Skills, Workflows, Plugins.
 
-Đầu trang có tiêu đề **Skills** kèm dòng trạng thái, ví dụ "3/5 bật · nguồn `skills/`". Con số này cho biết bao nhiêu skill đang bật trên tổng số, và nhắc rằng nguồn skill là thư mục `skills/` của brain hiện tại.
+The page header reads **Skills** with a status line such as "3/5 enabled · source `skills/`". That tells you how many skills are on out of the total, and reminds you that the source is the current brain's `skills/` folder.
 
-Bên phải tiêu đề là hai nút: **⤒ Nhập** (đưa gói skill từ ngoài vào) và **+ Skill** (tạo skill mới).
+To the right of the title are two buttons: **⤒ Import** (bring an external skill package in) and **+ Skill** (create one).
 
-Nếu brain chưa có skill nào, trang hiện dòng "Brain chưa có skill. Bấm + Skill để tạo (tự lưu vào `skills/` + xếp nhóm)".
+If the brain has no skills yet, the page reads "This brain has no skills. Click + Skill to create one (saved into `skills/` and grouped)".
 
-## Bố cục màn hình Skills
+## The Skills screen layout
 
-Khi đã có skill, màn hình chia 2 phần:
+Once skills exist, the screen splits in two:
 
-- **Cột nhóm (bên trái):** liệt kê các nhóm, đứng đầu là **Tất cả**, rồi tới từng nhóm theo thứ tự chữ cái. Mỗi dòng có số lượng skill trong nhóm đó. Bấm một nhóm để lọc danh sách chỉ còn skill thuộc nhóm ấy.
-- **Danh sách skill (bên phải):** phía trên có tiêu đề nhóm đang xem, số skill đang hiện, và ô **Tìm skill…**. Bên dưới là các thẻ skill.
+- **Group column (left):** lists groups, starting with **All**, then each group alphabetically. Each row shows how many skills are in it. Click a group to filter the list down to it.
+- **Skill list (right):** on top sit the current group title, how many skills are showing, and a **Find a skill…** box. Below are the skill cards.
 
-Mỗi thẻ skill hiển thị:
+Each skill card shows:
 
-1. Ô đánh dấu (checkbox) bật/tắt ở đầu thẻ.
-2. Tên skill (kèm biểu tượng 🧩). Skill hệ thống có thêm huy hiệu **hệ thống**.
-3. Dòng mô tả (`description`).
-4. Dòng cuối: 📂 tên nhóm · slug. Nếu skill đến từ thư mục `.agents` sẽ có thêm ghi chú ".agents". Cuối dòng này còn có thông tin mức dùng (xem ngay bên dưới).
+1. An enable/disable checkbox at the start.
+2. The skill name (with a 🧩 icon). System skills also carry a **system** badge.
+3. The `description` line.
+4. A last line: 📂 group name · slug. Skills coming from the `.agents` folder add a ".agents" note. That line also ends with usage information (see below).
 
-Skill đang tắt sẽ hiển thị mờ đi. Khi rê chuột vào thẻ, các nút thao tác hiện ra ở góc phải: **Sửa**, **⤓ Xuất**, **Xoá**. Riêng skill **hệ thống** chỉ có mỗi nút **Sửa** (không xuất, không xoá được). Trên màn hình hẹp dưới 860px, các nút này luôn hiện sẵn ở đáy thẻ vì điện thoại không có thao tác rê chuột.
+Disabled skills render dimmed. Hovering a card reveals action buttons on the right: **Edit**, **⤓ Export**, **Delete**. **System** skills only have **Edit** (they cannot be exported or deleted). On screens under 860px those buttons are always visible at the bottom of the card, because phones have no hover.
 
-### Dòng "đã dùng N lần" và "chưa thấy dùng"
+### The "used N times" and "no usage seen" line
 
-Ở cuối dòng nhóm · slug, Javis hiện một trong hai nhãn:
+At the end of the group · slug line, Jarvis 007 shows one of two labels:
 
-- **"đã dùng N lần, gần nhất <ngày>"** khi skill đã được nạp ít nhất một lần.
-- **"chưa thấy dùng"** (chữ mờ, nghiêng) khi skill đã quá 30 ngày mà không có tín hiệu dùng nào.
+- **"used N times, last on <date>"** when the skill has been loaded at least once.
+- **"no usage seen"** (dim, italic) when 30 days have passed with no usage signal.
 
-Đây là **tín hiệu dương một chiều**, cần hiểu đúng kẻo oan cho skill: Javis chỉ đếm được lần nạp đi qua tool `javis_use_skill`. Claude Code nạp skill native qua `.claude/skills` thì **không** đi qua bộ đếm. Vậy nên "đã dùng N lần" chắc chắn đúng, còn "chưa thấy dùng" chỉ có nghĩa là chưa có bằng chứng, **không** có nghĩa skill vô dụng. Rê chuột vào nhãn đó sẽ thấy đúng lời giải thích này. Không có gì tự tắt hay tự xoá dựa trên nhãn này - bạn tự quyết.
+This is a **one-way positive signal** and needs to be read correctly so a skill is not condemned unfairly: Jarvis 007 can only count loads that go through the `javis_use_skill` tool. Claude Code loading a skill natively through `.claude/skills` does **not** pass the counter. So "used N times" is certainly true, while "no usage seen" only means there is no evidence, **not** that the skill is useless. Hovering the label shows this explanation. Nothing is disabled or deleted based on this label; you decide.
 
-Số liệu này lưu ở `Javis/skill-usage.json` trong brain, tách khỏi file `SKILL.md` để mỗi lần dùng skill không đẻ ra một thay đổi rác trong git của brain.
+The figures are stored in `Javis/skill-usage.json` in the brain, separate from `SKILL.md`, so using a skill does not create junk changes in the brain's git history.
 
-## Tìm kiếm skill
+## Searching skills
 
-Gõ vào ô **Tìm skill…** ở đầu danh sách. Javis lọc ngay khi bạn gõ, so khớp từ khoá với cả tên, mô tả và slug của skill. Bộ lọc tìm kiếm chồng lên bộ lọc nhóm: nếu đang đứng ở một nhóm cụ thể, tìm kiếm chỉ chạy trong nhóm đó; muốn tìm toàn bộ thì bấm **Tất cả** trước.
+Type into the **Find a skill…** box at the top of the list. Jarvis 007 filters as you type, matching the keyword against the name, description and slug. The search filter stacks on the group filter: while a specific group is selected, the search only runs inside it; click **All** first to search everything.
 
-## Bật và tắt skill (từng cái)
+## Enabling and disabling one skill
 
-1. Vào trang **Skills**.
-2. Tìm skill cần đổi trạng thái.
-3. Bấm vào ô đánh dấu (checkbox) ở đầu thẻ skill. Có dấu tích là bật, bỏ tích là tắt.
+1. Open the **Skills** page.
+2. Find the skill you want to change.
+3. Click the checkbox at the start of its card. Ticked is on, unticked is off.
 
-Khi bạn tắt một skill, Javis chuyển thư mục skill đó vào một chỗ riêng tên là `.disabled` (đường dẫn thành `skills/.disabled/<slug>`) và gỡ bản mirror trong `.claude/skills`. Đây là cách **tắt thật**: skill nằm trong `.disabled` sẽ không được engine nạp nữa, nên Javis không còn tự dùng nó. Khi bật lại, thư mục được chuyển ngược ra `skills/<slug>` và mirror lại cho Claude native.
+When you disable a skill, Jarvis 007 moves its folder into a separate place named `.disabled` (the path becomes `skills/.disabled/<slug>`) and removes the mirror in `.claude/skills`. That is a **real** disable: a skill inside `.disabled` is no longer loaded by any engine, so Jarvis 007 stops using it. Enabling moves the folder back to `skills/<slug>` and mirrors it again for Claude's native path.
 
-Bật/tắt không xoá nội dung skill. Bạn có thể tắt tạm rồi bật lại bất cứ lúc nào mà không mất hướng dẫn đã viết.
+Enabling and disabling never deletes content. You can turn a skill off temporarily and back on at any time without losing what you wrote.
 
-Nếu có lỗi khi đổi trạng thái, Javis báo "Không đổi được trạng thái" kèm lý do.
+If something goes wrong, Jarvis 007 reports that the state could not be changed, along with the reason.
 
-## Thêm skill mới (từng bước)
+## Adding a skill (step by step)
 
-1. Ở trang **Skills**, bấm **+ Skill**.
-2. Điền các ô trong biểu mẫu:
-   - **Tên skill**: tên dễ nhớ, ví dụ "Viết email bán hàng".
-   - **Nhóm**: gõ tên nhóm, ví dụ "Marketing". Ô này có gợi ý sẵn các nhóm bạn đã dùng để bấm chọn cho nhất quán. Không nên để trống (sẽ vào "Chung").
-   - **Mô tả (description - quyết định khi nào skill kích hoạt)**: một câu nêu thẳng skill làm được gì, **dưới 150 ký tự**, không mở đầu bằng "Kích hoạt khi..." (xem mục "Luật viết `description`" ở trên). Viết sai luật thì server từ chối và skill không được lưu.
-   - **Nội dung (SKILL.md - hướng dẫn cho AI)**: viết hướng dẫn chi tiết cho AI khi skill chạy (các bước, khung mẫu, quy tắc). Đây là chỗ đặt mục `## Khi nào dùng` với đầy đủ ví dụ trigger. Nếu để trống, Javis tự tạo nội dung tối thiểu từ tên và mô tả.
-3. Bấm **💾 Lưu**. Muốn bỏ thì bấm **Huỷ**.
+1. On the **Skills** page, click **+ Skill**.
+2. Fill in the form:
+   - **Skill name**: something memorable, for example "Write sales emails".
+   - **Group**: type a group name, for example "Marketing". This field suggests groups you already use, so you can click one and stay consistent. Do not leave it empty (it would land in "Chung").
+   - **Description (decides when the skill activates)**: one sentence stating what the skill does, **under 150 characters**, not opening with "Activate when..." (see "The `description` rules" above). Breaking the rules makes the server refuse and the skill is not saved.
+   - **Content (SKILL.md, the instructions for the AI)**: write the detailed instruction the AI follows (steps, templates, rules). This is where the `## When to use` section with full trigger examples belongs. Leave it empty and Jarvis 007 generates a minimal body from the name and description.
+3. Click **💾 Save**. To abandon it, click **Cancel**.
 
-Khi lưu, Javis tự sinh **slug** từ tên skill: chuyển thành chữ thường, bỏ dấu tiếng Việt, thay khoảng trắng bằng gạch nối (ví dụ "Viết email" thành `viet-email`). Slug ASCII không dấu giúp mọi engine nạp skill ổn định hơn. Thư mục `skills/<slug>/SKILL.md` được tạo tự động, bạn không cần tự tạo file.
+On save, Jarvis 007 derives the **slug** from the name: lowercase, Vietnamese accents removed, spaces replaced by hyphens (so "Viết email" becomes `viet-email`). An accent-free ASCII slug makes skill loading more reliable on every engine. The `skills/<slug>/SKILL.md` folder is created automatically; you never create files by hand.
 
-## Sửa skill
+## Editing a skill
 
-1. Rê chuột vào thẻ skill, bấm **Sửa**.
-2. Biểu mẫu hiện lại với nội dung hiện tại của skill (tên, nhóm, mô tả, nội dung SKILL.md).
-3. Chỉnh phần cần đổi.
-4. Bấm **💾 Lưu**.
+1. Hover the skill card and click **Edit**.
+2. The form reappears with the skill's current content (name, group, description, SKILL.md content).
+3. Change what you need.
+4. Click **💾 Save**.
 
-Sửa skill giữ nguyên slug và thư mục cũ, chỉ ghi đè nội dung `SKILL.md`. Đây là chỗ để bạn tinh chỉnh `description` cho skill kích hoạt đúng hơn, hoặc bổ sung thêm bước vào hướng dẫn.
+Editing keeps the slug and folder and only overwrites `SKILL.md`. This is where you tune `description` so the skill triggers more accurately, or add a step to the instructions.
 
-Sửa một skill đang **tắt** thì nó vẫn ở trạng thái tắt sau khi lưu, Javis không tự bật lên.
+Editing a **disabled** skill keeps it disabled after saving; Jarvis 007 does not switch it on.
 
-## Đổi nhóm skill
+## Changing a skill's group
 
-Cách đơn giản nhất: bấm **Sửa** skill, đổi ô **Nhóm**, rồi **💾 Lưu**. Nhóm chỉ là nhãn phân loại trong frontmatter; đổi nhóm không ảnh hưởng tới việc skill có được nạp hay không, chỉ thay đổi chỗ skill xuất hiện trong cột nhóm.
+The simplest way: click **Edit**, change the **Group** field, then **💾 Save**. The group is only a label in the frontmatter; changing it does not affect whether the skill is loaded, only where it appears in the group column.
 
-## Xoá skill
+## Deleting a skill
 
-1. Rê chuột vào thẻ skill, bấm **Xoá**.
-2. Javis hỏi xác nhận: `Xoá skill "<tên>"? Sẽ xoá cả thư mục skills/<slug>.`
-3. Bấm đồng ý để xoá.
+1. Hover the skill card and click **Delete**.
+2. Jarvis 007 asks to confirm: `Delete skill "<name>"? The whole skills/<slug> folder will be removed.`
+3. Agree to delete.
 
-Xoá là thao tác dứt điểm: cả thư mục skill bị xoá khỏi ổ đĩa, không đưa vào thùng rác. Nếu chỉ muốn ngừng dùng tạm thời, hãy **tắt** thay vì xoá. Skill hệ thống không có nút Xoá.
+Deletion is final: the whole skill folder is removed from disk, with no recycle bin. If you only want to stop using it for now, **disable** it instead. System skills have no Delete button.
 
-## Xuất và nhập skill
+## Exporting and importing skills
 
-- **⤓ Xuất** (trên từng thẻ skill): tải về một gói `.zip` chứa skill đó để gửi cho người khác. Skill **hệ thống** không có nút này vì brain nào cũng đã có sẵn.
-- **⤒ Nhập** (ở đầu trang, cạnh nút + Skill): chọn file để đưa vào brain đang chọn. Nhận `.zip` (gói Javis), `.md` lẻ, hoặc gói `.skill` của Claude (Javis tự nhận diện `SKILL.md` trong gói và đưa vào đúng thư mục). Javis hỏi trước: "Nếu đã có agent/skill/workflow TRÙNG TÊN thì GHI ĐÈ bằng bản mới?" - bấm OK để ghi đè, bấm Huỷ để giữ bản cũ và chỉ nhập cái chưa có. Nhập xong Javis liệt kê đã nhập gì, bỏ qua gì.
+- **⤓ Export** (on each skill card): downloads a `.zip` of that skill to send to someone else. **System** skills have no such button because every brain already has them.
+- **⤒ Import** (top of the page, next to + Skill): pick a file to bring into the selected brain. It accepts `.zip` (a Jarvis 007 package), a single `.md`, or a Claude `.skill` package (Jarvis 007 recognises the `SKILL.md` inside and files it correctly). Jarvis 007 asks first: "If an agent/skill/workflow with the SAME NAME exists, OVERWRITE it with the new one?" Click OK to overwrite, Cancel to keep the old ones and only import what is missing. Afterwards Jarvis 007 lists what was imported and what was skipped.
 
-Lưu ý: nội dung skill là hướng dẫn cho AI làm theo, nên chỉ nhập gói từ nguồn bạn tin tưởng. Chi tiết cơ chế đóng gói kèm phụ thuộc ở [Agents & Workflows](07-agents-va-workflows.md).
+Note: skill content is instructions the AI follows, so only import packages from sources you trust. Details on packaging with dependencies are in [Agents & Workflows](07-agents-va-workflows.md).
 
-## Nhờ Javis tạo skill bằng lời
+## Asking Jarvis 007 to create a skill in words
 
-Bạn không bắt buộc phải điền biểu mẫu. Có thể mở cửa sổ trò chuyện và yêu cầu Javis tạo skill giúp, ví dụ: "Tạo cho tôi một skill viết caption Facebook cho shop mỹ phẩm, kích hoạt khi tôi nhờ viết caption bán hàng." Javis sẽ viết `SKILL.md` và lưu vào `skills/`. Cách trò chuyện xem thêm ở [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md).
+You do not have to fill in the form. You can open the chat and ask Jarvis 007 to create the skill, for example: "Create me a skill for writing Facebook captions for a cosmetics shop, triggering when I ask for sales captions." Jarvis 007 writes `SKILL.md` and saves it in `skills/`. Chat basics are in [Chat & voice](02-tro-chuyen-va-giong-noi.md).
 
-Khi tạo skill mới, Javis được hướng dẫn tự xếp vào đúng nhóm: nó đọc các skill hiện có để biết bạn đang dùng những nhóm nào, rồi chọn nhóm sát nhất. Chỉ khi không nhóm nào hợp nó mới đặt nhóm mới, với tên ngắn gọn theo lĩnh vực (Marketing, Bán hàng, Nội dung, Vận hành, Tài chính, AI, Năng suất, Cá nhân). Nhờ vậy skill mới không bị rơi lung tung vào "Chung".
+When creating a new skill, Jarvis 007 is instructed to file it in the right group: it reads existing skills to see which groups you use, then picks the closest. Only when none fits does it create a new group, with a short domain name (Marketing, Sales, Content, Operations, Finance, AI, Productivity, Personal). That way new skills do not scatter into "Chung".
 
-## Skill và Agent
+## Skills and Agents
 
-Trong trang **Agents**, khi tạo hoặc sửa một agent, bạn thấy phần **Skills** liệt kê các skill có sẵn để tích chọn gán cho agent đó. Agent chỉ liệt kê được skill khi brain đã có skill trong `skills/`; nếu chưa có, phần này hiện ghi chú "Vault chưa có skill trong skills/ - vẫn tạo agent được, gán skill sau". Chi tiết ở [Agents & Workflows](07-agents-va-workflows.md).
+On the **Agents** page, creating or editing an agent shows a **Skills** section listing available skills to tick and assign to that agent. Agents can only list skills once the brain has skills in `skills/`; if it has none, the section reads that the vault has no skills yet and that you can create the agent now and assign skills later. Details in [Agents & Workflows](07-agents-va-workflows.md).
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference: buttons and states
 
-| Bạn thấy | Ý nghĩa / thao tác |
+| What you see | Meaning / action |
 |---|---|
-| **⤒ Nhập** | Đưa gói `.zip` / `.md` / `.skill` vào brain đang chọn |
-| **+ Skill** | Mở biểu mẫu tạo skill mới |
-| Ô đánh dấu đầu thẻ | Có tích = bật; bỏ tích = tắt (chuyển vào/ra `.disabled`) |
-| **Sửa** | Mở biểu mẫu chỉnh sửa skill |
-| **⤓ Xuất** | Tải skill về dạng gói `.zip` để chia sẻ (không có ở skill hệ thống) |
-| **Xoá** | Xoá hẳn thư mục skill (có hỏi xác nhận; không có ở skill hệ thống) |
-| **💾 Lưu** | Lưu skill (tạo mới hoặc ghi đè) |
-| **Huỷ** | Đóng biểu mẫu, không lưu |
-| Ô **Tìm skill…** | Lọc theo tên, mô tả, slug |
-| Cột **Nhóm** / **Tất cả** | Lọc danh sách theo nhóm |
-| Huy hiệu **hệ thống** | Skill đi theo app, có ở mọi brain, chỉ tắt được chứ không xoá |
-| Thẻ hiển thị mờ | Skill đang tắt |
-| Dòng "x/y bật" | x skill đang bật trên tổng y |
-| "đã dùng N lần, gần nhất …" | Skill đã được nạp qua tool `javis_use_skill` N lần |
-| "chưa thấy dùng" | Quá 30 ngày không có tín hiệu dùng; chỉ là tham khảo, không phải phán quyết |
+| **⤒ Import** | Bring a `.zip` / `.md` / `.skill` package into the selected brain |
+| **+ Skill** | Open the new skill form |
+| Checkbox on the card | Ticked = enabled; unticked = disabled (moved in or out of `.disabled`) |
+| **Edit** | Open the edit form |
+| **⤓ Export** | Download the skill as a `.zip` to share (absent on system skills) |
+| **Delete** | Remove the skill folder entirely (asks to confirm; absent on system skills) |
+| **💾 Save** | Save the skill (create or overwrite) |
+| **Cancel** | Close the form without saving |
+| The **Find a skill…** box | Filter by name, description, slug |
+| The **Group** column / **All** | Filter the list by group |
+| The **system** badge | A skill that ships with the app, exists in every brain, can be disabled but not deleted |
+| A dimmed card | The skill is disabled |
+| The "x/y enabled" line | x skills on out of y |
+| "used N times, last on …" | The skill was loaded through `javis_use_skill` N times |
+| "no usage seen" | No usage signal for over 30 days; a hint, not a verdict |
 
-## Mẹo
+## Tips
 
-- Viết `description` như một dòng tựa: nêu thẳng năng lực, dưới 150 ký tự. Đẩy toàn bộ ví dụ trigger và từ khoá xuống mục `## Khi nào dùng` trong thân file - vừa không bị chặn, vừa không bị cắt.
-- Đếm ký tự trước khi lưu. 150 ký tự ngắn hơn bạn tưởng, khoảng hai câu ngắn.
-- Một skill nên làm một việc rõ ràng. Việc quá rộng thì trigger dễ nhầm; chia nhỏ thành nhiều skill và đặt cùng một nhóm sẽ dễ quản lý hơn.
-- Giữ số skill đang bật dưới 20 để tất cả đều nằm trong router. Skill nào chưa cần thì tắt.
-- Dùng nhóm nhất quán. Khi gõ ô **Nhóm**, ưu tiên chọn từ gợi ý sẵn thay vì tự chế tên mới, để cột nhóm không bị phân mảnh.
-- Muốn thử nghiệm một skill mà chưa chắc chắn, cứ tạo rồi **tắt** khi không dùng, thay vì xoá đi tạo lại.
-- Muốn chắc chắn một skill được dùng cho đúng việc, gọi tay bằng `/slug` thay vì trông chờ trigger tự bắt.
+- Write `description` like a headline: state the capability directly, under 150 characters. Push every trigger example and keyword into `## When to use` in the body, where it is neither blocked nor truncated.
+- Count the characters before saving. 150 is shorter than it feels, about two short sentences.
+- One skill should do one clear thing. Overly broad skills trigger on the wrong requests; splitting them and putting them in the same group is easier to manage.
+- Keep the number of enabled skills under 20 so all of them stay in the router. Turn off what you do not need.
+- Use groups consistently. In the **Group** field, prefer the suggestions over inventing a new name, so the group column does not fragment.
+- To try a skill you are unsure about, create it and **disable** it when unused, rather than deleting and recreating.
+- To be certain a skill is used for a given job, call it by hand with `/slug` instead of hoping the trigger catches it.
 
-## Sự cố thường gặp
+## Common problems
 
-- **Bấm 💾 Lưu mà skill không xuất hiện trong danh sách:** gần như chắc chắn là `description` vi phạm luật (dài quá 150 ký tự, hoặc mở đầu bằng "Kích hoạt khi..."). Server từ chối lưu và trang chỉ quay về danh sách chứ không hiện lời báo lỗi. Bấm **+ Skill** lại, rút gọn mô tả xuống dưới 150 ký tự và bỏ cụm mở đầu sáo rỗng, rồi lưu lại.
-- **Tạo skill nhưng Javis không tự dùng:** kiểm tra ba thứ theo thứ tự. Một, skill có đang **bật** không (thẻ không bị mờ, ô đánh dấu có tích). Hai, `description` có nêu đúng năng lực không. Ba, brain có đang bật quá 20 skill không - nếu có, skill của bạn có thể đã rơi ra ngoài router; tắt bớt skill khác hoặc gọi tay bằng `/slug`.
-- **Danh sách trống dù đã tạo skill:** đảm bảo đang xem đúng brain. Nguồn skill là `skills/` của brain đang chọn; đổi brain thì danh sách đổi theo.
-- **Bấm bật/tắt báo lỗi "Không đổi được trạng thái":** thường do quyền ghi thư mục hoặc thư mục đang bị khoá. Xem thêm [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
-- **Skill ghi "chưa thấy dùng" dù bạn biết nó có chạy:** bình thường. Javis chỉ đếm được lần nạp qua tool `javis_use_skill`; Claude Code nạp native thì không qua bộ đếm. Đừng xoá skill chỉ vì nhãn này.
-- **Thẻ skill không hiện nút Xoá:** đó là skill hệ thống. Muốn ngừng dùng thì tắt.
-- **Lỡ tay Xoá:** xoá là dứt điểm, không khôi phục được từ dashboard. Lần sau nếu chỉ muốn ngừng dùng tạm, hãy tắt.
-- **Nhóm bị rơi vào "Chung":** do để trống ô Nhóm khi lưu. Bấm **Sửa** và điền tên nhóm.
+- **You clicked 💾 Save but the skill does not appear in the list:** almost certainly `description` broke a rule (over 150 characters, or opening with "Activate when..."). The server refused to save and the page simply returned to the list without showing the error. Click **+ Skill** again, shorten the description under 150 characters, drop the hollow opening, and save again.
+- **You created a skill but Jarvis 007 never uses it:** check three things in order. One, is it **enabled** (card not dimmed, checkbox ticked). Two, does `description` state the capability. Three, does the brain have more than 20 skills enabled; if so, yours may have fallen outside the router, so disable some others or call it by hand with `/slug`.
+- **The list is empty although you created skills:** make sure you are looking at the right brain. The source is the selected brain's `skills/`; switching brains switches the list.
+- **Toggling reports that the state could not be changed:** usually folder write permissions or a locked folder. See [Troubleshooting & FAQ](17-khac-phuc-su-co.md).
+- **A skill reads "no usage seen" although you know it runs:** that is normal. Jarvis 007 can only count loads through `javis_use_skill`; Claude Code's native loading bypasses the counter. Do not delete a skill over that label.
+- **A skill card has no Delete button:** it is a system skill. To stop using it, disable it.
+- **You deleted one by accident:** deletion is final and cannot be recovered from the dashboard. Next time, disable rather than delete when you only want a pause.
+- **The group fell into "Chung":** the Group field was empty when you saved. Click **Edit** and fill it in.
 
-## Liên quan
+## Related
 
-- [Agents & Workflows](07-agents-va-workflows.md) - gán skill cho agent, dựng chuỗi công việc, xuất/nhập gói kèm phụ thuộc.
-- [Plugins](20-plugins.md) - khi bạn cần một tool chạy code thật chứ không phải một bản hướng dẫn.
-- [Models & engine](10-models-va-engine.md) - skill chạy trên mọi engine; xem khác biệt native (Claude Code) vs router (`javis_use_skill`).
-- [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md) - nhờ Javis tạo skill bằng lời, và menu lệnh "/" trong khung chat.
-- [Tự học](22-tu-hoc.md) - nơi Javis đề xuất skill mới từ hội thoại đã qua.
-- [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) - hiểu khái niệm brain nơi skill được lưu.
+- [Agents & Workflows](07-agents-va-workflows.md) - assigning skills to agents, building step chains, exporting and importing with dependencies.
+- [Plugins](20-plugins.md) - when you need a tool that runs real code rather than an instruction.
+- [Models & engines](10-models-va-engine.md) - skills run on every engine; see the difference between native (Claude Code) and router (`javis_use_skill`).
+- [Chat & voice](02-tro-chuyen-va-giong-noi.md) - asking Jarvis 007 to create a skill in words, and the "/" command menu.
+- [Self-learning](22-tu-hoc.md) - where Jarvis 007 proposes new skills from past conversations.
+- [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) - understanding the brain that stores skills.
