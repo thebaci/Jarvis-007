@@ -1,64 +1,64 @@
 # ============================================================================
-# Javis OS - docker compose (PRODUCTION: pull image dựng sẵn từ GHCR)
+# Jarvis 007 - docker compose (PRODUCTION: pull the prebuilt image from GHCR)
 #
-# CÀI TRÊN HOSTINGER: dùng file RIÊNG cho Hostinger (1 container, deploy là chạy, không kén hạ tầng):
+# INSTALLING ON HOSTINGER: use the DEDICATED file for Hostinger (1 container, deploy and it runs, no infrastructure fuss):
 #   https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.hostinger.yml
-#   (Docker Manager → Compose → URL. Cách gắn TÊN MIỀN + HTTPS ghi trong chú thích cuối file đó / DEPLOY.md.)
-#   File NÀY cũng chạy trên Hostinger được, nhưng file kia gọn hơn và có sẵn nhãn Traefik.
+#   (Docker Manager → Compose → URL. How to attach a DOMAIN + HTTPS is in the notes at the end of that file / DEPLOY.md.)
+#   THIS file also runs on Hostinger, but the other file is more compact and already has the Traefik labels.
 #
-# CÀI TRÊN VPS BẤT KỲ (DigitalOcean/Vultr... - HTTPS bằng Caddy, xem DEPLOY.md):
-#   1) docker compose run --rm javis claude auth login --claudeai   # ĐĂNG NHẬP CLAUDE 1 LẦN
+# INSTALLING ON ANY VPS (DigitalOcean/Vultr... - HTTPS with Caddy, see DEPLOY.md):
+#   1) docker compose run --rm javis claude auth login --claudeai   # LOG IN TO CLAUDE ONCE
 #   2) docker compose up -d
 #
-# ⚠️ BẢO MẬT: chạy public (0.0.0.0) tự BẬT JAVIS_REQUIRE_LOGIN → mở app ra là màn TẠO TÀI KHOẢN
-#    / ĐĂNG NHẬP, không ai vào điều khiển Claude được khi chưa có mật khẩu.
+# ⚠️ SECURITY: running public (0.0.0.0) automatically TURNS ON JAVIS_REQUIRE_LOGIN → opening the app shows the CREATE ACCOUNT
+#    / LOG IN screen, so nobody can control Claude without a password.
 #
-# Muốn build từ source thay vì pull image:  docker compose -f docker-compose.build.yml up -d --build
+# To build from source instead of pulling the image:  docker compose -f docker-compose.build.yml up -d --build
 #
-# NHIỀU BẢN JAVIS TRÊN CÙNG MỘT VPS (mỗi bản một tên miền riêng): xem
-#   docker-compose.multi.yml + docker-compose.proxy.yml (và mục "Nhiều bản" trong DEPLOY.md).
-#   Tóm tắt: mỗi bản chạy ở THƯ MỤC RIÊNG với .env riêng đặt JAVIS_NAME + JAVIS_HOST_PORT khác nhau.
+# MULTIPLE JARVIS 007 COPIES ON THE SAME VPS (each with its own domain): see
+#   docker-compose.multi.yml + docker-compose.proxy.yml (and the "Multiple copies" section in DEPLOY.md).
+#   Summary: each copy runs in its OWN FOLDER with its own .env setting different JAVIS_NAME + JAVIS_HOST_PORT.
 # ============================================================================
 services:
   javis:
     image: ghcr.io/blogminhquy/javis-os:latest
-    # Tên container LẤY TỪ BIẾN, không đóng cứng: hai bản Javis trên cùng một VPS mà cùng tên
-    # container là con thứ hai chết ngay lúc `up` ("name is already in use"), kể cả khi đã chạy ở
-    # thư mục khác - Docker đặt tên container theo phạm vi TOÀN MÁY chứ không theo project.
+    # The container name COMES FROM A VARIABLE, not hardcoded: if two Jarvis 007 copies on the same VPS share a
+    # container name, the second one dies right at `up` ("name is already in use"), even if it already runs in a
+    # different folder - Docker scopes container names MACHINE-WIDE, not per project.
     container_name: ${JAVIS_NAME:-javis}
     restart: unless-stopped
     pull_policy: always
     environment:
-      # Các mặc định cổng/state/brain đã nằm trong Docker image; compose chỉ giữ
-      # token thật sự cần chia sẻ giữa app và Watchtower.
-      WATCHTOWER_TOKEN: ${WATCHTOWER_TOKEN:-javis-update}   # để nút "Cập nhật" gọi được Watchtower
-      # Tài khoản quản trị đặt SẴN lúc deploy. Điền hai dòng này vào file `.env` nằm cạnh
-      # compose là xong: server boot lên đã có admin, không còn khoảng trống nào.
-      # Bỏ trống thì lần đầu mở app sẽ ra màn tạo tài khoản, và trên server public ai mở link
-      # trước sẽ tạo được admin - phải tạo ngay sau khi deploy. Vào được rồi nên bật 2FA.
+      # The port/state/brain defaults are already in the Docker image; compose only keeps the
+      # token that really needs to be shared between the app and Watchtower.
+      WATCHTOWER_TOKEN: ${WATCHTOWER_TOKEN:-javis-update}   # so the "Update" button can call Watchtower
+      # The admin account is PRE-SET at deploy time. Fill in these two lines in the `.env` file next to the
+      # compose file and you are done: the server boots up with an admin already there, no gap left.
+      # If left empty, the first time you open the app you get the create-account screen, and on a public server whoever opens the link
+      # first can create the admin - you must create it right after deploying. Once in, turn on 2FA.
       JAVIS_ADMIN_USER: ${JAVIS_ADMIN_USER:-}
       JAVIS_ADMIN_PASSWORD: ${JAVIS_ADMIN_PASSWORD:-}
     ports:
-      # Cổng MÁY CHỦ lấy từ biến (trong container vẫn luôn là 7777). Bản thứ hai đặt
-      # JAVIS_HOST_PORT=7778 là hết đụng cổng.
+      # The HOST port comes from a variable (inside the container it is always 7777). A second copy setting
+      # JAVIS_HOST_PORT=7778 ends the port clash.
       #
-      # JAVIS_BIND = địa chỉ nghe trên máy chủ. Mặc định 0.0.0.0 (y như trước: mở ra Internet, vào
-      # được bằng http://<ip>:<cổng>). Chạy sau proxy chung thì đặt JAVIS_BIND=127.0.0.1 để chỉ
-      # proxy vào được, còn cổng này thành lối gỡ rối qua SSH tunnel.
+      # JAVIS_BIND = the address to listen on at the host. Default 0.0.0.0 (same as before: open to the Internet, reachable
+      # via http://<ip>:<port>). When running behind the shared proxy, set JAVIS_BIND=127.0.0.1 so only the
+      # proxy can reach it, and this port becomes a troubleshooting path over an SSH tunnel.
       #
-      # Vì sao là BIẾN chứ không phải một dòng ports trong file override: compose NỐI CHỒNG danh
-      # sách ports của các file -f chứ không thay thế, nên khai lại ở override là ra hai binding
-      # cùng một cổng và Docker báo "port is already allocated".
+      # Why a VARIABLE and not a ports line in the override file: compose CONCATENATES the ports
+      # lists of the -f files instead of replacing them, so redeclaring in the override gives two bindings on
+      # the same port and Docker reports "port is already allocated".
       - "${JAVIS_BIND:-0.0.0.0}:${JAVIS_HOST_PORT:-7777}:7777"
     volumes:
-      - javis-data:/data                       # state: settings/mật khẩu/sessions/loop (có secret → KHÔNG git)
-      - javis-brains:/brains                   # MỌI second brain (kiến thức của bạn) - bền qua mọi update
-      # ↑ Muốn BACKUP brain lên GitHub: đổi dòng trên thành bind-mount thư mục thật trên VPS, vd:
+      - javis-data:/data                       # state: settings/passwords/sessions/loops (contains secrets → do NOT git)
+      - javis-brains:/brains                   # ALL second brains (your knowledge) - survives every update
+      # ↑ To BACKUP the brain to GitHub: change the line above to a bind-mount of a real folder on the VPS, e.g.:
       #     - ./brains:/brains
-      #   rồi 1 lần cấp quyền cho user non-root của container:  sudo chown -R 10001:10001 ./brains
-      #   Sau đó: cd brains && git init && git add -A && git commit -m backup && git push
-      - claude-auth:/home/javis/.claude        # token đăng nhập Claude (giữ qua mọi update!)
-      - codex-auth:/home/javis/.codex          # token đăng nhập ChatGPT/Codex (codex login - giữ qua update)
+      #   then, once, grant permission to the container's non-root user:  sudo chown -R 10001:10001 ./brains
+      #   After that: cd brains && git init && git add -A && git commit -m backup && git push
+      - claude-auth:/home/javis/.claude        # Claude login token (kept across every update!)
+      - codex-auth:/home/javis/.codex          # ChatGPT/Codex login token (codex login - kept across updates)
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,os,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:'+os.getenv('JAVIS_PORT','7777')+'/health',timeout=4).status==200 else 1)"]
       interval: 30s
@@ -66,7 +66,7 @@ services:
       retries: 3
       start_period: 25s
 
-  # (Tùy chọn, cho VPS KHÔNG phải Hostinger) Cloudflare Tunnel → URL HTTPS, không cần mở port:
+  # (Optional, for a VPS that is NOT Hostinger) Cloudflare Tunnel → HTTPS URL, no need to open ports:
   #   docker compose --profile tunnel up -d  &&  docker compose logs tunnel | grep trycloudflare
   tunnel:
     image: cloudflare/cloudflared:latest
@@ -75,28 +75,28 @@ services:
     profiles: ["tunnel"]
     depends_on:
       - javis
-    # `javis` ở đây là TÊN SERVICE trong compose, không phải tên container - mỗi project có mạng
-    # riêng nên tên này không đụng nhau giữa các bản, giữ nguyên là đúng.
+    # `javis` here is the SERVICE NAME in compose, not the container name - each project has its own
+    # network so this name does not clash between copies; leaving it as is is correct.
     command: tunnel --no-autoupdate --url http://javis:7777
-    # URL cố định: tạo named tunnel ở Cloudflare Zero Trust → TUNNEL_TOKEN env → đổi command thành:
+    # Fixed URL: create a named tunnel in Cloudflare Zero Trust → TUNNEL_TOKEN env → change command to:
     #   command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
 
-  # Cập nhật 1-CLICK từ UI (nút "Cập nhật ngay"). BẬT SẴN từ 0.55.56.
+  # 1-CLICK update from the UI (the "Update now" button). ENABLED BY DEFAULT since 0.55.56.
   #
-  # Trước đó nó nằm trong `profiles: ["update"]`, tức `docker compose up -d` quen tay KHÔNG bật
-  # nó. Hệ quả đo được qua hai lần chủ repo báo (2026-08-12 rồi 2026-09-08): máy này có nút cập
-  # nhật, máy kia không, không ai đoán ra vì sao - và một cái nút chỉ hiện trên số ít máy thì
-  # coi như không có. Nay mặc định BẬT: cài mới là cập nhật được ngay, khỏi nhớ thêm lệnh nào.
+  # Before that it sat in `profiles: ["update"]`, meaning a habitual `docker compose up -d` did NOT start
+  # it. The measured consequence, reported by the repo owner twice (2026-08-12 then 2026-09-08): one machine had the update
+  # button and another did not, and nobody could guess why - and a button that shows up only on a few machines
+  # might as well not exist. It is now ON by default: a fresh install can update right away, with no extra command to remember.
   #
-  # Đổi lại, Watchtower cần quyền Docker (socket). Host nào không cho là nó khởi động lại liên
-  # tục và Docker Manager báo stack "Partially running" - CONTAINER JAVIS VẪN CHẠY BÌNH THƯỜNG,
-  # chỉ mất cái nút, và trang Cập nhật sẽ nói thẳng là phải cập nhật tay. Không muốn có nó:
+  # In exchange, Watchtower needs Docker permission (the socket). A host that does not allow it makes it restart continuously
+  # and Docker Manager reports the stack as "Partially running" - THE JARVIS 007 CONTAINER STILL RUNS NORMALLY,
+  # you only lose the button, and the Update page will say plainly that you must update by hand. If you don't want it:
   #   docker compose up -d --scale watchtower=0
   #
-  # Image là bản fork còn bảo trì, KHÔNG phải `containrrr/watchtower`: bản đó đã archive và mặc
-  # định nói Docker API 1.25, Docker Engine mới từ chối ("client version 1.25 is too old") nên
-  # nó Restarting mãi - lý do thật của cảnh "máy mới không cập nhật được" (2026-10-01). Bản fork
-  # tự thương lượng phiên bản API. Ghim major `:1`, xem giải thích trong docker-compose.hostinger.yml.
+  # The image is a maintained fork, NOT `containrrr/watchtower`: that one is archived and defaults to
+  # Docker API 1.25, which newer Docker Engines refuse ("client version 1.25 is too old") so
+  # it keeps Restarting - the real reason for "new machines can't update" (2026-10-01). The fork
+  # negotiates the API version by itself. Pin major `:1`, see the explanation in docker-compose.hostinger.yml.
   watchtower:
     image: ghcr.io/nicholas-fedor/watchtower:1
     container_name: ${JAVIS_NAME:-javis}-watchtower
@@ -104,17 +104,17 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      WATCHTOWER_HTTP_API_ENDPOINTS: update                 # nhận lệnh cập nhật từ nút bấm
+      WATCHTOWER_HTTP_API_ENDPOINTS: update                 # accepts the update command from the button
       WATCHTOWER_HTTP_API_TOKEN: ${WATCHTOWER_TOKEN:-javis-update}
-      # TỰ đi tìm bản mới theo chu kỳ, KHÔNG chờ ai bấm nút. Mặc định TẮT có chủ ý: bật lên là
-      # Javis tự khởi động lại bất cứ lúc nào có image mới, cắt ngang việc nền và phiên chat
-      # đang chạy. Muốn hoàn toàn tự động thì đặt trong .env:  JAVIS_AUTO_UPDATE=true
-      # (chu kỳ mặc định 24h, đổi bằng JAVIS_AUTO_UPDATE_INTERVAL tính bằng GIÂY).
+      # AUTOMATICALLY looks for a new version on a schedule, WITHOUT waiting for anyone to click. OFF by default on purpose: turning it on means
+      # Jarvis 007 restarts itself any time a new image appears, interrupting background work and running chat
+      # sessions. For fully automatic updates, set this in .env:  JAVIS_AUTO_UPDATE=true
+      # (default interval 24h, change it with JAVIS_AUTO_UPDATE_INTERVAL in SECONDS).
       WATCHTOWER_HTTP_API_PERIODIC_POLLS: ${JAVIS_AUTO_UPDATE:-false}
       WATCHTOWER_POLL_INTERVAL: ${JAVIS_AUTO_UPDATE_INTERVAL:-86400}
-      WATCHTOWER_CLEANUP: "true"                            # dọn image cũ sau khi update
-    # Theo dõi ĐÚNG container của bản này. Để trống hay ghi cứng "javis" thì trên VPS nhiều bản,
-    # Watchtower của bản này sẽ đi cập nhật (và restart) container của bản khác.
+      WATCHTOWER_CLEANUP: "true"                            # clean up old images after updating
+    # Watch EXACTLY this copy's container. Leaving it empty or hardcoding "javis" means on a VPS with several copies,
+    # this copy's Watchtower would go update (and restart) another copy's container.
     command: ${JAVIS_NAME:-javis}
 
 volumes:

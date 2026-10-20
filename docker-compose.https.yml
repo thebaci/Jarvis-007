@@ -1,23 +1,23 @@
 # ============================================================================
-# Auto-HTTPS bằng Caddy + Let's Encrypt (ON-DEMAND TLS) - cho VPS Docker mở cổng 80/443.
+# Auto-HTTPS with Caddy + Let's Encrypt (ON-DEMAND TLS) - for a Docker VPS with ports 80/443 open.
 #
-# KHÁC bản cũ: KHÔNG cần đặt DOMAIN lúc chạy. Bạn nhập tên miền NGAY TRONG APP
-#   (⚙ Cài đặt → Tên miền riêng). Caddy hỏi backend /tls-check rồi tự xin chứng chỉ cho
-#   ĐÚNG tên miền đó ở request đầu tiên → không kẻ nào trỏ DNS bừa vào IP ép ta xin cert được.
+# DIFFERENT from the old version: you do NOT need to set DOMAIN at run time. You enter the domain RIGHT IN THE APP
+#   (⚙ Settings → Custom domain). Caddy asks the backend /tls-check and then requests a certificate for
+#   EXACTLY that domain on the first request → nobody can point DNS at the IP at random to force us to request a cert.
 #
-#   1) Chạy:  docker compose -f docker-compose.yml -f docker-compose.https.yml up -d
-#   2) Mở http://<ip-vps>:7777 → ⚙ Cài đặt → Tên miền riêng → nhập tên miền → Lưu.
-#   3) Trỏ DNS (bản ghi A: ten-mien → <ip-vps>) theo hướng dẫn hiện trong app.
-#   4) Mở https://ten-mien-cua-ban → chứng chỉ tự cấp + tự gia hạn. Xong.
+#   1) Run:  docker compose -f docker-compose.yml -f docker-compose.https.yml up -d
+#   2) Open http://<vps-ip>:7777 → ⚙ Settings → Custom domain → enter the domain → Save.
+#   3) Point DNS (A record: your-domain → <vps-ip>) following the instructions shown in the app.
+#   4) Open https://your-domain → the certificate is issued and renewed automatically. Done.
 #
-# CHỈ DÙNG CHO MÁY CHẠY MỘT BẢN JAVIS. Caddy ở đây nằm CHUNG project với Javis, mà một máy chỉ
-# có một cổng 443 - dựng bản Javis thứ hai kèm file này là hai Caddy tranh cổng và con sau chết.
-# Nhiều bản, mỗi bản một tên miền → dùng docker-compose.proxy.yml + docker-compose.multi.yml
-# (proxy đứng ngoài, chạy một lần cho cả VPS, tự phát hiện bản mới qua nhãn Docker).
+# ONLY FOR A MACHINE RUNNING A SINGLE JARVIS 007. The Caddy here lives in the SAME project as Jarvis 007, and a machine has only
+# one port 443 - bringing up a second Jarvis 007 with this file means two Caddys fight over the port and the later one dies.
+# For several copies, each with its own domain → use docker-compose.proxy.yml + docker-compose.multi.yml
+# (the proxy sits outside, runs once for the whole VPS, and discovers new copies through Docker labels).
 #
-# (KHÔNG dùng cho Hostinger Docker Manager: cổng 80/443 đã bị proxy Hostinger chiếm →
-#  dùng SSL sẵn của Hostinger, xem DEPLOY.md.)
-# Cần Docker Compose v2.23.1+ (hỗ trợ configs.content). Kiểm tra: docker compose version
+# (Do NOT use on Hostinger Docker Manager: ports 80/443 are already taken by Hostinger's proxy →
+#  use Hostinger's built-in SSL, see DEPLOY.md.)
+# Requires Docker Compose v2.23.1+ (supports configs.content). Check with: docker compose version
 # ============================================================================
 configs:
   javis_caddyfile:
@@ -38,7 +38,7 @@ configs:
       }
 
 services:
-  # Backend giữ nguyên; cookie Secure tự bật khi Host khớp tên miền (server tự xử, không cần env).
+  # The backend stays the same; the Secure cookie turns on automatically when Host matches the domain (the server handles it, no env needed).
   caddy:
     image: caddy:2-alpine
     container_name: javis-caddy
@@ -52,7 +52,7 @@ services:
       - source: javis_caddyfile
         target: /etc/caddy/Caddyfile
     volumes:
-      - caddy-data:/data       # chứng chỉ đã cấp - giữ qua restart, không xin lại
+      - caddy-data:/data       # issued certificates - kept across restarts, not requested again
       - caddy-config:/config
 
 volumes:

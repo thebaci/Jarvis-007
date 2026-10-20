@@ -1,201 +1,201 @@
-# Javis CLI - hỏi Javis từ terminal
+# Jarvis 007 CLI - ask Jarvis 007 from the terminal
 
 ***Tiếng Việt** · [English](en/24-cli.md)*
 
-Cài một gói nhỏ lên máy tính rồi gõ `javis "doanh thu tuần này thế nào"` ngay trong terminal, không cần mở trình duyệt. Câu trả lời vẫn đến từ chính Javis của bạn: cùng brain, cùng bộ nhớ, cùng MCP đã đấu, cùng lịch sử hội thoại.
+Install a small package on your computer then type `javis "how is revenue this week"` right in the terminal, with no browser. The answer still comes from your own Jarvis 007: the same brain, the same memory, the same attached MCPs, the same conversation history.
 
-> **Đọc dòng này trước:** Javis CLI **không chứa Javis bên trong**. Nó là cái ống nói - đầu kia phải có một máy chủ Javis đang chạy, trên chính máy này hoặc trên VPS. Không có máy chủ thì CLI không làm gì được, và nó sẽ nói thẳng như vậy chứ không báo lỗi mạng mơ hồ.
+> **Read this line first:** the Jarvis 007 CLI **does not contain Jarvis 007 inside it**. It is the mouthpiece; at the other end there must be a Jarvis 007 server running, either on this machine or on a VPS. With no server the CLI can do nothing, and it says so plainly rather than reporting a vague network error.
 
-## Tính năng này là gì
+## What this feature is
 
-- **Kênh thứ ba**, bên cạnh dashboard web và Telegram. Cùng một Javis, chỉ khác chỗ đứng.
-- Hỏi một câu rồi thoát (`javis "..."`), hoặc mở phiên hỏi đáp liên tục (`javis chat`).
-- Nối được nhiều Javis: một hồ sơ cho máy nhà, một cho VPS, đổi bằng `--profile`.
-- Giao việc Kanban, duyệt brain, xem loop, xem trạng thái máy chủ - đều từ terminal.
-- **Ghép được vào script**: câu trả lời ra stdout, mọi thứ khác ra stderr. Nên `javis "tóm tắt tuần này" > bao-cao.md` cho ra đúng nội dung, không dính dòng trạng thái.
-- Javis biết mình đang nói qua terminal nên trả lời khác: không bảng markdown, không nhúng ảnh, đường dẫn file in tuyệt đối để bạn copy chạy được luôn.
+- **A third channel**, alongside the web dashboard and Telegram. The same Jarvis 007, only a different place to stand.
+- Ask one question and exit (`javis "..."`), or open a continuous session (`javis chat`).
+- Connect to several Jarvis 007 instances: one profile for the home machine, one for the VPS, switched with `--profile`.
+- Queue Kanban work, browse the brain, view loops, check server status, all from the terminal.
+- **Composable in scripts**: the answer goes to stdout, everything else to stderr. So `javis "summarise this week" > report.md` produces exactly the content with no status lines mixed in.
+- Jarvis 007 knows it is speaking through a terminal so it answers differently: no markdown tables, no embedded images, and file paths printed absolute so you can copy and run them.
 
-## Cài đặt
+## Installation
 
-Cần Python 3.9 trở lên. Gói chỉ kéo theo **một** thư viện (`httpx`), cài trên máy chưa từng có Javis vẫn được.
+Python 3.9 or newer is required. The package pulls in exactly **one** library (`httpx`), so it installs fine on a machine that has never had Jarvis 007.
 
 ```bash
 pip install javis-cli
 ```
 
-Cài từ mã nguồn (khi bạn đã clone repo Javis):
+Installing from source (when you have cloned the Jarvis 007 repo):
 
 ```bash
 pip install ./cli
 ```
 
-Xong thì có lệnh `javis`. Kiểm tra: `javis --help`.
+That gives you the `javis` command. Check it with `javis --help`.
 
-## Bước 1: tạo token trong dashboard
+## Step 1: create a token in the dashboard
 
-Máy chủ Javis không nhận lệnh từ bên ngoài nếu chưa có token. **Không có token nào sẵn** - chưa tự tay tạo thì cửa này đóng.
+The Jarvis 007 server accepts no outside commands without a token. **No token exists by default**, so until you create one by hand this door is closed.
 
-1. Mở dashboard Javis, vào **Tài khoản** (nhóm **Hệ thống** ở cuối thanh bên trái) rồi kéo tới mục **Token API (cho CLI)**. Cùng trang với mật khẩu đăng nhập, vì token cũng là một cách đăng nhập.
-2. Đặt tên dễ nhớ, ví dụ "laptop của anh" - sau này thu hồi thì biết đang thu hồi cái nào.
-3. Chọn phạm vi:
-   - **Chỉ chat** - vào được `/chat`, `/version`, `/health`, `/sessions`. Đủ để hỏi đáp và xem lịch sử. Chọn cái này nếu chỉ định hỏi han.
-   - **Toàn quyền** - như đang đăng nhập bằng trình duyệt. Cần cho `javis task add`, `javis brain`, `javis loops`.
-4. Bấm **Tạo token**. Chuỗi hiện ra **chỉ hiện đúng một lần**: máy chủ băm nó khi lưu, không có đường nào xem lại. Copy ngay.
+1. Open the Jarvis 007 dashboard, go to **Account** (the **System** group at the bottom of the left rail) and scroll to **API tokens (for the CLI)**. It shares the page with the login password, because a token is also a way of signing in.
+2. Give it a memorable name, "my laptop" for example, so a later revocation is unambiguous.
+3. Choose the scope:
+   - **Chat only** - reaches `/chat`, `/version`, `/health`, `/sessions`. Enough for asking questions and viewing history. Choose it if all you plan to do is ask.
+   - **Full power** - like being signed in through a browser. Required for `javis task add`, `javis brain`, `javis loops`.
+4. Click **Create token**. The string appears **exactly once**: the server hashes it when storing, and there is no way to see it again. Copy it right away.
 
-Mất token thì không xem lại được, chỉ tạo cái mới rồi thu hồi cái cũ. Đó là cố ý.
+Lose the token and you cannot look it up, only create a new one and revoke the old one. That is deliberate.
 
-## Bước 2: nối CLI vào Javis của bạn
-
-```bash
-javis login https://javis-cua-ban.com
-```
-
-Nó sẽ hỏi token, bạn dán vào. Hoặc đưa thẳng:
+## Step 2: connect the CLI to your Jarvis 007
 
 ```bash
-javis login https://javis-cua-ban.com --token jvs_xxxxx
+javis login https://your-javis.com
 ```
 
-CLI **thử kết nối thật** trước khi lưu, nên nếu địa chỉ sai hoặc token sai thì bạn biết ngay tại đây chứ không phải lúc hỏi câu đầu tiên.
-
-Cấu hình lưu ở `~/.javis/config.json`, quyền `600` (chỉ chủ máy đọc được). File này chứa token nên đừng đưa vào repo hay backup công khai.
-
-### Nhiều Javis cùng lúc
+It asks for the token, which you paste. Or give it directly:
 
 ```bash
-javis login http://localhost:7777 --name nha
-javis login https://javis.congty.com --name congty --brain brain-cty
-javis --profile congty "tuần này bên công ty thế nào"
-javis profiles          # xem các hồ sơ đã lưu, dấu * là mặc định
+javis login https://your-javis.com --token jvs_xxxxx
 ```
 
-### Đặt bằng biến môi trường (cho CI, Docker, server)
+The CLI **actually tests the connection** before saving, so a wrong address or a wrong token surfaces here rather than at your first question.
 
-Ba biến này đè lên file cấu hình, tiện khi không muốn ghi token xuống đĩa:
+The configuration is saved at `~/.javis/config.json` with `600` permissions (only the machine's owner can read it). That file holds the token, so keep it out of repos and public backups.
 
-| Biến | Nghĩa |
+### Several Jarvis 007 instances at once
+
+```bash
+javis login http://localhost:7777 --name home
+javis login https://javis.company.com --name company --brain brain-company
+javis --profile company "how is the company side this week"
+javis profiles          # list saved profiles, the * marks the default
+```
+
+### Setting it through environment variables (for CI, Docker, servers)
+
+These variables override the configuration file, useful when you do not want the token on disk:
+
+| Variable | Meaning |
 |---|---|
-| `JAVIS_URL` | địa chỉ máy chủ Javis |
-| `JAVIS_TOKEN` | token API |
-| `JAVIS_BRAIN` | brain dùng mặc định |
-| `JAVIS_PROFILE` | tên hồ sơ dùng mặc định |
+| `JAVIS_URL` | the Jarvis 007 server address |
+| `JAVIS_TOKEN` | the API token |
+| `JAVIS_BRAIN` | the default brain |
+| `JAVIS_PROFILE` | the default profile name |
 
-## Dùng hằng ngày
+## Everyday use
 
-### Hỏi một câu
+### Asking one question
 
 ```bash
-javis "doanh thu tuần này thế nào"
-javis "tóm tắt các ghi chú tuần rồi"
+javis "how is revenue this week"
+javis "summarise last week's notes"
 ```
 
-Không cần lệnh con nào cả - gõ thẳng câu hỏi là chạy. Đang ngồi trước terminal thì bạn thấy dòng tiến độ chạy ở bên (Javis đang gọi MCP nào, đọc file nào), rồi câu trả lời hiện ra.
+No subcommand is needed, typing the question runs it. Sitting at the terminal you see progress lines alongside (which MCP Jarvis 007 is calling, which file it is reading), then the answer.
 
-### Phiên hỏi đáp liên tục
+### A continuous session
 
 ```bash
 javis chat
 ```
 
-Gõ câu, Enter, đọc trả lời, gõ tiếp. Cả phiên dùng chung một mã hội thoại nên Javis nhớ mạch: hỏi "còn tháng trước?" là nó hiểu đang nói về cái vừa nãy. `Ctrl+D` hoặc `/thoat` để ra.
+Type, Enter, read the answer, type again. The whole session shares one conversation id so Jarvis 007 keeps the thread: asking "and last month?" is understood as being about what you just discussed. `Ctrl+D` or `/thoat` (Vietnamese for "exit") exits.
 
-Muốn nối lại đúng mạch cũ ở lần chạy sau thì tự đặt mã phiên:
-
-```bash
-javis chat --session ban-hang-thang-8
-```
-
-### Ghép vào script
-
-Đây là lý do đáng giá nhất của CLI. Câu trả lời ra stdout, tiến độ ra stderr, nên chuyển hướng là ra file sạch:
+To resume the same thread on a later run, set the session id yourself:
 
 ```bash
-javis "viết tóm tắt doanh số tuần này" > bao-cao-tuan.md
-javis -q "tình hình hôm nay" | mail -s "Javis" sep@congty.com
+javis chat --session sales-august
 ```
 
-Cờ `-q` tắt luôn dòng tiến độ. Thất bại thì CLI thoát khác 0 và **không in gì ra stdout**, nên `&&` trong script hành xử đúng.
+### Composing in scripts
 
-### Xem trạng thái
+This is the CLI's most valuable reason to exist. The answer goes to stdout and progress to stderr, so redirecting gives a clean file:
+
+```bash
+javis "write a summary of this week's sales" > weekly-report.md
+javis -q "how are things today" | mail -s "Jarvis 007" boss@company.com
+```
+
+The `-q` flag also turns off the progress lines. On failure the CLI exits non-zero and **prints nothing to stdout**, so `&&` behaves correctly in a script.
+
+### Checking the status
 
 ```bash
 javis status
 ```
 
-Cho biết phiên bản Javis, có bản mới không, đang chạy bộ não nào, mức tiết kiệm token đang đặt ở đâu, và 24 giờ qua tiết kiệm được bao nhiêu phần trăm.
+It reports the Jarvis 007 version, whether a newer one exists, which brain engine is running, where the token saving level is set, and how much was saved over the last 24 hours.
 
-### Giao việc, duyệt brain, xem loop
+### Queueing work, browsing the brain, viewing loops
 
-Những lệnh này cần token **toàn quyền**.
+These commands need a **full power** token.
 
 ```bash
-javis task add "soạn bài đăng về sản phẩm mới"     # giao một việc Kanban
-javis task add "chạy báo cáo tháng" --mode auto     # suggest (mặc định) | auto | full
-javis tasks                                          # xem các việc và cột đang đứng
+javis task add "draft a post about the new product"     # queue one Kanban job
+javis task add "run the monthly report" --mode auto     # suggest (default) | auto | full
+javis tasks                                              # see the jobs and which column they are in
 
-javis brain ls                                       # liệt kê thư mục gốc brain
+javis brain ls                                           # list the brain root
 javis brain ls "05 - Data Cache"
 javis brain cat "Memory/MEMORY.md"
 
-javis loops                                          # loop nào đang bật, mức quyền gì
+javis loops                                              # which loops are on, at what level
 ```
 
-Việc giao xong chạy nền trên máy chủ. Kết quả tự về đúng nơi bạn giao việc, xem tiến độ ở trang **Việc** trên dashboard hoặc gõ lại `javis tasks`.
+Queued work runs in the background on the server. The result returns to wherever you queued it from, and progress is on the **Work** page of the dashboard or from `javis tasks` again.
 
-### Bật Javis trên chính máy này
+### Starting Jarvis 007 on this very machine
 
-Nếu máy bạn đã cài Javis (clone repo về):
+If the machine has Jarvis 007 installed (the repo cloned):
 
 ```bash
 javis up
 ```
 
-Nó tìm bản cài (qua biến `JAVIS_HOME`, thư mục hiện tại, hoặc `~/javis-os`), bật lên rồi lưu sẵn hồ sơ `local` để lần sau `javis "..."` là chạy. Javis đang chạy sẵn rồi thì nó nhận ra và không bật thêm cái thứ hai.
+It finds the install (through the `JAVIS_HOME` variable, the current folder, or `~/javis-os`), starts it, then saves a `local` profile so `javis "..."` works next time. If Jarvis 007 is already running, it recognises that and does not start a second one.
 
-Không tìm thấy bản cài thì nó nói thẳng: **`javis up` không chứa server bên trong**, và chỉ ba cách xử lý (đặt `JAVIS_HOME`, chạy từ trong thư mục Javis, hoặc `javis login` tới một Javis ở nơi khác).
+When it cannot find an install it says so plainly: **`javis up` does not contain the server inside it**, and there are only three ways forward (set `JAVIS_HOME`, run from inside the Jarvis 007 folder, or `javis login` to a Jarvis 007 somewhere else).
 
-## Quản lý token
+## Managing tokens
 
-Vào **Tài khoản > Token API** trong dashboard. Danh sách hiện tên, 12 ký tự đầu, phạm vi, và **lần dùng cuối** - nếu thấy một token bạn không nhớ đang được dùng đều đặn thì đó là dấu hiệu cần thu hồi ngay.
+Go to **Account > API tokens** in the dashboard. The list shows the name, the first 12 characters, the scope, and the **last used** time; a token you do not recognise being used regularly is the sign to revoke it right away.
 
-Bấm **Thu hồi** là token chết lập tức, máy nào đang dùng nó mất kết nối ngay và không hoàn tác được.
+Clicking **Revoke** kills the token instantly, any machine using it loses its connection at once, and it cannot be undone.
 
-Vài điều đáng biết về cách Javis giữ token:
+A few things worth knowing about how Jarvis 007 keeps tokens:
 
-- **Trên đĩa chỉ có bản băm** (SHA-256). Ai đọc được file cấu hình của máy chủ cũng không lấy được token.
-- **Không dùng token để tạo token.** Muốn tạo token mới phải đang đăng nhập bằng trình duyệt. Nếu một token lỡ rò ra, kẻ cầm nó không tự cấp thêm được cái khác - thu hồi là dứt.
-- **Nhưng thu hồi thì token tự thu hồi được chính mình.** Mất laptop mà không mở nổi trình duyệt thì vẫn hạ được credential.
-- **Sai token quá 10 lần trong 5 phút thì IP đó bị chặn 15 phút**, và mỗi lần sai đều ghi vào `auth_audit.jsonl` (chỉ ghi 12 ký tự đầu, vì file log hay bị gửi kèm báo lỗi). Một cuộc dò token trở thành thứ nhìn thấy được thay vì chạy im lặng hàng tháng.
+- **Only a hash is on disk** (SHA-256). Whoever can read the server's config file still cannot obtain the token.
+- **A token cannot create a token.** Creating a new one requires a signed-in browser. If a token leaks, whoever holds it cannot mint another, so revoking ends it.
+- **But a token can revoke itself.** Losing a laptop with no way to open a browser still lets you take the credential down.
+- **More than 10 wrong tokens in 5 minutes blocks that IP for 15 minutes**, and each failure is written into `auth_audit.jsonl` (only the first 12 characters, because log files are often attached to bug reports). A token-guessing run becomes visible instead of running silently for months.
 
-## Khi có trục trặc
+## When something goes wrong
 
-**"Chưa nối tới Javis nào"** - chạy `javis login <địa-chỉ>` trước.
+**"Not connected to any Jarvis 007"** - run `javis login <address>` first.
 
-**Báo 401 hoặc "token không hợp lệ"** - token sai, hoặc đã bị thu hồi. Tạo cái mới ở Tài khoản > Token API rồi `javis login` lại.
+**A 401 or "invalid token"** - the token is wrong or was revoked. Create a new one at Account > API tokens then `javis login` again.
 
-**Báo 403 khi gõ `javis task add` hay `javis brain ls`** - token của bạn là loại **chỉ chat**. Tạo một token **toàn quyền** cho những lệnh này.
+**A 403 on `javis task add` or `javis brain ls`** - your token is the **chat only** kind. Create a **full power** token for these commands.
 
-**Bị chặn tạm thời** - sai token quá nhiều lần liên tiếp. Chờ 15 phút, hoặc khởi động lại máy chủ Javis.
+**Temporarily blocked** - too many wrong tokens in a row. Wait 15 minutes, or restart the Jarvis 007 server.
 
-**Không kết nối được** - kiểm tra máy chủ Javis còn chạy không (`javis status`, hoặc mở dashboard trong trình duyệt). Nếu Javis nằm trên VPS, kiểm tra cổng và tên miền.
+**Cannot connect** - check that the Jarvis 007 server is still running (`javis status`, or open the dashboard in a browser). If Jarvis 007 is on a VPS, check the port and the domain.
 
-**Chữ tiếng Việt hiện sai trên Windows** - chạy `chcp 65001` trong terminal trước, hoặc dùng Windows Terminal thay cho cmd.exe cũ.
+**Vietnamese text renders wrong on Windows** - run `chcp 65001` in the terminal first, or use Windows Terminal instead of the old cmd.exe.
 
-Xem thêm [17 - Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+See also [17 - Troubleshooting and FAQ](17-khac-phuc-su-co.md).
 
-## Vì sao CLI không tự chạy được một mình
+## Why the CLI cannot run on its own
 
-Câu hỏi hợp lý: sao không làm hẳn một agent chạy độc lập trong terminal, khỏi cần server?
+A fair question: why not build a standalone agent in the terminal with no server at all?
 
-Vì gần như mọi thứ làm nên Javis đều đòi một tiến trình **sống dài**: loop chạy theo chu kỳ, nhắc hẹn chờ tới giờ, MCP Hub giữ kết nối tới POS và quảng cáo, kho capability giữ registry, runtime tiết kiệm token học dần qua từng lượt. Một CLI gõ xong là thoát không phải chỗ cho những thứ đó.
+Because almost everything that makes Jarvis 007 what it is demands a **long-lived** process: loops on a cycle, reminders waiting for their time, the MCP Hub holding connections to the POS and the ads platform, the capability store holding the registry, the token-saving runtime learning turn by turn. A CLI that exits when you finish typing is no home for those.
 
-Làm bản thứ hai nghĩa là chép lại toàn bộ rồi để hai bản trôi lệch nhau - và bản nào ít người dùng hơn thì lỗi cứ nằm im ở đó. Nên CLI đi qua **đúng cái lõi** mà dashboard và Telegram đang dùng. Đổi lại: tính năng mới vào Javis là CLI thấy ngay, không phải sửa hai chỗ.
+Building a second implementation means copying all of it then letting the two drift apart, and whichever has fewer users keeps its bugs quietly. So the CLI goes through **the very same core** the dashboard and Telegram use. In exchange: a new feature added to Jarvis 007 appears in the CLI immediately, with nothing to fix in two places.
 
-Chi tiết thiết kế ở [spec CLI](dev/2026-08-cli-spec.md).
+Design details in the [CLI spec](dev/2026-08-cli-spec.md).
 
-## Liên quan
+## Related
 
-- [02 - Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md) - kênh web.
-- [11 - Kênh Telegram](11-telegram.md) - kênh điện thoại.
-- [14 - Bảo mật & tài khoản](14-bao-mat-tai-khoan.md) - mật khẩu, đăng nhập, mã hoá khoá bí mật.
-- [21 - Việc (Kanban)](21-viec-kanban.md) - việc `javis task add` giao vào chạy ở đâu.
+- [02 - Chat and voice](02-tro-chuyen-va-giong-noi.md) - the web channel.
+- [11 - The Telegram channel](11-telegram.md) - the phone channel.
+- [14 - Security and accounts](14-bao-mat-tai-khoan.md) - passwords, sign-in, secret-key encryption.
+- [21 - Work (Kanban)](21-viec-kanban.md) - where the work `javis task add` queues actually runs.

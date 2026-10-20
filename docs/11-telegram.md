@@ -1,336 +1,336 @@
-# Kênh Telegram
+# Telegram channel
 
 ***Tiếng Việt** · [English](en/11-telegram.md)*
 
-Bật bot Telegram để hỏi Javis ngay từ điện thoại, không cần mở dashboard. Bạn nhắn cho bot như nhắn cho một người, Javis trả lời bằng chính bộ não và bộ nhớ đang chạy trên máy/VPS của bạn.
+Enable the Telegram bot to ask Jarvis 007 from your phone without opening the dashboard. You message the bot like a person, and Jarvis 007 answers using the same brain and memory running on your machine or VPS.
 
-## Tính năng này là gì
+## What this feature is
 
-- Bạn tạo một bot Telegram riêng (miễn phí), dán token vào Javis, giới hạn chỉ tài khoản của bạn được dùng.
-- Sau khi bật, mọi tin nhắn thường bạn gửi cho bot sẽ được Javis trả lời. Bot vừa bật chỉ báo "đang gõ" của Telegram, vừa gửi một tin trạng thái tự đổi chữ theo tiến trình rồi tự xoá khi có câu trả lời.
-- Có sẵn các lệnh gõ nhanh (bắt đầu bằng dấu `/`) để xem trạng thái, đổi model, dừng câu đang chạy, bắt đầu hội thoại mới, lưu note vào brain.
-- Qua Telegram Javis vẫn có đủ MCP và skill: hỏi số liệu bán hàng, quảng cáo, đọc và ghi file trong vault đều được. Điều này đúng với MỌI engine (Claude Code, ChatGPT/Codex, OpenRouter, Claude API, OpenAI API) vì công cụ của Javis đi qua MCP Hub chứ không gắn riêng vào engine nào.
-- Gửi file được cả hai chiều: bạn gửi ảnh/tài liệu cho bot để Javis đọc, và file Javis tạo ra trong lượt sẽ tự gửi ngược về cho bạn.
-- **Ra lệnh bằng ghi âm**: bấm giữ micro nói một câu, Javis nghe thành chữ rồi làm như bạn gõ tay. Cần dán API key Groq ở trang Models một lần.
-- Trả lời chạy nền: đang trả lời câu này bạn vẫn gửi được `/stop` để cắt ngang.
+- You create your own Telegram bot (free), paste its token into Jarvis 007, and limit it to your account.
+- Once enabled, every ordinary message you send the bot gets a Jarvis 007 answer. The bot shows Telegram's "typing" indicator and also sends a status message whose text updates with progress.
+- There are quick commands (starting with `/`) to check status, change model, stop a running answer, start a new conversation and save notes into the brain.
+- Over Telegram, Jarvis 007 still has the full MCP and skill set: asking for sales numbers, ads data, reading and writing vault files all work. This is true for EVERY engine (Claude Code, ChatGPT/Codex, OpenRouter, Claude API, OpenAI API), because Jarvis 007's tools go through the MCP Hub rather than being tied to one engine.
+- Files go both ways: you send images and documents for Jarvis 007 to read, and files Jarvis 007 creates during a turn are sent back to you.
+- **Voice commands**: hold the microphone, say a sentence, and Jarvis 007 transcribes it and acts as if you typed. This needs a Groq API key pasted on the Models page once.
+- Answers run in the background: while one is running you can still send `/stop` to cut it short.
 
-Xem thêm engine và model ở [Models & engine](10-models-va-engine.md), công cụ MCP ở [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md).
+For engines and models see [Models & engines](10-models-va-engine.md); for MCP tools see [Connections & business data](09-mcp-va-so-lieu.md).
 
-## Mở ở đâu trong Javis
+## Where to find it in Jarvis 007
 
-1. Mở dashboard Javis (mặc định `http://localhost:7777`).
-2. Nhìn thanh điều hướng bên trái, mở nhóm **Kết nối** rồi bấm mục **Kênh**.
-3. Bạn sẽ thấy thẻ **Telegram** với các ô: bật/tắt bot, Bot token, Chat ID được phép dùng, và 2 nút **Lưu & bật** / **Gửi test**.
+1. Open the Jarvis 007 dashboard (`http://localhost:7777` by default).
+2. In the left navigation rail, open the **Connections** group and click **Channels**.
+3. You will see the **Telegram** card with fields for enabling the bot, the Bot token, the allowed Chat IDs, and 2 buttons: **Save & enable** / **Send test**.
 
-## Chuẩn bị: lấy Bot token và Chat ID
+## Preparation: getting a Bot token and a Chat ID
 
-Đây là 2 thông tin bắt buộc. Làm trên app Telegram (điện thoại hoặc máy tính).
+These 2 pieces of information are required. Do this in the Telegram app (phone or desktop).
 
-### Lấy Bot token (từ BotFather)
+### Getting the Bot token (from BotFather)
 
-1. Trong Telegram, tìm tài khoản tên **@BotFather** (có tick xanh) và mở chat.
-2. Gõ `/newbot` rồi làm theo hướng dẫn: đặt tên hiển thị cho bot, rồi đặt username kết thúc bằng `bot` (vd `javis_cua_toi_bot`).
-3. BotFather trả về một chuỗi token dạng `123456789:ABCdef...`. Đây chính là **Bot token**. Giữ kín, ai có token này là điều khiển được bot.
+1. In Telegram, find the account **@BotFather** (with a blue tick) and open the chat.
+2. Type `/newbot` and follow the prompts: give the bot a display name, then a username ending in `bot` (for example `my_javis_bot`).
+3. BotFather returns a token like `123456789:ABCdef...`. That is the **Bot token**. Keep it secret; anyone with it controls the bot.
 
-### Lấy Chat ID của bạn (và của những người dùng chung)
+### Getting your Chat ID (and other users')
 
-Chat ID là số định danh tài khoản Telegram. Javis dùng nó làm danh sách cho phép: chỉ những ID trong danh sách mới nhắn được với bot.
+The Chat ID identifies a Telegram account. Jarvis 007 uses it as an allow list: only IDs on the list can message the bot.
 
-1. Trong Telegram tìm bot tên **@userinfobot** và mở chat, bấm Start.
-2. Nó trả về dòng `Id: 123456789`. Con số đó là **Chat ID** của bạn.
-3. Ghi lại con số này để dán vào Javis ở bước sau.
+1. In Telegram, find the bot **@userinfobot**, open the chat and press Start.
+2. It replies with `Id: 123456789`. That number is your **Chat ID**.
+3. Note it down for the next step.
 
-Muốn cho người khác (vợ/chồng, nhân viên...) dùng chung bot: nhờ từng người làm đúng 2 bước trên để lấy Chat ID của họ, và nhớ mỗi người phải mở bot của bạn bấm **Start** một lần (Telegram chỉ cho bot nhắn với người đã Start).
+To let other people (a partner, staff...) share the bot: have each of them do those 2 steps to get their Chat ID, and remember each person must open your bot and press **Start** once (Telegram only lets a bot message people who started it).
 
-## Cách dùng (từng bước)
+## How to use it (step by step)
 
-### Bước 1: Cấu hình và bật bot
+### Step 1: Configure and enable the bot
 
-1. Vào **Kênh Admin** (nhóm **Kết nối**) trên dashboard, chọn tab **Telegram**.
-2. Ở bước **1. Kết nối bot**, dán chuỗi token vào ô **Bot token**. (Token đã lưu thì cạnh nhãn hiện "✓ đã lưu"; để trống ô này nếu không muốn đổi.)
-3. Ở bước **2. Ai được dùng**, dán Chat ID vào ô **Chat ID được phép**. Nhiều người dùng chung thì dán nhiều ID cách nhau dấu phẩy, ví dụ `123456789, 987654321`.
-4. Bấm **Lưu và bật kênh** ở cuối tab.
+1. Open **Admin channels** (the **Connections** group) on the dashboard and pick the **Telegram** tab.
+2. In step **1. Connect the bot**, paste the token into **Bot token**. (A saved token shows "✓ saved" next to the label; leave the field empty to keep it.)
+3. In step **2. Who can use it**, paste the Chat ID into **Allowed chat IDs**. For several people, separate IDs with commas, for example `123456789, 987654321`.
+4. Click **Save and turn on** at the bottom of the tab.
 
-Javis lưu cấu hình và tự khởi động bot ngay (không cần nút restart riêng). Nhãn cạnh tên kênh chuyển sang "Đang khởi động" rồi "Đang chạy" sau vài giây. Về sau muốn tạm tắt bot thì gạt **công tắc** ở đầu tab: công tắc có tác dụng ngay, không cần bấm Lưu, và token vẫn được giữ.
+Jarvis 007 saves the configuration and starts the bot right away (no separate restart button). The label next to the channel name turns "Starting", then "Running" a few seconds later. To pause the bot later, flip the **switch** at the top of the tab: it takes effect immediately, no Save needed, and the token is kept.
 
-### Bước 2: Kiểm tra bot đã nhận tin
+### Step 2: Check that the bot is receiving
 
-Nhãn màu cạnh tên kênh và khung ngay dưới nó là trạng thái thật của bot (chấm màu trên tab cũng vậy, để nhìn lướt cả sáu kênh). Ý nghĩa:
+The coloured label next to the channel name, and the box right under it, are the bot's real state (the dot on each tab says the same, so you can scan all six channels at a glance). What they mean:
 
-| Dòng trạng thái | Nghĩa |
+| Status line | Meaning |
 |---|---|
-| 🟢 Bot đang nhận tin | Bot chạy tốt, nhắn cho bot là Javis trả lời. Dòng này kèm số chat ID được phép, hoặc cảnh báo "MỌI NGƯỜI nhắn được (chưa giới hạn ID)" |
-| ⚪ Chưa cài đặt | Chưa có token. Làm bước 1 rồi bấm Lưu và bật kênh |
-| ⚪ Đang tắt | Đã có token nhưng công tắc đang tắt. Gạt công tắc để bật |
-| ⏳ Đang khởi động bot | Bot vừa được bật, chờ vài giây |
-| 🔴 409 | Cùng token này đang bị chạy (poll) ở nơi khác, hoặc còn webhook. Xem mục Sự cố bên dưới |
-| ⚠ Lỗi bot | Có lỗi khác, dòng sẽ kèm mô tả chi tiết |
-| ⚪ Bot đã tắt | Bot đã dừng (chưa bật lại) |
+| 🟢 Bot is receiving | The bot is healthy; message it and Jarvis 007 answers. This line also shows how many chat IDs are allowed, or warns that "ANYONE can message it (no ID restriction)" |
+| ⚪ Not set up | No token yet. Do step 1, then click Save and turn on |
+| ⚪ Off | A token is saved but the switch is off. Flip the switch to turn it on |
+| ⏳ Starting the bot | The bot was just enabled, wait a few seconds |
+| 🔴 409 | The same token is being polled elsewhere, or a webhook is still set. See Common problems below |
+| ⚠ Bot error | Another error, with details on the line |
+| ⚪ Bot stopped | The bot has stopped (not re-enabled) |
 
-Lưu ý quan trọng: gửi test thành công KHÔNG có nghĩa bot đang nhận tin. Test chỉ chứng minh token và Chat ID đúng. Muốn biết bot có nhận tin hay không, hãy xem dòng trạng thái phải là 🟢 **Bot đang nhận tin**.
+An important note: a successful test does NOT mean the bot is receiving. The test only proves the token and Chat ID are right. To know it is receiving, the status line must read 🟢 **Bot is receiving**.
 
-### Bước 3: Gửi tin test (tùy chọn)
+### Step 3: Send a test message (optional)
 
-1. Bấm nút **Gửi test**.
-2. Nếu token và Chat ID hợp lệ, Javis gửi vào chat Telegram của bạn một tin: "✅ Javis Telegram đã kết nối. Nhắn câu hỏi bất kỳ nhé." Dòng trạng thái báo "✅ Đã gửi tin test." (nhiều ID thì báo "✅ Đã gửi tin test tới 2/3 ID." kèm lỗi của ID hỏng).
-3. Nếu chưa lưu đủ token và Chat ID, nút test báo thiếu cấu hình. Hãy Lưu & bật trước rồi thử lại.
+1. Click **Send test**.
+2. With a valid token and Chat ID, Jarvis 007 sends a message to your Telegram chat: "✅ Jarvis 007 Telegram connected. Send any question." The status line reads "✅ Test message sent." (with several IDs it reads "✅ Test sent to 2/3 IDs." plus the failing ID's error).
+3. If the token and Chat ID are not saved yet, the test button reports the missing configuration. Click Save & enable first, then try again.
 
-### Bước 4: Hỏi Javis qua Telegram
+### Step 4: Ask Jarvis 007 over Telegram
 
-1. Mở chat với bot của bạn trên Telegram.
-2. Gõ một câu hỏi bất kỳ như đang chat bình thường, vd "Hôm nay có task gì cần làm?" hoặc "Tóm tắt vault giúp tôi".
-3. Bot hiện chỉ báo "đang gõ" kèm một tin trạng thái tạm, rồi gửi câu trả lời. Câu trả lời dài sẽ được tự chia thành nhiều tin.
-4. Trong lúc bot đang trả lời, nếu bạn gửi câu mới, bot báo "⏳ Đang xử lý câu trước. Gửi /stop để dừng rồi hỏi lại." Mỗi lúc chỉ chạy 1 lượt cho mỗi người.
+1. Open the chat with your bot in Telegram.
+2. Type any question as you would in a normal chat, for example "What tasks do I have today?" or "Summarise my vault for me".
+3. The bot shows "typing" plus a temporary status message, then sends the answer. Long answers are split across several messages.
+4. If you send another question while it is answering, the bot replies "⏳ Still handling the previous question. Send /stop to cancel and ask again." Only 1 turn runs per person at a time.
 
-## Tin trạng thái tự đổi chữ rồi ở lại thành dòng vết
+## The status message updates itself and stays as a trail
 
-Ngay khi nhận câu hỏi, bot gửi cho bạn một tin thật: **🤔 Javis đang xử lý…**. Tin đó KHÔNG bị gửi thêm lần nữa, nó được **sửa nội dung tại chỗ** theo tiến trình, luôn mở đầu bằng ⏳:
+As soon as it receives a question, the bot sends you a real message: **🤔 Jarvis 007 is working…**. That message is NOT resent; it is **edited in place** as progress happens, always starting with ⏳:
 
-| Chữ bạn thấy | Javis đang làm gì |
+| Text you see | What Jarvis 007 is doing |
 |---|---|
-| 🤔 Javis đang xử lý… | Vừa nhận câu hỏi, đang khởi động lượt |
-| ⏳ ⚙ Đang gọi: `<tên tool>` | Engine Claude đang gọi một công cụ (Read, Write, tool MCP...) |
-| ⏳ ⚙ Đang gọi công cụ: `<tên tool>` | Engine API (OpenRouter, OpenAI API, Claude API) đang gọi công cụ qua MCP Hub |
-| ⏳ ✓ Nhận kết quả - đang phân tích… | Công cụ trả dữ liệu về, engine đang đọc |
-| ⏳ ✍ Đang soạn câu trả lời… | Đã bắt đầu sinh chữ |
+| 🤔 Jarvis 007 is working… | Just received the question, starting the turn |
+| ⏳ ⚙ Calling: `<tool name>` | The Claude engine is calling a tool (Read, Write, an MCP tool...) |
+| ⏳ ⚙ Calling tool: `<tool name>` | An API engine (OpenRouter, OpenAI API, Claude API) is calling a tool through the MCP Hub |
+| ⏳ ✓ Results in, analysing… | The tool returned data and the engine is reading it |
+| ⏳ ✍ Writing the answer… | Text generation has begun |
 
-Vài điểm cần biết:
+A few points to know:
 
-- Tin trạng thái chỉ cập nhật tối đa **2,5 giây một lần**, nên đừng chờ nó nhảy liên tục. Giới hạn này để Telegram không chặn bot vì gửi quá dày.
-- Tin này **gửi im lặng, không rung điện thoại**. Nó chỉ để bạn nhìn khi đang mở chat chờ. Cả lượt hỏi chỉ có đúng một tiếng chuông: lúc câu trả lời thật tới, và thông báo hiện đúng nội dung trả lời.
-- Xong việc, bot **không xoá tin trạng thái nữa**. Lần sửa cuối biến nó thành một dòng vết gọn, còn câu trả lời là tin mới nằm ngay dưới. Từ **0.26.4** mới như vậy; trước đó tin này bị xoá hẳn nên nhiều người tưởng bot lỗi.
-- Dòng vết ghi lượt đó đã gọi công cụ nào và mất bao lâu, ví dụ `⚙ pos_statistics · Read · 8s`. Lượt không cần công cụ nào thì ghi `✓ Trả lời trực tiếp · 3s`. Đây là cách phân biệt một con số vừa lấy từ POS thật với một câu trả lời chay, và nó nằm lại trong lịch sử để sau tra lại được.
-- Gõ `/stop` giữa chừng: tin trạng thái đổi thành **⏹ Đã dừng.** và bot không gửi thêm câu trả lời nào cho lượt đó.
-- Dòng "⚙ Đang gọi..." chính là bằng chứng Javis đang chạm vào MCP thật (POS, quảng cáo, lịch, file...) chứ không phải trả lời chay.
-- Mấy tin trạng thái này chỉ có ở **bot Javis của bạn**. [Bot chuyên trách](25-chatbot.md) nói chuyện với khách thì giấu sạch, chỉ để lại chấm "đang nhập…" cho giống người thật.
+- The status message updates at most **once every 2.5 seconds**, so do not expect it to flicker. That limit keeps Telegram from throttling the bot for sending too often.
+- The message is **sent silently and does not buzz your phone**. It is only for looking at while you wait. A whole turn has exactly one notification: when the real answer arrives, and the notification shows the answer itself.
+- When done, the bot **no longer deletes the status message**. Its final edit becomes a tidy trail line, with the answer as a new message below it. That has been the behaviour since **0.26.4**; before that it was deleted, which made many people think the bot had failed.
+- The trail line records which tools that turn called and how long it took, for example `⚙ pos_statistics · Read · 8s`. A turn needing no tools reads `✓ Answered directly · 3s`. That is how you tell a figure genuinely pulled from the POS from a plain answer, and it stays in the history for later checking.
+- Typing `/stop` mid-run: the status message becomes **⏹ Stopped.** and no answer follows for that turn.
+- The "⚙ Calling..." line is your evidence that Jarvis 007 is touching real MCPs (POS, ads, calendar, files...) rather than answering from thin air.
+- These status messages exist only on **your own Jarvis 007 bot**. A [dedicated chatbot](25-chatbot.md) talking to customers hides all of it and leaves only a "typing…" indicator, to feel like a person.
 
-## Gửi file cho bot, nhận file từ bot
+## Sending files to the bot, receiving files from it
 
-Bot chạy được cả hai chiều file. Đây là cách nhanh nhất để đưa một tấm ảnh hay tài liệu vào brain khi đang ở ngoài đường.
+The bot handles files both ways. This is the fastest route to get a photo or a document into the brain while out and about.
 
-### Bạn gửi ảnh/file cho bot
+### You send an image or file to the bot
 
-1. Gửi thẳng ảnh hoặc file tài liệu vào chat với bot, kèm caption nếu muốn nói rõ ý.
-2. Gateway tải file về `inbox/telegram/` **của brain đang chọn cho phiên Telegram của bạn** (đổi bằng `/brain`), rồi đưa đường dẫn đó vào tin nhắn cho engine đọc.
-3. Javis đọc file tại chỗ và trả lời như bình thường. File trùng tên không bị đè: Javis thêm hậu tố `_1`, `_2`.
+1. Send the image or document straight into the chat, with a caption if you want to be specific.
+2. The gateway downloads it into `inbox/telegram/` **of the brain selected for your Telegram session** (changed with `/brain`), then puts that path into the message for the engine to read.
+3. Jarvis 007 reads the file in place and answers as usual. Duplicate names are not overwritten: Jarvis 007 appends `_1`, `_2`.
 
-Giới hạn cần nhớ:
+Limits to remember:
 
-- **Trần tải về là 20MB** (giới hạn của Telegram bot API, không phải của Javis). File to hơn, bot báo lại là không tải về được và gợi ý cách gửi khác.
-- **Tin thoại (ghi âm) thì Javis nghe được** - xem mục ngay dưới đây.
-- **Video và video note: Javis chưa xem được.** Bot sẽ lịch sự nhờ bạn gõ chữ, gửi tin thoại, hoặc gửi lại dạng file tài liệu.
-- Caption là một lệnh cũng được nhận đúng. Ví dụ chộp ảnh hoá đơn rồi đặt caption `/notes hoá đơn thép hộp hôm nay` thì Javis chạy lệnh `/notes` với đúng tấm ảnh đó, chứ không coi cả cụm là chữ thường.
-- `inbox/` là **vùng cache**, không phải kho tri thức: file quá **30 ngày** hoặc khi vùng cache vượt **300MB** sẽ bị dọn tự động. Cần giữ lâu dài thì bảo Javis rút nội dung thành ghi chú `.md` hoặc chuyển sang thư mục khác trong brain. Xem [Quản lý tệp tin](05-quan-ly-tep-tin.md).
+- **The download ceiling is 20MB** (a Telegram bot API limit, not a Jarvis 007 one). For larger files the bot says it could not download it and suggests another way to send it.
+- **Voice messages ARE understood**, see the section below.
+- **Video and video notes: Jarvis 007 cannot watch them.** The bot politely asks you to type, send a voice message, or resend it as a document.
+- A caption can also be a command. Snapping a photo of an invoice with the caption `/notes steel tube invoice today` runs the `/notes` command with that exact photo, rather than treating the whole thing as plain text.
+- `inbox/` is a **cache area**, not a knowledge store: files older than **30 days**, or once the cache passes **300MB**, are cleaned automatically. To keep something long term, ask Jarvis 007 to distil it into a `.md` note or move it into another folder in the brain. See [File manager](05-quan-ly-tep-tin.md).
 
-### Ra lệnh bằng ghi âm (tin thoại)
+### Voice commands (voice messages)
 
-Bấm giữ nút micro trong Telegram, nói, rồi thả tay. Javis nghe câu đó thành chữ và làm y như bạn gõ tay - tiện nhất lúc đang lái xe hoặc tay bận.
+Hold the microphone button in Telegram, speak, and release. Jarvis 007 transcribes it and acts exactly as if you had typed it, which is ideal while driving or with your hands full.
 
-**Cần một thứ: API key của Groq.** Groq là chỗ Javis mượn để chuyển giọng nói thành chữ (model Whisper). Chưa đấu thì gửi tin thoại Javis sẽ trả lời là cần dán key, kèm chỉ dẫn - chứ không im lặng.
+**You need one thing: a Groq API key.** Groq is where Jarvis 007 borrows speech-to-text (the Whisper model). Without it, sending a voice message makes Jarvis 007 reply that a key is needed, with instructions, rather than staying silent.
 
-Cách đấu, làm một lần:
+To wire it, once:
 
-1. Vào [console.groq.com](https://console.groq.com), đăng nhập, tạo một API key.
-2. Mở dashboard Javis, vào trang **Models**, tìm nhà cung cấp **Groq (API)**, dán key vào rồi lưu.
-3. Xong. Gửi tin thoại tiếp theo là nghe được ngay, **không cần tắt bật lại bot**.
+1. Go to [console.groq.com](https://console.groq.com), sign in and create an API key.
+2. Open the Jarvis 007 dashboard, go to the **Models** page, find the **Groq (API)** provider, paste the key and save.
+3. Done. The next voice message is understood immediately, with **no bot restart**.
 
-Vài điều nên biết:
+A few things to know:
 
-- **Key này dùng chung với phần chat.** Đã đấu Groq làm bộ não thì tin thoại chạy luôn, không phải làm gì thêm. Ngược lại, đấu key chỉ để nghe giọng cũng được - không bắt buộc phải đổi model chính sang Groq.
-- **Javis nghe tiếng Việt** (có gợi ý ngôn ngữ cho Whisper nên câu ngắn không bị đoán nhầm sang tiếng khác rồi dịch luôn).
-- **Việc có tác động ra ngoài thì Javis hỏi lại trước.** Gửi tin, đăng bài, đặt lịch, tiêu tiền, sửa file: Javis mở đầu bằng một dòng "Em nghe: ..." rồi chờ bạn xác nhận. Máy vẫn nghe nhầm được, mà mấy việc đó lỡ làm rồi thì không rút lại. Hỏi số liệu, tra cứu, tóm tắt thì làm thẳng, không hỏi lại.
-- **File ghi âm không được lưu vào brain.** Javis nghe xong lấy chữ, không để lại file `.ogg` trong `inbox/`.
-- Gửi tin thoại kèm caption `/notes` vẫn chạy đúng lệnh, với nội dung là câu bạn vừa nói.
-- Nghe không ra chữ (im lặng, quá ồn) hay Groq trả lỗi thì bot nói rõ lý do và nhờ bạn gõ chữ. Không có ngả nào im lặng.
+- **This key is shared with chat.** If Groq is already wired as a brain, voice messages work with nothing extra. Conversely, wiring the key only for speech is fine too; you do not have to make Groq your main model.
+- **Jarvis 007 understands Vietnamese** (the language hint given to Whisper stops short sentences being guessed as another language and translated).
+- **Actions with outside effects are confirmed first.** Sending messages, publishing, booking, spending money, editing files: Jarvis 007 opens with a line reading "I heard: ..." and waits for you to confirm. Machines can mishear, and those actions cannot be taken back. Asking for numbers, lookups and summaries happens straight away without confirmation.
+- **Recordings are not stored in the brain.** Jarvis 007 transcribes and keeps no `.ogg` file in `inbox/`.
+- A voice message with the caption `/notes` still runs that command, with your spoken sentence as the content.
+- If nothing could be transcribed (silence, too noisy) or Groq errors, the bot states the reason and asks you to type. There is no silent path.
 
-Kênh Zalo cũng nghe được tin thoại, dùng **chung một key Groq** - đấu một lần là hai kênh cùng chạy. Xem [Kênh Zalo Bot](26-kenh-zalo-bot.md).
+The Zalo channel understands voice messages too, using the **same Groq key**, so wiring it once serves both. See [Zalo Bot channel](26-kenh-zalo-bot.md).
 
-### Bot gửi file về cho bạn
+### The bot sends files back to you
 
-File Javis tạo ra trong lượt được **tự đính kèm ngay sau câu trả lời**, không cần bạn xin. Ba nguồn được nhận:
+Files Jarvis 007 creates during a turn are **attached right after the answer** without you asking. Three sources qualify:
 
-- File Javis ghi bằng công cụ Write trong chính lượt đó.
-- File có đường dẫn tuyệt đối nhắc trong câu trả lời cuối.
-- Ảnh/tệp trong vault nhúng kiểu markdown tương đối, vd `![](attachments/anh.png)` - đúng cách ảnh Javis vừa tạo được trả về.
+- Files Jarvis 007 wrote with the Write tool during that turn.
+- Files whose absolute path is mentioned in the final answer.
+- Vault images and files embedded as relative markdown, for example `![](attachments/photo.png)`, which is exactly how a freshly generated image comes back.
 
-Giới hạn và hành vi:
+Limits and behaviour:
 
-- Tối đa **10 file một lượt**, mỗi file dưới **50MB** (trần gửi tài liệu của Telegram).
-- Chỉ file **vừa tạo hoặc vừa sửa trong lượt đó** mới được gửi. Nhắc tên một file cũ sẽ không làm bot gửi lại nó, để tránh spam.
-- Ảnh `.jpg .jpeg .png .webp .gif` dưới **10MB** được gửi dạng ảnh (xem preview ngay trong chat); còn lại gửi dạng tài liệu. Ảnh bị Telegram từ chối thì tự rơi xuống gửi dạng tài liệu.
-- Nếu ảnh đã được gửi riêng, dòng markdown `![...](...)` tương ứng bị bóc khỏi câu trả lời để bạn không thấy một cụm chữ trơ nằm cạnh tấm ảnh thật.
-- Gửi hỏng thì bot nói thẳng: "⚠ Không gửi được file `<tên>`: `<lý do>`".
-- Text đi trước, file đi sau, để thứ tự đọc tự nhiên.
+- At most **10 files per turn**, each under **50MB** (Telegram's document ceiling).
+- Only files **created or edited during that turn** are sent. Mentioning an old file's name does not make the bot resend it, which avoids spam.
+- Images (`.jpg .jpeg .png .webp .gif`) under **10MB** are sent as photos (previewable in chat); everything else goes as a document. An image Telegram rejects falls back to being sent as a document.
+- If an image was sent separately, the matching `![...](...)` markdown line is stripped from the answer so you do not see a bare text fragment next to the real photo.
+- On a failure the bot says so plainly: "⚠ Could not send file `<name>`: `<reason>`".
+- Text goes first and files after, for a natural reading order.
 
-## Khi Javis hỏi lại bằng lựa chọn đánh số
+## When Jarvis 007 asks back with a numbered list
 
-Trên dashboard, khi phải hỏi lại một tham số quan trọng (kỳ thời gian, chọn shop nào...), Javis vẽ ra mấy cái nút bấm. Telegram là kênh chữ thuần, không vẽ nút kiểu đó được, nên Javis tự hạ khối lựa chọn xuống thành **câu hỏi kèm danh sách đánh số** (tối đa 4 lựa chọn):
+On the dashboard, when Jarvis 007 must ask about an important parameter (which period, which shop...), it draws buttons. Telegram is a plain-text channel with no such buttons, so Jarvis 007 degrades the option block into a **question plus a numbered list** (at most 4 options):
 
 ```
-Anh muốn xem doanh thu kỳ nào?
-1. Tuần này
-2. Tháng này
-3. So tháng trước
+Which period do you want revenue for?
+1. This week
+2. This month
+3. Compare with last month
 ```
 
-Trả lời bằng cách nhắn đúng con số, vd `2`, hoặc gõ hẳn điều bạn muốn. Javis đọc con số trong ngữ cảnh câu vừa hỏi nên hiểu ngay, không cần cú pháp gì đặc biệt.
+Answer by sending just the number, for example `2`, or by typing what you want in words. Jarvis 007 reads the number in the context of the question it just asked, so no special syntax is needed.
 
-## Các lệnh gõ nhanh trong Telegram
+## Quick commands in Telegram
 
-Gõ dấu `/` trong chat (hoặc bấm nút Menu của bot) sẽ hiện danh sách lệnh. Các lệnh có sẵn:
+Typing `/` in the chat (or pressing the bot's Menu button) shows the command list. Available commands:
 
-| Lệnh | Tác dụng |
+| Command | Effect |
 |---|---|
-| `/help` | Xem hướng dẫn và danh sách lệnh |
-| `/status` | Xem provider, model, brain đang dùng và bot có đang bận trả lời không |
-| `/skills` | Liệt kê các skill có trong vault (gõ `/tên-skill` để gọi) |
-| `/notes` | Lưu tin nhắn (kèm ảnh) vào Sources của brain. Gõ `/notes <nội dung>`, hoặc gửi ảnh với caption `/notes ...` |
-| `/agents` | Liệt kê agent và cho biết có lượt nào đang chạy không |
-| `/workflows` | Liệt kê workflow |
-| `/model` | Xem hoặc đổi model. Gõ `/model` không kèm gì để mở bảng nút bấm chọn; hoặc gõ thẳng tên (vd `/model sonnet`) |
-| `/brain` | Xem hoặc đổi brain (vault) cho RIÊNG phiên của bạn. Gõ `/brain` để mở bảng nút chọn; hoặc gõ thẳng tên (vd `/brain Kim Khí`). Đổi xong hội thoại reset để nạp đúng bộ nhớ brain mới; người khác và dashboard không bị ảnh hưởng. File bạn gửi lên cũng rơi vào inbox của brain đã chọn |
-| `/retry` | Gửi lại câu hỏi gần nhất |
-| `/usage` | Token và chi phí Javis đã đo hôm nay và từ trước tới nay, kèm số dư OpenRouter nếu có key |
-| `/tasks` | Việc nền đang chạy, chờ duyệt, bị kẹt hoặc xếp hàng của brain đang chọn cho phiên này. Có cảnh báo nếu "Tự vận hành" đang tắt |
-| `/memory` | Mục lục bộ nhớ dài hạn của brain đang chọn cho phiên này |
-| `/plan <việc>` | Một lượt chỉ đọc và đề xuất kế hoạch, chưa làm gì ra ngoài. Trên Telegram đây là lời dặn cho model, chưa có cổng chặn ở hub như trên web |
-| `/stop` | Dừng ngay câu đang trả lời |
-| `/reset` | Bắt đầu hội thoại mới (quên ngữ cảnh cũ) |
-| `/cli` | Chuyển sang engine Claude (Claude Code) |
-| `/or` | Chuyển sang engine OpenRouter (chat + MCP đa-model) |
+| `/help` | See the guide and command list |
+| `/status` | See the provider, model and brain in use, and whether the bot is busy answering |
+| `/skills` | List the skills in the vault (type `/skill-name` to call one) |
+| `/notes` | Save the message (with images) into the brain's Sources. Type `/notes <content>`, or send an image with the caption `/notes ...` |
+| `/agents` | List agents and say whether any run is in progress |
+| `/workflows` | List workflows |
+| `/model` | View or change the model. Type `/model` with nothing to open a button picker; or type a name directly (for example `/model sonnet`) |
+| `/brain` | View or change the brain (vault) for YOUR session only. Type `/brain` for a button picker; or type a name directly (for example `/brain Kim Khi`). After switching, the conversation resets to load the new brain's memory; other people and the dashboard are unaffected. Files you upload land in the selected brain's inbox |
+| `/retry` | Resend the most recent question |
+| `/usage` | Tokens and cost Jarvis 007 has measured today and all time, plus the OpenRouter balance when a key is set |
+| `/tasks` | Background tasks that are running, waiting for review, blocked or queued in the brain selected for this session. Warns you when "Auto-run" is off |
+| `/memory` | Index of the long-term memory of the brain selected for this session |
+| `/plan <task>` | One read-only turn that proposes a plan and does nothing outside. On Telegram this is an instruction to the model, without the hub-level gate the web has |
+| `/stop` | Stop the running answer immediately |
+| `/reset` | Start a new conversation (forgetting the old context) |
+| `/cli` | Switch to the Claude engine (Claude Code) |
+| `/or` | Switch to the OpenRouter engine (chat + multi-model MCP) |
 
-`/notes` không có nhánh xử lý riêng trong bot: nó chạy qua đúng đường của một skill, nên cũng cần engine khác OpenRouter (xem mục dưới). Chi tiết skill này ở [Skills](06-skills.md).
+`/notes` has no special branch inside the bot: it runs through the normal skill path, so it also needs an engine other than OpenRouter (see below). Details of that skill are in [Skills](06-skills.md).
 
-Chi tiết cách gõ `/model`:
+Details on typing `/model`:
 
-- Bảng nút bấm khi gõ `/model`: chọn nhà cung cấp ĐÃ KẾT NỐI (provider đang dùng có dấu ✓ kèm số model), rồi tới lưới model 2 cột, 8 model một trang, nút ◀ ▶ lật trang. Danh sách model lấy TRỰC TIẾP từ nhà cung cấp (OpenRouter hiện đầy đủ vài trăm model, Antigravity hiện đúng dàn model của Antigravity IDE), không phải danh sách cứng.
-- Gõ thẳng tên cũng được: tên có dấu `/` (vd `openai/gpt-4o`) là model OpenRouter; `gpt-...` hoặc `...-codex` là model ChatGPT (cần đã kết nối OAuth); còn lại (vd `opus`, `sonnet`, `fable`) là model Claude.
-- Từ 0.33.7, bảng nút hiện **đủ 10 nhà cung cấp** như trang Models trên dashboard, gồm cả **Antigravity CLI** - trước đó nó là một danh sách chép tay 5 dòng nên mấy nhà thêm sau không đổi được từ điện thoại. Nhà nào chưa liệt kê được model nào (hay gặp: CLI đã cài nhưng chưa đăng nhập) thì ẩn đi cho gọn, trừ nhà đang dùng.
-- Gõ thẳng `/model <tên model>` thì Javis dò tên đó trong danh sách thật của các nhà đã kết nối rồi chuyển đúng nhà. Tên có ở nhiều nhà mà không nhà nào đang dùng thì nó hỏi lại thay vì đoán, vì đoán trượt là âm thầm đổi cả đường tiền (gói thuê bao so với API tính theo lượt gọi).
+- The button picker from `/model`: pick a CONNECTED provider (the one in use has a ✓ and a model count), then a 2-column model grid, 8 models per page, with ◀ ▶ to page. The model list comes DIRECTLY from the provider (OpenRouter shows all several hundred, Antigravity shows exactly the Antigravity IDE lineup) rather than a hardcoded list.
+- Typing a name works too: a name with a `/` (for example `openai/gpt-4o`) is an OpenRouter model; `gpt-...` or `...-codex` is a ChatGPT model (requiring OAuth); anything else (`opus`, `sonnet`, `fable`) is a Claude model.
+- Since 0.33.7 the picker shows **all 10 providers** like the dashboard Models page, **Antigravity CLI** included; before that it was a hand-written 5-row list, so later providers could not be switched to from a phone. Providers listing no models (commonly: the CLI is installed but not signed in) are hidden for tidiness, except the one in use.
+- Typing `/model <model name>` makes Jarvis 007 look that name up in the real lists of connected providers and switch to the right one. If the name exists at several providers and none is currently in use, it asks rather than guessing, because guessing wrong silently changes which account pays (a subscription versus per-call API billing).
 
-## MCP và skill qua Telegram
+## MCP and skills over Telegram
 
-- **Mọi engine đều dùng được MCP của Javis qua Telegram**, vì công cụ đi qua MCP Hub chứ không gắn cứng vào một engine. Chính text `/help` của bot cũng ghi: "ChatGPT/Codex và OpenRouter đều dùng được MCP của Javis." Bạn thấy nó chạy thật khi tin trạng thái hiện dòng "⚙ Đang gọi công cụ: ...".
-- Gọi skill bằng cú pháp `/tên-skill`. Cửa này CÓ chặn một trường hợp: đang ở engine OpenRouter mà gõ `/tên-skill` thì bot nhắc "⚠ Skill cần engine Claude CLI. Gửi /cli để đổi, rồi /tên-skill lại."
-- Đổi engine ngay trong Telegram: gõ `/cli` để về Claude (bot đáp "✅ Provider: Anthropic (Claude Code) - đầy đủ MCP, hỏi POS/Ads/vault được."), `/or` để sang OpenRouter (bot đáp "✅ Provider: OpenRouter (`<model>`) - chat + MCP đa-model."). Đổi ở đây cũng đổi luôn cho toàn hệ Javis (dashboard và bot dùng chung một cấu hình model).
-- Muốn dùng `/or` thì cần đã đặt OpenRouter key trong trang [Models & engine](10-models-va-engine.md); chưa có key bot sẽ nhắc "⚠ Chưa có OpenRouter key - đặt trong Models trên dashboard trước."
+- **Every engine can use Jarvis 007's MCP over Telegram**, because tools go through the MCP Hub rather than being bound to one engine. The bot's own `/help` text says so: ChatGPT/Codex and OpenRouter can both use Jarvis 007's MCP. You see it really happening when the status message shows "⚙ Calling tool: ...".
+- Call a skill with `/skill-name`. This path does block one case: on the OpenRouter engine, typing `/skill-name` makes the bot say "⚠ Skills need the Claude CLI engine. Send /cli to switch, then /skill-name again."
+- Switch engine inside Telegram: `/cli` returns to Claude (the bot replies "✅ Provider: Anthropic (Claude Code), full MCP, POS/Ads/vault questions work."), `/or` moves to OpenRouter (the bot replies "✅ Provider: OpenRouter (`<model>`), chat + multi-model MCP."). Switching here switches the whole Jarvis 007 system (dashboard and bot share one model configuration).
+- To use `/or` you need an OpenRouter key set on the [Models & engines](10-models-va-engine.md) page; without one the bot says "⚠ No OpenRouter key, set it in Models on the dashboard first."
 
-## Giới hạn quyền: chỉ mình bạn dùng bot
+## Access control: only you can use the bot
 
-- Ô **Chat ID được phép dùng** chính là whitelist. Chỉ các tài khoản Telegram có ID trong danh sách mới nhắn được với bot. Người lạ nhắn vào sẽ nhận: "Bạn không có quyền dùng bot Javis này."
-- Nếu để trống ô Chat ID: bất kỳ ai tìm ra bot đều dùng được. Không nên để trống, vì bot có thể chạm vào vault và số liệu của bạn. Luôn đặt ít nhất 1 Chat ID.
-- Cho thêm người dùng chung 1 bot: thêm Chat ID của họ vào ô, cách nhau dấu phẩy, rồi **Lưu & bật**. Nút **Gửi test** sẽ gửi tin thử tới TẤT CẢ ID và báo rõ ID nào lỗi (thường do người đó chưa bấm Start bot).
-- Mỗi người có **mạch hội thoại riêng**: ngữ cảnh của từng Chat ID tách biệt, không lẫn sang người khác, và hai người có thể nhắn cùng lúc mà không phải chờ nhau. `/reset` và `/stop` chỉ tác động phiên của chính người gõ. Tuy vậy tất cả vẫn **chung một vault và cùng quyền** (ai cũng đọc/ghi được dữ liệu, số liệu, brain của bạn) - chỉ thêm ID người bạn tin tưởng. Cần tách bạch hoàn toàn cả dữ liệu thì dựng Javis + bot riêng cho mỗi người.
+- The **Allowed Chat IDs** field is the allow list. Only Telegram accounts whose ID is listed can message the bot. A stranger gets: "You are not allowed to use this Jarvis 007 bot."
+- If you leave the Chat ID field empty, anyone who finds the bot can use it. Do not leave it empty, because the bot can touch your vault and your numbers. Always set at least 1 Chat ID.
+- To share one bot with more people: add their Chat IDs, comma separated, and click **Save & enable**. The **Send test** button messages ALL IDs and reports which failed (usually someone who has not pressed Start).
+- Each person has their **own conversation thread**: each Chat ID's context is separate and does not bleed across, and two people can message at once without waiting for each other. `/reset` and `/stop` only affect the sender's own session. Even so, everyone shares **one vault and the same permissions** (anyone can read and write your data, numbers and brain), so only add IDs you trust. For complete separation of data too, run a separate Jarvis 007 and bot per person.
 
-## Ai nhận thông báo nền
+## Who receives background notifications
 
-Dùng chung bot nhiều người thì phải biết mỗi loại thông báo rơi vào máy ai. Không phải cái gì cũng gửi cho tất cả.
+When several people share a bot, you need to know whose phone each notification reaches. Not everything goes to everyone.
 
-| Loại thông báo | Gửi cho ai |
+| Notification kind | Who receives it |
 |---|---|
-| Kết quả mỗi vòng loop ở [Việc định kỳ](08-viec-dinh-ky.md) chạy xong | ĐÚNG người yêu cầu loop, nếu ID đó nằm trong whitelist. Không rõ người yêu cầu (vd loop tạo trên bản web) thì gửi **ID đầu tiên** trong danh sách |
-| Việc Kanban chạy xong, xem [Việc / Kanban](21-viec-kanban.md) | Giống trên: đúng người yêu cầu, không rõ thì ID đầu tiên |
-| Nhắc hẹn tới giờ | Đúng chat_id đã đặt lịch. Nếu nhắc hẹn không gắn chat_id hoặc chat_id đó không còn trong whitelist thì gửi cho TẤT CẢ ID |
-| Loop tự tạm dừng | TẤT CẢ ID trong whitelist |
-| Đèn báo engine chết (bộ não không phản hồi) | TẤT CẢ ID trong whitelist, mỗi đợt chết chỉ báo một lần |
-| Báo tin Zalo lọt luật, xem [Kênh Zalo](12-zalo.md) | Chủ theo cấu hình listener; không đặt thì ID đầu tiên |
+| The result of each loop iteration on [Recurring jobs](08-viec-dinh-ky.md) | EXACTLY the person who requested the loop, if that ID is on the allow list. When the requester is unknown (for example a loop created on the web), the **first ID** on the list |
+| A finished Kanban job, see [Work / Kanban](21-viec-kanban.md) | As above: the requester, or the first ID when unknown |
+| A reminder coming due | The chat_id that scheduled it. If the reminder has no chat_id, or that chat_id is no longer on the allow list, it goes to ALL IDs |
+| A loop auto-pausing | ALL IDs on the allow list |
+| The engine-down light (the brain stopped responding) | ALL IDs on the allow list, once per outage |
+| A Zalo message matching a rule, see [Zalo channel](12-zalo.md) | The owner set in the listener configuration; unset, the first ID |
 
-Nói gọn: **kết quả công việc đi về đúng người đặt việc**, còn **cảnh báo hệ thống thì báo cho cả nhà**.
+In short: **work results go to whoever asked for the work**, and **system warnings go to the whole household**.
 
-## Hội thoại Telegram nằm chung với lịch sử trên dashboard
+## Telegram conversations share the dashboard history
 
-Mọi lượt hỏi đáp qua Telegram đều được lưu giống hệt khi bạn chat trên dashboard: vào lịch sử hội thoại, vào nhật ký bộ nhớ của brain, và vào vòng tự học. Trong sidebar 🕘 Lịch sử, cuộc đến từ bot mang nhãn **TG** để bạn không lẫn với cuộc tự mở trên web. Xem thêm ở [Phiên hội thoại](04-phien-hoi-thoai.md).
+Every Telegram exchange is saved exactly as if you chatted on the dashboard: into the conversation history, into the brain's memory log, and into the self-learning loop. In the 🕘 History sidebar, conversations from the bot carry a **TG** label so you do not confuse them with ones you opened on the web. See [Sessions](04-phien-hoi-thoai.md).
 
-Hội thoại được gắn theo **brain đang chọn cho phiên Telegram của bạn** (đổi bằng `/brain`), nên nó chỉ hiện khi dashboard đang xem đúng brain đó.
+Conversations are attached to the **brain selected for your Telegram session** (changed with `/brain`), so they only appear while the dashboard is viewing that brain.
 
-### Vì sao cuộc trò chuyện Telegram bị cắt thành nhiều khúc
+### Why Telegram conversations get cut into pieces
 
-Trên dashboard bạn tự bấm "＋ Hội thoại mới" nên một cuộc không bao giờ dài mãi. Trên Telegram thì gần như không ai gõ `/reset`, nên nếu để nguyên thì một Chat ID sẽ dính vào một cuộc dài vô tận, mở ra đọc rất nặng. Javis tự **sang cuộc mới** khi:
+On the dashboard you click "＋ New conversation" yourself, so a conversation never grows forever. On Telegram almost nobody types `/reset`, so left alone one Chat ID would be stuck in one endless conversation that is heavy to open. Jarvis 007 moves to a **new conversation** when:
 
-- bạn nghỉ không nhắn quá **12 tiếng**, hoặc
-- cuộc hiện tại đã đủ dài (khoảng **100 lượt** hỏi đáp), hoặc
-- bạn gõ `/reset`, đổi brain bằng `/brain`, hoặc máy chủ khởi động lại.
+- you go more than **12 hours** without messaging, or
+- the current one is long enough (about **100 exchanges**), or
+- you type `/reset`, switch brains with `/brain`, or the server restarts.
 
-Điều quan trọng: việc cắt khúc này chỉ áp dụng cho **bản lưu để đọc lại**, hoàn toàn **không đụng tới trí nhớ của Javis trong lúc trò chuyện**. Bạn nhắn tiếp bình thường và Javis vẫn nhớ mạch như cũ; chỉ có bên dashboard là thấy lịch sử được chia thành từng khúc dễ đọc thay vì một cục dài.
+The important part: this splitting only affects **the archive you reread**, and does **not touch Jarvis 007's memory during the conversation**. You keep messaging normally and Jarvis 007 keeps the thread; the dashboard simply shows the history in readable pieces rather than one huge block.
 
-Các khúc Telegram cũ hơn **30 ngày** được tự cất vào kho lưu để danh sách không bị ngập. Cất chứ không xoá: nội dung vẫn tìm được bằng ô tìm kiếm.
+Telegram pieces older than **30 days** are archived so the list does not flood. Archived, not deleted: the content is still findable through search.
 
-## Kiểm tra trạng thái bot
+## Checking the bot's state
 
-Có 2 cách:
+Two ways:
 
-1. Trên dashboard: vào **Kênh** (nhóm **Kết nối**), đọc dòng trạng thái dưới thẻ Telegram (mô tả ở Bước 2). Đây là cách nhanh nhất và dễ đọc nhất.
-2. Trong Telegram: gõ `/status`. Bot trả về provider, model, brain đang dùng, phiên của bạn, và cho biết đang xử lý hay đang rảnh.
+1. On the dashboard: open **Admin channels** (the **Connections** group) and read the status on the Telegram tab (described in Step 2). This is the fastest and clearest way.
+2. In Telegram: type `/status`. The bot reports the provider, model, brain in use, your session, and whether it is busy or idle.
 
-Nhóm **Hệ thống** ở đầu trang **Cài đặt** cũng hiện nhanh Telegram "Đang bật" hay "Đang tắt", kèm nút tắt sang thẳng trang **Kênh Admin**; cấu hình chi tiết vẫn nằm ở **Kênh Admin**.
+The **System** group at the top of the **Settings** page also shows Telegram as "On" or "Off" at a glance, with a button jumping to the **Admin channels** page; the detailed configuration stays there.
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference: buttons and states
 
-| Nút / ô | Ở đâu | Tác dụng |
+| Button / field | Where | Effect |
 |---|---|---|
-| Công tắc Bật kênh | Đầu tab Telegram, trang Kênh Admin | Bật/tắt bot NGAY, không cần bấm Lưu. Token vẫn được giữ khi tắt |
-| Bot token | Thẻ Telegram | Token BotFather cấp. Đã đặt rồi thì để trống nếu không muốn đổi |
-| Chat ID được phép dùng | Thẻ Telegram | Whitelist. Nhiều ID cách nhau dấu phẩy |
-| Lưu & bật | Thẻ Telegram | Lưu cấu hình rồi tự khởi động lại bot ngay |
-| Gửi test | Thẻ Telegram | Bắn một tin thử tới mọi ID trong whitelist. KHÔNG chứng minh bot đang nhận tin |
+| Switch at the top | Telegram tab, Admin channels page | Turns the bot on or off IMMEDIATELY, no Save needed. The token is kept while off |
+| Bot token | Telegram card | The token from BotFather. Once set, leave it empty unless changing it |
+| Allowed Chat IDs | Telegram card | The allow list. Several IDs separated by commas |
+| Save & enable | Telegram card | Save the configuration and restart the bot immediately |
+| Send test | Telegram card | Fire a test message to every ID on the allow list. It does NOT prove the bot is receiving |
 
-## Mẹo
+## Tips
 
-- Đổi token hay Chat ID xong luôn bấm lại **Lưu & bật**; Javis tự khởi động lại bot theo cấu hình mới, không cần thao tác gì thêm.
-- Câu trả lời quá dài Telegram tự cắt thành nhiều tin nhắn liên tiếp, đọc bình thường.
-- Muốn hỏi một chủ đề mới hoàn toàn, không dính ngữ cảnh cũ, gõ `/reset` trước.
-- Bot lỡ trả lời lan man hoặc bạn hỏi nhầm, gõ `/stop` để cắt, rồi `/retry` nếu muốn hỏi lại câu vừa rồi.
-- Chộp ảnh hoá đơn, danh thiếp, bảng giá rồi gửi kèm caption `/notes ...` là cách nhanh nhất để nhét một thứ vào brain khi đang đứng ngoài cửa hàng.
-- Trước khi gửi ảnh/file, kiểm tra `/brain` đang trỏ đúng brain bạn muốn: file rơi vào inbox của brain đó chứ không phải brain mặc định.
-- Telegram không hiển thị được bảng markdown, nên Javis được dặn sẵn là trả lời qua kênh này thì viết ngắn kiểu tin nhắn, dùng đậm/nghiêng/`code` thay cho bảng.
-- Trên VPS, bảo mật dashboard bằng mật khẩu ở trang [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md) song song với việc đặt Chat ID cho Telegram.
+- After changing the token or Chat IDs, always click **Save & enable** again; Jarvis 007 restarts the bot with the new configuration and nothing else is needed.
+- Very long answers are split into consecutive messages by Telegram, which read normally.
+- To ask about a completely new topic without old context, type `/reset` first.
+- If the bot rambles or you asked the wrong thing, type `/stop` to cut it, then `/retry` if you want the same question again.
+- Snapping a photo of an invoice, business card or price list with the caption `/notes ...` is the fastest way to push something into the brain while standing in a shop.
+- Before sending an image or file, check that `/brain` points at the brain you want: the file lands in that brain's inbox, not the default one.
+- Telegram cannot render markdown tables, so Jarvis 007 is instructed to answer this channel in short message style, using bold, italics and `code` instead of tables.
+- On a VPS, protect the dashboard with a password on the [Security & accounts](14-bao-mat-tai-khoan.md) page alongside setting Telegram Chat IDs.
 
-## Sự cố thường gặp
+## Common problems
 
-**Dòng trạng thái báo 🔴 409.** Cùng một bot token đang được chạy ở nơi khác (một bản Javis khác, một máy khác, hoặc còn webhook cũ). Một token chỉ được chạy ở đúng 1 nơi. Bot Javis tự xóa webhook khi khởi động; nếu vẫn 409 thì hãy tắt bản Javis kia hoặc tạo bot token mới bằng BotFather. Sau khi xử lý, bấm **Lưu & bật** lại.
+**The status line reads 🔴 409.** The same bot token is being polled elsewhere (another Jarvis 007 instance, another machine, or a leftover webhook). One token may only run in 1 place. The Jarvis 007 bot clears webhooks on startup; if 409 persists, stop the other Jarvis 007 or create a new bot token with BotFather. Afterwards, click **Save & enable** again.
 
-**Bấm Gửi test báo thiếu token hoặc Chat ID.** Bạn chưa lưu đủ. Điền cả token và Chat ID, bấm **Lưu & bật** rồi mới Gửi test.
+**Send test reports a missing token or Chat ID.** You have not saved both. Fill in the token and Chat ID, click **Save & enable**, then test.
 
-**Gửi test thành công nhưng nhắn cho bot không thấy trả lời.** Test và nhận tin là hai việc khác nhau. Kiểm tra dòng trạng thái có phải 🟢 **Bot đang nhận tin** không. Nếu đang ⚪ hoặc 🔴, xử lý theo dòng đó (bật lại, hoặc sửa lỗi 409).
+**The test succeeds but messaging the bot gets no reply.** Testing and receiving are different things. Check whether the status line reads 🟢 **Bot is receiving**. If it is ⚪ or 🔴, act on that line (re-enable it, or fix the 409).
 
-**Nhắn cho bot bị trả lời "Bạn không có quyền dùng bot Javis này."** Chat ID bạn đặt trong Javis không khớp tài khoản đang nhắn. Lấy lại Chat ID đúng bằng @userinfobot, dán vào ô Chat ID rồi Lưu & bật.
+**Messaging the bot returns "You are not allowed to use this Jarvis 007 bot."** The Chat ID set in Jarvis 007 does not match the account messaging it. Get the right Chat ID from @userinfobot, paste it into the Chat ID field and Save & enable.
 
-**Tin "🤔 Javis đang xử lý…" đứng yên không đổi chữ.** Lượt đó chưa gọi công cụ nào nên chưa có gì để báo, hoặc engine đang chờ. Xong việc nó sẽ đổi thành dòng vết (`⚙ ...` hoặc `✓ Trả lời trực tiếp`). Nếu nó kẹt mãi ở "🤔" mà không có câu trả lời nào theo sau thì lượt đó đã hỏng, xem dòng trạng thái ở trang **Kênh Admin**.
+**The "🤔 Jarvis 007 is working…" message never changes.** That turn has not called a tool yet so there is nothing to report, or the engine is waiting. When done it becomes a trail line (`⚙ ...` or `✓ Answered directly`). If it sticks on "🤔" with no answer following, that turn failed; check the status on the **Admin channels** page.
 
-**Gõ `/tên-skill` bị báo cần engine Claude CLI.** Bạn đang ở engine OpenRouter. Gõ `/cli` để chuyển về Claude rồi gọi lại skill.
+**Typing `/skill-name` reports that the Claude CLI engine is needed.** You are on the OpenRouter engine. Type `/cli` to return to Claude, then call the skill again.
 
-**Gửi file lên bot mà Javis nói không đọc được.** Kiểm tra 2 thứ: file có quá 20MB không (trần tải về của Telegram bot API), và có phải video/video note không (Javis chưa xem được hai loại này, hãy gửi dạng file tài liệu hoặc gõ chữ).
+**You sent a file and Jarvis 007 says it cannot read it.** Check 2 things: whether the file is over 20MB (the Telegram bot API download ceiling), and whether it is a video or video note (Jarvis 007 cannot watch those; send it as a document or type instead).
 
-**Gửi tin thoại mà Javis nói cần API key Groq.** Đúng như vậy: phần nghe giọng chạy bằng Whisper của Groq. Vào trang **Models**, mục **Groq (API)**, dán key lấy ở console.groq.com rồi lưu. Không cần tắt bật lại bot.
+**Sending a voice message reports that a Groq API key is needed.** Correct: speech recognition runs on Groq's Whisper. Go to the **Models** page, the **Groq (API)** card, paste a key from console.groq.com and save. No bot restart needed.
 
-**Javis nghe sai chữ.** Thu lại gần micro hơn, nói chậm và tránh chỗ ồn. Câu quá ngắn (một hai từ) cũng dễ nghe nhầm - nói trọn một câu thì chuẩn hơn hẳn. Với việc có tác động ra ngoài, Javis đọc lại câu nghe được rồi mới làm, nên bạn có cơ hội bắt lỗi trước.
+**Jarvis 007 mishears you.** Record closer to the microphone, speak slowly, and avoid noise. Very short utterances (one or two words) are also easy to mishear; a full sentence is far more accurate. For actions with outside effects Jarvis 007 reads back what it heard before acting, so you get a chance to catch it.
 
-**Javis nói đã tạo file nhưng bạn không nhận được.** Chỉ file vừa tạo/sửa trong chính lượt đó, dưới 50MB, tối đa 10 file mỗi lượt mới được tự đính kèm. File cũ thì bảo Javis gửi lại cụ thể tên file.
+**Jarvis 007 says it created a file but you did not receive it.** Only files created or edited in that same turn, under 50MB, at most 10 per turn, are auto-attached. For an older file, ask Jarvis 007 to resend it by name.
 
-**Ảnh cũ trong hội thoại hiện ô xám "Ảnh đã hết hạn".** Vùng cache media (`attachments/` và `inbox/`) đã dọn file quá 30 ngày hoặc vượt trần 300MB. Nội dung đã rút thành ghi chú `.md` vẫn còn nguyên.
+**An old image in the conversation shows a grey "Image expired" box.** The media cache (`attachments/` and `inbox/`) cleaned files older than 30 days or over the 300MB ceiling. Content already distilled into `.md` notes is untouched.
 
-**Đổi cấu hình xong bot vẫn như cũ.** Chờ vài giây rồi tải lại trang **Kênh Admin** để dòng trạng thái cập nhật. Nếu vẫn không lên 🟢, xem thêm [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+**You changed the configuration and the bot behaves as before.** Wait a few seconds and reload the **Admin channels** page so the status updates. If it still is not 🟢, see [Troubleshooting & FAQ](17-khac-phuc-su-co.md).
 
-## Mức tiết kiệm token áp dụng luôn cho Telegram
+## Token saving applies to Telegram too
 
-Từ **0.24.0**, mức bạn chọn ở trang Cài đặt (**Tối ưu** / **Siêu tiết kiệm**) có hiệu lực cho cả kênh Telegram, không riêng chat trên dashboard.
+Since **0.24.0**, the level you pick on the Settings page (**Optimised** / **Ultra saving**) applies to the Telegram channel as well, not only dashboard chat.
 
-Trước đó cả hai mức chỉ được nối vào trang dashboard, nên bấm bật xong thì mỗi lượt Telegram vẫn gửi nguyên `CLAUDE.md` + `MEMORY.md`. Không có lỗi nào hiện ra - chỉ là hoá đơn token không giảm ở đúng kênh nhiều người dùng nhất.
+Before that, both levels were wired only into the dashboard, so enabling them still sent the whole of `CLAUDE.md` + `MEMORY.md` on every Telegram turn. No error appeared; the token bill simply did not drop on the channel most people use most.
 
-Hai mức làm gì:
+What the two levels do:
 
-- **Tối ưu**: thay `CLAUDE.md` + `MEMORY.md` bằng phần ký ức và skill chọn lọc theo đúng câu bạn vừa hỏi.
-- **Siêu tiết kiệm**: câu nào không cần tra cứu gì (ví dụ hỏi đáp thường, tính toán ngắn) thì gọi model **đúng một vòng** với một capsule nhỏ, không nạp bảng công cụ.
+- **Optimised**: replaces `CLAUDE.md` + `MEMORY.md` with the memories and skills selected for the question you just asked.
+- **Ultra saving**: for questions needing no lookup (ordinary Q&A, short calculations), calls the model **exactly once** with a small capsule and no tool table loaded.
 
-Câu cần tra cứu, cần gọi nguồn dữ liệu, hay có kèm file thì tự đi đường đầy đủ như cũ - đường tắt chỉ nhận những lượt nó chắc chắn trả lời được. Đường tắt hụt (token gói thuê bao hết hạn chẳng hạn) cũng tự lui về đường đầy đủ, bạn vẫn có câu trả lời.
+Questions needing lookups, data sources or attached files take the full path as before; the shortcut only accepts turns it is certain it can answer. A shortcut that misses (a subscription token expiring, say) also falls back to the full path, so you still get an answer.
 
-Lệnh điều khiển lịch (`huỷ lịch...`) luôn do gateway lịch xử lý, đường tắt không cướp lượt đó.
+Schedule commands ("cancel the reminder...") are always handled by the schedule gateway; the shortcut never steals those turns.
 
-## Liên quan
+## Related
 
-- [Models & engine](10-models-va-engine.md) - chọn provider và model cho cả dashboard lẫn bot.
-- [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md) - đấu nguồn dữ liệu để hỏi số liệu thật qua Telegram.
-- [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md) và [Việc / Kanban](21-viec-kanban.md) - nơi sinh ra các báo cáo nền gửi về bot.
-- [Kênh Zalo](12-zalo.md) - kênh còn lại, đọc và báo tin Zalo về chính bot Telegram này.
-- [Quản lý tệp tin](05-quan-ly-tep-tin.md) - xem file bạn gửi lên nằm ở đâu trong brain.
-- [Cấu hình .env](16-cau-hinh-env.md) - cấu hình nâng cao qua file môi trường.
+- [Models & engines](10-models-va-engine.md) - choosing the provider and model for both dashboard and bot.
+- [Connections & business data](09-mcp-va-so-lieu.md) - wiring data sources so you can ask for real numbers over Telegram.
+- [Recurring jobs & reminders](08-viec-dinh-ky.md) and [Work / Kanban](21-viec-kanban.md) - where the background reports sent to the bot come from.
+- [Zalo channel](12-zalo.md) - the other channel, which reads and reports Zalo messages into this same Telegram bot.
+- [File manager](05-quan-ly-tep-tin.md) - seeing where uploaded files land in the brain.
+- [.env configuration](16-cau-hinh-env.md) - advanced configuration through the environment file.

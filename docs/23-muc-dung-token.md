@@ -1,243 +1,243 @@
-# Mức dùng: token & chi phí
+# Usage: tokens and cost
 
 ***Tiếng Việt** · [English](en/23-usage-and-cost.md)*
 
-Trang **Mức dùng** trả lời hai câu hỏi đi liền nhau: *bạn đã đốt bao nhiêu token* và *làm sao đốt ít đi*. Javis tự đo lấy con số này từ log thật trên máy, không phải xin từ nhà cung cấp, nên bạn thấy được cả phần mà Claude hay ChatGPT không bao giờ lộ ra: phần do chính Javis chạy nền tiêu tốn.
+The **Usage** page answers two questions that go together: *how many tokens you burned* and *how to burn fewer*. Jarvis 007 measures these numbers itself from the real logs on the machine rather than asking the provider, so you also see the part Claude and ChatGPT never reveal: what Jarvis 007's own background runs consumed.
 
-Ngay đầu trang là khối **Chế độ tiết kiệm token** với ba nút. Từ bản 0.24.7 nó nằm ở đây; trước đó là một trang riêng tên "Tiết kiệm" trong thanh bên. Gộp lại vì tách hai chỗ thì người dùng đọc hết hoá đơn mà không bao giờ thấy cái công tắc.
+At the very top of the page is the **Token saving mode** block with three buttons. It has been here since version 0.24.7; before that it was a separate "Saving" page on the sidebar. They were merged because when they were apart, people read the whole bill and never saw the switch.
 
-Trang này hướng dẫn chọn mức tiết kiệm, rồi đọc từng thẻ, từng đồ thị, từng bảng, và cách dùng nó để tìm chỗ đang ăn hạn mức của bạn.
+This page covers choosing the saving level, then reading each card, each chart and each table, and how to use it to find what is eating your quota.
 
-## Tính năng này là gì
+## What this feature is
 
-Javis nhìn thấy số token vào/ra trong **mọi** lượt trả lời, bất kể lượt đó chạy qua engine nào (Claude Code, ChatGPT/Codex, OpenRouter, OpenAI, Anthropic). Vì thế con số ở đây là con số đồng nhất, **không phụ thuộc nhà cung cấp có cho xem hạn mức hay không**.
+Jarvis 007 sees the input and output tokens of **every** answer, whichever engine ran it (Claude Code, ChatGPT/Codex, OpenRouter, OpenAI, Anthropic). So the numbers here are consistent, **regardless of whether the provider exposes quotas at all**.
 
-Hai điều phải nhớ trước khi đọc bất cứ số nào:
+Two things to remember before reading any number:
 
-- **Đây là lượng BẠN ĐÃ DÙNG, không phải hạn mức còn lại của gói thuê bao.** Đa số nhà cung cấp không cho lấy hạn mức qua API. Trang này đếm những gì đã đi qua, chứ không biết gói của bạn còn bao nhiêu. Ngoại lệ duy nhất là OpenRouter (xem mục dưới).
-- **Chi phí trên trang là QUY ĐỔI, không phải tiền thật.** Với gói thuê bao Claude hay ChatGPT, con số đô la chỉ trả lời "nếu tính theo giá API thì việc này đáng bao nhiêu". Chỉ OpenRouter mới là tiền thật.
+- **This is what YOU HAVE USED, not what remains of a subscription quota.** Most providers do not expose the quota through an API. This page counts what went past, and does not know how much of your plan is left. The one exception is OpenRouter (see below).
+- **The cost on the page is a CONVERSION, not real money.** With a Claude or ChatGPT subscription, the dollar figure only answers "what would this have been worth at API prices". Only OpenRouter is real money.
 
-Trang cho bạn: bộ lọc 8 kỳ và 4 nhà cung cấp, các thẻ tổng kèm so kỳ trước, đồ thị token theo ngày, ba biểu đồ cột bóc tách (nguồn tiêu / hoạt động / nhà cung cấp), hai bảng xếp hạng (model và dự án), và một danh sách đề xuất tiết kiệm tự sinh.
+The page gives you: a filter of 8 periods and 4 providers, summary cards with a comparison against the previous period, a per-day token chart, three breakdown bar charts (consumption source / activity / provider), two ranking tables (models and projects), and an auto-generated list of saving suggestions.
 
-## Mở ở đâu trong Javis
+## Where to open it in Jarvis 007
 
-Mở dashboard (mặc định tại cổng 7777). Trên thanh điều hướng bên trái, bấm mở nhóm **Hệ thống** (nhóm này được ghim ở đáy thanh), chọn **Cài đặt → Mức dùng**.
+Open the dashboard (default port 7777). On the left navigation rail, open the **System** group (pinned at the bottom of the rail), then choose **Settings → Usage**.
 
-Tab **Mức dùng** chứa các bộ lọc, thống kê token và chi phí.
+The **Usage** tab contains the filters, token statistics and costs.
 
-## Chế độ tiết kiệm token (khối đầu trang)
+## Token saving mode (the block at the top)
 
-Mỗi lần bạn chat, Javis phải gửi kèm một mớ thông tin nền cho model: nó là ai, có công cụ nào, nhớ gì về bạn, đã nói gì trước đó. Mớ đó tốn tiền và ăn vào hạn mức. Ba nút ở đây quyết định mớ đó to bao nhiêu.
+Every time you chat, Jarvis 007 has to send the model a pile of background information: who it is, which tools it has, what it remembers about you, what was said before. That pile costs money and eats quota. The three buttons here decide how big it is.
 
-- **Tắt** - chế độ Đầy đủ. Gửi mọi thứ, mỗi lượt. An toàn nhất, tốn nhất.
-- **Tối ưu** - chỉ gửi phần liên quan tới câu vừa hỏi: bộ nhớ có chọn lọc, skill nạp khi cần.
-- **Siêu tiết kiệm** - như Tối ưu, cộng thêm đường tắt cho câu hỏi đơn giản không cần tra cứu gì. **Đây là mặc định từ bản 0.24.7.**
+- **Off** - the Full mode. Everything, every turn. The safest, the most expensive.
+- **Optimised** - only what relates to the question just asked: selective memory, skills loaded on demand.
+- **Ultra-saving** - like Optimised, plus a shortcut for simple questions that need no lookup. **This is the default since version 0.24.7.**
 
-Mỗi nút ghi sẵn nó tiết kiệm bao nhiêu phần trăm và còn bao nhiêu token mỗi lượt. Con số đó là **ước lượng đo trên chính bộ não và bộ nhớ của bạn**, không phải số quảng cáo, nên hai máy khác nhau sẽ thấy hai con số khác nhau.
+Each button states how much it saves as a percentage and how many tokens per turn remain. That figure is **measured on your own brain and memory**, not a marketing number, so two machines will show two different numbers.
 
-Nếu bộ não bạn đang chạy không ăn được một mức nào đó, nút của mức ấy ghi thẳng *"không áp cho bộ não đang dùng"*. Ví dụ đường tắt của Siêu tiết kiệm chỉ chạy trên bộ não dùng API key, nên với gói thuê bao thì nó bằng đúng mức Tối ưu.
+If the brain you are running does not support a level, that level's button says outright *"not applicable to the brain in use"*. For example the Ultra-saving shortcut only runs on API-key brains, so on a subscription plan it equals the Optimised level.
 
-Khi đã có đủ lượt chạy ở cả hai chế độ trong 24 giờ, một khối số **đo thật** hiện ngay dưới ba nút: token mỗi lượt ở chế độ Đầy đủ, token mỗi lượt khi tiết kiệm, và phần trăm giảm được. Đây là số thật, không phải ước lượng.
+Once enough turns have run in both modes within 24 hours, a **measured** number block appears right under the three buttons: tokens per turn in Full mode, tokens per turn while saving, and the percentage saved. Those are real numbers, not estimates.
 
-**Đổi mức có hiệu lực ngay**, không cần khởi động lại. Thấy Javis trả lời tệ đi thì bấm **Tắt** là quay lại như cũ lập tức.
+**A level change takes effect immediately**, no restart needed. If Jarvis 007 starts answering worse, clicking **Off** returns it to how it was at once.
 
-### Vì sao mặc định là Siêu tiết kiệm
+### Why the default is Ultra-saving
 
-Trước 0.24.7 mặc định là **Tắt**, và gần như không ai tự bật - nghĩa là đa số đang trả tiền cho chế độ đắt nhất mà không biết. Đo trên một brain mẫu: mức Tắt tốn khoảng 8.900 token cố định mỗi lượt, mức Siêu tiết kiệm khoảng 460.
+Before 0.24.7 the default was **Off**, and almost nobody turned it on, meaning most people were paying for the most expensive mode without knowing. Measured on a sample brain: Off costs about 8,900 fixed tokens per turn, Ultra-saving about 460.
 
-Đây là mặc định an toàn được, không phải liều: mọi đường trong mức này đều **fail-closed**. Thiếu điều kiện thì lượt đó tự rơi về chế độ Đầy đủ chứ không trả lời sai.
+This is a safe default rather than a gamble: every path in this mode is **fail-closed**. Missing a prerequisite makes that turn drop back to Full mode rather than answering wrong.
 
-Nếu bạn **đã từng tự bấm một mức**, Javis ghim lựa chọn đó lại và không bản cập nhật nào đổi nó nữa - kể cả khi bạn cố ý bấm **Tắt**. Dòng chữ dưới ba nút cho biết bạn đang ở mặc định hay ở lựa chọn của mình.
+If you **ever clicked a level yourself**, Jarvis 007 pins that choice and no update changes it again, even when you deliberately clicked **Off**. The line under the three buttons tells you whether you are on the default or on your own choice.
 
-## Cách dùng (từng bước)
+## How to use it (step by step)
 
-### Bước 1: Mở trang và chờ quét lần đầu
+### Step 1: Open the page and wait for the first scan
 
-Vừa vào, trang hiện dòng "Đang dựng chỉ số token...". Lần mở đầu tiên Javis **quét lại log** rồi mới vẽ, nên có thể chậm vài giây nếu bạn đã dùng nhiều tháng. Những lần đổi bộ lọc sau đó thì không quét nữa, chỉ đọc lại từ chỉ mục nên rất nhanh.
+On arrival, the page reads "Building the token index...". The first opening makes Jarvis 007 **re-scan the logs** before drawing, so it can take a few seconds if you have used it for months. Later filter changes do not scan again, only reading the index, so they are very fast.
 
-Nếu trang báo "Không tải được số liệu token." thì server chưa trả được dữ liệu, xem mục Sự cố thường gặp.
+If the page reports "Could not load token data", the server has not returned anything, see Common problems.
 
-### Bước 2: Chọn kỳ
+### Step 2: Choose the period
 
-Hàng đầu tiên là 8 nút bấm kỳ: **Hôm nay**, **Hôm qua**, **Tuần này**, **Tuần trước**, **Tháng này**, **Tháng trước**, **3 tháng**, **Năm nay**. Kỳ đang chọn được tô màu nhấn. Mặc định khi mở trang là **Tháng này**.
+The first row is 8 period buttons: **Today**, **Yesterday**, **This week**, **Last week**, **This month**, **Last month**, **3 months**, **This year**. The selected period is highlighted. The page opens on **This month** by default.
 
-Mỗi kỳ tự so với kỳ tương đương liền trước, và kết quả so sánh hiện ngay dưới thẻ "Tổng token".
+Each period compares itself against the equivalent preceding one, and the comparison appears right under the "Total tokens" card.
 
-### Bước 3: Lọc theo nhà cung cấp
+### Step 3: Filter by provider
 
-Ngay bên phải dãy nút kỳ là một cụm 4 nút liền nhau: **Tất cả** (mặc định), **Claude Code**, **ChatGPT**, **API**. Bấm để chỉ xem một nguồn.
+Just to the right of the period buttons is a joined group of 4: **All** (the default), **Claude Code**, **ChatGPT**, **API**. Click one to see a single source.
 
-Bộ lọc này ảnh hưởng tới các thẻ tổng, đồ thị và các bảng bóc tách. Riêng phần **Đề xuất** ở cuối trang luôn tính trên toàn bộ nhà cung cấp, không theo bộ lọc này.
+This filter affects the summary cards, the chart and the breakdown tables. The **Suggestions** section at the bottom of the page always computes across every provider, ignoring this filter.
 
-### Bước 4: Đọc các thẻ tổng
+### Step 4: Read the summary cards
 
-Hàng thẻ ngay dưới bộ lọc:
+The card row right under the filters:
 
-| Thẻ | Con số | Dòng dưới |
+| Card | The number | The line below |
 |---|---|---|
-| **Tổng token** | Tổng token trong kỳ (đã gồm token đọc-cache) | "▲ x%" hoặc "▼ x%" kèm chữ "vs kỳ trước"; chưa có số kỳ trước thì ghi "kỳ trước chưa có số" |
-| **Token/ngày** | Trung bình mỗi ngày trong kỳ | "trung bình trong kỳ" |
-| **Cache hit** | Tỷ lệ phần trăm token đầu vào là đọc lại cache | "tái dùng ngữ cảnh (cao = rẻ)" |
-| **Phiên** | Số phiên có phát sinh token trong kỳ | "tb ... /phiên" - trung bình token mỗi phiên |
-| **Chi phí quy đổi** | Tiền quy đổi theo bảng giá API | "nếu tính giá API" |
-| **OpenRouter còn** | Số dư thật còn lại (chỉ hiện khi đã cắm key OpenRouter) | "tiền thật đã dùng $..." |
+| **Total tokens** | Total tokens in the period (cache-read tokens included) | "▲ x%" or "▼ x%" with "vs the previous period"; with no prior figure it reads "no figure for the previous period" |
+| **Tokens/day** | The daily average across the period | "average in the period" |
+| **Cache hit** | The percentage of input tokens that were cache reads | "context reuse (high = cheap)" |
+| **Sessions** | Sessions that produced tokens in the period | "avg ... /session" - average tokens per session |
+| **Converted cost** | Money converted at API list prices | "at API prices" |
+| **OpenRouter left** | The real remaining balance (shown only when an OpenRouter key is attached) | "real money spent $..." |
 
-Lưu ý màu của mũi tên: **▲ (tăng) tô đỏ, ▼ (giảm) tô xanh**. Ở đây tăng là tin xấu chứ không phải tin tốt.
+Note the arrow colours: **▲ (up) is red, ▼ (down) is green**. Here up is bad news, not good.
 
-Về **Cache hit**: "Tổng token" gồm cả token đọc-cache nên nhìn rất lớn. Cache hit cao nghĩa là phần lớn con số khổng lồ đó chỉ là đọc lại ngữ cảnh cũ (rất rẻ), chứ không phải nạp mới. Nên đọc hai thẻ này cùng nhau.
+About **Cache hit**: "Total tokens" includes cache-read tokens so it looks very large. A high cache hit means most of that huge number is only re-reading old context (very cheap) rather than loading new. Read these two cards together.
 
-### Bước 5: Xem đồ thị token theo ngày
+### Step 5: Look at the per-day token chart
 
-Mục **Token theo ngày** vẽ mỗi ngày một cột. Cột được xếp chồng 3 màu theo nhà cung cấp, có chú thích ngay dưới:
+The **Tokens by day** section draws one bar per day. Each bar stacks 3 colours by provider, with a legend right below:
 
-- **Claude** - màu nhấn của giao diện
-- **ChatGPT** - xanh lá
-- **API** - xanh dương
+- **Claude** - the interface accent colour
+- **ChatGPT** - green
+- **API** - blue
 
-Trục ngang ghi ngày trong tháng. Rê chuột lên một cột hiện chú thích dạng "2026-07-29: 12.3M token". Kỳ dài (3 tháng, Năm nay) thì đồ thị cuộn ngang.
+The horizontal axis shows days of the month. Hovering a bar shows a tooltip like "2026-07-29: 12.3M tokens". Long periods (3 months, This year) make the chart scroll horizontally.
 
-### Bước 6: Tìm chỗ đang ngốn token
+### Step 6: Find what is eating tokens
 
-Phần dưới đồ thị là ba biểu đồ cột ngang, đây là chỗ quan trọng nhất của trang:
+Below the chart are three horizontal bar charts, the most important part of the page:
 
-- **Nguồn tiêu (bạn vs Javis)** - hai dòng: "Bạn gõ tay" và "Javis (tự chạy)".
-- **Hoạt động** - bốn dòng: "Chat", "Nền (loop/lịch)", "Subagent", "Thủ công".
+- **Consumption source (you vs Jarvis 007)** - two rows: "You typing" and "Jarvis 007 (running itself)".
+- **Activity** - four rows: "Chat", "Background (loop/schedule)", "Subagent", "Manual".
 - **Provider** - "Claude Code", "ChatGPT/Codex", "API (OpenRouter...)".
 
-Ý nghĩa từng nhãn nằm ở mục [Nguồn tiêu và loại hoạt động](#nguồn-tiêu-và-loại-hoạt-động) bên dưới.
+The meaning of each label is in [Consumption source and activity type](#consumption-source-and-activity-type) below.
 
-Kế đó là hai bảng xếp hạng, mỗi bảng hiện tối đa 8 dòng:
+Next are two ranking tables, each showing at most 8 rows:
 
-- **Model ngốn nhất**: cột Model, Token, Quy đổi. Tên model được rút gọn cho vừa (bỏ tiền tố `claude-` / `gpt-`, cắt bớt phần đuôi dài). Cột Quy đổi hiện "-" khi model đó không có trong bảng giá.
-- **Dự án ngốn nhất**: cột Dự án, Token, Phiên. "Dự án" là tên brain nếu Javis nhận ra phiên đó thuộc brain nào, còn lại là tên thư mục làm việc.
+- **Hungriest models**: the Model, Tokens and Converted columns. Model names are shortened to fit (dropping the `claude-` / `gpt-` prefix, trimming long tails). The Converted column shows "-" when that model is not in the price table.
+- **Hungriest projects**: the Project, Tokens and Sessions columns. "Project" is the brain name when Jarvis 007 recognises which brain the session belonged to, otherwise the working folder name.
 
-### Bước 7: Đọc phần Đề xuất
+### Step 7: Read the Suggestions section
 
-Nếu số liệu chạm ngưỡng, Javis sinh các thẻ đề xuất ở cuối trang. Thẻ ⚠️ viền cam là việc nên làm, thẻ 💡 viền xanh là gợi ý. Chi tiết ngưỡng ở mục [Các đề xuất tiết kiệm](#các-đề-xuất-tiết-kiệm).
+When the figures cross a threshold, Jarvis 007 generates suggestion cards at the bottom of the page. An ⚠️ card with an orange border is something you should do, a 💡 card with a blue border is a hint. Threshold details are in [Saving suggestions](#saving-suggestions).
 
-Không có thẻ nào nghĩa là mọi chỉ số đang trong ngưỡng bình thường, không phải lỗi.
+No cards at all means every metric is within normal bounds, not that something is broken.
 
-## Bảng tra nhanh 8 kỳ
+## Quick reference of the 8 periods
 
-Mọi mốc ngày tính theo giờ Việt Nam (UTC+7).
+Every date boundary follows Vietnam time (UTC+7).
 
-| Nút | Kỳ đang xem | So với |
+| Button | The period shown | Compared against |
 |---|---|---|
-| **Hôm nay** | Hôm nay | Hôm qua |
-| **Hôm qua** | Hôm qua | Hôm kia |
-| **Tuần này** | Thứ Hai đến hôm nay | Cùng đoạn của tuần trước |
-| **Tuần trước** | Thứ Hai đến Chủ nhật tuần trước | Tuần trước nữa |
-| **Tháng này** | Mùng 1 đến hôm nay | Cùng số ngày đầu của tháng trước |
-| **Tháng trước** | Trọn tháng trước | Trọn tháng trước nữa |
-| **3 tháng** | 90 ngày gần nhất | 90 ngày liền trước đó |
-| **Năm nay** | 1/1 đến hôm nay | 1/1 năm ngoái đến cùng ngày năm ngoái |
+| **Today** | Today | Yesterday |
+| **Yesterday** | Yesterday | The day before |
+| **This week** | Monday to today | The same stretch of last week |
+| **Last week** | Monday to Sunday last week | The week before that |
+| **This month** | The 1st to today | The same number of opening days last month |
+| **Last month** | The whole of last month | The whole month before that |
+| **3 months** | The last 90 days | The 90 days immediately before |
+| **This year** | 1 January to today | 1 January last year to the same date last year |
 
-Cách so của "Tuần này" và "Tháng này" là cố ý: kỳ đang chạy dở chỉ so với **đúng đoạn tương ứng** của kỳ trước, chứ không so với cả kỳ trọn vẹn. Nếu không thì ngày mùng 3 nào cũng báo giảm 90%.
+The comparison used by "This week" and "This month" is deliberate: a period still in progress is compared only against **the matching stretch** of the previous period, not the whole of it. Otherwise every 3rd of the month would report a 90% drop.
 
-## Nguồn tiêu và loại hoạt động
+## Consumption source and activity type
 
-Đây là chỗ để biết **cái gì đang ăn hạn mức của bạn**, và cũng là thứ mà bảng thống kê của nhà cung cấp không cho bạn thấy.
+This is where you learn **what is eating your quota**, and it is exactly what the provider's own statistics do not show you.
 
-**Nguồn tiêu** chia hai:
+**Consumption source** splits in two:
 
-| Nhãn | Nghĩa là gì |
+| Label | What it means |
 |---|---|
-| **Bạn gõ tay** | Phiên bạn tự mở `claude` trong terminal, không đi qua Javis |
-| **Javis (tự chạy)** | Phiên do Javis khởi động qua Agent SDK: chat trên dashboard, chat qua Telegram, việc nền, workflow |
+| **You typing** | Sessions where you opened `claude` in a terminal yourself, not through Jarvis 007 |
+| **Jarvis 007 (running itself)** | Sessions Jarvis 007 started through the Agent SDK: dashboard chat, Telegram chat, background work, workflows |
 
-**Hoạt động** chia bốn:
+**Activity** splits in four:
 
-| Nhãn | Nghĩa là gì |
+| Label | What it means |
 |---|---|
-| **Chat** | Lượt gắn với một phiên hội thoại có thật trong lịch sử của bạn, kể cả các mạch cũ của nó trước khi Javis nén hội thoại dài sang mạch mới |
-| **Nền (loop/lịch)** | Lượt do Javis tự chạy mà không gắn phiên hội thoại nào: việc định kỳ, nhắc hẹn, việc Kanban, tiêu hoá nguồn, tự học |
-| **Subagent** | Lượt do một agent con được engine gọi ra để làm việc phụ |
-| **Thủ công** | Lượt của phiên bạn gõ tay ngoài Javis |
+| **Chat** | Turns tied to a real conversation session in your history, including that session's earlier threads from before Jarvis 007 compressed a long conversation into a new thread |
+| **Background (loop/schedule)** | Turns Jarvis 007 ran with no conversation session attached: recurring jobs, reminders, Kanban work, digesting sources, self-learning |
+| **Subagent** | Turns from a child agent the engine spawned for a side job |
+| **Manual** | Turns from sessions you typed yourself outside Jarvis 007 |
 
-Trước 0.107.0 mỗi lần hội thoại dài được nén sang mạch mới thì mạch cũ bị tính thành Nền, nên Nền phình to giả (đo 07-13/10/2026: 514,6 triệu trong 722,9 triệu token "nền" thật ra là chat). Bản 0.107.0 nhớ mọi mạch của một hội thoại và quét lại chỉ số một lần để chia lại cho đúng.
+Before 0.107.0, each time a long conversation was compressed into a new thread, the old thread was counted as Background, so Background swelled falsely (measured 7-13 October 2026: 514.6 million of 722.9 million "background" tokens were actually chat). Version 0.107.0 remembers every thread of a conversation and re-scans the index once to split them correctly.
 
-Cột **Nền (loop/lịch)** phình to là dấu hiệu rõ nhất rằng bạn đang có loop chạy quá dày. Xem lại chúng ở trang **Việc định kỳ** ([Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md)) hoặc trang **Việc** ([Việc / Kanban](21-viec-kanban.md)).
+A swelling **Background (loop/schedule)** bar is the clearest sign you have loops running too often. Review them on the **Recurring jobs** page ([Recurring jobs and reminders](08-viec-dinh-ky.md)) or the **Work** page ([Work / Kanban](21-viec-kanban.md)).
 
-Một hạn chế cần biết: **cách chia này chỉ chính xác với Claude Code.** Với ChatGPT/Codex, Javis chưa tách được nền khỏi chat nên mọi lượt đều rơi vào "Javis (tự chạy)" + "Chat". Nhánh API cũng vậy.
+One limitation to know: **this split is only accurate for Claude Code.** For ChatGPT/Codex, Jarvis 007 cannot yet separate background from chat, so every turn falls into "Jarvis 007 (running itself)" + "Chat". The API branch is the same.
 
-## Chi phí quy đổi và tiền thật
+## Converted cost and real money
 
-Cột **Chi phí quy đổi** và cột **Quy đổi** trong bảng model được tính từ một bảng giá cố định (USD trên mỗi triệu token) đi kèm app, tại `server/usage_pricing.json`. Bảng hiện có giá cho các dòng `claude-opus`, `claude-sonnet`, `claude-haiku`, `claude-fable`, `gpt-5`, `gpt-4o`. Model được khớp theo tiền tố dài nhất; **model không có trong bảng thì chi phí tính bằng 0** và hiện dấu "-".
+The **Converted cost** card and the **Converted** column in the model table are computed from a fixed price table (USD per million tokens) shipped with the app at `server/usage_pricing.json`. It currently has prices for the `claude-opus`, `claude-sonnet`, `claude-haiku`, `claude-fable`, `gpt-5` and `gpt-4o` families. Models are matched by longest prefix; **a model absent from the table has its cost counted as 0** and shows "-".
 
-Nghĩa là con số quy đổi luôn là ước lượng, và luôn thấp hơn thực tế nếu bạn dùng model chưa có trong bảng giá. Muốn chính xác hơn thì sửa file đó bằng tay rồi khởi động lại server.
+So the converted figure is always an estimate, and always lower than reality if you use a model not in the price table. For more accuracy, edit that file by hand and restart the server.
 
-**Số dư thật của OpenRouter** là thứ duy nhất trên trang này là tiền thật. Thẻ "OpenRouter còn" chỉ xuất hiện khi bạn đã lưu key OpenRouter ở trang **Models** (nhóm Kết nối). Javis hỏi thẳng OpenRouter số tín dụng đã nạp và đã dùng, rồi hiện phần còn lại kèm dòng "tiền thật đã dùng $...". Không cắm key thì không có thẻ này, và không có nhà cung cấp nào khác cho lấy số tương đương.
+**OpenRouter's real balance** is the one thing on this page that is real money. The "OpenRouter left" card only appears once you have saved an OpenRouter key on the **Models** page (the Connections group). Jarvis 007 asks OpenRouter directly how much credit was added and used, then shows the remainder with the line "real money spent $...". With no key there is no card, and no other provider exposes an equivalent figure.
 
-## Các đề xuất tiết kiệm
+## Saving suggestions
 
-Danh sách này tự sinh từ chính số liệu của kỳ đang xem. Các ngưỡng đặt trong `server/usage_index.py`:
+This list is generated from the figures of the period you are viewing. The thresholds live in `server/usage_index.py`:
 
-| Đề xuất | Xuất hiện khi | Mức |
+| Suggestion | Appears when | Level |
 |---|---|---|
-| **Cache hit thấp (x%)** | Cache hit dưới 50%, và kỳ đủ lớn (từ 200.000 token đầu vào trở lên) | ⚠️ |
-| **Hoạt động ngầm chiếm x% token** | Phần "Nền (loop/lịch)" chiếm từ 25% tổng token | ⚠️ |
-| **Opus chiếm x% token** | Các model `claude-opus` chiếm từ 50% tổng token | 💡 |
-| **Có phiên phình to (x token vào)** | Một phiên nạp từ 1 triệu token đầu vào | ⚠️ |
-| **Token/ngày tăng x% so kỳ trước** | Token mỗi ngày của kỳ này gấp từ 1,5 lần kỳ trước | ⚠️ |
+| **Low cache hit (x%)** | The cache hit is under 50% and the period is large enough (200,000 input tokens or more) | ⚠️ |
+| **Background activity takes x% of tokens** | The "Background (loop/schedule)" share reaches 25% of total tokens | ⚠️ |
+| **Opus takes x% of tokens** | The `claude-opus` models reach 50% of total tokens | 💡 |
+| **A session has ballooned (x input tokens)** | One session loaded 1 million input tokens or more | ⚠️ |
+| **Tokens/day up x% against the previous period** | This period's daily tokens are 1.5 times the previous period's or more | ⚠️ |
 
-Mỗi thẻ kèm một dòng gợi ý hành động cụ thể, ví dụ đề xuất cache thấp khuyên dùng `/compact` hoặc chia phiên, đề xuất opus khuyên hạ model cho việc nhẹ. Ngưỡng 200.000 token cho cảnh báo cache là để trang không kêu ầm lên khi bạn mới dùng vài phút.
+Each card carries a specific suggested action, for example the low-cache suggestion recommends `/compact` or splitting the session, and the opus suggestion recommends downgrading the model for light work. The 200,000-token threshold on the cache warning exists so the page does not shout after you have used it for a few minutes.
 
-## Số liệu này lấy từ đâu
+## Where these figures come from
 
-Javis không gọi API nào của nhà cung cấp để lấy thống kê. Nó **đọc lại log thô trên chính máy bạn** rồi dựng chỉ mục riêng:
+Jarvis 007 calls no provider API for statistics. It **re-reads the raw logs on your own machine** then builds its own index:
 
-| Nguồn | Ở đâu | Cho ra |
+| Source | Where | What it gives |
 |---|---|---|
-| Log Claude Code | `~/.claude/projects/**/*.jsonl` | Cột Claude, đủ cả cache, phân loại chat/nền/subagent |
-| Log Codex | `~/.codex/sessions/**/rollout-*.jsonl` | Cột ChatGPT, mỗi file là một phiên |
-| Nhật ký nội bộ | `usage-events.jsonl` trong thư mục state | Cột API, và là nguồn dự phòng cho Claude/ChatGPT |
-| Kho phiên hội thoại | `conversations.db` trong thư mục state | Dùng để biết lượt nào là chat thật, lượt nào là chạy nền |
+| Claude Code logs | `~/.claude/projects/**/*.jsonl` | The Claude column, cache included, with chat/background/subagent classification |
+| Codex logs | `~/.codex/sessions/**/rollout-*.jsonl` | The ChatGPT column, one file per session |
+| The internal journal | `usage-events.jsonl` in the state folder | The API column, and the fallback source for Claude/ChatGPT |
+| The conversation store | `conversations.db` in the state folder | Used to tell which turns are real chat and which are background runs |
 
-Kết quả gộp vào một cơ sở dữ liệu SQLite là `usage_index.db`, cũng trong thư mục state (đặt bằng biến `JAVIS_STATE_DIR`, xem [Cấu hình .env](16-cau-hinh-env.md)).
+The results are merged into one SQLite database, `usage_index.db`, also in the state folder (set by the `JAVIS_STATE_DIR` variable, see [.env configuration](16-cau-hinh-env.md)).
 
-Việc quét là **quét tăng dần**: file nào không đổi kích thước và thời gian sửa thì bỏ qua hẳn. Vì thế lần quét đầu chậm còn các lần sau rất nhanh, kể cả khi bạn có hàng nghìn file log.
+The scan is **incremental**: a file whose size and modification time are unchanged is skipped entirely. That is why the first scan is slow and later ones are very fast, even with thousands of log files.
 
-Nhánh API không có log thô nào để đọc, nên nó chỉ có số **từ lúc bạn nâng lên bản có tính năng này trở đi**. Claude và Codex thì có lịch sử ngược về tận lúc bạn bắt đầu dùng, vì log của chúng vốn đã nằm sẵn trên máy.
+The API branch has no raw log to read, so it only has figures **from the moment you upgraded to the version with this feature**. Claude and Codex have history back to when you started using them, because their logs were already on the machine.
 
-Nếu bản cài không đọc được log thô (điển hình là bản Docker trên VPS, nơi thư mục `~/.claude` của bạn không có trong container), Javis dựng số từ nhật ký nội bộ thay thế, nên trang vẫn có số chứ không còn báo 0 như trước. Ngày nào có cả hai nguồn thì log thô thắng, không bị đếm trùng. Dấu hiệu nhận biết: trong bảng "Dự án ngốn nhất", dòng tên `(events)` là dòng dựng từ nhật ký nội bộ, dòng `(api)` là lượt qua provider API.
+If the install cannot read raw logs (typically the Docker build on a VPS, where your `~/.claude` folder is not in the container), Jarvis 007 builds the figures from the internal journal instead, so the page still shows numbers rather than the zeros it used to. On a day with both sources, the raw log wins so nothing is double counted. The tell: in the "Hungriest projects" table, a row named `(events)` was built from the internal journal, and an `(api)` row is a turn through an API provider.
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference of buttons and states
 
-| Bạn thấy | Ý nghĩa / thao tác |
+| What you see | Meaning / action |
 |---|---|
-| 8 nút kỳ (**Hôm nay** ... **Năm nay**) | Đổi kỳ xem; nút sáng màu là kỳ đang chọn |
-| Cụm **Tất cả / Claude Code / ChatGPT / API** | Lọc theo nhà cung cấp |
-| **↻ Làm mới** | Quét lại log rồi vẽ lại; trong lúc chạy nút đổi thành "Đang quét..." |
-| "Đang dựng chỉ số token..." | Đang tải lần đầu |
-| "Không tải được số liệu token." | Không gọi được server |
-| "Chưa có dữ liệu." | Ô đó không có số trong kỳ đang chọn |
-| "kỳ trước chưa có số" | Kỳ trước bằng 0 nên không tính được phần trăm thay đổi |
-| ▲ đỏ / ▼ xanh | Tăng / giảm so kỳ trước |
-| Thẻ ⚠️ viền cam | Đề xuất mức cảnh báo |
-| Thẻ 💡 viền xanh | Đề xuất mức gợi ý |
+| The 8 period buttons (**Today** ... **This year**) | Change the period viewed; the highlighted one is selected |
+| The **All / Claude Code / ChatGPT / API** group | Filter by provider |
+| **↻ Refresh** | Re-scans the logs then redraws; while running the button reads "Scanning..." |
+| "Building the token index..." | Loading for the first time |
+| "Could not load token data." | The server could not be reached |
+| "No data yet." | That cell has no figure in the selected period |
+| "no figure for the previous period" | The previous period was 0 so no percentage change could be computed |
+| ▲ red / ▼ green | Up / down against the previous period |
+| An ⚠️ card with an orange border | A warning-level suggestion |
+| A 💡 card with a blue border | A hint-level suggestion |
 
-## Mẹo
+## Tips
 
-- Mở **Tháng này** trước để nhìn xu hướng, rồi mới bấm **Hôm nay** để soi ngày cụ thể. Đọc ngược lại dễ hoảng vì một ngày lẻ luôn trông bất thường.
-- Nghi loop chạy quá dày thì lọc **Claude Code** rồi nhìn cột "Nền (loop/lịch)" trong mục Hoạt động. Đây là con số duy nhất nói thẳng cho bạn biết Javis đang tự tiêu bao nhiêu khi bạn không ngồi trước máy.
-- Cache hit thấp mà tổng token cao thì vấn đề nằm ở độ dài phiên, không phải ở số lượt chat. Tách phiên ra là cách rẻ nhất để hạ.
-- Bảng "Dự án ngốn nhất" là cách nhanh để biết brain nào đang tốn nhất, khi bạn dùng nhiều brain.
-- Chỉ bấm **↻ Làm mới** khi bạn vừa chạy xong một việc lớn và muốn thấy nó ngay. Bình thường lần mở trang đã tự quét rồi.
+- Open **This month** first to see the trend, then click **Today** to inspect a specific day. Reading it the other way round is alarming, because a single day always looks abnormal.
+- Suspecting loops run too often, filter to **Claude Code** then look at the "Background (loop/schedule)" bar in the Activity section. It is the one number that tells you outright how much Jarvis 007 spends while you are not at the machine.
+- A low cache hit with high total tokens means the problem is session length, not the number of chat turns. Splitting the session is the cheapest way to bring it down.
+- The "Hungriest projects" table is the quick way to see which brain costs most when you use several.
+- Only click **↻ Refresh** when you just finished something big and want to see it now. Ordinarily opening the page already scans.
 
-## Sự cố thường gặp
+## Common problems
 
-- **Trang báo toàn số 0.** Thường là bản cài không đọc được log thô, hay gặp nhất trên Docker/VPS vì thư mục `~/.claude` và `~/.codex` của bạn không nằm trong container. Từ bản mới, Javis lấy nhật ký nội bộ làm nguồn dự phòng nên vẫn ra số, nhưng chỉ tính từ thời điểm bạn nâng cấp trở đi. Đã nâng cấp mà vẫn 0 thì nghĩa là chưa có lượt chat nào được ghi lại kể từ đó, hãy chat vài câu rồi bấm **↻ Làm mới**.
-- **Số thấp hơn nhiều so với cảm nhận.** Kiểm tra bạn có đang lọc một nhà cung cấp không, và kiểm tra kỳ đang chọn. Ngoài ra phần "Bạn gõ tay" chỉ đếm được khi bạn chạy Claude Code trên **cùng máy** với Javis.
-- **Cắm key Google Gemini nhưng cột API không nhúc nhích.** Lượt Gemini có được ghi vào nhật ký nội bộ, nhưng bộ dựng chỉ mục hiện chỉ nhận các nhà cung cấp OpenRouter, OpenAI và Anthropic vào cột API, nên phần Gemini chưa lên đồ thị này.
-- **Không thấy thẻ "OpenRouter còn".** Thẻ chỉ hiện khi có key OpenRouter trong Cài đặt model và OpenRouter trả lời được. Vào trang **Models** (nhóm Kết nối) kiểm tra key, xem [Models & engine](10-models-va-engine.md).
-- **Trang hiện bảng đơn giản kiểu "Hôm nay / Tổng tích luỹ" thay vì bộ lọc kỳ.** Đó là giao diện dự phòng, xuất hiện khi tệp giao diện mới chưa nạp được. Tải lại trang, xoá cache trình duyệt nếu cần.
-- **Chi phí quy đổi hiện "-" cho model mình đang dùng.** Model đó chưa có trong bảng giá `server/usage_pricing.json`. Đây là bảng cập nhật tay, thêm dòng cho model của bạn rồi khởi động lại server.
-- **Vừa nâng cấp Javis nhưng trang chưa có gì đổi.** Trang này có phần chạy ở backend, nên sau khi cập nhật cần **khởi động lại server** rồi mới tải lại trang.
+- **The page shows all zeros.** Usually the install cannot read the raw logs, most commonly on Docker/VPS because your `~/.claude` and `~/.codex` folders are not inside the container. In recent builds Jarvis 007 uses the internal journal as a fallback so figures still appear, but only from your upgrade onwards. If it is still zero after upgrading, no chat turn has been recorded since, so chat a few messages then click **↻ Refresh**.
+- **The numbers are far lower than they feel.** Check whether a provider filter is on, and check the selected period. Also, the "You typing" share can only be counted when you run Claude Code on the **same machine** as Jarvis 007.
+- **A Google Gemini key is attached but the API column does not move.** Gemini turns are written into the internal journal, but the index builder currently only accepts OpenRouter, OpenAI and Anthropic into the API column, so the Gemini share does not reach this chart yet.
+- **There is no "OpenRouter left" card.** The card only appears when an OpenRouter key is in the model settings and OpenRouter responds. Go to the **Models** page (the Connections group) and check the key, see [Models and engines](10-models-va-engine.md).
+- **The page shows a simple "Today / Cumulative total" table instead of the period filter.** That is the fallback interface, appearing when the new interface file could not load. Reload the page, clearing the browser cache if needed.
+- **The converted cost shows "-" for the model you use.** That model is not in the `server/usage_pricing.json` price table. It is maintained by hand, so add a row for your model then restart the server.
+- **You just upgraded Jarvis 007 but the page has not changed.** This page has a backend component, so after an update you need to **restart the server** before reloading the page.
 
-## Liên quan
+## Related
 
-- [Models & engine](10-models-va-engine.md) - đổi model, cắm key OpenRouter, hiểu từng engine ghi số vào đâu.
-- [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md) - nơi tắt bớt loop khi cột "Nền (loop/lịch)" phình to.
-- [Việc / Kanban](21-viec-kanban.md) - việc chạy nền cũng tính vào phần "Javis (tự chạy)".
-- [Cấu hình .env](16-cau-hinh-env.md) - biến `JAVIS_STATE_DIR` quyết định chỉ mục token nằm ở đâu.
-- [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md) - các lỗi chung của dashboard.
+- [Models and engines](10-models-va-engine.md) - switching models, attaching an OpenRouter key, understanding where each engine records its figures.
+- [Recurring jobs and reminders](08-viec-dinh-ky.md) - where to turn loops down when the "Background (loop/schedule)" bar swells.
+- [Work / Kanban](21-viec-kanban.md) - background work also counts into the "Jarvis 007 (running itself)" share.
+- [.env configuration](16-cau-hinh-env.md) - the `JAVIS_STATE_DIR` variable decides where the token index lives.
+- [Troubleshooting and FAQ](17-khac-phuc-su-co.md) - general dashboard errors.

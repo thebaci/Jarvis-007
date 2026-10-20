@@ -1,73 +1,73 @@
 # ============================================================================
-# Javis OS - HOSTINGER VPS (Docker Manager). Tên miền + HTTPS qua Traefik có sẵn của Hostinger.
+# Jarvis 007 - HOSTINGER VPS (Docker Manager). Domain + HTTPS via Hostinger's built-in Traefik.
 #
-# File này LUÔN deploy được:
-#   - Chưa đặt DOMAIN_NAME  -> chạy tạm, vào bằng nút Open / http://<ip>:7777 (chưa có HTTPS).
-#   - Đặt DOMAIN_NAME       -> Traefik của Hostinger tự cấp HTTPS cho tên miền đó.
+# This file ALWAYS deploys:
+#   - DOMAIN_NAME not set  -> runs temporarily, reach it with the Open button / http://<ip>:7777 (no HTTPS yet).
+#   - DOMAIN_NAME set      -> Hostinger's Traefik issues HTTPS for that domain automatically.
 #
-# CÁCH DÙNG:
-#   1) Docker Manager > Compose > URL > dán:
+# HOW TO USE:
+#   1) Docker Manager > Compose > URL > paste:
 #      https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.hostinger.yml
-#   2) Ô Environment chỉ còn 4 trường hữu ích:
+#   2) The Environment box only needs 4 useful fields:
 #        DOMAIN_NAME, JAVIS_ADMIN_USER, JAVIS_ADMIN_PASSWORD, JAVIS_AUTO_UPDATE.
-#      (JAVIS_AUTO_UPDATE=true thì Javis TỰ cập nhật mỗi ngày, khỏi bấm nút. Bỏ trống thì
-#       cập nhật bằng nút "Cập nhật ngay" trong app - xem service watchtower ở dưới.)
-#      (Thêm 2 trường CHỈ CẦN KHI cài bản Javis THỨ HAI trở đi trên cùng VPS - xem cuối file:
-#        JAVIS_NAME, JAVIS_HOST_PORT. Cài bản đầu thì bỏ trống cả hai.)
-#      Đặt DOMAIN_NAME để có HTTPS:
-#        - Link miễn phí (KHÔNG cần mua tên miền):  DOMAIN_NAME=javis.<hostname-vps>.hstgr.cloud
-#          (hostname xem ở hPanel > VPS, vd: DOMAIN_NAME=javis.srv1782015.hstgr.cloud)
-#        - Hoặc tên miền riêng:  DOMAIN_NAME=tenmien.com  (trỏ DNS A về IP VPS trước).
-#   3) Deploy > đợi 1-3 phút Traefik cấp SSL > mở  https://<DOMAIN_NAME>.
+#      (With JAVIS_AUTO_UPDATE=true, Jarvis 007 updates ITSELF every day, no button needed. Leave it empty and
+#       you update with the "Update now" button in the app - see the watchtower service below.)
+#      (2 more fields are needed ONLY when you install a SECOND Jarvis 007 or later on the same VPS - see the end of the file:
+#        JAVIS_NAME, JAVIS_HOST_PORT. For the first install, leave both empty.)
+#      Set DOMAIN_NAME to get HTTPS:
+#        - Free link (NO need to buy a domain):  DOMAIN_NAME=javis.<vps-hostname>.hstgr.cloud
+#          (find the hostname in hPanel > VPS, e.g. DOMAIN_NAME=javis.srv1782015.hstgr.cloud)
+#        - Or your own domain:  DOMAIN_NAME=yourdomain.com  (point a DNS A record at the VPS IP first).
+#   3) Deploy > wait 1-3 minutes for Traefik to issue SSL > open  https://<DOMAIN_NAME>.
 #
-# KHÔNG tìm thấy ô Environment? Bấm Manage > sửa .yaml, đổi thẳng dòng Host(...) thành tên miền:
-#      Host(`javis.srv1782015.hstgr.cloud`)   (thay bằng hostname VPS của bạn).
+# Can't find the Environment box? Click Manage > edit the .yaml, and change the Host(...) line directly to the domain:
+#      Host(`javis.srv1782015.hstgr.cloud`)   (replace with your VPS hostname).
 #
-# GHI CHÚ:
-#   - Mấu chốt: KHÔNG khai báo networks - Traefik của Hostinger tự thấy container qua nhãn.
-#   - Cập nhật bản mới: bấm "Cập nhật ngay" ngay trong app (trang Cập nhật). Nút đó cần
-#     container watchtower đi kèm bên dưới; nó không lên được thì vẫn Redeploy như cũ.
-#   - VPS KHÔNG phải Hostinger: bỏ file này, dùng docker-compose.yml + docker-compose.https.yml (Caddy).
-#   - Image GHCR phải để PUBLIC (GitHub > Packages > javis-os > Package settings > Public).
+# NOTES:
+#   - The key point: do NOT declare networks - Hostinger's Traefik finds the container through its labels.
+#   - Updating to a new version: click "Update now" right in the app (Update page). That button needs
+#     the watchtower container below; if it can't start, you can still Redeploy as before.
+#   - VPS that is NOT Hostinger: skip this file, use docker-compose.yml + docker-compose.https.yml (Caddy).
+#   - The GHCR image must be PUBLIC (GitHub > Packages > javis-os > Package settings > Public).
 # ============================================================================
 services:
   javis:
     image: ghcr.io/blogminhquy/javis-os:latest
-    # Tên container + tên router/service Traefik đều lấy từ JAVIS_NAME. Bỏ trống = "javis" như cũ.
-    # Cài bản THỨ HAI trên cùng VPS thì đặt tên khác (vd javis-shop), nếu không Docker báo tên đã
-    # dùng và Traefik có hai router trùng tên nên chỉ lái được về một bản.
+    # The container name + Traefik router/service names all come from JAVIS_NAME. Empty = "javis" as before.
+    # When installing a SECOND copy on the same VPS, use a different name (e.g. javis-shop), otherwise Docker
+    # reports the name as already in use and Traefik gets two routers with the same name so it can only route to one copy.
     container_name: ${JAVIS_NAME:-javis}
     restart: unless-stopped
     pull_policy: always
-    # Gắn target Hostinger bên trong lệnh chạy để KHÔNG biến nó thành một trường rác
-    # trong ô Environment của Docker Manager.
+    # Put the Hostinger target inside the run command so it does NOT turn into a junk field
+    # in Docker Manager's Environment box.
     command: ["sh", "-c", "JAVIS_DEPLOY_TARGET=hostinger exec python -m uvicorn main:app --app-dir server --host 0.0.0.0 --port 7777"]
     environment:
-      # Chỉ giữ các trường người cài thực sự cần. Cổng/đường dẫn/state/brain đã có
-      # mặc định đúng trong Docker image, không cần hiện thành một loạt ô kỹ thuật.
+      # Keep only the fields the installer really needs. Port/path/state/brain already have
+      # correct defaults in the Docker image, so they don't need to show up as a pile of technical boxes.
       DOMAIN_NAME: ${DOMAIN_NAME:-localhost}
       JAVIS_ADMIN_USER: ${JAVIS_ADMIN_USER:-admin}
       JAVIS_ADMIN_PASSWORD: ${JAVIS_ADMIN_PASSWORD:-}
-      # Chung một token với service watchtower bên dưới -> nút "Cập nhật ngay" gọi được nó.
-      # ĐÓNG CỨNG chứ không lấy từ biến, có lý do: mỗi `${...}` trong file này đẻ thêm một ô
-      # trong form Environment của Docker Manager, mà token này không ai cần đổi - cổng 8080 của
-      # Watchtower không publish ra ngoài, chỉ container trong cùng stack gọi tới được.
-      # Muốn token riêng thì dùng docker-compose.yml (bản VPS), nó nhận biến WATCHTOWER_TOKEN.
+      # Same token as the watchtower service below -> the "Update now" button can call it.
+      # HARDCODED rather than taken from a variable, for a reason: every `${...}` in this file adds another box
+      # to Docker Manager's Environment form, and nobody needs to change this token - Watchtower's port 8080
+      # is not published outside, only containers in the same stack can reach it.
+      # If you want your own token, use docker-compose.yml (the VPS version), which accepts the WATCHTOWER_TOKEN variable.
       WATCHTOWER_TOKEN: javis-update
     ports:
-      # Đường vào dự phòng (nút Open / http://<ip>:7777). Bản thứ hai PHẢI đổi cổng này
-      # (JAVIS_HOST_PORT=7778) vì một cổng máy chủ chỉ một container giữ được.
+      # Fallback way in (Open button / http://<ip>:7777). A second copy MUST change this port
+      # (JAVIS_HOST_PORT=7778) because a host port can only be held by one container.
       - "${JAVIS_HOST_PORT:-7777}:7777"
     labels:
-      # Guide (Documentation / Quick start) trong Docker Manager - trỏ docs GitHub.
+      # Guide (Documentation / Quick start) in Docker Manager - points to the GitHub docs.
       - org.opencontainers.image.documentation=https://github.com/blogminhquy/javis-os/blob/main/docs/README.md
       - org.opencontainers.image.source=https://github.com/blogminhquy/javis-os
       - com.hostinger.documentation=https://github.com/blogminhquy/javis-os/blob/main/docs/README.md
       - com.hostinger.quickstart=https://github.com/blogminhquy/javis-os/blob/main/QUICKSTART.md
-      # Router/service mang TÊN CỦA BẢN (JAVIS_NAME) chứ không đóng cứng "javis": Traefik đặt tên
-      # router theo phạm vi toàn máy, hai bản cùng tên router là bản sau đè bản trước và một
-      # trong hai tên miền chết. Bỏ trống JAVIS_NAME thì vẫn ra "javis" y như trước.
-      # Host = ${DOMAIN_NAME}; chưa đặt thì mặc định "localhost" (deploy vẫn chạy, chỉ chưa có domain/HTTPS).
+      # The router/service carries the COPY'S NAME (JAVIS_NAME) rather than hardcoding "javis": Traefik names
+      # routers machine-wide, so two copies with the same router name means the later one overwrites the earlier one and one
+      # of the two domains dies. With JAVIS_NAME empty it still comes out as "javis" exactly as before.
+      # Host = ${DOMAIN_NAME}; if not set it defaults to "localhost" (the deploy still runs, just without a domain/HTTPS).
       - traefik.enable=true
       - traefik.http.routers.${JAVIS_NAME:-javis}.rule=Host(`${DOMAIN_NAME:-localhost}`)
       - traefik.http.routers.${JAVIS_NAME:-javis}.entrypoints=websecure
@@ -87,25 +87,25 @@ services:
       start_period: 25s
 
   # ------------------------------------------------------------------------
-  # Cập nhật 1-CLICK từ trong app (nút "Cập nhật ngay" ở trang Cập nhật). CÓ SẴN từ 0.55.56.
+  # 1-CLICK update from inside the app (the "Update now" button on the Update page). AVAILABLE since 0.55.56.
   #
-  # Lịch sử phải nói thật, vì nó là lý do khối này từng KHÔNG có: bản 2026-07-18 đã thử rồi gỡ
-  # đi, do trên Docker Manager container Watchtower bị Restarting liên tục và stack hiện
-  # "Partially running". Hồi đó đoán là "không đụng được Docker socket" - SAI. Log thật (đo lại
-  # 2026-10-01 trên VPS Hostinger) là:
+  # The history has to be told honestly, because it is the reason this block was once ABSENT: the 2026-07-18 version tried it and then removed
+  # it, because on Docker Manager the Watchtower container kept Restarting and the stack showed
+  # "Partially running". Back then the guess was "cannot reach the Docker socket" - WRONG. The real log (re-measured
+  # 2026-10-01 on a Hostinger VPS) was:
   #   client version 1.25 is too old. Minimum supported API version is 1.40
-  # Image cũ `containrrr/watchtower` mặc định nói Docker API 1.25, Docker Engine mới từ chối.
-  # Repo đó đã bị archive (read-only từ 12/2025) nên lỗi không bao giờ được sửa ở đó.
+  # The old image `containrrr/watchtower` defaults to Docker API 1.25, and newer Docker Engines refuse it.
+  # That repo has been archived (read-only since 12/2025) so the bug will never be fixed there.
   #
-  # Nay dùng bản fork còn bảo trì `nicholas-fedor/watchtower`: TỰ thương lượng phiên bản API với
-  # Docker, cùng cổng 8080, cùng `POST /v1/update` + Bearer token mà app đang gọi. Ghim major `:1`
-  # để bản v2 (sẽ bỏ các biến HTTP API kiểu cũ) không tự lọt vào làm chết nút lần nữa.
-  # ĐỪNG vá bằng DOCKER_API_VERSION=1.40 trên image cũ: Docker còn nâng mức tối thiểu tiếp.
+  # We now use the maintained fork `nicholas-fedor/watchtower`: it negotiates the API version with
+  # Docker by itself, same port 8080, same `POST /v1/update` + Bearer token that the app already calls. Pin major `:1`
+  # so v2 (which will drop the old-style HTTP API variables) does not slip in on its own and kill the button again.
+  # Do NOT patch with DOCKER_API_VERSION=1.40 on the old image: Docker keeps raising the minimum.
   #
-  # Điều KHÔNG đổi: container javis ở trên CHẠY BÌNH THƯỜNG dù Watchtower hỏng. Nó là một
-  # container RIÊNG, hỏng thì chỉ mất cái nút, không kéo theo app. Gặp "Partially running" thì
-  # mở log container `javis-watchtower`; không sửa được thì cập nhật bằng REDEPLOY y như trước,
-  # trang Cập nhật trong app cũng tự nói ra điều đó.
+  # What does NOT change: the javis container above RUNS NORMALLY even when Watchtower is broken. It is a
+  # SEPARATE container, so if it breaks you only lose the button, the app is not dragged down. On "Partially running",
+  # open the log of container `javis-watchtower`; if it can't be fixed, update by REDEPLOY as before,
+  # and the Update page in the app says exactly that too.
   watchtower:
     image: ghcr.io/nicholas-fedor/watchtower:1
     container_name: ${JAVIS_NAME:-javis}-watchtower
@@ -113,35 +113,35 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      WATCHTOWER_HTTP_API_ENDPOINTS: update                 # nhận lệnh cập nhật từ nút bấm
-      WATCHTOWER_HTTP_API_TOKEN: javis-update               # khớp WATCHTOWER_TOKEN của app ở trên
-      # TỰ tìm bản mới rồi dựng lại, KHÔNG chờ ai bấm nút. Đây là ô Environment thứ TƯ, và là
-      # `${...}` duy nhất được thêm vào file này - vì nó là một LỰA CHỌN của người cài, không
-      # phải mặc định kỹ thuật: bật lên là Javis tự khởi động lại bất cứ lúc nào có bản mới,
-      # cắt ngang việc nền và phiên chat đang chạy. Bỏ trống = tắt, cập nhật bằng nút bấm.
+      WATCHTOWER_HTTP_API_ENDPOINTS: update                 # accepts the update command from the button
+      WATCHTOWER_HTTP_API_TOKEN: javis-update               # matches the app's WATCHTOWER_TOKEN above
+      # AUTOMATICALLY finds a new version and rebuilds, WITHOUT waiting for anyone to click. This is the FOURTH Environment box, and the
+      # only `${...}` added to this file - because it is a CHOICE for the installer, not
+      # a technical default: turning it on means Jarvis 007 restarts itself any time a new version appears,
+      # interrupting background work and running chat sessions. Empty = off, update with the button.
       WATCHTOWER_HTTP_API_PERIODIC_POLLS: ${JAVIS_AUTO_UPDATE:-false}
-      WATCHTOWER_POLL_INTERVAL: 86400                       # 24h, chỉ có tác dụng khi bật ở trên
-      WATCHTOWER_CLEANUP: "true"                            # dọn image cũ sau khi update
-    # KHÔNG gắn nhãn traefik.*: đây là container nội bộ, không có gì để mở ra Internet.
+      WATCHTOWER_POLL_INTERVAL: 86400                       # 24h, only takes effect when enabled above
+      WATCHTOWER_CLEANUP: "true"                            # clean up old images after updating
+    # Do NOT attach traefik.* labels: this is an internal container, there is nothing to expose to the Internet.
     labels:
       - traefik.enable=false
-    # Theo dõi ĐÚNG container của bản này. Ghi cứng "javis" thì trên VPS có hai bản, Watchtower
-    # của bản này sẽ đi cập nhật và restart container của bản kia.
+    # Watch EXACTLY this copy's container. If "javis" is hardcoded then on a VPS with two copies, this copy's Watchtower
+    # would go update and restart the other copy's container.
     command: ${JAVIS_NAME:-javis}
 
 # ============================================================================
-# NHIỀU BẢN JAVIS TRÊN CÙNG MỘT VPS HOSTINGER
+# MULTIPLE JARVIS 007 COPIES ON THE SAME HOSTINGER VPS
 #
-# Deploy compose này THÊM MỘT LẦN NỮA (stack mới trong Docker Manager), đổi CẢ BA:
-#   Stack 1:  DOMAIN_NAME=shop.srv1782015.hstgr.cloud    JAVIS_NAME=(trống)     JAVIS_HOST_PORT=(trống)
+# Deploy this compose ONE MORE TIME (a new stack in Docker Manager), changing ALL THREE:
+#   Stack 1:  DOMAIN_NAME=shop.srv1782015.hstgr.cloud    JAVIS_NAME=(empty)     JAVIS_HOST_PORT=(empty)
 #   Stack 2:  DOMAIN_NAME=canhan.srv1782015.hstgr.cloud  JAVIS_NAME=javis-canhan  JAVIS_HOST_PORT=7778
 #
-# Cả ba giá trị phải khác nhau giữa các stack. Trùng JAVIS_NAME -> Docker báo tên container đã
-# dùng; trùng JAVIS_HOST_PORT -> báo cổng đã bị chiếm; trùng DOMAIN_NAME -> hai bản giành nhau
-# một link. Wildcard DNS *.hstgr.cloud của Hostinger có sẵn nên tên miền phụ nào cũng trỏ được ngay.
+# All three values must differ between stacks. Same JAVIS_NAME -> Docker reports the container name already in
+# use; same JAVIS_HOST_PORT -> reports the port already taken; same DOMAIN_NAME -> two copies fight over
+# one link. Hostinger's wildcard DNS *.hstgr.cloud is built in, so any subdomain resolves right away.
 #
-# Mỗi stack có volume riêng, nên state / brain / tài khoản admin / token đăng nhập Claude đều
-# TÁCH BẠCH. Đăng nhập Claude phải làm lại một lần cho mỗi bản (App terminal của stack đó).
+# Each stack has its own volumes, so state / brain / admin account / Claude login token are all
+# SEPARATE. You have to log in to Claude once for each copy (the App terminal of that stack).
 # ============================================================================
 
 volumes:

@@ -2,297 +2,305 @@
 
 ***Tiếng Việt** · [English](en/12-zalo-agent-mcp.md)*
 
-> **Javis có BA chỗ dính tới Zalo, đừng lẫn.** Trang này nói về chỗ thứ nhất: đăng nhập
-> **chính tài khoản Zalo của bạn** để Javis thao tác thay bạn. Hai chỗ kia dùng API chính
-> thức, an toàn, nhưng chỉ thấy được thứ người ta nhắn thẳng cho bot.
+> **Jarvis 007 touches Zalo in THREE places, do not mix them up.** This page covers the first:
+> signing in with **your own Zalo account** so Jarvis 007 can act on your behalf. The other two
+> use the official API, which is safe, but they only see what people send directly to the bot.
 >
-> | | Zalo Agent MCP (trang này) | [Kênh Zalo Bot](26-kenh-zalo-bot.md) | [Chatbot](25-chatbot.md) |
+> | | Zalo Agent MCP (this page) | [Zalo Bot channel](26-kenh-zalo-bot.md) | [Chatbot](25-chatbot.md) |
 > |---|---|---|---|
-> | Là ai | Chính bạn | Một bot riêng | Một bot riêng, đứng tên Agent |
-> | API | Không chính thức (zca-js) | Chính thức | Chính thức |
-> | Rủi ro khoá tài khoản | Có | Không | Không |
-> | Đọc được hội thoại cũ | Có | Chỉ tin gửi cho bot | Chỉ tin gửi cho bot |
-> | Nhắn cho người chưa quen bot | Được | Không | Không |
-> | Dùng để | Javis làm việc thay bạn | **Bạn** nhắn cho Javis | **Khách** nhắn cho Javis |
+> | Who it is | You yourself | A separate bot | A separate bot, under an Agent's name |
+> | API | Unofficial (zca-js) | Official | Official |
+> | Risk of account lockout | Yes | No | No |
+> | Can read old conversations | Yes | Only messages sent to the bot | Only messages sent to the bot |
+> | Can message someone who never contacted the bot | Yes | No | No |
+> | Used for | Jarvis 007 working on your behalf | **You** messaging Jarvis 007 | **Customers** messaging Jarvis 007 |
 >
-> Dùng cả ba cùng lúc cũng được, chúng không đụng nhau.
+> Running all three at once is fine, they do not collide.
 
-Javis kết nối Zalo cá nhân bằng MCP của
-[`javis-zalo`](https://github.com/blogminhquy/javis-zalo), bản CLI Zalo riêng của Javis. Chỉ có
-một tiến trình MCP: đăng nhập QR, đọc hoặc tìm hội thoại và gửi tin qua các tool của nó.
+Jarvis 007 connects a personal Zalo account through the MCP of
+[`javis-zalo`](https://github.com/blogminhquy/javis-zalo), Jarvis 007's own Zalo CLI. There is a single
+MCP process: sign in by QR, read or search conversations and send messages through its tools.
 
-> `javis-zalo` dùng API Zalo không chính thức qua `zca-js`. Zalo không hỗ trợ cách
-> kết nối này và tài khoản có thể bị hạn chế hoặc khoá. Nên dùng tài khoản phụ, tránh
-> gửi tự động hàng loạt và tự chịu trách nhiệm khi sử dụng.
+> `javis-zalo` uses the unofficial Zalo API via `zca-js`. Zalo does not support this way
+> of connecting and the account may be restricted or locked. Use a secondary account, avoid
+> automated bulk sending, and accept the risk yourself.
 
-## Cần chuẩn bị
+## What you need
 
-- Node.js 20 trở lên trên máy hoặc VPS chạy Javis, và máy tải được từ GitHub (lần đầu).
-- Điện thoại đã đăng nhập tài khoản Zalo cần kết nối.
-- Javis đã được khởi động và bạn đăng nhập được dashboard.
+- Node.js 20 or newer on the machine or VPS running Jarvis 007, able to download from GitHub (first run).
+- A phone already signed in to the Zalo account you want to connect.
+- Jarvis 007 started and you able to sign in to the dashboard.
 
-Javis ghim `javis-zalo` theo tag phát hành (hiện là `v1.2.0`) và cài thẳng từ tarball của tag
-đó trên GitHub, không cần tài khoản npm hay Git. Chỉ thư viện `zca-js` bên dưới đi theo bản chính
-thức trên npm. Từ 0.83.0 Javis thay `zalo-agent-cli` 1.6.2 của tác giả ngoài bằng bản riêng này;
-kết nối đã đăng nhập từ trước tự chuyển sang mà không phải quét QR lại.
+Jarvis 007 pins `javis-zalo` to a release tag (currently `v1.2.0`) and installs it straight from that
+tag's tarball on GitHub, with no npm account or Git needed. Only the `zca-js` library underneath
+follows its official npm releases. Since 0.83.0 Jarvis 007 runs this build instead of the third-party
+`zalo-agent-cli` 1.6.2; connections signed in earlier switch over without a new QR scan.
 
-## Kết nối bằng QR
+## Connecting by QR
 
-1. Mở **Kết nối** → tìm **Zalo Agent MCP** → bấm **Kết nối**.
-2. Đọc cảnh báo rủi ro, nhập tên gợi nhớ nếu cần rồi bấm **Hiện mã QR**.
-3. Trong app Zalo trên điện thoại, mở trình quét QR và quét mã trên dashboard.
-4. Khi thẻ tài khoản xuất hiện trong phần **Đã kết nối**, kết nối đã sẵn sàng.
-5. Muốn nối thêm tài khoản, bấm **＋ Thêm tài khoản**. Mỗi tài khoản dùng một thư mục
-   phiên riêng nên không ghi đè phiên của nhau.
+1. Open **Connections** → find **Zalo Agent MCP** → click **Connect**.
+2. Read the risk warning, type a memorable name if you want, then click **Show QR code**.
+3. In the Zalo app on your phone, open the QR scanner and scan the code on the dashboard.
+4. When the account card appears under **Connected**, the connection is ready.
+5. To attach another account, click **＋ Add account**. Each account uses its own session
+   folder so they never overwrite one another.
 
-Nút **Hướng dẫn trên GitHub** trong thẻ Zalo luôn mở trang tài liệu này:
+The **Guide on GitHub** button in the Zalo card always opens this documentation page:
 
 <https://github.com/blogminhquy/javis-os/blob/main/docs/12-zalo.md>
 
-## Nhập tin cũ vào Hộp thư (từ 0.174.0)
+## Importing old messages into the Inbox (since 0.174.0)
 
-Mới đăng nhập Zalo vào Javis thì Hộp thư chỉ có tin từ lúc bật **Ghi hội thoại** trở đi. Muốn có cả tin cũ, bấm **Nhập tin cũ** trên thẻ tài khoản Zalo ở trang Chatbot, thẻ Bot, mục Kênh chưa có bot. Zalo đã gắn bot thì bấm vào ô Zalo trên thẻ bot đó.
+Right after you sign Zalo in to Jarvis 007, the Inbox only holds messages from the moment **Record conversations** was switched on. To bring in older ones, press **Import old messages** on the Zalo account card on the Chatbot page, Bots tab, under Channels without a bot. If Zalo already has a bot, press the Zalo chip on that bot's card.
 
-- Javis lấy các tin javis-zalo tự kéo về mỗi lần kết nối: khoảng **2 tuần** gần nhất, vì Zalo không cho lấy xa hơn. Tối đa 5.000 tin mỗi lần.
-- Chỉ nhập vào cuộc chat **chưa có tin nào** trong Hộp thư. Cuộc chat đã có tin thì bỏ qua, vì tin cũ chen vào sau sẽ hiện sai thứ tự.
-- Bot **không trả lời** các tin này, chúng **không tính là chưa đọc**, và nhóm vẫn chỉ giữ 100 tin gần nhất như thường lệ.
-- Vừa quét QR xong thì đợi vài phút cho Zalo tải xong tin cũ rồi hãy bấm. Bấm lại nhiều lần không bị nhân đôi.
+- Jarvis 007 takes the messages javis-zalo pulls in on every connect: about the last **2 weeks**, since Zalo does not allow going further back. At most 5,000 messages per run.
+- Only chats with **no message yet** in the Inbox are filled. Chats that already have messages are skipped, since old messages added later would show in the wrong order.
+- The bot **does not answer** these messages, they are **not counted as unread**, and groups still keep only their latest 100 messages as usual.
+- Right after scanning the QR code, wait a few minutes for Zalo to finish loading old messages before pressing it. Pressing again never duplicates anything.
 
-## Các tool MCP
+## The MCP tools
 
-| Tool | Công dụng | Mức thao tác |
+| Tool | What it does | Action level |
 |---|---|---|
-| `zalo_get_messages` | Đọc tin mới trong bộ đệm, đọc tiếp bằng `since` (số thứ tự) | Đọc |
-| `zalo_get_history` | Lấy lịch sử một cuộc chat (kể cả nhóm), có phân trang, kèm `replyTo` và `mentions` | Đọc |
-| `zalo_search_history` | Tìm trong lịch sử mọi cuộc chat theo người gửi hoặc khoảng ngày | Đọc |
-| `zalo_get_group_joins` | Ai đã vào nhóm và vào lúc nào, lọc theo nhóm, người hoặc khoảng ngày | Đọc |
-| `zalo_list_join_requests` | Ai đang xin vào một nhóm phải duyệt | Đọc |
-| `zalo_review_join_requests` | Duyệt hoặc từ chối người xin vào nhóm | Nguy hiểm |
-| `zalo_list_threads` | Liệt kê các cuộc chat đang có trong bộ đệm | Đọc |
-| `zalo_search_threads` | Tìm nhóm hoặc người theo tên | Đọc |
-| `zalo_view_media` | Tải/mở ảnh, âm thanh hoặc video trên máy chủ (bộ não không thấy ảnh, xem `zalo_read_images` bên dưới) | Đọc |
-| `zalo_mark_read` | Đánh dấu đã xử lý đến một cursor | Ghi |
-| `zalo_send_message` | Gửi tin cho cá nhân hoặc nhóm | Nguy hiểm |
-| `zalo_send_file` | Gửi file (Excel, PDF, Word...) kèm lời nhắn, chỉ file nằm trong hộp gửi của phiên (xem "Gửi ảnh và file") | Nguy hiểm |
+| `zalo_get_messages` | Read new messages in the buffer, continue with `since` (sequence number) | Read |
+| `zalo_get_history` | Fetch the history of one chat (groups too), paginated, with `replyTo` and `mentions` | Read |
+| `zalo_search_history` | Search history across every chat by sender or date range | Read |
+| `zalo_get_group_joins` | Who joined a group and when, filtered by group, person or date range | Read |
+| `zalo_list_join_requests` | Who is waiting to join a group that requires approval | Read |
+| `zalo_review_join_requests` | Approve or reject people waiting to join | Dangerous |
+| `zalo_list_threads` | List the chats currently in the buffer | Read |
+| `zalo_search_threads` | Find a group or person by name | Read |
+| `zalo_view_media` | Download/open an image, audio or video on the server (the brain does not see it, see `zalo_read_images` below) | Read |
+| `zalo_mark_read` | Mark as handled up to a cursor | Write |
+| `zalo_send_message` | Send a message to a person or group | Dangerous |
+| `zalo_send_file` | Send files (Excel, PDF, Word...) with a message, only files in the session outbox (see "Sending images and files") | Dangerous |
 
-Danh sách trên theo mã nguồn `javis-zalo` 1.5.0. Tên tham số lấy từ mã nguồn: kiểu cuộc chat của
-`zalo_send_message` là `threadType` (0 = chat riêng, 1 = nhóm), và `zalo_get_messages` đọc bằng
-`since` chứ không có `cursor`. Lịch sử chỉ có từ lúc MCP kết nối, cộng phần Zalo gửi lại lúc kết
-nối (khoảng hai tuần gần nhất); tin cũ hơn thì không API nào lấy được.
+The list follows the `javis-zalo` 1.5.0 source. Parameter names come from the source: the chat type of
+`zalo_send_message` is `threadType` (0 = private chat, 1 = group), and `zalo_get_messages` reads with
+`since`, not `cursor`. History only covers what arrived since the MCP connected, plus what Zalo
+replays on connect (roughly the last two weeks); nothing older is available through any API.
 
-### Khi nào có thể thiếu tin (từ 0.183.0, javis-zalo 1.5.0)
+### When a message may be missing (since 0.183.0, javis-zalo 1.5.0)
 
-Ba tool đọc tin chỉ đọc kho do chính javis-zalo gom: tin tới lúc đang kết nối, cộng phần Zalo gửi
-lại mỗi lần vừa kết nối. Không có cách hỏi lại Zalo lịch sử chat riêng sau đó. Nên tin tới đúng lúc
-mất kết nối (Javis khởi động lại hay cập nhật, mạng rớt, một phiên Zalo Web khác đang giữ kết nối)
-chỉ thấy được nếu phần gửi lại mang nó về.
+The three read tools only read what javis-zalo captured itself: messages that arrive while it is
+connected, plus Zalo's replay each time it connects. There is no way to ask Zalo for a DM's history
+later. So a message that arrives during an outage (a Jarvis 007 restart or update, a dropped network,
+another Zalo Web session holding the connection) is only seen if the replay brings it back.
 
-- Kho lịch sử giờ **lưu ra đĩa** (30 ngày) trong thư mục phiên của tài khoản, nên khởi động lại
-  không còn xoá sạch.
-- Mỗi kết quả đọc có thêm `sync`. `sync.complete: false` nghĩa là trong khoảng đó có lúc mất kết
-  nối mà phần gửi lại chưa phủ hết (`sync.gaps` ghi từ lúc nào đến lúc nào): có thể đang thiếu tin,
-  **không phải** là khách chưa trả lời. Javis khi đó giữ bước đang chờ (duyệt, phát hành) và báo chủ.
-- Tin tới lúc mất kết nối mà phần gửi lại mang về được đưa vào luồng tin mới, đánh dấu
-  `recovered: true`, nên Hộp thư cũng có.
+- History is now **kept on disk** (30 days) in the account's session folder, so a restart no longer
+  wipes it.
+- Every read result carries `sync`. `sync.complete: false` means the connection was down during
+  part of that period and the replay did not cover it (`sync.gaps` says when): a message may be
+  missing, which is **not** the same as the contact not replying. Jarvis 007 then keeps the waiting step
+  (approval, publishing) on hold and tells the owner.
+- Messages from an outage that the replay brings back go to the live feed, flagged
+  `recovered: true`, so the Inbox has them too.
 
-## Duyệt người xin vào nhóm
+## Approving join requests
 
-Từ Javis 0.84.7 (javis-zalo 1.2.0), với nhóm bật "duyệt thành viên":
+Since Jarvis 007 0.84.7 (javis-zalo 1.2.0), for groups that require approval:
 
-- **Javis báo bạn khi có người xin vào**, qua chuông hòm thư và Telegram của bạn: một tin cho mỗi nhóm, có tên người
-  xin và tên nhóm.
-- **Bạn ra lệnh, Javis làm.** Hỏi "ai đang xin vào nhóm Zoom | Javis OS?" thì Javis liệt kê; bảo "duyệt hết" hay
-  "duyệt Lan, từ chối Minh" thì Javis làm và nói lại kết quả từng người.
-- **Bot chuyên trách không bao giờ tự duyệt.** Sự kiện xin vào nhóm không tới bot.
-- Tài khoản Zalo đã quét QR phải là **trưởng hoặc phó nhóm**, không thì Zalo từ chối. Duyệt là thao tác nguy hiểm
-  (đổi thành viên nhóm), nên kết nối Zalo phải ở mức Toàn quyền.
+- **Jarvis 007 tells you when someone asks to join**, through the inbox bell and your Telegram: one message per group,
+  with the applicants' names and the group name.
+- **You decide, Jarvis 007 acts.** Ask "who is waiting to join Zoom | Jarvis 007?" and Jarvis 007 lists them; say "approve
+  everyone" or "approve Lan, reject Minh" and Jarvis 007 does it and reports the outcome for each person.
+- **A dedicated bot never approves on its own.** Join requests do not reach bots.
+- The Zalo account you scanned must be the group's **owner or a deputy**, or Zalo refuses. Approving is a dangerous
+  action (it changes who is in the group), so the Zalo connection must be at Full access.
 
-## Người mới vào nhóm
+## New members joining a group
 
-Từ Javis 0.84.2 (javis-zalo 1.1.0), Javis biết ai vừa vào nhóm và vào **lúc nào**, kể cả người
-được thêm vào bởi chính tài khoản của bạn:
+Since Jarvis 007 0.84.2 (javis-zalo 1.1.0), Jarvis 007 knows who just joined a group and **when**,
+including people your own account added:
 
-- **Hỏi lại được.** "Tuần này ai mới vào nhóm Zoom | Javis OS?" thì bộ não gọi
-  `zalo_get_group_joins` và trả tên kèm giờ vào. Nhật ký nằm ở
-  `~/.zalo-agent-cli/group-joins.jsonl` trong thư mục phiên của kết nối, giữ 5000 lượt gần nhất,
-  còn nguyên sau khi khởi động lại.
-- **Bot chuyên trách nhận được sự kiện.** Ở nhóm đã cho phép bot, mỗi người mới vào là một sự
-  kiện gửi tới Agent của bot, bất kể chế độ "trả lời khi nào". Agent làm theo chỉ dẫn của nó (ví dụ
-  chào và hỏi thăm), và câu nó gửi tự tag đúng người mới. Javis **không có lời chào mặc định**:
-  chỉ dẫn của Agent không nói gì về người mới thì bot im. Nhiều người vào cùng lúc mà bot đã hết
-  hạn mức thì bot cũng im chứ không nói "nhắn hơi nhanh".
-- **Giới hạn.** Zalo chỉ báo sự kiện này lúc đang kết nối, và danh sách thành viên không có ngày
-  vào nhóm. Người vào trước khi có tính năng này, hoặc trong lúc máy chạy Javis tắt, thì không có
-  trong nhật ký.
+- **You can ask.** "Who joined Zoom | Jarvis 007 this week?" makes the brain call
+  `zalo_get_group_joins` and answer with names and join times. The log lives in
+  `~/.zalo-agent-cli/group-joins.jsonl` inside the connection's session folder, keeps the latest
+  5000 joins, and survives restarts.
+- **A dedicated bot receives the event.** In a group the bot is allowed in, each newcomer is an
+  event sent to the bot's Agent, whatever the "reply when" setting says. The Agent follows its own
+  instructions (for example a welcome and a question), and what it sends tags the newcomer.
+  Jarvis 007 has **no greeting of its own**: if the Agent's instructions say nothing about newcomers,
+  the bot stays silent. When many people join at once and the bot has hit its rate limit, it also
+  stays silent instead of saying "you are typing too fast".
+- **Limits.** Zalo only reports this while connected, and the member list carries no join date.
+  People who joined before this feature, or while the machine running Jarvis 007 was off, are not in
+  the log.
 
-## Gói Zalo mở rộng (Javis Store)
+## The Zalo extras pack (Jarvis 007 Store)
 
-Ba nhóm tool dưới đây (đọc ảnh, gửi ảnh và file, tag người cùng ghi chú, nhắc hẹn, poll) bù đúng
-chỗ MCP chuẩn còn thiếu. Từ 0.73.0 chúng nằm trong gói **`javis.zalo`** trên Javis Store thay vì
-đi sẵn trong app, để ai không dùng Zalo thì không phải mang theo:
+The three groups of tools below (reading images, sending images and files, tagging people plus
+notes, reminders and polls) fill exactly what the standard MCP lacks. Since 0.73.0 they live in
+the **`javis.zalo`** pack on Jarvis 007 Store instead of shipping inside the app, so people who do not
+use Zalo do not carry them:
 
-- **Quét QR Zalo xong là Javis mời cài gói**, qua đúng màn hình đồng ý của kho: liệt kê từng tệp
-  mã, công tắc "chạy ngay" bật sẵn vì bạn vừa tự đấu Zalo. Bấm Cài là có đủ tool.
-- **Máy đã đấu Zalo từ trước** thì trang Kết nối hiện dải nhắc kèm nút **Cài gói đi kèm**.
-  Javis không bao giờ tự cài gói có mã mà không hỏi.
-- Kết nối Zalo, Hộp thư và chatbot Zalo vẫn ở trong app, chạy bình thường dù chưa cài gói. Thiếu
-  gói thì chỉ thiếu các tool mở rộng.
+- **Right after you scan the Zalo QR, Jarvis 007 offers the pack** through the store's own consent
+  screen: it lists every code file, with the "run now" switch on because you just connected
+  Zalo yourself. Press Install and every tool is there.
+- **On a machine that connected Zalo earlier**, the Connections page shows a reminder with an
+  **Install companion pack** button. Jarvis 007 never installs a code pack without asking.
+- The Zalo connection, the Inbox and the Zalo chatbot stay in the app and keep working without
+  the pack. Without it you only miss the extra tools.
 
-## Đọc ảnh trong nhóm
+## Reading images in a group
 
-MCP của Zalo chỉ trả **đường link** của ảnh, giữ tin trong 2 giờ, và `zalo_view_media` mở ảnh
-bằng trình xem ảnh của máy chủ chứ không đưa cho bộ não. Nên gói `javis.zalo` có tool
-`zalo_read_images`:
+The Zalo MCP only returns a **link** to an image, keeps messages for 2 hours, and
+`zalo_view_media` opens the image in the server's own image viewer instead of handing it to the
+brain. So the `javis.zalo` pack has the `zalo_read_images` tool:
 
-| Tool | Công dụng | Mức thao tác |
+| Tool | What it does | Action level |
 |---|---|---|
-| `zalo_read_images` | Lấy ảnh người ta gửi trong nhóm về brain và cho bộ não biết trong ảnh có gì | Ghi (lưu ảnh vào brain) |
+| `zalo_read_images` | Fetches the images people post in a group into the brain and tells the brain what is in them | Write (saves images to the brain) |
 
-Nói trong chat như bình thường, ví dụ “xem ảnh hoá đơn chị Lan vừa gửi trong nhóm Kinh doanh”.
+Just ask in chat, for example "look at the receipt Lan just posted in the Sales group".
 
-- **Ảnh lấy thẳng từ Zalo**, không phụ thuộc bộ đệm 2 giờ của MCP: Javis hỏi Zalo các tin gần
-  nhất của nhóm (mặc định 30, tối đa 100) và lấy tối đa 8 ảnh mới nhất. Chat riêng thì chỉ lấy
-  được ảnh còn trong bộ đệm MCP.
-- **Ảnh lưu vào `attachments/zalo/<id nhóm>/`** của brain, nên hiện được ngay trong khung chat.
-- **Mọi bộ não đều "thấy" ảnh.** Claude Code và Codex tự mở file ảnh. Các engine API (OpenRouter,
-  Gemini...) không tự xem ảnh được, nên ChatGPT trên gói bạn đang đăng nhập nhìn ảnh rồi tả lại,
-  chép nguyên văn chữ và số trong ảnh. Chưa đăng nhập ChatGPT ở trang Model thì vẫn tải được ảnh,
-  chỉ thiếu phần tả.
+- **Images come straight from Zalo**, not from the MCP's 2-hour buffer: Jarvis 007 asks Zalo for the
+  group's recent messages (30 by default, at most 100) and takes up to the 8 newest images. For a
+  private chat, only images still in the MCP buffer can be fetched.
+- **Images are saved to `attachments/zalo/<group id>/`** in the brain, so they show right in chat.
+- **Every brain can "see" them.** Claude Code and Codex open the image file themselves. The API
+  engines (OpenRouter, Gemini...) cannot view images, so ChatGPT on the plan you are signed in to
+  looks at them and describes them, copying any text and numbers verbatim. Without ChatGPT signed
+  in on the Models page the images are still fetched, just without the description.
 
-Phần ChatGPT xem ảnh nằm trong app (plugin có sẵn `image-chatgpt`, tool `javis_describe_image`),
-nên xem được cả mọi ảnh khác trong brain, có cài gói Zalo hay không.
+The part where ChatGPT looks at images lives in the app (the bundled `image-chatgpt` plugin, tool
+`javis_describe_image`), so it can view any other image in the brain too, with or without the
+Zalo pack.
 
-## Gửi ảnh và file
+## Sending images and files
 
-`zalo_send_message` ở trên **chỉ gửi được chữ**. Muốn gửi ảnh (ví dụ ảnh Javis vừa tạo) hay
-file (báo cáo PDF, bảng tính) thì dùng tool `zalo_send_image` trong gói `javis.zalo`. Nó dùng
-đúng tài khoản Zalo bạn đã quét QR.
+`zalo_send_message` above **only sends text**. To send an image (say one Jarvis 007 just generated)
+or a file (a PDF report, a spreadsheet), use the `zalo_send_image` tool from the `javis.zalo`
+pack. It uses exactly the Zalo account you scanned the QR with.
 
-| Tool | Công dụng | Mức thao tác |
+| Tool | What it does | Action level |
 |---|---|---|
-| `zalo_send_image` | Gửi ảnh hoặc file kèm lời nhắn | Nguy hiểm (mức Toàn quyền) |
+| `zalo_send_image` | Send an image or file with a message | Dangerous (Full access level) |
 
-Nói trong chat như bình thường, ví dụ “gửi ảnh này cho nhóm Kinh doanh” hoặc “gửi báo cáo
-tháng 7 cho anh Nam qua Zalo”.
+Just say it in chat, for example "send this image to the Sales group" or "send the July report
+to Nam over Zalo".
 
-Ba điều nên biết:
+Three things worth knowing:
 
-- **Chỉ gửi được file nằm trong bộ não đang dùng.** Đây là rào an toàn cố ý: nếu không, một
-  câu chat khéo léo có thể khiến Javis gửi file bất kỳ trên máy chủ ra ngoài, mà tin nhắn Zalo
-  thì không thu hồi được.
-- **Một lượt gửi cùng một loại**, hoặc toàn ảnh hoặc toàn file, tối đa 10 file. Trộn lẫn thì
-  Zalo hiển thị sai kiểu nên Javis sẽ báo lại thay vì tự đoán.
-- **Đấu nhiều tài khoản Zalo thì Javis hỏi lại** nên gửi bằng tài khoản nào. Gửi nhầm tài
-  khoản là gửi dưới danh tính người khác, nên đây là chỗ không được đoán.
+- **Only files inside the brain in use can be sent.** This is a deliberate safety rail: without
+  it, one cleverly worded chat message could make Jarvis 007 send any file on the server outside, and
+  a Zalo message cannot be recalled.
+- **One send carries one kind**, either all images or all files, up to 10 files. Mixing them
+  makes Zalo display the wrong type, so Jarvis 007 reports back instead of guessing.
+- **With several Zalo accounts attached, Jarvis 007 asks** which one to send from. Sending from the
+  wrong account means sending under someone else's identity, so this is not a place to guess.
 
-Cần Node.js 20+ trên máy chạy Javis, giống như phần kết nối Zalo.
+Node.js 20+ is required on the machine running Jarvis 007, same as for the Zalo connection itself.
 
-### Vì sao file đi đường khác ảnh (từ 0.139.0)
+### Why files take a different path from images (since 0.139.0)
 
-Ảnh tải lên Zalo là có link ngay. File (Excel, PDF, Word, zip, video, cả ảnh `.bmp`) thì khác:
-Zalo nhận xong mới báo "đã tải lên" qua **kết nối thời gian thực** của tài khoản. Trước 0.139.0
-Javis gửi file bằng một lệnh chạy một lần, không mở kết nối đó, nên lệnh chờ mãi rồi bị cắt ở
-120 giây, file không tới (14/10/2026 gửi bảng Excel 11 KB cho nhân sự treo hai lần, phải đổi
-sang ảnh). Mở thêm kết nối riêng cũng không được: Zalo chỉ giữ một kết nối Web mỗi tài khoản và
-sẽ đá kết nối đang trực Hộp thư.
+An image uploaded to Zalo gets its link right away. A file (Excel, PDF, Word, zip, video, even a
+`.bmp` image) does not: Zalo reports "uploaded" only over the account's **live connection**.
+Before 0.139.0 Jarvis 007 sent files with a one-shot command that never opens that connection, so the
+command waited until it was cut at 120 seconds and the file never arrived. Opening an extra
+connection does not work either: Zalo keeps one Web connection per account and would evict the
+one serving the inbox.
 
-Từ 0.139.0 file đi qua tool `zalo_send_file` của chính tiến trình MCP đang giữ kết nối:
+Since 0.139.0 files go through the `zalo_send_file` tool of the MCP process that holds the
+connection:
 
-- Javis chép file vào hộp gửi của phiên Zalo (`.zalo-agent-cli/outbox/` trong thư mục phiên), gọi
-  tool, xong thì xoá bản chép. Tool chỉ nhận file trong hộp gửi đó, nên model gọi thẳng tool cũng
-  không gửi được file nào khác trên máy chủ.
-- **Zalo không xác nhận trong 60 giây thì báo lỗi rõ và KHÔNG gửi gì**, kể cả khi xác nhận tới
-  muộn sau đó. Gửi lại là an toàn. Kết nối thời gian thực đang rớt thì báo ngay, không chờ.
-- Ảnh (jpg, png, webp, gif) vẫn đi đường cũ.
-- Kết nối Zalo còn chạy bản `javis-zalo` cũ (chưa có tool này) thì Javis báo cập nhật Javis rồi
-  tắt-bật lại kết nối Zalo, không phải quét QR lại.
+- Jarvis 007 copies the file into the Zalo session outbox (`.zalo-agent-cli/outbox/` in the session
+  folder), calls the tool, then deletes the copy. The tool accepts only files in that outbox, so
+  a model calling it directly cannot send any other file on the server.
+- **If Zalo does not confirm within 60 seconds, you get a clear error and NOTHING is sent**, even
+  if the confirmation arrives later. Retrying is safe. A dropped live connection is reported at
+  once, without waiting.
+- Images (jpg, png, webp, gif) keep the old path.
+- If the Zalo connection still runs an older `javis-zalo` without this tool, Jarvis 007 says to update
+  Jarvis 007 and switch the Zalo connection off and on again (no new QR scan).
 
-Lệnh dòng lệnh `javis-zalo msg send-file` gửi file khi không có kết nối thời gian thực thì báo lỗi
-ngay. Thêm `--listen` để nó tự mở kết nối cho lượt gửi đó, nhưng chỉ dùng trên máy KHÔNG chạy MCP
-Zalo, vì kết nối mới sẽ đá MCP ra.
+The command-line `javis-zalo msg send-file` fails at once when no live connection is open.
+`--listen` makes it open one for that send, but only use it on a machine NOT running the Zalo
+MCP, since the new connection evicts it.
 
-## Tag người, ghi chú, nhắc hẹn và poll
+## Tagging people, notes, reminders and polls
 
-`zalo_send_message` chỉ gửi chữ nên không tag được ai, và MCP của Zalo cũng không có ghi chú, nhắc hẹn hay poll. Gói
-`javis.zalo` bù đúng các chỗ đó bằng năm tool, mọi bộ não đều gọi được:
+`zalo_send_message` only sends text, so it cannot tag anyone, and the Zalo MCP has no notes, reminders or polls either. The
+`javis.zalo` pack fills exactly those gaps with five tools that every brain can call:
 
-| Tool | Công dụng | Mức thao tác |
+| Tool | What it does | Action level |
 |---|---|---|
-| `zalo_group_members` | Liệt kê thành viên một nhóm (id kèm tên), hoặc tra một người theo tên | Đọc |
-| `zalo_send_mention` | Gửi tin vào nhóm và tag đúng người | Nguy hiểm (mức Toàn quyền) |
-| `zalo_create_note` | Tạo ghi chú nhóm, ghim được | Nguy hiểm (mức Toàn quyền) |
-| `zalo_create_reminder` | Nhắc hẹn hiện trong Zalo, chọn giờ và lặp (hằng ngày, tuần, tháng) | Nguy hiểm (mức Toàn quyền) |
-| `zalo_create_poll` | Poll cho nhóm: chọn nhiều đáp án, ẩn danh, hạn đóng | Nguy hiểm (mức Toàn quyền) |
+| `zalo_group_members` | List the members of a group (id with name), or look one person up by name | Read |
+| `zalo_send_mention` | Send a message to a group and tag the right people | Dangerous (Full access level) |
+| `zalo_create_note` | Create a group note, can be pinned | Dangerous (Full access level) |
+| `zalo_create_reminder` | A reminder shown inside Zalo, with a time and repeat (daily, weekly, monthly) | Dangerous (Full access level) |
+| `zalo_create_poll` | A poll for the group: multiple answers, anonymous, closing time | Dangerous (Full access level) |
 
-Nói trong chat như bình thường, ví dụ “nhắn nhóm Kinh doanh tag @minhquy họp lúc 9h nhé” hoặc “tạo poll trưa nay ăn gì trong nhóm Lớp Javis”.
+Just say it in chat, for example "message the Sales group and tag @minhquy: meeting at 9am" or "create a poll in the Jarvis 007 class group: what for lunch".
 
-Bốn điều nên biết:
+Four things worth knowing:
 
-- **Tag chỉ cần nói tên.** “@minhquy” hay “Minh Quý” đều được, không phân biệt hoa thường hay dấu. Javis tìm ID Zalo thật trong
-  những người đã nhắn ở nhóm đó trước, rồi tới danh sách thành viên của Zalo. **Trùng tên hoặc không thấy thì Javis hỏi lại kèm
-  danh sách ứng viên**, không đoán, vì tag nhầm người thì không rút lại được. Tag cả nhóm (`@All`) chỉ khi bạn yêu cầu rõ.
-- **Nhắc hẹn này khác nhắc hẹn riêng của Javis** (`javis_schedule`): nó hiện trong Zalo nên cả nhóm cùng thấy. Giờ tính theo múi giờ của Javis.
-- **Nhóm khoá quyền tạo ghi chú hoặc poll của thành viên** thì Zalo từ chối và Javis báo thẳng lý do đó. Nếu lệnh quá giờ, Javis nói
-  **không rõ đã tạo chưa** và dặn xem lại nhóm trước khi thử tiếp, để khỏi ra hai poll.
-- **Đấu nhiều tài khoản Zalo thì Javis hỏi lại** nên dùng tài khoản nào, giống phần gửi ảnh.
+- **You only need to say a name to tag.** "@minhquy" or "Minh Quý" both work, ignoring case and accents. Jarvis 007 looks up the real Zalo
+  id among the people who already spoke in that group first, then in Zalo's member list. **If a name is ambiguous or not found, Jarvis 007
+  asks back with the candidates** instead of guessing, because a wrong tag cannot be undone. `@All` only when you ask for it explicitly.
+- **This reminder is not Jarvis 007's own reminder** (`javis_schedule`): it shows up inside Zalo, so the whole group sees it. Times use Jarvis 007's timezone.
+- **If the group locks note or poll creation for members**, Zalo refuses and Jarvis 007 reports that reason as is. If a command times out,
+  Jarvis 007 says it is **not sure whether it was created** and asks you to check the group before trying again, so you do not get two polls.
+- **With several Zalo accounts attached, Jarvis 007 asks** which one to use, same as for sending images.
 
-Bot chuyên trách đứng trong nhóm Zalo thì **tự tag người nó đang trả lời**, không cần công cụ nào ở trên, xem [Chatbot](25-chatbot.md).
+## Using it in chat
 
-## Cách dùng trong chat
+You can speak naturally:
 
-Có thể nói tự nhiên:
+- "Find the Sales group on Zalo."
+- "Read the 20 most recent messages in the Sales group."
+- "Any new Zalo messages?"
+- "Send the Sales group: meeting at 9am tomorrow."
 
-- “Tìm nhóm Kinh doanh trên Zalo.”
-- “Đọc 20 tin gần nhất của nhóm Kinh doanh.”
-- “Có tin Zalo nào mới không?”
-- “Gửi nhóm Kinh doanh: 9 giờ sáng mai họp nhé.”
+When sending, state the name or `threadId` clearly, the content, and whether it is a person or a
+group. If the search returns several chats with the same name, Jarvis 007 must ask back rather than
+guess. If exactly one result matches, Jarvis 007 sends right away with `zalo_send_message`; no
+listener has to be enabled, the recipient does not have to message first, and nothing depends on
+a watch list.
 
-Khi gửi tin, nên nêu rõ tên hoặc `threadId`, nội dung và đó là cá nhân hay nhóm. Nếu kết
-quả tìm kiếm có nhiều cuộc chat trùng tên, Javis phải hỏi lại thay vì tự đoán.
-Nếu chỉ có một kết quả khớp chính xác, Javis gửi ngay bằng `zalo_send_message`; không cần
-bật listener, không cần người nhận nhắn trước và không phụ thuộc danh sách theo dõi.
+## Permissions
 
-## Phân quyền
+A new connection defaults to **Full access** so that `zalo_send_message` can be used.
 
-Kết nối mới mặc định ở mức **Toàn quyền** để có thể dùng `zalo_send_message`.
+- **Read only**: only the five read tools.
+- **Draft writes**: adds `zalo_mark_read`, still blocks sending.
+- **Full access**: allows sending (`zalo_send_message`, `zalo_send_image`) and the tools that tag people or create notes, reminders and polls.
 
-- **Chỉ đọc**: chỉ dùng năm tool đọc.
-- **Ghi nháp**: thêm `zalo_mark_read`, vẫn chặn gửi tin.
-- **Toàn quyền**: cho phép gửi tin (`zalo_send_message`, `zalo_send_image`) và các tool tag người, ghi chú, nhắc hẹn, poll.
+You change the level in the menu of the account chip on the **Connections** page. Background
+work running at a restricted level is still blocked from sending by the MCP Hub, even when the
+account is set to Full access.
 
-Bạn đổi quyền trong menu của chip tài khoản ở trang **Kết nối**. Việc nền chạy ở chế độ
-giới hạn vẫn bị MCP Hub chặn gửi tin, dù tài khoản đang đặt Toàn quyền.
+## Differences from the old Zalo integration
 
-## Khác với tích hợp Zalo cũ
+The new flow dropped the `listen --webhook` sidecar, the `/hook/zalo` endpoint, the "Listen
+continuously" panel, the per-chat rules file and the two plugins `javis_zalo_rule` and
+`javis_zalo_send`. No listener process turns the MCP connector off and back on any more.
 
-Luồng mới đã bỏ sidecar `listen --webhook`, endpoint `/hook/zalo`, panel “Nghe tin liên
-tục”, file luật theo từng cuộc chat và hai plugin `javis_zalo_rule`/`javis_zalo_send`.
-Không còn việc một tiến trình listener tự tắt rồi bật lại connector MCP.
+Because of that, Jarvis 007 does not forward Zalo messages to Telegram in the background. When you
+want to check messages, ask Jarvis 007; MCP can use `zalo_get_messages` for buffered messages or
+`zalo_get_history` for history.
 
-Do đó Javis không tự chuyển tiếp tin Zalo sang Telegram ở nền. Khi cần kiểm tra tin, hãy
-hỏi Javis; MCP có thể dùng `zalo_get_messages` cho tin đang đệm hoặc
-`zalo_get_history` cho lịch sử.
+## Troubleshooting
 
-## Xử lý lỗi
+- **No QR appears**: check that `node --version` is 20 or higher and that the machine can reach
+  npm and GitHub (`codeload.github.com`).
+- **QR expired**: close the connection window and click **Connect** to generate a new code.
+- **A chat is missing**: try `zalo_search_threads`; for older messages use `zalo_get_history`
+  rather than only `zalo_get_messages`.
+- **The send tool is blocked**: open the account chip menu and switch the level to **Full
+  power**.
+- **It reports the session is in use elsewhere**: close Zalo Web or another `javis-zalo`
+  (or old `zalo-agent-cli`) process using the same account, then try again.
+- **The bot goes silent after Jarvis 007 restarts**: before 0.114.0, if Jarvis 007 shut down badly (a crash, or a
+  hard stop during an update), the old `javis-zalo` process stayed alive. The new server opened another session,
+  so the same account had two listening sessions. Zalo only pushes messages to one session, so the bot read
+  the other one and saw nothing. Since 0.114.0 Jarvis 007 records every MCP process it opens and cleans up
+  leftovers from the previous run itself. On older versions, restarting the whole server (or container) clears it.
+- **You want to sign in from scratch**: delete the connection on the dashboard, then connect and
+  scan the QR again. Other connections' session folders are unaffected.
 
-- **Không hiện QR**: kiểm tra `node --version` phải từ 20 trở lên và máy truy cập được npm và
-  GitHub (`codeload.github.com`).
-- **QR hết hạn**: đóng cửa sổ kết nối rồi bấm **Kết nối** để tạo mã mới.
-- **Không thấy cuộc chat**: thử `zalo_search_threads`; nếu cần tin cũ, dùng
-  `zalo_get_history` thay vì chỉ dùng `zalo_get_messages`.
-- **Tool gửi bị chặn**: mở menu chip tài khoản và chuyển quyền sang **Toàn quyền**.
-- **Báo phiên đang được dùng nơi khác**: đóng Zalo Web hoặc tiến trình
-  `javis-zalo` (hay `zalo-agent-cli` cũ) khác đang dùng cùng tài khoản, rồi thử lại.
-- **Bot im sau khi Javis khởi động lại**: trước 0.114.0, nếu Javis tắt không êm (crash, bị
-  dừng cứng khi cập nhật) thì tiến trình `javis-zalo` cũ còn sống. Server mới mở thêm một phiên,
-  và cùng một tài khoản có hai phiên nghe. Zalo chỉ đẩy tin về một phiên nên bot đọc phiên kia
-  và không thấy gì. Từ 0.114.0 Javis ghi lại mọi tiến trình MCP nó mở và tự dọn tiến trình sót
-  của lần chạy trước. Bản cũ hơn thì khởi động lại cả máy chủ (hoặc container) là sạch.
-- **Muốn đăng nhập lại từ đầu**: xoá connection trên dashboard, sau đó kết nối và quét QR
-  lại. Thư mục phiên của connection khác không bị ảnh hưởng.
+## References
 
-## Tham khảo
-
-- [Repository `javis-zalo`](https://github.com/blogminhquy/javis-zalo)
-- [zca-js](https://github.com/RFS-ADRENO/zca-js), thư viện nói chuyện với Zalo bên dưới
-- [Kết nối và phân quyền MCP trong Javis](09-mcp-va-so-lieu.md)
+- [The `javis-zalo` repository](https://github.com/blogminhquy/javis-zalo)
+- [zca-js](https://github.com/RFS-ADRENO/zca-js), the library that talks to Zalo underneath
+- [Connections and MCP permissions in Jarvis 007](09-mcp-va-so-lieu.md)

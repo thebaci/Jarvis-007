@@ -1,382 +1,382 @@
-# Models & engine
+# Models & engines
 
 ***Tiếng Việt** · [English](en/10-models-and-engines.md)*
 
-Trang **Models** là nơi bạn chọn "bộ não" cho Javis: dùng engine nào, model nào để trả lời, đăng nhập vào nhà cung cấp AI, chọn model rẻ cho việc chạy nền, và bật mức suy nghĩ sâu. Đây là trang quyết định Javis thông minh tới đâu và tiêu hạn mức của gói nào.
+The **Models** page is where you pick Jarvis 007's "brain": which engine and model answers you, signing into AI providers, choosing a cheap model for background work, and enabling deeper reasoning. This page decides how smart Jarvis 007 is and whose quota it spends.
 
-Nếu bạn mới bắt đầu, xem trước [Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md). Khi cần gắn thêm công cụ ngoài cho Javis, xem [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md).
+If you are just starting, read [Getting started & first-run setup](01-getting-started.md) first. To attach external tools to Jarvis 007, see [Connections & business data](09-mcp-va-so-lieu.md).
 
-## Tính năng này là gì
+## What this feature is
 
-Javis có thể chạy trên nhiều "engine" (nhà cung cấp AI) khác nhau. Bạn chọn 1 cái làm **Main Model** (model chính cho hội thoại), và tùy chọn thêm:
+Jarvis 007 can run on many different "engines" (AI providers). You pick 1 as the **Main Model** (the conversation model), and optionally also:
 
-- **Model việc nền**: model rẻ hơn cho những việc Javis tự chạy khi bạn không ngồi đó - loop, việc Kanban, nhắc hẹn, tự học, tiêu hoá nguồn.
-- **Suy nghĩ (reasoning)**: mức độ model động não trước khi trả lời.
+- **Background model**: a cheaper model for what Jarvis 007 runs while you are away: loops, Kanban work, reminders, self-learning, source ingestion.
+- **Reasoning**: how hard the model thinks before answering.
 
-Điểm quan trọng nhất cần hiểu: **đổi model KHÔNG làm Javis mất chức năng.** Mọi provider đều được cấp cùng một bộ đồ nghề qua trung tâm kết nối (MCP Hub) của Javis: gọi kho Kết nối đã đấu, đọc/ghi file trong brain, chạy skill, giao việc Kanban (tool `javis_task`), tạo agent/workflow/loop/nhắc hẹn (tool `javis_schedule`).
+The most important thing to understand: **changing model does NOT cost Jarvis 007 any capability.** Every provider gets the same toolkit through Jarvis 007's connection hub (MCP Hub): calling the Connections you wired, reading and writing files in the brain, running skills, queueing Kanban work (the `javis_task` tool), creating agents/workflows/loops/reminders (the `javis_schedule` tool).
 
-| Cách gọi | Provider | MCP Javis · tool file brain · skill | Chạy lệnh máy (Bash) |
+| Route | Provider | Jarvis 007 MCP · brain file tools · skills | Shell commands (Bash) |
 |---|---|---|---|
-| Qua **Claude Code** | Claude Code | Có - MCP native + skill native | **Có** |
-| Qua **Codex** | OpenAI OAuth (ChatGPT) | Có - MCP qua hub (cả kết nối local như Zalo/Webcake) + kho MCP GỐC của Codex (server bạn tự `codex mcp add`) + skill qua router (`javis_use_skill` / đọc file `skills/`) | **Có** |
-| Qua **Antigravity CLI** | Google Antigravity CLI (`agy`) | Có - MCP qua hub (ghi vào `~/.gemini/config/mcp_config.json`, xem B1b) + skill qua router | **Có** |
-| **Gọi API thẳng** | OpenRouter | Có - MCP qua hub + tool file vault + skill qua router | Không |
-| **Gọi API thẳng** | OpenAI (API) | Có - như trên | Không |
-| **Gọi API thẳng** | Anthropic (API) | Có - như trên | Không |
-| **Gọi API thẳng** | Google Gemini (API) | Có - như trên (từ 0.9.270 trang Kết nối cũng hết báo nhầm) | Không |
-| **Gọi API thẳng** | Groq (API) | Có - như trên | Không |
-| **Gọi API thẳng** | DeepSeek (API) | Có - như trên | Không |
-| **Gọi API thẳng** | Ollama Cloud | Có - như trên | Không |
+| Through **Claude Code** | Claude Code | Yes, native MCP + native skills | **Yes** |
+| Through **Codex** | OpenAI OAuth (ChatGPT) | Yes, MCP through the hub (local connections such as Zalo/Webcake included) + Codex's OWN MCP registry (servers you added with `codex mcp add`) + skills through the router (`javis_use_skill` / reading `skills/` files) | **Yes** |
+| Through **Antigravity CLI** | Google Antigravity CLI (`agy`) | Yes, MCP through the hub (written into `~/.gemini/config/mcp_config.json`, see B1b) + skills through the router | **Yes** |
+| **Direct API** | OpenRouter | Yes, MCP through the hub + vault file tools + skills through the router | No |
+| **Direct API** | OpenAI (API) | Yes, as above | No |
+| **Direct API** | Anthropic (API) | Yes, as above | No |
+| **Direct API** | Google Gemini (API) | Yes, as above (since 0.9.270 the Connections page no longer misreports it) | No |
+| **Direct API** | Groq (API) | Yes, as above | No |
+| **Direct API** | DeepSeek (API) | Yes, as above | No |
+| **Direct API** | Ollama Cloud | Yes, as above | No |
 
-### Bốn thứ engine API không có
+### The four things API engines lack
 
-Trước 0.17.1 trang này ghi "khác biệt **duy nhất** là chạy được lệnh máy hay không". Nói vậy gọn nhưng không đúng. Danh sách thật:
+Before 0.17.1 this page said the "**only** difference is running shell commands". Neat, but wrong. The real list:
 
-- **Lệnh máy (Bash)** - chạy lệnh trên máy chủ.
-- **WebFetch và WebSearch** - tự mở một URL lạ ra đọc, tự tra web. Engine API muốn lấy dữ liệu ngoài thì phải qua một MCP đã đấu.
-- **Task** - đẻ agent con chạy song song trong cùng một lượt.
-- **Nối lại phiên cũ của CLI** - engine API dựng lại ngữ cảnh mỗi lượt.
+- **Shell commands (Bash)**, running commands on the server.
+- **WebFetch and WebSearch**, opening an arbitrary URL to read it and searching the web. An API engine wanting outside data must go through a connected MCP.
+- **Task**, spawning sub-agents running in parallel within one turn.
+- **Resuming an earlier CLI session**; API engines rebuild the context every turn.
 
-Thêm hai giới hạn thực dụng của engine API: mỗi lượt tối đa **8 vòng gọi tool** (quá thì dừng và báo), và khi lượt **có gọi tool** thì câu trả lời hiện một cục ở cuối chứ không chạy dần từng chữ (mỗi vòng là một request riêng).
+Two more practical limits of API engines: at most **8 tool-call rounds** per turn (it stops and says so beyond that), and when a turn **calls tools**, the answer arrives as one block at the end rather than streaming word by word (each round is a separate request).
 
-Ngoài từng ấy, mọi năng lực còn lại là như nhau. Cụ thể là: gọi mọi MCP đã đấu, đọc và ghi file trong brain, đọc file bạn vừa đính kèm hoặc dán vào khung chat, chạy skill, giao việc Kanban, tạo loop và nhắc hẹn, tạo agent/workflow/skill (chúng chỉ là file `.md` trong vault), tạo ảnh, dùng tool của plugin.
+Beyond those, every capability is identical. Specifically: calling every connected MCP, reading and writing files in the brain, reading a file you just attached or pasted into the chat, running skills, queueing Kanban work, creating loops and reminders, creating agents/workflows/skills (they are just `.md` files in the vault), generating images, and using plugin tools.
 
-> **Đọc file đính kèm trên engine API có từ 0.43.1.** Trước đó `javis_read_file` chỉ nhìn thấy bên trong brain, trong khi file bạn kéo-thả hay dán vào khung chat lại rơi xuống `.staging` ở ngoài - nên engine API báo lỗi rồi bảo bạn tự chép file vào thư mục Brain. Nay tool đó nhận cả đường dẫn file vừa đính kèm. Vẫn CHỈ đúng thư mục nhận file đó và CHỈ để đọc: ghi vẫn khoá trong brain, và chatbot nói chuyện với khách của bạn thì không thấy mấy file này.
+> **Reading attachments on API engines arrived in 0.43.1.** Before that, `javis_read_file` could only see inside the brain, while files you dragged or pasted into the chat landed in `.staging` outside it, so API engines reported an error and told you to copy the file into the brain folder. Now that tool accepts the path of a freshly attached file too. It is still limited to that attachment folder and still read-only: writing stays locked to the brain, and a chatbot talking to your customers cannot see these files.
 
-> **Giao việc Kanban từ engine API có từ 0.17.1.** Trước đó đường duy nhất là `POST /kanban/task`, mà gọi được nó thì phải có Bash và curl - nên chỉ Claude Code với Codex làm được, dù tài liệu vẫn hứa mọi bộ não đều làm được. Nay có tool `javis_task` đi qua hub nên lời hứa đó thành đúng.
+> **Queueing Kanban work from API engines arrived in 0.17.1.** Before that the only route was `POST /kanban/task`, which requires Bash and curl, so only Claude Code and Codex could do it, even though the documentation promised every brain could. The `javis_task` tool through the hub now makes that promise true.
 
-Nói ngắn gọn: **năng lực nằm ở Javis, không nằm ở model.** Ba engine CLI (**Claude Code** với gói Claude, **Codex** với gói ChatGPT, **Antigravity CLI** với gói Google) tận dụng chính gói subscription bạn đang trả và chạy thêm được lệnh máy; sáu provider API chỉ cần một API key và làm được mọi thứ còn lại - kể cả điều phối việc, tạo loop, chạy skill. Agent trong Workflow cũng chọn được model theo nhà cung cấp - xem [Agents & Workflows](07-agents-va-workflows.md).
+In short: **capability lives in Jarvis 007, not in the model.** The three CLI engines (**Claude Code** on a Claude plan, **Codex** on a ChatGPT plan, **Antigravity CLI** on a Google plan) use the subscription you already pay for and can additionally run shell commands; the six API providers need only an API key and do everything else, orchestration, loops and skills included. Agents in a Workflow can also pick a model per provider, see [Agents & Workflows](07-agents-and-workflows.md).
 
-## Mở ở đâu trong Javis
+## Where to find it in Jarvis 007
 
-1. Mở dashboard Javis (mặc định ở cổng `7777`).
-2. Ở thanh bên trái, mở nhóm **Kết nối**, rồi bấm mục **Models**.
-3. Trang Models hiện 4 khối theo thứ tự: **◆ Main Model** ("model chính cho hội thoại"), **◆ Providers** ("đăng nhập / kết nối nhà cung cấp model"), **◆ Model việc nền** ("loop · việc Kanban · nhắc hẹn · tự học · tiêu hoá nguồn"), **◆ Suy nghĩ** ("độ sâu reasoning khi trả lời").
+1. Open the Jarvis 007 dashboard (port `7777` by default).
+2. In the left sidebar, open the **Connections** group and click **Models**.
+3. The Models page shows 4 blocks in order: **◆ Main Model** ("the conversation model"), **◆ Providers** ("sign into / connect model providers"), **◆ Background model** ("loops · Kanban work · reminders · self-learning · source ingestion"), **◆ Reasoning** ("thinking depth when answering").
 
-## Mười provider có sẵn
+## The ten available providers
 
-Khối **Providers** liệt kê 10 nhà cung cấp. **Cái nào đã kết nối được xếp lên đầu**, chưa kết nối dồn xuống dưới; trong mỗi nhóm giữ nguyên thứ tự gốc bên dưới. Nhờ vậy máy đã đấu vài nhà cung cấp thì mở trang ra là thấy ngay chúng, khỏi cuộn tìm.
+The **Providers** block lists 10 providers. **Connected ones are sorted first**, unconnected ones below; within each group the original order below is preserved. That way a machine with a few providers wired shows them immediately without scrolling.
 
-| Provider (nhãn trên màn hình) | Kiểu kết nối | Ghi chú |
+| Provider (on-screen label) | Connection type | Notes |
 |---|---|---|
-| **Claude Code** | Đăng nhập Claude Code, không cần key | Đầy đủ MCP/skill/tool máy. Là Main Model mặc định |
-| **OpenAI OAuth (ChatGPT)** | Device code (đăng nhập gói ChatGPT) | Chạy qua Codex, đấu kho Kết nối qua hub + dùng skill qua router |
-| **xAI Grok Build CLI** | Đăng nhập **ngay trên trang Models** (device code), không cần key | Dùng gói **SuperGrok / X Premium+** sẵn có. Chạy qua binary `grok`. Đầy đủ MCP/skill/tool máy, nối lại được mạch hội thoại. Là thẻ CLI **duy nhất đăng nhập được khi Javis chạy trên VPS** - xem [B1a](#b1a-kết-nối-grok-build-cli-dùng-gói-supergrok--x-premium) |
-| **Google Antigravity CLI** | Gõ `agy` **một lần trong terminal**, không cần key | Bản Google chỉ định thay Gemini CLI. Chạy qua binary `agy`. Đầy đủ MCP/skill/tool máy, và chọn được **đúng dàn model của Antigravity IDE** (có cả model không phải của Google) |
-| **OpenRouter** | Dán API key | Nhiều model 1 chỗ, MCP + tool file + skill qua hub |
-| **Anthropic (API)** | Dán API key | MCP + tool file + skill qua hub (từ 0.9) |
-| **OpenAI (ChatGPT API)** | Dán API key | MCP + tool file + skill qua hub |
-| **Google Gemini (API)** | Dán API key | MCP + tool file + skill qua hub |
-| **Groq (API)** | Dán API key | MCP + tool file + skill qua hub. Suy luận rất nhanh, hợp làm model việc nền. Key này còn là thứ cho phép **ra lệnh bằng ghi âm trên Telegram và Zalo** (Whisper nghe giọng thành chữ) - xem [Telegram](11-telegram.md) và [Kênh Zalo Bot](26-kenh-zalo-bot.md); đấu key là đủ, không bắt buộc đổi model chính sang Groq |
-| **DeepSeek (API)** | Dán API key lấy ở platform.deepseek.com | MCP + tool file + skill qua hub. Model `deepseek-flash` (rẻ, nhận ảnh) và `deepseek-v4-pro`. Độ sâu suy nghĩ để **Tắt** thì DeepSeek trả lời thẳng; bật lên thì nó suy nghĩ trước, và nếu cuộc trò chuyện cũ không hợp chế độ đó Javis tự trả lời ở chế độ thường kèm một dòng báo |
-| **Ollama Cloud** | Dán API key lấy ở ollama.com | MCP + tool file + skill qua hub. Model mã nguồn mở cỡ lớn (gpt-oss, qwen3-coder, deepseek) chạy trên máy chủ của Ollama |
+| **Claude Code** | Claude Code sign-in, no key needed | Full MCP/skills/shell. The default Main Model |
+| **OpenAI OAuth (ChatGPT)** | Device code (ChatGPT plan sign-in) | Runs through Codex, wires the Connections store through the hub and uses skills through the router |
+| **xAI Grok Build CLI** | Sign in **on the Models page itself** (device code), no key needed | Uses your existing **SuperGrok / X Premium+** plan. Runs through the `grok` binary. Full MCP/skills/shell, and can resume a conversation thread. It is the **only CLI card that can sign in while Jarvis 007 runs on a VPS**, see [B1a](#b1a-connecting-grok-build-cli-using-a-supergrok--x-premium-plan) |
+| **Google Antigravity CLI** | Type `agy` **once in a terminal**, no key needed | Google's designated replacement for Gemini CLI. Runs through the `agy` binary. Full MCP/skills/shell, and can pick **exactly the Antigravity IDE model lineup** (non-Google models included) |
+| **OpenRouter** | Paste an API key | Many models in one place, MCP + file tools + skills through the hub |
+| **Anthropic (API)** | Paste an API key | MCP + file tools + skills through the hub (since 0.9) |
+| **OpenAI (ChatGPT API)** | Paste an API key | MCP + file tools + skills through the hub |
+| **Google Gemini (API)** | Paste an API key | MCP + file tools + skills through the hub |
+| **Groq (API)** | Paste an API key | MCP + file tools + skills through the hub. Very fast inference, well suited as the background model. This key is also what enables **voice commands on Telegram and Zalo** (Whisper turning speech into text), see [Telegram](11-telegram.md) and [Zalo Bot channel](26-kenh-zalo-bot.md); wiring the key is enough, you need not switch the main model to Groq |
+| **DeepSeek (API)** | Paste an API key from platform.deepseek.com | MCP + file tools + skills through the hub. Models `deepseek-flash` (cheap, takes images) and `deepseek-v4-pro`. With thinking depth set to **Off** DeepSeek answers directly; turned on, it thinks first, and if an older conversation does not fit that mode Jarvis 007 answers in normal mode with a one-line notice |
+| **Ollama Cloud** | Paste an API key from ollama.com | MCP + file tools + skills through the hub. Large open-source models (gpt-oss, qwen3-coder, deepseek) running on Ollama's servers |
 
-Mỗi card provider hiển thị trạng thái **● Đã kết nối** hoặc **○ Chưa kết nối**, kèm số model khả dụng, và một nhãn kiểu bên cạnh tên: **MCP/skill** (Claude Code), **Device code** (ChatGPT), **MCP Javis** (các provider API). Card nào đang là Main Model sẽ có nhãn **MAIN**.
+Each provider card shows **● Connected** or **○ Not connected**, the number of available models, and a type label next to the name: **MCP/skills** (Claude Code), **Device code** (ChatGPT), **Jarvis 007 MCP** (API providers). The card currently serving as Main Model carries a **MAIN** label.
 
-> Nhãn của các provider API trước 0.9.270 ghi là **chat**, khiến nhiều người tưởng chúng chỉ chat suông. Sai: chúng gọi kho Kết nối, đọc/ghi brain và chạy skill y như hai engine CLI. Nhãn giờ là **MCP Javis** cho đúng.
+> Before 0.9.270 the API providers were labelled **chat**, which made people think they could only chat. Wrong: they call the Connections store, read and write the brain and run skills exactly like the two CLI engines. The label is now **Jarvis 007 MCP**, which is accurate.
 
-## Cách dùng (từng bước)
+## How to use it (step by step)
 
-### A. Kết nối Claude Code (mặc định)
+### A. Connecting Claude Code (default)
 
-Đây là engine mặc định. Nó dùng được toàn bộ công cụ, skill và bộ nhớ, cộng thêm chạy lệnh máy. Không bắt buộc: nếu bạn không có gói Claude thì bỏ qua mục này và đi thẳng xuống mục B (ChatGPT) hoặc C (API key) - Javis chạy đủ chức năng như nhau, chỉ thiếu phần lệnh máy khi đi bằng API key.
+This is the default engine. It can use every tool, skill and memory, plus run shell commands. It is not mandatory: if you have no Claude plan, skip this and go straight to section B (ChatGPT) or C (API keys), where Jarvis 007 has the same functionality minus shell commands.
 
-1. Vào **Models**, tìm card **Claude Code**.
-2. Nếu chưa đăng nhập, card báo **○ Chưa đăng nhập** và có hai nút: **Đăng nhập Claude** và **↻ Kiểm tra lại**. Nếu máy chạy Javis chưa có lệnh `claude`, card báo **○ Chưa cài Claude Code**, hiện một khung hướng dẫn cài (bản Docker: cập nhật Javis; bản cài tay: một lệnh để chép) và chỉ có nút **↻ Kiểm tra lại**.
-3. Bấm **Đăng nhập Claude**. Javis hiện dòng "**1)** Mở link này để đăng nhập claude.ai" kèm đường link.
-4. Mở link đó để đăng nhập tài khoản claude.ai của bạn.
-5. Nếu trang hiện **một mã code**, dán mã vào ô "dán code (nếu có)" rồi bấm **Gửi code**. Một số luồng không cần dán code - Javis vừa chờ vừa tự kiểm tra mỗi 3 giây, kết nối xong là card tự đổi. Quá 5 phút không xong thì báo "Hết thời gian, thử lại.".
-6. Khi xong, card đổi sang **● Đã kết nối** kèm email và gói.
+1. Open **Models** and find the **Claude Code** card.
+2. If you are not signed in, the card reads **○ Not signed in** with two buttons: **Sign into Claude** and **↻ Check again**. If the machine running Jarvis 007 has no `claude` command, the card reads **○ Claude Code not installed**, shows one install box (Docker build: update Jarvis 007; manual install: one command to copy) and offers only **↻ Check again**.
+3. Click **Sign into Claude**. Jarvis 007 shows "**1)** Open this link to sign into claude.ai" with the link.
+4. Open that link and sign into your claude.ai account.
+5. If the page shows **a code**, paste it into the "paste code (if any)" field and click **Send code**. Some flows need no code: Jarvis 007 waits and re-checks every 3 seconds, and the card updates once connected. After 5 minutes it reports a timeout and asks you to retry.
+6. When done, the card switches to **● Connected** with your email and plan.
 
-Nút **↻ Kiểm tra lại** chỉ có ở trạng thái chưa đăng nhập, dùng khi bạn vừa đăng nhập bằng terminal và muốn Javis nhìn lại. Khi đã kết nối, card chỉ còn đúng một nút **Ngắt**.
+The **↻ Check again** button only appears while signed out, for when you just signed in from a terminal and want Jarvis 007 to look again. Once connected, the card has just one **Disconnect** button.
 
-Cách này chạy được cả trên VPS không có màn hình. Nếu thích dùng dòng lệnh, bạn có thể chạy `claude auth login --claudeai` trong terminal.
+This works on a headless VPS too. If you prefer the command line, run `claude auth login --claudeai` in a terminal.
 
-### B. Kết nối ChatGPT bằng gói thuê bao
+### B. Connecting ChatGPT with a subscription
 
-Dùng gói ChatGPT Plus/Pro của bạn thay cho API key. Cách này chạy qua Codex và Javis tự đẩy các kết nối của bạn (ví dụ POS bán hàng) sang Codex để ChatGPT cũng gọi được công cụ.
+Use your ChatGPT Plus/Pro plan instead of an API key. This runs through Codex, and Jarvis 007 pushes your connections (a sales POS, for example) into Codex so ChatGPT can call tools too.
 
-Card **OpenAI OAuth (ChatGPT)** khi chưa kết nối có **hai** nút, ứng với hai đường đăng nhập:
+While disconnected, the **OpenAI OAuth (ChatGPT)** card has **two** buttons for two sign-in routes:
 
-**Đường 1 - nút "Đăng nhập ChatGPT" (device code, dùng cho hầu hết mọi người):**
+**Route 1, the "Sign into ChatGPT" button (device code, right for most people):**
 
-1. Bấm **Đăng nhập ChatGPT**. Javis mở trang xác thực của OpenAI và hiện một dòng dạng "Mở &lt;đường link&gt; · nhập mã **XXXX-XXXX** - đang chờ…".
-2. Ở trang vừa mở, nhập đúng mã đó.
-3. Javis tự động chờ và kiểm tra. Xong thì hiện **✓ Đã kết nối!** và card đổi sang **● Đã kết nối** kèm gói tài khoản.
-4. Javis chờ tối đa khoảng 16 phút rồi bỏ cuộc với dòng "Hết hạn, thử lại." - lúc đó bấm **Đăng nhập ChatGPT** lại để lấy mã mới.
+1. Click **Sign into ChatGPT**. Jarvis 007 opens OpenAI's verification page and shows a line like "Open &lt;link&gt; · enter code **XXXX-XXXX**, waiting…".
+2. On the page that opened, enter that code.
+3. Jarvis 007 waits and checks automatically. On success it shows **✓ Connected!** and the card switches to **● Connected** with the account plan.
+4. Jarvis 007 waits about 16 minutes before giving up with "Expired, try again"; click **Sign into ChatGPT** again for a fresh code.
 
-**Đường 2 - nút "Qua trình duyệt" (khi workspace của bạn CHẶN device code):**
+**Route 2, the "Through the browser" button (when your workspace BLOCKS device codes):**
 
-Một số workspace ChatGPT tắt đường device code, bấm nút thứ nhất là báo lỗi. Đừng tưởng hỏng, dùng nút này:
+Some ChatGPT workspaces disable the device code route, and the first button reports an error. Nothing is broken; use this instead:
 
-1. Bấm **Qua trình duyệt**. Javis mở trang đăng nhập ChatGPT trong tab mới.
-2. Đăng nhập xong, trình duyệt sẽ nhảy sang địa chỉ **localhost** và rất có thể **báo không tải được trang - chuyện bình thường**, vì Javis không thật sự mở cổng đó.
-3. **Copy toàn bộ đường dẫn trên thanh địa chỉ** (dạng `http://localhost:1455/auth/callback?code=…`) rồi dán vào ô trong Javis, bấm **Xác nhận**.
-4. Javis tách mã trong đường dẫn đó ra và đổi lấy token. Xong thì hiện **✓ Đã kết nối!**.
+1. Click **Through the browser**. Jarvis 007 opens the ChatGPT sign-in page in a new tab.
+2. After signing in, the browser jumps to a **localhost** address and will most likely **fail to load the page, which is normal**, because Jarvis 007 does not actually open that port.
+3. **Copy the whole address bar** (it looks like `http://localhost:1455/auth/callback?code=…`), paste it into the field in Jarvis 007 and click **Confirm**.
+4. Jarvis 007 extracts the code from that URL and exchanges it for a token. On success it shows **✓ Connected!**.
 
-Vì chỉ cần dán lại đường dẫn nên đường này cũng chạy được khi Javis nằm trên VPS còn trình duyệt ở máy bạn.
+Because it only needs a pasted URL, this route also works when Jarvis 007 runs on a VPS and the browser is on your machine.
 
-Muốn ngắt: bấm **Ngắt** trên card này. Nếu ChatGPT đang là Main Model khi bạn ngắt, Javis tự chuyển Main Model về Claude Code để chat không bị gãy.
+To disconnect: click **Disconnect** on the card. If ChatGPT was the Main Model when you disconnect, Jarvis 007 switches the Main Model back to Claude Code so chat does not break.
 
-Lưu ý: đây là kênh thử nghiệm (chạy nền Codex). Nếu cần ổn định tối đa, dùng Claude Code hoặc OpenRouter.
+Note: this is an experimental channel (running Codex underneath). For maximum stability, use Claude Code or OpenRouter.
 
-### B1a. Kết nối Grok Build CLI (dùng gói SuperGrok / X Premium+)
+### B1a. Connecting Grok Build CLI (using a SuperGrok / X Premium+ plan)
 
-Đây là đường **xAI** dùng gói bạn đang trả tiền, không phải mua API key riêng. Điểm khác biệt lớn nhất so với hai thẻ CLI của Google: **đăng nhập xong ngay trên trang Models**, kể cả khi Javis chạy trên VPS không có trình duyệt.
+This is the **xAI** route on the plan you already pay for, rather than buying a separate API key. The big difference from the two Google CLI cards: **you finish the sign-in on the Models page**, even when Jarvis 007 runs on a browserless VPS.
 
-1. Cài CLI một lần trên máy chạy Javis:
+1. Install the CLI once on the machine running Jarvis 007:
    - Linux/macOS: `curl -fsSL https://x.ai/cli/install.sh | bash`
    - Windows PowerShell: `irm https://x.ai/cli/install.ps1 | iex`
-   - Bản Docker (từ 0.85.1): **không cần làm bước này**, Javis tự cài lúc khởi động. Trong lúc đang cài, thẻ hiện "Javis đang tự cài"; khoảng một phút sau bấm **Kiểm tra lại**.
-2. Vào **Models**, thẻ **xAI Grok Build CLI**, bấm **Đăng nhập**. Nó hiện ra một đường link và một mã. Mở link đó trên máy bạn (điện thoại cũng được), nhập mã, xác nhận. Thẻ tự chuyển sang **● Đã đăng nhập**, không phải bấm gì thêm.
-3. Bấm **Đổi model ▾** ở khối Main Model, chọn nhà cung cấp này rồi chọn model.
+   - Docker edition (from 0.85.1): **skip this step**, Jarvis 007 installs it by itself at startup. While it does, the card says "Jarvis 007 is installing"; click **Check again** about a minute later.
+2. Open **Models**, the **xAI Grok Build CLI** card, and click **Sign in**. It shows a link and a code. Open that link on your machine (a phone works too), enter the code and confirm. The card switches to **● Signed in** with nothing else to click.
+3. Click **Change model ▾** in the Main Model block, pick this provider and pick a model.
 
-**Cần gói gì:** Grok Build đi kèm **SuperGrok** hoặc **X Premium+**. Có mỗi API key `XAI_API_KEY` thì CLI vẫn chạy được về mặt kỹ thuật, nhưng quyền dùng Grok Build gắn vào GÓI chứ không vào key - nên nếu thẻ báo *"Tài khoản đăng nhập không có quyền dùng Grok Build"* thì đó là chuyện gói, không phải lỗi cấu hình. Bấm **Kiểm tra lại** là biết chắc: nút đó chạy thử một lượt chat thật chứ không chỉ soi file.
+**Which plan you need:** Grok Build comes with **SuperGrok** or **X Premium+**. With only an `XAI_API_KEY` the CLI technically runs, but Grok Build access is tied to the PLAN rather than the key, so a card reporting *"the signed-in account has no Grok Build access"* is a plan issue, not a configuration error. Click **Check again** to be sure: that button runs a real chat turn rather than just inspecting files.
 
-**Chạy nền 24/7 bằng gói cá nhân:** xAI chưa nói rõ chuyện này, nên rủi ro giống hệt cảnh báo đã ghi cho gói Anthropic - muốn yên tâm thì trỏ model việc nền sang một provider API.
+**Running 24/7 in the background on a personal plan:** xAI has not spelled this out, so the risk mirrors the warning given for the Anthropic plan. To be safe, point the background model at an API provider.
 
-Vài chỗ đáng biết:
+A few things worth knowing:
 
-- **Tool của Javis đấu vào `<brain>/.grok/config.toml`**, mục `[mcp_servers.javis]`. Grok đọc cấu hình theo **thư mục làm việc**, mà Javis luôn chạy nó với thư mục làm việc là gốc brain - nên mỗi brain một hub riêng, và Javis **không đụng vào `~/.grok/config.toml`** cá nhân của bạn. Kiểm trong 10 giây: bấm **Kiểm tra lại** ở thẻ, nó ghi lại cấu hình rồi **đọc lại chính file đó** và báo *tool của Javis đã đấu* / *chưa đấu được tool của Javis* / *trung tâm kết nối đang tắt*.
-- **File `config.toml` của bạn không bị đè hỏng.** Javis giữ nguyên mọi mục khác trong file (`[models]`, `[tools]`...). Và nếu file đang có lỗi cú pháp khiến Javis không đọc nổi, nó **không ghi đè** - thà chạy thiếu tool còn hơn xoá mất cấu hình của bạn; khi đó thẻ báo "chưa đấu được tool của Javis" chứ không báo xanh giả.
-- **Có nối lại mạch hội thoại của CLI** (khác thẻ Antigravity). `grok` tự sinh id phiên rồi phát ra trong dòng sự kiện, Javis chỉ đọc lại id đó chứ không tự bịa - nên không có chuyện lưu nhầm rồi lượt sau nối vào một mạch không tồn tại. Mạch dài quá ngưỡng thì Javis tự mở mạch mới và mồi lại bằng lịch sử đã lưu.
-- **Javis ĐO cờ của bản CLI đang cài, không đoán.** Trước mỗi lượt nó hỏi `grok --help` (nhớ 5 phút) rồi chỉ truyền những cờ mà binary tự khai. Bản cũ thiếu một cờ thì mất đúng tính năng đó, không làm hỏng cả lượt chat vì "unknown flag".
-- **Prompt đi qua file, không qua dòng lệnh** (`--prompt-file`), cùng lý do với thẻ Antigravity: Windows chặn tổng dòng lệnh ở 32767 ký tự mà system prompt của Javis đã hơn 36.000.
-- Danh sách model hỏi CLI chứ Javis không giữ bảng chép tay, nên xAI đổi tên model cũng không làm picker lạc hậu.
-- **Javis tắt bộ tự cập nhật của CLI** ở mọi lượt (cờ `--no-auto-update` khi bản CLI có, cộng biến `GROK_DISABLE_AUTOUPDATER=1` luôn luôn). Lý do: Javis chạy `grok` headless trên VPS và trong container, để nó tự tải bản mới giữa lượt là in thêm chữ vào luồng kết quả rồi hỏng câu trả lời, hoặc ghi vào chỗ chỉ đọc rồi chết. Muốn nó tự cập nhật thì tự đặt `GROK_DISABLE_AUTOUPDATER=0` - Javis tôn trọng giá trị bạn đặt. Nâng cấp tay lúc nào cũng được: `grok update`.
-- Lượt chạy quá lâu thì bị cắt ở **900 giây**; đổi bằng biến môi trường `JAVIS_GROK_TIMEOUT`. Binary nằm chỗ lạ thì trỏ bằng `JAVIS_GROK_BIN`.
+- **Jarvis 007's tools are wired into `<brain>/.grok/config.toml`**, section `[mcp_servers.javis]`. Grok reads its configuration by **working directory**, and Jarvis 007 always runs it with the brain root as the working directory, so each brain gets its own hub and Jarvis 007 **never touches your personal `~/.grok/config.toml`**. A 10-second check: click **Check again** on the card; it rewrites the configuration, **rereads that same file** and reports *Jarvis 007 tools wired* / *Jarvis 007 tools not wired* / *the connection hub is off*.
+- **Your `config.toml` is not clobbered.** Jarvis 007 preserves every other section (`[models]`, `[tools]`...). And if the file has a syntax error Jarvis 007 cannot parse, it **does not overwrite it**: running without tools beats destroying your configuration, and the card then says the tools are not wired rather than showing a false green.
+- **It does resume the CLI conversation thread** (unlike the Antigravity card). `grok` generates its own session id and emits it in the event stream, and Jarvis 007 only reads that id back rather than inventing one, so there is no saving a wrong id and later attaching to a thread that does not exist. When a thread grows past the threshold, Jarvis 007 opens a new one and primes it from the saved history.
+- **Jarvis 007 MEASURES the installed CLI's flags rather than guessing.** Before each turn it asks `grok --help` (cached 5 minutes) and only passes flags the binary declares. An older build missing a flag loses exactly that feature instead of breaking the whole turn with "unknown flag".
+- **The prompt goes through a file, not the command line** (`--prompt-file`), for the same reason as the Antigravity card: Windows caps a command line at 32767 characters and Jarvis 007's system prompt already exceeds 36,000.
+- The model list is asked of the CLI rather than kept as a hand-written table, so xAI renaming models does not make the picker stale.
+- **Jarvis 007 disables the CLI's auto-updater** on every turn (the `--no-auto-update` flag where the CLI has it, plus `GROK_DISABLE_AUTOUPDATER=1` always). The reason: Jarvis 007 runs `grok` headless on a VPS and inside containers, and letting it download a new build mid-turn either prints extra text into the result stream and corrupts the answer, or writes to a read-only location and dies. To let it self-update, set `GROK_DISABLE_AUTOUPDATER=0` yourself; Jarvis 007 respects your value. Upgrading by hand always works: `grok update`.
+- A turn running too long is cut at **900 seconds**; change it with the `JAVIS_GROK_TIMEOUT` environment variable. If the binary lives somewhere unusual, point at it with `JAVIS_GROK_BIN`.
 
-### B1b. Kết nối Antigravity CLI (dùng gói Google của bạn)
+### B1b. Connecting Antigravity CLI (using your Google plan)
 
-Đây là đường **Google chỉ định** sau khi họ ngắt Gemini CLI với tài khoản cá nhân (18/06/2026), và Javis đã gỡ hẳn engine Gemini CLI ở bản 0.50.0. Ưu điểm lớn nhất: bạn chọn được **đúng dàn model hiện trong Antigravity IDE**, gồm cả model không phải của Google.
+This is the route **Google designated** after cutting Gemini CLI off from personal accounts (2026-06-18), and Jarvis 007 removed the Gemini CLI engine entirely in 0.50.0. The big advantage: you can pick **exactly the model lineup present in the Antigravity IDE**, non-Google models included.
 
-1. Cài CLI một lần trên máy chạy Javis:
+1. Install the CLI once on the machine running Jarvis 007:
    - Linux/macOS: `curl -fsSL https://antigravity.google/cli/install.sh | bash`
    - Windows PowerShell: `irm https://antigravity.google/cli/install.ps1 | iex`
-   - Bản Docker (từ 0.85.1): **không cần làm bước này**, Javis tự cài lúc khởi động. Trong lúc đang cài, thẻ hiện "Javis đang tự cài"; khoảng một phút sau bấm **Kiểm tra lại**.
-2. Gõ `agy` một lần **trong terminal của máy chạy Javis** (trang **Code** trong Javis là chắc ăn nhất - đúng user đang chạy Javis). Máy để bàn có màn hình thì nó tự mở trình duyệt. Máy chủ không có màn hình (VPS, Docker - kể cả Docker trên chính máy Mac của bạn) thì nó in ra một đường link: mở link đó bằng trình duyệt trên máy bạn, đăng nhập Google xong trình duyệt sẽ nhảy sang một địa chỉ `http://localhost:...` **báo không mở được - đó là bước đúng**, copy nguyên địa chỉ trên thanh URL rồi dán ngược vào terminal và Enter. Phiên lưu trong keyring của hệ điều hành nên chỉ phải làm một lần.
+   - Docker edition (from 0.85.1): **skip this step**, Jarvis 007 installs it by itself at startup. While it does, the card says "Jarvis 007 is installing"; click **Check again** about a minute later.
+2. Type `agy` once **in a terminal on the machine running Jarvis 007** (the **Code** page inside Jarvis 007 is the safest spot - it runs as the exact user Jarvis 007 runs as). A desktop with a screen opens a browser. A server with no screen (VPS, Docker - including Docker on your own Mac) prints a link instead: open it in a browser on your machine, sign into Google, and the browser then jumps to an `http://localhost:...` address that **fails to load, which is the right step** - copy that whole address from the URL bar and paste it back into the terminal, then Enter. The session lives in the operating system keyring, so this is a one-time step.
 
-   > Vì sao phải dán tay: `agy` nhận mã về qua một cổng loopback trên chính máy chạy nó. Trình duyệt của bạn ở máy khác nên không với tới cổng đó. Từ 0.55.46, terminal của Javis tự khai đây là phiên từ xa (`SSH_CONNECTION`) để `agy` hỏi chỗ dán thay vì nằm chờ im lặng. Bản `agy` cũ không hỏi thì mở thêm một phiên terminal rồi chạy `curl "<địa chỉ localhost vừa copy>"` cũng xong. Bố trí lạ (X11 forwarding, máy để bàn có màn hình) muốn tắt hành vi này thì đặt `JAVIS_TERMINAL_REMOTE=0`.
-3. Quay lại **Models**, thẻ **Google Antigravity CLI**, bấm **Kiểm tra lại** (nó chạy thử một lượt chat thật). Thẻ đổi sang **● Đã đăng nhập**.
-4. Bấm **Đổi model ▾** ở khối Main Model, chọn nhà cung cấp này rồi chọn model.
+   > Why the manual paste: `agy` collects the code through a loopback port on the machine running it, and your browser sits on another machine. Since 0.55.46 the Jarvis 007 terminal declares itself a remote session (`SSH_CONNECTION`) so `agy` asks where to paste instead of waiting in silence. If your `agy` is older and never asks, open a second terminal session and run `curl "<the localhost address you copied>"`. Unusual setups (X11 forwarding, a desktop with a screen) can turn this off with `JAVIS_TERMINAL_REMOTE=0`.
+3. Return to **Models**, the **Google Antigravity CLI** card, and click **Check again** (it runs a real chat turn). The card switches to **● Signed in**.
+4. Click **Change model ▾** in the Main Model block, pick this provider and pick a model.
 
-Danh sách model **hỏi thẳng `agy models`** chứ Javis không giữ bảng chép tay, nên tài khoản bạn được cấp model nào là thấy đúng model đó, và Google đổi tên model cũng không làm picker lạc hậu. Model mới chỉ hiện khi chính `agy` đã lên bản biết model đó, nên từ 0.137.0 Javis tự chạy `agy update` mỗi ngày một lần, cả trong bản Docker (tắt bằng biến môi trường `JAVIS_AGY_AUTO_UPDATE=0`). `agy` đã mới nhất mà vẫn không thấy một model thì tài khoản Google của bạn chưa được cấp model đó.
+The model list **asks `agy models` directly** rather than using a hand-written table, so you see exactly the models your account is granted, and Google renaming models does not make the picker stale. A new model only appears once `agy` itself is on a build that knows it, so since 0.137.0 Jarvis 007 runs `agy update` once a day, Docker included (turn it off with the environment variable `JAVIS_AGY_AUTO_UPDATE=0`). If `agy` is up to date and a model is still missing, your Google account has not been granted that model.
 
-Vài chỗ đáng biết, nói trước cho khỏi hiểu nhầm:
+A few things worth knowing up front, to avoid confusion:
 
-- **Đăng nhập làm trong terminal, dashboard không có nút** (từ 0.32.2). Bản 0.30.0 từng dựng một luồng đăng nhập ngay trên trang: Javis mở `agy` trong một terminal giả rồi làm người đưa thư giữa nó và trình duyệt của bạn. Nó chạy được trên Linux, nhưng cái hiện ra trên trang là một ô terminal bấm vào không ăn nên rốt cuộc vẫn phải mở terminal thật, còn Windows thì không có pseudo-terminal nên chưa bao giờ dùng được. Người dùng `agy` đều là dân code sẵn terminal trong tay, nên gõ một lệnh gọn hơn hẳn một luồng UI nửa vời. Đổi lại, Javis không cầm token của ai - nó nằm trong keyring hệ điều hành.
-- **Mức Chỉ đọc ở đây nhẹ hơn.** Bên Grok Build, mức `suggest` xuống thẳng cờ `--deny` nên chính CLI chặn. `agy` không có nấc tương đương, nên Javis siết bằng `--sandbox` cộng với lời dặn trong system prompt. Rào tiền/đơn/đăng bài vẫn nằm ở MCP Hub như mọi engine.
-- **Mức `auto` KHÔNG kèm `--sandbox`** (từ 0.59.44). Đo trên agy 1.2.7: `--sandbox` đi cùng `--dangerously-skip-permissions` làm tool shell của agy chạy như một việc nền rồi bị chính agy huỷ sau 5 giây khi thoát chế độ in một lượt, nên việc Kanban/Loop mức auto không đọc thư mục hay ghi file được mà không có lấy một dòng lỗi. Bỏ cờ này không mất lớp phòng vệ nào vì rào hành động ra ngoài nằm ở MCP Hub.
-- **Chưa nối lại mạch hội thoại của CLI.** Mỗi lượt mở mạch mới rồi mồi lại bằng lịch sử đã lưu, nên **không mất ngữ cảnh** nhưng tốn token hơn.
-- Javis không tự cài `agy` lúc cài đặt (khác ba engine npm): trình cài của Google là một script tải về chạy thẳng, nên để bạn tự chạy khi muốn.
-- **Trên Windows, prompt không đi qua dòng lệnh nữa** (từ 0.33.1, sửa tiếp ở 0.33.2). Windows chặn tổng dòng lệnh ở 32767 ký tự, mà riêng system prompt của Javis trên một brain trống đã hơn 36.000 - tức bộ não này từng chết hẳn trên Windows, và câu báo lỗi lại đổ cho "hội thoại quá dài" nên mở chat mới bao nhiêu lần cũng không thoát.
-- **Javis ĐO xem bản `agy` của bạn nhận prompt kiểu gì, không đoán.** Đây là bài học phải trả giá hai lần: bản 0.33.1 suy cú pháp từ tài liệu chính chủ (CHANGELOG 1.1.1 nói `agy` đọc stdin khi prompt không cấp qua cờ) rồi gửi `--print ""`, và bản `agy` thật trả lại `Error: empty prompt` vì nó kiểm giá trị cờ trước khi ngó tới stdin. Tài liệu đúng về nguyên lý, sai về cú pháp. Nay lần chạy đầu tiên Javis thử ba cách bơm stdin bằng một prompt tí hon có mã riêng, cách nào vọng mã về thì dùng cách đó, rồi nhớ lại cho những lần sau. Không cách nào ăn thì nó ghi ngữ cảnh ra file và bảo model tự đọc; model không đọc được thì nó nói thẳng chứ không lặng lẽ trả lời thiếu luật.
+- **Sign-in happens in the terminal; the dashboard has no button** (since 0.32.2). Version 0.30.0 once built an in-page sign-in flow: Jarvis 007 opened `agy` in a pseudo-terminal and played postman between it and your browser. It worked on Linux, but what appeared on the page was a terminal box you could not click into, so you still ended up opening a real terminal; and Windows has no pseudo-terminal, so it never worked there at all. `agy` users are developers with a terminal already open, so one command beats a half-finished UI flow. In exchange, Jarvis 007 holds nobody's token: it lives in the OS keyring.
+- **Read-only mode is lighter here.** On Grok Build, `suggest` maps straight to `--deny` flags so the CLI itself blocks. `agy` has no equivalent, so Jarvis 007 tightens it with `--sandbox` plus instructions in the system prompt. The money/order/publishing guard still sits in the MCP Hub as it does for every engine.
+- **`auto` mode does NOT pass `--sandbox`** (since 0.59.44). Measured on agy 1.2.7: `--sandbox` together with `--dangerously-skip-permissions` makes agy's shell tool run as a background task that agy itself kills 5 seconds after leaving print mode, so auto-mode Kanban/Loop work could not list directories or write files, with no error line anywhere. Dropping the flag loses no protection because the outside-action guard lives in the MCP Hub.
+- **It does not resume the CLI conversation thread.** Each turn opens a new thread primed from the saved history, so **no context is lost** but it costs more tokens.
+- Jarvis 007 does not install `agy` during setup (unlike the three npm engines): Google's installer is a downloaded script that runs directly, so it is left to you to run when you want.
+- **On Windows the prompt no longer goes through the command line** (since 0.33.1, fixed further in 0.33.2). Windows caps a command line at 32767 characters, and Jarvis 007's system prompt on an empty brain already exceeds 36,000, meaning this brain used to be completely dead on Windows, with an error message blaming "the conversation is too long" so no number of new chats escaped it.
+- **Jarvis 007 MEASURES how your `agy` build accepts a prompt rather than guessing.** This lesson was paid for twice: version 0.33.1 inferred the syntax from the official documentation (CHANGELOG 1.1.1 says `agy` reads stdin when the prompt is not passed as a flag) and sent `--print ""`, and the real `agy` returned `Error: empty prompt` because it validates the flag value before ever looking at stdin. The documentation was right in principle and wrong in syntax. Now, on the first run Jarvis 007 tries three ways of feeding stdin with a tiny prompt carrying a unique marker, uses whichever echoes the marker back, and remembers it for later. If none work, it writes the context to a file and tells the model to read it; if the model cannot read it either, it says so plainly rather than quietly answering without the rules.
 
-- **Tool của Javis đấu vào đâu, và vì sao chỗ đó** (sửa ở 0.43.0). Đây là chỗ sai ba bản liên tiếp mà không bản nào lộ ra, vì hỏng kiểu này không có câu lỗi nào: `agy` vẫn chạy, vẫn trả lời trôi chảy, chỉ là không có lấy một tool nào của Javis - không MCP, không Kanban, không skill. Hai chỗ sai chồng lên nhau:
-  - **Sai tên trường.** Javis ghi `httpUrl`, đó là schema của Gemini CLI (engine đã gỡ) chép nguyên sang. `agy` đọc `serverUrl` (tài liệu di trú của Google nói thẳng là trường `url` được đổi tên thành `serverUrl`). Entry không có trường nào nó hiểu thì server không có địa chỉ, và nó bỏ qua trong im lặng.
-  - **Sai chỗ đặt.** Javis ghi vào trong brain. `agy` nạp MCP từ cấu hình **tầng HOME**: `~/.gemini/config/mcp_config.json` (hiện hành, dùng chung với Antigravity 2.0/IDE) và `~/.gemini/antigravity-cli/mcp_config.json` (đường cũ). Tầng workspace `<brain>/.agents/mcp_config.json` có thật trong tài liệu, nhưng issue #60 của chính repo `antigravity-cli` ghi nhận CLI **tìm thấy rồi bỏ qua** `mcpServers` trong đó. Nay Javis ghi cả hai tầng: HOME để chạy được ngay, workspace để bản nào vá xong issue đó thì tự có cách ly theo brain.
+- **Where Jarvis 007's tools are wired, and why there** (fixed in 0.43.0). This was wrong in three consecutive builds without any of them exposing it, because this kind of breakage has no error message: `agy` still ran and still answered fluently, it simply had not a single Jarvis 007 tool, no MCP, no Kanban, no skills. Two mistakes stacked:
+  - **The wrong field name.** Jarvis 007 wrote `httpUrl`, which is Gemini CLI's schema (a removed engine) copied over. `agy` reads `serverUrl` (Google's migration document says outright that the `url` field was renamed to `serverUrl`). An entry with no field it understands has no address, and it is skipped silently.
+  - **The wrong location.** Jarvis 007 wrote into the brain. `agy` loads MCP from the **HOME-level** configuration: `~/.gemini/config/mcp_config.json` (current, shared with Antigravity 2.0/IDE) and `~/.gemini/antigravity-cli/mcp_config.json` (the old path). The workspace level `<brain>/.agents/mcp_config.json` genuinely exists in the documentation, but issue #60 in the `antigravity-cli` repository itself records that the CLI **finds and then ignores** `mcpServers` there. Jarvis 007 now writes both levels: HOME so it works today, workspace so any build that fixes that issue gets per-brain isolation automatically.
 
-  Hệ quả phải biết: file HOME là **của bạn** và dùng chung với Antigravity IDE, nên IDE cũng sẽ thấy tool của Javis; và hai brain chạy `agy` cùng lúc thì brain sau ghi đè brain trước. Không muốn Javis đụng vào HOME thì đặt `JAVIS_AGY_MCP_HOME=0` (khi đó chỉ còn đường workspace, tức chỉ chạy trên bản `agy` đã vá issue #60). Muốn chỉ định một file khác thì đặt `JAVIS_AGY_MCP_CONFIG=/đường/dẫn/mcp_config.json`. Bản `agy` của bạn từ chối cấu hình vì có khoá lạ thì đặt `JAVIS_AGY_MCP_KEY=serverUrl` (hoặc `=url` cho bản 1.0.x cũ) để Javis chỉ ghi đúng một khoá.
+  The consequence to know: the HOME file is **yours** and shared with the Antigravity IDE, so the IDE will see Jarvis 007's tools too; and two brains running `agy` at once means the later one overwrites the earlier. To keep Jarvis 007 out of HOME, set `JAVIS_AGY_MCP_HOME=0` (leaving only the workspace path, which means only builds that fixed issue #60). To point at another file, set `JAVIS_AGY_MCP_CONFIG=/path/to/mcp_config.json`. If your `agy` build rejects the configuration over an unknown key, set `JAVIS_AGY_MCP_KEY=serverUrl` (or `=url` for older 1.0.x builds) so Jarvis 007 writes exactly one key.
 
-  **Tự kiểm trong 10 giây:** vào **Models**, thẻ **Google Antigravity CLI**, bấm **Kiểm tra lại**. Nó ghi lại cấu hình rồi đọc lại chính file đó, và báo một trong ba câu: *tool của Javis đã đấu*, *chưa đấu được tool của Javis*, hoặc *trung tâm kết nối đang tắt*. Xem tận file thì: `cat ~/.gemini/config/mcp_config.json` - phải thấy một entry tên `javis` có `serverUrl` trỏ về `/hub/mcp`.
+  **A 10-second self-check:** open **Models**, the **Google Antigravity CLI** card, and click **Check again**. It rewrites the configuration, rereads that file, and reports one of three things: *Jarvis 007 tools wired*, *Jarvis 007 tools not wired*, or *the connection hub is off*. To see the file itself: `cat ~/.gemini/config/mcp_config.json`, which must contain an entry named `javis` with a `serverUrl` pointing at `/hub/mcp`.
 
-- **Dấu tiếng Việt không vỡ dọc đường** (từ 0.33.6). Triệu chứng cũ: chữ "gồm" thành `g<?><?>m`, mỗi ký tự tiếng Việt 3 byte hoá đúng 3 dấu `<?>`. Đó là chữ ký của một bên đọc cắt mẩu ống dẫn giữa một ký tự rồi giải mã từng mẩu rời. Đã đo và loại trừ phía Javis (bộ đọc của nó dùng giải mã tăng dần, cắt byte giữa ký tự vẫn ghép lại đúng), nên chỗ vỡ nằm ở bộ đọc của `agy`. Javis không vá được CLI, nhưng chỉnh được chỗ mình đặt ranh giới: nay nó bơm prompt theo từng mẩu kết thúc đúng biên ký tự, nên bên kia đọc kiểu gì cũng không vỡ. Chữ về mà vẫn có ký tự hỏng thì Javis tự đổi sang đường file rồi hỏi lại một lần; vẫn hỏng thì nó nói thẳng là lỗi nằm trong CLI.
+- **Vietnamese accents no longer break in transit** (since 0.33.6). The old symptom: the word "gồm" arriving as `g<?><?>m`, each 3-byte Vietnamese character becoming exactly 3 `<?>` marks. That is the signature of a reader chopping the pipe mid-character and decoding each fragment separately. Jarvis 007's own side was measured and ruled out (its reader uses incremental decoding, so a byte split mid-character still reassembles correctly), so the break is in `agy`'s reader. Jarvis 007 cannot patch the CLI, but it can adjust where it places its own boundaries: it now feeds the prompt in chunks ending exactly on character boundaries, so however the other side reads, nothing breaks. If text still comes back with broken characters, Jarvis 007 switches to the file route and retries once; if that still breaks, it says plainly that the fault is inside the CLI.
 
-- **Model đã kèm sẵn mức nghĩ thì Javis không gửi thêm Độ sâu suy nghĩ** (từ 0.55.55). `agy models` trả về những tên như `gemini-3.8-flash-medium`, tức chọn model cũng chính là chọn mức nghĩ, và `agy` từ chối chạy nếu nhận thêm mức nghĩ lần nữa: `invalid model selection ... conflicts with --effort=high`, thoát mã 1, cả lượt chat mất trắng chứ không phải chậm hay kém. Nay Javis nhận ra loại tên đó và bỏ phần gửi thừa, còn độ sâu bạn chọn thì chuyển thành một câu nhắc trong prompt. Bản `agy` nào từ chối vì lý do khác thì Javis đọc chính câu lỗi đó rồi chạy lại ngay trong lượt, không cờ.
+- **A model that already carries its own thinking level gets no separate Reasoning depth** (since 0.55.55). `agy models` returns names like `gemini-3.8-flash-medium`, so picking the model *is* picking the thinking level, and `agy` refuses to run if it is handed one again: `invalid model selection ... conflicts with --effort=high`, exit code 1, and the whole chat turn is lost rather than merely degraded. Jarvis 007 now recognises those names, drops the redundant flag, and turns your chosen depth into a hint inside the prompt instead. If some build of `agy` refuses for another reason, Jarvis 007 reads that error and reruns the turn immediately without the flag.
 
-**Nếu vẫn gặp lỗi trên Windows**, đặt biến môi trường `JAVIS_AGY_PROMPT_DAI=file` để ép đi thẳng đường file, rồi báo lại giúp kèm câu lỗi `agy` in ra.
+**If you still hit errors on Windows**, set the environment variable `JAVIS_AGY_PROMPT_DAI=file` to force the file route, and please report back with the error `agy` printed.
 
-### C. Kết nối provider bằng API key (OpenRouter / Anthropic API / OpenAI API / Gemini / Groq / DeepSeek)
+### C. Connecting a provider with an API key (OpenRouter / Anthropic API / OpenAI API / Gemini / Groq / DeepSeek)
 
-1. Vào **Models**, tìm card provider tương ứng.
-2. Dán API key vào ô nhập (ô ghi "dán API key để kết nối").
-3. Bấm **Kết nối**.
-4. Card chuyển sang **● Đã kết nối** kèm số model.
+1. Open **Models** and find the provider card.
+2. Paste the API key into the field (labelled "paste an API key to connect").
+3. Click **Connect**.
+4. The card switches to **● Connected** with a model count.
 
-Muốn đổi key sau này: nhập key mới rồi bấm **Đổi key** (ô lúc này ghi "đổi key" kèm 4 ký tự cuối của key cũ). Muốn ngắt: bấm **Ngắt** (thao tác này xoá key). Nếu provider đang là Main Model khi bị ngắt, Javis tự chuyển về Claude Code.
+To change the key later: enter a new one and click **Change key** (the field then reads "change key" with the last 4 characters of the old one). To disconnect: click **Disconnect** (this deletes the key). If that provider was the Main Model when disconnected, Jarvis 007 switches back to Claude Code.
 
-Lấy key ở đâu:
+Where to get a key:
 
-- **OpenRouter**: trang openrouter.ai (một key gọi được rất nhiều model của nhiều hãng).
+- **OpenRouter**: openrouter.ai (one key reaching many models from many vendors).
 - **Anthropic (API)**: console.anthropic.com.
 - **OpenAI (ChatGPT API)**: platform.openai.com.
-- **Google Gemini (API)**: key của Gemini API, lấy ở aistudio.google.com.
+- **Google Gemini (API)**: a Gemini API key from aistudio.google.com.
 
-### D. Đặt Main Model (chọn model chính)
+### D. Setting the Main Model
 
-1. Ở khối **◆ Main Model** trên cùng trang Models, bạn thấy model đang dùng và tên provider.
-2. Bấm nút **Đổi model ▾**.
-3. Cửa sổ **SET MAIN MODEL** hiện ra, dòng phụ ghi "hiện tại: &lt;model&gt; · &lt;provider&gt;":
-   - Cột trái: danh sách provider. Provider chưa kết nối có ghi chú **⚠ cần kết nối**; provider đang dùng có ghi chú **ĐANG DÙNG**.
-   - Cột phải: danh sách model của provider đang chọn.
-   - Ô **Lọc provider / model…** ở trên để gõ tìm nhanh (lọc cả hai cột cùng lúc).
-4. Bấm chọn provider ở cột trái, rồi bấm chọn model ở cột phải. Model đang dùng có nhãn **ĐANG DÙNG**.
-5. Bấm **Switch** để áp dụng, hoặc **Huỷ** (hay nút ✕) để đóng.
+1. In the **◆ Main Model** block at the top of the Models page you see the current model and provider.
+2. Click **Change model ▾**.
+3. The **SET MAIN MODEL** dialog opens, with a subtitle reading "current: &lt;model&gt; · &lt;provider&gt;":
+   - Left column: the provider list. Unconnected providers are marked **⚠ needs connecting**; the one in use is marked **IN USE**.
+   - Right column: the models of the selected provider.
+   - A **Filter providers / models…** box at the top for quick searching (it filters both columns at once).
+4. Click a provider on the left, then a model on the right. The current model is labelled **IN USE**.
+5. Click **Switch** to apply, or **Cancel** (or ✕) to close.
 
-Danh sách model được nạp động từ chính provider (có nhãn **· live**). Nếu không lấy được từ mạng, Javis dùng danh sách dự phòng (nhãn **· catalog**); đang tải thì hiện **· đang tải…**. Model bạn chọn được lưu và áp dụng cho phiên chat mới.
+The model list is loaded live from the provider itself (labelled **· live**). If the network fails, Jarvis 007 uses a fallback list (labelled **· catalog**); while loading it shows **· loading…**. Your choice is saved and applies to new chat sessions.
 
-Khối Main Model cũng ghi một dòng về engine đang dùng, nói rõ đường đi và giới hạn thật: "Qua Claude Code - MCP Javis + skill + loop + chạy lệnh máy", "Qua Codex - MCP Javis + skill + loop + chạy lệnh máy", hoặc "Gọi API thẳng - MCP Javis + skill + loop (không chạy lệnh máy)". Trước 0.9.270 dòng cuối ghi "chat thuần (không MCP)" - sai và đã bỏ.
+The Main Model block also carries a line about the engine in use, stating the route and the real limits: "Through Claude Code, Jarvis 007 MCP + skills + loops + shell commands", "Through Codex, Jarvis 007 MCP + skills + loops + shell commands", or "Direct API, Jarvis 007 MCP + skills + loops (no shell commands)". Before 0.9.270 that last line read "plain chat (no MCP)", which was wrong and has been removed.
 
-### E. Chọn model việc nền
+### E. Choosing the background model
 
-Khối **◆ Model việc nền** quyết định model nào chạy những việc Javis làm khi bạn không ngồi trước máy: **loop · việc Kanban · nhắc hẹn · tự học · tiêu hoá nguồn**. Đây thường là phần đốt hạn mức âm thầm nhất, nên chọn model rẻ ở đây tiết kiệm thấy rõ.
+The **◆ Background model** block decides which model runs what Jarvis 007 does while you are away: **loops · Kanban work · reminders · self-learning · source ingestion**. This is usually the quietest quota burner, so picking a cheap model here saves visibly.
 
-1. Xuống khối **◆ Model việc nền**. Dòng lớn cho biết đang dùng gì: chưa đổi gì thì ghi **Mặc định của Claude Code** kèm dòng nhỏ "không đổi model, dùng model mặc định".
-2. Bấm **Đổi model ▾**. Cửa sổ mở ra giống hệt bảng chọn Main Model nhưng tiêu đề là **MODEL VIỆC NỀN**, chân bảng ghi "Việc nền: loop · việc Kanban · nhắc hẹn · tự học · tiêu hoá nguồn", và nút áp dụng tên là **Chọn**.
-3. Chọn provider ở cột trái, model ở cột phải, rồi bấm **Chọn**.
-4. Muốn quay lại như cũ: bấm **Về mặc định** (nút này chỉ hiện khi bạn đã đặt một model riêng).
+1. Scroll to **◆ Background model**. The large line says what is in use: unchanged, it reads **Claude Code default** with the smaller line "no model override, using the default".
+2. Click **Change model ▾**. The dialog is identical to the Main Model picker but titled **BACKGROUND MODEL**, footed with "Background work: loops · Kanban work · reminders · self-learning · source ingestion", and its apply button is named **Select**.
+3. Pick a provider on the left, a model on the right, then click **Select**.
+4. To revert: click **Back to default** (this button only appears once you set a specific model).
 
-Vài điều cần biết:
+A few things to know:
 
-- **Chọn được MỌI provider bạn đã đấu**, không riêng Claude: Claude Code, ChatGPT/Codex, OpenRouter, OpenAI, Gemini, Anthropic API. Chọn nhà cung cấp khác thì việc nền chạy bằng gói hoặc khoá của nhà đó, không ăn vào hạn mức Claude nữa.
-- Nếu bạn chọn một provider **chưa kết nối**, khối này hiện cảnh báo "⚠ nhà cung cấp này chưa kết nối - việc nền sẽ tự dùng lại Claude". Việc nền không chết, chỉ là không tiết kiệm được.
-- **Công cụ không giống nhau giữa các đường.** Claude Code và Codex đọc/ghi file trực tiếp trong brain. Các model API (OpenRouter, OpenAI, Gemini, Anthropic API) đọc/ghi qua công cụ vault của Javis và **không chạy được lệnh máy**, nên hợp với việc đọc - tổng hợp - ghi ghi chú; việc nền nào cần chạy lệnh thì cứ để Claude.
-- Với đường API, công cụ ghi file tự khoá lại khi loop đang ở mức `suggest`, đúng như khi chạy bằng Claude.
+- **Every provider you connected is selectable**, not just Claude: Claude Code, ChatGPT/Codex, OpenRouter, OpenAI, Gemini, Anthropic API. Choosing another provider makes background work run on that provider's plan or key rather than eating Claude quota.
+- If you pick a provider that is **not connected**, the block warns that the provider is not connected and that background work will fall back to Claude. Background work does not die, it just does not save you anything.
+- **Tools differ between routes.** Claude Code and Codex read and write brain files directly. API models (OpenRouter, OpenAI, Gemini, Anthropic API) read and write through Jarvis 007's vault tools and **cannot run shell commands**, so they suit read-summarise-write-a-note work; leave any background job needing shell commands on Claude.
+- On the API route, the file-writing tool locks itself while a loop is in `suggest` mode, exactly as it does on Claude.
 
-### E1. Chỗ nào chạy model nào (bảng tra)
+### E1. Which place runs which model (lookup table)
 
-Javis có ba chỗ đặt model, và câu hỏi hay gặp nhất là "cái nào thắng cái nào". Thứ tự: **model của Agent** (ô Model trong Cài đặt trợ lý) thắng **model chính**, còn **model việc nền** chỉ dùng cho các đường chạy nền.
+Jarvis 007 has three places to set a model, and the most common question is "which one wins". The order: the **Agent's model** (the Model field in Agent settings) beats the **main model**, while the **background model** is only used by the background routes.
 
-| Bạn đang ở đâu | Model chạy thật |
+| Where you are | Model that actually runs |
 |---|---|
-| Chat thường trên dashboard / Telegram | Model chính (hoặc ghim riêng của phiên, của kênh Telegram) |
-| Chat với một trợ lý ở trang Cộng sự | Model của trợ lý đó; để **Mặc định** thì model chính |
-| **Chatbot** trả lời khách ngoài | Model của trợ lý mà bot trỏ tới; để **Mặc định** thì model chính |
-| Một bước trong quy trình (workflow) | Model của trợ lý ở bước đó; để **Mặc định** thì **model việc nền** |
-| Loop, việc Kanban, nhắc hẹn, tự học, tiêu hoá nguồn | Model việc nền |
+| Ordinary chat on the dashboard / Telegram | The main model (or the session's own pin, or the Telegram channel's pin) |
+| Chatting with an agent on the Partners page | That agent's model; left on **Default**, the main model |
+| A **Chatbot** answering outside customers | The model of the agent the bot points to; left on **Default**, the main model |
+| A step in a workflow | The model of the agent in that step; left on **Default**, the **background model** |
+| Loops, Kanban work, reminders, self-learning, source ingestion | The background model |
 
-Nhà cung cấp mà trợ lý đã chọn nếu bị gỡ key thì Javis lui về model chính, chứ không để trợ lý hay bot chết câm.
+If the provider an agent chose has its key removed, Jarvis 007 falls back to the main model rather than leaving the agent or bot dead and silent.
 
-Ô **Model** trong Cài đặt trợ lý dùng đúng bảng chọn của thanh model dưới khung chat: gõ để tìm, và nhà chưa cắm API key vẫn hiện ra kèm ổ khoá, bấm vào là sang trang Models để mở.
+The **Model** field in Agent settings uses the same picker as the model bar under the chat box: type to search, and a provider with no API key yet still appears with a padlock; click it to go to the Models page and unlock it.
 
-### F. Đặt mức Suy nghĩ (reasoning)
+### F. Setting Reasoning
 
-Bật để model động não kỹ hơn trước khi trả lời: chính xác hơn, nhưng chậm hơn và tốn token hơn.
+Turn it up to make the model think harder before answering: more accurate, but slower and more expensive.
 
-1. Xuống khối **◆ Suy nghĩ**.
-2. Bấm một trong 4 mức: **Tắt**, **Thấp**, **Vừa**, **Cao**.
+1. Scroll to **◆ Reasoning**.
+2. Click one of 4 levels: **Off**, **Low**, **Medium**, **High**.
 
-Mức này áp dụng khác nhau tuỳ engine:
+It applies differently per engine:
 
-- **Claude API / OpenRouter**: dùng adaptive thinking + mức effort tương ứng.
-- **OpenAI**: chỉ áp cho các model dòng o-series (o1/o3/o4) và gpt-5; model thường sẽ bỏ qua.
-- **Gemini**: chỉ áp cho model 2.5 trở lên (và các model có chữ "thinking"). Model cũ hơn không được gửi tham số này để tránh lỗi.
-- **Claude Code**: chèn gợi ý suy nghĩ vào câu hỏi (từ mức think tới ultrathink theo độ sâu tăng dần).
+- **Claude API / OpenRouter**: adaptive thinking plus the matching effort level.
+- **OpenAI**: only applies to the o-series (o1/o3/o4) and gpt-5; ordinary models ignore it.
+- **Gemini**: only applies to 2.5 and newer (and models with "thinking" in the name). Older models are not sent the parameter, to avoid errors.
+- **Claude Code**: inserts thinking hints into the question (from think to ultrathink as depth increases).
 
-### G. Local Model - Ollama chạy trên máy bạn hoặc trên VPS
+### G. Local Model: Ollama on your machine or your VPS
 
-Tab **Local Model** (cạnh tab Cloud Model trên trang Models) nối Javis với một Ollama do bạn tự chạy: model mã nguồn mở, ngoại tuyến, không tốn lượt. Provider tương ứng trong ô chọn model là **Ollama (Local)**, khác với **Ollama Cloud** ở tab Cloud (bản trả phí qua ollama.com).
+The **Local Model** tab (next to Cloud Model on the Models page) connects Jarvis 007 to an Ollama you run yourself: open-source models, offline, no usage caps. The matching provider in the model picker is **Ollama (Local)**, distinct from **Ollama Cloud** on the Cloud tab (the paid service through ollama.com).
 
-**Javis chạy thẳng trên máy (Windows/Mac/Linux):** cài Ollama bằng lệnh tab hiện sẵn, bấm Kết nối với địa chỉ `http://127.0.0.1:11434` đã điền sẵn. Xong.
+**Jarvis 007 running directly on your machine (Windows/Mac/Linux):** install Ollama with the command the tab shows, then click Connect with the prefilled `http://127.0.0.1:11434`. Done.
 
-**Javis chạy trong Docker/VPS:** ba bước, làm bằng SSH trên máy chủ thật, không phải terminal trong Javis (terminal đó nằm trong container, không có quyền root, và mọi thứ cài vào đó mất sạch ở lần cập nhật kế).
+**Jarvis 007 running in Docker/on a VPS:** three steps, done over SSH on the real host, not the terminal inside Jarvis 007 (that terminal lives in the container, has no root, and anything installed there is wiped on the next update).
 
-1. Cài Ollama trên máy chủ: `curl -fsSL https://ollama.com/install.sh | sh`.
-2. Cho Ollama nghe ở địa chỉ cầu nối Docker. Tab Local đã dò sẵn địa chỉ và sinh sẵn lệnh, chỉ việc chép. Nó ghi một file override cho systemd với `OLLAMA_HOST=<địa chỉ cầu nối>:11434` rồi restart. Gắn vào đúng địa chỉ này thì chỉ container trên máy đó gọi được, không lộ ra Internet, không cần tường lửa. Chỉ khi Javis dò không ra địa chỉ thì lệnh mới rơi về `0.0.0.0`, lúc đó bắt buộc chặn cổng 11434 ở tường lửa vì Ollama không có mật khẩu.
-3. Bấm **Kết nối** (địa chỉ đã điền sẵn).
+1. Install Ollama on the host: `curl -fsSL https://ollama.com/install.sh | sh`.
+2. Make Ollama listen on the Docker bridge address. The Local tab already detected the address and generated the command; just copy it. It writes a systemd override with `OLLAMA_HOST=<bridge address>:11434` and restarts. Binding to that exact address means only containers on that host can call it, nothing is exposed to the internet, and no firewall rule is needed. Only when Jarvis 007 cannot detect the address does the command fall back to `0.0.0.0`, and then you must block port 11434 in the firewall, because Ollama has no password.
+3. Click **Connect** (the address is prefilled).
 
-Không nối được sau ba bước? Trên máy chủ chạy `ss -ltnp | grep 11434`: không ra dòng nào là Ollama chưa chạy (`systemctl status ollama`); ra dòng có `127.0.0.1` là bước 2 chưa ăn.
+Still not connecting after three steps? On the host run `ss -ltnp | grep 11434`: no output means Ollama is not running (`systemctl status ollama`); a line with `127.0.0.1` means step 2 did not take effect.
 
-**Chọn model:** phần Khuyến nghị xếp theo cấu hình máy. Máy không GPU (VPS phổ thông) thì ưu tiên bản **instruct** (vd `qwen3:4b-instruct`): trả lời thẳng. Các bản suy nghĩ dài (qwen3 thường, deepseek-r1) trên CPU có thể mất nhiều phút chỉ để "nghĩ" trước khi ra chữ đầu tiên, tab ghi rõ ở từng thẻ. Tải xong bấm **Dùng làm model chính** ngay tại danh sách đã cài; ô chọn model dưới khung chat đổi theo luôn.
+**Choosing a model:** the Recommended section is ordered by machine capability. A machine without a GPU (an ordinary VPS) should prefer **instruct** builds (for example `qwen3:4b-instruct`), which answer directly. Long-thinking builds (plain qwen3, deepseek-r1) on a CPU can spend minutes just "thinking" before the first character appears, and the tab says so on each card. Once downloaded, click **Use as main model** right there in the installed list; the model picker under the chat updates immediately.
 
-## Engine Claude chạy bằng gì bên dưới
+## What the Claude engine runs on underneath
 
-Từ bản 0.9.37, engine Claude của Javis chạy **duy nhất qua Claude Agent SDK** (bộ thư viện chính chủ của Anthropic). Nhánh cũ tự gọi lệnh `claude` như một tiến trình rời đã bị gỡ hẳn. Hai điều người dùng cần biết:
+Since 0.9.37, Jarvis 007's Claude engine runs **exclusively through the Claude Agent SDK** (Anthropic's own library). The old branch that invoked the `claude` command as a separate process was removed. Two things users need to know:
 
-- **Máy vẫn PHẢI có `claude` CLI.** SDK gọi chính CLI đó bên dưới, và toàn bộ phần đăng nhập lẫn MCP native đều đi qua nó. Chưa cài CLI thì card Claude Code báo lỗi và engine không chạy - xem [Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md).
-- **Quyền công cụ ở phiên chạy nền được chặn theo TỪNG LẦN GỌI.** Khi loop hoặc workflow chạy trong chế độ nền an toàn, mỗi lần Javis định gọi một công cụ ngoài danh sách cho phép là bị từ chối ngay tại chỗ và ghi vào nhật ký, chứ không chỉ khai báo danh sách lúc khởi động. Thông báo từ chối nói rõ đây là rào quyền của phiên nền, **không phải** kết nối MCP hỏng - gặp dòng đó thì đừng đi đăng nhập lại connector.
+- **The machine still MUST have the `claude` CLI.** The SDK calls that CLI underneath, and both sign-in and native MCP go through it. Without the CLI the Claude Code card reports an error and the engine does not run, see [Getting started & first-run setup](01-getting-started.md).
+- **Tool permissions in background sessions are enforced PER CALL.** When a loop or workflow runs in safe background mode, every attempt to call a tool outside the allow list is refused on the spot and logged, rather than only being declared at startup. The refusal message says explicitly that this is the background session's permission guard and **not** a broken MCP connection, so seeing that line is no reason to go re-authenticate a connector.
 
-## Claude Code (đầy đủ công cụ) và gọi API thẳng khác nhau ra sao
+## How Claude Code (full tools) differs from a direct API
 
-Đây là điểm dễ nhầm nhất, cần nắm rõ:
+This is the easiest thing to get wrong, so be clear about it:
 
-- **Main Model = Claude Code**: mạnh nhất - đọc/ghi file native, chạy lệnh máy, gọi MCP, skill native, loop tự động, session resume. Chế độ khai thác hết sức mạnh Javis OS.
-- **Main Model = ChatGPT OAuth (Codex)**: gọi được toàn bộ kho Kết nối (hub tự đẩy sang Codex, gồm cả kết nối local như Zalo), có tool file của Codex, và dùng được skill qua router (Javis bơm danh sách skill vào system prompt + tool `javis_use_skill`; Codex chạy cwd=brain nên đọc thẳng `skills/<slug>/SKILL.md`). Ngoài ra Codex còn nạp kho MCP GỐC của chính nó (server bạn tự đăng ký bằng `codex mcp add`, xem trong khối gập "◆ Kết nối sẵn của Claude Code và Codex" ở trang Kết nối) - tương tự cách engine Claude dùng MCP gốc của Claude Code.
-- **Main Model = OpenRouter / OpenAI (API) / Anthropic (API) / Gemini**: từ bản 0.9 cả bốn đều gọi được kho Kết nối qua vòng gọi tool, kèm tool đọc/ghi file trong vault và kích hoạt skill (`javis_use_skill`). **Việc nền cũng chạy được bằng những provider này** (xem mục E). Khác biệt còn lại so với Claude Code: không có tool chạy lệnh máy (Bash), không có WebFetch, và không resume được session CLI.
+- **Main Model = Claude Code**: the strongest option. Native file reads and writes, shell commands, MCP calls, native skills, automatic loops, session resume. The mode that gets the most out of Jarvis 007.
+- **Main Model = ChatGPT OAuth (Codex)**: it can call the entire Connections store (the hub pushes them into Codex, local connections such as Zalo included), has Codex's own file tools, and uses skills through the router (Jarvis 007 injects the skill list into the system prompt plus the `javis_use_skill` tool; Codex runs with cwd=brain so it reads `skills/<slug>/SKILL.md` directly). Codex additionally loads its OWN MCP registry (servers you registered with `codex mcp add`, visible in the collapsed "◆ Claude Code and Codex built-in connections" block on the Connections page), the same way the Claude engine uses Claude Code's native MCPs.
+- **Main Model = OpenRouter / OpenAI (API) / Anthropic (API) / Gemini**: since version 0.9 all four call the Connections store through tool-call rounds, with vault file read/write tools and skill activation (`javis_use_skill`). **Background work also runs on these providers** (see section E). The remaining differences from Claude Code: no shell tool (Bash), no WebFetch, and no CLI session resume.
 
-Kết luận thực dụng: để Javis "làm việc" trọn vẹn nhất, giữ Main ở **Claude Code**. Chuyển sang provider API khi bạn muốn thử một model cụ thể của hãng khác, hoặc muốn đẩy phần việc nền sang một gói rẻ hơn cho đỡ hạn mức Claude.
+The practical conclusion: for the fullest "working" Jarvis 007, keep Main on **Claude Code**. Move to an API provider when you want to try a specific model from another vendor, or to push background work onto a cheaper plan and spare your Claude quota.
 
-## Tiết kiệm token áp cho cả gói thuê bao
+## Token saving applies to subscriptions too
 
-Khối **Chế độ tiết kiệm token** ở đầu trang **Mức dùng** (nhóm Hệ thống) cho Javis gửi ít chữ hơn mỗi lượt: chỉ nạp phần bộ nhớ liên quan tới câu hỏi, chỉ nạp skill khi cần thay vì liệt kê hết.
+The **Token saving mode** block at the top of the **Usage** page (System group) makes Jarvis 007 send less text per turn: loading only the memory relevant to the question, and loading skills on demand rather than listing them all.
 
-Từ bản 0.12.4, phần này chạy được cho **cả ba loại bộ não**, không riêng bộ não dùng API key:
+Since version 0.12.4 this works for **all three brain kinds**, not only API-key brains:
 
-| Loại bộ não | Vì sao vẫn đáng bật |
+| Brain kind | Why it is still worth enabling |
 |---|---|
-| API key (OpenRouter, OpenAI, Anthropic, Gemini, Groq) | Ít token là ít tiền, và tránh được lỗi vượt hạn mức token mỗi phút |
-| Gói Claude (Claude Code) | Ít token là mỗi cửa sổ 5 tiếng dùng được nhiều lượt hơn |
-| Gói ChatGPT (Codex) | Như trên |
+| API key (OpenRouter, OpenAI, Anthropic, Gemini, Groq) | Fewer tokens is less money, and it avoids per-minute token limit errors |
+| Claude plan (Claude Code) | Fewer tokens means more turns inside each 5-hour window |
+| ChatGPT plan (Codex) | The same |
 
-Mở trang là thấy ngay khối **Bộ não đang dùng**: nó nói bộ não hiện tại thuộc loại nào, đang ăn được mấy mảng tiết kiệm, và mảng nào không áp cho nó cùng lý do. Có mảng cố ý chỉ chạy trên bộ não dùng API key - ví dụ phần gửi lại lịch sử hội thoại, vì Claude Code và Codex vốn tự nhớ mạch hội thoại của chúng, gửi thêm là gửi hai lần.
+Opening the page shows a **Current brain** block: which kind the current brain is, which saving measures apply to it, and which do not and why. Some measures deliberately only run on API-key brains, for example resending conversation history, because Claude Code and Codex already remember their own thread and sending it again sends it twice.
 
-**Hết lượt gói thuê bao** thì Javis nói bằng tiếng Việt: hết lượt gói nào, còn khoảng bao lâu nữa, và bộ não nào bạn đã cắm sẵn để chạy tạm trong lúc chờ. Javis **không tự đổi bộ não hộ** - đổi là tiêu hạn mức của một tài khoản khác, có khi mất tiền thật, nên đó là quyết định của bạn (đổi ở ngay trang này, hội thoại giữ nguyên). Lưu ý loại hạn mức này đếm **lượt dùng theo giờ** chứ không đếm độ dài, nên rút gọn câu hỏi không giúp gì.
+**When a subscription runs out of turns**, Jarvis 007 says so plainly: which plan ran out, roughly how long until it resets, and which brains you already have wired to use meanwhile. Jarvis 007 **does not switch brains for you**, because switching spends another account's quota and can cost real money, so that is your decision (made on this page, with the conversation intact). Note that this kind of limit counts **turns per hour** rather than length, so shortening questions does not help.
 
-Từ 0.55.44, khi nhà cung cấp nói rõ **mốc mở lại**, dưới câu báo có thẻ **"Tự chạy lại lúc HH:MM"**: đến giờ Javis tự hỏi lại đúng câu đó và trả lời vào cùng hội thoại, tab đóng hay điện thoại tắt màn hình vẫn chạy (việc nằm ở máy chủ). Trên thẻ có ô **"Tự tiếp tục khi hạn mức reset"** (tắt là chỉ nhắc giờ, không tự chạy; lựa chọn được nhớ cho lần sau) và nút **"Chạy lại ngay"**. Gửi tin mới trong lúc chờ là lịch tự huỷ. Javis chỉ hẹn khi biết mốc, tối đa 3 lần cho một câu hỏi, và không hẹn mốc xa hơn một ngày; khởi động lại máy chủ thì lịch đang chờ mất, câu báo hết lượt vẫn còn trong hội thoại để bạn bấm "Gửi lại".
+Since 0.55.44, when the provider states the **reset time**, a card **"Auto-resume at HH:MM"** appears under that notice: at that time Jarvis 007 asks the same question again and answers in the same conversation, even with the tab closed or the phone screen off (the job lives on the server). The card carries an **"Auto-continue when limits reset"** checkbox (off means it only shows the time; the choice is remembered for next time) and a **"Retry now"** button. Sending a new message while waiting cancels the schedule. Jarvis 007 only schedules when it knows the reset time, at most 3 times per question, never more than a day ahead; a server restart drops pending schedules, and the limit notice stays in the conversation so you can hit "Resend".
 
-## Đổi nhanh model
+## Switching model quickly
 
-Bạn không cần rời trang Models để đổi model: bấm **Đổi model ▾** ở khối Main Model là mở ngay bảng **SET MAIN MODEL**, chọn provider + model rồi **Switch**. Thao tác này lưu lại và áp dụng cho phiên chat mới. Khối **◆ Model việc nền** có nút **Đổi model ▾** riêng của nó (mở bảng **MODEL VIỆC NỀN**), còn các nút mức ở khối **◆ Suy nghĩ** áp dụng ngay khi bấm.
+You do not have to leave the Models page to change model: click **Change model ▾** in the Main Model block to open **SET MAIN MODEL**, pick a provider and model, then **Switch**. The choice is saved and applies to new chat sessions. The **◆ Background model** block has its own **Change model ▾** (opening **BACKGROUND MODEL**), and the level buttons in **◆ Reasoning** apply immediately on click.
 
-## Đổi model giữa chừng một cuộc trò chuyện
+## Switching model mid-conversation
 
-Đổi model ngay trong lúc đang chat thì **cuộc trò chuyện đi tiếp liền mạch**: model mới đọc được toàn bộ những gì đã nói trước đó và trả lời tiếp, không hỏi lại từ đầu. Bạn đổi bao nhiêu lần trong một cuộc cũng được.
+Changing model while chatting keeps the **conversation continuous**: the new model reads everything said before and continues, without asking you to start over. You can switch as many times as you like within one conversation.
 
-Bên dưới, Javis làm việc này theo hai cách tuỳ loại bộ não:
+Underneath, Jarvis 007 does this two ways depending on the brain kind:
 
-- **Bộ não dùng API key** (OpenRouter, OpenAI, Anthropic, Gemini, Groq, Ollama) vốn không tự nhớ gì, nên mỗi lượt Javis gửi lại lịch sử hội thoại cho chúng.
-- **Bộ não chạy bằng gói thuê bao** (Claude Code, ChatGPT/Codex, Grok Build) thì tự giữ mạch hội thoại của riêng chúng, và Javis nối lại đúng mạch đó cho rẻ. Nhưng ngay khi một lượt do bộ não khác trả lời, mạch cũ đó **thiếu đúng lượt vừa rồi**. Javis vì vậy bỏ liên kết mạch của mọi bộ não khác sau mỗi lượt; lần bạn quay lại bộ não đó, nó dựng lại ngữ cảnh từ lịch sử đã lưu thay vì nối tiếp một mạch khuyết.
+- **API-key brains** (OpenRouter, OpenAI, Anthropic, Gemini, Groq, Ollama) remember nothing themselves, so Jarvis 007 resends the conversation history every turn.
+- **Subscription brains** (Claude Code, ChatGPT/Codex, Grok Build) keep their own thread, and Jarvis 007 reattaches to it because that is cheaper. But as soon as another brain answers a turn, that thread is **missing exactly that turn**. So Jarvis 007 drops every other brain's thread link after each turn; when you return to that brain, it rebuilds the context from saved history rather than continuing a thread with a hole in it.
 
-Nói ngắn: đổi qua đổi lại vẫn liền mạch, chỉ là lượt đầu tiên sau khi đổi tốn thêm một chút vì phải gửi lại lịch sử.
+Put briefly: switching back and forth stays continuous, and only the first turn after a switch costs a little extra because the history is resent.
 
-Từ 0.42.1 trở về trước có lỗi ở đúng chỗ này: chỉ mạch của ChatGPT/Codex được bỏ liên kết, còn các engine giữ mạch khác thì không, nên quay lại một trong số đó là chúng nói như chưa hề có mấy lượt ở giữa.
+Up to and including 0.42.1 there was a bug in exactly this place: only ChatGPT/Codex threads were unlinked, while other thread-keeping engines were not, so returning to one of them made it talk as if the turns in between had never happened.
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference: buttons and states
 
-| Nút / dòng chữ | Ở đâu | Nghĩa là gì |
+| Button / text | Where | What it means |
 |---|---|---|
-| **MAIN** | Góc card provider | Provider này đang là Main Model |
-| **● Đã kết nối** / **○ Chưa kết nối** | Card provider | Trạng thái, kèm số model khả dụng |
-| **○ Chưa đăng nhập** | Card Claude Code | Chưa đăng nhập Claude Code trên máy |
-| **○ Chưa cài Claude Code** | Card Claude Code | Máy chạy Javis chưa có lệnh `claude`, làm theo khung hướng dẫn cài trên card |
-| **Đăng nhập Claude** | Card Claude Code | Bắt đầu luồng đăng nhập bằng link |
-| **↻ Kiểm tra lại** | Card Claude Code (chỉ khi chưa đăng nhập) | Hỏi lại trạng thái đăng nhập |
-| **Đăng nhập ChatGPT** | Card OpenAI OAuth | Đăng nhập bằng mã device code |
-| **Qua trình duyệt** | Card OpenAI OAuth | Đường dự phòng khi workspace chặn device code |
-| **Kết nối** / **Đổi key** / **Ngắt** | Card provider API | Lưu key mới / thay key / xoá key |
-| **Đổi model ▾** | Main Model và Model việc nền | Mở bảng chọn model tương ứng |
-| **Về mặc định** | Model việc nền | Trả việc nền về model mặc định của Claude Code |
-| **ĐANG DÙNG** | Bảng chọn model | Provider hoặc model hiện đang được đặt |
-| **⚠ cần kết nối** | Bảng chọn model, cột trái | Provider đó chưa có key / chưa đăng nhập |
-| **· live** / **· catalog** | Bảng chọn model | Danh sách lấy được từ mạng / danh sách dự phòng |
-| **Switch** / **Chọn** | Chân bảng chọn model | Áp dụng cho Main Model / cho model việc nền |
+| **MAIN** | Corner of a provider card | This provider is the Main Model |
+| **● Connected** / **○ Not connected** | Provider card | The state, with the number of available models |
+| **○ Not signed in** | Claude Code card | Claude Code is not signed in on this machine |
+| **○ Claude Code not installed** | Claude Code card | The machine running Jarvis 007 has no `claude` command; follow the install box on the card |
+| **Sign into Claude** | Claude Code card | Start the link-based sign-in flow |
+| **↻ Check again** | Claude Code card (only while signed out) | Re-query the sign-in state |
+| **Sign into ChatGPT** | OpenAI OAuth card | Sign in with a device code |
+| **Through the browser** | OpenAI OAuth card | The fallback when the workspace blocks device codes |
+| **Connect** / **Change key** / **Disconnect** | API provider card | Save a new key / replace the key / delete the key |
+| **Change model ▾** | Main Model and Background model | Open the matching model picker |
+| **Back to default** | Background model | Return background work to Claude Code's default model |
+| **IN USE** | Model picker | The provider or model currently set |
+| **⚠ needs connecting** | Model picker, left column | That provider has no key / is not signed in |
+| **· live** / **· catalog** | Model picker | The list came from the network / the fallback list |
+| **Switch** / **Select** | Model picker footer | Apply to the Main Model / to the background model |
 
-## Mẹo
+## Tips
 
-- Nếu chỉ muốn Javis nhớ và làm việc trơn tru, đừng đổi Main khỏi Claude Code. Các provider khác dành cho nhu cầu đặc biệt.
-- Đặt **Model việc nền** là model rẻ để loop, việc Kanban, nhắc hẹn, tự học và tiêu hoá nguồn không ngốn hết hạn mức của gói chính. Muốn biết chỗ nào đang đốt nhiều nhất thì xem [Mức dùng: token & chi phí](23-muc-dung-token.md).
-- Bật **Suy nghĩ** mức Vừa hoặc Cao khi hỏi việc khó (phân tích, chiến lược); tắt khi chỉ hỏi nhanh để đỡ chờ.
-- OpenRouter là lựa chọn tiện nếu muốn thử nhiều model của nhiều hãng chỉ với một key.
-- Muốn ChatGPT gọi được công cụ bán hàng của bạn: gắn kết nối trong trang [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md) trước, Javis sẽ tự đẩy sang Codex.
+- If you just want Jarvis 007 to remember and work smoothly, do not move Main off Claude Code. The other providers are for specific needs.
+- Set the **Background model** to something cheap so loops, Kanban work, reminders, self-learning and ingestion do not eat your main plan's quota. To see what is burning most, look at [Usage: tokens & cost](23-usage-and-cost.md).
+- Turn **Reasoning** to Medium or High for hard questions (analysis, strategy); turn it off for quick questions to avoid waiting.
+- OpenRouter is convenient if you want to try many models from many vendors with one key.
+- To let ChatGPT call your sales tools: wire the connection on the [Connections & business data](09-mcp-va-so-lieu.md) page first, and Jarvis 007 pushes it into Codex.
 
-## Sự cố thường gặp
+## Common problems
 
-- **Card Claude Code báo "Claude CLI chưa cài"**: máy chưa cài Claude Code CLI. Engine Claude bắt buộc phải có nó (SDK gọi chính CLI này bên dưới). Cài xong bấm **↻ Kiểm tra lại**. Xem [Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md).
-- **Đăng nhập ChatGPT không ra mã, hoặc báo lỗi ngay**: workspace của bạn có thể đã chặn device code. Dùng nút **Qua trình duyệt** ở mục B.
-- **Đăng nhập ChatGPT báo "Hết hạn, thử lại."**: Javis chờ khoảng 16 phút rồi bỏ cuộc. Bấm **Đăng nhập ChatGPT** lại để lấy mã mới.
-- **Chọn được provider nhưng cột model trống**: provider đó chưa kết nối, hoặc chưa có model. Kết nối lại ở khối Providers, hoặc thêm model vào `settings.json` (mục `model.catalog`). Xem [Cấu hình .env](16-cau-hinh-env.md).
-- **Model trả về rỗng**: thử lại hoặc đổi sang model khác trong bảng SET MAIN MODEL. Với Anthropic API, thông báo còn kèm lý do (ví dụ hết max_tokens: nhắn "tiếp tục" để model viết tiếp).
-- **Trang Kết nối hiện dòng vàng "⚠ Main Model đang là ... - chưa hỗ trợ gọi công cụ. Đổi ở trang Models."**: từ 0.9.270 **không provider có sẵn nào** làm nổ dòng này nữa. Trước đó Google Gemini bị sót khỏi danh sách nên báo nhầm dù bên dưới đã chạy MCP qua hub bình thường. Dòng vàng giờ chỉ còn để chặn provider lạ. Sáu provider Claude Code, OpenRouter, OpenAI, Anthropic API, Gemini và Groq hiện thẻ XANH; riêng ChatGPT OAuth có thẻ xanh riêng nói rõ nó chạy qua Codex CLI.
+- **The Claude Code card reports that the Claude CLI is not installed**: the machine has no Claude Code CLI. The Claude engine requires it (the SDK calls that CLI underneath). Install it and click **↻ Check again**. See [Getting started & first-run setup](01-getting-started.md).
+- **ChatGPT sign-in produces no code, or errors immediately**: your workspace may block device codes. Use the **Through the browser** button in section B.
+- **ChatGPT sign-in reports "Expired, try again"**: Jarvis 007 waits about 16 minutes before giving up. Click **Sign into ChatGPT** again for a new code.
+- **A provider is selectable but its model column is empty**: that provider is not connected, or has no models. Reconnect it in the Providers block, or add models in `settings.json` (under `model.catalog`). See [.env configuration](16-cau-hinh-env.md).
+- **The model returns nothing**: retry, or pick another model in SET MAIN MODEL. With the Anthropic API, the message also carries the reason (for example hitting max_tokens: say "continue" and the model writes on).
+- **The Connections page shows a yellow line saying the Main Model does not support tool calling**: since 0.9.270 **no bundled provider** triggers that line any more. Before that, Google Gemini was missing from the list and was misreported even though MCP through the hub worked normally. The yellow line now only guards unknown providers. Claude Code, OpenRouter, OpenAI, Anthropic API, Gemini and Groq all show GREEN cards; ChatGPT OAuth has its own green card noting that it runs through the Codex CLI.
 
-- **Banner đỏ "⚠ Bộ não claude mất đăng nhập" trên máy chưa từng cài Claude**: sửa ở 0.9.270. Đèn báo não giữ trạng thái trong RAM và không ai dọn, nên đèn đỏ thắp hồi Claude còn là Main Model treo mãi sau khi bạn đổi sang OpenRouter. Giờ đèn chỉ tính những bộ não bạn THẬT SỰ chọn (Main Model + model việc nền khi đặt rõ provider), và tự tắt ngay khi bạn đổi sang nhà cung cấp khác - không phải chờ vòng quét 10 phút.
-- **Bấm Ngắt provider đang là Main**: Javis tự chuyển Main về Claude Code để chat không gãy. Đây là hành vi cố ý, không phải lỗi.
-- **ChatGPT OAuth báo chưa cài Codex CLI**: kênh này cần Codex CLI trên máy. Từ 0.28.8 hai engine CLI npm (Claude Code, Codex) đều được cài sẵn lúc cài Javis - bản Docker, `install.sh` lẫn `setup.bat` - nên báo thiếu thường là bản cài cũ, **cập nhật Javis** một lần là có. Cài tay cũng được: `npm i -g @openai/codex`.
+- **A red banner reading "⚠ the claude brain lost its sign-in" on a machine that never had Claude**: fixed in 0.9.270. The brain status lights kept state in RAM with nobody clearing it, so a red light lit while Claude was the Main Model hung around forever after you switched to OpenRouter. The lights now only count brains you ACTUALLY selected (the Main Model, plus the background model when its provider is explicit), and clear as soon as you switch provider rather than waiting for the 10-minute sweep.
+- **Disconnecting the provider that is the Main Model**: Jarvis 007 switches Main back to Claude Code so chat does not break. That is deliberate, not a fault.
+- **ChatGPT OAuth reports that the Codex CLI is not installed**: this channel needs the Codex CLI on the machine. Since 0.28.8 both npm CLI engines (Claude Code, Codex) are installed during Jarvis 007 setup, in the Docker image, `install.sh` and `setup.bat`, so this usually means an older installation and **updating Jarvis 007** once is enough. Installing by hand also works: `npm i -g @openai/codex`.
 
-## Liên quan
+## Related
 
-- [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md) - đấu nguồn dữ liệu và công cụ cho mọi engine dùng chung.
-- [Mức dùng: token & chi phí](23-muc-dung-token.md) - xem model nào, việc nào đang đốt nhiều nhất.
-- [Agents & Workflows](07-agents-va-workflows.md) - chọn model riêng cho từng agent.
-- [Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md) - cài Claude Code CLI và Codex CLI.
+- [Connections & business data](09-mcp-va-so-lieu.md) - wiring data sources and tools shared by every engine.
+- [Usage: tokens & cost](23-usage-and-cost.md) - seeing which model and which work burns most.
+- [Agents & Workflows](07-agents-and-workflows.md) - picking a model per agent.
+- [Getting started & first-run setup](01-getting-started.md) - installing the Claude Code CLI and the Codex CLI.
 
-Nếu vẫn kẹt, xem [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+Still stuck? See [Troubleshooting & FAQ](17-khac-phuc-su-co.md).

@@ -1,358 +1,358 @@
-# Việc (Kanban): giao goal cho AI chạy nền
+# Work (Kanban): handing a goal to the AI to run in the background
 
 ***Tiếng Việt** · [English](en/21-kanban-work.md)*
 
-Trang **Việc** là chỗ bạn giao một mục tiêu ("goal") rồi để Javis tự làm ở nền, không cần bạn ngồi canh khung chat. Bạn viết một câu mô tả việc cần xong, AI tự chuẩn hoá thành đặc tả, tự chọn loại worker, tự nhận việc và chạy; xong thì bắn kết quả về Telegram cho đúng người đã giao.
+The **Work** page is where you hand over a goal and let Jarvis 007 do it in the background, without sitting and watching the chat box. You write one sentence describing what needs finishing, the AI normalises it into a specification, picks the worker type, claims the job and runs it; when it is done, the result is sent to whoever handed it over.
 
-Điểm dễ hiểu nhầm nhất: đây **không phải bảng Trello kéo thả**. Bạn không kéo thẻ, không bấm chạy từng thẻ. Màn hình này để **quan sát hàng đợi và xử lý ngoại lệ**, phần chạy do dispatcher lo.
+The easiest thing to misunderstand: this is **not a drag-and-drop Trello board**. You do not drag cards and you do not run each card by hand. This screen is for **watching the queue and handling exceptions**, while the dispatcher does the running.
 
-## Tính năng này là gì
+## What this feature is
 
-Javis coi hàng đợi việc như một runtime cho AI. Một việc đi qua vòng đời sau:
+Jarvis 007 treats the work queue as a runtime for the AI. A job goes through this lifecycle:
 
-1. **Bạn giao goal** (từ trang Việc, hoặc nói trong chat, hoặc do trang Tự học đề xuất).
-2. **AI đặc tả (triage)**: một lượt chạy ngắn của model nền đọc goal thô rồi trả về JSON gồm intent rõ ràng, một **capability** (`files`, `research`, `mcp-read`, `code`, `external-write`, `image`), một **execution_mode** (`suggest`, `auto`, `full`) và danh sách **điều kiện hoàn thành**. Bước này không thực thi gì cả.
-3. **Vào hàng đợi**: task chuyển sang trạng thái sẵn sàng, chờ tới lượt.
-4. **Dispatcher claim task**: mỗi task được đúng một worker giữ (khoá bằng transaction trong SQLite), có thời hạn giữ 90 giây và nhịp báo sống 20 giây một lần.
-5. **Worker chạy**: một tiến trình AI headless làm việc trong brain, tự kiểm tra kết quả rồi báo cáo ngắn.
-6. **Nghiệm thu** (từ 0.107.0): một lượt AI riêng, chỉ được đọc, đối chiếu báo cáo của worker với từng điều kiện hoàn thành và mở đúng file, ảnh mà điều kiện nhắc tới. Chưa đạt thì việc dừng chờ bạn với lý do "Chưa đạt điều kiện hoàn thành: ...", không sang Hoàn thành. Việc không có điều kiện nào thì chỉ bị chặn khi chính worker mở đầu báo cáo bằng câu kiểu "chưa xong", "không chạy được". Lượt nghiệm thu không chạy được (engine lỗi) thì việc vẫn hoàn thành, nhưng ghi rõ là chưa được nghiệm thu, vì chạy lại cả việc (có khi đã gửi, đã đăng) chỉ vì bước kiểm rẻ hỏng còn tệ hơn.
-7. **Kết thúc**: hoàn thành, hoặc dừng lại chờ bạn (thiếu thông tin, thiếu quyền, chưa đạt nghiệm thu, hoặc bạn đã tick "Yêu cầu duyệt kết quả").
+1. **You hand over a goal** (from the Work page, by saying it in chat, or proposed by the Self-learning page).
+2. **The AI specifies it (triage)**: a short run of the background model reads the raw goal and returns JSON with a clear intent, a **capability** (`files`, `research`, `mcp-read`, `code`, `external-write`, `image`), an **execution_mode** (`suggest`, `auto`, `full`) and a list of **completion conditions**. This step executes nothing.
+3. **Into the queue**: the task moves to a ready state, waiting its turn.
+4. **The dispatcher claims the task**: each task is held by exactly one worker (locked with an SQLite transaction), with a 90-second lease and a heartbeat every 20 seconds.
+5. **The worker runs**: a headless AI process works inside the brain, verifies its own result then reports briefly.
+6. **Acceptance** (since 0.107.0): a separate AI pass, read only, checks the worker's report against each completion condition and opens exactly the files and images the conditions mention. If it falls short, the job stops and waits for you with the reason "Completion conditions not met: ...", and does not move to Completed. A job with no conditions is only blocked when the worker itself opens its report with a phrase like "not done yet" or "could not run". If the acceptance pass cannot run (an engine error), the job still completes but is clearly marked as not accepted, because re-running the whole job (it may already have sent or published something) just because a cheap check broke would be worse.
+7. **The end**: completed, or stopped waiting for you (missing information, missing permission, failed acceptance, or because you ticked "Require result approval").
 
-Worker dùng chung **engine nền** với các tính năng chạy ngầm khác, nên Claude Code, ChatGPT/Codex và các provider API (OpenRouter, OpenAI, Anthropic, Google Gemini) đều chạy được hàng đợi này. Xem [Models & engine](10-models-va-engine.md).
+Workers share the **background engine** with the other background features, so Claude Code, ChatGPT/Codex and the API providers (OpenRouter, OpenAI, Anthropic, Google Gemini) can all run this queue. See [Models and engines](10-models-va-engine.md).
 
-Đừng nhầm ba thứ tên gần giống nhau:
+Do not confuse three similarly named things:
 
-| Thứ | Là gì | Đọc ở đâu |
+| Thing | What it is | Where to read |
 | --- | --- | --- |
-| **Việc** (trang này) | Hàng đợi việc làm MỘT LẦN, AI tự chạy nền | trang này |
-| **Việc định kỳ** | Loop lặp theo chu kỳ và nhắc hẹn có mốc giờ | [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md) |
-| Checkbox `- [ ]` trong note | Việc tự tay bạn tick trong file markdown | [Task & Dataview trong note](19-task-va-dataview.md) |
+| **Work** (this page) | The queue of ONE-OFF jobs the AI runs in the background | this page |
+| **Recurring jobs** | Loops on a cycle and reminders at a fixed time | [Recurring jobs and reminders](08-viec-dinh-ky.md) |
+| `- [ ]` checkboxes in notes | Tasks you tick yourself in a markdown file | [Tasks and Dataview in notes](19-task-va-dataview.md) |
 
-## Mở ở đâu trong Javis
+## Where to open it in Jarvis 007
 
-Ở thanh điều hướng bên trái, mở nhóm **Việc** rồi bấm mục **Việc**. Tiêu đề trang là **Việc (Kanban)** với dòng phụ "AI tự đặc tả, điều phối và chạy task nền".
+On the left navigation rail, open the **Work** group then click **Work**. The page title is **Work (Kanban)** with the subtitle "The AI specifies, dispatches and runs background tasks".
 
-Bảng gắn với **brain đang chọn** ở đầu dashboard. Đổi brain là đổi luôn bảng việc, mỗi brain một hàng đợi riêng.
+The board is bound to the **brain selected** at the top of the dashboard. Switching brains switches the board, one queue per brain.
 
-Ngay dưới tiêu đề có một chấm tròn và dòng chữ về dispatcher:
+Right under the title is a dot and a line about the dispatcher:
 
-- "Dispatcher đang chạy · tối đa 2 worker" (chấm sáng): tiến trình điều phối của server đang sống.
-- "Dispatcher chưa chạy" (chấm tối): tiến trình điều phối chưa lên.
+- "Dispatcher running · up to 2 workers" (a bright dot): the server's dispatch process is alive.
+- "Dispatcher not running" (a dark dot): the dispatch process has not come up.
 
-Lưu ý quan trọng: dòng này chỉ nói tiến trình có sống hay không, **không** nói bảng của brain này có được tự chạy hay không. Cái quyết định chuyện đó là **Chế độ dispatcher** ở ngay bên dưới.
+An important note: that line only says whether the process is alive, **not** whether this brain's board runs automatically. What decides that is the **Dispatcher mode** just below.
 
-## Cách dùng (từng bước)
+## How to use it (step by step)
 
-### Bước 1: Chọn chế độ dispatcher
+### Step 1: Choose the dispatcher mode
 
-Ở khối **Chế độ dispatcher** có 3 nút:
+The **Dispatcher mode** block has 3 buttons:
 
-| Nút | Nghĩa thực tế |
+| Button | What it actually means |
 | --- | --- |
-| **Tắt** | Mặc định của một bảng mới. AI không tự nhận việc nào. |
-| **Quan sát** | AI cũng không tự nhận việc. Bạn dùng khi muốn xếp việc vào hàng đợi trước rồi tự bấm chạy. |
-| **AI tự vận hành** | Dispatcher tự quét hàng đợi và tự chạy việc. |
+| **Off** | The default for a new board. The AI claims nothing. |
+| **Observe** | The AI also claims nothing. Use it when you want to line jobs up first then run them yourself. |
+| **AI runs itself** | The dispatcher scans the queue and runs work on its own. |
 
-Chỉ **AI tự vận hành** mới khiến việc tự chạy. Hai chế độ còn lại đều làm dispatcher đứng yên với brain này, khác biệt nằm ở nút **Tạm dừng AI**: nút đó vừa đặt chế độ về **Tắt** vừa huỷ mọi worker đang chạy của brain hiện tại.
+Only **AI runs itself** makes work run automatically. The other two leave the dispatcher idle for this brain, and the difference lies in the **Pause AI** button: that button sets the mode to **Off** AND cancels every running worker of the current brain.
 
-Đổi chế độ có hiệu lực ngay, không cần khởi động lại.
+A mode change takes effect immediately, with no restart.
 
-### Bước 2: Giao một goal
+### Step 2: Hand over a goal
 
-Bấm **+ Giao goal** ở góc phải để mở form (bấm lần nữa để đóng). Form có:
+Click **+ Hand over a goal** in the right corner to open the form (click again to close). The form has:
 
-- **Goal**: một câu ngắn nói rõ việc cần xong. Ví dụ gợi ý ngay trong ô nhập: "Phân tích sản phẩm bán chạy tuần này và soạn 3 bài đăng". Bỏ trống là Javis báo "Nhập tiêu đề".
-- **Ngữ cảnh và đầu ra mong muốn**: ô nhiều dòng, viết tự nhiên cũng được. Đây là chỗ bạn nói rõ đầu ra muốn nhận (file gì, đặt ở đâu, dài bao nhiêu, lấy số liệu từ nguồn nào). Bỏ trống thì Javis lấy luôn nội dung ô Goal.
-- **Route**: chọn **AI tự chọn worker** (mặc định) để AI tự quyết, hoặc chọn một mục **Workflow: `<tên>`** để ép việc chạy qua đúng workflow đó. Danh sách workflow lấy từ brain đang chọn, xem [Agents & Workflows](07-agents-va-workflows.md).
-- **Ưu tiên**: **🔺 Cao**, **🔼 Vừa** (mặc định), **🔽 Thấp**. Việc ưu tiên cao được nhận trước khi hàng đợi đông.
-- **Ngoại lệ**: ô tích **Yêu cầu duyệt kết quả**. Tick thì làm xong việc không tự đóng mà dừng ở trạng thái "Cần duyệt ngoại lệ" chờ bạn xem.
+- **Goal**: a short sentence stating what needs finishing. The placeholder suggests: "Analyse this week's best sellers and draft 3 posts". Left empty, Jarvis 007 reports "Enter a title".
+- **Context and desired output**: a multi-line field, natural writing is fine. This is where you state the output you want (which file, where, how long, which source for the figures). Left empty, Jarvis 007 reuses the Goal field.
+- **Route**: choose **Let the AI pick the worker** (the default) to let the AI decide, or pick a **Workflow: `<name>`** entry to force the job through that workflow. The workflow list comes from the selected brain, see [Agents and Workflows](07-agents-va-workflows.md).
+- **Priority**: **🔺 High**, **🔼 Medium** (the default), **🔽 Low**. High-priority work is claimed first when the queue is busy.
+- **Exception**: the **Require result approval** checkbox. Ticked, a finished job does not close itself but stops at "Needs exception approval" waiting for you to look.
 
-Bấm **Giao cho AI** để tạo, hoặc **Huỷ** để đóng form.
+Click **Hand to the AI** to create it, or **Cancel** to close the form.
 
-Một mẹo nhỏ về chống trùng: nếu bảng đang còn một việc chưa kết thúc có tiêu đề trùng (so khớp sau khi bỏ dấu và bỏ ký tự đặc biệt), Javis trả về đúng việc cũ thay vì tạo bản sao.
+A small note on duplicate protection: if the board still has an unfinished job with the same title (matched after stripping diacritics and special characters), Jarvis 007 returns that existing job rather than creating a copy.
 
-### Bước 3: Đọc bảng
+### Step 3: Read the board
 
-Hàng KPI có 4 số:
+The KPI row has 4 numbers:
 
-| KPI | Đếm cái gì |
+| KPI | What it counts |
 | --- | --- |
-| **Worker đang chạy** | Số worker đang thật sự chạy cho brain này |
-| **Đang chờ** | Tổng việc đang chờ đặc tả, chờ phụ thuộc và chờ tới lượt |
-| **Cần anh xử lý** | Việc bị chặn cộng việc chờ bạn duyệt |
-| **Hoàn thành 24h** | Việc chuyển sang hoàn thành trong 24 giờ qua |
+| **Workers running** | How many workers are genuinely running for this brain |
+| **Waiting** | Total work awaiting specification, awaiting dependencies and awaiting its turn |
+| **Needs you** | Blocked work plus work awaiting your approval |
+| **Completed in 24h** | Work that moved to completed in the last 24 hours |
 
-Bên dưới là 4 khung:
+Below are 4 panels:
 
-- **Đang hoạt động** (nhãn phụ "N worker"): việc đang chạy ngay lúc này.
-- **Hàng đợi AI** (nhãn phụ "N task"): việc đang chờ đặc tả, chờ phụ thuộc hoặc chờ tới lượt.
-- **Cần anh xử lý** (nhãn phụ "N ngoại lệ"): việc bị chặn và việc chờ duyệt. Khung rỗng hiện dòng "Không có ngoại lệ. AI đang tự vận hành bình thường."
-- **Lịch sử gần đây** (nhãn phụ "24 giờ và mới nhất"): việc đã hoàn thành và đã huỷ, tối đa 20 thẻ.
+- **Active** (sub-label "N workers"): work running right now.
+- **AI queue** (sub-label "N tasks"): work awaiting specification, dependencies or its turn.
+- **Needs you** (sub-label "N exceptions"): blocked work and work awaiting approval. When empty it reads "No exceptions. The AI is running normally."
+- **Recent history** (sub-label "24 hours and latest"): completed and cancelled work, at most 20 cards.
 
-Khung nào chưa có gì thì hiện "Chưa có task."
+An empty panel reads "No tasks yet."
 
-Mỗi thẻ việc gồm: biểu tượng ưu tiên và tiêu đề, viên trạng thái ở góc phải, dòng thông tin phụ (capability, "attempt 1/3", thời gian đổi gần nhất kiểu "vừa xong" / "12 phút" / "3 giờ"), rồi lý do bị chặn (chữ cam) hoặc 240 ký tự đầu của kết quả, cuối cùng là hàng nút thao tác.
+Each work card carries: the priority icon and title, a status pill in the right corner, an information line (capability, "attempt 1/3", the last change time as "just now" / "12 minutes" / "3 hours"), then the block reason (in orange) or the first 240 characters of the result, and finally a row of action buttons.
 
-Bảng tự làm tươi 3 giây một lần, nên bạn không cần bấm gì để thấy tiến độ.
+The board refreshes itself every 3 seconds, so you never need to click anything to see progress.
 
-### Bước 4: Mở chi tiết một việc
+### Step 4: Open one job's detail
 
-Bấm vào thân thẻ để mở ngăn chi tiết trượt ra từ cạnh màn hình. Trong đó có:
+Click a card's body to open the detail drawer sliding in from the edge of the screen. It contains:
 
-- Nội dung intent đầy đủ (bản đã được AI đặc tả, không phải câu thô ban đầu).
-- Dòng thông tin: trạng thái, capability, "mode `<suggest|auto|full>`", "ưu tiên `<1|2|3>`".
-- Hàng nút thao tác giống trên thẻ.
-- **Lý do bị chặn** (nếu có).
-- **Kết quả** đầy đủ (nếu có).
-- **Lần chạy (N)**: từng lần worker cầm việc, kèm trạng thái lần chạy và thời điểm bắt đầu, có lỗi thì hiện lỗi.
-- **Nhật ký lifecycle**: từng sự kiện của việc, ví dụ `created`, `claimed`, `specified`, `retry_scheduled`, `blocked`, `completed`, `operator_move`, `auto_archive`.
+- The full intent content (the version the AI specified, not your original raw sentence).
+- An information line: status, capability, "mode `<suggest|auto|full>`", "priority `<1|2|3>`".
+- The same action buttons as on the card.
+- **The block reason** (if any).
+- **The full result** (if any).
+- **Runs (N)**: each time a worker held the job, with the run's status and start time, and any error shown.
+- **The lifecycle log**: every event of the job, for example `created`, `claimed`, `specified`, `retry_scheduled`, `blocked`, `completed`, `operator_move`, `auto_archive`.
 
-Đóng ngăn bằng nút **×** góc trên, phím **Esc**, hoặc bấm ra vùng nền tối.
+Close the drawer with the **×** in the top corner, the **Esc** key, or by clicking the dark backdrop.
 
-### Bước 5: Xử lý ngoại lệ
+### Step 5: Handle exceptions
 
-Tuỳ trạng thái, thẻ (và ngăn chi tiết) hiện các nút:
+Depending on the status, the card (and the detail drawer) shows these buttons:
 
-| Nút | Hiện khi | Làm gì |
+| Button | Shown when | What it does |
 | --- | --- | --- |
-| **✓ Duyệt ngoại lệ** | việc đang chờ duyệt | Chốt việc là hoàn thành |
-| **↻ Thử lại** | việc bị chặn hoặc chờ duyệt | Đẩy việc về hàng đợi để chạy lại |
-| **Dừng task** | việc đang chạy | Huỷ worker đang chạy |
-| **Xóa khỏi bảng** | mọi việc không đang chạy | Đưa việc vào lưu trữ, rời khỏi bảng nhưng không mất lịch sử |
+| **✓ Approve exception** | the job awaits approval | Marks it completed |
+| **↻ Retry** | the job is blocked or awaiting approval | Pushes it back into the queue to run again |
+| **Stop task** | the job is running | Cancels the running worker |
+| **Remove from board** | any job not running | Archives it, leaving the board without losing the history |
 
-**Xóa khỏi bảng** hỏi xác nhận trước: "Xóa task này khỏi bảng? Task sẽ được lưu trữ để không mất lịch sử." Việc đang chạy phải **Dừng task** trước rồi mới xoá được. Nếu thao tác không thành, Javis hiện hộp báo lỗi nguyên văn từ server, hoặc "Không thể cập nhật task".
+**Remove from board** asks for confirmation first, explaining the task will be archived so no history is lost. A running job must be stopped with **Stop task** before it can be removed. If an action fails, Jarvis 007 shows the server's error verbatim, or "Could not update the task".
 
-## Các trạng thái của một việc
+## A job's states
 
-Đây là bảng dịch nghĩa đầy đủ những chữ hiện trên viên trạng thái.
+This table translates in full the words shown on the status pill.
 
-| Chữ hiện trên màn hình | Trạng thái trong máy | Nghĩa |
+| Words on screen | Internal state | Meaning |
 | --- | --- | --- |
-| **AI đang đặc tả** | `triage` | Việc mới, đang chờ (hoặc đang được) AI chuẩn hoá thành đặc tả chạy được |
-| **Chờ phụ thuộc** | `todo` | Việc có phụ thuộc, phải đợi các việc cha xong đã |
-| **Trong hàng đợi** | `ready` | Đã có đặc tả, đang chờ tới lượt được worker nhận |
-| **Đang chạy** | `running` | Một worker đang giữ và thực thi |
-| **Cần duyệt ngoại lệ** | `review` | Đã làm xong nhưng bạn yêu cầu duyệt kết quả |
-| **Cần xử lý** | `blocked` | Bị chặn: thiếu thông tin, thiếu quyền, hoặc lỗi đã hết lượt thử lại |
-| **Hoàn thành** | `done` | Xong xuôi |
-| **Đã huỷ** | `cancelled` | Bạn dừng, hoặc worker bị huỷ giữa chừng |
-| (không hiện trên bảng) | `archived` | Đã lưu trữ: do bạn bấm Xóa khỏi bảng, hoặc do tự dọn sau 3 ngày kể từ khi kết thúc |
+| **AI is specifying** | `triage` | A new job waiting for (or currently being) normalised into a runnable specification |
+| **Waiting on dependencies** | `todo` | The job has dependencies and must wait for its parent jobs |
+| **In the queue** | `ready` | Specified, waiting its turn to be claimed by a worker |
+| **Running** | `running` | A worker holds it and is executing |
+| **Needs exception approval** | `review` | Finished, but you asked to approve the result |
+| **Needs attention** | `blocked` | Blocked: missing information, missing permission, or an error that exhausted the retries |
+| **Completed** | `done` | Finished |
+| **Cancelled** | `cancelled` | You stopped it, or the worker was cancelled midway |
+| (not shown on the board) | `archived` | Archived: either you clicked Remove from board, or it was auto-cleared 3 days after finishing |
 
-Vài đường đi đáng biết:
+A few paths worth knowing:
 
-- Sau bước đặc tả, việc **không** bị tính là đã dùng một lượt thử; số lượt được trả lại để bước thực thi có đủ 3 lần.
-- Lỗi tạm thời (timeout, rate limit, 429, mất mạng, engine bận) thì việc **tự** quay lại hàng đợi, tối đa 3 lượt, ghi sự kiện `retry_scheduled`. Hết lượt mới chuyển sang "Cần xử lý".
-- Worker chết giữa chừng mà không kịp báo sống thì việc được thu hồi về hàng đợi với sự kiện `reclaimed`, không nằm treo mãi ở "Đang chạy".
-- Worker tự thấy thiếu một quyết định hoặc dữ liệu thì trả kết quả bắt đầu bằng `[[NEEDS_INPUT]]`, việc chuyển sang "Cần xử lý" kèm đúng một dòng lý do.
+- After the specification step, the job is **not** counted as having used an attempt; the count is restored so execution gets a full 3 attempts.
+- A transient error (timeout, rate limit, 429, network loss, a busy engine) sends the job **back** to the queue by itself, up to 3 times, logging `retry_scheduled`. Only when the attempts run out does it move to "Needs attention".
+- A worker that dies without sending a heartbeat has its job reclaimed into the queue with a `reclaimed` event, so nothing hangs forever at "Running".
+- A worker that finds it is missing a decision or data returns a result starting with `[[NEEDS_INPUT]]`, moving the job to "Needs attention" with exactly one line of reason.
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference of buttons and states
 
-| Nút trên đầu trang | Làm gì |
+| Button at the top of the page | What it does |
 | --- | --- |
-| **+ Giao goal** | Mở/đóng form giao việc |
-| **Chạy nhịp ngay** | Ép dispatcher nhận và chạy ngay một việc sẵn sàng của brain này. Chạy được cả khi chế độ đang là Tắt hoặc Quan sát. Không có việc nào sẵn sàng thì không có gì xảy ra |
-| **↻** | Tải lại bảng ngay, không đợi nhịp 3 giây |
-| **Tạm dừng AI** | Đặt chế độ về **Tắt** và huỷ mọi worker đang chạy của brain này |
+| **+ Hand over a goal** | Opens/closes the hand-over form |
+| **Run a tick now** | Forces the dispatcher to claim and run one ready job of this brain immediately. It works even in Off or Observe mode. With no ready job, nothing happens |
+| **↻** | Reloads the board at once, without waiting for the 3-second tick |
+| **Pause AI** | Sets the mode to **Off** and cancels every running worker of this brain |
 
-## Worker nền làm được gì và không làm được gì
+## What a background worker can and cannot do
 
-Worker là một phiên AI **headless**: không có màn hình, không hỏi lại bạn giữa chừng, không có trình duyệt đã đăng nhập, không có tay bạn để bấm nút. Nó chỉ có bộ công cụ tương ứng với capability mà bước đặc tả đã chọn:
+A worker is a **headless** AI session: no screen, no asking you mid-run, no signed-in browser, no hands of yours to click a button. It only has the toolkit matching the capability the specification step chose:
 
-| Capability | Được dùng | Bị chặn |
+| Capability | Allowed | Blocked |
 | --- | --- | --- |
-| `files` | Đọc/ghi/sắp xếp file trong brain | Bash, tìm kiếm web |
-| `research` | Công cụ file cộng đọc web và tìm kiếm web | Bash |
-| `mcp-read` | Công cụ file cộng đọc dữ liệu thật qua các kết nối MCP | Bash, tìm kiếm web |
-| `code` | Công cụ file cộng Bash (sửa và kiểm thử code) | Đọc web, tìm kiếm web |
-| `external-write` | Công cụ file cộng MCP, nhưng xem luật ngay bên dưới | Bash, tìm kiếm web |
-| `image` (0.107.0) | Công cụ file cộng ĐÚNG hai tool ảnh: tạo ảnh (`javis_generate_image`) và xem ảnh (`javis_describe_image`) | Bash, web, mọi kết nối khác |
+| `files` | Reading, writing and organising files in the brain | Bash, web search |
+| `research` | The file tools plus reading the web and web search | Bash |
+| `mcp-read` | The file tools plus reading real data through MCP connections | Bash, web search |
+| `code` | The file tools plus Bash (editing and testing code) | Reading the web, web search |
+| `external-write` | The file tools plus MCP, but see the rule right below | Bash, web search |
+| `image` (0.107.0) | The file tools plus EXACTLY two image tools: image creation (`javis_generate_image`) and image viewing (`javis_describe_image`) | Bash, web, every other connection |
 
-`image` có để việc cần làm ảnh chạy được mà không phải mở Toàn quyền (Toàn quyền mở luôn cả đăng bài, gửi tin). Hai tool ảnh ở mức ghi nháp, nên việc mức `suggest` vẫn không tạo được ảnh.
+`image` exists so work that needs images can run without having to open up `full` (which also opens publishing and sending messages). The two image tools are at draft-write level, so work at `suggest` level still cannot create images.
 
-Luật quan trọng nhất: việc thuộc `external-write` (gửi tin, đăng bài, tạo đơn, tạo lịch, đổi thứ gì đó bên ngoài) **chỉ chạy khi execution_mode là `full`**. Không đủ quyền thì việc bị chặn ngay với lý do "Task cần hành động ra ngoài. Chỉ worker mode=full mới được thực thi." Bước đặc tả cũng không tự cho quyền `full`: nó chỉ giữ `full` khi chính lời bạn viết trong goal nói rõ đã cho phép tự hành động (những cụm như "toàn quyền", "tự gửi", "tự đăng", "không cần hỏi"). Không thấy câu cho phép thì nó hạ xuống `auto` để kernel chặn lại.
+The most important rule: an `external-write` job (sending a message, publishing, creating an order, booking a calendar slot, changing anything outside) **only runs when the execution_mode is `full`**. Without that level, the job is blocked immediately with the reason that the task needs an outside action and only a mode=full worker may execute it. The specification step does not hand out `full` either: it only keeps `full` when your own wording in the goal clearly grants permission to act (phrases like "full power", "send it yourself", "publish it yourself", "no need to ask"). With no such permission it drops to `auto` so the kernel blocks it.
 
-Nói cách khác: mặc định Javis **không** tự tiêu tiền, không tự gửi tin, không tự đăng bài từ hàng đợi việc. Muốn thế thì phải nói thẳng trong goal.
+In other words: by default Jarvis 007 does **not** spend money, send messages or publish from the work queue. To let it, you have to say so plainly in the goal.
 
-Ngoài ra worker cũng không thấy repo mã nguồn nằm ngoài brain, và không làm được những việc cần chính chủ đăng nhập (cookie, OTP, quét mã QR, đổi mật khẩu).
+Beyond that, a worker also cannot see source repositories outside the brain, and cannot do anything requiring the owner to sign in (cookies, OTP, scanning a QR code, changing a password).
 
-## Chạy một quy trình qua hàng đợi
+## Running a workflow through the queue
 
-Giao việc với `route` là `wf:<slug>` thì việc chạy ĐÚNG quy trình đó, từng bước do agent của quy trình làm. Từ khung chat, Javis đặt route này bằng tool `javis_task` (có từ 0.107.0); slug không có thật thì tool từ chối và liệt kê các quy trình đang có. Chỉ chép tên quy trình vào mô tả việc thì KHÔNG chạy quy trình: một worker chung sẽ làm hết, và tool cảnh báo ngay khi thấy chuyện đó.
+Handing over work with `route` set to `wf:<slug>` runs EXACTLY that workflow, each step done by the workflow's agent. From the chat box, Jarvis 007 sets this route with the `javis_task` tool (since 0.107.0); if the slug does not exist the tool refuses and lists the workflows that do. Merely copying a workflow's name into the job description does NOT run the workflow: one generic worker does everything, and the tool warns immediately when it sees that.
 
-Quy trình đang tắt (`status: off`) không chạy nền: việc dừng chờ bạn với lý do quy trình đang tắt. Bước nào vẫn trượt kiểm chứng sau số lần sửa cho phép thì quy trình dừng ở bước đó và việc chờ bạn, không chạy tiếp các bước sau.
+A workflow that is off (`status: off`) does not run in the background: the job stops and waits for you with the reason that the workflow is off. A step that still fails verification after the allowed number of fixes stops the workflow at that step and the job waits for you, without running the later steps.
 
-Việc bị chặn mà có việc khác đang chờ nó (giao kèm `deps`) thì tin báo kể tên các việc đang chờ, vì chúng nằm ở cột chờ cho tới khi việc này xong.
+When a blocked job has other jobs waiting on it (handed over with `deps`), the notice names the waiting jobs, because they sit in the waiting column until this one finishes.
 
-## Nhận kết quả: về đúng nơi bạn đã giao việc
+## Getting results: back to where you handed the job over
 
-Mỗi việc kết thúc ở trạng thái hoàn thành, chờ duyệt hoặc bị chặn đều **tự bắn một tin báo** về đúng kênh đã giao nó, nội dung ngắn gọn kiểu:
+Every job that ends completed, awaiting approval or blocked **sends a notice by itself** to the channel it came from, briefly:
 
-- `✅ Việc '<tiêu đề>' đã hoàn thành.` kèm vài dòng đầu của kết quả.
-- `✅ Việc '<tiêu đề>' đã làm xong, cần duyệt ngoại lệ.`
-- `⚠ Việc '<tiêu đề>' bị chặn, cần anh xem.` kèm dòng `Lý do: ...`
+- `✅ The job '<title>' completed.` with the first few lines of the result.
+- `✅ The job '<title>' is done and needs exception approval.`
+- `⚠ The job '<title>' is blocked and needs your attention.` with a `Reason: ...` line.
 
-Tin nào cũng kết bằng "Xem chi tiết ở trang Việc." vì chi tiết đầy đủ nằm ở đây chứ không nhồi vào tin nhắn.
+Every notice ends with a pointer to the Work page, because the full detail lives here rather than being crammed into a message.
 
-Ai nhận tin, nhận ở đâu:
+Who receives it and where:
 
-- **Giao trong chat trên dashboard** → kết quả hiện thẳng thành một tin của Javis **trong đúng cuộc trò chuyện đó**. Server ghi vào lịch sử phiên trước rồi mới đẩy lên, nên bạn đóng tab hay F5 xong mở lại vẫn thấy. Đang xem cuộc trò chuyện khác thì tin nằm sẵn ở phiên gốc và phiên đó nổi lên trong **Lịch sử**.
-- **Giao từ chat Telegram** → báo về đúng người đã nhắn (việc mang theo chat id của họ).
-- **Không rõ ai giao** (tạo tay ngoài chat) → báo về **ID Telegram đầu tiên** trong whitelist; chưa bật bot thì bước này bỏ qua, việc vẫn chạy bình thường. Xem [Kênh Telegram](11-telegram.md).
+- **Handed over in the dashboard chat** → the result appears as a Jarvis 007 message **in that very conversation**. The server writes it into the session history before pushing it, so closing the tab or refreshing and coming back still shows it. If you are viewing another conversation, the message sits in the original session and that session rises in the **History** list.
+- **Handed over from a Telegram chat** → reported to the person who wrote (the job carries their chat id).
+- **No clear owner** (created by hand outside chat) → reported to the **first Telegram ID** in the whitelist; with the bot off, that step is skipped and the job still runs normally. See [The Telegram channel](11-telegram.md).
 
-> Trước 0.9.289 chỉ có đường Telegram. Ai giao việc trên web mà chưa đấu Telegram thì giao xong là im lặng tuyệt đối - không trạng thái, không hồi âm. Giờ chat web là một kênh nhận báo thật, không cần Telegram nữa.
+> Before 0.9.289 only the Telegram route existed. Anyone handing over work on the web without Telegram attached got absolute silence afterwards: no status, no reply. Now web chat is a genuine reporting channel and Telegram is no longer required.
 
-### Việc nào làm chuông kêu (từ 0.52.7)
+### Which jobs ring the bell (since 0.52.7)
 
-Chuông **Thông báo** trên thanh trên chỉ nổi chấm đỏ (và chỉ đẩy thông báo ra ngoài trình duyệt) cho việc **cần bạn ra tay**:
+The **Notifications** bell in the top bar only shows a red dot (and only sends a push notification outside the browser) for work that **needs your hands**:
 
-| Việc kết thúc ở | Kết quả về khung chat | Vào hòm thư | Chấm đỏ + thông báo đẩy |
+| The job ends as | Result in the chat box | Into the inbox | Red dot + push |
 |---|---|---|---|
-| Bị chặn | có | có | **có** |
-| Chờ duyệt ngoại lệ | có | có | **có** |
-| Chạy xong trót lọt | có | có | không |
+| Blocked | yes | yes | **yes** |
+| Awaiting exception approval | yes | yes | **yes** |
+| Finished cleanly | yes | yes | no |
 
-Việc chạy xong vẫn nằm nguyên trong danh sách chuông để bạn mở ra xem lại, chỉ là nó không gọi bạn dậy: kết quả đã rơi thẳng vào đúng khung chat đã giao việc rồi. Đổi cách này vì chủ repo báo (01/09/2026) chuông kêu liên hồi giữa lúc đang trò chuyện.
+A cleanly finished job still sits in the bell list for you to review, it just does not wake you: the result already landed in the very chat box that handed it over. This changed because the repo owner reported (2026-09-01) that the bell rang constantly mid-conversation.
 
-Đánh đổi cần biết: lúc bạn đi vắng, một việc chạy xong sẽ **không** có gì nhắc. Muốn xem thì mở chuông, hoặc mở lại cuộc trò chuyện đã giao việc.
+The trade-off to know: while you are away, a finished job has **nothing** reminding you. To see it, open the bell, or reopen the conversation that handed the work over.
 
-## Thấy việc nền đang chạy ngay trong khung chat
+## Seeing background work right in the chat box
 
-Từ 0.25.2, ngay trên ô nhập của khung chat có một **dải việc nền**. Nó chỉ hiện khi thật sự có gì đó đang sống, và nói đúng một điều: ngay lúc này có cái gì đang chạy cho bạn không.
+Since 0.25.2, right above the chat input there is a **background work strip**. It only appears when something is genuinely alive, and it says exactly one thing: is anything running for you right now.
 
-| Màu | Nghĩa |
+| Colour | Meaning |
 |---|---|
-| **Xanh** | Có việc **đang chạy thật**. Chấm nhấp nháy. |
-| **Vàng** | Việc **đã giao nhưng không tự chạy** vì chế độ dispatcher chưa phải **AI tự vận hành**. Dải nói luôn phải bật ở đâu. |
-| **Xám** | Chỉ còn loop hoặc nhắc hẹn đang chờ tới giờ. |
+| **Green** | Something is **genuinely running**. The dot blinks. |
+| **Yellow** | Work was **handed over but does not run** because the dispatcher mode is not **AI runs itself**. The strip says where to turn it on. |
+| **Grey** | Only loops or reminders waiting for their time. |
 
-Dải gom cả ba nguồn: việc Kanban, [loop và nhắc hẹn](08-viec-dinh-ky.md). Việc giao từ chính cuộc trò chuyện đang mở được viền riêng và đếm riêng ("2 việc đang chạy ngầm · 1 của hội thoại này"), vì "máy đang bận" với "việc của tôi đang chạy" là hai chuyện khác nhau. Bấm **Trang Việc** ở góc phải để mở bảng đầy đủ.
+The strip gathers all three sources: Kanban work, [loops and reminders](08-viec-dinh-ky.md). Work handed over from the open conversation gets its own outline and its own count ("2 jobs running in the background · 1 from this conversation"), because "the machine is busy" and "my job is running" are two different things. Click **Work page** in the right corner to open the full board.
 
-Dải tự hỏi lại server mỗi vài giây, và hỏi ngay mỗi khi một lượt chat kết thúc hoặc một việc nền vừa báo kết quả về. Không có việc nào thì nó ẩn hẳn, không chiếm chỗ của khung chat.
+The strip re-asks the server every few seconds, and asks immediately whenever a chat turn ends or a background job reports back. With no work at all it hides entirely rather than taking space from the chat box.
 
-> Vì sao có: trước bản này khung chat không hiện một chữ nào về việc nền, nên "Javis đang chạy việc cho tôi" và "Javis quên mất rồi" trông y hệt nhau. Muốn biết phải tự nghĩ ra việc mở trang này, mà không ai có lý do để nghĩ ra.
+> Why it exists: before this version the chat box said nothing whatsoever about background work, so "Jarvis 007 is running my job" and "Jarvis 007 forgot" looked identical. Finding out meant thinking to open this page yourself, and nobody has a reason to think of that.
 
-## Javis tự đính chính khi lỡ hứa suông
+## Jarvis 007 corrects itself when it promises emptily
 
-Cũng từ 0.25.2, cuối mỗi lượt chat server dò xem câu trả lời có hẹn báo lại không ("có kết quả em báo ngay", "xong em báo anh", "anh chờ em chút"), rồi đối chiếu với việc nền đang có thật. Hứa mà không có gì chạy thì Javis tự dán một dòng đính chính ngay dưới câu trả lời, nói rõ là sẽ không có báo cáo nào tự về và bạn cần làm gì tiếp.
+Also since 0.25.2, at the end of each chat turn the server detects whether the answer promised to report back ("I will tell you as soon as I have results", "I will let you know when it is done", "give me a moment"), then compares that against the background work that actually exists. A promise with nothing running makes Jarvis 007 append a correction line right under the answer, stating plainly that no report will arrive on its own and what you need to do next.
 
-Đây không phải kiểm duyệt: nó không chặn và không sửa câu trả lời, chỉ nói thêm sự thật ở dưới. Lý do là một lượt trả lời kết thúc ngay khi Javis nói xong - không có cơ chế nào đánh thức nó dậy để làm nốt, nên một lời hẹn không kèm việc nền là một lời hẹn sẽ không bao giờ tới.
+This is not censorship: it neither blocks nor edits the answer, it only adds the truth underneath. The reason is that an answer turn ends the moment Jarvis 007 stops speaking, with no mechanism to wake it up to finish, so a promise without background work is a promise that will never arrive.
 
-## Giao việc bằng lời trong chat
+## Handing work over in words in chat
 
-Bạn không bắt buộc phải mở trang này. Nói thẳng trong chat kiểu "giao việc nền: rà lại toàn bộ note trong Wiki tháng này rồi liệt kê note thiếu liên kết" là Javis tự tạo một việc trong hàng đợi và gắn danh tính người đang nói để báo kết quả về đúng chỗ.
+You are not required to open this page. Saying it plainly in chat, something like "background job: review every Wiki note from this month then list the ones missing links", makes Jarvis 007 create a job in the queue and attach the identity of whoever is speaking so the result comes back to the right place.
 
-Javis được dạy chọn công cụ nhỏ nhất đủ dùng, nên nó chỉ tạo việc khi việc đó **làm một lần, cần chạy nền hoặc cần duyệt**. Câu hỏi trả lời được ngay thì nó trả lời luôn; việc lặp theo chu kỳ hoặc có mốc giờ thì nó chuyển sang [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md).
+Jarvis 007 is taught to pick the smallest tool that suffices, so it only creates a job when the job is **one-off and needs to run in the background or needs review**. A question it can answer now gets answered; work that repeats on a cycle or has a fixed time goes to [Recurring jobs and reminders](08-viec-dinh-ky.md).
 
-Nhớ rằng việc tạo qua chat vẫn nằm trong hàng đợi của brain đang chat, và vẫn phải có chế độ **AI tự vận hành** thì mới tự chạy. Nếu bảng đang **Tắt**, việc chỉ nằm chờ cho tới khi bạn bật hoặc bấm **Chạy nhịp ngay**.
+Remember that work created through chat still sits in the queue of the brain you are chatting with, and still needs the **AI runs itself** mode to run on its own. If the board is **Off**, the job simply waits until you turn it on or click **Run a tick now**.
 
-Từ 0.25.2 Javis **nói ra chuyện đó ngay lúc giao**: giao việc vào một bảng đang **Tắt** hoặc **Quan sát** thì nó báo lại là việc đang xếp hàng chứ chưa chạy, kèm cách bật. Trước đó nó luôn kết bằng "Việc chạy nền, kết quả tự về" bất kể chế độ nào - một lời hứa sai mà chính Javis không có cách nào biết là sai. Dải việc nền ở khung chat cũng chuyển sang màu vàng trong đúng tình huống này.
+Since 0.25.2 Jarvis 007 **says so at hand-over time**: handing work into a board that is **Off** or in **Observe** makes it report that the job is queued rather than running, plus how to turn it on. Before that it always ended with "the job runs in the background, the result will come back on its own" regardless of the mode, a false promise Jarvis 007 itself had no way to know was false. The background work strip in the chat box also turns yellow in exactly this situation.
 
-Việc này chạy trên **mọi bộ não** từ 0.17.1, qua tool `javis_task`. Trước đó chỉ Claude Code và ChatGPT/Codex giao được việc từ chat, vì đường duy nhất là gọi HTTP bằng lệnh máy mà chỉ hai engine đó chạy được. Các engine API (OpenRouter, OpenAI, Anthropic, Gemini, Groq, Ollama) nhận lời rồi không làm gì cả, và không báo lỗi. Nếu bạn từng gặp cảnh "bảo giao việc mà bảng vẫn trống", nhiều khả năng đó là lỗi này.
+This works on **every brain** since 0.17.1, through the `javis_task` tool. Before that only Claude Code and ChatGPT/Codex could hand work over from chat, because the only route was an HTTP call through a machine command that only those two engines could run. The API engines (OpenRouter, OpenAI, Anthropic, Gemini, Groq, Ollama) accepted the instruction then did nothing, and reported no error. If you ever met "I asked for a job and the board stayed empty", it was most likely this bug.
 
-Hai điều tool đó **không** làm, cố ý:
+Two things that tool deliberately does **not** do:
 
-- **Không tạo được việc mức `full`.** Mức full cho việc tự thao tác thật ra ngoài (tạo đơn, tiêu tiền, chạy quảng cáo, gửi tin) và không hoàn tác được. Javis tạo mức `suggest` hoặc `auto` thôi; muốn full thì bạn tự nâng ở trang này, nơi bạn nhìn thấy rõ mình đang cho phép gì.
-- **Không chuyển cột, không huỷ việc, không duyệt việc đang chờ phê duyệt.** Những thao tác đó cần nhìn thấy bảng, nên chúng ở lại trang này.
+- **It cannot create `full`-level work.** The full level lets a job really act outside (creating orders, spending money, running ads, sending messages) and cannot be undone. Jarvis 007 only creates `suggest` or `auto`; to get full you raise it yourself on this page, where you can see clearly what you are permitting.
+- **It does not move columns, cancel work or approve work awaiting approval.** Those actions need you to see the board, so they stay on this page.
 
-## Việc do trang Tự học đề xuất
+## Work proposed by the Self-learning page
 
-Trang **Tự học** có một công tắc năng lực tên **Việc (Kanban)** cho phép engine học tự đề xuất việc nền từ hội thoại. Công tắc này **mặc định tắt** ở bản hiện tại, sau khi soi một bảng thật và thấy phần lớn việc máy tự đẻ ra là thứ worker headless không thể làm (cần cookie, cần gửi tin ra ngoài, chỉ ngồi chờ người khác duyệt, đụng repo ngoài brain). Việc giờ chỉ sinh ra khi bạn bảo thẳng.
+The **Self-learning** page has a capability switch named **Work (Kanban)** letting the learning engine propose background jobs from conversations. That switch is **off by default** in the current build, after inspecting a real board and finding that most machine-generated jobs were things a headless worker cannot do (needing cookies, needing to send something outside, only waiting for someone else's approval, touching a repo outside the brain). Work is now only created when you say so directly.
 
-Nếu bạn tự bật lại, các rào sau vẫn giữ:
+If you turn it back on, these rails still hold:
 
-- Tối đa 3 việc mỗi lượt học, và chỉ lấy đề xuất có độ tự tin đủ cao.
-- Đề xuất chứa secret hoặc chứa câu tiêm lệnh bị chặn thẳng.
-- Cửa gác "việc bất khả thi" loại trước những việc cần đăng nhập/OTP/QR, việc gửi hay đăng ra ngoài, việc chỉ là ngồi chờ người khác trả lời, và việc đụng mã nguồn ngoài brain. Lý do bị loại được ghi vào nhật ký học.
-- Việc do Tự học tạo vào thẳng tầng đặc tả như việc bạn tự giao, và **không** bị ép chờ duyệt: chỉ khi thiếu thông tin, thiếu quyền hoặc bạn bật cờ duyệt thì mới cần bạn can thiệp.
+- At most 3 jobs per learning pass, and only proposals with high enough confidence.
+- Proposals containing a secret or a prompt-injection sentence are blocked outright.
+- An "impossible job" gate filters out work needing a sign-in, OTP or QR, work sending or publishing outside, work that only waits for someone else's reply, and work touching source code outside the brain. The rejection reason is written into the learning log.
+- Work created by Self-learning enters the specification layer exactly like work you hand over, and is **not** forced to await approval: only missing information, missing permission or your own approval flag brings you in.
 
-Chi tiết ở [Tự học](22-tu-hoc.md).
+Details in [Self-learning](22-tu-hoc.md).
 
-## Dữ liệu của bảng nằm ở đâu
+## Where the board's data lives
 
-- **Nguồn chính**: file `kanban.sqlite3` trong thư mục state của Javis (biến `JAVIS_STATE_DIR`, mặc định là thư mục `server/`). Đây là nơi giữ vòng đời, lần chạy và nhật ký sự kiện. Nó cố tình nằm ngoài brain để việc đang chạy không bị đồng bộ git ghi đè.
-- **Bản sao đọc được**: `Javis/kanban.json` trong brain, được ghi lại mỗi lần bảng đổi. File này để sao lưu và để bản Javis cũ đọc được; sửa tay vào đó không đổi được gì trong hàng đợi thật.
-- Bảng cũ từ những bản Javis trước được nhập vào đúng một lần, và việc còn kẹt ở trạng thái "đang chạy" của tiến trình cũ được đưa về hàng đợi.
-- Việc hoàn thành hoặc đã huỷ quá **3 ngày** tự chuyển sang lưu trữ để bảng không phình ra.
+- **The main source**: the `kanban.sqlite3` file in Jarvis 007's state folder (the `JAVIS_STATE_DIR` variable, defaulting to the `server/` folder). It holds the lifecycle, the runs and the event log. It sits deliberately outside the brain so running work is not overwritten by git sync.
+- **A readable copy**: `Javis/kanban.json` in the brain, rewritten every time the board changes. That file exists for backup and so older Jarvis 007 builds can read it; editing it by hand changes nothing in the real queue.
+- An old board from earlier Jarvis 007 versions is imported exactly once, and work stuck "running" under the old process is returned to the queue.
+- Work completed or cancelled over **3 days** ago is archived automatically so the board does not bloat.
 
-## Giới hạn kỹ thuật
+## Technical limits
 
-| Thông số | Giá trị |
+| Parameter | Value |
 | --- | --- |
-| Số worker chạy song song | 2 (đổi bằng biến môi trường `JAVIS_KANBAN_MAX_WORKERS`, kẹp trong khoảng 1 tới 8, tính chung cho mọi brain) |
-| Nhịp quét của dispatcher | 5 giây, và được đánh thức ngay khi có việc mới |
-| Thời hạn giữ việc / nhịp báo sống | 90 giây / 20 giây |
-| Trần thời gian bước đặc tả | 3 phút |
-| Trần thời gian một lần chạy worker | 15 phút |
-| Số lần thử lại tối đa | 3 |
-| Độ dài kết quả lưu lại | 20.000 ký tự |
-| Nhịp làm tươi màn hình | 3 giây |
+| Workers running in parallel | 2 (change it with the `JAVIS_KANBAN_MAX_WORKERS` environment variable, clamped between 1 and 8, counted across all brains) |
+| The dispatcher's scan interval | 5 seconds, and woken immediately when new work arrives |
+| Task lease / heartbeat | 90 seconds / 20 seconds |
+| Time ceiling for the specification step | 3 minutes |
+| Time ceiling for one worker run | 15 minutes |
+| Maximum retries | 3 |
+| Length of result kept | 20,000 characters |
+| Screen refresh interval | 3 seconds |
 
-## Gọi thẳng bằng API
+## Calling the API directly
 
-Trang web không phủ hết những gì server làm được. Các endpoint dưới đây có thật, dùng khi bạn muốn tự động hoá hoặc muốn dọn bảng hàng loạt (mọi tham số đi dạng form, kèm `brain=<tên brain>`):
+The web page does not cover everything the server can do. The endpoints below are real, for automation or bulk board cleanup (every parameter is form-encoded, with `brain=<brain name>`):
 
-| Endpoint | Việc nó làm |
+| Endpoint | What it does |
 | --- | --- |
-| `GET /kanban` | Toàn bộ dữ liệu bảng |
-| `GET /kanban/health` | Chế độ, tình trạng dispatcher, số đếm theo trạng thái |
-| `GET /kanban/task/show?id=...` | Một việc kèm lần chạy và nhật ký sự kiện |
-| `POST /kanban/task` | Tạo việc. Ngoài các trường có trên form còn nhận `chat_id`, `capability`, `execution_mode`, `deps` (danh sách id cách nhau bằng dấu phẩy) và `idempotency_key`. Cần đăng nhập; từ trong khung chat thì dùng tool `javis_task` |
-| `POST /kanban/run` | Chạy đúng một việc theo id |
-| `POST /kanban/task/move` | Chuyển việc sang một trạng thái khác |
-| `POST /kanban/purge` | Xoá hẳn việc đã kết thúc. Mặc định chỉ đụng việc đã lưu trữ và đã huỷ; thêm `include_done=1` mới đụng việc hoàn thành |
-| `POST /kanban/clear` | Xoá trắng bảng, trừ việc đang chạy. Không hoàn tác được |
+| `GET /kanban` | The whole board's data |
+| `GET /kanban/health` | The mode, the dispatcher's health, counts by state |
+| `GET /kanban/task/show?id=...` | One job with its runs and event log |
+| `POST /kanban/task` | Creates a job. Besides the form fields it also accepts `chat_id`, `capability`, `execution_mode`, `deps` (a comma-separated id list) and `idempotency_key`. Requires sign-in; from inside the chat box use the `javis_task` tool |
+| `POST /kanban/run` | Runs exactly one job by id |
+| `POST /kanban/task/move` | Moves a job to another state |
+| `POST /kanban/purge` | Permanently deletes finished work. By default it only touches archived and cancelled work; add `include_done=1` to touch completed work |
+| `POST /kanban/clear` | Wipes the board except running work. Cannot be undone |
 
-Hai endpoint dọn dẹp cuối bảng không có nút trên giao diện, đúng như thiết kế: chúng xoá thật.
+The two cleanup endpoints at the end have no button in the interface, exactly as designed: they really delete.
 
-## Mẹo
+## Tips
 
-- Viết goal theo kiểu "đầu ra là gì", không phải "hãy suy nghĩ về". Ô **Ngữ cảnh và đầu ra mong muốn** càng nói rõ file đích, độ dài, nguồn số liệu thì bước đặc tả càng ra điều kiện hoàn thành sát, và worker càng ít đi lạc.
-- Việc quan trọng thì tick **Yêu cầu duyệt kết quả**. Bạn mất một lần bấm nhưng chắc chắn được đọc kết quả trước khi coi là xong.
-- Muốn thử một việc ngay mà chưa muốn bật chế độ tự chạy: để chế độ **Quan sát**, giao việc, rồi bấm **Chạy nhịp ngay**.
-- Việc cần dữ liệu thật (doanh thu, lịch, quảng cáo) thì nói thẳng nguồn trong goal, ví dụ "lấy từ POS". Bước đặc tả sẽ chọn `mcp-read` và worker mới được mở các kết nối. Xem [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md).
-- Bảng đầy việc chết vì thử nghiệm thì đừng xoá từng thẻ: bấm **Xóa khỏi bảng** cho vài thẻ quan trọng cần giữ lịch sử, còn lại cứ để tự lưu trữ sau 3 ngày.
-- Đọc **Nhật ký lifecycle** trong ngăn chi tiết trước khi kết luận "AI làm sai". Rất nhiều lần câu trả lời nằm ở đó: việc bị thu hồi vì hết hạn giữ, hay bị hạ quyền vì thuộc nhóm hành động ra ngoài.
+- Write goals as "what the output is", not "think about". The more the **Context and desired output** field states the destination file, the length and the data source, the closer the specification step's completion conditions are, and the less the worker wanders.
+- Tick **Require result approval** on important work. You spend one extra click but are guaranteed to read the result before it counts as done.
+- To try one job now without turning automatic running on: leave the mode at **Observe**, hand over the job, then click **Run a tick now**.
+- Work needing real data (revenue, calendar, ads) should name the source in the goal, for example "take it from the POS". The specification step then picks `mcp-read` and only then is the worker given the connections. See [Connections and business data](09-mcp-va-so-lieu.md).
+- With a board full of dead experimental jobs, do not delete cards one by one: use **Remove from board** for the few whose history matters and let the rest archive themselves after 3 days.
+- Read the **lifecycle log** in the detail drawer before concluding "the AI got it wrong". Very often the answer is there: the job was reclaimed because the lease expired, or downgraded because it belonged to the outside-action group.
 
-## Sự cố thường gặp
+## Common problems
 
-**Dòng trên đầu trang nói "Dispatcher đang chạy" nhưng không việc nào nhúc nhích.**
-Đó là hai chuyện khác nhau. Dòng đó nói tiến trình điều phối của server đang sống; việc có được nhận hay không phụ thuộc **Chế độ dispatcher** của brain này. Đặt về **AI tự vận hành**.
+**The line at the top says "Dispatcher running" but nothing moves.**
+Those are two different things. That line says the server's dispatch process is alive; whether work gets claimed depends on this brain's **Dispatcher mode**. Set it to **AI runs itself**.
 
-**Bấm "Chạy nhịp ngay" mà không có gì xảy ra.**
-Nghĩa là không có việc nào ở trạng thái sẵn sàng: hàng đợi rỗng, hoặc việc đang chờ phụ thuộc, hoặc đã đủ 2 worker chạy rồi. Nhìn KPI **Đang chờ** và **Worker đang chạy** để biết bạn đang ở trường hợp nào.
+**Clicking "Run a tick now" does nothing.**
+It means no job is in a ready state: the queue is empty, or work is waiting on dependencies, or 2 workers are already running. Look at the **Waiting** and **Workers running** KPIs to see which case you are in.
 
-**Việc mãi ở "AI đang đặc tả".**
-Bước đặc tả cần một lượt chạy model nền. Engine nền chưa sẵn sàng hoặc hết hạn mức thì việc quay lại hàng đợi và thử lại. Kiểm tra trang [Models & engine](10-models-va-engine.md) và trang [Mức dùng](23-muc-dung-token.md). Khi model nền không gọi được, Javis vẫn có nhánh dự phòng đoán capability theo từ khoá để hàng đợi không đứng hẳn.
+**A job sits forever at "AI is specifying".**
+The specification step needs a background model run. If the background engine is not ready or is out of quota, the job returns to the queue and retries. Check the [Models and engines](10-models-va-engine.md) page and the [Usage](23-muc-dung-token.md) page. When the background model cannot be reached, Jarvis 007 still has a fallback branch guessing the capability from keywords so the queue does not stall completely.
 
-**Việc bị chặn với lý do "Task cần hành động ra ngoài. Chỉ worker mode=full mới được thực thi."**
-Đây là rào an toàn, không phải lỗi. Việc của bạn thuộc nhóm gửi tin, đăng bài, tạo đơn hoặc đổi thứ gì bên ngoài. Nếu bạn thật sự muốn nó tự làm, giao lại việc và viết rõ trong goal rằng bạn cho phép tự hành động; nếu không, hãy để Javis soạn nháp còn bạn tự bấm gửi.
+**A job is blocked with the reason that the task needs an outside action and only a mode=full worker may execute it.**
+This is a safety rail, not a bug. Your job belongs to the group that sends messages, publishes, creates orders or changes something outside. If you genuinely want it done automatically, hand the job over again and state in the goal that you permit acting; if not, let Jarvis 007 draft it and press send yourself.
 
-**Việc bị chặn với lý do bắt đầu bằng "Worker cần thêm thông tin".**
-Worker thấy thiếu một quyết định mà đoán bừa sẽ hại. Mở ngăn chi tiết đọc dòng lý do, bổ sung điều còn thiếu bằng cách giao lại một goal rõ hơn, rồi bấm **↻ Thử lại** hoặc xoá việc cũ đi.
+**A job is blocked with a reason starting "The worker needs more information".**
+The worker found a missing decision where guessing would do harm. Open the detail drawer and read the reason, supply what is missing by handing over a clearer goal, then click **↻ Retry** or delete the old job.
 
-**Không bấm được "Xóa khỏi bảng" hay "↻ Thử lại".**
-Việc đang chạy không cho đổi trạng thái. Bấm **Dừng task** trước, đợi thẻ rời khỏi khung **Đang hoạt động**, rồi thao tác lại.
+**"Remove from board" or "↻ Retry" cannot be clicked.**
+A running job cannot change state. Click **Stop task** first, wait for the card to leave the **Active** panel, then act again.
 
-**Việc xong rồi mà không thấy báo ở đâu cả.**
-Việc giao trong chat web phải mang theo mã phiên chat thì kết quả mới về đúng khung đó. Javis tự gắn khi bạn giao bằng lời trong chat; còn việc tạo tay ở trang này hoặc bằng lệnh curl không có mã phiên nên chỉ đi Telegram. Nếu tin đi Telegram mà im lặng: bot chưa bật, chưa có chat id trong whitelist, hoặc việc không rõ người giao nên tin bay về ID Telegram đầu tiên chứ không về tài khoản bạn nghĩ. Xem [Kênh Telegram](11-telegram.md).
+**A job finished but no report appeared anywhere.**
+Work handed over in web chat must carry the chat session id for the result to return to that box. Jarvis 007 attaches it when you hand over in words in chat; work created by hand on this page or through a curl command has no session id and only goes to Telegram. If the Telegram message is silent: the bot is off, there is no chat id in the whitelist, or the job has no clear owner so the message went to the first Telegram ID rather than the account you had in mind. See [The Telegram channel](11-telegram.md).
 
-**Javis hứa "em sẽ đợi các việc chạy xong rồi tổng hợp" nhưng chẳng bao giờ tổng hợp.**
-Đó là lời hứa suông và đã bị cấm từ 0.9.289: lượt trả lời của Javis kết thúc ngay khi nó nói xong, không có cơ chế nào đánh thức nó dậy để tổng hợp. Việc nền chỉ tự đẩy kết quả **thô** về khung chat. Muốn có bản tổng hợp, giao thêm một việc chuyên đi tổng hợp (dùng `deps` trỏ vào các việc trước), hoặc nhắn lại một câu sau khi kết quả đã về.
+**Jarvis 007 promised "I will wait for the jobs to finish then summarise" and never summarises.**
+That is an empty promise and has been banned since 0.9.289: a Jarvis 007 answer turn ends the moment it stops speaking, with no mechanism to wake it up to summarise. Background work only pushes its **raw** result back into the chat box. For a summary, hand over one more job dedicated to summarising (with `deps` pointing at the earlier jobs), or send another message once the results are in.
 
-**Bảng trống trơn dù hôm qua còn việc.**
-Ba khả năng, theo thứ tự hay gặp: bạn đang đứng ở **brain khác** (đổi brain ở đầu dashboard), việc đã kết thúc quá 3 ngày nên tự lưu trữ, hoặc ai đó đã gọi endpoint dọn bảng.
+**The board is empty although there was work yesterday.**
+Three possibilities, in order of likelihood: you are standing in **another brain** (switch brains at the top of the dashboard), the work finished over 3 days ago and was archived, or someone called a cleanup endpoint.
 
-**Việc nền chiếm hết hạn mức của bạn.**
-Mỗi việc là một phiên AI thật. Hạ số worker song song bằng `JAVIS_KANBAN_MAX_WORKERS=1`, hoặc đặt chế độ về **Tắt** khi không cần. Theo dõi lượng tiêu thụ ở trang [Mức dùng](23-muc-dung-token.md), chỗ tách riêng "Javis tự chạy" với "Bạn gõ tay".
+**Background work eats your whole quota.**
+Each job is a real AI session. Lower the parallel worker count with `JAVIS_KANBAN_MAX_WORKERS=1`, or set the mode to **Off** when you do not need it. Watch the consumption on the [Usage](23-muc-dung-token.md) page, which separates "Jarvis 007 running by itself" from "You typing".
 
-## Liên quan
+## Related
 
-- [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md) - việc lặp theo chu kỳ và nhắc hẹn có mốc giờ.
-- [Tự học](22-tu-hoc.md) - engine học và công tắc đề xuất việc.
-- [Agents & Workflows](07-agents-va-workflows.md) - workflow dùng cho ô Route.
-- [Models & engine](10-models-va-engine.md) - engine nào đang chạy worker.
-- [Kênh Telegram](11-telegram.md) - nơi nhận báo cáo việc.
-- [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md) - nguồn dữ liệu thật cho việc `mcp-read`.
-- [Mức dùng: token & chi phí](23-muc-dung-token.md) - việc nền tiêu bao nhiêu.
-- [Task & Dataview trong note](19-task-va-dataview.md) - checkbox việc trong file markdown, khác hẳn trang này.
-- [Cấu hình .env](16-cau-hinh-env.md) - `JAVIS_STATE_DIR`, `JAVIS_KANBAN_MAX_WORKERS`.
+- [Recurring jobs and reminders](08-viec-dinh-ky.md) - loops on a cycle and reminders at a fixed time.
+- [Self-learning](22-tu-hoc.md) - the learning engine and the work-proposal switch.
+- [Agents and Workflows](07-agents-va-workflows.md) - the workflows used in the Route field.
+- [Models and engines](10-models-va-engine.md) - which engine runs the workers.
+- [The Telegram channel](11-telegram.md) - where work reports arrive.
+- [Connections and business data](09-mcp-va-so-lieu.md) - the real data sources for `mcp-read` work.
+- [Usage: tokens and cost](23-muc-dung-token.md) - how much background work consumes.
+- [Tasks and Dataview in notes](19-task-va-dataview.md) - task checkboxes in markdown files, entirely different from this page.
+- [.env configuration](16-cau-hinh-env.md) - `JAVIS_STATE_DIR`, `JAVIS_KANBAN_MAX_WORKERS`.

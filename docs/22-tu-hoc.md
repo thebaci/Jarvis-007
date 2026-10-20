@@ -1,323 +1,323 @@
-# Tự học: Javis thông minh dần lên
+# Self-learning: Jarvis 007 getting smarter over time
 
 ***Tiếng Việt** · [English](en/22-self-learning.md)*
 
-Mỗi lần bạn trò chuyện với Javis là một lần có thông tin đáng giữ trôi qua: một sự thật về công việc của bạn, một khái niệm vừa được giải thích, một quy trình vừa làm xong. Trang **Tự học** bật cái vòng lặp nhặt những thứ đó lại và ghi vào brain, để lần sau Javis không phải hỏi lại.
+Every conversation with Jarvis 007 lets something worth keeping slip past: a fact about your work, a concept just explained, a procedure just completed. The **Self-learning** page turns on the loop that picks those up and writes them into the brain, so next time Jarvis 007 does not have to ask again.
 
-Trang này hướng dẫn bật tự học, chọn mức độ mạnh tay của nó, hiểu nó học được cái gì và chặn cái gì, và hoàn tác khi nó học sai.
+This page covers turning self-learning on, choosing how assertive it is, understanding what it learns and what it blocks, and undoing it when it learns something wrong.
 
-## Tính năng này là gì
+## What this feature is
 
-Sau vài lượt chat, Javis mở một **tiến trình học riêng** để đọc lại đoạn hội thoại vừa rồi và rút ra tri thức. Tiến trình này bị khoá rất chặt:
+After a few chat turns, Jarvis 007 opens a **separate learning process** to re-read the recent conversation and extract knowledge. That process is locked down tightly:
 
-- **Chỉ đọc.** Nó chỉ được dùng `Read`, `Glob`, `Grep`, `LS`. Các công cụ `Bash`, `WebFetch`, `WebSearch`, `Task` bị chặn thẳng.
-- **Cô lập, không MCP.** Nó chạy với file cấu hình MCP rỗng ở chế độ nghiêm ngặt, nên không đụng được POS, quảng cáo, Zalo hay bất kỳ nguồn dữ liệu nào bạn đã đấu. Nếu không tạo được file MCP rỗng thì Javis từ chối chạy luôn, chứ không chạy tạm với MCP của máy.
-- **Ghim trong brain**, và có trần thời gian 240 giây cho mỗi lượt học.
-- **Nó KHÔNG ghi file.** Kết quả duy nhất nó trả về là một khối JSON mô tả "nên học gì". Người ghi file là code Python của Javis. Nhờ vậy không có chuyện model ghi đè nhầm `MEMORY.md`, ghi ra ngoài brain, hay xoá mất ghi chú của bạn.
+- **Read only.** It may only use `Read`, `Glob`, `Grep`, `LS`. The `Bash`, `WebFetch`, `WebSearch` and `Task` tools are blocked outright.
+- **Isolated, no MCP.** It runs with an empty MCP configuration file in strict mode, so it cannot touch the POS, ads, Zalo or any data source you attached. If the empty MCP file cannot be created, Jarvis 007 refuses to run at all rather than running temporarily with the machine's MCPs.
+- **Pinned inside the brain**, with a 240-second time ceiling per learning pass.
+- **It does NOT write files.** The only thing it returns is a JSON block describing "what should be learned". The writer is Jarvis 007's Python code. That way there is no chance of the model overwriting `MEMORY.md` by mistake, writing outside the brain, or deleting your notes.
 
-Trước khi ghi, code còn quét thêm hai lớp: **quét lộ khoá bí mật** (API key, token Telegram, JWT, chuỗi kết nối cơ sở dữ liệu, dòng có nhãn "mật khẩu"/"password") và **quét câu chèn lệnh** kiểu "bỏ qua mọi chỉ dẫn trước đó". Cái nào dính là bị chặn, không ghi, và lý do được ghi vào nhật ký. Ngược chiều cũng vậy: nội dung hội thoại đưa cho tiến trình học đọc đã được vô hiệu hoá các câu mệnh lệnh, để một tin nhắn khách gửi vào không điều khiển được vòng học.
+Before writing, the code adds two more scans: a **secret-key scan** (API keys, Telegram tokens, JWTs, database connection strings, lines labelled "password") and a **prompt-injection scan** for things like "ignore all previous instructions". Anything caught is blocked, not written, and the reason goes into the log. The same holds in the other direction: the conversation content handed to the learning process has its imperative sentences neutralised, so a message a customer sent in cannot steer the learning loop.
 
-Cuối cùng, Javis chỉ cho phép ghi vào đúng các thư mục `memory/`, `Memory/`, `Wiki/`, `skills/`, `.claude/skills/`, `agents/`, `workflows/`, `Javis/` của brain. Đường dẫn nào lọt ra ngoài danh sách này sẽ bị khôi phục lại ngay.
+Finally, Jarvis 007 only allows writes into the brain's `memory/`, `Memory/`, `Wiki/`, `skills/`, `.claude/skills/`, `agents/`, `workflows/` and `Javis/` folders. Any path escaping that list is restored immediately.
 
-## Mở ở đâu trong Javis
+## Where to open it in Jarvis 007
 
-Ở thanh điều hướng bên trái, mở nhóm **Bộ não**, rồi bấm **Tự học** (biểu tượng 🧠). Đầu trang hiện tiêu đề **Tự học** kèm dòng phụ "Rewire Memory · Wiki · Skill (an toàn, undo được)".
+On the left navigation rail, open the **Brain** group then click **Self-learning** (the 🧠 icon). The page header reads **Self-learning** with the subtitle "Rewire Memory · Wiki · Skill (safe, undoable)".
 
-Trang làm việc trên **brain đang chọn**. Đổi brain ở đầu màn hình rồi quay lại đây thì mọi chỉ số, commit và nhật ký đều đổi theo brain mới.
+The page works on the **selected brain**. Switch brains at the top of the screen and come back, and every metric, commit and log follows the new brain.
 
-## Cách dùng (từng bước)
+## How to use it (step by step)
 
-### Bước 1: Bật tự học
+### Step 1: Turn self-learning on
 
-Ở ô **Bật tự học**, bấm nút trạng thái. Nút đổi giữa hai nhãn:
+In the **Turn self-learning on** box, click the status button. The button toggles between two labels:
 
-| Nhãn nút | Nghĩa |
+| Button label | Meaning |
 | --- | --- |
-| `● Đang bật` | Javis đang tự học sau mỗi vài lượt chat |
-| `○ Đang tắt` | Không học gì cả, kể cả khi bạn chat rất nhiều |
+| `● On` | Jarvis 007 learns after every few chat turns |
+| `○ Off` | Nothing is learned, however much you chat |
 
-Lần đầu bấm bật, nút hiện "Đang git-init..." trong giây lát: Javis biến thư mục brain thành một kho git cục bộ. Việc này chỉ làm một lần và **không đẩy gì lên mạng**. Có git thì mỗi lần học là một commit, nên bạn xem lại được và hoàn tác được bằng một nút.
+The first time you turn it on, the button briefly reads "git-init running...": Jarvis 007 turns the brain folder into a local git repository. This happens once and **pushes nothing to the network**. With git, each learning pass is a commit, so you can review it and undo it with one button.
 
-Xong, dòng ghi chú ngay dưới nút đổi thành kết quả thật, ví dụ "Đã git-init brain → auto-write an toàn/undo được.". Nếu máy chưa cài git, dòng đó bắt đầu bằng "⚠ Chưa git được (thiếu git?)". Câu này còn nói "auto sẽ tự hạ dry-run", nhưng đó là chữ cũ: từ bản hiện tại, tự học **vẫn ghi file bình thường khi không có git**, chỉ mất khả năng hoàn tác một chạm và mất đường sao lưu. Xem mục "Máy chưa cài git thì sao" ở dưới.
+Afterwards the note under the button changes to the real result, for example "The brain was git-inited → auto-write is safe and undoable." If the machine has no git, the line starts with "⚠ git failed (git missing?)". It also says "auto will drop to dry-run", but that is old wording: in the current build, self-learning **still writes files normally without git**, it just loses one-touch undo and the backup route. See "What if the machine has no git" below.
 
-Bấm nút một lần nữa để tắt. Lúc tắt, Javis lưu ngay trạng thái tắt, không cần bấm Lưu cấu hình.
+Click the button again to turn it off. Turning off saves the state immediately, with no Save configuration needed.
 
-### Bước 2: Chọn chế độ ghi
+### Step 2: Choose the write mode
 
-Ô **Chế độ ghi** có ba nút. Bấm một nút để chọn, dòng mô tả bên dưới đổi theo.
+The **Write mode** box has three buttons. Click one to select it and the description below changes.
 
-| Nút | Mô tả hiện trên màn hình | Thực tế |
+| Button | The on-screen description | What it really does |
 | --- | --- | --- |
-| **Chạy thử** | "Chỉ ghi nhật ký 'sẽ học gì' - KHÔNG đụng file. An toàn nhất." | Vẫn chạy phân tích và ghi vào Nhật ký học, nhưng không tạo file nào trong brain |
-| **Đề xuất** | "Như chạy thử, để bạn xem trước khi cho ghi." | Giống hệt Chạy thử về mặt file: liệt kê ra thứ nó định học, không ghi |
-| **Tự ghi** | "Ghi thẳng vào Memory/Wiki - git-commit + undo được." | Chế độ duy nhất thật sự ghi file. Có git thì kèm luôn một commit |
+| **Dry run** | "Only logs 'what would be learned', touching NO files. The safest." | Still runs the analysis and writes to the Learning log, but creates no file in the brain |
+| **Suggest** | "Like dry run, so you can review before allowing writes." | Identical to Dry run as far as files go: it lists what it intended to learn and writes nothing |
+| **Write automatically** | "Writes straight into Memory/Wiki, git-committed and undoable." | The only mode that genuinely writes files. With git, it adds a commit |
 
-**Mặc định của bản cài mới là Tự ghi.** Nếu bạn muốn quan sát vài ngày trước khi cho Javis động vào brain, chuyển sang Chạy thử rồi đọc Nhật ký học một thời gian.
+**A fresh install defaults to Write automatically.** If you want to watch for a few days before letting Jarvis 007 touch the brain, switch to Dry run and read the Learning log for a while.
 
-### Bước 3: Chọn học cái gì
+### Step 3: Choose what to learn
 
-Ô **Học cái gì** có sáu công tắc. Chấm tròn đặc `●` là đang bật, chấm rỗng `○` là đang tắt. Bấm để đảo trạng thái.
+The **What to learn** box has six switches. A filled dot `●` is on, a hollow dot `○` is off. Click to toggle.
 
-| Công tắc | Mặc định | Học ra cái gì |
+| Switch | Default | What it learns |
 | --- | --- | --- |
-| **Ký ức (Memory)** | Bật | Sự thật bền vững về chính bạn và doanh nghiệp bạn, ghi thành file trong `memory/facts/` và thêm một dòng vào `MEMORY.md` |
-| **Tri thức (Wiki)** | Bật | Khái niệm, framework, quy trình tái dùng được, ghi thành note trong thư mục Wiki của brain |
-| **Kỹ năng (Skill)** | Bật | Quy trình nhiều bước Javis vừa tự làm và thấy lặp lại được, ghi thành `skills/<slug>/SKILL.md`. Skill đã có mà vừa lộ ra chỗ sai thì **sửa tại chỗ** (từ 0.55.65), không đẻ bản sao |
-| **Vai (Agent)** | **Tắt** | Vai chuyên môn bạn nhờ đi nhờ lại trong hội thoại, ghi thành `agents/<slug>.md`. Vai đã có mà cần cải tiến thì **sửa tại chỗ**, không đẻ bản sao |
-| **Chuỗi bước (Workflow)** | **Tắt** | Chuỗi từ 2 bước nhiều vai bạn đã làm lặp lại, ghi thành `workflows/<slug>.md` ở trạng thái tắt để bạn xem trước rồi tự bật. Chuỗi đã có mà thiếu bước, thừa bước hay sai thứ tự thì **sửa tại chỗ** |
-| **Việc (Kanban)** | **Tắt** | Đề xuất việc nền, đẩy vào bảng ở trang **Việc** |
+| **Memories (Memory)** | On | Durable facts about you and your business, written into files under `memory/facts/` plus a line added to `MEMORY.md` |
+| **Knowledge (Wiki)** | On | Reusable concepts, frameworks and procedures, written as notes in the brain's Wiki folder |
+| **Skills (Skill)** | On | Multi-step procedures Jarvis 007 just performed and judged repeatable, written as `skills/<slug>/SKILL.md`. An existing skill that just revealed a flaw is **edited in place** (since 0.55.65) rather than copied |
+| **Roles (Agent)** | **Off** | Specialist roles you asked for repeatedly in conversation, written as `agents/<slug>.md`. An existing role needing improvement is **edited in place** rather than copied |
+| **Step chains (Workflow)** | **Off** | Chains of 2 or more steps across roles you have repeated, written as `workflows/<slug>.md` in a disabled state so you review before enabling. An existing chain missing a step, carrying a redundant one or in the wrong order is **edited in place** |
+| **Work (Kanban)** | **Off** | Proposals for background work, pushed onto the board on the **Work** page |
 
-Dòng gợi ý dưới các nút ghi: "Wiki/Skill nên bật sau khi đã quen với Ký ức (lộ trình Phase 2/3). Việc = học xong đề xuất task nền vào bảng Việc (Kanban) - chỉ tạo thật ở chế độ Tự ghi, và task luôn chờ bạn duyệt."
+The hint line under the buttons reads: "Wiki/Skill are best turned on after you are comfortable with Memories (the Phase 2/3 path). Work = after learning, propose background tasks onto the Work (Kanban) board, only created for real in Write automatically mode, and a task always awaits your approval."
 
-Về công tắc **Việc**: nó mặc định tắt và Javis **chủ động tắt lại một lần** cho những máy đã bật từ trước. Lý do rất thực tế: khi soi bảng việc thật, gần như toàn bộ việc trong đó là do máy tự nghĩ ra, mà phần lớn worker nền không làm nổi (cần đăng nhập, cần gửi tin ra ngoài, cần chờ người khác duyệt, cần đụng mã nguồn ngoài brain). Kể từ đó, việc chỉ sinh ra khi bạn **bảo thẳng** trong chat. Công tắc vẫn còn ở đây cho ai muốn bật lại.
+About the **Work** switch: it is off by default and Jarvis 007 **actively turned it back off once** on machines that had it on before. The reason is very practical: inspecting a real work board showed nearly everything on it was machine-invented, and most of it was beyond a background worker (needing a sign-in, needing to send something outside, waiting for someone else's approval, touching source code outside the brain). Since then, work is only created when you **say so directly** in chat. The switch remains here for anyone who wants it back.
 
-#### Javis sửa vai và chuỗi đã có như thế nào
+#### How Jarvis 007 edits existing roles and chains
 
-Khi hội thoại cho thấy một skill, agent hay workflow **đang có** làm sai, thiếu bước, thừa bước hay giao nhầm vai, Javis sửa thẳng vào đúng file đó thay vì tạo một bản gần giống bên cạnh.
+When a conversation shows that an **existing** skill, agent or workflow is getting something wrong, missing a step, carrying a redundant one or assigning the wrong role, Jarvis 007 edits that exact file directly rather than creating a near-duplicate beside it.
 
-Riêng **skill** có thêm hai rào nữa, vì hai đường hỏng này không tồn tại với agent và workflow:
+**Skills** get two more rails, because these two failure paths do not exist for agents and workflows:
 
-- **Skill hệ thống là cấm.** `javis-builder`, `ingest-source`, `query-wiki`, `lint-wiki`, `notes`, `html-to-webcake` do app ship và tự cập nhật theo bản mới. Sửa một cái là bản đó thành của bạn và app ngừng cập nhật đè lên, tức bạn mất im lặng một năng lực mặc định.
-- **Skill bạn đã tắt là cấm.** Sửa nó chẳng khác gì bật lại thứ bạn cố ý tắt.
+- **System skills are off limits.** `javis-builder`, `ingest-source`, `query-wiki`, `lint-wiki`, `notes` and `html-to-webcake` ship with the app and update themselves with each new version. Editing one turns that copy into yours and the app stops updating over it, meaning you silently lose a default capability.
+- **A skill you turned off is off limits.** Editing it would be no different from turning back on something you deliberately turned off.
 
-Ngoài ra vòng học chỉ được đổi phần chuyên môn: tên hiển thị, nhóm, trạng thái, ngày tạo và mọi field lạ bạn tự thêm vào frontmatter đều giữ nguyên. Bỏ trống mô tả nghĩa là "không đụng", không phải "xoá". Việc ghi đè này có bốn rào, tất cả đều do code ép chứ không phải dặn bằng lời:
+Beyond that, the learning loop may only change the substantive part: the display name, the group, the status, the creation date and any unfamiliar field you added to the frontmatter are all kept as they are. Leaving the description blank means "do not touch", not "delete". This overwrite has four rails, all enforced by code rather than requested in words:
 
-1. **File phải đang tồn tại.** Nói sửa mà không tìm thấy file thì bỏ qua, không âm thầm tạo mới.
-2. **Phải nêu lý do**, rút từ chính hội thoại. Không có lý do thì không được sửa, và lý do đó hiện trong Nhật ký học để bạn đọc lại.
-3. **Giữ nguyên những gì thuộc về bạn:** tên hiển thị bạn đặt, trạng thái bật/tắt, model bạn chọn cho agent, và mọi dòng lạ bạn tự thêm trong phần đầu file. Sửa một chuỗi không bao giờ làm nó tự bật lên hay tự tắt đi.
-4. **Bạn khoá được từng file.** Thêm dòng `learn_lock: true` vào phần đầu file (frontmatter) là tự học cấm đụng file đó, mãi mãi.
+1. **The file must already exist.** An edit instruction with no file found is skipped, never silently turned into a new file.
+2. **A reason is required**, drawn from the conversation itself. No reason means no edit, and the reason appears in the Learning log for you to read.
+3. **Whatever is yours is preserved:** the display name you set, the enabled state, the model you chose for the agent, and any unfamiliar lines you added yourself at the top of the file. Editing a chain never turns it on or off by itself.
+4. **You can lock any file.** Adding the line `learn_lock: true` to the top of the file (the frontmatter) forbids self-learning from touching that file, permanently.
 
-Mỗi lần sửa, Javis nối một dòng ngày tháng kèm lý do vào mục `## Lịch sử (tự học)` ở cuối thân file, giữ 10 dòng gần nhất. Phần bạn viết tay nằm ngoài mục đó không bao giờ bị chạm. Và vì mỗi mẻ học vẫn được git-commit, sửa nhầm thì bấm **Hoàn tác lần học gần nhất** là xong.
+On each edit, Jarvis 007 appends a dated line with the reason to the `## Lịch sử (tự học)` section (Vietnamese for "History (self-learned)", kept verbatim because the code matches it) at the end of the file body, keeping the 10 most recent lines. Whatever you wrote by hand outside that section is never touched. And because every learning batch is still git-committed, a wrong edit is undone by clicking **Undo the latest learning run**.
 
-**Lộ trình bật dần được khuyên dùng:** bật riêng Ký ức trước, chạy vài ngày rồi mở `MEMORY.md` xem Javis nhớ đúng chưa. Ổn thì bật thêm Tri thức Wiki. Quen tay nữa mới bật Kỹ năng, vì skill sai làm lệch cả cách Javis xử lý về sau. Hai công tắc Vai (Agent) và Chuỗi bước (Workflow) cũng mặc định tắt vì chúng tạo thứ hiện thẳng trong Studio: chỉ bật khi bạn muốn Javis tự đóng vai/chuỗi từ những việc bạn nhờ lặp lại, và cũng như skill, chúng đi qua một lượt kiểm tra thứ hai độc lập trước khi ghi (với một mục sửa thì lượt đó soi kỹ hơn: lý do sửa có căn cứ thật không, bản mới có giữ được phần đang đúng không), workflow luôn tạo ở trạng thái tắt. Công tắc Việc để cuối cùng, và chỉ khi bạn thật sự muốn Javis tự đẻ việc nền.
+**The recommended gradual path:** turn on Memories alone first, run it for a few days then open `MEMORY.md` to see whether Jarvis 007 remembered correctly. Once that is fine, add Wiki knowledge. Only once comfortable add Skills, because a wrong skill skews how Jarvis 007 handles things later. The Roles (Agent) and Step chains (Workflow) switches are also off by default because they create things that appear directly in Studio: only turn them on when you want Jarvis 007 to build roles and chains from the work you ask for repeatedly, and like skills they pass an independent second review before being written (for an edit that review is stricter: is the reason genuinely grounded, does the new version keep what was already right), and a workflow is always created disabled. Leave the Work switch for last, and only if you genuinely want Jarvis 007 creating background work on its own.
 
-### Bước 4: Bật Curator nếu muốn dọn dẹp định kỳ
+### Step 4: Turn the Curator on for periodic maintenance
 
-Ô **Curator (bảo trì định kỳ)** có một nút `● Bật` / `○ Tắt`, **mặc định là tắt**. Xem mục "Curator" ở dưới để biết nó làm gì.
+The **Curator (periodic maintenance)** box has a `● On` / `○ Off` button, **off by default**. See the "Curator" section below for what it does.
 
-### Bước 5: Lưu cấu hình
+### Step 5: Save the configuration
 
-Bấm **💾 Lưu cấu hình**. Nút đổi thành "Đang lưu..." rồi "✓ Đã lưu" khoảng một giây rưỡi trước khi trở lại.
+Click **💾 Save configuration**. The button reads "Saving..." then "✓ Saved" for about a second and a half before returning.
 
-Chế độ ghi, bốn công tắc và Curator **chỉ có hiệu lực sau khi bấm Lưu**. Riêng nút Bật/tắt tự học thì lưu ngay lúc bấm.
+The write mode, the switches and the Curator **only take effect after you click Save**. The self-learning on/off button alone saves the moment you click it.
 
-### Bước 6: Bấm Học ngay để thử một lượt
+### Step 6: Click Learn now to try one pass
 
-Bấm **▶ Học ngay**. Javis tự lưu cấu hình hiện tại rồi chạy một lượt học trên brain đang chọn. Nút hiện "Đang học..." khoảng 2,5 giây rồi tự tải lại các khối bên dưới.
+Click **▶ Learn now**. Jarvis 007 saves the current configuration then runs one learning pass on the selected brain. The button reads "Learning..." for about 2.5 seconds then reloads the blocks below.
 
-Lưu ý: **Học ngay vẫn tôn trọng chế độ ghi**. Đang ở Chạy thử thì bấm Học ngay cũng không tạo file, chỉ ra nhật ký.
+Note: **Learn now still respects the write mode**. In Dry run, clicking Learn now creates no files, only log entries.
 
-Nếu chưa có lượt chat nào đang chờ, Javis lấy phiên hội thoại mới nhất của brain đó để học. Hội thoại quá ngắn thì nó bỏ qua lặng lẽ, không tạo mục nhật ký nào, nên thấy Nhật ký học không có gì mới thì thường là brain đó chưa có nội dung đủ dài để học.
+If no chat turn is waiting, Jarvis 007 takes that brain's most recent conversation session to learn from. A conversation that is too short is skipped silently with no log entry, so seeing nothing new in the Learning log usually means that brain has no content long enough to learn from.
 
-## Javis học lúc nào (nhịp tự động)
+## When Jarvis 007 learns (the automatic rhythm)
 
-Bạn không phải bấm gì. Mỗi lượt chat xong, Javis phân loại lượt đó rồi cộng vào một hàng chờ theo brain:
+You do not have to click anything. After each chat turn, Jarvis 007 classifies it then adds it to a per-brain queue:
 
-- Lượt quá ngắn hoặc chỉ là chào hỏi, "ok", "cảm ơn" thì bị bỏ ngay, không tính.
-- Lượt có dấu hiệu **đặc tri thức** (câu hỏi "là gì", "gồm mấy bước", "công thức", "nguyên lý", "quy trình", "khái niệm", "cách làm") được đánh dấu riêng.
-- Bạn nói "ghi nhớ", "nhớ giúp", "lưu lại" thì lượt đó được đánh dấu **gấp**.
+- A turn that is too short or is only a greeting, "ok" or "thanks" is dropped immediately and does not count.
+- A turn with **knowledge-dense** signals (questions like "what is", "how many steps", "formula", "principle", "procedure", "concept", "how to") is flagged separately.
+- Saying "remember", "keep this in mind", "save this" flags the turn as **urgent**.
 
-Cứ khoảng 30 giây, Javis kiểm tra hàng chờ và bắn một mẻ học khi thoả một trong các điều kiện: đủ **3 lượt** tích luỹ, hoặc lượt gấp và đã trôi qua 30 giây, hoặc lượt đặc tri thức và đã **im 3 phút**, hoặc **im 10 phút** mà vẫn còn lượt chưa học.
+Roughly every 30 seconds, Jarvis 007 checks the queue and fires a learning batch when one of these holds: **3 turns** accumulated, or an urgent turn plus 30 seconds elapsed, or a knowledge-dense turn plus **3 minutes of silence**, or **10 minutes of silence** with turns still unlearned.
 
-Mỗi mẻ học đọc tối đa 3 phiên hội thoại gần nhất, mỗi phiên lấy 12 tin cuối, tổng nội dung cắt ở khoảng 24.000 ký tự. Nghĩa là nó học từ đoạn **vừa xảy ra**, không đào lại toàn bộ lịch sử.
+Each batch reads at most the 3 most recent conversation sessions, taking the last 12 messages of each, with the total content cut at about 24,000 characters. So it learns from what **just happened**, not by digging through the whole history.
 
-### Javis học cả từ việc nó tự làm (từ 0.55.64)
+### Jarvis 007 also learns from the work it does itself (since 0.55.64)
 
-Hàng chờ trên không chỉ nghe luồng chat. Mỗi **việc nền ở trang Việc** chạy đến nơi cũng được xếp vào cùng hàng chờ đó, kèm tên việc, yêu cầu và kết quả:
+That queue does not listen to chat only. Every **background job on the Work page** that reaches an end also joins the same queue, along with its title, intent and result:
 
-- Việc **bị chặn** được xếp vào nhóm ưu tiên, học sau khoảng 3 phút im, vì lý do bị chặn thường chỉ đúng chỗ hệ thống còn thiếu (chưa nối MCP nào, thiếu quyền, quy trình sai bước).
-- Việc chạy xong bình thường nằm chờ như một lượt chat, học chung mẻ.
-- Tối đa **5 việc** gộp vào một mẻ, mỗi việc lấy 1.200 ký tự kết quả, nên một ngày chạy nhiều việc cũng không làm mẻ học phình ra.
-- Việc do **chính vòng học** đề xuất thì không quay lại làm nguyên liệu học cho chính nó, tránh vòng tự khuếch đại.
+- A **blocked** job goes into the priority group and is learned from after about 3 minutes of quiet, because the reason it got blocked usually points straight at what the system is missing (an MCP that was never connected, a missing permission, a step in the wrong order).
+- A job that finished normally waits like an ordinary chat turn and is learned in the same batch.
+- At most **5 jobs** are merged into one batch, each contributing 1,200 characters of its result, so a busy day of background work does not blow up the batch.
+- A job the **learning loop itself** proposed never comes back as learning material for that same loop, which is what keeps it from feeding on itself.
 
-Kết quả việc nền do một agent nền viết ra nên được coi là nội dung không tin cậy: nó đi qua đúng bộ khử câu chèn lệnh như source bạn dán vào chat.
+A background job's result is written by a background agent, so it counts as untrusted content: it goes through the same prompt-injection defanging as a source you paste into chat.
 
-Chỉ một mẻ học chạy tại một thời điểm. Tự học, Curator và các tiến trình ghi khác dùng chung một khoá trên brain nên không giẫm chân nhau.
+Only one batch runs at a time. Self-learning, the Curator and the other writing processes share a lock on the brain so they never tread on each other.
 
-## Cửa lọc trước khi ghi (vì sao Javis học ít hơn bạn tưởng)
+## The gates before writing (why Jarvis 007 learns less than you expect)
 
-Đây là phần hay gây thắc mắc: bạn thấy nhật ký ghi "đã học" nhưng file không xuất hiện. Lý do là mỗi loại đều có cửa lọc riêng.
+This is the part that puzzles people most: the log says "learned" but the file never appears. The reason is that each kind has its own gate.
 
-**Ký ức (facts):**
-- Độ tự tin phải từ 2 trở lên mới ghi.
-- **Chỉ thêm, không đè.** File ký ức đã tồn tại thì bỏ qua, trừ khi thông tin mới được đánh dấu là thay thế cái cũ. Khi đó file cũ được gắn `superseded_by` và thêm một dòng lịch sử, chứ vẫn không bị xoá.
-- Ghi xong, Javis tự chèn một dòng vào `MEMORY.md` trỏ tới file ký ức mới.
+**Memories (facts):**
+- Confidence must be 2 or higher to be written.
+- **Add only, never overwrite.** An existing memory file is skipped, unless the new information is marked as replacing the old one. In that case the old file gets a `superseded_by` field plus a history line, and is still not deleted.
+- After writing, Jarvis 007 inserts a line into `MEMORY.md` pointing at the new memory file.
 
-**Tri thức Wiki:**
-- Mật độ (mức được giải thích có cấu trúc) phải từ 2 trở lên.
-- Điều gì **chính Javis tự nói mà không có nguồn** thì **không được vào Wiki**. Nó bị đẩy sang file `_open-questions.md` để bạn tự xác minh. Đây là rào chống Javis tự đầu độc bộ nhớ bằng chính lời mình.
-- Trùng khái niệm với note đã có thì không tạo note mới, chỉ ghi một đề xuất bổ sung.
-- Mâu thuẫn với note cũ thì **không ghi đè**, mà thêm mục `## Mâu thuẫn` vào note cũ kèm quan điểm mới, và mở một câu hỏi cần xác minh.
-- Ghi xong, Javis thêm dòng vào `index.md` (mục "## Tự học") và một dòng vào `log.md` của Wiki.
+**Wiki knowledge:**
+- The density (how structurally explained it is) must be 2 or higher.
+- Anything **Jarvis 007 itself said with no source** may **not** enter the Wiki. It is pushed into `_open-questions.md` for you to verify. This is the rail against Jarvis 007 poisoning its own memory with its own words.
+- A concept duplicating an existing note creates no new note, only a suggested addition.
+- A contradiction with an old note causes **no overwrite**: it adds a `## Mâu thuẫn` section (Vietnamese for "Contradiction", kept verbatim because the code writes it) to the old note with the new view, and opens a question to verify.
+- After writing, Jarvis 007 adds a line to `index.md` (under the `## Tự học` heading, Vietnamese for "Self-learned", kept verbatim because the code matches it) and a line to the Wiki's `log.md`.
 
-**Kỹ năng:**
-- Trước khi ghi, Javis mở **một lượt kiểm tra thứ hai độc lập**, giả định các skill vừa đề xuất là sai hoặc thừa, và chỉ giữ lại cái được duyệt.
-- `description` dài quá **150 ký tự** là bị chặn (bộ định tuyến cắt đúng ở đó nên phần dư mất im lặng), mở đầu bằng cụm sáo rỗng kiểu "Kích hoạt khi..." cũng bị chặn.
-- **Không bao giờ ghi đè skill đã có**, và **không hồi sinh skill bạn đã tắt**.
+**Skills:**
+- Before writing, Jarvis 007 opens **an independent second review**, assuming the proposed skills are wrong or redundant, keeping only what passes.
+- A `description` over **150 characters** is blocked (the router truncates at exactly that, so the tail is lost silently), and opening with filler like "Activates when..." is blocked too.
+- It **never overwrites an existing skill**, and **never resurrects a skill you turned off**.
 
-**Việc (Kanban), khi bạn bật công tắc đó:**
-- Tối đa 3 việc mỗi mẻ, độ tự tin từ 2 trở lên.
-- Một cửa gác chặn thẳng các việc worker nền chắc chắn làm không nổi: việc dính đăng nhập / cookie / OTP / mã QR / đổi mật khẩu / 2FA, việc gửi hay đăng ra ngoài (Zalo, Telegram, email, fanpage, bình luận), việc chỉ ngồi chờ người khác duyệt, và việc đụng mã nguồn nằm ngoài brain. Lý do bị chặn được ghi vào nhật ký.
+**Work (Kanban), when you turn that switch on:**
+- At most 3 jobs per batch, with confidence 2 or higher.
+- A gate blocks outright the work a background worker certainly cannot do: anything involving a sign-in, cookies, OTP, QR codes, password changes or 2FA, work sending or publishing outside (Zalo, Telegram, email, a Page, comments), work that only waits for someone else's approval, and work touching source code outside the brain. The rejection reason is written into the log.
 
-Mọi thứ bị chặn đều xuất hiện trong Nhật ký học ở phần **Bị chặn**, kèm lý do cụ thể. Đọc phần đó là biết ngay vì sao file không ra.
+Everything blocked appears in the Learning log under **Blocked**, with a specific reason. Reading that section tells you at once why a file never appeared.
 
-## Trần chống tốn hạn mức
+## Ceilings against burning quota
 
-Tự học chạy bằng **model việc nền** chứ không phải model chính. Bạn chọn model đó ở trang **Models** (nhóm **Kết nối**), khối "◆ Model việc nền" có ghi rõ nó phục vụ "loop · việc Kanban · nhắc hẹn · tự học · tiêu hoá nguồn". Chọn model rẻ ở đó là tự học rẻ theo.
+Self-learning runs on the **background work model**, not the main model. You choose that on the **Models** page (the **Connections** group), where the "◆ Background work model" block states plainly that it serves "loops · Kanban work · reminders · self-learning · digesting sources". Choosing a cheap model there makes self-learning cheap.
 
-Ngoài ra Javis tự đặt ba cái trần cứng, tính theo ngày và độc lập với nhịp gom lượt:
+Jarvis 007 also sets three hard ceilings itself, per day and independent of the turn-batching rhythm:
 
-| Trần | Giá trị mặc định | Chạm trần thì sao |
+| Ceiling | Default | What happens at the ceiling |
 | --- | --- | --- |
-| Khoảng cách tối thiểu giữa hai mẻ | 90 giây | Mẻ đó không được ghi file |
-| Số mẻ học mỗi ngày | 40 | Hạ về chạy thử |
-| Token mỗi ngày | 15.000.000 | Hạ về chạy thử |
+| Minimum gap between two batches | 90 seconds | That batch writes no files |
+| Batches per day | 40 | Drops to dry run |
+| Tokens per day | 15,000,000 | Drops to dry run |
 
-Từ 0.107.0 trần token đếm token THẬT engine báo về (gồm cả phần đọc cache) của mọi lượt học, kể cả lượt phản biện và curator. Bản cũ ước tính bằng độ dài chữ chia bốn nên lệch khoảng 30 lần (ghi 395 nghìn cho một ngày thật ra dùng 12,5 triệu), và trần 300.000 cũ không bao giờ có nghĩa. Vì đơn vị đã đổi, lần cập nhật lên 0.107.0 đặt lại trần này về mặc định mới một lần.
+Since 0.107.0 the token ceiling counts the REAL tokens the engine reports back (cache reads included) for every learning pass, the review pass and the Curator included. The old build estimated from text length divided by four, which was off by about 30 times (it recorded 395 thousand for a day that really used 12.5 million), so the old 300,000 ceiling never meant anything. Because the unit changed, updating to 0.107.0 resets this ceiling to the new default once.
 
-Khi bị hạ, Javis vẫn phân tích và vẫn ghi nhật ký "sẽ học gì", chỉ là không ghi file. Trạng thái trong nhật ký ghi rõ lý do, ví dụ "dry-run (đã chạm trần fork/ngày → hạ dry-run (backpressure))".
+When downgraded, Jarvis 007 still analyses and still logs "what would be learned", it just writes no files. The status in the log states the reason, for example "dry-run (daily fork ceiling reached → dropped to dry-run (backpressure))".
 
-Bấm **▶ Học ngay** cũng chịu đúng các trần này: phần phân tích luôn chạy, nhưng muốn ra file thì phải đang ở chế độ Tự ghi **và** chưa chạm trần nào.
+Clicking **▶ Learn now** is subject to exactly the same ceilings: the analysis always runs, but producing files requires being in Write automatically mode **and** not having hit any ceiling.
 
-## Curator: bảo trì định kỳ, không xoá gì
+## Curator: periodic maintenance that deletes nothing
 
-Nút **Curator (bảo trì định kỳ)** bật một vòng dọn dẹp chạy mỗi **24 giờ**. Mô tả trên màn hình: "Dọn index, LINT Wiki (chỉ đề xuất), nén MEMORY.md. Không xoá."
+The **Curator (periodic maintenance)** button turns on a cleanup round running every **24 hours**. The on-screen description: "Cleans the index, LINTs the Wiki (suggestions only), compacts MEMORY.md. Deletes nothing."
 
-Cụ thể nó làm bốn việc:
+Specifically it does four things:
 
-1. **Dựng lại chỉ mục bộ nhớ.** Quét `memory/facts/`, thấy file ký ức nào chưa có dòng trong `MEMORY.md` thì thêm vào. Đây là cách bắt trường hợp bạn tự tạo file ký ức bằng tay mà quên thêm vào chỉ mục.
-2. **Gỡ khỏi chỉ mục thứ đã hết giá trị (từ 0.55.65).** Hai loại, cả hai đều có bằng chứng rõ ràng chứ không phải phỏng đoán: ký ức đã bị một ký ức mới **thay thế** (bạn đổi thông tin, Javis đánh dấu file cũ), và dòng trỏ vào file bạn đã **xoá tay**. Vì `MEMORY.md` nạp vào mọi lượt chat nên một thông tin đã nghỉ hưu còn nằm đó là Javis vẫn đọc nó mỗi lần.
+1. **Rebuilds the memory index.** It scans `memory/facts/` and adds a line to `MEMORY.md` for any memory file lacking one. This is how it catches the case where you created a memory file by hand and forgot the index.
+2. **Retires index lines that no longer carry value (since 0.55.65).** Two kinds, both backed by hard evidence rather than a guess: a memory a newer one has **superseded** (you changed the information, and Jarvis 007 marked the old file), and a line pointing at a file you **deleted by hand**. Because `MEMORY.md` is loaded into every chat turn, a retired piece of information left in it is one Jarvis 007 still reads every single time.
 
-   **File ký ức không bị xoá**, chỉ rời khỏi chỉ mục: nó vẫn nằm trong `memory/facts/`, vẫn mở đọc được, ký ức mới vẫn trỏ tới nó, và git vẫn hoàn tác được.
+   **The memory file is never deleted**, it only leaves the index: it stays in `memory/facts/`, stays readable, the newer memory still links to it, and git can still undo the change.
 
-   Javis cố ý **không** gỡ theo tuổi. Một điều như "chủ làm nước mắm truyền thống" mười năm sau vẫn đúng; lâu không dùng không có nghĩa là sai.
-3. **Cảnh báo khi chỉ mục phình.** `MEMORY.md` được nạp vào **mọi lượt chat**, nên nó dài là mọi câu hỏi đều đắt lên. Vượt khoảng **150 dòng**, Curator ghi vào nhật ký dòng "⚠ vượt trần index (~150 dòng) - cân nhắc nén.". Nó **không tự nén**, việc gộp lại là bạn quyết.
-4. **Soi sức khoẻ Wiki (LINT).** Tìm note trùng lặp, note mồ côi không ai trỏ tới, wikilink gãy, mâu thuẫn chưa giải, và chỗ còn thiếu. Kết quả chỉ là **danh sách đề xuất** ghi vào nhật ký dưới tiêu đề "Wiki LINT (đề xuất, chưa sửa)". Curator không tự sửa và không tự xoá note nào.
+   Jarvis 007 deliberately does **not** retire by age. Something like "the owner makes traditional fish sauce" is still true ten years later; unused is not the same as wrong.
+3. **Warns when the index bloats.** `MEMORY.md` is loaded into **every chat turn**, so its length makes every question more expensive. Over about **150 lines**, the Curator logs "⚠ over the index ceiling (~150 lines), consider compacting." It **does not compact by itself**, merging is your call.
+4. **Checks Wiki health (LINT).** It finds duplicate notes, orphan notes nobody links to, broken wikilinks, unresolved contradictions and gaps. The result is only a **list of suggestions** written into the log under "Wiki LINT (suggestions, nothing changed)". The Curator never fixes anything and never deletes a note.
 
-Nút "🩺 LINT Wiki" từng có trên dashboard đã bỏ. LINT nay chạy bên trong Curator.
+The "🩺 LINT Wiki" button that once existed on the dashboard is gone. LINT now runs inside the Curator.
 
-Curator có ba mẹo tiết kiệm đáng biết:
+The Curator has three savings worth knowing:
 
-- **Wiki không đổi thì bỏ hẳn vòng đó**, không gọi model.
-- **Có đổi thì chỉ soi những note vừa đổi**, không quét lại cả kho. Riêng khi phát hiện note bị xoá hoặc đổi tên thì phải quét toàn bộ, vì hai việc đó làm gãy wikilink ở cả những trang không đổi.
-- **Mỗi 30 ngày quét toàn bộ một lần** để bắt các vấn đề liên trang tích tụ dần.
-- **Brain im lặng quá 14 ngày bị bỏ qua.** Danh sách brain của tự học chỉ có thêm chứ không bớt, nên nếu không lọc thì Curator cứ 24 giờ lại chạy trên cả những brain bạn đã bỏ từ lâu.
+- **An unchanged Wiki skips the round entirely**, calling no model.
+- **When something changed, it only inspects the changed notes**, not the whole store. The exception is a detected deletion or rename, which forces a full scan because those two break wikilinks even in unchanged pages.
+- **Every 30 days it does one full scan** to catch cross-page problems that accumulate slowly.
+- **A brain silent for over 14 days is skipped.** Self-learning's brain list only grows, so without that filter the Curator would run every 24 hours even on brains you abandoned long ago.
 
-Muốn chạy ngay một vòng, bấm **🧹 Curator ngay**. Nút hiện "Đang dọn..." rồi tự tải lại.
+To run one round now, click **🧹 Curator now**. The button reads "Cleaning..." then reloads by itself.
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference of buttons and states
 
-| Nút / dòng | Ở đâu | Xảy ra chuyện gì |
+| Button / line | Where | What happens |
 | --- | --- | --- |
-| `● Đang bật` / `○ Đang tắt` | Ô Bật tự học | Bật lần đầu thì git-init brain rồi lưu ngay. Tắt cũng lưu ngay |
-| `Chạy thử` / `Đề xuất` / `Tự ghi` | Ô Chế độ ghi | Chọn mức ghi. Chỉ Tự ghi mới tạo file |
-| `● Ký ức (Memory)` … `○ Việc (Kanban)` | Ô Học cái gì | Sáu công tắc loại tri thức được học |
-| `● Bật` / `○ Tắt` | Ô Curator | Bật vòng bảo trì 24 giờ |
-| **💾 Lưu cấu hình** | Hàng nút | Lưu chế độ + công tắc + Curator. Hiện "Đang lưu..." rồi "✓ Đã lưu" |
-| **▶ Học ngay** | Hàng nút | Lưu cấu hình rồi chạy một mẻ học trên brain đang chọn |
-| **🧹 Curator ngay** | Hàng nút | Chạy một vòng bảo trì ngay |
-| **■ Dừng** | Hàng nút | Huỷ mẻ học và vòng Curator đang chạy |
-| **↶ Hoàn tác lần học gần nhất** | Hàng nút (chữ cam) | Hỏi xác nhận "Hoàn tác (git revert) lần học gần nhất?" rồi git revert commit học cuối |
+| `● On` / `○ Off` | The Turn self-learning on box | The first On git-inits the brain then saves immediately. Off saves immediately too |
+| `Dry run` / `Suggest` / `Write automatically` | The Write mode box | Chooses the write level. Only Write automatically creates files |
+| `● Memories (Memory)` … `○ Work (Kanban)` | The What to learn box | The six switches for kinds of knowledge learned |
+| `● On` / `○ Off` | The Curator box | Turns on the 24-hour maintenance round |
+| **💾 Save configuration** | The button row | Saves the mode, the switches and the Curator. Shows "Saving..." then "✓ Saved" |
+| **▶ Learn now** | The button row | Saves the configuration then runs one learning batch on the selected brain |
+| **🧹 Curator now** | The button row | Runs one maintenance round immediately |
+| **■ Stop** | The button row | Cancels the running learning batch and Curator round |
+| **↶ Undo the latest learning run** | The button row (orange text) | Asks to confirm undoing (git revert) the latest learning run, then git-reverts the last learning commit |
 
-## Dòng "Chỉ số"
+## The "Metrics" line
 
-Ngay dưới hàng nút là một dòng tóm tắt sức khoẻ bộ não, dạng:
+Right under the button row is a one-line summary of the brain's health, shaped:
 
-`Chỉ số · Ký ức: 87 · Wiki: 174 · MEMORY.md: 18363B · Fork hôm nay: 3 · Token ước tính: 41200 · Commit học: 26`
+`Metrics · Memories: 87 · Wiki: 174 · MEMORY.md: 18363B · Forks today: 3 · Estimated tokens: 41200 · Learning commits: 26`
 
-Đọc dòng này thế nào:
+How to read it:
 
-| Ô | Nghĩa |
+| Field | Meaning |
 | --- | --- |
-| **Ký ức** | Số file trong `memory/facts/` |
-| **Wiki** | Số note trong thư mục Wiki (không tính `index`, `log` và file bắt đầu bằng gạch dưới) |
-| **MEMORY.md** | Kích thước chỉ mục bộ nhớ, tính bằng byte. Con số này nạp vào mọi lượt chat nên càng nhỏ càng rẻ |
-| **Fork hôm nay** | Số mẻ học đã ghi được trong ngày, so với trần 40 |
-| **Token ước tính** | Token tự học đã tiêu trong ngày (ước lượng thô), so với trần 300.000 |
-| **Commit học** | Số commit học tìm thấy trong lịch sử git của brain (đếm tối đa 50 commit gần nhất) |
+| **Memories** | The file count in `memory/facts/` |
+| **Wiki** | The note count in the Wiki folder (excluding `index`, `log` and files starting with an underscore) |
+| **MEMORY.md** | The memory index's size in bytes. This number is loaded into every chat turn, so smaller is cheaper |
+| **Forks today** | Learning batches that wrote today, against the ceiling of 40 |
+| **Estimated tokens** | Tokens self-learning spent today (a rough estimate), against the ceiling of 300,000 |
+| **Learning commits** | Learning commits found in the brain's git history (counting at most the 50 most recent commits) |
 
-## Khối "Javis đã tự học gì (commit gần nhất)"
+## The "What Jarvis 007 taught itself (latest commits)" block
 
-Khối này liệt kê tối đa 12 commit học gần nhất của brain, mỗi dòng gồm tiêu đề commit, mã hash ngắn, thời điểm, và danh sách tối đa 6 file đã đổi.
+This block lists at most the 12 most recent learning commits of the brain, each line carrying the commit title, the short hash, the timestamp, and up to 6 changed files.
 
-Tiêu đề commit có dạng `learn: +2 fact +1 wiki +0 skill (2026-07-29)` với mẻ học, và `curator: reindex memory (2026-07-29)` với vòng bảo trì. Chỉ hai loại tiền tố này được coi là "commit học", nên commit nền do Javis tạo lúc khởi tạo repo sẽ không lọt vào đây và cũng không bị nút Hoàn tác đụng tới.
+The commit title is shaped `learn: +2 fact +1 wiki +0 skill (2026-07-29)` for a learning batch, and `curator: reindex memory (2026-07-29)` for a maintenance round. Only those two prefixes count as a "learning commit", so the base commit Jarvis 007 creates when initialising the repo never appears here and is never touched by the Undo button.
 
-Chưa có gì thì khối hiện "Chưa có commit học nào.". Nếu brain chưa phải kho git, khối hiện dòng cam "Brain chưa phải git repo - bật Tự học để git-init (mới xem/undo được commit)."
+With nothing yet, the block reads "No learning commits yet." If the brain is not a git repository, it shows an orange line saying the brain is not a git repo and to turn Self-learning on to git-init it (only then can commits be reviewed and undone).
 
-**Hoàn tác:** bấm **↶ Hoàn tác lần học gần nhất**, xác nhận, Javis chạy `git revert` trên commit học cuối. Thành công thì hiện hộp thoại "Đã hoàn tác:" kèm tiêu đề commit. Ba lý do thất bại thường gặp:
+**Undoing:** click **↶ Undo the latest learning run**, confirm, and Jarvis 007 runs `git revert` on the last learning commit. On success it shows a dialog reading "Undone:" with the commit title. Three common failure reasons:
 
-- "Brain chưa phải git repo"
-- "Không có commit học nào để undo"
-- "Các file học đang bị sửa dở, hãy tự xử lý trước: ..." (bạn đang sửa dở đúng file nằm trong commit đó. Lưu hoặc hoàn lại chỉnh sửa của bạn rồi thử lại. File dở dang **không liên quan** thì không chặn undo)
+- "The brain is not a git repo"
+- "There is no learning commit to undo"
+- "Learning files have uncommitted edits, please handle them first: ..." (you are mid-edit on a file inside that commit. Save or revert your edits then try again. An unrelated dirty file does **not** block the undo)
 
-Một điểm an tâm: git ở đây chỉ theo dõi **tri thức đã chưng cất** (ký ức, Wiki, skill, `MEMORY.md`). Log thô, nhật ký học, nhật ký loop, log hội thoại, thư mục `attachments/` và `inbox/` đều nằm ngoài, nên revert luôn sạch và không đụng vào file cá nhân.
+One reassuring point: git here only tracks **distilled knowledge** (memories, Wiki, skills, `MEMORY.md`). Raw logs, the learning log, loop logs, conversation logs, the `attachments/` and `inbox/` folders are all outside, so a revert is always clean and never touches personal files.
 
-## Khối "Nhật ký học"
+## The "Learning log" block
 
-Khối cuối trang hiện tối đa 10 mục gần nhất, gom từ ba file nhật ký mới nhất trong `Javis/learn-log/` của brain (mỗi ngày một file `YYYY-MM-DD.md`).
+The last block on the page shows at most the 10 most recent entries, gathered from the three newest log files in the brain's `Javis/learn-log/` (one `YYYY-MM-DD.md` file per day).
 
-Mỗi mục có mốc giờ, loại (`learn` hoặc `curator`), lý do chạy (`auto` khi tự bắn, `manual` khi bạn bấm nút), trạng thái (`auto-ghi` hoặc `dry-run` kèm lý do bị hạ), rồi danh sách những gì đã học dạng `fact=[...] wiki=[...] skill=[...]`, và mã commit nếu có. Phần thân là câu tóm tắt tiếng Việt của mẻ học, kèm mục **Bị chặn** liệt kê từng thứ bị cửa lọc chặn và vì sao.
+Each entry has a timestamp, a kind (`learn` or `curator`), the run reason (`auto` when self-fired, `manual` when you clicked), the status (`auto-write` or `dry-run` with the downgrade reason), then the list of what was learned as `fact=[...] wiki=[...] skill=[...]`, plus the commit hash if any. The body is a Vietnamese summary of the batch, along with a **Blocked** section listing each item a gate stopped and why.
 
-Chưa có gì thì khối hiện "Chưa có nhật ký học.".
+With nothing yet, the block reads "No learning log yet."
 
-Nhật ký này là file markdown thường, mở được ở trang **Tệp tin** (nhóm **Bộ não**) nếu bạn muốn đọc đầy đủ thay vì 10 mục cuối.
+The log is an ordinary markdown file, openable on the **Files** page (**Brain** group) if you want to read it in full rather than the last 10 entries.
 
-## Đồng bộ brain với GitHub
+## Syncing the brain with GitHub
 
-Giữa trang còn một khối **⇅ Đồng bộ brain với GitHub (2 chiều)**. Nó nằm ở đây vì cùng dựa trên git, nhưng là một tính năng khác: đẩy toàn bộ thư mục `brains` lên một repo riêng tư và kéo về từ máy khác. Hướng dẫn đầy đủ (tạo repo, tạo token, xử lý file `.conflict-*`) ở trang [Sao lưu brain lên GitHub](18-sao-luu-github.md).
+Halfway down the page is another block, **⇅ Sync brain with GitHub (two-way)**. It sits here because it is also built on git, but it is a different feature: pushing the whole `brains` folder to a private repo and pulling from another machine. The full guide (creating the repo, creating the token, handling `.conflict-*` files) is on [Backing the brain up to GitHub](18-sao-luu-github.md).
 
-## Máy chưa cài git thì sao
+## What if the machine has no git
 
-Tự học **vẫn chạy và vẫn ghi file** bình thường. Ô Chế độ ghi sẽ hiện thêm dòng: "ℹ Máy chưa có `git`: Tự học VẪN chạy bình thường, chỉ là chưa có hoàn tác 1-chạm/backup lên GitHub. Cài git để bật undo + sao lưu brain."
+Self-learning **still runs and still writes files** normally. The Write mode box adds a line: "ℹ The machine has no `git`: Self-learning STILL runs normally, it just has no one-touch undo or GitHub backup. Install git to enable undo and brain backup."
 
-Cái bạn mất khi không có git:
+What you lose without git:
 
-- Nút **↶ Hoàn tác lần học gần nhất** không dùng được.
-- Khối "Javis đã tự học gì" trống, không xem lại được từng lần học đã đổi file nào.
-- Không đồng bộ brain lên GitHub được.
+- The **↶ Undo the latest learning run** button is unusable.
+- The "What Jarvis 007 taught itself" block is empty, so you cannot review which files each learning run changed.
+- The brain cannot be synced to GitHub.
 
-Các rào an toàn còn lại giữ nguyên: tiến trình học vẫn chỉ đọc, vẫn quét khoá bí mật và câu chèn lệnh, ký ức vẫn chỉ-thêm-không-đè, và vẫn không ghi ra ngoài phạm vi thư mục cho phép.
+Every other safety rail stays: the learning process is still read only, still scans for secret keys and injected instructions, memories are still add-only, and it still cannot write outside the permitted folders.
 
-Cài git rồi thì tắt tự học và bật lại một lần để Javis git-init brain.
+Once git is installed, turn self-learning off and back on once so Jarvis 007 git-inits the brain.
 
-## Mẹo
+## Tips
 
-- **Muốn Javis nhớ chắc chắn một điều, nói thẳng "ghi nhớ ..." trong chat.** Câu có "ghi nhớ", "nhớ giúp", "lưu lại", "nhớ là" được đánh dấu gấp và học ở mẻ ngay sau đó thay vì phải chờ đủ 3 lượt.
-- **Kiểm tra Javis học đúng chưa bằng chính `MEMORY.md`.** Mở trang **Tệp tin**, vào `memory/MEMORY.md`. Mỗi dòng là một ký ức. Dòng nào sai thì sửa hoặc xoá thẳng ở đó, nhanh hơn hoàn tác cả một commit.
-- **Giữ `MEMORY.md` gọn.** File này nạp vào mọi lượt chat. Chỉ số vượt khoảng 150 dòng là lúc nên gộp các ký ức vụn thành một ký ức lớn hơn.
-- **Muốn tri thức Wiki chất lượng, hãy nói ra nguồn.** Điều gì chỉ do Javis tự suy ra sẽ không được vào Wiki. Bạn khẳng định hoặc dẫn nguồn có tên thì nó mới được ghi.
-- **Chạy thử vài ngày trước khi mở Tự ghi** nếu brain của bạn đã có nhiều ghi chú viết tay và bạn muốn chắc chắn Javis không làm loạn cách đặt tên.
-- **Đổi model việc nền sang model rẻ** ở trang **Models** nếu thấy tự học ăn nhiều hạn mức. Tự học không cần model mạnh nhất.
+- **To make Jarvis 007 remember something for certain, say "remember ..." plainly in chat.** A sentence with "remember", "keep this in mind", "save this" is flagged urgent and learned in the very next batch instead of waiting for 3 turns.
+- **Check that Jarvis 007 learned correctly through `MEMORY.md` itself.** Open the **Files** page and go to `memory/MEMORY.md`. Each line is one memory. Fix or delete a wrong line right there, which is faster than undoing a whole commit.
+- **Keep `MEMORY.md` compact.** This file is loaded into every chat turn. Once the metric passes about 150 lines, it is time to merge small memories into a larger one.
+- **For quality Wiki knowledge, state the source.** Anything Jarvis 007 merely inferred does not enter the Wiki. It is written only when you assert it or cite a named source.
+- **Run Dry run for a few days before opening Write automatically** if your brain already holds many handwritten notes and you want to be sure Jarvis 007 does not disturb your naming.
+- **Switch the background work model to a cheap one** on the **Models** page if self-learning eats too much quota. Self-learning does not need the strongest model.
 
-## Sự cố thường gặp
+## Common problems
 
-**Bật tự học rồi, chat cả buổi mà chẳng thấy gì học.**
-Kiểm tra theo thứ tự: chế độ ghi có đang là **Tự ghi** không (Chạy thử và Đề xuất đều không tạo file); các lượt chat có "đủ chất" không (chào hỏi, "ok", "cảm ơn" bị bỏ); đã đủ 3 lượt hoặc đã im 10 phút chưa; và dòng Chỉ số xem "Fork hôm nay" đã chạm 40 chưa. Nhật ký học luôn có câu trả lời chính xác.
+**Self-learning is on, you chatted all afternoon, and nothing was learned.**
+Check in order: is the write mode **Write automatically** (Dry run and Suggest create no files); did the chat turns have "substance" (greetings, "ok", "thanks" are dropped); have 3 turns accumulated or 10 minutes of silence passed; and on the Metrics line, has "Forks today" hit 40. The Learning log always has the exact answer.
 
-**Nhật ký ghi đã học nhưng không thấy file mới.**
-Đọc mục **Bị chặn** trong đúng mục nhật ký đó. Lý do hay gặp: ký ức trùng file đã có nên không đè, note Wiki bị loại vì Javis tự nói không có nguồn, note trùng khái niệm đã có, skill trùng tên hoặc `description` dài quá 150 ký tự.
+**The log says it learned but no new file appeared.**
+Read the **Blocked** section of that very log entry. Common reasons: the memory duplicated an existing file so nothing was overwritten, the Wiki note was rejected because Jarvis 007 said it with no source, the concept duplicated an existing note, or the skill's name collided or its `description` ran over 150 characters.
 
-**Bấm Học ngay không thấy gì đổi.**
-Nếu đang có một mẻ học hoặc vòng Curator chạy dở thì lượt mới bị từ chối. Chờ mẻ đang chạy xong (tối đa 240 giây) rồi bấm lại, hoặc bấm **■ Dừng** trước.
+**Clicking Learn now changes nothing.**
+If a learning batch or Curator round is mid-run, the new pass is refused. Wait for the running batch to finish (at most 240 seconds) then click again, or click **■ Stop** first.
 
-**Bấm Hoàn tác báo "Các file học đang bị sửa dở".**
-Bạn đang sửa dở đúng file nằm trong commit học đó. Lưu lại hoặc hoàn tác chỉnh sửa của bạn trước, rồi bấm lại. Javis cố tình không revert đè lên chỉnh tay của bạn.
+**Undo reports "Learning files have uncommitted edits".**
+You are mid-edit on a file inside that learning commit. Save or revert your edits first, then click again. Jarvis 007 deliberately refuses to revert over your manual changes.
 
-**Javis học vào nhầm brain.**
-Trang này làm việc trên brain đang chọn ở đầu màn hình. Đổi đúng brain rồi bấm Lưu cấu hình và Học ngay lại. Bản thân vòng học tự động thì học đúng brain của cuộc trò chuyện, không phụ thuộc brain bạn đang mở trên trang này.
+**Jarvis 007 learned into the wrong brain.**
+This page works on the brain selected at the top of the screen. Switch to the right brain then click Save configuration and Learn now again. The automatic learning loop itself learns into the brain of the conversation, regardless of which brain you have open on this page.
 
-**Curator bật rồi mà không thấy chạy.**
-Nó chạy 24 giờ một lần, và bỏ qua brain đã im lặng quá 14 ngày. Ngoài ra khi Wiki không đổi note nào thì nó bỏ hẳn vòng đó cho đỡ tốn, nhật ký sẽ ghi lý do "wiki không đổi note nào". Muốn thấy ngay thì bấm **🧹 Curator ngay**.
+**The Curator is on but never seems to run.**
+It runs once every 24 hours, and skips brains silent for over 14 days. Beyond that, when no Wiki note changed it skips the round to save cost, and the log records the reason as "no Wiki note changed". To see it now, click **🧹 Curator now**.
 
-**Sợ tự học làm hỏng ghi chú viết tay.**
-Tiến trình học không có quyền ghi. Code ghi thì không đè file ký ức đã có, không đè note Wiki đã có, không đè skill đã có, không xoá gì, chỉ sửa agent/workflow đã có khi có lý do rõ ràng và bạn chưa khoá file đó, và chỉ được động vào các thư mục `memory/`, `Wiki/`, `skills/`, `agents/`, `workflows/`, `Javis/`. Đường dẫn nào lọt ra ngoài bị khôi phục lại ngay.
+**You are worried self-learning will damage handwritten notes.**
+The learning process has no write permission. The writing code does not overwrite an existing memory file, an existing Wiki note or an existing skill, deletes nothing, only edits an existing agent or workflow when there is a clear reason and you have not locked the file, and may only touch the `memory/`, `Wiki/`, `skills/`, `agents/`, `workflows/` and `Javis/` folders. Any path escaping that is restored immediately.
 
-## Liên quan
+## Related
 
-- [Second Brain: bộ nhớ và Wiki](13-second-brain-bo-nho-wiki.md) - cấu trúc `memory/facts/`, `MEMORY.md` và thư mục Wiki mà tự học ghi vào
-- [Skills](06-skills.md) - skill do tự học tạo ra nằm chung danh sách với skill bạn tự viết, bật tắt như nhau
-- [Việc (Kanban)](21-viec-kanban.md) - nơi việc do công tắc "Việc (Kanban)" đề xuất rơi xuống
-- [Sao lưu brain lên GitHub](18-sao-luu-github.md) - khối đồng bộ nằm ngay trong trang này
-- [Models & engine](10-models-va-engine.md) - chọn model việc nền cho tự học
-- [Quản lý tệp tin](05-quan-ly-tep-tin.md) - mở `MEMORY.md`, note Wiki và file nhật ký học để đọc hoặc sửa tay
-- [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md)
+- [Second Brain: memory and Wiki](13-second-brain-bo-nho-wiki.md) - the structure of `memory/facts/`, `MEMORY.md` and the Wiki folder self-learning writes into
+- [Skills](06-skills.md) - a self-learned skill sits in the same list as one you wrote, toggled the same way
+- [Work (Kanban)](21-viec-kanban.md) - where work proposed by the "Work (Kanban)" switch lands
+- [Backing the brain up to GitHub](18-sao-luu-github.md) - the sync block lives on this very page
+- [Models and engines](10-models-va-engine.md) - choosing the background work model for self-learning
+- [File manager](05-quan-ly-tep-tin.md) - opening `MEMORY.md`, Wiki notes and learning log files to read or edit by hand
+- [Troubleshooting and FAQ](17-khac-phuc-su-co.md)

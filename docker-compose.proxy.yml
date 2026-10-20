@@ -1,29 +1,29 @@
 # ============================================================================
-# Javis OS - PROXY DÙNG CHUNG cho NHIỀU BẢN Javis trên cùng một VPS.
+# Jarvis 007 - SHARED PROXY for MULTIPLE Jarvis 007 copies on the same VPS.
 #
-# Chạy MỘT LẦN cho cả máy (không phải mỗi bản một cái). Nó giữ cổng 80/443, tự xin
-# và tự gia hạn chứng chỉ Let's Encrypt, rồi lái mỗi tên miền về đúng bản Javis của nó.
+# Run ONCE for the whole machine (not one per copy). It holds ports 80/443, requests
+# and renews Let's Encrypt certificates by itself, and routes each domain to its own Jarvis 007 copy.
 #
-# VÌ SAO PHẢI TÁCH RA MỘT FILE RIÊNG: một máy chỉ có MỘT cổng 443. Bản Caddy trong
-# docker-compose.https.yml nằm chung project với Javis, nên bản Javis thứ hai dựng lên là
-# hai Caddy tranh nhau cổng 443 và con thứ hai chết. Proxy phải sống ngoài mọi bản.
+# WHY IT HAS TO BE A SEPARATE FILE: a machine has only ONE port 443. The Caddy in
+# docker-compose.https.yml lives in the same project as Jarvis 007, so bringing up a second Jarvis 007 means
+# two Caddys fighting over port 443 and the second one dies. The proxy has to live outside every copy.
 #
-# CÀI (làm một lần cho cả VPS):
+# INSTALL (once for the whole VPS):
 #   docker network create javis-web
 #   curl -fsSLO https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.proxy.yml
 #   docker compose -f docker-compose.proxy.yml -p javis-proxy up -d
 #
-# SAU ĐÓ mỗi bản Javis chạy ở THƯ MỤC RIÊNG với .env riêng (xem docker-compose.multi.yml):
+# AFTER THAT each Jarvis 007 copy runs in its OWN FOLDER with its own .env (see docker-compose.multi.yml):
 #   JAVIS_NAME=javis-shop     JAVIS_HOST_PORT=7777   DOMAIN_NAME=shop.tencuaban.com
 #   JAVIS_NAME=javis-ca-nhan  JAVIS_HOST_PORT=7778   DOMAIN_NAME=canhan.tencuaban.com
 #
-# Proxy TỰ PHÁT HIỆN bản mới qua nhãn Docker - thêm hay bớt một bản KHÔNG phải sửa gì ở đây,
-# cũng không phải khởi động lại proxy. Đúng cách Traefik của Hostinger đang làm.
+# The proxy DISCOVERS new copies through Docker labels - adding or removing a copy needs NO change here,
+# and no proxy restart either. Exactly how Hostinger's Traefik does it.
 #
-# TRỎ DNS: mỗi tên miền phụ một bản ghi A về IP VPS. Chứng chỉ cấp ở lần mở đầu tiên.
+# POINT DNS: one A record per subdomain to the VPS IP. The certificate is issued on the first open.
 #
-# ⚠️ Proxy đọc Docker socket (chỉ ĐỌC) để thấy nhãn của các container. Đây là quyền mạnh -
-#    cùng loại quyền Watchtower cần. Chỉ chạy file này trên VPS của chính bạn.
+# ⚠️ The proxy reads the Docker socket (READ only) to see the containers' labels. This is a powerful permission -
+#    the same kind Watchtower needs. Only run this file on your own VPS.
 # ============================================================================
 services:
   proxy:
@@ -35,14 +35,14 @@ services:
       - "443:443"
       - "443:443/udp"        # HTTP/3
     environment:
-      # Chỉ nhìn các container nằm trên mạng này -> không vô tình phơi container khác của VPS ra Internet.
+      # Only look at containers on this network -> does not accidentally expose the VPS's other containers to the Internet.
       CADDY_INGRESS_NETWORKS: javis-web
-      # Muốn Let's Encrypt gửi cảnh báo hết hạn về email: bind-mount một Caddyfile chỉ chứa
-      #   { email ban@tencuaban.com }
-      # rồi trỏ CADDY_DOCKER_CADDYFILE_PATH vào nó. Không đặt cũng chạy và vẫn tự gia hạn.
+      # To have Let's Encrypt send expiry warnings to an email: bind-mount a Caddyfile containing only
+      #   { email you@yourdomain.com }
+      # and point CADDY_DOCKER_CADDYFILE_PATH at it. Leaving it unset still works and certificates still renew automatically.
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - proxy-data:/data       # chứng chỉ đã cấp - giữ qua restart, không xin lại (tránh cạn rate-limit)
+      - proxy-data:/data       # issued certificates - kept across restarts, not requested again (avoids exhausting the rate limit)
       - proxy-config:/config
     networks:
       - javis-web

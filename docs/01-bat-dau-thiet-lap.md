@@ -1,280 +1,281 @@
-# Bắt đầu & thiết lập lần đầu
+# Getting started & first-run setup
 
 ***Tiếng Việt** · [English](en/01-getting-started.md)*
 
-Trang này hướng dẫn bạn từ lúc mở Javis lần đầu tiên cho tới khi Javis sẵn sàng trò chuyện: tạo tài khoản admin, chọn nhà cung cấp AI làm "bộ não", chọn model, và kiểm tra trạng thái hệ thống ở trang Cài đặt.
+This page takes you from opening Jarvis 007 for the first time to Jarvis 007 being ready to talk: creating an admin account, choosing the AI provider that acts as the "brain", picking a model, and checking system status on the Settings page.
 
-## Tính năng này là gì
+## What this covers
 
-Javis OS là một lớp điều hành AI chạy trên máy hoặc VPS của bạn. Bộ não là nhà cung cấp AI mà bạn đấu vào: Claude Code, ChatGPT (qua Codex), Antigravity CLI, OpenRouter, OpenAI API, Anthropic API, Google Gemini, Groq hoặc Ollama Cloud. Bộ cài đặt lần đầu **chọn sẵn** Claude Code vì đó là lựa chọn được khuyên dùng, chứ Javis không bị khoá vào một nhà cung cấp nào.
+Jarvis 007 is an AI operating layer that runs on your own machine or VPS. The brain is whichever AI provider you wire in: Claude Code, ChatGPT (through Codex), Antigravity CLI, OpenRouter, OpenAI API, Anthropic API, Google Gemini, Groq or Ollama Cloud. The first-run wizard **preselects** Claude Code because that is the recommended choice, but Jarvis 007 is not locked to any provider.
 
-Trước khi dùng được, Javis cần 3 thứ:
+Before it is usable, Jarvis 007 needs three things:
 
-1. Một tài khoản admin (để chặn người lạ, bắt buộc khi chạy công khai trên VPS).
-2. Một nhà cung cấp AI đã đăng nhập hoặc đã dán API key.
-3. Một model chính để trả lời hội thoại.
+1. An admin account (to keep strangers out - required when running publicly on a VPS).
+2. An AI provider that is signed in or has an API key pasted in.
+3. A main model to answer conversations.
 
-Lần đầu mở app, một bộ cài đặt (wizard) sẽ hiện ra và dẫn bạn qua đúng 3 việc này. Mọi thứ đặt ở đây đều đổi lại được sau trong các trang quản lý.
+The first time you open the app, a wizard appears and walks you through exactly those three. Everything set here can be changed later on the management pages.
 
-## Mở ở đâu trong Javis
+## Where to find it
 
-- Trên máy cá nhân, mở trình duyệt và vào `http://localhost:7777` (cổng mặc định là 7777).
-- Trên VPS hoặc Docker, dùng địa chỉ mà nhà cung cấp cấp cho bạn, ví dụ `http://<ip-vps>:7777` hoặc link HTTPS dạng `https://<app>.<vps>.hstgr.cloud`.
+- On a personal machine, open a browser at `http://localhost:7777` (7777 is the default port).
+- On a VPS or Docker, use the address your provider gave you, e.g. `http://<vps-ip>:7777` or an HTTPS link like `https://<app>.<vps>.hstgr.cloud`.
 
-Sau khi thiết lập xong, các mục liên quan nằm trên rail điều hướng bên trái. Rail gom thành 7 nhóm, **phải bấm mở nhóm mới thấy mục con**:
+Once setup is done, the related items sit on the navigation rail on the left. The rail has 7 groups, and **you have to open a group before its items appear**:
 
-| Nhóm | Mục | Dùng để |
+| Group | Item | Used for |
 |---|---|---|
-| Kết nối | **Models** | Đổi model chính, đăng nhập/ngắt các nhà cung cấp (xem [Models & engine](10-models-va-engine.md)) |
-| Hệ thống | **Cài đặt** | Năm tab: Chung, Giọng nói, Linh vật, Mức dùng, Cập nhật |
-| Hệ thống | **Link chia sẻ** | Xem, sao chép và thu hồi liên kết công khai |
-| Hệ thống | **Tài khoản** | Đổi mật khẩu, đăng xuất, tắt đăng nhập (xem [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md)) |
+| Connections | **Models** | Change the main model, sign providers in and out (see [Models & engines](10-models-va-engine.md)) |
+| System | **Settings** | Five tabs: General, Voice, Mascot, Usage, Updates |
+| System | **Share links** | View, copy and revoke public links |
+| System | **Account** | Change the password, sign out, disable login (see [Security & accounts](14-bao-mat-tai-khoan.md)) |
 
-## Cách dùng (từng bước)
+## Step by step
 
-### Bước 1: Mở app và gặp bộ cài đặt
+### Step 1: Open the app and meet the wizard
 
-Mở `http://localhost:7777` (hoặc địa chỉ VPS của bạn). Nếu đây là lần đầu và chưa có tài khoản, Javis hiện cửa sổ **Chào mừng tới Javis** với 3 mục đánh số sẵn.
+Open `http://localhost:7777` (or your VPS address). If this is the first run and no account exists, Jarvis 007 shows a **Welcome to Jarvis 007** window with three numbered sections.
 
-Nếu bạn chạy trên máy cá nhân (localhost), mục mật khẩu là tùy chọn, có thể bỏ trống. Nếu bạn chạy công khai (VPS/Docker), Javis bắt buộc bạn đặt tên đăng nhập và mật khẩu mới cho qua; lúc đó dòng nhắc "Đặt tên đăng nhập và mật khẩu (tối thiểu 8 ký tự) để bảo vệ Javis trên server công khai. Sau khi vào, nên bật thêm 2FA." hiện ngay dưới nút.
+On a personal machine (localhost), the password field is optional and can be left empty. When running publicly (VPS/Docker), Jarvis 007 requires a username and password before letting you through; the prompt "Set a username and password (at least 8 characters) to protect Jarvis 007 on a public server. Once inside, turning on 2FA is recommended." then appears under the button.
 
-### Bước 2: Đặt tên Workspace
+### Step 2: Name the workspace
 
-Ở mục **1. Workspace**, gõ tên hiển thị vào ô **Tên hiển thị** (ví dụ tên cửa hàng hoặc tên bạn). Bỏ trống thì Javis dùng mặc định là "Javis OS". Đây chỉ là nhãn hiển thị, đổi lại bất cứ lúc nào.
+Under **1. Workspace**, type a display name in the **Display name** box (your shop name or your own name, for instance). Left empty, Jarvis 007 uses "Jarvis 007". It is only a label and can be changed at any time.
 
-### Bước 3: Tạo tài khoản admin
+### Step 3: Create the admin account
 
-Ở mục **2. Tài khoản admin**:
+Under **2. Admin account**:
 
-1. Gõ tên tài khoản vào ô **Tài khoản** (mặc định gợi ý là `admin`).
-2. Gõ mật khẩu vào ô **Mật khẩu**. Mật khẩu phải dài tối thiểu 8 ký tự.
-3. Nếu Javis chạy công khai, làm bước này **ngay sau khi deploy** rồi bật xác thực 2 lớp (2FA) ở trang **Tài khoản** (xem mục "Server công khai: tạo admin sớm và bật 2FA" bên dưới).
+1. Type a username in the **Username** box (it suggests `admin`).
+2. Type a password in the **Password** box. It must be at least 8 characters.
+3. If Jarvis 007 is running publicly, do this step **right after deploying**, then turn on two-factor authentication (2FA) on the **Account** page (see "Public server: create the admin early and turn on 2FA" below).
 
-Trên máy cá nhân, nếu bạn để trống mật khẩu thì Javis không đặt tài khoản và ai mở link máy này cũng dùng được. Chỉ nên bỏ trống khi máy chỉ mình bạn dùng.
+On a personal machine, leaving the password empty means Jarvis 007 creates no account and anyone who can open the link on this machine can use it. Only do that when you are the only person on the machine.
 
-### Bước 4: Chọn nhà cung cấp AI (bộ não)
+### Step 4: Choose the AI provider (the brain)
 
-Ở mục **3. Nhà cung cấp AI (bộ não)**, chọn 1 trong 3 thẻ:
+Under **3. AI provider (brain)**, pick one of three cards:
 
-| Lựa chọn | Chữ trên thẻ | Cần gì để dùng |
+| Choice | Text on the card | What it needs |
 |---|---|---|
-| **🧠 Claude Code** (chọn sẵn) | "Đăng nhập subscription Claude → đủ MCP, skill, đọc/ghi file, vòng lặp tự cải thiện. Mạnh & đầy đủ nhất." | Đăng nhập subscription Claude 1 lần (không cần API key) |
-| **💬 ChatGPT (gói subscription)** | "Đăng nhập ChatGPT Plus/Pro (qua Codex) → vẫn dùng được MCP của Javis." | Đăng nhập ChatGPT ở trang Models |
-| **🌐 OpenRouter** | "Nhiều model giá rẻ một chỗ, vẫn đủ MCP Javis + skill + đọc/ghi file brain. Chỉ cần API key - không cần đăng nhập." | Dán API key OpenRouter (dán ngay hoặc để sau ở Models) |
+| **🧠 Claude Code** (preselected) | "Sign in with a Claude subscription → full MCP, skills, file read/write, self-improvement loops. The strongest, most complete option." | One sign-in with a Claude subscription (no API key) |
+| **💬 ChatGPT (subscription)** | "Sign in with ChatGPT Plus/Pro (through Codex) → still reaches every Jarvis 007 MCP." | Sign in to ChatGPT on the Models page |
+| **🌐 OpenRouter** | "Many cheap models in one place, still with full Jarvis 007 MCP + skills + brain file access. Only needs an API key - no sign-in." | Paste an OpenRouter API key (now or later on Models) |
 
-Chọn cái nào cũng ra một Javis đủ chức năng: cả ba đều gọi được kho Kết nối (MCP), đọc/ghi file trong brain, chạy skill, giao việc và tạo loop. Khác biệt duy nhất là **chạy lệnh máy**, thứ chỉ các engine CLI (Claude Code, Codex, Antigravity CLI) làm được. Wizard chỉ hiện 3 thẻ cho gọn; vào trang **Models** còn Antigravity CLI, OpenAI API, Google Gemini, Anthropic API, Groq và Ollama, đổi lúc nào cũng được.
+Any of the three gives you a fully capable Jarvis 007: all of them reach the connection store (MCP), read and write files in the brain, run skills, queue work and create loops. The only difference is **running shell commands**, which only the CLI engines (Claude Code, Codex, Antigravity CLI) can do. The wizard shows three cards for brevity; the **Models** page also has OpenAI API, Google Gemini, Anthropic API, Groq and Ollama, and you can change at any time.
 
-Nếu chọn **OpenRouter**, một ô nhập **OpenRouter API key** sẽ hiện ra, bạn có thể dán key ngay hoặc để trống rồi dán sau ở trang Models. Dưới danh sách còn một dòng gợi ý thay đổi theo thẻ bạn chọn, ví dụ chọn ChatGPT thì gợi ý "Sau khi vào: mục **Models** → đăng nhập ChatGPT".
+Pick **OpenRouter** and an **OpenRouter API key** box appears - paste the key now or leave it empty and paste it later on the Models page. Below the list is a hint line that changes with your choice; picking ChatGPT, for example, suggests "Once inside: **Models** → sign in to ChatGPT".
 
-Bấm **Bắt đầu dùng Javis →** để lưu và vào app. Wizard đồng thời đặt luôn một model mặc định cho nhà cung cấp bạn chọn: `sonnet` cho Claude Code, `gpt-5.5` cho ChatGPT, `openai/gpt-4o-mini` cho OpenRouter. Đổi lại ở trang Models bất cứ lúc nào.
+Press **Start using Jarvis 007 →** to save and enter the app. The wizard also sets a default model for the provider you chose: `sonnet` for Claude Code, `gpt-5.5` for ChatGPT, `openai/gpt-4o-mini` for OpenRouter. Change it on the Models page whenever you like.
 
-### Bước 5: Đăng nhập Claude làm bộ não
+### Step 5: Sign in to Claude as the brain
 
-Đây là bước quan trọng nhất nếu bạn chọn Claude Code. Wizard chỉ lưu lựa chọn nhà cung cấp, việc đăng nhập Claude thực hiện ở trang **Models** (nhóm **Kết nối**):
+This is the important step if you chose Claude Code. The wizard only saves the provider choice; signing in to Claude happens on the **Models** page (**Connections** group):
 
-1. Vào mục **Models** trên rail bên trái.
-2. Tìm thẻ **Claude Code**. Trạng thái ban đầu là "○ Chưa đăng nhập".
-3. Bấm nút **Đăng nhập Claude**.
-4. Javis hiện một đường link. Bấm mở link đó (mở trong tab mới) để đăng nhập tại claude.ai.
-5. Nếu sau khi đăng nhập trang hiện một mã code, dán mã đó vào ô **dán code (nếu có)** rồi bấm **Gửi code**. Một số luồng không cần dán code, Javis tự dò lại trạng thái mỗi 3 giây và cập nhật thẻ.
-6. Khi xong, trạng thái thẻ đổi thành "● Đã kết nối" (kèm email/gói nếu có).
+1. Open **Models** on the left rail.
+2. Find the **Claude Code** card. It starts at "○ Not signed in".
+3. Press **Sign in to Claude**.
+4. Jarvis 007 shows a link. Open it (in a new tab) and sign in at claude.ai.
+5. If the page shows a code afterwards, paste it into the **paste code (if any)** box and press **Send code**. Some flows need no code; Jarvis 007 re-checks status every 3 seconds and updates the card.
+6. When it is done, the card reads "● Connected" (with the email/plan when available).
 
-Đây là luồng device-code: bạn không cần nhập API key. Cách này chạy được cả trên VPS không có màn hình. Nếu bạn có quyền vào terminal của server, cũng có thể đăng nhập một lần bằng lệnh `claude auth login --claudeai` thay cho các bước trên.
+This is a device-code flow: no API key required. It works on a headless VPS. If you have terminal access to the server you can instead sign in once with `claude auth login --claudeai`.
 
-Nút **↻ Kiểm tra lại** trên thẻ dùng để nạp lại trạng thái đăng nhập bất cứ lúc nào. Nút **Ngắt** dùng để đăng xuất Claude khỏi Javis.
+The **↻ Re-check** button on the card reloads the sign-in status at any time. **Disconnect** signs Claude out of Jarvis 007.
 
-Engine Claude của Javis chạy qua **Claude Agent SDK**, nhưng SDK vẫn gọi tới `claude` CLI trên máy, nên máy chạy Javis phải cài sẵn `claude` thì đăng nhập và MCP native mới hoạt động.
+The Jarvis 007 Claude engine runs through the **Claude Agent SDK**, but the SDK still calls the `claude` CLI on the machine, so the machine running Jarvis 007 must have `claude` installed for sign-in and native MCP to work.
 
-### Bước 6: Chọn model chính và model việc nền
+### Step 6: Choose the main model and the background-work model
 
-Sau khi đã đăng nhập, kiểm tra và chọn model ở trang **Models**:
+Once signed in, check and choose models on the **Models** page:
 
-- Phần **◆ Main Model** hiển thị model đang dùng cho hội thoại. Bấm **Đổi model ▾** để chọn model khác.
-- Phần **◆ Providers** liệt kê **mười** nhà cung cấp: Claude Code, OpenAI OAuth (ChatGPT), xAI Grok Build CLI, Google Antigravity CLI, OpenRouter, Anthropic (API), OpenAI (ChatGPT API), Google Gemini (API), Groq (API), Ollama Cloud. Thẻ nào cần key thì có ô dán key và nút **Kết nối** / **Đổi key** / **Ngắt**.
-- Phần **◆ Model việc nền** (phụ đề "loop · việc Kanban · nhắc hẹn · tự học · tiêu hoá nguồn") cho phép chọn một model rẻ cho các việc chạy nền để đỡ hạn mức. Chưa đổi thì dòng trạng thái ghi "Mặc định của Claude Code". Bấm **Đổi model ▾** để chọn, bấm **Về mặc định** để trả lại. Nếu bạn chọn nhà cung cấp chưa kết nối, thẻ cảnh báo "⚠ nhà cung cấp này chưa kết nối - việc nền sẽ tự dùng lại Claude".
-- Phần **◆ Suy nghĩ** (reasoning) đặt độ sâu suy nghĩ khi trả lời: **Tắt**, **Thấp**, **Vừa**, **Cao**. Mặc định là Tắt (trả lời nhanh).
+- **◆ Main Model** shows the model used for conversations. Press **Change model ▾** to pick another.
+- **◆ Providers** lists all providers: Claude Code, OpenAI OAuth (ChatGPT), xAI Grok Build CLI, Google Antigravity CLI, OpenRouter, Anthropic (API), OpenAI (ChatGPT API), Google Gemini (API), Groq (API) and Ollama Cloud. Cards that need a key have a key box and **Connect** / **Change key** / **Disconnect** buttons.
+- **◆ Background-work model** (subtitled "loops · Kanban work · reminders · self-learning · source ingestion") lets you pick a cheap model for background work to spare your quota. Until you change it, the status line reads "Claude Code default". Press **Change model ▾** to pick, **Reset to default** to undo. Choosing a provider that is not connected shows "⚠ this provider is not connected - background work will fall back to Claude".
+- **◆ Reasoning** sets how deeply it thinks before answering: **Off**, **Low**, **Medium**, **High**. The default is Off (fast answers).
 
-Việc nền chạy được bằng cả nhà cung cấp API, không riêng Claude. Khác biệt thật nằm ở chỗ khác: Claude Code và Codex đọc/ghi file trực tiếp trong brain và chạy được lệnh máy, còn các model API đọc/ghi qua công cụ vault của Javis và không chạy lệnh máy, nên hợp với việc đọc, tổng hợp và ghi ghi chú.
+Background work runs on API providers too, not just Claude. The real difference is elsewhere: Claude Code and Codex read and write files directly in the brain and can run shell commands, while API models read and write through the Jarvis 007 vault tools and cannot run shell commands - which suits reading, summarising and note-writing.
 
-Chi tiết đầy đủ về từng nhà cung cấp và model xem [Models & engine](10-models-va-engine.md).
+Full detail on each provider and model: [Models & engines](10-models-va-engine.md).
 
-## Trang Cài đặt: năm tab
+## The Settings page: five tabs
 
-Mở **Cài đặt** (nhóm **Hệ thống** trên rail). Trang có năm tab: **Chung**, **Giọng nói**, **Linh vật**, **Mức dùng**, **Cập nhật**. Link chia sẻ và Tài khoản là hai mục riêng trên menu Hệ thống. Trên điện thoại, vuốt ngang hàng tab để xem các tab phía sau.
+Open **Settings** (**System** group on the rail). The page has five tabs: **General**, **Voice**, **Mascot**, **Usage**, **Updates**. Share links and Account remain separate System menu items. On a phone, swipe the tab row horizontally to reach the remaining tabs.
 
-### Tab Chung: Hệ thống
+### General tab: System
 
-Phụ đề: "Trạng thái hiện tại và lối tắt tới các nhóm chuyên sâu". Gồm bốn ô trạng thái:
+Subtitle: "Current status and shortcuts into the deeper groups". Four status boxes:
 
-| Ô | Cho biết |
+| Box | Tells you |
 |---|---|
-| **Engine** | Nhãn nhà cung cấp đang làm model chính, ví dụ "Claude Code", "OpenRouter", "Google Gemini (API)" |
-| **Model** | Model chính đang dùng, hoặc "Mặc định" |
-| **Workspace** | Tên workspace bạn đặt ở wizard |
-| **Telegram** | "Đang bật" hoặc "Đang tắt" (xem [Kênh Telegram](11-telegram.md)) |
+| **Engine** | The provider label behind the main model, e.g. "Claude Code", "OpenRouter", "Google Gemini (API)" |
+| **Model** | The main model in use, or "Default" |
+| **Workspace** | The workspace name you set in the wizard |
+| **Telegram** | "On" or "Off" (see [Telegram](11-telegram.md)) |
 
-Bên dưới có hai lối tắt: **Models** và **Kênh**.
+Below are two shortcuts: **Models** and **Channels**.
 
-### Tab Chung: Giao diện & Brain
+### General tab: Interface & Brain
 
-Phụ đề: "Hiệu năng đồ thị và cấu trúc dữ liệu". Gồm ba thẻ.
+Subtitle: "Graph performance and data structure". Three cards.
 
-**Thẻ Đồ thị não** cho biết đồ thị tri thức đang bật hay tắt.
+**The Brain graph card** tells you whether the knowledge graph is on or off.
 
-- Bấm **Tắt đồ thị** để giảm tải tối đa; khi đang tắt, nút đổi thành **Bật đồ thị**.
-- Nếu màn hình hẹp (dưới 860px, tức điện thoại), Javis tự vào chế độ nhẹ: đồ thị dừng chạy dù công tắc đang bật. App vẫn mở ở màn Javis như trên máy tính - màn đó đã có sẵn ô chat, chỉ khác là không vẽ khoang não.
+- Press **Turn graph off** to cut load to a minimum; while off, the button becomes **Turn graph on**.
+- On a narrow screen (under 860px, i.e. a phone), Jarvis 007 enters light mode automatically: the graph stops even with the switch on. The app still opens on the Jarvis 007 screen as it does on a desktop - that screen already has the chat box, it simply does not draw the brain canvas.
 
-Chi tiết về đồ thị xem [Đồ thị tri thức](03-do-thi-tri-thuc.md).
+Graph detail: [Knowledge graph](03-do-thi-tri-thuc.md).
 
-**Thẻ Chuẩn hóa brain** gom các thư mục `agents`, `workflows`, `memory`, `skills` của brain đang chọn về cấu trúc phẳng đồng nhất. Bấm **Chuẩn hóa brain đang chọn** để chạy.
+**The Normalise brain card** collects the `agents`, `workflows`, `memory` and `skills` folders of the selected brain into one flat structure. Press **Normalise the selected brain** to run it.
 
-Thao tác này an toàn: chỉ di chuyển khi thư mục đích chưa có, không ghi đè, chạy lại nhiều lần cũng vô hại (ví dụ chuyển `Javis/agents` sang `agents`, `Memory` sang `memory`). Sau khi chạy, Javis báo đã di chuyển gì hoặc "Không có gì cần di chuyển (đã chuẩn)".
+It is safe: it only moves when the destination does not exist, it never overwrites, and running it repeatedly is harmless (for example moving `Javis/agents` to `agents`, `Memory` to `memory`). Afterwards Jarvis 007 reports what it moved, or "Nothing to move (already normalised)".
 
-**Thẻ Dấu nguồn gốc ảnh AI** quyết định ảnh Javis tạo ra có mang dấu nguồn gốc (Content Credentials, chuẩn C2PA) hay không. Nhãn góc phải là "Đang giữ" hoặc "Đang gỡ".
+**The AI image provenance card** decides whether images Jarvis 007 generates carry a provenance mark (Content Credentials, the C2PA standard). The corner label reads "Keeping" or "Stripping".
 
-- Mặc định là **Giữ dấu**: ảnh mang sẵn dấu ghi rằng ảnh do AI sinh ra. Facebook đọc dấu này để gắn nhãn "Nội dung do AI tạo" lên bài.
-- Bấm **Gỡ dấu** thì ảnh mới tạo không còn dấu, nhãn trên nền tảng thường không hiện nữa. Ảnh đã tạo trước đó không đổi.
-- Dù bật hay tắt, nhãn tác giả `javisos.com` vẫn được giữ, và bạn vẫn phải tự chịu trách nhiệm công bố nội dung AI theo luật và điều khoản của nền tảng nơi bạn đăng.
+- The default is **Keep the mark**: images carry a record that they were AI-generated. Facebook reads it and labels posts "AI-generated content".
+- Press **Strip the mark** and new images no longer carry it, so platforms usually stop showing the label. Images generated earlier are unchanged.
+- Either way the `javisos.com` author tag stays, and you remain responsible for disclosing AI content under the law and the terms of whatever platform you post to.
 
-### Tab Giọng nói và phần thương hiệu trong tab Chung
+### Voice tab and branding in General
 
-Tab **Giọng nói** chỉ còn một thẻ cho cuộc gọi bằng giọng, ô nào cũng tự lưu ngay, không có nút Lưu. Ngôn ngữ giao diện, ảnh đại diện và tên miền nằm trong tab **Chung**:
+The **Voice** tab is a single card for voice calls, and every field saves itself at once; there is no Save button. Interface language, avatar and domain settings live in **General**:
 
-- Dòng **Đang dùng**: đường gọi đang chạy (ChatGPT Live, Live qua API key hoặc Cơ bản), kèm lý do và việc cần làm nếu Javis phải lùi xuống đường thấp hơn.
-- **Giọng Javis**: danh sách giọng theo đường gọi, chọn giọng là chọn luôn nhà cung cấp (Edge, OpenAI hay ElevenLabs), nút **▶ Nghe thử**. Giọng OpenAI cần OpenAI API key ở trang **Models**.
-- Mục **Nâng cao** chứa **Đường gọi**, **Bộ não trả lời nhanh** và **Model** của nó (chỉ ở đường Cơ bản), **Tốc độ đọc** (chỉ ở đường Cơ bản), API key và Voice ID ElevenLabs (chỉ khi chọn giọng ElevenLabs). Ngôn ngữ nghe tự theo ngôn ngữ giao diện.
-- **ẢNH ĐẠI DIỆN**: **Tải ảnh lên** hoặc **Khôi phục mặc định**.
-- **TÊN MIỀN & SSL**: nhập tên miền, bấm **Lưu & kiểm tra**, xem hai nhãn `DNS:` và `SSL:`, rồi **Bật SSL** hoặc **Kiểm tra lại**.
+- The **Using** line: the call path in use (ChatGPT Live, Live with an API key or Basic), plus the reason and what to do when Jarvis 007 had to fall back to a lower path.
+- **Jarvis 007's voice**: the voice list for the call path; picking a voice also picks the provider (Edge, OpenAI or ElevenLabs), with a **▶ Preview** button. OpenAI voices need an OpenAI API key on the **Models** page.
+- **Advanced**, with **Call path**, **Quick-reply brain** and its **Model** (Basic path only), **Speaking rate** (Basic path only), and the ElevenLabs API key and Voice ID (only when the ElevenLabs voice is picked). The listening language follows the interface language.
+- **AVATAR**: **Upload an image** or **Restore default**.
+- **DOMAIN & SSL**: enter a domain, press **Save & check**, watch the `DNS:` and `SSL:` labels, then **Enable SSL** or **Re-check**.
 
-Chi tiết xem [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md) và [Thương hiệu & tên miền](15-thuong-hieu-ten-mien.md).
+Detail: [Chat & voice](02-tro-chuyen-va-giong-noi.md) and [Branding & domains](15-thuong-hieu-ten-mien.md).
 
-### Tab Chung: Khởi động cùng Windows
+### General tab: Start with Windows
 
-Nhóm này **chỉ hiện trên bản chạy Windows**; bản Docker/Linux ẩn hẳn. Thẻ **Tự bật Javis** cho biết trạng thái ("Bật" hoặc "Tắt") và có một nút duy nhất: **Bật tự khởi động** hoặc **Tắt tự khởi động**. Khi bật, Javis tự chạy nền lúc bạn đăng nhập Windows, mở `localhost:7777` là dùng được.
+This group **only appears on the Windows build**; the Docker/Linux build hides it entirely. The **Auto-start Jarvis 007** card shows the state ("On" or "Off") and has a single button: **Enable auto-start** or **Disable auto-start**. When on, Jarvis 007 runs in the background as soon as you sign in to Windows, and `localhost:7777` is ready.
 
-#### Khi thẻ ghi "Bật nhưng không chạy"
+#### When the card says "On but not running"
 
-Mở máy lên mà `localhost:7777` báo **ERR_CONNECTION_REFUSED** thì mở lại trang này. Javis tự kiểm ba nguyên nhân và ghi thẳng nguyên nhân dưới thẻ, vì cả ba đều **không để lại lỗi ở đâu**:
+If you boot the machine and `localhost:7777` reports **ERR_CONNECTION_REFUSED**, reopen this page. Jarvis 007 checks three causes and writes the cause straight under the card, because none of the three leaves an error anywhere:
 
-- **Windows đang chặn mục khởi động này.** Task Manager, thẻ **Startup**, khi bạn bấm Disable thì nó không xoá gì cả, chỉ ghi một cờ để Windows bỏ qua. Nhiều phần mềm "dọn máy, tăng tốc khởi động" cũng tắt bằng đúng cờ đó mà không hỏi. Bấm **Bật tự khởi động** lại là Javis tự gỡ cờ.
-- **Thư mục cài đặt đã đổi chỗ**, lệnh khởi động còn trỏ đường dẫn cũ. Bấm bật lại để cập nhật.
-- **Thiếu `start-javis.vbs` hoặc `.venv\Scripts\python.exe`.** Chạy lại `setup.bat` để dựng lại phần thiếu.
+- **Windows is blocking this startup entry.** In Task Manager's **Startup** tab, pressing Disable deletes nothing - it just sets a flag telling Windows to skip the entry. Plenty of "clean up your PC, speed up boot" tools set the same flag without asking. Pressing **Enable auto-start** again clears it.
+- **The install folder moved** and the startup command still points at the old path. Press enable again to update it.
+- **`start-javis.vbs` or `.venv\Scripts\python.exe` is missing.** Run `setup.bat` again to rebuild what is missing.
 
-Nếu thẻ ghi **Bật** không kèm cảnh báo nào mà mở máy vẫn không lên, mở `server\javis.log` trong thư mục cài đặt: đó là nơi server ghi lỗi khi nó có chạy nhưng chết giữa chừng.
+If the card says **On** with no warning and boot still does not bring it up, open `server\javis.log` in the install folder: that is where the server records errors when it does start but dies part-way.
 
-Về Second Brain (bộ nhớ, Wiki, cấu trúc vault), xem [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
+For the Second Brain (memory, Wiki, vault structure), see [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md).
 
-## Cập nhật phiên bản
+## Updating the version
 
-Phần này nằm ở **Hệ thống → Cài đặt → Cập nhật**. Khung Javis OS trên cùng hiển thị phiên bản đang chạy và cho biết có bản mới trên GitHub hay không.
+This lives under **System → Settings → Updates**. The Jarvis 007 panel at the top shows the running version and whether a newer one exists on GitHub.
 
-- Có bản mới: "🆕 Có bản mới **v...** (đang chạy v...)" kèm nhãn môi trường (`Windows`, `Linux`, `macOS` hoặc `Docker / VPS`), và khối "Bản mới có gì" liệt kê tối đa 2 bản gần nhất.
-- Đang mới nhất: "✅ Đang dùng bản mới nhất (v...)".
-- Bấm **Kiểm tra lại** để so lại với bản mới nhất bất cứ lúc nào.
+- A new version: "🆕 New version **v...** available (running v...)" with an environment label (`Windows`, `Linux`, `macOS` or `Docker / VPS`), and a "What's new" block listing up to the two most recent releases.
+- Already current: "✅ Running the latest version (v...)".
+- Press **Re-check** to compare against the latest at any time.
 
-### Nút "⬆ Cập nhật ngay" hiện khi nào
+### When the "⬆ Update now" button appears
 
-Nút **⬆ Cập nhật ngay** chỉ hiện khi Javis tự cập nhật tại chỗ được. Javis không đoán theo tên nhà cung cấp: nó **dò thật** xem có container Watchtower đang lắng nghe không.
+**⬆ Update now** only appears when Jarvis 007 can update itself in place. Jarvis 007 does not guess from the provider name: it **actually probes** for a listening Watchtower container.
 
-| Kiểu chạy | Cập nhật một chạm? |
+| How you run it | One-tap update? |
 |---|---|
-| Windows | Có |
-| Linux / macOS chạy trực tiếp | Có |
-| Docker và Watchtower đang chạy | Có |
-| Docker dựng từ compose cũ (chưa có Watchtower) | Không, khung nói rõ vì sao và cách lấy bản mới |
+| Windows | Yes |
+| Linux / macOS, run directly | Yes |
+| Docker with Watchtower running | Yes |
+| Docker built from an older compose (no Watchtower) | No; the panel says why and how to get the new file |
 
-**Từ 0.55.56, Watchtower đi kèm sẵn** trong cả `docker-compose.yml` lẫn `docker-compose.hostinger.yml`. Cài mới là có nút ngay, không phải nhớ thêm lệnh nào.
+**Since 0.55.56 Watchtower ships by default** in both `docker-compose.yml` and `docker-compose.hostinger.yml`, so a fresh install has the button straight away, with no extra command to remember.
 
-**Vì sao máy này có nút mà máy kia không.** Trước 0.55.56 Watchtower nằm trong `profiles: ["update"]`, nên lệnh `docker compose up -d` quen tay **không bật nó**; còn stack Hostinger thì không kèm nó. Máy nào vẫn thiếu nút là đang chạy bằng file compose cũ đó. Lấy bản mới rồi dựng lại, ở thư mục chứa file compose:
+**Why one machine has the button and another does not.** Before 0.55.56 Watchtower sat inside `profiles: ["update"]`, so the habitual `docker compose up -d` **did not start it**, and the Hostinger stack shipped without it. A machine still missing the button is running from one of those older files. Fetch the new one and bring it up again, in the folder holding the compose file:
 
 ```bash
 curl -fsSLO https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.yml
 docker compose up -d --pull always
 ```
 
-Hostinger thì vào Docker Manager bấm **Redeploy** (stack đọc lại compose từ URL). Chưa muốn đổi file compose thì bật riêng Watchtower cũng được: `docker compose --profile update up -d`.
+On Hostinger, open Docker Manager and hit **Redeploy** (the stack re-reads the compose from its URL). Not ready to swap the compose file? Starting Watchtower on its own works too: `docker compose --profile update up -d`.
 
-Tải lại trang là nút hiện ra. Không muốn có Watchtower thì cập nhật tay vẫn được: `docker compose up -d --pull always`.
+Reload the page and the button appears. If you would rather go without Watchtower, updating by hand still works: `docker compose up -d --pull always`.
 
-**Muốn Javis TỰ cập nhật, khỏi bấm nút**: thêm `JAVIS_AUTO_UPDATE=true` vào `.env` (Hostinger: ô Environment) rồi dựng lại. Mặc định tắt có chủ ý, vì tự cập nhật là app tự khởi động lại bất cứ lúc nào có bản mới, cắt ngang việc nền đang chạy. Chu kỳ mặc định 24 giờ, đổi bằng `JAVIS_AUTO_UPDATE_INTERVAL` (giây).
+**Want Jarvis 007 to update itself with no button at all:** add `JAVIS_AUTO_UPDATE=true` to `.env` (Hostinger: the Environment box) and bring the stack up again. It is off by default on purpose: auto-updating means the app restarts itself whenever a new version lands, cutting across background work. The default cadence is 24 hours, changed with `JAVIS_AUTO_UPDATE_INTERVAL` (seconds).
 
-Khung Cập nhật tự phân biệt các trường hợp này và ghi đúng cách xử lý cho máy bạn.
+The Updates panel distinguishes these cases and prints the right procedure for your machine.
 
-### Thanh tiến trình 6 bước
+### The six-step progress bar
 
-Bấm **⬆ Cập nhật ngay**, Javis hỏi xác nhận ("Cập nhật Javis lên bản mới nhất? App sẽ tự khởi động lại; nếu lỗi hệ thống sẽ thử quay về bản cũ."). Đồng ý xong, một thanh tiến trình hiện ra và sáng dần qua 6 bước:
+Press **⬆ Update now** and Jarvis 007 asks to confirm ("Update Jarvis 007 to the latest version? The app will restart; on failure the system will try to roll back."). Once you agree, a progress bar lights up through six steps:
 
-**Chuẩn bị → Tải code → Cài thư viện → Khởi động lại → Kiểm tra sức khoẻ → Xong**
+**Prepare → Download code → Install dependencies → Restart → Health check → Done**
 
-Bước đang chạy có dấu ⏳, bước đã qua có ✅. Trong lúc chạy, dòng trạng thái ghi "⏳ Đang cập nhật… đừng tắt trang." Nếu mã nguồn trên máy có sửa đổi cục bộ, Javis báo "📦 Sửa đổi cục bộ đã được cất vào git stash." (cất đi chứ không xoá). Xong xuôi thì hiện "✅ Đã cập nhật xong. Đang tải lại trang…" và app tự tải lại sau khoảng 1,5 giây.
+The running step shows ⏳, finished steps show ✅. During the run the status line reads "⏳ Updating… do not close this page." If the local source has local modifications, Jarvis 007 reports "📦 Local changes stashed in git." (stashed, not deleted). When it finishes you get "✅ Update complete. Reloading…" and the app reloads after about 1.5 seconds.
 
-### Khi bản mới hỏng: lùi bản
+### When the new build is broken: rolling back
 
-Javis có sẵn đường lùi, không bỏ bạn kẹt ở bản lỗi:
+Jarvis 007 keeps a way back and will not strand you on a broken build:
 
-- **Tự lùi:** nếu bản mới không qua được bước Kiểm tra sức khoẻ, Javis tự quay về bản cũ. Thanh tiến trình hiện "↩ Bản mới lỗi, đang tự quay về bản cũ…", xong thì báo "↩ Bản mới lỗi, đã **tự quay về bản cũ**."
-- **Lùi tay trên Docker:** nếu sau một lúc phiên bản vẫn chưa đổi, Javis báo "⚠ Bản mới chưa lên sau một lúc - có thể lỗi." rồi hiện khối **Cách lùi bản Docker** với lệnh `docker compose pull && docker compose up -d`, kèm gợi ý pin image `ghcr.io/blogminhquy/javis-os:<phiên-bản-cũ>` rồi Redeploy.
-- **Lỗi khác:** khung báo lỗi cụ thể và nhắc xem file `update.log`. Nếu server không lên lại sau khoảng 3 phút, khung ghi "Server chưa lên lại sau khoảng 3 phút - thử tải lại trang."
+- **Automatic rollback:** if the new build fails the health check, Jarvis 007 returns to the old one. The progress bar shows "↩ New build failed, rolling back…", then "↩ New build failed, **rolled back automatically**."
+- **Manual rollback on Docker:** if the version still has not changed after a while, Jarvis 007 reports "⚠ The new build has not come up - it may have failed." and shows a **How to roll back on Docker** block with `docker compose pull && docker compose up -d`, plus a hint to pin `ghcr.io/blogminhquy/javis-os:<old-version>` and Redeploy.
+- **Other errors:** the panel names the specific error and points at `update.log`. If the server does not come back within roughly 3 minutes, the panel says "The server has not come back after about 3 minutes - try reloading the page."
 
-Bên dưới khung cập nhật là nhật ký phiên bản: từng bản có gì mới, chia trang, bản đang cài được đánh dấu.
+Below the update panel is the version changelog: what each release added, paginated, with the installed version marked.
 
-## Server công khai: tạo admin sớm và bật 2FA
+## Public server: create the admin early and turn on 2FA
 
-Khi Javis chạy công khai (nghe trên `0.0.0.0`, tức VPS/Docker/Hostinger) mà chưa có tài khoản admin, màn chạy lần đầu chỉ hỏi tên đăng nhập và mật khẩu. Nghĩa là **ai mở link trước khi có admin sẽ tạo được admin**, mà bộ não lại chạy với toàn quyền trên máy. Vì vậy:
+When Jarvis 007 runs publicly (listening on `0.0.0.0`, i.e. VPS/Docker/Hostinger) with no admin account yet, the first-run screen only asks for a username and password. That means **whoever opens the link before an admin exists can create it**, and the brain runs with full rights on the machine. So:
 
-- **Cách khuyến nghị:** khi deploy, đặt sẵn hai biến môi trường `JAVIS_ADMIN_USER` và `JAVIS_ADMIN_PASSWORD` (`install.sh` đã hỏi sẵn hai giá trị này). Javis tự tạo tài khoản admin lúc khởi động, mở app ra là màn đăng nhập luôn, không có khoảng trống nào. Chi tiết biến môi trường xem [Cấu hình .env](16-cau-hinh-env.md).
-- **Nếu không đặt env:** mở app và tạo tài khoản ngay sau khi deploy, đừng để server public trống admin.
-- **Sau lần đăng nhập đầu:** bật xác thực 2 lớp (2FA) ở trang **Tài khoản**. Xem [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md).
+- **Recommended:** set the environment variables `JAVIS_ADMIN_USER` and `JAVIS_ADMIN_PASSWORD` at deploy time (`install.sh` already asks for both). Jarvis 007 creates the admin at startup and opening the app gives you a sign-in screen, with no gap at all. Details: [.env configuration](16-cau-hinh-env.md).
+- **Without the env vars:** open the app and create the account right after deploying; do not leave a public server without an admin.
+- **After the first sign-in:** turn on two-factor authentication (2FA) on the **Account** page. See [Security & accounts](14-bao-mat-tai-khoan.md).
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference: buttons and states
 
-| Nút / dòng chữ | Ở đâu | Làm gì |
+| Button / label | Where | What it does |
 |---|---|---|
-| **Bắt đầu dùng Javis →** | Wizard | Lưu workspace, tài khoản, nhà cung cấp rồi vào app |
-| **Đăng nhập Claude** | Models, thẻ Claude Code | Bắt đầu luồng device-code, hiện link claude.ai |
-| **Gửi code** | Models, sau khi bấm Đăng nhập Claude | Gửi mã code lấy từ trang claude.ai |
-| **↻ Kiểm tra lại** | Models, thẻ Claude Code | Nạp lại trạng thái đăng nhập |
-| **Ngắt** | Models | Đăng xuất nhà cung cấp khỏi Javis |
-| **Đổi model ▾** | Models, mục Main Model và Model việc nền | Mở bảng chọn model |
-| **Về mặc định** | Models, mục Model việc nền | Trả việc nền về model mặc định của Claude Code |
-| "○ Chưa đăng nhập" / "● Đã kết nối" | Models | Trạng thái nhà cung cấp |
-| **Bật đồ thị** / **Tắt đồ thị** | Cài đặt, thẻ Đồ thị não | Bật hoặc tắt đồ thị tri thức |
-| **Chuẩn hóa brain đang chọn** | Cài đặt, thẻ Chuẩn hóa brain | Gom thư mục brain về cấu trúc phẳng |
-| **Giữ dấu** / **Gỡ dấu** | Cài đặt, thẻ Dấu nguồn gốc ảnh AI | Bật/tắt dấu C2PA trên ảnh Javis tạo |
-| **Bật tự khởi động** / **Tắt tự khởi động** | Cài đặt, nhóm Khởi động cùng Windows | Cho Javis chạy nền khi đăng nhập Windows |
-| **Kiểm tra lại** | Cập nhật | So phiên bản với GitHub |
-| **⬆ Cập nhật ngay** | Cập nhật (chỉ hiện khi tự cập nhật được) | Chạy cập nhật 6 bước rồi tự tải lại trang |
+| **Start using Jarvis 007 →** | Wizard | Saves the workspace, account and provider, then enters the app |
+| **Sign in to Claude** | Models, Claude Code card | Starts the device-code flow and shows the claude.ai link |
+| **Send code** | Models, after pressing Sign in to Claude | Submits the code taken from claude.ai |
+| **↻ Re-check** | Models, Claude Code card | Reloads the sign-in status |
+| **Disconnect** | Models | Signs the provider out of Jarvis 007 |
+| **Change model ▾** | Models, Main Model and Background-work model | Opens the model picker |
+| **Reset to default** | Models, Background-work model | Returns background work to the Claude Code default |
+| "○ Not signed in" / "● Connected" | Models | Provider status |
+| **Turn graph on** / **Turn graph off** | Settings, Brain graph card | Enables or disables the knowledge graph |
+| **Normalise the selected brain** | Settings, Normalise brain card | Flattens the brain folder structure |
+| **Keep the mark** / **Strip the mark** | Settings, AI image provenance card | Toggles the C2PA mark on generated images |
+| **Enable auto-start** / **Disable auto-start** | Settings, Start with Windows | Runs Jarvis 007 in the background at Windows sign-in |
+| **Re-check** | Updates | Compares the version against GitHub |
+| **⬆ Update now** | Updates (only when self-update is possible) | Runs the six-step update, then reloads |
 
-## Mẹo
+## Tips
 
-- Nếu chỉ chạy máy cá nhân và không sợ người lạ, cứ để trống mật khẩu ở wizard để vào nhanh. Bạn có thể đặt mật khẩu sau ở trang **Tài khoản**.
-- Sau khi vào app, nếu thấy báo chưa đăng nhập Claude, quay lại **Models** bấm **Đăng nhập Claude** một lần là xong.
-- Đổi avatar và tên miền ở **Cài đặt → Chung**; giọng nói và tốc độ ở **Cài đặt → Giọng nói**.
-- Sau khi cập nhật phiên bản, nếu giao diện không đổi, nhấn Ctrl+Shift+R để tải lại trang sạch.
-- Chọn một model rẻ ở **Model việc nền** ngay từ đầu: loop, việc Kanban, nhắc hẹn, tự học và tiêu hoá nguồn chạy khá nhiều, để chung model đắt là tốn hạn mức nhanh. Theo dõi con số thật ở trang [Mức dùng](23-muc-dung-token.md).
+- If you only run this on a personal machine and are not worried about strangers, leave the wizard password empty for a fast entry. You can set one later on the **Account** page.
+- If the app reports Claude is not signed in after you get in, go back to **Models** and press **Sign in to Claude** once.
+- Avatar and domain live under **Settings → General**; voice and speed under **Settings → Voice**.
+- If the interface does not change after a version update, press Ctrl+Shift+R for a clean reload.
+- Pick a cheap **Background-work model** from the start: loops, Kanban work, reminders, self-learning and source ingestion run a lot, and leaving them on an expensive model burns quota fast. Watch the real figures on the [Usage](23-muc-dung-token.md) page.
 
-## Sự cố thường gặp
+## Common problems
 
-- **Báo "Mật khẩu tối thiểu 8 ký tự":** đặt mật khẩu dài từ 8 ký tự trở lên.
-- **Báo "Đã có tài khoản - hãy đăng nhập":** admin đã được tạo trước đó (ví dụ qua env). Dùng màn đăng nhập với tài khoản/mật khẩu đã đặt.
-- **Claude báo chưa đăng nhập:** vào **Models**, bấm **Đăng nhập Claude**, mở link, dán code nếu được hỏi. Hoặc chạy `claude auth login --claudeai` trong terminal server.
-- **Quên mật khẩu admin:** ở màn đăng nhập bấm "Quên mật khẩu?" để xem hướng dẫn. Cách xử lý là mở file `server/settings.json`, xóa khối `"auth"` (hoặc đặt rỗng), rồi khởi động lại server; mở lại app sẽ về wizard để tạo tài khoản mới. Xem thêm [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md).
-- **Sai quá nhiều lần khi đăng nhập, bị báo "Quá nhiều lần sai":** Javis khóa tạm để chống dò mật khẩu. Đợi ít phút rồi thử lại.
-- **Bấm cập nhật nhưng báo "Đang cập nhật rồi, chờ chút.":** một lần cập nhật khác đang chạy. Chờ tiến trình chạy xong rồi thử lại.
-- **Docker/VPS báo "image Docker còn đang đóng gói":** bản mới vừa phát hành, image Docker thường xong sau 2 đến 5 phút. Thử lại sau ít phút. Nếu Watchtower chạy xong mà không thay được bản mới, trang báo lý do và nút bấm lại được ngay.
-- **Không thấy nút "⬆ Cập nhật ngay":** bạn đang chạy Docker mà Watchtower chưa chạy. Khung Cập nhật nói rõ máy bạn thiếu gì. Trên VPS tự quản, chạy `docker compose --profile update up -d` một lần rồi tải lại trang - `docker compose up -d` thường lệ KHÔNG bật Watchtower vì nó nằm trong profile riêng. Trên Hostinger thì không bật được, dùng Redeploy.
-- **Mở đúng cổng nhưng không thấy app:** kiểm tra địa chỉ có đúng `http://localhost:7777` (hoặc IP VPS kèm cổng 7777) không. Nếu vừa sửa code, khởi động lại server rồi thử lại.
+- **"Password must be at least 8 characters":** use a password of 8 characters or more.
+- **"An account already exists - please sign in":** an admin was created earlier (through env vars, for instance). Use the sign-in screen with those credentials.
+- **Claude reports it is not signed in:** go to **Models**, press **Sign in to Claude**, open the link, paste the code if asked. Or run `claude auth login --claudeai` in the server terminal.
+- **Forgot the admin password:** press "Forgot password?" on the sign-in screen for instructions. The procedure is to open `server/settings.json`, delete the `"auth"` block (or empty it), and restart the server; reopening the app returns you to the wizard to create a new account. See [Security & accounts](14-bao-mat-tai-khoan.md).
+- **Too many failed sign-ins, "Too many attempts":** Jarvis 007 locks temporarily to stop password guessing. Wait a few minutes and try again.
+- **Update says "Already updating, hold on.":** another update is in flight. Wait for it to finish and try again.
+- **Docker/VPS says the Docker image is still being packaged:** the new version was just released and its image is usually ready 2 to 5 minutes later. Try again in a few minutes. If Watchtower finishes without replacing the version, the page shows why and the button works again right away.
+- **No "⬆ Update now" button:** you are running Docker without Watchtower. The Updates panel says plainly what your machine is missing. On a self-managed VPS, run `docker compose --profile update up -d` once and reload the page - the usual `docker compose up -d` does NOT start Watchtower because it sits in its own profile. On Hostinger you cannot enable it, so use Redeploy.
+- **The port is right but nothing loads:** check that the address really is `http://localhost:7777` (or the VPS IP with port 7777). If you just changed code, restart the server and try again.
 
-Còn vướng, xem thêm [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+Still stuck? See [Troubleshooting & FAQ](17-khac-phuc-su-co.md).
 
-## Liên quan
+## Related
 
-- [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md) - việc đầu tiên nên làm sau khi thiết lập xong.
-- [Models & engine](10-models-va-engine.md) - chi tiết từng nhà cung cấp và cách đổi model.
-- [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md) - đấu nguồn dữ liệu vào trang **Kết nối**.
-- [Plugins](20-plugins.md) - thêm công cụ native cho mọi engine.
-- [Việc / Kanban](21-viec-kanban.md) - giao việc chạy nền một lần.
-- [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md) - việc lặp theo chu kỳ và nhắc theo giờ.
-- [Tự học](22-tu-hoc.md) - hợp nhất bộ nhớ và soát sức khoẻ Wiki.
-- [Mức dùng: token & chi phí](23-muc-dung-token.md) - xem token đã tiêu theo ngày và theo nhà cung cấp.
-- [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md) - siết quyền truy cập trước khi đưa lên VPS.
+- [Chat & voice](02-tro-chuyen-va-giong-noi.md) - the first thing to do once setup is done.
+- [Models & engines](10-models-va-engine.md) - every provider in detail and how to change model.
+- [Connections & business data](09-mcp-va-so-lieu.md) - wire data sources into the **Connections** page.
+- [Plugins](20-plugins.md) - add native tools for every engine.
+- [Work / Kanban](21-viec-kanban.md) - hand over one-off background work.
+- [Recurring jobs & reminders](08-viec-dinh-ky.md) - repeating work and clock-time reminders.
+- [Self-learning](22-tu-hoc.md) - consolidate memory and audit Wiki health.
+- [Usage: tokens & cost](23-muc-dung-token.md) - what you spent per day and per provider.
+- [Security & accounts](14-bao-mat-tai-khoan.md) - lock access down before going to a VPS.
+
