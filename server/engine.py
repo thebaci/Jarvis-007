@@ -294,7 +294,7 @@ async def _gui_vong(gui, nhan=""):
                 e._javis_da_thu = lan
                 raise
             cho = _jittered_backoff(lan)
-            print(f"[thử lại vòng {nhan or '?'}] lần {lan} rớt mạng, chờ {cho:.1f}s: {_describe_exc(e)[:160]}",
+            print(f"[retry round {nhan or '?'}] attempt {lan} network dropped, waiting {cho:.1f}s: {_describe_exc(e)[:160]}",
                   file=sys.stderr)
             await asyncio.sleep(cho)
 
@@ -376,7 +376,7 @@ async def thu_lai_khi_tam_thoi(tao_stream, *, so_lan=3, nhan=""):
                 )
             yield cuoi
             return
-        print(f"[thử lại {nhan or '?'}] lần {lan} gãy tạm thời, chờ {cho:.1f}s: "
+        print(f"[retry {nhan or '?'}] attempt {lan} temporary failure, waiting {cho:.1f}s: "
               f"{str(loi_hoan.get('content'))[:160]}", file=sys.stderr)
         await asyncio.sleep(cho)
 
@@ -1413,7 +1413,7 @@ def _clip_tool_result(result, max_chars: int = 8000, head_ratio: float = 0.6) ->
     tail_n = max_chars - head_n
     omitted = len(text) - head_n - tail_n
     return (text[:head_n]
-            + f"\n\n… [KẾT QUẢ TOOL BỊ CẮT - bỏ {omitted:,} ký tự giữa / tổng {len(text):,}] …\n\n"
+            + f"\n\n… [TOOL RESULT TRUNCATED - dropped {omitted:,} characters in the middle / total {len(text):,}] …\n\n"
             + text[-tail_n:])
 
 
@@ -1656,9 +1656,9 @@ def _schedule_tool_allowed(messages, name, args):
 
 def _schedule_tool_blocked_result():
     return (
-        "BỊ CHẶN: user chỉ đang hỏi hoặc thảo luận về việc đặt lịch, không yêu cầu đọc hay thay đổi "
-        "lịch tự động của Javis. Hãy trả lời trực tiếp câu hỏi; không liệt kê cron/reminder và không "
-        "khẳng định đã tạo, sửa hoặc huỷ lịch."
+        "BLOCKED: the user is only asking about or discussing scheduling, not asking to read or change "
+        "Jarvis 007's automatic schedules. Answer the question directly; do not list cron/reminders and do not "
+        "claim that a schedule was created, edited or cancelled."
     )
 
 
@@ -1730,7 +1730,7 @@ async def schedule_cancel_gateway(messages, mcp_tools, mcp_route):
     if "javis_schedule" not in names:
         return {
             "handled": False,
-            "error": "javis_schedule không có trong MCP của phiên",
+            "error": "javis_schedule is not in the session MCP",
             "calls": [],
         }
     import mcp_client
@@ -1808,8 +1808,8 @@ async def _cc_tool_loop(url, headers, model, messages, mcp_tools, mcp_route, rea
             msgs.append({
                 "role": "system",
                 "content": (
-                    "Javis gateway đã thao tác lịch bằng dữ liệu thật. Xác nhận ngắn gọn kết quả sau, "
-                    "không nói rằng thiếu tool:\n\n" + cancel_gate.get("result", "")
+                    "The Jarvis 007 gateway has operated on the schedules using real data. Briefly confirm the result below, "
+                    "and do not say that a tool is missing:\n\n" + cancel_gate.get("result", "")
                 ),
             })
             requirement_pending = False
@@ -1817,8 +1817,8 @@ async def _cc_tool_loop(url, headers, model, messages, mcp_tools, mcp_route, rea
             msgs.append({
                 "role": "system",
                 "content": (
-                    "Javis đã đọc kho lịch thật và không có lịch đang chạy để xoá. "
-                    "Báo đúng kết quả này, không nói thiếu tool:\n\n"
+                    "Jarvis 007 has read the real schedule store and there is no running schedule to delete. "
+                    "Report exactly this result and do not say a tool is missing:\n\n"
                     + cancel_gate.get("list_result", "")
                 ),
             })
@@ -1827,9 +1827,9 @@ async def _cc_tool_loop(url, headers, model, messages, mcp_tools, mcp_route, rea
             msgs.append({
                 "role": "system",
                 "content": (
-                    "Javis đã đọc danh sách lịch thật nhưng có nhiều mục và chưa đủ chắc chắn để xoá. "
-                    "Hãy hỏi user chọn đúng tên hoặc ID trong danh sách dưới đây; KHÔNG nói thiếu tool "
-                    "và KHÔNG xác nhận đã xoá:\n\n" + cancel_gate.get("list_result", "")
+                    "Jarvis 007 has read the real schedule list but there are several entries and it is not sure enough to delete. "
+                    "Ask the user to choose the exact name or ID from the list below; do NOT say a tool is missing "
+                    "and do NOT confirm that anything was deleted:\n\n" + cancel_gate.get("list_result", "")
                 ),
             })
             requirement_pending = False
@@ -1846,8 +1846,8 @@ async def _cc_tool_loop(url, headers, model, messages, mcp_tools, mcp_route, rea
         msgs.append({
             "role": "system",
             "content": (
-                "DỮ LIỆU THẬT vừa đọc bằng javis_schedule(op=list). Trả lời dựa trên dữ liệu này, "
-                "không dùng memory để thay thế:\n\n" + clipped
+                "REAL DATA just read with javis_schedule(op=list). Answer based on this data, "
+                "do not use memory as a substitute:\n\n" + clipped
             ),
         })
         requirement_pending = False
@@ -1985,8 +1985,8 @@ async def _cc_tool_loop(url, headers, model, messages, mcp_tools, mcp_route, rea
                 msgs.append({
                     "role": "system",
                     "content": (
-                        "Yêu cầu này cần dữ liệu đang chạy. BẮT BUỘC gọi tool được cung cấp ngay bây giờ; "
-                        "không trả lời từ memory, không tự nhận là không có tool."
+                        "This request needs live data. You MUST call a provided tool right now; "
+                        "do not answer from memory and do not claim that you have no tools."
                     ),
                 })
                 continue
@@ -2069,9 +2069,9 @@ class _LapGuard:
     def loi_nhac(self) -> str:
         if self.lap != self.NHAC:
             return ""
-        return (f"\n\n⚠ [Javis] Bạn vừa gọi đúng tool này với đúng tham số này {self.NHAC} vòng "
-                "liên tiếp - kết quả sẽ không đổi. ĐỪNG gọi lại nữa: trả lời ngay bằng dữ liệu "
-                "đã có, hoặc đổi tham số nếu thật sự cần dữ liệu khác.")
+        return (f"\n\n⚠ [Jarvis 007] You just called this exact tool with these exact arguments {self.NHAC} rounds "
+                "in a row - the result will not change. DO NOT call it again: answer right away with the data "
+                "you already have, or change the arguments if you really need different data.")
 
     def ket(self) -> bool:
         return self.lap >= self.DUNG

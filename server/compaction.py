@@ -152,8 +152,8 @@ def nen_mach_thue_bao(last_input_tokens, nguong: int = SUBSCRIPTION_THREAD_MAX_T
     return hien_tai - moc >= max(1, int(min_msgs or 1))
 
 
-SUMMARY_HEADER = ("[Tóm tắt phần đầu hội thoại - đã nén để tiết kiệm context. "
-                  "Coi đây là ký ức về những gì hai bên đã trao đổi trước đó:]\n")
+SUMMARY_HEADER = ("[Summary of the beginning of the conversation - compressed to save context. "
+                  "Treat this as a memory of what the two sides discussed earlier:]\n")
 
 
 def bootstrap_prompt(raw_msgs, current_prompt: str,
@@ -182,13 +182,13 @@ def bootstrap_prompt(raw_msgs, current_prompt: str,
 
     header = (
         "[KHÔI PHỤC NGỮ CẢNH HỘI THOẠI]\n"
-        "Các đoạn dưới đây là lịch sử thật của cùng cuộc trò chuyện Javis. "
-        "Hãy tiếp tục đúng mạch, không coi chúng là yêu cầu mới cần làm lại. Mọi câu hỏi trong "
-        "lịch sử ĐÃ được trả lời rồi; chỉ trả lời phần " + CURRENT_REQUEST_MARKER + " ở cuối.\n"
+        "The passages below are the real history of the same Jarvis 007 conversation. "
+        "Continue in the same thread; do not treat them as new requests to redo. Every question in "
+        "the history HAS already been answered; only answer the part under " + CURRENT_REQUEST_MARKER + " at the end.\n"
     )
     if tom_tat:
         header += SUMMARY_HEADER + tom_tat + "\n"
-    footer = "\n[HẾT LỊCH SỬ]\n\n" + CURRENT_REQUEST_MARKER + "\n"
+    footer = "\n[END OF HISTORY]\n\n" + CURRENT_REQUEST_MARKER + "\n"
     budget = max(1000, int(max_chars)) - len(header) - len(footer) - len(current_prompt)
     blocks = []
     truncated = False
@@ -202,10 +202,10 @@ def bootstrap_prompt(raw_msgs, current_prompt: str,
         truncated = True
         if not blocks and budget > 300:
             # Một message gần nhất quá dài: giữ phần cuối vì thường chứa kết luận/trạng thái mới nhất.
-            blocks.append("\n[...đầu message đã lược bớt...]\n" + block[-budget:])
+            blocks.append("\n[...start of message omitted...]\n" + block[-budget:])
         break
     blocks.reverse()
-    note = "\n[...phần lịch sử cũ hơn đã lược bớt...]\n" if truncated else ""
+    note = "\n[...older part of the history omitted...]\n" if truncated else ""
     return header + note + "".join(blocks) + footer + current_prompt
 
 
@@ -278,12 +278,12 @@ async def _summarize(old, chunk, prov, api_key, model, api_stream):
             c = c[:_MSG_CLIP] + " (...)"
         lines.append(("User: " if m.get("role") == "user" else "Javis: ") + c)
     prompt = (
-        "Bạn đang nén lịch sử hội thoại giữa User và trợ lý Javis để tiết kiệm context.\n\n"
-        f"TÓM TẮT HIỆN CÓ (các phần trước đó nữa):\n{old or '(chưa có)'}\n\n"
-        "ĐOẠN HỘI THOẠI MỚI CẦN GỘP THÊM:\n" + "\n\n".join(lines) + "\n\n"
-        "Viết TÓM TẮT MỚI gộp cả hai (tối đa ~350 từ), giữ lại: chủ đề chính, quyết định đã chốt, "
-        "con số/tên riêng/đường dẫn quan trọng, việc đang dang dở, sở thích hay yêu cầu User đã nêu. "
-        "Bỏ chào hỏi xã giao. Viết gọn dạng gạch đầu dòng '- '. CHỈ in tóm tắt, không mở bài."
+        "You are compressing the conversation history between the User and the Jarvis 007 assistant to save context.\n\n"
+        f"EXISTING SUMMARY (the earlier parts):\n{old or '(none yet)'}\n\n"
+        "NEW CONVERSATION SEGMENT TO MERGE IN:\n" + "\n\n".join(lines) + "\n\n"
+        "Write a NEW SUMMARY merging both (at most ~350 words), keeping: the main topic, decisions already made, "
+        "important numbers/proper names/paths, unfinished work, and preferences or requests the User stated. "
+        "Drop social greetings. Write concisely as '- ' bullet points. Output ONLY the summary, no introduction."
     )
     text = ""
     async for ev in api_stream(prov, api_key, model, [{"role": "user", "content": prompt}], "off"):
@@ -291,7 +291,7 @@ async def _summarize(old, chunk, prov, api_key, model, api_stream):
         if t == "text":
             text += ev.get("content") or ""
         elif t == "error":
-            print(f"[compact] provider lỗi: {ev.get('content')}", file=sys.stderr)
+            print(f"[compact] provider error: {ev.get('content')}", file=sys.stderr)
             return ""
     return text.strip()[:MAX_SUMMARY_CHARS]
 

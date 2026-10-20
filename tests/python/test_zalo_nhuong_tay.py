@@ -254,8 +254,8 @@ async def chay():
     gio_tay = datetime.fromtimestamp(tay, localefmt.tz()).strftime("%H:%M")
     check("5 phút: chủ im đủ 5 phút thì bot trả lời thay (không chờ 10)", len(LUOT) == 1, LUOT)
     check("ghi chú nói đúng giờ tin nhắn tay cuối và số phút đã cài (review point 4)",
-          LUOT and f"chủ nick nhắn tay lần cuối lúc {gio_tay} rồi 5 phút không nhắn thêm gì" in LUOT[0][0], LUOT)
-    check("ghi chú không còn câu cũ 'chưa trả lời sau 10 phút'", LUOT and "sau 10 phút" not in LUOT[0][0], LUOT)
+          LUOT and f"the account owner last typed a message at {gio_tay}, then 5 minutes passed with nothing more" in LUOT[0][0], LUOT)
+    check("ghi chú không còn câu cũ 'chưa trả lời sau 10 phút'", LUOT and "after 10 minutes" not in LUOT[0][0], LUOT)
     tb.stop()
 
     check("không có bot trực: mặc định TAY_IM, chưa đặt", zc.tay_im_cua("zalo-khac") == zc.TAY_IM

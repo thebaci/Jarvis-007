@@ -131,10 +131,10 @@ async def chay():
     check("CANARY: chủ im đủ 10 phút: bot trả lời đúng MỘT lần", n == 1 and len(LUOT) == 1 and len(GUI) == 1, (n, LUOT, GUI))
     text, meta = LUOT[0] if LUOT else ("", {})
     check("Agent được báo chủ đã 10 phút không nhắn thêm kể từ tin nhắn tay cuối (0.172.0)",
-          "chủ nick nhắn tay lần cuối lúc" in text and "rồi 10 phút không nhắn thêm gì" in text, text)
+          "the account owner last typed a message at" in text and "then 10 minutes passed with nothing more" in text, text)
     check("và khách gửi kèm gì (tên file, một ảnh), để đáp hợp cảnh thay vì im vì tin không có chữ",
-          "file Ke-hoach-sinh-hoat-chuyen-de-quy-4.docx" in text and "một ảnh" in text, text)
-    check("ghi chú nói rõ không phải lời khách", "không phải lời khách" in text, text)
+          "file Ke-hoach-sinh-hoat-chuyen-de-quy-4.docx" in text and "an image" in text, text)
+    check("ghi chú nói rõ không phải lời khách", "not the customer's words" in text, text)
     check("lượt mang ảnh để bot nhìn được", meta.get("co_anh") and meta.get("image_url") == "https://photo.zdn.vn/a.jpg", meta)
     check("trả lời đúng người, chat riêng", GUI and GUI[0]["threadId"] == "u1" and GUI[0]["threadType"] == 0, GUI)
     check("xong thì hết giữ", ("zalo-1", "u1") not in zc._CHO_CHU)
@@ -172,8 +172,8 @@ async def chay():
     lui_gio(610)
     await xa()
     check("ba tin chờ thành MỘT lượt, giữ thứ tự, kèm ghi chú ở cuối",
-          len(LUOT) == 1 and LUOT[0][0].startswith("Thầy ơi\ncon em học lớp 8\ncòn chỗ không ạ\n[Ghi chú của Javis"), LUOT)
-    check("không có file thì ghi chú không nhắc file", LUOT and "gửi kèm" not in LUOT[0][0], LUOT)
+          len(LUOT) == 1 and LUOT[0][0].startswith("Thầy ơi\ncon em học lớp 8\ncòn chỗ không ạ\n[Jarvis 007 note"), LUOT)
+    check("không có file thì ghi chú không nhắc file", LUOT and "also sent" not in LUOT[0][0], LUOT)
 
     # ---- 5. chủ không nhắn tay: đường cũ (chờ khách 5 giây) không đổi ------------------------------
     don()
@@ -203,7 +203,7 @@ async def chay():
     n = await xa()
     check("nhóm: hết quãng nhường, mỗi người một lượt (hai người, hai lượt)", n == 2 and len(LUOT) == 2, (n, LUOT))
     check("nhóm: lượt mang ghi chú chủ không nhắn thêm từ tin nhắn tay cuối",
-          all("chủ nick nhắn tay lần cuối lúc" in x[0] for x in LUOT), LUOT)
+          all("the account owner last typed a message at" in x[0] for x in LUOT), LUOT)
     CFG.pop("nhuong_tay_phut", None)
 
     # ---- 6b. mốc chờ là TIN NHẮN TAY, không phải tin khách đầu tiên (chủ chốt 14/10) --------------------

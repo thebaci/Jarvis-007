@@ -12065,22 +12065,22 @@ async def _nhan_nuoi_tien_trinh(tag: str, brain: str, owner_chat: str, final_tex
         ds = tien_trinh_nen.nhan_nuoi_theo_tag(tag, _brain_root(brain), owner_chat,
                                                hua=hua, do_sau=do_sau)
     except Exception as e:
-        print(f"[tien trinh nen] nhận theo dõi lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[tien trinh nen] taking over tracking failed: {type(e).__name__}: {e}", file=sys.stderr)
         return ""
     if not ds:
         return ""
     # Giọng "mình" như các dòng hệ thống khác (promise_note): dòng này không biết người dùng
     # xưng hô thế nào, "mình" là cách trung tính nhất.
-    dong = ["Mình đang theo dõi việc chạy nền của lượt này:"]
+    dong = ["I am tracking this turn's background jobs:"]
     for v in ds:
         dong.append(f"- `{v['mo_ta']}`")
     tiep = next((v.get("sau_khi_xong") for v in ds if v.get("sau_khi_xong")), "")
     if tu_lam_tiep and tiep:
-        dong.append(f"\nXong là mình tự báo về đây rồi làm tiếp: {tiep}")
+        dong.append(f"\nWhen it finishes I will report back here on my own and then continue: {tiep}")
     elif tu_lam_tiep and any(v.get("noi_tiep") for v in ds):
-        dong.append("\nXong là mình tự báo về đây rồi làm nốt phần đã hẹn, không cần hỏi lại.")
+        dong.append("\nWhen it finishes I will report back here on my own and finish the part I promised, no need to ask again.")
     else:
-        dong.append("\nXong là mình tự báo về đây, không cần hỏi lại.")
+        dong.append("\nWhen it finishes I will report back here on my own, no need to ask again.")
     return "\n".join(dong)
 
 
@@ -12091,18 +12091,18 @@ async def _khi_tien_trinh_xong(v: dict) -> None:
     root = str(v.get("brain_root") or "")
     trang = str(v.get("trang_thai") or "xong")
     tl = tien_trinh_nen.thoi_luong(float(v.get("ket_thuc") or time.time()) - float(v.get("bat_dau") or time.time()))
-    mo_ta = str(v.get("mo_ta") or "tiến trình nền")
+    mo_ta = str(v.get("mo_ta") or "background process")
     files = [_link_file_trong_brain(root, f) for f in (v.get("file_moi") or [])]
     if trang == "huy":
-        dau, st = f"Đã dừng việc chạy nền sau {tl}.", "cancelled"
+        dau, st = f"The background job was stopped after {tl}.", "cancelled"
     elif trang == "bo_theo_doi":
-        dau, st = (f"Việc chạy nền vẫn chưa xong sau {tl}, Javis ngừng theo dõi để khỏi treo mãi. "
-                   "Nó vẫn đang chạy trên máy."), "timeout"
+        dau, st = (f"The background job is still not finished after {tl}; Jarvis 007 stopped tracking it so it does not hang forever. "
+                   "It is still running on the machine."), "timeout"
     else:
-        dau, st = f"Việc chạy nền đã xong sau {tl}.", "done"
+        dau, st = f"The background job finished after {tl}.", "done"
     than = [dau, f"`{mo_ta}`"]
     if files:
-        than.append("File mới trong thư mục làm việc:\n" + "\n".join(f"- {x}" for x in files))
+        than.append("New files in the working folder:\n" + "\n".join(f"- {x}" for x in files))
     sid = owner[len(WEB_CHAT_PREFIX):] if owner.startswith(WEB_CHAT_PREFIX) else ""
     do_sau = int(v.get("do_sau") or 0)
     muon_tiep = st == "done" and bool(v.get("noi_tiep"))
@@ -12110,24 +12110,24 @@ async def _khi_tien_trinh_xong(v: dict) -> None:
     se_tiep = muon_tiep and runner is not None and do_sau < tien_trinh_nen.TRAN_NOI_TIEP
     loi_dan = str(v.get("sau_khi_xong") or "")
     if se_tiep:
-        than.append("Mình làm tiếp phần còn lại ngay bây giờ.")
+        than.append("I am continuing with the rest right now.")
     elif muon_tiep:
-        than.append("Nhắn \"làm tiếp\" để mình làm nốt" + (f": {loi_dan}" if loi_dan else " phần đã hẹn."))
+        than.append("Reply \"continue\" and I will finish up" + (f": {loi_dan}" if loi_dan else " the part I promised."))
     text = "\n\n".join(than)
     try:
-        await _notify_owner(owner, text, kind="answer", label="Việc chạy nền", source="job",
+        await _notify_owner(owner, text, kind="answer", label="Background job", source="job",
                             viec={"kind": "job", "status": st, "title": mo_ta[:120],
                                   "id": str(v.get("id") or "")},
                             brain=root, dedup=f"job:{v.get('id') or ''}:{st}")
     except Exception as e:
-        print(f"[tien trinh nen] báo lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[tien trinh nen] notify failed: {type(e).__name__}: {e}", file=sys.stderr)
     if not se_tiep:
         return
-    nhac = [f"[Việc chạy nền đã xong] {mo_ta} (chạy {tl})."]
+    nhac = [f"[Background job finished] {mo_ta} (ran {tl})."]
     if files:
-        nhac.append("File mới: " + ", ".join(v.get("file_moi") or []))
-    nhac.append("Làm tiếp: " + (loi_dan or "hoàn tất phần việc đã hẹn với người dùng ở lượt trước, "
-                                "tự kiểm tra kết quả rồi gửi kết quả cuối cùng vào khung chat này."))
+        nhac.append("New files: " + ", ".join(v.get("file_moi") or []))
+    nhac.append("Continue: " + (loi_dan or "finish the part you promised the user in the previous turn, "
+                                "check the result yourself, then send the final result into this chat box."))
     # KHÔNG await: lượt nối tiếp có thể phải đợi phiên rảnh tới 10 phút, mà hàm này đang chạy
     # trong vòng theo dõi chung của mọi việc nền. Giữ tham chiếu kẻo bộ dọn rác nuốt task.
     try:
@@ -12135,7 +12135,7 @@ async def _khi_tien_trinh_xong(v: dict) -> None:
         _PUSH_TASKS.add(t)
         t.add_done_callback(_PUSH_TASKS.discard)
     except Exception as e:
-        print(f"[tien trinh nen] lượt nối tiếp lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[tien trinh nen] follow-up turn failed: {type(e).__name__}: {e}", file=sys.stderr)
 
 
 tien_trinh_nen.dat_khi_xong(_khi_tien_trinh_xong)
@@ -12147,7 +12147,7 @@ async def _khoi_dong_tien_trinh_nen():
     try:
         tien_trinh_nen.khoi_dong()
     except Exception as e:
-        print(f"[tien trinh nen] khởi động lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[tien trinh nen] startup failed: {type(e).__name__}: {e}", file=sys.stderr)
 
 
 async def _canh_bao_hua_suong(brain: str, chat_id: str, final_text: str,
@@ -12401,9 +12401,9 @@ def _cau_link_khong_thay(thieu: list) -> str:
     """Dòng sự thật khi câu trả lời dẫn link tới file không có trong brain. Không đổ lỗi, không
     đoán nguyên nhân; chỉ nói mình không thấy và chỉ chỗ tự kiểm."""
     ds = ", ".join(f"`{x}`" for x in thieu[:5])
-    return ("⚠ Câu trả lời có dẫn link tới file mà mình không tìm thấy trong brain: " + ds +
-            ". Có thể file được ghi ở chỗ khác hoặc chưa được ghi thật. Kiểm tra ở trang Tệp tin "
-            "trước khi tin vào link đó.")
+    return ("⚠ The answer links to files I could not find in the brain: " + ds +
+            ". The file may have been written elsewhere or not written at all. Check on the Files page "
+            "before trusting that link.")
 
 
 @app.get("/lint")
@@ -12418,10 +12418,10 @@ async def lint(brain: str = Query("brain")):
     if not cli.is_available():
         return {"ok": False, "error": claude_cli.cau_thieu_cli("claude", "Claude")}
     prompt = (
-        "LINT - quét folder Wiki của vault, tìm 8 loại vấn đề: mâu thuẫn, stale claim, orphan page, "
-        "missing page, broken wikilink, trùng lặp, gap (vùng kiến thức mỏng), open-question chưa lấp.\n"
-        "CHỈ liệt kê DANH SÁCH CHECK ngắn gọn theo nhóm (không tự sửa). Mỗi mục 1 dòng. Tiếng Việt. "
-        "Nếu Wiki sạch thì nói rõ."
+        "LINT - scan the vault's Wiki folder for 8 kinds of problems: contradictions, stale claims, orphan pages, "
+        "missing pages, broken wikilinks, duplicates, gaps (thin areas of knowledge), unfilled open questions.\n"
+        "ONLY list a short CHECK LIST grouped by category (do not fix anything). One line per item. In Vietnamese. "
+        "If the Wiki is clean, say so."
     )
     final = ""
     async for ev in cli.query(prompt):
@@ -12507,12 +12507,12 @@ def _render_javis_index(caps: dict) -> str:
     n_on_wf = sum(1 for w in caps["workflows"] if w["status"] == "active")
     plugins = caps.get("plugins", [])
     n_on_plugins = sum(1 for p in plugins if p.get("loaded"))
-    L = ["# Javis Index (tầng vận hành)", "",
-         "> Tự sinh từ file - ĐỪNG sửa tay. Chỉ mục mọi năng lực của Javis trong brain này để bất kỳ "
-         "AI/engine đọc 1 chỗ là hiểu Javis làm được gì. Song song `wiki/index.md` (tri thức).", "",
-         f"**Tổng quan:** {len(caps['agents'])} agents · {len(caps['skills'])} skills · "
-         f"{len(caps['workflows'])} workflows ({n_on_wf} bật) · {len(caps['loops'])} loops ({n_on_loops} bật) · "
-         f"{len(plugins)} plugins ({n_on_plugins} chạy)", ""]
+    L = ["# Javis Index (operations layer)", "",
+         "> Auto-generated from files - do NOT edit by hand. An index of every Jarvis 007 capability in this brain so that any "
+         "AI/engine can read one place and understand what Jarvis 007 can do. Parallel to `wiki/index.md` (knowledge).", "",
+         f"**Overview:** {len(caps['agents'])} agents · {len(caps['skills'])} skills · "
+         f"{len(caps['workflows'])} workflows ({n_on_wf} on) · {len(caps['loops'])} loops ({n_on_loops} on) · "
+         f"{len(plugins)} plugins ({n_on_plugins} running)", ""]
     # Cả ba loại năng lực xếp theo NHÓM (field `group`). Brain dùng lâu có vài chục agent và
     # workflow; một danh sách phẳng dài dằng dặc thì chính AI đọc chỉ mục này cũng khó dò ra
     # cái cần, và người đọc lại càng khó. Chỉ hiện tiêu đề nhóm khi thực sự có nhiều hơn một
@@ -12542,44 +12542,44 @@ def _render_javis_index(caps: dict) -> str:
             tg = f" · tags: {', '.join(a.get('tags') or [])}" if a.get("tags") else ""
             L.append(f"- **{a['name']}** (`{a['slug']}`) - {a['role']}{mdl}{sk}{tg}")
     else:
-        L.append("_(chưa có)_")
+        L.append("_(none yet)_")
     L.append("\n## Skills")
     if caps["skills"]:
         by_group = _theo_nhom(caps["skills"])
         for g in sorted(by_group):
             L.append(f"### {g}")
             for s in by_group[g]:
-                off = "" if s["enabled"] else " · [TẮT]"
+                off = "" if s["enabled"] else " · [OFF]"
                 L.append(f"- **{s['name']}** (`{s['slug']}`){off} - {s['description']}")
     else:
-        L.append("_(chưa có)_")
+        L.append("_(none yet)_")
     L.append("\n## Workflows")
     if caps["workflows"]:
         def _dong_wf(w):
-            return (f"- **{w['name']}** (`{w['slug']}`) - {w['status']} · {w['n_steps']} bước "
+            return (f"- **{w['name']}** (`{w['slug']}`) - {w['status']} · {w['n_steps']} steps "
                     f"[{' -> '.join(x for x in w['agents'] if x)}]"
                     + (f" · {w['description']}" if w["description"] else ""))
         _do_nhom(caps["workflows"], _dong_wf)
     else:
-        L.append("_(chưa có)_")
+        L.append("_(none yet)_")
     L.append("\n## Loops")
     if caps["loops"]:
         for l in caps["loops"]:
-            stt = "⚠ tự tạm dừng" if l["paused"] else ("bật" if l["enabled"] else "tắt")
-            L.append(f"- **{l['name']}** (`{l['slug']}`) - {stt} · {l['goal']}/{l['mode']} · mỗi {l['interval_min']} phút")
+            stt = "⚠ auto-paused" if l["paused"] else ("on" if l["enabled"] else "off")
+            L.append(f"- **{l['name']}** (`{l['slug']}`) - {stt} · {l['goal']}/{l['mode']} · every {l['interval_min']} min")
     else:
-        L.append("_(chưa có)_")
+        L.append("_(none yet)_")
     if plugins:
-        L.append("\n## Plugins (tool/hook native cho mọi engine)")
+        L.append("\n## Plugins (native tools/hooks for every engine)")
         for p in plugins:
             if p.get("loaded"):
-                stt = "chạy"
+                stt = "running"
             elif p.get("gated"):
-                stt = "⚠ tắt bằng env JAVIS_ENABLE_USER_PLUGINS=false"
+                stt = "⚠ turned off by env JAVIS_ENABLE_USER_PLUGINS=false"
             elif p.get("error"):
-                stt = "⚠ lỗi"
+                stt = "⚠ error"
             else:
-                stt = "tắt"
+                stt = "off"
             extra = []
             if p.get("tools"):
                 extra.append("tools: " + ", ".join(p["tools"]))
@@ -12595,23 +12595,23 @@ def _render_javis_index(caps: dict) -> str:
     orphan = sorted(s for s in agent_slugs if s not in used)
     flags = []
     if missing:
-        flags.append(f"- Workflow trỏ agent KHÔNG tồn tại: {', '.join(missing)}")
+        flags.append(f"- Workflow points to an agent that does NOT exist: {', '.join(missing)}")
     if orphan:
-        flags.append(f"- Agent chưa workflow nào dùng: {', '.join(orphan)}")
+        flags.append(f"- Agent not used by any workflow: {', '.join(orphan)}")
     dis_sk = [s["slug"] for s in caps["skills"] if not s["enabled"]]
     if dis_sk:
-        flags.append(f"- Skill đang tắt: {', '.join(dis_sk)}")
+        flags.append(f"- Skill is off: {', '.join(dis_sk)}")
     paused = [l["slug"] for l in caps["loops"] if l["paused"]]
     if paused:
-        flags.append(f"- Loop tự tạm dừng (cần xem): {', '.join(paused)}")
+        flags.append(f"- Loop auto-paused (needs a look): {', '.join(paused)}")
     p_gated = [p["slug"] for p in plugins if p.get("gated")]
     if p_gated:
-        flags.append(f"- Plugin bật nhưng máy này tắt plugin người dùng (JAVIS_ENABLE_USER_PLUGINS=false): {', '.join(p_gated)}")
+        flags.append(f"- Plugin is on but this machine has user plugins off (JAVIS_ENABLE_USER_PLUGINS=false): {', '.join(p_gated)}")
     p_err = [p["slug"] for p in plugins if p.get("error")]
     if p_err:
-        flags.append(f"- Plugin lỗi nạp: {', '.join(p_err)}")
+        flags.append(f"- Plugin failed to load: {', '.join(p_err)}")
     if flags:
-        L.append("\n## Cờ sức khoẻ")
+        L.append("\n## Health flags")
         L.extend(flags)
     return "\n".join(L) + "\n"
 
@@ -12650,8 +12650,8 @@ def _dong_lan_chay_gan_nhat(brain) -> str:
         luc = datetime.fromtimestamp(float(r["started_at"]), tz=localefmt.now().tzinfo).strftime("%H:%M %d/%m")
     except Exception:
         luc = "?"
-    return (f"Lần chạy quy trình gần nhất: {r['name']} lúc {luc} ({r['nhan']}). "
-            "Chi tiết hay các lần khác: tool javis_workflow (op=runs, op=show).")
+    return (f"Most recent workflow run: {r['name']} at {luc} ({r['nhan']}). "
+            "For details or other runs: tool javis_workflow (op=runs, op=show).")
 
 
 def _javis_capability_summary(brain: str, skills=None) -> str:
@@ -12669,20 +12669,20 @@ def _javis_capability_summary(brain: str, skills=None) -> str:
         parts.append("Agents: " + ", ".join(a["name"] for a in c["agents"][:30]))
     if c["skills"]:
         groups = sorted({s["group"] for s in c["skills"] if s["enabled"]})
-        parts.append(f"Skills: {sum(1 for s in c['skills'] if s['enabled'])} kỹ năng (nhóm: {', '.join(groups[:12])})")
+        parts.append(f"Skills: {sum(1 for s in c['skills'] if s['enabled'])} enabled (groups: {', '.join(groups[:12])})")
     if c["workflows"]:
         parts.append("Workflows: " + ", ".join(w["name"] for w in c["workflows"][:20] if w["status"] == "active"))
     _lc = _dong_lan_chay_gan_nhat(brain)
     if _lc:
         parts.append(_lc)
     if c["loops"]:
-        parts.append("Loops: " + ", ".join(f"{l['name']}({'bật' if l['enabled'] else 'tắt'})" for l in c["loops"][:20]))
+        parts.append("Loops: " + ", ".join(f"{l['name']}({'on' if l['enabled'] else 'off'})" for l in c["loops"][:20]))
     live_plugins = [p for p in c.get("plugins", []) if p.get("loaded")]
     if live_plugins:
         tool_names = [t for p in live_plugins for t in p.get("tools", [])]
-        parts.append("Plugins đang chạy: " + ", ".join(p["name"] for p in live_plugins[:12])
-                     + (f" (tool: {', '.join(tool_names[:12])})" if tool_names else ""))
-    parts.append("Trước khi tạo năng lực mới, kiểm chỉ mục này để khỏi trùng.")
+        parts.append("Plugins running: " + ", ".join(p["name"] for p in live_plugins[:12])
+                     + (f" (tools: {', '.join(tool_names[:12])})" if tool_names else ""))
+    parts.append("Before creating a new capability, check this index to avoid duplicates.")
     return "\n".join(parts)
 
 
@@ -12711,14 +12711,14 @@ def _skill_router_block(brain: str, root: str, skills=None) -> str:
         # Nói rõ CÁCH LẤY chứ không chỉ nói còn bao nhiêu: `javis_use_skill` nạp được theo
         # slug kể cả skill không nằm trong danh sách trên, nên một skill bị cắt vẫn dùng được
         # nếu model biết tên. Câu cũ chỉ trỏ sang một file mà model không đọc.
-        lines.append(f"…(+{con_lai} skill nữa chưa liệt kê ở đây - xem đủ danh sách trong "
-                     f"`Javis/index.md`, và nạp thẳng bằng `javis_use_skill(name=<slug>)` "
-                     f"nếu đã biết tên)")
+        lines.append(f"…(+{con_lai} more skills not listed here - see the full list in "
+                     f"`Javis/index.md`, and load one directly with `javis_use_skill(name=<slug>)` "
+                     f"if you already know its name)")
     lines.append(
-        "CÁCH DÙNG: khi yêu cầu của user KHỚP mô tả 1 skill ở trên, hãy NẠP skill đó rồi LÀM THEO - "
-        "gọi tool `javis_use_skill(name=<slug>)` nếu engine có tool này; nếu không, mở file "
-        f"`{sk_dir}/<slug>/SKILL.md` bằng công cụ đọc file rồi tuân theo hướng dẫn trong đó. "
-        "Chỉ nạp khi thực sự khớp, không nạp tràn lan."
+        "HOW TO USE: when the user's request MATCHES the description of a skill above, LOAD that skill and FOLLOW it - "
+        "call the tool `javis_use_skill(name=<slug>)` if the engine has it; otherwise, open the file "
+        f"`{sk_dir}/<slug>/SKILL.md` with the file-reading tool and follow the instructions in it. "
+        "Only load it when it truly matches, do not load indiscriminately."
     )
     return "\n".join(lines)
 
@@ -12857,10 +12857,10 @@ async def _start_scheduler():
     try:
         _env_admin = cfgmod.provision_admin_from_env()
         if _env_admin == "created":
-            print("[auth] Đã tạo tài khoản admin từ JAVIS_ADMIN_PASSWORD (env).", file=_sys.stderr)
+            print("[auth] Created the admin account from JAVIS_ADMIN_PASSWORD (env).", file=_sys.stderr)
         elif _env_admin == "reset":
-            print("[auth] JAVIS_ADMIN_PASSWORD/JAVIS_ADMIN_USER đổi so với lần trước: đã đặt lại "
-                  "tài khoản admin theo env (giữ 2FA, huỷ các phiên cũ).", file=_sys.stderr)
+            print("[auth] JAVIS_ADMIN_PASSWORD/JAVIS_ADMIN_USER changed since last time: reset the "
+                  "admin account from env (kept 2FA, revoked old sessions).", file=_sys.stderr)
         # Mã thiết lập đã bỏ (0.64.47): dọn file .setup_token còn sót từ bản cũ, để không còn
         # một "chìa khoá" nằm trong thư mục state mà không ai dùng tới.
         cfgmod.clear_setup_token()
@@ -12972,14 +12972,14 @@ async def _start_scheduler():
                                 kq = await asyncio.to_thread(media_gc.sweep, _mb, tuoi, tran,
                                                              None, not _giu_anh, _giu_file)
                                 if kq.get("files"):
-                                    print(f"[media gc] {_mb}: dọn {kq['files']} tệp, "
+                                    print(f"[media gc] {_mb}: cleaned {kq['files']} files, "
                                           f"{kq['bytes'] // (1024 * 1024)}MB")
                             # Staging KHÔNG theo brain: nó là một thư mục dùng chung trong
                             # STATE_DIR, nên quét đúng một lần ngoài vòng lặp brain.
                             kqs = await asyncio.to_thread(media_gc.sweep_staging, str(STAGING),
                                                           int(mcfg.get("staging_days", 3)))
                             if kqs.get("files"):
-                                print(f"[media gc] staging: dọn {kqs['files']} tệp, "
+                                print(f"[media gc] staging: cleaned {kqs['files']} files, "
                                       f"{kqs['bytes'] // (1024 * 1024)}MB")
                 except Exception as me:
                     print(f"[media gc] {type(me).__name__}: {me}", file=__import__('sys').stderr)
@@ -12989,7 +12989,7 @@ async def _start_scheduler():
                 try:
                     n_rac = await asyncio.to_thread(purge.gc_trash)
                     if n_rac:
-                        print(f"[purge gc] dọn {n_rac} thư mục quá {purge.TRASH_DAYS} ngày")
+                        print(f"[purge gc] cleaned {n_rac} folders older than {purge.TRASH_DAYS} days")
                 except Exception as pe:
                     print(f"[purge gc] {type(pe).__name__}: {pe}", file=__import__('sys').stderr)
             except Exception as e:
@@ -13000,7 +13000,7 @@ async def _start_scheduler():
         # trình cài, nên không có lượt quét này thì dải đó chỉ có tác dụng ở lần cài đầu.
         import pack_install
         for x in pack_install.quet_tuong_thich():
-            print(f"[packs] đã tắt gói '{x['id']}': {x['reason']}")
+            print(f"[packs] turned off pack '{x['id']}': {x['reason']}")
     except Exception as e:
         print(f"[packs compat] {type(e).__name__}: {e}", file=__import__('sys').stderr)
     try:
@@ -13029,7 +13029,7 @@ async def _start_scheduler():
             return (ds[0].get("brain") or "") if ds else ""
         n = channel_accounts.dien_brain_con_thieu(_brain_cua_tk)
         if n:
-            print(f"[channel_accounts] điền brain cho {n} tài khoản cũ")
+            print(f"[channel_accounts] filled in the brain for {n} old accounts")
     except Exception as e:
         print(f"[channel_accounts brain] {type(e).__name__}: {e}", file=__import__('sys').stderr)
     try:
@@ -13038,7 +13038,7 @@ async def _start_scheduler():
         def _cat_nhom_cu_nen():
             kq = conversations.cat_nhom_cu()
             if kq.get("da_xoa") or kq.get("loi"):
-                print("[conversations] cắt nhóm cũ: " + json.dumps(kq, ensure_ascii=False))
+                print("[conversations] trimmed old groups: " + json.dumps(kq, ensure_ascii=False))
         import threading as _threading      # main.py không import threading ở đầu file
         _threading.Thread(target=_cat_nhom_cu_nen, daemon=True, name="cat-nhom-cu").start()
     except Exception as e:
@@ -13058,7 +13058,7 @@ async def _start_scheduler():
                                          write_feedback=_reply_policy_write_feedback, get_bot=chatbot_store.get_bot)
         kq = chatbot_runtime.sync_all()
         if kq.get("errors"):
-            print(f"[chatbot] bật lỗi: {kq['errors']}", file=__import__('sys').stderr)
+            print(f"[chatbot] start errors: {kq['errors']}", file=__import__('sys').stderr)
     except Exception as e:
         print(f"[chatbot start] {type(e).__name__}: {e}", file=__import__('sys').stderr)
     try:

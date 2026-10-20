@@ -117,7 +117,7 @@ def _ket_noi() -> List[dict]:
         return [c for c in mcp_store.resolved(enabled_only=True)
                 if c.get("connector_id") == CONNECTOR_ID]
     except Exception as e:
-        print(f"[zalo-personal] đọc kết nối lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[zalo-personal] failed to read connections: {type(e).__name__}: {e}", file=sys.stderr)
         return []
 
 
@@ -351,8 +351,8 @@ def chuan_hoa_tin(conn: dict, msg: dict, ten: Dict[str, dict]) -> Optional[dict]
     text = str(text or "")
     if loai != "text" and not text.strip():
         # The account's own photo (isSelf, from the owner's phone) is not "the customer sent".
-        text = (f"[{conversations.KENH_NHAN[KENH]}: gửi {loai}]" if _la_cua_minh(msg)
-                else f"[{conversations.KENH_NHAN[KENH]}: khách gửi {loai}]")
+        text = (f"[{conversations.KENH_NHAN[KENH]}: sent {loai}]" if _la_cua_minh(msg)
+                else f"[{conversations.KENH_NHAN[KENH]}: customer sent {loai}]")
     vao_nhom = _su_kien_vao_nhom(msg) if nhom else None
     if vao_nhom is not None:
         ten_moi = sender_name or sender_id
@@ -698,7 +698,7 @@ def mo_ta_loi(raw: str, cap: int = 300) -> str:
 
 
 async def _vong() -> None:
-    print("[zalo-personal] vòng đọc bắt đầu", file=sys.stderr)
+    print("[zalo-personal] read loop started", file=sys.stderr)
     while not _stop:
         try:
             cfg = _cau_hinh()
@@ -731,12 +731,12 @@ async def _vong() -> None:
         except asyncio.CancelledError:
             raise
         except Exception as e:
-            print(f"[zalo-personal vòng] {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"[zalo-personal loop] {type(e).__name__}: {e}", file=sys.stderr)
         try:
             await asyncio.sleep(_nhip_vong())
         except asyncio.CancelledError:
             raise
-    print("[zalo-personal] vòng đọc dừng", file=sys.stderr)
+    print("[zalo-personal] read loop stopped", file=sys.stderr)
 
 
 def _nhan_loi_moi(conn: dict) -> None:
@@ -1340,12 +1340,12 @@ def _ten_kem(e: dict) -> str:
     loai = str(e.get("message_type") or "")
     md = e.get("metadata") or {}
     if loai == "image":
-        return "một ảnh"
+        return "an image"
     if loai == "file":
         # Tên file nằm ở `metadata.attachment` (0.133.0, `zalo_attachments.normalize`).
         ten = str((md.get("attachment") or {}).get("name") or md.get("fileName") or e.get("text") or "").strip()
-        return f"file {ten}" if ten and not ten.startswith("[") else "một file"
-    return {"audio": "một tin thoại", "video": "một video", "sticker": "một sticker"}.get(loai, "một tin không phải chữ")
+        return f"file {ten}" if ten and not ten.startswith("[") else "a file"
+    return {"audio": "a voice message", "video": "a video", "sticker": "a sticker"}.get(loai, "a non-text message")
 
 
 def gop_cho_chu(evs: List[dict], cho: int = 0, tay: float = 0) -> dict:
@@ -1368,11 +1368,11 @@ def gop_cho_chu(evs: List[dict], cho: int = 0, tay: float = 0) -> dict:
     gio = datetime.fromtimestamp(dau, localefmt.tz()).strftime("%H:%M")
     if tay:
         gio_tay = datetime.fromtimestamp(float(tay), localefmt.tz()).strftime("%H:%M")
-        cho_chu = f"chủ nick nhắn tay lần cuối lúc {gio_tay} rồi {phut} phút không nhắn thêm gì nên tới lượt bạn"
+        cho_chu = f"the account owner last typed a message at {gio_tay}, then {phut} minutes passed with nothing more, so it is now your turn"
     else:
-        cho_chu = f"chủ nick chưa trả lời sau {phut} phút nên tới lượt bạn"
-    ghi = (f"[Ghi chú của Javis, không phải lời khách: khách nhắn lúc {gio}, " + cho_chu
-           + (f"; khách gửi kèm {', '.join(kem)}" if kem else "") + ".]")
+        cho_chu = f"the account owner has not replied after {phut} minutes, so it is now your turn"
+    ghi = (f"[Jarvis 007 note, not the customer's words: the customer wrote at {gio}, " + cho_chu
+           + (f"; the customer also sent {', '.join(kem)}" if kem else "") + ".]")
     md = dict(ev.get("metadata") or {})
     md["sau_chu_im"] = True
     return dict(ev, text=(str(ev.get("text") or "").strip() + "\n" + ghi).strip(), metadata=md)
