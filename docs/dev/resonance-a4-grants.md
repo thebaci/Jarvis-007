@@ -1,61 +1,61 @@
-# Resonance A4: nộp sản phẩm qua hợp đồng host, phạm vi do chủ dự án cho phép
+# Resonance A4: submitting a product through the host contract, scope allowed by the project owner
 
-Hướng dẫn cho người sửa mã. Thiết kế chốt: [2026-10-10-resonance-a4-handoff-grants-design.md](../superpowers/specs/2026-10-10-resonance-a4-handoff-grants-design.md) (D1: **không cấp quyền ghi từ lời chat**). Biên bản kiểm: [resonance-a4-verification.md](resonance-a4-verification.md).
+A guide for people editing the code. Settled design: [2026-10-10-resonance-a4-handoff-grants-design.md](../superpowers/specs/2026-10-10-resonance-a4-handoff-grants-design.md) (D1: **no write permission is granted from chat text**). Verification record: [resonance-a4-verification.md](resonance-a4-verification.md).
 
-## Một câu
+## In one sentence
 
-Mọi engine nộp sản phẩm qua cùng một cửa: host xác định lượt, ghim quyền vào lượt, tự đọc và băm bytes, lưu bản nộp có biên nhận, rồi tự đăng vào file đích theo bốn bước có mốc commit tuần tự với thu hồi. Đích chỉ có quyền khi chủ dự án bấm Cho phép trên thẻ (hay đóng băng legacy lúc nâng kho).
+Every engine submits a product through the same gate: the host identifies the turn, pins the permission to the turn, reads and hashes the bytes itself, stores the submission with a receipt, then posts it to the target file itself in four steps with a commit point that is sequenced against revocation. A target only has permission once the project owner clicks Allow on the card (or the legacy permission was frozen when the store was upgraded).
 
-## Mã ở đâu
+## Where the code is
 
-| Phần | File |
+| Part | File |
 |---|---|
-| Luật thuần: khoá đường, `narrow`, `allows`, dấu vân tay, bảng khả năng engine | `server/resonance_grants.py` (mới) |
-| Kho: sáu bảng A4, snapshot `.pre-0.96.0`, đóng băng legacy, phạm vi theo revision, liên kết, bản nộp, bốn bước đăng, Cho phép, Không, Thu hồi, Cấp lại, đăng lại | `server/resonance_store.py` (mục "A4" cuối class) |
-| `host_publish`, đối soát đăng, `_publish_latest` theo bản nộp, `_work_post_core` chèn bản nộp trước đăng, bàn giao cuối lượt, `submit_deliverable`, cổng phạm vi trong `_gate`, lệnh chủ dự án, khối `scope` của thẻ | `server/resonance.py` |
-| Công cụ hub `javis_submit_deliverable`, ghi chú phạm vi và mã `handoff` trong kết quả `javis_goal` | `system/plugins/javis-goal/plugin.py`, `plugin.yaml` |
-| Ảnh chụp thứ tự quyền đầu lượt, provider của lượt | `server/turn_context.py`, `server/main.py` (`_resonance_turn_agent`) |
-| Bàn giao mọi mục tiêu của một tin; đăng ký phụ thuộc cho công cụ trong tiến trình | `server/main.py` (`_resonance_after_turn`, `resonance.set_deps_provider`) |
-| Xem trước bản nháp | `server/resonance_api.py` (`GET /goals/{id}/drafts/{submission_id}`) |
-| Thẻ: dòng quyền, Cho phép / Không / Xem trước / Thu hồi quyền | `dashboard/chat-resonance.js`, `dashboard/resonance-agent.js`, `dashboard/style.css`, `dashboard/i18n/*.json` |
-| Hạ về 0.95.1 | `tools/resonance_restore_pre_a4.py` |
+| Pure rules: the path key, `narrow`, `allows`, the fingerprint, the engine capability table | `server/resonance_grants.py` (new) |
+| Store: six A4 tables, the `.pre-0.96.0` snapshot, freezing legacy, scope per revision, bindings, submissions, the four posting steps, Allow, No, Revoke, re-grant, republish | `server/resonance_store.py` (the "A4" section at the end of the class) |
+| `host_publish`, posting reconciliation, `_publish_latest` by submission, `_work_post_core` inserting the submission before posting, the end-of-turn handoff, `submit_deliverable`, the scope gate in `_gate`, owner commands, the card's `scope` block | `server/resonance.py` |
+| The hub tool `javis_submit_deliverable`, the scope note and the `handoff` code in the `javis_goal` result | `system/plugins/javis-goal/plugin.py`, `plugin.yaml` |
+| The snapshot of permission order at the start of a turn, the turn's provider | `server/turn_context.py`, `server/main.py` (`_resonance_turn_agent`) |
+| Handing over every goal of one message; registering dependencies for the in-process tool | `server/main.py` (`_resonance_after_turn`, `resonance.set_deps_provider`) |
+| Preview of a draft | `server/resonance_api.py` (`GET /goals/{id}/drafts/{submission_id}`) |
+| The card: the permission line, Allow / No / Preview / Revoke permission | `dashboard/chat-resonance.js`, `dashboard/resonance-agent.js`, `dashboard/style.css`, `dashboard/i18n/*.json` |
+| Downgrade to 0.95.1 | `tools/resonance_restore_pre_a4.py` |
 
-## Vòng đời
+## Lifecycle
 
-**Phạm vi.** `grants` có hai tầng: gốc (`kind=root`, một đích, nguồn `owner_approved` hay `legacy_frozen`) và quyền revision (`narrow` của gốc với đích của revision). `scope_state` trả một trong: `none` (mục tiêu chưa gán trợ lý hay không có đường sản phẩm: không cần phạm vi), `granted`, `pending`, `denied`, `revoked`, `missing`. `_gate` gác mọi trạng thái khác `none`/`granted` với `block_reason` `scope_pending`, `scope_denied`, `grant_revoked`, `grant_missing` (gác thật: `run_state=blocked`, không hẹn lịch, không gọi model).
+**Scope.** `grants` has two layers: the root (`kind=root`, one target, source `owner_approved` or `legacy_frozen`) and the revision permission (the `narrow` of the root with the revision's target). `scope_state` returns one of: `none` (the goal is not assigned to an assistant or has no product path: no scope needed), `granted`, `pending`, `denied`, `revoked`, `missing`. `_gate` blocks every state other than `none`/`granted` with `block_reason` `scope_pending`, `scope_denied`, `grant_revoked`, `grant_missing` (a real block: `run_state=blocked`, no schedule set, no model call).
 
-**Revision mới.** Trong chính giao dịch tạo revision (`create`, `revise`, `drop_directive`, `assign_goal`), `_scope_sync`:
-- cùng đích với gốc đang active: cấp quyền revision mới, không hỏi;
-- khác đích, hay chưa có gốc: ghi `scope_requests` (`create`/`expand`), không cấp gì;
-- quyền và yêu cầu của revision cũ thành `superseded`; `_retire_old_revision` đưa bản nộp chưa đăng của revision cũ về `superseded` và đóng liên kết cũ.
+**New revision.** Inside the very transaction that creates a revision (`create`, `revise`, `drop_directive`, `assign_goal`), `_scope_sync`:
+- same target as the active root: grants the new revision's permission, without asking;
+- a different target, or no root yet: writes `scope_requests` (`create`/`expand`), grants nothing;
+- the old revision's permission and requests become `superseded`; `_retire_old_revision` moves the old revision's unposted submissions to `superseded` and closes the old bindings.
 
-**Liên kết.** `bindings` ghim quyền vào một lượt: `handoff` (lượt chat, khoá `message_ref`), `action`, `followup`, `experiment`, `approval`, `republish`. Khoá `UNIQUE(goal_id, revision, origin_kind, origin_ref)`; mở lại cùng khoá trả dòng có sẵn, không bao giờ REPLACE. Trạng thái: `live` (nhận lời nộp), `sealed` (chỉ hoàn tất bản đã nhận), `closed`, `dead` (thu hồi). Hai phép kiểm: `_binding_block(finishing=False)` là `binding_accepts`, `finishing=True` là `binding_may_finish` (chỉ thẩm quyền `grant`).
+**Bindings.** `bindings` pin a permission to one turn: `handoff` (a chat turn, key `message_ref`), `action`, `followup`, `experiment`, `approval`, `republish`. The key is `UNIQUE(goal_id, revision, origin_kind, origin_ref)`; reopening the same key returns the existing row, never REPLACE. States: `live` (accepts a submission), `sealed` (only completes a submission already received), `closed`, `dead` (revoked). Two checks: `_binding_block(finishing=False)` is `binding_accepts`, `finishing=True` is `binding_may_finish` (only the `grant` authority).
 
-**Thứ tự quyền.** `authority_clock.seq` tăng trong mọi giao dịch tạo gốc, thu hồi, chấp thuận, cấp lại. `_resonance_turn_agent` đọc nó trước khi engine chạy và đặt vào `turn.authority_seq`. Liên kết `grant` đầu tiên của một tin cho một mục tiêu chỉ nhận gốc có `seq` không vượt ảnh chụp; mọi liên kết sau của cùng tin phải ghim cùng gốc. Không có ngoại lệ (D1).
+**Permission order.** `authority_clock.seq` increases in every transaction that creates a root, revokes, approves or re-grants. `_resonance_turn_agent` reads it before the engine runs and puts it into `turn.authority_seq`. The first `grant` binding of a message for a goal only accepts a root whose `seq` does not exceed the snapshot; every later binding of the same message must pin the same root. No exceptions (D1).
 
-**Bản nộp.** `submissions`: `awaiting_scope` (nháp dưới liên kết `draft`), `candidate`, `publishing`, `published` (+ `adopted_at`), `adopted_in_place`, `promoted`, `conflict`, `stale`, `superseded`, `rejected`. Nguồn: `submit_tool`, `background_text`, `observed_write`, `approved_draft`, `republish`. Bytes đăng luôn đọc lại từ file nháp, chuẩn hoá gạch dài và phải khớp sha trong sổ.
+**Submissions.** `submissions`: `awaiting_scope` (a draft under a `draft` binding), `candidate`, `publishing`, `published` (+ `adopted_at`), `adopted_in_place`, `promoted`, `conflict`, `stale`, `superseded`, `rejected`. Sources: `submit_tool`, `background_text`, `observed_write`, `approved_draft`, `republish`. The bytes to post are always re-read from the draft file, with long dashes normalized, and must match the sha in the ledger.
 
-**Đăng (`host_publish`).** Guard trên bytes bản nộp, rồi:
-1. `publish_intent` (kiểm liên kết, quyền `publish`, tạm dừng, chốt guard, baseline; nhánh `same` ghi mốc ngay);
-2. ghi file tạm `.<tên>.<action_id>.tmp`;
-3. `publish_commit` (`BEGIN IMMEDIATE`, kiểm lại, đọc lại hash đích trong giao dịch, ghi `commit_at`);
-4. `os.replace`, `publish_finish` (không kiểm lại quyền), rồi `adopt_submission` cho nguồn chat và bản nháp được duyệt.
+**Posting (`host_publish`).** A guard on the submission's bytes, then:
+1. `publish_intent` (checks the binding, the `publish` permission, pause, the guard settlement, the baseline; the `same` branch writes the marker immediately);
+2. write the temp file `.<name>.<action_id>.tmp`;
+3. `publish_commit` (`BEGIN IMMEDIATE`, recheck, re-read the target hash inside the transaction, write `commit_at`);
+4. `os.replace`, `publish_finish` (does not recheck permission), then `adopt_submission` for chat-sourced and approved-draft submissions.
 
-**Đối soát** (`_reconcile`, `_reconcile_publish`): đăng chưa commit thì huỷ, bản nộp về `candidate` hay `stale`; đã commit thì hoàn tất từ bản nháp; bản đã đăng chưa tiếp nhận thì tiếp nhận đúng một lần (khoá sự kiện `adopt:<submission_id>`). Lỗi đọc hay ghi tạm thời sau commit không chốt xung đột: `publish_retry` giữ hành động chạy và hẹn lại có giãn cách. Mốc commit đặt lịch vật lý riêng `settle`, tới hạn cả khi mục tiêu tạm dừng, thu hồi, huỷ hay kết thúc; lần thức `settle` chỉ hoàn tất lần đăng đã chốt.
+**Reconciliation** (`_reconcile`, `_reconcile_publish`): a posting not yet committed is cancelled, the submission goes back to `candidate` or `stale`; one already committed is completed from the draft; a posted submission not yet adopted is adopted exactly once (event key `adopt:<submission_id>`). A temporary read or write error after the commit does not settle a conflict: `publish_retry` keeps the action running and reschedules with spacing. The commit marker sets its own physical schedule `settle`, which comes due even when the goal is paused, revoked, cancelled or finished; the `settle` wake only completes a posting that has been settled.
 
-**Nghĩa vụ hoàn tất** (I13 tới I16): file nháp không đọc được tạm thời thì giữ nghĩa vụ, mất hay sai hash thì loại với lý do riêng (`draft_missing`, `draft_hash_mismatch`); lịch `settle` chỉ bỏ khi không còn lần đăng đã commit dở VÀ không còn bản đã đăng chưa tiếp nhận; trong lúc còn nghĩa vụ, lịch làm việc gác `publish_settling`, không gọi model. Lần thức làm việc xét lại nghĩa vụ cả SAU khi tự đăng: lỗi phát sinh ngay trong nhịp đó cũng gác. File nháp chưa đọc được trước mốc commit thì bản nộp được giữ (`hold_until`), lịch `settle` đọc lại có giãn cách, đọc được thì bỏ giữ để lịch làm việc đăng đúng bản đó.
+**Completion obligation** (I13 to I16): if the draft file is temporarily unreadable the obligation is kept, if it is lost or has a wrong hash it is dropped with its own reason (`draft_missing`, `draft_hash_mismatch`); the `settle` schedule is only dropped when there is no half-finished committed posting AND no posted-but-unadopted submission left; while an obligation remains, the work schedule blocks with `publish_settling`, with no model call. The work wake rechecks the obligation also AFTER posting by itself: an error arising within that same beat blocks too. If the draft file is not yet readable before the commit marker, the submission is held (`hold_until`), the `settle` schedule rereads with spacing, and once readable the hold is dropped so the work schedule posts exactly that version.
 
-**Can thiệp trước mốc commit** (`_publish_held`): tạm dừng, chốt guard, và phản hồi cách hiểu mới nhất là "Chưa đúng ý" đều chặn lần đăng chưa commit, kiểm ngay trong giao dịch ý định và giao dịch mốc commit.
+**Intervening before the commit marker** (`_publish_held`): pause, a guard settlement, and feedback on the latest understanding being "Not quite" (`Chưa đúng ý` in the Vietnamese UI) all block a posting not yet committed, checked right inside the intent transaction and the commit-marker transaction.
 
-**Lệnh chủ dự án** (`POST /goals/{id}/commands`): `approve_scope` (CAS yêu cầu, revision, đường, trợ lý, bản nháp mới nhất đúng sha), `deny_scope`, `revoke_grant`, `resume` (đang thu hồi thì cấp lại gốc mới).
+**Owner commands** (`POST /goals/{id}/commands`): `approve_scope` (CAS on the request, revision, path, assistant, latest draft with the right sha), `deny_scope`, `revoke_grant`, `resume` (when revoking, re-grants a new root).
 
-## Hành vi đổi so với 0.95.1
+## Behavior changes versus 0.95.1
 
-- Mục tiêu mới có đường sản phẩm luôn chờ chủ dự án cho phép, kể cả khi lời giao nêu đích. Write của bộ não trong lượt LẬP mục tiêu không được tiếp nhận (lượt đó chưa có phạm vi lúc bắt đầu); bản nộp qua công cụ được giữ làm nháp và Cho phép đăng nó.
-- Tắt Cộng hưởng của trợ lý không thu hồi phạm vi (I1): bật lại thì làm tiếp dưới gốc cũ. Nhưng tắt rồi bật giữa lượt làm bản nộp của lượt đó `stale`, không đăng lại dưới version mới (trước đây A1 đăng lại đầu ra giữ bằng ý định mới). Lần thức sau làm lại một lượt.
-- `_publish_latest` chỉ đăng bản `candidate`; không còn đăng đầu ra hành động trần. File đích bị xoá thì đăng lại bản đã đăng dưới liên kết `republish` mới (quyền hiện hành).
-- Codex và engine API nhận bàn giao chat qua `javis_submit_deliverable` (`engine_support` có thêm `submit_tool`, `observed_write`).
+- A new goal with a product path always waits for the project owner's Allow, even when the assignment text names the target. A write by the brain in the goal-SETTING turn is not accepted (that turn had no scope at its start); a submission through the tool is kept as a draft and Allow posts it.
+- Turning off an assistant's Resonance does not revoke the scope (I1): turning it back on carries on under the old root. But turning it off and on in the middle of a work turn makes that turn's submission `stale`, not reposted under the new version (previously A1 reposted held output using the new intent). The next wake redoes one turn.
+- `_publish_latest` only posts a `candidate` submission; it no longer posts the bare output of an action. If the target file was deleted, it reposts the already posted submission under a new `republish` binding (current permission).
+- Codex and the API engines receive the chat handoff through `javis_submit_deliverable` (`engine_support` gains `submit_tool`, `observed_write`).
 
-## Hạ phiên bản
+## Downgrading
 
-Lần đầu mã A4 mở một kho có từ trước, `_backup_before("grants", ".pre-0.96.0")` chép kho bằng SQLite backup API, rồi một giao dịch tạo bảng và đóng băng legacy. Hạ về 0.95.1 chỉ hỗ trợ bằng `tools/resonance_restore_pre_a4.py --yes` khi Jarvis 007 đã tắt: chép kho hiện tại sang `resonance.sqlite3.post-0.96.0-<thời điểm>`, rồi ghi snapshot vào. Chạy 0.95.1 trên kho A4 mà không khôi phục là không hỗ trợ (mã cũ gỡ tạm dừng của mục tiêu đã thu hồi; test G48 ghi nhận đúng giới hạn này).
+The first time the A4 code opens a pre-existing store, `_backup_before("grants", ".pre-0.96.0")` copies the store with the SQLite backup API, and then one transaction creates the tables and freezes legacy. Downgrading to 0.95.1 is only supported with `tools/resonance_restore_pre_a4.py --yes` while Jarvis 007 is off: it copies the current store to `resonance.sqlite3.post-0.96.0-<timestamp>`, then writes the snapshot in. Running 0.95.1 on an A4 store without restoring is not supported (the old code lifts the pause of a revoked goal; test G48 records exactly this limit).

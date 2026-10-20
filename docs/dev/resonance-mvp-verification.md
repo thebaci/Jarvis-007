@@ -1,165 +1,165 @@
-# Kiểm chứng Jarvis 007 Resonance MVP
+# Jarvis 007 Resonance MVP verification
 
-Báo cáo này ghi những gì đã chạy thật cho từng mốc của [kế hoạch MVP](../superpowers/plans/2026-10-06-resonance-00-mvp.md). Mỗi mục tách rõ phần chạy với engine giả và phần chạy với engine thật. Điều gì chưa kiểm được thì ghi là chưa kiểm.
+This report records what was actually run for each milestone of the [MVP plan](../superpowers/plans/2026-10-06-resonance-00-mvp.md). Each section separates the runs with a fake engine from the runs with a real engine. Anything that could not be verified is marked as not verified.
 
-## M1: đường chạy engine và receipt do host quan sát (06/10/2026)
+## M1: engine run path and host-observed receipt (2026-10-06)
 
-### Nền mã và môi trường
+### Code base and environment
 
-| Mục | Giá trị |
+| Item | Value |
 |---|---|
-| Commit nền | `origin/main` = `7d264236b61e10077dc7833c1b063076023ea7bb` (0.83.2), fetch ngày 06/10/2026 |
-| Nhánh, PR | `claude/resonance-mvp-m1`, PR #566 (nháp), phiên bản xí chỗ 0.84.0 |
-| Commit pilot cuối | `ba404185a0ef066b3a6d2922a5ebe5c38235a131` (sạch, không có thay đổi chưa commit trong `server/`) |
-| Head khi viết báo cáo | `5162dfab`: commit sau pilot chỉ sửa thư mục tạm của engine giả trong test, không đổi đường chạy pilot |
-| Máy | Windows 11 Pro 10.0.26200 |
-| Python | 3.12.10, `.venv` của checkout gốc `D:\Project\Javis-OS` |
-| Claude Code CLI | `~/.local/bin/claude`, đăng nhập bằng gói thuê bao |
-| Engine việc nền đang chọn | `anthropic-cli`, model `sonnet` |
-| Bộ não chính | `anthropic-cli`, model `claude-opus-5-5` |
-| Key OpenRouter | có trong cài đặt thật (không chép sang pilot, xem Giới hạn) |
+| Base commit | `origin/main` = `7d264236b61e10077dc7833c1b063076023ea7bb` (0.83.2), fetched on 2026-10-06 |
+| Branch, PR | `claude/resonance-mvp-m1`, PR #566 (draft), placeholder version 0.84.0 |
+| Final pilot commit | `ba404185a0ef066b3a6d2922a5ebe5c38235a131` (clean, no uncommitted changes in `server/`) |
+| Head when writing this report | `5162dfab`: the commit after the pilot only fixed the fake engine's temp directory in tests, and did not change the pilot run path |
+| Machine | Windows 11 Pro 10.0.26200 |
+| Python | 3.12.10, the `.venv` of the root checkout `D:\Project\Javis-OS` |
+| Claude Code CLI | `~/.local/bin/claude`, signed in with a subscription plan |
+| Background engine currently selected | `anthropic-cli`, model `sonnet` |
+| Main brain | `anthropic-cli`, model `claude-opus-5-5` |
+| OpenRouter key | present in the real settings (not copied into the pilot, see Limits) |
 
-Checkout gốc `D:\Project\Javis-OS` đang ở nhánh cũ `codex/restore-chat-colors`, chậm hơn main 121 commit. Toàn bộ khảo sát dưới đây đọc mã trên nhánh M1, tức là main 0.83.2.
+The root checkout `D:\Project\Javis-OS` is on the old branch `codex/restore-chat-colors`, 121 commits behind main. All the investigation below read the code on the M1 branch, which is main 0.83.2.
 
-### Các điểm tích hợp đã dò trên mã thật
+### Integration points probed on the real code
 
-| Điểm | Mã thật làm gì | Dùng cho M1? |
+| Point | What the real code does | Used for M1? |
 |---|---|---|
-| `aux_engine.swap` | Mức dưới full dựng `_FallbackChain`: engine đã chọn, Claude, bộ não chính, OpenRouter free. Mức full không có chuỗi, nhưng Codex chạy toàn quyền | Dùng ở mức suggest, rồi chỉ giữ mắt đầu |
-| `aux_engine.strip_tools` | Lột hub và MCP của engine API, Codex, Grok; bỏ Antigravity và loại lạ, lùi về engine Claude gốc. **Không** gỡ công cụ native của Codex và Grok | Dùng, kèm bộ chọn chặt (xem dưới) |
-| `main._reply_policy_sandbox_engine` | Claude trong thư mục trống, `allowed_tools` cố ý không khớp công cụ nào, MCP trống, cấm thêm công cụ native | Dùng, thêm tham số `cwd_name` để có thư mục trống riêng `resonance_cwd` |
-| `claude_sdk_engine.map_message` | `ResultMessage` lỗi mà vẫn có chữ được chuyển thành `final` thường, mất cờ lỗi | Sửa: `final` mang thêm `is_error`, `subtype` (chỉ thêm khoá) |
-| `main._workflow_agent_helpers`, `main._run_workflow_step` | Agent chạy với `cwd` là brain và có công cụ, dành cho workflow | Không dùng: cấp quyền rộng hơn một lượt chỉ chữ cần |
-| `agent_runtime.AgentRunner` | Chỉ nhận khi `agent_canary` bật và slug nằm trong danh sách | Không phải đường live: trong cài đặt thật `allocation_basis_points = 0`, `allowed_slugs = []`. Không bật |
-| `workflow_runtime.WorkflowCanary` | Tương tự | Không phải đường live: `allocation_basis_points = 0`. Không bật |
-| `evidence_store.EvidenceStore.put` | Cần `TurnTrace` của `context_runtime`, mã hoá artifact | Chưa nối ở M1, thuộc M3 |
-| `self_improve`, `mcp_hub` | Loop dựng Claude rồi swap; hub công cụ | Không sửa |
+| `aux_engine.swap` | Below full level it builds a `_FallbackChain`: the selected engine, Claude, the main brain, OpenRouter free. Full level has no chain, but Codex runs with full permissions | Used at suggest level, then keeping only the first link |
+| `aux_engine.strip_tools` | Strips the hub and MCP from API engines, Codex and Grok; drops Antigravity and unknown kinds, falling back to the original Claude engine. Does **not** remove the native tools of Codex and Grok | Used, together with a strict selector (see below) |
+| `main._reply_policy_sandbox_engine` | Claude in an empty directory, `allowed_tools` deliberately matching no tool, empty MCP, extra native tools forbidden | Used, with an added `cwd_name` parameter to get a dedicated empty directory `resonance_cwd` |
+| `claude_sdk_engine.map_message` | An error `ResultMessage` that still has text is turned into a normal `final`, losing the error flag | Fixed: `final` now also carries `is_error` and `subtype` (keys only added) |
+| `main._workflow_agent_helpers`, `main._run_workflow_step` | The agent runs with `cwd` set to the brain and has tools, meant for workflows | Not used: grants wider permissions than a text-only turn needs |
+| `agent_runtime.AgentRunner` | Only accepts when `agent_canary` is on and the slug is in the list | Not a live path: in the real settings `allocation_basis_points = 0` and `allowed_slugs = []`. Not enabled |
+| `workflow_runtime.WorkflowCanary` | Same | Not a live path: `allocation_basis_points = 0`. Not enabled |
+| `evidence_store.EvidenceStore.put` | Needs a `TurnTrace` from `context_runtime`, encrypts the artifact | Not wired up in M1, belongs to M3 |
+| `self_improve`, `mcp_hub` | The loop builds Claude and then swaps; the tool hub | Not modified |
 
-### Đường đã chốt
+### Chosen path
 
 - `resonance.GoalDeps.run_once(goal, prompt, action_id) -> ActionReceipt`.
-- Engine do `main._resonance_engine` dựng: engine Claude trong thư mục trống, swap theo engine việc nền ở mức `suggest`, `strip_tools`, rồi `resonance.pick_text_only_link`.
-- Bộ chọn chỉ nhận mắt đầu khi đủ cả hai điều kiện: đúng provider người dùng đã chọn, và có cơ chế chỉ chữ đã kiểm. M1 có hai cơ chế: Claude với cổng `can_use_tool` (`allowed_tools` có giá trị không khớp công cụ nào), và engine API với `no_tools`. Codex và Grok còn công cụ native nên bị chặn trước khi gọi. `text_only` chỉ là `true` khi được nhận.
-- Model chỉ sinh chữ. Host ghi đầu ra vào `output_root` của mục tiêu, tên file là `action_id`, rồi đọc lại byte vừa ghi để tính SHA-256.
-- Receipt ghi: trạng thái, engine thật sự chạy, đường dẫn và hash đầu ra, usage, số lần gọi công cụ, mã lỗi. Trường usage nào engine không báo thì để vắng; không có số liệu nào thì `usage` là `None`.
-- `final` mang `is_error` thì lượt đó thất bại (`engine_result_error`), giữ usage, không ghi file.
-- Đầu ra vượt 200.000 ký tự thì thất bại (`output_too_large`), không cắt âm thầm.
-- Hạn mức: giữ một chỗ trước khi gọi. Dừng trước lúc gọi model thì trả chỗ lại.
-- Chạy lại cùng `action_id` bị từ chối với `action_exists` và không gọi model.
-- Chưa có nơi nào ngoài test gọi `_resonance_engine`. Resonance vẫn tắt với người dùng.
+- The engine is built by `main._resonance_engine`: a Claude engine in an empty directory, swapped according to the background engine at `suggest` level, then `strip_tools`, then `resonance.pick_text_only_link`.
+- The selector only accepts the first link when both conditions hold: it is the provider the user selected, and it has a verified text-only mechanism. M1 has two mechanisms: Claude with the `can_use_tool` gate (`allowed_tools` has a value that matches no tool), and API engines with `no_tools`. Codex and Grok still have native tools, so they are blocked before any call. `text_only` is `true` only when the link is accepted.
+- The model only produces text. The host writes the output into the goal's `output_root`, with the file named after `action_id`, then reads back the bytes it just wrote to compute the SHA-256.
+- The receipt records: status, the engine that actually ran, output path and hash, usage, number of tool calls, error code. Any usage field the engine does not report is left absent; with no figures at all, `usage` is `None`.
+- A `final` carrying `is_error` means the turn failed (`engine_result_error`), usage is kept, and no file is written.
+- Output over 200,000 characters fails (`output_too_large`), with no silent truncation.
+- Quota: a slot is reserved before the call. If the run stops before the model is called, the slot is returned.
+- Re-running the same `action_id` is rejected with `action_exists` and the model is not called.
+- Nothing outside tests calls `_resonance_engine` yet. Resonance is still off for users.
 
-### Sửa theo review PR #566
+### Fixes from the PR #566 review
 
-| Mục | Lỗi | Sửa | Test chứng minh |
+| Item | Bug | Fix | Test that proves it |
 |---|---|---|---|
-| P1-1 | `ResultMessage(is_error=True)` có chữ đi qua `map_message` thành `final` thường, receipt ghi `succeeded` | `map_message` thêm `is_error`, `subtype` vào `final`; `run_once` coi đó là `engine_result_error` | `ResultMessage` thật của SDK qua `map_message` thật: lượt lỗi `failed`, không file, giữ usage, tính 1 lượt; lượt `success` vẫn `succeeded` |
-| P1-2 | Bộ chọn nhận Codex, Grok và khai `text_only=true` dù chúng còn công cụ native; với `JAVIS_CODEX_SANDBOX=off` Codex còn bỏ cả sandbox | Chỉ nhận Claude có `allowed_tools` hoặc engine API có `no_tools`; còn lại chặn trước khi gọi | Codex dựng bằng `aux_engine.swap` và `_build_codex` thật (cả `auto` và `off`, xác nhận `sandbox is None` ở `off`), Grok bằng `_build_grok` thật: đều bị chặn, `text_only=false`, `run_once` không tốn lượt. Claude thiếu `allowed_tools` cũng bị chặn |
-| P2-1 | Usage của Grok (`input_tokens`/`output_tokens`) ra 0; `final` chỉ có `cost_usd` bị bịa token bằng 0 | Chuẩn hoá tên khoá theo engine; trường thiếu để vắng | `GrokCLI._usage` thật cho 9028/54; `final` chỉ có cost cho đúng `{"cost_usd": 0.02}`; `final` trống số liệu cho `None` |
-| P2-2 | Đầu ra quá 200.000 ký tự bị cắt âm thầm mà vẫn `succeeded` | Trả `output_too_large`, không ghi file | 200.000 ký tự cộng `IMPORTANT_TAIL`: `failed`, không file, giữ usage |
-| Báo cáo | Pilot chỉ ghi hash "khớp", test pilot chưa tự tính lại hash | Nhánh pilot tự tính SHA-256 trên byte đọc từ đĩa và kiểm cấu trúc đầu ra; xuất bằng chứng có prompt, đầu ra, hash, commit, bỏ đường dẫn cá nhân | [`resonance-mvp-m1-pilot.json`](resonance-mvp-m1-pilot.json) |
+| P1-1 | A `ResultMessage(is_error=True)` with text went through `map_message` as a normal `final`, and the receipt recorded `succeeded` | `map_message` adds `is_error` and `subtype` to `final`; `run_once` treats that as `engine_result_error` | The SDK's real `ResultMessage` through the real `map_message`: the error turn is `failed`, no file, usage kept, counted as 1 turn; a `success` turn is still `succeeded` |
+| P1-2 | The selector accepted Codex and Grok and declared `text_only=true` even though they still have native tools; with `JAVIS_CODEX_SANDBOX=off` Codex even dropped the sandbox | Only accept Claude with `allowed_tools` or an API engine with `no_tools`; block everything else before the call | Codex built with the real `aux_engine.swap` and `_build_codex` (both `auto` and `off`, confirming `sandbox is None` at `off`), Grok with the real `_build_grok`: all blocked, `text_only=false`, `run_once` costs no turn. Claude without `allowed_tools` is also blocked |
+| P2-1 | Grok usage (`input_tokens`/`output_tokens`) came out as 0; a `final` with only `cost_usd` got fabricated tokens of 0 | Normalize key names per engine; missing fields stay absent | The real `GrokCLI._usage` gives 9028/54; a `final` with only cost gives exactly `{"cost_usd": 0.02}`; an empty `final` gives `None` |
+| P2-2 | Output over 200,000 characters was silently truncated and still `succeeded` | Return `output_too_large`, write no file | 200,000 characters plus `IMPORTANT_TAIL`: `failed`, no file, usage kept |
+| Report | The pilot only recorded that the hash "matches", and the pilot test did not recompute the hash itself | The pilot branch computes SHA-256 itself over the bytes read from disk and checks the output structure; it exports evidence with the prompt, output, hash, commit, and with personal paths removed | [`resonance-mvp-m1-pilot.json`](resonance-mvp-m1-pilot.json) |
 
-Trong lúc sửa, test Grok mới tự gây một lỗi: `strip_tools` ghi `.grok/config.toml` vào `cwd` của engine, và engine giả có `cwd=None` nên file rơi vào gốc repo, làm `test_ignore_files.py` đỏ. Đã xoá file rỗng đó (chưa từng được git theo dõi) và cho engine giả một thư mục tạm (commit `5162dfab`).
+During the fix, the new Grok test caused a bug of its own: `strip_tools` wrote `.grok/config.toml` into the engine's `cwd`, and the fake engine had `cwd=None`, so the file landed in the repo root and turned `test_ignore_files.py` red. That empty file (never tracked by git) was deleted and the fake engine was given a temp directory (commit `5162dfab`).
 
-### Kết quả với engine giả
+### Results with the fake engine
 
 ```
 python tests/run.py resonance_mvp_integration -v
   [ 1/1] ok   test_resonance_mvp_integration.py
-1/1 xanh
+1/1 green
 ```
 
-73 kiểm tra xanh, không gọi model. Thứ tự TDD: test vào trước và đỏ vì chưa có module; ba test đối soát hạn mức thêm sau đỏ trước khi sửa; 11 test theo review đỏ trước khi sửa.
+73 checks green, no model calls. TDD order: the tests went in first and were red because the module did not exist; the three quota reconciliation tests added later were red before the fix; the 11 tests from the review were red before the fix.
 
-Các nhóm đã kiểm:
+Groups checked:
 
-- **Thành công:** host ghi file, SHA-256 khớp đúng byte trên đĩa, file dùng LF, usage lấy từ `final`.
-- **Usage:** engine API, Grok, `final` chỉ có cost, `final` trống số liệu.
-- **Lặp `action_id`:** model chỉ được gọi một lần, không tốn thêm lượt.
-- **Hết hạn mức:** không dựng engine, không gọi model.
-- **Thất bại không ghi file:**
-  - engine trả lỗi;
-  - Claude kết thúc lỗi mà vẫn có chữ (qua `map_message` thật);
-  - mất đăng nhập nhưng trả `final`;
-  - đua làm mới token;
-  - gọi công cụ trong lượt chỉ chữ;
-  - đầu ra rỗng;
-  - không có `final`;
-  - đầu ra quá dài;
-  - engine chưa sẵn sàng;
-  - factory báo chặn hoặc ném lỗi;
-  - quá giờ.
-- **Đối soát hạn mức:** dừng trước lúc gọi model thì trả chỗ, đã gọi model thì tính một lượt.
-- **Vùng ghi chưa cấp và `action_id` lạ:** bị chặn trước khi dựng engine.
-- **Bộ chọn, chạy trên `aux_engine.swap` và `strip_tools` thật:**
-  - có key OpenRouter thì giữ đúng Claude, bỏ mắt sau;
-  - không có chuỗi thì giữ nguyên Claude;
-  - Antigravity bị lùi về Claude thì chặn;
-  - OpenRouter giữ mắt API đã tắt công cụ;
-  - Codex (sandbox `auto` và `off`) và Grok, dựng bằng builder thật, bị chặn;
-  - Claude thiếu `allowed_tools` bị chặn.
+- **Success:** the host writes the file, the SHA-256 matches the exact bytes on disk, the file uses LF, usage is taken from `final`.
+- **Usage:** API engine, Grok, `final` with only cost, empty `final`.
+- **Repeated `action_id`:** the model is called only once, no extra turn is spent.
+- **Quota exhausted:** the engine is not built, the model is not called.
+- **Failures that write no file:**
+  - the engine returns an error;
+  - Claude ends with an error but still has text (through the real `map_message`);
+  - login lost but a `final` is returned;
+  - token refresh race;
+  - a tool call in a text-only turn;
+  - empty output;
+  - no `final`;
+  - output too long;
+  - engine not ready;
+  - the factory reports blocked or throws;
+  - timeout.
+- **Quota reconciliation:** if the run stops before calling the model the slot is returned; if the model was called, one turn is counted.
+- **Write area not granted and unknown `action_id`:** blocked before the engine is built.
+- **Selector, run on the real `aux_engine.swap` and `strip_tools`:**
+  - with an OpenRouter key, keeps exactly Claude and drops the later link;
+  - with no chain, keeps Claude as is;
+  - Antigravity falling back to Claude is blocked;
+  - OpenRouter keeps the API link with tools turned off;
+  - Codex (sandbox `auto` and `off`) and Grok, built with the real builders, are blocked;
+  - Claude without `allowed_tools` is blocked.
 
-Các test dùng chung bộ ánh xạ SDK và engine việc nền cũng chạy xanh sau khi sửa:
+The tests that share the SDK mapping and the background engine also ran green after the fix:
 
 ```
 python tests/run.py sdk_engine claude_ket_thuc_luot aux_engine aux_fallback tao_file_tu_chat resonance
-6/6 xanh trong 21 giây
+6/6 green in 21 seconds
 ```
 
-### Kết quả pilot thật
+### Real pilot results
 
-Lệnh chạy, với hai đường dẫn đặt theo máy:
+The run command, with the two paths set for this machine:
 
 ```
 JAVIS_RESONANCE_PILOT=1 JAVIS_RESONANCE_PILOT_SETTINGS=D:/Project/Javis-OS/server/settings.json JAVIS_RESONANCE_PILOT_CALLS=1 python tests/python/test_resonance_mvp_integration.py
 ```
 
-- **Đầu vào:** một danh sách việc mô phỏng ghi rõ là không có thật, yêu cầu một ghi chú Markdown có tiêu đề `# Việc đang dở` và đúng ba gạch đầu dòng. Prompt nguyên văn nằm trong file bằng chứng.
-- **State:** `JAVIS_STATE_DIR` là thư mục tạm. Settings tạm chỉ chứa khối chọn engine (`auxiliary`, `main`, `engine`, `claude_model`), không có khoá nào. Không ghi gì vào state thật.
-- **Hạn mức:** đã chạy ba lần, tổng cộng 3 lượt gọi model trên trần 5 lượt được cho phép. Mỗi lần dùng đúng 1 lượt; lượt chạy lại cùng id không gọi model.
+- **Input:** a simulated task list explicitly marked as not real, asking for a Markdown note with the heading `# Việc đang dở` (Vietnamese for "Unfinished tasks", kept because it is the verbatim pilot prompt) and exactly three bullet points. The verbatim prompt is in the evidence file.
+- **State:** `JAVIS_STATE_DIR` is a temp directory. The temp settings contain only the engine selection block (`auxiliary`, `main`, `engine`, `claude_model`), with no keys. Nothing is written to the real state.
+- **Quota:** run three times, 3 model calls in total against the cap of 5 allowed. Each run used exactly 1 turn; the re-run with the same id did not call the model.
 
-| | Lần 1 | Lần 2 | Lần 3, code sau review |
+| | Run 1 | Run 2 | Run 3, code after review |
 |---|---|---|---|
-| Commit | `24611b4b` cộng `main.py` chưa commit | `2404fc70` | `ba404185`, sạch |
-| Trạng thái receipt | `succeeded` | `succeeded` | `succeeded` |
-| Engine thật sự chạy | `anthropic-cli` / `sonnet` / `ClaudeSDK` | như lần 1 | như lần 1, `text_only=true` |
-| Gọi công cụ quan sát được | 0 | 0 | 0 |
-| SHA-256 tính lại từ byte trên đĩa | khớp (kiểm tay) | khớp (kiểm tay) | khớp (test tự kiểm) |
-| Đúng cấu trúc yêu cầu | đúng (đọc tay) | đúng (đọc tay) | đúng (test tự kiểm) |
-| Thời gian lượt | khoảng 7,9 giây | 5,96 giây | 6,26 giây |
-| Token vào / ra (Claude Code tự báo) | 17.893 / 421 | 17.888 / 197 | 17.893 / 240 |
-| `cost_usd` (Claude Code tự báo) | 0,0758 | 0,0203 | 0,0207 |
-| Chạy lại cùng `action_id` | `action_exists`, không gọi model | như lần 1 | như lần 1 |
+| Commit | `24611b4b` plus uncommitted `main.py` | `2404fc70` | `ba404185`, clean |
+| Receipt status | `succeeded` | `succeeded` | `succeeded` |
+| Engine that actually ran | `anthropic-cli` / `sonnet` / `ClaudeSDK` | same as run 1 | same as run 1, `text_only=true` |
+| Tool calls observed | 0 | 0 | 0 |
+| SHA-256 recomputed from bytes on disk | matches (checked by hand) | matches (checked by hand) | matches (checked by the test itself) |
+| Matches the requested structure | yes (read by hand) | yes (read by hand) | yes (checked by the test itself) |
+| Turn time | about 7.9 seconds | 5.96 seconds | 6.26 seconds |
+| Tokens in / out (reported by Claude Code) | 17,893 / 421 | 17,888 / 197 | 17,893 / 240 |
+| `cost_usd` (reported by Claude Code) | 0.0758 | 0.0203 | 0.0207 |
+| Re-run with the same `action_id` | `action_exists`, model not called | same as run 1 | same as run 1 |
 
-Bằng chứng của lần 3 nằm ở [`resonance-mvp-m1-pilot.json`](resonance-mvp-m1-pilot.json): commit, prompt, receipt, lượt chạy lại, hạn mức, SHA-256 tính trên đĩa và toàn văn đầu ra. File được ghi ở dạng JSON thoát ký tự (`\uXXXX`), vì đầu ra của model có dấu em dash mà repo này không cho phép xuất hiện nguyên dạng. Đường dẫn cá nhân đã được bỏ, chỉ giữ tên file đầu ra. SHA-256 đầu ra lần 3: `c690255823b0f391209f951ff5d4c06a3e097dff9303a09ca3ac2db578142ad3`.
+The evidence for run 3 is in [`resonance-mvp-m1-pilot.json`](resonance-mvp-m1-pilot.json): commit, prompt, receipt, the re-run, quota, the SHA-256 computed on disk, and the full output text. The file is written as escaped JSON (`\uXXXX`), because the model's output contains an em dash, which this repo does not allow to appear verbatim. Personal paths have been removed, only the output file name is kept. The output SHA-256 of run 3: `c690255823b0f391209f951ff5d4c06a3e097dff9303a09ca3ac2db578142ad3`.
 
-**Kết luận M1:** trên máy này có một đường chạy được. Đường đó là engine việc nền người dùng đã chọn (Claude Code, sonnet), dựng qua `aux_engine` ở chế độ chỉ chữ có cơ chế chặn công cụ thật, và trả về một receipt mà host quan sát được. Đây là kết quả của một lượt chỉ chữ trên dữ liệu mô phỏng, chưa phải bằng chứng cho một vòng mục tiêu đầy đủ.
+**M1 conclusion:** on this machine there is one path that works. It is the background engine the user selected (Claude Code, sonnet), built through `aux_engine` in a text-only mode with a real tool-blocking mechanism, and it returns a receipt the host can observe. This is the result of one text-only turn on simulated data, and is not yet evidence for a full goal loop.
 
-### Giới hạn và những gì chưa kiểm
+### Limits and what was not verified
 
-1. **Chỉ gọi thật engine Claude.** Engine API mới được kiểm qua bộ chọn với cấu hình giả. Codex và Grok bị chặn có chủ đích cho tới khi có cơ chế chỉ chữ cho công cụ native của chúng.
-2. **Pilot không có key OpenRouter.** Trong pilot, swap không dựng mắt OpenRouter nên không có mắt nào để bỏ. Trường hợp "có chuỗi dự phòng thì chỉ giữ mắt đầu" mới được kiểm bằng `aux_engine.swap` thật với cài đặt giả.
-3. **Đầu ra của model có dấu em dash.** Ở M1 file chỉ nằm trong thư mục tạm. Từ M3, khi host ghi đầu ra vào brain của người dùng, cần một tiêu chí hoặc bước kiểm cho luật cấm em dash. Không sửa chữ của model một cách âm thầm.
-4. **`cost_usd` không phải tiền bị trừ.** Đây là con số Claude Code tự báo, trên gói thuê bao là số quy đổi. Phần lớn khoảng 17.900 token vào là system prompt mặc định của Claude Code.
-5. **Cộng dồn usage chỉ đúng cho engine được nhận.** Claude phát một `final`, engine API không công cụ phát một `usage` cho một vòng. Engine phát số tổng lặp lại nhiều lần (như Grok) phải xử lý riêng trước khi được nhận.
-6. **Chống chạy trùng còn khe hở.** Cơ chế hiện dựa vào file đầu ra theo `action_id`. Nó chưa chống gọi lại model khi lượt trước thất bại trước lúc ghi file, và chưa chống trùng giữa hai tiến trình. M3 thay bằng khoá và idempotency trong SQLite.
-7. **Trạng thái `uncertain` chưa dùng.** Lượt chỉ chữ không có tác động ra ngoài.
-8. **Receipt chưa vào EvidenceStore.** `evidence_ids` hiện rỗng. M3 nối phần này.
-9. **`requested_provider` là spec sau phanh ngân sách.** Nếu chủ bật tự phanh và đã vượt trần tháng, `aux_engine.read_spec` có thể đã hạ engine trước khi Resonance thấy.
-10. **Pilot để lại transcript.** Mỗi lần pilot mở một phiên Claude Code trong thư mục tạm, và Claude CLI lưu transcript của phiên đó trong `~/.claude/projects` như mọi phiên khác.
-11. **Lần 1 rơi đúng cửa sổ token sắp hết hạn.** Cổng xếp hàng làm mới token (`claude_token_gate`) có kích hoạt, ghi nhãn `di-truoc`, và cho lượt này đi trước. Claude CLI tự làm mới token như lượt chat thường. Không có lỗi đăng nhập.
-12. **Không chạy test JS.** M1 không đổi file JS nào.
+1. **Only the real Claude engine was called.** The API engine has only been checked through the selector with a fake configuration. Codex and Grok are blocked on purpose until there is a text-only mechanism for their native tools.
+2. **The pilot had no OpenRouter key.** In the pilot, swap did not build an OpenRouter link, so there was no link to drop. The case "if there is a fallback chain, keep only the first link" was only checked with the real `aux_engine.swap` and fake settings.
+3. **The model's output contains an em dash.** In M1 the file only lives in a temp directory. From M3, when the host writes output into the user's brain, a criterion or a check step is needed for the em dash ban. The model's text must not be silently altered.
+4. **`cost_usd` is not money charged.** It is the figure Claude Code reports itself, and on a subscription plan it is a converted amount. Most of the roughly 17,900 input tokens are Claude Code's default system prompt.
+5. **Usage accumulation is only correct for accepted engines.** Claude emits one `final`, and an API engine with no tools emits one `usage` per round. An engine that emits a repeated running total (like Grok) must be handled separately before it is accepted.
+6. **Duplicate-run protection still has a gap.** The current mechanism relies on the output file named by `action_id`. It does not prevent calling the model again when a previous turn failed before writing the file, and does not prevent duplicates across two processes. M3 replaces this with a lock and idempotency in SQLite.
+7. **The `uncertain` status is not used yet.** A text-only turn has no outside effect.
+8. **The receipt is not in EvidenceStore yet.** `evidence_ids` is currently empty. M3 wires this up.
+9. **`requested_provider` is the spec after the budget brake.** If the owner turned on auto-brake and the monthly cap has been exceeded, `aux_engine.read_spec` may already have downgraded the engine before Resonance sees it.
+10. **The pilot leaves transcripts behind.** Each pilot run opens a Claude Code session in a temp directory, and the Claude CLI stores that session's transcript in `~/.claude/projects` like any other session.
+11. **Run 1 landed exactly in the window where the token was about to expire.** The token refresh queue gate (`claude_token_gate`) triggered, labeled it `di-truoc` ("go first"), and let this turn go ahead. The Claude CLI refreshes the token itself like a normal chat turn. There was no login error.
+12. **No JS tests were run.** M1 changes no JS files.
 
-### Toàn bộ test Python
+### Full Python test run
 
-Chạy `python tests/run.py --py` trên main sạch trước khi sửa, và trên head cuối của nhánh M1.
+Ran `python tests/run.py --py` on a clean main before the fixes, and on the final head of the M1 branch.
 
-| | Main sạch (`7d264236`) | Nhánh M1 sau review (`5162dfab`) |
+| | Clean main (`7d264236`) | M1 branch after review (`5162dfab`) |
 |---|---|---|
-| Xanh | 387/403 | 389/404 |
-| File đỏ | 16 | 15 |
-| Đỏ mới so với main | | không có |
+| Green | 387/403 | 389/404 |
+| Red files | 16 | 15 |
+| New red vs main | | none |
 
-Các file đỏ có sẵn trên main sạch, không liên quan M1:
+The red files that already exist on clean main, unrelated to M1:
 
 - `test_agy_prompt_dai.py`
 - `test_antigravity_cli.py`
@@ -177,501 +177,501 @@ Các file đỏ có sẵn trên main sạch, không liên quan M1:
 - `test_terminal.py`
 - `test_windows_no_console.py`
 
-`test_project_khung.py` đỏ trên main sạch nhưng xanh trên nhánh M1 ở cả ba lượt chạy sau đó. M1 không đụng mã mà test này kiểm, nên nhiều khả năng đây là test chập chờn chứ không phải được M1 sửa.
+`test_project_khung.py` was red on clean main but green on the M1 branch in all three later runs. M1 does not touch the code this test checks, so this is most likely a flaky test rather than something M1 fixed.
 
-Một lượt chạy giữa chừng (sau commit `ba404185`) có `test_ignore_files.py` đỏ. Nguyên nhân là file `.grok/config.toml` do test Grok mới của M1 để lại ở gốc repo, đã sửa ở `5162dfab` như ghi ở mục Sửa theo review. Lượt chạy trên head cuối không còn file đỏ mới.
+One mid-way run (after commit `ba404185`) had `test_ignore_files.py` red. The cause was the `.grok/config.toml` file left in the repo root by M1's new Grok test, fixed in `5162dfab` as noted in the review fixes section. The run on the final head has no new red files.
 
-## M2: phân luồng và tự hình thành mục tiêu (06/10/2026)
+## M2: routing and goal formation (2026-10-06)
 
-### Nền và nhánh
+### Base and branch
 
-| Mục | Giá trị |
+| Item | Value |
 |---|---|
-| Nhánh, PR | `claude/resonance-mvp-m2`, PR #567 (nháp), xếp chồng trên #566; phiên bản xí chỗ 0.84.1 |
-| Base của PR | `claude/resonance-mvp-m1` tại `306e96cb` (head M1 đã qua review, CI xanh) |
-| Commit nền của chuỗi | `origin/main` = `7d264236` (0.83.2), không đổi khi bắt đầu M2 |
-| Model thật | Không gọi lượt nào ở M2. Tất cả kiểm chứng dùng engine giả hoặc gọi thẳng tool như engine sẽ gọi |
+| Branch, PR | `claude/resonance-mvp-m2`, PR #567 (draft), stacked on #566; placeholder version 0.84.1 |
+| PR base | `claude/resonance-mvp-m1` at `306e96cb` (the M1 head that passed review, CI green) |
+| Base commit of the chain | `origin/main` = `7d264236` (0.83.2), unchanged when M2 started |
+| Real model | No turn was called in M2. All verification used a fake engine or called the tool directly the way the engine would |
 
-### Quyết định thiết kế cần người review soát
+### Design decisions for the reviewer to check
 
-1. **Bộ não tự quyết định có lập mục tiêu hay không, ngay trong lượt chat, bằng tool `javis_goal`.**
-   - Spec mục 4.0 yêu cầu "tận dụng bộ định tuyến hội thoại hiện có" và "không gọi thêm một model cho mọi tin nhắn". Dò mã 0.83.2 cho thấy chưa có bộ định tuyến bốn nhánh nào.
-   - Thứ gần nhất là cách bộ não đã tự quyết giao việc nền bằng tool `javis_task` (Kanban) và `javis_schedule` (nhắc hẹn, loop). Nên `javis_goal` đi đúng mẫu đó: một plugin bundled, không thêm lượt gọi model, không dò từ khoá.
-   - Đổi lại, chất lượng quyết định phụ thuộc vào bộ não đọc mô tả tool. Pilot thật để đo điều này thuộc M3.
-2. **Host kiểm đề xuất theo SMART** (`resonance.validate_proposal`):
-   - **R:** `relevant_quote` phải trích đúng một đoạn trong lời người dùng (so khớp bỏ hoa thường và khoảng trắng). Đây là chốt chặn mục tiêu do agent tự nghĩ ra.
-   - **M:** ít nhất một tiêu chí dùng evaluator đã có (`artifact_contract`, `human_confirmation`); evaluator lạ bị loại.
-   - **T:** có chân trời `deadline`, `review`, `event` hoặc `maintain`. Hạn chót chỉ giữ khi trích được câu người dùng nêu hạn; không thì thành mốc xem lại nội bộ, `from_user=false`.
-   - **S:** chưa nói được kết quả cụ thể thì mục tiêu ở `discovery`, không bị từ chối.
-   - Chỉ tiêu không có câu trích trong lời người dùng chuyển thành giả định. Người dùng đã nói chưa biết thì bỏ câu hỏi, ghi giả định, bắt đầu bằng khám phá.
-   - Ràng buộc người dùng nêu luôn có trong khung. Kho từ chối mọi revision bỏ chúng.
-3. **Phân nhánh sau lượt dựa trên những gì lượt đó thật sự đã làm** (`resonance.route_request`, `route_after_turn`):
-   - Có sự kiện `created` của đúng tin nhắn này thì là `create_goal`; sự kiện `reframe` thì là `continue_goal`.
-   - Có việc Kanban mới của đúng khung chat này, tạo trong lượt, thì là `task_now`. Còn lại là `answer_now`.
-   - Có mục tiêu đang mở KHÔNG đủ để nối tin mới vào nó. Đây là lỗi bản review trước đã bắt ở phụ lục cũ.
-   - Không đoán tên tool từ luồng sự kiện (tên khác nhau theo engine, và chế độ lazy giấu tên thật sau `javis_run_tool`); đọc thẳng kho mục tiêu và kho Kanban.
-4. **Khoá chống trùng là id tin nhắn người dùng trong kho phiên.**
-   - Trước M2, id này bị bỏ ngay sau `append_message`. Giờ `main.py` giữ lại cho cả tin gõ lẫn tin giọng nói (`message_id` của phiếu nhận giọng nói), và truyền xuống sổ lượt đang chạy (`luot_dang_chay`) cùng lời người dùng.
-   - Tool chạy qua hub, có khi ở tiến trình khác, nên đọc sổ đó để biết đúng tin nào. Không chắc (hai khung chat cùng chạy trên một brain, hoặc kênh chưa truyền id tin như Telegram) thì tool từ chối, không đoán.
-5. **Tool chỉ hiện ở brain đã bật.**
-   - `plugins_host.register_tool` nhận thêm `visible_fn(vault_root)`; `plugin_tools` giấu tool khi hàm trả False. `check_fn` có sẵn chỉ chặn lúc gọi nhưng tool vẫn hiện, không đủ.
-   - Công tắc là `<brain>/Javis/resonance.json` có `{"enabled": true}`. Mặc định tắt, file hỏng coi như tắt. Giao diện bật tắt thuộc M4.
-   - Chỉ mục năng lực (dòng trong system prompt và `Javis/index.md`) cũng chỉ liệt kê tool đang hiện với brain đó; trước sửa, chỉ mục đọc manifest và vẫn kể `javis_goal` ở brain chưa bật.
-6. **System prompt có thêm đúng một dòng gợi ý `javis_goal`, chỉ ở brain đã bật.** `CLAUDE.md` còn đúng 1 ký tự ngân sách nên không đụng tới; brain chưa bật không dài thêm chữ nào.
-7. **M2 chỉ LƯU mục tiêu.** Kết quả tool dặn bộ não rằng chưa có gì tự thực hiện hay tự báo cáo, để nó không hứa suông (đúng luật "không hứa sẽ làm rồi báo lại" của `CLAUDE.md`).
+1. **The brain decides on its own whether to form a goal, inside the chat turn, using the `javis_goal` tool.**
+   - Spec section 4.0 asks to "reuse the existing conversation router" and to "not call an extra model for every message". Probing the 0.83.2 code showed there is no four-branch router yet.
+   - The closest thing is how the brain already decides on its own to hand off background work with the `javis_task` tool (Kanban) and `javis_schedule` (reminders, loops). So `javis_goal` follows the same pattern: a bundled plugin, no extra model call, no keyword matching.
+   - In exchange, the quality of the decision depends on the brain reading the tool description. The real pilot to measure this belongs to M3.
+2. **The host checks the proposal against SMART** (`resonance.validate_proposal`):
+   - **R:** `relevant_quote` must quote an exact passage from the user's words (matched ignoring case and whitespace). This is the barrier against goals the agent invents on its own.
+   - **M:** at least one criterion uses an existing evaluator (`artifact_contract`, `human_confirmation`); unknown evaluators are dropped.
+   - **T:** there is a horizon of `deadline`, `review`, `event` or `maintain`. A deadline is kept only when a sentence where the user stated the deadline can be quoted; otherwise it becomes an internal review point, `from_user=false`.
+   - **S:** if no concrete result can be stated yet, the goal sits at `discovery` and is not rejected.
+   - Targets with no quoted sentence in the user's words become assumptions. If the user already said they do not know, the question is dropped, the assumption is recorded, and the goal starts with discovery.
+   - Constraints the user stated are always in the frame. The store rejects any revision that drops them.
+3. **Branching after the turn is based on what the turn really did** (`resonance.route_request`, `route_after_turn`):
+   - A `created` event for this exact message means `create_goal`; a `reframe` event means `continue_goal`.
+   - A new Kanban task for this exact chat frame, created during the turn, means `task_now`. Otherwise it is `answer_now`.
+   - Having an open goal is NOT enough to attach a new message to it. This is a bug the earlier review caught in the old appendix.
+   - Tool names are not guessed from the event stream (names differ per engine, and lazy mode hides the real name behind `javis_run_tool`); the goal store and the Kanban store are read directly.
+4. **The anti-duplicate key is the user message id in the session store.**
+   - Before M2, this id was dropped right after `append_message`. Now `main.py` keeps it for both typed messages and voice messages (the `message_id` of the voice receipt), and passes it down to the running-turn ledger (`luot_dang_chay`) together with the user's words.
+   - The tool runs through the hub, sometimes in another process, so it reads that ledger to know exactly which message it is. If unsure (two chat frames running on one brain, or a channel that does not pass a message id such as Telegram), the tool refuses and does not guess.
+5. **The tool is visible only on brains that enabled it.**
+   - `plugins_host.register_tool` takes an extra `visible_fn(vault_root)`; `plugin_tools` hides the tool when the function returns False. The existing `check_fn` only blocks at call time while the tool stays visible, which is not enough.
+   - The switch is `<brain>/Javis/resonance.json` containing `{"enabled": true}`. Off by default, and a corrupt file counts as off. The on/off interface belongs to M4.
+   - The capability index (the line in the system prompt and `Javis/index.md`) also lists only the tools visible to that brain; before the fix, the index read the manifest and still mentioned `javis_goal` on a brain that had not enabled it.
+6. **The system prompt gets exactly one extra line hinting at `javis_goal`, only on enabled brains.** `CLAUDE.md` has exactly 1 character of budget left so it is not touched; a brain that has not enabled it gets no extra text.
+7. **M2 only STORES the goal.** The tool result tells the brain that nothing is carried out or reported automatically yet, so it does not make empty promises (matching the `CLAUDE.md` rule against "promising to do it and report back").
 
-### Thay đổi
+### Changes
 
-| File | Nội dung |
+| File | Content |
 |---|---|
-| `server/resonance_store.py` (mới) | `GoalStore` trên `resonance.sqlite3`: bảng `intents`, `goals`, `goal_revisions`, `goal_events`, `outbox`. Mọi thao tác qua `Principal` đúng brain. Tạo và sửa ghi sự kiện cùng outbox trong một giao dịch `BEGIN IMMEDIATE`. `revise` cần `expected_revision`, giữ pause, ngân sách, số lượt đã dùng. Chỉ người dùng đổi được pause |
-| `server/resonance.py` | `GoalRecord` thêm khung SMART và trạng thái (giữ nguyên sáu trường của M1). `GoalRejected`, `RouteDecision`, `enabled_for`, `validate_proposal`, `route_request`, `route_after_turn`, `message_ref`, `framer_prompt`, `form_goal`. Phần gọi engine của `run_once` tách thành `GoalDeps._ask` dùng chung với bộ lập mục tiêu, hành vi M1 không đổi |
-| `system/plugins/javis-goal/` (mới) | Tool `javis_goal`: `create`, `update`, `list` |
-| `server/plugins_host.py` | `visible_fn` cho tool plugin |
-| `server/luot_dang_chay.py` | `bat_dau` nhận `msg_id`, `user_text`; thêm `doan_luot`. Gọi kiểu cũ vẫn chạy |
-| `server/main.py` | Giữ id tin người dùng; truyền vào `run_turn`; `_resonance_after_turn` ghi runtime event `resonance.route`; dòng gợi ý system prompt; chỉ mục năng lực lọc tool đang giấu |
+| `server/resonance_store.py` (new) | `GoalStore` on `resonance.sqlite3`: tables `intents`, `goals`, `goal_revisions`, `goal_events`, `outbox`. Every operation goes through the `Principal` of the right brain. Create and revise write the event and the outbox in one `BEGIN IMMEDIATE` transaction. `revise` needs `expected_revision`, and keeps pause, budget and turns used. Only the user can change pause |
+| `server/resonance.py` | `GoalRecord` gains the SMART frame and status (the six M1 fields are unchanged). `GoalRejected`, `RouteDecision`, `enabled_for`, `validate_proposal`, `route_request`, `route_after_turn`, `message_ref`, `framer_prompt`, `form_goal`. The engine-calling part of `run_once` is split out into `GoalDeps._ask`, shared with the goal framer; M1 behavior is unchanged |
+| `system/plugins/javis-goal/` (new) | Tool `javis_goal`: `create`, `update`, `list` |
+| `server/plugins_host.py` | `visible_fn` for plugin tools |
+| `server/luot_dang_chay.py` | `bat_dau` accepts `msg_id`, `user_text`; adds `doan_luot`. The old call style still works |
+| `server/main.py` | Keeps the user message id; passes it into `run_turn`; `_resonance_after_turn` writes the runtime event `resonance.route`; the system prompt hint line; the capability index filters out hidden tools |
 
-### Kết quả với engine giả
+### Results with the fake engine
 
 ```
 python tests/run.py resonance -v
-  test_resonance_mvp_core.py         58 kiểm tra
-  test_resonance_mvp_integration.py  73 kiểm tra (M1, vẫn xanh sau khi tách _ask)
-  test_resonance_mvp_main.py         15 kiểm tra
-  test_resonance_mvp_wiring.py       29 kiểm tra
+  test_resonance_mvp_core.py         58 checks
+  test_resonance_mvp_integration.py  73 checks (M1, still green after splitting out _ask)
+  test_resonance_mvp_main.py         15 checks
+  test_resonance_mvp_wiring.py       29 checks
 ```
 
-TDD: cả ba file mới chạy đỏ trước khi có mã (`ModuleNotFoundError: No module named 'resonance_store'`, rồi `TypeError: bat_dau() got an unexpected keyword argument 'msg_id'`).
+TDD: all three new files ran red before the code existed (`ModuleNotFoundError: No module named 'resonance_store'`, then `TypeError: bat_dau() got an unexpected keyword argument 'msg_id'`).
 
-Tám test kế hoạch M2 nêu tên, đều có mặt trong `test_resonance_mvp_core.py` (nhãn kiểm tra mang đúng tên):
+The eight tests named by the M2 plan, all present in `test_resonance_mvp_core.py` (the check labels carry the exact names):
 
-| Test kế hoạch | Kiểm gì |
+| Plan test | What it checks |
 |---|---|
-| `test_chat_does_not_create_goal` | Lượt không gọi tool mục tiêu là `answer_now`, kể cả khi đang có mục tiêu mở |
-| `test_inline_job_stays_inline` | Làm xong trong lượt, có ghi file, vẫn là `answer_now` |
-| `test_followup_reuses_goal` | Bổ sung ý cho mục tiêu mở là `continue_goal` đúng mục tiêu đó |
-| `test_persistent_request_creates_once` | Cùng tin nhắn hai lần: một mục tiêu, một sự kiện `created` |
-| `test_proposed_plan_does_not_schedule` | Câu căn cứ không có trong lời người dùng (ý agent tự đề xuất) bị từ chối |
-| `test_ambiguous_goal_smart` | Thiếu S về `discovery`; thiếu M hoặc T bị từ chối |
-| `test_user_unsure_discovers` | Người dùng chưa rõ: vẫn lập mục tiêu khám phá, không hỏi lại, ghi giả định |
-| `test_no_invented_target_or_deadline` | Hạn không trích được thành mốc xem lại; chỉ tiêu không căn cứ thành giả định |
+| `test_chat_does_not_create_goal` | A turn that does not call the goal tool is `answer_now`, even when a goal is open |
+| `test_inline_job_stays_inline` | Finished within the turn, with a file written, still `answer_now` |
+| `test_followup_reuses_goal` | Adding detail to an open goal is `continue_goal` on that same goal |
+| `test_persistent_request_creates_once` | The same message twice: one goal, one `created` event |
+| `test_proposed_plan_does_not_schedule` | A basis sentence that is not in the user's words (an idea the agent proposed on its own) is rejected |
+| `test_ambiguous_goal_smart` | Missing S falls back to `discovery`; missing M or T is rejected |
+| `test_user_unsure_discovers` | The user is unclear: still forms a discovery goal, does not ask back, records an assumption |
+| `test_no_invented_target_or_deadline` | A deadline that cannot be quoted becomes a review point; a target with no basis becomes an assumption |
 
-Kiểm thêm:
+Additional checks:
 
-- **Kho:** chống trùng theo tin nhắn; brain khác không đọc, sửa, liệt kê được; `expected_revision` cũ thì xung đột và không đổi gì; revision cũ còn nguyên; pause, ngân sách, số lượt đã dùng giữ qua revision; không bỏ được ràng buộc của người dùng; outbox có `goal.created` và `goal.revised`; tạo với bản ghi ý định không tồn tại thì không để lại mục tiêu nửa vời; mở lại kho vẫn còn dữ liệu.
-- **`form_goal`:** có đề xuất của bộ não thì không gọi model, không tốn lượt; không có đề xuất thì bộ lập mục tiêu gọi đúng một lượt chỉ chữ, lời người dùng nằm trong rào như dữ liệu; trả rác thì từ chối và vẫn tính một lượt; engine bị chặn thì trả lại lượt.
-- **Plugin qua `plugins_host` thật:** brain chưa bật không thấy tool, bật ở brain này không làm brain khác thấy; tạo, tạo lặp, đề xuất sai luật (không để lại mục tiêu), cập nhật lên revision 2 và route `continue_goal`, cập nhật lặp bị xung đột, mục tiêu không tồn tại, `list`; hai khung chat cùng chạy và lượt không có id tin thì từ chối; tắt lại thì tool biến mất và gọi bằng tham chiếu cũ cũng bị từ chối.
-- **`main.py`:** brain tắt thì không làm gì, không tạo file kho, prompt không nhắc `javis_goal`; brain bật thì có dòng gợi ý (dưới 450 ký tự); bộ não gọi tool trong lượt rồi `main` phân nhánh `create_goal`, mục tiêu đúng brain theo `_brain_key`, vùng đầu ra nằm trong brain; việc Kanban của đúng khung chat trong lượt là `task_now`, việc tạo trước lượt không tính; kho lỗi thì nuốt, không làm hỏng lượt chat.
+- **Store:** de-duplication by message; another brain cannot read, change or list; a stale `expected_revision` conflicts and changes nothing; old revisions stay intact; pause, budget and turns used survive revisions; the user's constraints cannot be dropped; the outbox has `goal.created` and `goal.revised`; creating with a nonexistent intent record leaves no half-made goal; reopening the store still has the data.
+- **`form_goal`:** with a proposal from the brain it does not call the model and spends no turn; with no proposal the goal framer makes exactly one text-only call, with the user's words fenced as data; garbage output is rejected and still counts one turn; a blocked engine returns the turn.
+- **Plugin through the real `plugins_host`:** a brain that has not enabled it does not see the tool, and enabling on this brain does not make another brain see it; create, repeated create, a proposal that breaks the rules (leaves no goal), update to revision 2 with route `continue_goal`, repeated update conflicts, nonexistent goal, `list`; two chat frames running at once and a turn without a message id are refused; turning it off makes the tool disappear and a call by an old reference is also refused.
+- **`main.py`:** a brain that is off does nothing, creates no store file, and the prompt does not mention `javis_goal`; an enabled brain gets the hint line (under 450 characters); the brain calls the tool in a turn and then `main` branches `create_goal`, the goal belongs to the right brain by `_brain_key`, the output area is inside the brain; a Kanban task from the right chat frame during the turn is `task_now`, a task created before the turn does not count; a store error is swallowed and does not break the chat turn.
 
-### Lỗi tự gây trong lúc làm, đã sửa
+### Self-inflicted bugs found while working, fixed
 
-- **Canary giọng nói.** `test_voice_ten_javis.py` đọc mã nguồn `main.py`, tìm đúng dòng `store.append_message(conv_sid, "user", user_message)` để chắc tên nghe nhầm được sửa trước khi lưu. Em bọc dòng đó trong `int(... or 0)` nên canary đỏ ở lượt chạy toàn bộ đầu tiên. Sửa mã cho khớp canary (commit `f6fd4841`), không sửa canary.
-- **Chỉ mục năng lực.** Test `main` bắt được `javis_goal` vẫn hiện trong system prompt của brain chưa bật, qua dòng "Plugins đang chạy". Đã lọc theo tool thật sự hiện.
+- **Voice canary.** `test_voice_ten_javis.py` reads the source of `main.py` and looks for the exact line `store.append_message(conv_sid, "user", user_message)` to be sure a misheard name is fixed before saving. I wrapped that line in `int(... or 0)`, so the canary went red on the first full run. I fixed the code to match the canary (commit `f6fd4841`), not the canary.
+- **Capability index.** The `main` test caught `javis_goal` still showing in the system prompt of a brain that had not enabled it, through the "Plugins running" line. It is now filtered by the tools that are actually visible.
 
-### Sửa theo review PR #567
+### Fixes from the PR #567 review
 
-Review của ChatGPT (`exports/reviews/PR-567-M2-review.md`, diff `306e96cb..c79e27c5`) nêu 1 lỗi P1 và 2 lỗi P2, cả ba đều tái hiện được qua tool thật. Sửa ở commit `709f016a` và `279ef56a`, test hành vi ở `tests/python/test_resonance_mvp_revise.py` (28 kiểm tra) và 7 kiểm tra thêm trong `test_resonance_mvp_main.py`.
+ChatGPT's review (`exports/reviews/PR-567-M2-review.md`, diff `306e96cb..c79e27c5`) raised 1 P1 bug and 2 P2 bugs, all three reproducible through the real tool. Fixed in commits `709f016a` and `279ef56a`, with behavior tests in `tests/python/test_resonance_mvp_revise.py` (28 checks) and 7 more checks in `test_resonance_mvp_main.py`.
 
-- **P1-1: tin bổ sung làm mất hạn và chỉ tiêu cũ.** Nhánh `update` của tool nay gọi `resonance.revise_goal`. Hàm này đọc revision hiện tại TRƯỚC khi kiểm, rồi gọi `validate_proposal(..., prior=..., source_ref=...)`:
-  - trường bản cập nhật bỏ trống thì kế thừa;
-  - hạn chót người dùng nêu ở tin trước được giữ nguyên cả giá trị lẫn nguồn khi bản cập nhật giữ đúng thời điểm và câu trích; chỉ tiêu cũ cũng vậy khi giữ đúng chữ và câu trích;
-  - hạn hay chỉ tiêu MỚI vẫn phải trích được từ tin hiện tại, nên người dùng dời hạn thì hạn mới thắng; agent tự dời hạn thì vẫn thành mốc xem lại;
-  - mượn câu trích cũ cho một chỉ tiêu khác chữ thì không được coi là chỉ tiêu cũ;
-  - mỗi hạn chót và chỉ tiêu của người dùng nay mang `source` là tin nhắn làm căn cứ.
+- **P1-1: a follow-up message lost the old deadline and targets.** The tool's `update` branch now calls `resonance.revise_goal`. This function reads the current revision BEFORE checking, then calls `validate_proposal(..., prior=..., source_ref=...)`:
+  - fields left empty in the update are inherited;
+  - a deadline the user stated in an earlier message is kept as is, both value and source, when the update keeps the same time and quote; the same for an old target when it keeps the same text and quote;
+  - a NEW deadline or target must still be quotable from the current message, so when the user moves the deadline the new deadline wins; when the agent moves the deadline itself it still becomes a review point;
+  - borrowing an old quote for a target with different text does not count as the old target;
+  - each of the user's deadlines and targets now carries a `source` which is the message it is based on.
 
-  Host tự suy quan hệ của bản cập nhật: `replace` khi hạn hay chỉ tiêu có nguồn người dùng không còn nguyên, còn lại `amend`. Quan hệ ghi vào bản ghi ý định mới (nay nối về ý định của revision trước qua `prev_intent_id`, thay cột `supersedes` chưa dùng) và vào sự kiện `reframe`. (Bản này còn cho bộ não bỏ chỉ tiêu mà chỉ ghi `replace`; vòng review 2 bác, đã sửa ở mục dưới.)
-- **P2-1: làn giọng nói và lượt chạy lại không mang id tin.** `run_voice_turn` nhận `user_mid` và truyền vào cả hai lời gọi `run_turn` (giữ câu gốc, rơi về bộ não chính). Hẹn chạy lại sau hạn mức mang theo `user_mid` và `user_text` của lượt gốc, nên chạy lại cùng tin không tạo mục tiêu thứ hai. Nhánh trả lời trong phiên quy trình cũng truyền id. `run_turn` nhận thêm `user_text`: đúng lời người dùng, đã bóc khối ngữ cảnh giao diện và không kèm ghi chú câu nghe hay khối quy trình host gắn vào prompt. Lượt nối tiếp do host tự mở sau việc nền vẫn KHÔNG mang id, vì chữ mở lượt là của host.
-- **P2-2: tiêu chí rỗng vẫn qua cổng M.** Mô tả được chuẩn hoá khoảng trắng; tiêu chí rỗng bị loại; không còn tiêu chí nào thì từ chối với lời nói rõ cần mô tả điều cần kiểm. Kiểm cấu trúc `params` theo từng evaluator để sang M3, như review đề nghị.
+  The host derives the update's relation itself: `replace` when a deadline or target with a user source is no longer intact, otherwise `amend`. The relation is written to the new intent record (which now links to the previous revision's intent through `prev_intent_id`, replacing the unused `supersedes` column) and to the `reframe` event. (This version still let the brain drop a target by only writing `replace`; review round 2 rejected that, and it was fixed in the section below.)
+- **P2-1: the voice lane and re-runs did not carry the message id.** `run_voice_turn` takes `user_mid` and passes it to both `run_turn` calls (keep the original sentence, fall back to the main brain). A retry scheduled after quota exhaustion carries the `user_mid` and `user_text` of the original turn, so re-running the same message does not create a second goal. The reply branch in a workflow session also passes the id. `run_turn` gains `user_text`: exactly the user's words, with the UI context block stripped and without the heard-sentence note or the workflow block the host attaches to the prompt. A follow-up turn that the host opens itself after background work still carries NO id, because the opening text belongs to the host.
+- **P2-2: an empty criterion still passed the M gate.** Descriptions are whitespace-normalized; an empty criterion is dropped; when no criterion is left the proposal is rejected with a message saying a description of what to check is needed. Checking the structure of `params` per evaluator is left for M3, as the review suggested.
 
-Sửa P2-1 làm đỏ hai canary giọng nói đọc mã nguồn `main.py` ở lượt chạy toàn bộ đầu tiên. `test_dien_giai_thuat_ngu.py` cấm `_giu_cau_goc` nhắc tới câu bộ não giọng diễn giải, nên lời người dùng được tính một lần thành `_loi_goc` cạnh `original_message`, sửa mã chứ không sửa canary. `test_voice_turn_integrity.py` dựng `run_voice_turn` với một `run_turn` giả không nhận tham số từ khoá; hàm giả được cho nhận thêm `user_mid`, `user_text`, mọi kiểm tra của nó giữ nguyên.
+Fixing P2-1 turned two voice canaries that read the `main.py` source red on the first full run. `test_dien_giai_thuat_ngu.py` forbids `_giu_cau_goc` from mentioning the sentence the voice brain paraphrases, so the user's words are computed once into `_loi_goc` next to `original_message`; I changed the code, not the canary. `test_voice_turn_integrity.py` builds `run_voice_turn` with a fake `run_turn` that accepts no keyword arguments; the fake function was changed to also accept `user_mid`, `user_text`, and all of its checks are kept.
 
-Chạy lại `PR-567-M2-repro.py` trên nhánh: assertion mô tả lỗi P1 không còn đúng (hạn giữ là `deadline`), tức lỗi đã hết. Hai phép còn lại được phủ bằng test hành vi ở trên.
+Re-running `PR-567-M2-repro.py` on the branch: the assertion describing the P1 bug is no longer true (the kept deadline is `deadline`), meaning the bug is gone. The other two checks are covered by the behavior tests above.
 
-### Sửa theo review PR #567 vòng 2
+### Fixes from the PR #567 review, round 2
 
-Review vòng 2 (`exports/reviews/PR-567-M2-review-round2.md`, diff `c79e27c5..9f2e9a32`) xác nhận P2 thiếu id và P2 tiêu chí rỗng đã đóng, nêu thêm 1 P1 và 1 P2.
+Round 2 review (`exports/reviews/PR-567-M2-review-round2.md`, diff `c79e27c5..9f2e9a32`) confirmed that the P2 on the missing id and the P2 on the empty criterion are closed, and raised 1 more P1 and 1 more P2.
 
-- **P1: nhãn `replace` không thay được căn cứ.** (Cách sửa ở mục này bị vòng 3 bác và đã thay, xem mục Sửa theo review vòng 3.) Bản vòng 1 vẫn để bộ não gửi `targets=[]` hay tự dời hạn ở một tin chỉ đổi trình bày; host lưu và ghi `replace`. Nay hạn chót và chỉ tiêu người dùng đã nêu là chỉ dẫn đang có hiệu lực (bất biến 2.1). Bản cập nhật chỉ đổi hay bỏ được chúng khi tin HIỆN TẠI có câu trích làm căn cứ:
-  - đổi hạn: hạn mới kèm `quote` trích từ tin này;
-  - bỏ hạn: chân trời mới kèm `horizon.quote` trích câu bỏ hạn; chân trời ghi lại câu và tin làm căn cứ;
-  - bỏ chỉ tiêu: một mục trong `remove_targets` (trường mới của tool) cùng chữ, kèm `quote` trích từ tin này.
+- **P1: the `replace` label could not replace the basis.** (The fix described in this item was rejected by round 3 and replaced, see the round 3 section.) The round 1 version still let the brain send `targets=[]` or move the deadline by itself in a message that only changed presentation; the host saved it and wrote `replace`. Now the user's stated deadline and targets are standing instructions (invariant 2.1). An update can only change or drop them when the CURRENT message has a quote to base it on:
+  - changing the deadline: the new deadline comes with a `quote` taken from this message;
+  - dropping the deadline: the new horizon comes with a `horizon.quote` quoting the sentence that drops the deadline; the horizon records the sentence and the message it is based on;
+  - dropping a target: an entry in `remove_targets` (a new tool field) with the same text, plus a `quote` taken from this message.
 
-  Thiếu căn cứ thì host GIỮ chỉ dẫn cũ, không từ chối cả bản cập nhật, và tool trả thêm dòng "Host giữ lại chỉ dẫn cũ của người dùng" kèm lý do để bộ não biết. Mốc xem lại agent tự đặt không đè lên deadline đang có hiệu lực. `replace` nay chỉ được ghi cho thay đổi đã được phép. Người dùng nhắc lại một chỉ tiêu thì chỉ tiêu đó giữ một mục, nguồn mới. Test cũ khẳng định bỏ chỉ tiêu là đúng đã được đổi kỳ vọng.
-- **P2: cập nhật từng phần làm rơi ràng buộc.** `_prior_view` nay mang `constraints`; khung mới hợp ràng buộc cũ, ràng buộc của tin mới và ràng buộc đề xuất. Cập nhật từng phần trên mục tiêu có ràng buộc thành công và giữ nguyên ràng buộc; bộ não gửi `constraints=[]` cũng không gỡ được. Tool nói rõ chưa hỗ trợ gỡ ràng buộc.
-- **Ý định mồ côi khi cập nhật (điểm 5 của review):** bản ghi ý định nay được ghi trong CÙNG transaction với revision (`GoalStore.new_intent` + `revise(intent=...)`), nên revision bị kho từ chối (xung đột, thiếu ràng buộc) không để lại ý định. Đường TẠO mục tiêu vẫn ghi ý định trước rồi mới `create`; nếu hai lượt cùng tin chen nhau, ý định của lượt thua còn lại.
-- **Kiểm hành vi đường truyền id (điểm 6):** test mới `test_resonance_mvp_handoff.py` (12 kiểm tra) trích nguyên `run_turn`, `run_voice_turn`, `_start_resumed_turn` từ `main.py` rồi chạy với dịch vụ giả, theo cách dựng của script kiểm độc lập vòng 2. Kiểm sổ lượt và tool nhận đúng id, đúng lời người dùng (đã bóc khối ngữ cảnh giao diện, không kèm ghi chú câu nghe) ở hai nhánh giọng nói và nhánh chạy lại; ba lượt cùng tin chỉ tạo một mục tiêu; lượt không có id thì tool từ chối.
-- **Test:** `test_resonance_mvp_revise.py` lên 42 kiểm tra (thêm ca tin chỉ đổi trình bày kèm bỏ chỉ tiêu hay tự dời hạn, mốc xem lại agent đặt, `remove_targets` với câu trích không có trong tin, người dùng bỏ chỉ tiêu và bỏ hạn có căn cứ, nhắc lại chỉ tiêu, ràng buộc kế thừa, ý định không mồ côi, và hai ca qua tool thật).
-- **Đổi schema bảng `intents` không kèm migration.** Bảng đổi cột `supersedes` thành `prev_intent_id`, `relation`. M2 chưa phát hành nên chưa có dữ liệu người dùng cần giữ. Kho thử tạo theo schema M2 cũ KHÔNG tự nâng cấp được; nếu đã có dữ liệu cần giữ thì phải viết migration, không xoá kho để chữa.
+  Without a basis the host KEEPS the old instruction and does not reject the whole update, and the tool adds a line "The host kept the user's old instruction" with the reason so the brain knows. A review point the agent sets itself does not override a deadline that is in effect. `replace` is now only written for a change that was allowed. When the user restates a target, that target keeps a single entry with the new source. The old test that asserted dropping a target was correct has had its expectation changed.
+- **P2: a partial update dropped constraints.** `_prior_view` now carries `constraints`; the new frame merges the old constraints, the new message's constraints and the proposed constraints. A partial update on a goal with constraints succeeds and keeps the constraints; the brain sending `constraints=[]` cannot remove them either. The tool says clearly that removing constraints is not supported yet.
+- **Orphan intent on update (review point 5):** the intent record is now written in the SAME transaction as the revision (`GoalStore.new_intent` + `revise(intent=...)`), so a revision rejected by the store (conflict, missing constraint) leaves no intent behind. The goal CREATE path still writes the intent first and then calls `create`; if two turns with the same message interleave, the losing turn's intent remains.
+- **Behavior check of the id handoff path (point 6):** the new test `test_resonance_mvp_handoff.py` (12 checks) extracts `run_turn`, `run_voice_turn` and `_start_resumed_turn` verbatim from `main.py` and runs them with fake services, following the setup of the independent round 2 check script. It checks that the turn ledger and the tool receive the right id and the right user words (UI context block stripped, no heard-sentence note) on both voice branches and the re-run branch; three turns with the same message create only one goal; a turn without an id makes the tool refuse.
+- **Tests:** `test_resonance_mvp_revise.py` goes up to 42 checks (adding the cases of a presentation-only message with a dropped target or a self-moved deadline, a review point set by the agent, `remove_targets` with a quote not in the message, the user dropping a target and the deadline with a basis, restating a target, inherited constraints, no orphan intent, and two cases through the real tool).
+- **Change to the `intents` table schema with no migration.** The table replaces the `supersedes` column with `prev_intent_id` and `relation`. M2 is not released yet, so there is no user data to keep. A store created with the old M2 schema does NOT upgrade itself; if there is data to keep, a migration must be written, and the store must not be deleted as a fix.
 
-Chạy lại `PR-567-M2-round2-checks.py` trên nhánh: assertion REPRO của P1 (bộ não gửi `targets=[]` làm mất chỉ tiêu) không còn đúng, tức lỗi đã hết; các ca P1 và P2 còn lại được phủ bằng test hành vi ở trên.
+Re-running `PR-567-M2-round2-checks.py` on the branch: the P1 REPRO assertion (the brain sending `targets=[]` loses the target) is no longer true, meaning the bug is gone; the remaining P1 and P2 cases are covered by the behavior tests above.
 
-### Sửa theo review PR #567 vòng 3
+### Fixes from the PR #567 review, round 3
 
-Review vòng 3 (`exports/reviews/PR-567-M2-review-round3.md`, diff `9f2e9a32..2b1b212f`) xác nhận ràng buộc kế thừa, bảo vệ khi bộ não quên trường hay dùng câu trích cũ, ý định ghi cùng transaction và test handoff đều đạt. Còn hai điểm:
+Round 3 review (`exports/reviews/PR-567-M2-review-round3.md`, diff `9f2e9a32..2b1b212f`) confirmed that inherited constraints, protection when the brain forgets a field or reuses an old quote, the intent written in the same transaction, and the handoff tests all pass. Two points remain:
 
-- **P1: câu trích CÓ MẶT trong tin vẫn bỏ được chỉ dẫn.** Bộ não trích "thêm bảng tổng hợp" làm căn cứ bỏ chỉ tiêu và bỏ hạn, host chấp nhận. Phép tìm chuỗi chỉ chứng minh câu có trong tin, không chứng minh người dùng muốn đổi. Lỗ này rộng hơn review nêu: đường ĐỔI hạn (hạn mới kèm câu trích từ tin hiện tại) cũng có cùng điểm yếu.
+- **P1: a quote that IS PRESENT in the message could still drop an instruction.** The brain quoted "add a summary table" as the basis for dropping a target and dropping the deadline, and the host accepted it. A string search only proves the sentence is in the message, not that the user wants a change. This hole is wider than the review stated: the CHANGE-deadline path (new deadline with a quote from the current message) has the same weakness.
 
-  Chọn phương án thu hẹp phạm vi M2 do review đề xuất, khớp bất biến 2.1 của thiết kế chuẩn: hạn chót, chỉ tiêu và ràng buộc người dùng đã nêu KHÔNG đổi hay bỏ được qua bản cập nhật ở M2, dù câu trích có mặt hay không. Host giữ nguyên cả giá trị lẫn nguồn. Tool trả "Host giữ nguyên chỉ dẫn cũ, phần sau CHƯA áp dụng" và dặn bộ não nói rõ với người dùng là chưa đổi được, đừng báo là đã đổi. Bản cập nhật không còn gì đổi được áp dụng thì không ghi revision, không ghi ý định, và tool nói "KHÔNG có thay đổi nào được áp dụng". Thêm chỉ dẫn MỚI vẫn được, cùng luật trích như lúc tạo: chỉ tiêu mới, ràng buộc mới, và hạn khi mục tiêu chưa có hạn người dùng. Người dùng nhắc lại một chỉ tiêu thì vẫn một mục, giữ nguồn cũ. Agent vẫn tự sửa cách hiểu, tiêu chí, giả định, câu hỏi. Đường sửa chỉ dẫn có thẩm quyền do host xác định (thao tác của người dùng trên thẻ mục tiêu, hoặc xác nhận đúng phần thay đổi) để sang M4.
-- **P2: chỉ gửi `remove_targets` thì báo thành công mà không bỏ gì.** Không còn là chức năng: trường `remove_targets` đã gỡ khỏi schema của tool; nếu bộ não vẫn gửi thì host báo "remove_targets chưa hỗ trợ" và không ghi revision.
-- **Test:** `test_resonance_mvp_revise.py` lên 48 kiểm tra, viết lại các ca đổi/bỏ chỉ dẫn theo phạm vi mới: câu trích cũ, câu trích có mặt nhưng không liên quan (đúng phép tái hiện vòng 3), người dùng thật sự dời hạn, người dùng thật sự bỏ chỉ tiêu và hạn, chỉ gửi `remove_targets`, thêm chỉ tiêu mới, thêm hạn khi chưa có hạn người dùng, nhắc lại chỉ tiêu. Mỗi ca kiểm trạng thái cuối trong kho, không chỉ kiểm tool trả thành công.
+  The option chosen is the scope-narrowing one proposed by the review, matching invariant 2.1 of the reference design: the deadline, targets and constraints the user already stated can NOT be changed or dropped through an update in M2, whether or not the quote is present. The host keeps both value and source as they are. The tool returns "The host kept the old instruction, the following part is NOT applied yet" and tells the brain to say clearly to the user that it could not be changed yet, and not to report it as changed. An update with nothing applicable left writes no revision and no intent, and the tool says "NO change was applied". Adding NEW instructions is still allowed, with the same quoting rule as at creation: new targets, new constraints, and a deadline when the goal has no user deadline yet. When the user restates a target it is still one entry, keeping the old source. The agent can still fix its own understanding, criteria, assumptions and questions. The path to change authoritative instructions is determined by the host (the user's action on the goal card, or confirming exactly the part being changed) and is left for M4.
+- **P2: sending only `remove_targets` reported success while removing nothing.** It is no longer a feature: the `remove_targets` field was removed from the tool schema; if the brain still sends it, the host reports "remove_targets not supported yet" and writes no revision.
+- **Tests:** `test_resonance_mvp_revise.py` goes up to 48 checks, with the change/drop-instruction cases rewritten for the new scope: an old quote, a quote that is present but unrelated (exactly the round 3 reproduction), the user genuinely moving the deadline, the user genuinely dropping a target and the deadline, sending only `remove_targets`, adding a new target, adding a deadline when there is no user deadline, restating a target. Each case checks the final state in the store, not just that the tool returned success.
 
-Chạy lại `PR-567-M2-round3-checks.py`: hai assertion PASS đầu vẫn qua. Bước 4 của script dừng ở xung đột revision, vì script giả định bước 3 ghi revision mới, trong khi nay bản cập nhật không đổi được gì thì không ghi revision. Chạy một bản sao chỉ đổi `expected_revision` bước 4 thành revision hiện tại: assertion REPRO P1 không còn đúng (chỉ tiêu và hạn còn nguyên). Ca P2 được phủ trong test của PR.
+Re-running `PR-567-M2-round3-checks.py`: the first two PASS assertions still pass. Step 4 of the script stops at a revision conflict, because the script assumes step 3 writes a new revision, whereas now an update that can change nothing writes no revision. Running a copy that only changes step 4's `expected_revision` to the current revision: the P1 REPRO assertion is no longer true (the target and deadline are intact). The P2 case is covered in the PR's tests.
 
-### Sửa theo review PR #567 vòng 4
+### Fixes from the PR #567 review, round 4
 
-Review vòng 4 (`exports/reviews/PR-567-M2-review-round4.md`, diff `2b1b212f..439fe922`) đóng P1 trong phạm vi M2 đã thu hẹp và giữ nguyên quyết định phạm vi. Còn hai lỗi P2 cục bộ:
+Round 4 review (`exports/reviews/PR-567-M2-review-round4.md`, diff `2b1b212f..439fe922`) closes the P1 within the narrowed M2 scope and keeps the scope decision as is. Two local P2 bugs remain:
 
-- **P2-1: chân trời bị chặn vẫn kéo `mode` đổi theo.** `mode` được tính từ biến `kind` của đề xuất chứ không từ chân trời cuối cùng host nhận, nên đề xuất `maintain` bị chặn vẫn đổi mục tiêu `achieve` thành `maintain` và ghi một revision. Nay `mode` tính từ chân trời đã nhận; không gửi `mode` thì giữ mode trước đó.
-- **P2-2: tool lọc mất `remove_targets` trước khi validator kịp báo.** `_proposal` của plugin nay chuyển tiếp trường cũ này (vẫn ngoài schema) để validator báo "chưa hỗ trợ". Tóm tắt của tool nay có dòng "Chỉ tiêu người dùng nêu", nên bộ não thấy chỉ tiêu còn giữ.
-- **Test:** `test_resonance_mvp_revise.py` lên 58 kiểm tra. `_frozen` kiểm thêm mode và stage. Ba ca mới đi qua `plugins_host` thật, so toàn bộ `GoalRecord` và số dòng của `intents`, `goal_revisions`, `goal_events`, `outbox` trước và sau: chân trời maintain bị chặn; chỉ gửi `remove_targets`; sửa hợp lệ pha trộn với `remove_targets` (phần hợp lệ được áp dụng, tool báo "Đã cập nhật" kèm phần CHƯA áp dụng và chỉ tiêu còn giữ). Đếm dòng dùng `closing` để không giữ kết nối SQLite.
+- **P2-1: a blocked horizon still dragged `mode` along.** `mode` was computed from the proposal's `kind` variable and not from the final horizon the host accepted, so a blocked `maintain` proposal still changed an `achieve` goal into `maintain` and wrote a revision. Now `mode` is computed from the accepted horizon; when no `mode` is sent the previous mode is kept.
+- **P2-2: the tool filtered out `remove_targets` before the validator could report it.** The plugin's `_proposal` now forwards this legacy field (still outside the schema) so the validator can report "not supported yet". The tool's summary now has a line "Targets stated by the user", so the brain can see the targets that are still kept.
+- **Tests:** `test_resonance_mvp_revise.py` goes up to 58 checks. `_frozen` also checks mode and stage. Three new cases go through the real `plugins_host`, comparing the whole `GoalRecord` and the row counts of `intents`, `goal_revisions`, `goal_events`, `outbox` before and after: a blocked maintain horizon; sending only `remove_targets`; a valid edit mixed with `remove_targets` (the valid part is applied, the tool reports "Updated" along with the part NOT applied and the targets still kept). Row counting uses `closing` so no SQLite connection is held open.
 
-Chạy lại `PR-567-M2-round4-checks.py`: hai PASS qua; assertion REPRO P2-1 không còn đúng. Một bản sao bỏ hai assertion của P2-1 để chạy tới P2-2: assertion REPRO P2-2 cũng không còn đúng.
+Re-running `PR-567-M2-round4-checks.py`: two PASS assertions pass; the P2-1 REPRO assertion is no longer true. A copy with the two P2-1 assertions removed, to run through to P2-2: the P2-2 REPRO assertion is also no longer true.
 
-### Giới hạn và những gì chưa kiểm
+### Limits and what was not verified
 
-1. **Chưa gọi model thật ở M2.** Chưa đo bộ não thật có gọi `javis_goal` đúng lúc hay không, và có điền đề xuất qua được luật SMART hay không. Pilot thật một mục tiêu là việc của M3 theo kế hoạch.
-2. **Chỉ khung chat web.** Telegram và Zalo chưa truyền id tin, nên tool từ chối lập mục tiêu ở đó. (Bản đầu còn sót làn giọng nói, lượt chạy lại sau hạn mức và phiên quy trình; đã sửa theo review, xem mục dưới.)
-3. **Chưa có guard trong mô hình dữ liệu.** Kế hoạch nói đổi cách hiểu giữ "quyền, ngân sách, guard, pause". M2 giữ ngân sách, số lượt đã dùng, pause; guard đến cùng M3.
-4. **Bản ghi ý định có thể mồ côi ở đường tạo.** Đường cập nhật đã ghi ý định cùng transaction với revision (vòng review 2). Đường tạo vẫn ghi ý định trước `create`: hai lượt cùng một tin chen nhau thì ý định của lượt thua còn lại. Bảng chỉ ghi thêm, không gây sai.
-5. **`reminders_created` chưa được nối.** Hàm phân nhánh nhận số nhắc hẹn tạo trong lượt, nhưng `main` mới đếm việc Kanban. Lượt chỉ đặt nhắc hẹn hiện được ghi là `answer_now`.
-6. **Nhánh phân xong mới chỉ được ghi vào runtime event.** M4 dùng nó để vẽ thẻ "Em đang hướng tới".
-7. **Không chạy test JS.** M2 không đổi file JS nào.
-8. **Không phải mọi đường giọng nói đều hỗ trợ Resonance.** Việc nền do làn nhanh giao (V3, `JAVIS_ASK_MAIN`), là đường giao việc bình thường của làn nhanh, không gọi `run_turn` và không đăng ký lượt kèm id tin, nên tool từ chối. Chỉ hai nhánh giọng nói chuyển về `run_turn` (giữ câu gốc, rơi về bộ não chính) mang id. Nếu pilot M3 có giao việc bằng giọng nói thì phải truyền nguồn yêu cầu đáng tin qua đường việc nền trước.
-9. **Đường truyền id kiểm bằng hàm thật với dịch vụ giả.** Chưa chạy end-to-end với model, micro, HTTP/WebSocket thật hay chờ hạn mức thật.
-10. **Chưa đổi hay bỏ được chỉ dẫn người dùng đã nêu.** Hạn chót, chỉ tiêu, ràng buộc đã lưu chỉ thêm được, không đổi hay bỏ được bằng chat ở M2; tool báo rõ phần chưa áp dụng. Đường sửa có thẩm quyền để M4. Không dùng giới hạn này để bỏ qua lệnh dừng hay thu hồi quyền khi có runtime thực thi.
-11. **Kiểm `params` theo từng evaluator chưa làm.** Hiện chỉ kiểm là object rồi sao chép; việc của M3.
+1. **No real model called in M2.** It was not measured whether the real brain calls `javis_goal` at the right moment, or whether its proposals pass the SMART rules. The real single-goal pilot is M3's job per the plan.
+2. **Web chat frame only.** Telegram and Zalo do not pass a message id yet, so the tool refuses to form a goal there. (The first version also missed the voice lane, the retry after quota exhaustion and the workflow session; these were fixed after the review, see the section above.)
+3. **No guard in the data model yet.** The plan says that changing the understanding keeps "permissions, budget, guard, pause". M2 keeps budget, turns used and pause; guard arrives with M3.
+4. **The intent record can be orphaned on the create path.** The update path already writes the intent in the same transaction as the revision (review round 2). The create path still writes the intent before `create`: if two turns with the same message interleave, the losing turn's intent remains. The table is append-only, so this does no harm.
+5. **`reminders_created` is not wired up yet.** The routing function accepts the number of reminders created in the turn, but `main` only counts Kanban tasks. A turn that only sets a reminder is currently recorded as `answer_now`.
+6. **The routed branch is only written to the runtime event so far.** M4 uses it to draw the "What Jarvis 007 is working toward" card.
+7. **No JS tests were run.** M2 changes no JS files.
+8. **Not every voice path supports Resonance.** Background work handed off by the fast lane (V3, `JAVIS_ASK_MAIN`) is the fast lane's normal handoff path, does not call `run_turn` and does not register a turn with a message id, so the tool refuses. Only the two voice branches that go back to `run_turn` (keep the original sentence, fall back to the main brain) carry the id. If the M3 pilot hands off work by voice, a trusted source of the request must first be passed through the background work path.
+9. **The id path was checked with real functions and fake services.** It has not been run end to end with a real model, microphone, HTTP/WebSocket, or a real quota wait.
+10. **Instructions the user already stated cannot be changed or dropped yet.** The saved deadline, targets and constraints can only be added to, not changed or dropped by chat in M2; the tool states clearly which part was not applied. The authoritative edit path is left for M4. This limit must not be used to ignore a stop command or a permission revocation once there is an execution runtime.
+11. **Checking `params` per evaluator is not done.** Currently it only checks that it is an object and then copies it; this is M3's job.
 
-### Toàn bộ test Python
+### Full Python test run
 
-| | Main sạch (`7d264236`) | Nhánh M2 (`f6fd4841`) | M2 sau review (`279ef56a`) | M2 sau review vòng 2 (`daa5684e`) | M2 sau review vòng 3 (`1f9099c9`) | M2 sau review vòng 4 (`d57cd14e`) |
+| | Clean main (`7d264236`) | M2 branch (`f6fd4841`) | M2 after review (`279ef56a`) | M2 after review round 2 (`daa5684e`) | M2 after review round 3 (`1f9099c9`) | M2 after review round 4 (`d57cd14e`) |
 |---|---|---|---|---|---|---|
-| Xanh | 387/403 | 392/407 | 391/408 | 393/409 | 391/409 | 393/409 |
-| File đỏ | 16 | 15 | 17 | 16 | 18 | 16 |
-| Đỏ mới so với main | | không có | không có do M2 gây ra | không có | không có do M2 gây ra | không có do M2 gây ra |
+| Green | 387/403 | 392/407 | 391/408 | 393/409 | 391/409 | 393/409 |
+| Red files | 16 | 15 | 17 | 16 | 18 | 16 |
+| New red vs main | | none | none caused by M2 | none | none caused by M2 | none caused by M2 |
 
-Lượt vòng 2: 16 file đỏ đúng bằng danh sách đỏ trên main sạch (15 file ở mục M1 cộng `test_project_khung.py`).
+Round 2 run: the 16 red files are exactly the red list on clean main (the 15 files in the M1 section plus `test_project_khung.py`).
 
-Lượt vòng 3: 16 file đó cộng hai file chập chờn. `test_hoi_thoai_nhom.py` đã ghi ở trên. `test_bao_viec_ve_chat_web.py` đỏ trong lượt toàn bộ, chạy riêng ba lần trên cùng mã đều xanh, không chạm mã Resonance.
+Round 3 run: those 16 files plus two flaky files. `test_hoi_thoai_nhom.py` is noted above. `test_bao_viec_ve_chat_web.py` was red in the full run, and run alone three times on the same code it was green, and it does not touch Resonance code.
 
-Lượt vòng 4: 15 file đỏ sẵn ở mục M1 cộng `test_hoi_thoai_nhom.py` (chập chờn). `test_project_khung.py` xanh ở lượt này.
+Round 4 run: the 15 files already red in the M1 section plus `test_hoi_thoai_nhom.py` (flaky). `test_project_khung.py` is green in this run.
 
-Ở lượt sau review, 17 file đỏ gồm 15 file đỏ sẵn ở mục M1, `test_project_khung.py` (đỏ trên main sạch) và `test_write_path_phase9.py`. File cuối chạy riêng hai lần trên cùng mã thì một xanh một đỏ (`test_restart_marks_running_writes_unknown_without_rerunning`), không chạm mã Resonance nào: test chập chờn. `test_hoi_thoai_nhom.py` cũng chập chờn (chạy riêng ba lần: xanh một, đỏ hai, kiểm thứ tự ghim hội thoại M2 không đụng tới); lượt toàn bộ này nó xanh.
+In the run after the review, the 17 red files are the 15 files already red in the M1 section, `test_project_khung.py` (red on clean main) and `test_write_path_phase9.py`. The last file, run alone twice on the same code, was green once and red once (`test_restart_marks_running_writes_unknown_without_rerunning`), and it touches no Resonance code: a flaky test. `test_hoi_thoai_nhom.py` is also flaky (run alone three times: green once, red twice, and checking the M2 conversation pin order does not touch it); in this full run it is green.
 
-Danh sách 15 file đỏ trùng đúng danh sách đỏ sẵn ở mục M1. `test_project_khung.py` tiếp tục xanh trên nhánh, như ở M1.
+The list of 15 red files is exactly the list already red in the M1 section. `test_project_khung.py` keeps being green on the branch, as in M1.
 
-Lượt chạy toàn bộ đầu tiên của M2 (commit `66328b61`) có `test_voice_ten_javis.py` đỏ do M2 gây ra, đã sửa ở `f6fd4841` như ghi ở mục Lỗi tự gây.
+The first full run of M2 (commit `66328b61`) had `test_voice_ten_javis.py` red because of M2, fixed in `f6fd4841` as noted in the self-inflicted bugs section.
 
-## M3: thực thi, bằng chứng và lịch nhỏ (06/10/2026)
+## M3: execution, evidence and a small schedule (2026-10-06)
 
-### Nền và nhánh
+### Base and branch
 
-- Nhánh `claude/resonance-mvp-m3` tách từ head M2 đã qua review (`fa7e264d`), PR nháp #570 xếp chồng trên #567. Phiên bản 0.84.4: `origin/main` đã lên 0.84.2 (`bacb1cfe`) và PR #569 đang giữ 0.84.3.
-- `origin/main` đi tiếp đúng một commit so với nền `7d264236` của chuỗi (`bacb1cfe`, Zalo vào nhóm). Commit đó chỉ sửa phần Zalo cùng `VERSION` và hai CHANGELOG, không chạm file nào của Resonance. Không đồng bộ vào chuỗi lúc này: đồng bộ sẽ thêm merge commit vào hai PR đã qua review mà không đổi gì của Resonance. VERSION và CHANGELOG sẽ chỉnh một lần lúc merge.
+- Branch `claude/resonance-mvp-m3` split from the M2 head that passed review (`fa7e264d`), draft PR #570 stacked on #567. Version 0.84.4: `origin/main` has already reached 0.84.2 (`bacb1cfe`) and PR #569 is holding 0.84.3.
+- `origin/main` has moved on by exactly one commit relative to the chain's base `7d264236` (`bacb1cfe`, Zalo joining groups). That commit only changes the Zalo part plus `VERSION` and two CHANGELOGs, and does not touch any Resonance file. It is not synced into the chain right now: syncing would add a merge commit to two PRs that already passed review without changing anything in Resonance. VERSION and CHANGELOG will be adjusted once at merge time.
 
-### Quyết định thiết kế cần người review soát
+### Design decisions for the reviewer to check
 
-1. **Một vòng `advance(goal_id, event, deps)` tiếp tục được sau restart** (spec mục 7). Mỗi lần: kiểm công tắc brain, pause, guard; nhận khoá lượt có hạn (`claim_lease`); đối soát hành động dở; đánh giá bằng chứng đã gắn với ĐÚNG revision hiện tại; chỉ khi chưa đạt và sự kiện là loại được làm việc (`start`, `wake`, `user_message`, `resume`) mới làm MỘT bước. `observe` chỉ quan sát guard; `reaction` không làm gì; `user_schedule` sửa lịch.
-2. **Ghi ý định trước tác động.** `GoalStore.begin_action` ghi hành động `running` và giữ một lượt gọi model trong CÙNG giao dịch (`calls_used < budget_calls`), kèm lịch phục hồi tại lúc hết khoá. Không ghi được thì không dựng engine. Hết hạn mức thì blocked `budget`, không gọi.
-3. **Đối soát sau restart.** Hành động `running` mà khoá đã hết: có file đầu ra đúng `action_id` thì chốt succeeded (`reconciled: true`), không gọi model lại; không có thì `failed: interrupted` (model có thể đã được gọi nên vẫn tính vào hạn mức) và lượt sau dùng id MỚI. Hành động đăng sản phẩm đối soát bằng hash file đích.
-4. **Bằng chứng qua EvidenceStore thật.** `main._ResonanceEvidence` mở một turn runtime kênh `resonance` cho mỗi lần ghi, mã hoá, đọc lại qua `get_valid` (kiểm hạn và hash). Kho chưa có cơ chế ghim nên hạn lưu đặt 90 ngày. Không ghi được bằng chứng thì coi như CHƯA có bằng chứng và không xác nhận thành công. Mỗi lần đánh giá file trong brain cũng chụp nội dung vào kho (bỏ qua nếu cùng hash).
-5. **Đặt sản phẩm vào brain có rào.** Đầu ra của model nằm trong vùng làm việc `Javis/resonance/outputs/<goal>`; host đăng bản đó vào đường dẫn tiêu chí `artifact_contract` đầu tiên khai `path`, khi và chỉ khi: đường dẫn nằm trong brain sau resolve; đuôi `.md` hoặc `.txt`; KHÔNG nằm ở chỗ Jarvis 007 tự chạy hay tự nạp (thư mục ẩn, `Javis/`, `agents/`, `skills/`, `workflows/`, `plugins/`, `memory/`, file `CLAUDE.md`/`AGENTS.md`/`GEMINI.md`/`MEMORY.md`); file chưa có, hoặc có nhưng hash đúng bằng lần chính mục tiêu này đăng trước. File người dùng hay tác vụ khác đã sửa thì xung đột: giữ nguyên, ghi `publish_conflict`, báo người dùng. Kiểm lại công tắc brain NGAY TRƯỚC khi đăng.
-6. **Kết luận.** `evaluate_artifact` trả met / not_met / unknown theo từng tiêu chí: thiếu file khai rõ là not_met; chưa có hoặc không đọc lại được bằng chứng là unknown; đường dẫn ra ngoài brain là unknown (lỗi evaluator); `human_confirmation` luôn unknown tới M4. Mục tiêu achieve chỉ thành `succeeded` khi MỌI tiêu chí met và `GoalStore.finish` so đúng revision đã đánh giá (CAS). Mục tiêu maintain đạt thì giữ active, hẹn xem lại. Chỉ còn tiêu chí người dùng thì chuyển `waiting`, không hẹn gọi model.
-7. **Lịch.** Bảng `wakeups` (một lịch `work` và một lịch `observe` mỗi mục tiêu). `main._resonance_tick` được scheduler 30 giây có sẵn khởi bằng `create_task` (cờ bận chống chồng nhịp); chưa có `resonance.sqlite3` thì thoát ngay. `tick` chỉ đọc lịch tới hạn bằng code và nhận mỗi lịch bằng CAS. `next_wake`: không có nguồn sự kiện thì xem lại trong khoảng 6 đến 24 giờ; chân trời `event` chưa có adapter nên cũng chỉ xem lại có giới hạn; chưa đạt sau một lượt thì làm lại sau 15 phút nếu còn hạn mức; lỗi engine lùi 1 giờ, 4 giờ, 24 giờ hoặc chờ mốc mở lại hạn mức gói (`limit_learner.parse_subscription_limit`); người dùng hẹn thì sửa lịch trực tiếp; reaction không đổi gì. Tạo và sửa mục tiêu ghi lịch `work` ngay trong giao dịch của chúng.
-8. **Guard.** Trường mới `guards` trong khung mục tiêu (tool nhận). Chỉ `artifact_contract` có adapter đọc: file khai phải còn và đạt điều kiện. Nguồn khác ghi unknown "chưa hỗ trợ nguồn ... (chưa có adapter đọc)". Lịch quan sát guard riêng (1 giờ), đọc bằng code, không gọi model. Guard nhảy thì blocked `guard`, xoá mọi lịch, báo người dùng, không tự mở lại khi bị đánh thức.
-9. **Báo người dùng qua outbox.** `drain_outbox` gửi đúng các tin có ý nghĩa (`goal.succeeded`, `goal.maintained`, `goal.waiting_human`, `goal.blocked`, `goal.guard`, `goal.publish_conflict`) tới `_notify_owner("web:<phiên đã giao>")` (khung chat cộng hộp thư) rồi đánh dấu đã gửi; tin nội bộ chỉ đánh dấu. Khoá `idem` duy nhất theo mục tiêu chống báo lặp. Gửi lỗi thì để lại cho nhịp sau.
-10. **Lời gửi model.** Mục tiêu, CẢ chuỗi lời người dùng (lần theo `prev_intent_id`, tối đa 5 tin), tiêu chí, ràng buộc, giả định, phần chưa đạt lần trước và bản sản phẩm hiện có, lời người dùng và bản cũ nằm trong rào dữ liệu. Engine vẫn là đường chỉ chữ của M1 (`main._resonance_engine`), không có chuỗi dự phòng.
-11. **Schema.** Bảng mới `actions`, `assessments`, `evidence_links`, `wakeups`, `published`; cột mới `goals.run_state/block_reason/lease_owner/lease_until`, `outbox.idem` thêm bằng `ALTER TABLE` khi mở kho, nên kho tạo bởi bản M2 nâng cấp tại chỗ, không xoá dữ liệu.
-12. **Kiểm `params` theo evaluator** (review M2 giao cho M3): `artifact_contract` của tiêu chí và guard chỉ nhận `path` (tương đối, không `..`, không ổ đĩa), `min_chars` (số nguyên trong trần đầu ra), `must_contain` (tối đa 10 chuỗi không rỗng); tham số lạ hay sai kiểu thì từ chối đề xuất với lời nói rõ. `human_confirmation` không mang params.
-13. **`run_once` đổi em dash thành "-" trước khi ghi** (luật cấm em dash trong file, kể cả brain), receipt ghi số chỗ đã đổi (`normalized_em_dash`); hash là của đúng bytes đã ghi.
+1. **A single `advance(goal_id, event, deps)` loop that resumes after a restart** (spec section 7). Each time: check the brain switch, pause, guard; take a time-limited turn lease (`claim_lease`); reconcile any half-done action; assess the evidence attached to EXACTLY the current revision; only if the goal is not yet achieved and the event is a type that allows work (`start`, `wake`, `user_message`, `resume`) does it do ONE step. `observe` only watches the guard; `reaction` does nothing; `user_schedule` edits the schedule.
+2. **Write the intent before the effect.** `GoalStore.begin_action` writes a `running` action and reserves one model call in the SAME transaction (`calls_used < budget_calls`), together with a recovery schedule at lease expiry. If it cannot be written, the engine is not built. When the quota is exhausted the goal is blocked as `budget` and no call is made.
+3. **Reconciliation after a restart.** For a `running` action whose lease has expired: if there is an output file with exactly that `action_id`, it is settled as succeeded (`reconciled: true`) and the model is not called again; if not, it becomes `failed: interrupted` (the model may already have been called so it still counts against the quota) and the next turn uses a NEW id. A publish action is reconciled by the hash of the target file.
+4. **Evidence through the real EvidenceStore.** `main._ResonanceEvidence` opens a runtime turn on the `resonance` channel for each write, encrypts it, and reads it back through `get_valid` (checking expiry and hash). The store has no pinning mechanism yet, so the retention is set to 90 days. If evidence cannot be written it counts as NO evidence yet and success is not confirmed. Each time a file in the brain is assessed, its content is also snapshotted into the store (skipped if the hash is the same).
+5. **Placing the product into the brain, with barriers.** The model's output sits in the work area `Javis/resonance/outputs/<goal>`; the host publishes that copy to the path of the first `artifact_contract` criterion that declares a `path`, if and only if: the path is inside the brain after resolving; the extension is `.md` or `.txt`; it is NOT in a place Jarvis 007 runs or loads by itself (hidden folders, `Javis/`, `agents/`, `skills/`, `workflows/`, `plugins/`, `memory/`, the files `CLAUDE.md`/`AGENTS.md`/`GEMINI.md`/`MEMORY.md`); the file does not exist yet, or it exists but its hash equals what this same goal published last time. If a file was changed by the user or another task, that is a conflict: it is left as is, `publish_conflict` is recorded, and the user is notified. The brain switch is checked again RIGHT BEFORE publishing.
+6. **Conclusion.** `evaluate_artifact` returns met / not_met / unknown per criterion: a missing declared file is not_met; evidence that does not exist yet or cannot be read back is unknown; a path outside the brain is unknown (evaluator error); `human_confirmation` is always unknown until M4. An achieve goal becomes `succeeded` only when EVERY criterion is met and `GoalStore.finish` compares exactly the revision that was assessed (CAS). A maintain goal that is met stays active and schedules a review. When only user criteria remain, it moves to `waiting` and no model call is scheduled.
+7. **Schedule.** A `wakeups` table (one `work` schedule and one `observe` schedule per goal). `main._resonance_tick` is started by the existing 30-second scheduler through `create_task` (a busy flag prevents overlapping ticks); if `resonance.sqlite3` does not exist yet it exits immediately. `tick` only reads due schedules with code and claims each schedule with CAS. `next_wake`: with no event source, review within 6 to 24 hours; an `event` horizon has no adapter yet so it also only gets a bounded review; if not achieved after one turn, retry after 15 minutes if quota remains; an engine error backs off 1 hour, 4 hours, 24 hours or waits for the plan's quota reopening time (`limit_learner.parse_subscription_limit`); when the user schedules something the schedule is edited directly; a reaction changes nothing. Creating and editing a goal write the `work` schedule inside their own transaction.
+8. **Guard.** A new `guards` field in the goal frame (accepted by the tool). Only `artifact_contract` has a reading adapter: the declared file must still exist and meet the condition. Other sources record unknown "source ... not supported yet (no reading adapter)". The guard has its own observation schedule (1 hour), read by code, no model call. When a guard trips, the goal is blocked as `guard`, all schedules are cleared, the user is notified, and it does not reopen by itself when woken.
+9. **Notifying the user through the outbox.** `drain_outbox` sends exactly the meaningful messages (`goal.succeeded`, `goal.maintained`, `goal.waiting_human`, `goal.blocked`, `goal.guard`, `goal.publish_conflict`) to `_notify_owner("web:<assigned session>")` (the chat frame plus the inbox) and then marks them sent; internal messages are only marked. A unique `idem` key per goal prevents repeated notices. If sending fails, it is left for the next tick.
+10. **What is sent to the model.** The goal, the WHOLE chain of user words (followed through `prev_intent_id`, at most 5 messages), criteria, constraints, assumptions, the part not achieved last time, and the current version of the product; the user's words and the old version sit inside a data fence. The engine is still the text-only path from M1 (`main._resonance_engine`), with no fallback chain.
+11. **Schema.** New tables `actions`, `assessments`, `evidence_links`, `wakeups`, `published`; new columns `goals.run_state/block_reason/lease_owner/lease_until`, `outbox.idem` added with `ALTER TABLE` when the store opens, so a store created by the M2 version upgrades in place and no data is deleted.
+12. **Checking `params` per evaluator** (handed from the M2 review to M3): the `artifact_contract` of criteria and guards only accepts `path` (relative, no `..`, no drive letter), `min_chars` (an integer within the output cap), `must_contain` (at most 10 non-empty strings); unknown or wrongly typed parameters reject the proposal with a clear message. `human_confirmation` carries no params.
+13. **`run_once` changes an em dash to "-" before writing** (the rule banning em dashes in files, including the brain), and the receipt records how many places were changed (`normalized_em_dash`); the hash is of exactly the bytes that were written.
 
-### Kết quả với engine giả
+### Results with the fake engine
 
-`tests/python/test_resonance_mvp_run.py` (71 kiểm tra ở bản đầu, 92 sau sửa review), kho SQLite thật, engine giả theo hợp đồng sự kiện của aux_engine, cổng bằng chứng giả cùng hợp đồng với `_ResonanceEvidence`. Đủ các test Task M3 đặt tên: `done_is_not_success`, `missing_evidence_unknown`, `restart_does_not_repeat_effect`, `old_revision_cannot_finish`, `pause_and_revoke`, `audit_failure_before_effect`, `budget_reserved_before_call`, `limit_keeps_checkpoint`, `no_paid_provider_fallback`, `idle_does_not_call_model`, `guard_wakes_without_worker`, `no_source_uses_bounded_review`. Thêm: không ghi đè file người dùng đã sửa, chín đường dẫn bị cấm đăng, mục tiêu duy trì làm tiếp sau tin bổ sung (lời gửi model có cả lời gốc, tin mới và bản hiện có), báo một lần mỗi revision.
+`tests/python/test_resonance_mvp_run.py` (71 checks in the first version, 92 after the review fixes), a real SQLite store, a fake engine following the aux_engine event contract, and a fake evidence gate with the same contract as `_ResonanceEvidence`. It has all the tests Task M3 named: `done_is_not_success`, `missing_evidence_unknown`, `restart_does_not_repeat_effect`, `old_revision_cannot_finish`, `pause_and_revoke`, `audit_failure_before_effect`, `budget_reserved_before_call`, `limit_keeps_checkpoint`, `no_paid_provider_fallback`, `idle_does_not_call_model`, `guard_wakes_without_worker`, `no_source_uses_bounded_review`. Added: not overwriting a file the user changed, nine paths forbidden for publishing, a maintain goal continuing after a follow-up message (the model prompt has the original words, the new message and the current version), and notifying once per revision.
 
-`tests/python/test_resonance_mvp_main.py` thêm 10 kiểm tra (tổng 32): cổng bằng chứng ghi rồi đọc lại EvidenceStore THẬT, `_resonance_deps` dựng đúng principal và engine, và một mục tiêu đi trọn vòng trên host với engine giả: tool `javis_goal` tạo, `main._resonance_tick` làm ở nền, sản phẩm vào brain, mục tiêu thành công, báo về đúng `web:<phiên>` kèm link; nhịp sau không gọi engine.
+`tests/python/test_resonance_mvp_main.py` adds 10 checks (32 in total): the evidence gate writes and then reads back the REAL EvidenceStore, `_resonance_deps` builds the right principal and engine, and one goal runs the full loop on the host with a fake engine: the `javis_goal` tool creates it, `main._resonance_tick` works on it in the background, the product goes into the brain, the goal succeeds, and it is reported to the right `web:<session>` with a link; the next tick does not call the engine.
 
-Phép thử đột biến (phá từng hành vi rồi chạy lại test, phải đỏ): bỏ kiểm xung đột khi đăng, bỏ trần hạn mức, bỏ kiểm pause, đối soát không xem file đầu ra, coi unknown là xong, `finish` không so revision, cắt chuỗi ý định, bỏ danh sách cấm đăng. Cả tám đều bị test bắt.
+Mutation tests (break each behavior and re-run the tests, which must go red): remove the conflict check when publishing, remove the quota cap, remove the pause check, reconciliation not looking at the output file, treating unknown as done, `finish` not comparing the revision, truncating the intent chain, removing the publish-forbidden list. All eight were caught by the tests.
 
-### Kết quả pilot thật
+### Real pilot results
 
-`tests/python/test_resonance_mvp_pilot.py`, chỉ chạy khi `JAVIS_RESONANCE_PILOT=1`. Bằng chứng: `docs/dev/resonance-mvp-m3-pilot.json` (không có đường dẫn cá nhân).
+`tests/python/test_resonance_mvp_pilot.py`, which only runs when `JAVIS_RESONANCE_PILOT=1`. Evidence: `docs/dev/resonance-mvp-m3-pilot.json` (no personal paths).
 
-- **Commit:** `9f3dad13`, cây `server/` sạch. Sau đó có thêm thay đổi ở đường báo tin (`goal.maintained`) và danh sách cấm đăng; hai phần này được kiểm bằng engine giả, KHÔNG chạy lại pilot thật để giữ hạn mức.
-- **Môi trường:** `JAVIS_STATE_DIR` tạm, chỉ chép các ô chọn engine (`anthropic-cli` / `sonnet`), brain tạm với dữ liệu mô phỏng, kênh báo thay bằng bộ ghi lại.
-- **Kịch bản:** mục tiêu duy trì "ghi chú `Inbox/viec-tuan.md` liệt kê việc đang dở" có guard "ghi chú cũ vẫn còn", hạn mức 3 lượt. Nhịp 1 qua `main._resonance_tick`; người dùng bổ sung "gia hạn tên miền"; giả lập khởi động lại (bỏ đối tượng kho, mở kho mới); nhịp 2; nhịp 3.
-- **Kết quả:** 2 lượt gọi model thật (6,0 và 5,0 giây), cả hai receipt succeeded, đúng provider đã chọn, 0 lần gọi công cụ, hash khớp file trên đĩa. Hai lần đăng sản phẩm succeeded (lần 2 ghi đè được vì đúng hash lần 1 của chính mục tiêu). Cả hai revision host kiểm met. Nhịp 3 không gọi thêm. Dùng 2/3 lượt. Bằng chứng revision 2 đọc lại được từ EvidenceStore thật, hash khớp. Ghi chú cũ còn nguyên, không có em dash.
-- **Usage engine báo:** khoảng 18,1 nghìn và 18,5 nghìn token vào, khoảng 300 token ra mỗi lượt; `cost_usd` là con số SDK tự tính trên gói thuê bao, không phải hoá đơn.
-- **Pilot làm lộ hai điều:** (a) mục tiêu duy trì đạt mà không báo người dùng gì, đã sửa bằng `goal.maintained`; (b) model tự viết câu sai "các ghi chú cũ trong Inbox/viec-tuan.md được giữ nguyên", trong khi ghi chú cũ nằm ở `Notes/`. Bộ thực thi chỉ chữ chỉ thấy ràng buộc dạng chữ, không thấy file, nên có thể viết lời khẳng định không kiểm chứng. Đây là giới hạn chất lượng, không sửa ở M3.
+- **Commit:** `9f3dad13`, `server/` tree clean. Afterwards there were more changes to the notification path (`goal.maintained`) and the publish-forbidden list; these two parts were checked with the fake engine and the real pilot was NOT re-run, to preserve the quota.
+- **Environment:** a temp `JAVIS_STATE_DIR`, copying only the engine selection fields (`anthropic-cli` / `sonnet`), a temp brain with simulated data, and the notification channel replaced by a recorder.
+- **Scenario:** a maintain goal "the note `Inbox/viec-tuan.md` lists the unfinished tasks" (the filename means "weekly tasks" and is kept as the verbatim identifier) with the guard "the old notes are still there", and a quota of 3 turns. Tick 1 goes through `main._resonance_tick`; the user adds "renew the domain name"; a restart is simulated (drop the store object, open a fresh store); tick 2; tick 3.
+- **Result:** 2 real model calls (6.0 and 5.0 seconds), both receipts succeeded, the right provider that was selected, 0 tool calls, and the hash matches the file on disk. Both publish actions succeeded (the second could overwrite because the hash matched this goal's own first publish). The host checked both revisions as met. Tick 3 made no further call. Used 2/3 turns. The evidence for revision 2 could be read back from the real EvidenceStore, and the hash matches. The old note is untouched, with no em dash.
+- **Usage reported by the engine:** about 18.1 thousand and 18.5 thousand input tokens, about 300 output tokens per turn; `cost_usd` is the figure the SDK computes by itself on a subscription plan, not an invoice.
+- **The pilot exposed two things:** (a) the maintain goal was met without telling the user anything, fixed with `goal.maintained`; (b) the model wrote a wrong sentence on its own, "the old notes in Inbox/viec-tuan.md are kept as they are", while the old notes are in `Notes/`. The text-only executor only sees constraints as text, not files, so it may write unverified claims. This is a quality limit, not fixed in M3.
 
-### Lỗi tự gây hoặc tự phát hiện trong lúc làm, đã sửa
+### Self-inflicted or self-found bugs while working, fixed
 
-- **Mất ngữ cảnh khi làm tiếp.** Sau tin bổ sung, ý định của revision là tin bổ sung đó, nên bước làm tiếp chỉ đưa tin mới cho model, mất lời giao gốc và bản đã làm. Phát hiện khi thiết kế pilot; sửa ở `9f3dad13`.
-- **Mục tiêu duy trì im lặng.** Phát hiện ở pilot; sửa ở `a71b124e`.
-- **Sản phẩm có thể tạo file cấu hình Jarvis 007.** Tự soát diff thấy đường dẫn do model khai có thể tạo `Javis/loops/*.md`, `agents/*.md`, `skills/*/SKILL.md`, `memory/...` hay `CLAUDE.md`, tức tự mở rộng quyền. Thêm danh sách cấm ở `_publish`.
-- **Hai lỗi trong test của chính em:** chân trời `maintain` làm mục tiêu thành maintain nên không "thành công" (đúng thiết kế, sửa test); `tick` chung xử lý cả mục tiêu khác đang tới hạn (sửa test đếm theo mục tiêu).
+- **Lost context when continuing.** After a follow-up message, the revision's intent is that follow-up message, so the continuing step only gave the new message to the model, losing the original assignment and the version already made. Found while designing the pilot; fixed in `9f3dad13`.
+- **A silent maintain goal.** Found in the pilot; fixed in `a71b124e`.
+- **The product could create Jarvis 007 config files.** Reviewing the diff myself, I saw that a path declared by the model could create `Javis/loops/*.md`, `agents/*.md`, `skills/*/SKILL.md`, `memory/...` or `CLAUDE.md`, which means expanding its own permissions. Added a forbidden list in `_publish`.
+- **Two bugs in my own tests:** the `maintain` horizon makes the goal a maintain goal so it does not "succeed" (correct by design, test fixed); the shared `tick` also processes other goals that are due (test fixed to count per goal).
 
-### Sửa theo review PR #570
+### Fixes from the PR #570 review
 
-Review của ChatGPT (`exports/reviews/PR-570-M3-review.md`, diff `fa7e264d..e5a42409`) nêu 5 lỗi P1 và 1 lỗi P2, cả sáu đều tái hiện được trên GoalStore SQLite thật. Đồng ý cả sáu. Sửa trong một commit, test hồi quy nằm ở cuối `test_resonance_mvp_run.py` (lên 92 kiểm tra).
+ChatGPT's review (`exports/reviews/PR-570-M3-review.md`, diff `fa7e264d..e5a42409`) raised 5 P1 bugs and 1 P2 bug, all six reproducible on a real SQLite GoalStore. I agreed with all six. Fixed in one commit, with regression tests at the end of `test_resonance_mvp_run.py` (up to 92 checks).
 
-- **P1-1, pause giữa lượt bị bỏ qua ở bước đăng.** Thêm `_gate`: mục tiêu còn active, công tắc brain còn bật, người dùng không tạm dừng, mọi guard clear. Cổng chạy trước MỌI lần đăng sản phẩm và mọi kết luận thành công, kể cả ngay sau khi model trả về. Bị chặn thì đầu ra giữ trong vùng làm việc, receipt và lượt đã dùng vẫn ghi. Tiếp tục (`set_paused(False)` nay hẹn lịch làm ngay) thì `_publish_latest` đăng đầu ra đã lưu của revision hiện tại qua cổng, KHÔNG gọi model lần hai.
-- **P1-2, guard chưa bảo vệ đủ đường.** (a) Sau khi model chạy, cổng quan sát guard lại. (b) `_reconcile` nay chỉ chốt receipt; việc đăng đầu ra đã đối soát đi qua cổng như mọi lần khác, nên guard đã nhảy thì receipt được chốt mà sản phẩm không được đăng. (c) Guard unknown (nguồn chưa hỗ trợ hoặc không đọc được) không còn coi như clear: blocked `guard_unknown`, không đăng, không kết luận, báo người dùng một lần mỗi revision, kiểm lại bằng code sau ít nhất 6 giờ. Kết quả guard đi cùng assessment.
-- **P1-3, bản cập nhật bỏ được guard.** Guard đang có được giữ qua mọi bản cập nhật: `guards=[]`, đổi path, đổi evaluator đều chỉ có thể THÊM guard mới, guard cũ giữ nguyên id và điều kiện; phần muốn bỏ hay sửa báo "chưa hỗ trợ". Cùng phạm vi đã chốt cho hạn, chỉ tiêu và ràng buộc ở M2.
-- **P1-4, nhận lịch bằng xoá làm mất việc.** `tick` nhận lịch bằng `claim_wake`: CAS trên `due_at` rồi DỜI lịch tới lúc hết hạn nhận (thời gian tối đa một lượt cộng biên), không xoá. Tiến trình chết sau khi nhận mà trước khi `advance` ghi gì thì lịch tự tới hạn lại; `advance` ghi đè hoặc xoá lịch khi đã có trạng thái tiếp theo. Mục tiêu đang bận khoá của lượt khác thì lịch còn đó để chạy sau.
-- **P1-5, đạt bước khám phá đóng luôn nhu cầu gốc.** Tiêu chí met ở stage `discovery` không gọi `finish`: mục tiêu chờ `discovery_done`, báo người dùng đây mới là bước tìm hiểu. Kèm sửa một lỗi mặc định từ M2 lộ ra khi sửa ca này: không khai `stage` thì trước đây luôn là `discovery`, nay là `delivery` khi đã có cách hiểu cụ thể (đúng nghĩa chữ S), nếu không mọi mục tiêu bộ não lập mà bỏ trống stage sẽ không bao giờ hoàn thành.
-- **P2-1, chỉ có tiêu chí người dùng thì chưa làm đã chờ.** "Chỉ còn chờ người dùng" nay đòi đã có sản phẩm của revision hiện tại khi không có tiêu chí kiểm được nào khác. Mục tiêu chỉ có `human_confirmation` làm ra bản để duyệt trước, tin chờ duyệt kèm link tới bản đó trong vùng làm việc.
+- **P1-1, a pause in the middle of a turn was ignored at the publish step.** Added `_gate`: the goal is still active, the brain switch is still on, the user has not paused, and every guard is clear. The gate runs before EVERY product publish and every success conclusion, including right after the model returns. If it is blocked, the output stays in the work area, and the receipt and turns used are still recorded. On resume (`set_paused(False)` now schedules work immediately), `_publish_latest` publishes the saved output of the current revision through the gate, WITHOUT calling the model a second time.
+- **P1-2, the guard did not protect every path.** (a) After the model runs, the gate observes the guard again. (b) `_reconcile` now only settles the receipt; publishing a reconciled output goes through the gate like every other time, so if the guard has already tripped the receipt is settled but the product is not published. (c) An unknown guard (source not supported or unreadable) is no longer treated as clear: blocked as `guard_unknown`, no publish, no conclusion, the user is notified once per revision, and it is re-checked by code after at least 6 hours. The guard result travels with the assessment.
+- **P1-3, an update could drop a guard.** Existing guards are kept through every update: `guards=[]`, changing the path, and changing the evaluator can only ADD new guards, while the old guard keeps its id and condition; anything meant to be dropped or edited reports "not supported yet". Same scope as already settled for the deadline, targets and constraints in M2.
+- **P1-4, claiming a schedule by deleting it lost the work.** `tick` claims a schedule with `claim_wake`: CAS on `due_at` and then PUSHES the schedule to the claim expiry time (the maximum duration of a turn plus a margin), without deleting it. If the process dies after claiming but before `advance` writes anything, the schedule comes due again by itself; `advance` overwrites or deletes the schedule once there is a next state. If a goal is busy under another turn's lease, its schedule stays there to run later.
+- **P1-5, passing the discovery step closed the original need.** A criterion met at stage `discovery` does not call `finish`: the goal waits at `discovery_done` and tells the user this was only the exploration step. This comes with the fix for a default from M2 that surfaced while fixing this case: when no `stage` is declared it used to always be `discovery`, and now it is `delivery` once there is a concrete understanding (the literal meaning of S); otherwise every goal the brain formed with the stage left blank would never complete.
+- **P2-1, with only user criteria the goal waited before doing any work.** "Only waiting for the user" now requires that a product of the current revision already exists when there is no other checkable criterion. A goal with only `human_confirmation` first makes a version to review, and the waiting-for-review message carries a link to that version in the work area.
 
-Chạy lại `PR-570-M3-checks.py`: script dừng ở assertion REPRO đầu tiên vì lỗi đó đã hết. Một bản sao bọc riêng từng ca cho kết quả: 2 PASS đối chứng vẫn qua (đường cơ bản, hash pilot lưu trữ), cả 8 assertion REPRO đều không còn đúng. Sáu phép thử đột biến trên phần sửa (bỏ cổng sau khi model chạy, coi guard unknown là clear, bỏ kế thừa guard, nhận lịch bằng xoá, cho discovery đóng mục tiêu, cho human-only chờ khi chưa có bản) đều làm test đỏ.
+Re-running `PR-570-M3-checks.py`: the script stops at the first REPRO assertion because that bug is gone. A copy that wraps each case separately gives: the 2 control PASS assertions still pass (the basic path, the archived pilot hash), and all 8 REPRO assertions are no longer true. Six mutation tests on the fix (remove the gate after the model runs, treat an unknown guard as clear, remove guard inheritance, claim schedules by deleting, let discovery close the goal, let human-only wait when there is no version yet) all turned the tests red.
 
-Không chạy lại pilot thật cho phần sửa này: các thay đổi nằm ở cổng kiểm, đối soát và lịch, đều kiểm được tất định bằng engine giả.
+The real pilot was not re-run for this fix: the changes are in the check gate, reconciliation and the schedule, all of which can be checked deterministically with the fake engine.
 
-### Sửa theo review PR #570 vòng 2
+### Fixes from the PR #570 review, round 2
 
-Review vòng 2 (`exports/reviews/PR-570-M3-review-round2.md`, diff `e5a42409..9aad1f5d`) xác nhận sáu nhóm sửa vòng 1 đạt bằng assertion theo hành vi đúng, và nêu một lỗi P1 còn hở của P1-2: cổng kiểm guard chạy TRƯỚC khi đăng, rồi ảnh chụp đó được gắn vào đánh giá SAU khi đăng. Khi guard đọc đúng file sản phẩm và bản mới làm guard sai (ví dụ bỏ mất tiêu đề phải giữ), mục tiêu vẫn bị đóng thành công. Lỗi xảy ra tuần tự, không phải khe tranh chấp đã ghi ở giới hạn.
+Round 2 review (`exports/reviews/PR-570-M3-review-round2.md`, diff `e5a42409..9aad1f5d`) confirmed that the six round 1 fix groups pass with the right behavior assertions, and raised one P1 bug still open in P1-2: the guard check gate runs BEFORE publishing, and then that snapshot is attached to the assessment AFTER publishing. When the guard reads the product file itself and the new version makes the guard fail (for example dropping a heading that must be kept), the goal is still closed as successful. The bug happens sequentially, and is not the race window noted in the limits.
 
-- **Kiểm bản ứng viên trước khi thay file.** `_publish` đem nội dung sắp ghi kiểm theo mọi guard `artifact_contract` đọc đúng file đích. Bản mới làm guard sai thì giữ bản đang hợp lệ, bản mới ở lại vùng làm việc, ghi sự kiện `publish_blocked_by_guard`.
-- **Kiểm lại trên trạng thái cuối.** `_after_publish` chạy lại cổng sau khi đăng rồi mới đánh giá; guard trong assessment là kết quả của lần kiểm này. Bản ứng viên bị guard chặn thì assessment thêm một dòng not_met nêu tên guard, nên không kết luận đạt, không báo `goal.maintained`, và lượt làm lại đưa phản hồi đó cho model.
-- **Cả hai đường.** Đường làm việc thường và đường dùng lại đầu ra đã lưu (sau pause, sau gián đoạn) đều đi qua hai bước trên. Đầu ra đã lưu mà hợp lệ thì resume vẫn đăng và đạt KHÔNG tốn thêm lượt model; đầu ra đã lưu làm guard sai thì không đăng, và host làm lại một lượt trong hạn mức có phản hồi về guard.
-- **Test:** thêm 7 kiểm tra theo đúng hai kịch bản của review cùng ca đối chứng (`test_resonance_mvp_run.py` lên 99). Bỏ bước kiểm bản ứng viên thì 6 kiểm tra đỏ. Script `PR-570-M3-round2-checks.py`: 10 PASS đầu vẫn qua; ở cả hai ca REPRO guard thật vẫn clear và mục tiêu không bị đóng. Ca resume của script còn một assertion "không có lượt gọi thêm" viết cho trạng thái lỗi; sau sửa, đầu ra vi phạm guard dẫn tới đúng một lượt làm lại có phản hồi, theo thiết kế ở trên.
+- **Check the candidate version before replacing the file.** `_publish` checks the content about to be written against every `artifact_contract` guard that reads exactly the target file. If the new version makes the guard fail, the currently valid version is kept, the new one stays in the work area, and a `publish_blocked_by_guard` event is recorded.
+- **Re-check on the final state.** `_after_publish` runs the gate again after publishing and only then assesses; the guard in the assessment is the result of this check. If a candidate version is blocked by a guard, the assessment adds a not_met line naming the guard, so it does not conclude success, does not report `goal.maintained`, and the redo turn gives that feedback to the model.
+- **Both paths.** The normal work path and the path that reuses a saved output (after a pause, after an interruption) both go through the two steps above. If a saved output is valid, resume still publishes and succeeds WITHOUT spending an extra model turn; if a saved output makes the guard fail, it is not published, and the host redoes one turn within quota with feedback about the guard.
+- **Tests:** added 7 checks following the two scenarios of the review plus a control case (`test_resonance_mvp_run.py` goes up to 99). Removing the candidate check turns 6 checks red. Script `PR-570-M3-round2-checks.py`: the first 10 PASS still pass; in both REPRO cases the real guard stays clear and the goal is not closed. The script's resume case still has an assertion "no extra call" written for the bug state; after the fix, an output that violates the guard leads to exactly one redo turn with feedback, as designed above.
 
-### Giới hạn và những gì chưa kiểm
+### Limits and what was not verified
 
-1. **Chưa có chính sách khi tới hạn chót.** Không mục tiêu nào bị kết luận `failed`; tới deadline mà chưa đạt vẫn chỉ là chưa đạt. Spec 7 yêu cầu ghi unknown và áp chính sách deadline đã chốt.
-2. **Bộ thực thi chỉ có chữ.** Không đọc được file hay dữ liệu của brain; mục tiêu cần dữ liệu thì bộ não phải làm trong lượt chat. Model có thể viết lời khẳng định không kiểm chứng (ví dụ ở pilot).
-3. **Một sản phẩm mỗi mục tiêu.** Chỉ tiêu chí `artifact_contract` đầu tiên có `path` được đăng; tiêu chí khác chỉ được đánh giá.
-4. **Khe giữa kiểm và ghi khi đăng sản phẩm.** Người dùng sửa file đúng giữa lúc host so hash và lúc thay file thì bản của người dùng có thể bị thay. Chưa có khoá file.
-5. **Báo tin ít nhất một lần.** Tiến trình chết giữa lúc gửi và lúc đánh dấu thì tin có thể gửi lặp. Phát lại không trùng tại kho tin nhắn là việc của M4.
-6. **Guard.** Chỉ `artifact_contract` đọc được; nguồn khác làm mục tiêu dừng ở `guard_unknown` cho tới khi có adapter; đọc guard không chụp vào kho bằng chứng; guard đã nhảy và guard cũ chưa có đường mở lại hay sửa (lệnh người dùng ở M4).
-7. **Bằng chứng không ghim.** Hạn lưu 90 ngày; quá hạn thì đánh giá lại ra unknown.
-8. **Thao tác SQLite đồng bộ trong event loop.** Mỗi lần nhỏ, nhưng chưa đưa ra luồng riêng. Mỗi nhịp xử lý tối đa 3 lịch.
-9. **Pilot thật chạy ở `9f3dad13`**, trước hai thay đổi cuối (báo `goal.maintained`, danh sách cấm đăng); hai thay đổi đó chỉ kiểm bằng engine giả.
-10. **Từ M2 vẫn còn:** việc nền do làn giọng nói tự giao chưa lập mục tiêu; chưa đổi hay bỏ được chỉ dẫn người dùng đã nêu.
+1. **No policy yet for reaching the deadline.** No goal is concluded as `failed`; reaching the deadline without being achieved is still just not achieved. Spec 7 requires recording unknown and applying the agreed deadline policy.
+2. **The executor has text only.** It cannot read files or brain data; a goal that needs data must have the brain do it inside the chat turn. The model may write unverified claims (for example in the pilot).
+3. **One product per goal.** Only the first `artifact_contract` criterion that has a `path` is published; other criteria are only assessed.
+4. **A gap between check and write when publishing the product.** If the user edits the file exactly between the host comparing the hash and replacing the file, the user's version may be replaced. There is no file lock yet.
+5. **Notifications are at-least-once.** If the process dies between sending and marking, the message may be sent twice. Replaying without duplicates at the message store is M4's job.
+6. **Guard.** Only `artifact_contract` can be read; other sources make the goal stop at `guard_unknown` until there is an adapter; reading a guard does not snapshot into the evidence store; a guard that has tripped and old guards have no path to reopen or edit (user commands in M4).
+7. **Evidence is not pinned.** Retention is 90 days; after expiry, reassessment gives unknown.
+8. **SQLite operations are synchronous in the event loop.** Each one is small, but they are not moved to a separate thread yet. Each tick handles at most 3 schedules.
+9. **The real pilot ran at `9f3dad13`**, before the last two changes (reporting `goal.maintained`, the publish-forbidden list); those two changes were only checked with the fake engine.
+10. **Still outstanding from M2:** background work handed off on its own by the voice lane does not form a goal; the user's stated instructions cannot be changed or dropped yet.
 
-### Toàn bộ test Python
+### Full Python test run
 
-| | Main sạch (`7d264236`) | Nhánh M3 (`e07c68cd`) | M3 sau review (`6c840c93`) | M3 sau review vòng 2 (`7ceb987e`) |
+| | Clean main (`7d264236`) | M3 branch (`e07c68cd`) | M3 after review (`6c840c93`) | M3 after review round 2 (`7ceb987e`) |
 |---|---|---|---|---|
-| Xanh | 387/403 | 396/411 | 395/411 | 396/411 |
-| File đỏ | 16 | 15 | 16 | 15 |
-| Đỏ mới so với main | | không có | không có | không có |
+| Green | 387/403 | 396/411 | 395/411 | 396/411 |
+| Red files | 16 | 15 | 16 | 15 |
+| New red vs main | | none | none | none |
 
-Lượt sau review: 15 file đỏ sẵn ở mục M1 cộng `test_project_khung.py` (đỏ trên main sạch, chập chờn).
+Run after the review: the 15 files already red in the M1 section plus `test_project_khung.py` (red on clean main, flaky).
 
-15 file đỏ trùng đúng danh sách đỏ sẵn ở mục M1. Một lượt chạy trước đó (trên cây đang sửa, giữa hai commit) bị ngắt ở file 408/411 và để lại năm file Zalo/YouTube đỏ liền nhau ngay trước lúc dừng; chạy riêng tám file cuối đều xanh, nên không tính lượt đó.
+The 15 red files are exactly the list already red in the M1 section. An earlier run (on the tree being edited, between two commits) was cut off at file 408/411 and left five Zalo/YouTube files red in a row just before stopping; running the last eight files alone all came out green, so that run is not counted.
 
-## M4: thẻ mục tiêu và phản hồi có nghĩa rõ (07/10/2026)
+## M4: goal card and clearly meaningful feedback (2026-10-07)
 
-### Nền và nhánh
+### Base and branch
 
-- Nhánh `claude/resonance-mvp-m4` tách từ head M3 đã qua review (`1fe86a04`), PR nháp #575 xếp chồng trên #570. Phiên bản 0.84.9: `origin/main` đã lên 0.84.8 (`3e3d7d48`) và PR #571 giữ 0.84.5.
-- `origin/main` đã đi thêm 5 commit so với nền `7d264236`; trong các file M4 sửa, chỉ `server/main.py` có đổi (2 dòng ở phần Zalo, không chạm vùng Resonance). Chưa đồng bộ vào chuỗi, cùng lý do ở M3; chỉnh một lần lúc merge.
+- Branch `claude/resonance-mvp-m4` split from the M3 head that passed review (`1fe86a04`), draft PR #575 stacked on #570. Version 0.84.9: `origin/main` has already reached 0.84.8 (`3e3d7d48`) and PR #571 is holding 0.84.5.
+- `origin/main` has moved on by 5 more commits relative to the base `7d264236`; among the files M4 edits, only `server/main.py` changed (2 lines in the Zalo part, not touching the Resonance area). Not synced into the chain yet, for the same reason as in M3; adjusted once at merge time.
 
-### Quyết định thiết kế cần người review soát
+### Design decisions for the reviewer to check
 
-1. **Hai câu hỏi tách riêng** (spec 4.5, 4.7). `goal_fit_confirmed` / `goal_fit_rejected` xác nhận cách hiểu của đúng revision đang hiện. `outcome_accepted` / `outcome_rejected` chỉ nhận cho tiêu chí `human_confirmation` (tiêu chí host kiểm tự động trả 400), gắn đúng `artifact_ref` = sha256 bytes HIỆN TẠI của file thẻ cho xem (file sản phẩm trong brain, hoặc đầu ra mới nhất của revision khi không khai file), chỉ có khi revision hiện tại đã có lượt làm thành công; file đổi thì xác nhận cũ không còn áp dụng (sửa theo review vòng 1, xem dưới). Xác nhận không vượt kiểm tra khách quan hay guard. Im lặng là unknown.
-2. **Chỉ người dùng ghi được phản hồi.** Dashboard có một tài khoản đăng nhập; request tới API đã qua `_auth_guard` và `_csrf_guard` nên host dựng `Principal("owner")` từ brain đã resolve. Agent gọi `record_feedback` thì `PermissionError`.
-3. **Mọi phản hồi gắn revision (CAS).** Thẻ cũ gửi revision cũ thì 409 kèm trạng thái mới để thẻ vẽ lại. Cùng `idempotency_key` thì không ghi lần hai; khoá định danh MỘT lần bấm, nên gửi lại đúng lần bấm đó là trùng còn lần bấm mới luôn được ghi.
-4. **"Chưa đúng ý"** dừng tác động tiếp theo của revision đó (`waiting / fit_rejected`, kiểm trong `_gate`), không phải lệnh dừng toàn bộ: revision mới (người dùng nói rõ hơn, bộ não cập nhật) mở lại bình thường. "Tiếp tục" không vượt được nó.
-5. **Lệnh tạm dừng, tiếp tục, huỷ luôn có hiệu lực**, không đòi khớp revision (can thiệp của người dùng, spec 2.3); revision người dùng đang nhìn vẫn được ghi. "Tiếp tục" mở lại guard đã nhảy chỉ khi guard hiện đã clear. Xem thẻ và các lệnh này không đòi công tắc bật; chỉ phản hồi và lập mục tiêu mới đòi.
-6. **Đường có thẩm quyền để bỏ chỉ dẫn của người dùng** (việc M2, M3 hẹn cho M4): thẻ liệt kê hạn chót, chỉ tiêu, ràng buộc và guard với nút "Bỏ"; lệnh `drop_directive` chỉ owner, đòi đúng revision, tạo revision mới ghi nguồn là người dùng và quan hệ `replace`, bỏ cả khỏi danh sách ràng buộc người dùng của kho, mở chặn nếu bỏ đúng guard đang chặn. Bộ não vẫn không làm được qua `javis_goal`; lời báo phần chưa áp dụng và mô tả tool nay chỉ người dùng tới nút này. Đổi hạn sang ngày khác vẫn là hai bước: bỏ hạn cũ trên thẻ, rồi nói hạn mới trong chat để bộ não thêm.
-7. **Báo cáo không lặp sau sự cố.** Tin báo mang khối `JAVIS_RESONANCE` có khoá `outbox:<id>`. `drain_outbox` hỏi kho tin nhắn khoá đó đã có chưa (`main._resonance_reported`): tiến trình chết giữa lúc lưu tin và lúc đánh dấu outbox thì nhịp sau chỉ đánh dấu, không gửi lần hai. `push_to_chat`, `_gui_qua_kenh`, `_notify_owner` thêm tham số tuỳ chọn `card`, chỉ nhận đúng khuôn khối đó; các chỗ gọi cũ không đổi.
-8. **Khối thẻ chỉ mang id.** Thẻ đọc trạng thái sống qua `GET /goals/{id}`, nên F5, mở lại hội thoại cũ hay kết nối lại đều vẽ đúng tình trạng hiện tại. Tên khối là `JAVIS_RESONANCE`, khác `JAVIS_GOAL` của lệnh `/goal` đã có.
-9. **Một mục tiêu nhiều tin.** Mục tiêu có thể xuất hiện ở tin lúc lập, lúc báo tiến triển, lúc xong. Mọi thẻ của cùng mục tiêu vẽ từ một trạng thái; chỉ thẻ mới nhất đầy đủ và có nút, thẻ cũ là một dòng tình trạng.
-10. **Chờ người dùng duyệt** nay đòi có sản phẩm của ĐÚNG revision hiện tại. Trước đó revision mới mà file khai vẫn đạt nhờ bản của revision cũ sẽ chờ xác nhận trong khi không có bản nào để gắn nút.
-11. **Công tắc theo brain** trên trang Cài đặt nhanh ("Hệ thống cộng hưởng (thử nghiệm)", mặc định tắt), qua `GET/POST /resonance/settings`.
-12. **`POST /goal-requests`** lập mục tiêu từ một tin người dùng có sẵn (`msg:<phiên>:<id>`, phiên phải thuộc brain, tin phải của người dùng), một lượt bộ lập mục tiêu, cùng tin trả mục tiêu cũ. Chưa có nút giao diện gọi tới.
+1. **Two separate questions** (spec 4.5, 4.7). `goal_fit_confirmed` / `goal_fit_rejected` confirm the understanding of exactly the revision currently shown. `outcome_accepted` / `outcome_rejected` are only accepted for a `human_confirmation` criterion (a criterion the host checks automatically returns 400), tied to exactly `artifact_ref` = the sha256 of the CURRENT bytes of the file the card shows (the product file in the brain, or the latest output of the revision when no file is declared), and only available when the current revision already has a successful work turn; if the file changes, the old confirmation no longer applies (fixed after round 1 review, see below). A confirmation does not override an objective check or a guard. Silence is unknown.
+2. **Only the user can write feedback.** The dashboard has a single login account; requests to the API have gone through `_auth_guard` and `_csrf_guard`, so the host builds `Principal("owner")` from the resolved brain. If the agent calls `record_feedback`, it gets `PermissionError`.
+3. **Every piece of feedback is tied to a revision (CAS).** An old card sending an old revision gets 409 with the new state so the card can redraw. The same `idempotency_key` is not written a second time; the key identifies ONE click, so re-sending exactly that click is a duplicate while a new click is always recorded.
+4. **"Not quite"** stops the next effect of that revision (`waiting / fit_rejected`, checked in `_gate`), and is not a full stop command: a new revision (the user speaks more clearly, the brain updates) reopens normally. "Resume" cannot override it.
+5. **The pause, resume and cancel commands always take effect**, and do not require matching a revision (a user intervention, spec 2.3); the revision the user is looking at is still recorded. "Resume" reopens a guard that has tripped only when the guard is now clear. Viewing the card and these commands do not require the switch to be on; only feedback and forming goals do.
+6. **The authoritative path to drop the user's instructions** (the thing M2 and M3 promised to M4): the card lists the deadline, targets, constraints and guards with a "Remove" button; the `drop_directive` command is owner-only, requires the exact revision, creates a new revision recording the source as the user and the relation `replace`, also removes the item from the store's list of user constraints, and lifts the block if the dropped guard is exactly the one blocking. The brain still cannot do it through `javis_goal`; the message about the part not applied and the tool description now point the user only to this button. Changing the deadline to another date is still two steps: drop the old deadline on the card, then state the new deadline in chat so the brain adds it.
+7. **No repeated report after an incident.** The report message carries a `JAVIS_RESONANCE` block with the key `outbox:<id>`. `drain_outbox` asks the message store whether that key is already there (`main._resonance_reported`): if the process dies between saving the message and marking the outbox, the next tick only marks it and does not send a second time. `push_to_chat`, `_gui_qua_kenh`, `_notify_owner` gain an optional `card` parameter that only accepts exactly that block form; existing callers are unchanged.
+8. **The card block carries only an id.** The card reads live state through `GET /goals/{id}`, so F5, reopening an old conversation or reconnecting all draw the correct current state. The block name is `JAVIS_RESONANCE`, different from the `JAVIS_GOAL` of the existing `/goal` command.
+9. **One goal, many messages.** A goal can appear in the message at creation, at a progress report, and at completion. Every card of the same goal is drawn from one state; only the newest card is full and has buttons, and old cards are a single status line.
+10. **Waiting for user review** now requires a product of EXACTLY the current revision. Before this, a new revision whose declared file still passed thanks to the old revision's version would wait for confirmation while there was no version to attach the button to.
+11. **A per-brain switch** on the quick settings page ("Auto (experimental)", off by default), through `GET/POST /resonance/settings`.
+12. **`POST /goal-requests`** forms a goal from an existing user message (`msg:<session>:<id>`, the session must belong to the brain, the message must be the user's), one goal-framer turn, and the same message returns the existing goal. No UI button calls it yet.
 
-### Kết quả với engine giả và API thật
+### Results with the fake engine and the real API
 
-- `tests/python/test_resonance_mvp_feedback.py`: TestClient trên `main.app` (http://127.0.0.1:8080), kho SQLite, kho phiên thật, engine giả. Đủ các test Task M4 đặt tên: `goal_fit_not_outcome`, `feedback_old_revision`, `feedback_cross_brain`, `silence_is_unknown`, `reload_keeps_goal_action_links`, `report_replay_same_mid`. Thêm: xác nhận không vượt guard hay kiểm tra khách quan; "Cần chỉnh" làm lại có phản hồi và xác nhận cũ không áp cho bản mới; "Chưa đúng ý" chặn tới revision mới; lệnh tạm dừng, tiếp tục, huỷ; bỏ từng loại chỉ dẫn; `goal-requests`; công tắc theo brain.
-- `tests/js/test_resonance_mvp_ui.js`: bóc khối (kể cả JSON hỏng), HTML thẻ chống chèn mã, nút Đạt yêu cầu chỉ cho tiêu chí người dùng duyệt và chỉ khi đã có sản phẩm, request lấy revision / criterion / artifact_ref từ trạng thái đã tải, thẻ cũ gửi đúng revision cũ, thẻ gọn, nút Bỏ chỉ dẫn, khoá từ điển vi/en, điểm nối trong app.js / index.html / style.css.
-- Phép thử đột biến: bỏ đối soát báo lặp, bỏ chặn "Chưa đúng ý", cho xác nhận áp cho bản cũ, cho xác nhận tay tiêu chí tự động. Cả bốn làm test đỏ.
-- Hai canary cũ (`test_the_viec_nen.js`, `test_voice_v3_mot_luong.js`) ràng nguyên văn hai dòng đọc thành tiếng trong `app.js`; giữ đúng hai dòng đó, bóc khối thẻ ở dòng trước.
-- Lượt chạy toàn bộ đầu tiên làm đỏ thêm hai file do M4 gây ra, đã sửa ở `4ae62efa`: `test_viec_nen_khong_moc_lung_tung.py` ràng nguyên văn lời gọi `push_to_chat` cho thẻ việc nền trong `_gui_qua_kenh` (tách nhánh thẻ mục tiêu ra riêng, giữ nguyên dòng cũ); `test_route_table.py` là ảnh chụp bảng route, chụp lại có chủ ý cho 7 route mới, không route cũ nào bị bỏ hay trùng tiền tố.
+- `tests/python/test_resonance_mvp_feedback.py`: TestClient on `main.app` (http://127.0.0.1:8080), SQLite store, real session store, fake engine. It has all the tests Task M4 named: `goal_fit_not_outcome`, `feedback_old_revision`, `feedback_cross_brain`, `silence_is_unknown`, `reload_keeps_goal_action_links`, `report_replay_same_mid`. Added: a confirmation does not override a guard or an objective check; "Needs changes" redoes with feedback and the old confirmation does not apply to the new version; "Not quite" blocks until a new revision; the pause, resume and cancel commands; dropping each kind of instruction; `goal-requests`; the per-brain switch.
+- `tests/js/test_resonance_mvp_ui.js`: block extraction (including broken JSON), card HTML safe against code injection, the "Meets the bar" button only for user-reviewed criteria and only when a product exists, the request takes revision / criterion / artifact_ref from the loaded state, an old card sends exactly the old revision, a compact card, the "Remove" instruction button, the vi/en dictionary keys, and the hook-up points in app.js / index.html / style.css.
+- Mutation tests: remove duplicate-report reconciliation, remove the "Not quite" block, let a confirmation apply to an old version, let a manual confirmation apply to an automatic criterion. All four turned the tests red.
+- Two old canaries (`test_the_viec_nen.js`, `test_voice_v3_mot_luong.js`) pin verbatim two read-aloud lines in `app.js`; exactly those two lines are kept, and the card block is stripped on the line before.
+- The first full run turned two more files red because of M4, fixed in `4ae62efa`: `test_viec_nen_khong_moc_lung_tung.py` pins the verbatim `push_to_chat` call for the background-work card in `_gui_qua_kenh` (the goal card branch is split out separately, keeping the old line as is); `test_route_table.py` is a snapshot of the route table, deliberately re-captured for the 7 new routes, with no old route dropped or sharing a prefix.
 
-### Kiểm giao diện thật
+### Real UI check
 
-Server sandbox của worktree (cổng 7788, `JAVIS_STATE_DIR` và `BRAINS_DIR` tạm, engine việc nền đặt là một provider bộ chọn chỉ chữ chặn sẵn nên KHÔNG có lượt gọi model nào), trình duyệt trong app, khung hẹp cỡ điện thoại:
+A sandbox server of the worktree (port 7788, temp `JAVIS_STATE_DIR` and `BRAINS_DIR`, the background engine set to a pre-blocked text-only selector provider so NO model call was made), the in-app browser, a narrow phone-sized frame:
 
-- Thẻ hiện đủ cách hiểu, tình trạng, tiêu chí (Đạt / Chưa biết), sản phẩm, giả định, hạn mức, nút; không tràn ngang.
-- Bấm chuột "Đúng ý": ghi nhận, thẻ hiện "Bạn đã xác nhận cách hiểu này". Bàn phím: focus "Đạt yêu cầu" rồi Enter: ghi nhận; nhịp lập lịch sau đó đánh giá lại và kết luận "Đã đạt" mà không gọi model; có tin báo hoàn thành.
-- F5 và mở lại hội thoại: mọi thẻ đọc lại đúng trạng thái sống.
-- Thẻ đang hiện revision 1, mục tiêu bị sửa sang revision 2 phía sau, bấm "Đúng ý": 409, thẻ vẽ lại revision 2 kèm câu báo, không ghi xác nhận nào cho revision 2.
-- Tạm dừng bằng chuột, tiếp tục: đúng trạng thái; tiếp tục dẫn tới lượt làm việc, engine bị chặn có chủ ý nên thẻ hiện "Bộ não việc nền chưa chạy được".
-- Công tắc theo brain trên trang Cài đặt: đọc đúng, tắt rồi bật lại ghi đúng.
+- The card shows the understanding, status, criteria (Met / Unknown), product, assumptions, quota and buttons in full; it does not overflow horizontally.
+- Mouse click "That's right": recorded, and the card shows "You confirmed this understanding". Keyboard: focus "Meets the bar" and then Enter: recorded; the schedule tick afterwards reassesses and concludes "Achieved" without calling the model; there is a completion notice.
+- F5 and reopening the conversation: every card reads back the correct live state.
+- The card is showing revision 1, the goal is edited to revision 2 behind it, click "That's right": 409, the card redraws revision 2 with a notice, and no confirmation is recorded for revision 2.
+- Pause with the mouse, resume: the right state; resume leads to a work turn, the engine is deliberately blocked so the card shows "The background engine cannot run yet".
+- The per-brain switch on the settings page: reads correctly, and turning it off and on again writes correctly.
 
-Ba điều lần kiểm này làm lộ ra, đã sửa ở `a2cf6cc7`: thẻ vẫn ghi "Chưa biết" ngay sau khi bấm "Đạt yêu cầu" (nay đọc xác nhận sống theo đúng luật đánh giá và báo đã ghi nhận); nhiều thẻ của cùng mục tiêu hiện trạng thái mâu thuẫn (nay vẽ chung, thẻ cũ thu gọn); "Lần làm tiếp" vẫn hiện khi đang tạm dừng (nay ẩn). Một cú bấm chuột bằng toạ độ tính trong lúc trang còn đang cuộn đã trượt khỏi nút; bấm lại theo ảnh chụp thì đúng, ghi lại để phân biệt với lỗi.
+Three things this check exposed, fixed in `a2cf6cc7`: the card still said "Unknown" right after clicking "Meets the bar" (it now reads the live confirmation under the assessment rule and reports that it was recorded); several cards of the same goal showed contradictory states (they are now drawn together, and old cards collapse); "Next step" still showed while paused (now hidden). One mouse click by coordinates computed while the page was still scrolling missed the button; clicking again based on a screenshot worked, noted to tell it apart from a bug.
 
-Đường dẫn rất dài trên Windows: ở thư mục sandbox đầu tiên (đường dẫn tạm rất sâu), ghi đầu ra vào `Javis/resonance/outputs/<mục tiêu>/<hành động>.md` vượt giới hạn 260 ký tự và lượt làm kết thúc `write_failed` (host báo lỗi đúng, không giả thành công). Brain ở đường dẫn thường không gặp; brain đặt rất sâu thì có thể gặp.
+Very long paths on Windows: in the first sandbox folder (a very deep temp path), writing the output to `Javis/resonance/outputs/<goal>/<action>.md` went over the 260 character limit and the work turn ended with `write_failed` (the host reported the error correctly, and did not fake success). A brain at a normal path does not hit this; a brain placed very deep might.
 
-Không chạy pilot model thật cho M4: phần mới là API, kho và giao diện, kiểm được tất định; đường gọi model không đổi từ M3.
+No real model pilot was run for M4: the new parts are the API, the store and the UI, which can be checked deterministically; the model-calling path has not changed since M3.
 
-### Sửa theo review PR #575 vòng 1
+### Fixes from the PR #575 review, round 1
 
-Review chưa đạt với 3 lỗi P1 và 2 lỗi P2. Đồng ý cả năm; mỗi lỗi có test hồi quy trong `test_resonance_mvp_feedback.py` (mục "Review M4 vòng 1") hoặc `test_resonance_mvp_ui.js`, đổi các REPRO của người review thành hành vi mong đợi.
+The review did not pass, with 3 P1 bugs and 2 P2 bugs. I agreed with all five; each bug has a regression test in `test_resonance_mvp_feedback.py` (section "Review M4 round 1") or `test_resonance_mvp_ui.js`, turning the reviewer's REPRO cases into expected behavior.
 
-1. **P1-1, danh tính sản phẩm.** `artifact_ref` từng là `output_sha256` trong receipt, tức bằng chứng worker đã tạo nội dung, không phải file người dùng đang xem. Nay là sha256 bytes hiện tại của file đó (`_artifact_file`, `_artifact_ref_of` trong `resonance.py`), dùng chung cho thẻ, cho kiểm `outcome_*` và cho `_human_verdict` lúc đánh giá. File đổi sau khi duyệt thì xác nhận cũ thành unknown, mục tiêu không thành công; thẻ cũ bấm "Đạt yêu cầu" nhận 409 kèm `artifact_ref` mới. Siết thêm: revision mới chưa có lượt làm thành công thì không có bản để duyệt, vì file trên đĩa khi đó là của cách hiểu cũ.
-2. **P1-2, khoá chống bấm trùng nuốt lần bấm mới.** Khoá cũ cố định theo mục tiêu, revision, nút, tiêu chí và bản sản phẩm, nên "Chưa đúng ý" lần hai sau "Đúng ý" bị server coi là trùng. Nay `requestFor` nhận `nonce` của lần bấm (`send()` sinh mới mỗi lần; không truyền thì tự sinh). Server giữ nguyên luật: cùng khoá là trùng, nên gửi lại đúng một request vẫn ghi một lần. Test cả hai thứ tự (Chưa đúng ý, Đúng ý, Chưa đúng ý và ngược lại).
-3. **P1-3, id guard trùng.** Id từng cấp theo `len(guards) + 1`, nên bỏ `gd1` rồi thêm guard mới sinh `gd2` thứ hai và nút Bỏ xoá cả hai. Nay khung lưu bộ đếm tăng dần `guard_seq` (trường mới của `GoalRecord`, đọc ở `_record`, mang qua `_prior_view`), id kế tiếp lớn hơn mọi id đã cấp; khung có id trùng thì không lưu. `drop_directive` gặp dữ liệu cũ có hai guard cùng id thì từ chối (400), không đoán và không xoá cả hai.
-4. **P2-1, tắt Resonance chặn lệnh dừng.** Nay xem thẻ, danh sách và các lệnh tạm dừng, huỷ, tiếp tục, bỏ chỉ dẫn chỉ đòi brain tồn tại (`_manage` trong `resonance_api.py`); phản hồi và `POST /goal-requests` vẫn đòi công tắc bật. Việc chạy tiếp vẫn bị công tắc chặn ở `_gate`, nên "Tiếp tục" lúc tắt chỉ bỏ tạm dừng, không gọi model.
-5. **P2-2, đối soát báo cáo chỉ nhìn 300 tin cuối.** Bản vòng 1 tìm chuỗi khoá trên toàn bộ phiên bằng SQL (`instr`); bản này bị review vòng 2 bác (xem dưới) và đã thay bằng biên nhận.
+1. **P1-1, product identity.** `artifact_ref` used to be the `output_sha256` in the receipt, meaning evidence that the worker produced the content, not the file the user is looking at. It is now the sha256 of the current bytes of that file (`_artifact_file`, `_artifact_ref_of` in `resonance.py`), shared by the card, the `outcome_*` check and `_human_verdict` at assessment time. If the file changes after approval the old confirmation becomes unknown and the goal does not succeed; an old card clicking "Meets the bar" gets 409 with the new `artifact_ref`. Tightened further: a new revision with no successful work turn has no version to review, because the file on disk is then from the old understanding.
+2. **P1-2, the anti-double-click key swallowed a new click.** The old key was fixed per goal, revision, button, criterion and product version, so a second "Not quite" after "That's right" was treated by the server as a duplicate. Now `requestFor` takes the click's `nonce` (`send()` generates a new one each time; if none is passed it generates its own). The server keeps the rule: the same key is a duplicate, so re-sending exactly one request still writes once. Both orders are tested (Not quite, That's right, Not quite and the reverse).
+3. **P1-3, duplicate guard id.** The id used to be issued as `len(guards) + 1`, so dropping `gd1` and then adding a new guard produced a second `gd2`, and the Remove button deleted both. Now the frame stores an increasing counter `guard_seq` (a new field of `GoalRecord`, read in `_record`, carried through `_prior_view`), and the next id is greater than every id ever issued; a frame with a duplicate id is not saved. When `drop_directive` meets old data with two guards sharing an id it refuses (400), and neither guesses nor deletes both.
+4. **P2-1, turning Resonance off blocked the stop commands.** Now viewing the card, the list, and the pause, cancel, resume and drop-instruction commands only require that the brain exists (`_manage` in `resonance_api.py`); feedback and `POST /goal-requests` still require the switch to be on. Continuing to run is still blocked by the switch in `_gate`, so "Resume" while off only removes the pause and does not call the model.
+5. **P2-2, report reconciliation only looked at the last 300 messages.** The round 1 version searched for the key string across the whole session in SQL (`instr`); this version was rejected by the round 2 review (see below) and replaced with a receipt.
 
-Script của người review (`PR-575-M4-checks.py`) chạy từng ca độc lập trên bản sửa: 6/6 REPRO không còn tái hiện, 2/2 PASS vẫn qua. Phép thử đột biến: hoàn nguyên từng chỗ sửa (hash receipt, bỏ đòi lượt làm của revision, id theo độ dài, xoá mọi id trùng, công tắc chặn lệnh, không tìm thấy báo cáo) đều làm test đỏ.
+The reviewer's script (`PR-575-M4-checks.py`) run case by case independently on the fix: 6/6 REPRO no longer reproduce, 2/2 PASS still pass. Mutation tests: reverting each fix (the receipt hash, dropping the requirement of the revision's work turn, id by length, deleting every duplicate id, the switch blocking commands, not finding the report) all turned the tests red.
 
-### Sửa theo review PR #575 vòng 2
+### Fixes from the PR #575 review, round 2
 
-Review vòng 2 xác nhận năm lỗi vòng 1 đã sửa, và tìm ra một lỗi P2 mới do chính bản sửa P2-2 gây ra: chuỗi `"report": "outbox:<id>"` xuất hiện trong một tin assistant bất kỳ (lời giải thích trích JSON, nhật ký) bị coi là báo cáo đã gửi, nên `drain_outbox` đánh dấu dòng outbox đã giao mà không gửi gì.
+Round 2 review confirmed the five round 1 bugs are fixed, and found one new P2 bug caused by the P2-2 fix itself: the string `"report": "outbox:<id>"` appearing in any assistant message (an explanation quoting JSON, a log) was treated as a report already sent, so `drain_outbox` marked the outbox row as delivered without sending anything.
 
-**Sửa:** bằng chứng "đã gửi" là biên nhận do host ghi, không phải nội dung tin. `push_to_chat` gặp thẻ mang khoá báo cáo thì ghi một dòng `report_receipts(session_id, report_key, goal_id, message_id)` trong CÙNG giao dịch SQLite với tin báo cáo (`SessionStore.append_message(..., report=...)`), nên không có trạng thái tin đã lưu mà thiếu biên nhận. `main._resonance_reported` chỉ nhận biên nhận đúng phiên, đúng khoá, đúng mục tiêu (`SessionStore.report_receipt`), rồi đối chiếu lại khối thẻ trong tin. Tra theo khoá chính nên vẫn không giới hạn độ sâu. Bỏ `find_message_containing`.
+**Fix:** the evidence of "sent" is a receipt written by the host, not the content of the message. When `push_to_chat` meets a card carrying a report key, it writes one row `report_receipts(session_id, report_key, goal_id, message_id)` in the SAME SQLite transaction as the report message (`SessionStore.append_message(..., report=...)`), so there is no state with a saved message but a missing receipt. `main._resonance_reported` only accepts a receipt of exactly the right session, the right key and the right goal (`SessionStore.report_receipt`), and then cross-checks the card block in the message. A lookup by primary key means there is still no depth limit. `find_message_containing` was removed.
 
-Vì sao không chỉ phân tích khối `JAVIS_RESONANCE` trong các tin ứng viên như gợi ý tối thiểu của review: tin assistant do model sinh được lưu thô ở nhiều chỗ (`main.py` lượt chat thường, kết quả việc nền), nên một khối hợp lệ do model tự viết ra (ví dụ chép lại tin cũ khi người dùng hỏi) cũng sẽ nuốt mất báo cáo thật. Chỉ host mới ghi được biên nhận.
+Why not just parse the `JAVIS_RESONANCE` block in the candidate messages as the review's minimal suggestion said: assistant messages generated by the model are stored raw in several places (`main.py` in the normal chat turn, background work results), so a valid block that the model writes itself (for example copying an old message when the user asks) would also swallow the real report. Only the host can write a receipt.
 
-**Hệ quả cho script vòng 2 của người review:** hai ca PASS "recent persisted report is recognized" và "not replayed after 300 later messages" dựng tin "đã gửi" bằng `SessionStore.append_message` thô, tức đúng hình dạng một khối model tự viết; sau bản sửa, tin như thế cố ý KHÔNG còn được tính là đã gửi, nên script vòng 2 chạy nguyên văn dừng ở dòng 255. Không dùng chuyện assertion cũ hỏng làm bằng chứng. Thay vào đó dựng `exports/reviews/PR-575-M4-round3-expected-checks.py` từ script vòng 2 với đúng ba chỗ đổi: tin "đã gửi" đi qua `push_to_chat` thật; REPRO thành kỳ vọng (không tính là đã gửi, notify gọi một lần, báo cáo thật lưu một lần, outbox được đánh dấu); thêm ca âm (khối hợp lệ do model viết, khối hỏng, khoá khác, báo cáo thật của mục tiêu khác cùng khoá) và ca chuỗi trùng đứng trước tin thật cộng 320 tin sau. Kết quả: 15/15 PASS trên bản sửa; trên head cũ `ae1afff3` đỏ đúng ở ca lời chat trích JSON.
+**Consequence for the reviewer's round 2 script:** the two PASS cases "recent persisted report is recognized" and "not replayed after 300 later messages" build the "already sent" message with a raw `SessionStore.append_message`, which is exactly the shape of a block the model wrote itself; after the fix, such a message is deliberately NO longer counted as sent, so the round 2 script run verbatim stops at line 255. A broken old assertion is not used as evidence. Instead I built `exports/reviews/PR-575-M4-round3-expected-checks.py` from the round 2 script with exactly three changes: the "already sent" message goes through the real `push_to_chat`; the REPRO becomes an expectation (not counted as sent, notify called once, the real report saved once, the outbox marked); and I added negative cases (a valid block written by the model, a broken block, a different key, a real report of another goal with the same key) and a case with a duplicate string before the real message plus 320 later messages. Result: 15/15 PASS on the fix; on the old head `ae1afff3` it is red exactly at the case where the chat text quotes JSON.
 
-**Test hồi quy** (`test_resonance_mvp_feedback.py`, mục "Review M4 vòng 2"), đủ bốn điều nghiệm thu: JSON trích dẫn không tính là đã gửi và drain gửi báo cáo thật; khối hỏng, khoá khác, khối của mục tiêu khác, khối model tự viết không cái nào tính; chuỗi trùng đứng trước tin thật vẫn nhận ra tin thật, không phát lại; giữ ca hơn 300 tin (nay lưu qua `push_to_chat`) và ca crash giữa lưu tin và đánh dấu outbox.
+**Regression tests** (`test_resonance_mvp_feedback.py`, section "Review M4 round 2"), covering all four acceptance points: quoted JSON is not counted as sent and the drain sends the real report; a broken block, a different key, a block of another goal, and a block the model wrote itself are none of them counted; a duplicate string before the real message still recognizes the real message and does not replay it; keeps the case of more than 300 messages (now stored through `push_to_chat`) and the case of a crash between saving the message and marking the outbox.
 
-**Đột biến:** quay về dò chuỗi, bỏ ghi biên nhận, bỏ lọc `goal_id` khi tra biên nhận: cả ba làm test đỏ. Bỏ bước đối chiếu khối thẻ sau khi có biên nhận thì test không đỏ: đó là lớp phòng thủ thừa, vì biên nhận chỉ ghi được cùng tin mang đúng khối đó.
+**Mutations:** going back to string search, removing the receipt write, and removing the `goal_id` filter when looking up the receipt: all three turned the tests red. Removing the step that cross-checks the card block after having a receipt does not turn the tests red: it is a redundant layer of defense, because a receipt can only be written together with a message carrying exactly that block.
 
-**Canary:** lượt JS đầy đủ đầu tiên sau `e34390c2` đỏ `test_mic_khong_tu_gui.js` (176/177): test ràng nguyên văn lời gọi `append_message(sid, "assistant", clean)` trong 1400 ký tự đầu của `push_to_chat`, mà nhánh biên nhận đã đổi lời gọi và đẩy nó quá xa. Sửa ở `114f19a6`: phần đọc thẻ dời ra `_resonance_card`, giữ nguyên văn lời gọi thường; ý của canary (push_to_chat chỉ ghi vai assistant) không đổi.
+**Canary:** the first full JS run after `e34390c2` turned `test_mic_khong_tu_gui.js` red (176/177): the test pins the verbatim call `append_message(sid, "assistant", clean)` within the first 1400 characters of `push_to_chat`, but the receipt branch changed that call and pushed it too far. Fixed in `114f19a6`: the card-reading part moved out into `_resonance_card`, keeping the verbatim ordinary call; the canary's intent (push_to_chat only writes the assistant role) is unchanged.
 
-**Giới hạn:** biên nhận chỉ có cho tin lưu từ bản này trở đi; M4 chưa phát hành nên không có dữ liệu cũ cần chuyển. Người dùng xoá tin báo cáo thì biên nhận xoá theo (khoá ngoại `ON DELETE CASCADE`); chỉ ảnh hưởng dòng outbox còn treo trong khe crash, khi đó báo cáo được gửi lại một lần.
+**Limits:** receipts exist only for messages saved from this version on; M4 is not released, so there is no old data to migrate. If the user deletes a report message its receipt is deleted with it (foreign key `ON DELETE CASCADE`); this only affects an outbox row still hanging in the crash window, in which case the report is sent once more.
 
-### Giới hạn và những gì chưa kiểm
+### Limits and what was not verified
 
-1. **Chưa có nút giao diện cho `POST /goal-requests`.** API có, test có; người dùng chưa bấm được "theo đuổi tin này".
-2. **Chưa sửa được chỉ dẫn tại chỗ.** Chỉ bỏ được; muốn đổi hạn hay chỉ tiêu thì bỏ cái cũ rồi nói cái mới trong chat. Chưa nhận yêu cầu bằng lời để tự áp dụng thay đổi chỉ dẫn.
-3. **"Cần chỉnh" chưa có ô nhập lời.** Lời chỉnh cụ thể người dùng nói trong khung chat; API đã nhận `comment` nếu có.
-4. **Undo tổng quát không thuộc MVP**, đúng kế hoạch; thẻ chỉ cho xem sản phẩm và lịch sử, không có nút hoàn tác.
-5. **Trang Việc chưa hiện mục tiêu** (spec 13 nói Trang Việc hiển thị mục tiêu đang theo đuổi); M4 chỉ có thẻ trong khung chat và `GET /resonance/goals`.
-6. **Thẻ chỉ ở khung chat web.** Telegram, Zalo nhận chữ, khối thẻ bị bóc như mọi khối điều khiển.
-7. **Giới hạn đường dẫn Windows** nêu ở trên.
-8. **Từ M2, M3 vẫn còn:** chính sách deadline, bộ thực thi chỉ chữ, một sản phẩm mỗi mục tiêu, khe giữa kiểm hash và thay file, tin báo ít nhất một lần ở các kênh ngoài khoá báo cáo, bằng chứng giữ 90 ngày, việc nền làn giọng nói.
+1. **No UI button for `POST /goal-requests` yet.** The API exists and so do its tests; the user cannot yet click "pursue this message".
+2. **Instructions cannot be edited in place.** They can only be dropped; to change a deadline or a target, drop the old one and state the new one in chat. Requests in words are not yet accepted to apply an instruction change automatically.
+3. **"Needs changes" has no text field yet.** The user says the specific change in the chat frame; the API already accepts a `comment` if there is one.
+4. **General undo is not part of the MVP**, as planned; the card only lets the user see the product and the history, and has no undo button.
+5. **The Work page does not show goals yet** (spec 13 says the Work page shows goals being pursued); M4 only has the card in the chat frame and `GET /resonance/goals`.
+6. **The card only appears in the web chat frame.** Telegram and Zalo receive text, and the card block is stripped like every control block.
+7. **The Windows path limit** noted above.
+8. **Still outstanding from M2 and M3:** the deadline policy, the text-only executor, one product per goal, the gap between the hash check and replacing the file, at-least-once notices on channels outside the report key, evidence kept for 90 days, and voice-lane background work.
 
-### Toàn bộ test
+### Full test run
 
-| | Main sạch (`7d264236`) | Nhánh M4 (`4ae62efa`) | Sau review vòng 1 (`39fda1be`) | Sau review vòng 2 (`114f19a6`) |
+| | Clean main (`7d264236`) | M4 branch (`4ae62efa`) | After review round 1 (`39fda1be`) | After review round 2 (`114f19a6`) |
 |---|---|---|---|---|
-| Python xanh | 387/403 | 397/412 | 396/412 | 397/412 |
-| File Python đỏ | 16 | 15 | 16 | 15 |
-| Đỏ mới so với main | | không có | không có | không có |
-| JS (`tests/run.py --js`) | | 177/177 (tại `7c9776c6`) | 177/177 | 177/177 |
+| Python green | 387/403 | 397/412 | 396/412 | 397/412 |
+| Python red files | 16 | 15 | 16 | 15 |
+| New red vs main | | none | none | none |
+| JS (`tests/run.py --js`) | | 177/177 (at `7c9776c6`) | 177/177 | 177/177 |
 
-15 file đỏ trùng đúng danh sách đỏ sẵn ở mục M1. Lượt sau review đỏ thêm `test_write_path_phase9.py` (ca `test_restart_marks_running_writes_unknown_without_rerunning`, đường ghi của write invocation, không chạm Resonance): chạy riêng 3 lần trên nhánh thì xanh 1, đỏ 2; chạy 3 lần trên main sạch `7d264236` cũng xanh 1, đỏ 2. Là test chập chờn có sẵn.
+The 15 red files are exactly the list already red in the M1 section. The run after the review also had `test_write_path_phase9.py` red (the case `test_restart_marks_running_writes_unknown_without_rerunning`, the write path of the write invocation, not touching Resonance): run alone 3 times on the branch it was green once and red twice; run 3 times on clean main `7d264236` it was also green once and red twice. It is an existing flaky test.
 
-## M5: một phép thử cải thiện nhỏ (07/10/2026)
+## M5: a small improvement experiment (2026-10-07)
 
-### Nền và nhánh
+### Base and branch
 
-- Nhánh `claude/resonance-mvp-m5` tách từ head M4 đã qua review vòng 3 (`79cfdfb4`), PR nháp #579 xếp chồng trên #575. Phiên bản 0.85.2: `origin/main` đã lên 0.85.0 và PR #578 giữ 0.85.1.
-- `origin/main` đi thêm nhiều commit so với nền `7d264236`; chưa đồng bộ vào chuỗi, cùng lý do ở M3 và M4, chỉnh một lần lúc merge.
-- CI của #575 trên `79cfdfb4` đã xanh 4/4 trước khi bắt đầu M5.
+- Branch `claude/resonance-mvp-m5` split from the M4 head that passed review round 3 (`79cfdfb4`), draft PR #579 stacked on #575. Version 0.85.2: `origin/main` has already reached 0.85.0 and PR #578 is holding 0.85.1.
+- `origin/main` has moved on by many more commits relative to the base `7d264236`; not synced into the chain, for the same reason as in M3 and M4, adjusted once at merge time.
+- The CI of #575 at `79cfdfb4` was already green 4/4 before M5 started.
 
-### Quyết định thiết kế cần người review soát
+### Design decisions for the reviewer to check
 
-1. **Cách làm là cấu hình khai báo** (`METHODS` trong `resonance.py`): mỗi mục chỉ là một đoạn chữ cố định nối vào prompt làm việc (`work.v1` mặc định, `work.checklist.v1` rà đủ ý, `work.brief.v1` viết gọn). Model không thêm hay sửa được mục nào; không mục nào chạm tiêu chí, evaluator hay bộ tình huống.
-2. **`compare_methods(goal_id, baseline_ref, candidate_ref, cases, deps)`** (async, như `advance`). Trước khi chạy, host ghim thước đo: tiêu chí kiểm tự động của ĐÚNG revision hiện tại (bỏ `path`, vì phép thử không đăng file) cùng đáp án host giữ của từng tình huống, thành `rubric_hash`. Baseline phải là cách làm mục tiêu đang dùng; ứng viên phải khác baseline (đúng một thay đổi). Bộ tình huống 1 đến 6, phải có cả tập thử (tuning) lẫn tập giữ riêng (holdout).
-3. **Cách làm không thấy đáp án.** Prompt của mỗi lượt dựng bằng chính hàm `_work_prompt` của lượt làm việc thật, với lời người dùng là đầu vào của đúng một tình huống; không có đánh giá trước, không có bản cũ, không có đáp án. Hai bên của một tình huống có prompt giống hệt nhau trừ đoạn chữ của cách làm.
-4. **Cùng nguồn lực, giữ chỗ trước.** `begin_experiment` giữ chỗ TOÀN BỘ lượt phép thử cần (2 x số tình huống chạy được) trong cùng giao dịch, vừa trong hạn mức chung của mục tiêu, vừa trong phần khám phá (`EXPLORE_SHARE` = nửa hạn mức, cộng dồn qua các phép thử, spec 11.2). Không đủ thì không tạo phép thử, không gọi model (`created: false`, `reason: explore_budget`). Engine bị chặn trước khi gọi thì trả lại đúng lượt đó; lượt chưa bắt đầu (dừng giữa chừng) được trả lại lúc chốt.
-5. **Không lặp tác động ngoài.** Đầu ra phép thử chỉ ghi trong vùng làm việc (`outputs/<mục tiêu>/trials/<phép thử>/`), không đăng vào brain. Bằng chứng gắn loại `trial_output`, nên không bao giờ được tính là sản phẩm của mục tiêu (evaluator của mục tiêu chỉ đọc `action_output`).
-6. **Host chấm bằng code** (`_grade`): mọi tiêu chí artifact_contract đã ghim cộng đáp án của tình huống; lời tự khai "đã đạt" của đầu ra không có giá trị. Tình huống chỉ người dùng chấm được (`expect.evaluator = human_confirmation`) không chạy, ghi unknown.
-7. **Kết luận hẹp, có lợi cho cách làm hiện tại** (`_trial_verdict`): ứng viên tụt ở bất kỳ tình huống nào so được thì `rejected / regression`; còn tình huống unknown thì `inconclusive / unknown` (unknown không bao giờ là thắng); hơn ở ít nhất một tình huống tập thử và không kém ở đâu thì `eligible`; còn lại `rejected / no_improvement`. Chi phí CHƯA là tiêu chí thắng (xem Giới hạn).
-8. **Can thiệp và đổi cách hiểu có hiệu lực giữa chừng.** Phép thử giữ khoá mục tiêu suốt lúc chạy (không chạy chồng với `advance`). Cổng `_trial_gate` dùng CÙNG điều kiện cho phép thực thi với `advance` (chốt guard cũ, rồi `_gate`: active, công tắc, pause, "Chưa đúng ý", guard nhảy hay chưa xác định, rồi revision) và được kiểm trước khi giữ hạn mức, trước mỗi lượt, và sau lượt cuối trước khi kết luận. Revision đổi thì `inconclusive / goal_reframed`; mọi chặn khác thì `inconclusive / stopped`. Kết quả cũ giữ nguyên phạm vi.
-9. **Áp dụng trong quyền đã có, trong cùng giao dịch chốt.** Chỉ `eligible` mới áp dụng, và việc đổi cách làm diễn ra TRONG giao dịch `finish_experiment`, sau khi kho kiểm lại TRẠNG THÁI HIỆN TẠI: còn active, đúng revision, không tạm dừng, không có chốt guard, phản hồi cách hiểu mới nhất của revision không phải "Chưa đúng ý", cách làm hiện tại vẫn là baseline. Các cờ `feature_off`, `fit_rejected`, `guard_unknown` chỉ là kết quả quan sát lần trước nên không chặn ở đây; điều kiện thật của chúng (công tắc, guard) được cổng kiểm ngay trước giao dịch, và cổng gỡ các cờ đó khi điều kiện đã hồi phục. Bị chặn thì phép thử chốt `inconclusive / stopped`, không để lại phép thử eligible chưa áp dụng. `GoalStore.apply_method` dùng cùng phần kiểm. Agent không có đường nào khác để đổi cách làm. Người dùng quay lại bằng `revert_method` (chỉ owner, qua `POST /goals/{id}/commands`).
-10. **Phạm vi áp dụng theo revision** (`effective_method`): cách làm đã học chỉ chạy trên ĐÚNG revision nó được kiểm; revision chưa kiểm thì dùng cách làm MẶC ĐỊNH, không rơi về ref trước đó (ref trước có thể cũng chỉ thắng ở revision cũ). Ref quay lại (`method_prev_ref`) là đích của lệnh quay lại, không phải quyền chạy; nó mang theo đúng revision đã kiểm của nó (`method_prev_revision`), và quay lại không gán revision hiện tại cho ref cũ.
-11. **Mọi kết quả được lưu**, kể cả thua: bảng `experiments` giữ revision, cặp cách làm, kết luận, lý do, từng tình huống hai bên, usage theo bên, bằng chứng và phạm vi; sự kiện `experiment_started`, `experiment_finished`, `method_changed`, `method_reverted`. Thẻ mục tiêu (`goal_view`) có `method` và ba phép thử gần nhất.
-12. **Không thử chỉ vì đến giờ.** Không đường nào trong scheduler gọi `compare_methods`. Gián đoạn giữa phép thử được `_reconcile` chốt: lượt dở thành failed (không chấm, không chạy lại), phép thử thành `inconclusive / interrupted`, trả lại lượt chưa bắt đầu.
+1. **The method is declarative configuration** (`METHODS` in `resonance.py`): each entry is just a fixed piece of text appended to the work prompt (`work.v1` the default, `work.checklist.v1` checking for completeness, `work.brief.v1` writing concisely). The model cannot add or edit any entry; no entry touches the criteria, the evaluator or the case set.
+2. **`compare_methods(goal_id, baseline_ref, candidate_ref, cases, deps)`** (async, like `advance`). Before running, the host pins the yardstick: the automatically checked criteria of EXACTLY the current revision (dropping `path`, because the experiment does not publish a file) together with the answer key the host holds for each case, as `rubric_hash`. The baseline must be the method the goal is currently using; the candidate must differ from the baseline (exactly one change). The case set is 1 to 6 cases, and must include both a tuning set and a separate holdout set.
+3. **The method does not see the answer.** The prompt for each turn is built with the real work turn's own `_work_prompt` function, with the user's words as the input of exactly one case; there is no earlier assessment, no old version, no answer key. The two sides of a case have identical prompts except for the method's text.
+4. **The same resources, reserved up front.** `begin_experiment` reserves ALL the turns the experiment needs (2 x the number of runnable cases) in the same transaction, both within the goal's overall quota and within the exploration share (`EXPLORE_SHARE` = half the quota, accumulated across experiments, spec 11.2). If there is not enough, no experiment is created and the model is not called (`created: false`, `reason: explore_budget`). If the engine is blocked before the call, exactly that turn is returned; turns that have not started (stopped midway) are returned at settlement.
+5. **No repeated outside effect.** Experiment output is only written in the work area (`outputs/<goal>/trials/<experiment>/`), and is not published into the brain. The evidence is tagged `trial_output`, so it is never counted as the goal's product (the goal's evaluator only reads `action_output`).
+6. **The host grades with code** (`_grade`): every pinned artifact_contract criterion plus the case's answer key; an "achieved" self-declaration in the output has no value. A case only the user can grade (`expect.evaluator = human_confirmation`) is not run and is recorded as unknown.
+7. **A narrow conclusion that favors the current method** (`_trial_verdict`): if the candidate drops in any comparable case, `rejected / regression`; if any case is unknown, `inconclusive / unknown` (unknown is never a win); better in at least one tuning-set case and not worse anywhere is `eligible`; everything else is `rejected / no_improvement`. Cost is NOT yet a winning criterion (see Limits).
+8. **User intervention and a change of understanding take effect midway.** The experiment holds the goal lock for the whole run (it does not run concurrently with `advance`). The gate `_trial_gate` uses the SAME conditions for allowing execution as `advance` (the old guard latch, then `_gate`: active, switch, pause, "Not quite", guard tripped or undetermined, then revision) and is checked before reserving quota, before each turn, and after the last turn before concluding. If the revision changed it is `inconclusive / goal_reframed`; every other block is `inconclusive / stopped`. Old results keep their scope.
+9. **Applying within existing authority, in the same settlement transaction.** Only `eligible` applies, and the method change happens INSIDE the `finish_experiment` transaction, after the store re-checks the CURRENT STATE: still active, the right revision, not paused, no guard latch, the latest understanding feedback of the revision is not "Not quite", and the current method is still the baseline. The flags `feature_off`, `fit_rejected`, `guard_unknown` are only results observed last time so they do not block here; their real conditions (the switch, the guard) are checked by the gate right before the transaction, and the gate clears those flags once the conditions have recovered. If blocked, the experiment settles as `inconclusive / stopped` and does not leave an eligible experiment unapplied. `GoalStore.apply_method` uses the same checks. The agent has no other path to change the method. The user goes back with `revert_method` (owner only, through `POST /goals/{id}/commands`).
+10. **Application scope per revision** (`effective_method`): a learned method only runs on EXACTLY the revision it was checked on; an unchecked revision uses the DEFAULT method, and does not fall back to an earlier ref (an earlier ref may also only have won on an old revision). The revert ref (`method_prev_ref`) is the target of the revert command, not permission to run; it carries exactly its own checked revision (`method_prev_revision`), and reverting does not assign the current revision to the old ref.
+11. **Every result is stored**, including losses: the `experiments` table keeps the revision, the method pair, the conclusion, the reason, each case for both sides, usage per side, the evidence and the scope; events `experiment_started`, `experiment_finished`, `method_changed`, `method_reverted`. The goal card (`goal_view`) has `method` and the three most recent experiments.
+12. **No experiment just because it is time.** No path in the scheduler calls `compare_methods`. An interruption midway through an experiment is settled by `_reconcile`: the half-done turn becomes failed (not graded, not re-run), the experiment becomes `inconclusive / interrupted`, and the turns that had not started are returned.
 
-### Kết quả với engine giả
+### Results with the fake engine
 
-`tests/python/test_resonance_mvp_trial.py`, 44 kiểm lúc giao review lần đầu (58 sau vòng sửa), đủ năm test Task M5 đặt tên: `test_same_goal_and_rubric`, `test_holdout_not_visible`, `test_unknown_not_win`, `test_failed_candidate_not_applied`, `test_one_change_within_budget`. Thêm: cách làm lạ, ứng viên trùng baseline, thiếu tập giữ riêng, Resonance tắt; đầu ra tự khai đạt; đổi cách hiểu giữa chừng; tình huống chỉ người chấm; ngang nhau; phần khám phá cộng dồn; scheduler không tạo phép thử; khoá mục tiêu; engine bị chặn; áp dụng, phạm vi theo revision, quay lại chỉ owner; gián đoạn và đối soát. Bộ tình huống ở `tests/fixtures/resonance/mvp_cases.json` (biên bản họp thành danh sách việc, lĩnh vực trung lập).
+`tests/python/test_resonance_mvp_trial.py`, 44 checks when first handed to review (58 after the fix round), with all five tests Task M5 named: `test_same_goal_and_rubric`, `test_holdout_not_visible`, `test_unknown_not_win`, `test_failed_candidate_not_applied`, `test_one_change_within_budget`. Added: an unknown method, a candidate identical to the baseline, a missing holdout set, Resonance off; output that declares itself achieved; a change of understanding midway; a human-graded-only case; a tie; the exploration share accumulating; the scheduler not creating experiments; the goal lock; a blocked engine; applying, scope per revision, revert for owner only; interruption and reconciliation. The case set is in `tests/fixtures/resonance/mvp_cases.json` (meeting minutes into a task list, a neutral domain).
 
-Phép thử đột biến (12): bỏ luật tụt hạng, cho unknown thắng, lộ đáp án vào prompt, không dừng khi đổi revision, bỏ trần khám phá, áp dụng không cần phép thử, cách làm không giới hạn theo revision, không chốt phép thử bị ngắt, không giữ khoá mục tiêu, không trả lượt khi engine bị chặn, chạy cả tình huống chỉ người chấm, công nhận lời tự khai: tất cả làm test đỏ. Lần đầu, đột biến "không dừng khi đổi revision" lọt vì kiểm cuối phép thử cũng bắt được; đã thêm kiểm riêng cho tác dụng của kiểm giữa chừng (dừng sau lượt đang chạy, trả lại lượt chưa chạy).
+Mutation tests (12): remove the regression rule, let unknown win, leak the answer into the prompt, not stopping when the revision changes, remove the exploration cap, apply without an experiment, a method not limited per revision, not settling an interrupted experiment, not holding the goal lock, not returning the turn when the engine is blocked, running even the human-graded-only case, accepting the self-declaration: all turned the tests red. The first time, the mutation "not stopping when the revision changes" slipped through because the final check at the end of the experiment also caught it; a separate check was added for the effect of the midway check (stopping after the running turn, returning the unrun turns).
 
-### Sửa theo review PR #579 vòng 1
+### Fixes from the PR #579 review, round 1
 
-Review chưa đạt với 3 lỗi P1, tái hiện được bằng engine giả và SQLite thật. Đồng ý cả ba.
+The review did not pass, with 3 P1 bugs, reproducible with the fake engine and real SQLite. I agreed with all three.
 
-1. **P1-1, phép thử bỏ qua "Chưa đúng ý" và guard đã nhảy.** Đầu hàm chỉ kiểm active, pause, công tắc và revision. Nay dùng `_trial_gate` (mục 8 ở trên) trước khi giữ hạn mức và trước mỗi lượt; chặn thì không gọi thêm engine, trả lại lượt chưa bắt đầu. Chốt guard cũ được giữ: guard đã nhảy chặn phép thử kể cả khi file bảo vệ đã có lại.
-2. **P1-2, dừng trong lượt cuối vẫn áp dụng.** Lần kiểm cuối nằm trước lượt cuối; sau lượt cuối chỉ kiểm revision rồi áp dụng, và lớp kho không kiểm pause. Nay cổng chạy lại sau lượt cuối, và việc đổi cách làm diễn ra trong giao dịch chốt với phần kiểm SQLite (mục 9). Công tắc brain là file nên được kiểm ở cổng ngay trước giao dịch; khe giữa hai bước đó còn lại (xem Giới hạn).
-3. **P1-3, chuỗi cách làm vượt phạm vi revision.** Sau hai lần đổi ở revision 1, revision 2 rơi về ref trước (cũng chỉ thắng ở revision 1). Nay revision chưa kiểm dùng cách làm mặc định; ref quay lại giữ revision đã kiểm của riêng nó (mục 10).
+1. **P1-1, the experiment ignored "Not quite" and a guard that had already tripped.** The top of the function only checked active, pause, the switch and the revision. Now it uses `_trial_gate` (item 8 above) before reserving quota and before each turn; if blocked, the engine is not called again and the turns that had not started are returned. The old guard latch is kept: a guard that has tripped blocks the experiment even if the protected file is back.
+2. **P1-2, stopping during the last turn still applied.** The last check was before the last turn; after the last turn it only checked the revision and then applied, and the store layer did not check pause. Now the gate runs again after the last turn, and the method change happens inside the settlement transaction with the SQLite check (item 9). The brain switch is a file so it is checked by the gate right before the transaction; the gap between those two steps remains (see Limits).
+3. **P1-3, the method chain went beyond the revision scope.** After two changes at revision 1, revision 2 fell back to the earlier ref (which also only won at revision 1). Now an unchecked revision uses the default method; the revert ref keeps its own checked revision (item 10).
 
-**Test hồi quy** (`test_resonance_mvp_trial.py`, mục "Review M5 vòng 1", 14 kiểm mới, tổng 58): Chưa đúng ý trước phép thử; guard đã chốt; Chưa đúng ý trong lượt đầu (dừng sau 1 lượt, trả 3); guard nhảy giữa phép thử; tạm dừng, tắt công tắc và Chưa đúng ý ngay TRONG lượt cuối (đủ 4 lượt đã chạy nhưng không áp dụng, phép thử lưu inconclusive); tầng kho: chốt kèm áp dụng khi đang tạm dừng, `apply_method` khi cách hiểu bị từ chối, và khi cờ chặn bị gỡ bằng đường khác thì sự kiện "Chưa đúng ý" vẫn chặn; chuỗi hai lần đổi cách làm rồi sang revision 2 (dùng mặc định, prompt thật không có đoạn chữ của cách làm nào); quay lại ở revision 2 và ở revision 1.
+**Regression tests** (`test_resonance_mvp_trial.py`, section "Review M5 round 1", 14 new checks, 58 in total): Not quite before the experiment; a latched guard; Not quite during the first turn (stops after 1 turn, returns 3); a guard tripping midway through the experiment; pause, switch off and Not quite right INSIDE the last turn (all 4 turns ran but it is not applied, and the experiment is saved as inconclusive); the store layer: settlement with applying while paused, `apply_method` when the understanding was rejected, and when the blocking flag is cleared by another path the "Not quite" event still blocks; a chain of two method changes and then moving to revision 2 (uses the default, the real prompt has no method's text); reverting at revision 2 and at revision 1.
 
-**Script của người review:**
-- Chạy nguyên văn: 3 ca PASS đầu qua, dừng ở ca REPRO đầu tiên (phép thử nay bị từ chối). Không lấy việc assertion REPRO hỏng làm bằng chứng.
-- `exports/reviews/PR-579-M5-round2-expected-checks.py`: script đó với các ca PASS giữ nguyên văn và mỗi REPRO đổi thành kỳ vọng đúng, kiểm trạng thái cuối (số lượt gọi, hạn mức, cách làm, phép thử đã lưu). Kết quả: 10/10 PASS. Chạy cùng bản này trên `abc4f3fe` thì đỏ ở ca REPRO đầu tiên.
-- File test mới chạy trên mã `abc4f3fe` cũng đỏ ở mọi ca P1-1 và P1-2 (phần P1-3 không chạy tới vì hàm kho cũ thiếu tham số).
+**The reviewer's script:**
+- Run verbatim: the first 3 PASS cases pass, and it stops at the first REPRO case (the experiment is now rejected). A broken REPRO assertion is not used as evidence.
+- `exports/reviews/PR-579-M5-round2-expected-checks.py`: that script with the PASS cases kept verbatim and each REPRO changed into the correct expectation, checking the final state (number of calls, quota, method, the saved experiment). Result: 10/10 PASS. Running this same version on `abc4f3fe` is red at the first REPRO case.
+- The new test file run on the code at `abc4f3fe` is also red at every P1-1 and P1-2 case (the P1-3 part does not get to run because the old store function lacks a parameter).
 
-**Đột biến** (8, trên phần sửa): rơi về ref trước khi revision chưa kiểm, quay lại gán revision hiện tại cho ref cũ, bỏ chốt guard cũ trong cổng, không kiểm lại trước khi áp dụng, kho không kiểm pause, kho không kiểm "Chưa đúng ý", không kiểm cổng trước mỗi lượt, không kiểm cổng lúc bắt đầu: cả 8 làm test đỏ. Lần đầu, đột biến "kho không kiểm Chưa đúng ý" lọt vì M4 đặt cờ `fit_rejected` cùng giao dịch nên kiểm theo cờ đã bắt trước; đã thêm ca gỡ cờ bằng `clear_block` để giữ lớp kiểm theo sự kiện.
+**Mutations** (8, on the fix): fall back to the earlier ref on an unchecked revision, reverting assigns the current revision to the old ref, drop the old guard latch in the gate, not re-checking before applying, the store not checking pause, the store not checking "Not quite", not checking the gate before each turn, not checking the gate at the start: all 8 turned the tests red. The first time, the mutation "the store not checking Not quite" slipped through because M4 sets the `fit_rejected` flag in the same transaction so the flag-based check caught it first; a case that clears the flag with `clear_block` was added to keep the event-based check layer.
 
-Không chạy lại pilot model (đúng yêu cầu): phần sửa nằm ở cổng, giao dịch và phạm vi cách làm, kiểm được tất định. Pilot `6d54e859` không áp dụng cách làm nào nên kết luận của nó không đổi theo luật mới.
+The model pilot was not re-run (as required): the fix is in the gate, the transaction and the method scope, which can be checked deterministically. Pilot `6d54e859` did not apply any method so its conclusion does not change under the new rule.
 
-### Sửa theo review PR #579 vòng 2
+### Fixes from the PR #579 review, round 2
 
-Review vòng 2 xác nhận ba lỗi P1 đã sửa, và tìm ra một lỗi P2 do chính phần sửa P1-2 gây ra: giao dịch áp dụng coi mọi `block_reason` trong `feature_off`, `fit_rejected`, `guard_unknown`, `guard` là chốt còn hiệu lực. Nhưng `_gate` chỉ GHI các cờ đó khi quan sát thấy, không gỡ khi điều kiện hồi phục (bật lại công tắc, đổi sang "Đúng ý"). Cổng đầu cho chạy, phép thử tiêu đủ 4 lượt và thắng, rồi giao dịch cuối bác vì cờ cũ.
+Round 2 review confirmed the three P1 bugs are fixed, and found one P2 bug caused by the P1-2 fix itself: the apply transaction treats every `block_reason` among `feature_off`, `fit_rejected`, `guard_unknown`, `guard` as a latch still in effect. But `_gate` only WRITES those flags when it observes them, and does not clear them when the condition recovers (turning the switch back on, changing to "That's right"). The first gate lets it run, the experiment spends all 4 turns and wins, and then the final transaction rejects it because of an old flag.
 
-**Sửa (`ca8e1674`):**
-- Trong giao dịch, chỉ chốt guard (người dùng phải mở lại) là chặn cứng. "Chưa đúng ý" đọc từ phản hồi MỚI NHẤT, không đọc cờ; pause, huỷ, revision và baseline vẫn kiểm trong giao dịch như trước.
-- Khi `_trial_gate` cho qua, `GoalStore.clear_transient_block` đồng bộ lại: gỡ đúng các cờ quan sát cũ bằng CAS theo đúng cờ đang ghi; không đụng chốt guard, pause, trạng thái chờ người dùng duyệt hay hết hạn mức.
+**Fix (`ca8e1674`):**
+- In the transaction, only a guard latch (which the user must reopen) is a hard block. "Not quite" is read from the LATEST feedback, not from the flag; pause, cancel, revision and baseline are still checked in the transaction as before.
+- When `_trial_gate` lets it pass, `GoalStore.clear_transient_block` resynchronizes: it clears exactly the old observation flags by CAS on exactly the flag currently written; it does not touch a guard latch, pause, the waiting-for-user-review state or an exhausted quota.
 
-**Test hồi quy** (mục "Review M5 vòng 2", 8 kiểm mới, tổng 66): hai ca hồi phục của người review (tắt rồi bật lại sau khi `advance` ghi `feature_off`; "Chưa đúng ý" rồi "Đúng ý") áp dụng được và cờ cũ được gỡ; ca âm "Chưa đúng ý, Đúng ý, rồi lại Chưa đúng ý" bị từ chối trước khi chi lượt; tầng kho: ba cờ quan sát cũ không bác việc áp dụng, chốt guard chen vào trước giao dịch vẫn chặn, hàm gỡ cờ không đụng chốt guard hay chờ duyệt. Các ca chặn của vòng 1 (guard đã chốt sau khi file có lại, dừng trong lượt cuối, can thiệp chen vào trước giao dịch) giữ nguyên và vẫn xanh.
+**Regression tests** (section "Review M5 round 2", 8 new checks, 66 in total): the reviewer's two recovery cases (turn off and back on after `advance` writes `feature_off`; "Not quite" then "That's right") can apply and the old flags are cleared; the negative case "Not quite, That's right, then Not quite again" is rejected before spending a turn; the store layer: three old observation flags do not reject applying, a guard latch inserted before the transaction still blocks, the flag-clearing function does not touch a guard latch or waiting for review. The round 1 blocking cases (a guard latched after the file is back, stopping in the last turn, an intervention slipping in before the transaction) are kept as they are and still green.
 
-**Script của người review:**
-- `PR-579-M5-round2-checks.py` chạy nguyên văn trên bản sửa: 16 ca PASS vẫn qua, rồi dừng ở ca REPRO.
-- `exports/reviews/PR-579-M5-round3-expected-checks.py`: script đó với 16 ca PASS nguyên văn, ca REPRO đổi thành kỳ vọng đúng (áp dụng được, đủ 4 lượt, phép thử lưu eligible, cờ đã gỡ) và thêm ca âm phản hồi cuối vẫn là từ chối. Kết quả 19/19 PASS; chạy trên `6c1e3bdd` thì đỏ ở ca hồi phục.
-- File test mới chạy trên mã `6c1e3bdd` cũng đỏ ở cả hai ca hồi phục và ba ca cờ cũ.
+**The reviewer's script:**
+- `PR-579-M5-round2-checks.py` run verbatim on the fix: the 16 PASS cases still pass, then it stops at the REPRO case.
+- `exports/reviews/PR-579-M5-round3-expected-checks.py`: that script with the 16 PASS cases verbatim, the REPRO case changed into the correct expectation (can apply, all 4 turns, the experiment saved as eligible, the flag cleared) and a negative case added that the final feedback is still a rejection. Result 19/19 PASS; run on `6c1e3bdd` it is red at the recovery case.
+- The new test file run on the code at `6c1e3bdd` is also red at both recovery cases and the three old flag cases.
 
-**Đột biến** (4): đưa cờ tạm trở lại thành chốt, cổng không đồng bộ cờ, hàm gỡ cờ đụng cả chốt guard và chờ duyệt, bỏ chốt guard trong giao dịch: cả 4 làm test đỏ.
+**Mutations** (4): turning the transient flag back into a latch, the gate not synchronizing the flag, the flag-clearing function touching even a guard latch and waiting for review, removing the guard latch in the transaction: all 4 turned the tests red.
 
-### Pilot thật
+### Real pilot
 
-`tests/python/test_resonance_mvp_trial_pilot.py`, chỉ chạy khi `JAVIS_RESONANCE_PILOT=1`. Bằng chứng: [`resonance-mvp-m5-pilot.json`](resonance-mvp-m5-pilot.json) (JSON thoát ký tự, không có đường dẫn cá nhân).
+`tests/python/test_resonance_mvp_trial_pilot.py`, which only runs when `JAVIS_RESONANCE_PILOT=1`. Evidence: [`resonance-mvp-m5-pilot.json`](resonance-mvp-m5-pilot.json) (escaped JSON, no personal paths).
 
-- **Commit:** `6d54e859`, cây `server/` sạch. **Môi trường:** `JAVIS_STATE_DIR` tạm, chỉ chép các ô chọn engine, brain tạm, dữ liệu mô phỏng; engine việc nền đang chọn `anthropic-cli` / `sonnet` qua `main._resonance_engine` (chỉ chữ, không chuỗi dự phòng), bằng chứng qua `main._RESONANCE_EVIDENCE`.
-- **Kịch bản:** mục tiêu "biên bản họp thành danh sách việc", hạn mức 8 (phần khám phá 4). Phép thử `work.v1` so với `work.brief.v1` trên t1 (tập thử), h1 và h2 (giữ riêng; h2 chỉ người chấm được).
-- **Kết quả host:** 4 lượt gọi model thật, 24,4 giây tổng; cả 4 receipt succeeded, đúng provider đã chọn, 0 lần gọi công cụ, hash khớp file trên đĩa; bằng chứng đọc lại được từ EvidenceStore thật; không đăng gì vào brain; dùng đúng 4/8 lượt, 4/4 phần khám phá.
-- **Kết quả chấm:**
-  - **Tình huống đạt:** t1 và h1 đạt ở CẢ hai bên.
-  - **Tình huống unknown:** h2, không chạy, unknown ở cả hai bên.
-  - **Ứng viên thua: KHÔNG quan sát được.** Dự đoán ban đầu là bản gọn sẽ thua vì quá ngắn; thực tế model viết gọn ba dòng mà vẫn đủ người và hạn. Kết luận `inconclusive / unknown` (do h2), không áp dụng. Áp luật chấm lên đúng kết quả thật của t1 và h1 (bỏ h2, không gọi thêm model) thì ra `rejected / no_improvement`: ứng viên không thắng nên không được áp dụng, nhưng đó không phải ca tụt hạng. Ca ứng viên tụt hạng (`regression`) hiện CHỈ được kiểm bằng engine giả.
-- **Usage engine báo:** baseline khoảng 36,3 nghìn token vào, 876 token ra cho 2 lượt; ứng viên khoảng 36,4 nghìn vào, 203 ra. Phần lớn token vào là phần nền của Claude CLI, không phải prompt của phép thử.
-- **Pilot làm lộ một điều:** ứng viên gọn ngang chất lượng mà rẻ hơn hẳn ở token ra, nhưng luật kết luận hiện không coi giảm chi phí là thắng, nên ứng viên đó không bao giờ được áp dụng. Spec 11.1 cho phép acceptance "đạt chất lượng tối thiểu và giảm chi phí"; MVP chưa làm (xem Giới hạn).
-- Không chạy thêm lượt nào để cố tái hiện ca thua: đã dùng 4 trong tối đa 5 lượt cho phép, một lượt còn lại không đủ cho một cặp so sánh.
+- **Commit:** `6d54e859`, `server/` tree clean. **Environment:** a temp `JAVIS_STATE_DIR`, copying only the engine selection fields, a temp brain, simulated data; the background engine currently selected is `anthropic-cli` / `sonnet` through `main._resonance_engine` (text-only, no fallback chain), and evidence through `main._RESONANCE_EVIDENCE`.
+- **Scenario:** the goal "meeting minutes into a task list", quota 8 (exploration share 4). The experiment compares `work.v1` against `work.brief.v1` on t1 (tuning set), h1 and h2 (holdout; h2 can only be graded by a person).
+- **Host results:** 4 real model calls, 24.4 seconds in total; all 4 receipts succeeded, the right provider that was selected, 0 tool calls, hashes match the files on disk; the evidence can be read back from the real EvidenceStore; nothing was published into the brain; it used exactly 4/8 turns, 4/4 of the exploration share.
+- **Grading results:**
+  - **Cases that passed:** t1 and h1 passed on BOTH sides.
+  - **Unknown cases:** h2, not run, unknown on both sides.
+  - **A losing candidate: NOT observed.** The initial prediction was that the concise version would lose by being too short; in practice the model wrote three concise lines that still covered the people and the deadlines. The conclusion is `inconclusive / unknown` (because of h2), not applied. Applying the grading rule to the real results of t1 and h1 (dropping h2, with no further model call) gives `rejected / no_improvement`: the candidate did not win so it is not applied, but that is not a regression case. The candidate-regression case (`regression`) is currently ONLY checked with the fake engine.
+- **Usage reported by the engine:** the baseline about 36.3 thousand input tokens, 876 output tokens for 2 turns; the candidate about 36.4 thousand in, 203 out. Most of the input tokens are Claude CLI's background part, not the experiment's prompt.
+- **The pilot exposed one thing:** the concise candidate was equal in quality but much cheaper in output tokens, yet the current conclusion rule does not treat a cost reduction as a win, so that candidate is never applied. Spec 11.1 allows acceptance on "meets minimum quality and reduces cost"; the MVP does not do this yet (see Limits).
+- No further turn was run to try to reproduce a losing case: 4 of the maximum 5 allowed turns were already used, and the one remaining turn is not enough for a comparison pair.
 
-### Giới hạn và những gì chưa kiểm
+### Limits and what was not verified
 
-1. **Ca ứng viên tụt hạng chưa có trên model thật**, chỉ có với engine giả.
-2. **Chi phí chưa là tiêu chí thắng.** Kết luận chỉ dựa trên chất lượng theo thước đo đã ghim; ngang chất lượng mà rẻ hơn vẫn là `no_improvement`.
-3. **Chưa có ai tự đề xuất phép thử.** Không có đường tự động hay nút giao diện gọi `compare_methods`; bộ tình huống và cặp cách làm do người gọi đưa vào (test, pilot). Đúng phạm vi plan (một phép so sánh hẹp, không ExperimentService); agent tự chọn phép thử đáng làm (spec 11.2) để sau.
-4. **Ba cách làm cố định.** Không có kho biến thể, không tạo biến thể mới; thêm cách làm là sửa code có review.
-5. **Thẻ mục tiêu chưa hiện cách làm và phép thử**: dữ liệu có trong `GET /goals/{id}` (`method`, `experiments`), giao diện chưa vẽ; lệnh `revert_method` có ở API, chưa có nút.
-6. **Một phép thử một mục tiêu một lúc** (khoá mục tiêu); phép thử lớn giữ khoá lâu, lượt làm việc của mục tiêu đó chờ.
-7. **Công tắc brain là file, ngoài giao dịch SQLite.** Cổng kiểm công tắc ngay trước giao dịch đổi cách làm; người dùng tắt đúng trong khe giữa hai bước đó thì cách làm vẫn đổi. Khe này ngắn (không có lượt gọi model nào ở giữa) và giống khe giữa kiểm hash và thay file đã ghi ở M3.
-8. **Cách làm đã học không theo sang revision mới.** Mỗi lần người dùng nói rõ thêm (revision mới), mục tiêu quay về cách làm mặc định cho tới khi được so lại; chưa có gì tự so lại.
-9. **Chưa có tự sửa code, nhóm, supervisor, metric chuỗi thời gian, undo tổng quát**: ngoài MVP, đúng kế hoạch.
-10. Các giới hạn từ M2 đến M4 vẫn còn.
+1. **The candidate-regression case does not exist on a real model yet**, only with the fake engine.
+2. **Cost is not yet a winning criterion.** The conclusion is based only on quality by the pinned yardstick; equal quality but cheaper is still `no_improvement`.
+3. **Nobody proposes experiments on their own yet.** There is no automatic path or UI button calling `compare_methods`; the case set and the method pair are supplied by the caller (tests, pilot). This is the plan's scope (one narrow comparison, no ExperimentService); the agent choosing which experiments are worth doing (spec 11.2) comes later.
+4. **Three fixed methods.** There is no variant store and no new variants are created; adding a method means editing code with review.
+5. **The goal card does not show the method and experiments yet**: the data is in `GET /goals/{id}` (`method`, `experiments`), but the UI does not draw it; the `revert_method` command exists in the API but has no button.
+6. **One experiment per goal at a time** (the goal lock); a large experiment holds the lock for a long time and that goal's work turns wait.
+7. **The brain switch is a file, outside the SQLite transaction.** The gate checks the switch right before the method-change transaction; if the user turns it off exactly in the gap between those two steps, the method still changes. This gap is short (no model call in between) and is like the gap between the hash check and replacing the file noted in M3.
+8. **A learned method does not carry over to a new revision.** Each time the user adds clarification (a new revision), the goal goes back to the default method until it is compared again; nothing re-compares by itself.
+9. **No code self-editing, groups, supervisor, time-series metrics or general undo**: outside the MVP, as planned.
+10. The limits from M2 to M4 still remain.
 
-### Đối chiếu điều kiện hoàn thành MVP
+### Checking against the MVP completion conditions
 
-| Điều kiện (cuối plan 00-mvp) | Tình trạng | Căn cứ |
+| Condition (end of plan 00-mvp) | Status | Basis |
 |---|---|---|
-| Một yêu cầu cần theo đuổi đi hết vòng trên host thật: tự hình thành mục tiêu, hành động có receipt, kiểm chứng, tiếp tục sau gián đoạn, trả kết quả đúng phiên | **Đạt trong phạm vi kịch bản** (kỹ thuật và nội dung) | Pilot đầu-cuối lần 5 (08/10/2026, commit `0b6a4542`, [`resonance-mvp-e2e-pilot-5.json`](resonance-mvp-e2e-pilot-5.json)): qua đường chat thật, bộ não Opus TỰ tìm `javis_goal` qua ToolSearch và lập đúng một mục tiêu achieve từ lời giao tự nhiên; bản đầu và bản sửa do bộ não viết trong lượt được host tiếp nhận bằng biên nhận ghi; mục tiêu giữ nguyên qua khởi động lại; góp ý nối vào cùng mục tiêu (revision 2); tin báo về đúng phiên có biên nhận; xác nhận qua API (mô phỏng) thì mục tiêu đạt. 2 lượt Opus, 0 lượt Sonnet. Một mẫu, chưa chứng minh định tuyến ổn định. Đường việc nền sửa bản trên model thật chưa được dùng trong lần này (pilot M3 đã đo riêng). Nội dung hai bản đã được người review duyệt đạt (hậu kiểm, đối chiếu đúng hash, xem [hồ sơ pilot](resonance-mvp-e2e-pilot-plan.md), mục "Nghiệm thu nội dung lần 5"). |
-| Chat thường không tạo việc nền; không bắt điền SMART hay xác nhận mọi mục tiêu | Đạt với engine giả | M2: phân luồng sau lượt, không gọi thêm model; chưa đo trên bộ não thật. |
-| Goal-fit và outcome tách; biết nói chưa đủ bằng chứng; xác nhận con người không bị bỏ phí hay dùng sai phạm vi | Đạt | M3, M4 và ba vòng review M4. |
-| Một thay đổi phương pháp được thử trên cùng thước đo, chỉ áp dụng khi đủ căn cứ trong quyền; usage và hạn mức được ghi, dừng được | Đạt, có giới hạn | M5: engine giả đủ các nhánh; pilot thật cho nhánh không áp dụng. Chưa có lần áp dụng (eligible) nào trên model thật. |
-| Báo cáo chỉ khẳng định phạm vi đã chạy | Theo dõi | Mỗi mục trên ghi rõ engine giả hay model thật. |
+| One request that needs pursuing goes through the whole loop on the real host: forming the goal itself, an action with a receipt, verification, continuing after an interruption, returning the result to the right session | **Met within the scenario** (technically and in content) | End-to-end pilot run 5 (2026-10-08, commit `0b6a4542`, [`resonance-mvp-e2e-pilot-5.json`](resonance-mvp-e2e-pilot-5.json)): through the real chat path, the Opus brain found `javis_goal` ITSELF through ToolSearch and formed exactly one achieve goal from a natural assignment; the first version and the revised version the brain wrote within the turn were accepted by the host with a written receipt; the goal stayed intact across a restart; feedback was attached to the same goal (revision 2); the notice came back to the right session with a receipt; confirmation through the API (simulated) made the goal achieved. 2 Opus turns, 0 Sonnet turns. One sample, which does not prove stable routing. The background path that revises the version on a real model was not used this time (the M3 pilot measured it separately). The content of the two versions was approved by the reviewer (after the fact, checked against the exact hash, see the [pilot file](resonance-mvp-e2e-pilot-plan.md), section "Content acceptance of run 5"). |
+| Ordinary chat does not create background work; it does not force filling in SMART or confirming every goal | Met with the fake engine | M2: branching after the turn, no extra model call; not measured on a real brain. |
+| Goal-fit and outcome are separate; it can say there is not enough evidence; human confirmation is neither wasted nor used out of scope | Met | M3, M4 and the three M4 review rounds. |
+| One method change is tried on the same yardstick, applied only with enough basis within authority; usage and quota are recorded, and it can be stopped | Met, with limits | M5: the fake engine covers all branches; the real pilot covers the not-applied branch. There has not been any application (eligible) on a real model yet. |
+| The report only claims the scope that was run | Ongoing | Each item above states whether it was the fake engine or a real model. |
 
-**Tổng kết hiện tại (08/10/2026):** pilot đầu-cuối lần 5 đạt kỹ thuật và nội dung trong phạm vi kịch bản; chờ kiểm tích hợp trên `main` trước khi phát hành. Phạm vi: một mẫu thực tế đi hết vòng, xác nhận cuối là mô phỏng qua API, lần này không chạy Sonnet (đường việc nền sửa bản trên model thật có bằng chứng riêng ở pilot M3). Chưa phải thống kê độ ổn định định tuyến.
+**Current summary (2026-10-08):** end-to-end pilot run 5 met the technical and content bar within the scenario; it awaits an integration check on `main` before release. Scope: one real sample that went through the whole loop, the final confirmation is simulated through the API, and Sonnet was not run this time (the background path that revises the version on a real model has its own evidence in the M3 pilot). It is not a statistic of routing stability.
 
-**Lịch sử (giữ nguyên, không còn là trạng thái hiện tại):** Review mã M5 đạt ở vòng 3 (`d38d033a`); MVP CHƯA hoàn tất. Kịch bản pilot đầu-cuối qua đường chat thật cho điều kiện thứ nhất và hạn mức đề xuất ở [`resonance-mvp-e2e-pilot-plan.md`](resonance-mvp-e2e-pilot-plan.md); bộ chạy `tests/python/test_resonance_mvp_e2e_pilot.py` đã qua chế độ `dry` (14/14, 0 lượt gọi model). Chế độ `real` đã chạy MỘT lần (lần 1) theo hạn mức người dùng duyệt: bộ não chọn `javis_task` (đúng luật định tuyến hiện hành cho việc nền một lần có duyệt) chứ không lập mục tiêu, pilot dừng ở 1/3 lượt engine cấp host; phương thức xác thực của lần đó chưa được xác minh độc lập. Sau review e2e: trần tính cả bộ lập mục tiêu (sổ `call_ledger`), cổng xác thực và soát settings trước khi gửi tin, mọi điều kiện nghiệm thu là lỗi cứng, kịch bản đổi sang loại duy trì; lần chạy 2 chờ người dùng duyệt. Điều kiện thứ nhất vẫn chưa đạt.
+**History (kept as is, no longer the current status):** The M5 code review passed at round 3 (`d38d033a`); the MVP is NOT complete. The end-to-end pilot script through the real chat path for the first condition and the proposed quota are in [`resonance-mvp-e2e-pilot-plan.md`](resonance-mvp-e2e-pilot-plan.md); the runner `tests/python/test_resonance_mvp_e2e_pilot.py` has passed `dry` mode (14/14, 0 model calls). `real` mode has been run ONCE (run 1) within the quota the user approved: the brain chose `javis_task` (the correct current routing rule for one-off background work that needs approval) and did not form a goal, and the pilot stopped at 1/3 host-granted engine turns; the authentication method of that run was not independently verified. After the e2e review: the cap counts the goal framer too (the `call_ledger` book), an authentication gate and a settings check before sending the message, every acceptance condition is a hard error, and the scenario changed to the maintain kind; run 2 is waiting for the user's approval. The first condition is still not met.
 
-### Toàn bộ test
+### Full test run
 
-| | Main sạch (`7d264236`) | Nhánh M5 (`1cc0395c`) | Sau review vòng 1 (`3c214c65`) | Sau review vòng 2 (`ca8e1674`) |
+| | Clean main (`7d264236`) | M5 branch (`1cc0395c`) | After review round 1 (`3c214c65`) | After review round 2 (`ca8e1674`) |
 |---|---|---|---|---|
-| Python xanh | 387/403 | 399/414 | 399/414 | 399/414 |
-| File Python đỏ | 16 | 15 | 15 | 15 |
-| Đỏ mới so với main | | không có | không có | không có |
+| Python green | 387/403 | 399/414 | 399/414 | 399/414 |
+| Python red files | 16 | 15 | 15 | 15 |
+| New red vs main | | none | none | none |
 | JS (`tests/run.py --js`) | | 177/177 | 177/177 | 177/177 |
 
-15 file đỏ trùng đúng danh sách đỏ sẵn ở mục M1. Hai file mới của M5 (`test_resonance_mvp_trial.py`, `test_resonance_mvp_trial_pilot.py` ở chế độ bỏ qua khi không đặt `JAVIS_RESONANCE_PILOT=1`) đều xanh.
+The 15 red files are exactly the list already red in the M1 section. The two new M5 files (`test_resonance_mvp_trial.py`, and `test_resonance_mvp_trial_pilot.py` which is skipped when `JAVIS_RESONANCE_PILOT=1` is not set) are both green.

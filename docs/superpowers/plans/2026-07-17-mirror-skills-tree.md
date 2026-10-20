@@ -1,68 +1,68 @@
-# B4: mirror_skills đệ quy + cổng chữ ký Implementation Plan
+# B4: recursive mirror_skills + signature gate Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Cho skill mang theo `references/`/`scripts/` tới được đường Claude Code nạp native, đồng thời cắt chi phí `mirror_skills` từ ~52ms xuống ~6ms mỗi lượt chat.
+**Goal:** Let skills that carry `references/`/`scripts/` reach the path Claude Code loads natively, and cut the `mirror_skills` cost from ~52ms to ~6ms per chat turn.
 
-**Architecture:** Thêm cổng hai tầng vào `mirror_skills`. Tầng một cộng chữ ký CHỈ bằng `stat` (không đọc byte nào) rồi so với cache trong bộ nhớ theo root; không đổi thì trả về ngay - đây là đường 99% lượt chat chạm. Tầng hai, chỉ khi chữ ký đổi, mới copy đệ quy cả cây. Lock riêng cho mirror, lấy kiểu không-chờ, nên không bao giờ xếp hàng chặn event loop và không tạo chu trình với `_LOCK`.
+**Architecture:** Add a two-tier gate to `mirror_skills`. Tier one computes a signature from `stat` ONLY (no byte is read) and compares it with an in-memory cache keyed by root; if nothing changed it returns immediately - this is the path 99% of chat turns hit. Tier two, only when the signature changed, copies the whole tree recursively. The mirror has its own lock, taken non-blocking, so it never queues up and blocks the event loop and never forms a cycle with `_LOCK`.
 
-**Tech Stack:** Python 3.12, stdlib (`os.scandir`, `hashlib`, `shutil`, `threading`, `pathlib`). Không pytest.
+**Tech Stack:** Python 3.12, stdlib (`os.scandir`, `hashlib`, `shutil`, `threading`, `pathlib`). No pytest.
 
 ## Global Constraints
 
-- Spec đầy đủ: `docs/superpowers/specs/2026-07-17-mirror-skills-tree-design.md`. Đọc mục "Rủi ro" trước khi bắt đầu.
-- **Ngôn ngữ:** mọi comment, docstring, thông báo lỗi viết tiếng Việt.
-- **TUYỆT ĐỐI không dùng ký tự em dash (U+2014)** trong bất kỳ file nào. Dùng "-". Luật cứng của người dùng.
-- **KHÔNG dùng pytest.** Test là script chạy thẳng, dùng `check(name, cond)` + `_fails` + `sys.exit(1)`. Mẫu chuẩn: `server/test_loop_ambient.py:23-30` và `:117-120`.
-- **KHÔNG lấy `test_plugins_host.py` làm mẫu** - nó dùng bare assert nên dừng ở lỗi ĐẦU TIÊN.
-- **Lệnh chạy test:** `cd server && ../.venv/Scripts/python.exe test_system_sync.py`. Venv ở GỐC repo, KHÔNG phải `server/.venv`.
-- **Test mới phải đặt tên `server/test_*.py`** thì CI (`.github/workflows/ci.yml:29-39`) mới glob thấy.
-- **Preamble test, thứ tự load-bearing** (env TRƯỚC import):
+- Full spec: `docs/superpowers/specs/2026-07-17-mirror-skills-tree-design.md`. Read the "Risks" section before starting.
+- **Language:** every comment, docstring and error message is written in English.
+- **NEVER use the em dash character (U+2014)** in any file. Use "-". Hard user rule.
+- **Do NOT use pytest.** Tests are plain scripts that run directly, using `check(name, cond)` + `_fails` + `sys.exit(1)`. Standard template: `server/test_loop_ambient.py:23-30` and `:117-120`.
+- **Do NOT take `test_plugins_host.py` as a template** - it uses bare asserts, so it stops at the FIRST failure.
+- **Test command:** `cd server && ../.venv/Scripts/python.exe test_system_sync.py`. The venv is at the repo ROOT, NOT `server/.venv`.
+- **New tests must be named `server/test_*.py`** so the CI glob (`.github/workflows/ci.yml:29-39`) picks them up.
+- **Test preamble, order is load-bearing** (env BEFORE import):
   ```python
   os.environ.setdefault("JAVIS_STATE_DIR", tempfile.mkdtemp(prefix="javis-synctest-"))
   sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
   import system_sync  # noqa: E402
   ```
-- **`mirror_skills` TUYỆT ĐỐI không được lấy `_LOCK`** (`system_sync.py:280`). Nó bị gọi từ `sync_brain` KHI ĐANG giữ `_LOCK`, mà `threading.Lock` không reentrant nên sẽ deadlock ngay lượt chat đầu.
-- **`skill_hash` KHÔNG được đổi** chữ ký hay ngữ nghĩa. `sync_brain`, `LEGACY_HASHES` và CLI `--hash` phụ thuộc output chính xác của nó. Chỉ THÔI DÙNG nó trong `mirror_skills`.
-- Test tự dựng brain giả trong `tempfile.mkdtemp`. TUYỆT ĐỐI không chạm `brains/` thật.
-- Không để lại file/thư mục rác ngoài temp.
+- **`mirror_skills` must NEVER take `_LOCK`** (`system_sync.py:280`). It is called from `sync_brain` WHILE `_LOCK` is held, and `threading.Lock` is not reentrant, so it would deadlock on the very first chat turn.
+- **`skill_hash` must NOT change** signature or semantics. `sync_brain`, `LEGACY_HASHES` and the `--hash` CLI depend on its exact output. Only STOP USING it inside `mirror_skills`.
+- Tests build a fake brain in `tempfile.mkdtemp`. NEVER touch the real `brains/`.
+- Leave no stray files/folders outside temp.
 
 ---
 
 ## File Structure
 
-**Tạo mới:**
-- `server/test_system_sync.py` - test cho `mirror_skills`. Hôm nay KHÔNG một test nào trong repo chạm hàm này.
+**Create:**
+- `server/test_system_sync.py` - tests for `mirror_skills`. Today NO test in the repo touches this function.
 
-**Sửa:**
-- `server/system_sync.py` - thêm `import os`; thêm `_mirror_signature`, `_MIRROR_SIG`, `_MIRROR_LOCKS`; viết lại thân `mirror_skills` (hiện ở dòng 235-264).
+**Modify:**
+- `server/system_sync.py` - add `import os`; add `_mirror_signature`, `_MIRROR_SIG`, `_MIRROR_LOCKS`; rewrite the body of `mirror_skills` (currently at lines 235-264).
 
 ---
 
-### Task 1: Dựng test_system_sync.py, chốt hành vi hiện tại và đòi hỏi mới
+### Task 1: Build test_system_sync.py, pin the current behavior and the new requirements
 
 **Files:**
 - Create: `server/test_system_sync.py`
 
 **Interfaces:**
-- Consumes: `system_sync.mirror_skills(root) -> None` (đã có, `system_sync.py:235`).
-- Produces: không có. Task 2 làm test này chuyển từ đỏ sang xanh.
+- Consumes: `system_sync.mirror_skills(root) -> None` (already exists, `system_sync.py:235`).
+- Produces: nothing. Task 2 turns this test from red to green.
 
-- [ ] **Step 1: Viết test**
+- [ ] **Step 1: Write the test**
 
-Tạo `server/test_system_sync.py`:
+Create `server/test_system_sync.py`:
 
 ```python
-"""Test mirror_skills: copy cả cây con + cổng chữ ký stat. Chạy tay / CI:
+"""Test mirror_skills: copy the whole subtree + the stat signature gate. Run by hand / CI:
 
     cd server && ../.venv/Scripts/python.exe test_system_sync.py
 
-Không cần pytest, không chạm mạng. Tự dựng brain giả trong thư mục tạm.
-Phủ: copy thư mục con (references/ scripts/), file phụ ngang hàng đổi thì mirror nhận
-(bug CÓ SẴN), bỏ qua .disabled, add-only không xoá file lạ, không đổi gì thì KHÔNG copy
-lại lần nào và KHÔNG đọc nội dung file nào, hai luồng đồng thời không treo, file nhị phân
-qua nguyên vẹn.
+No pytest needed, no network. Builds a fake brain in a temp directory.
+Covers: copying subfolders (references/ scripts/), a sibling side file changing so the mirror
+picks it up (PRE-EXISTING bug), skipping .disabled, add-only never deleting stray files, no
+change means NO re-copy at all and NO file content read, two concurrent threads not hanging,
+binary files passing through intact.
 """
 import os
 import shutil
@@ -86,55 +86,56 @@ def check(name, cond):
 
 
 def _mk_brain(prefix):
-    """Brain giả: 1 skill có cây con + 1 skill đã tắt. Trả (root, skill_dir, mirror_dir)."""
+    """Fake brain: 1 skill with a subtree + 1 disabled skill. Returns (root, skill_dir, mirror_dir)."""
     root = Path(tempfile.mkdtemp(prefix=prefix))
-    sk = root / "skills" / "co-tai-lieu"
+    sk = root / "skills" / "has-docs"
     (sk / "references").mkdir(parents=True)
     (sk / "scripts").mkdir(parents=True)
-    (sk / "SKILL.md").write_text("---\nname: Có tài liệu\ndescription: Thử cây con.\n---\nthân\n",
+    (sk / "SKILL.md").write_text("---\nname: Has docs\ndescription: Subtree test.\n---\nbody\n",
                                  encoding="utf-8")
-    (sk / "references" / "chi-tiet.md").write_text("chi tiết v1\n", encoding="utf-8")
-    (sk / "scripts" / "chay.py").write_text("print('hi')\n", encoding="utf-8")
-    (sk / "anh.png").write_bytes(b"\x89PNG\r\n\x1a\n binary")
-    dis = root / "skills" / ".disabled" / "da-tat"
+    (sk / "references" / "details.md").write_text("details v1\n", encoding="utf-8")
+    (sk / "scripts" / "run.py").write_text("print('hi')\n", encoding="utf-8")
+    (sk / "image.png").write_bytes(b"\x89PNG\r\n\x1a\n binary")
+    dis = root / "skills" / ".disabled" / "turned-off"
     dis.mkdir(parents=True)
-    (dis / "SKILL.md").write_text("---\nname: Đã tắt\n---\nx\n", encoding="utf-8")
-    return root, sk, root / ".claude" / "skills" / "co-tai-lieu"
+    (dis / "SKILL.md").write_text("---\nname: Turned off\n---\nx\n", encoding="utf-8")
+    return root, sk, root / ".claude" / "skills" / "has-docs"
 
 
-# ---- copy đệ quy ----
+# ---- recursive copy ----
 _ROOT, _SK, _MIR = _mk_brain("javis-mirror-")
 system_sync.mirror_skills(_ROOT)
-check("mirror có SKILL.md", (_MIR / "SKILL.md").is_file())
-check("mirror có references/chi-tiet.md", (_MIR / "references" / "chi-tiet.md").is_file())
-check("mirror có scripts/chay.py", (_MIR / "scripts" / "chay.py").is_file())
-check("mirror giữ nguyên byte của file nhị phân",
-      (_MIR / "anh.png").is_file()
-      and (_MIR / "anh.png").read_bytes() == b"\x89PNG\r\n\x1a\n binary")
-check("KHÔNG mirror skill đã tắt", not (_ROOT / ".claude" / "skills" / "da-tat").exists())
+check("mirror has SKILL.md", (_MIR / "SKILL.md").is_file())
+check("mirror has references/details.md", (_MIR / "references" / "details.md").is_file())
+check("mirror has scripts/run.py", (_MIR / "scripts" / "run.py").is_file())
+check("mirror keeps the bytes of the binary file intact",
+      (_MIR / "image.png").is_file()
+      and (_MIR / "image.png").read_bytes() == b"\x89PNG\r\n\x1a\n binary")
+check("does NOT mirror the disabled skill", not (_ROOT / ".claude" / "skills" / "turned-off").exists())
 
-# ---- đổi references/ mà SKILL.md không đổi -> mirror PHẢI nhận (bug CÓ SẴN) ----
-(_SK / "references" / "chi-tiet.md").write_text("chi tiết v2\n", encoding="utf-8")
+# ---- references/ changes while SKILL.md does not -> the mirror MUST pick it up (PRE-EXISTING bug) ----
+(_SK / "references" / "details.md").write_text("details v2\n", encoding="utf-8")
 system_sync.mirror_skills(_ROOT)
-check("đổi references/ (SKILL.md không đổi) -> mirror nhận bản mới",
-      (_MIR / "references" / "chi-tiet.md").read_text(encoding="utf-8") == "chi tiết v2\n")
+check("references/ changed (SKILL.md unchanged) -> mirror gets the new version",
+      (_MIR / "references" / "details.md").read_text(encoding="utf-8") == "details v2\n")
 
-# ---- đổi file phụ NGANG HÀNG mà SKILL.md không đổi -> mirror PHẢI nhận (bug CÓ SẴN) ----
-(_SK / "anh.png").write_bytes(b"\x89PNG\r\n\x1a\n DOI ROI")
+# ---- a SIBLING side file changes while SKILL.md does not -> the mirror MUST pick it up (PRE-EXISTING bug) ----
+(_SK / "image.png").write_bytes(b"\x89PNG\r\n\x1a\n CHANGED")
 system_sync.mirror_skills(_ROOT)
-check("đổi file phụ ngang hàng (SKILL.md không đổi) -> mirror nhận bản mới",
-      (_MIR / "anh.png").read_bytes() == b"\x89PNG\r\n\x1a\n DOI ROI")
+check("sibling side file changed (SKILL.md unchanged) -> mirror gets the new version",
+      (_MIR / "image.png").read_bytes() == b"\x89PNG\r\n\x1a\n CHANGED")
 
-# ---- add-only: file lạ trong mirror KHÔNG bị xoá ----
-(_MIR / "nguoi-dung-them.md").write_text("giữ tôi lại\n", encoding="utf-8")
-(_SK / "SKILL.md").write_text("---\nname: Có tài liệu\ndescription: Đổi để ép copy.\n---\nthân 2\n",
+# ---- add-only: a stray file in the mirror is NOT deleted ----
+(_MIR / "user-added.md").write_text("keep me\n", encoding="utf-8")
+(_SK / "SKILL.md").write_text("---\nname: Has docs\ndescription: Changed to force a copy.\n---\nbody 2\n",
                               encoding="utf-8")
 system_sync.mirror_skills(_ROOT)
-check("add-only: không xoá file lạ ở mirror", (_MIR / "nguoi-dung-them.md").is_file())
+check("add-only: stray file in the mirror is not deleted", (_MIR / "user-added.md").is_file())
 
-# ---- không đổi gì -> KHÔNG copy lại lần nào ----
-# KHÔNG kiểm bằng mtime: shutil.copy2 giữ nguyên mtime của NGUỒN nên đích luôn cùng mtime
-# dù có copy lại hay không -> test kiểu đó xanh cả khi code sai. Phải ĐẾM copy2 thật sự.
+# ---- nothing changed -> NO re-copy at all ----
+# Do NOT check with mtime: shutil.copy2 keeps the SOURCE mtime, so the destination always has the
+# same mtime whether or not it was re-copied -> a test like that is green even when the code is
+# wrong. We must COUNT real copy2 calls.
 _copies = []
 _orig_copy2 = shutil.copy2
 
@@ -150,14 +151,15 @@ try:
     system_sync.mirror_skills(_ROOT)
 finally:
     shutil.copy2 = _orig_copy2
-check(f"không đổi gì -> KHÔNG copy lại lần nào (đếm được {len(_copies)})", len(_copies) == 0)
+check(f"nothing changed -> NO re-copy at all (counted {len(_copies)})", len(_copies) == 0)
 
-# ---- không đổi gì -> KHÔNG còn đọc-và-băm SKILL.md như bản cũ ----
-# CHÍNH XÁC ĐIỀU NÀY CHỨNG MINH: bản cũ đọc SKILL.md qua Path.read_text để băm, mỗi skill
-# hai lần (nguồn + đích), mỗi lượt gọi - đó là 52ms. Spy này bắt đúng đường đó biến mất.
-# ĐIỀU NÓ *KHÔNG* CHỨNG MINH: "không đọc file nào cả". shutil.copy2 đọc bằng open() chứ
-# không qua Path.read_text, nên nếu copy vẫn chạy thì spy này VẪN im. Việc chứng minh không
-# copy là của check _copies ở trên. Hai check bù nhau, đừng gộp.
+# ---- nothing changed -> no longer read-and-hash SKILL.md like the old version ----
+# WHAT THIS PROVES EXACTLY: the old version read SKILL.md through Path.read_text to hash it, twice
+# per skill (source + destination), on every call - that was the 52ms. This spy catches exactly
+# that path disappearing.
+# WHAT IT DOES *NOT* PROVE: "no file is read at all". shutil.copy2 reads through open(), not
+# Path.read_text, so if a copy still ran this spy would STAY silent. Proving that no copy happens
+# is the job of the _copies check above. The two checks complement each other, do not merge them.
 _reads = []
 _orig_rt = Path.read_text
 _orig_rb = Path.read_bytes
@@ -180,10 +182,10 @@ try:
 finally:
     Path.read_text = _orig_rt
     Path.read_bytes = _orig_rb
-check(f"không đổi gì -> KHÔNG còn đọc-và-băm SKILL.md (đếm được {len(_reads)} lượt read_text/read_bytes)",
+check(f"nothing changed -> no more read-and-hash of SKILL.md (counted {len(_reads)} read_text/read_bytes calls)",
       len(_reads) == 0)
 
-# ---- hai luồng đồng thời trên cùng root -> không treo ----
+# ---- two concurrent threads on the same root -> no hang ----
 _R2, _SK2, _MIR2 = _mk_brain("javis-mirrorpar-")
 _done = []
 
@@ -196,33 +198,33 @@ def _race():
 _ts = [threading.Thread(target=_race) for _ in range(4)]
 [t.start() for t in _ts]
 [t.join(timeout=20) for t in _ts]
-check("4 luồng đồng thời -> không treo, cả 4 xong", len(_done) == 4)
-check("4 luồng đồng thời -> mirror vẫn đúng", (_MIR2 / "references" / "chi-tiet.md").is_file())
+check("4 concurrent threads -> no hang, all 4 finish", len(_done) == 4)
+check("4 concurrent threads -> mirror is still correct", (_MIR2 / "references" / "details.md").is_file())
 
-# ---- dọn ----
+# ---- cleanup ----
 for _d in (_ROOT, _R2):
     shutil.rmtree(_d, ignore_errors=True)
 
 if _fails:
-    print(f"\nFAIL - test_system_sync: {len(_fails)} lỗi: {_fails}")
+    print(f"\nFAIL - test_system_sync: {len(_fails)} failures: {_fails}")
     sys.exit(1)
-print("\nOK - test_system_sync: tất cả pass")
+print("\nOK - test_system_sync: all pass")
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận nó FAIL đúng chỗ**
+- [ ] **Step 2: Run the test, confirm it FAILS in the right places**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_system_sync.py`
 
-Expected: FAIL. Các dòng phải đỏ:
-- `mirror có references/chi-tiet.md` - bản hiện tại chỉ copy file top-level.
-- `mirror có scripts/chay.py` - cùng lý do.
-- `đổi references/ (SKILL.md không đổi) -> mirror nhận bản mới`
-- `đổi file phụ ngang hàng (SKILL.md không đổi) -> mirror nhận bản mới` - bug CÓ SẴN: cổng skip chỉ băm SKILL.md.
-- `không đổi gì -> KHÔNG còn đọc-và-băm SKILL.md` - bản hiện tại đọc SKILL.md mỗi lần gọi.
+Expected: FAIL. These lines must be red:
+- `mirror has references/details.md` - the current version only copies top-level files.
+- `mirror has scripts/run.py` - same reason.
+- `references/ changed (SKILL.md unchanged) -> mirror gets the new version`
+- `sibling side file changed (SKILL.md unchanged) -> mirror gets the new version` - PRE-EXISTING bug: the skip gate only hashes SKILL.md.
+- `nothing changed -> no more read-and-hash of SKILL.md` - the current version reads SKILL.md on every call.
 
-Các dòng phải XANH ngay từ bây giờ (chốt bất biến, không được vỡ ở Task 2): `mirror có SKILL.md`, `KHÔNG mirror skill đã tắt`, `add-only: không xoá file lạ ở mirror`, `4 luồng đồng thời -> không treo`.
+These lines must be GREEN from the start (they pin invariants that must not break in Task 2): `mirror has SKILL.md`, `does NOT mirror the disabled skill`, `add-only: stray file in the mirror is not deleted`, `4 concurrent threads -> no hang`.
 
-Dòng `không đổi gì -> KHÔNG copy lại lần nào` có thể XANH sẵn (bản cũ skip theo hash SKILL.md nên cũng không copy). Đó là bình thường - nó là lưới chặn regression cho Task 2, không phải để bắt lỗi hiện tại.
+The line `nothing changed -> NO re-copy at all` may already be GREEN (the old version skips by the SKILL.md hash so it does not copy either). That is normal - it is a regression net for Task 2, not meant to catch the current bug.
 
 - [ ] **Step 3: Commit**
 
@@ -233,19 +235,19 @@ git commit -m "test(sync): dung test_system_sync tu so 0 - chot hanh vi mirror_s
 
 ---
 
-### Task 2: Cổng chữ ký stat + copy đệ quy + lock riêng
+### Task 2: Stat signature gate + recursive copy + dedicated lock
 
 **Files:**
-- Modify: `server/system_sync.py:39-47` (thêm `import os`), `:276-281` (thêm hằng số cạnh `_LOCK`), `:235-264` (viết lại `mirror_skills`)
+- Modify: `server/system_sync.py:39-47` (add `import os`), `:276-281` (add constants next to `_LOCK`), `:235-264` (rewrite `mirror_skills`)
 - Test: `server/test_system_sync.py` (Task 1)
 
 **Interfaces:**
-- Produces: `system_sync._mirror_signature(canonical: Path) -> str` - chữ ký stat-only của cây, chuỗi rỗng nếu thư mục không tồn tại.
-- `system_sync.mirror_skills(root) -> None` giữ NGUYÊN chữ ký công khai. 7 call site hiện có không đổi gì.
+- Produces: `system_sync._mirror_signature(canonical: Path) -> str` - a stat-only signature of the tree, an empty string if the directory does not exist.
+- `system_sync.mirror_skills(root) -> None` keeps its public signature UNCHANGED. The 7 existing call sites change nothing.
 
-- [ ] **Step 1: Thêm `import os`**
+- [ ] **Step 1: Add `import os`**
 
-`system_sync.py` hiện KHÔNG import `os` (đã kiểm). Trong khối import (dòng 39-47), thêm `import os` giữa `import json` và `import re` để giữ thứ tự bảng chữ cái:
+`system_sync.py` currently does NOT import `os` (checked). In the import block (lines 39-47), add `import os` between `import json` and `import re` to keep alphabetical order:
 
 ```python
 import hashlib
@@ -257,27 +259,28 @@ import sys
 import threading
 ```
 
-- [ ] **Step 2: Thêm hằng số + `_mirror_signature`**
+- [ ] **Step 2: Add the constants + `_mirror_signature`**
 
-Ngay TRƯỚC dòng `_LOCK = threading.Lock()` (hiện ở dòng 280), chèn:
+Right BEFORE the line `_LOCK = threading.Lock()` (currently at line 280), insert:
 
 ```python
-# ── Cổng chữ ký cho mirror_skills ──────────────────────────────────────────────
-# mirror_skills bị gọi ở ĐƯỜNG NÓNG: build_system_prompt (main.py:184) chạy mỗi lượt chat
-# dashboard, mỗi tin Telegram, mỗi task Kanban, mỗi vòng loop, mỗi nhắc hẹn, mỗi lần spawn
-# learn. Bản cũ đọc + băm SKILL.md hai lần cho MỖI skill mỗi lần gọi: đo thật trên brain
-# 27 skill là ~52ms MỖI LƯỢT, chặn thẳng event loop. Chữ ký chỉ dùng stat (không đọc byte
-# nào) nên ~6ms, rẻ hơn 9 lần, và tiện thể phủ luôn thư mục con.
-_MIRROR_SIG: dict = {}                    # root đã resolve -> chữ ký lần mirror gần nhất
-_MIRROR_LOCKS: dict = {}                  # root đã resolve -> Lock riêng cho mirror
-_MIRROR_LOCKS_GUARD = threading.Lock()    # chỉ bảo vệ việc TẠO lock trong _MIRROR_LOCKS
+# -- Signature gate for mirror_skills -----------------------------------------------
+# mirror_skills is called on the HOT PATH: build_system_prompt (main.py:184) runs on every
+# dashboard chat turn, every Telegram message, every Kanban task, every loop iteration, every
+# reminder, every learn spawn. The old version read + hashed SKILL.md twice for EVERY skill on
+# every call: measured on a 27-skill brain it is ~52ms PER TURN, blocking the event loop
+# directly. The signature uses stat only (no byte is read) so it is ~6ms, 9 times cheaper, and
+# it also covers subfolders for free.
+_MIRROR_SIG: dict = {}                    # resolved root -> signature of the last mirror run
+_MIRROR_LOCKS: dict = {}                  # resolved root -> dedicated Lock for the mirror
+_MIRROR_LOCKS_GUARD = threading.Lock()    # only protects CREATING locks in _MIRROR_LOCKS
 
 
 def _mirror_lock(key: str) -> threading.Lock:
-    """Lock riêng theo root cho mirror. TUYỆT ĐỐI không phải _LOCK: mirror_skills bị gọi từ
-    sync_brain KHI ĐANG giữ _LOCK, mà threading.Lock không reentrant nên lấy _LOCK ở đây là
-    deadlock ngay lượt chat đầu. Lock này chỉ được lấy BÊN TRONG mirror_skills và không có
-    lock nào khác bị lấy khi đang giữ nó -> không có chu trình -> không deadlock."""
+    """Per-root dedicated lock for the mirror. It must NEVER be _LOCK: mirror_skills is called
+    from sync_brain WHILE _LOCK is held, and threading.Lock is not reentrant, so taking _LOCK
+    here deadlocks on the very first chat turn. This lock is only taken INSIDE mirror_skills and
+    no other lock is taken while holding it -> no cycle -> no deadlock."""
     with _MIRROR_LOCKS_GUARD:
         lk = _MIRROR_LOCKS.get(key)
         if lk is None:
@@ -287,12 +290,13 @@ def _mirror_lock(key: str) -> threading.Lock:
 
 
 def _mirror_signature(canonical: Path) -> str:
-    """Chữ ký cây skill, cộng CHỈ bằng stat - KHÔNG đọc nội dung file nào.
+    """Signature of the skill tree, computed ONLY from stat - reads NO file content.
 
-    Gộp (đường dẫn tương đối dạng posix, st_mtime_ns, st_size) của MỌI file thành 1 sha256.
-    Bỏ qua .disabled (skill đã tắt không được mirror). follow_symlinks=False ở cả is_dir lẫn
-    stat: đĩa hiện không có symlink nào, nhưng rglob trên cây có symlink có thể lặp vô hạn.
-    Trả chuỗi rỗng nếu thư mục không tồn tại. OSError trên 1 entry -> bỏ qua entry đó, không ném.
+    Folds (relative path in posix form, st_mtime_ns, st_size) of EVERY file into 1 sha256.
+    Skips .disabled (disabled skills must not be mirrored). follow_symlinks=False on both is_dir
+    and stat: the disk currently has no symlinks, but rglob on a tree with symlinks can loop
+    forever. Returns an empty string if the directory does not exist. OSError on one entry ->
+    skip that entry, never raise.
     """
     if not canonical.is_dir():
         return ""
@@ -302,9 +306,10 @@ def _mirror_signature(canonical: Path) -> str:
     while stack:
         d = stack.pop()
         try:
-            # context manager BẮT BUỘC: os.scandir giữ file handle của thư mục cho tới khi
-            # đóng. Trên Windows, handle hở làm thư mục không xoá/đổi tên được cho tới khi
-            # GC dọn - đủ để phá test dùng tempfile và phá cả toggle skill (rmtree mirror).
+            # The context manager is REQUIRED: os.scandir holds the directory's file handle until
+            # closed. On Windows, a dangling handle keeps the directory from being deleted or
+            # renamed until GC cleans up - enough to break tests that use tempfile and even to
+            # break the skill toggle (rmtree of the mirror).
             with os.scandir(d) as it:
                 entries = list(it)
         except OSError:
@@ -320,32 +325,34 @@ def _mirror_signature(canonical: Path) -> str:
                 rows.append(f"{rel}\x00{st.st_mtime_ns}\x00{st.st_size}")
             except OSError:
                 continue
-    for row in sorted(rows):   # sort để chữ ký không phụ thuộc thứ tự duyệt của OS
+    for row in sorted(rows):   # sort so the signature does not depend on the OS traversal order
         h.update(row.encode("utf-8", "replace"))
         h.update(b"\x01")
     return h.hexdigest()
 ```
 
-- [ ] **Step 3: Viết lại `mirror_skills`**
+- [ ] **Step 3: Rewrite `mirror_skills`**
 
-Thay TOÀN BỘ hàm `mirror_skills` (hiện ở dòng 235-264) bằng:
+Replace the WHOLE `mirror_skills` function (currently at lines 235-264) with:
 
 ```python
 def mirror_skills(root) -> None:
-    """Mirror MỘT CHIỀU <root>/skills → <root>/.claude/skills (CHỈ skill đang BẬT), ĐỆ QUY
-    cả references/ scripts/ templates/ - skill là PACKAGE, không phải một file.
-    Mục đích: các ngữ cảnh Claude Code chạy cwd=brain (workflow/loop/learn/lint) vẫn nạp skill
-    NATIVE như bonus. Add/update-only, BỎ QUA .disabled (mirror skill đã tắt = vô tình bật lại
-    native). KHÔNG xoá entry lạ ở .claude (việc gỡ mirror khi tắt/xoá skill do endpoint xử lý).
-    Đây là bản phái sinh - hỏng cũng không phá router chính.
+    """ONE-WAY mirror of <root>/skills -> <root>/.claude/skills (ONLY enabled skills), RECURSIVE
+    over references/ scripts/ templates/ - a skill is a PACKAGE, not a single file.
+    Purpose: Claude Code contexts that run with cwd=brain (workflow/loop/learn/lint) still load
+    skills NATIVELY as a bonus. Add/update-only, SKIPS .disabled (mirroring a disabled skill =
+    accidentally re-enabling it natively). Does NOT delete stray entries in .claude (removing the
+    mirror when a skill is disabled/deleted is handled by the endpoint).
+    This is a derived copy - if it breaks, the main router is not harmed.
 
-    ĐƯỜNG NÓNG: gọi mỗi lượt chat qua build_system_prompt. Tầng 1 là cổng chữ ký stat-only
-    (~6ms) - 99% lượt thoát ở đây. Tầng 2 (copy thật) chỉ chạy khi cây nguồn ĐỔI.
+    HOT PATH: called on every chat turn via build_system_prompt. Tier 1 is the stat-only signature
+    gate (~6ms) - 99% of turns exit here. Tier 2 (the real copy) only runs when the source tree
+    CHANGED.
 
-    BIẾT TRƯỚC: chữ ký tính trên NGUỒN và cache nằm trong bộ nhớ, nên bản mirror bị phá từ
-    BÊN NGOÀI mà nguồn không đổi sẽ không tự lành cho tới khi khởi động lại tiến trình. Đánh
-    đổi có chủ đích (xem spec 2026-07-17-mirror-skills-tree-design.md). Tắt skill thì nguồn
-    dời sang .disabled nên chữ ký đổi -> vẫn phủ."""
+    KNOWN UP FRONT: the signature is computed on the SOURCE and the cache lives in memory, so a
+    mirror that is damaged from OUTSIDE while the source is unchanged will not heal itself until
+    the process restarts. A deliberate trade-off (see spec 2026-07-17-mirror-skills-tree-design.md).
+    Disabling a skill moves the source to .disabled so the signature changes -> still covered."""
     root = Path(root)
     canonical = root / "skills"
     mirror = root / ".claude" / "skills"
@@ -358,10 +365,10 @@ def mirror_skills(root) -> None:
     try:
         sig = _mirror_signature(canonical)
         if sig and _MIRROR_SIG.get(key) == sig:
-            return   # TẦNG 1: cây nguồn không đổi -> khỏi làm gì (đường 99% lượt chat)
+            return   # TIER 1: source tree unchanged -> nothing to do (the 99% chat-turn path)
         lk = _mirror_lock(key)
         if not lk.acquire(blocking=False):
-            return   # luồng khác đang mirror đúng root này -> nó làm rồi, khỏi xếp hàng
+            return   # another thread is mirroring this exact root -> it does the work, no queueing
         try:
             for d in sorted(p for p in canonical.iterdir()
                             if p.is_dir() and p.name != ".disabled" and (p / "SKILL.md").is_file()):
@@ -375,8 +382,9 @@ def mirror_skills(root) -> None:
                         shutil.copy2(str(d / rel), str(dst_f))
                 except Exception as e:
                     print(f"[skill mirror] {d.name}: {type(e).__name__}: {e}", file=sys.stderr)
-            # Ghi cache SAU khi copy xong. Copy có thể đổi mtime ở đích chứ không đổi nguồn,
-            # nên tính lại chữ ký nguồn cho chắc (rẻ) thay vì tin sig cũ.
+            # Write the cache AFTER the copy finishes. The copy may change mtime at the
+            # destination but not at the source, so recompute the source signature to be safe
+            # (cheap) instead of trusting the old sig.
             _MIRROR_SIG[key] = _mirror_signature(canonical)
         finally:
             lk.release()
@@ -384,14 +392,14 @@ def mirror_skills(root) -> None:
         print(f"[skill mirror] {root}: {type(e).__name__}: {e}", file=sys.stderr)
 ```
 
-- [ ] **Step 4: Chạy test, xác nhận PASS**
+- [ ] **Step 4: Run the test, confirm PASS**
 
 Run: `cd server && ../.venv/Scripts/python.exe test_system_sync.py`
-Expected: PASS, in `OK - test_system_sync: tất cả pass`.
+Expected: PASS, prints `OK - test_system_sync: all pass`.
 
-- [ ] **Step 5: Chứng minh cổng chữ ký thật sự bite (mutation)**
+- [ ] **Step 5: Prove the signature gate really bites (mutation)**
 
-Tạm bỏ tầng 1 bằng cách comment hai dòng:
+Temporarily remove tier 1 by commenting out two lines:
 
 ```python
         # if sig and _MIRROR_SIG.get(key) == sig:
@@ -399,14 +407,14 @@ Tạm bỏ tầng 1 bằng cách comment hai dòng:
 ```
 
 Run: `cd server && ../.venv/Scripts/python.exe test_system_sync.py`
-Expected: FAIL ở `không đổi gì -> KHÔNG copy lại lần nào` và `không đổi gì -> KHÔNG đọc nội dung file nào`.
+Expected: FAIL at `nothing changed -> NO re-copy at all` and `nothing changed -> no more read-and-hash of SKILL.md`.
 
-**Khôi phục nguyên trạng** rồi chạy lại, xác nhận xanh. Xác nhận `git diff server/system_sync.py` chỉ còn thay đổi có chủ đích.
+**Restore it exactly**, then run again and confirm green. Confirm `git diff server/system_sync.py` shows only the intended changes.
 
-- [ ] **Step 6: Chạy toàn bộ suite**
+- [ ] **Step 6: Run the whole suite**
 
 Run: `cd server && st=0; for f in test_*.py; do ../.venv/Scripts/python.exe "$f" >/dev/null 2>&1 || { echo "FAIL: $f"; st=1; }; done; echo "EXIT=$st"`
-Expected: `EXIT=0`. Đặc biệt để mắt `test_skill_caps.py` (nó gọi `system_sync.system_skill_slugs`) và `test_skill_usage.py`.
+Expected: `EXIT=0`. Pay special attention to `test_skill_caps.py` (it calls `system_sync.system_skill_slugs`) and `test_skill_usage.py`.
 
 - [ ] **Step 7: Commit**
 
@@ -417,7 +425,7 @@ git commit -m "perf(sync): cong chu ky stat + mirror de quy - 52ms/luot xuong ~6
 
 ---
 
-### Task 3: Đo lại trên brain thật + bump 0.9.64
+### Task 3: Re-measure on the real brain + bump 0.9.64
 
 **Files:**
 - Modify: `VERSION`, `CHANGELOG.md`
@@ -425,7 +433,7 @@ git commit -m "perf(sync): cong chu ky stat + mirror de quy - 52ms/luot xuong ~6
 **Interfaces:**
 - Consumes: `system_sync.mirror_skills`, `system_sync._mirror_signature` (Task 2).
 
-- [ ] **Step 1: Đo lại trên brain thật**
+- [ ] **Step 1: Re-measure on the real brain**
 
 Run:
 ```bash
@@ -436,15 +444,15 @@ sys.path.insert(0, '.')
 import system_sync
 for r in ['../brains/My Bullet Journal', '../brains/Brain Default', '../brains/Ngọc Thu Phạm']:
     if not Path(r).is_dir(): continue
-    system_sync.mirror_skills(r)          # lam am cache + mirror
+    system_sync.mirror_skills(r)          # warm the cache + mirror
     t0 = time.perf_counter()
     for _ in range(5): system_sync.mirror_skills(r)
-    print(f'{Path(r).name:22} {(time.perf_counter()-t0)/5*1000:6.2f} ms/luot')
+    print(f'{Path(r).name:22} {(time.perf_counter()-t0)/5*1000:6.2f} ms/turn')
 "
 ```
-Expected: mỗi brain dưới ~10ms. Số nền trước khi làm plan này: My Bullet Journal 52,48ms, Ngọc Thu Phạm 44,23ms, Brain Default 11,62ms.
+Expected: each brain under ~10ms. Baseline numbers before this plan: My Bullet Journal 52.48ms, Ngọc Thu Phạm 44.23ms, Brain Default 11.62ms.
 
-- [ ] **Step 2: Xác nhận references/ tới được brain thật**
+- [ ] **Step 2: Confirm references/ reaches the real brain**
 
 Run:
 ```bash
@@ -458,39 +466,39 @@ for b in Path('brains').iterdir():
         if not (d / 'references').is_dir(): continue
         mir = b / '.claude' / 'skills' / d.name / 'references'
         n += 1
-        print(('OK  ' if mir.is_dir() else 'THIEU'), b.name, '/', d.name)
-print('skill co references/:', n)
+        print(('OK  ' if mir.is_dir() else 'MISSING'), b.name, '/', d.name)
+print('skills with references/:', n)
 "
 ```
-Expected: mọi dòng `OK`. Trước khi làm plan này, mọi dòng sẽ là `THIEU`.
+Expected: every line `OK`. Before this plan, every line would be `MISSING`.
 
-Lưu ý: bước này ghi vào `brains/` thật, nhưng `brains/` đã bị gitignore ở repo gốc (`.gitignore:51`) nên không lọt vào commit.
+Note: this step writes into the real `brains/`, but `brains/` is already gitignored in the root repo (`.gitignore:51`) so it does not end up in the commit.
 
 - [ ] **Step 3: Bump VERSION**
 
-`VERSION` hiện là `0.9.63`. Ghi `0.9.64`:
+`VERSION` is currently `0.9.63`. Write `0.9.64`:
 
 ```bash
 echo "0.9.64" > VERSION
 ```
 
-- [ ] **Step 4: Viết CHANGELOG**
+- [ ] **Step 4: Write the CHANGELOG**
 
-Thêm khối này vào `CHANGELOG.md`, NGAY TRƯỚC dòng `## [0.9.63] - 2026-07-17`:
+Add this block to `CHANGELOG.md`, RIGHT BEFORE the line `## [0.9.63] - 2026-07-17`:
 
 ```markdown
 ## [0.9.64] - 2026-07-17
-### Sửa lỗi
-- **Jarvis 007 tốn ~52ms mỗi lượt chat chỉ để đồng bộ skill, và nó chặn cả tiến trình**: hàm mirror skill đọc và băm lại `SKILL.md` của MỌI skill (cả bản nguồn lẫn bản đích) mỗi lần dựng system prompt, tức mỗi lượt chat, mỗi tin Telegram, mỗi task Kanban, mỗi vòng loop, mỗi nhắc hẹn. Đo thật trên brain 27 skill: 52,48ms mỗi lượt, chạy đồng bộ trên event loop nên làm đứng luôn các kết nối khác. Nay thay bằng cổng chữ ký chỉ dùng `stat` (không đọc nội dung file nào): còn khoảng 6ms, tức nhanh hơn 9 lần, và chỉ copy thật khi cây skill có thay đổi. Lỗi có sẵn, không ai biết cho tới khi đo.
-- **File phụ trong skill đổi nội dung mà bản mirror không bao giờ nhận**: cổng bỏ qua chỉ băm `SKILL.md`, nên sửa một file ảnh hay tài liệu ngang hàng trong thư mục skill thì bản Claude Code nạp native vẫn giữ bản cũ mãi. Chữ ký mới phủ mọi file nên hết lỗi này.
-### Thêm mới
-- **Skill mang theo được `references/` và `scripts/`**: bản mirror sang `.claude/skills` nay copy cả cây con, nên skill có tài liệu tách riêng hay script đi kèm chạy được cả trên đường Claude Code nạp native, không chỉ đường router. 10 skill trong các brain hiện có đã dùng `references/` từ trước và tới giờ vẫn chưa tới được đường native.
-### Đã biết, chưa sửa
-- **Skill hệ thống vẫn chưa ship được cây con**: `html-to-webcake` ship kèm `tools/` và `examples/` nhưng cơ chế cài skill hệ thống chỉ chuyển mỗi `SKILL.md`, nên cây con chưa bao giờ tới brain nào. Bản này KHÔNG sửa lỗi đó: nó nằm ở tầng cài đặt, phía trên tầng mirror.
-- **Bản mirror bị phá từ bên ngoài sẽ không tự lành cho tới khi khởi động lại**: cổng chữ ký tính trên cây nguồn và nhớ trong bộ nhớ, nên nếu ai đó xoá tay file trong `.claude/skills` mà không đụng vào skill gốc thì Jarvis 007 sẽ không nhận ra. Đánh đổi có chủ đích để lấy tốc độ; tắt/bật skill hay khởi động lại đều đưa nó về đúng.
+### Fixes
+- **Jarvis 007 spent ~52ms on every chat turn just to sync skills, and it blocked the whole process**: the skill mirror function re-read and re-hashed the `SKILL.md` of EVERY skill (both the source copy and the destination copy) each time the system prompt was built, i.e. every chat turn, every Telegram message, every Kanban task, every loop iteration, every reminder. Measured on a 27-skill brain: 52.48ms per turn, running synchronously on the event loop so other connections stalled too. It is now replaced by a signature gate that uses only `stat` (no file content is read): about 6ms, 9 times faster, and it only does a real copy when the skill tree has changed. A pre-existing bug nobody knew about until it was measured.
+- **A side file inside a skill changed but the mirror never picked it up**: the skip gate only hashed `SKILL.md`, so editing an image or a sibling document in the skill folder left the copy that Claude Code loads natively stuck on the old version forever. The new signature covers every file, so this bug is gone.
+### Added
+- **Skills can now carry `references/` and `scripts/`**: the mirror into `.claude/skills` now copies the whole subtree, so a skill with separate documentation or a bundled script also works on the path Claude Code loads natively, not only on the router path. 10 skills in the existing brains already used `references/` and until now still had not reached the native path.
+### Known, not fixed
+- **System skills still do not ship their subtree**: `html-to-webcake` ships with `tools/` and `examples/`, but the system-skill install mechanism only carries `SKILL.md`, so the subtree has never reached any brain. This release does NOT fix that: it lives in the install layer, above the mirror layer.
+- **A mirror damaged from outside will not heal itself until a restart**: the signature gate is computed on the source tree and remembered in memory, so if someone manually deletes a file in `.claude/skills` without touching the original skill, Jarvis 007 will not notice. A deliberate trade-off for speed; disabling/enabling the skill or restarting both bring it back to correct.
 ```
 
-- [ ] **Step 5: Kiểm em dash**
+- [ ] **Step 5: Check for em dashes**
 
 Run: `cd "D:/Project/Javis-OS" && ./.venv/Scripts/python.exe -c "import pathlib; print('em dash:', pathlib.Path('CHANGELOG.md').read_text(encoding='utf-8').count(chr(8212)))"`
 Expected: `em dash: 0`
@@ -505,22 +513,22 @@ git push origin main
 
 ---
 
-## Ghi chú cho người thực thi
+## Notes for the executor
 
-**Thứ tự phụ thuộc:** Task 1 -> Task 2 -> Task 3. Tuyến tính, không chen được.
+**Dependency order:** Task 1 -> Task 2 -> Task 3. Linear, cannot be interleaved.
 
-**Chỗ dễ chết nhất là `_LOCK`.** `mirror_skills` bị gọi từ `sync_brain:356` KHI ĐANG giữ `_LOCK` (`system_sync.py:280`, không reentrant). Lấy `_LOCK` bên trong `mirror_skills` là deadlock ngay lượt chat đầu tiên, và test sẽ treo chứ không báo lỗi rõ ràng. Lock của mirror PHẢI là object khác.
+**The deadliest spot is `_LOCK`.** `mirror_skills` is called from `sync_brain:356` WHILE `_LOCK` is held (`system_sync.py:280`, not reentrant). Taking `_LOCK` inside `mirror_skills` deadlocks on the very first chat turn, and the test will hang rather than report a clear error. The mirror's lock MUST be a different object.
 
-**`mirror_skills` được gọi ở đúng 7 chỗ** (đã grep lại tại thời điểm viết plan này, KHÔNG bê số cũ):
+**`mirror_skills` is called in exactly 7 places** (re-grepped when this plan was written, do NOT carry over the old number):
 
-- `main.py:185` - **đường nóng THẬT**, trong `build_system_prompt`, chạy mỗi lượt chat.
-- `main.py:2213`, `:2268`, `:2310`, `:2684`, `:2736` - endpoint do người bấm (toggle, save, group, import, workflow).
-- `system_sync.py:356` - trong `sync_brain`, chạy KHI ĐANG giữ `_LOCK`.
+- `main.py:185` - the REAL hot path, inside `build_system_prompt`, runs on every chat turn.
+- `main.py:2213`, `:2268`, `:2310`, `:2684`, `:2736` - endpoints triggered by a person clicking (toggle, save, group, import, workflow).
+- `system_sync.py:356` - inside `sync_brain`, runs WHILE `_LOCK` is held.
 
-Lưu ý `system_sync.py:200` cũng khớp khi grep nhưng đó là **docstring**, không phải lời gọi.
+Note that `system_sync.py:200` also matches the grep but it is a **docstring**, not a call.
 
-⚠ Số dòng trong `main.py` TRÔI NHANH. Bản đồ rủi ro viết hôm 2026-07-16 ghi `184/2186/2241/2283/2657/2709`; tất cả đã lệch vì chính các commit của đợt A+B thêm dòng vào `main.py` (Task 10 thêm ~23 dòng, Task 6 thêm 6). Nếu bạn đọc plan này sau khi có thêm commit chạm `main.py`, **grep lại thay vì tin số ở trên**. Định vị theo NỘI DUNG, đừng theo số dòng.
+⚠ Line numbers in `main.py` DRIFT fast. The risk map written on 2026-07-16 recorded `184/2186/2241/2283/2657/2709`; all have shifted because the commits of the A+B batch themselves added lines to `main.py` (Task 10 added ~23 lines, Task 6 added 6). If you read this plan after more commits touched `main.py`, **grep again instead of trusting the numbers above**. Locate by CONTENT, not by line number.
 
-**Không đụng `skill_hash`.** Nó vẫn được `sync_brain`, `LEGACY_HASHES` và CLI `--hash` dùng. Ta chỉ thôi dùng nó trong `mirror_skills`.
+**Do not touch `skill_hash`.** It is still used by `sync_brain`, `LEGACY_HASHES` and the `--hash` CLI. We only stop using it inside `mirror_skills`.
 
-**Không mở rộng phạm vi.** `_system_items` (để skill hệ thống ship cây con, tức vá `html-to-webcake`) CỐ Ý nằm ngoài. Thấy chỗ đáng làm thì ghi lại, đừng làm.
+**Do not widen the scope.** `_system_items` (so that system skills ship their subtree, i.e. patching `html-to-webcake`) is INTENTIONALLY out of scope. If you see something worth doing, write it down, do not do it.

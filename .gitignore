@@ -92,7 +92,7 @@ server/capability_registry.db*.corrupt-*
 # Added in 0.9.241: the 6 artifacts below were neither tracked nor ignored, so a single
 # `git add -A` would commit run data + deploy state straight into the repo.
 server/kanban.sqlite3*
-# workflow_runs.sqlite3: the workflow run history store (Task 2 Assistants), same class as
+# workflow_runs.sqlite3: the workflow run history store (Task 2 Partners), same class as
 # kanban.sqlite3* above - a test that does not set JAVIS_STATE_DIR will write into server/ because
 # execute_workflow now always touches workflow_runs.get_store().
 server/workflow_runs.sqlite3*

@@ -1,141 +1,141 @@
-# Nhóm chat team T1: lõi nhóm chat, Quyền giới hạn (0.111.0)
+# Team chat group T1: team chat core, Limited authority (0.111.0)
 
-Spec: [2026-10-13-team-chat-design.md](../superpowers/specs/2026-10-13-team-chat-design.md) (D1 tới D7 đã chốt ngày 13/10/2026). Kế hoạch: [2026-10-13-team-chat-t1.md](../superpowers/plans/2026-10-13-team-chat-t1.md), phán quyết R1 tới R3 ở đó.
+Spec: [2026-10-13-team-chat-design.md](../superpowers/specs/2026-10-13-team-chat-design.md) (D1 to D7, settled on 13/10/2026). Plan: [2026-10-13-team-chat-t1.md](../superpowers/plans/2026-10-13-team-chat-t1.md), with rulings R1 to R3 there.
 
-## Luồng hữu ích đầu tiên
+## First useful flow
 
-1. Chủ tạo nhóm ở trang **Nhóm** (thanh bên, nhóm Năng lực, cạnh Cộng sự): tên, mô tả, thành viên, trưởng nhóm.
-2. Tin không @ thì trưởng nhóm trả lời (D1). Chọn @ từ gợi ý thì chỉ người được gọi trả lời, theo thứ tự @; người sau thấy câu trả lời của người trước.
-3. Bật **Giao việc** thì tin thành một việc nhóm trong hàng đợi (D2). Không @: trưởng nhóm lập kế hoạch, giao từng phần, rồi tổng hợp. Có @: người được gọi làm thẳng.
-4. Hàng đợi có **Ưu tiên** / **Bỏ ưu tiên**, đánh số đúng thứ tự chạy. Việc bị chặn rời chỗ chạy, hiện ở "Bị chặn, chờ bạn" kèm lý do, có tin vào hộp thư.
-5. Kết quả về đúng nhóm, mỗi tin có tác giả, vai, nhãn việc và trạng thái bằng chữ; bản cuối có nhãn "Kết quả việc".
+1. The owner creates a team on the **Teams** page (sidebar, Capabilities group, next to Partners): name, description, members, leader.
+2. A message with no @ is answered by the leader (D1). If an @ is picked from the suggestions, only the person called replies, in @ order; later people see the earlier person's reply.
+3. Turning on **Assign job** makes the message a team job in the queue (D2). No @: the leader plans, assigns each part, then synthesizes. With @: the person called does it directly.
+4. The queue has **Prioritize** / **Remove priority**, numbered in the exact run order. A blocked job leaves the running slot and shows under "Waiting for you" with a reason, and a message goes to the inbox.
+5. Results come back to the right team, each message with its author, role, job label and a status in words; the final one carries the label "Job result".
 
-## Bản đồ mã
+## Code map
 
-| Phần | File | Việc |
+| Part | File | Job |
 |---|---|---|
-| Danh tính | `server/resonance_store.py` (`agent_register`), `server/main.py` (`save_agent`) | Mã bền cho thành viên, không bật Cộng hưởng. Tạo agent trùng slug trả 409, không ghi đè |
-| Kho nhóm | `server/team_store.py` (`team.sqlite3`) | Nhóm, thành viên, sự kiện, bước nội bộ, sổ lượt, khoá bận; `set_caps`, `log_event` |
-| Tin có người gửi | `server/sessions.py` | Cột `author_kind`, `author_ref`, `client_msg_id` (duy nhất trong phiên), `reply_to`, `task_id`, `step_id`, `meta_json`; ẩn `team:` và `teammate:` khỏi lịch sử chat; sổ quyết định; tin theo việc |
-| Hàng đợi | `server/task_store.py` (làn `team` của `kanban.sqlite3`) | `enqueue_team` (khoá = tin nguồn, không gộp theo tiêu đề), `team_queue`, `team_priority` (CAS `queue_version`, 409), `claim_team_next` (một việc chạy mỗi nhóm, cùng giao dịch), chặn, gỡ chặn, xong, huỷ, sửa yêu cầu, khôi phục. Mã bảng Việc cũ bỏ qua mọi dòng `lane='team'` |
-| Bộ chạy | `server/team_runner.py` | Định tuyến, lượt trả lời, việc nhóm (`plan`, `work`, `help`, `synthesize`), khối `JAVIS_TEAM`, trần, chống vòng, đầu ra muộn, khoá bận FIFO, sổ lượt, huỷ giữa lượt, phục hồi sau restart |
-| Route | `server/team_api.py`, nối ở cuối `server/main.py` | `/teams/*` (19 route), vòng điều phối 5 giây, nhắc việc chặn quá 24 giờ, engine chỉ chữ, hộp thư, gói WS `team_message` / `team_state` |
-| Giao diện | `dashboard/teams.js`, `console.js`, `index.html`, `console.css`, `app.js`, i18n | Trang Nhóm ba cột, ngăn kéo dưới 1060px, một cột dưới 760px |
-| Nâng, hạ | `server/team_migration.py`, `tools/team_chat_restore_pre.py` | Snapshot `.pre-0.111.0` của `kanban.sqlite3` và `conversations.db`, công cụ khôi phục |
+| Identity | `server/resonance_store.py` (`agent_register`), `server/main.py` (`save_agent`) | Durable id for members without turning on Resonance. Creating an agent with a duplicate slug returns 409, no overwrite |
+| Team store | `server/team_store.py` (`team.sqlite3`) | Teams, members, events, internal steps, turn ledger, busy lock; `set_caps`, `log_event` |
+| Messages with a sender | `server/sessions.py` | Columns `author_kind`, `author_ref`, `client_msg_id` (unique within a session), `reply_to`, `task_id`, `step_id`, `meta_json`; hide `team:` and `teammate:` from chat history; decision log; messages by job |
+| Queue | `server/task_store.py` (the `team` lane of `kanban.sqlite3`) | `enqueue_team` (key = source message, no merging by title), `team_queue`, `team_priority` (CAS `queue_version`, 409), `claim_team_next` (one running job per team, same transaction), block, unblock, done, cancel, edit request, recover. The old Work board code ignores every `lane='team'` row |
+| Runner | `server/team_runner.py` | Routing, reply turns, team jobs (`plan`, `work`, `help`, `synthesize`), the `JAVIS_TEAM` block, caps, loop guard, late output, FIFO busy lock, turn ledger, cancel mid-turn, recovery after restart |
+| Routes | `server/team_api.py`, wired at the end of `server/main.py` | `/teams/*` (19 routes), 5-second dispatch loop, reminders for jobs blocked over 24 hours, text-only engine, inbox, WS packets `team_message` / `team_state` |
+| UI | `dashboard/teams.js`, `console.js`, `index.html`, `console.css`, `app.js`, i18n | Three-column Teams page, a drawer under 1060px, one column under 760px |
+| Upgrade, downgrade | `server/team_migration.py`, `tools/team_chat_restore_pre.py` | `.pre-0.111.0` snapshot of `kanban.sqlite3` and `conversations.db`, restore tool |
 
-## Khối JAVIS_TEAM (phán quyết R1)
+## The JAVIS_TEAM block (ruling R1)
 
-Agent điều phối bằng khối do host đọc ở cuối câu trả lời:
+An agent coordinates with a block the host reads at the end of its reply:
 
 ```
-<!-- JAVIS_TEAM: {"op": "assign", "agent": "<mã hay slug>", "brief": "..."} -->
-<!-- JAVIS_TEAM: {"op": "request_help", "agent": "<mã hay slug>", "question": "..."} -->
+<!-- JAVIS_TEAM: {"op": "assign", "agent": "<id or slug>", "brief": "..."} -->
+<!-- JAVIS_TEAM: {"op": "request_help", "agent": "<id or slug>", "question": "..."} -->
 <!-- JAVIS_TEAM: {"op": "propose_job", "title": "...", "brief": "..."} -->
 ```
 
-| Vai của lượt | Op dùng được |
+| Role of the turn | Ops allowed |
 |---|---|
-| Trưởng nhóm trả lời trò chuyện | `propose_job` (thành thẻ, chủ bấm Tạo việc mới có việc) |
-| Thành viên trả lời trò chuyện | Không có |
-| Lập kế hoạch | `assign` |
-| Làm, Hỗ trợ | `request_help` (một người mỗi lượt) |
-| Tổng hợp | Không có |
+| Leader replying in chat | `propose_job` (becomes a card; the job exists only after the owner presses Create job) |
+| Member replying in chat | None |
+| Planning | `assign` |
+| Work, Help | `request_help` (one person per turn) |
+| Synthesize | None |
 
-Op sai (JSON hỏng, op lạ, người ngoài nhóm, nhờ ngược, quá độ sâu) bị bỏ, ghi chú hiện dưới tin; không có lượt nào ngoài trần.
+A bad op (broken JSON, unknown op, a person outside the team, reverse help request, too deep) is dropped and a note shows under the message; no turn goes beyond the cap.
 
-## Trần (D7, chỉnh ở tab Cài đặt của nhóm)
+## Caps (D7, edited in the team's Settings tab)
 
-12 lượt mỗi việc; 8 bước mỗi việc; độ sâu nhờ hỗ trợ 2; không nhờ ngược; 2 lượt liền cùng kết quả thì dừng (`no_progress`); 3 @ mỗi tin; 100 lượt mỗi nhóm mỗi ngày (tính cả lượt trò chuyện); 1 việc chạy mỗi nhóm; 2 nhóm chạy cùng lúc; 1 lượt cùng lúc mỗi agent (D3); chờ khoá bận 30 phút. Trần kiểm TRƯỚC khi giữ chỗ lượt, nên chạm trần không gọi model.
+12 turns per job; 8 steps per job; help depth 2; no reverse help; 2 turns in a row with the same result stop it (`no_progress`); 3 @ per message; 100 turns per team per day (chat turns count too); 1 running job per team; 2 teams running at once; 1 simultaneous turn per agent (D3); 30 minutes waiting for the busy lock. Caps are checked BEFORE a turn slot is reserved, so hitting a cap does not call the model.
 
-## Sổ lượt
+## Turn ledger
 
-Một dòng mỗi lời gọi model. Giữ chỗ và kiểm trần (ngày, việc) nằm trong CÙNG một giao dịch `BEGIN IMMEDIATE` (`reserve_turn` có `daily_cap`, `task_cap`), nên hai lượt đồng thời không cùng lọt qua chỗ trống cuối. Lỗi trước mốc gọi engine thì hoàn (`refunded`) đúng một lần. Sau mốc thì tính, kể cả lỗi, bị huỷ giữa lượt (`interrupted`), restart (`interrupted`, không tự chạy lại).
+One row per model call. Reserving the slot and checking the caps (day, job) happen in the SAME `BEGIN IMMEDIATE` transaction (`reserve_turn` with `daily_cap`, `task_cap`), so two simultaneous turns cannot both take the last free slot. A failure before the engine-call mark refunds (`refunded`) exactly once. After the mark it counts, including on error, cancel mid-turn (`interrupted`), and restart (`interrupted`, never re-run automatically).
 
-**Mốc gọi engine (review vòng 1, R4):** engine thật (`fn.marks_engine`) dựng xong engine, kiểm `is_available`, rồi mới gọi `req["engine_started"]`; bộ chạy ghi mốc ở đó. Dựng hỏng (`_resonance_engine` trả None, engine báo chưa sẵn sàng, cấu hình ném lỗi) hay bị huỷ khi đang dựng thì lượt hoàn, việc chặn `failed` với lý do "Không dựng được engine" để Chạy lại. Engine giả không khai báo thì mốc ghi ngay trước lời gọi như trước.
+**Engine-call mark (review round 1, R4):** the real engine (`fn.marks_engine`) finishes building the engine, checks `is_available`, and only then calls `req["engine_started"]`; the runner records the mark there. If building fails (`_resonance_engine` returns None, the engine reports not ready, the config throws) or the turn is cancelled while building, the turn is refunded and the blocked job is `failed` with the reason "Could not build the engine" so it can be re-run. A fake engine that declares nothing gets the mark right before the call, as before.
 
-**Kết cục engine (R1):** adapter đọc sự kiện theo `team_runner.TextOnlyOutcome`, cùng luật với `_engine_outcome_pop` của lượt chat: final `is_error`, cờ `auth_refresh_race`, sự kiện `error` (kể cả sau final), gọi công cụ (`tool_call`, `tool_use`, `tool_result`), thiếu final, final rỗng đều là lượt `error` (đã tính), bước lỗi, việc chặn `failed`. Lỗi mất mạch đã được engine mồi lại trong lượt (`resume_failed`) không tính là lỗi.
+**Engine outcome (R1):** the adapter reads events through `team_runner.TextOnlyOutcome`, with the same rules as `_engine_outcome_pop` of the chat turn: a final with `is_error`, the flag `auth_refresh_race`, an `error` event (even after the final), tool calls (`tool_call`, `tool_use`, `tool_result`), a missing final, or an empty final all make the turn `error` (counted), the step failed, and the blocked job `failed`. A lost-thread error the engine already primed again within the turn (`resume_failed`) does not count as an error.
 
-**Bài học bền (R3):** adapter chỉ BÓC `JAVIS_LESSON` / `JAVIS_RULE` (rule hạ thành bài học vì trong nhóm chủ không nói trực tiếp với agent), trả `commit`. Pha chấp nhận (`_accept`) kiểm đầu ra còn hợp lệ rồi gọi `commit` trong cùng `accept_lock` (lượt trò chuyện); bước của việc nhóm thì `commit` chạy ở pha áp dụng (`_apply_step`) sau lần kiểm cuối (vòng 2, R7); các thao tác làm đầu ra hết hợp lệ (bỏ thành viên, đổi trưởng nhóm, huỷ, sửa yêu cầu, lưu trữ, xoá agent ở `delete_agent`) giữ cùng khoá. `commit` kiểm lại danh tính (mã bền còn trỏ đúng slug) ngay trước khi ghi, và `claim_commit(turn_id)` cho ghi đúng một lần mỗi lượt. Đầu ra không hợp lệ chỉ là bằng chứng: tin có `applied=false` và `held_lessons`, bộ nhớ agent không đổi.
+**Durable lessons (R3):** the adapter only EXTRACTS `JAVIS_LESSON` / `JAVIS_RULE` (a rule is downgraded to a lesson because in a team the owner does not talk to the agent directly) and returns `commit`. The accept phase (`_accept`) checks the output is still valid and then calls `commit` inside the same `accept_lock` (chat turn); for a team job step, `commit` runs in the apply phase (`_apply_step`) after the final check (round 2, R7). Operations that make the output invalid (removing a member, changing the leader, cancel, editing the request, archiving, deleting an agent in `delete_agent`) hold the same lock. `commit` re-checks identity (the durable id still points at the right slug) right before writing, and `claim_commit(turn_id)` allows writing exactly once per turn. Invalid output is only evidence: the message has `applied=false` and `held_lessons`, and the agent's memory does not change.
 
-## Giới hạn đã biết của T1
+## Known limits of T1
 
-- **Lượt nhóm chỉ chữ** (R3): không đọc, ghi file, không MCP, không `javis_goal`. Mở công cụ cùng cổng quyền theo nhóm để T3.
-  - **Đổi ở 0.142.0** ([team-chat-0142.md](team-chat-0142.md)): lượt nhóm KHÔNG còn dựng engine qua hợp đồng Cộng hưởng (`_resonance_engine`, model việc nền, chỉ Claude và engine API). Hợp đồng riêng `server/team_engine.py`: model của trợ lý, thiếu thì model chính; Codex chạy chỉ chữ (không profile, MCP rỗng, tắt công cụ native, luôn `--sandbox read-only`). Giới hạn R3 giữ nguyên: vẫn chỉ chữ, không công cụ, không MCP, không hub; Grok và Antigravity chạy bằng model chính kèm ghi chú.
-  - **Đổi ở 0.194.0** (chủ 17/10/2026: "team phải đầy đủ các quyền thì mới làm việc được"): bước **Làm** và **Hỗ trợ** của một việc nhóm (`team_runner.TOOL_ROLES`) chạy CÓ công cụ như chat riêng với trợ lý: cwd là thư mục làm việc ghim của nhóm (không có thì bộ não), hub MCP gắn ở mức `full` (`main.TEAM_WORK_MODE`), file bộ não qua `javis_vault`, dựng bằng `team_engine.build_tools` (provider khác Claude đi qua các builder việc nền `aux_engine._build_*`, nên Grok Build và Antigravity cũng chạy được lượt Làm). Kết cục đọc theo `team_runner.ToolTurnOutcome` (gọi công cụ là bình thường, các luật lỗi khác giữ nguyên). Lượt công cụ trên cùng một bộ não chạy lần lượt (khoá trong tiến trình theo bộ não). Lượt trò chuyện, lập kế hoạch, tổng hợp, quét và học vẫn chỉ chữ. Test: `tests/python/test_team_work_tools.py`.
-- **Không resume mạch thành viên:** mỗi lượt là một lời gọi mới mang khối nhóm: cửa sổ 20 tin GẦN NHẤT của chính phiên nhóm (gồm tin cũ của chủ và câu trả lời trước của mọi thành viên, kể cả của agent đó; tin sau lượt trước của agent có nhãn "mới"), tối đa 8.000 ký tự; sổ quyết định; đầu vào của bước. Trước review vòng 1 khối này chỉ có tin SAU lượt trước của agent, nên câu hỏi nối tiếp mất dữ kiện (R2). Tin cũ hơn cửa sổ chỉ còn qua sổ quyết định.
-- **I/O ở luồng phụ (R5):** mọi đọc, ghi SQLite và file của bộ chạy và của route `/teams/*` chạy qua `run_io` (luồng phụ). Bị huỷ, kể cả huỷ lặp, khi luồng phụ đang ghi thì chờ ghi xong, chạy bước hoàn tác (hoàn lượt vừa giữ chỗ, nhả dòng khoá vừa lấy, trả việc vừa nhận về hàng) rồi mới ném huỷ; dòng khoá bận chỉ nhả sau khi lượt đã chốt. Gói WS, hộp thư và huỷ task asyncio từ luồng phụ được xếp về event loop.
-- **Không stream từng chữ** (R2): câu trả lời về khi xong.
-- **Chưa có reaction** (T2), **chưa có Toàn quyền** (T3).
-- **Chat riêng 1:1 với agent không lấy khoá bận:** một agent có thể cùng lúc chạy một lượt nhóm và một lượt chat riêng.
-- **Bỏ qua thẻ đề xuất** chỉ ẩn trong tab đang mở.
-- Hiệu năng thật trên VPS chưa đo; ngưỡng 100 ms trong test là chỉ dấu cục bộ với kho giả chậm 250 ms, không phải SLA. Đo ở T4.
+- **Team turns are text only** (R3): no file read or write, no MCP, no `javis_goal`. Opening tools with a per-team permission gate is left for T3.
+  - **Changed in 0.142.0** ([team-chat-0142.md](team-chat-0142.md)): team turns no longer build the engine through the Resonance contract (`_resonance_engine`, the background-job model, only Claude and API engines). A dedicated contract `server/team_engine.py` uses the assistant's model, and the main model when missing; Codex runs text only (no profile, empty MCP, native tools off, always `--sandbox read-only`). The R3 limit stays: still text only, no tools, no MCP, no hub; Grok and Antigravity run on the main model with a note.
+  - **Changed in 0.194.0** (owner, 17/10/2026: "a team needs full permissions to be able to work"): the **Work** and **Help** steps of a team job (`team_runner.TOOL_ROLES`) run WITH tools like a private chat with the assistant: cwd is the team's pinned working folder (the brain if none), the MCP hub is attached at `full` level (`main.TEAM_WORK_MODE`), brain files go through `javis_vault`, built with `team_engine.build_tools` (providers other than Claude go through the background-job builders `aux_engine._build_*`, so Grok Build and Antigravity can also run Work turns). The outcome is read through `team_runner.ToolTurnOutcome` (tool calls are normal, the other error rules stay). Tool turns on the same brain run one after another (an in-process lock per brain). Chat, planning, synthesize, scan and learn turns stay text only. Test: `tests/python/test_team_work_tools.py`.
+- **No resuming a member's thread:** each turn is a fresh call carrying the team block: a window of the 20 MOST RECENT messages of the team's own session (including the owner's old messages and every member's earlier replies, the agent's own included; messages after the agent's previous turn are labeled "new"), at most 8,000 characters; the decision log; the step input. Before review round 1 this block had only messages AFTER the agent's previous turn, so a follow-up question lost its facts (R2). Messages older than the window survive only through the decision log.
+- **I/O on a side thread (R5):** every SQLite and file read and write of the runner and of the `/teams/*` routes goes through `run_io` (a side thread). If it is cancelled, even repeatedly, while the side thread is writing, it waits for the write to finish, runs the undo step (refund the turn just reserved, release the lock row just taken, return the job just claimed to the queue), and only then raises the cancel; the busy lock row is released only after the turn has settled. WS packets, the inbox, and cancelling asyncio tasks from the side thread are scheduled back onto the event loop.
+- **No word-by-word streaming** (R2): the reply arrives when it is done.
+- **No reactions yet** (T2), **no Full authority yet** (T3).
+- **A private 1:1 chat with an agent does not take the busy lock:** an agent can run a team turn and a private chat turn at the same time.
+- **Dismissing a proposal card** only hides it in the open tab.
+- Real performance on the VPS is not measured; the 100 ms threshold in the test is a local indicator with a fake store slowed by 250 ms, not an SLA. To be measured in T4.
 
-## Review cuối (người review mới, model mạnh nhất)
+## Final review (a fresh reviewer, strongest model)
 
-Kết luận "sẵn sàng sau khi sửa": 0 lỗi nghiêm trọng, 5 lỗi quan trọng, đã sửa hết, mỗi lỗi có test đỏ trước rồi xanh.
-- Trưởng nhóm giao theo tên hiển thị ("Minh") bị bỏ và việc báo xong khi chưa ai làm: giờ khớp cả tên, không phân biệt hoa thường; mọi lệnh giao đều hỏng thì việc bị chặn.
-- Sửa yêu cầu của việc @ nhiều người chỉ làm lại phần một người: giờ mọi người được giao còn thiếu kết quả bản mới đều làm lại.
-- Tạm dừng rồi tiếp tục ngay làm kẹt nhóm; lỗi bất ngờ để việc treo `team_running`; vòng nền chạy phục hồi nhầm ở máy cài mới: đều đã sửa.
-- Sửa thêm (nâng mức theo tác động): lượt trả lời không chạy khi nhóm đã tạm dừng, lưu trữ huỷ cả việc đang treo, bước không tiến triển thành bước lỗi để Chạy lại, khoá bận không kẹt khi huỷ, phiên nhóm không hiện trong ô tìm của khung chat chính.
-- Để lại (ghi trong sổ phán quyết): bài học từ lượt đến muộn vẫn ghi vào bộ nhớ agent; trần ngày có thể vượt vài lượt khi nhiều lượt cùng lúc; khoá bận không gia hạn sau 15 phút; chữ lý do từ server chỉ có tiếng Việt; dựng tên thành viên tốn đọc file mỗi lượt (đo ở T4).
+Verdict "ready after fixes": 0 critical bugs, 5 important bugs, all fixed, each with a test that was red first and then green.
+- A leader assigning by display name ("Minh") was dropped and the job reported done before anyone worked: now it matches the name too, case-insensitively; if every assign command is broken, the job is blocked.
+- Editing the request of a job with several @ redid only one person's part: now everyone assigned who is missing a result for the new version redoes it.
+- Pause then immediately resume jammed the team; an unexpected error left a job hanging at `team_running`; the background loop ran recovery wrongly on a fresh install: all fixed.
+- Extra fixes (raised by impact): a reply turn does not run when the team is paused, archiving cancels a hanging job, a step with no progress becomes a failed step so it can be re-run, the busy lock does not get stuck on cancel, the team session does not show in the main chat's search box.
+- Left as is (recorded in the rulings log): lessons from a late turn are still written to the agent's memory; the daily cap can be exceeded by a few turns when many turns run at once; the busy lock is not renewed after 15 minutes; reason text from the server exists only in Vietnamese; building member names costs a file read each turn (to be measured in T4).
 
-## Review mã vòng 1 (14/10/2026, head `c729f464`)
+## Code review round 1 (14/10/2026, head `c729f464`)
 
-Reviewer tái hiện 2 P1 và 4 P2 bằng `exports/reviews/PR-628-T1-review-checks.py` (ngoài repo, engine giả). Trên `c729f464` cả 6 tái hiện (chế độ mặc định exit 0, `--expect-fixed` exit 1). Đã sửa, mỗi lỗi có hồi quy riêng trong repo:
+The reviewer reproduced 2 P1 and 4 P2 with `exports/reviews/PR-628-T1-review-checks.py` (outside the repo, fake engine). On `c729f464` all 6 reproductions fire (default mode exit 0, `--expect-fixed` exit 1). Fixed, each with its own regression in the repo:
 
-| Lỗi | Sửa | Hồi quy |
+| Bug | Fix | Regression |
 |---|---|---|
-| R1 [P1] engine lỗi, rỗng thành Xong | `TextOnlyOutcome` trong adapter; lượt `error` đã tính, việc chặn `failed` | `test_team_t1_review.py` mục R1: 9 kết cục xấu qua factory thật, đối chứng final hợp lệ, `resume_failed`, Chạy lại, lượt trò chuyện |
-| R2 [P2] lượt hai mất ngữ cảnh | Cửa sổ 20 tin gần nhất của chính phiên nhóm | mục R2: SOURCE và câu trả lời trước có ở lượt hai, nhãn (bạn) và mới, không lẫn nhóm khác, trần 20 tin, trần 8.000 ký tự |
-| R3 [P1] đầu ra muộn ghi bộ nhớ bền | Adapter chỉ bóc, `commit` sau kiểm trong `accept_lock`, ghim danh tính, `claim_commit` | mục R3: đối chứng ghi đúng, rule hạ thành bài học, rời nhóm, huỷ, sửa yêu cầu, đổi trưởng nhóm, xoá rồi tạo lại cùng slug, tranh khoá, xử lý lặp |
-| R4 [P2] engine chưa dựng vẫn tính | Mốc `engine_started` sau khi dựng xong | mục R4: `_resonance_engine` trả None, engine chưa sẵn sàng, dựng ném lỗi, huỷ khi đang dựng, restart |
-| R5 [P2] chặn event loop | `run_io` cho runner và mọi route `/teams/*`; giữ chỗ kèm kiểm trần một giao dịch | mục R5: kho chậm (lượt trả lời, việc, route thật), hai lượt đồng thời trần 1, tám luồng trần 3, huỷ lặp khi giữ chỗ, huỷ khi chốt lượt, huỷ khi lấy khoá, kho lỗi |
-| R6 [P2] nhóm sống trỏ phiên đã mất | Khôi phục cả bộ ba kho, đối soát nhóm mồ côi lúc khởi động | `test_team_rollback.py` mục R6: vòng đầy đủ với nhóm thật và mã 0.109.0 thật, nhóm mồ côi, thiếu snapshot, hỏng giữa chừng |
+| R1 [P1] a failed or empty engine became Done | `TextOnlyOutcome` in the adapter; the turn is `error` and counted, the blocked job is `failed` | `test_team_t1_review.py` section R1: 9 bad outcomes through the real factory, a valid-final control, `resume_failed`, Re-run, chat turn |
+| R2 [P2] the second turn lost context | Window of the 20 most recent messages of the team's own session | section R2: SOURCE and the earlier reply are in turn two, labels (you) and new, no mixing with other teams, 20-message cap, 8,000-character cap |
+| R3 [P1] late output written to durable memory | The adapter only extracts, `commit` after the check inside `accept_lock`, identity pinning, `claim_commit` | section R3: correct-write control, rule downgraded to a lesson, leaving the team, cancel, editing the request, changing the leader, delete then recreate with the same slug, lock contention, repeated handling |
+| R4 [P2] an engine not yet built still counted | The `engine_started` mark after building finishes | section R4: `_resonance_engine` returns None, engine not ready, build throws, cancel while building, restart |
+| R5 [P2] blocking the event loop | `run_io` for the runner and every `/teams/*` route; reserve plus cap check in one transaction | section R5: slow store (reply turn, job, real route), two simultaneous turns with cap 1, eight threads with cap 3, repeated cancel while reserving, cancel when settling the turn, cancel when taking the lock, store error |
+| R6 [P2] a live team pointing at a lost session | Restore all three stores, reconcile orphan teams at startup | `test_team_rollback.py` section R6: full round trip with a real team and real 0.109.0 code, orphan team, missing snapshot, failure midway |
 
-Quyết định đổi so với bản trước: khối ngữ cảnh có lịch sử, không chỉ tin mới (R2); `JAVIS_RULE` trong lượt nhóm vẫn hạ thành bài học nhưng chỉ ghi khi đầu ra được chấp nhận (R3); `team.sqlite3` không còn "để nguyên" khi khôi phục (R6). Ngoài phạm vi: Toàn quyền, công cụ, stream, reaction (T2, T3).
+Decisions changed from the earlier version: the context block carries history, not only new messages (R2); `JAVIS_RULE` in a team turn is still downgraded to a lesson but written only when the output is accepted (R3); `team.sqlite3` is no longer "left alone" on restore (R6). Out of scope: Full authority, tools, streaming, reactions (T2, T3).
 
-## Review mã vòng 2 (14/10/2026, head `280959a7`)
+## Code review round 2 (14/10/2026, head `280959a7`)
 
-Sáu ca vòng 1 giữ đạt. Reviewer tái hiện thêm 1 P1 và 2 P2 bằng `exports/reviews/PR-628-T1-r2-race-checks.py` (engine giả, barrier có hạn). Đã sửa:
+The six round 1 cases still pass. The reviewer reproduced 1 more P1 and 2 P2 with `exports/reviews/PR-628-T1-r2-race-checks.py` (fake engine, barrier with a deadline). Fixed:
 
-| Lỗi | Sửa | Hồi quy (`test_team_t1_review.py`) |
+| Bug | Fix | Regression (`test_team_t1_review.py`) |
 |---|---|---|
-| R7 [P1] kết quả bản cũ chốt Xong cho yêu cầu đã sửa | `_apply_step` và `_job_tick` chạy trong `accept_lock`, kiểm lại hiệu lực ngay trước khi áp tác động; hết hiệu lực thì tin thành bằng chứng (`superseded`, applied=false) và đi đúng nhánh đến muộn. `team_finish(expected_rev=...)` là CAS ở kho. Bài học của bước việc ghi ở pha áp dụng, không ở pha chấp nhận | mục R7: kế hoạch trả lời trực tiếp, bước làm, tổng hợp (mỗi ca sửa yêu cầu ở cửa áp dụng rồi làm lại theo bản mới), hoàn tất thắng trước thì sửa bị từ chối, huỷ, bỏ thành viên, đổi trưởng nhóm ở cửa áp dụng, CAS kho, đối chứng không sửa |
-| R8 [P2] hai lần đánh thức vượt trần pool | Tính chỗ, nhận việc, giữ chỗ (`_pool`) là một đoạn găng trong `_claim_batch` (`_pool_lock`, luồng phụ); chỗ trả khi task xong; model chạy ngoài khoá; lỗi giữa chừng trả cả việc đang tạo bước đầu về hàng | mục R8: bốn nhóm, trần 2, hai dispatch qua barrier; đối chứng tuần tự; khoá không bị giữ khi model chạy; lỗi giữa lúc nhận; huỷ lặp khi đang nhận |
-| R9 [P2] khôi phục hỏng sau ghi để lẫn kho | Kho tính là "có thể đã đụng" TRƯỚC khi ghi; trả về từ bản sao rồi kiểm lại (số dòng từng bảng); đích vốn không có thì gỡ; không trả được thì báo `unrecoverable` kèm bản sao | mục R9: lỗi trước và sau ghi từng kho, lỗi khi gỡ kho nhóm, đích vốn không có, không trả về được, đối chứng |
+| R7 [P1] a stale version's result settled Done for an edited request | `_apply_step` and `_job_tick` run inside `accept_lock` and re-check validity right before applying effects; once invalid, the message becomes evidence (`superseded`, applied=false) and takes the late-arrival branch. `team_finish(expected_rev=...)` is a CAS in the store. A job step's lesson is written in the apply phase, not the accept phase | section R7: plan with a direct answer, work step, synthesize (each case edits the request at the apply gate and then redoes on the new version), completion winning first so the edit is refused, cancel, removing a member, changing the leader at the apply gate, store CAS, no-edit control |
+| R8 [P2] two wake-ups exceeded the pool cap | Computing slots, claiming the job and reserving (`_pool`) is one critical section in `_claim_batch` (`_pool_lock`, side thread); the slot is returned when the task finishes; the model runs outside the lock; a mid-way failure returns even the job that was creating its first step to the queue | section R8: four teams, cap 2, two dispatches through a barrier; sequential control; the lock is not held while the model runs; failure in the middle of claiming; repeated cancel while claiming |
+| R9 [P2] a broken restore after a write left stores mixed | A store counts as "possibly touched" BEFORE writing; restore from the copy then re-check (row counts per table); a destination that did not exist is removed; if it cannot be restored, report `unrecoverable` with the copy | section R9: failure before and after writing each store, failure when removing the team store, a destination that did not exist, cannot restore, control |
 
-## Nâng, hạ phiên bản
+## Upgrading, downgrading
 
-- Lần đầu 0.111.0 mở `kanban.sqlite3` và `conversations.db` có từ trước, mỗi kho được chụp một bản `<tên>.pre-0.111.0` bằng SQLite backup, trước khi thêm cột. Kho mới tinh thì không chụp.
-- **Hạ về 0.109.0:** tắt Jarvis 007, chạy `python tools/team_chat_restore_pre.py --yes`. Công cụ khôi phục CẢ BỘ ba kho (review vòng 1, R6):
-  1. Kiểm trước cả bộ, chưa ghi gì: kho nào đã nâng thì phải có snapshot hợp lệ. Thiếu hay hỏng một snapshot là dừng, không đụng kho nào.
-  2. Chép mọi kho hiện có (kể cả `team.sqlite3`) sang `<tên>.post-0.111.0-<thời điểm>`.
-  3. Gỡ `team.sqlite3` khỏi chỗ chạy: trước 0.111.0 không có kho này.
-  4. Ghi snapshot vào hai kho kia. Hỏng giữa chừng thì trả mọi kho đã đụng về bản ở bước 2 và báo lỗi, không báo thành công.
-- **Mất khỏi kho chạy / giữ lại:** việc Kanban, tin chat và nhóm sau lúc nâng rời kho chạy; cả ba có bản `.post-0.111.0-*` để đọc lại. Nâng lại thì không có nhóm nào trỏ vào phiên đã mất, snapshot `.pre-0.111.0` dùng lại, không chụp đè.
-- **Nhóm mồ côi:** nếu kho phiên bị đưa về bản cũ mà `team.sqlite3` còn (công cụ trước review, hay chép tay), lần khởi động sau vòng nền lưu trữ nhóm, ghi sự kiện `session_missing`, huỷ việc còn mở; dữ liệu nhóm giữ để đối chiếu. Gửi tin vào nhóm đó trả lỗi nghiệp vụ (TeamError), không phải lỗi khoá ngoại.
-- **Hạ không khôi phục:** mã cũ không bao giờ nhặt việc nhóm, nhưng trang Việc hiện các dòng `team_*` với trạng thái lạ và phiên `team:` hiện như phiên thường.
+- On the first run of 0.111.0 over an existing `kanban.sqlite3` and `conversations.db`, each store is snapshotted to `<name>.pre-0.111.0` with the SQLite backup before columns are added. A brand-new store is not snapshotted.
+- **Downgrade to 0.109.0:** stop Jarvis 007, run `python tools/team_chat_restore_pre.py --yes`. The restore tool restores the WHOLE SET of three stores (review round 1, R6):
+  1. Check the whole set first, writing nothing: every upgraded store must have a valid snapshot. A missing or broken snapshot stops it, touching no store.
+  2. Copy every existing store (`team.sqlite3` included) to `<name>.post-0.111.0-<timestamp>`.
+  3. Remove `team.sqlite3` from the running location: before 0.111.0 this store did not exist.
+  4. Write the snapshots into the other two stores. If it fails midway, return every store already touched to the copy from step 2 and report the error, never success.
+- **Lost from the running store / kept:** Kanban jobs, chat messages and teams created after the upgrade leave the running store; all three have a `.post-0.111.0-*` copy to read back. On upgrading again, no team points at a lost session, and the `.pre-0.111.0` snapshot is reused, not overwritten.
+- **Orphan teams:** if the session store is rolled back to an old copy while `team.sqlite3` remains (the tool before the review, or a manual copy), on the next start the background loop archives the team, logs a `session_missing` event, and cancels open jobs; team data is kept for comparison. Sending a message to such a team returns a business error (TeamError), not a foreign key error.
+- **Downgrade without restore:** old code never picks up team jobs, but the Work page shows the `team_*` rows with an unfamiliar status and `team:` sessions show like ordinary sessions.
 
-## Kiểm
+## Checks
 
-| Lệnh | Kết quả |
+| Command | Result |
 |---|---|
-| `tests/python/test_team_identity.py` | Mã bền không bật Cộng hưởng; tạo trùng slug 409, file cũ không đổi |
-| `tests/python/test_team_store.py` | 24 ca: nhóm, thành viên, trưởng nhóm, bước CAS, sổ lượt, khoá bận |
-| `tests/python/test_team_messages.py` | Người gửi, chống gửi trùng, phân trang, ẩn khỏi lịch sử chat |
-| `tests/python/test_team_queue.py` | 33 ca: TC9, TC14 tới TC18 (ví dụ A, C, B), cách ly bảng Việc |
-| `tests/python/test_team_runner.py` | 65 ca, engine giả: TC6 tới TC13, TC17 tới TC23, khối JAVIS_TEAM sai khuôn, huỷ giữa lượt |
-| `tests/python/test_team_api.py` | 40 ca trên app thật với engine giả: route, 409, đề xuất, sổ quyết định, xoá agent rồi tạo lại (TC5), lưu trữ |
-| `tests/js/test_teams_ui.js` | 53 ca: danh sách, tin, hàng đợi, khung soạn, cài đặt, chỗ nối, CSS, i18n |
-| `tests/python/test_team_rollback.py` | 31 ca với mã 0.109.0 thật (`bfb1c29f`): snapshot, hạ có và không khôi phục, nâng lại; R6 với nhóm thật, nhóm mồ côi, thiếu snapshot, hỏng giữa chừng |
-| `tests/python/test_team_t1_review.py` | 101 ca: review vòng 1 (R1 tới R5, qua factory thật `main._team_engine_for` với engine giả) và vòng 2 (R7 tới R9), có đối chứng hợp lệ |
+| `tests/python/test_team_identity.py` | A durable id does not turn on Resonance; a duplicate slug returns 409, the old file is unchanged |
+| `tests/python/test_team_store.py` | 24 cases: team, members, leader, step CAS, turn ledger, busy lock |
+| `tests/python/test_team_messages.py` | Sender, duplicate-send guard, paging, hidden from chat history |
+| `tests/python/test_team_queue.py` | 33 cases: TC9, TC14 to TC18 (the A, C, B example), isolation from the Work board |
+| `tests/python/test_team_runner.py` | 65 cases, fake engine: TC6 to TC13, TC17 to TC23, malformed JAVIS_TEAM block, cancel mid-turn |
+| `tests/python/test_team_api.py` | 40 cases on the real app with a fake engine: routes, 409, proposals, decision log, delete an agent then recreate (TC5), archive |
+| `tests/js/test_teams_ui.js` | 53 cases: list, messages, queue, composer, settings, wiring, CSS, i18n |
+| `tests/python/test_team_rollback.py` | 31 cases with the real 0.109.0 code (`bfb1c29f`): snapshot, downgrade with and without restore, upgrade again; R6 with a real team, orphan team, missing snapshot, failure midway |
+| `tests/python/test_team_t1_review.py` | 101 cases: review round 1 (R1 to R5, through the real factory `main._team_engine_for` with a fake engine) and round 2 (R7 to R9), with valid controls |
 | `python tests/run.py --js` | 186/186 |
 
-**Smoke giao diện** (sandbox cổng 7788, state trong worktree). Trần lượt ngày của nhóm đặt 0 trước khi gửi gì, nên không lượt nào tới engine thật; sổ lượt cuối buổi 0 dòng. Ảnh ở `exports/reviews/team-t1-smoke/`, ngoài repo.
-- Tạo nhóm qua form; trưởng nhóm, số thành viên hiện ở đầu khung chat.
-- Tin thường: lưu, báo "Nhóm đã dùng hết lượt hôm nay", không ai trả lời.
-- @ gõ "mi" hiện gợi ý Minh; chọn thì thành thẻ; bật Giao việc thì gợi ý "Tạo 1 việc · giao cho Minh · vào cuối hàng (vị trí 1)".
-- Việc chạm trần, vào "Bị chặn, chờ bạn" kèm lý do và nút Cho chạy tiếp.
-- Tạm dừng nhóm, thêm B rồi C, bấm Ưu tiên C: C lên vị trí 1 với nhãn "Ưu tiên" có icon sao và nút Bỏ ưu tiên.
-- 375px: danh sách là trang đầu; khung chat toàn màn, đầu khung hai hàng; cài đặt trượt lên, nền đặc; không cuộn ngang; nút 44px.
-- Smoke tìm ra và đã sửa: nút ẩn vẫn hiện (`.ws-btn` đè `hidden`), cột cài đặt trống khi chưa mở nhóm, đầu khung chat bị ép trên điện thoại, ngăn kéo trong suốt, nút quay lại hẹp hơn 44px.
+**UI smoke test** (sandbox on port 7788, state inside the worktree). The team's daily turn cap was set to 0 before sending anything, so no turn reached a real engine; the turn ledger had 0 rows at the end of the session. Screenshots are in `exports/reviews/team-t1-smoke/`, outside the repo.
+- Create a team through the form; the leader and member count show at the top of the chat panel.
+- A normal message: saved, shows "The team has used up its turns today", nobody replies.
+- Typing "mi" for @ shows the suggestion Minh; picking it makes a card; turning on Assign job shows the suggestion "Create 1 job · assign to Minh · at the end of the queue (position 1)".
+- A job hit the cap and went into "Waiting for you" with a reason and a Continue button.
+- Pause the team, add B then C, press Prioritize on C: C moves to position 1 with a "Priority" label with a star icon and a Remove priority button.
+- 375px: the list is the first page; the chat panel is full screen, the panel header has two rows; settings slide up with a solid background; no horizontal scroll; 44px buttons.
+- The smoke test found and fixed: a hidden button still showing (`.ws-btn` overriding `hidden`), an empty settings column when no team is open, the chat header squeezed on phones, a transparent drawer, a back button narrower than 44px.

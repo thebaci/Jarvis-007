@@ -1,280 +1,282 @@
-# Spec: Đa ngôn ngữ cho Jarvis 007
+# Spec: Multilingual support for Jarvis 007
 
-> Bản spec dev, viết 2026-08-10 trên nền v0.26.16. Mục tiêu: Jarvis 007 nói được nhiều thứ tiếng
-> mà **thêm ngôn ngữ thứ N+1 là thêm DỮ LIỆU, không phải sửa mã**.
+> Dev spec, written 2026-08-10 on top of v0.26.16. Goal: Jarvis 007 speaks many languages, and
+> **adding language number N+1 means adding DATA, not changing code**.
 >
-> **Trạng thái: ĐỢT 1 ĐÃ TRIỂN KHAI** (2026-08-14, trên nền v0.34.1) cho hai ngôn ngữ
-> **vi** và **en**. Xem mục 6 để biết đúng cái gì đã làm và cái gì chưa.
+> **Status: BATCH 1 IS DEPLOYED** (2026-08-14, on top of v0.34.1) for two languages,
+> **vi** and **en**. See section 6 for exactly what was done and what was not.
 >
-> Phần khảo sát dưới đây viết trên nền v0.26.16 nên SỐ DÒNG đã lệch. Bốn chỗ spec nói
-> SAI hoặc nói QUÁ đã được đính chính tại chỗ, đánh dấu **[ĐÍNH CHÍNH]** - đọc chúng
-> trước khi lấy spec này ra xếp ưu tiên.
+> The survey below was written on v0.26.16, so the LINE NUMBERS have drifted. Four places where the spec was
+> WRONG or OVERSTATED have been corrected in place, marked **[CORRECTION]**. Read them
+> before taking this spec out to prioritize work.
 
-## 1. Quyết định cốt lõi và vì sao
+## 1. Core decision and why
 
-**"Đa ngôn ngữ" không phải một việc. Nó là BỐN việc khác nhau bị gọi chung một tên**, và ba
-trong bốn việc đó không liên quan gì tới nhau về mặt kỹ thuật. Gộp chúng lại là cách chắc chắn
-nhất để làm xong tầng dễ nhất rồi tưởng đã xong.
+**"Multilingual" is not one job. It is FOUR different jobs sharing one name**, and three
+of the four have nothing to do with each other technically. Lumping them together is the surest
+way to finish the easiest layer and believe everything is done.
 
-| # | Tầng | Câu hỏi thật sự | Khó ở đâu |
-|---|------|-----------------|-----------|
-| 1 | **Ngôn ngữ TRẢ LỜI** | Jarvis 007 đáp lại bằng tiếng gì | Gần như đã xong sẵn, chỉ vướng một dòng luật trong `CLAUDE.md` |
-| 2 | **Ngôn ngữ GIAO DIỆN** | Chữ trên nút, nhãn, thông báo lỗi | 3.520 dòng tiếng Việt nhúng cứng, không có bước build |
-| 3 | **Ngôn ngữ của LOGIC** | Cổng chặn, bộ phân loại, bộ dò lời hứa | **Nguy hiểm nhất. Hỏng trong im lặng.** |
-| 4 | **Locale** | Múi giờ, tiền tệ, định dạng ngày, giọng đọc | UTC+7 nhúng cứng ở 6 chỗ |
+| # | Layer | The real question | Where it is hard |
+|---|-------|-------------------|------------------|
+| 1 | **REPLY language** | What language Jarvis 007 answers in | Almost done already, blocked only by one rule line in `CLAUDE.md` |
+| 2 | **UI language** | Text on buttons, labels, error messages | 3,520 lines of Vietnamese hardcoded, no build step |
+| 3 | **LOGIC language** | Gates, classifiers, the promise detector | **The most dangerous. Fails silently.** |
+| 4 | **Locale** | Time zone, currency, date format, voice | UTC+7 hardcoded in 6 places |
 
-**Tầng 3 là lý do spec này tồn tại.** Tầng 1 và 2 hỏng thì người dùng NHÌN THẤY ngay và phàn
-nàn. Tầng 3 hỏng thì không ai thấy gì cả: một người dùng tiếng Thái sẽ được Jarvis 007 phục vụ y như
-thường, chỉ khác là đường tắt tiết kiệm token nuốt luôn câu hỏi cần dữ liệu live, bộ bắt "nói dối
-đã làm xong" không bao giờ nổ, và cổng chặn thao tác lịch không bao giờ đóng. Không có log đỏ,
-không có ngoại lệ, chỉ có câu trả lời sai một cách lịch sự.
+**Layer 3 is the reason this spec exists.** When layers 1 and 2 break, users SEE it immediately and
+complain. When layer 3 breaks, nobody sees anything: a Thai user will be served by Jarvis 007 just as
+usual, except that the token-saving shortcut swallows questions that need live data, the catcher for "lying
+about having finished" never fires, and the gate guarding calendar operations never closes. No red log,
+no exception, just politely wrong answers.
 
-Vì vậy **quyết định số một: ngôn ngữ KHÔNG được là điều kiện của logic.** Ở đâu hôm nay đang có
-`re.compile(r"...dat lich|dang bai...")` quyết định hành vi thì ở đó phải chuyển thành "tra một
-bộ từ vựng theo ngôn ngữ", cộng một **luật suy biến an toàn** cho ngôn ngữ chưa có bộ từ vựng.
+So **decision number one: language must NOT be a condition of logic.** Wherever today a
+`re.compile(r"...dat lich|dang bai...")` decides behavior, it has to become "look up a
+per-language lexicon", plus a **safe fallback rule** for a language that has no lexicon.
 
-**Quyết định số hai: một bản CLAUDE.md duy nhất.** Không dịch 30KB luật hành xử ra N bản. Repo
-này đã một lần mắc bẫy "viết bản thứ hai của thứ đã có rồi hai bản trôi lệch" ở 0.15.0 (xem
-[spec CLI](2026-08-cli-spec.md) mục 1). Prompt hệ thống 30KB nhân N ngôn ngữ là đúng cái bẫy đó,
-ở quy mô tệ hơn: hai bản luật an toàn lệch nhau thì phiên bản tiếng Anh mất một rào chắn mà
-không ai biết. Model không cần đọc luật bằng tiếng Anh để TRẢ LỜI bằng tiếng Anh.
+**Decision number two: one single CLAUDE.md.** Do not translate 30KB of behavior rules into N copies. This repo
+has already fallen once into the trap of "writing a second copy of something that exists and then the two copies drift apart" at 0.15.0 (see
+[the CLI spec](2026-08-cli-spec.md) section 1). A 30KB system prompt multiplied by N languages is exactly that trap,
+at a worse scale: when two copies of the safety rules differ, the English version loses a guardrail and
+nobody knows. The model does not need to read the rules in English in order to ANSWER in English.
 
-**Quyết định số ba: tách ba biến ngôn ngữ, đừng nhập một.** Ngôn ngữ giao diện, ngôn ngữ trả
-lời, và ngôn ngữ nội dung trong brain là ba thứ độc lập. Một người Việt bán hàng cho khách Nhật
-muốn giao diện tiếng Việt, brain tiếng Việt, nhưng con chatbot chăm khách phải trả lời tiếng
-Nhật. Nhập ba biến làm một là chặn đứng đúng ca dùng đáng tiền nhất.
+**Decision number three: split the three language variables, do not merge them.** The UI language, the reply
+language, and the language of the content in the brain are three independent things. A Vietnamese person selling to Japanese customers
+wants a Vietnamese UI, a Vietnamese brain, but the customer-care chatbot must answer in
+Japanese. Merging the three variables into one blocks exactly the most valuable use case.
 
-## 2. Hiện trạng: đã soi mã, không đoán
+## 2. Current state: the code was inspected, not guessed
 
-### 2.1. Tầng TRẢ LỜI - gần xong rồi
+### 2.1. The REPLY layer - nearly done
 
-Đây là tin tốt. Hợp đồng đầu ra **đã** language-agnostic từ trước:
+This is the good news. The output contract **already** has been language-agnostic:
 
-- `context_compiler.ContextCompiler._output_contract` (context_compiler.py:366) trả
+- `context_compiler.ContextCompiler._output_contract` (context_compiler.py:366) returns
   `{"language": "match_user", ...}`.
-- `_output_contract_text` (context_compiler.py:394) viết thành lời: *"Dùng đúng ngôn ngữ người
-  dùng đang dùng."*
+- `_output_contract_text` (context_compiler.py:394) spells it out in words: *"Dùng đúng ngôn ngữ người
+  dùng đang dùng."* (Vietnamese for "Use exactly the language the user is using.")
 
-Nghĩa là đường tiết kiệm token đã bám ngôn ngữ người dùng. Chỗ kéo ngược lại là **đường legacy**,
-nơi prompt hệ thống là nguyên văn `CLAUDE.md`:
+That means the token-saving path already follows the user's language. The thing pulling the other way is the **legacy path**,
+where the system prompt is the verbatim `CLAUDE.md`:
 
-- `main.py:231-232` nạp `CLAUDE.md` thành `SYSTEM_PROMPT`.
-- `main.py:354` `build_system_prompt()` nối thêm bộ nhớ, lớp agentic, đồng hồ, mức dùng.
-- `CLAUDE.md` mục "Nguyên tắc phản hồi" luật số 5: **"Tiếng Việt là ngôn ngữ chính"**.
+- `main.py:231-232` loads `CLAUDE.md` as `SYSTEM_PROMPT`.
+- `main.py:354` `build_system_prompt()` appends memory, the agentic layer, the clock, and usage level.
+- `CLAUDE.md`, section "Response principles", rule number 5: **"Vietnamese is the primary language"** (the original
+  wording was `Tiếng Việt là ngôn ngữ chính`).
 
-Một dòng đó đè lên `match_user` ở mọi lượt chạy đường legacy. Sửa tầng 1 chủ yếu là sửa dòng đó
-cho có điều kiện, cộng một khối NGÔN NGỮ chèn động.
+That one line overrides `match_user` on every run of the legacy path. Fixing layer 1 is mostly about making that line
+conditional, plus a dynamically inserted LANGUAGE block.
 
-Còn vài chỗ ép tiếng Việt cứng trong prompt phụ:
+A few more places force Vietnamese in secondary prompts:
 
-- `main.py:3016` mô tả ảnh "bằng tiếng Việt".
-- `main.py:5801` prompt lint "Tiếng Việt".
-- `meta_tools.py:79` "Tiếng Việt là ngôn ngữ chính".
-- `reminders.py:689` prompt tóm tắt nhắc hẹn "tiếng Việt".
-- `context_compiler.dong_ho()` (context_compiler.py:60) sinh câu "Bây giờ là 14:30 thứ hai ngày
-  10/08/2026, giờ Việt Nam (UTC+7)".
-- `channel_context.build_channel_block()` (channel_context.py:28) - toàn bộ khối kênh viết bằng
-  tiếng Việt, khoảng 60 dòng luật gửi thẳng cho model.
+- `main.py:3016` describes images "in Vietnamese".
+- `main.py:5801` the lint prompt says "Vietnamese".
+- `meta_tools.py:79` "Vietnamese is the primary language".
+- `reminders.py:689` the reminder summary prompt says "Vietnamese".
+- `context_compiler.dong_ho()` (context_compiler.py:60) generates the sentence "It is now 14:30 Monday
+  10/08/2026, Vietnam time (UTC+7)" (in Vietnamese in the code).
+- `channel_context.build_channel_block()` (channel_context.py:28) - the whole channel block is written in
+  Vietnamese, about 60 lines of rules sent straight to the model.
 
-Khối kênh và CORE_CONTRACT viết bằng tiếng Việt thì **không cần dịch** (xem quyết định số hai),
-nhưng câu đồng hồ thì có: nó chứa "thứ hai", "giờ Việt Nam" - dữ liệu, không phải luật.
+The channel block and CORE_CONTRACT being written in Vietnamese **need no translation** (see decision number two),
+but the clock sentence does: it contains "thứ hai" (Monday) and "giờ Việt Nam" (Vietnam time), which are data, not rules.
 
-### 2.2. Tầng GIAO DIỆN - 3.520 dòng, không có bước build
+### 2.2. The UI layer - 3,520 lines, no build step
 
-Dashboard là JS thuần, `app.mount("/static", StaticFiles(...))` (main.py:218). Không webpack,
-không vite, không bundler. Chuỗi tiếng Việt nằm rải trong template literal và thuộc tính HTML.
+The dashboard is plain JS, `app.mount("/static", StaticFiles(...))` (main.py:218). No webpack,
+no vite, no bundler. Vietnamese strings are scattered through template literals and HTML attributes.
 
-| File | Dòng có tiếng Việt |
-|------|--------------------|
-| `dashboard/console.js` | 1.464 |
+| File | Lines with Vietnamese |
+|------|-----------------------|
+| `dashboard/console.js` | 1,464 |
 | `dashboard/app.js` | 449 |
 | `dashboard/chatbots.js` | 291 |
 | `dashboard/index.html` | 215 |
 | `dashboard/sessions-ui.js` | 135 |
 | `dashboard/studio.js` | 128 |
-| 18 file còn lại | ~838 |
-| **Tổng** | **3.520** |
+| the other 18 files | ~838 |
+| **Total** | **3,520** |
 
-Cộng thêm phía server: **182 chuỗi lỗi tiếng Việt** trả về giao diện dạng `{"error": "..."}`
-(ví dụ `"Sai tài khoản hoặc mật khẩu"`, `"Mật khẩu tối thiểu 8 ký tự"`).
+On top of that, the server side has **182 Vietnamese error strings** returned to the UI as `{"error": "..."}`
+(for example `"Sai tài khoản hoặc mật khẩu"` meaning "Wrong username or password", and `"Mật khẩu tối thiểu 8 ký tự"` meaning "Password must be at least 8 characters").
 
-**Còn 9.384 dòng tiếng Việt trong `server/*.py` thì phần lớn KHÔNG phải bề mặt sản phẩm.** Chỗ
-này hay bị đếm nhầm nên bóc bằng AST cho hết đường suy đoán:
+**The other 9,384 lines of Vietnamese in `server/*.py` are mostly NOT product surface.** This
+is often miscounted, so it was stripped out with an AST to remove any guesswork:
 
-| Loại | Dòng | Ai đọc | Có dịch không |
-|------|------|--------|----------------|
-| Chú thích (`#`) | 3.142 | lập trình viên | Không |
-| **Docstring** | **3.313** | **lập trình viên** | **Không** |
-| Chuỗi thật (prompt gửi model + lỗi hiện cho user) | 2.482 | model và người dùng | Chỉ phần hiện cho user |
+| Kind | Lines | Who reads it | Translate? |
+|------|-------|--------------|------------|
+| Comments (`#`) | 3,142 | developers | No |
+| **Docstrings** | **3,313** | **developers** | **No** |
+| Real strings (prompts sent to the model + errors shown to the user) | 2,482 | the model and users | Only the part shown to users |
 
-**69% dòng tiếng Việt trong server là chú thích và docstring.** Repo này cố ý viết docstring
-dài để giải thích *vì sao* (một mình `dong_ho()` đã 15 dòng), nên con số 9.384 nhìn thì to mà
-bề mặt sản phẩm thật chỉ khoảng **2.500 dòng**, trong đó 182 là chuỗi lỗi hiện cho user còn lại
-gần hết là prompt.
+**69% of the Vietnamese lines in the server are comments and docstrings.** This repo deliberately writes
+long docstrings to explain *why* (`dong_ho()` alone has 15 lines), so the figure of 9,384 looks big while
+the real product surface is only about **2,500 lines**, of which 182 are error strings shown to the user and nearly all
+the rest are prompts.
 
-Nói cách khác: **ai quy đổi "9.384 dòng tiếng Việt" thành "9.384 dòng phải dịch" là đang ước
-lượng cao hơn thực tế khoảng 3,7 lần.** Phạm vi thật của cả dự án đa ngôn ngữ là 3.520 dòng
-giao diện cộng 182 chuỗi lỗi, không phải hai vạn dòng.
+In other words: **anyone who converts "9,384 lines of Vietnamese" into "9,384 lines to translate" is
+overestimating by about 3.7 times.** The real scope of the whole multilingual project is 3,520 lines of
+UI plus 182 error strings, not twenty thousand lines.
 
-### 2.3. Tầng LOGIC - chỗ chảy máu
+### 2.3. The LOGIC layer - where it bleeds
 
-Đây là danh sách đầy đủ những nơi hành vi của Jarvis 007 phụ thuộc vào việc người dùng gõ tiếng Việt.
-Mỗi mục đều đọc mã, có số dòng.
+This is the complete list of places where Jarvis 007's behavior depends on the user typing Vietnamese.
+Every entry was found by reading the code, with line numbers.
 
-| Chỗ | Mã | Hỏng thế nào khi người dùng nói tiếng khác |
-|-----|----|--------------------------------------------|
-| Cổng đường tắt nhanh | `fast_path_runtime.py:52-100` - `_DENY` bắt `dinh kem`, `hom nay`, `doanh thu`, `dat lich` | Câu hỏi cần dữ liệu live LỌT qua đường tắt vốn không phát tool. Model bịa. Chính là ca đã ghi trong docstring `dong_ho()`. |
-| Cổng một bước chỉ đọc | `readonly_path_runtime.py:44-49` - `_WRITE_INTENT`, `_STATE_REF` | Câu có ý ĐỊNH GHI bị coi là chỉ đọc |
-| Điều phối chỉ đọc | `readonly_orchestrator.py:79` | Như trên |
-| Bộ bắt khai man hành động | `context_compiler.py:1093-1110` - `_FALSE_ACTION`, `_ACTION_VERBS`, `_QUANTITATIVE` | **Jarvis 007 nói "đã gửi xong" mà chưa gửi thì không ai chặn.** Đây là rào chắn an toàn, không phải tính năng. |
-| Bộ dò lời hứa suông | `background_status.py:60-85` - `_PROMISE` | Luật "KHÔNG hứa em sẽ báo lại" trong `CLAUDE.md` mất hiệu lực im lặng |
-| Cổng thao tác lịch | `engine.py:1143-1220` - danh sách từ khoá `hom nay`, `nhac hen`, `dat lich tu van`... | Vừa bỏ sót lệnh thật, vừa nổ nhầm khi khách chỉ nói chuyện phiếm |
-| Tìm kiếm cho chatbot khách | `chatbot_grounding.py:70-115` - bỏ dấu tiếng Việt, danh sách từ đụng nhau soạn tay | Chatbot phục vụ khách nước ngoài tra tài liệu kém hẳn |
-| Cò ưu tiên ghi ký ức **[ĐÍNH CHÍNH]** | `learn.py:313` - `_REMEMBER_RE` | Bản đầu của spec viết *"Jarvis 007 không học gì cả"*. **Sai mức độ.** Đọc lại mã: mẫu này chỉ bật cờ `urgent` (dòng 341) để `_should_fire` nổ sau 30 giây thay vì chờ đủ 3 lượt. Cổng quyết định HỌC HAY KHÔNG là `_classify_turn` trả `"low"`, và cổng đó độc lập ngôn ngữ. Sự thật: người dùng tiếng Anh học **CHẬM HƠN**, không phải không học. Bù lại tìm ra một lỗ spec không thấy: mẫu không bỏ dấu nên `"ghi nho gium anh"` (tiếng Việt KHÔNG DẤU) cũng trượt |
-| **Dò bot bí** | `chatbot_runtime.py:497` - `_DAU_BI` gồm `chưa có thông tin`, `chuyển nhân viên`, `em chưa rõ`... | **Thuần tiếng Việt, không một chữ tiếng Anh.** Bot chăm khách nước ngoài không bao giờ được tính là bí, tab "Bot bí" rỗng, chủ nhìn vào tưởng bot chạy hoàn hảo |
-| Rút trạng thái hội thoại | `conversation_state.py:26-29` - `_GOAL_RE`, `_DECISION_RE`, `_CONSTRAINT_RE`, `_DONE_RE` | Mục tiêu, quyết định, ràng buộc và việc đã xong không được mang sang lượt sau |
-| Gợi ý tra bộ nhớ | `memory_index.py:28` - `_MEMORY_HINT_RE` | Không kích hoạt tra ký ức khi đáng tra |
-| Suy ý định việc nền | `tasks.py:575` | Phân loại việc sai nhóm |
-| Cắt câu để đặt tên phiên | `sessions.py:153` - cắt ở dấu chấm vì "tiếng Việt chấm nhiều" | Tên phiên xấu, không nguy hiểm |
+| Place | Code | How it breaks when the user speaks another language |
+|-------|------|------------------------------------------------------|
+| Fast shortcut gate | `fast_path_runtime.py:52-100` - `_DENY` catches `dinh kem` (attachment), `hom nay` (today), `doanh thu` (revenue), `dat lich` (book a schedule) | A question that needs live data SLIPS through the shortcut, which does not emit tools. The model makes things up. This is exactly the case recorded in the `dong_ho()` docstring. |
+| One-step read-only gate | `readonly_path_runtime.py:44-49` - `_WRITE_INTENT`, `_STATE_REF` | A sentence with an INTENT to write is treated as read-only |
+| Read-only orchestration | `readonly_orchestrator.py:79` | Same as above |
+| Action false-claim catcher | `context_compiler.py:1093-1110` - `_FALSE_ACTION`, `_ACTION_VERBS`, `_QUANTITATIVE` | **When Jarvis 007 says "sent" without having sent, nobody stops it.** This is a safety guardrail, not a feature. |
+| Empty-promise detector | `background_status.py:60-85` - `_PROMISE` | The rule "do NOT promise you will report back" in `CLAUDE.md` silently stops working |
+| Calendar operation gate | `engine.py:1143-1220` - keyword lists `hom nay` (today), `nhac hen` (reminder), `dat lich tu van` (book a consultation)... | Both misses real commands and fires wrongly when a customer only makes small talk |
+| Search for the customer chatbot | `chatbot_grounding.py:70-115` - strips Vietnamese diacritics, a hand-written list of colliding words | A chatbot serving foreign customers searches documents much worse |
+| Memory-write priority trigger **[CORRECTION]** | `learn.py:313` - `_REMEMBER_RE` | The first draft of this spec said *"Jarvis 007 learns nothing"*. **Wrong in degree.** Reading the code again: this pattern only sets the `urgent` flag (line 341) so that `_should_fire` fires after 30 seconds instead of waiting for 3 turns. The gate that decides WHETHER TO LEARN is `_classify_turn` returning `"low"`, and that gate is language independent. The truth: English users learn **SLOWER**, not never. In exchange this turned up a hole the spec had not seen: the pattern does not strip diacritics, so `"ghi nho gium anh"` (Vietnamese WITHOUT DIACRITICS, meaning "remember this for me") also misses |
+| **Stuck-bot detection** | `chatbot_runtime.py:497` - `_DAU_BI` contains `chưa có thông tin` (no information yet), `chuyển nhân viên` (hand over to staff), `em chưa rõ` (I am not sure)... | **Purely Vietnamese, not a single English word.** A bot caring for foreign customers is never counted as stuck, the "Stuck bots" tab is empty, and the owner looks at it and thinks the bot runs perfectly |
+| Conversation state extraction | `conversation_state.py:26-29` - `_GOAL_RE`, `_DECISION_RE`, `_CONSTRAINT_RE`, `_DONE_RE` | Goals, decisions, constraints and finished work are not carried to the next turn |
+| Memory lookup hint | `memory_index.py:28` - `_MEMORY_HINT_RE` | Does not trigger a memory lookup when one is warranted |
+| Background job intent inference | `tasks.py:575` | Classifies the job into the wrong group |
+| Sentence cutting for session names | `sessions.py:153` - cuts at a period because "Vietnamese uses many periods" | Ugly session names, not dangerous |
 
-Mười ba chỗ, không phải chín như bản khảo sát đầu. Bốn chỗ tìm ra sau lại **tệ hơn** nhóm tìm
-ra trước, vì hai trong số đó đánh vào chính hai thứ làm Jarvis 007 là Jarvis 007: **nó có học được từ
-người dùng không**, và **chủ có biết bot của mình đang bí không**.
+Thirteen places, not nine as in the first survey. The four found later are **worse** than the group found
+earlier, because two of them hit the two things that make Jarvis 007 what it is: **whether it learns from the
+user**, and **whether the owner knows their bot is stuck**.
 
-**[ĐÍNH CHÍNH] Nguy hiểm nằm ở NỬA bộ từ vựng, không phải ở việc thiếu bộ từ vựng.** Bản
-đầu của spec viết rằng ngôn ngữ lạ làm các cổng hỏng trong im lặng. Đo lại trên mã thật thì
-KHÔNG phải vậy, và sự thật còn đáng chú ý hơn:
+**[CORRECTION] The danger lies in HALF a lexicon, not in the lack of a lexicon.** The first draft of the spec said that a foreign language makes the gates fail silently. Measured against the real code
+that is NOT so, and the truth is more notable:
 
-    "tóm tắt đơn hàng"    -> bị chặn đúng (mẫu `don hang` khớp)
-    "summarize my orders" -> LỌT qua đường tắt, model bịa số đơn hàng
-    "สรุปยอดขายวันนี้"     -> không khớp gì cả -> `intent_uncertain` -> đường đầy đủ, AN TOÀN
+    "tóm tắt đơn hàng"    -> blocked correctly (the `don hang` pattern matches)
+    "summarize my orders" -> SLIPS through the shortcut, the model invents order counts
+    "สรุปยอดขายวันนี้"     -> matches nothing -> `intent_uncertain` -> full path, SAFE
 
-Tiếng Thái an toàn **vì nó không khớp gì hết**; bộ phân loại vốn đã mặc định từ chối. Tiếng
-Anh nguy hiểm **vì nó khớp một nửa**: `summarize` khớp ALLOW, còn DENY tiếng Anh lại thiếu
-`orders`. Nói cách khác, ngôn ngữ càng được phục vụ dở dang thì càng nguy hiểm, và ngôn ngữ
-sắp thêm vào (tiếng Anh) đúng là ngôn ngữ dở dang đó. Luật suy biến ở mục 4.3 vì vậy vẫn cần,
-nhưng lý do thật của nó là **chặn cái nửa vời**, không phải chặn cái chưa có.
+(The first line is Vietnamese example input meaning "summarize the orders", kept on purpose; the third is Thai for "summarize today's sales".)
 
-**Nhỏ KHÔNG có nghĩa là ít rủi ro.** Mười ba chỗ này
-cộng lại chưa tới 60 dòng mã trên tổng số 49.000, nên nhìn bảng dễ kết luận "khoanh vùng được,
-không đáng lo". Sai. Chúng nhỏ **chính vì chúng là cổng**: một cái cổng ba dòng điều khiển toàn
-bộ thứ chạy sau nó. Thước đo đúng là **bán kính vụ nổ**, không phải số dòng.
+Thai is safe **because it matches nothing at all**; the classifier already defaults to refusing. English
+is dangerous **because it matches half**: `summarize` matches ALLOW, while the English DENY list lacks
+`orders`. In other words, the more half-served a language is, the more dangerous it gets, and the
+language about to be added (English) is exactly that half-served language. The fallback rule in section 4.3 is therefore still needed,
+but its real reason is **to block the half-baked case**, not to block the missing one.
 
-Tất cả các bộ trên dùng chung một thủ thuật `_norm()`: bỏ dấu rồi hạ chữ thường, kèm map tay
-`đ -> d` vì NFKD không phân rã được `đ` (`fast_path_runtime.py:25`, `readonly_path_runtime.py:34`,
-`background_status.py:49`). **Thủ thuật này chỉ đúng cho chữ Latin có dấu.** Tiếng Nhật, tiếng
-Thái, tiếng Ả Rập đi qua `_norm()` ra nguyên si, và không mẫu ASCII nào khớp được.
+**Small does NOT mean low risk.** These thirteen places
+add up to under 60 lines of code out of 49,000 total, so looking at the table it is easy to conclude "contained,
+nothing to worry about". Wrong. They are small **precisely because they are gates**: a three-line gate controls the whole
+of what runs after it. The right measure is **blast radius**, not line count.
 
-Đáng chú ý: vài mẫu đã có sẵn từ tiếng Anh trộn vào (`send|delete|create|book|publish`). Nghĩa
-là tiếng Anh hôm nay được phục vụ **một nửa** - đủ để tưởng là ổn, không đủ để đúng.
+All of these matchers share one `_norm()` trick: strip diacritics then lowercase, with a hand-written `đ -> d` map
+because NFKD cannot decompose `đ` (`fast_path_runtime.py:25`, `readonly_path_runtime.py:34`,
+`background_status.py:49`). **This trick is only right for accented Latin text.** Japanese, Thai and
+Arabic pass through `_norm()` unchanged, and no ASCII pattern can match them.
 
-### 2.4. Tầng LOCALE
+Worth noting: a few patterns already have English words mixed in (`send|delete|create|book|publish`). That
+means English today is served **halfway**, enough to look fine and not enough to be right.
 
-- **Múi giờ UTC+7 nhúng cứng 6 chỗ**: `usage_index.py:28`, `usage_parsers.py:19`,
+### 2.4. The LOCALE layer
+
+- **UTC+7 time zone hardcoded in 6 places**: `usage_index.py:28`, `usage_parsers.py:19`,
   `system_sync.py:67`, `main.py:555`, `main.py:3470`, `context_compiler._bay_gio`.
-- **Plugin `datetime-vn`** (`system/plugins/datetime-vn/plugin.yaml`) cấp tool `javis_now` và
-  `javis_date_add` cho MỌI bộ não, mô tả ghi thẳng "theo múi giờ Việt Nam (UTC+7)".
-- **Tiền tệ VND [ĐÍNH CHÍNH]**: đã XONG SẴN ở thượng nguồn. Commit `5c59de7` (0.32.1) gỡ hết phần quy đổi USD sang đồng khỏi trang Mức dùng. Hạng mục này rơi khỏi phạm vi. Phần ĐỊNH DẠNG SỐ thì chưa: `toLocaleString("vi-VN")` vẫn còn ở `usage.js`.
-- **Định dạng số/ngày**: `toLocaleString("vi-VN")` ở `usage.js`, `console.js:1245,4045`,
-  `sessions-ui.js:20`, `chatbots.js:368`, `studio.js:595`; `localeCompare(..., "vi")` ở
+- **The `datetime-vn` plugin** (`system/plugins/datetime-vn/plugin.yaml`) provides the tools `javis_now` and
+  `javis_date_add` to EVERY brain, and its description says outright "in Vietnam time zone (UTC+7)" (in Vietnamese).
+- **VND currency [CORRECTION]**: already DONE upstream. Commit `5c59de7` (0.32.1) removed all USD to dong conversion from the Usage page. This item falls out of scope. NUMBER FORMATTING is not done: `toLocaleString("vi-VN")` is still in `usage.js`.
+- **Number/date formatting**: `toLocaleString("vi-VN")` in `usage.js`, `console.js:1245,4045`,
+  `sessions-ui.js:20`, `chatbots.js:368`, `studio.js:595`; `localeCompare(..., "vi")` in
   `dataview.js:365`, `studio.js:442`.
-- **Cron ra chữ**: `cron_util.describe_cron()` (cron_util.py:185) sinh "7:00 mỗi ngày", "thứ hai
-  hằng tuần". Có sẵn đường suy biến tốt: dạng lạ thì trả nguyên biểu thức cron.
-- **Giọng nói**: STT mặc định `language="vi"` (`stt.py:82-96`); TTS mặc định
-  `vi-VN-HoaiMyNeural` (`main.py:6347`, `main.py:7110`, `voice.js:7,23`); danh sách giọng Edge
-  **lọc cứng** `v["Locale"].startswith("vi")` (main.py:7148); giao diện chỉ cho chọn vi-VN hoặc
+- **Cron to text**: `cron_util.describe_cron()` (cron_util.py:185) generates "7:00 mỗi ngày" ("7:00 every day"), "thứ hai
+  hằng tuần" ("every Monday"). It has a good fallback already: for an unfamiliar form it returns the raw cron expression.
+- **Voice**: STT defaults to `language="vi"` (`stt.py:82-96`); TTS defaults to
+  `vi-VN-HoaiMyNeural` (`main.py:6347`, `main.py:7110`, `voice.js:7,23`); the Edge voice list is
+  **hard filtered** with `v["Locale"].startswith("vi")` (main.py:7148); the UI only lets you choose vi-VN or
   en-US (`index.html:288-306`).
 - `<html lang="vi">` (index.html:2).
 
-Một tài sản có sẵn đáng dùng: `voice.elevenlabs_model` đã là `eleven_multilingual_v2`
-(`config.py` `_DEFAULT`). Đường ElevenLabs gần như chạy được đa ngôn ngữ ngay.
+One existing asset worth using: `voice.elevenlabs_model` is already `eleven_multilingual_v2`
+(`config.py` `_DEFAULT`). The ElevenLabs path almost works multilingually already.
 
-### 2.5. Chưa có hạ tầng i18n nào
+### 2.5. There is no i18n infrastructure yet
 
-Không `gettext`, không `Babel`, không thư viện dịch trong `requirements.txt`. Bắt đầu từ số
-không, và đó là chuyện tốt: được chọn thứ vừa vặn thay vì gánh một khung nặng.
+No `gettext`, no `Babel`, no translation library in `requirements.txt`. Starting from
+zero, and that is a good thing: we get to choose something that fits instead of carrying a heavy framework.
 
-## 3. Phạm vi
+## 3. Scope
 
-### 3.1. Có làm
+### 3.1. In scope
 
-- **Bản nhỏ nhất đo được nhu cầu trước (mục 6)**, rồi mới tới phần còn lại của danh sách này.
-- Ba biến ngôn ngữ tách rời + một hàm quyết định duy nhất `resolve_lang()`.
-- Lớp **bộ từ vựng (lexicon)** thay cho regex nhúng cứng, kèm luật suy biến an toàn.
-- Hạ tầng i18n cho dashboard không cần bước build, kèm test chống thoái lui.
-- Khối NGÔN NGỮ chèn động vào prompt; giữ **một** bản `CLAUDE.md`.
-- Mã lỗi cho 182 chuỗi lỗi server, dịch ở phía giao diện.
-- Tách locale (múi giờ, tiền, định dạng) khỏi ngôn ngữ.
-- Bản đồ giọng nói theo ngôn ngữ cho STT và TTS.
-- Trường ngôn ngữ riêng cho từng chatbot chuyên trách.
-- Sổ tay "thêm một ngôn ngữ mới" kèm test nghiệm thu.
-- Ngôn ngữ thứ hai đi kèm bản này: **tiếng Anh**.
+- **The smallest build that measures demand first (section 6)**, then the rest of this list.
+- Three separate language variables + a single decision function `resolve_lang()`.
+- A **lexicon** layer replacing hardcoded regexes, with a safe fallback rule.
+- i18n infrastructure for the dashboard with no build step, plus regression tests.
+- A LANGUAGE block inserted dynamically into the prompt; keep **one** `CLAUDE.md`.
+- Error codes for the 182 server error strings, translated on the UI side.
+- Separate locale (time zone, currency, format) from language.
+- A per-language voice map for STT and TTS.
+- A dedicated language field for each dedicated chatbot.
+- A "add a new language" playbook with an acceptance test.
+- The second language that ships with this build: **English**.
 
-### 3.2. KHÔNG làm, kể cả khi bị thúc
+### 3.2. NOT in scope, even when pushed
 
-- **Không dịch `CLAUDE.md` ra N bản.** Lý do ở mục 1.
-- **Không dịch máy 27 tài liệu người dùng ở mỗi lần phát hành.** Bản dịch cũ nói sai về phần mềm
-  mới còn tệ hơn không có bản dịch. Chỉ dịch tay cửa vào: `README.md`, `QUICKSTART.md`,
-  `docs/01-bat-dau-thiet-lap.md`. Phần còn lại ghi thẳng "chưa dịch".
-- **Không dịch lại câu trả lời của model sau khi nó nói xong.** Tốn gấp đôi, vỡ số liệu, vỡ
-  markdown, mà model vốn tự trả lời đúng ngôn ngữ được.
-- **Không dịch nội dung brain.** Ghi chú, wiki, ký ức là của người dùng.
-- **Không nhét ngôn ngữ vào đường dẫn URL** kiểu `/en/chat`. Dashboard là một trang đơn có rail
-  tự định tuyến; một ô cài đặt cộng `localStorage` là đủ.
-- **Không nhân bản `SKILL.md` theo ngôn ngữ.** Chỉ cho phép map `description` theo ngôn ngữ, và
-  chỉ với 4 skill hệ thống.
-- **Không đổi slug plugin `datetime-vn`.** Đổi slug là bắt mọi brain đang chạy phải di trú, đổi
-  lấy con số không giá trị. Giữ slug, đổi hành vi.
-- **Không đụng chữ phải-viết-hoa của thương hiệu**: "Jarvis 007", tên bộ não, tên tool.
+- **Do not translate `CLAUDE.md` into N copies.** The reason is in section 1.
+- **Do not machine-translate the 27 user docs on every release.** An old translation that says wrong things about new software
+  is worse than no translation. Translate by hand only the front door: `README.md`, `QUICKSTART.md`,
+  `docs/01-bat-dau-thiet-lap.md`. For the rest, say plainly "not translated yet".
+- **Do not re-translate the model's answer after it has spoken.** It costs double, breaks numbers, breaks
+  markdown, and the model can answer in the right language by itself anyway.
+- **Do not translate the brain's content.** Notes, wiki and memories belong to the user.
+- **Do not put the language into URL paths** like `/en/chat`. The dashboard is a single page with a self-routing
+  rail; a setting plus `localStorage` is enough.
+- **Do not duplicate `SKILL.md` per language.** Only allow mapping `description` per language, and
+  only for the 4 system skills.
+- **Do not rename the `datetime-vn` plugin slug.** Renaming the slug forces every running brain to migrate, in exchange
+  for zero value. Keep the slug, change the behavior.
+- **Do not touch the brand text that must keep its capitalization**: "Jarvis 007", brain names, tool names.
 
-## 4. Kiến trúc chốt
+## 4. Settled architecture
 
-### 4.1. Ba biến, một hàm quyết định
+### 4.1. Three variables, one decision function
 
 ```
-ui_lang       Ngôn ngữ CHỮ TRÊN MÀN HÌNH. Người dùng chọn. Lưu theo thiết bị.
-reply_lang    Ngôn ngữ Jarvis 007 TRẢ LỜI. Mặc định "auto" (bám người dùng từng lượt).
-content_lang  Ngôn ngữ NỘI DUNG brain. Chỉ dùng để gợi ý, không ép.
+ui_lang       Language of the TEXT ON SCREEN. The user chooses. Stored per device.
+reply_lang    Language Jarvis 007 ANSWERS in. Default "auto" (follows the user turn by turn).
+content_lang  Language of the brain's CONTENT. Used only as a hint, never forced.
 ```
 
-Một hàm duy nhất, `server/lang.py`:
+One single function, `server/lang.py`:
 
 ```python
 @dataclass(frozen=True)
 class LangDecision:
-    lang: str          # "vi" | "en" | "ja" ... (mã gọn, không phải BCP-47 đầy đủ)
+    lang: str          # "vi" | "en" | "ja" ... (short code, not full BCP-47)
     source: str        # turn | chatbot | brain | channel | detect | ui | default
     confidence: float  # 0..1
-    has_lexicon: bool  # có bộ từ vựng cho ngôn ngữ này không
+    has_lexicon: bool  # whether a lexicon exists for this language
 
 def resolve_reply_lang(*, turn_text, session, brain, channel, chatbot=None) -> LangDecision
 ```
 
-**Thứ tự ưu tiên, cao xuống thấp:**
+**Priority order, highest to lowest:**
 
-1. Người dùng ra lệnh thẳng trong lượt này ("trả lời tiếng Anh giùm").
-2. Ngôn ngữ ghim của chatbot chuyên trách (nếu lượt này là của bot).
-3. Ngôn ngữ ghim của brain.
-4. Mặc định của kênh (Zalo mặc định `vi` vì đó là nền tảng Việt Nam).
-5. Dò từ tin nhắn người dùng.
+1. The user gives a direct command in this turn ("answer in English please").
+2. The pinned language of the dedicated chatbot (if this turn belongs to a bot).
+3. The pinned language of the brain.
+4. The channel default (Zalo defaults to `vi` because it is a Vietnamese platform).
+5. Detection from the user's message.
 6. `ui_lang`.
 7. `vi`.
 
-**Chống nhảy qua nhảy lại.** Dò ngôn ngữ mỗi lượt rồi đổi ngay là hỏng: người đang nói tiếng
-Việt chèn một câu tiếng Anh không có nghĩa là muốn đổi ngôn ngữ. Luật: ngôn ngữ **dính theo
-phiên**; chỉ đổi khi kết quả dò khác ngôn ngữ đang dùng **hai lượt liên tiếp** với
-`confidence >= 0.8`. Ghi cả `lang` lẫn `lang_source` vào trace để soi được ca dò sai ngoài thực
-địa.
+**Preventing flip-flopping.** Detecting the language every turn and switching immediately is broken: a person speaking
+Vietnamese who drops in one English sentence does not mean they want to change language. The rule: the language **sticks to
+the session**; it changes only when detection differs from the current language **two turns in a row** with
+`confidence >= 0.8`. Write both `lang` and `lang_source` into the trace so that wrongly detected cases can be examined
+in the field.
 
-**Dò bằng gì.** Không thêm phụ thuộc (repo này đã bỏ `rich` khỏi CLI cho gọn). Chỉ cần phân biệt
-giữa các ngôn ngữ ĐÃ ĐĂNG KÝ, nên đủ dùng hai tầng: nhận diện hệ chữ qua khoảng mã Unicode (giải
-quyết xong ja, ko, zh, th, ar, ru, hi trong vài dòng), và với các thứ tiếng chữ Latin thì chấm
-điểm bằng tập hư từ nằm ngay trong hồ sơ ngôn ngữ. Nghĩa là **thêm ngôn ngữ mới cũng là thêm dữ
-liệu**, không phải sửa bộ dò.
+**What to detect with.** No new dependency (this repo already dropped `rich` from the CLI to keep it lean). We only need to tell
+apart the REGISTERED languages, so two tiers are enough: script recognition through Unicode code ranges (this
+settles ja, ko, zh, th, ar, ru, hi in a few lines), and for Latin-script languages, scoring
+with a set of function words that lives right in the language profile. That means **adding a new language is also adding
+data**, not changing the detector.
 
-### 4.2. Sổ đăng ký ngôn ngữ - một file, mọi thứ về một ngôn ngữ
+### 4.2. The language registry - one file, everything about a language
 
-`server/lang_registry.py`. Đây là **trái tim của tính mở rộng**: thêm ngôn ngữ = thêm một mục.
+`server/lang_registry.py`. This is the **heart of extensibility**: adding a language = adding one entry.
 
 ```python
 LANGS = {
@@ -282,11 +284,11 @@ LANGS = {
     code="vi", native="Tiếng Việt", english="Vietnamese",
     script="latin", rtl=False,
     stopwords={"và","của","là","không","được","cho","với","này"},
-    stt="vi",                                  # mã cho Whisper
+    stt="vi",                                  # code for Whisper
     tts={"edge": "vi-VN-HoaiMyNeural", "openai": "alloy", "elevenlabs": None},
     tz_default="Asia/Ho_Chi_Minh", currency="VND", first_day=1,
-    plural=False,                              # tiếng Việt không chia số nhiều
-    nudge="Trả lời bằng tiếng Việt.",          # dùng cho model yếu, xem 4.5
+    plural=False,                              # Vietnamese has no plural forms
+    nudge="Trả lời bằng tiếng Việt.",          # for weak models, see 4.5 ("Answer in Vietnamese.")
   ),
   "en": Lang(code="en", native="English", english="English", script="latin",
              stopwords={"the","and","of","is","not","for","with","this"},
@@ -297,86 +299,88 @@ LANGS = {
 }
 ```
 
-Luật: **không mã nào ngoài file này được viết `if lang == "vi"`.** Cần biết gì về một ngôn ngữ
-thì hỏi sổ đăng ký. Có một test canh đúng luật này (mục 8).
+The Vietnamese stopwords are the actual detection data for `vi` (and, in order: "and", "of", "is", "not", "to be given", "for", "with", "this").
 
-### 4.3. Lớp bộ từ vựng và luật suy biến an toàn
+The rule: **no code outside this file may write `if lang == "vi"`.** Whatever needs to be known about a language
+is asked of the registry. A test guards exactly this rule (section 8).
 
-Đây là phần khó nhất và đáng tiền nhất.
+### 4.3. The lexicon layer and the safe fallback rule
+
+This is the hardest part and the most worthwhile.
 
 ```
 server/lexicon/__init__.py    get(lang) -> Lexicon | None
-server/lexicon/vi.py          bê nguyên các regex đang có, không đổi một ký tự
-server/lexicon/en.py          viết mới
+server/lexicon/vi.py          carry over the existing regexes as they are, not changing one character
+server/lexicon/en.py          newly written
 ```
 
-Mỗi `Lexicon` cấp đúng những tập mà các cổng đang cần, đặt tên theo Ý NGHĨA chứ không theo chỗ
-gọi: `WRITE_INTENT`, `LIVE_DATA`, `ATTACHMENT`, `STATE_REF`, `PROMISE`, `FALSE_ACTION`,
+Each `Lexicon` provides exactly the sets the gates need, named by MEANING rather than by the
+place that calls them: `WRITE_INTENT`, `LIVE_DATA`, `ATTACHMENT`, `STATE_REF`, `PROMISE`, `FALSE_ACTION`,
 `ACTION_VERBS`, `QUANTITATIVE`, `CAPABILITY_DENIAL`, `SCHEDULE_OPS`.
 
-**Phase 2 bắt đầu bằng việc chép nguyên văn regex tiếng Việt sang `lexicon/vi.py`.** Không sửa,
-không "tiện tay dọn". Hành vi tiếng Việt phải giống hệt từng bit, và bộ test hiện có phải xanh
-mà không sửa một dòng test nào. Dọn dẹp để lượt sau.
+**Phase 2 starts by copying the Vietnamese regexes verbatim into `lexicon/vi.py`.** No edits,
+no "cleaning up while we're here". Vietnamese behavior must be identical bit for bit, and the existing test suite must be green
+without changing a single line of tests. Cleanup comes in a later pass.
 
-**Luật suy biến - phần quan trọng nhất của cả spec.** Khi ngôn ngữ đã dò ra không có bộ từ vựng,
-mỗi cổng suy biến theo **loại của nó**, không phải theo một luật chung:
+**The fallback rule - the most important part of the whole spec.** When the detected language has no lexicon,
+each gate falls back according to its **kind**, not by one common rule:
 
-| Loại cổng | Ví dụ | Không có bộ từ vựng thì |
-|-----------|-------|-------------------------|
-| **Cổng MỞ RỘNG quyền** (bỏ qua bước, đi đường tắt) | đường tắt nhanh, một bước chỉ đọc | **Từ chối, đi đường đầy đủ.** Trả giá bằng token, không trả giá bằng tính đúng. |
-| **Cổng BẮT LỖI** (rào chắn an toàn) | bắt khai man hành động, dò lời hứa suông | **KHÔNG được lặng lẽ cho qua.** Hạ xuống một lượt gọi model phụ rẻ (`aux_engine`), phân loại nhị phân, nhớ tạm theo băm của câu trả lời. Model phụ hỏng thì đánh dấu trace `unverified` và ghi log, chứ không giả vờ đã kiểm. |
-| **Cổng TRÌNH BÀY** (chỉ để hiển thị) | cắt câu đặt tên phiên, cron ra chữ | Suy biến thô: cắt theo ký tự, in nguyên biểu thức cron. `describe_cron` đã sẵn đường này rồi. |
+| Gate kind | Examples | With no lexicon |
+|-----------|----------|-----------------|
+| **Gates that EXPAND privilege** (skip a step, take a shortcut) | the fast shortcut, the one-step read-only path | **Refuse, take the full path.** It costs tokens, not correctness. |
+| **Gates that CATCH ERRORS** (safety guardrails) | catching false action claims, detecting empty promises | **Must NOT quietly let it through.** Drop down to one call to a cheap auxiliary model (`aux_engine`), a binary classification, cached by the hash of the answer. If the auxiliary model fails, mark the trace `unverified` and write a log entry, rather than pretending it was checked. |
+| **PRESENTATION gates** (display only) | cutting a sentence for a session name, cron to text | Crude fallback: cut by characters, print the raw cron expression. `describe_cron` already has this path. |
 
-Nói cách khác: **thiếu bộ từ vựng làm Jarvis 007 TỐN HƠN, không làm Jarvis 007 LỎNG HƠN.** Đó là câu duy
-nhất cần nhớ từ mục này.
+In other words: **a missing lexicon makes Jarvis 007 COST MORE, not become LOOSER.** That is the only
+sentence to remember from this section.
 
-### 4.4. i18n giao diện, không có bước build
+### 4.4. UI i18n, no build step
 
 ```
 dashboard/i18n/index.js    t(), setLang(), applyDom()
-dashboard/i18n/vi.json     nguồn chuẩn, đủ 100% key theo định nghĩa
-dashboard/i18n/en.json     dịch
+dashboard/i18n/vi.json     the canonical source, 100% of the keys by definition
+dashboard/i18n/en.json     translation
 ```
 
-**Nạp.** `index.html` nạp `i18n/index.js` trước `app.js`. Bộ từ điển nằm trong `localStorage`
-kèm dấu phiên bản (cùng cơ chế `?v=` mà `main.py:599` đang đóng dấu cho tài nguyên tĩnh), nên F5
-không nháy chữ. Cache trượt phiên bản thì nạp lại một lần rồi vẽ.
+**Loading.** `index.html` loads `i18n/index.js` before `app.js`. The dictionary sits in `localStorage`
+with a version stamp (the same `?v=` mechanism that `main.py:599` already stamps on static assets), so F5
+does not flash the text. If the cache is a version behind, reload once and then render.
 
-**Quy ước key.** Key ASCII, chấm phân cấp, đặt theo TRANG rồi tới ý: `chat.input.placeholder`,
-`nav.viec`, `err.login.wrong`. **Tuyệt đối không lấy chính chuỗi tiếng Việt làm key** - sửa một
-lỗi chính tả trong bản tiếng Việt mà làm hỏng cả bản tiếng Anh là kiểu hỏng không đáng có.
+**Key convention.** ASCII keys, dot-separated hierarchy, named by PAGE and then by idea: `chat.input.placeholder`,
+`nav.viec`, `err.login.wrong`. **Never use the Vietnamese string itself as the key** - fixing a
+typo in the Vietnamese version and breaking the whole English version is a pointless way to break things.
 
-**Suy biến.** `<đã chọn> -> vi -> chính key`. `vi.json` đủ 100% key vì nó được rút ra từ mã đang
-chạy. Người dùng không bao giờ nhìn thấy một key trần.
+**Fallback.** `<selected> -> vi -> the key itself`. `vi.json` has 100% of the keys because it is extracted from the code that
+is running. The user never sees a bare key.
 
-**Số nhiều.** Tiếng Việt không chia, tiếng Anh có. Không kéo cả ICU MessageFormat vào cho một
-việc này. Từ điển được phép khai `key.one` và `key.other`; `t()` chọn theo `{count}` khi có
-truyền; ngôn ngữ không chia số nhiều chỉ khai `key.other`.
+**Plurals.** Vietnamese has none, English does. Do not pull in the whole of ICU MessageFormat for this one
+job. The dictionary may declare `key.one` and `key.other`; `t()` chooses by `{count}` when one is
+passed; a language without plurals only declares `key.other`.
 
-**Thay biến.** Chỉ `{ten}`. **Cấm HTML trong từ điển** - từ điển là dữ liệu, đưa HTML vào đó là
-mở một cửa XSS mà sau này không ai nhớ để đóng. Cần in đậm một phần thì tách chuỗi.
+**Variable substitution.** Only `{ten}` (`{name}`). **No HTML in the dictionary** - the dictionary is data, and putting HTML in it is
+opening an XSS door that nobody will remember to close later. To bold part of a sentence, split the string.
 
-**HTML tĩnh.** `index.html` dùng `data-i18n`, `data-i18n-title`, `data-i18n-aria`; `applyDom()`
-quét một lượt sau khi nạp.
+**Static HTML.** `index.html` uses `data-i18n`, `data-i18n-title`, `data-i18n-aria`; `applyDom()`
+sweeps once after loading.
 
-**Cách di trú 3.520 dòng mà không đứng hình.** Không làm một phát. Đi theo lưu lượng dùng: khung
-chat -> rail điều hướng -> trang Cài đặt -> phần còn lại. Mỗi lượt thêm tên file vào một danh
-sách `I18N_MIGRATED`, và một test **báo đỏ nếu file đã di trú lại xuất hiện chữ tiếng Việt ngoài
-chú thích**. Không có cái chốt đó thì lần dọn nào cũng bị lượt sửa tính năng kế tiếp làm bẩn lại.
+**How to migrate 3,520 lines without freezing.** Not all at once. Follow usage traffic: the chat
+frame -> the navigation rail -> the Settings page -> the rest. Each pass adds the file name to an
+`I18N_MIGRATED` list, and a test **goes red if a migrated file shows Vietnamese text outside
+comments again**. Without that latch, every cleanup gets dirtied again by the next feature change.
 
-**182 chuỗi lỗi của server: dùng mã lỗi, đừng dịch ở server.** Server trả thêm một trường `code`
-bên cạnh chuỗi tiếng Việt đang có:
+**The server's 182 error strings: use error codes, do not translate on the server.** The server returns an extra `code` field
+next to the Vietnamese string it already has:
 
 ```python
 {"error": "Sai tài khoản hoặc mật khẩu", "code": "auth.bad_credentials"}
 ```
 
-Giao diện ưu tiên `t("err." + code)`, không có thì hiện nguyên `error`. Tương thích ngược tuyệt
-đối, làm dần từng endpoint được, và server không phải biết người dùng đang xem bằng tiếng gì.
+The UI prefers `t("err." + code)` and shows `error` as is if there is none. Fully
+backward compatible, can be done endpoint by endpoint, and the server does not have to know what language the user is viewing in.
 
-### 4.5. Prompt hệ thống: một bản, cộng một khối NGÔN NGỮ
+### 4.5. System prompt: one copy, plus a LANGUAGE block
 
-`build_system_prompt()` (main.py:354) chèn thêm, cạnh khối `# === BÂY GIỜ ===`:
+`build_system_prompt()` (main.py:354) inserts, next to the `# === BÂY GIỜ ===` block (the "NOW" block):
 
 ```
 # === NGÔN NGỮ ===
@@ -386,31 +390,35 @@ Giữ nguyên không dịch: tên riêng, đường dẫn file, tên tool, khố
 Nội dung brain viết bằng ngôn ngữ khác thì cứ đọc bình thường, chỉ TRẢ LỜI bằng ngôn ngữ trên.
 ```
 
-`CLAUDE.md` luật số 5 đổi từ "**Tiếng Việt** là ngôn ngữ chính" thành "**Trả lời đúng ngôn ngữ
-ghi ở khối NGÔN NGỮ**; không có khối đó thì bám theo ngôn ngữ người dùng đang dùng". Cùng cách
-sửa cho `meta_tools.py:79`, `main.py:3016`, `main.py:5801`, `reminders.py:689`.
+(In English: "Reply language: English (en). The user is writing in: en. Write the ENTIRE answer in this language, including
+headings, labels, units, warning sentences. Keep untranslated: proper nouns, file paths, tool names, code blocks, quotes from the brain.
+If brain content is written in another language, read it normally and only ANSWER in the language above." The block header and body stay Vietnamese because the machine-matched header is `# === NGÔN NGỮ ===` ("LANGUAGE") and the body is a behavior rule for the model.)
 
-`context_compiler.dong_ho()` sinh câu theo ngôn ngữ và múi giờ đã cấu hình. Tên thứ trong tuần
-lấy từ sổ đăng ký, không phải từ `_THU_VN` nhúng cứng.
+`CLAUDE.md` rule number 5 changes from "**Vietnamese** is the primary language" to "**Answer in the language
+named in the LANGUAGE block** (the `# === NGÔN NGỮ ===` block); if there is no such block, follow the language the user is using". The same
+fix applies to `meta_tools.py:79`, `main.py:3016`, `main.py:5801`, `reminders.py:689`.
 
-**Một điểm phải nói thật, không được giấu.** Model mạnh trả lời đúng ngôn ngữ được yêu cầu dù
-luật viết bằng tiếng Việt. Model yếu thì **trôi theo ngôn ngữ của prompt** - đây là chuyện thật
-với các model nhỏ chạy qua Groq hay Ollama Cloud, hai đường Jarvis 007 đang đấu. Cách xử: hồ sơ ngôn
-ngữ có sẵn trường `nudge`, một câu viết bằng CHÍNH ngôn ngữ đích; với engine bị đánh dấu yếu thì
-dán câu đó lên đầu tin nhắn cuối. Một dòng, đúng chỗ, và vẫn là dữ liệu chứ không phải mã.
+`context_compiler.dong_ho()` generates the sentence according to the configured language and time zone. Weekday names
+come from the registry, not from the hardcoded `_THU_VN`.
 
-**Chi phí token.** Khối NGÔN NGỮ khoảng 60 token mỗi lượt. Không đáng kể so với 30KB `CLAUDE.md`,
-và không làm hỏng thêm lần đệm prompt nào: prompt hệ thống của Jarvis 007 vốn đã đổi mỗi lượt vì khối
-MỨC DÙNG HÔM NAY đếm theo thời gian thật (lập luận đã ghi trong docstring `dong_ho()`,
+**One point that must be said honestly, not hidden.** A strong model answers in the requested language even when
+the rules are written in Vietnamese. A weak model **drifts into the prompt's language** - this is real
+with the small models run through Groq or Ollama Cloud, the two routes Jarvis 007 is competing on. The fix: the language
+profile already has a `nudge` field, one sentence written in the TARGET language itself; for an engine marked weak,
+stick that sentence onto the front of the last message. One line, in the right place, and still data rather than code.
+
+**Token cost.** The LANGUAGE block is about 60 tokens per turn. Negligible next to the 30KB `CLAUDE.md`,
+and it spoils no additional prompt-cache hit: Jarvis 007's system prompt already changes every turn because the
+`MỨC DÙNG HÔM NAY` ("TODAY'S USAGE") block counts in real time (the argument is recorded in the docstring of `dong_ho()`,
 context_compiler.py:56).
 
-### 4.6. Locale tách khỏi ngôn ngữ
+### 4.6. Locale separated from language
 
-Thêm vào `config._DEFAULT`:
+Add to `config._DEFAULT`:
 
 ```python
 "locale": {
-    "ui_lang": "vi",          # ngôn ngữ giao diện
+    "ui_lang": "vi",          # UI language
     "reply_lang": "auto",     # auto | vi | en | ...
     "tz": "Asia/Ho_Chi_Minh",
     "currency": "VND",
@@ -418,50 +426,50 @@ Thêm vào `config._DEFAULT`:
 },
 ```
 
-**Bẫy đặt tên phải tránh: KHÔNG đặt file là `server/locale.py`.** Các module trong `server/` nạp
-phẳng (`import config`, `import system_sync`), nên một file tên `locale.py` sẽ che luôn `locale`
-của thư viện chuẩn. Đặt là **`server/localefmt.py`**, cấp `now()`, `today()`, `fmt_money()`,
-`fmt_dt()`. `zoneinfo` có sẵn trong thư viện chuẩn, không thêm phụ thuộc.
+**A naming trap to avoid: do NOT name the file `server/locale.py`.** Modules in `server/` load
+flat (`import config`, `import system_sync`), so a file named `locale.py` would shadow the standard library's
+`locale`. Name it **`server/localefmt.py`**, providing `now()`, `today()`, `fmt_money()`,
+`fmt_dt()`. `zoneinfo` ships in the standard library, so no added dependency.
 
-Thay 6 chỗ UTC+7 nhúng cứng bằng `localefmt.now()`.
+Replace the 6 hardcoded UTC+7 places with `localefmt.now()`.
 
-**Một chỗ phải cẩn thận: `usage_index._TZ` quyết định ranh giới NGÀY của thống kê mức dùng.** Đổi
-múi giờ là đổi ý nghĩa của dữ liệu cũ. Luật: dữ liệu mới theo múi giờ đã cấu hình, dữ liệu cũ để
-nguyên, và đóng dấu múi giờ vào bản ghi. Không viết lại lịch sử.
+**One place needs care: `usage_index._TZ` decides the DAY boundary of the usage statistics.** Changing the
+time zone changes the meaning of old data. The rule: new data follows the configured time zone, old data is left
+as is, and the time zone is stamped into the record. Do not rewrite history.
 
-Plugin `datetime-vn` giữ nguyên slug và giữ nguyên tên tool `javis_now` / `javis_date_add` (hai
-tên này đã nằm trong prompt và trong thói quen dùng). Chỉ đổi: đọc múi giờ từ cấu hình, và mô tả
-plugin thôi ghi cứng "Việt Nam".
+The `datetime-vn` plugin keeps its slug and keeps the tool names `javis_now` / `javis_date_add` (these two
+names are already in the prompt and in usage habits). The only changes: read the time zone from config, and the plugin
+description stops hardcoding "Vietnam".
 
-`toLocaleString("vi-VN")` ở 6 chỗ phía dashboard đổi thành hằng số `LOCALE` do `i18n/index.js`
-cấp. Quy đổi VND ở `usage.js:181-199` đổi theo `currency`; tiền tệ khác VND thì bỏ luôn dòng
-quy đổi thay vì bịa tỷ giá.
+`toLocaleString("vi-VN")` in 6 places on the dashboard side becomes a `LOCALE` constant supplied by `i18n/index.js`. The VND
+conversion at `usage.js:181-199` follows `currency`; for a currency other than VND, drop the conversion line
+instead of inventing an exchange rate.
 
-### 4.7. Giọng nói
+### 4.7. Voice
 
-- **STT** (`stt.py:82-96`): tham số `language` lấy từ `resolve_reply_lang()`. Khi `reply_lang`
-  là `auto` và chưa có căn cứ nào chắc, truyền **rỗng** để Whisper tự dò. Mặc định cứng `"vi"`
-  hôm nay đang chủ động làm hỏng giọng nói không phải tiếng Việt.
-- **TTS**: bỏ `startswith("vi")` ở `main.py:7148`; lọc theo ngôn ngữ đang chọn. Giọng lấy từ
-  `LANGS[lang].tts[provider]`. Không có giọng cho cặp ngôn ngữ-nhà cung cấp đó thì rơi về
-  ElevenLabs `eleven_multilingual_v2` (đã cấu hình sẵn), rồi mới tới giọng Edge mặc định.
-- Giao diện: hai nút radio cứng ở `index.html:288-306` đổi thành danh sách sinh từ sổ đăng ký.
+- **STT** (`stt.py:82-96`): the `language` parameter comes from `resolve_reply_lang()`. When `reply_lang`
+  is `auto` and there is no firm basis yet, pass **empty** so Whisper detects by itself. The hardcoded default `"vi"`
+  today actively breaks non-Vietnamese speech.
+- **TTS**: remove `startswith("vi")` at `main.py:7148`; filter by the selected language. The voice comes from
+  `LANGS[lang].tts[provider]`. If there is no voice for that language-provider pair, fall back to
+  ElevenLabs `eleven_multilingual_v2` (already configured), and only then to the default Edge voice.
+- UI: the two hardcoded radio buttons at `index.html:288-306` become a list generated from the registry.
 
-### 4.8. Kênh và chatbot chuyên trách
+### 4.8. Channels and dedicated chatbots
 
-- **Chatbot chuyên trách** (`chatbot_store.py`) thêm trường `ngon_ngu`, mặc định `auto`. Đây là
-  ca dùng đáng tiền nhất của cả spec: bot phục vụ NGƯỜI LẠ, không phải chủ, nên ngôn ngữ của nó
-  không việc gì phải theo ngôn ngữ giao diện của chủ.
-- **Telegram**: ngôn ngữ theo từng cuộc chat, dò từ tin nhắn, dính theo cuộc chat.
-- **Zalo**: mặc định `vi`, cho phép ghi đè.
-- **CLI**: theo `reply_lang` toàn cục, cộng cờ `--lang`.
-- Khối kênh (`channel_context.py`) **giữ nguyên tiếng Việt**. Đó là luật cho model, không phải
-  chữ cho người dùng.
+- **Dedicated chatbot** (`chatbot_store.py`) gets a `ngon_ngu` ("language") field, default `auto`. This is
+  the most valuable use case of the whole spec: the bot serves STRANGERS, not the owner, so its language
+  has no reason to follow the owner's UI language.
+- **Telegram**: language per chat, detected from messages, sticking to the chat.
+- **Zalo**: default `vi`, with override allowed.
+- **CLI**: follows the global `reply_lang`, plus a `--lang` flag.
+- The channel block (`channel_context.py`) **stays in Vietnamese**. It is a rule for the model, not
+  text for the user.
 
-### 4.9. Skill
+### 4.9. Skills
 
-`skill_router.SKILL_DESC_MAX` giữ nguyên 150 ký tự, áp **cho từng ngôn ngữ**. Frontmatter được
-phép khai map:
+`skill_router.SKILL_DESC_MAX` stays at 150 characters, applied **per language**. Frontmatter is
+allowed to declare a map:
 
 ```yaml
 description:
@@ -469,501 +477,500 @@ description:
   en: "Digest a raw source into the Second Brain..."
 ```
 
-Dạng chuỗi phẳng vẫn hợp lệ và vẫn là dạng khuyến nghị cho skill người dùng tự viết. Router đọc
-`description[lang]`, không có thì rơi về `description[vi]`, rồi tới chuỗi phẳng. **Chỉ 4 skill
-hệ thống** (`javis-builder`, `ingest-source`, `query-wiki`, `lint-wiki`) khai map; skill người
-dùng không đụng tới.
+The flat string form remains valid and remains the recommended form for skills users write themselves. The router reads
+`description[lang]`, falls back to `description[vi]`, then to the flat string. **Only the 4 system skills**
+(`javis-builder`, `ingest-source`, `query-wiki`, `lint-wiki`) declare a map; user skills
+are not touched.
 
-## 5. Thêm một ngôn ngữ mới: sổ tay
+## 5. Adding a new language: the playbook
 
-Đây là **bài kiểm tra nghiệm thu của cả spec**. Thêm tiếng Thái phải là chừng này việc, không hơn:
+This is the **acceptance test of the whole spec**. Adding Thai must be this much work and no more:
 
-1. `server/lang_registry.py`: thêm một mục `th` (tên bản ngữ, hệ chữ, hư từ để dò, mã STT, giọng
-   TTS, múi giờ và tiền tệ mặc định, có chia số nhiều không, câu `nudge`).
-2. `dashboard/i18n/th.json`: chép `vi.json`, dịch. Thiếu key thì tự rơi về tiếng Việt, không vỡ
-   giao diện.
-3. `server/lexicon/th.py`: **tuỳ chọn**. Không có thì đường tắt tiết kiệm token tự tắt cho người
-   dùng tiếng Thái, còn rào chắn an toàn hạ xuống tầng model phụ. Jarvis 007 vẫn chạy ĐÚNG, chỉ tốn
-   hơn. Viết sau khi có người dùng thật cũng được.
-4. Chạy `python tests/run.py`. Bộ test đối chiếu key và test bất biến sổ đăng ký phải xanh.
+1. `server/lang_registry.py`: add one `th` entry (native name, script, function words for detection, STT code, TTS
+   voice, default time zone and currency, whether it has plurals, the `nudge` sentence).
+2. `dashboard/i18n/th.json`: copy `vi.json` and translate. Missing keys fall back to Vietnamese on their own, without breaking the
+   UI.
+3. `server/lexicon/th.py`: **optional**. Without it the token-saving shortcut turns itself off for Thai
+   users, and the safety guardrails drop down to the auxiliary model tier. Jarvis 007 still runs CORRECTLY, just costs
+   more. It can be written after real users show up.
+4. Run `python tests/run.py`. The key cross-check test and the registry invariant tests must be green.
 
-**Không sửa file nào khác. Phải sửa chỗ khác nghĩa là spec này đã hỏng - sửa spec trước, đừng
-sửa lén.**
+**Change no other file. Having to change anything else means this spec is broken - fix the spec first, do not
+patch around it quietly.**
 
-Hai bước TUỲ CHỌN, làm sau lúc nào cũng được vì cả hai đều có đường rơi-về:
+Two OPTIONAL steps, which can be done any time later because both have a fall-back path:
 
-5. `description_<mã>` trong frontmatter của skill (thiếu thì rơi về mô tả gốc).
-6. Tài liệu người dùng, dịch tay (`README.en.md`, `docs/en/*`).
+5. `description_<code>` in the skill's frontmatter (if missing it falls back to the original description).
+6. User docs, translated by hand (`README.en.md`, `docs/en/*`).
 
-Bản việc-cần-làm đầy đủ, kèm mục "những gì KHÔNG phải làm":
+The full to-do list, including a section on "what you do NOT have to do":
 **[docs/dev/them-mot-ngon-ngu.md](them-mot-ngon-ngu.md)**.
 
-## 6. Bản nhỏ nhất đo được nhu cầu
+## 6. The smallest build that measures demand
 
-Trước khi bỏ hai tuần, có một câu hỏi hợp lý: **có nhu cầu thật không, hay đây là tính năng tự
-kỷ ám thị?** Câu đó đáng trả lời bằng tiền thật chứ không bằng suy đoán. Nhưng phép thử phải
-được thiết kế cẩn thận, vì bản trực giác của nó **trả về số liệu bẩn**.
+Before spending two weeks, there is a reasonable question: **is there real demand, or is this a self-
+suggested feature?** That question deserves to be answered with real money rather than guesses. But the test has to
+be designed carefully, because the intuitive version of it **returns dirty numbers**.
 
-### 6.1. Cái bẫy: phép thử rẻ mà kết quả sai
+### 6.1. The trap: a cheap test with a wrong result
 
-Bản trực giác nghe rất hợp lý: *chèn "Reply in English" vào prompt, dịch vài chục nhãn chính,
-ship, có 50 người nước ngoài dùng thật thì mới đầu tư sâu.* Một tới hai ngày công.
+The intuitive version sounds very reasonable: *insert "Reply in English" into the prompt, translate a few dozen main labels,
+ship it, and only when 50 foreign users really use it, invest deeply.* One to two days of work.
 
-Vấn đề: kế hoạch đó **bật tiếng Anh mà không đụng vào 13 cái cổng ở mục 2.3**. Nghĩa là 50
-người dùng thử đó nhận một Jarvis 007 mà:
+The problem: that plan **turns English on without touching the 13 gates in section 2.3**. That means those 50
+trial users get a Jarvis 007 where:
 
-- đường tắt tiết kiệm token nuốt câu hỏi cần dữ liệu live rồi model bịa,
-- bộ bắt khai man không nổ khi Jarvis 007 nói "đã gửi xong" mà chưa gửi,
-- **cò ghi ký ức không kích hoạt, nên Jarvis 007 không học được gì từ họ** - đúng cái làm Jarvis 007 khác
-  một khung chat thường,
-- bot chăm khách không bao giờ được tính là bí.
+- the token-saving shortcut swallows questions that need live data and then the model makes things up,
+- the false-claim catcher does not fire when Jarvis 007 says "sent" without having sent,
+- **the memory-write trigger does not fire, so Jarvis 007 learns nothing from them** - exactly the thing that makes Jarvis 007 different
+  from an ordinary chat window,
+- the customer-care bot is never counted as stuck.
 
-Rồi anh đo ra "không có nhu cầu". **Nhưng thứ vừa đo là một sản phẩm hỏng, không phải thị
-trường.** Một phép thử rẻ mà trả về âm tính giả thì tệ hơn không thử, vì anh sẽ hành động theo
-nó và đóng cửa một hướng đi vì lý do sai.
+Then you measure "no demand". **But what you just measured is a broken product, not the
+market.** A cheap test that returns a false negative is worse than no test, because you will act on
+it and close off a direction for the wrong reason.
 
-### 6.2. Cách sửa, và nó rẻ hơn vẻ ngoài
+### 6.2. The fix, and it is cheaper than it looks
 
-**Không cần cả Phase 2.** Chỉ cần luật suy biến ở mục 4.3, rút gọn còn đúng một điều kiện:
+**The whole of Phase 2 is not needed.** Only the fallback rule from section 4.3, cut down to exactly one condition:
 
-> Phiên không phải tiếng Việt thì **tắt hết đường tối ưu, đi đường đầy đủ.**
+> If the session is not Vietnamese, **turn off every optimization path and take the full path.**
 
-Tắt đường tắt nhanh, tắt một-bước-chỉ-đọc. Tốn thêm token cho vài chục người dùng beta, tốn gần
-như không gì để viết. Cộng một nhãn thành thật trên giao diện: *"beta, chưa tối ưu cho ngôn ngữ
-này"*.
+Turn off the fast shortcut and the one-step read-only path. It costs extra tokens for a few dozen beta users and costs almost
+nothing to write. Add an honest label in the UI: *"beta, not yet optimized for this
+language"*.
 
-Bản nhỏ nhất vì vậy gồm:
+The smallest build therefore consists of:
 
-1. Phase 0 rút gọn: `lang.py` + sổ đăng ký hai mục `vi`, `en`, ghi `lang` vào trace.
-2. Khối NGÔN NGỮ trong prompt + sửa `CLAUDE.md` luật 5.
-3. **Luật một dòng ở trên: phiên không phải tiếng Việt thì không đi đường tối ưu.**
-4. Trường `ngon_ngu` cho chatbot chuyên trách.
-5. STT và TTS theo ngôn ngữ đã chọn.
+1. A trimmed Phase 0: `lang.py` + a registry with two entries, `vi` and `en`, writing `lang` into the trace.
+2. The LANGUAGE block in the prompt + the `CLAUDE.md` rule 5 fix.
+3. **The one-line rule above: a non-Vietnamese session does not take the optimized path.**
+4. The `ngon_ngu` field for the dedicated chatbot.
+5. STT and TTS following the selected language.
 
-**Hai tới ba ngày thay vì một tới hai.** Đổi lại số liệu đo được đáng tin. Đánh đổi này quá hời:
-một ngày công để một quyết định chiến lược không dựa trên dữ liệu rác.
+**Two to three days instead of one to two.** In exchange the measured data can be trusted. This trade is a bargain:
+one working day so that a strategic decision does not rest on garbage data.
 
-Ba thứ **KHÔNG** có trong bản nhỏ nhất: dịch giao diện (không cần, xem 6.3), lớp bộ từ vựng đầy
-đủ, và locale.
+Three things are **NOT** in the smallest build: UI translation (not needed, see 6.3), the full lexicon
+layer, and locale.
 
-### 6.3. Chĩa phép thử vào đâu
+### 6.3. Where to aim the test
 
-Đây là chỗ dễ chọn sai, và chọn sai thì hai tuần sau mới biết.
+This is where it is easy to choose wrong, and a wrong choice is only discovered two weeks later.
 
-Bản trực giác chĩa vào **chủ shop nước ngoài**: dịch giao diện, chờ người Mỹ tới. Phép thử đó
-đắt (phải dịch giao diện trước mới thử được), chậm (phải có kênh phân phối ở thị trường mới), và
-**đánh vào chỗ Jarvis 007 yếu nhất** - ra khỏi Zalo, ra khỏi POS Việt, vào một cái chợ có hàng trăm
-AI dashboard đang đánh nhau.
+The intuitive version aims at **foreign shop owners**: translate the UI, wait for Americans to arrive. That test is
+expensive (the UI has to be translated before anything can be tried), slow (it needs a distribution channel in the new market), and
+it **hits where Jarvis 007 is weakest** - leaving Zalo, leaving the Vietnamese POS, entering a market with hundreds of
+AI dashboards fighting each other.
 
-Chĩa đúng là vào **chủ shop Việt phục vụ khách ngoại**:
+The right aim is **Vietnamese shop owners serving foreign customers**:
 
-> Chủ shop Việt có chatbot chăm khách Nhật, Hàn, Trung, hoặc bán hàng xuất khẩu. Giao diện chủ
-> vẫn tiếng Việt, brain vẫn tiếng Việt, Zalo vẫn Zalo. **Chỉ đổi một trường `ngon_ngu` trên con
-> bot đối ngoại.**
+> A Vietnamese shop owner has a chatbot caring for Japanese, Korean or Chinese customers, or sells for export. The owner's
+> UI stays Vietnamese, the brain stays Vietnamese, Zalo stays Zalo. **Only one field, `ngon_ngu`, changes on the
+> customer-facing bot.**
 
-Ba cái lợi, cái thứ ba lớn nhất:
+Three benefits, the third being the biggest:
 
-- **Không phải dịch một nhãn giao diện nào**, vì chủ shop không bao giờ rời tiếng Việt. Bản nhỏ
-  nhất bớt được nguyên hạng mục đắt nhất.
-- **Đo trên tập khách đã có**, không phải đi tìm thị trường mới rồi mới đo được.
-- **Đào sâu hào thay vì đổi hào.** Đây là tính năng mà đám dashboard quốc tế không đấu lại được,
-  vì họ không có Zalo và không có ngữ cảnh kinh doanh Việt. Còn "dịch giao diện ra tiếng Anh rồi
-  ra quốc tế" thì là bỏ lợi thế duy nhất để bước vào chỗ mình không có lợi thế nào.
+- **Not one UI label has to be translated**, because the shop owner never leaves Vietnamese. The smallest
+  build drops its single most expensive item.
+- **Measure on the customer base you already have**, instead of first finding a new market and only then being able to measure.
+- **Deepen the moat instead of switching moats.** This is a feature the international dashboards cannot match,
+  because they have no Zalo and no Vietnamese business context. Whereas "translate the UI into English and go
+  international" gives up the only advantage in order to step into a place where there is no advantage at all.
 
-Nói cho rõ, vì chỗ này hay bị gộp: **đa ngôn ngữ KHÔNG đồng nghĩa với ra quốc tế.** Có ít nhất
-ba đường dùng nó, và đường thứ hai mới là đường nên thử trước:
+To be clear, because this is often conflated: **multilingual does NOT mean going international.** There are at least
+three ways to use it, and the second is the one to try first:
 
-| Hướng | Ai trả tiền | Có phải dịch giao diện không | Quan hệ với hào Zalo/POS |
-|-------|-------------|------------------------------|--------------------------|
-| Chủ ngoại dùng Jarvis 007 | khách hoàn toàn mới | Có, toàn bộ | Bỏ hào |
-| **Chủ Việt, khách ngoại** | **khách đã có** | **Không** | **Đào sâu hào** |
-| Chủ Việt thích dùng UI tiếng Anh | khách đã có | Có, một phần | Trung tính |
+| Direction | Who pays | Does the UI have to be translated? | Relation to the Zalo/POS moat |
+|-----------|----------|------------------------------------|-------------------------------|
+| Foreign owners use Jarvis 007 | completely new customers | Yes, all of it | Abandons the moat |
+| **Vietnamese owner, foreign customers** | **existing customers** | **No** | **Deepens the moat** |
+| Vietnamese owner prefers an English UI | existing customers | Yes, partly | Neutral |
 
-### 6.4. Chốt ngưỡng TRƯỚC khi chạy
+### 6.4. Fix the threshold BEFORE running
 
-Phép thử chỉ có nghĩa khi con số quyết định được ghi ra **trước** lúc nhìn kết quả, nếu không
-thì nhìn số nào cũng thấy hợp lý. Ngưỡng cụ thể là quyết định của chủ repo, nhưng nó phải có
-hình dạng như: *"trong N tuần, có ít nhất X chủ shop bật `ngon_ngu` khác `vi` trên bot của họ và
-còn bật sau hai tuần"*. Chỉ số "còn bật sau hai tuần" quan trọng hơn số lượt bật, vì bật thử
-một lần là tò mò chứ chưa phải nhu cầu.
+The test only means something if the deciding number is written down **before** looking at the result; otherwise
+any number looks reasonable. The concrete threshold is the repo owner's decision, but it must have
+a shape like: *"within N weeks, at least X shop owners turn `ngon_ngu` to something other than `vi` on their bot and
+still have it on after two weeks"*. The "still on after two weeks" metric matters more than the number of times it was turned on, because
+trying it once is curiosity, not yet demand.
 
-Chạm ngưỡng thì đi tiếp Phase 2 và 3. Không chạm thì dừng ở đây, và cái đã làm vẫn không phí:
-luật suy biến ở bước 3 là một rào an toàn có giá trị tự thân, kể cả khi Jarvis 007 mãi mãi chỉ nói
-tiếng Việt.
+If the threshold is reached, go on to Phases 2 and 3. If not, stop here, and what was done is still not wasted:
+the fallback rule in step 3 is a safety guardrail with value in its own right, even if Jarvis 007 only ever speaks
+Vietnamese.
 
-### 6.5. ĐÃ TRIỂN KHAI (2026-08-14, trên v0.34.1)
+### 6.5. DEPLOYED (2026-08-14, on v0.34.1)
 
-Đợt 1 đã viết mã và xanh 226/226 test. Ghi lại đúng cái gì có và cái gì chưa, để không ai đọc
-spec rồi tưởng phần chưa làm đã làm.
+Batch 1 has code written and 226/226 tests green. Recording exactly what exists and what does not, so that nobody reads the
+spec and assumes the unfinished parts are done.
 
-**Có:**
+**Exists:**
 
-| Thứ | Ở đâu |
-|-----|-------|
-| Sổ đăng ký ngôn ngữ (vi, en) | `server/lang_registry.py` |
-| Dò ngôn ngữ + chốt phần con người GHIM | `server/lang.py` (**[ĐÍNH CHÍNH 6.10]** bản đầu ghi "8 mức ưu tiên + quán tính theo phiên"; tầng phiên đã bỏ, ngôn ngữ trả lời do model lo) |
-| Bộ từ vựng theo ngôn ngữ | `server/lexicon/{__init__,vi,en}.py` |
-| Khối NGÔN NGỮ, **ba** điểm chèn | `main.build_system_prompt`, `context_compiler._output_contract_text`, `chatbot_runtime.build_bot_prompt` |
-| Cổng đường tắt + hai cổng chỉ đọc tra bộ từ vựng | `fast_path_runtime`, `readonly_path_runtime`, `readonly_orchestrator` |
-| Đồng hồ theo ngôn ngữ | `context_compiler.dong_ho(lang=)` |
-| Trường `ngon_ngu` cho chatbot + ô chọn | `chatbot_store`, `chatbots.js` |
-| Ô "Ngôn ngữ trả lời" ở Cài đặt | `console.js`, `POST /settings` nhánh `locale` |
-| STT ba trạng thái, TTS lọc giọng theo ngôn ngữ | `stt.py`, `GET /tts/voices?lang=` |
-| Test hành vi + test bất biến chống thoái lui | `test_da_ngon_ngu.py`, `test_lang_bat_bien.py` |
-
-**Ba điểm chèn, không phải một.** Đây là chỗ bản spec đầu thiếu. Đường TIẾT KIỆM TOKEN không
-đi qua `build_system_prompt`, và prompt của chatbot chuyên trách không đi qua cả hai đường kia.
-Chỉ sửa `build_system_prompt` thì hai vùng còn lại mất khối NGÔN NGỮ trong im lặng - mà vùng
-thứ ba đúng là ca dùng đáng tiền nhất ở mục 6.3.
-
-### 6.6. ĐỢT 2 VÀ NỀN CỦA ĐỢT 3 (2026-08-14)
-
-**Đợt 2 khép lại: hai cổng BẮT LỖI đã đấu vào bộ từ vựng.**
-
-| Cổng | Ở đâu | Suy biến khi thiếu bộ từ vựng |
-|------|-------|-------------------------------|
-| Bắt khai man hành động | `context_compiler.DeterministicQualityGate.evaluate` | chạy HỢP mẫu của mọi bộ, rồi đánh dấu `lang_unverified` vào trace |
-| Dò lời hứa suông | `background_status.detect_promise` | như trên |
-
-Một chi tiết đáng ghi lại vì nó tiết kiệm cả một vòng luồn tham số: hai cổng này **tự dò ngôn
-ngữ từ chính câu trả lời** thay vì nhận tham số từ nơi gọi. Chúng kiểm thứ model THẬT SỰ đã
-viết ra, nên ngôn ngữ của văn bản đó là căn cứ đúng hơn ngôn ngữ ta đã YÊU CẦU - model vẫn có
-thể trả lời sai ngôn ngữ, và đúng lúc ấy ta muốn kiểm bằng bộ từ vựng khớp với cái nó viết.
-Nhờ vậy năm nơi gọi `evaluate()` không phải sửa một dòng nào.
-
-Và `lang_unverified` KHÔNG đổi `status`: đánh trượt mọi câu trả lời tiếng Nhật chỉ vì chưa có
-lexicon tiếng Nhật là phạt người dùng vì một thiếu sót của chúng ta.
-
-**Nền của Đợt 3 đã dựng, giao diện chưa dịch xong.**
-
-- `dashboard/i18n/index.js` - `t()`, suy biến `<đã chọn> -> vi -> key`, quét DOM qua
-  `data-i18n*`, số nhiều bằng `.one`/`.other`, tự nạp lúc khởi động rồi phát `javis:i18n`.
-- `dashboard/i18n/{vi,en}.json` - tầng điều hướng (rail, tiêu đề trang) và ô cài đặt ngôn ngữ.
-- `console.js` - `RAIL_ITEMS`, `RAIL_GROUPS`, `VIEW_META` lấy nhãn từ từ điển qua getter, cộng
-  biến đếm `i18nTick` để Alpine vẽ lại khi từ điển về hoặc khi user đổi ngôn ngữ.
-- Ô **Ngôn ngữ giao diện** ở trang Cài đặt, đổi là ăn ngay không cần F5.
-- `tests/js/test_i18n.mjs` - khớp key hai chiều, cấm HTML trong từ điển, cấm em dash, bắt
-  trường hợp "chép nguyên tiếng Việt sang en.json", và **`I18N_MIGRATED`** là chốt chặn thoái
-  lui: file đã dọn mà lấm lại chữ tiếng Việt trong mã chạy thì test đỏ ngay.
-
-Một cái bẫy đáng ghi vì nó tốn thời gian một cách ngớ ngẩn: viết `dashboard/i18n/*.json` trong
-một chú thích `//` làm hàm bóc chú thích của test hiểu `/*` là mở khối chú thích, và nó nuốt
-luôn 20 dòng mã phía sau. Ba test đỏ vì một dấu sao trong câu văn.
-
-**Chưa làm, cố ý:** phần lớn 3.520 chuỗi giao diện (mới dịch tầng điều hướng), mã lỗi cho 182
-chuỗi lỗi server, locale (múi giờ, định dạng số), và `description` skill theo ngôn ngữ.
-
-### 6.7. ĐỢT 4 - LOCALE (2026-08-14)
-
-**Locale tách hẳn khỏi ngôn ngữ.** Đây là điểm của cả đợt: một người đọc giao diện tiếng Anh,
-bảo Jarvis 007 trả lời tiếng Anh, mà vẫn ngồi ở Việt Nam nên vẫn xài UTC+7 và VND. Gộp hai thứ là
-ép họ chọn giữa "hiểu được chữ" và "xem đúng giờ".
-
-`server/localefmt.py` là nguồn duy nhất: `now()`, `tz()`, `today_str()`, `fmt_tien()`,
-`cho_giao_dien()`.
-
-**Tên file KHÔNG được là `server/locale.py`.** Module trong `server/` nạp phẳng, nên một file
-tên đó che `locale` của thư viện chuẩn với mọi thứ import nó, và hỏng theo kiểu rất khó truy.
-Bẫy này đã ghi trong spec từ mục 4.6 và lần này tránh được.
-
-**16 chỗ ghim cứng UTC+7 đã dọn**, chia hai nhóm theo mức hệ quả:
-
-| Nhóm | Ở đâu | Hệ quả khi đổi múi giờ |
-|------|-------|------------------------|
-| Chỉ cần "bây giờ mấy giờ" | main, system_sync, self_improve, share_bundle, usage_store, learn, context_compiler | đổi thẳng, không có hệ quả gì |
-| **Cắt ranh giới NGÀY** | usage_index, usage_parsers, usage_saving | dữ liệu đã ghi GIỮ NGUYÊN chuỗi ngày; chỉ dữ liệu mới theo múi mới |
-| **Giờ nhắc hẹn** | reminders, plugin javis-schedule | "7h sáng" thành 7h sáng ở nơi người dùng ngồi |
-
-Chỗ `reminders` là chỗ thấy hiệu lực rõ nhất: trước đó người dùng ở múi giờ khác bị đánh thức
-lệch vài tiếng mỗi ngày, và không có gì trên màn hình nói cho họ biết vì sao.
-
-**Không viết lại lịch sử.** Một bản ghi "2026-08-14" tạo ra dưới UTC+7 vẫn là ngày đó sau khi
-chuyển sang UTC+9. Ngay lúc chuyển sẽ có một chỗ gợn trong chuỗi ngày; đó là hệ quả không
-tránh được của việc đổi múi giờ, và viết lại lịch sử để làm nó phẳng còn tệ hơn nhiều.
-
-**Tiền tệ: định dạng, KHÔNG quy đổi.** `fmt_tien()` chỉ đặt ký hiệu đúng chỗ theo đồng tiền
-(VND sau số, USD trước số). Quy đổi cần tỉ giá THẬT cập nhật theo ngày, và phần quy đổi cũ
-bằng tỉ giá viết cứng đã bị gỡ ở thượng nguồn (`5c59de7`) đúng vì con số nó hiện ra không khớp
-thực tế người dùng trả. Có một test canh chuyện này không quay lại.
-
-**Cron đọc thành lời theo ngôn ngữ**, tên thứ lấy từ sổ đăng ký. Một bẫy đáng ghi: cron dùng
-`0 = chủ nhật` còn `weekdays` của sổ đăng ký theo `datetime.weekday()` tức `0 = thứ hai`. Lệch
-một vòng, và quên đổi thì mọi lịch "thứ hai hằng tuần" hiện thành "chủ nhật" - sai im lặng,
-người dùng chỉ phát hiện khi việc chạy nhầm ngày. Có hai test canh đúng hai đầu.
-
-**Dashboard** thôi khoá `toLocaleString("vi-VN")` ở 10 chỗ; locale lấy từ `JavisI18n.locale()`.
-
-**Plugin `datetime-vn`** đọc múi giờ và tên thứ từ cấu hình. Slug và tên tool giữ nguyên: đổi
-slug là bắt mọi brain đang chạy di trú, đổi lấy đúng một cái tên đẹp hơn.
-
-**Chốt chặn:** `test_locale.py` quét mã và báo đỏ nếu ai đó ghim lại `timezone(timedelta(hours=7))`
-ngoài ba chỗ được miễn trừ (nơi khai mặc định và hai plugin có thể chạy ngoài tiến trình server).
-
-### 6.8. ĐỢT 5 - SKILL VÀ TÀI LIỆU (2026-08-14). Đóng lộ trình vi+en.
-
-**Mô tả skill theo ngôn ngữ.** Frontmatter nhận thêm `description_<mã>` và `name_<mã>`; sáu
-skill hệ thống đã có bản `_en`. Đây không phải chuyện thẩm mỹ: mô tả skill là **bề mặt đối
-chiếu** giữa câu người dùng vừa gõ và danh sách skill mà router bơm vào system prompt của mọi
-engine, nên cùng thứ tiếng thì chọn sắc hơn.
-
-Luật quan trọng nhất là luật **rơi về**: thiếu bản dịch thì lấy bản gốc, KHÔNG lấy rỗng. Mô tả
-tiếng Việt vẫn định tuyến được cho người hỏi tiếng Anh (model đọc được cả hai), còn mô tả rỗng
-thì skill biến mất khỏi router. Nhờ luật này, dịch mô tả skill là bước **tuỳ chọn** khi thêm
-ngôn ngữ, và sổ tay ghi đúng như vậy.
-
-Ba chỗ phải sửa kèm, đều là chỗ hỏng thầm nếu bỏ qua:
-
-- `system_sync._cap_desc` giờ cắt **mọi** khoá mô tả, không riêng khoá gốc. Bản dịch đi vào
-  đúng chỗ bản gốc đi vào (phần đầu cố định của mọi lượt chat) nên phải chịu đúng cái trần
-  150 ký tự đó; miễn cho nó là mở lại đúng cái lỗ 61% token mà trần này bịt. Đổi lại, việc quét
-  nhiều khoá bắt buộc phải chặn trong phạm vi frontmatter - bản một-khoá cũ né được chuyện sửa
-  nhầm thân skill chỉ nhờ nó lấy match đầu tiên.
-- `POST /skills` đọc frontmatter cũ trước khi ghi đè. Form của trang Kỹ năng chỉ gửi lên
-  `{name, description, group}`, nên ghi đè trắng là mỗi lần bấm Lưu lại xoá sạch bản dịch mà
-  không ai thấy.
-- Khoá cache của `mcp_hub.discover_all` có thêm ngôn ngữ. Danh sách tool dùng chung cho mọi
-  lượt nên nó đọc ngôn ngữ từ CẤU HÌNH chứ không nhận từ lượt chat; thiếu ngôn ngữ trong khoá
-  thì đổi ngôn ngữ xong vẫn nhận danh sách skill của thứ tiếng cũ cho tới khi cache hết hạn.
-
-**Chỗ ngôn ngữ đổi HÀNH VI, không chỉ đổi chữ: `LazySkillSource._score` của Phase 8.** Router
-trong system prompt đưa cả danh sách cho model đọc, nên mô tả lệch tiếng vẫn chọn đúng skill.
-Bộ chấm điểm của Phase 8 thì không có model nào cả - nó đếm TỪ CHUNG giữa câu hỏi và mô tả. Đo
-được trên một skill có cả hai bản: câu `save a note fast` chấm **0.65** trên mô tả tiếng Anh và
-**0.17** trên mô tả tiếng Việt, trong khi ngưỡng chọn là 0.24. Tức là trước đợt này, người dùng
-tiếng Anh KHÔNG BAO GIỜ được Phase 8 chọn skill; nó lặng lẽ rơi về router đầy đủ - đúng kết quả,
-nhưng mất sạch phần token mà cả Phase 8 sinh ra để tiết kiệm.
-
-`refresh()` và `resolve()` nhận `lang`, và `lang` nằm TRONG khoá cache. Ngôn ngữ ở đây lấy từ
-cấu hình chứ KHÔNG từ ngôn ngữ dò được của từng lượt, có chủ ý: cấu hình là một giá trị duy
-nhất cho cả tiến trình, còn ngôn ngữ theo lượt sẽ làm bộ manifest và sổ đăng ký năng lực dựng
-lại theo từng câu. Chọn nhầm ngôn ngữ chỉ làm skill không đủ điểm rồi rơi về router - mất
-token, không sai kết quả.
-
-**Nhãn mốc trong prompt giữ nguyên tiếng Việt, có chủ ý.** `# === SKILL KHẢ DỤNG`,
-`# === BÂY GIỜ ===` và các nhãn cùng loại là **mốc đo**: `context_runtime` đếm token theo đúng
-chuỗi đó, và `tests/fixtures/context_compiler_contract.json` chốt chúng. Dịch nhãn theo ngôn
-ngữ là làm phép đo im lặng ngừng chạy cho đúng nhóm người dùng vừa thêm vào. Chỉ **nội dung**
-đi theo ngôn ngữ, không phải khung.
-
-**Tài liệu.** `README.en.md`, `QUICKSTART.en.md`, `docs/en/01-getting-started.md`,
-`docs/en/README.md`. Dịch tay, không qua từ điển - tài liệu không có cơ chế rơi-về nên bản
-dịch lệch là lệch im lặng. `docs/en/README.md` nói thẳng trang nào đã dịch và trang nào chưa,
-thay vì để người đọc tự phát hiện.
-
-`docs/dev/them-mot-ngon-ngu.md` là bản việc-cần-làm rút từ mục 5: bốn bước bắt buộc, hai bước
-tuỳ chọn, và một mục "những gì KHÔNG phải làm" - viết ra vì đó là chỗ người ta hay đi thừa.
-
-**Số liệu đã lạc hậu trong tài liệu, sửa luôn thay vì nhân đôi.** Bản tiếng Việt còn ghi 7 bộ
-não (thật ra 10), 6 nhóm rail (thật ra 7), 23-24 trang docs (thật ra 27). Dịch nguyên là đúc
-thêm một bản sai nữa, nên đã sửa cả hai bên. `test_tai_lieu_song_ngu.py` đọc con số thẳng từ
-`PROVIDER_DEFS` và `RAIL_GROUPS` rồi đối chiếu với cả hai bản - chép con số vào test là tạo ra
-chỗ thứ ba để lệch.
-
-**Chốt chặn:** `test_skill_da_ngon_ngu.py` (26 mục, gồm canary bản dịch bị cắt và canary thân
-skill không bị đụng) và `test_tai_lieu_song_ngu.py` (link nội bộ, dòng chuyển ngôn ngữ, số
-liệu khớp mã nguồn, không em dash ở bản tiếng Anh).
-
-### 6.9. LƯỢT RÀ TRƯỚC KHI MERGE (2026-08-14). Ba lỗi mà 231 test không bắt được.
-
-Trước khi đưa lên `main`, chạy một lượt kiểm CHỨC NĂNG độc lập với bộ test: ném câu hỏi kinh
-doanh thật vào từng tầng rồi xem có chỗ nào cư xử vô lý không. Ra ba lỗi, **cả ba đều không
-làm test nào đỏ**, và lỗi đầu tiên hỏng đúng tính năng đầu bài của cả spec này.
-
-**Lỗi 1: người dùng tiếng Anh vẫn bị trả lời bằng tiếng Việt.** Danh sách hư từ tiếng Anh chỉ
-có 20 chữ và thiếu đúng nhóm hay gặp nhất trong câu lệnh ngắn (`my`, `from`, `we`, `will`,
-`show`, `give`). Đo trên 18 câu hỏi kinh doanh tiếng Anh thường gặp: **dò ra 5**. `show me my
-revenue`, `list my pending tasks`, `check my inbox` đều về rỗng, tức phiên giữ nguyên tiếng
-Việt. Sau khi bổ sung: **16/18**.
-
-Vì sao cả bộ test không thấy: mọi ca mẫu trong `test_da_ngon_ngu.py` đều là câu văn viết đầy
-đủ (`Can you show me the revenue breakdown by channel?`) - loại câu luôn chứa vài hư từ. Người
-dùng thì gõ câu cụt. Bộ test khoá HÀNH VI đúng, nhưng không ai đo ĐỘ PHỦ.
-
-**Lỗi 2: câu tiếng Pháp/Tây Ban Nha gõ thiếu dấu bị nhận là tiếng Việt.** `_CHU_NGOAI` chỉ bắt
-được ký tự lạ, mà câu Âu châu thiếu dấu thì không còn ký tự nào lạ; hư từ tiếng Việt không dấu
-lại đầy chữ hai ký tự trùng tiếng Âu, nên `les ventes du mois de juin sont bonnes` bị chấm là
-tiếng Việt chỉ nhờ một chữ `de`. Đây là kiểu hỏng NẶNG chứ không phải chuyện lịch sự: nhận nhầm
-sang tiếng Việt nghĩa là đem bộ từ vựng tiếng Việt ra chấm một câu tiếng Pháp ở các cổng an
-toàn - đúng thứ mà mục 1 gọi là "nửa bộ từ vựng nguy hiểm hơn không có bộ nào".
-
-Sửa bằng lớp bằng chứng ngược THỨ BA: `lang._TU_NGOAI`, hư từ của các thứ tiếng Latin khác.
-Một chữ là đủ loại tiếng Việt khỏi cuộc chấm điểm.
-
-**Lỗi 3: câu khái niệm tiếng Anh không đi tắt được, câu tiếng Việt cùng nghĩa thì được.** Mẫu
-`explanation` của `lexicon/en.py` đòi mạo từ (`what is a/an/the`), nên `what is entropy in
-information theory` rơi vào `intent_uncertain`. Một chênh lệch theo NGÔN NGỮ chứ không theo
-nội dung: cùng một câu hỏi, hỏi bằng tiếng Việt thì rẻ, hỏi bằng tiếng Anh thì đắt.
-
-**Ba cái bẫy gặp khi sửa, đều tự gây ra rồi tự bắt bằng cách đo lại:**
-
-| Thêm gì | Hỏng gì | Vì sao |
-|---------|---------|--------|
-| `het` vào `_TU_NGOAI` | `xoa het don hang cua toi` mất kết quả | `het` là "hết" tiếng Việt không dấu |
-| `week`, `report` vào hư từ EN | câu Hà Lan thành tiếng Anh | danh từ đi xuyên ngôn ngữ, chỉ hư từ mới phân biệt được |
-| `nào` vào hư từ VI | câu Bồ Đào Nha thành tiếng Việt | `nao` là "não" gõ thiếu dấu |
-| nới `what is` bỏ mạo từ | `what are my pending orders` LỌT cổng | `my orders` bị chặn, `my pending orders` thì không - một tính từ chen vào là thoát |
-
-Cái thứ tư là cái nguy hiểm nhất vì nó lọt theo hướng sai: một câu cần dữ liệu sống được cho
-đi tắt. Vá bằng cách cho phép ĐÚNG MỘT chữ chen giữa sở hữu và danh từ trong mẫu `live_data`.
-Không nới thành hai: `the difference between revenue and profit` là câu hỏi khái niệm thuần
-tuý, nới rộng hơn là chặn oan chính nó.
-
-**Lỗi 4, tìm ra sau cùng và nặng nhất: cổng bắt KHAI MAN bỏ sót cách nói tự nhiên nhất của
-tiếng Anh.** Mẫu `FALSE_ACTION` cho ĐÚNG MỘT ô trợ động từ (`have` HOẶC `just` HOẶC `already`),
-nên `I have created the order` bắt được mà `I have **already** sent the report` thì lọt. Đây là
-cổng chặn Jarvis 007 khai đã làm một việc mà đường chỉ-đọc không cho phép làm, nên bỏ sót ở đây là
-rào chắn mất tác dụng trong im lặng.
-
-Bản tiếng Việt không dính vì tiếng Việt hiếm khi xếp chồng trợ từ ("đã vừa gửi" không ai nói).
-Tức lỗi chỉ tồn tại ở MỘT ngôn ngữ - đúng kiểu lệch mà tầng đa ngôn ngữ phải chủ động đi tìm,
-vì nó không bao giờ tự lộ ra ở ngôn ngữ gốc.
-
-**Còn lại, đã biết và chấp nhận:** câu tiếng Việt không dấu rất ngắn mà không chứa hư từ nào
-(`so sanh doanh thu 3 kenh`) vẫn về rỗng. Sai theo hướng AN TOÀN - phiên giữ nguyên ngôn ngữ
-đang dùng, mà mặc định vốn là tiếng Việt, nên người dùng không thấy gì khác.
-
-**Chốt chặn:** `test_do_chinh_xac_ngon_ngu.py`. Khác `test_da_ngon_ngu.py` ở chỗ nó đo ĐỘ PHỦ
-trên một rổ câu thật thay vì khoá hành vi trên vài ca mẫu, và rổ đó **giữ nguyên cả những câu
-đang trượt** - bỏ câu khó ra cho đủ điểm là tự đo mình bằng một cái thước đã uốn.
-
-### 6.10. LÀM GỌN (2026-08-14). Trả ngôn ngữ trả lời về cho model.
-
-Chủ repo đặt câu hỏi đúng ngay sau lượt rà: nếu người dùng gõ tiếng gì thì trả lời tiếng đó,
-sao phải tự dò? Model làm việc đó sẵn rồi. Đo lại thì thấy chủ repo đúng, và bằng chứng nằm
-ngay trong số liệu của chính mục 6.9:
-
-| | Bộ dò của mình | Model |
+| Item | Where |
+|------|-------|
+| Language registry (vi, en) | `server/lang_registry.py` |
+| Language detection + settling the part the human PINS | `server/lang.py` (**[CORRECTION 6.10]** the first version said "8 priority levels + session inertia"; the session layer was dropped, the reply language is handled by the model) |
+| Per-language lexicon | `server/lexicon/{__init__,vi,en}.py` |
+| LANGUAGE block (`# === NGÔN NGỮ ===`), **three** insertion points | `main.build_system_prompt`, `context_compiler._output_contract_text`, `chatbot_runtime.build_bot_prompt` |
+| The shortcut gate + two read-only gates look up the lexicon | `fast_path_runtime`, `readonly_path_runtime`, `readonly_orchestrator` |
+| Language-aware clock | `context_compiler.dong_ho(lang=)` |
+| `ngon_ngu` field for the chatbot + picker | `chatbot_store`, `chatbots.js` |
+| "Reply language" box in Settings | `console.js`, `POST /settings` `locale` branch |
+| Three-state STT, TTS filtering voices by language | `stt.py`, `GET /tts/voices?lang=` |
+| Behavior tests + invariant tests against regression | `test_da_ngon_ngu.py`, `test_lang_bat_bien.py` |
+
+**Three insertion points, not one.** This is where the first draft of the spec fell short. The TOKEN-SAVING path does not
+go through `build_system_prompt`, and the dedicated chatbot's prompt goes through neither of the other two paths.
+Fixing only `build_system_prompt` makes the other two areas lose the LANGUAGE block silently - and the third
+area is exactly the most valuable use case in section 6.3.
+
+### 6.6. BATCH 2 AND THE FOUNDATION OF BATCH 3 (2026-08-14)
+
+**Batch 2 closes: the two ERROR-CATCHING gates are wired into the lexicon.**
+
+| Gate | Where | Fallback when the lexicon is missing |
+|------|-------|--------------------------------------|
+| Catching false action claims | `context_compiler.DeterministicQualityGate.evaluate` | run the UNION of the patterns of every lexicon, then mark `lang_unverified` in the trace |
+| Detecting empty promises | `background_status.detect_promise` | same as above |
+
+One detail worth recording because it saved an entire round of threading parameters: these two gates **detect the
+language from the answer text itself** instead of receiving a parameter from the caller. They check what the model ACTUALLY
+wrote, so the language of that text is a better basis than the language we ASKED for - the model can
+still answer in the wrong language, and at exactly that moment we want to check with the lexicon that matches what it wrote.
+That way the five call sites of `evaluate()` did not need a single line changed.
+
+And `lang_unverified` does NOT change `status`: failing every Japanese answer just because there is no
+Japanese lexicon yet would punish the user for a shortcoming of ours.
+
+**The foundation of Batch 3 is built, the UI is not fully translated.**
+
+- `dashboard/i18n/index.js` - `t()`, the `<selected> -> vi -> key` fallback, DOM sweeping via
+  `data-i18n*`, plurals with `.one`/`.other`, loads itself at startup and then emits `javis:i18n`.
+- `dashboard/i18n/{vi,en}.json` - the navigation layer (rail, page titles) and the language settings box.
+- `console.js` - `RAIL_ITEMS`, `RAIL_GROUPS`, `VIEW_META` take their labels from the dictionary through getters, plus
+  an `i18nTick` counter so Alpine re-renders when the dictionary arrives or when the user changes language.
+- The **Interface language** box on the Settings page, takes effect immediately without F5.
+- `tests/js/test_i18n.mjs` - two-way key matching, no HTML in the dictionary, no em dash, catches
+  the case of "copying the Vietnamese verbatim into en.json", and **`I18N_MIGRATED`** is the latch against
+  regression: a cleaned file that gets Vietnamese text back in running code turns the test red immediately.
+
+A trap worth recording because it wasted time in a silly way: writing `dashboard/i18n/*.json` inside
+a `//` comment made the test's comment-stripping function read `/*` as the start of a block comment, and it swallowed
+20 lines of code after it. Three tests went red because of one asterisk in a sentence.
+
+**Not done, on purpose:** most of the 3,520 UI strings (only the navigation layer is translated so far), error codes for the
+182 server error strings, locale (time zone, number formatting), and per-language skill `description`.
+
+### 6.7. BATCH 4 - LOCALE (2026-08-14)
+
+**Locale fully separated from language.** That is the point of this whole batch: a person reading an English UI,
+telling Jarvis 007 to answer in English, who still sits in Vietnam and so still uses UTC+7 and VND. Merging the two forces
+them to choose between "understanding the text" and "seeing the right time".
+
+`server/localefmt.py` is the single source: `now()`, `tz()`, `today_str()`, `fmt_tien()` (money formatter),
+`cho_giao_dien()` (UI locale).
+
+**The file name must NOT be `server/locale.py`.** Modules in `server/` load flat, so a file with that
+name shadows the standard library's `locale` for everything that imports it, and it breaks in a way that is very hard to trace.
+This trap was recorded in the spec at section 4.6 and was avoided this time.
+
+**16 places with UTC+7 pinned in have been cleaned up**, in three groups by consequence:
+
+| Group | Where | Consequence of changing the time zone |
+|-------|-------|---------------------------------------|
+| Only needs "what time is it now" | main, system_sync, self_improve, share_bundle, usage_store, learn, context_compiler | change directly, no consequence |
+| **Cutting the DAY boundary** | usage_index, usage_parsers, usage_saving | data already written KEEPS its date string; only new data follows the new time zone |
+| **Reminder times** | reminders, plugin javis-schedule | "7am" becomes 7am where the user is sitting |
+
+The `reminders` spot is where the effect is clearest: before this, a user in another time zone was woken
+a few hours off every day, and nothing on screen told them why.
+
+**Do not rewrite history.** A record dated "2026-08-14" created under UTC+7 is still that date after
+switching to UTC+9. At the moment of the switch there will be a bump in the date series; that is an unavoidable
+consequence of changing time zones, and rewriting history to flatten it is much worse.
+
+**Currency: format, do NOT convert.** `fmt_tien()` only puts the symbol in the right place for the currency
+(VND after the number, USD before). Conversion needs a REAL exchange rate updated daily, and the old
+conversion with a hardcoded rate was removed upstream (`5c59de7`) precisely because the number it showed did not match
+what the user actually paid. A test guards against this coming back.
+
+**Cron read out in words per language**, with weekday names taken from the registry. A trap worth recording: cron uses
+`0 = Sunday` while the registry's `weekdays` follows `datetime.weekday()`, i.e. `0 = Monday`. Off
+by one, and if the conversion is forgotten every "every Monday" schedule shows as "Sunday" - a silent error,
+which the user only discovers when the job runs on the wrong day. Two tests guard both ends.
+
+**The dashboard** stops hardcoding `toLocaleString("vi-VN")` in 10 places; the locale comes from `JavisI18n.locale()`.
+
+**The `datetime-vn` plugin** reads the time zone and weekday names from config. The slug and tool names stay: renaming the
+slug forces every running brain to migrate, in exchange for just a prettier name.
+
+**The latch:** `test_locale.py` scans the code and goes red if anyone pins `timezone(timedelta(hours=7))` again
+outside the three exempted places (where the default is declared and two plugins that may run outside the server process).
+
+### 6.8. BATCH 5 - SKILLS AND DOCS (2026-08-14). Closes the vi+en roadmap.
+
+**Per-language skill descriptions.** Frontmatter gains `description_<code>` and `name_<code>`; six
+system skills already have an `_en` version. This is not cosmetic: a skill description is the **matching
+surface** between the sentence the user just typed and the list of skills the router injects into the system prompt of every
+engine, so in the same language the selection is sharper.
+
+The most important rule is the **fall-back** rule: with no translation take the original, NOT empty. A Vietnamese
+description can still route for someone asking in English (the model reads both), while an empty description
+makes the skill vanish from the router. Thanks to this rule, translating skill descriptions is an **optional** step when adding a
+language, and the playbook says exactly that.
+
+Three accompanying fixes were needed, all of them silent breakages if skipped:
+
+- `system_sync._cap_desc` now truncates **every** description key, not only the original key. The translation goes to
+  the same place the original goes (the fixed head of every chat turn) so it has to obey the same 150-character cap;
+  exempting it would reopen exactly the 61% token hole this cap plugs. In exchange, the multi-key scan must be
+  confined to the frontmatter - the old single-key version avoided editing the skill body by mistake only because it took the first match.
+- `POST /skills` reads the old frontmatter before overwriting. The form on the Skills page only sends
+  `{name, description, group}`, so a blind overwrite means every Save click wipes the translations without
+  anyone noticing.
+- The cache key of `mcp_hub.discover_all` now includes the language. The tool list is shared across every
+  turn so it reads the language from CONFIG rather than taking it from the chat turn; without the language in the key,
+  after switching language you would still receive the skill list in the old language until the cache expires.
+
+**Where language changes BEHAVIOR, not just text: `LazySkillSource._score` of Phase 8.** The router
+in the system prompt hands the whole list to the model to read, so a description in the wrong language still picks the right skill.
+The Phase 8 scorer has no model at all - it counts SHARED WORDS between the question and the description. Measured
+on a skill that has both versions: the sentence `save a note fast` scores **0.65** against the English description and
+**0.17** against the Vietnamese one, while the selection threshold is 0.24. That means before this batch, English
+users were NEVER given a skill by Phase 8; it silently fell back to the full router - the right result,
+but losing all of the tokens Phase 8 exists to save.
+
+`refresh()` and `resolve()` take `lang`, and `lang` is IN the cache key. The language here comes from
+config and NOT from the language detected per turn, on purpose: config is a single value
+for the whole process, whereas a per-turn language would make the manifest and the capability registry rebuild
+on every sentence. Picking the wrong language only leaves a skill short of the score and falling back to the router - lost
+tokens, no wrong result.
+
+**The marker labels in the prompt stay Vietnamese, on purpose.** `# === SKILL KHẢ DỤNG` ("AVAILABLE SKILLS"),
+`# === BÂY GIỜ ===` ("NOW") and labels of the same kind are **measurement markers**: `context_runtime` counts tokens by exactly
+that string, and `tests/fixtures/context_compiler_contract.json` pins them. Translating the labels by
+language makes the measurement silently stop working for exactly the group of users just added. Only the **content**
+follows the language, not the frame.
+
+**Docs.** `README.en.md`, `QUICKSTART.en.md`, `docs/en/01-getting-started.md`,
+`docs/en/README.md`. Translated by hand, not through the dictionary - docs have no fall-back mechanism so a
+drifting translation drifts silently. `docs/en/README.md` says outright which pages are translated and which are not,
+instead of leaving the reader to find out.
+
+`docs/dev/them-mot-ngon-ngu.md` is the to-do list distilled from section 5: four required steps, two
+optional ones, and a section on "what you do NOT have to do" - written out because that is where people tend to overdo it.
+
+**Stale figures in the docs, fixed on the spot instead of duplicated.** The Vietnamese version still said 7 brains
+(actually 10), 6 rail groups (actually 7), 23-24 docs pages (actually 27). Translating it as is would mint
+one more wrong copy, so both sides were corrected. `test_tai_lieu_song_ngu.py` reads the numbers straight from
+`PROVIDER_DEFS` and `RAIL_GROUPS` and checks them against both versions - copying the numbers into the test would create
+a third place to drift.
+
+**The latch:** `test_skill_da_ngon_ngu.py` (26 items, including a canary for a truncated translation and a canary that the skill
+body is untouched) and `test_tai_lieu_song_ngu.py` (internal links, the language switch line, figures
+matching the source code, no em dash in the English version).
+
+### 6.9. PRE-MERGE REVIEW (2026-08-14). Three bugs that 231 tests did not catch.
+
+Before putting this on `main`, a pass of FUNCTIONAL checking was run, independent of the test suite: throw real business
+questions at each layer and see whether anything behaves absurdly. Three bugs came out, **none of them
+turned a test red**, and the first one broke the headline feature of this very spec.
+
+**Bug 1: English users were still answered in Vietnamese.** The English function-word list had
+only 20 words and lacked exactly the group most common in short commands (`my`, `from`, `we`, `will`,
+`show`, `give`). Measured on 18 common English business questions: **5 detected**. `show me my
+revenue`, `list my pending tasks`, `check my inbox` all came back empty, meaning the session stayed in
+Vietnamese. After the additions: **16/18**.
+
+Why the whole test suite did not see it: every sample case in `test_da_ngon_ngu.py` was a fully
+written sentence (`Can you show me the revenue breakdown by channel?`) - the kind that always contains a few function
+words. Users type clipped sentences. The tests pin the right BEHAVIOR, but nobody measured COVERAGE.
+
+**Bug 2: French/Spanish sentences typed without diacritics were recognized as Vietnamese.** `_CHU_NGOAI` only
+catches foreign characters, but a European sentence missing its accents no longer has any foreign characters; the Vietnamese
+function words without diacritics are full of two-letter words that coincide with European ones, so `les ventes du mois de juin sont bonnes` was scored as
+Vietnamese on the strength of a single word `de`. This is a SERIOUS kind of breakage, not a politeness matter: misrecognizing it
+as Vietnamese means taking the Vietnamese lexicon to judge a French sentence at the safety
+gates - exactly what section 1 calls "half a lexicon is more dangerous than none".
+
+Fixed with a THIRD layer of counter-evidence: `lang._TU_NGOAI`, the function words of the other Latin languages.
+One word is enough to knock Vietnamese out of the scoring.
+
+**Bug 3: an English concept question could not take the shortcut, while the equivalent Vietnamese one could.** The
+`explanation` pattern of `lexicon/en.py` demanded an article (`what is a/an/the`), so `what is entropy in
+information theory` fell into `intent_uncertain`. A difference by LANGUAGE rather than by
+content: the same question asked in Vietnamese is cheap, asked in English it is expensive.
+
+**Three traps hit while fixing, all self-inflicted and then caught by re-measuring:**
+
+| What was added | What broke | Why |
+|----------------|------------|-----|
+| `het` into `_TU_NGOAI` | `xoa het don hang cua toi` lost its result | `het` is Vietnamese "hết" without diacritics (the input means "delete all my orders") |
+| `week`, `report` into EN function words | a Dutch sentence became English | nouns travel across languages, only function words can tell them apart |
+| `nào` into VI function words | a Portuguese sentence became Vietnamese | `nao` is "não" typed without its accent |
+| loosening `what is` to drop the article | `what are my pending orders` SLIPPED through the gate | `my orders` is blocked, `my pending orders` is not - one adjective squeezed in and it escapes |
+
+The fourth is the most dangerous because it slipped in the wrong direction: a sentence needing live data was allowed to
+take the shortcut. Patched by allowing EXACTLY ONE word between the possessive and the noun in the `live_data` pattern.
+Not loosened to two: `the difference between revenue and profit` is a purely conceptual question, and loosening further
+would wrongly block exactly that.
+
+**Bug 4, found last and the most serious: the FALSE-CLAIM catching gate missed the most natural English
+phrasing.** The `FALSE_ACTION` pattern allowed EXACTLY ONE auxiliary slot (`have` OR `just` OR `already`),
+so `I have created the order` was caught while `I have **already** sent the report` slipped through. This is the
+gate that stops Jarvis 007 from claiming it did something the read-only path does not allow, so a miss here means the guardrail
+silently stops working.
+
+The Vietnamese version is not affected because Vietnamese rarely stacks auxiliaries ("đã vừa gửi" - "already just sent" - nobody says it).
+So the bug exists in only ONE language - exactly the kind of drift the multilingual layer has to go looking for actively,
+because it never reveals itself in the original language.
+
+**Remaining, known and accepted:** a very short Vietnamese sentence without diacritics that contains no function word
+(`so sanh doanh thu 3 kenh`, meaning "compare revenue of 3 channels") still comes back empty. It errs in the SAFE direction -
+the session keeps the language already in use, and the default is Vietnamese, so the user sees nothing different.
+
+**The latch:** `test_do_chinh_xac_ngon_ngu.py`. It differs from `test_da_ngon_ngu.py` in that it measures COVERAGE
+on a basket of real sentences instead of pinning behavior on a few sample cases, and that basket **keeps even the sentences
+that are currently failing** - dropping the hard sentences to reach the score is measuring yourself with a bent ruler.
+
+### 6.10. SLIMMING DOWN (2026-08-14). Handing the reply language back to the model.
+
+The repo owner asked the right question right after the review: if the user types in some language, the answer goes in that language,
+so why detect it ourselves? The model already does that. Measuring again shows the repo owner was right, and the evidence is
+right in the numbers of section 6.9 itself:
+
+| | Our detector | The model |
 |---|---|---|
-| Tiếng Anh, câu hỏi thật | 16/18 | bám đúng |
-| Tiếng Thái, Nhật, Pháp, Tây Ban Nha | **luôn trả lời tiếng Việt** | bám đúng |
-| Thêm một ngôn ngữ | sửa sổ đăng ký + đo lại | không phải làm gì |
+| English, real questions | 16/18 | follows correctly |
+| Thai, Japanese, French, Spanish | **always answers in Vietnamese** | follows correctly |
+| Adding a language | edit the registry + re-measure | nothing to do |
 
-Dòng thứ hai là dòng quyết định. Bộ dò NHẬN RA tiếng Thái (0.97) rồi vẫn trả lời tiếng Việt,
-vì `th` không có trong sổ đăng ký nên `chuan_hoa` trả rỗng và cả chuỗi rơi về mặc định. Nói
-cách khác mình đã tự dựng một bản kém hơn của thứ vốn có sẵn miễn phí.
+The second row is the deciding one. The detector RECOGNIZES Thai (0.97) and still answers in Vietnamese,
+because `th` is not in the registry so `chuan_hoa` (normalize) returns empty and the whole chain falls back to the default. In other
+words we built a worse version of something that already exists for free.
 
-**Thiết kế mới, và nó nhỏ hơn hẳn.** `resolve()` chỉ còn lo phần con người GHIM:
+**The new design, and it is much smaller.** `resolve()` now only handles the part the human PINS:
 
-- có ghim (lệnh trong lượt, chatbot, Cài đặt, brain, mặc định kênh) → nêu tên ngôn ngữ đó;
-- không ghim mà CÓ chữ người dùng → `theo_nguoi_dung=True`, prompt bảo model tự bám;
-- không ghim và KHÔNG có chữ nào (loop, nhắc hẹn, Kanban, tự học) → không có gì để bám, phải
-  nêu tên, lấy từ `ui_lang` rồi tới mặc định.
+- if pinned (a command in the turn, the chatbot, Settings, the brain, the channel default) -> name that language;
+- if not pinned but the user HAS text -> `theo_nguoi_dung=True` ("follow the user"), and the prompt tells the model to follow by itself;
+- if not pinned and there is NO text at all (loops, reminders, Kanban, self-learning) -> there is nothing to follow, so it must
+  name one, taken from `ui_lang` and then from the default.
 
-**Cái bị xoá:** toàn bộ tầng dính-theo-phiên - kho phiên trong RAM, khoá, trần 2000 phiên,
-đếm chuỗi lượt liên tiếp, `streak_best`, `NGUONG_DOI`, `SO_LUOT_DE_DOI`, và nấc `session`
-trong chuỗi ưu tiên. Tất cả chỉ tồn tại để làm bộ dò đủ ổn định mà cầm lái ngôn ngữ trả lời.
-Model cầm lái thì không có gì để mà nhảy, nên cả cơ chế thành thừa.
+**What was removed:** the entire session-stickiness layer - the in-RAM session store, the lock, the 2000-session cap,
+the count of consecutive turns, `streak_best`, `NGUONG_DOI`, `SO_LUOT_DE_DOI`, and the `session` rung
+in the priority chain. All of it existed only to make the detector stable enough to steer the reply language.
+With the model steering there is nothing to flip-flop, so the whole mechanism became redundant.
 
-**Cái KHÔNG xoá, và vì sao.** Bộ dò vẫn cần ở đúng những chỗ **không có model trong vòng lặp**:
-cổng chặn đọc câu HỎI (chạy trước model, phải tự chọn bộ từ vựng), cổng bắt khai man đọc câu
-TRẢ LỜI (chạy sau model), và giọng đọc TTS (chọn bằng mã ngôn ngữ trong code). Bốn lỗi ở mục
-6.9 vì vậy vẫn đáng sửa - chỉ khác là chúng tụt từ "hỏng tính năng đầu bài" xuống "tốn thêm
-token" và "chọn nhầm giọng đọc".
+**What was NOT removed, and why.** The detector is still needed exactly where **there is no model in the loop**:
+the blocking gate reads the QUESTION (it runs before the model and must pick a lexicon itself), the false-claim catching gate reads
+the ANSWER (it runs after the model), and the TTS voice (chosen by a language code in code). The four bugs in section
+6.9 are therefore still worth fixing - the only difference is that they dropped from "breaks the headline feature" to "costs extra
+tokens" and "picks the wrong voice".
 
-`lang_cau_hoi` cũng gọn theo: nó chỉ còn nhận thứ dò được từ CHÍNH lượt này, thôi mượn ngôn
-ngữ phiên khi câu quá ngắn. Mượn tức là đoán, mà cổng chặn đoán sai thì đem nhầm bộ từ vựng
-ra chấm - thà trả rỗng rồi suy biến an toàn.
+`lang_cau_hoi` ("language of the question") is slimmer as well: it now only accepts what is detected from THIS turn itself, and stops borrowing the session
+language when the sentence is too short. Borrowing means guessing, and a blocking gate that guesses wrong takes the wrong lexicon
+to judge with - better to return empty and then fall back safely.
 
-**Một xác nhận đáng ghi:** hòn đảo prompt của chatbot (`chatbot_runtime.build_bot_prompt`) đã
-làm đúng thiết kế này từ đầu - ghim thì nêu tên, không ghim thì "trả lời bằng ĐÚNG ngôn ngữ
-khách đang nhắn". Nó nhỏ nên không ai nghĩ tới chuyện dựng tầng dò cho nó, và chính vì thế nó
-tránh được cả cái tầng đó. Đường chính nay đi theo.
+**One confirmation worth recording:** the chatbot's prompt island (`chatbot_runtime.build_bot_prompt`) had
+already done this design from the start - pinned means name it, not pinned means "answer in EXACTLY the language
+the customer is writing in". It was small so nobody thought of building a detection layer for it, and precisely because of that it
+avoided that whole layer. The main path now follows it.
 
-## 7. Sáu giai đoạn
+## 7. Six phases
 
-Mục này là kế hoạch ĐẦY ĐỦ, chạy sau khi bản nhỏ nhất ở mục 6 đã chạm ngưỡng. Bản nhỏ nhất
-chính là một lát cắt mỏng của Phase 0 và 1 cộng một mẩu của Phase 2, nên làm nó không phải là
-làm thừa.
+This section is the FULL plan, to run after the smallest build in section 6 has reached its threshold. The smallest build
+is itself a thin slice of Phases 0 and 1 plus a piece of Phase 2, so doing it is not
+wasted work.
 
-**Phase 0 - Đo và khoá (nửa ngày).** Thêm `server/lang.py`, `lang_registry.py` với đúng một mục
-`vi`, thêm cụm `locale` vào cấu hình, ghi `lang` và `lang_source` vào trace. **Không đổi một
-hành vi nào.** Chốt là mọi test cũ xanh nguyên.
+**Phase 0 - Measure and lock (half a day).** Add `server/lang.py`, `lang_registry.py` with exactly one `vi`
+entry, add the `locale` group to config, write `lang` and `lang_source` into the trace. **Change no
+behavior.** The lock is that every old test stays green.
 
-**Phase 1 - Ngôn ngữ trả lời (2 ngày).** Khối NGÔN NGỮ, sửa `CLAUDE.md` luật 5 cùng 4 chỗ prompt
-ép tiếng Việt, `dong_ho()` theo ngôn ngữ, `resolve_reply_lang()` đủ 7 mức ưu tiên, dính theo
-phiên, STT và TTS theo ngôn ngữ, trường `ngon_ngu` cho chatbot. Thêm tiếng Anh vào sổ đăng ký.
-**Giao diện vẫn tiếng Việt hoàn toàn.** Đây là giai đoạn phần lớn người dùng gọi là "đã có đa
-ngôn ngữ", và nó là giai đoạn rẻ nhất.
+**Phase 1 - Reply language (2 days).** The LANGUAGE block, fix `CLAUDE.md` rule 5 together with the 4 prompt places
+that force Vietnamese, `dong_ho()` by language, `resolve_reply_lang()` with all 7 priority levels, sticking to the
+session, STT and TTS by language, the `ngon_ngu` field for chatbots. Add English to the registry.
+**The UI stays completely Vietnamese.** This is the phase most users call "it has multilingual
+support", and it is the cheapest phase.
 
-**Phase 2 - Bộ từ vựng và cổng an toàn (2 tới 3 ngày).** Rút regex ra `lexicon/vi.py` nguyên
-văn, viết `lexicon/en.py`, cài luật suy biến theo loại cổng, hạ tầng model phụ cho cổng bắt lỗi.
-**Làm TRƯỚC phần giao diện**, vì đây là tầng hỏng trong im lặng, còn giao diện thì hỏng ra mặt.
+**Phase 2 - Lexicon and safety gates (2 to 3 days).** Extract the regexes into `lexicon/vi.py` verbatim,
+write `lexicon/en.py`, implement the fallback rule by gate kind, and the auxiliary model infrastructure for error-catching gates.
+**Do this BEFORE the UI part**, because this is the layer that breaks silently, whereas the UI breaks visibly.
 
-**Phase 3 - i18n giao diện (4 tới 5 ngày, rải ra được).** Hạ tầng `i18n/index.js`, rút `vi.json`,
-dịch `en.json`, di trú theo lưu lượng: chat -> rail -> Cài đặt -> phần còn lại. Mã lỗi cho lỗi
-server, làm dần từng endpoint. Ô chọn ngôn ngữ trong trang Cài đặt.
+**Phase 3 - UI i18n (4 to 5 days, can be spread out).** The `i18n/index.js` infrastructure, extract `vi.json`,
+translate `en.json`, migrate by traffic: chat -> rail -> Settings -> the rest. Error codes for server
+errors, endpoint by endpoint. The language picker on the Settings page.
 
-**Phase 4 - Locale (1 ngày).** `localefmt.py`, thay 6 chỗ UTC+7, tiền tệ, `describe_cron` theo
-ngôn ngữ, `toLocaleString` theo locale, plugin `datetime-vn` đọc múi giờ cấu hình.
+**Phase 4 - Locale (1 day).** `localefmt.py`, replace the 6 UTC+7 places, currency, `describe_cron` by
+language, `toLocaleString` by locale, the `datetime-vn` plugin reading the configured time zone.
 
-**Phase 5 - Skill và tài liệu (1 ngày).** Map `description` cho 4 skill hệ thống. Dịch tay
-`README.md`, `QUICKSTART.md`, `docs/01`. Viết `docs/dev/` mục "thêm một ngôn ngữ" trỏ về mục 5
-của spec này.
+**Phase 5 - Skills and docs (1 day).** The `description` map for the 4 system skills. Translate by hand
+`README.md`, `QUICKSTART.md`, `docs/01`. Write the `docs/dev/` section "add a language" pointing back to section 5
+of this spec.
 
-**Thứ tự nên ra bản dùng được**: Phase 0 tới 2 thành một bản trọn vẹn (Jarvis 007 trả lời đúng ngôn
-ngữ, các cổng an toàn không bị vô hiệu), rồi Phase 3 theo nhịp có sức, rồi Phase 4 và 5. Tổng
-khoảng hai tuần làm tập trung.
+**Suggested order to ship something usable**: Phases 0 to 2 as one complete build (Jarvis 007 answers in the right
+language, the safety gates are not disabled), then Phase 3 at a sustainable pace, then Phases 4 and 5. A total of
+about two weeks of focused work.
 
-## 8. Kiểm thử
+## 8. Testing
 
-Bộ test hiện có nằm ở `tests/python`, `tests/js`, chạy qua `tests/run.py`. Thêm:
+The existing test suite lives in `tests/python`, `tests/js`, run through `tests/run.py`. Add:
 
-- `test_lang_resolve.py` - đủ 7 mức ưu tiên, chống nhảy qua nhảy lại, dính theo phiên.
-  **[ĐÍNH CHÍNH 6.10]** Thực tế gộp vào `test_da_ngon_ngu.py`, và phần "chống nhảy qua nhảy
-  lại / dính theo phiên" không còn: model bám theo người dùng thì không có gì để mà nhảy.
-  Thay vào đó test khoá hai chuyện - có ghim thì nêu tên, không ghim thì bảo model tự bám.
-- `test_lang_registry_invariant.py` - **quét mã tìm `lang == "vi"` hay `"vi-VN"` viết cứng ngoài
-  sổ đăng ký, thấy là báo đỏ.** Đây là cái chốt giữ cho tính mở rộng không mục dần.
-- `test_lexicon_parity.py` - mọi tên tập trong `lexicon/vi.py` phải có mặt ở mọi lexicon khác.
-- `test_lexicon_degrade.py` - ngôn ngữ không có lexicon: cổng mở rộng quyền phải TỪ CHỐI, cổng
-  bắt lỗi phải gọi model phụ hoặc đánh dấu `unverified`, không được lặng lẽ cho qua.
-- `test_vi_behavior_frozen.py` - chạy lại đúng bộ ca tiếng Việt hiện có sau khi rút regex, kết
-  quả phải trùng từng bit.
-- `tests/js/test_i18n.mjs` - key thừa, key thiếu, cấm HTML trong từ điển, và **cấm chữ tiếng
-  Việt trong file đã di trú**.
-- `test_prompt_lang_block.py` - đúng một khối NGÔN NGỮ, đúng ngôn ngữ, có `nudge` khi engine yếu.
+- `test_lang_resolve.py` - all 7 priority levels, preventing flip-flopping, sticking to the session.
+  **[CORRECTION 6.10]** In practice merged into `test_da_ngon_ngu.py`, and the "preventing flip-flopping
+  / sticking to the session" part is gone: with the model following the user there is nothing to flip-flop.
+  Instead the test pins two things - pinned means name it, not pinned means tell the model to follow by itself.
+- `test_lang_registry_invariant.py` - **scan the code for a hardcoded `lang == "vi"` or `"vi-VN"` outside the
+  registry, and go red when found.** This is the latch that keeps extensibility from eroding.
+- `test_lexicon_parity.py` - every set name in `lexicon/vi.py` must be present in every other lexicon.
+- `test_lexicon_degrade.py` - a language with no lexicon: gates that expand privilege must REFUSE, gates that
+  catch errors must call the auxiliary model or mark `unverified`, and must not quietly let it through.
+- `test_vi_behavior_frozen.py` - re-run exactly the existing Vietnamese case set after extracting the regexes, and the
+  results must match bit for bit.
+- `tests/js/test_i18n.mjs` - extra keys, missing keys, no HTML in the dictionary, and **no Vietnamese text
+  in a migrated file**.
+- `test_prompt_lang_block.py` - exactly one LANGUAGE block, the right language, with a `nudge` when the engine is weak.
 
-## 9. Rủi ro và bẫy
+## 9. Risks and traps
 
-- **Cổng an toàn tắt trong im lặng.** Rủi ro lớn nhất của cả spec. Cách chống duy nhất đáng tin
-  là `test_lexicon_degrade.py`, và ghi `unverified` ra trace để nhìn thấy được ngoài thực địa.
-- **Dò ngôn ngữ nhảy loạn.** Người Việt gõ tiếng Việt không dấu trộn tiếng Anh là chuyện thường
-  ngày. Luật hai lượt liên tiếp cộng ngưỡng tin cậy là để trị ca này; phải có test bằng câu
-  trộn thật.
-- **Model yếu trôi theo ngôn ngữ prompt.** Đã có `nudge`, nhưng phải thử tay trên Groq và Ollama
-  Cloud trước khi tuyên bố xong Phase 1.
-- **Bản dịch giao diện thoái lui.** Lượt sửa tính năng kế tiếp sẽ nhúng chuỗi tiếng Việt vào file
-  đã dọn nếu không có test chặn. Danh sách `I18N_MIGRATED` phải vào từ ngày đầu Phase 3, không
-  phải cuối.
-- **Đổi múi giờ làm lệch thống kê cũ.** Đóng dấu múi giờ, không viết lại lịch sử.
-- **Brain trộn ngôn ngữ.** Người dùng ghi chú tiếng Việt rồi hỏi bằng tiếng Anh là ca bình
-  thường, không phải lỗi. Khối NGÔN NGỮ đã nói rõ: đọc ngôn ngữ nào cũng được, chỉ TRẢ LỜI theo
-  một ngôn ngữ.
-- **Giọng đọc thiếu.** Không có giọng thì phải nói thẳng ra giao diện, đừng đọc bằng giọng tiếng
-  Việt cho một câu tiếng Nhật.
+- **Safety gates turning off silently.** The biggest risk of the whole spec. The only reliable defense
+  is `test_lexicon_degrade.py`, plus writing `unverified` to the trace so it can be seen in the field.
+- **Language detection flip-flopping.** Vietnamese people typing Vietnamese without diacritics mixed with English is an everyday
+  occurrence. The two-turns-in-a-row rule plus the confidence threshold is meant to handle this case; there must be a test with
+  real mixed sentences.
+- **Weak models drifting into the prompt language.** The `nudge` exists, but it must be tried by hand on Groq and Ollama
+  Cloud before declaring Phase 1 done.
+- **UI translation regressing.** The next feature change will embed Vietnamese strings into a cleaned file if there is no
+  test blocking it. The `I18N_MIGRATED` list must go in on the first day of Phase 3, not
+  at the end.
+- **Changing the time zone skews old statistics.** Stamp the time zone, do not rewrite history.
+- **A brain mixing languages.** A user taking notes in Vietnamese and then asking in English is a normal case,
+  not an error. The LANGUAGE block already says it: reading any language is fine, only ANSWER in
+  one language.
+- **Missing voice.** If there is no voice, say so plainly in the UI, do not read a Japanese sentence in a Vietnamese
+  voice.
 
-## 10. Ba câu hỏi đã tự chốt
+## 10. Three questions already settled
 
-**Tiếng Việt hay tiếng Anh làm từ điển gốc?** Chốt **tiếng Việt**. `vi.json` được rút ra từ mã
-đang chạy nên đủ 100% key theo định nghĩa, và mọi ngôn ngữ khác suy biến về nó thì không bao giờ
-có ô chữ trống. Lấy tiếng Anh làm gốc nghĩa là phải dịch 3.520 chuỗi TRƯỚC khi có cái gì chạy
-được - trả trước toàn bộ chi phí để đổi lấy một sự gọn gàng trên giấy.
+**Vietnamese or English as the source dictionary?** Settled: **Vietnamese**. `vi.json` is extracted from the code
+that is running so it has 100% of the keys by definition, and every other language falling back to it never
+has an empty text box. Taking English as the source would mean translating 3,520 strings BEFORE anything runs -
+paying the entire cost up front in exchange for tidiness on paper.
 
-**Có tự đổi ngôn ngữ giao diện theo `Accept-Language` của trình duyệt không?** Chốt **chỉ gợi ý
-lần đầu**, không tự đổi. Jarvis 007 chạy trên VPS, người dùng mở từ nhiều máy nhiều trình duyệt; giao
-diện tự nhảy sang ngôn ngữ khác vì hôm nay mở bằng máy khác là kiểu "thông minh" gây khó chịu.
-Lần đầu chưa chọn gì thì gợi ý một dòng, chọn rồi thì nhớ theo thiết bị.
+**Should the UI language switch automatically by the browser's `Accept-Language`?** Settled: **suggest only
+the first time**, never switch automatically. Jarvis 007 runs on a VPS and users open it from many machines and browsers; a UI that
+jumps to another language because today they opened it on a different machine is the kind of "smart" that annoys people.
+The first time, with nothing chosen yet, show a one-line suggestion; once chosen, remember it per device.
 
-**Ngôn ngữ trả lời mặc định là `auto` hay `vi`?** Chốt **`auto`**. Hợp đồng đầu ra hôm nay đã là
-`match_user` (context_compiler.py:366) và nó đang chạy tốt; đặt mặc định thành `vi` là tự tay
-làm thụt lùi một hành vi đang đúng. Ai muốn ghim thì ghim theo brain hoặc theo bot.
+**Is the default reply language `auto` or `vi`?** Settled: **`auto`**. The output contract is already
+`match_user` today (context_compiler.py:366) and it works well; making the default `vi` is
+regressing a behavior that is already right with our own hands. Whoever wants to pin it can pin by brain or by bot.
 
-## 11. Nguồn trong repo
+## 11. Sources in the repo
 
-- [Kiến trúc tổng quan](01-kien-truc.md) - một lượt chat chạy qua đâu
-- [Spec Jarvis 007 CLI](2026-08-cli-spec.md) - tiền lệ "kênh thứ ba" và bài học không nhân bản runtime
-- [Spec Bot chuyên trách](2026-08-bot-chuyen-trach-spec.md) - vì sao bot phục vụ khách lạ cần
-  giả định riêng
-- [Spec Adaptive Context Runtime](2026-08-adaptive-context-runtime-spec.md) - Context Compiler,
-  nơi hợp đồng đầu ra `match_user` đang sống
-- `CLAUDE.md` - luật hành xử, mục "Nguyên tắc phản hồi" luật số 5 là chỗ phải sửa đầu tiên
+- [Architecture overview](01-kien-truc.md) - where a chat turn runs through
+- [Jarvis 007 CLI spec](2026-08-cli-spec.md) - the "third channel" precedent and the lesson of not duplicating a runtime
+- [Dedicated bot spec](2026-08-bot-chuyen-trach-spec.md) - why a bot serving strangers needs its own
+  assumptions
+- [Adaptive Context Runtime spec](2026-08-adaptive-context-runtime-spec.md) - the Context Compiler,
+  where the `match_user` output contract lives
+- `CLAUDE.md` - the behavior rules; rule number 5 of the "Response principles" section is the first place to change
