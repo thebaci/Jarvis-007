@@ -167,10 +167,10 @@ check("giao diện chỉ chỗ sao lưu media thay thế",
 check("sau mỗi lần đồng bộ có báo số file media bị bỏ qua", "r.media_bo_qua" in JS)
 DOC = (ROOT / "docs" / "18-sao-luu-github.md").read_text(encoding="utf-8")
 check("tài liệu có mục riêng về chuyện này",
-      "## Chỉ đồng bộ THÔNG TIN, không đồng bộ media" in DOC)
+      "## Sync INFORMATION only, not media" in DOC)
 check("tài liệu giải thích vì sao xoá không đòi lại được dung lượng",
-      "không đòi lại được dung lượng" in DOC)
-check("tài liệu KHÔNG còn câu cũ 'ảnh vẫn lên repo'", "Ảnh và file VẪN lên repo" not in DOC)
+      "deleting a file from git does not reclaim space" in DOC)
+check("tài liệu KHÔNG còn câu cũ 'ảnh vẫn lên repo'", "Images and files STILL go to the repo" not in DOC)
 
 
 if _fails:

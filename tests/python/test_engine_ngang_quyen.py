@@ -160,15 +160,15 @@ check("system prompt nêu đúng khác biệt duy nhất là lệnh máy",
 
 # Tài liệu giới thiệu: bán "đổi được model", không bán "chạy trên Claude".
 check("README mở đầu bằng AI agentic đổi được bộ não",
-      "đổi được bộ não" in README.split("## Javis là gì?")[0])
+      "đổi được bộ não" in README.split("## Jarvis 007 là gì?")[0])
 check("README nêu triết lý năng lực nằm ở Javis chứ không ở model",
-      "năng lực nằm ở Javis, không nằm ở model" in README)
+      "năng lực nằm ở Jarvis 007, không nằm ở model" in README)
 check("doc Models nêu đổi model không mất chức năng",
-      "đổi model KHÔNG làm Javis mất chức năng" in DOC10.replace("**", ""))
+      "changing model does NOT cost Jarvis 007 any capability" in DOC10.replace("**", ""))
 check("doc Models có cột riêng cho lệnh máy để nói rõ khác biệt",
-      "Chạy lệnh máy (Bash)" in DOC10)
+      "Shell commands (Bash)" in DOC10)
 check("doc Bắt đầu nói rõ chọn provider nào cũng đủ chức năng",
-      "Chọn cái nào cũng ra một Javis đủ chức năng" in DOC01)
+      "Any of the three gives you a fully capable Jarvis 007" in DOC01)
 
 
 if fails:

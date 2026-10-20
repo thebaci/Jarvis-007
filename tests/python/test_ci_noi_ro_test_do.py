@@ -51,12 +51,12 @@ def _doc(ten):
 # Cả hai bước (JS và Python) đều phải có, không chỉ một: lần đỏ 03/09 rơi vào bước Python,
 # nhưng bước JS có đúng cùng hình dạng vòng lặp nên cùng một khe hở.
 for nhan, lenh in (("JS", "node"), ("Python", "python")):
-    khoi = re.search(r"- name: Chạy test " + nhan + r"[\s\S]*?exit \$status", CI)
+    khoi = re.search(r"- name: Run " + nhan + r" tests[\s\S]*?exit \$status", CI)
     khoi = khoi.group(0) if khoi else ""
     check(f"bước test {nhan}: có gom tên file đỏ lại",
           'dsdo="$dsdo $(basename "$f")"' in khoi, khoi[:120])
     check(f"bước test {nhan}: in danh sách đỏ ở CUỐI bước",
-          f'echo "ĐỎ (test {nhan}):$dsdo"' in khoi)
+          f'echo "FAILED ({nhan} tests):$dsdo"' in khoi)
     check(f"bước test {nhan}: đẩy luôn lên tóm tắt của GitHub (thấy ngay trên trang Actions)",
           "$GITHUB_STEP_SUMMARY" in khoi)
     # Gom tên mà nuốt mất mã thoát thì CI xanh trong khi test đỏ - hỏng nặng hơn lỗi gốc.
@@ -70,7 +70,7 @@ check("CANARY: không dùng `do` làm tên biến (từ khoá của bash)",
       not re.search(r"^\s*do=", CI, re.M))
 
 check("lý do vì sao phải in ở cuối được ghi ngay trong file",
-      "phần đuôi" in CI or "cắt" in CI)
+      "tail" in CI or "cut off" in CI)
 
 
 # ============================================================

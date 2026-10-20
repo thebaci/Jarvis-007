@@ -69,7 +69,7 @@ with tempfile.TemporaryDirectory() as td:
     (Path(td) / "update_state.json").write_text('{"phase": "restarting"}', encoding="utf-8")
     o4 = chay(td, 1)
     check("updater đang chạy → watchdog đứng ngoài (không đếm /health đỏ hợp lệ)",
-          "cập nhật" in o4 and _dem(td) == "0", o4)
+          "update is in progress" in o4 and _dem(td) == "0", o4)
 
 # --- server khoẻ: /health 200 → đếm về 0, không kick ---
 class _OK(http.server.BaseHTTPRequestHandler):

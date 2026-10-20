@@ -47,7 +47,7 @@ check("workflow_dispatch còn nguyên (lối chạy lại commit cũ)",
 # Lý do ba dòng trên tồn tại nằm ở chú thích ngay cạnh chúng. Mất chú thích thì người sau
 # đọc file chỉ thấy ba dòng trơ và rất dễ rút gọn lại.
 check("lý do vì sao nghe claude/** được ghi ngay trong file",
-      "claude/**" in CI and "chưa có PR" in CI)
+      "claude/**" in CI and "there is no PR" in CI)
 check("lý do vì sao KHÔNG bỏ pull_request được ghi ngay trong file", "fork" in CI)
 
 if fails:

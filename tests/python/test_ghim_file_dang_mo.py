@@ -131,13 +131,13 @@ check("system prompt dạy Javis xử lý khối FILE ĐANG MỞ",
       "## The open file (the FILE ĐANG MỞ block)" in CLAUDE_MD
       and "write straight into this file" in CLAUDE_MD)
 check("doc Quản lý tệp tin mô tả tính năng ghim",
-      "đang mở - bấm để sửa tiếp" in DOC05)
+      "open, click to keep editing" in DOC05)
 check("doc Quản lý tệp tin dạy cách bấm thẻ để sửa tiếp",
-      "Bấm vào thẻ là quay lại sửa file đó" in DOC05)
+      "Clicking the chip takes you back to editing" in DOC05)
 check("doc Trò chuyện nói rõ ghim không mất sau khi gửi",
-      "không mất sau khi gửi" in DOC02)
+      "does not disappear after you send" in DOC02)
 check("doc Trò chuyện nói thẻ ghim là lối quay lại trình sửa",
-      "lối quay lại" in DOC02)
+      "way back" in DOC02)
 
 
 if fails:
