@@ -1,276 +1,276 @@
-# Second Brain: bộ nhớ, Wiki, INGEST
+# Second Brain: memory, Wiki, INGEST
 
 ***Tiếng Việt** · [English](en/13-second-brain.md)*
 
-Second Brain là "bộ não ngoài" của Javis: một thư mục chứa các ghi chú Markdown mà Javis đọc, tích luỹ và nhớ lâu dài. Nhờ nó, Javis không chỉ trả lời câu hỏi trong lúc chat mà còn nhớ về bạn, về việc kinh doanh của bạn, và ngày càng hiểu bạn hơn theo thời gian.
+The Second Brain is Jarvis 007's "external brain": a folder of Markdown notes that Jarvis 007 reads, accumulates and remembers long term. Because of it, Jarvis 007 does not just answer questions during a chat but remembers you, remembers your business, and understands you better over time.
 
-Trang này hướng dẫn: hiểu Second Brain gồm những gì, cách tạo và chọn nhiều "não" khác nhau, cách để Javis nhớ (bộ nhớ dài hạn), và cách "tiêu hoá" tài liệu (INGEST) để biến file thô thành tri thức dùng lại được.
+This page covers: what the Second Brain contains, how to create and switch between several "brains", how to make Jarvis 007 remember (long-term memory), and how to "digest" documents (INGEST) so raw files become reusable knowledge.
 
-## Tính năng này là gì
+## What this feature is
 
-Một Second Brain (gọi tắt là "brain" hay "vault") là một thư mục trên máy/VPS gồm các nhóm con:
+A Second Brain (a "brain" or "vault" for short) is a folder on your machine or VPS with these subgroups:
 
-| Lớp | Thư mục | Vai trò |
+| Layer | Folder | Role |
 |---|---|---|
-| Sources | `sources/` | Ghi chú thô: bài viết, ảnh chụp, file bạn thả vào. Đây là "bản gốc". |
-| Wiki | `wiki/` | Tri thức đã chưng cất: khái niệm, framework, quy trình, có liên kết chéo `[[...]]`. |
-| Memory | `memory/` | Bộ nhớ sống: những gì Javis nhớ về bạn và doanh nghiệp. |
-| Agents / Workflows | `agents/`, `workflows/` | Lớp vận hành (xem [Agents & Workflows](07-agents-va-workflows.md)). |
-| Skills | `skills/` | Bản chuẩn của kỹ năng, mỗi skill một thư mục `skills/<slug>/SKILL.md`. Javis tự mirror sang `.claude/skills` cho Claude Code nạp native (xem [Skills](06-skills.md)). |
-| Tầng vận hành | `Javis/` | Thứ do chat sinh ra: việc lặp `Javis/loops/<slug>.md`, luật từng cuộc chat Zalo `Javis/zalo/<slug>.md`, nhắc hẹn `Javis/reminders.json`, và chỉ mục năng lực `Javis/index.md` (tự sinh từ file, đừng sửa tay). |
-| Sổ bullet journal | `00 - Dashboard/`, `01 - Daily Log/`, `02 - Weekly Log/`... | Nơi ghi chép và task hằng ngày; khối Dataview kéo dữ liệu từ đây (xem [Task & Dataview trong note](19-task-va-dataview.md)). |
-| Vùng cache | `attachments/`, `inbox/` | Ảnh và file đính kèm; `inbox/telegram/` là nơi file gửi qua Telegram rơi xuống. **Hai thư mục này là cache, tự hết hạn** - đọc mục riêng bên dưới trước khi để tài liệu quý ở đây. |
+| Sources | `sources/` | Raw notes: articles, screenshots, files you drop in. These are the "originals". |
+| Wiki | `wiki/` | Distilled knowledge: concepts, frameworks, procedures, cross-linked with `[[...]]`. |
+| Memory | `memory/` | Living memory: what Jarvis 007 remembers about you and the business. |
+| Agents / Workflows | `agents/`, `workflows/` | The operating layer (see [Agents and Workflows](07-agents-va-workflows.md)). |
+| Skills | `skills/` | The canonical copy of each skill, one folder per skill at `skills/<slug>/SKILL.md`. Jarvis 007 mirrors them into `.claude/skills` so Claude Code loads them natively (see [Skills](06-skills.md)). |
+| Operating layer | `Javis/` | Whatever chat creates: loops at `Javis/loops/<slug>.md`, per-chat Zalo rules at `Javis/zalo/<slug>.md`, reminders at `Javis/reminders.json`, and the capability index `Javis/index.md` (auto-generated from files, do not edit by hand). |
+| Bullet journal | `00 - Dashboard/`, `01 - Daily Log/`, `02 - Weekly Log/`... | Where daily notes and tasks live; Dataview blocks pull from here (see [Tasks and Dataview in notes](19-task-va-dataview.md)). |
+| Cache area | `attachments/`, `inbox/` | Images and attachments; `inbox/telegram/` is where files sent over Telegram land. **Both folders are caches and expire on their own**, read the dedicated section below before leaving anything valuable here. |
 
-Ba lớp cốt lõi của "second brain" theo đúng nghĩa là **Sources + Wiki + Memory**:
+The three core layers of a "second brain" in the proper sense are **Sources + Wiki + Memory**:
 
-- **Sources** là nơi chứa nguyên liệu thô, chưa xử lý.
-- **Wiki** là tri thức đã tinh lọc, nối với nhau thành mạng, chính là thứ Javis vẽ ra trong [Đồ thị tri thức](03-do-thi-tri-thuc.md).
-- **Memory** là bộ nhớ dài hạn giúp Javis "nhớ bạn".
+- **Sources** holds raw, unprocessed material.
+- **Wiki** is refined knowledge, linked into a network, which is exactly what Jarvis 007 draws in the [Knowledge graph](03-do-thi-tri-thuc.md).
+- **Memory** is the long-term memory that lets Jarvis 007 "remember you".
 
-Nguyên lý vận hành: **Sources -> (INGEST) -> Wiki**. Tri thức được tích luỹ dần, làm dày bộ não, không phải mỗi lần hỏi lại đi tìm từ đầu.
+The operating principle: **Sources -> (INGEST) -> Wiki**. Knowledge accumulates gradually, thickening the brain, instead of being rediscovered on every question.
 
-## Brain nằm ở đâu trên đĩa
+## Where a brain lives on disk
 
-Mọi brain nằm chung trong một thư mục cha tên `brains/`, mỗi thư mục con là một brain. Bản chạy trên máy thì đó là `brains/` ngay trong thư mục Javis; bản Docker/VPS mặc định là `/brains` (mount riêng để sao lưu được). Đổi chỗ bằng biến môi trường `BRAINS_DIR`, xem [Cấu hình .env](16-cau-hinh-env.md).
+Every brain sits under one parent folder named `brains/`, one subfolder per brain. On a local install that is `brains/` inside the Jarvis 007 folder; on Docker/VPS it defaults to `/brains` (mounted separately so it can be backed up). Move it with the `BRAINS_DIR` environment variable, see [.env configuration](16-cau-hinh-env.md).
 
-Brain khởi đầu tên **Brain Default**, nằm ở `brains/Brain Default`.
+The starting brain is named **Brain Default** and lives at `brains/Brain Default`.
 
-Biến `BRAIN_PATH` chỉ còn là biến cũ từ thời Javis có một brain duy nhất, giữ lại để chuyển dữ liệu sang cấu trúc mới. Đừng dùng nó để trỏ brain đang làm việc.
+`BRAIN_PATH` is only a legacy variable from when Jarvis 007 had a single brain, kept around to migrate data into the new structure. Do not use it to point at the working brain.
 
-## Mở ở đâu trong Javis
+## Where to open it in Jarvis 007
 
-Second Brain không nằm gọn trong một trang riêng mà rải ở vài chỗ trên dashboard (cổng mặc định `7777`). Rail điều hướng bên trái gom các trang thành nhóm, phải mở nhóm mới thấy mục con:
+The Second Brain does not live on one dedicated page but is spread across several places on the dashboard (default port `7777`). The left navigation rail groups pages, so you have to open a group to see its items:
 
-1. **Thanh trên cùng, góc trái**: ô chọn brain cùng 3 nút nhỏ ➕ 🗑 📁. Đây là nơi tạo, chọn, xoá brain.
-2. **Khung chat** (màn **Javis** hoặc trang **Trò chuyện**, nhóm **Trợ lý**): nơi thả file để INGEST và ra lệnh "nhớ điều này".
-3. **Trang Tự học** (nhóm **Bộ não**): số ký ức đã học, nút học ngay, Curator dọn dẹp, và khối đồng bộ brain lên GitHub. Xem [Tự học](22-tu-hoc.md).
-4. **Trang Tệp tin** (nhóm **Bộ não**): duyệt, sửa, tải lên/tải về mọi file trong brain. Xem [Quản lý tệp tin](05-quan-ly-tep-tin.md).
-5. **Trang Việc định kỳ** (nhóm **Việc**): đặt việc lặp để Javis tự tiêu hoá nguồn theo lịch. Xem [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md).
-6. **Trang Cài đặt** (nhóm **Hệ thống**): nhóm **Giao diện & Brain**, mục **Cấu trúc brain**, để chuẩn hoá thư mục.
+1. **Top bar, left corner**: the brain selector plus 3 small buttons ➕ 🗑 📁. This is where you create, choose and delete brains.
+2. **The chat box** (the **Jarvis 007** screen or the **Chat** page, **Assistant** group): where you drop files to INGEST and say "remember this".
+3. **The Self-learning page** (**Brain** group): number of memories learned, the learn-now button, the Curator cleanup, and the block that syncs the brain to GitHub. See [Self-learning](22-tu-hoc.md).
+4. **The Files page** (**Brain** group): browse, edit, upload and download every file in the brain. See [File manager](05-quan-ly-tep-tin.md).
+5. **The Recurring jobs page** (**Work** group): set up a loop so Jarvis 007 digests sources on a schedule. See [Recurring jobs and reminders](08-viec-dinh-ky.md).
+6. **The Settings page** (**System** group): the **Interface and Brain** group, item **Brain structure**, to normalise the folders.
 
-## Đa-brain: nhiều bộ não trong một Javis
+## Multi-brain: several brains in one Jarvis 007
 
-Bạn có thể nuôi nhiều brain tách biệt, ví dụ một brain cho công việc kinh doanh, một brain cho học tập cá nhân. Mỗi brain là một second brain độc lập: sources, wiki, bộ nhớ, skills, agents đều riêng.
+You can keep several separate brains, for example one for the business and one for personal study. Each brain is an independent second brain: sources, wiki, memory, skills and agents are all its own.
 
-Ô chọn brain nằm ở góc trái thanh trên cùng. Bên cạnh nó có 3 nút:
+The brain selector sits in the left corner of the top bar. Next to it are 3 buttons:
 
-| Nút | Nhãn (di chuột để xem) | Việc nó làm |
+| Button | Label (hover to see) | What it does |
 |---|---|---|
-| ➕ | Tạo brain mới trong thư mục brains | Tạo một second brain mới |
-| 🗑 | Xoá brain đang chọn (xác nhận gõ đúng tên) | Đưa brain đang chọn vào thùng rác (giữ 30 ngày) |
-| 📁 | Chọn brain từ folder ngoài bất kỳ | Trỏ tới một thư mục ghi chú `.md` sẵn có trên máy |
+| ➕ | Create a new brain in the brains folder | Creates a new second brain |
+| 🗑 | Delete the selected brain (confirm by typing the exact name) | Moves the selected brain to the trash (kept 30 days) |
+| 📁 | Pick a brain from any external folder | Points at an existing folder of `.md` notes on the machine |
 
-Brain khởi đầu tên **Brain Default**, không xoá được (đây là "não gốc").
+The starting brain is named **Brain Default** and cannot be deleted (it is the "root brain").
 
-### Chọn brain đang làm việc
+### Choosing the working brain
 
-1. Bấm vào ô chọn brain ở góc trái thanh trên.
-2. Chọn tên brain muốn dùng. Mỗi dòng hiển thị dạng `🧠 Tên brain · 128`, con số phía sau là số note `.md` Javis đếm được trong brain đó. Nếu số đó chạm trần đếm (5000) sẽ có thêm dấu `+`, nghĩa là "ít nhất ngần này" chứ không phải tổng thật.
-3. Toàn bộ Javis (chat, đồ thị, bộ nhớ, agents) lập tức chuyển sang brain đó. Không cần tải lại trang.
+1. Click the brain selector in the left corner of the top bar.
+2. Pick the brain you want. Each row shows as `🧠 Brain name · 128`, the number being how many `.md` notes Jarvis 007 counted in that brain. If the count hits the counting ceiling (5000) a `+` is appended, meaning "at least this many" rather than the true total.
+3. All of Jarvis 007 (chat, graph, memory, agents) switches to that brain immediately. No page reload needed.
 
-### Tạo brain mới
+### Creating a new brain
 
-1. Bấm nút ➕ ở cạnh ô chọn brain.
-2. Nhập tên vào ô hiện ra (dòng hỏi là "Tên brain mới:"), rồi xác nhận.
-3. Javis tạo một thư mục con mới trong `brains/` kèm sẵn cấu trúc chuẩn (sources, agents, workflows, memory, skills, wiki, attachments và bộ sổ bullet journal) rồi chọn ngay brain vừa tạo.
+1. Click the ➕ button next to the brain selector.
+2. Type a name in the prompt that appears ("New brain name:") and confirm.
+3. Jarvis 007 creates a new subfolder in `brains/` with the standard structure ready (sources, agents, workflows, memory, skills, wiki, attachments and the bullet journal set) and immediately switches to the brain you just created.
 
-Tên brain sẽ bị bỏ các ký tự đặc biệt (`: * ? " < > |`), bỏ dấu chấm ở hai đầu, và cắt còn tối đa 60 ký tự cho an toàn.
+The brain name has special characters stripped (`: * ? " < > |`), leading and trailing dots removed, and is cut to at most 60 characters for safety.
 
-### Chọn một thư mục ghi chú sẵn có (folder ngoài)
+### Pointing at an existing note folder (external folder)
 
-Nếu bạn đã có sẵn một kho ghi chú `.md` ở đâu đó trên máy (ví dụ vault Obsidian):
+If you already have a store of `.md` notes somewhere on the machine (an Obsidian vault, say):
 
-1. Bấm nút 📁.
-2. Chọn đúng thư mục chứa các file `.md`.
-3. Javis dùng thư mục đó làm brain. Lưu ý: folder ngoài chỉ được "trỏ tới", nút 🗑 sẽ không xoá nó khỏi ổ đĩa (chỉ bỏ khỏi danh sách).
+1. Click the 📁 button.
+2. Pick the folder that holds the `.md` files.
+3. Jarvis 007 uses that folder as a brain. Note: an external folder is only "pointed at", the 🗑 button will not delete it from disk (it only removes it from the list).
 
-Danh sách folder ngoài được Javis tự dọn: entry nào trùng đường dẫn với một brain thật, hoặc trỏ tới thư mục đã bị xoá khỏi ổ đĩa, sẽ tự biến khỏi menu. Trường hợp không kiểm chứng được (server chớp lỗi) thì entry được giữ nguyên, không xoá nhầm.
+Jarvis 007 tidies the external-folder list itself: any entry whose path collides with a real brain, or that points at a folder deleted from disk, disappears from the menu on its own. When it cannot verify (the server hiccuped) the entry is kept, so nothing is removed by mistake.
 
-### Xoá một brain (vào thùng rác, giữ 30 ngày)
+### Deleting a brain (to the trash, kept 30 days)
 
-Xoá brain **không phải là mất vĩnh viễn**. Javis chuyển cả thư mục vào thùng rác cục bộ rồi mới dọn hẳn sau 30 ngày. Đồng thời Javis ghi một "giấy báo tử" để việc xoá lan sang mọi máy đang đồng bộ chung, và nếu bạn đã bật sao lưu GitHub thì lệnh xoá được đẩy lên remote ngay chứ không chờ chu kỳ.
+Deleting a brain is **not permanent loss**. Jarvis 007 moves the whole folder to a local trash and only clears it after 30 days. At the same time Jarvis 007 writes a "tombstone" so the deletion propagates to every machine syncing along, and if you have GitHub backup on, the delete is pushed to the remote right away rather than waiting for the next cycle.
 
-1. Chọn brain muốn xoá trong ô chọn brain.
-2. Bấm nút 🗑.
-3. Hộp thoại hiện ra ghi rõ: "Não này sẽ được chuyển vào THÙNG RÁC (giữ 30 ngày rồi tự xoá hẳn), và việc xoá sẽ ĐỒNG BỘ sang mọi máy khác." Nó yêu cầu **gõ CHÍNH XÁC tên brain** để xác nhận.
-4. Gõ đúng thì brain được đưa vào thùng rác và Javis quay về Brain Default, kèm thông báo "Đã xoá brain ... (đưa vào thùng rác 30 ngày, đồng bộ xoá sang các máy khác)". Gõ sai tên thì hiện "Tên không khớp - đã huỷ xoá".
+1. Select the brain you want to delete in the brain selector.
+2. Click the 🗑 button.
+3. The dialog that appears states clearly: the brain will be moved to the TRASH (kept 30 days, then deleted for good), and the deletion will SYNC to every other machine. It requires you to **type the brain name EXACTLY** to confirm.
+4. Type it correctly and the brain goes to the trash, Jarvis 007 returns to Brain Default, and a notice says the brain was deleted (moved to the 30-day trash, deletion synced to other machines). Type it wrong and you get "the name does not match, deletion cancelled".
 
-Thùng rác nằm ở thư mục `brain-trash` trong thư mục state của Javis (`JAVIS_STATE_DIR`; bản chạy máy là thư mục `server/`, bản Docker là volume state). Mỗi lần xoá tạo một thư mục con dạng `Tên brain__20260729-153012`. Việc dọn thùng rác quá 30 ngày chạy kèm mỗi lượt đồng bộ brain lên GitHub.
+The trash is the `brain-trash` folder inside Jarvis 007's state folder (`JAVIS_STATE_DIR`; the local install uses the `server/` folder, Docker uses the state volume). Each deletion creates a subfolder shaped like `Brain name__20260729-153012`. Clearing trash older than 30 days runs alongside each brain sync to GitHub.
 
-Không thể xoá **Brain Default**, bấm 🗑 lúc đang chọn nó sẽ báo "Không thể xoá Brain mặc định (não khởi đầu)."
+**Brain Default** cannot be deleted; clicking 🗑 while it is selected reports that the default brain (the starting brain) cannot be removed.
 
-Với folder ngoài (📁), nút 🗑 làm việc khác hẳn: nó hỏi 'Bỏ folder ngoài "..." khỏi danh sách? Chỉ gỡ khỏi menu chọn não, KHÔNG xoá dữ liệu trên ổ đĩa' rồi chỉ gỡ entry khỏi menu. Dữ liệu trên đĩa còn nguyên.
+For an external folder (📁), the 🗑 button behaves entirely differently: it asks whether to remove the external folder from the list, stating that it only drops it from the brain menu and does NOT delete data on disk, then removes just the entry. The data on disk is untouched.
 
-### Chuẩn hoá cấu trúc một brain
+### Normalising a brain's structure
 
-Nếu một brain có cấu trúc cũ (ví dụ ghi chú nằm trong `Javis/agents`, `Memory` viết hoa, skill nằm trong `.claude/skills`), bạn có thể gom về dạng phẳng đồng nhất:
+If a brain has the old structure (notes under `Javis/agents`, `Memory` capitalised, skills in `.claude/skills`), you can collapse it into the uniform flat layout:
 
-1. Vào **Cài đặt** (nhóm **Hệ thống** trên rail).
-2. Mở nhóm **Giao diện & Brain**, kéo tới mục **Cấu trúc brain**.
-3. Bấm **Chuẩn hóa brain đang chọn**, rồi xác nhận hộp thoại: "Chuẩn hóa cấu trúc brain đang chọn? (Di chuyển Javis/agents→agents, Javis/workflows→workflows, Memory→memory. Có git backup.)"
+1. Go to **Settings** (**System** group on the rail).
+2. Open the **Interface and Brain** group and scroll to **Brain structure**.
+3. Click **Normalise the selected brain**, then confirm the dialog, which explains it moves `Javis/agents`→`agents`, `Javis/workflows`→`workflows`, `Memory`→`memory`, with a git backup.
 
-Thao tác này an toàn: chỉ di chuyển khi thư mục đích chưa tồn tại, không ghi đè. Nó gộp `Javis/agents` về `agents/`, `Javis/workflows` về `workflows/`, `Memory` về `memory/`, và dời skill cũ ở `.claude/skills` sang `skills/` (kể cả nhánh skill đang tắt, để skill bạn đã tắt không bị bật lại).
+The operation is safe: it only moves when the destination folder does not exist yet, never overwriting. It folds `Javis/agents` into `agents/`, `Javis/workflows` into `workflows/`, `Memory` into `memory/`, and moves old skills from `.claude/skills` into `skills/` (including the disabled-skill branch, so skills you turned off do not come back on).
 
-## `attachments/` và `inbox/` là vùng cache, không phải kho lưu trữ
+## `attachments/` and `inbox/` are cache, not storage
 
-Đây là luật dễ làm mất dữ liệu nhất nếu không biết trước. Từ bản 0.9.247, hai thư mục này được Javis coi là **vùng cache**: nguyên liệu đi qua, không phải tri thức.
+This is the rule most likely to lose data if you do not know it in advance. Since version 0.9.247, Jarvis 007 treats these two folders as a **cache**: material passing through, not knowledge.
 
-- File trong hai thư mục đó quá **30 ngày** sẽ tự bị dọn. Nếu tổng dung lượng vượt trần **300MB**, Javis dọn từ cũ tới mới cho tới khi xuống dưới trần.
-- Riêng ghi chú `.md` lỡ nằm trong hai thư mục đó thì được chừa ra, không bị dọn.
-- Javis quét dọn mỗi 6 tiếng. Thư mục stage tạm (nơi file bạn vừa dán vào khung chat rơi xuống) có hạn riêng, ngắn hơn: **3 ngày**.
-- Hai thư mục này **nằm ngoài git của brain**, nên chúng không đi theo bản sao lưu GitHub và không phình lịch sử repo.
-- Ảnh cũ đã hết hạn khi hiện lại trong hội thoại sẽ thành một ô xám viền đứt ghi **"Ảnh đã hết hạn"** thay vì biểu tượng ảnh vỡ.
-- Muốn tắt hẳn việc tự dọn, đặt `enabled: false` ở khoá `media` trong `settings.json`. Ngưỡng ngày và dung lượng cũng chỉnh ở đó.
+- Files in those two folders older than **30 days** are cleared automatically. If total size exceeds the **300MB** ceiling, Jarvis 007 clears oldest first until it is back under the ceiling.
+- `.md` notes that happen to sit in those folders are spared and never cleared.
+- Jarvis 007 sweeps every 6 hours. The temporary stage folder (where a file you just pasted into the chat box lands) has its own shorter limit: **3 days**.
+- Both folders are **outside the brain's git**, so they do not travel with the GitHub backup and do not bloat repo history.
+- An expired image reappearing in a conversation shows as a grey dashed box reading **"Image expired"** instead of a broken-image icon.
+- To turn automatic clearing off entirely, set `enabled: false` under the `media` key in `settings.json`. The day and size thresholds are configured there too.
 
-Kết luận thực dụng: tài liệu bạn muốn giữ lâu dài thì chuyển sang `sources/` hoặc `wiki/`, đừng để nằm trong `attachments/` hay `inbox/`. Chi tiết ở [Quản lý tệp tin](05-quan-ly-tep-tin.md).
+The practical conclusion: move documents you want to keep long term into `sources/` or `wiki/`, do not leave them in `attachments/` or `inbox/`. Details in [File manager](05-quan-ly-tep-tin.md).
 
-## Bộ nhớ dài hạn: làm Javis "nhớ bạn"
+## Long-term memory: making Jarvis 007 "remember you"
 
-Bộ nhớ sống nằm ở `memory/` trong brain đang chọn, gồm:
+The living memory sits at `memory/` inside the selected brain and contains:
 
-- `memory/MEMORY.md`: chỉ mục, mỗi ký ức một dòng. File này được nạp sẵn vào đầu mỗi câu hỏi, nên Javis luôn "nhớ nền" về bạn.
-- `memory/facts/*.md`: chi tiết từng ký ức, mỗi file là một sự thật.
-- `memory/conversations/YYYY-MM-DD.md`: log hội thoại thô, làm nguyên liệu để học.
+- `memory/MEMORY.md`: the index, one line per memory. This file is preloaded ahead of every question, so Jarvis 007 always has a baseline memory of you.
+- `memory/facts/*.md`: the detail of each memory, one file per fact.
+- `memory/conversations/YYYY-MM-DD.md`: raw conversation logs, the raw material for learning.
 
-Javis phân 4 loại ký ức: thông tin về bạn (`user`), cách bạn thích làm việc (`preference`), sự thật về kinh doanh (`business`), và quyết định đã chốt (`decision`).
+Jarvis 007 sorts memories into 4 kinds: information about you (`user`), how you like to work (`preference`), facts about the business (`business`), and settled decisions (`decision`).
 
-### Chỉ mục MEMORY.md có trần nạp vào ngữ cảnh
+### The MEMORY.md index has a context ceiling
 
-Vì `MEMORY.md` được nạp vào **mọi** lượt chat, nó có trần khoảng **20.000 ký tự** (đổi bằng biến môi trường `JAVIS_MEMORY_INDEX_MAX`). Brain dày lên vượt trần thì Javis hạ dần theo bậc, ưu tiên giữ đủ số ký ức:
+Because `MEMORY.md` is loaded into **every** chat turn, it has a ceiling of about **20,000 characters** (change it with the `JAVIS_MEMORY_INDEX_MAX` environment variable). When a thickening brain goes over the ceiling, Jarvis 007 steps down gradually, favouring keeping the memory count intact:
 
-1. Rút mô tả mỗi dòng còn 100 ký tự, rồi 60 ký tự.
-2. Chỉ giữ tiêu đề và đường dẫn file, bỏ mô tả.
-3. Cùng lắm mới bỏ bớt dòng, và khi đó Javis ghi rõ còn bao nhiêu ký ức chưa liệt kê kèm lời chỉ đường đọc tiếp trong `Memory/facts/`.
+1. Shorten each line's description to 100 characters, then to 60.
+2. Keep only the title and file path, dropping the description.
+3. Only as a last resort drop lines, and when it does Jarvis 007 states how many memories are not listed plus where to read on in `Memory/facts/`.
 
-Nghĩa là ký ức không mất, chỉ là chỉ mục hiển thị gọn lại; chi tiết đầy đủ vẫn nằm trong `memory/facts/` và Javis đọc được bất cứ lúc nào.
+So no memory is lost, the index just displays more tersely; the full detail stays in `memory/facts/` and Jarvis 007 can read it at any time.
 
-### Log hội thoại được che secret trước khi ghi
+### Conversation logs are masked for secrets before being written
 
-Trước khi ghi vào `memory/conversations/`, Javis tự che (mask) những thứ trông giống bí mật mà bạn lỡ dán vào chat: khoá API (`sk-`, `xai-`, `gsk_`, `hf_`, `tvly-`), token GitHub (`ghp_`, `gho_`, `github_pat_`), khoá Google (`AIza`), JWT, token bot Telegram, header `Authorization`, và mật khẩu trong chuỗi kết nối cơ sở dữ liệu. Chúng bị thay bằng dạng rút gọn kiểu `sk-abc...wxyz` hoặc `***`.
+Before writing into `memory/conversations/`, Jarvis 007 masks anything that looks like a secret you happened to paste into chat: API keys (`sk-`, `xai-`, `gsk_`, `hf_`, `tvly-`), GitHub tokens (`ghp_`, `gho_`, `github_pat_`), Google keys (`AIza`), JWTs, Telegram bot tokens, the `Authorization` header, and passwords inside database connection strings. They are replaced by a shortened form like `sk-abc...wxyz` or `***`.
 
-Ngoài ra mỗi tin nhắn dài hơn 4.000 ký tự bị cắt bớt phần giữa (giữ 2.800 ký tự đầu và 1.000 ký tự cuối) kèm dòng ghi rõ đã cắt bao nhiêu, để log không phình.
+On top of that, any message longer than 4,000 characters has its middle cut out (keeping the first 2,800 and last 1,000 characters) with a line stating how much was cut, so the log does not balloon.
 
-Hai điểm nữa đáng biết:
+Two more things worth knowing:
 
-- Hội thoại qua **Telegram** cũng được ghi vào `memory/conversations/` giống chat web, và cũng vào vòng tự học. Xem [Kênh Telegram](11-telegram.md).
-- Thư mục `memory/conversations/` nằm trong `.gitignore` của brain, nên log thô **không** lên bản sao lưu GitHub. Git chỉ version tri thức đã chưng cất: `facts/`, `wiki/`, `skills/`, `MEMORY.md`.
+- Conversations over **Telegram** are also written into `memory/conversations/` just like web chat, and also feed the self-learning loop. See [The Telegram channel](11-telegram.md).
+- The `memory/conversations/` folder is in the brain's `.gitignore`, so raw logs do **not** reach the GitHub backup. Git only versions distilled knowledge: `facts/`, `wiki/`, `skills/`, `MEMORY.md`.
 
-### Xem số ký ức đã học
+### Seeing how many memories were learned
 
-Số ký ức nằm ở dòng **Chỉ số** trên trang **Tự học** (nhóm **Bộ não**), dạng `Chỉ số · Ký ức: 87 · Wiki: 42 · MEMORY.md: 18363B ...`. Con số "Ký ức" chính là số file trong `memory/facts/` của brain đang chọn; đổi brain thì con số đổi theo.
+The memory count is on the **Metrics** line of the **Self-learning** page (**Brain** group), shaped like `Metrics · Memories: 87 · Wiki: 42 · MEMORY.md: 18363B ...`. The "Memories" number is exactly the file count in `memory/facts/` for the selected brain; switch brains and the number follows.
 
-Widget "BỘ NHỚ DÀI HẠN" ở cột chat ngày trước đã được gỡ, mọi thứ liên quan tới học và bộ nhớ nay gom về trang Tự học.
+The old "LONG-TERM MEMORY" widget in the chat column has been removed; everything about learning and memory now lives on the Self-learning page.
 
-### Ép Javis ghi nhớ một điều
+### Forcing Jarvis 007 to remember something
 
-Trong lúc chat, chỉ cần nói rõ:
+While chatting, just say it plainly:
 
-- "nhớ điều này"
-- "ghi nhớ ..."
+- "remember this"
+- "make a note that ..."
 
-Khi bạn dùng các cụm đó, Javis bắt buộc tạo ngay một ký ức mới: viết một file trong `memory/facts/` và thêm một dòng vào `MEMORY.md`. Ví dụ: "Nhớ điều này: shop tôi nghỉ bán Chủ Nhật" sẽ được lưu thành một sự thật `business`.
+When you use those phrases, Jarvis 007 is required to create a new memory immediately: it writes a file in `memory/facts/` and adds a line to `MEMORY.md`. For example "Remember this: my shop is closed on Sundays" is stored as a `business` fact.
 
-Javis chỉ ghi những điều bền vững, đáng nhớ. Nó bỏ qua chuyện nhất thời và không nhân bản ký ức đã có (trùng thì cập nhật file cũ).
+Jarvis 007 only records durable, memorable things. It skips the transient and does not duplicate an existing memory (a duplicate updates the old file).
 
-### Học từ hội thoại (vòng hợp nhất)
+### Learning from conversations (the consolidation loop)
 
-Đây là vòng lặp giúp Javis thông minh dần: đọc lại hội thoại gần đây, rút ra sự thật mới, gộp trùng lặp, bỏ ký ức đã sai, và **đúc kết khái niệm tái dùng được vào Wiki**.
+This is the loop that makes Jarvis 007 smarter over time: re-read recent conversations, extract new facts, merge duplicates, drop memories that are now wrong, and **distil reusable concepts into the Wiki**.
 
-Vòng này nay chạy tự động ở tầng server sau mỗi lượt chat (có độ trễ chống dồn dập), bằng một tiến trình học chỉ-đọc và cô lập; người ghi file là code tin cậy chứ không phải AI. Mặc định bật sẵn.
+The loop now runs automatically at the server layer after each chat turn (with a debounce delay), through a read-only, isolated learning process; the writer is trusted code, not the AI. It is on by default.
 
-Điểm quan trọng của vòng này: Javis phân biệt rõ hai thứ. Sự thật về bạn và doanh nghiệp vào `memory/facts/`. Còn khái niệm, framework, quy trình dùng lại được thì chưng cất thành trang Wiki (có `[[wikilink]]`). Cái nào ra cái nấy, nhờ vậy đồ thị tri thức dày lên chứ không lẫn lộn với ghi chú cá nhân.
+The key point of this loop: Jarvis 007 clearly separates two things. Facts about you and the business go to `memory/facts/`. Reusable concepts, frameworks and procedures are distilled into Wiki pages (with `[[wikilink]]`). Each in its own place, which is how the knowledge graph thickens rather than getting mixed up with personal notes.
 
-Bật/tắt, chọn chế độ ghi, chọn học cái gì, bấm học ngay, xem "Javis đã tự học gì" và hoàn tác một lần học: tất cả ở trang **Tự học**. Xem [Tự học](22-tu-hoc.md).
+Turning it on and off, choosing the write mode, choosing what to learn, learning now, seeing "what Jarvis 007 taught itself", and undoing one learning run: all on the **Self-learning** page. See [Self-learning](22-tu-hoc.md).
 
-## INGEST: tiêu hoá tài liệu thành tri thức
+## INGEST: digesting documents into knowledge
 
-INGEST là quy trình biến một file thô (bài viết, ảnh chụp, ghi chú) thành nguồn trong `sources/`, rồi từ đó chưng cất lên Wiki. Kết quả: Javis tóm tắt, rút insight, viết Wiki và có thể gợi ý task.
+INGEST is the process that turns a raw file (an article, a screenshot, a note) into a source in `sources/`, and from there distils it up into the Wiki. The result: Jarvis 007 summarises, extracts insight, writes the Wiki and may suggest tasks.
 
-### Cách dùng (từng bước)
+### How to use it (step by step)
 
-1. Mở khung chat (màn **Javis** hoặc trang **Trò chuyện**).
-2. Thả file vào ô nhập chat (kéo thả, vùng thả ghi "📎 Thả file vào đây → lưu vào Sources"), hoặc bấm nút đính kèm hình cái ghim giấy cạnh ô nhập (tooltip "Đính kèm file (ảnh, text, tài liệu) → lưu vào Sources"). Ảnh và file văn bản đều được. File được tải lên và chờ ở khu tạm.
-3. Mặc định, Javis **chỉ đọc file rồi trả lời**, chưa lưu đi đâu. Nếu bạn chỉ cần tóm tắt nhanh thì gõ câu hỏi bình thường.
-4. Muốn Javis lưu và tiêu hoá, hãy nói rõ trong tin nhắn một trong các cụm: **"lưu vào source"**, **"ingest"**, hoặc **"ghi vào second brain"**.
-5. Khi đó Javis sẽ:
-   - Với file văn bản: đọc toàn bộ, tạo một file `.md` sạch trong `sources/` kèm frontmatter nguồn.
-   - Với ảnh: đọc hiểu và mô tả nội dung ảnh bằng tiếng Việt, tạo `.md` trong `sources/`, chuyển ảnh gốc vào `attachments/` rồi nhúng lại.
-6. Từ nguồn đó, Javis rút insight và cập nhật Wiki, đồng thời có thể đề xuất task nếu tài liệu mở ra việc cần làm.
+1. Open the chat box (the **Jarvis 007** screen or the **Chat** page).
+2. Drop a file into the chat input (drag and drop, the drop zone reads "📎 Drop files here → saved to Sources"), or click the paperclip attach button next to the input (tooltip "Attach a file (image, text, document) → saved to Sources"). Images and text files both work. The file uploads and waits in the staging area.
+3. By default Jarvis 007 **only reads the file and answers**, saving nothing anywhere. If you just want a quick summary, type your question normally.
+4. To make Jarvis 007 save and digest it, say one of these phrases in the message: **"save to source"**, **"ingest"**, or **"write to the second brain"**.
+5. Jarvis 007 then:
+   - For a text file: reads it fully and creates a clean `.md` file in `sources/` with source frontmatter.
+   - For an image: reads and describes the image content, creates the `.md` in `sources/`, moves the original image into `attachments/` and embeds it back.
+6. From that source, Jarvis 007 extracts insight and updates the Wiki, and may propose tasks if the document opens up work to do.
 
-Nhớ luật vùng cache ở trên: ảnh gốc trong `attachments/` sẽ hết hạn sau 30 ngày, còn file `.md` trong `sources/` thì ở lại vĩnh viễn. Đó chính là lý do phải ingest chứ không chỉ thả file rồi để đó.
+Remember the cache rule above: the original image in `attachments/` expires after 30 days, while the `.md` in `sources/` stays forever. That is exactly why you should ingest rather than just drop a file and leave it.
 
-### Để Javis xử lý mẻ nguồn theo lịch
+### Letting Jarvis 007 process a batch of sources on a schedule
 
-Nếu bạn dồn nhiều nguồn chưa xử lý, có thể giao cho Javis một **việc lặp** chạy nền:
+If you have piled up unprocessed sources, you can hand Jarvis 007 a **loop** running in the background:
 
-1. Vào **Việc định kỳ** (nhóm **Việc** trên rail).
-2. Bấm **+ Thêm việc**.
-3. Ở **Loại việc**, giữ **🔁 Việc lặp**.
-4. Đặt **Tên** (ví dụ "Tiêu hoá nguồn mới").
-5. Điền ô **Mô tả nhiệm vụ (mỗi vòng Javis làm đúng việc này)**, ví dụ: "Mỗi vòng đọc 1 source chưa xử lý trong sources rồi đề xuất Wiki page nên tạo".
-6. Chọn **Chế độ**: **Toàn quyền** (mặc định) để Javis tự thao tác thật, **Tự làm (ghi nháp)** để nó chỉ ghi file nháp trong brain, hoặc **Đề xuất (chỉ đọc)** để nó chỉ gợi ý.
-7. Đặt **Chu kỳ (phút, tối thiểu 5)**, chọn **Brain (nơi lưu việc)**, rồi bấm **💾 Lưu**.
+1. Go to **Recurring jobs** (**Work** group on the rail).
+2. Click **+ Add job**.
+3. Under **Job type**, keep **🔁 Loop**.
+4. Set a **Name** (for example "Digest new sources").
+5. Fill in **Task description (each cycle Jarvis 007 does exactly this)**, for example: "Each cycle read 1 unprocessed source in sources and propose the Wiki page to create".
+6. Choose the **Mode**: **Full power** (the default) lets it act for real, **Auto (drafts)** limits it to writing draft files in the brain, **Suggest (read only)** gives suggestions only.
+7. Set the **Cycle (minutes, minimum 5)**, choose the **Brain (where the job is stored)**, then click **💾 Save**.
 
-Chi tiết từng chế độ, cách bật/tắt, xem nhật ký và mẹo an toàn: [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md).
+Details of each mode, how to enable and disable, reading the log and safety tips: [Recurring jobs and reminders](08-viec-dinh-ky.md).
 
-## Soát lỗi Wiki (LINT)
+## Wiki linting (LINT)
 
-Khi Wiki đã dày, bạn nên soát định kỳ. LINT chỉ **đọc và liệt kê vấn đề**, không tự sửa, nên rất an toàn.
+Once the Wiki is thick, you should audit it periodically. LINT only **reads and lists problems**, it never fixes anything, so it is very safe.
 
-Nút "LINT Wiki" riêng lẻ ngày trước không còn nữa. LINT nay chạy bên trong **Curator** ở trang **Tự học** (nhóm **Bộ não**), với mô tả đúng chữ trên giao diện: "Dọn index, LINT Wiki (chỉ đề xuất), nén MEMORY.md. Không xoá."
+The standalone "LINT Wiki" button of old is gone. LINT now runs inside the **Curator** on the **Self-learning** page (**Brain** group), described on screen as: clean the index, LINT the Wiki (suggestions only), compact MEMORY.md. Nothing is deleted.
 
-1. Vào **Tự học** ở nhóm **Bộ não** trên rail.
-2. Bấm **🧹 Curator ngay** để chạy một lượt liền. Nút đổi thành "Đang dọn...".
-3. Hoặc bấm nút trạng thái ở mục **Curator (bảo trì định kỳ)** cho nó chuyển từ "○ Tắt" sang "● Bật", rồi bấm **💾 Lưu cấu hình** để Javis tự chạy theo chu kỳ (mặc định Curator đang tắt, chu kỳ khi bật là 24 giờ).
+1. Go to **Self-learning** in the **Brain** group on the rail.
+2. Click **🧹 Curator now** to run one pass immediately. The button changes to "Cleaning...".
+3. Or click the status button under **Curator (periodic maintenance)** to flip it from "○ Off" to "● On", then click **💾 Save configuration** so Jarvis 007 runs it on a cycle (the Curator is off by default, and the cycle when on is 24 hours).
 
-Kết quả không sửa gì cả, chỉ đổ xuống khối **Nhật ký học** dưới dạng "Wiki LINT (đề xuất, chưa sửa)". Nó tìm: trang trùng lặp, trang không ai trỏ tới (orphan), liên kết `[[...]]` gãy, mâu thuẫn chưa giải, và vùng kiến thức mỏng (gap). Đọc danh sách rồi tự quyết định sửa cái nào, đừng để Javis sửa hàng loạt cùng lúc.
+The result changes nothing, it only pours into the **Learning log** block as "Wiki LINT (suggestions, nothing changed)". It looks for: duplicate pages, pages nobody links to (orphans), broken `[[...]]` links, unresolved contradictions, and thin areas of knowledge (gaps). Read the list and decide yourself what to fix, do not let Jarvis 007 fix everything at once.
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference of buttons and states
 
-| Bạn muốn | Vào đâu | Bấm gì |
+| You want to | Go to | Click |
 |---|---|---|
-| Đổi brain đang làm việc | Thanh trên cùng, góc trái | Ô chọn brain (`🧠 Tên brain · số note`) |
-| Tạo brain mới | Thanh trên cùng, góc trái | ➕ |
-| Xoá brain (vào thùng rác 30 ngày) | Thanh trên cùng, góc trái | 🗑, rồi gõ đúng tên brain |
-| Trỏ tới vault Obsidian sẵn có | Thanh trên cùng, góc trái | 📁 |
-| Gỡ folder ngoài khỏi menu | Chọn folder ngoài rồi bấm | 🗑 (không đụng ổ đĩa) |
-| Xem số ký ức, số trang Wiki | Nhóm Bộ não → Tự học | Đọc dòng **Chỉ số** |
-| Ép học một lượt ngay | Nhóm Bộ não → Tự học | **▶ Học ngay** |
-| Soát lỗi Wiki | Nhóm Bộ não → Tự học | **🧹 Curator ngay** |
-| Hoàn tác lần học gần nhất | Nhóm Bộ não → Tự học | **↶ Hoàn tác lần học gần nhất** |
-| Sao lưu brain lên GitHub | Nhóm Bộ não → Tự học | Khối **⇅ Đồng bộ brain với GitHub (2 chiều)** |
-| Duyệt/sửa file trong brain | Nhóm Bộ não → Tệp tin | Cây thư mục bên trái |
-| Giao việc lặp tiêu hoá nguồn | Nhóm Việc → Việc định kỳ | **+ Thêm việc** |
-| Chuẩn hoá thư mục brain | Nhóm Hệ thống → Cài đặt | **Chuẩn hóa brain đang chọn** |
+| Switch the working brain | Top bar, left corner | The brain selector (`🧠 Brain name · note count`) |
+| Create a new brain | Top bar, left corner | ➕ |
+| Delete a brain (30-day trash) | Top bar, left corner | 🗑, then type the exact brain name |
+| Point at an existing Obsidian vault | Top bar, left corner | 📁 |
+| Remove an external folder from the menu | Select the external folder, then click | 🗑 (does not touch the disk) |
+| See memory count and Wiki page count | Brain group → Self-learning | Read the **Metrics** line |
+| Force one learning pass now | Brain group → Self-learning | **▶ Learn now** |
+| Lint the Wiki | Brain group → Self-learning | **🧹 Curator now** |
+| Undo the latest learning run | Brain group → Self-learning | **↶ Undo the latest learning run** |
+| Back the brain up to GitHub | Brain group → Self-learning | The **⇅ Sync brain with GitHub (two-way)** block |
+| Browse/edit files in the brain | Brain group → Files | The folder tree on the left |
+| Assign a loop that digests sources | Work group → Recurring jobs | **+ Add job** |
+| Normalise brain folders | System group → Settings | **Normalise the selected brain** |
 
-## Mẹo
+## Tips
 
-- **Tách brain theo mục đích.** Một brain cho kinh doanh, một brain cho cá nhân sẽ giúp đồ thị tri thức và bộ nhớ gọn, đỡ nhiễu.
-- **Nói "nhớ điều này" cho những gì bền vững.** Ví dụ ngách sản phẩm, kênh bán chính, quyết định giá. Đừng ghi chuyện nhất thời (hôm nay bận, tin nhắn vừa gửi), Javis vốn đã bỏ qua loại này.
-- **Muốn tiêu hoá tài liệu thì phải nói rõ.** Chỉ thả file không đủ để lưu, phải kèm cụm "lưu vào source" hoặc "ingest". Nếu chỉ hỏi bình thường, Javis đọc xong là thôi.
-- **Bộ nhớ đi theo thư mục.** Đổi máy hoặc chuyển VPS, chỉ cần trỏ Javis về đúng thư mục brain là mọi ký ức và Wiki còn nguyên.
-- **Đừng tự dựng git tay để đồng bộ.** Javis đã có sẵn khối **⇅ Đồng bộ brain với GitHub (2 chiều)** trên trang Tự học: đẩy toàn bộ thư mục brains lên một repo riêng tư và kéo thay đổi từ máy khác về. Hướng dẫn từng bước ở [Sao lưu brain lên GitHub](18-sao-luu-github.md).
-- **Xem tri thức trực quan** ở [Đồ thị tri thức](03-do-thi-tri-thuc.md): mỗi nguồn và trang Wiki là một điểm, liên kết `[[...]]` là các đường nối.
+- **Split brains by purpose.** One brain for business and one for personal keeps the knowledge graph and the memory tidy and less noisy.
+- **Say "remember this" for what is durable.** Product niche, main sales channel, pricing decisions. Do not record the transient (busy today, a message just sent), which Jarvis 007 skips anyway.
+- **To digest a document you must say so.** Dropping a file is not enough to save it, you have to add "save to source" or "ingest". Ask an ordinary question and Jarvis 007 just reads and moves on.
+- **Memory travels with the folder.** Change machines or move to a VPS and you only need to point Jarvis 007 at the right brain folder for every memory and Wiki page to be intact.
+- **Do not hand-roll git to sync.** Jarvis 007 already has the **⇅ Sync brain with GitHub (two-way)** block on the Self-learning page: it pushes the whole brains folder to a private repo and pulls changes back from another machine. Step by step in [Backing the brain up to GitHub](18-sao-luu-github.md).
+- **See the knowledge visually** in the [Knowledge graph](03-do-thi-tri-thuc.md): every source and Wiki page is a node, `[[...]]` links are the edges.
 
-## Sự cố thường gặp
+## Common problems
 
-- **Không tìm thấy mục "BỘ NHỚ DÀI HẠN" hay nút "Học ngay từ hội thoại" ở cột chat.** Widget đó đã được gỡ. Mọi thứ về học và bộ nhớ nay ở trang **Tự học** (nhóm **Bộ não**): số ký ức ở dòng **Chỉ số**, học tay bằng nút **▶ Học ngay**.
-- **Số ký ức vẫn là 0 dù đã chat nhiều.** Ký ức chỉ được ghi khi có thông tin bền vững đáng nhớ, hoặc khi bạn nói "nhớ điều này", hoặc sau khi chạy một lượt học. Chat phiếm không sinh ký ức. Kiểm tra thêm ở trang Tự học xem tự học có đang bật và chế độ ghi có phải **Tự ghi** không.
-- **Thả file mà không thấy vào Sources.** Đúng như thiết kế: mặc định chỉ đọc. Phải gõ kèm "lưu vào source" / "ingest" trong tin nhắn thì Javis mới tạo file `.md` trong `sources/`.
-- **Ảnh cũ trong hội thoại thành ô xám "Ảnh đã hết hạn".** Đúng như thiết kế: `attachments/` là vùng cache, ảnh quá 30 ngày bị dọn. Nội dung ảnh đã được rút thành `.md` trong `sources/` lúc ingest thì vẫn còn.
-- **Xoá nhầm brain.** Không mất ngay: thư mục nằm trong `brain-trash` ở thư mục state của Javis, tên dạng `Tên brain__20260729-153012`, giữ 30 ngày. Cách lấy lại an toàn: bấm ➕ tạo lại brain **đúng tên cũ** (thao tác này gỡ giấy báo tử để brain không bị xoá lại khi đồng bộ), rồi chép nội dung từ thùng rác vào thư mục đó.
-- **Brain báo cấu trúc chưa chuẩn.** Vào Cài đặt, nhóm Giao diện & Brain, mục Cấu trúc brain, bấm **Chuẩn hóa brain đang chọn** để Javis gom lại các thư mục.
-- **Ký ức không theo sang máy mới.** Kiểm tra bạn đã trỏ đúng thư mục brain chứa `memory/`. Bộ nhớ nằm trong thư mục, không nằm trong tài khoản. Muốn hai máy tự khớp nhau thì bật đồng bộ GitHub, xem [Sao lưu brain lên GitHub](18-sao-luu-github.md).
-- **Sao lưu GitHub xong không thấy log hội thoại và ảnh.** Đúng như thiết kế: `memory/conversations/`, `attachments/` và `inbox/` đều nằm ngoài git của brain. Bản sao lưu chỉ giữ tri thức đã chưng cất.
+- **The "LONG-TERM MEMORY" section or the "Learn from conversation now" button is missing from the chat column.** That widget was removed. Everything about learning and memory is now on the **Self-learning** page (**Brain** group): the memory count on the **Metrics** line, manual learning through **▶ Learn now**.
+- **The memory count is still 0 after a lot of chatting.** A memory is only written when durable, memorable information appears, or when you say "remember this", or after a learning pass runs. Small talk creates no memories. Also check on the Self-learning page whether self-learning is on and whether the write mode is **Write automatically**.
+- **A dropped file never appears in Sources.** That is by design: reading only is the default. You have to include "save to source" or "ingest" in the message for Jarvis 007 to create the `.md` in `sources/`.
+- **Old images in a conversation turn into a grey "Image expired" box.** By design: `attachments/` is a cache and images over 30 days are cleared. Content already extracted into an `.md` in `sources/` at ingest time is still there.
+- **You deleted the wrong brain.** It is not lost right away: the folder is in `brain-trash` inside Jarvis 007's state folder, named like `Brain name__20260729-153012`, kept 30 days. The safe way to recover: click ➕ and recreate the brain with **exactly the old name** (this removes the tombstone so the brain is not deleted again on sync), then copy the contents from the trash into that folder.
+- **A brain reports a non-standard structure.** Go to Settings, the Interface and Brain group, the Brain structure item, and click **Normalise the selected brain** so Jarvis 007 collapses the folders.
+- **Memories did not follow to a new machine.** Check that you pointed at the right brain folder, the one containing `memory/`. Memory lives in the folder, not in the account. To keep two machines matched automatically, turn on GitHub sync, see [Backing the brain up to GitHub](18-sao-luu-github.md).
+- **After a GitHub backup, conversation logs and images are missing.** By design: `memory/conversations/`, `attachments/` and `inbox/` are all outside the brain's git. The backup only keeps distilled knowledge.
 
-## Liên quan
+## Related
 
-- [Tự học](22-tu-hoc.md) - bật/tắt tự học, chế độ ghi, Curator, hoàn tác một lần học.
-- [Quản lý tệp tin](05-quan-ly-tep-tin.md) - duyệt và sửa trực tiếp file trong brain, chi tiết vùng cache.
-- [Sao lưu brain lên GitHub](18-sao-luu-github.md) - đồng bộ hai chiều mọi brain giữa các máy.
-- [Đồ thị tri thức](03-do-thi-tri-thuc.md) - nhìn Sources và Wiki dưới dạng mạng lưới.
-- [Skills](06-skills.md) - kỹ năng nằm trong `skills/` của brain.
-- [Agents & Workflows](07-agents-va-workflows.md) - lớp vận hành trong `agents/` và `workflows/`.
-- [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md) - giao việc lặp cho Javis tiêu hoá nguồn theo lịch.
-- [Task & Dataview trong note](19-task-va-dataview.md) - bộ sổ bullet journal trong brain.
-- [Cấu hình .env](16-cau-hinh-env.md) - biến `BRAINS_DIR`, `JAVIS_STATE_DIR`, `JAVIS_MEMORY_INDEX_MAX`.
+- [Self-learning](22-tu-hoc.md) - turning self-learning on and off, write modes, the Curator, undoing a learning run.
+- [File manager](05-quan-ly-tep-tin.md) - browsing and editing brain files directly, cache details.
+- [Backing the brain up to GitHub](18-sao-luu-github.md) - two-way sync of every brain across machines.
+- [Knowledge graph](03-do-thi-tri-thuc.md) - seeing Sources and Wiki as a network.
+- [Skills](06-skills.md) - skills living in the brain's `skills/`.
+- [Agents and Workflows](07-agents-va-workflows.md) - the operating layer in `agents/` and `workflows/`.
+- [Recurring jobs and reminders](08-viec-dinh-ky.md) - assigning a loop that digests sources on a schedule.
+- [Tasks and Dataview in notes](19-task-va-dataview.md) - the bullet journal set inside the brain.
+- [.env configuration](16-cau-hinh-env.md) - the `BRAINS_DIR`, `JAVIS_STATE_DIR` and `JAVIS_MEMORY_INDEX_MAX` variables.

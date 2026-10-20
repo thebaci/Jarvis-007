@@ -1,200 +1,201 @@
-# Thương hiệu & tên miền riêng
+# Branding and custom domains
 
 ***Tiếng Việt** · [English](en/15-branding-and-domains.md)*
 
-Trang này hướng dẫn hai việc: đổi logo/avatar của Javis thành ảnh của bạn, và trỏ một tên miền riêng (ví dụ `javis.tencuaban.com`) vào Javis để chạy qua HTTPS. Các thao tác nằm trong **Cài đặt → Chung**.
+This page covers two things: changing Jarvis 007's logo/avatar to your own image, and pointing a custom domain (for example `javis.yourname.com`) at Jarvis 007 so it runs over HTTPS. Both live under **Settings → General**.
 
-## Tính năng này là gì
+## What this feature is
 
-- **Ảnh đại diện (logo/avatar):** thay ảnh JAVIS OS mặc định bằng ảnh của bạn. Ảnh mới hiện ngay ở góc trên bên trái, ở thanh bên, ở màn hình đăng nhập, ở cửa sổ chào mừng, và làm luôn icon tab trình duyệt (favicon).
-- **Tên miền riêng (HTTPS):** thay vì mở Javis bằng địa chỉ IP kèm cổng (kiểu `http://12.34.56.78:7777`), bạn dùng một tên miền dễ nhớ và có khóa an toàn HTTPS. Javis tự cấp chứng chỉ HTTPS (cơ chế On-Demand TLS qua Caddy), và có nút **Bật SSL** để chủ động xin chứng chỉ ngay thay vì ngồi đợi.
+- **Avatar (logo):** replace the default JARVIS 007 image with your own. The new image appears immediately in the top left corner, in the sidebar, on the sign-in screen, in the welcome window, and becomes the browser tab icon (favicon) too.
+- **Custom domain (HTTPS):** instead of opening Jarvis 007 by IP and port (something like `http://12.34.56.78:7777`), you use a memorable domain with the HTTPS padlock. Jarvis 007 obtains the HTTPS certificate itself (On-Demand TLS through Caddy), and there is an **Enable SSL** button to request the certificate on demand rather than waiting.
 
-Lưu ý quan trọng ngay từ đầu: phần **Tên miền riêng** chỉ hoạt động khi bạn deploy Javis bằng Docker trên VPS và đã mở cổng 80/443. Nếu bạn chạy Javis trên máy cá nhân, phần đổi logo vẫn dùng bình thường, còn phần tên miền sẽ không lên HTTPS được. Chi tiết deploy xem [Cấu hình .env](16-cau-hinh-env.md) và file `DEPLOY.md` trong thư mục dự án.
+One important note up front: the **Custom domain** section only works when you deploy Jarvis 007 with Docker on a VPS with ports 80/443 open. If you run Jarvis 007 on a personal machine, the logo change works normally but the domain section cannot reach HTTPS. Deploy details in [.env configuration](16-cau-hinh-env.md) and the `DEPLOY.md` file in the project folder.
 
-## Mở ở đâu trong Javis
+## Where to open it in Jarvis 007
 
-Cả hai tính năng nằm trong **Cài đặt → Chung**. Trong tab Chung có hai thẻ:
+Both features are under **Settings → General**. The General tab contains two cards:
 
-- Ô **ẢNH ĐẠI DIỆN**: có ảnh xem trước, nút **Tải ảnh lên** và nút **Khôi phục mặc định**.
-- Ô **TÊN MIỀN & SSL**: có ô nhập (chỗ trống ghi "vd: javis.tencuaban.com"), nút **Lưu & kiểm tra**, hai badge trạng thái DNS và SSL, hai nút **Bật SSL** và **Kiểm tra lại**, cùng wizard ba bước đổi nội dung theo đúng môi trường VPS/Hostinger.
+- The **AVATAR** box: a preview image, an **Upload image** button and a **Restore default** button.
+- The **DOMAIN AND SSL** box: an input (placeholder "e.g. javis.yourname.com"), a **Save and check** button, two status badges for DNS and SSL, two buttons **Enable SSL** and **Check again**, plus a three-step wizard whose content matches your actual VPS/Hostinger environment.
 
-Mỗi lần mở Cài đặt, Javis tự nạp lại giá trị đang dùng, kiểm tra DNS/HTTPS và đưa ra đúng bước tiếp theo.
+Every time you open Settings, Jarvis 007 reloads the current values, checks DNS/HTTPS and shows the correct next step.
 
-## Đổi logo/avatar (từng bước)
+## Changing the logo/avatar (step by step)
 
-1. Mở **Cài đặt → Chung**, tìm ô **ẢNH ĐẠI DIỆN**.
-2. Bấm nút **Tải ảnh lên**. Cửa sổ chọn tệp của máy hiện ra.
-3. Chọn một tệp ảnh. Định dạng nhận: PNG, JPG, WEBP, GIF. Dung lượng tối đa 5MB.
-4. Sau khi chọn, Javis hiện dòng trạng thái **Đang tải lên…** rồi **Đã cập nhật ảnh ✓** khi xong. Ảnh mới thay ngay ở tất cả vị trí (góc trên, thanh bên, màn đăng nhập, ô xem trước) mà không cần tải lại trang.
+1. Open **Settings → General** and find the **AVATAR** box.
+2. Click **Upload image**. Your machine's file picker opens.
+3. Pick an image file. Accepted formats: PNG, JPG, WEBP, GIF. Maximum size 5MB.
+4. After picking, Jarvis 007 shows the status line **Uploading…** then **Image updated ✓** when done. The new image replaces the old one everywhere immediately (top corner, sidebar, sign-in screen, preview box) with no page reload.
 
-Riêng icon tab trình duyệt (favicon) đổi chậm hơn một nhịp: Javis phục vụ nó với bộ nhớ đệm 5 phút, và trình duyệt còn giữ icon rất lì. Muốn thấy ngay thì mở lại tab hoặc tải lại trang bỏ qua cache.
+The browser tab icon (favicon) is the one exception and lags a beat: Jarvis 007 serves it with a 5-minute cache, and browsers hold onto icons stubbornly. To see it right away, reopen the tab or reload bypassing the cache.
 
-### Khôi phục ảnh mặc định
+### Restoring the default image
 
-1. Trong ô **ẢNH ĐẠI DIỆN**, bấm nút **Khôi phục mặc định**.
-2. Javis hiện **Đang khôi phục…** rồi **Đã về ảnh mặc định.** Logo trở lại ảnh gốc của hệ thống.
+1. In the **AVATAR** box, click **Restore default**.
+2. Jarvis 007 shows **Restoring…** then **Back to the default image.** The logo returns to the system original.
 
-### Thông báo trạng thái ảnh có thể gặp
+### Image status messages you may see
 
-| Thông báo | Ý nghĩa |
+| Message | Meaning |
 |---|---|
-| Đang dùng ảnh tùy chỉnh. | Bạn đã tải ảnh riêng lên và Javis đang dùng nó. |
-| Đang dùng ảnh mặc định. | Chưa tải ảnh riêng, hoặc đã khôi phục về mặc định. |
-| Đang tải lên… | Đang gửi ảnh lên server. |
-| Đã cập nhật ảnh ✓ | Ảnh mới đã được nhận và áp dụng. |
-| Đang khôi phục… | Đang gỡ ảnh tuỳ chỉnh. |
-| Đã về ảnh mặc định. | Đã gỡ xong, đang dùng lại ảnh gốc. |
-| Tải lên thất bại | Server từ chối tệp (sai định dạng, quá lớn hoặc rỗng). Lý do cụ thể hiện thay cho dòng này khi server có gửi kèm. |
-| Lỗi mạng khi tải lên | Mất kết nối giữa chừng, thử lại. |
-| Không khôi phục được | Không gỡ được ảnh tuỳ chỉnh, thử lại. |
+| Using a custom image. | You uploaded your own image and Jarvis 007 is using it. |
+| Using the default image. | No custom image uploaded, or you restored the default. |
+| Uploading… | The image is being sent to the server. |
+| Image updated ✓ | The new image was accepted and applied. |
+| Restoring… | The custom image is being removed. |
+| Back to the default image. | Removal finished, the original image is in use again. |
+| Upload failed | The server rejected the file (wrong format, too large or empty). The specific reason replaces this line when the server sends one. |
+| Network error while uploading | The connection dropped midway, try again. |
+| Could not restore | The custom image could not be removed, try again. |
 
-## Trỏ tên miền riêng và bật HTTPS (từng bước)
+## Pointing a custom domain and enabling HTTPS (step by step)
 
-Phần này giả định bạn đã deploy Javis bằng Docker trên VPS, đã bật Caddy (On-Demand TLS) và mở cổng 80/443. Nếu chưa, làm phần deploy trước theo `DEPLOY.md`.
+This section assumes you deployed Jarvis 007 with Docker on a VPS, enabled Caddy (On-Demand TLS) and opened ports 80/443. If not, do the deploy part first following `DEPLOY.md`.
 
-### Bước A: nhập và lưu tên miền
+### Step A: enter and save the domain
 
-1. Mở **Cài đặt → Chung**, tìm ô **TÊN MIỀN & SSL**.
-2. Nhập tên miền (hoặc tên miền con) bạn muốn dùng vào ô, ví dụ `javis.tencuaban.com`. Không cần gõ `https://`; nếu có gõ, Javis tự bỏ.
-3. Bấm nút **Lưu & kiểm tra** (hoặc nhấn Enter trong ô nhập). Javis hiện **Đang lưu và kiểm tra…**, lưu tên miền, rồi tự chạy kiểm tra DNS/SSL và vẽ wizard ba bước ngay trên UI.
-4. Nếu tên miền sai định dạng, Javis báo: **Tên miền không hợp lệ (vd: javis.tencuaban.com)**. Sửa lại rồi lưu tiếp.
+1. Open **Settings → General** and find the **DOMAIN AND SSL** box.
+2. Enter the domain (or subdomain) you want in the input, for example `javis.yourname.com`. No need to type `https://`; if you do, Jarvis 007 strips it.
+3. Click **Save and check** (or press Enter in the input). Jarvis 007 shows **Saving and checking…**, saves the domain, then runs the DNS/SSL check and draws the three-step wizard right in the UI.
+4. If the domain is malformed, Jarvis 007 reports: **Invalid domain (e.g. javis.yourname.com)**. Fix it and save again.
 
-Muốn **xóa** tên miền: xóa trống ô nhập rồi bấm **Lưu & kiểm tra**. Javis báo **Đã xoá tên miền.** và ẩn phần hướng dẫn.
+To **remove** the domain: clear the input and click **Save and check**. Jarvis 007 reports **Domain removed.** and hides the instructions.
 
-### Bước B: tạo bản ghi DNS theo hướng dẫn
+### Step B: create the DNS record as instructed
 
-Sau khi lưu (hoặc khi bấm **Kiểm tra lại**), wizard hiện bước **2. Trỏ DNS về VPS** kèm bản ghi cần tạo và nút **Sao chép bản ghi**. Bản ghi hiện dưới dạng một dòng gọn `A · <tên miền> · <IP máy chủ>`:
+After saving (or when you click **Check again**), the wizard shows step **2. Point DNS at the VPS** with the record to create and a **Copy record** button. The record appears as one compact line `A · <domain> · <server IP>`:
 
-1. Vào trang quản lý tên miền của nhà cung cấp (nơi bạn mua domain) và tạo một bản ghi:
+1. Go to the domain management page at your provider (where you bought the domain) and create a record:
 
-   | Trường | Giá trị |
+   | Field | Value |
    |---|---|
-   | Loại (Type) | A |
-   | Tên (Name/Host) | tên miền bạn vừa nhập, ví dụ `javis.tencuaban.com` |
-   | Trỏ tới (Value/Points to) | địa chỉ IP máy chủ VPS của bạn (Javis tự dò và điền sẵn IP này trong wizard) |
+   | Type | A |
+   | Name/Host | the domain you just entered, e.g. `javis.yourname.com` |
+   | Value/Points to | your VPS server's IP address (Jarvis 007 detects and prefills this IP in the wizard) |
 
-2. Đợi DNS lan (vài phút đến vài giờ), bấm **Kiểm tra lại**. Khi DNS đúng, bước 2 chuyển sang dấu ✓ và dòng mô tả đổi thành "Bản ghi A đã trỏ đúng IP máy chủ."
+2. Wait for DNS to propagate (a few minutes to a few hours), then click **Check again**. Once DNS is right, step 2 turns into a ✓ and the description changes to "The A record points to the correct server IP."
 
-### Bước C: bấm Bật SSL để xin chứng chỉ
+### Step C: click Enable SSL to request the certificate
 
-Khi bước 2 đã ✓, wizard hiện bước **3. Bật HTTPS** với dòng "Khi DNS đã đúng, bấm Bật SSL để Javis xin chứng chỉ."
+Once step 2 is ✓, the wizard shows step **3. Enable HTTPS** with the line "Once DNS is correct, click Enable SSL so Jarvis 007 requests a certificate."
 
-1. Bấm nút **Bật SSL**. Javis hiện **Đang bật SSL và xin chứng chỉ… (có thể mất khoảng 10 giây)**.
-2. Server lưu ý định bật SSL rồi tự mở `https://<tên miền>/health` từ chính nó. Chính cú gọi này buộc Caddy đi xin chứng chỉ ở lần đầu, thay vì bạn phải mở trình duyệt thủ công.
-3. Xong, Javis chạy lại kiểm tra và cập nhật badge. Khi chứng chỉ đã sống, dòng trạng thái ghi **HTTPS đang chạy cho `<tên miền>`.**, nút đổi nhãn thành **Kích hoạt lại**, và wizard hiện thêm liên kết **Mở https://`<tên miền>` ↗**.
-4. Nếu chưa lên, Javis nói rõ lý do và bổ sung câu **"Chạy trên VPS: docker compose -f docker-compose.yml -f docker-compose.https.yml up -d"** khi bạn đang chạy bản Docker mà chưa bật lớp HTTPS.
+1. Click **Enable SSL**. Jarvis 007 shows **Enabling SSL and requesting the certificate… (may take about 10 seconds)**.
+2. The server records the intent to enable SSL then opens `https://<domain>/health` from itself. That very call is what forces Caddy to go and fetch the certificate the first time, instead of you having to open a browser manually.
+3. When it finishes, Jarvis 007 re-runs the check and updates the badges. Once the certificate is live, the status line reads **HTTPS is running for `<domain>`.**, the button relabels to **Re-activate**, and the wizard adds an **Open https://`<domain>` ↗** link.
+4. If it did not come up, Jarvis 007 states the reason and adds the line **"Run on the VPS: docker compose -f docker-compose.yml -f docker-compose.https.yml up -d"** when you are on the Docker build without the HTTPS layer enabled.
 
-Nút **Kiểm tra lại** dùng được bất cứ lúc nào: nó chỉ đọc trạng thái (hiện **Đang kiểm tra…** rồi vẽ lại badge), không đụng chứng chỉ.
+The **Check again** button is usable at any time: it only reads state (showing **Checking…** then redrawing the badges) and never touches the certificate.
 
-Trên Hostinger, nút **Bật SSL** bị ẩn đi, vì Traefik của hPanel mới là bên cấp chứng chỉ. Xem mục Hostinger bên dưới.
+On Hostinger the **Enable SSL** button is hidden, because hPanel's Traefik is what issues certificates. See the Hostinger section below.
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference of buttons and states
 
-Hai badge nằm ngay dưới ô nhập tên miền:
+The two badges sit right under the domain input:
 
-| Badge DNS | Nghĩa là |
+| DNS badge | Meaning |
 |---|---|
-| DNS: đang kiểm tra | Chưa có kết quả (vừa mở trang) |
-| DNS: đã trỏ đúng | Bản ghi A khớp IP máy chủ |
-| DNS: sai IP (`<ip>`) | Có bản ghi nhưng trỏ về IP khác, IP thật hiện trong ngoặc |
-| DNS: chưa trỏ | Không tra được bản ghi nào cho tên miền |
+| DNS: checking | No result yet (the page just opened) |
+| DNS: pointing correctly | The A record matches the server IP |
+| DNS: wrong IP (`<ip>`) | A record exists but points elsewhere, the actual IP in brackets |
+| DNS: not pointed | No record could be resolved for the domain |
 
-| Badge SSL | Nghĩa là |
+| SSL badge | Meaning |
 |---|---|
-| SSL: đang kiểm tra | Chưa có kết quả |
-| SSL: đang bật | HTTPS đã chạy thật cho tên miền |
-| SSL: qua Hostinger | Đang deploy trên Hostinger, chứng chỉ do Traefik của hPanel lo |
-| SSL: đang chờ | Bạn đã bật SSL nhưng chứng chỉ chưa sống |
-| SSL: tắt | Chưa bật SSL cho tên miền này |
+| SSL: checking | No result yet |
+| SSL: on | HTTPS genuinely runs for the domain |
+| SSL: via Hostinger | Deployed on Hostinger, hPanel's Traefik handles the certificate |
+| SSL: pending | You enabled SSL but the certificate is not live yet |
+| SSL: off | SSL is not enabled for this domain |
 
-| Nút | Xảy ra chuyện gì |
+| Button | What happens |
 |---|---|
-| **Lưu & kiểm tra** | Lưu tên miền vào Javis rồi tự chạy kiểm tra DNS/SSL |
-| **Bật SSL** | Lưu ý định bật SSL và chủ động buộc Caddy xin chứng chỉ ngay |
-| **Kích hoạt lại** | Cùng nút trên, đổi nhãn khi HTTPS đã chạy; bấm để xin lại chứng chỉ |
-| **Kiểm tra lại** | Chỉ đọc trạng thái DNS/SSL, không đụng chứng chỉ |
-| **Sao chép bản ghi** | Chép dòng `A · <tên miền> · <IP>` vào clipboard (đổi thành "Đã sao chép ✓" khoảng 1 giây) |
-| **Sao chép biến** | Chỉ có ở wizard Hostinger: chép dòng `DOMAIN_NAME=<tên miền>` |
+| **Save and check** | Saves the domain into Jarvis 007 then runs the DNS/SSL check |
+| **Enable SSL** | Records the intent and actively forces Caddy to request the certificate now |
+| **Re-activate** | The same button relabelled once HTTPS is running; click to request the certificate again |
+| **Check again** | Only reads DNS/SSL state, never touches the certificate |
+| **Copy record** | Copies the line `A · <domain> · <IP>` to the clipboard (changes to "Copied ✓" for about a second) |
+| **Copy variable** | Only in the Hostinger wizard: copies the line `DOMAIN_NAME=<domain>` |
 
-Dòng trạng thái dưới cùng của card có thể là:
+The status line at the bottom of the card can read:
 
-| Dòng trạng thái | Ý nghĩa | Việc cần làm |
+| Status line | Meaning | What to do |
 |---|---|---|
-| Chưa đặt tên miền. | Chưa lưu tên miền nào. | Nhập tên miền rồi bấm Lưu & kiểm tra. |
-| Đang lưu và kiểm tra… / Đang kiểm tra… | Đang chạy, chờ chút. | Không phải làm gì. |
-| Đã lưu. Đang kiểm tra DNS/SSL… | Đã ghi tên miền, đang tra DNS. | Chờ kết quả. |
-| Đã xoá tên miền. | Bạn vừa lưu ô trống. | Không phải làm gì. |
-| HTTPS đang chạy cho `<tên miền>`. | Xong xuôi. | Không cần làm gì thêm. |
-| Bạn đang mở qua HTTPS | Bạn đang truy cập chính tên miền đó bằng HTTPS. | Xong. |
-| Chứng chỉ chưa hợp lệ - DNS chưa trỏ đúng hoặc chứng chỉ chưa cấp xong | Kết nối được nhưng chứng chỉ chưa dùng được. | Kiểm tra badge DNS; nếu DNS đúng thì đợi thêm rồi bấm Bật SSL lần nữa. |
-| Không kết nối được cổng 443 - Caddy/HTTPS chưa chạy, hoặc cổng 80/443 bị proxy khác chiếm | Không ai trả lời ở cổng 443. | Bật lớp HTTPS theo lệnh Javis gợi ý, và kiểm tra cổng 80/443 có bị dịch vụ khác chiếm không. |
-| Đã lưu trong Javis; còn bước đặt DOMAIN_NAME và Redeploy trên Hostinger. | Hostinger: route Traefik chưa khớp tên miền. | Làm bước 3 của wizard Hostinger. |
-| Hãy nhập và lưu tên miền trước. | Bấm Bật SSL khi ô tên miền còn trống. | Nhập tên miền rồi lưu. |
-| Tên miền không hợp lệ (vd: javis.tencuaban.com) | Chuỗi nhập không đúng dạng tên miền. | Bỏ khoảng trắng, bỏ đường dẫn phía sau, gõ dạng `ten.tencuaban.com`. |
-| Bật SSL thất bại | Server từ chối bật. | Đọc thêm dòng lý do đi kèm. |
-| Không kiểm tra được (lỗi mạng). | Trình duyệt không gọi được server. | Thử lại sau ít phút. |
-| Lỗi mạng khi lưu / Lỗi mạng khi bật SSL | Mất kết nối giữa chừng. | Thử lại. |
+| No domain set. | No domain saved yet. | Enter a domain then click Save and check. |
+| Saving and checking… / Checking… | Running, wait a moment. | Nothing. |
+| Saved. Checking DNS/SSL… | The domain was written, DNS is being resolved. | Wait for the result. |
+| Domain removed. | You just saved an empty field. | Nothing. |
+| HTTPS is running for `<domain>`. | All done. | Nothing more needed. |
+| You are on HTTPS | You are accessing that very domain over HTTPS. | Done. |
+| Certificate not valid yet, DNS is not pointing correctly or the certificate has not been issued | The connection works but the certificate is unusable. | Check the DNS badge; if DNS is right, wait a bit then click Enable SSL again. |
+| Cannot reach port 443, Caddy/HTTPS is not running or another proxy holds ports 80/443 | Nothing answers on port 443. | Enable the HTTPS layer with the command Jarvis 007 suggests, and check whether another service holds ports 80/443. |
+| Saved in Jarvis 007; you still need to set DOMAIN_NAME and Redeploy on Hostinger. | Hostinger: the Traefik route does not match the domain yet. | Do step 3 of the Hostinger wizard. |
+| Enter and save a domain first. | You clicked Enable SSL with the domain field empty. | Enter a domain and save. |
+| Invalid domain (e.g. javis.yourname.com) | The string is not shaped like a domain. | Drop spaces, drop any trailing path, type it as `name.yourname.com`. |
+| Could not enable SSL | The server refused to enable it. | Read the accompanying reason line. |
+| Could not check (network error). | The browser could not reach the server. | Try again in a few minutes. |
+| Network error while saving / Network error while enabling SSL | The connection dropped midway. | Try again. |
 
-## Về Caddy và On-Demand TLS (nên biết)
+## About Caddy and On-Demand TLS (worth knowing)
 
-- Javis dùng Caddy để tự xin và tự gia hạn chứng chỉ HTTPS (Let's Encrypt) theo cơ chế On-Demand TLS. Bạn không phải tự cài chứng chỉ.
-- Để chống lạm dụng, trước khi cấp chứng chỉ Caddy hỏi Javis (qua cổng gác nội bộ `/tls-check`) và chỉ cấp cho đúng tên miền bạn đã nhập trong app. Người lạ trỏ DNS bừa vào IP máy chủ sẽ không ép được server xin chứng chỉ lung tung.
-- Khi đổi hoặc xóa tên miền trên VPS dùng Caddy, bạn chỉ cần sửa trong ô **TÊN MIỀN & SSL** rồi bấm **Lưu & kiểm tra**, sau đó **Bật SSL** cho tên miền mới. Hostinger cần Redeploy khi đổi route Traefik.
-- Việc bật Caddy (chạy lệnh `docker compose ... up -d` với file cấu hình HTTPS) và mở cổng 80/443 là bước deploy hạ tầng, nằm ngoài giao diện này. Xem hướng dẫn deploy chi tiết trong `DEPLOY.md` của dự án.
-- Khi bạn vào Javis đúng bằng tên miền riêng qua HTTPS, server tự đánh dấu cookie đăng nhập là `secure`, khỏi phải đặt `JAVIS_SECURE_COOKIE` thủ công. Xem [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md).
+- Jarvis 007 uses Caddy to obtain and renew HTTPS certificates automatically (Let's Encrypt) through On-Demand TLS. You never install a certificate by hand.
+- To prevent abuse, before issuing a certificate Caddy asks Jarvis 007 (through the internal `/tls-check` gate) and only issues for the exact domain you entered in the app. A stranger pointing DNS at your server IP cannot force it to request arbitrary certificates.
+- To change or remove the domain on a Caddy VPS, just edit the **DOMAIN AND SSL** field, click **Save and check**, then **Enable SSL** for the new domain. Hostinger needs a Redeploy when the Traefik route changes.
+- Enabling Caddy (running `docker compose ... up -d` with the HTTPS config file) and opening ports 80/443 are infrastructure deploy steps outside this interface. See the detailed deploy guide in the project's `DEPLOY.md`.
+- When you reach Jarvis 007 through the custom domain over HTTPS, the server marks the login cookie `secure` on its own, with no need to set `JAVIS_SECURE_COOKIE` manually. See [Security and accounts](14-bao-mat-tai-khoan.md).
 
-## Nếu bạn deploy trên Hostinger (khác cách trên)
+## If you deploy on Hostinger (a different path)
 
-> 🛒 Chưa có VPS Hostinger? [Đăng ký tại đây](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN).
+> 🛒 No Hostinger VPS yet? [Get one here](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN).
 
-Hostinger VPS đã cài sẵn reverse proxy Traefik lo SSL, và cổng 80/443 đã bị Traefik chiếm. Javis vẫn cho nhập tên miền, kiểm tra DNS và tạo sẵn biến cần dùng ngay trên UI, nhưng container không có quyền sửa route Traefik của hPanel. Vì thế nút **Bật SSL** bị ẩn, badge SSL ghi **SSL: qua Hostinger**, và bước 3 của wizard đổi thành **3. Kích hoạt route HTTPS trên Hostinger**:
+A Hostinger VPS already runs the Traefik reverse proxy handling SSL, and Traefik holds ports 80/443. Jarvis 007 still lets you enter a domain, check DNS and prepare the variable you need right in the UI, but the container has no authority to edit hPanel's Traefik routes. So the **Enable SSL** button is hidden, the SSL badge reads **SSL: via Hostinger**, and step 3 of the wizard becomes **3. Enable the HTTPS route on Hostinger**:
 
-1. Trỏ DNS: bản ghi `A  <tên miền của bạn> → <IP VPS Hostinger>`.
-2. Deploy bằng file compose có nhãn Traefik của Hostinger: `docker-compose.hostinger.yml` (Docker Manager → Compose → URL).
-3. Bấm **Sao chép biến** trong wizard, đặt `DOMAIN_NAME=<tên miền của bạn>` trong Docker Manager rồi bấm **Redeploy**. Wizard hiện luôn route Traefik hiện tại để bạn đối chiếu.
-4. Mở `https://<tên miền>`; Traefik tự xin chứng chỉ ở lần đầu. Không còn phải vào bằng `:7777`.
+1. Point DNS: the record `A  <your domain> → <Hostinger VPS IP>`.
+2. Deploy with the compose file carrying Hostinger's Traefik labels: `docker-compose.hostinger.yml` (Docker Manager → Compose → URL).
+3. Click **Copy variable** in the wizard, set `DOMAIN_NAME=<your domain>` in Docker Manager then click **Redeploy**. The wizard also shows the current Traefik route so you can compare.
+4. Open `https://<domain>`; Traefik requests the certificate on the first visit. No more entering through `:7777`.
 
-Nếu bạn cố bấm Bật SSL trên Hostinger (ví dụ qua API), Javis từ chối và nói rõ: Hostinger quản lý HTTPS bằng Traefik, hãy đặt `DOMAIN_NAME` trong Docker Manager rồi Redeploy.
+If you try to click Enable SSL on Hostinger (through the API, say), Jarvis 007 refuses and states plainly that Hostinger manages HTTPS through Traefik, so set `DOMAIN_NAME` in Docker Manager and Redeploy.
 
-Sau khi Redeploy, trở lại Cài đặt và bấm **Kiểm tra lại**. Chi tiết và xử lý sự cố xem mục "Tên miền + HTTPS trên Hostinger" trong `DEPLOY.md`; hai link tài liệu cũng nằm ngay dưới card tên miền.
+After the Redeploy, return to Settings and click **Check again**. Details and troubleshooting are in the "Domain + HTTPS on Hostinger" section of `DEPLOY.md`; both documentation links also sit right under the domain card.
 
-## Theme riêng cho người vận hành (CSS)
+## Custom theme for operators (CSS)
 
-Ai triển khai Javis cho khách (white-label) có thể đặt một file `theme.css` vào thư mục
-`branding/` trong thư mục dữ liệu của Javis (cạnh logo đã tải lên; Docker là
-`/data/state/branding/theme.css`). Có file này thì mọi trang dashboard tải nó SAU các file CSS
-gốc, nên nó đè được màu, font, bo góc. File nằm ngoài mã nguồn nên sống qua mọi lần cập nhật.
-Xoá file là về giao diện gốc. Trần 512 KB.
+Anyone deploying Jarvis 007 for clients (white-label) can place a `theme.css` file in the
+`branding/` folder inside Jarvis 007's data folder (next to the uploaded logo; on Docker it is
+`/data/state/branding/theme.css`). With this file present, every dashboard page loads it AFTER the
+original CSS files, so it can override colours, fonts and corner radii. The file lives outside the
+source code, so it survives every update. Delete the file to return to the original look. The
+ceiling is 512 KB.
 
-- **Màu ở chế độ sáng:** biến màu của chế độ sáng khai trong `:root[data-theme="light"]`, đặc
-  hơn `:root`. Muốn đổi màu cho cả hai chế độ thì khai cả hai khối, ví dụ
-  `:root{--accent:#e4572e}` và `:root[data-theme="light"]{--accent:#e4572e}`.
-- **Chế độ mặc định:** thêm dòng `/* javis-default-mode: light */` (hoặc `dark`, `auto`) trong
-  4 KB đầu file để chọn sáng/tối cho thiết bị chưa từng tự chọn. Người dùng đã tự chọn thì giữ
-  lựa chọn của họ.
+- **Light-mode colours:** the light-mode colour variables are declared in `:root[data-theme="light"]`,
+  which is more specific than `:root`. To change a colour in both modes, declare both blocks, for example
+  `:root{--accent:#e4572e}` and `:root[data-theme="light"]{--accent:#e4572e}`.
+- **Default mode:** add the line `/* javis-default-mode: light */` (or `dark`, `auto`) within the
+  first 4 KB of the file to choose light or dark for a device that has never made its own choice. A user who has
+  already chosen keeps their choice.
 
-## Mẹo
+## Tips
 
-- Ảnh logo nên là ảnh vuông (tỉ lệ 1:1) để không bị cắt méo, vì Javis hiển thị logo trong khung vuông bo góc.
-- Sau khi tải ảnh mới mà chỗ nào đó vẫn còn ảnh cũ, chờ khoảng 1 phút hoặc tải lại trang; hệ thống có bộ nhớ đệm ngắn cho ảnh logo (favicon lâu hơn, khoảng 5 phút).
-- Nếu chưa có tên miền riêng nhưng vẫn muốn truy cập từ xa có HTTPS, có thể dùng cách khác (ví dụ Cloudflare Tunnel) mô tả trong `DEPLOY.md`.
-- Dùng đúng bản ghi loại **A** (trỏ theo IPv4). Đừng dùng CNAME cho tên miền này trừ khi bạn hiểu rõ hệ quả.
-- Đừng bấm **Bật SSL** liên tục khi DNS chưa đúng. Mỗi lần bấm là một lần Javis buộc Caddy đi xin chứng chỉ, xin hỏng nhiều lần sẽ chạm giới hạn của Let's Encrypt.
+- The logo image should be square (1:1) so it is not cropped oddly, since Jarvis 007 shows it in a rounded square frame.
+- If somewhere still shows the old image after an upload, wait about a minute or reload the page; the system caches the logo briefly (the favicon longer, about 5 minutes).
+- If you have no custom domain but still want remote access over HTTPS, there are other ways (Cloudflare Tunnel, for instance) described in `DEPLOY.md`.
+- Use a proper **A** record (IPv4). Do not use a CNAME for this domain unless you fully understand the consequences.
+- Do not click **Enable SSL** repeatedly while DNS is still wrong. Each click makes Jarvis 007 force Caddy to request a certificate, and many failed requests hit Let's Encrypt rate limits.
 
-## Sự cố thường gặp
+## Common problems
 
-- **Bấm Lưu báo "Tên miền không hợp lệ":** kiểm tra lại chính tả, không có khoảng trắng, không kèm đường dẫn phía sau. Định dạng đúng là dạng `tên.tencuaban.com`.
-- **Đã tạo bản ghi A nhưng badge vẫn ghi "DNS: chưa trỏ":** DNS cần thời gian lan. Đợi thêm vài phút đến vài giờ rồi bấm **Kiểm tra lại**.
-- **Badge ghi "DNS: sai IP (...)":** IP trong bản ghi A khác IP máy chủ Javis. Copy đúng IP mà Javis hiển thị ở bước 2 của wizard và cập nhật lại bản ghi A.
-- **DNS đã đúng nhưng bấm Bật SSL báo "Không kết nối được cổng 443":** lớp HTTPS chưa chạy. Trên VPS Docker, chạy đúng lệnh Javis gợi ý (`docker compose -f docker-compose.yml -f docker-compose.https.yml up -d`) rồi bấm lại, và kiểm tra cổng 80/443 đã mở, không bị proxy khác chiếm.
-- **Bấm Bật SSL báo "Chứng chỉ chưa hợp lệ":** thường là DNS vừa mới đúng, Caddy chưa cấp xong. Đợi một hai phút rồi bấm lại.
-- **Không thấy nút Bật SSL:** bạn đang chạy trên Hostinger. Javis ẩn nút này vì Traefik của hPanel mới cấp được chứng chỉ; làm theo wizard Hostinger ở trên.
-- **Tải ảnh báo lỗi định dạng hoặc quá lớn:** chỉ dùng PNG, JPG, WEBP hoặc GIF, dung lượng dưới 5MB.
-- **Không thấy ô Tên miền hoạt động như mong đợi trên máy cá nhân:** đây là tính năng cho bản deploy Docker trên VPS có cổng 80/443. Trên máy cá nhân, phần tên miền/HTTPS sẽ không kích hoạt.
+- **Saving reports "Invalid domain":** check the spelling, no spaces, no trailing path. The correct shape is `name.yourname.com`.
+- **The A record exists but the badge still says "DNS: not pointed":** DNS needs time to propagate. Wait a few more minutes to a few hours then click **Check again**.
+- **The badge says "DNS: wrong IP (...)":** the IP in the A record differs from the Jarvis 007 server's IP. Copy the exact IP Jarvis 007 shows in step 2 of the wizard and update the A record.
+- **DNS is right but Enable SSL reports "Cannot reach port 443":** the HTTPS layer is not running. On a Docker VPS, run exactly the command Jarvis 007 suggests (`docker compose -f docker-compose.yml -f docker-compose.https.yml up -d`) then click again, and check that ports 80/443 are open and not held by another proxy.
+- **Enable SSL reports "Certificate not valid yet":** usually DNS only just became correct and Caddy has not finished issuing. Wait a minute or two then click again.
+- **There is no Enable SSL button:** you are running on Hostinger. Jarvis 007 hides it because only hPanel's Traefik can issue the certificate; follow the Hostinger wizard above.
+- **The upload reports a format error or "too large":** use only PNG, JPG, WEBP or GIF, under 5MB.
+- **The Domain field does not behave as expected on a personal machine:** this feature is for the Docker deploy on a VPS with ports 80/443. On a personal machine the domain/HTTPS part will not activate.
 
-## Liên quan
+## Related
 
-- [Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md)
-- [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md)
-- [Cấu hình .env](16-cau-hinh-env.md)
-- [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md)
+- [Getting started and first setup](01-bat-dau-thiet-lap.md)
+- [Security and accounts](14-bao-mat-tai-khoan.md)
+- [.env configuration](16-cau-hinh-env.md)
+- [Troubleshooting and FAQ](17-khac-phuc-su-co.md)

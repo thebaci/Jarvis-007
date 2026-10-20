@@ -1,272 +1,272 @@
-# Bảo mật & tài khoản
+# Security and accounts
 
 ***Tiếng Việt** · [English](en/14-security-and-accounts.md)*
 
-Trang này giải thích cách Javis OS tự bảo vệ khi bạn đưa nó lên mạng, và cách dùng trang **Tài khoản** trong dashboard để đặt mật khẩu, đăng xuất, tắt đăng nhập và đổi tên workspace.
+This page explains how Jarvis 007 protects itself when you put it on the network, and how to use the **Account** page in the dashboard to set a password, sign out, turn login off and rename the workspace.
 
-## Tính năng này là gì
+## What this feature is
 
-Javis chạy bộ não AI với **toàn quyền trên máy/VPS** của bạn: nó đọc được tệp, chạy lệnh, gọi công cụ. Vì thế nếu để dashboard hở ra Internet mà không có mật khẩu thì bất kỳ ai biết địa chỉ cũng điều khiển được máy của bạn.
+Jarvis 007 runs an AI brain with **full power over your machine or VPS**: it can read files, run commands, call tools. So if the dashboard is exposed to the Internet without a password, anyone who knows the address controls your machine.
 
-Javis xử lý việc này theo 6 lớp:
+Jarvis 007 handles this in 6 layers:
 
-1. **Tự bắt buộc đăng nhập khi chạy public.** Khi server nghe ra ngoài (không phải chỉ máy này), Javis chặn mọi chức năng cho tới khi bạn đăng nhập. Chạy trên máy cá nhân (localhost) thì không ép, dùng thẳng như cũ.
-2. **Đặt admin sớm, rồi bật xác thực 2 lớp.** Màn chạy lần đầu chỉ hỏi tên đăng nhập và mật khẩu, nên trên server public **ai mở link trước khi có admin sẽ tạo được admin**. Đặt sẵn admin qua biến môi trường (hoặc tạo tài khoản ngay sau khi deploy), rồi bật 2FA (TOTP) ở trang **Tài khoản**.
-3. **Chống dò mật khẩu.** Sai nhiều lần bị khoá tạm theo địa chỉ IP; mỗi lần sai bị làm chậm.
-4. **Chặn trang web lạ sai khiến Javis (CSRF) và chặn tên miền lạ trỏ về máy bạn (DNS-rebinding).** Xem mục riêng bên dưới.
-5. **Mã hoá khoá bí mật lưu trong `settings.json`.** API key, token Telegram, token GitHub... không nằm dạng chữ thô trên đĩa.
-6. **Token API cho CLI và script, mặc định KHÔNG có cái nào.** Cookie đăng nhập chỉ hợp với trình duyệt; muốn gọi Javis từ terminal thì phải tự tay tạo token, chọn phạm vi, và thu hồi được bất cứ lúc nào. Xem mục riêng bên dưới.
+1. **Login is forced automatically when running public.** When the server listens externally (not just this machine), Jarvis 007 blocks every function until you sign in. On a personal machine (localhost) nothing is forced and you use it as before.
+2. **Set the admin early, then turn on two-factor.** The first-run screen only asks for a username and password, so on a public server **whoever opens the link before an admin exists can create it**. Preset the admin through environment variables (or create the account right after deploying), then turn on 2FA (TOTP) on the **Account** page.
+3. **Brute-force protection.** Too many wrong attempts temporarily locks that IP address; every wrong attempt is slowed down.
+4. **Blocking foreign web pages from commanding Jarvis 007 (CSRF) and blocking unknown domains pointed at your machine (DNS rebinding).** See the dedicated section below.
+5. **Encryption of secret keys stored in `settings.json`.** API keys, Telegram tokens, GitHub tokens and the rest are not sitting on disk in plain text.
+6. **API tokens for CLI and scripts, with NONE existing by default.** The login cookie only suits a browser; to call Jarvis 007 from a terminal you must create a token by hand, choose its scope, and can revoke it at any time. See the dedicated section below.
 
-## Mở ở đâu trong Javis
+## Where to open it in Jarvis 007
 
-Mọi thao tác tài khoản nằm ở mục **Tài khoản** trong nhóm **Hệ thống** trên thanh nav bên trái (phụ đề "Đăng nhập, workspace, token API"). Trang **Cài đặt** có một khối rút gọn làm được ba việc hay dùng nhất (đổi mật khẩu, đăng xuất, tắt đăng nhập) cùng một dòng trạng thái xác thực 2 lớp; những thứ còn lại như bật 2 lớp hay token API chỉ có ở trang **Tài khoản**.
+Every account action lives under **Account** in the **System** group of the left nav rail (subtitle "Sign-in, workspace, API tokens"). The **Settings** page has a condensed block covering the three most common actions (change password, sign out, turn login off) plus a two-factor status line; everything else, such as enabling two-factor or API tokens, is only on the **Account** page.
 
-Trang **Tài khoản** có 3 khối:
+The **Account** page has 3 blocks:
 
-- **Workspace**: đổi tên workspace hiển thị.
-- **Tài khoản đăng nhập**: đặt mật khẩu, đăng xuất, tắt đăng nhập.
-- **Token API (cho CLI)**: tạo và thu hồi token để [Javis CLI](24-cli-terminal.md) hay script gọi được Javis. Nằm cùng trang vì token cũng là một cách đăng nhập, chỉ khác là dành cho máy chứ không cho trình duyệt.
+- **Workspace**: rename the displayed workspace.
+- **Login account**: set a password, sign out, turn login off.
+- **API tokens (for the CLI)**: create and revoke tokens so [the Jarvis 007 CLI](24-cli-terminal.md) or a script can call Jarvis 007. It sits on the same page because a token is also a way of signing in, only for machines rather than browsers.
 
-## Khi nào Javis bắt buộc đăng nhập
+## When Jarvis 007 forces a login
 
-Javis quyết định có ép đăng nhập hay không dựa vào cách server đang chạy:
+Jarvis 007 decides whether to force a login based on how the server is running:
 
-| Tình huống | Có bắt buộc đăng nhập? |
+| Situation | Login forced? |
 |---|---|
-| Chạy trên máy cá nhân, nghe `127.0.0.1` / `localhost` (hoặc `::1`) | Không (trừ khi bạn đã tự đặt mật khẩu) |
-| Chạy public (Docker/VPS/Hostinger), nghe `0.0.0.0`, `::` hoặc IP LAN | Có, tự bật |
-| Đã đặt mật khẩu trong trang Tài khoản | Có, ở mọi chế độ |
+| Running on a personal machine, listening on `127.0.0.1` / `localhost` (or `::1`) | No (unless you set a password yourself) |
+| Running public (Docker/VPS/Hostinger), listening on `0.0.0.0`, `::` or a LAN IP | Yes, turned on automatically |
+| A password has been set on the Account page | Yes, in every mode |
 
-Có thể ép cứng bằng biến môi trường `JAVIS_REQUIRE_LOGIN`:
+You can force it either way with the `JAVIS_REQUIRE_LOGIN` environment variable:
 
-- `JAVIS_REQUIRE_LOGIN=1` : luôn bắt buộc đăng nhập, kể cả localhost. Nên đặt khi bạn mở Javis qua tunnel (Cloudflare Tunnel, ngrok...) trên máy cá nhân.
-- `JAVIS_REQUIRE_LOGIN=0` : tắt bắt buộc đăng nhập.
+- `JAVIS_REQUIRE_LOGIN=1` : always force login, localhost included. Set this when you expose Jarvis 007 through a tunnel (Cloudflare Tunnel, ngrok...) from a personal machine.
+- `JAVIS_REQUIRE_LOGIN=0` : turn forced login off.
 
-Nguyên tắc an toàn (fail-closed): nếu server nghe địa chỉ **không phải** thuần localhost thì Javis mặc định coi là public và bật đăng nhập. Chi tiết biến môi trường xem [Cấu hình .env](16-cau-hinh-env.md).
+The safety principle is fail-closed: if the server listens on an address that is **not** purely localhost, Jarvis 007 treats it as public and turns login on. Environment variable details in [.env configuration](16-cau-hinh-env.md).
 
-## Cách dùng (từng bước)
+## How to use it (step by step)
 
-### A. Tạo tài khoản admin lần đầu trên VPS/public
+### A. Creating the first admin account on a VPS or public server
 
-Khi mở dashboard lần đầu trên server công khai mà chưa có admin, Javis hiện màn **tạo tài khoản**, chỉ hỏi tên đăng nhập và mật khẩu. Ai mở link trước sẽ tạo được admin, nên đừng để khoảng trống này kéo dài. Có 2 cách:
+The first time you open the dashboard on a public server with no admin yet, Jarvis 007 shows the **create account** screen, which only asks for a username and password. Whoever opens the link first can create the admin, so do not let that window stay open. There are 2 ways:
 
-**Cách 1 - Đặt sẵn admin bằng biến môi trường (khuyến nghị):**
+**Way 1 - Set the admin through environment variables (recommended):**
 
-1. Trong cấu hình deploy (ví dụ compose của Hostinger), thêm 2 biến:
-   - `JAVIS_ADMIN_PASSWORD` : mật khẩu admin bạn chọn.
-   - `JAVIS_ADMIN_USER` : tên đăng nhập (tuỳ chọn, mặc định là `admin`).
-2. Khởi động Javis. Lúc boot, Javis tự tạo admin từ 2 biến này và **đóng luôn** màn tạo tài khoản. Bạn mở app là vào thẳng màn đăng nhập.
-3. Đăng nhập bằng đúng user/password vừa đặt.
+1. In your deploy configuration (the Hostinger compose file, say), add 2 variables:
+   - `JAVIS_ADMIN_PASSWORD` : the admin password you choose.
+   - `JAVIS_ADMIN_USER` : the username (optional, defaults to `admin`).
+2. Start Jarvis 007. At boot it creates the admin from these two variables and **closes** the create-account screen entirely. Opening the app takes you straight to the sign-in screen.
+3. Sign in with the user and password you just set.
 
-**Cách 2 - Tạo tài khoản ngay sau khi deploy:**
+**Way 2 - Create the account right after deploying:**
 
-1. Deploy xong là mở dashboard luôn.
-2. Ở màn tạo tài khoản nhập: tên tài khoản và mật khẩu (**tối thiểu 8 ký tự**).
-3. Bấm nút tạo tài khoản. Javis tạo admin và đăng nhập bạn luôn.
+1. Open the dashboard as soon as the deploy finishes.
+2. On the create-account screen, enter a username and a password (**at least 8 characters**).
+3. Click the create-account button. Jarvis 007 creates the admin and signs you straight in.
 
-Dù dùng cách nào, sau lần đăng nhập đầu hãy **bật xác thực 2 lớp (2FA)** ở trang **Tài khoản**.
+Whichever way you pick, **turn on two-factor authentication (2FA)** on the **Account** page after your first sign-in.
 
-### B. Đặt mật khẩu (khi đang chạy máy cá nhân, chưa có mật khẩu)
+### B. Setting a password (running on a personal machine, no password yet)
 
-Nếu bạn chạy Javis ở nhà mà muốn khoá lại trước khi đưa lên VPS:
+If you run Jarvis 007 at home and want to lock it before moving to a VPS:
 
-1. Vào **Tài khoản** trên thanh nav trái.
-2. Ở khối **Tài khoản đăng nhập**, nhập **Tài khoản** (để trống sẽ dùng `admin`).
-3. Nhập **Mật khẩu**.
-4. Bấm **Đặt mật khẩu**.
-5. Javis lưu tài khoản và cấp phiên đăng nhập ngay cho bạn (không tự khoá bạn ra ngoài).
+1. Go to **Account** in the left nav rail.
+2. In the **Login account** block, enter the **Username** (leaving it empty uses `admin`).
+3. Enter the **Password**.
+4. Click **Set password**.
+5. Jarvis 007 saves the account and immediately grants you a session (it never locks you out).
 
-Mật khẩu tối thiểu **8 ký tự**, và giao diện chặn đúng ở con số đó trước khi gửi đi, nên bạn không bấm Lưu xong mới biết mình gõ ngắn.
+The password must be at least **8 characters**, and the interface enforces exactly that number before sending, so you do not click Save and only then discover it was too short.
 
-### C. Đổi mật khẩu / tên đăng nhập
+### C. Changing the password or username
 
-Khi đã có mật khẩu, khối **Tài khoản đăng nhập** hiện dòng "🔒 Đã đặt mật khẩu · tài khoản: <tên của bạn>", thêm ô **Mật khẩu hiện tại**, và nút chuyển nhãn thành **Đổi mật khẩu**.
+Once a password exists, the **Login account** block shows the line "🔒 Password set · account: <your name>", adds a **Current password** field, and the button changes to **Change password**.
 
-1. Vào **Tài khoản** trên thanh nav trái (hoặc khối **Tài khoản đăng nhập** trong trang **Cài đặt**, hai chỗ làm được như nhau).
-2. Nhập **Mật khẩu hiện tại**. Bắt buộc, kể cả khi bạn đang đăng nhập sẵn: một máy mở dashboard bỏ đó không được phép đổi mật khẩu rồi khoá chính chủ ra ngoài.
-3. Nhập **Mật khẩu mới** (từ 8 ký tự). Muốn đổi mỗi tên đăng nhập thì để trống ô này và chỉ sửa ô **Tài khoản**.
-4. Bấm **Đổi mật khẩu**.
+1. Go to **Account** in the left nav rail (or the **Login account** block on the **Settings** page, both do the same).
+2. Enter the **Current password**. Required even while you are signed in: a machine left with the dashboard open must not be able to change the password and lock the owner out.
+3. Enter the **New password** (8 characters or more). To change only the username, leave this empty and edit only the **Username** field.
+4. Click **Change password**.
 
-Đổi xong, **mọi phiên đăng nhập khác bị huỷ** (máy khác, trình duyệt khác, điện thoại) còn máy bạn vừa thao tác được cấp phiên mới ngay nên không bị văng ra. Xác thực 2 lớp và bộ mã khôi phục giữ nguyên, không phải quét lại QR.
+Afterwards **every other session is destroyed** (other machines, other browsers, phones) while the machine you are on is granted a new session right away so you are not thrown out. Two-factor authentication and the recovery codes are unchanged, no QR to scan again.
 
-Đổi mỗi tên đăng nhập thì các phiên khác vẫn sống, vì mật khẩu chưa đổi.
+Changing only the username leaves other sessions alive, since the password did not change.
 
-**Quên mật khẩu hiện tại** thì không có đường vòng nào trong dashboard, phải sửa từ máy chủ.
+**If you forget the current password** there is no back door in the dashboard, you have to fix it from the server.
 
-Chạy bằng Docker/Hostinger (từ 0.77.1): đổi `JAVIS_ADMIN_PASSWORD` (và `JAVIS_ADMIN_USER` nếu muốn) trong ô Environment rồi Redeploy. Lúc khởi động, Javis thấy giá trị env khác lần trước nên đặt lại tài khoản admin theo nó: 2FA giữ nguyên, mọi phiên đăng nhập cũ bị huỷ. Env để nguyên thì không có gì thay đổi, nên mật khẩu bạn đổi trong dashboard không bị env ghi đè mỗi lần khởi động lại.
+On Docker/Hostinger (since 0.77.1): change `JAVIS_ADMIN_PASSWORD` (and `JAVIS_ADMIN_USER` if you like) in the Environment box and redeploy. At startup Jarvis 007 sees the env value differs from last time and resets the admin to it: 2FA stays on and every old session is signed out. Leaving the env unchanged changes nothing, so a password you change in the dashboard is not overwritten on every restart.
 
-Cách thủ công (máy không dùng env):
+The manual way (a machine that does not use env):
 
-1. Dừng container (hoặc dừng Javis).
-2. Xoá (hoặc làm rỗng) khối `"auth"` trong `settings.json` ở thư mục state (Docker: `/data/state/settings.json`).
-3. Đặt `JAVIS_ADMIN_PASSWORD` (và `JAVIS_ADMIN_USER` nếu muốn) rồi khởi động lại. Javis tạo lại admin từ biến môi trường lúc boot.
+1. Stop the container (or stop Jarvis 007).
+2. Delete (or empty) the `"auth"` block in `settings.json` in the state folder (Docker: `/data/state/settings.json`).
+3. Set `JAVIS_ADMIN_PASSWORD` (and `JAVIS_ADMIN_USER` if you like) then restart. Jarvis 007 recreates the admin from the environment variables at boot.
 
-### D. Đăng xuất
+### D. Signing out
 
-1. Vào **Tài khoản**.
-2. Bấm **Đăng xuất**.
-3. Javis xoá phiên hiện tại và tải lại trang. Lần sau vào phải đăng nhập lại.
+1. Go to **Account**.
+2. Click **Sign out**.
+3. Jarvis 007 deletes the current session and reloads the page. Next time you must sign in again.
 
-Đăng xuất chỉ kết thúc phiên trên trình duyệt này, không xoá mật khẩu.
+Signing out only ends the session in this browser, it does not delete the password.
 
-### E. Tắt đăng nhập (xoá mật khẩu)
+### E. Turning login off (deleting the password)
 
-Chỉ nên làm khi chạy máy cá nhân, tuyệt đối không làm trên VPS.
+Only do this on a personal machine, never on a VPS.
 
-1. Vào **Tài khoản**.
-2. Bấm **Tắt đăng nhập**.
-3. Xác nhận ở hộp thoại "Tắt đăng nhập? Ai mở dashboard cũng dùng được."
-4. Javis xoá mật khẩu và **đăng xuất mọi phiên** đang mở.
+1. Go to **Account**.
+2. Click **Turn login off**.
+3. Confirm in the dialog "Turn login off? Anyone who opens the dashboard can use it."
+4. Jarvis 007 deletes the password and **signs out every open session**.
 
-Lưu ý: nếu server vẫn đang chạy public (hoặc bạn đặt `JAVIS_REQUIRE_LOGIN=1`), tắt mật khẩu **không** làm dashboard mở toang, mà quay lại màn ép tạo tài khoản mới. Đăng nhập chỉ thật sự tắt khi server nghe localhost và không ép login.
+Note: if the server is still running public (or you set `JAVIS_REQUIRE_LOGIN=1`), turning the password off does **not** throw the dashboard open, it returns to the forced create-account screen. Login is only truly off when the server listens on localhost and login is not forced.
 
-### F. Đổi tên workspace
+### F. Renaming the workspace
 
-1. Vào **Tài khoản**.
-2. Ở khối **Workspace**, sửa **Tên workspace**.
-3. Bấm **Lưu**. Tên mới hiển thị ngay trên đầu dashboard.
+1. Go to **Account**.
+2. In the **Workspace** block, edit the **Workspace name**.
+3. Click **Save**. The new name appears at the top of the dashboard immediately.
 
-## Chặn CSRF và DNS-rebinding
+## Blocking CSRF and DNS rebinding
 
-Đây là lớp bảo vệ chạy ngầm, bạn không phải bật gì, nhưng nên biết nó tồn tại vì đôi khi nó là thủ phạm của lỗi 403 khó hiểu.
+This layer runs in the background and needs nothing turned on, but it is worth knowing about because it is occasionally the culprit behind a puzzling 403.
 
-Vấn đề nó giải: dashboard nghe ở `localhost:7777`. Khi bạn **chưa** đặt mật khẩu, một trang web bất kỳ đang mở trong trình duyệt của bạn vẫn có thể bắn request POST tới `http://localhost:7777/...`. Trình duyệt chặn trang đó ĐỌC kết quả, nhưng không chặn request chạy, nên hành động vẫn xảy ra. Kẻ tấn công cũng có thể trỏ một tên miền của chúng về `127.0.0.1` để lách kiểm tra nguồn gốc.
+The problem it solves: the dashboard listens on `localhost:7777`. When you have **not** set a password, any web page open in your browser can still fire a POST request at `http://localhost:7777/...`. The browser stops that page from READING the result, but it does not stop the request from running, so the action still happens. An attacker can also point one of their domains at `127.0.0.1` to slip past origin checks.
 
-Javis chặn hai đường đó bằng một cổng gác đứng trước cả cổng đăng nhập:
+Jarvis 007 blocks both paths with a gate standing in front of the login gate itself:
 
-| Trường hợp | Xử lý |
+| Case | Handling |
 |---|---|
-| Request GHI (POST/PUT/DELETE/PATCH) kèm `Origin` khác Host và không nằm trong allowlist | Chặn, trả 403 kèm `"cross-origin request bị chặn"` |
-| Request đến với tên miền (Host) lạ, trong khi **chưa** bật cổng đăng nhập | Chặn, trả 403 kèm `"host không được phép"` |
-| Cùng nguồn gốc (Origin trùng Host) | Cho qua |
-| Client không phải trình duyệt (không gửi `Origin`, ví dụ CLI, curl, MCP) | Cho qua |
-| Host là một địa chỉ IP | Bỏ qua bước kiểm Host |
+| A WRITE request (POST/PUT/DELETE/PATCH) with an `Origin` different from Host and not on the allowlist | Blocked, 403 with "cross-origin request blocked" |
+| A request arriving with an unknown domain (Host) while the login gate is **not** on | Blocked, 403 with "host not allowed" |
+| Same origin (Origin matches Host) | Allowed |
+| A non-browser client (no `Origin` sent, for example the CLI, curl, MCP) | Allowed |
+| Host is an IP address | The Host check is skipped |
 
-Allowlist gồm: `localhost`, `127.0.0.1`, `::1`, `0.0.0.0`, cộng tên miền riêng bạn đã đặt trong **Cài đặt → Tên miền & SSL**, cộng mọi tên trong biến môi trường `JAVIS_ALLOWED_HOSTS` (nhiều tên cách nhau dấu phẩy).
+The allowlist contains: `localhost`, `127.0.0.1`, `::1`, `0.0.0.0`, plus the custom domain you set in **Settings → Domain and SSL**, plus every name in the `JAVIS_ALLOWED_HOSTS` environment variable (comma separated).
 
-Khi nào bạn cần đụng tới: chạy Javis sau một reverse proxy với tên miền chưa khai trong app, mà lại **chưa** đặt mật khẩu. Lúc đó Javis coi tên miền đó là lạ và trả 403. Cách sửa: đặt mật khẩu (bật cổng đăng nhập là bước kiểm Host tự bỏ qua), hoặc thêm tên miền vào `JAVIS_ALLOWED_HOSTS`.
+When you might need to touch this: running Jarvis 007 behind a reverse proxy on a domain not declared in the app, while **no** password is set. Jarvis 007 then treats that domain as unknown and returns 403. The fix: set a password (turning the login gate on makes the Host check step aside), or add the domain to `JAVIS_ALLOWED_HOSTS`.
 
-## Token API - cửa cho CLI và script
+## API tokens, the door for CLI and scripts
 
-Cookie đăng nhập chỉ hợp với trình duyệt. Khi bạn muốn [Javis CLI](24-cli-terminal.md) hay một script gọi được Javis, cần một credential khác: **token API**, tạo ở **Tài khoản > Token API (cho CLI)** (nhóm Hệ thống, cùng trang với mật khẩu đăng nhập).
+The login cookie only suits a browser. When you want [the Jarvis 007 CLI](24-cli-terminal.md) or a script to call Jarvis 007, you need a different credential: an **API token**, created at **Account > API tokens (for the CLI)** (System group, the same page as the login password).
 
-Điểm quan trọng nhất: **không có token nào sẵn**. Chưa tự tay bấm tạo thì không token nào tồn tại, và không cửa nào vào ngoài trình duyệt. Mở thêm một cổng ra Internet phải là một hành động có ý thức.
+The most important point: **no token exists by default**. Until you click create yourself, no token exists and there is no door in except the browser. Opening another door to the Internet has to be a deliberate act.
 
-Cách Javis giữ token:
+How Jarvis 007 keeps tokens:
 
-| Luật | Vì sao |
+| Rule | Why |
 |---|---|
-| Hai mức phạm vi: **chỉ chat** và **toàn quyền** | Mức chỉ chat đi theo danh sách TRẮNG (`/chat`, `/version`, `/health`, `/sessions`). Chọn chiều trắng chứ không chiều đen, vì danh sách đen nghĩa là mỗi endpoint mới thêm vào Javis tự động phơi ra cho token hẹp. |
-| Trên đĩa chỉ có bản băm SHA-256 | Ai đọc được file cấu hình của máy chủ cũng không lấy được token. Chuỗi thô hiện đúng một lần lúc tạo. |
-| So bằng `compare_digest` | So chuỗi thường thoát sớm ở ký tự đầu khác nhau, và chênh lệch thời gian đó đủ để dò token theo từng ký tự. |
-| Token đi trong header `Authorization`, không bao giờ trong query string | Query string nằm trong log của mọi proxy trên đường đi. |
-| **Không dùng token để tạo token** | Tạo token đòi session trình duyệt. Thiếu rào này thì một token rò ra là kẻ cầm nó tự cấp thêm token vĩnh viễn, và thu hồi cái đã rò thành vô nghĩa. |
-| Nhưng token **tự thu hồi được chính mình** | Mất laptop mà không mở nổi trình duyệt thì vẫn phải hạ được credential ngay. |
-| Sai quá 10 lần trong 5 phút thì IP bị chặn 15 phút | Ghi vào `auth_audit.jsonl`, chỉ 12 ký tự đầu (file log hay bị gửi kèm báo lỗi). Một cuộc dò token trở thành thứ nhìn thấy được thay vì chạy im lặng hàng tháng. |
+| Two scopes: **chat only** and **full power** | The chat-only level follows a WHITELIST (`/chat`, `/version`, `/health`, `/sessions`). Whitelisting rather than blacklisting, because a blacklist means every new endpoint added to Jarvis 007 is automatically exposed to the narrow token. |
+| Only a SHA-256 hash is on disk | Whoever can read the server's config file still cannot obtain the token. The raw string is shown exactly once, at creation. |
+| Comparison with `compare_digest` | Ordinary string comparison exits early at the first differing character, and that timing difference is enough to guess a token character by character. |
+| The token travels in the `Authorization` header, never in the query string | Query strings end up in the logs of every proxy along the way. |
+| **A token cannot create a token** | Creating a token requires a browser session. Without this rail, one leaked token lets whoever holds it mint more tokens forever, and revoking the leaked one becomes meaningless. |
+| But a token **can revoke itself** | Losing a laptop with no way to open a browser still has to let you take the credential down immediately. |
+| More than 10 failures in 5 minutes blocks that IP for 15 minutes | Recorded in `auth_audit.jsonl`, only the first 12 characters (log files are often attached to bug reports). A token-guessing run becomes visible instead of running silently for months. |
 
-Danh sách token hiện **lần dùng cuối** của từng cái. Thấy một token bạn không nhớ đang được dùng đều đặn thì thu hồi ngay - thu hồi có hiệu lực lập tức, không hoàn tác được.
+The token list shows each token's **last used** time. If you see a token you do not recognise being used regularly, revoke it at once; revocation takes effect immediately and cannot be undone.
 
-## Khoá bí mật trong settings.json được mã hoá
+## Secrets in settings.json are encrypted
 
-Các trường nhạy cảm trong `settings.json` không lưu dạng chữ thô. Javis mã hoá chúng bằng Fernet (AES-128-CBC + HMAC) trước khi ghi ra đĩa, và tự giải mã khi đọc lên. Giá trị đã mã hoá có tiền tố `enc:`.
+Sensitive fields in `settings.json` are not stored in plain text. Jarvis 007 encrypts them with Fernet (AES-128-CBC + HMAC) before writing to disk and decrypts them on read. An encrypted value carries the `enc:` prefix.
 
-Những trường được mã hoá:
+The encrypted fields:
 
-| Trường | Là gì |
+| Field | What it is |
 |---|---|
-| `model.openrouter_key` | API key OpenRouter |
-| `model.anthropic_api_key` | API key Anthropic |
-| `model.openai_api_key` | API key OpenAI |
-| `model.gemini_api_key` | API key Google Gemini |
-| `model.openai_oauth.access_token` / `refresh_token` / `id_token` | Token đăng nhập ChatGPT |
-| `telegram.token` | Bot token Telegram |
-| `backup.token` | GitHub PAT dùng sao lưu brain |
-| `voice.elevenlabs_key` | API key ElevenLabs |
+| `model.openrouter_key` | OpenRouter API key |
+| `model.anthropic_api_key` | Anthropic API key |
+| `model.openai_api_key` | OpenAI API key |
+| `model.gemini_api_key` | Google Gemini API key |
+| `model.openai_oauth.access_token` / `refresh_token` / `id_token` | ChatGPT sign-in tokens |
+| `telegram.token` | Telegram bot token |
+| `backup.token` | The GitHub PAT used for brain backup |
+| `voice.elevenlabs_key` | ElevenLabs API key |
 
-Khoá dùng để mã hoá nằm ở tệp **`.secret_key`** trong thư mục state (`JAVIS_STATE_DIR`, Docker: `/data/state/.secret_key`). Tệp này sinh một lần, không lên git.
+The encryption key lives in the **`.secret_key`** file in the state folder (`JAVIS_STATE_DIR`, Docker: `/data/state/.secret_key`). The file is generated once and never goes into git.
 
-Hệ quả vận hành phải nhớ:
+Operational consequences worth remembering:
 
-- **Chép `settings.json` sang máy khác mà quên `.secret_key` thì mất trắng mọi khoá.** Javis đọc thấy `enc:` nhưng không giải mã được nên trả về chuỗi rỗng, bạn phải nhập lại từng key. Đây là đánh đổi có chủ ý: thà bắt nhập lại còn hơn để key nằm phơi.
-- **Sao lưu thì sao lưu cả cặp** `settings.json` + `.secret_key`, và giữ chúng ở nơi kín như nhau.
-- Nếu máy thiếu thư viện `cryptography`, Javis không mã hoá được: secret rơi về tiền tố `plain:` và server in cảnh báo ra log. Cài bằng `pip install cryptography` rồi khởi động lại là mã hoá bật lại.
-- Giá trị cũ chưa có tiền tố (lưu từ bản trước khi có mã hoá) vẫn đọc được bình thường, và tự được bọc `enc:` ở lần ghi kế tiếp.
+- **Copying `settings.json` to another machine while forgetting `.secret_key` loses every key.** Jarvis 007 sees `enc:` but cannot decrypt it, so it returns an empty string and you must re-enter every key. This is a deliberate trade-off: better to force re-entry than to leave keys exposed.
+- **Back up the pair together**, `settings.json` + `.secret_key`, and keep them equally private.
+- If the machine lacks the `cryptography` library, Jarvis 007 cannot encrypt: secrets fall back to the `plain:` prefix and the server prints a warning to the log. Install it with `pip install cryptography` and restart to bring encryption back.
+- Older values without a prefix (saved before encryption existed) still read normally and are wrapped in `enc:` on the next write.
 
-## Cách bảo mật hoạt động (dành cho người muốn hiểu sâu)
+## How the security works (for those who want the depth)
 
-| Cơ chế | Chi tiết thực tế |
+| Mechanism | What actually happens |
 |---|---|
-| Lưu mật khẩu | Không lưu mật khẩu thô. Javis băm bằng PBKDF2-HMAC-SHA256 (120.000 vòng) kèm salt ngẫu nhiên. |
-| Phiên đăng nhập | Cấp qua cookie `javis_session`, cookie dạng `httponly` (JavaScript không đọc được), `samesite=lax`. |
-| Hết hạn phiên | Mỗi phiên sống tối đa **30 ngày** rồi tự hết hạn, phải đăng nhập lại. |
-| Phiên qua khởi động lại | Phiên lưu ra tệp, nên **khởi động lại server không làm bạn bị đăng xuất**. |
-| Chống dò mật khẩu | Đếm số lần sai theo IP. Sai đủ số lần liên tiếp (8 lần) bị khoá tạm khoảng 5 phút; mỗi lần sai bị làm chậm nửa giây. Khi bị khoá, Javis báo "Quá nhiều lần sai - thử lại sau ít phút." |
-| Cookie an toàn khi HTTPS | Khi bạn truy cập qua **tên miền riêng** đã bật HTTPS (Caddy On-Demand TLS), cookie được đánh dấu `secure` (chỉ gửi qua HTTPS). |
-| CORS | Chỉ mở cho `localhost` / `127.0.0.1` / `::1` (tiện lúc dev). Trang web khác không đọc được API qua trình duyệt. |
-| Cổng gác CSRF | Chặn request ghi từ nguồn gốc chéo, và chặn Host lạ khi chưa bật đăng nhập (xem mục riêng ở trên). |
-| Secret trên đĩa | API key và token trong `settings.json` mã hoá Fernet bằng `.secret_key` trong thư mục state. |
+| Password storage | The raw password is never stored. Jarvis 007 hashes it with PBKDF2-HMAC-SHA256 (120,000 rounds) with a random salt. |
+| Login session | Granted through the `javis_session` cookie, marked `httponly` (JavaScript cannot read it) and `samesite=lax`. |
+| Session expiry | Each session lives at most **30 days** then expires and requires signing in again. |
+| Sessions across restarts | Sessions are written to a file, so **restarting the server does not sign you out**. |
+| Brute-force protection | Failure counts are kept per IP. Enough consecutive failures (8) locks that IP for about 5 minutes; every failure is slowed by half a second. When locked, Jarvis 007 reports "Too many failed attempts - try again in a few minutes." |
+| Secure cookie on HTTPS | When you use a **custom domain** with HTTPS on (Caddy On-Demand TLS), the cookie is marked `secure` (only sent over HTTPS). |
+| CORS | Only open to `localhost` / `127.0.0.1` / `::1` (convenient during development). Other web pages cannot read the API from a browser. |
+| The CSRF gate | Blocks cross-origin write requests, and blocks unknown Hosts while login is off (see the dedicated section above). |
+| Secrets on disk | API keys and tokens in `settings.json` are Fernet-encrypted with `.secret_key` in the state folder. |
 
-Về cookie `secure`: mặc định Javis **không** ép cookie `secure` để chạy được cả HTTP lẫn HTTPS (tránh kẹt vòng đăng nhập sau proxy HTTP như đường dẫn dạng `http://host/PORT/`). Nếu bạn chắc chắn chạy HTTPS đầu-cuối, bật `JAVIS_SECURE_COOKIE=1` trong biến môi trường (xem [Cấu hình .env](16-cau-hinh-env.md)). Truy cập qua đúng tên miền riêng thì Javis tự bật `secure` mà không cần đặt biến này (dựa vào Host khớp tên miền, không suy từ `X-Forwarded-Proto`).
+About the `secure` cookie: by default Jarvis 007 does **not** force it, so it runs over both HTTP and HTTPS (avoiding a login loop behind an HTTP proxy such as a path-style `http://host/PORT/`). If you are certain you run HTTPS end to end, set `JAVIS_SECURE_COOKIE=1` in the environment (see [.env configuration](16-cau-hinh-env.md)). Accessing through the proper custom domain makes Jarvis 007 enable `secure` on its own without that variable (based on the Host matching the domain, not inferred from `X-Forwarded-Proto`).
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference of buttons and states
 
-| Nút / dòng chữ | Ở đâu | Xảy ra chuyện gì |
+| Button / message | Where | What happens |
 |---|---|---|
-| **Đặt mật khẩu** | Tài khoản → Tài khoản đăng nhập (khi chưa có mật khẩu) | Tạo tài khoản admin và cấp phiên ngay cho bạn |
-| **Đổi mật khẩu** | Cùng chỗ, khi đã có mật khẩu | Đổi mật khẩu và/hoặc tên đăng nhập. Phải nhập mật khẩu hiện tại; đổi xong mọi phiên khác bị đăng xuất |
-| **Đăng xuất** | Tài khoản → Tài khoản đăng nhập | Xoá phiên trình duyệt này, tải lại trang |
-| **Tắt đăng nhập** | Tài khoản → Tài khoản đăng nhập | Xoá mật khẩu + đăng xuất mọi phiên (hỏi xác nhận trước) |
-| **Lưu** | Tài khoản → Workspace | Đổi tên workspace hiển thị |
-| 🔒 Đã đặt mật khẩu · tài khoản: ... | Tài khoản đăng nhập | Đang có admin, tên đăng nhập hiện ngay sau dấu hai chấm |
-| Chưa đặt mật khẩu - ai mở dashboard cũng dùng được. Đặt mật khẩu nếu đưa lên VPS. | Tài khoản đăng nhập | Chưa có admin |
-| ✅ Đã lưu tài khoản. | Tài khoản đăng nhập | Đặt mật khẩu thành công |
-| ⚠ Mật khẩu tối thiểu 8 ký tự. | Tài khoản đăng nhập | Giao diện chặn trước khi gửi lên server, cùng ngưỡng với server |
-| ⚠ Sai mật khẩu hiện tại. | Tài khoản đăng nhập | Ô **Mật khẩu hiện tại** gõ sai, không có gì bị đổi |
-| **Quên mật khẩu?** | Màn đăng nhập | Bấm vào hiện hướng dẫn xoá khối `"auth"` trong `server/settings.json` rồi khởi động lại |
+| **Set password** | Account → Login account (when no password exists) | Creates the admin account and grants you a session right away |
+| **Change password** | Same place, once a password exists | Changes the password and/or username. The current password is required; afterwards every other session is signed out |
+| **Sign out** | Account → Login account | Deletes this browser's session and reloads the page |
+| **Turn login off** | Account → Login account | Deletes the password and signs out every session (asks for confirmation first) |
+| **Save** | Account → Workspace | Renames the displayed workspace |
+| 🔒 Password set · account: ... | Login account | An admin exists, the username appears right after the colon |
+| No password yet, so anyone who opens the dashboard can use it. Set one before putting this on a VPS. | Login account | No admin yet |
+| ✅ Account saved. | Login account | The password was set successfully |
+| ⚠ The password needs at least 8 characters. | Login account | The interface blocks before sending, at the same threshold as the server |
+| ⚠ Wrong current password. | Login account | The **Current password** field was typed wrong, nothing was changed |
+| **Forgot password?** | Sign-in screen | Clicking it explains how to delete the `"auth"` block in `server/settings.json` and restart |
 
-## Mẹo
+## Tips
 
-- **Luôn đặt admin trước khi công khai.** Cách chắc nhất là đặt `JAVIS_ADMIN_USER` + `JAVIS_ADMIN_PASSWORD` khi deploy, để server không có lúc nào trống admin.
-- **Đặt mật khẩu đủ dài.** Tối thiểu 8 ký tự; dùng cụm dài, khó đoán.
-- **Chạy qua HTTPS khi truy cập từ xa.** Dùng tên miền riêng (ví dụ Hostinger `*.hstgr.cloud`) hoặc Cloudflare Tunnel thay vì phơi cổng 7777 thô ra Internet. Cách trỏ tên miền và bật HTTPS xem [Thương hiệu & tên miền riêng](15-thuong-hieu-ten-mien.md).
-- **Localhost + tunnel thì bật `JAVIS_REQUIRE_LOGIN=1`.** Khi máy chỉ nghe localhost nhưng bạn mở ra ngoài bằng tunnel, Javis không tự biết là đang public, nên hãy ép login thủ công.
-- **Bật xác thực 2 lớp (2FA) ngay sau lần đăng nhập đầu.** Lộ mật khẩu thì kẻ lạ vẫn thiếu mã TOTP trên điện thoại bạn.
-- **Sao lưu `.secret_key` cùng `settings.json`.** Thiếu một trong hai là phải nhập lại toàn bộ API key.
+- **Always set the admin before going public.** The surest way is setting `JAVIS_ADMIN_USER` + `JAVIS_ADMIN_PASSWORD` at deploy time, so the server is never without an admin.
+- **Use a long enough password.** At least 8 characters; a long, hard to guess phrase is better.
+- **Run over HTTPS for remote access.** Use a custom domain (a Hostinger `*.hstgr.cloud` name, say) or Cloudflare Tunnel rather than exposing raw port 7777 to the Internet. How to point a domain and enable HTTPS: [Branding and custom domains](15-thuong-hieu-ten-mien.md).
+- **Localhost plus a tunnel means setting `JAVIS_REQUIRE_LOGIN=1`.** When the machine only listens on localhost but you expose it through a tunnel, Jarvis 007 cannot tell it is public, so force login manually.
+- **Turn on two-factor (2FA) right after the first sign-in.** If the password leaks, a stranger still lacks the TOTP code on your phone.
+- **Back up `.secret_key` alongside `settings.json`.** Missing either one means re-entering every API key.
 
-## Sự cố thường gặp
+## Common problems
 
-**Bấm Đổi mật khẩu thì báo "Đã có tài khoản - hãy đăng nhập."**
-Lỗi của các bản trước 0.28.3, đã sửa. Trang đang mở còn giữ bản cũ trong bộ nhớ đệm trình duyệt thì tải lại bằng Ctrl+F5 (máy Mac là Cmd+Shift+R) rồi làm lại theo mục C.
+**Clicking Change password reports "An account already exists - please sign in."**
+A bug in versions before 0.28.3, now fixed. If the open page still holds the old build in the browser cache, reload with Ctrl+F5 (Cmd+Shift+R on a Mac) and repeat section C.
 
-**Đổi mật khẩu xong thì điện thoại (hoặc máy khác) đòi đăng nhập lại.**
-Đúng như thiết kế. Đổi mật khẩu huỷ mọi phiên cũ để người đang mượn máy bạn không dùng tiếp được; đăng nhập lại bằng mật khẩu mới là xong.
+**After changing the password, the phone (or another machine) asks to sign in again.**
+By design. Changing the password destroys every old session so someone borrowing your machine cannot keep using it; sign in again with the new password and you are done.
 
-**Nhập đúng user/password nhưng vẫn quay lại màn đăng nhập (kẹt vòng đăng nhập).**
-Thường do cookie `secure` bị bật trong khi bạn đang truy cập qua HTTP (nhiều proxy phục vụ HTTP dạng `http://host/PORT/`). Đừng bật `JAVIS_SECURE_COOKIE` trừ khi bạn chắc chắn HTTPS đầu-cuối. Nếu đã lỡ bật, gỡ biến này rồi khởi động lại server.
+**The correct user and password still bounce back to the sign-in screen (a login loop).**
+Usually the `secure` cookie is on while you access over HTTP (many proxies serve HTTP as a path-style `http://host/PORT/`). Do not set `JAVIS_SECURE_COOKIE` unless you are certain of end-to-end HTTPS. If you already did, remove the variable and restart the server.
 
-**Bị báo "Quá nhiều lần sai - thử lại sau ít phút."**
-Bạn (hoặc ai đó cùng IP) đã sai mật khẩu quá số lần cho phép. Đợi khoảng 5 phút rồi thử lại. Khởi động lại server cũng xoá bộ đếm này.
+**You get "Too many failed attempts - try again in a few minutes."**
+You (or someone on the same IP) got the password wrong too many times. Wait about 5 minutes and try again. Restarting the server also clears the counter.
 
-**Mọi thao tác đều trả 403 "host không được phép".**
-Bạn đang vào Javis bằng một tên miền mà Javis chưa biết, trong lúc chưa đặt mật khẩu. Thêm tên miền đó vào `JAVIS_ALLOWED_HOSTS`, hoặc nhập nó ở **Cài đặt → Tên miền & SSL**, hoặc đơn giản là đặt mật khẩu.
+**Everything returns 403 "host not allowed".**
+You are reaching Jarvis 007 through a domain it does not know, while no password is set. Add that domain to `JAVIS_ALLOWED_HOSTS`, or enter it under **Settings → Domain and SSL**, or simply set a password.
 
-**Thao tác nào cũng báo 403 "cross-origin request bị chặn".**
-Bạn đang gọi API Javis từ một trang khác (script, tiện ích, iframe của bên thứ ba). Đây là lớp chống CSRF chặn đúng việc của nó. Nếu đó là công cụ của chính bạn, thêm hostname của nó vào `JAVIS_ALLOWED_HOSTS`.
+**Everything returns 403 "cross-origin request blocked".**
+You are calling the Jarvis 007 API from another page (a script, an extension, a third-party iframe). This is the CSRF layer doing its job. If it is your own tool, add its hostname to `JAVIS_ALLOWED_HOSTS`.
 
-**Quên mật khẩu.**
-Trên Windows, repo có sẵn script **`reset-auth.bat`** ở thư mục gốc dự án: chạy nó là xoá tài khoản/mật khẩu trong `server/settings.json` và đưa app về bộ cài đặt (nó in "OK - da xoa mat khau." rồi hướng dẫn khởi động lại). Nếu không dùng được script: sửa/xoá phần `auth` trong `settings.json` ở thư mục state (Docker: `/data/state`) rồi khởi động lại; hoặc đặt lại admin bằng `JAVIS_ADMIN_PASSWORD` sau khi đã xoá phần `auth` cũ.
+**You forgot the password.**
+On Windows the repo ships a **`reset-auth.bat`** script in the project root: running it clears the account and password in `server/settings.json` and returns the app to setup (it prints "OK - da xoa mat khau." then tells you how to restart). If the script is not usable: edit or delete the `auth` section of `settings.json` in the state folder (Docker: `/data/state`) then restart; or set the admin again with `JAVIS_ADMIN_PASSWORD` after deleting the old `auth` section.
 
-**Đổi máy/khôi phục backup xong thì mọi API key trống trơn.**
-Bạn chép `settings.json` mà không chép `.secret_key` đi cùng. Không có cách khôi phục: nhập lại key ở trang Models, Kênh và Cài đặt. Lần sau nhớ mang cả hai tệp.
+**After changing machines or restoring a backup, every API key is empty.**
+You copied `settings.json` without `.secret_key`. There is no recovery: re-enter the keys on the Models page, Channels and Settings. Next time bring both files.
 
-**Tắt đăng nhập rồi mà vẫn bị hỏi tài khoản.**
-Vì server vẫn đang public (hoặc `JAVIS_REQUIRE_LOGIN=1`). Ở chế độ này Javis không cho tắt đăng nhập hoàn toàn, mà bắt tạo lại tài khoản. Muốn dùng không mật khẩu thì phải chạy server nghe thuần localhost.
+**Login is turned off but it still asks for an account.**
+Because the server is still public (or `JAVIS_REQUIRE_LOGIN=1`). In that mode Jarvis 007 does not allow login to be turned off entirely, it forces the account to be recreated. To run without a password the server must listen purely on localhost.
 
-## Liên quan
+## Related
 
-- [Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md) - dựng Javis và tạo admin lần đầu.
-- [Thương hiệu & tên miền riêng](15-thuong-hieu-ten-mien.md) - trỏ tên miền và bật HTTPS tự động.
-- [Cấu hình .env](16-cau-hinh-env.md) - danh sách biến môi trường bảo mật (`JAVIS_HOST`, `JAVIS_REQUIRE_LOGIN`, `JAVIS_ADMIN_USER/PASSWORD`, `JAVIS_SECURE_COOKIE`, `JAVIS_ALLOWED_HOSTS`, `JAVIS_STATE_DIR`).
-- [Plugins](20-plugins.md) - vì sao plugin do bạn cài phải bật riêng bằng biến môi trường.
-- [Javis CLI (terminal)](24-cli-terminal.md) - dùng token API để gọi Javis từ máy khác.
-- [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md) - các lỗi thường gặp khác.
+- [Getting started and first setup](01-bat-dau-thiet-lap.md) - standing Jarvis 007 up and creating the first admin.
+- [Branding and custom domains](15-thuong-hieu-ten-mien.md) - pointing a domain and enabling automatic HTTPS.
+- [.env configuration](16-cau-hinh-env.md) - the list of security environment variables (`JAVIS_HOST`, `JAVIS_REQUIRE_LOGIN`, `JAVIS_ADMIN_USER/PASSWORD`, `JAVIS_SECURE_COOKIE`, `JAVIS_ALLOWED_HOSTS`, `JAVIS_STATE_DIR`).
+- [Plugins](20-plugins.md) - why plugins you install yourself must be enabled through an environment variable.
+- [The Jarvis 007 CLI (terminal)](24-cli-terminal.md) - using an API token to call Jarvis 007 from another machine.
+- [Troubleshooting and FAQ](17-khac-phuc-su-co.md) - other common errors.

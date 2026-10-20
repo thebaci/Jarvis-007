@@ -1,161 +1,157 @@
-# Cấu hình .env
+# .env configuration
 
 ***Tiếng Việt** · [English](en/16-env-configuration.md)*
 
-Trang này liệt kê các biến môi trường mà Javis OS đọc lúc khởi động, kèm ý nghĩa, giá trị mặc định và khi nào cần đổi. Nội dung dựa vào file `env.example` và cách server thực sự đọc `os.getenv(...)` trong mã nguồn (`server/config.py`, `server/main.py`, `server/web_security.py`, `server/claude_cli.py`, `server/sessions.py`, `server/plugins_host.py`...).
+This page lists the environment variables Jarvis 007 reads at startup, with their meaning, default value and when you would change them. The content follows the `env.example` file and how the server actually reads `os.getenv(...)` in the source (`server/config.py`, `server/main.py`, `server/web_security.py`, `server/claude_cli.py`, `server/sessions.py`, `server/plugins_host.py`...).
 
-Điểm quan trọng nhất cần nhớ: **mọi dòng để trống vẫn chạy được**. Trên máy cá nhân, bạn gần như không cần đụng tới file `.env`. Việc chỉnh `.env` chủ yếu dành cho khi bạn đưa Javis lên VPS/server public hoặc muốn đổi giọng đọc, cổng, đường dẫn dữ liệu.
+The most important thing to remember: **everything runs with every line left empty**. On a personal machine you barely ever need to touch `.env`. Editing it is mainly for putting Jarvis 007 on a VPS or public server, or for changing the voice, the port or the data paths.
 
-Riêng khi cài bằng **Hostinger Docker Manager**, không cần nhìn thấy toàn bộ danh
-sách nâng cao bên dưới. Compose Hostinger chỉ đưa 3 trường người dùng lên ô
-Environment: `DOMAIN_NAME`, `JAVIS_ADMIN_USER`, `JAVIS_ADMIN_PASSWORD`, cộng một
-trường tuỳ chọn `JAVIS_AUTO_UPDATE`. Các biến nội bộ về cổng, state, brain và thư
-mục làm việc nằm sẵn trong Docker image.
+If you install through **Hostinger Docker Manager**, you do not need the full advanced list below. The Hostinger compose file surfaces only 3 user fields in the Environment box: `DOMAIN_NAME`, `JAVIS_ADMIN_USER`, `JAVIS_ADMIN_PASSWORD`, plus one optional `JAVIS_AUTO_UPDATE`. The internal variables for ports, state, brains and the working folder are already inside the Docker image.
 
-## Tính năng này là gì
+## What this feature is
 
-`.env` là một file văn bản đặt ở **thư mục gốc dự án** (nơi có `env.example`, `docker-compose.yml`, thư mục `server/`). Mỗi dòng là một biến dạng `TÊN_BIẾN=giá trị`. Khi Javis khởi động, nó đọc các biến này để biết: nghe ở cổng nào, có bắt buộc đăng nhập không, dữ liệu Second Brain nằm ở đâu, giọng đọc mặc định là gì.
+`.env` is a text file in the **project root** (the folder holding `env.example`, `docker-compose.yml` and the `server/` folder). Each line is a variable shaped `VARIABLE_NAME=value`. When Jarvis 007 starts, it reads them to learn: which port to listen on, whether login is required, where the Second Brain data lives, what the default voice is.
 
-Cần phân biệt rõ 3 nơi cấu hình để khỏi nhầm:
+Three configuration places need to be kept apart:
 
-- **File `.env`**: các thiết lập cấp hệ thống, đọc 1 lần lúc khởi động. Đổi xong phải khởi động lại Javis mới có hiệu lực.
-- **Bảng ⚙ Cài đặt trong app** (trang Tài khoản, Models, Kênh...): các thiết lập đổi nóng qua giao diện, lưu vào `settings.json`, không cần sửa file. Ví dụ: đổi model, khoá API OpenRouter, token Telegram, tên miền riêng, logo. Xem thêm ở [Models & engine](10-models-va-engine.md), [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md), [Thương hiệu & tên miền](15-thuong-hieu-ten-mien.md).
-- **Vài khoá trong `settings.json` chưa có giao diện**: hiện có khối `media` (luật dọn ảnh/tệp tạm). Muốn đổi thì phải mở file sửa tay. Xem mục riêng bên dưới.
+- **The `.env` file**: system-level settings, read once at startup. A change only takes effect after restarting Jarvis 007.
+- **The ⚙ Settings panel in the app** (the Account, Models, Channels pages...): settings changed live through the interface, saved into `settings.json`, no file editing. For example: switching model, the OpenRouter API key, the Telegram token, the custom domain, the logo. More in [Models and engines](10-models-va-engine.md), [Security and accounts](14-bao-mat-tai-khoan.md), [Branding and domains](15-thuong-hieu-ten-mien.md).
+- **A few `settings.json` keys with no interface**: currently the `media` block (the rules for clearing images and temporary files). Changing them means opening the file by hand. See the dedicated section below.
 
-Nói gọn: `.env` lo phần "chạy ở đâu, ai được vào, dữ liệu nằm đâu". Bảng Cài đặt trong app lo phần "dùng model nào, khoá gì, giọng gì". Còn `settings.json` là nơi cả hai gặp nhau, và một vài khoá hiếm dùng chỉ sửa được ở đó.
+In short: `.env` handles "where it runs, who gets in, where the data lives". The in-app Settings panel handles "which model, which key, which voice". `settings.json` is where the two meet, and a few rare keys can only be edited there.
 
-## Mở ở đâu trong Javis
+## Where to open it in Jarvis 007
 
-`.env` không có nút bấm trong dashboard. Đây là file bạn tự tạo và sửa bằng trình soạn thảo văn bản (Notepad, VS Code...).
+`.env` has no button in the dashboard. It is a file you create and edit in a text editor (Notepad, VS Code...).
 
-Các bước tạo file `.env` lần đầu:
+Creating the `.env` file the first time:
 
-1. Mở thư mục gốc dự án (nơi bạn tải/giải nén Javis; bản Docker thì là `/app` bên trong image, còn `.env` đặt cạnh `docker-compose.yml` trên host).
-2. Tìm file mẫu `env.example` (tên cố ý KHÔNG có dấu chấm đầu - để Docker Manager của Hostinger không tự quét file `.env*` rồi nhập cả dòng chú thích vào ô Environment).
-3. Sao chép nó và đổi tên bản sao thành `.env` (bản sao CÓ dấu chấm đầu, không có phần đuôi `.txt`).
-4. Mở `.env` bằng trình soạn thảo, bỏ dấu `#` ở đầu dòng biến bạn muốn bật, rồi điền giá trị.
-5. Lưu file. Khởi động lại Javis.
+1. Open the project root (where you downloaded or unzipped Jarvis 007; on Docker that is `/app` inside the image, while `.env` sits next to `docker-compose.yml` on the host).
+2. Find the template file `env.example` (the name deliberately has NO leading dot, so Hostinger's Docker Manager does not auto-scan `.env*` files and import every comment line into the Environment box).
+3. Copy it and rename the copy to `.env` (the copy DOES have the leading dot, and no `.txt` extension).
+4. Open `.env` in an editor, remove the `#` in front of the variables you want on, then fill in the values.
+5. Save the file. Restart Jarvis 007.
 
-Cách sao chép nhanh bằng lệnh (chạy trong thư mục dự án):
+The quick way to copy by command (run in the project folder):
 
 - Windows PowerShell: `Copy-Item env.example .env`
 - Git Bash / Linux / macOS: `cp env.example .env`
 
-Lưu ý về dấu `#`: dòng bắt đầu bằng `#` là dòng chú thích, Javis bỏ qua. Muốn bật một biến đang bị chú thích, xoá dấu `#` ở đầu dòng đó. Ví dụ đổi từ `# JAVIS_PORT=7777` thành `JAVIS_PORT=8080`.
+A note on `#`: a line starting with `#` is a comment and Jarvis 007 ignores it. To enable a commented variable, delete the `#` at the start of that line. For example change `# JAVIS_PORT=7777` into `JAVIS_PORT=8080`.
 
-## Danh sách các biến
+## The list of variables
 
-Gom theo chức năng. Cột "Mặc định" là giá trị dùng khi bạn để trống hoặc không khai báo. Nhóm 1 đến 5 là những biến người dùng thường đụng; nhóm 6 và 7 là biến nâng cao, hầu như không cần sửa.
+Grouped by function. The "Default" column is the value used when you leave it empty or do not declare it. Groups 1 to 5 are the ones users normally touch; groups 6 and 7 are advanced and almost never need editing.
 
-### Nhóm 1: Hiển thị workspace
+### Group 1: Workspace display
 
-| Biến | Ý nghĩa | Mặc định | Khi nào đổi |
+| Variable | Meaning | Default | When to change |
 |---|---|---|---|
-| `WORKSPACE_NAME` | Tên workspace hiển thị trên dashboard | `Javis OS` | Muốn đặt tên riêng cho không gian làm việc. Lưu ý: nếu bạn đã đặt tên trong app thì app ưu tiên tên đã lưu, biến này chỉ là dự phòng. |
-| `USER_NAME` | Tên người dùng hiển thị | `Bạn` | Muốn Javis xưng hô bằng tên bạn thay vì "Bạn". |
+| `WORKSPACE_NAME` | The workspace name shown on the dashboard | `Jarvis 007` | You want your own name for the workspace. Note: if you already set a name in the app, the app's saved name wins and this variable is only a fallback. |
+| `USER_NAME` | The displayed user name | `You` (`Bạn` in the Vietnamese locale) | You want Jarvis 007 to address you by name rather than "You". |
 
-### Nhóm 2: Mạng (cổng và địa chỉ nghe)
+### Group 2: Network (port and listening address)
 
-| Biến | Ý nghĩa | Mặc định | Khi nào đổi |
+| Variable | Meaning | Default | When to change |
 |---|---|---|---|
-| `JAVIS_HOST` | Địa chỉ server nghe. `127.0.0.1` = chỉ máy này truy cập được. `0.0.0.0` = nghe mọi nơi (public, ai có địa chỉ đều vào được) | `127.0.0.1` (Docker image đặt sẵn `0.0.0.0`) | Chỉ đổi sang `0.0.0.0` khi chạy trên VPS/server và muốn truy cập từ máy khác. Khi đó phải bật đăng nhập (xem nhóm 3). |
-| `JAVIS_PORT` | Cổng nghe của dashboard | `7777` | Cổng `7777` bị chiếm hoặc muốn cổng khác. Đổi xong nhớ mở đúng cổng đó trên trình duyệt. |
+| `JAVIS_HOST` | The address the server listens on. `127.0.0.1` = only this machine can reach it. `0.0.0.0` = listen everywhere (public, anyone with the address gets in) | `127.0.0.1` (the Docker image presets `0.0.0.0`) | Only switch to `0.0.0.0` when running on a VPS/server and wanting access from other machines. You must then turn login on (see group 3). |
+| `JAVIS_PORT` | The dashboard's listening port | `7777` | Port `7777` is taken or you want another one. After changing, open that port in the browser. |
 
-Chi tiết quan trọng về `JAVIS_HOST`: Javis dùng cơ chế "an toàn mặc định". Nếu bạn để địa chỉ nghe KHÔNG phải loopback (tức khác `127.0.0.1`, `localhost`, `::1`), server tự coi là đang chạy public và **tự bật bắt buộc đăng nhập** để không ai vào được nếu chưa có tài khoản. Lý do: bộ não AI chạy với đầy quyền trên máy, để hở là nguy hiểm.
+An important detail about `JAVIS_HOST`: Jarvis 007 uses a "safe by default" rule. If the listening address is NOT loopback (anything other than `127.0.0.1`, `localhost`, `::1`), the server treats itself as public and **turns forced login on** so nobody gets in without an account. The reason: an AI brain runs with full power on the machine, and leaving it open is dangerous.
 
-### Nhóm 3: Đăng nhập và bảo mật
+### Group 3: Login and security
 
-| Biến | Ý nghĩa | Mặc định | Khi nào đổi |
+| Variable | Meaning | Default | When to change |
 |---|---|---|---|
-| `JAVIS_REQUIRE_LOGIN` | Ép bật/tắt bắt buộc đăng nhập. `1`/`true`/`yes`/`on` = bật. `0`/`false`/`no`/`off` = tắt | Tự động (bật khi bind public) | Chạy localhost rồi expose ra ngoài qua tunnel (Cloudflare, ngrok...): đặt `JAVIS_REQUIRE_LOGIN=1` để chặn người lạ. |
-| `JAVIS_ADMIN_USER` | Tên đăng nhập admin tạo sẵn lúc deploy | `admin` | Đặt cùng `JAVIS_ADMIN_PASSWORD` để tạo sẵn tài khoản, server public không có lúc nào trống admin. |
-| `JAVIS_ADMIN_PASSWORD` | Mật khẩu admin tạo sẵn lúc deploy | (trống) | Deploy public: đặt mật khẩu mạnh ở đây. Có biến này và chưa có admin, Javis tạo tài khoản admin ngay lúc khởi động và đóng luôn màn hình tạo tài khoản (an toàn nhất cho public). |
-| `JAVIS_SETUP_2FA` | Mở sẵn màn quét QR bật xác thực 2 lớp ở trang Tài khoản. `1` = mở sẵn | Tắt | Muốn bật 2FA ngay lần đầu đăng nhập. Cờ này chỉ là **lời nhắc**: nó KHÔNG tự bật 2FA. Phải quét QR và nhập đúng một mã thì mới bật thật, vì bật trước lúc bạn chứng minh app sinh đúng mã là tự khoá mình ra ngoài. Bật hay tắt 2FA lúc nào cũng được ngay trong Dashboard → Tài khoản, không cần biến này. |
-| `JAVIS_SECURE_COOKIE` | Bật cookie chỉ gửi qua HTTPS. `1`/`true`/`yes`/`on` = bật | Tắt | Chỉ bật khi CHẮC CHẮN chạy HTTPS đầu-cuối (domain riêng có SSL). Bật nhầm khi proxy đang chạy HTTP sẽ kẹt vòng đăng nhập (nhập đúng mật khẩu vẫn bị đá về trang login). |
-| `JAVIS_ALLOWED_HOSTS` | Thêm hostname được phép gọi Javis (chống CSRF và DNS-rebinding). Nhiều tên cách nhau dấu phẩy | (trống) | Chạy sau reverse proxy với tên miền chưa khai trong app mà chưa đặt mật khẩu, bị 403 "host không được phép". Mặc định đã cho `localhost`, `127.0.0.1`, `::1` và tên miền bạn đặt ở Cài đặt. |
-| `JAVIS_ENABLE_USER_PLUGINS` | Công tắc tắt hẳn plugin do bạn cài. Đặt `false` là không nạp | Bật | Từ 0.162.0 plugin do bạn cài được tải mặc định; từng plugin vẫn chỉ chạy khi bạn bật nó trong app. Đặt `false` khi muốn chặn hẳn trên máy này (plugin user chạy CODE PYTHON THẬT trong tiến trình server). Alias cũ: `JAVIS_ENABLE_VAULT_PLUGINS`. Plugin đi kèm app (bundled) không chịu công tắc này. Xem [Plugins](20-plugins.md). |
-| `JAVIS_TERMINAL` | Công tắc tắt hẳn Terminal trong nhóm Code. `0`/`off`/`false`/`no` = tắt | Bật | Không muốn có dòng lệnh nào mở được từ trình duyệt. Terminal vốn đã chỉ mở cho trình duyệt ĐÃ ĐĂNG NHẬP (token API không vào được), nhưng nhiều người vẫn muốn khoá cứng ở tầng máy chủ. Xem [Nhóm Code: Terminal](27-tab-code-terminal.md). |
-| `JAVIS_TERMINAL_SHELL` | Shell mà Terminal chạy | `$SHELL`, không có thì `bash`/`sh`. Windows: `powershell.exe` rồi `cmd.exe` | Muốn ép dùng một shell khác (`zsh`, `fish`, `cmd.exe`). |
-| `JAVIS_TERMINAL_CWD` | Thư mục terminal mở ra | HOME của user chạy Javis | Muốn shell mở sẵn ở gốc brain hoặc một thư mục dự án khác. |
-| `JAVIS_AUTO_INSTALL_CLIS` | Bản Docker tự cài Antigravity CLI (`agy`) và Grok Build (`grok`) lúc khởi động nếu chưa có | `1` (bật) | Đặt `0` khi máy chủ không ra được Internet hoặc bạn không muốn có hai CLI này. Cài một lần, giữ qua mọi lần cập nhật; nhật ký cài ở `/data/home/.cli-auto-install/install.log`. |
-| `JAVIS_TERMINAL_REMOTE` | Khai với các CLI trong Terminal rằng người dùng ngồi ở MÁY KHÁC (đặt `SSH_CONNECTION`) | Tự đoán: bật khi máy chủ không có màn hình (VPS, Docker), tắt trên Windows/macOS chạy thẳng và Linux có màn hình | Đăng nhập `agy`, `claude`, `codex`... in link rồi đứng im vì chúng tưởng trình duyệt nằm cùng máy. Bật (`1`) để chúng hỏi chỗ dán mã. Tắt (`0`) nếu máy chủ thật sự mở được trình duyệt cho bạn (X11 forwarding chẳng hạn). Xem [Nhóm Code: Terminal](27-tab-code-terminal.md). |
+| `JAVIS_REQUIRE_LOGIN` | Force login on or off. `1`/`true`/`yes`/`on` = on. `0`/`false`/`no`/`off` = off | Automatic (on when bound public) | Running on localhost but exposed through a tunnel (Cloudflare, ngrok...): set `JAVIS_REQUIRE_LOGIN=1` to keep strangers out. |
+| `JAVIS_ADMIN_USER` | The admin username created at deploy time | `admin` | Set it alongside `JAVIS_ADMIN_PASSWORD` to preseed the account, so a public server is never without an admin. |
+| `JAVIS_ADMIN_PASSWORD` | The admin password created at deploy time | (empty) | Public deploy: put a strong password here. With this variable set and no admin yet, Jarvis 007 creates the admin at startup and closes the create-account screen entirely (the safest option for public). |
+| `JAVIS_SETUP_2FA` | Open the QR screen for two-factor auth on the Account page. `1` = open it | Off | You want 2FA on from the first sign-in. This flag is only a **reminder**: it does NOT enable 2FA by itself. You must scan the QR and enter one correct code before it is really on, because switching it on before you have proved your app produces valid codes locks you out of your own account. You can turn 2FA on or off any time in Dashboard → Account without this variable. |
+| `JAVIS_SECURE_COOKIE` | Send the cookie only over HTTPS. `1`/`true`/`yes`/`on` = on | Off | Only turn on when you are CERTAIN of end-to-end HTTPS (a custom domain with SSL). Turning it on by mistake behind an HTTP proxy causes a login loop (the right password still bounces you back to the sign-in page). |
+| `JAVIS_ALLOWED_HOSTS` | Extra hostnames allowed to call Jarvis 007 (CSRF and DNS-rebinding protection). Comma separated | (empty) | Running behind a reverse proxy on a domain not declared in the app, with no password set, and getting 403 "host not allowed". `localhost`, `127.0.0.1`, `::1` and the domain you set in Settings are already allowed. |
+| `JAVIS_ENABLE_USER_PLUGINS` | The switch that turns off plugins you install. `false` stops loading them | On | Since 0.162.0 plugins you install load by default; each one still runs only after you enable it in the app. Set `false` to block them on this machine (user plugins run REAL PYTHON CODE inside the server process). Old alias: `JAVIS_ENABLE_VAULT_PLUGINS`. Plugins bundled with the app are not subject to this switch. See [Plugins](20-plugins.md). |
+| `JAVIS_TERMINAL` | The switch that removes the Terminal in the Code group entirely. `0`/`off`/`false`/`no` = off | On | You do not want any command line openable from a browser. The Terminal is already only open to a SIGNED-IN browser (API tokens cannot reach it), but many people still want it hard-locked at the server layer. See [The Code group: Terminal](27-tab-code-terminal.md). |
+| `JAVIS_TERMINAL_SHELL` | The shell the Terminal runs | `$SHELL`, falling back to `bash`/`sh`. Windows: `powershell.exe` then `cmd.exe` | You want to force another shell (`zsh`, `fish`, `cmd.exe`). |
+| `JAVIS_TERMINAL_CWD` | The folder the terminal opens in | The HOME of the user running Jarvis 007 | You want the shell to open at the brain root or another project folder. |
+| `JAVIS_AUTO_INSTALL_CLIS` | The Docker edition installs Antigravity CLI (`agy`) and Grok Build (`grok`) at startup when missing | `1` (on) | Set `0` when the server has no Internet access or you do not want these two CLIs. Installed once, kept across updates; the install log is `/data/home/.cli-auto-install/install.log`. |
+| `JAVIS_TERMINAL_REMOTE` | Tell the CLIs in the Terminal that the user sits at ANOTHER machine (sets `SSH_CONNECTION`) | Auto: on when the server has no screen (VPS, Docker), off on native Windows/macOS and Linux with a display | Signing into `agy`, `claude`, `codex`... prints a link then sits there because they assume the browser is on this machine. Turn it on (`1`) so they ask where to paste the code. Turn it off (`0`) if the server really can open a browser for you (X11 forwarding, say). See [The Code group: Terminal](27-tab-code-terminal.md). |
 
-Về tài khoản admin lần đầu: khi chạy public mà chưa có admin, lần đầu mở app chỉ hỏi tên đăng nhập và mật khẩu, nên **ai mở link trước sẽ tạo được admin**. Vì vậy nên đặt sẵn `JAVIS_ADMIN_USER` + `JAVIS_ADMIN_PASSWORD` (`install.sh` đã hỏi sẵn) để server boot lên là có admin, hoặc tạo tài khoản ngay sau khi deploy. Đăng nhập xong thì bật xác thực 2 lớp (2FA). Xem thêm ở [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md).
+About the first admin account: when running public with no admin, opening the app the first time only asks for a username and password, so **whoever opens the link first can create the admin**. That is why you should preset `JAVIS_ADMIN_USER` + `JAVIS_ADMIN_PASSWORD` (`install.sh` already asks for them) so the server boots with an admin, or create the account right after deploying. Once signed in, turn on two-factor authentication (2FA). More in [Security and accounts](14-bao-mat-tai-khoan.md).
 
-Về tên miền riêng và HTTPS: VPS dùng Caddy nhập tên miền ngay trong **Cài đặt → Chung → Tên miền & SSL** rồi bấm **Bật SSL**. Riêng Hostinger, wizard tạo sẵn biến `DOMAIN_NAME` để sao chép sang Docker Manager rồi Redeploy. Khi truy cập đúng tên miền qua HTTPS, server tự bật cookie Secure nên không cần đặt `JAVIS_SECURE_COOKIE` thủ công. Chi tiết ở [Thương hiệu & tên miền](15-thuong-hieu-ten-mien.md).
+About custom domains and HTTPS: on a Caddy VPS you enter the domain right in **Settings → General → Domain and SSL** then click **Enable SSL**. On Hostinger the wizard prepares the `DOMAIN_NAME` variable for you to copy into Docker Manager before a Redeploy. When you access the proper domain over HTTPS, the server enables the Secure cookie by itself so `JAVIS_SECURE_COOKIE` need not be set manually. Details in [Branding and domains](15-thuong-hieu-ten-mien.md).
 
-### Nhóm 4: Đường dẫn dữ liệu (Second Brain và state)
+### Group 4: Data paths (Second Brain and state)
 
-| Biến | Ý nghĩa | Mặc định | Khi nào đổi |
+| Variable | Meaning | Default | When to change |
 |---|---|---|---|
-| `CLAUDE_CWD` | Thư mục dự phòng cho vài việc phụ của engine Claude (nhập nguồn, terminal khi chưa chọn brain). Từ 0.55.58 **chat luôn chạy trong thư mục brain đang chọn** và không đọc biến này nữa, nên file Javis tạo từ chat nằm đúng trong brain | Thư mục gốc dự án (Docker: `/app`) | Hầu như không cần đặt. |
-| `BRAINS_DIR` | Thư mục cha chứa mọi brain, mỗi thư mục con là một Second Brain. Brain mặc định là `<BRAINS_DIR>/Brain Default` | `brains/` trong dự án (Docker: `/brains`) | Muốn để nhiều brain ở nơi khác (ví dụ ổ dữ liệu riêng, mount git-backup). |
-| `OBSIDIAN_VAULT_PATH` | Đường dẫn vault Second Brain chính | `vault/` trong dự án (Docker: `/data/vault`) | Trên server đã có vault Obsidian thật thì trỏ biến này vào đó. Để trống thì Javis dùng vault mẫu trong repo (máy mới chạy được ngay). |
-| `BRAIN_PATH` | Thư mục brain kiểu cũ, thời một-brain. Chỉ còn để migrate dữ liệu cũ | `brain/` trong dự án (Docker: `/data/brain`) | Hầu như không cần đụng. Đừng dùng cho cài mới. |
-| `SOURCES_PATH` | Nơi lưu file đính kèm từ chat (làm source cho Second Brain) | `brain/01 - Sources/` trong dự án | Muốn tách thư mục nguồn ra chỗ khác. |
-| `JAVIS_STATE_DIR` | Nơi Javis ghi state riêng: `settings.json`, phiên đăng nhập, cấu hình việc định kỳ, khoá mã hoá `.secret_key`, cơ sở dữ liệu hội thoại | `server/` (Docker: `/data/state`) | Docker/VPS phải trỏ vào volume ghi được (vì cây mã nguồn trong container là chỉ đọc). Máy cá nhân để trống là được. |
-| `JAVIS_SESSIONS_DB` | Đường dẫn file cơ sở dữ liệu lưu phiên hội thoại (`conversations.db`) | Nằm trong `JAVIS_STATE_DIR` | Muốn để file lịch sử phiên ở nơi khác. Xem [Phiên hội thoại](04-phien-hoi-thoai.md). |
-| `JAVIS_FILES_ROOT` | Trần duyệt của trang Tệp tin (không cho bấm "Lên" quá đây). `brain`/`vault` = khoá trong brain; `drive`/`root` = cả ổ đĩa chứa brain; `<đường dẫn>` = một thư mục cụ thể (phải chứa brain) | localhost: cả ổ đĩa; bind public: khoá brain | Chạy public (VPS) mà vẫn muốn duyệt rộng thì đặt `drive` hoặc một thư mục cha. Muốn khoá chặt trong brain khi chạy local thì đặt `brain`. |
+| `CLAUDE_CWD` | Fallback folder for a few side jobs of the Claude engine (source ingest, the terminal before a brain is chosen). Since 0.55.58 **chat always runs inside the selected brain folder** and no longer reads this variable, so files Jarvis 007 creates from chat land inside the brain | The project root (Docker: `/app`) | Almost never needed. |
+| `BRAINS_DIR` | The parent folder holding every brain, one subfolder per Second Brain. The default brain is `<BRAINS_DIR>/Brain Default` | `brains/` in the project (Docker: `/brains`) | You want the brains elsewhere (a separate data disk, a git-backup mount). |
+| `OBSIDIAN_VAULT_PATH` | The path of the main Second Brain vault | `vault/` in the project (Docker: `/data/vault`) | If the server already has a real Obsidian vault, point this at it. Left empty, Jarvis 007 uses the sample vault in the repo (so a fresh machine runs immediately). |
+| `BRAIN_PATH` | The old-style brain folder from the single-brain era. Kept only to migrate old data | `brain/` in the project (Docker: `/data/brain`) | Almost never needed. Do not use it for a new install. |
+| `SOURCES_PATH` | Where chat attachments are stored (as sources for the Second Brain) | `brain/01 - Sources/` in the project | You want the source folder somewhere else. |
+| `JAVIS_STATE_DIR` | Where Jarvis 007 writes its own state: `settings.json`, login sessions, recurring job configuration, the `.secret_key` encryption key, the conversation database | `server/` (Docker: `/data/state`) | On Docker/VPS this must point at a writable volume (the source tree inside the container is read-only). On a personal machine, leaving it empty is fine. |
+| `JAVIS_SESSIONS_DB` | The path of the database file holding conversation sessions (`conversations.db`) | Inside `JAVIS_STATE_DIR` | You want the session history file elsewhere. See [Sessions](04-phien-hoi-thoai.md). |
+| `JAVIS_FILES_ROOT` | The browsing ceiling of the Files page (you cannot click "Up" beyond it). `brain`/`vault` = locked inside the brain; `drive`/`root` = the whole disk holding the brain; `<path>` = a specific folder (which must contain the brain) | localhost: the whole disk; public bind: locked to the brain | Running public (VPS) but still wanting wide browsing: set `drive` or a parent folder. Wanting a hard lock inside the brain while running locally: set `brain`. |
 
-Ghi chú về Second Brain: `BRAINS_DIR` là thư mục thật sự chứa các brain của bạn (không phải `brain/` ở gốc repo, đó là đường dẫn kiểu cũ). Để trống là chạy được ngay với dữ liệu mẫu trong repo. Đọc thêm cách vận hành bộ nhớ ở [Second Brain: bộ nhớ, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) và [Đồ thị tri thức](03-do-thi-tri-thuc.md).
+A note about the Second Brain: `BRAINS_DIR` is the folder that actually holds your brains (not `brain/` at the repo root, which is the old-style path). Left empty, it runs immediately with the sample data in the repo. Read more about how memory works in [Second Brain: memory, Wiki, INGEST](13-second-brain-bo-nho-wiki.md) and [Knowledge graph](03-do-thi-tri-thuc.md).
 
-**Cảnh báo về `.secret_key`:** trong thư mục `JAVIS_STATE_DIR` có một tệp nhỏ tên `.secret_key`. Nó là khoá dùng để mã hoá các trường bí mật trong `settings.json` (API key OpenRouter/Anthropic/OpenAI/Gemini, token đăng nhập ChatGPT, token Telegram, token GitHub sao lưu, key ElevenLabs). Chép `settings.json` sang máy khác mà quên `.secret_key` thì **mọi khoá mất trắng**: Javis không giải mã được nên trả về chuỗi rỗng và bạn phải nhập lại từng cái. Sao lưu thì sao lưu cả cặp. Nếu máy thiếu thư viện `cryptography`, Javis không mã hoá được: secret rơi về tiền tố `plain:` kèm một dòng cảnh báo trong log; cài `pip install cryptography` rồi khởi động lại là xong. Chi tiết ở [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md).
+**A warning about `.secret_key`:** inside the `JAVIS_STATE_DIR` folder is a small file named `.secret_key`. It is the key that encrypts the secret fields in `settings.json` (OpenRouter/Anthropic/OpenAI/Gemini API keys, ChatGPT sign-in tokens, the Telegram token, the GitHub backup token, the ElevenLabs key). Copying `settings.json` to another machine while forgetting `.secret_key` means **every key is lost**: Jarvis 007 cannot decrypt them, returns empty strings, and you must re-enter each one. Back up the pair together. If the machine lacks the `cryptography` library, Jarvis 007 cannot encrypt: secrets fall back to the `plain:` prefix with a warning line in the log; `pip install cryptography` then restart and it is fixed. Details in [Security and accounts](14-bao-mat-tai-khoan.md).
 
-### Nhóm 5: Giọng đọc (TTS)
+### Group 5: Voice (TTS)
 
-| Biến | Ý nghĩa | Mặc định | Khi nào đổi |
+| Variable | Meaning | Default | When to change |
 |---|---|---|---|
-| `TTS_VOICE` | Giọng đọc mặc định (dùng Edge TTS miễn phí) | `en-US-EmmaMultilingualNeural` | Muốn giọng khác. Ví dụ giọng nam tiếng Việt hoặc giọng tiếng nước ngoài. |
-| `TTS_RATE` | Tốc độ đọc, dạng phần trăm cộng/trừ | `+5%` | Thấy đọc nhanh quá thì giảm (ví dụ `+0%` hoặc `-10%`), muốn nhanh hơn thì tăng (ví dụ `+15%`). |
+| `TTS_VOICE` | The default reading voice (using free Edge TTS) | `en-US-EmmaMultilingualNeural` | You want another voice. A male Vietnamese voice or a foreign-language voice, say. |
+| `TTS_RATE` | Reading speed, as a plus/minus percentage | `+5%` | Too fast, so lower it (`+0%` or `-10%`); faster, so raise it (`+15%`). |
 
-Lưu ý: hai biến TTS này áp cho giọng Edge TTS miễn phí mặc định. Nếu bạn chọn dùng nhà cung cấp giọng khác (OpenAI TTS hoặc ElevenLabs), phần đó cấu hình trong bảng Cài đặt của app chứ không qua `.env`. Cách trò chuyện và bật giọng nói xem ở [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md).
+Note: these two TTS variables apply to the default free Edge TTS voice. If you pick another voice provider (OpenAI TTS or ElevenLabs), that is configured in the app's Settings panel rather than through `.env`. How to chat and turn voice on: [Chat and voice](02-tro-chuyen-va-giong-noi.md).
 
-### Nhóm 6: Deploy, tên miền và cập nhật
+### Group 6: Deploy, domains and updates
 
-| Biến | Ý nghĩa | Mặc định | Khi nào đổi |
+| Variable | Meaning | Default | When to change |
 |---|---|---|---|
-| `DOMAIN_NAME` | Tên miền mà reverse proxy (Traefik của Hostinger) định tuyến về Javis. Javis đọc để đối chiếu với tên miền bạn nhập trong app và biết có cần Redeploy không | (trống; compose Hostinger đặt `localhost`) | Deploy Hostinger: đặt bằng tên miền của bạn trong Docker Manager rồi Redeploy. Wizard trong app có nút **Sao chép biến** để copy sẵn dòng này. |
-| `JAVIS_DEPLOY_TARGET` | Khai rõ đang chạy ở môi trường nào: `hostinger`, `vps`, `native`, `windows` | Tự đoán (hostname `.hstgr.cloud` = hostinger; chạy Docker = vps) | Hầu như không cần đặt tay. Compose Hostinger đã đặt sẵn `hostinger`. Đặt khi Javis đoán sai môi trường và wizard tên miền hiện sai hướng dẫn. |
-| `WATCHTOWER_TOKEN` | Token cho nút "Cập nhật ngay" (trang **Cập nhật**) gọi Watchtower khi chạy Docker | Trong `docker-compose.yml`: `javis-update`. Ngoài Docker: trống (không có biến thì Javis coi như Watchtower không chạy) | Muốn chặt hơn: đổi thành chuỗi ngẫu nhiên, đặt cùng giá trị cho cả app lẫn service watchtower. |
-| `JAVIS_AUTO_UPDATE` | Cho Watchtower TỰ đi tìm bản mới rồi dựng lại container, khỏi cần bấm nút | `false` | Mặc định tắt có chủ ý: bật là app tự khởi động lại bất cứ lúc nào có bản mới, cắt ngang việc nền và phiên chat đang chạy. Đặt trong `.env` (Hostinger: ô Environment) rồi dựng lại stack. |
-| `JAVIS_AUTO_UPDATE_INTERVAL` | Chu kỳ Watchtower đi tìm bản mới, tính bằng GIÂY | `86400` (24 giờ) | Chỉ có tác dụng khi `JAVIS_AUTO_UPDATE=true`. Đừng đặt quá ngắn: mỗi lần có bản mới là một lần app khởi động lại. |
+| `DOMAIN_NAME` | The domain the reverse proxy (Hostinger's Traefik) routes to Jarvis 007. Jarvis 007 reads it to compare against the domain you entered in the app and to know whether a Redeploy is needed | (empty; the Hostinger compose sets `localhost`) | Hostinger deploy: set it to your domain in Docker Manager then Redeploy. The in-app wizard has a **Copy variable** button that prepares this line. |
+| `JAVIS_DEPLOY_TARGET` | Declares the environment explicitly: `hostinger`, `vps`, `native`, `windows` | Auto-detected (a `.hstgr.cloud` hostname = hostinger; running Docker = vps) | Almost never needed by hand. The Hostinger compose already sets `hostinger`. Set it when Jarvis 007 guesses the environment wrong and the domain wizard shows the wrong instructions. |
+| `WATCHTOWER_TOKEN` | The token the "Update now" button (the **Updates** page) uses to call Watchtower when running Docker | In `docker-compose.yml`: `javis-update`. Outside Docker: empty (no variable means Jarvis 007 assumes Watchtower is not running) | For tighter security: change it to a random string, setting the same value on both the app and the watchtower service. |
+| `JAVIS_AUTO_UPDATE` | Lets Watchtower find new versions and recreate the container on its own, with no button to press | `false` | Off by default on purpose: turning it on means the app restarts itself whenever a new version lands, cutting across background work and a running chat. Set it in `.env` (Hostinger: the Environment box) and bring the stack up again. |
+| `JAVIS_AUTO_UPDATE_INTERVAL` | How often Watchtower looks for a new version, in SECONDS | `86400` (24 hours) | Only has an effect with `JAVIS_AUTO_UPDATE=true`. Do not set it too short: every new version is another restart. |
 
-### Nhóm 7: Biến nâng cao (hiếm khi cần đụng)
+### Group 7: Advanced variables (rarely need touching)
 
-| Biến | Ý nghĩa | Mặc định | Khi nào đổi |
+| Variable | Meaning | Default | When to change |
 |---|---|---|---|
-| `JAVIS_CLAUDE_IDLE_TIMEOUT` | Trần chờ khi engine đã trả lời rồi im giữa chừng mà KHÔNG có tool nào đang chạy, tính bằng giây. `0` = không giới hạn | `0` | Mặc định bỏ trần: engine im lặng KHÔNG có nghĩa là treo (model suy nghĩ ở mức nỗ lực cao, hoặc đang soạn nội dung một file dài để ghi ra, đều im hàng phút). Chỉ đặt số dương nếu bạn thật sự cần cắt lượt tự động. |
-| `JAVIS_CLAUDE_FIRST_TIMEOUT` | Trần chờ chữ ĐẦU TIÊN của một lượt, tính bằng giây. `0` = không giới hạn | `0` | Cùng lý do với biến trên: hội thoại dài thì lượt đầu phải nạp lại toàn bộ ngữ cảnh nên lâu. |
-| `JAVIS_CLAUDE_TOOL_TIMEOUT` | Trần chờ khi một TOOL đang chạy dở (render video, tách nền, build...), tính bằng giây. `0` = không giới hạn | `3600` | Trần này giữ lại vì nó đo một tiến trình con CÓ THẬT đang sống, không phải đo sự im lặng. Tác vụ chạy quá 1 tiếng (encode video dài, train model...) thì tăng lên. |
-| `JAVIS_CODEX_SANDBOX` | Có dùng rào sandbox riêng của Codex (ChatGPT) cho việc nền không. `auto` = có, khớp mức quyền của việc (suggest thành read-only, auto thành workspace-write). `off` = không đặt rào riêng | `auto`, nhưng **ảnh Docker đặt sẵn `off`** | Codex bọc lệnh đọc/ghi file bằng bubblewrap, mà bubblewrap không khởi động nổi trong container (user thường, không có CAP_SYS_ADMIN, Ubuntu 24.04 còn chặn user namespace bằng AppArmor) nên rào đó không phải chặt hơn mà là chết hẳn - mọi việc nền chạy bằng ChatGPT đều không đọc nổi một file nào. Chạy ngoài Docker thì để `auto`. Đánh đổi khi `off`: Codex không có allowlist per-call như Claude nên mức `suggest` mất thứ chặn nó ghi file; rào tiền/đơn/đăng bài/gửi tin KHÔNG bị ảnh hưởng vì chúng nằm ở MCP Hub. |
-| `JAVIS_AGY_PROMPT_DAI` | Ép cách Javis đưa prompt cho Antigravity CLI khi prompt dài hơn trần dòng lệnh: `stdin` (bơm qua ống dẫn), `file` (ghi ra file rồi bảo model tự đọc), `argv` (nhét thẳng vào dòng lệnh) | (trống, Javis tự chọn: stdin trước, hỏng thì tự lui về file) | Chỉ khi máy bạn gặp ca lạ. Windows chặn tổng dòng lệnh ở 32767 ký tự trong khi system prompt của Javis đã hơn 36.000, nên `argv` ở đó là chắc chắn gãy. Xem [Models & engine](10-models-va-engine.md). |
-| `JAVIS_AGY_TIMEOUT` | Trần thời gian một lượt chạy của Antigravity CLI, tính bằng giây. Javis truyền luôn số này xuống `--print-timeout` của chính CLI | `900` | Việc nền dài bị cắt ngang thì tăng. Không đặt thì `agy` tự cắt ở phút thứ 5 và trả về câu dở dang chứ không báo lỗi. |
-| `JAVIS_AGY_MCP_HOME` | Javis có được ghi cấu hình MCP vào HOME của bạn không (`~/.gemini/config/mcp_config.json` - chỗ `agy` THẬT SỰ nạp MCP). `0` = không, chỉ ghi `<brain>/.agents/mcp_config.json` | (trống = có ghi) | Đặt `0` là chấp nhận Antigravity **mất hết tool của Javis** trên mọi bản `agy` chưa vá issue #60 (bản đó tìm thấy cấu hình workspace rồi bỏ qua). Chỉ đặt nếu bạn không muốn Javis đụng vào file dùng chung với Antigravity IDE. |
-| `JAVIS_AGY_MCP_CONFIG` | Ghi cấu hình MCP cho `agy` vào ĐÚNG file này thay cho hai đường HOME mặc định | (trống) | Dùng khi bản `agy` của bạn để cấu hình ở chỗ khác. |
-| `JAVIS_AGY_MCP_KEY` | Tên khoá URL Javis ghi vào entry MCP: `serverUrl` (hiện hành) hoặc `url` (bản 1.0.x cũ) | (trống = ghi cả hai) | Chỉ khi bản `agy` của bạn từ chối entry có khoá lạ. Ghi cả hai là để bản nào cũng nhận ra; máy dựng Javis không tải được `agy` nên chỗ này chưa đo trực tiếp được. |
-| `JAVIS_GROK_BIN` | Đường dẫn thẳng tới binary `grok` (Grok Build CLI) | (trống, Javis tự tìm trong PATH và `~/.local/bin`) | Chỉ khi máy cài nó ở chỗ lạ. |
-| `GROK_DISABLE_AUTOUPDATER` | Tắt bộ tự cập nhật của Grok Build CLI. Javis TỰ đặt `1` cho mọi lượt nó chạy `grok` | `1` (Javis đặt, nhưng tôn trọng giá trị bạn đặt sẵn) | Đặt `0` nếu muốn CLI tự nâng cấp. Không nên: Javis chạy nó headless, bộ cập nhật xen vào giữa lượt là in thêm chữ vào luồng kết quả hoặc ghi vào chỗ chỉ đọc. Nâng cấp tay bằng `grok update`. |
-| `JAVIS_GROK_TIMEOUT` | Trần thời gian một lượt chạy của Grok Build CLI, tính bằng giây | `900` | Việc nền dài bị cắt ngang thì tăng. Trần này không chỉ là phòng xa: nếu bản CLI trên máy không khai cờ `--permission-mode` thì Javis không truyền nó, và một lượt headless dừng lại hỏi duyệt sẽ treo im tới vô tận - đây là thứ duy nhất gỡ được ca đó. |
-| `JAVIS_MAX_TOOL_ROUNDS` | Số vòng gọi tool tối đa cho MỘT lượt trả lời của các engine dùng API key (OpenRouter, OpenAI, Anthropic, Gemini, Groq, Ollama). Bị kẹp trong khoảng 1 đến 120 | `30` | Từ 0.47.1 hiếm khi phải đụng: phanh chính chống model kẹt vòng lặp là phát hiện "gọi lại cùng tool với cùng tham số" (nhắc ở vòng lặp thứ 3, dừng ở vòng thứ 5), còn trần này chỉ là lưới đỡ xa. Việc rất dài mà vẫn chạm trần thì tăng lên rồi khởi động lại Javis. Claude Code và Codex KHÔNG chịu trần này - chúng tự quản vòng lặp của mình. |
-| `JAVIS_KANBAN_MAX_WORKERS` | Số việc Kanban chạy song song. Bị kẹp trong khoảng 1 đến 8 | `2` | VPS khoẻ và hàng việc dài thì tăng; máy yếu hoặc hay nghẽn thì để `1`. Xem [Việc / Kanban](21-viec-kanban.md). |
-| `JAVIS_MEMORY_INDEX_MAX` | Trần ký tự của chỉ mục bộ nhớ (`MEMORY.md`) nạp vào mọi lượt chat. Vượt trần thì Javis rút gọn dần mô tả chứ không bỏ ký ức | `20000` | Bộ nhớ quá dày làm mỗi lượt chat tốn token; muốn siết thì hạ số này. Xem [Second Brain](13-second-brain-bo-nho-wiki.md). |
-| `JAVIS_CLAUDE_ENGINE` | (Lịch sử) Từ 0.9.37 engine Claude luôn chạy qua Agent SDK chính chủ - biến này không còn tác dụng, đặt `cli`/`sdk-loops` sẽ bị bỏ qua kèm một dòng log | `sdk` | Không cần đụng. Engine Claude trục trặc thì báo lỗi kèm log server. |
-| `JAVIS_CODEX_BIN` | Đường dẫn tuyệt đối tới file thực thi `codex` | Tự dò trong PATH và các chỗ cài quen thuộc | Cài Codex CLI ở nơi lạ mà Javis không tìm ra. |
-| `CLAUDE_CONFIG_DIR` | Thư mục cấu hình của Claude Code (nơi có `.credentials.json`). Đặt biến này là ĐÈ hẳn, giống hành vi của Claude Code | `~/.claude` | Bạn đã tự đổi thư mục cấu hình Claude Code. |
-| `CLAUDE_CODE_OAUTH_TOKEN` | Token OAuth của Claude Code, dùng để hỏi danh sách model thật từ Anthropic | (trống, đọc từ file credentials) | Môi trường không có file credentials (CI, container tối giản) mà vẫn muốn danh sách model động. |
-| `JAVIS_CLAUDE_PROJECTS_DIR` | Nơi Javis đọc log phiên Claude Code để tính **Mức dùng** | `~/.claude/projects` | Log Claude Code nằm chỗ khác. Xem [Mức dùng: token & chi phí](23-muc-dung-token.md). |
-| `JAVIS_CODEX_SESSIONS_DIR` | Nơi Javis đọc log phiên Codex để tính **Mức dùng** | `~/.codex/sessions` | Log Codex nằm chỗ khác. |
-| `JAVIS_YOUTUBE_PROXY` | Proxy RIÊNG cho phần đọc phụ đề YouTube, dạng `http://user:mat-khau@may-chu:cong`. Chỉ lưu lượng đi YouTube mới qua đây | (trống, đi thẳng) | Javis báo "YouTube nghi máy chủ này là robot" lặp đi lặp lại. Gốc rễ của lỗi đó là **danh tiếng địa chỉ IP**: YouTube đánh dấu dải IP của các nhà cung cấp máy chủ (AWS, Google Cloud, Azure, VPS giá rẻ), nên cùng một đoạn mã chạy ở nhà thì trôi chảy còn chạy trên VPS thì bị hỏi giấy. Trỏ qua một proxy dân cư là đứng ở chỗ khác trên Internet. Đừng dùng `HTTPS_PROXY` của hệ thống cho việc này: nó đẩy **toàn bộ** lưu lượng của Javis qua đó, gồm cả gọi model và MCP, vừa chậm vừa lộ dữ liệu cho bên thứ ba. Xem [Trò chuyện](02-tro-chuyen-va-giong-noi.md). |
-| `JAVIS_IMAGE_HOST_MODEL` | Ghim cứng model chat "chủ" dùng để gọi tool tạo ảnh qua gói ChatGPT | trống (tự chọn: `gpt-5.5` nếu gói có, không thì model khác trong danh sách model ChatGPT của tài khoản) | Muốn ép đúng một model. Không đặt thì Javis tự đổi model khi gói báo "model is not supported". |
-| `JAVIS_IMAGE_MODEL` | Model sinh ảnh thật sự | `gpt-image-2` | Như trên. |
+| `JAVIS_CLAUDE_IDLE_TIMEOUT` | The ceiling on waiting when the engine has answered then gone quiet mid-turn with NO tool running, in seconds. `0` = no limit | `0` | The default removes the ceiling: engine silence does NOT mean a hang (a model thinking at high effort, or composing a long file to write out, both go quiet for minutes). Only set a positive number if you genuinely need turns cut off automatically. |
+| `JAVIS_CLAUDE_FIRST_TIMEOUT` | The ceiling on waiting for the FIRST characters of a turn, in seconds. `0` = no limit | `0` | Same reason as above: a long conversation has to reload the whole context on the first turn, which takes time. |
+| `JAVIS_CLAUDE_TOOL_TIMEOUT` | The ceiling on waiting while a TOOL is mid-run (rendering video, removing a background, building...), in seconds. `0` = no limit | `3600` | This ceiling is kept because it measures a REAL live child process rather than measuring silence. Raise it for work over an hour (encoding a long video, training a model...). |
+| `JAVIS_CODEX_SANDBOX` | Whether to use Codex's (ChatGPT's) own sandbox rail for background work. `auto` = yes, matched to the job's permission level (suggest becomes read-only, auto becomes workspace-write). `off` = no separate rail | `auto`, but the **Docker image presets `off`** | Codex wraps file read/write commands in bubblewrap, and bubblewrap cannot start inside a container (an ordinary user, no CAP_SYS_ADMIN, and Ubuntu 24.04 also blocks user namespaces through AppArmor), so the rail is not tighter but simply dead: every background job on ChatGPT fails to read a single file. Outside Docker, leave it at `auto`. The trade-off with `off`: Codex has no per-call allowlist like Claude, so the `suggest` level loses what stopped it writing files; the money/order/publishing/messaging rails are UNAFFECTED because they live in the MCP Hub. |
+| `JAVIS_AGY_PROMPT_DAI` | Forces how Jarvis 007 hands a prompt to Antigravity CLI when it exceeds the command-line ceiling: `stdin` (through a pipe), `file` (write it out and tell the model to read it), `argv` (straight onto the command line) | (empty, Jarvis 007 chooses: stdin first, falling back to file on failure) | Only for odd cases on your machine. Windows caps the whole command line at 32767 characters while Jarvis 007's system prompt is already over 36,000, so `argv` there is guaranteed to break. See [Models and engines](10-models-va-engine.md). |
+| `JAVIS_AGY_TIMEOUT` | The time ceiling for one Antigravity CLI run, in seconds. Jarvis 007 passes the same number down to the CLI's own `--print-timeout` | `900` | Raise it when long background work gets cut off. Left unset, `agy` cuts itself off at minute 5 and returns a half-finished answer rather than an error. |
+| `JAVIS_AGY_MCP_HOME` | Whether Jarvis 007 may write the MCP configuration into your HOME (`~/.gemini/config/mcp_config.json`, the place `agy` ACTUALLY loads MCP from). `0` = no, only write `<brain>/.agents/mcp_config.json` | (empty = it does write) | Setting `0` accepts that Antigravity **loses every Jarvis 007 tool** on any `agy` build that has not patched issue #60 (that build finds the workspace configuration then ignores it). Only set it if you do not want Jarvis 007 touching a file shared with the Antigravity IDE. |
+| `JAVIS_AGY_MCP_CONFIG` | Write `agy`'s MCP configuration into EXACTLY this file instead of the two default HOME paths | (empty) | Use it when your `agy` build keeps its configuration elsewhere. |
+| `JAVIS_AGY_MCP_KEY` | The URL key name Jarvis 007 writes into the MCP entry: `serverUrl` (current) or `url` (older 1.0.x builds) | (empty = write both) | Only when your `agy` build rejects an entry with an unknown key. Writing both is so every build recognises it; the machine building Jarvis 007 cannot download `agy`, so this is not directly measured. |
+| `JAVIS_GROK_BIN` | A direct path to the `grok` binary (Grok Build CLI) | (empty, Jarvis 007 searches PATH and `~/.local/bin`) | Only when the machine installed it somewhere unusual. |
+| `GROK_DISABLE_AUTOUPDATER` | Turns Grok Build CLI's auto-updater off. Jarvis 007 sets `1` ITSELF for every run of `grok` | `1` (set by Jarvis 007, but a value you set is respected) | Set `0` if you want the CLI to upgrade itself. Not recommended: Jarvis 007 runs it headless, and an updater cutting in mid-turn either prints extra text into the result stream or writes into a read-only place. Upgrade by hand with `grok update`. |
+| `JAVIS_GROK_TIMEOUT` | The time ceiling for one Grok Build CLI run, in seconds | `900` | Raise it when long background work gets cut off. This ceiling is not only precaution: if the CLI build on the machine does not declare the `--permission-mode` flag, Jarvis 007 does not pass it, and a headless run that stops to ask for approval hangs silently forever; this is the only thing that unblocks that case. |
+| `JAVIS_MAX_TOOL_ROUNDS` | The maximum tool-call rounds for ONE answer from the API-key engines (OpenRouter, OpenAI, Anthropic, Gemini, Groq, Ollama). Clamped between 1 and 120 | `30` | Since 0.47.1 this rarely needs touching: the main brake against a looping model is detecting "the same tool called with the same arguments" (a nudge on round 3, a stop on round 5), and this ceiling is only a distant safety net. Raise it and restart Jarvis 007 if very long work still hits it. Claude Code and Codex are NOT subject to it, they manage their own loops. |
+| `JAVIS_KANBAN_MAX_WORKERS` | How many Kanban jobs run in parallel. Clamped between 1 and 8 | `2` | Raise it on a strong VPS with a long queue; set `1` on a weak or congested machine. See [Work / Kanban](21-viec-kanban.md). |
+| `JAVIS_MEMORY_INDEX_MAX` | The character ceiling of the memory index (`MEMORY.md`) loaded into every chat turn. Over the ceiling Jarvis 007 shortens descriptions gradually rather than dropping memories | `20000` | A very thick memory costs tokens on every turn; lower this to tighten it. See [Second Brain](13-second-brain-bo-nho-wiki.md). |
+| `JAVIS_CLAUDE_ENGINE` | (Historical) Since 0.9.37 the Claude engine always runs through the official Agent SDK, so this variable does nothing; setting `cli`/`sdk-loops` is ignored with a log line | `sdk` | Nothing to do. If the Claude engine misbehaves, it reports the error with the server log. |
+| `JAVIS_CODEX_BIN` | The absolute path of the `codex` executable | Auto-detected in PATH and the usual install locations | You installed the Codex CLI somewhere Jarvis 007 cannot find. |
+| `CLAUDE_CONFIG_DIR` | Claude Code's configuration folder (where `.credentials.json` lives). Setting it OVERRIDES entirely, matching Claude Code's own behaviour | `~/.claude` | You changed Claude Code's configuration folder yourself. |
+| `CLAUDE_CODE_OAUTH_TOKEN` | Claude Code's OAuth token, used to ask Anthropic for the real model list | (empty, read from the credentials file) | An environment with no credentials file (CI, a minimal container) that still wants the dynamic model list. |
+| `JAVIS_CLAUDE_PROJECTS_DIR` | Where Jarvis 007 reads Claude Code session logs to compute **Usage** | `~/.claude/projects` | Claude Code logs are somewhere else. See [Usage: tokens and cost](23-muc-dung-token.md). |
+| `JAVIS_CODEX_SESSIONS_DIR` | Where Jarvis 007 reads Codex session logs to compute **Usage** | `~/.codex/sessions` | Codex logs are somewhere else. |
+| `JAVIS_YOUTUBE_PROXY` | A SEPARATE proxy just for reading YouTube subtitles, shaped `http://user:password@host:port`. Only YouTube traffic goes through it | (empty, direct) | Jarvis 007 keeps reporting that YouTube suspects this server is a robot. The root of that error is **IP reputation**: YouTube flags the IP ranges of server providers (AWS, Google Cloud, Azure, cheap VPSs), so the same code runs fine at home and gets challenged on a VPS. Routing through a residential proxy means standing somewhere else on the Internet. Do not use the system's `HTTPS_PROXY` for this: it pushes **all** of Jarvis 007's traffic through it, model calls and MCP included, which is both slow and leaks data to a third party. See [Chat](02-tro-chuyen-va-giong-noi.md). |
+| `JAVIS_IMAGE_HOST_MODEL` | Pins the "host" chat model used to call the image-generation tool through the ChatGPT plan | empty (automatic: `gpt-5.5` when the plan has it, otherwise another model from the account's ChatGPT model list) | You want to force one model. Left empty, Jarvis 007 switches model on its own when the plan answers "model is not supported". |
+| `JAVIS_IMAGE_MODEL` | The model that actually generates images | `gpt-image-2` | As above. |
 
-Ghi chú: `JAVIS_ENABLE_USER_PLUGINS` cũng là biến nâng cao nhưng vì nó là rào bảo mật nên đã nằm ở nhóm 3.
+Note: `JAVIS_ENABLE_USER_PLUGINS` is also an advanced variable, but because it is a security rail it is listed in group 3.
 
-## Khối `media` trong settings.json (không có giao diện)
+## The `media` block in settings.json (no interface)
 
-Thư mục `attachments/` và `inbox/` của mỗi brain là **vùng cache**, không phải kho tri thức: ảnh là nguyên liệu đi qua, đọc xong rút thành `.md` là đủ. Vì thế Javis tự dọn chúng theo tuổi và theo dung lượng, sáu tiếng quét một lần. Thư mục stage tạm (nơi tệp bạn dán vào khung chat rơi xuống) có hạn riêng, ngắn hơn hẳn.
+Each brain's `attachments/` and `inbox/` folders are a **cache**, not a knowledge store: images are material passing through, and once read and reduced to `.md` that is enough. So Jarvis 007 clears them by age and by size, sweeping every six hours. The temporary stage folder (where a file you paste into the chat box lands) has its own, much shorter limit.
 
-Luật dọn này **chưa có ô nào trong Cài đặt**. Muốn đổi, mở `settings.json` trong thư mục state (máy cá nhân: `server/settings.json`; Docker: `/data/state/settings.json`) và sửa khối `media`:
+These clearing rules **have no field in Settings**. To change them, open `settings.json` in the state folder (personal machine: `server/settings.json`; Docker: `/data/state/settings.json`) and edit the `media` block:
 
 ```json
 "media": {
@@ -166,76 +162,76 @@ Luật dọn này **chưa có ô nào trong Cài đặt**. Muốn đổi, mở `
 }
 ```
 
-| Khoá | Ý nghĩa | Mặc định |
+| Key | Meaning | Default |
 |---|---|---|
-| `enabled` | `false` = không dọn gì cả | `true` |
-| `max_age_days` | Tệp media cũ hơn số ngày này bị xoá. Đặt `0` hoặc số âm = tắt luật tuổi | `30` |
-| `max_mb` | Trần dung lượng vùng media của mỗi brain, tính bằng MB. Đặt `0` hoặc số âm = tắt luật dung lượng | `300` |
-| `staging_days` | Hạn riêng cho thư mục stage tạm trong thư mục state | `3` |
+| `enabled` | `false` = clear nothing at all | `true` |
+| `max_age_days` | Media files older than this many days are deleted. `0` or negative = the age rule is off | `30` |
+| `max_mb` | The size ceiling of each brain's media area, in MB. `0` or negative = the size rule is off | `300` |
+| `staging_days` | The separate limit for the temporary stage folder in the state folder | `3` |
 
-Sửa xong phải khởi động lại Javis. Ảnh đã bị dọn mà vẫn còn được nhắc trong hội thoại cũ sẽ hiện thành một ô xám báo ảnh đã hết hạn, không phải icon vỡ. Muốn giữ ảnh lâu dài thì đấu một kho ngoài (ví dụ Drive) qua trang **Kết nối**, đừng để Javis ôm.
+Restart Jarvis 007 after editing. An image that was cleared but is still referenced in an old conversation shows as a grey box saying the image expired, not a broken icon. To keep images long term, attach an external store (Drive, for instance) through the **Connections** page rather than letting Jarvis 007 hold them.
 
-## Điểm cần nhớ về ANTHROPIC_API_KEY
+## What to remember about ANTHROPIC_API_KEY
 
-Javis dùng chính **gói subscription** bạn đang trả làm bộ não (Claude Code cho gói Claude, Codex cho gói ChatGPT), nên **không cần** biến `ANTHROPIC_API_KEY` trong `.env`. Các MCP bạn cài vào Claude Code, Javis tự kế thừa. Nếu muốn dùng model qua nhà cung cấp API (OpenRouter, OpenAI API, Anthropic API, Google Gemini API, Groq API), bạn nhập khoá trong app ở trang **Models**, không đặt trong `.env`. Khoá nhập ở đó được mã hoá trước khi lưu xuống `settings.json`. Xem [Models & engine](10-models-va-engine.md).
+Jarvis 007 uses the very **subscription** you already pay for as its brain (Claude Code for a Claude plan, Codex for a ChatGPT plan), so the `ANTHROPIC_API_KEY` variable in `.env` is **not needed**. MCPs you installed into Claude Code are inherited automatically. If you want models through an API provider (OpenRouter, OpenAI API, Anthropic API, Google Gemini API, Groq API), you enter the key in the app on the **Models** page, not in `.env`. Keys entered there are encrypted before being saved into `settings.json`. See [Models and engines](10-models-va-engine.md).
 
-## Ví dụ một file .env tối giản
+## Example of a minimal .env file
 
-Máy cá nhân, chỉ muốn đổi tên và tốc độ đọc, để nguyên phần còn lại:
+A personal machine, only changing the name and the reading speed, everything else untouched:
 
 ```
-WORKSPACE_NAME=Trợ lý của Quy
+WORKSPACE_NAME=Quy's Assistant
 USER_NAME=Quy
 TTS_RATE=+0%
 ```
 
-Deploy public trên VPS, tạo sẵn admin và mở cho truy cập từ ngoài:
+A public deploy on a VPS, preseeding the admin and opening it to outside access:
 
 ```
 JAVIS_HOST=0.0.0.0
 JAVIS_ADMIN_USER=admin
-JAVIS_ADMIN_PASSWORD=doi-mat-khau-that-manh-o-day
+JAVIS_ADMIN_PASSWORD=put-a-really-strong-password-here
 OBSIDIAN_VAULT_PATH=/data/vault
 JAVIS_STATE_DIR=/data/state
-JAVIS_ALLOWED_HOSTS=javis.tencuaban.com
+JAVIS_ALLOWED_HOSTS=javis.yourname.com
 ```
 
-Ở ví dụ thứ hai, vì `JAVIS_HOST=0.0.0.0` (public) nên Javis tự bật bắt buộc đăng nhập, và vì đã có `JAVIS_ADMIN_PASSWORD` nên bạn đăng nhập luôn bằng tài khoản đó, không có lúc nào server trống admin.
+In the second example, because `JAVIS_HOST=0.0.0.0` (public) Jarvis 007 turns forced login on by itself, and because `JAVIS_ADMIN_PASSWORD` is set you sign straight in with that account, and the server is never without an admin.
 
-## Mẹo
+## Tips
 
-1. Luôn giữ lại `env.example` làm bản gốc tham chiếu. Chỉ sửa `.env`.
-2. Đổi biến trong `.env` xong phải khởi động lại Javis mới ăn. Khác với bảng Cài đặt trong app (đổi là ăn ngay).
-3. Không chắc một biến làm gì thì cứ để nguyên dấu `#` (chú thích) cho an toàn. Mặc định đã chạy tốt.
-4. Với các biến bật/tắt (`JAVIS_REQUIRE_LOGIN`, `JAVIS_SECURE_COOKIE`, `JAVIS_ENABLE_USER_PLUGINS`), giá trị bật chấp nhận `1`, `true`, `yes`, `on`. Giá trị tắt chấp nhận `0`, `false`, `no`, `off`.
-5. File `.env` chứa mật khẩu và cấu hình nhạy cảm. Không đưa lên nơi công khai. Trên máy chung, đặt quyền đọc hạn chế. Tệp `.secret_key` trong thư mục state cũng vậy, và nó còn quan trọng hơn: mất là mất luôn mọi API key đã lưu.
-6. Plugin do bạn cài chạy code Python thật trong tiến trình server. Javis tải chúng mặc định nhưng chỉ chạy plugin bạn đã bật; chỉ bật plugin khi biết rõ nó đến từ đâu, và đặt `JAVIS_ENABLE_USER_PLUGINS=false` nếu máy này không nên chạy plugin nào.
+1. Always keep `env.example` as the reference original. Only edit `.env`.
+2. A change in `.env` only takes effect after restarting Jarvis 007. Unlike the in-app Settings panel, where a change applies at once.
+3. If you are unsure what a variable does, leave the `#` (comment) in place. The defaults already work well.
+4. For on/off variables (`JAVIS_REQUIRE_LOGIN`, `JAVIS_SECURE_COOKIE`, `JAVIS_ENABLE_USER_PLUGINS`), on accepts `1`, `true`, `yes`, `on`. Off accepts `0`, `false`, `no`, `off`.
+5. The `.env` file holds passwords and sensitive configuration. Do not put it anywhere public. On a shared machine, restrict read permissions. The `.secret_key` file in the state folder deserves the same care, and matters even more: losing it loses every stored API key.
+6. Plugins you install run real Python code inside the server process. Jarvis 007 loads them by default but only runs the ones you enabled; only enable a plugin when you know where it came from, and set `JAVIS_ENABLE_USER_PLUGINS=false` if this machine should run none.
 
-## Sự cố thường gặp
+## Common problems
 
-**Sửa .env rồi mà không thấy đổi gì.** Bạn chưa khởi động lại Javis. `.env` chỉ đọc lúc khởi động. Tắt server rồi mở lại.
+**You edited .env but nothing changed.** You have not restarted Jarvis 007. `.env` is only read at startup. Stop the server and start it again.
 
-**Đổi cổng xong không vào được app.** Bạn đang mở trình duyệt ở cổng cũ. Ví dụ đổi `JAVIS_PORT=8080` thì phải mở `http://localhost:8080`, không phải `7777` nữa.
+**After changing the port you cannot reach the app.** Your browser is still on the old port. Changing to `JAVIS_PORT=8080` means opening `http://localhost:8080`, not `7777`.
 
-**Đăng nhập đúng mật khẩu nhưng cứ bị đá về trang login.** Nhiều khả năng bạn đã bật `JAVIS_SECURE_COOKIE=1` nhưng thực tế đang truy cập qua HTTP (không phải HTTPS). Cookie Secure chỉ gửi qua HTTPS nên trình duyệt không giữ được phiên. Xoá dòng đó hoặc đặt về tắt, khởi động lại.
+**The right password keeps bouncing back to the sign-in page.** Most likely you turned `JAVIS_SECURE_COOKIE=1` on while actually browsing over HTTP (not HTTPS). A Secure cookie is only sent over HTTPS, so the browser cannot hold the session. Delete that line or set it off, then restart.
 
-**Mọi thao tác trả 403 "host không được phép".** Bạn vào Javis bằng một tên miền chưa nằm trong allowlist, trong lúc chưa đặt mật khẩu. Thêm tên miền vào `JAVIS_ALLOWED_HOSTS` (hoặc nhập nó ở Cài đặt → Tên miền & SSL), hoặc đơn giản là đặt mật khẩu.
+**Everything returns 403 "host not allowed".** You reached Jarvis 007 through a domain not on the allowlist, with no password set. Add the domain to `JAVIS_ALLOWED_HOSTS` (or enter it in Settings → Domain and SSL), or simply set a password.
 
-**Đã bật plugin trong app rồi mà nó vẫn không chạy.** Xem `.env` có dòng `JAVIS_ENABLE_USER_PLUGINS=false` không: có thì bỏ dòng đó (hoặc đặt `true`) rồi khởi động lại. Trong app, Javis cũng ghi rõ câu này khi bạn bật một plugin đang bị tắt.
+**A plugin is enabled in the app but still does not run.** Check `.env` for `JAVIS_ENABLE_USER_PLUGINS=false`: if it is there, remove it (or set `true`) and restart. The app states this too when you enable a plugin that is turned off.
 
-**Đặt tên workspace trong .env mà app hiển thị tên khác.** App ưu tiên tên đã lưu trong Cài đặt hơn biến `WORKSPACE_NAME`. Sửa tên trong bảng Cài đặt của app, hoặc xoá tên đã lưu để app dùng lại giá trị từ `.env`.
+**You set the workspace name in .env but the app shows another one.** The app prefers the name saved in Settings over the `WORKSPACE_NAME` variable. Edit the name in the app's Settings panel, or clear the saved name so the app falls back to the `.env` value.
 
-**Trỏ OBSIDIAN_VAULT_PATH vào vault thật mà Javis không thấy dữ liệu.** Kiểm tra đường dẫn có đúng và Javis có quyền đọc thư mục đó không. Trên Docker phải mount đúng volume vào đường dẫn bạn khai. Sau khi sửa, khởi động lại và dựng lại đồ thị (xem [Đồ thị tri thức](03-do-thi-tri-thuc.md)).
+**You pointed OBSIDIAN_VAULT_PATH at a real vault and Jarvis 007 sees no data.** Check that the path is right and that Jarvis 007 has permission to read the folder. On Docker the volume must be mounted at the path you declared. After fixing, restart and rebuild the graph (see [Knowledge graph](03-do-thi-tri-thuc.md)).
 
-**Khôi phục backup xong thì mọi API key trống trơn.** Bạn chép `settings.json` mà không chép `.secret_key` cùng thư mục. Không khôi phục được, phải nhập lại key ở trang Models và Kênh.
+**After restoring a backup, every API key is empty.** You copied `settings.json` without `.secret_key` from the same folder. There is no recovery, you have to re-enter the keys on the Models and Channels pages.
 
-Nếu còn vướng, xem thêm [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+If you are still stuck, see [Troubleshooting and FAQ](17-khac-phuc-su-co.md).
 
-## Liên quan
+## Related
 
-- [Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md)
-- [Bảo mật & tài khoản](14-bao-mat-tai-khoan.md)
-- [Thương hiệu & tên miền riêng](15-thuong-hieu-ten-mien.md)
-- [Models & engine](10-models-va-engine.md)
+- [Getting started and first setup](01-bat-dau-thiet-lap.md)
+- [Security and accounts](14-bao-mat-tai-khoan.md)
+- [Branding and custom domains](15-thuong-hieu-ten-mien.md)
+- [Models and engines](10-models-va-engine.md)
 - [Plugins](20-plugins.md)
-- [Mức dùng: token & chi phí](23-muc-dung-token.md)
+- [Usage: tokens and cost](23-muc-dung-token.md)
