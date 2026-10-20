@@ -124,8 +124,8 @@ check("ghim quyết định: 200", r.status_code == 200, r.text)
 calls.clear()
 c.post(f"/teams/{TID}/messages{Q}", json={"text": "Tiếp nhé", "client_msg_id": "m3"})
 drain()
-check("khối nhóm có sổ quyết định", calls and "Sổ quyết định" in calls[-1]["prompt"]
-      and "Chào nhóm" in calls[-1]["prompt"].split("Sổ quyết định", 1)[1])
+check("khối nhóm có sổ quyết định", calls and "Decision log" in calls[-1]["prompt"]
+      and "Chào nhóm" in calls[-1]["prompt"].split("Decision log", 1)[1])
 
 # Giao việc, hàng đợi, Ưu tiên
 ja = c.post(f"/teams/{TID}/messages{Q}", json={"text": "Việc A", "client_msg_id": "j1", "as_job": True,

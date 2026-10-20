@@ -174,7 +174,7 @@ check("góp ý gắn việc và bản của tin", fx["Bước ổn, thêm nguồ
 say(T1, B)
 p = box["prompts"][B][-1]
 fx = {x["note"]: x for x in ALS.peer_feedback(gs, T1["team_id"])}
-check("việc còn chạy đúng bản: góp ý hiện kèm bản", "Bước ổn, thêm nguồn" in p and "bản 1" in p)
+check("việc còn chạy đúng bản: góp ý hiện kèm bản", "Bước ổn, thêm nguồn" in p and "revision 1" in p)
 check("việc đã huỷ / bản đã đổi: không hiện, hạ thành bằng chứng",
       "Việc đã huỷ" not in p and "Bản cũ" not in p and fx["Việc đã huỷ"]["status"] == "evidence"
       and fx["Việc đã huỷ"]["evidence_reason"] == "late_cancelled" and fx["Bản cũ"]["evidence_reason"] ==

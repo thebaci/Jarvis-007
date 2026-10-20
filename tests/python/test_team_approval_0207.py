@@ -190,7 +190,7 @@ check("approve: the job finishes with the step's new result", t1["status"] == "d
 check("approve: the approval is consumed once the step ran", r.approvals.get(aps[0]["approval_id"])["status"] == "consumed")
 plan_calls = fake.calls and [c for c in fake.calls if c["role"] == "plan"]
 check("approve: the re-run plan prompt says what was approved",
-      "ĐÃ ĐƯỢC DUYỆT" in plan_calls[-1]["prompt"], plan_calls[-1]["prompt"][-400:])
+      "APPROVED" in plan_calls[-1]["prompt"], plan_calls[-1]["prompt"][-400:])
 again = r.decide_approval(T["team_id"], aps[0]["approval_id"], "approve", decision_key="click-1")
 check("retry with the same key replays the first answer, no second step",
       again.get("ok") and again.get("replay") and len([s for s in tm.steps(j1) if s["kind"] == "plan"]) == 2, again)

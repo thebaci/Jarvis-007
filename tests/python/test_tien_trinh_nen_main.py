@@ -66,7 +66,7 @@ check("báo xong mang thẻ việc chạy nền (kind job, done)",
       (kw.get("viec") or {}).get("kind") == "job" and (kw.get("viec") or {}).get("status") == "done")
 check("báo xong có link file mới, đường dẫn tương đối trong brain",
       bool(bao) and "[gioi-thieu.mp4](exports/gioi-thieu.mp4)" in bao[-1][1], bao[-1][1] if bao else "")
-check("báo xong nói thời gian chạy", bool(bao) and "4 phút" in bao[-1][1], bao[-1][1] if bao else "")
+check("báo xong nói thời gian chạy", bool(bao) and "4 min" in bao[-1][1], bao[-1][1] if bao else "")
 check("mở lượt nối tiếp đúng một lần", len(chay_tiep) == 1)
 check("lượt nối tiếp mang lời dặn và độ sâu +1",
       bool(chay_tiep) and "Làm tiếp: ghép tiếng, gửi video" in chay_tiep[0][0] and chay_tiep[0][1] == 1)

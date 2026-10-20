@@ -63,7 +63,7 @@ A, B = make("A"), make("B")
 
 # ═════ Tóm tắt phần cũ bằng code ═════
 asyncio.run(r.run_replies(r.submit(A["team_id"], "Câu đầu", client_msg_id="c0")))
-check("cửa sổ còn phủ hết phiên: không có khối tóm tắt", "Tóm tắt phần cũ" not in rec.reqs[-1]["prompt"])
+check("cửa sổ còn phủ hết phiên: không có khối tóm tắt", "Summary of the team's older history" not in rec.reqs[-1]["prompt"])
 for i in range(3):
     j = r.submit(A["team_id"], f"Việc số {i}", mentions=["lan"], as_job=True, client_msg_id=f"j{i}")["task_id"]
     asyncio.run(r.dispatch_once())
@@ -74,12 +74,12 @@ jb = r.submit(B["team_id"], "Việc NHÓM_B_BÍ_MẬT", mentions=["lan"], as_job
 asyncio.run(r.dispatch_once())
 asyncio.run(r.run_replies(r.submit(A["team_id"], "Tóm lại giúp", client_msg_id="c1")))
 p = rec.reqs[-1]["prompt"]
-check("lịch sử dài: có khối tóm tắt phần cũ do máy dựng, nói số tin cũ", "Tóm tắt phần cũ" in p
-      and "máy tự tóm, không phải model" in p and "tin cũ hơn phần lịch sử" in p, p[-1500:])
+check("lịch sử dài: có khối tóm tắt phần cũ do máy dựng, nói số tin cũ", "Summary of the team's older history" in p
+      and "summarized by code, not by a model" in p and "messages older than the history" in p, p[-1500:])
 check("tóm tắt liệt kê việc đã xong kèm trích kết quả, mới trước",
-      p.index('Việc "Việc số 2"') < p.index('Việc "Việc số 0"') and "Kết quả" in p, p[-1500:])
+      p.index('Job "Việc số 2"') < p.index('Job "Việc số 0"') and "Kết quả" in p, p[-1500:])
 check("tóm tắt chỉ của nhóm này", "NHÓM_B_BÍ_MẬT" not in p)
-check("tóm tắt có trần ký tự", len(p.split("## Tóm tắt phần cũ")[1].split("\n## ")[0]) <= TR.SUMMARY_CHARS + 400)
+check("tóm tắt có trần ký tự", len(p.split("## Summary of the team's older history")[1].split("\n## ")[0]) <= TR.SUMMARY_CHARS + 400)
 check("tóm tắt không mở lượt nào thêm (chỉ dựng chuỗi)", len(tm.turns(A["team_id"])) == 5, len(tm.turns(A["team_id"])))
 
 # ═════ Tìm trong nhóm ═════

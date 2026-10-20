@@ -132,7 +132,7 @@ check("fix: two check rounds recorded, fail then pass, with sha256 evidence",
       and "missing" in hist[0]["evidence"].get("detail", ""), hist)
 work_calls = [c for c in fake.calls if c["role"] == "work"]
 check("fix: the same member got a fix step listing what failed", len(work_calls) == 2
-      and "NGHIỆM THU CHƯA ĐẠT" in work_calls[1]["prompt"] and "liên hệ" in work_calls[1]["prompt"])
+      and "ACCEPTANCE NOT PASSED" in work_calls[1]["prompt"] and "liên hệ" in work_calls[1]["prompt"])
 check("fix: one objective_pass signal for this job and revision, none before",
       [e for e, _ in sig] == ["objective_pass"] and sig[0][1] == f"acceptance:{j}:1:objective_pass", sig)
 check("fix: results posted in the chat", len(msgs(ss, T, "acceptance_result")) == 2)

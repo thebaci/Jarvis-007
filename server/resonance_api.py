@@ -410,7 +410,7 @@ def register_agents(app, deps: ResonanceApiDeps):
         except RS.AgentStateError as e:
             return _err(409, str(e), str(e), agent=cur)
         if same and a["enabled"]:
-            store.wake_agent_goals(root, a["agent_key"], "chủ dự án xác nhận trợ lý")
+            store.wake_agent_goals(root, a["agent_key"], "project owner confirmed the assistant")
         await _announce_agents(deps)
         return {"ok": True, "agent": a}
 

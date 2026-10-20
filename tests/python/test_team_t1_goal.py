@@ -247,7 +247,7 @@ gate_box = {}
 
 def prio_engine(team, key, role):
     async def run_(req):
-        cur = req["prompt"].split("## Việc hiện tại", 1)[-1][:200]
+        cur = req["prompt"].split("## Current job", 1)[-1][:200]
         title = next((w for w in ("JOBA", "JOBB", "JOBC", "JOBD") if w in cur), "?")
         order.append(title)
         if title == "JOBA":

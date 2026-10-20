@@ -234,7 +234,7 @@ check("the leader calling the owner is flagged; calling a teammate is not",
       store.team_message(sid, mid_ask)["meta"].get("asks_owner") is True
       and not store.team_message(sid, mid_no)["meta"].get("asks_owner"))
 check("team members are told to tag the owner and each other",
-      any("@Chủ nhóm" in line for line in team_runner.INTERNAL_GROUP_NOTE))
+      any("@Owner" in line for line in team_runner.INTERNAL_GROUP_NOTE))
 client.post(f"/teams/{tid}/messages/{mid_ask}/decision", params={"brain": b}, headers=H, json={"on": True})
 g = client.get(f"/teams/{tid}", params={"brain": b}).json()
 check("opening the team returns its pinned messages for the pinned strip",

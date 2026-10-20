@@ -141,15 +141,15 @@ reply(r, T, "Chào", "c1")
 check("TC31 giới hạn: trưởng nhóm không tự bật Toàn quyền (không có op nào làm được)",
       tm.active_authority(T["team_id"]) is None)
 check("TC31 giới hạn: lệnh quản trị bị bỏ, có ghi chú, không thêm thành viên",
-      not tm.is_active_member(T["team_id"], "ag_hoa") and any("Toàn quyền" in n for n in msgs(ss, T)[-1]["meta"]["notes"]),
+      not tm.is_active_member(T["team_id"], "ag_hoa") and any("Full authority" in n for n in msgs(ss, T)[-1]["meta"]["notes"]),
       msgs(ss, T)[-1]["meta"]["notes"])
-check("TC31 giới hạn: lời nhắc của trưởng nhóm không có khối Toàn quyền", "## Toàn quyền" not in fake.calls[-1]["prompt"])
+check("TC31 giới hạn: lời nhắc của trưởng nhóm không có khối Toàn quyền", "## Full authority" not in fake.calls[-1]["prompt"])
 a = r.grant_authority(T["team_id"], FULL, by="owner")
 reply(r, T, "Có gì mới?", "c1b")
 lp = fake.calls[-1]["prompt"]
 check("TC31 Toàn quyền: lời nhắc của trưởng nhóm liệt kê lệnh quản trị và trần (không có ngắt việc khi chưa cho)",
-      "## Toàn quyền" in lp and '"op": "open_job"' in lp and '"op": "add_member"' in lp and '"op": "interrupt"' not in lp
-      and "lượt mỗi việc: Không giới hạn" in lp, lp[-1500:])
+      "## Full authority" in lp and '"op": "open_job"' in lp and '"op": "add_member"' in lp and '"op": "interrupt"' not in lp
+      and "turns per job: Unlimited" in lp, lp[-1500:])
 row = tm.active_authority(T["team_id"])
 check("TC31 chủ bật: ghi team_authority gắn đúng trưởng nhóm, có sự kiện", row and row["leader_key"] == "ag_lan"
       and row["granted_by"] == "owner" and any(e["kind"] == "authority_granted" for e in tm.events(T["team_id"])), row)
@@ -366,7 +366,7 @@ r.grant_authority(T["team_id"], FULL)
 fake.say("ag_lan", "leader_reply", "Nhiều." + "".join(directive(op="open_job", title=f"V{i}", brief="x") for i in range(14)))
 reply(r, T, "Nhiều việc", "m1")
 check("review #8: tối đa 10 lệnh quản trị mỗi lượt, phần thừa có ghi chú", len(ts.team_queue(T["team_id"])["waiting"]) == 10
-      and any("10 lệnh" in n for n in msgs(ss, T)[-1]["meta"]["notes"]), len(ts.team_queue(T["team_id"])["waiting"]))
+      and any("10 admin commands" in n for n in msgs(ss, T)[-1]["meta"]["notes"]), len(ts.team_queue(T["team_id"])["waiting"]))
 
 print(f"\n{'FAIL' if fails else 'PASS'} - test_team_authority: {len(fails)} lỗi")
 raise SystemExit(1 if fails else 0)

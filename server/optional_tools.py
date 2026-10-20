@@ -278,7 +278,7 @@ def don_thu_vien_cu() -> bool:
     try:
         if PYLIBS_DIR.is_dir():
             shutil.rmtree(PYLIBS_DIR, ignore_errors=True)
-            print(f"[cong-cu] đã dọn {PYLIBS_DIR} (thư viện của model ChatGPT Web đã gỡ)",
+            print(f"[cong-cu] cleaned up {PYLIBS_DIR} (the ChatGPT Web model libraries were removed)",
                   file=sys.stderr)
             return True
     except OSError:
@@ -449,7 +449,7 @@ async def _chay_tai(cong_cu: str) -> None:
                                  "The command finished but what it installed cannot be found.")
     else:
         v["tien_do"] = localefmt.chu("Xong.", "Done.")
-    print(f"[cong-cu] tải {cong_cu}: mã {ma}, lỗi={v.get('loi') or 'không'}", file=sys.stderr)
+    print(f"[cong-cu] download {cong_cu}: code {ma}, error={v.get('loi') or 'none'}", file=sys.stderr)
 
 
 def bat_dau_cai(cong_cu: str = "browser") -> dict:

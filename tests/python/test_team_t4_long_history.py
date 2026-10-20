@@ -215,7 +215,7 @@ check(f"số lần đọc kho mỗi lượt có trần (<= {READ_CAP})", reads_b
 # Không lặp phản hồi: phản hồi chờ xem xét còn trong 30 ngày đã hiện ở "Phản hồi gần đây" thì không hiện lại ở phần luôn giữ.
 tm._set_reaction_time(big["session_id"], hoa_mid_big, time.time() - 86400)
 p_hoa = r._context(big, "hoa", "member_reply", None, None)
-recent_block = p_hoa.split("## Phản hồi gần đây của chủ nhóm")[1].split("\n## ")[0] if "## Phản hồi gần đây" in p_hoa else ""
+recent_block = p_hoa.split("## Recent feedback from the team owner")[1].split("\n## ")[0] if "## Recent feedback" in p_hoa else ""
 kept_hoa = p_hoa.split("## Always kept even when the history is long")[1].split("\n## ")[0] if "## Always kept" in p_hoa else ""
 check("phản hồi trong 30 ngày: hiện ở khối gần đây, KHÔNG lặp ở phần luôn giữ",
       "THIẾU_SỐ_THÁNG_BA_lon" in recent_block and "THIẾU_SỐ_THÁNG_BA_lon" not in kept_hoa, (recent_block, kept_hoa))

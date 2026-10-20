@@ -272,9 +272,9 @@ try:
     ctx = runner._context(api.teams().get(TID), K["minh"], "member_reply", None, None)
 finally:
     runner.clock = saved
-fb_block = ctx.split("## Phản hồi gần đây của chủ nhóm")[1].split("\n## ")[0] if "## Phản hồi gần đây của chủ nhóm" in ctx else ""
+fb_block = ctx.split("## Recent feedback from the team owner")[1].split("\n## ")[0] if "## Recent feedback from the team owner" in ctx else ""
 check("đồng hồ bộ chạy lùi 2 ngày: khối phản hồi vẫn có đúng dòng của tin đó (phản hồi không biến mất)",
-      f"[#{mid}]" in fb_block and "cảm xúc:" in fb_block, ctx[-1500:])
+      f"[#{mid}]" in fb_block and "feeling:" in fb_block, ctx[-1500:])
 
 # ═════ nhóm bị chặn / agent ngủ không chiếm suất ═════
 runner = api.runner()

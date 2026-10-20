@@ -372,7 +372,7 @@ check("F4 ghi chú nói Auto ĐÃ bật, chỉ chưa đánh thức ngay (không 
       any("Auto đã bật" in n for n in m["meta"]["notes"]) and not any("không áp" in n.lower() for n in m["meta"]["notes"]),
       m["meta"]["notes"])
 sysmsgs = [x for x in msgs(ss, T) if x["author_kind"] == "system"]
-check("F4 tin hệ thống báo trưởng nhóm đã bật Auto", any("bật Auto cho" in x["content"] for x in sysmsgs),
+check("F4 tin hệ thống báo trưởng nhóm đã bật Auto", any("turned Auto on for" in x["content"] for x in sysmsgs),
       [x["content"] for x in sysmsgs])
 
 # ═════ F5: set_caps chặn NaN, vô cực, kiểu sai trước khi ghi ═════
