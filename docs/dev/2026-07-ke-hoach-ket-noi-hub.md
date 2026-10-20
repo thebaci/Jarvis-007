@@ -1,66 +1,66 @@
-# Kế hoạch: Kho Kết nối (MCP Hub) + Agent độc lập engine
+# Plan: Connection Store (MCP Hub) + engine-independent agents
 
-> Bản kế hoạch dev, viết 2026-07-04 trên nền code v0.8.13. Mục tiêu: nâng cấp toàn bộ trải nghiệm MCP của Javis và tách Javis khỏi sự phụ thuộc cấu trúc Claude Code.
+> Dev plan, written 2026-07-04 on top of the v0.8.13 code. Goal: upgrade the whole MCP experience of Jarvis 007 and decouple Jarvis 007 from the Claude Code structure.
 
-## 1. Mục tiêu (3 việc)
+## 1. Goals (3 items)
 
-1. **Kho MCP mẫu (catalog)**: người dùng mở trang, thấy sẵn Pancake POS, Zalo, Botcake, Webcake Landing... bấm "Kết nối" là xong. Không phải tự gõ URL, transport, header như hiện nay.
-2. **Một connector nối được NHIỀU tài khoản** (multi-account): cùng Pancake POS nhưng 3 cửa hàng, cùng Zalo nhưng 2 tài khoản. Mỗi tài khoản đăng nhập dễ như Claude: dán key hoặc quét QR hoặc bấm OAuth, có xác nhận "Đã kết nối: <tên shop>".
-3. **Mọi engine đều dùng được mọi thứ**: MCP, skill, loop, đọc/ghi file chạy như nhau dù Main Model là Claude Code, Codex, OpenRouter, OpenAI API hay Anthropic API. Javis là agent thực thụ, Claude Code chỉ là MỘT trong các bộ não.
+1. **A catalog of ready-made MCPs**: the user opens the page and sees Pancake POS, Zalo, Botcake, Webcake Landing... already there, and clicks "Connect" and is done. No more typing the URL, transport and headers by hand as today.
+2. **One connector linking MANY accounts** (multi-account): the same Pancake POS but 3 shops, the same Zalo but 2 accounts. Each account signs in as easily as with Claude: paste a key, scan a QR or click OAuth, with a "Connected: <shop name>" confirmation.
+3. **Every engine can use everything**: MCP, skills, loops and file read/write work the same whether the Main Model is Claude Code, Codex, OpenRouter, OpenAI API or Anthropic API. Jarvis 007 is a real agent; Claude Code is just ONE of the brains.
 
-## 2. Hiện trạng (đọc code ngày 2026-07-04)
+## 2. Current state (code read on 2026-07-04)
 
-Phần đã có và giữ lại được:
+What already exists and can be kept:
 
-- `server/mcp_store.py`: registry server phẳng (name/transport/url/headers/env), sinh `.mcp_config.json` cho `claude --mcp-config`, sinh profile toml cho Codex, có deny_tools + strict mode. Multi-shop giải quyết bằng cách nhân bản dòng cùng URL khác header.
-- `server/mcp_client.py`: MCP client tự viết (Streamable HTTP, JSON-RPC), cho engine API (OpenRouter/OpenAI) chạy vòng tool-calling. Namespacing `ten-server__ten-tool` đã có.
-- UI trang MCP trong `dashboard/console.js` (renderMcp, ~dòng 1399): form kỹ thuật + khu ambient (MCP sẵn của Claude Code, chỉ xem).
+- `server/mcp_store.py`: a flat server registry (name/transport/url/headers/env). It generates `.mcp_config.json` for `claude --mcp-config` and a toml profile for Codex, and has deny_tools plus strict mode. Multi-shop is handled by duplicating rows with the same URL and different headers.
+- `server/mcp_client.py`: a hand-written MCP client (Streamable HTTP, JSON-RPC) that lets API engines (OpenRouter/OpenAI) run a tool-calling loop. Namespacing `server-name__tool-name` already exists.
+- The MCP page UI in `dashboard/console.js` (renderMcp, around line 1399): a technical form plus an ambient area (Claude Code's own MCPs, view only).
 
-Khoảng trống so với mục tiêu:
+Gaps against the goals:
 
-- Không có catalog: mọi thứ nhập tay, người thường không làm nổi.
-- Multi-account là "mẹo" (nhân bản dòng), không phải mô hình chính thức: không gom nhóm theo connector, không label tài khoản, không mặc định tài khoản nào.
-- Client tự viết chỉ HTTP: KHÔNG stdio (nên Zalo CLI local chỉ chạy được qua Claude Code), KHÔNG OAuth, mỗi tool call mở session mới (chậm, docs phải xin lỗi "tin nhắn đầu hơi chậm").
-- OAuth MCP đẩy sang `claude mcp add` + bắt user mở terminal gõ `/mcp`: chỉ chạy máy có màn hình, chỉ engine Claude Code. Đây là chỗ "bám Claude Code" nặng nhất.
-- Engine matrix lệch (docs/10): Anthropic API chat thuần không MCP; ChatGPT OAuth (responses) không MCP; skill + loop chỉ Claude Code; engine API không có tool file.
-- Secrets nằm plaintext trong `mcp_servers.json` (gitignored nhưng vẫn plaintext).
+- No catalog: everything is typed by hand, which ordinary people cannot do.
+- Multi-account is a "trick" (duplicating rows), not an official model: no grouping by connector, no account labels, no default account.
+- The hand-written client is HTTP only: NO stdio (so the local Zalo CLI only works through Claude Code), NO OAuth, and every tool call opens a new session (slow, so the docs have to apologize with "the first message is a bit slow").
+- OAuth MCP is pushed to `claude mcp add` plus making the user open a terminal and type `/mcp`: it only works on a machine with a screen and only for the Claude Code engine. This is the heaviest "tied to Claude Code" spot.
+- The engine matrix is uneven (docs/10): Anthropic API is plain chat with no MCP; ChatGPT OAuth (responses) has no MCP; skills and loops only work on Claude Code; API engines have no file tools.
+- Secrets sit in plaintext in `mcp_servers.json` (gitignored, but still plaintext).
 
-## 3. Kiến trúc đích: JAVIS MCP HUB
+## 3. Target architecture: JARVIS 007 MCP HUB
 
-Ý tưởng trung tâm: mọi engine đấu vào MỘT điểm duy nhất do Javis làm chủ. Hub lo kết nối, tài khoản, quyền, log. Engine chỉ thấy "một MCP server tên javis".
+The central idea: every engine plugs into ONE single point owned by Jarvis 007. The hub handles connections, accounts, permissions and logs. The engine only sees "one MCP server called javis".
 
 ```
 Claude Code  --mcp-config 1 entry --\
-Codex        profile toml 1 entry ---+--> [ JAVIS MCP HUB ] --> Pancake POS (shop A) (shop B)
-Engine API   gọi in-process --------/          |               --> Zalo (TK 1) (TK 2)
+Codex        profile toml 1 entry ---+--> [ JARVIS 007 MCP HUB ] --> Pancake POS (shop A) (shop B)
+API engine   in-process calls ------/          |               --> Zalo (acct 1) (acct 2)
                                                |               --> Botcake, Webcake, ...
                               catalog + permission + audit + cache + OAuth token store
 ```
 
-Lợi ích của việc dồn về 1 điểm:
+Benefits of funneling everything into one point:
 
-- Multi-account routing, đặt tên tool, quyền, log gọi tool: làm MỘT lần, mọi engine hưởng.
-- OAuth: hub giữ token và tự refresh, engine nào cũng dùng được (kể cả Claude Code, vì hub chỉ là 1 MCP http với nó). Bỏ hẳn cảnh "mở terminal gõ /mcp".
-- 3 mức quyền loop (suggest/auto/full) được ENFORCE tại hub (chặn tool ghi thật sự) thay vì chỉ nhờ prompt như hiện nay.
+- Multi-account routing, tool naming, permissions and tool-call logs are done ONCE and every engine benefits.
+- OAuth: the hub holds the token and refreshes it itself, so any engine can use it (Claude Code included, since the hub is just one HTTP MCP to it). The "open a terminal and type /mcp" scene is gone for good.
+- The 3 loop permission levels (suggest/auto/full) are ENFORCED at the hub (write tools are truly blocked) instead of only relying on the prompt as today.
 
-### 3.1 Mô hình dữ liệu: Connector (mẫu) tách khỏi Connection (tài khoản)
+### 3.1 Data model: Connector (template) separate from Connection (account)
 
-**Connector** = mẫu trong catalog, đi theo app, versioned:
+**Connector** = a template in the catalog, shipped with the app, versioned:
 
 ```json
-// system/mcp-catalog.json (mảng connector)
+// system/mcp-catalog.json (array of connectors)
 {
   "id": "pancake-pos",
   "name": "Pancake POS",
   "icon": "pos.png",
-  "category": "Bán hàng",
-  "description": "Đơn hàng, doanh thu, khách hàng, tồn kho từ Pancake POS.",
+  "category": "Sales",
+  "description": "Orders, revenue, customers and inventory from Pancake POS.",
   "transport": "http",
   "url": "https://mcp-pos.pancake.biz/mcp",
   "auth": {
     "type": "apikey",
-    "fields": [{ "key": "api_key", "label": "API key của cửa hàng", "header": "Authorization: Bearer {api_key}" }],
-    "guide": "Vào Pancake POS > Cài đặt > Ứng dụng & API > tạo API key.",
+    "fields": [{ "key": "api_key", "label": "The shop's API key", "header": "Authorization: Bearer {api_key}" }],
+    "guide": "In Pancake POS go to Settings > Apps & API > create an API key.",
     "guide_url": "https://docs.pancake.biz/pos/st-f13/st-p2?lang=vi"
   },
   "validate": { "tool": "pos_shop", "label_from": "$.name" },
@@ -72,19 +72,19 @@ Lợi ích của việc dồn về 1 điểm:
 }
 ```
 
-- `auth.type`: `apikey` | `oauth` | `qr` | `none`. Field khai báo sẵn nên UI tự dựng form, user không bao giờ thấy chữ "header".
-- `validate`: sau khi nhập key, hub gọi ngay 1 tool đọc để (a) xác nhận key đúng, (b) tự đặt label tài khoản (tên shop). Đây chính là cảm giác "dễ như Claude": dán key xong thấy "Đã kết nối: Kim Khí Hà Lộc".
-- `tool_meta`: phân loại đọc/ghi/nguy hiểm theo connector (chính xác hơn heuristic WRITE_HINTS hiện tại; heuristic giữ làm fallback cho custom).
-- Catalog nạp từ app + cho phép refresh từ remote (GitHub raw) để thêm connector mới KHÔNG cần release app.
+- `auth.type`: `apikey` | `oauth` | `qr` | `none`. The fields are declared up front so the UI builds the form itself and the user never sees the word "header".
+- `validate`: after the key is entered, the hub immediately calls one read tool to (a) confirm the key is correct and (b) set the account label automatically (the shop name). This is the "easy as Claude" feeling: paste the key and see "Connected: Kim Khí Hà Lộc".
+- `tool_meta`: classifies read/write/dangerous per connector (more accurate than the current WRITE_HINTS heuristic; the heuristic stays as a fallback for custom connectors).
+- The catalog loads from the app and can also refresh from a remote (GitHub raw), so new connectors can be added WITHOUT an app release.
 
-**Connection** = một tài khoản cụ thể của user, lưu ở `server/mcp_servers.json` (nâng schema, migration tự động):
+**Connection** = one specific account of the user, stored in `server/mcp_servers.json` (schema upgraded, automatic migration):
 
 ```json
 {
   "id": "abc123",
   "connector_id": "pancake-pos",
   "label": "Kim Khí Hà Lộc",
-  "secrets": { "api_key": "<mã hoá>" },
+  "secrets": { "api_key": "<encrypted>" },
   "config": {},
   "enabled": true,
   "perm": "readonly",
@@ -92,143 +92,143 @@ Lợi ích của việc dồn về 1 điểm:
 }
 ```
 
-- Migration: dòng server cũ nào khớp URL catalog thì gán `connector_id` tương ứng, còn lại gán `custom` (custom connector = connector do user tự khai, form nâng cao giống Add custom connector của Claude, giữ nguyên năng lực hiện có).
-- Secrets mã hoá at rest (Fernet, key sinh theo máy lưu ngoài file registry). Che secrets trong log và API trả về (đã có `_public`, giữ).
+- Migration: any old server row whose URL matches a catalog entry gets the matching `connector_id`; the rest get `custom` (a custom connector is one the user declares themselves, via an advanced form like Claude's "Add custom connector", keeping every capability that exists today).
+- Secrets are encrypted at rest (Fernet, with a per-machine key stored outside the registry file). Secrets are masked in logs and API responses (`_public` already does this, keep it).
 
-### 3.2 Hub runtime (nâng cấp mcp_client.py)
+### 3.2 Hub runtime (upgrading mcp_client.py)
 
-- **Session pool**: giữ session MCP sống giữa các tin nhắn (giữ `Mcp-Session-Id`, dùng chung `httpx.AsyncClient`), tools/list cache theo TTL, health check nền. Hết cảnh "mỗi tin nhắn kết nối lại nên chậm".
-- **stdio support**: spawn tiến trình con, JSON-RPC qua stdin/stdout. Đây là điều kiện để Zalo CLI (và mọi MCP local) chạy được cho engine API chứ không riêng Claude Code.
-- Khuyến nghị: chuyển client sang **SDK chính thức `mcp` (Python)** thay vì tự bảo trì protocol. SDK có sẵn Streamable HTTP + stdio + auth flow; phần server (aggregator) dùng luôn FastMCP hoặc tự viết mỏng trên FastAPI. Đỡ nợ kỹ thuật khi protocol lên phiên bản.
+- **Session pool**: keep MCP sessions alive between messages (hold the `Mcp-Session-Id`, share one `httpx.AsyncClient`), cache tools/list with a TTL, and run a background health check. This ends the "every message reconnects, so it is slow" problem.
+- **stdio support**: spawn a child process and speak JSON-RPC over stdin/stdout. This is the precondition for the Zalo CLI (and every local MCP) to run for API engines and not only for Claude Code.
+- Recommendation: move the client to the **official `mcp` SDK (Python)** instead of maintaining the protocol ourselves. The SDK already has Streamable HTTP, stdio and the auth flow; for the server side (the aggregator) use FastMCP directly or write something thin on FastAPI. Less technical debt when the protocol versions up.
 
-### 3.3 Aggregator: hub xuất hiện như MỘT MCP server
+### 3.3 Aggregator: the hub appears as ONE MCP server
 
-- Endpoint `POST /hub/mcp` (Streamable HTTP) ngay trên FastAPI đang chạy, bind localhost.
-- `.mcp_config.json` của Claude Code và profile toml của Codex chỉ còn MỘT entry trỏ về hub (kèm token nội bộ chống tiến trình lạ trên máy gọi vào).
-- Đặt tên tool: connector có 1 connection thì giữ tên gọn `pos__pos_order`; nhiều connection thì `pos_kim-khi-ha-loc__pos_order`. Kèm meta-tool `javis_connections` (liệt kê connector + tài khoản + quyền) để model tự biết đang có nguồn nào.
-- Tuỳ chọn chống phình context khi user đấu nhiều connector: chế độ "lazy tools" (chỉ expose meta-tool `search_tools` + `run_tool`, kiểu Composio). ĐÃ LÀM (v0.9.146): `mcp_hub._apply_lazy` giấu tool pool (tool MCP có route entry `conn`) sau `javis_search_tools`/`javis_run_tool`, builtins + plugin vẫn hiện; tự bật khi số tool MCP vượt `settings.mcp.lazy_threshold` (mặc định 40), ép bật/tắt bằng `settings.mcp.lazy_tools`. Áp trong `discover_all` nên mọi engine (Claude Code, Codex, API) hưởng chung; quyền/audit giữ nguyên vì `run` đi qua `call_route` route đầy đủ.
+- Endpoint `POST /hub/mcp` (Streamable HTTP) on the FastAPI app that is already running, bound to localhost.
+- Claude Code's `.mcp_config.json` and Codex's toml profile keep only ONE entry pointing at the hub (with an internal token so stray processes on the machine cannot call in).
+- Tool naming: a connector with 1 connection keeps the short name `pos__pos_order`; with several connections it becomes `pos_kim-khi-ha-loc__pos_order`. A meta-tool `javis_connections` (lists connectors + accounts + permissions) lets the model know which sources exist.
+- Optional protection against context bloat when the user connects many connectors: a "lazy tools" mode (expose only the meta-tools `search_tools` + `run_tool`, Composio style). DONE (v0.9.146): `mcp_hub._apply_lazy` hides the tool pool (MCP tools that have a route entry `conn`) behind `javis_search_tools`/`javis_run_tool`, while builtins and plugins stay visible; it turns on automatically when the number of MCP tools exceeds `settings.mcp.lazy_threshold` (default 40), and can be forced on or off with `settings.mcp.lazy_tools`. It is applied inside `discover_all`, so every engine (Claude Code, Codex, API) benefits equally; permissions and audit stay intact because `run` goes through the full routing in `call_route`.
 
-### 3.4 Quyền tập trung tại hub
+### 3.4 Centralized permissions at the hub
 
-- Mỗi connection có `perm`: `readonly` (chỉ tool đọc) | `safe` (thêm ghi nháp, chặn danger) | `full`. Suy từ `tool_meta`, một toggle trên UI thay vì bắt user gõ tên tool cần chặn như hiện nay. `deny_tools` thủ công vẫn giữ cho power user.
-- Loop mode map thẳng vào hub: loop `suggest` gọi hub với ngữ cảnh chỉ-đọc (hub từ chối mọi tool ghi bất kể connection perm), `auto` chặn nhóm danger, `full` theo perm của connection. An toàn thành lớp cứng, không còn phụ thuộc prompt.
-- Audit log: mọi tools/call ghi lại (connection, tool, args rút gọn, kết quả ok/lỗi, thời gian) vào SQLite/JSONL, xem được từ UI.
+- Each connection has a `perm`: `readonly` (read tools only) | `safe` (adds draft writes, blocks danger) | `full`. Derived from `tool_meta`, one toggle in the UI instead of making the user type the names of tools to block as today. Manual `deny_tools` stays for power users.
+- Loop mode maps straight onto the hub: a `suggest` loop calls the hub with a read-only context (the hub rejects every write tool regardless of the connection's perm), `auto` blocks the danger group, `full` follows the connection's perm. Safety becomes a hard layer and no longer depends on the prompt.
+- Audit log: every tools/call is recorded (connection, tool, shortened args, ok/error result, duration) in SQLite/JSONL and can be viewed from the UI.
 
-### 3.5 OAuth do Javis tự lo (bỏ phụ thuộc claude mcp add)
+### 3.5 Jarvis 007 handles OAuth itself (dropping the dependency on claude mcp add)
 
-- Implement chuẩn MCP Authorization (OAuth 2.1 + PKCE + Dynamic Client Registration): bấm "Kết nối" mở browser, callback về `http(s)://<dashboard>/connect/oauth/callback`, hub lưu + tự refresh token, gắn vào header khi gọi server.
-- Chạy được cả trên VPS vì callback đi qua chính URL dashboard user đang mở (không cần terminal, không cần màn hình máy chủ).
-- Server OAuth từ đó dùng được cho MỌI engine (hiện tại: chỉ Claude Code). Đường `claude mcp add` native giữ làm fallback một thời gian rồi gỡ.
+- Implement the standard MCP Authorization (OAuth 2.1 + PKCE + Dynamic Client Registration): clicking "Connect" opens the browser, the callback returns to `http(s)://<dashboard>/connect/oauth/callback`, and the hub stores and refreshes the token itself and attaches it to the header when calling the server.
+- It works on a VPS too, because the callback goes through the very dashboard URL the user has open (no terminal and no screen on the server needed).
+- From then on OAuth servers work for EVERY engine (today: Claude Code only). The native `claude mcp add` path stays as a fallback for a while and is then removed.
 
-## 4. UX trang "Kết nối" (thay trang MCP hiện tại)
+## 4. UX of the "Connections" page (replacing the current MCP page)
 
-Đổi nhãn menu: MCP -> **Kết nối** (phụ đề "Nguồn dữ liệu & công cụ"). Chữ MCP chỉ còn trong phần nâng cao.
+Rename the menu entry: MCP -> **Connections** (subtitle "Data sources & tools"). The word MCP only remains in the advanced section.
 
-Bố cục 2 khu + giữ khu ambient:
+Layout of 2 areas plus the ambient area:
 
-1. **Đã kết nối**: mỗi connector 1 card, trong card là các chip tài khoản: `● Kim Khí Hà Lộc (mặc định) | ● Shop B | + Thêm tài khoản`. Mỗi chip mở menu: đổi tên, đặt mặc định, test lại, chỉ đọc (toggle), tắt/bật, xem log, xoá.
-2. **Kho kết nối**: grid card từ catalog (icon, tên, mô tả 1 dòng, badge "API key" / "OAuth" / "QR Zalo"), ô tìm kiếm, lọc theo nhóm. Cuối grid: card "Tự thêm (nâng cao)" = custom connector, giữ form cũ.
-3. **MCP từ Claude Code** (ambient): giữ nguyên, chỉ xem.
+1. **Connected**: one card per connector, and inside the card are account chips: `● Kim Khí Hà Lộc (default) | ● Shop B | + Add an account`. Each chip opens a menu: rename, set as default, re-test, read only (toggle), disable/enable, view log, delete.
+2. **Connection store**: a grid of cards from the catalog (icon, name, one-line description, badge "API key" / "OAuth" / "Zalo QR"), a search box and a filter by group. At the end of the grid: an "Add your own (advanced)" card = custom connector, keeping the old form.
+3. **MCPs from Claude Code** (ambient): unchanged, view only.
 
-Flow thêm tài khoản theo auth type:
+Flow for adding an account by auth type:
 
-- **apikey**: modal 1 ô dán key + dòng hướng dẫn lấy key ở đâu (text + link docs của hãng) -> bấm Kết nối -> hub validate ngay (gọi tool xác minh) -> hiện "✓ Đã kết nối: <tên shop>" và tự điền label -> chọn quyền (mặc định theo catalog, POS mặc định chỉ đọc). Sai key thì báo lỗi tại chỗ, kèm gợi ý.
-- **oauth**: bấm Kết nối -> mở tab đăng nhập của hãng -> quay lại thấy account đã vào danh sách.
-- **qr** (Zalo): modal hiện mã QR (Javis spawn CLI login, bắt QR đưa lên UI), poll trạng thái tới khi "✓ Đã đăng nhập: <tên Zalo>". Kèm cảnh báo rủi ro bắt buộc đọc (xem mục 6).
-- Sau connection ĐẦU TIÊN của user: chạy 1 câu demo ngay trong trang ("Hôm nay bán được bao nhiêu?") để chứng minh giá trị tức thì.
+- **apikey**: a modal with one box to paste the key plus a line saying where to get the key (text + the vendor's docs link) -> click Connect -> the hub validates right away (calls the verification tool) -> shows "✓ Connected: <shop name>" and fills in the label itself -> choose the permission (default comes from the catalog; POS defaults to read only). A wrong key is reported on the spot, with a hint.
+- **oauth**: click Connect -> a tab opens with the vendor's login -> come back and see the account already in the list.
+- **qr** (Zalo): a modal shows the QR code (Jarvis 007 spawns the CLI login, captures the QR and puts it in the UI) and polls the status until "✓ Signed in: <Zalo name>". It comes with a mandatory-read risk warning (see section 6).
+- After the user's FIRST connection: run one demo question right in the page ("How much did we sell today?") to prove the value immediately.
 
-Nguyên tắc: người thường không bao giờ thấy URL/transport/header. Kỹ thuật chỉ hiện trong "Tự thêm (nâng cao)" và khi mở chi tiết connection.
+Principle: an ordinary person never sees the URL/transport/header. The technical details only show in "Add your own (advanced)" and when opening a connection's details.
 
-## 5. Engine parity: agent thực thụ trên mọi bộ não
+## 5. Engine parity: a real agent on every brain
 
-Ma trận đích (hiện tại -> đích):
+Target matrix (current -> target):
 
-| Năng lực | Claude Code | Codex | OpenRouter/OpenAI API | Anthropic API |
+| Capability | Claude Code | Codex | OpenRouter/OpenAI API | Anthropic API |
 |---|---|---|---|---|
-| MCP | ✓ (giữ, qua hub) | ✓ http -> ✓ hub (cả stdio) | ✓ (nhanh hơn nhờ pool) | ✗ -> ✓ (tool loop mới) |
-| Skill | ✓ native | ✗ -> ✓ (skill router) | ✗ -> ✓ (skill router) | ✗ -> ✓ |
-| File vault | ✓ | ✓ | ✗ -> ✓ (built-in tools) | ✗ -> ✓ |
-| Loop/agent/workflow | ✓ | một phần | ✗ -> ✓ | ✗ -> ✓ |
+| MCP | ✓ (kept, via the hub) | ✓ http -> ✓ hub (stdio too) | ✓ (faster thanks to the pool) | ✗ -> ✓ (new tool loop) |
+| Skills | ✓ native | ✗ -> ✓ (skill router) | ✗ -> ✓ (skill router) | ✗ -> ✓ |
+| Vault files | ✓ | ✓ | ✗ -> ✓ (built-in tools) | ✗ -> ✓ |
+| Loop/agent/workflow | ✓ | partial | ✗ -> ✓ | ✗ -> ✓ |
 
-Việc cụ thể:
+Concrete work:
 
-1. **Anthropic API tool loop**: viết `anthropic_chat_with_mcp` trong `engine.py` (Anthropic Messages API có tool use, pattern y hệt `openai_chat_with_mcp`). Việc nhỏ, giá trị ngay: gỡ dòng "Anthropic API = chat thuần" khỏi docs.
-2. **Built-in tools cho engine API**: bộ tool file sandbox trong vault (read/list/write/append theo perm), đưa vào cùng vòng tool-calling với tool MCP. Từ đó loop/task/workflow chạy được trên engine API.
-3. **Skill router mọi engine**: inject danh sách skill (name + description từ `.claude/skills/*/SKILL.md`) vào system prompt + meta-tool `use_skill(name)` trả về nội dung SKILL.md khi model kích hoạt (progressive disclosure, đúng cách Claude Code làm nhưng do Javis tự làm nên engine nào cũng chạy).
-4. **Loop/agent/workflow nhận provider API**: trường `model` của agent mở rộng nhận cả provider API; runner map qua Engine interface chung.
-5. Chuẩn hoá interface `Engine` (capabilities: native_mcp, native_skills, file_tools...) để chỗ gọi không if/else theo tên engine rải rác như hiện nay; badge engine trên UI đọc từ capability thật.
+1. **Anthropic API tool loop**: write `anthropic_chat_with_mcp` in `engine.py` (the Anthropic Messages API has tool use, same pattern as `openai_chat_with_mcp`). Small job with immediate value: remove the "Anthropic API = plain chat" line from the docs.
+2. **Built-in tools for API engines**: a set of sandboxed file tools inside the vault (read/list/write/append by perm), put into the same tool-calling loop as the MCP tools. From then on loops/tasks/workflows can run on API engines.
+3. **Skill router for every engine**: inject the skill list (name + description from `.claude/skills/*/SKILL.md`) into the system prompt, plus a meta-tool `use_skill(name)` that returns the SKILL.md content when the model activates it (progressive disclosure, the way Claude Code does it, but done by Jarvis 007 itself so every engine works).
+4. **Loop/agent/workflow accept an API provider**: the agent's `model` field is extended to accept API providers too; the runner maps through a common Engine interface.
+5. Standardize the `Engine` interface (capabilities: native_mcp, native_skills, file_tools...) so call sites no longer have if/else on engine names scattered around as they are today; the engine badge in the UI reads from the real capabilities.
 
-ChatGPT OAuth (responses API) không nhận function tool: giữ nguyên chiến lược đi qua Codex CLI, không cố ép.
+ChatGPT OAuth (responses API) does not accept function tools: keep the strategy of going through the Codex CLI and do not try to force it.
 
-## 6. Bốn connector cài sẵn đợt đầu
+## 6. Four connectors preinstalled in the first wave
 
-1. **Pancake POS** (chắc chắn nhất): endpoint `https://mcp-pos.pancake.biz/mcp` + API key, đã chạy thực tế. Việc còn lại: viết entry catalog + validate qua `pos_shop` + tool_meta phân loại đọc/ghi + multi-shop thành multi-connection chính thức. Docs: https://docs.pancake.biz/pos/st-f13/st-p2?lang=vi
-2. **Webcake Landing**: hãng đã có MCP ("Để AI tự thiết kế & sửa landing page bằng lời nói"). Cần mở trang docs đầy đủ để lấy endpoint + cách phát key chính xác (trang là SPA, fetch tự động chỉ ra tiêu đề). Docs: https://docs.pancake.biz/landing/st-f7/st-p3?lang=vi
-3. **Botcake**: trang docs đang nói chiều "Botcake AI đi tiêu thụ MCP server". Cần xác minh Botcake có EXPOSE MCP cho bên ngoài không; nếu chỉ có JSON API (mục Developer) thì viết wrapper MCP mỏng trong repo (`server/connectors/botcake_mcp.py`, mount vào hub như connector nội bộ). Pattern wrapper này tái dùng cho mọi dịch vụ chỉ có REST API. Docs: https://docs.pancake.biz/botcake/st-f2/st-p10/st-s2?lang=vi
-4. **Zalo** (zalo-agent-cli, npm): CLI không chính thức trên zca-js, đăng nhập QR, hỗ trợ SẴN đa tài khoản + proxy riêng từng tài khoản (khớp mô hình connection), có MCP mode từ v1.2.0 (4 tools: đọc tin, gửi tin, liệt kê thread, đánh dấu đã đọc) và 15+ nhóm lệnh CLI. Catalog entry: transport stdio, command `zalo-agent-cli` (verify cú pháp chạy MCP + flag chọn account khi làm), auth type `qr`.
-   - BẮT BUỘC hiển thị cảnh báo: API không chính thức, tài khoản có thể bị Zalo khoá. Mặc định `readonly` (đọc tin); gửi tin phải chủ động nâng quyền và xác nhận rủi ro. Thêm rate limit tại hub cho connector này.
+1. **Pancake POS** (the surest): endpoint `https://mcp-pos.pancake.biz/mcp` + API key, already running in practice. Remaining work: write the catalog entry + validate via `pos_shop` + `tool_meta` read/write classification + make multi-shop an official multi-connection. Docs: https://docs.pancake.biz/pos/st-f13/st-p2?lang=vi
+2. **Webcake Landing**: the vendor already has an MCP ("Let AI design and edit landing pages by voice"). We need to open the full docs page to get the exact endpoint and how keys are issued (the page is an SPA and an automatic fetch only returns the title). Docs: https://docs.pancake.biz/landing/st-f7/st-p3?lang=vi
+3. **Botcake**: the docs page describes the direction "Botcake AI consumes MCP servers". We need to verify whether Botcake EXPOSES MCP to outside parties; if it only has a JSON API (Developer section), write a thin MCP wrapper in the repo (`server/connectors/botcake_mcp.py`, mounted into the hub as an internal connector). This wrapper pattern is reusable for every service that only has a REST API. Docs: https://docs.pancake.biz/botcake/st-f2/st-p10/st-s2?lang=vi
+4. **Zalo** (zalo-agent-cli, npm): an unofficial CLI built on zca-js, QR login, ALREADY supports multiple accounts + a separate proxy per account (matches the connection model), has an MCP mode since v1.2.0 (4 tools: read messages, send message, list threads, mark as read) and 15+ CLI command groups. Catalog entry: transport stdio, command `zalo-agent-cli` (verify the syntax for running MCP + the account-selection flag when building), auth type `qr`.
+   - MUST show a warning: the API is unofficial and the account may be locked by Zalo. Default `readonly` (read messages); sending messages requires the user to deliberately raise the permission and confirm the risk. Add a rate limit at the hub for this connector.
 
-## 6b. Đợt 2 - ba connector quảng cáo (research 2026-07-04, ship 0.9.2)
+## 6b. Wave 2 - three ad connectors (research 2026-07-04, ship 0.9.2)
 
-1. **Meta Ads (chính chủ)**: remote MCP `https://mcp.facebook.com/ads`, OAuth chuẩn MCP (đúng flow oauth_mcp của hub - không cần dev app/token). Open beta từ 29/04/2026, MỞ DẦN theo từng ad account, yêu cầu account thuộc Business Manager. 29 tool: đọc (`ads_get_*`, `ads_insights_*`, `ads_catalog_get_*`), ghi catalog (`ads_catalog_create`), nguy hiểm tiền thật (`ads_create_campaign/_ad_set/_ad`, `ads_update_entity`, `ads_activate_entity`). Guardrail phía Meta: entity tạo qua MCP luôn PAUSED. 3 scope tier chọn lúc đăng nhập (read-only / read-write / financial). Chưa test được live vì cần đăng nhập Facebook thật - validate + label tự động sẽ chạy lần kết nối đầu của user.
-2. **Google Ads (chính chủ)**: local stdio, repo `googleads/google-ads-mcp` (KHÔNG có bản PyPI dùng được - gói PyPI cùng tên là placeholder 0.0.1). Chạy `uvx --from git+https://github.com/googleads/google-ads-mcp.git google-ads-mcp` - ĐÃ TEST THẬT trên Windows: server "Google Ads Server" v3.4.2, initialize + tools/list OK trong <90s (khớp timeout init của mcp_client). Tên tool THẬT có prefix namespace: `customers_list_accessible_customers`, `search_search`, `metadata_get_resource_metadata` (docs chỉ ghi tên không prefix). Read-only by design. Auth: developer token (API Center của MCC, mức Explorer đủ) + GCP project bật Google Ads API + ADC (gcloud auth application-default login --scopes=adwords,cloud-platform --client-id-file=oauth-client.json) - user dán nội dung file ADC, mcp_store ghi ra file + gán env GOOGLE_APPLICATION_CREDENTIALS. Qua agency/MCC thì thêm GOOGLE_ADS_LOGIN_CUSTOMER_ID.
-3. **TikTok Ads (cộng đồng, chờ chính chủ)**: TikTok công bố MCP chính chủ tại TikTok World 13/05/2026 nhưng tới 07/2026 CHƯA GA (chưa có endpoint public; trang docs portal v1.3 là SPA chưa đọc được nội dung). Chọn gói PyPI `tiktok-ads-mcp` (ysntony, v0.1.4): stdio `uvx tiktok-ads-mcp` - ĐÃ TEST THẬT: 6 tool đều read-only, tên thật có hậu tố `_tool` (`get_authorized_ad_accounts_tool`, `get_campaigns_tool`, `get_reports_tool`...). Auth stateless dán thẳng env TIKTOK_APP_ID / TIKTOK_SECRET / TIKTOK_ACCESS_TOKEN (token Marketing API long-term không tự hết hạn) - hợp mô hình connection đa tài khoản. Đã CÂN NHẮC và LOẠI repo `AdsMCP/tiktok-ads-mcp-server` (user gửi link): không có trên PyPI (phải clone), auth OAuth tương tác qua tool trong chat, token lưu trong process không rõ persistence - không hợp hub. Khi TikTok mở bản chính chủ: thay entry `tiktok-ads` sang endpoint chính chủ (giữ id để connection cũ migrate được).
+1. **Meta Ads (official)**: remote MCP `https://mcp.facebook.com/ads`, standard MCP OAuth (exactly the hub's oauth_mcp flow - no dev app or token needed). Open beta since 2026-04-29, rolled out gradually per ad account, and requires the account to belong to a Business Manager. 29 tools: reads (`ads_get_*`, `ads_insights_*`, `ads_catalog_get_*`), catalog writes (`ads_catalog_create`), real-money danger (`ads_create_campaign/_ad_set/_ad`, `ads_update_entity`, `ads_activate_entity`). Guardrail on Meta's side: entities created through MCP are always PAUSED. 3 scope tiers chosen at sign-in (read-only / read-write / financial). Could not be tested live because it needs a real Facebook login - validate + automatic label will run on the user's first connection.
+2. **Google Ads (official)**: local stdio, repo `googleads/google-ads-mcp` (there is NO usable PyPI release - the PyPI package of the same name is a 0.0.1 placeholder). Run `uvx --from git+https://github.com/googleads/google-ads-mcp.git google-ads-mcp` - ACTUALLY TESTED on Windows: server "Google Ads Server" v3.4.2, initialize + tools/list OK in under 90s (matches mcp_client's init timeout). The REAL tool names carry a namespace prefix: `customers_list_accessible_customers`, `search_search`, `metadata_get_resource_metadata` (the docs list the names without the prefix). Read-only by design. Auth: developer token (the MCC's API Center, Explorer level is enough) + a GCP project with the Google Ads API enabled + ADC (gcloud auth application-default login --scopes=adwords,cloud-platform --client-id-file=oauth-client.json) - the user pastes the ADC file content, mcp_store writes it out to a file and sets the env GOOGLE_APPLICATION_CREDENTIALS. Through an agency/MCC, also add GOOGLE_ADS_LOGIN_CUSTOMER_ID.
+3. **TikTok Ads (community, waiting for official)**: TikTok announced an official MCP at TikTok World on 2026-05-13 but as of 07/2026 it is NOT GA (no public endpoint yet; the docs portal v1.3 is an SPA whose content could not be read). Chosen: the PyPI package `tiktok-ads-mcp` (ysntony, v0.1.4): stdio `uvx tiktok-ads-mcp` - ACTUALLY TESTED: all 6 tools are read-only, and the real names have a `_tool` suffix (`get_authorized_ad_accounts_tool`, `get_campaigns_tool`, `get_reports_tool`...). Stateless auth by pasting env vars TIKTOK_APP_ID / TIKTOK_SECRET / TIKTOK_ACCESS_TOKEN directly (a long-term Marketing API token does not expire on its own) - fits the multi-account connection model. We CONSIDERED and REJECTED the repo `AdsMCP/tiktok-ads-mcp-server` (sent by the user as a link): it is not on PyPI (must be cloned), auth is interactive OAuth through a tool in chat, and token persistence inside the process is unclear - it does not fit the hub. When TikTok opens the official version: switch the `tiktok-ads` entry to the official endpoint (keep the id so old connections can migrate).
 
-Kèm theo 0.9.2: callback `/connect/oauth/callback` sau khi đổi token thành công giờ tự gọi validate để đặt label (tên tài khoản ads) nếu label còn là tên mặc định, và ghi codex profile ngay (trước đây sót).
+Also in 0.9.2: after a successful token exchange, the `/connect/oauth/callback` callback now calls validate by itself to set the label (the ads account name) if the label is still the default name, and writes the codex profile immediately (it was missed before).
 
-## 6c. Đợt 3 - Google Calendar + Gmail chính chủ (research 2026-07-04, ship 0.9.3)
+## 6c. Wave 3 - official Google Calendar + Gmail (research 2026-07-04, ship 0.9.3)
 
-Google đã ra MCP chính chủ dạng REMOTE cho Workspace, mỗi dịch vụ 1 endpoint (đã probe thật):
-- Calendar `https://calendarmcp.googleapis.com/mcp/v1` - 8 tool: đọc (list_events, get_event, list_calendars, suggest_time), ghi (create_event, update_event, respond_to_event), nguy hiểm (delete_event).
-- Gmail `https://gmailmcp.googleapis.com/mcp/v1` - 12 tool: đọc (list_drafts, get_thread, search_threads, list_labels), ghi (create_draft, create_label, *label*). ĐÁNG CHÚ Ý: KHÔNG có tool gửi thư - chỉ tạo nháp + gắn nhãn. An toàn tự nhiên.
-- Drive `https://drivemcp.googleapis.com/mcp/v1` cũng có (chưa thêm đợt này).
+Google has released official REMOTE MCPs for Workspace, one endpoint per service (actually probed):
+- Calendar `https://calendarmcp.googleapis.com/mcp/v1` - 8 tools: read (list_events, get_event, list_calendars, suggest_time), write (create_event, update_event, respond_to_event), danger (delete_event).
+- Gmail `https://gmailmcp.googleapis.com/mcp/v1` - 12 tools: read (list_drafts, get_thread, search_threads, list_labels), write (create_draft, create_label, *label*). NOTABLE: there is NO tool for sending mail - only creating drafts and applying labels. Naturally safe.
+- Drive `https://drivemcp.googleapis.com/mcp/v1` exists too (not added in this wave).
 
-Đặc điểm auth (khác Meta): initialize + tools/list trả 200 KHÔNG cần token; chỉ tools/call mới 401 kèm `WWW-Authenticate: Bearer resource_metadata=".../.well-known/oauth-protected-resource/<tool>"`. Resource metadata ở `/.well-known/oauth-protected-resource/mcp/v1` -> `authorization_servers: ["https://accounts.google.com/"]` + scopes_supported. accounts.google.com KHÔNG có registration_endpoint -> **không DCR** -> flow oauth_mcp cũ (chỉ DCR) không dùng được.
+Auth characteristics (different from Meta): initialize + tools/list return 200 WITHOUT a token; only tools/call returns 401 with `WWW-Authenticate: Bearer resource_metadata=".../.well-known/oauth-protected-resource/<tool>"`. The resource metadata at `/.well-known/oauth-protected-resource/mcp/v1` -> `authorization_servers: ["https://accounts.google.com/"]` + scopes_supported. accounts.google.com has NO registration_endpoint -> **no DCR** -> the old oauth_mcp flow (DCR only) cannot be used.
 
-Giải pháp (0.9.3): thêm nhánh EXPLICIT trong `oauth_mcp.start_auth`. Connector khai sẵn `auth.authorize_url` + `token_url` + `scopes` + `authorize_params` + fields client_id/client_secret (BYO). Khi có authorize_url+token_url -> bỏ discover/DCR, đọc client BYO từ `mcp_store.connection_secrets(conn_id)`, dựng URL với scopes khai sẵn + `access_type=offline&prompt=consent` (BẮT BUỘC để Google phát refresh_token; thiếu là chết sau 1h). handle_callback + _refresh gửi kèm client_secret (Google Web app là confidential client). Tự đặt tên tài khoản = email bóc từ id_token (scope openid+email). Nhánh DISCOVERY (Meta) giữ nguyên.
+Solution (0.9.3): add an EXPLICIT branch in `oauth_mcp.start_auth`. The connector declares `auth.authorize_url` + `token_url` + `scopes` + `authorize_params` + client_id/client_secret fields (BYO). When authorize_url + token_url are present -> skip discover/DCR, read the BYO client from `mcp_store.connection_secrets(conn_id)`, build the URL with the declared scopes + `access_type=offline&prompt=consent` (REQUIRED for Google to issue a refresh_token; without it the connection dies after 1h). handle_callback + _refresh also send client_secret (a Google Web app is a confidential client). The account name is set automatically to the email extracted from the id_token (scope openid+email). The DISCOVERY branch (Meta) is unchanged.
 
-Tại sao chọn remote chính chủ thay vì connector `google-workspace` (workspace-mcp local, đã có): remote không cần uv/node, chạy VPS headless, OAuth qua redirect dashboard (không mở browser lúc gọi tool - workspace-mcp local mở browser lần đầu nên fail trên headless). workspace-mcp phơi 45 tool (phình context nặng); 2 connector focus chỉ 8 + 12 tool. Giữ google-workspace cho ai cần cả Drive/Docs/Sheets trong 1 mối.
+Why choose the official remote instead of the existing local `google-workspace` connector (workspace-mcp): the remote needs no uv/node, runs on a headless VPS, and OAuth goes through the dashboard redirect (no browser opens at tool-call time - the local workspace-mcp opens a browser on first use, so it fails on headless). workspace-mcp exposes 45 tools (heavy context bloat); the 2 focused connectors have only 8 + 12 tools. Keep google-workspace for anyone who needs Drive/Docs/Sheets in one connection.
 
-CHƯA test được vòng OAuth end-to-end (cần OAuth client + đăng nhập Google thật của user). Đã test: probe endpoint + tool list thật, dựng URL authorize (unit test: offline/consent/scope/PKCE/không có param resource), bóc email id_token, phân loại quyền 17 case. User phải: tạo OAuth client "Ứng dụng web" trong GCP, thêm redirect `http://localhost:7777/connect/oauth/callback` (+ domain nếu VPS), bật Calendar API / Gmail API, thêm mình vào Test users.
+The end-to-end OAuth round trip is NOT yet tested (it needs an OAuth client + the user's real Google login). Tested: probing the endpoints + the real tool list, building the authorize URL (unit test: offline/consent/scope/PKCE/no resource param), extracting the email from the id_token, permission classification over 17 cases. The user must: create an OAuth client of type "Web application" in GCP, add the redirect `http://localhost:7777/connect/oauth/callback` (+ the domain on a VPS), enable the Calendar API / Gmail API, and add themselves to Test users.
 
-## 7. Lộ trình (mỗi phase ship được, dùng được ngay)
+## 7. Roadmap (each phase ships and is usable right away)
 
-**P0 - Nền hub (backend)**
-- Schema connector/connection + migration từ registry cũ (không phá server đang chạy).
-- `system/mcp-catalog.json` + loader (`server/mcp_catalog.py`), entry đầu: pancake-pos, zalo, custom.
-- Nâng `mcp_client.py`: session pool + stdio (cân nhắc chuyển SDK `mcp`).
-- Mã hoá secrets. Endpoint mới: `/connect/catalog`, `/connect/add`, `/connect/validate`, giữ `/mcp/*` cũ chạy song song.
-- Xong khi: thêm connection Pancake POS qua API mới, validate trả về tên shop, chat hỏi số vẫn chạy trên cả Claude Code lẫn OpenRouter.
+**P0 - Hub foundation (backend)**
+- Connector/connection schema + migration from the old registry (do not break running servers).
+- `system/mcp-catalog.json` + loader (`server/mcp_catalog.py`), first entries: pancake-pos, zalo, custom.
+- Upgrade `mcp_client.py`: session pool + stdio (consider moving to the `mcp` SDK).
+- Secret encryption. New endpoints: `/connect/catalog`, `/connect/add`, `/connect/validate`, with the old `/mcp/*` kept running in parallel.
+- Done when: a Pancake POS connection is added through the new API, validate returns the shop name, and a chat asking for numbers still works on both Claude Code and OpenRouter.
 
-**P1 - UI Kho kết nối**
-- `console.js`: renderMcp -> renderConnect (2 khu + ambient), flow apikey guided + validate + auto label, toggle chỉ đọc 1 chạm, test/health, multi-account chips, câu demo sau kết nối đầu.
-- Cập nhật docs/09.
-- Xong khi: người không biết kỹ thuật tự đấu được 2 shop Pancake POS trong dưới 2 phút, không thấy chữ URL/header.
+**P1 - Connection store UI**
+- `console.js`: renderMcp -> renderConnect (2 areas + ambient), guided apikey flow + validate + auto label, one-tap read-only toggle, test/health, multi-account chips, a demo question after the first connection.
+- Update docs/09.
+- Done when: a non-technical person connects 2 Pancake POS shops by themselves in under 2 minutes without seeing the words URL/header.
 
-**P2 - Aggregator + quyền tập trung**
-- `/hub/mcp` streamable HTTP + token nội bộ; Claude Code và Codex config chỉ còn 1 entry trỏ hub; engine API gọi hub in-process.
-- Enforce perm 3 mức + loop mode tại hub; audit log + màn hình xem log.
-- Xong khi: tắt registry per-server cũ, mọi engine chạy qua hub, loop suggest bị hub chặn tool ghi thật sự (test cố tình gọi pos_order).
+**P2 - Aggregator + centralized permissions**
+- `/hub/mcp` streamable HTTP + internal token; the Claude Code and Codex configs keep only 1 entry pointing at the hub; API engines call the hub in-process.
+- Enforce the 3 perm levels + loop mode at the hub; audit log + a log viewing screen.
+- Done when: the old per-server registry is turned off, every engine runs through the hub, and a suggest loop is truly blocked from write tools by the hub (test by deliberately calling pos_order).
 
 **P3 - OAuth + QR**
-- OAuth 2.1 PKCE + DCR + refresh, callback qua dashboard; gỡ dần đường `claude mcp add`.
-- Flow QR Zalo end-to-end (spawn CLI, bắt QR lên modal, poll, map account CLI -> connection).
-- Xong khi: connector OAuth bất kỳ đăng nhập được từ dashboard trên VPS headless; Zalo quét QR xong nhắn thử 1 tin (perm full, có xác nhận).
+- OAuth 2.1 PKCE + DCR + refresh, callback through the dashboard; gradually remove the `claude mcp add` path.
+- Zalo QR flow end to end (spawn the CLI, capture the QR into the modal, poll, map the CLI account -> connection).
+- Done when: any OAuth connector can be signed in from the dashboard on a headless VPS; Zalo is scanned and then sends one test message (perm full, with confirmation).
 
 **P4 - Engine parity**
-- Anthropic API tool loop; built-in file tools; skill router `use_skill`; loop/agent/workflow nhận provider API; interface Engine + capability flags; cập nhật docs/10.
-- Xong khi: đổi Main Model sang Anthropic API hoặc OpenRouter mà vẫn: gọi POS ra số, kích hoạt skill, chạy 1 loop nền.
+- Anthropic API tool loop; built-in file tools; `use_skill` skill router; loops/agents/workflows accept an API provider; Engine interface + capability flags; update docs/10.
+- Done when: switching the Main Model to Anthropic API or OpenRouter still lets us call POS for numbers, activate a skill and run one background loop.
 
-**P5 - Mở rộng kho**
-- Webcake Landing + Botcake (sau khi verify endpoint), Facebook Ads và các connector user hay cần; catalog refresh từ remote; lazy tools khi nhiều connector; cân nhắc kho cộng đồng.
+**P5 - Store expansion**
+- Webcake Landing + Botcake (after verifying the endpoints), Facebook Ads and the connectors users often need; catalog refresh from a remote; lazy tools when there are many connectors; consider a community store.
 
-Ghi chú thứ tự: P4 (mục 1: Anthropic tool loop) độc lập, làm chen bất cứ lúc nào. P1 phụ thuộc P0. P2 nên trước P3 để OAuth token chỉ phải cắm vào một chỗ (hub).
+Ordering note: P4 (item 1: the Anthropic tool loop) is independent and can be slotted in at any time. P1 depends on P0. P2 should come before P3 so the OAuth token only has to be plugged into one place (the hub).
 
-## 8. Rủi ro & câu hỏi mở
+## 8. Risks and open questions
 
-- **Zalo ban account**: rủi ro thật của zca-js. Giảm nhẹ: cảnh báo bắt buộc, mặc định readonly, rate limit, khuyến nghị dùng tài khoản phụ. Không bao giờ để loop mode auto/suggest gửi tin Zalo.
-- **Endpoint Webcake Landing + Botcake chưa xác minh**: trang docs là SPA, cần mở bằng browser (hoặc user cung cấp) để lấy URL MCP + cách phát key trước khi viết entry catalog.
-- **OAuth với dịch vụ KHÔNG theo chuẩn MCP** (vd Google API thô): chuẩn DCR không áp được, cần app đăng ký riêng. Hướng: ưu tiên remote MCP chuẩn; trường hợp đặc biệt hướng dẫn BYO client id, hoặc đi qua aggregator bên thứ ba (Composio) như connector tuỳ chọn.
-- **Phình context khi nhiều connector**: perm + deny đã lọc bớt; ngưỡng lớn thì bật lazy tools (P5).
-- **Tương thích ngược**: registry cũ phải migrate êm, `/mcp/*` cũ giữ tới khi UI mới ổn định; codex profile + empty-mcp fork học giữ nguyên hành vi.
-- **Bảo mật hub endpoint**: `/hub/mcp` bind localhost + token nội bộ sinh mỗi lần chạy, tránh tiến trình khác trên máy gọi trộm (hub cầm toàn bộ key của user).
+- **Zalo account bans**: a real risk of zca-js. Mitigation: mandatory warning, default readonly, rate limit, recommend using a secondary account. Never let an auto/suggest loop mode send Zalo messages.
+- **Webcake Landing + Botcake endpoints unverified**: the docs pages are SPAs, so they must be opened in a browser (or the user supplies the details) to get the MCP URL + how keys are issued before writing the catalog entries.
+- **OAuth with services that do NOT follow the MCP standard** (e.g. raw Google APIs): the DCR standard does not apply, so a separately registered app is needed. Direction: prefer standard remote MCPs; for special cases guide the user to bring their own client id, or go through a third-party aggregator (Composio) as an optional connector.
+- **Context bloat with many connectors**: perm + deny already trim some; at a large threshold turn on lazy tools (P5).
+- **Backward compatibility**: the old registry must migrate smoothly, the old `/mcp/*` stays until the new UI is stable; the codex profile + empty-mcp fork keep their behavior.
+- **Hub endpoint security**: `/hub/mcp` binds to localhost + an internal token generated on every run, so other processes on the machine cannot sneak in (the hub holds all of the user's keys).

@@ -1,289 +1,290 @@
-# Đề xuất: đấu 9Router vào trang Models
+# Proposal: connecting 9Router to the Models page
 
-Nhiều khách hàng hỏi Javis có dùng được API của 9Router không. Tài liệu này là bản đào trước
-khi làm: 9Router thật ra là cái gì, đấu vào Javis thì vướng chỗ nào, có mấy đường đi.
+Many customers have asked whether Jarvis 007 can use the 9Router API. This document is the digging done
+before building: what 9Router actually is, where connecting it to Jarvis 007 gets stuck, and the
+available paths.
 
-## TRẠNG THÁI: GÁC LẠI, KHÔNG LÀM (chốt 2026-08-04)
+## STATUS: SHELVED, NOT BUILDING (decided 2026-08-04)
 
-Chủ repo đọc xong và quyết định **không làm**, giữ tài liệu để đó. Lý do, ghi nguyên ý:
+The repo owner read it and decided **not to build it**, and kept the document on file. The reasoning, in their own words:
 
-> Tạm thời không phù hợp. Nó không thực tế và chỉ hợp với những người muốn rẻ. Javis sắp lên
-> môi trường doanh nghiệp nên không cần dùng trộn như vậy.
+> Not a fit for now. It is not realistic and only suits people who want things cheap. Jarvis 007 is
+> about to move into enterprise environments, so it has no need for mixing like this.
 
-Lý do này **bền hơn bản thân 9Router**, nên đọc kỹ trước khi mở lại đề xuất nào cùng dạng:
+This reasoning **outlasts 9Router itself**, so read it carefully before reopening any proposal of the same kind:
 
-- **Hướng sản phẩm là doanh nghiệp.** Doanh nghiệp mua sự ổn định và một đường trách nhiệm rõ
-  ràng, không mua việc ghép nhiều tài khoản rẻ lại với nhau. Một tính năng mà giá trị cốt lõi
-  của nó là "tiết kiệm tiền bằng cách trộn nguồn" thì đang kéo sản phẩm về đúng nhóm khách
-  ngược với hướng đang đi.
-- **Trộn nguồn tự động chống lại thứ doanh nghiệp cần nhất: biết chắc mình đang chạy gì.**
-  Điểm bán hàng của 9Router là tự nhảy sang nhà cung cấp khác khi hết quota. Với người dùng cá
-  nhân đó là tiện. Với doanh nghiệp thì đó là "không ai biết câu trả lời vừa rồi do model nào
-  sinh ra, dữ liệu đi qua đâu" - một câu hỏi kiểm toán không trả lời được.
-- **Nó đòi một tiến trình chạy trên máy người dùng.** Thêm một thứ có thể tắt, và Javis không
-  quản được.
+- **The product direction is enterprise.** Enterprises buy stability and one clear line of
+  accountability, not a patchwork of cheap accounts stitched together. A feature whose core
+  value is "save money by mixing sources" pulls the product toward exactly the customer group
+  opposite to the direction it is heading.
+- **Automatic source mixing works against what enterprises need most: knowing for sure what they are running.**
+  The selling point of 9Router is that it jumps to another provider when quota runs out. For an
+  individual user that is convenient. For an enterprise it means "nobody knows which model
+  produced the last answer, or where the data went" - an audit question that cannot be answered.
+- **It requires a process running on the user's machine.** One more thing that can be switched off, and Jarvis 007
+  cannot manage it.
 
-**Điều này KHÔNG có nghĩa là mọi thứ trong tài liệu vô dụng.** Ba phần vẫn dùng lại được nếu
-sau này có nhu cầu khác:
+**This does NOT mean everything in the document is useless.** Three parts can still be reused if
+a different need comes up later:
 
-- Mục 2 (bức tường "localhost trên VPS không phải máy người dùng") áp cho **mọi** đề xuất đấu
-  một dịch vụ chạy tại máy: LiteLLM, vLLM, Ollama máy nhà, one-api.
-- Mục 3 (rủi ro mất tool calling trong im lặng) áp cho **mọi** nhà cung cấp mới. Đây là phép
-  thử nên chạy trước khi nhận bất kỳ endpoint lạ nào.
-- Mục 6 (danh sách chỗ phải chạm khi thêm một nhà cung cấp) là bản đồ dùng được ngay cho lần
-  thêm nhà cung cấp tiếp theo, bất kể là ai.
+- Section 2 (the wall that "localhost on a VPS is not the user's machine") applies to **every** proposal to connect
+  a service running on a local machine: LiteLLM, vLLM, home-run Ollama, one-api.
+- Section 3 (the risk of silently losing tool calling) applies to **every** new provider. It is a test
+  that should be run before accepting any unfamiliar endpoint.
+- Section 6 (the list of places to touch when adding a provider) is a map that is usable right away for the next
+  provider added, whoever it is.
 
-Phần còn lại của tài liệu giữ nguyên như lúc trình, không sửa lại cho hợp với kết luận.
+The rest of the document is kept exactly as it was when presented, not edited to match the conclusion.
 
 ---
 
-## 1. 9Router là cái gì, nói cho đúng
+## 1. What 9Router is, stated correctly
 
-**Nó KHÔNG phải một dịch vụ trên mạng để mua API key.** Đây là chỗ dễ hiểu nhầm nhất, và hiểu
-nhầm chỗ này thì cả kế hoạch sai theo.
+**It is NOT an online service where you buy an API key.** This is the easiest thing to misunderstand,
+and misunderstanding it makes the whole plan wrong.
 
-So sánh cho dễ hình dung:
+A comparison to make it easier to picture:
 
-| | OpenRouter (Javis đang có) | 9Router |
+| | OpenRouter (what Jarvis 007 has) | 9Router |
 |---|---|---|
-| Chạy ở đâu | Máy chủ của họ, trên Internet | **Máy của chính người dùng** |
-| Địa chỉ | `https://openrouter.ai/api/v1` cố định, ai cũng như ai | `http://localhost:20128/v1`, mỗi người một chỗ |
-| API key lấy đâu | Đăng ký ở openrouter.ai | Tự sinh trong bảng điều khiển 9Router của chính mình |
-| Trả tiền cho ai | Trả OpenRouter | 9Router **miễn phí vĩnh viễn**, tiền trả thẳng cho các nhà cung cấp bên dưới |
-| Cài thế nào | Không phải cài gì | `npm install -g 9router` hoặc chạy Docker |
+| Where it runs | On their servers, on the Internet | **On the user's own machine** |
+| Address | `https://openrouter.ai/api/v1`, fixed, the same for everyone | `http://localhost:20128/v1`, different for each person |
+| Where the API key comes from | Sign up at openrouter.ai | Generated in the dashboard of your own 9Router |
+| Who you pay | You pay OpenRouter | 9Router is **free forever**, the money goes straight to the underlying providers |
+| How to install | Nothing to install | `npm install -g 9router` or run Docker |
 
-Nói cách khác: 9Router là **một cái tổng đài đặt tại nhà**. Người dùng khai vào đó các tài
-khoản họ đang có (gói Claude Code, gói ChatGPT, Copilot, GLM, MiniMax, các nhà cung cấp miễn
-phí như Kiro hay OpenCode), rồi 9Router đứng ra nhận yêu cầu và tự chọn đường rẻ nhất còn
-quota. Hết quota chỗ này thì nó tự nhảy sang chỗ khác, không đứt việc giữa chừng.
+Put another way: 9Router is **a switchboard installed at home**. The user declares in it the accounts
+they already have (a Claude Code plan, a ChatGPT plan, Copilot, GLM, MiniMax, free providers such as
+Kiro or OpenCode), and then 9Router receives requests and picks the cheapest route that still has
+quota. When quota runs out in one place it jumps to another, so work is not cut off midway.
 
-Hai thứ khiến người ta thích nó:
+Two things make people like it:
 
-- **Tự chuyển tiếp khi hết quota** (họ gọi là "combo": một danh sách model xếp theo thứ tự ưu
-  tiên, cái đầu hết lượt thì rơi xuống cái sau).
-- **Nén token (RTK)**, họ công bố giảm 20-40% token đầu vào bằng cách lọc bớt phần thừa trong
-  kết quả tool trước khi gửi đi.
+- **Automatic failover when quota runs out** (they call it a "combo": a list of models in priority
+  order, and when the first runs out it falls to the next).
+- **Token compression (RTK)**, which they claim cuts input tokens by 20-40% by filtering out redundant
+  parts of tool results before sending.
 
-Mặt kỹ thuật, phần Javis cần biết:
+On the technical side, the part Jarvis 007 needs to know:
 
 ```
 POST http://localhost:20128/v1/chat/completions
-Authorization: Bearer <api key của chính người dùng>
+Authorization: Bearer <the user's own api key>
 {"model": "cc/claude-opus-4-6", "messages": [...], "stream": true}
 
-GET  http://localhost:20128/v1/models     → trả model + combo, định dạng OpenAI
+GET  http://localhost:20128/v1/models     → returns models + combos, OpenAI format
 ```
 
-Định dạng **giống hệt OpenAI**, tên model có tiền tố nhà cung cấp (`cc/`, `glm/`, `kr/`...).
-Đây là tin tốt: Javis đã có sẵn cả một đường xử lý cho endpoint kiểu OpenAI (OpenRouter,
-Groq, Gemini, Ollama đều đi chung đường đó).
+The format is **identical to OpenAI**, and model names carry a provider prefix (`cc/`, `glm/`, `kr/`...).
+This is good news: Jarvis 007 already has a whole path for OpenAI-style endpoints (OpenRouter,
+Groq, Gemini and Ollama all share it).
 
 ---
 
-## 2. Vướng ở đâu: đúng cái tường Javis đã đâm vào một lần rồi
+## 2. Where it gets stuck: exactly the wall Jarvis 007 already hit once
 
-Ở bản **0.16.1**, Javis **cố ý bỏ** khả năng đấu Ollama bản chạy máy nhà, chỉ giữ Ollama
-Cloud. Lý do ghi thẳng trong mã (`server/engine.py:310`, `server/config.py:61`):
+In version **0.16.1**, Jarvis 007 **deliberately dropped** the ability to connect a home-run Ollama, keeping only Ollama
+Cloud. The reason is written straight into the code (`server/engine.py:310`, `server/config.py:61`):
 
-> Javis CỐ Ý chỉ đấu bản Cloud: bản chạy trên máy nhà đòi một ô địa chỉ riêng, tức một ca đặc
-> biệt duy nhất xuyên suốt lớp nhà cung cấp, trong khi phần đông người dùng Javis chạy nó trên
-> VPS - nơi "localhost" là chính cái container chứ không phải máy họ.
+> Jarvis 007 DELIBERATELY connects only the Cloud edition: the home-run edition needs its own address field, which is a single
+> special case running through the whole provider layer, while most Jarvis 007 users run it on a
+> VPS - where "localhost" is the container itself and not their machine.
 
-9Router vấp **đúng hai điều đó**:
+9Router runs into **exactly those two things**:
 
-1. **Nó đòi thêm một ô địa chỉ.** Tám nhà cung cấp hiện tại chỉ cần một ô API key, địa chỉ là
-   hằng số trong mã. 9Router là cái đầu tiên mà mỗi người một địa chỉ.
-2. **`localhost` trên VPS không phải máy người dùng.** Javis của anh chạy trên VPS. Người dùng
-   cài 9Router trên máy tính cá nhân của họ. Javis gọi `http://localhost:20128` là gọi vào
-   chính cái container Javis, ở đó không có gì cả. Đây không phải lỗi có thể vá, đây là địa lý
-   mạng.
+1. **It needs an extra address field.** The eight current providers only need one API key field, and the address is a
+   constant in the code. 9Router is the first where each person has a different address.
+2. **`localhost` on a VPS is not the user's machine.** Your Jarvis 007 runs on a VPS. Users
+   install 9Router on their personal computer. When Jarvis 007 calls `http://localhost:20128` it is calling
+   the Jarvis 007 container itself, where there is nothing. This is not a bug that can be patched, it is network
+   geography.
 
-Nên câu hỏi thật không phải "code thế nào" mà là: **người dùng của anh chạy Javis ở đâu?**
+So the real question is not "how do we code it" but: **where do your users run Jarvis 007?**
 
-| Người dùng chạy Javis | 9Router chạy ở đâu | Đấu được không |
+| Where the user runs Jarvis 007 | Where 9Router runs | Can it connect? |
 |---|---|---|
-| Máy cá nhân (Windows, `setup.bat`) | Cùng máy đó | **Được**, `localhost:20128` đúng nghĩa |
-| VPS | Máy cá nhân của họ | **Không**, trừ khi họ mở 9Router ra Internet |
-| VPS | Cùng VPS đó | **Được**, nhưng họ phải tự cài thêm 9Router lên VPS |
+| A personal machine (Windows, `setup.bat`) | The same machine | **Yes**, `localhost:20128` means what it says |
+| A VPS | Their personal machine | **No**, unless they expose 9Router to the Internet |
+| A VPS | That same VPS | **Yes**, but they must install 9Router on the VPS themselves |
 
-Ô địa chỉ vẫn phải có trong cả ba trường hợp, vì cổng và máy chủ mỗi người một khác.
-
----
-
-## 3. Rủi ro lớn nhất, và nó không nằm ở chỗ ai cũng nghĩ
-
-Rủi ro không phải "kết nối không được". Kết nối được thì rất dễ thấy. Rủi ro là **kết nối
-được nhưng Javis mất năng lực mà không ai biết**.
-
-Javis sống bằng **gọi tool**: đọc MCP, ghi file vault, giao việc Kanban, chạy skill. Bỏ tool
-đi thì Javis chỉ còn là một khung chat.
-
-Mà 9Router **không ghi một chữ nào về tool calling** trong toàn bộ tài liệu công khai của họ
-(em đã đọc README 54KB, trang setup guide, và trang chủ). Không ghi không có nghĩa là không
-có, nhưng cũng không có nghĩa là có.
-
-Có một suy luận mạnh nghiêng về "có": tài liệu của họ hướng dẫn trỏ **Claude Code**, Cursor,
-Cline, Codex vào 9Router. Bốn công cụ đó không chạy nổi một giây nếu thiếu tool calling. Nên
-gần như chắc chắn 9Router có chuyển tiếp `tools`.
-
-Nhưng **suy luận không đủ để phát hành**, và còn một tầng rủi ro nữa sâu hơn:
-
-> Điểm bán hàng của 9Router là **tự nhảy sang nhà cung cấp khác khi hết quota**. Không phải
-> model nào cũng hỗ trợ tool calling. Nếu cú nhảy rơi trúng một model không có tool, Javis sẽ
-> nhận lời rồi trả về một câu trả lời chay - không gọi MCP, không ghi file, không báo lỗi.
-
-Đây đúng loại hỏng mà repo này ghét nhất và đã vá một lần ở 0.17.1: *"engine sẽ TỰ TIN nhận
-lời rồi im lặng không làm gì. Người dùng ngồi đợi một việc không bao giờ chạy, và không có một
-dòng lỗi nào ở đâu cả."*
-
-Nên nếu làm, **bắt buộc phải có một lớp phát hiện**: gửi một tool giả, xem model có gọi lại
-không; không gọi thì nói thẳng với người dùng là combo hiện tại không dùng tool được, đừng để
-họ tự phát hiện sau ba ngày.
+The address field is still needed in all three cases, because the port and host differ per person.
 
 ---
 
-## 4. Ba đường đi
+## 3. The biggest risk, and it is not where everyone thinks
 
-### Đường A - Nhà cung cấp mới `9router`, có ô địa chỉ riêng (đề xuất chọn)
+The risk is not "the connection fails". A failing connection is very easy to see. The risk is **the connection
+works but Jarvis 007 loses capabilities and nobody knows**.
 
-Thêm một mục vào trang Models như OpenRouter, khác ở chỗ có **hai ô**: địa chỉ máy chủ và API
-key. Địa chỉ mặc định điền sẵn `http://localhost:20128/v1` để người chạy máy cá nhân chỉ việc
-dán key.
+Jarvis 007 lives on **tool calling**: reading MCP, writing vault files, handing out Kanban work, running skills. Take
+tools away and Jarvis 007 is just a chat frame.
 
-- **Được**: đúng cái khách hàng hỏi, dùng lại gần hết đường xử lý OpenAI-compat sẵn có.
-- **Mất**: phá vỡ luật "mọi nhà cung cấp chỉ cần một ô key" - đây chính là điều 0.16.1 tránh.
-  Nhưng lần này có lý do khác hẳn Ollama: **khách hàng đang hỏi**, còn Ollama máy nhà thì
-  không ai hỏi.
-- **Khối lượng**: vừa. Ước lượng ở mục 6.
+And 9Router **does not say a word about tool calling** anywhere in its public documentation
+(I read the 54KB README, the setup guide page, and the home page). Not being stated does not mean
+it is absent, but it does not mean it is present either.
 
-### Đường B - Gộp vào một mục chung "Máy chủ tương thích OpenAI"
+There is a strong inference leaning toward "yes": their docs explain how to point **Claude Code**, Cursor,
+Cline and Codex at 9Router. Those four tools cannot run for a second without tool calling. So it is
+almost certain that 9Router forwards `tools`.
 
-Thay vì làm riêng cho 9Router, làm **một** nhà cung cấp tên "Máy chủ OpenAI-compat" nhận địa
-chỉ + key. Đấu được 9Router, LiteLLM, Ollama máy nhà, vLLM, one-api, và bất kỳ thứ gì sau này.
+But **inference is not enough to ship**, and there is a deeper layer of risk:
 
-- **Được**: một ca đặc biệt duy nhất, dùng được cho cả một họ sản phẩm chứ không riêng một cái
-  tên. Nếu 9Router mai kia hết thời thì công sức không mất.
-- **Mất**: người dùng phải tự biết mình đang đấu cái gì; không có hướng dẫn riêng cho 9Router
-  nên người mới sẽ lúng túng hơn. Không "trả lời đúng câu hỏi của khách" bằng đường A.
-- **Dung hoà**: làm đường B ở tầng dữ liệu, nhưng trong kho connector có sẵn một **mẫu
-  9Router** điền sẵn địa chỉ và hướng dẫn. Người dùng vẫn thấy chữ "9Router", còn mã thì
-  không có ca đặc biệt nào.
+> The selling point of 9Router is that it **jumps to another provider when quota runs out**. Not every
+> model supports tool calling. If the jump lands on a model with no tools, Jarvis 007 will
+> accept the task and then return a plain text answer - no MCP call, no file write, no error.
 
-### Đường C - Không đấu, hướng dẫn dùng qua Claude Code
+This is exactly the kind of failure this repo hates most and already patched once in 0.17.1: *"the engine will CONFIDENTLY accept
+the task and then silently do nothing. The user sits waiting for work that never runs, and there is not
+a single error line anywhere."*
 
-9Router đã hỗ trợ trỏ Claude Code vào nó. Về lý thuyết người dùng có thể cấu hình Claude Code
-trỏ vào 9Router rồi Javis dùng Claude Code như bình thường.
-
-- **Được**: không viết dòng code nào.
-- **Mất**: rất mong manh. Javis quản vòng đời Claude Code khá sâu (đăng nhập, model, MCP,
-  phiên) nên chen một proxy vào giữa dễ vỡ ở chỗ khó lần. Và nó không trả lời được câu hỏi của
-  khách: họ muốn thấy 9Router **trong trang Models**.
-
-**Đề xuất của em: đường B kèm mẫu 9Router điền sẵn.** Cùng công sức nhưng mở ra cả một họ, và
-không để lại một ca đặc biệt mang tên một sản phẩm bên thứ ba trong lớp nhà cung cấp.
+So if we build it, **a detection layer is mandatory**: send a fake tool and see whether the model calls it
+back; if not, tell the user plainly that the current combo cannot use tools, and do not let
+them find out three days later.
 
 ---
 
-## 5. Phải kiểm chứng TRƯỚC khi viết code
+## 4. Three paths
 
-Bốn câu hỏi này chưa có câu trả lời chắc chắn, và cả bốn đều đổi thiết kế nếu trả lời khác đi.
-Kiểm bằng cách cài 9Router lên một máy rồi chạy vài lệnh, khoảng 30 phút.
+### Path A - A new `9router` provider, with its own address field (the recommended pick)
 
-1. **Có chuyển tiếp `tools` không?** Gửi một request kèm `tools` và xem có `tool_calls` trong
-   phản hồi không. Nếu KHÔNG thì dừng cả đề xuất, vì Javis không dùng được.
-2. **Có streaming kèm tool không?** Javis chạy chữ dần từng chữ. Nếu bật `stream: true` mà tool
-   gãy thì phải rơi về chế độ không stream, và điều đó phải nói trước cho người dùng.
-3. **`GET /v1/models` trả về hình dạng gì?** Trang Models của Javis liệt kê model động. Cần
-   biết combo hiện ra thế nào để phân biệt với model thường.
-4. **Combo nhảy sang model không có tool thì sao?** Đây là rủi ro ở mục 3. Cách kiểm: dựng một
-   combo có model không hỗ trợ tool ở vị trí thứ hai, ép hết quota cái đầu, xem chuyện gì xảy ra.
+Add an entry to the Models page like OpenRouter, but with **two fields**: the server address and the API
+key. The address is pre-filled with `http://localhost:20128/v1` so someone running on a personal machine only has to
+paste the key.
 
-Lệnh kiểm nhanh câu 1 và 3, chạy trên máy đã cài 9Router:
+- **Pros**: it is exactly what customers asked for, and it reuses almost all of the existing OpenAI-compat path.
+- **Cons**: it breaks the rule "every provider needs only one key field" - this is exactly what 0.16.1 avoided.
+  But this time there is a very different reason from Ollama: **customers are asking**, whereas nobody
+  asked for home-run Ollama.
+- **Effort**: medium. Estimate in section 6.
+
+### Path B - Merge into one generic "OpenAI-compatible server" entry
+
+Instead of building something specific to 9Router, build **one** provider called "OpenAI-compat server" that takes an address
++ key. It can connect 9Router, LiteLLM, home-run Ollama, vLLM, one-api, and anything that comes later.
+
+- **Pros**: a single special case, usable for a whole family of products and not just one
+  name. If 9Router goes out of fashion tomorrow the effort is not lost.
+- **Cons**: users must know for themselves what they are connecting; there is no dedicated 9Router guide,
+  so newcomers will be more confused. It does not "answer the customer's question" the way path A does.
+- **Compromise**: do path B at the data layer, but have the connector store carry a ready-made **9Router
+  template** with the address and guide pre-filled. Users still see the word "9Router", while the code
+  has no special case.
+
+### Path C - Do not connect, guide users to go through Claude Code
+
+9Router already supports pointing Claude Code at it. In theory the user can configure Claude Code
+to point at 9Router and then Jarvis 007 uses Claude Code as usual.
+
+- **Pros**: not a single line of code.
+- **Cons**: very fragile. Jarvis 007 manages the Claude Code lifecycle quite deeply (login, model, MCP,
+  sessions), so wedging a proxy in the middle breaks easily in hard-to-trace places. And it does not answer the
+  customer's question: they want to see 9Router **on the Models page**.
+
+**My recommendation: path B with a pre-filled 9Router template.** The same effort but it opens a whole family, and
+it leaves no special case named after a third-party product in the provider layer.
+
+---
+
+## 5. What must be verified BEFORE writing code
+
+These four questions have no confident answer yet, and all four change the design if answered differently.
+Check by installing 9Router on a machine and running a few commands, about 30 minutes.
+
+1. **Does it forward `tools`?** Send a request with `tools` and see whether `tool_calls` appears in the
+   response. If NOT, stop the whole proposal, because Jarvis 007 cannot use it.
+2. **Does it stream together with tools?** Jarvis 007 streams text word by word. If `stream: true` is on and tools
+   break, we must fall back to non-stream mode, and the user must be told up front.
+3. **What shape does `GET /v1/models` return?** The Jarvis 007 Models page lists models dynamically. We need to
+   know how combos show up so they can be told apart from regular models.
+4. **What happens when a combo jumps to a model with no tools?** This is the risk in section 3. How to check: build a
+   combo with a non-tool model in second position, force the first one out of quota, and see what happens.
+
+A quick command to check questions 1 and 3, run on a machine with 9Router installed:
 
 ```bash
-KEY=<key lấy trong dashboard 9router>
+KEY=<key from the 9router dashboard>
 BASE=http://localhost:20128/v1
 
 curl -s $BASE/models -H "Authorization: Bearer $KEY" | head -40
 
 curl -s $BASE/chat/completions -H "Authorization: Bearer $KEY" \
   -H "Content-Type: application/json" -d '{
-  "model": "<điền tên model hoặc combo>",
-  "messages": [{"role":"user","content":"Mấy giờ rồi? Dùng tool đi."}],
+  "model": "<fill in the model or combo name>",
+  "messages": [{"role":"user","content":"What time is it? Use the tool."}],
   "tools": [{"type":"function","function":{"name":"gio_hien_tai",
-    "description":"Trả về giờ hiện tại","parameters":{"type":"object","properties":{}}}}]
+    "description":"Returns the current time","parameters":{"type":"object","properties":{}}}}]
 }' | python -m json.tool
 ```
 
-Thấy `tool_calls` trong kết quả là qua cửa. Không thấy thì dừng.
+Seeing `tool_calls` in the result means it passes. If not, stop.
 
 ---
 
-## 6. Nếu làm thì đụng những đâu
+## 6. If we build it, what gets touched
 
-Ghi ra đây để anh thấy khối lượng thật, không phải để làm ngay.
+Listed here so you can see the real size, not to start right away.
 
-**Tầng nhà cung cấp (phần chính)**
+**Provider layer (the main part)**
 
-- `server/config.py` - thêm ô key + ô địa chỉ vào cấu hình, thêm vào danh sách che secret
-  (dòng 374), thêm mồi model.
-- `server/engine.py` - địa chỉ dựng từ cấu hình chứ không hằng số hoá; thêm vào bảng
-  `endpoints` (dòng 613); hàm stream; hàm vòng lặp tool (`*_chat_with_mcp`).
-- `server/aux_engine.py` - thêm vào `API_PROVIDERS` và `_KEY_FIELD` để việc nền định tuyến được.
-- `server/main.py` - `/provider/models` hỏi `GET /v1/models` của người dùng;
-  `_WORKFLOW_ROUTABLE_PROVIDERS`; `_TG_PROVIDERS` (nút chọn model trên Telegram).
-- `server/usage_index.py` - thêm vào `_API_PROVIDERS` để tính token.
-- `server/connect_health.py` - thăm dò sức khoẻ; **thêm nhánh riêng cho lỗi "không nối được
-  địa chỉ"**, vì đây là nhà cung cấp đầu tiên mà lỗi mạng là chuyện thường ngày (máy tắt, đổi
-  cổng, VPS không thấy máy nhà).
+- `server/config.py` - add the key field + address field to the config, add them to the secret-masking list
+  (line 374), add model seeding.
+- `server/engine.py` - build the address from config instead of a constant; add it to the `endpoints` table
+  (line 613); the stream function; the tool loop function (`*_chat_with_mcp`).
+- `server/aux_engine.py` - add to `API_PROVIDERS` and `_KEY_FIELD` so background jobs can route.
+- `server/main.py` - `/provider/models` queries the user's `GET /v1/models`;
+  `_WORKFLOW_ROUTABLE_PROVIDERS`; `_TG_PROVIDERS` (the model picker buttons on Telegram).
+- `server/usage_index.py` - add to `_API_PROVIDERS` to count tokens.
+- `server/connect_health.py` - health probing; **add a dedicated branch for the "cannot reach the address" error**,
+  because this is the first provider where a network error is an everyday occurrence (machine off, port changed,
+  VPS cannot see the home machine).
 
-**Giao diện**
+**UI**
 
-- `dashboard/console.js` - `KEYFIELD` (dòng 3066), `MCP_PROVIDERS` (4060), `_UZ_PROV` (372),
-  bảng nhãn engine (4438). Cộng thêm **ô địa chỉ**, thứ chưa nhà cung cấp nào có, nên form
-  trang Models phải mở rộng chứ không chỉ thêm một dòng.
-- `dashboard/usage.js`, `dashboard/app.js` - nhãn.
+- `dashboard/console.js` - `KEYFIELD` (line 3066), `MCP_PROVIDERS` (4060), `_UZ_PROV` (372),
+  the engine label table (4438). Plus an **address field**, which no provider has yet, so the Models
+  page form has to be extended and not just given one more row.
+- `dashboard/usage.js`, `dashboard/app.js` - labels.
 
-**Lớp an toàn mới (không có sẵn, phải viết)**
+**New safety layer (not existing, must be written)**
 
-- Kiểm tool calling lúc bấm Kết nối: gửi tool giả, không thấy gọi lại thì cảnh báo ngay tại
-  màn hình kết nối chứ không để phát hiện muộn.
-- Rào địa chỉ: chỉ cho `http://` khi trỏ vào máy nội bộ; trỏ ra Internet thì phải `https://`,
-  kẻo API key đi qua mạng dưới dạng trần.
+- A tool-calling check when Connect is clicked: send a fake tool, and if it is not called back, warn right on the
+  connection screen instead of letting it be discovered late.
+- An address guard: allow `http://` only when pointing at a local machine; pointing out to the Internet must be `https://`,
+  otherwise the API key travels over the network in the clear.
 
-**Tài liệu**
+**Docs**
 
-- `docs/10-models-va-engine.md` - mục mới, kèm nói thẳng chuyện VPS không thấy máy nhà.
-- `CLAUDE.md` - câu "**Tám** bộ não hiện dùng được..." phải sửa. Câu đó xuất hiện trong system
-  prompt mỗi lượt chat nên sai là Javis nói sai với mọi người dùng.
+- `docs/10-models-va-engine.md` - a new section, including a plain statement that a VPS cannot see the home machine.
+- `CLAUDE.md` - the sentence "**Eight** brains are currently usable..." must be fixed. That sentence appears in the system
+  prompt on every chat turn, so if it is wrong Jarvis 007 says the wrong thing to every user.
 
-**Ước lượng**: khoảng một bản nhỏ (kiểu 0.19.0), phần lớn công sức nằm ở lớp an toàn và giao
-diện có ô địa chỉ, chứ không nằm ở việc gọi API.
-
----
-
-## 7. Điều em KHÔNG khuyên làm
-
-- **Đừng ghim `localhost:20128` làm mặc định rồi thôi.** Nó đúng cho máy cá nhân và sai cho
-  mọi bản chạy VPS. Phải có ô địa chỉ thật, và phải có câu giải thích ngay cạnh ô đó.
-- **Đừng hứa "tự tiết kiệm 20-40% token".** Con số RTK là của 9Router công bố, Javis không đo
-  được và không kiểm soát được. Nói lại con số của người khác như thể của mình là chỗ mất uy
-  tín rẻ tiền nhất.
-- **Đừng để 9Router thành nhà cung cấp mặc định.** Nó phụ thuộc một tiến trình chạy trên máy
-  người dùng; tiến trình đó tắt là Javis chết mà người dùng không hiểu vì sao.
+**Estimate**: about one small release (like 0.19.0), with most of the effort in the safety layer and in the UI
+with the address field, not in calling the API.
 
 ---
 
-## 8. Cần anh chốt ba điều
+## 7. What I do NOT recommend
 
-1. **Đường A hay đường B?** (Em nghiêng B: một mục "Máy chủ OpenAI-compat" kèm mẫu 9Router
-   điền sẵn, mở ra cả họ thay vì một cái tên.)
-2. **Khách hàng của anh chạy Javis ở đâu?** Nếu phần lớn chạy VPS thì giá trị thật của tính
-   năng này thấp hơn nhiều so với vẻ ngoài, và nên nói trước với họ thay vì làm xong mới biết.
-3. **Ai chạy được bước kiểm chứng ở mục 5?** Cần một máy cài 9Router. Máy dựng của em không
-   cài được (không có tài khoản nhà cung cấp nào để khai vào 9Router).
+- **Do not pin `localhost:20128` as the default and call it done.** It is right for a personal machine and wrong for
+  every VPS deployment. There must be a real address field, with an explanation right next to it.
+- **Do not promise "automatically saves 20-40% tokens".** The RTK figure is published by 9Router; Jarvis 007 cannot
+  measure it and cannot control it. Repeating someone else's number as if it were ours is the cheapest way
+  to lose credibility.
+- **Do not make 9Router the default provider.** It depends on a process running on the user's
+  machine; when that process is off, Jarvis 007 dies and the user does not understand why.
 
-Trả lời xong ba câu đó là bắt tay được ngay.
+---
 
-> **Ba câu trên đã hết hiệu lực.** Đề xuất bị gác lại ở mức cao hơn: không phải chọn sai đường
-> mà là không đi hướng này. Xem mục Trạng thái ở đầu tài liệu.
+## 8. Three things you need to decide
+
+1. **Path A or path B?** (I lean toward B: one "OpenAI-compat server" entry with a pre-filled 9Router
+   template, opening a whole family instead of one name.)
+2. **Where do your customers run Jarvis 007?** If most run on a VPS, the real value of this
+   feature is much lower than it looks, and we should tell them up front instead of finding out after building.
+3. **Who can run the verification step in section 5?** It needs a machine with 9Router installed. My build machine
+   cannot install it (there are no provider accounts to declare in 9Router).
+
+Once those three questions are answered we can start right away.
+
+> **The three questions above are no longer valid.** The proposal was shelved at a higher level: it is not that the wrong path
+> was chosen but that we are not going in this direction. See the Status section at the top of the document.
