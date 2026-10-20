@@ -38,11 +38,11 @@ loi_disabled = (
     "for the action to propagate to our systems and retry."
 )
 msg = f(loi_disabled)
-check("API chưa bật -> nói rõ 'chưa được bật trong project'", "chưa được bật" in msg)
+check("API chưa bật -> nói rõ 'chưa được bật trong project'", "has not been enabled" in msg)
 check("API chưa bật -> kèm đúng link bật API từ chính lỗi của Google",
       "https://console.developers.google.com/apis/api/calendarmcp.googleapis.com" in msg)
 check("API chưa bật + là server *mcp.googleapis.com -> nhắc đây là API RIÊNG phải bật thêm",
-      "riêng" in msg.lower())
+      "separate" in msg.lower())
 check("API chưa bật + là server *mcp.googleapis.com -> nhắc ghi danh Developer Preview",
       "developers.google.com/workspace/preview" in msg)
 check("API chưa bật -> KHÔNG còn câu chung chung đổ oan key", "Key chưa đúng" not in msg)
@@ -50,7 +50,7 @@ check("API chưa bật -> KHÔNG còn câu chung chung đổ oan key", "Key chư
 # API thường (không phải *mcp.googleapis.com) chưa bật -> vẫn báo bật API nhưng KHÔNG nhắc preview
 loi_thuong = loi_disabled.replace("calendarmcp.googleapis.com", "calendar-json.googleapis.com")
 msg2 = f(loi_thuong)
-check("API thường chưa bật -> vẫn báo 'chưa được bật'", "chưa được bật" in msg2)
+check("API thường chưa bật -> vẫn báo 'chưa được bật'", "has not been enabled" in msg2)
 check("API thường chưa bật -> KHÔNG nhắc preview (không liên quan)",
       "workspace/preview" not in msg2)
 
@@ -58,20 +58,20 @@ check("API thường chưa bật -> KHÔNG nhắc preview (không liên quan)",
 msg3 = f('{"code": 403, "message": "Request had insufficient authentication scopes.", '
          '"status": "PERMISSION_DENIED"}')
 check("thiếu scope -> khuyên đăng nhập lại và tick đủ quyền",
-      "Đăng nhập lại" in msg3 and "tick" in msg3.lower())
+      "Sign in again" in msg3 and "tick" in msg3.lower())
 
 # ---- 3. Token hỏng / hết hạn ----
 msg4 = f("Request is missing required authentication credential. Expected OAuth 2 access token, "
          "login cookie or other valid authentication credential.")
-check("token hỏng -> khuyên đăng nhập lại", "Đăng nhập lại" in msg4)
+check("token hỏng -> khuyên đăng nhập lại", "Sign in again" in msg4)
 msg5 = f('{"error": "invalid_grant", "error_description": "Token has been expired or revoked."}')
-check("token hết hạn/thu hồi -> khuyên đăng nhập lại", "Đăng nhập lại" in msg5)
+check("token hết hạn/thu hồi -> khuyên đăng nhập lại", "Sign in again" in msg5)
 
 # ---- 4. Lỗi lạ -> giữ nguyên hành vi cũ (fallback), KHÔNG luôn-xanh ----
 msg6 = f("something exploded: HTTP 500")
 check("CANARY: lỗi lạ vẫn rơi về câu cũ kèm nguyên văn",
       msg6.startswith("Key chưa đúng hoặc chưa đủ quyền:") and "HTTP 500" in msg6)
-check("CANARY: lỗi lạ không bị gán nhầm thành 'API chưa bật'", "chưa được bật" not in msg6)
+check("CANARY: lỗi lạ không bị gán nhầm thành 'API chưa bật'", "has not been enabled" not in msg6)
 
 # ---- 4b. 403 PERMISSION_DENIED không kèm chữ scope: chưa ghi danh Developer Preview ----
 # Vụ 2026-07-30: Google trả "The caller does not have permission" khi gọi create_event/
@@ -81,17 +81,17 @@ check("CANARY: lỗi lạ không bị gán nhầm thành 'API chưa bật'", "ch
 msg_perm = mcp_hub.chan_doan_loi("The caller does not have permission")
 check("403 caller-no-permission -> nhận ra, không trả rỗng", bool(msg_perm))
 check("nói thẳng ĐÂY KHÔNG PHẢI Javis chặn (chống chẩn nhầm sang tầng quyền)",
-      "KHÔNG phải Javis chặn" in msg_perm or "không phải Javis chặn" in msg_perm.lower())
+      "NOT Jarvis 007 blocking it" in msg_perm)
 check("chỉ đúng thuốc: ghi danh Developer Preview", "workspace/preview" in msg_perm)
 check("nhắc ghi danh tính theo TỪNG tài khoản (đổi tài khoản là phải ghi danh lại)",
-      "TỪNG tài khoản" in msg_perm)
-check("nhắc tài khoản tên miền riêng cần quản trị viên", "quản trị viên" in msg_perm)
+      "per Google account" in msg_perm)
+check("nhắc tài khoản tên miền riêng cần quản trị viên", "domain administrator" in msg_perm)
 
 # Thiếu scope cũng mang status PERMISSION_DENIED -> phải ra nhánh scope, KHÔNG rơi nhánh này.
 msg_scope_pd = mcp_hub.chan_doan_loi(
     '{"code":403,"message":"Request had insufficient authentication scopes.","status":"PERMISSION_DENIED"}')
 check("thiếu scope vẫn ra nhánh scope dù status cũng là PERMISSION_DENIED",
-      "workspace/preview" not in msg_scope_pd and "Đăng nhập lại" in msg_scope_pd)
+      "workspace/preview" not in msg_scope_pd and "Sign in again" in msg_scope_pd)
 
 # CANARY: lỗi lạ thì bộ nhận diện phải IM (trả rỗng), không bịa chẩn đoán.
 check("CANARY: lỗi lạ -> chan_doan_loi trả rỗng, không bịa",
@@ -104,7 +104,7 @@ src = Path(mcp_hub.__file__).read_text(encoding="utf-8")
 than_guard = src.split("def _guard(")[1].split("\n# =====")[0]
 check("_guard có gắn chẩn đoán vào kết quả lỗi của tool", "chan_doan_loi" in than_guard)
 check("_guard GIỮ nguyên văn lỗi gốc (chỉ gắn thêm, không thay thế)",
-      "[Javis chẩn đoán]" in than_guard and "{result}" in than_guard)
+      "[Jarvis 007 diagnosis]" in than_guard and "{result}" in than_guard)
 check("chỉ gắn khi thật sự là lỗi", 'startswith("ERROR:")' in than_guard)
 
 # ---- 5. validate_connection phải THẬT SỰ đi qua bộ dịch này ----
@@ -114,7 +114,7 @@ check("validate_connection gọi _friendly_tool_error (không tự nối chuỗi
       m is not None and "_friendly_tool_error" in m.group(0))
 
 # ---- 6. Chuỗi UI phải có dấu tiếng Việt (quy tắc cứng của dự án) ----
-check("thông báo có dấu tiếng Việt", "ậ" in msg3 or "ậ" in msg4)
+check("thông báo bằng tiếng Anh (không còn tiếng Việt)", "Sign in again" in msg3 and "Sign in again" in msg4)
 for m_ in (msg, msg2, msg3, msg4, msg5, msg6):
     if "—" in m_ or "–" in m_:
         check("không có em/en dash trong thông báo", False)

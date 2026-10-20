@@ -115,7 +115,7 @@ check("server có vòng vệ sĩ định kỳ", "giu_credentials" in src)
 src_c = (SERVER / "claude_cli.py").read_text(encoding="utf-8")
 check("Ngắt trên UI xoá luôn bản sao lưu (tôn trọng ý người dùng)",
       "_cred_bak_path().unlink" in src_c)
-check("mất đăng nhập thật thì log CÓ GIỜ để truy vết", "ĐÃ ĐĂNG XUẤT" in src_c)
+check("mất đăng nhập thật thì log CÓ GIỜ để truy vết", "SIGNED OUT" in src_c)
 
 if _fails:
     print(f"\nFAIL {len(_fails)} muc: " + ", ".join(_fails))

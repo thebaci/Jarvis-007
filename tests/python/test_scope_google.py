@@ -97,12 +97,12 @@ loi_scope = ('{"code": 403, "message": "Request had insufficient authentication 
 msg = mcp_hub._friendly_tool_error(loi_scope, "c1")
 check("lỗi thiếu scope + biết conn -> nêu ĐÍCH DANH quyền còn thiếu",
       "calendar.events.freebusy" in msg)
-check("lỗi thiếu scope -> nói rõ phải Đăng nhập lại", "Đăng nhập lại" in msg)
+check("lỗi thiếu scope -> nói rõ phải Đăng nhập lại", "Sign in again" in msg)
 check("lỗi thiếu scope -> nói rõ xoá đi cài lại KHÔNG chữa được",
-      "xoá kết nối rồi tạo lại" in msg.lower() or "xoá kết nối rồi tạo lại" in msg)
+      "deleting the connection and recreating it" in msg.lower() or "deleting the connection and recreating it" in msg)
 
 msg_khong_conn = mcp_hub._friendly_tool_error(loi_scope)
-check("không truyền conn_id vẫn chạy (chữ ký cũ còn dùng được)", "Đăng nhập lại" in msg_khong_conn)
+check("không truyền conn_id vẫn chạy (chữ ký cũ còn dùng được)", "Sign in again" in msg_khong_conn)
 check("không biết conn -> không bịa tên quyền", "freebusy" not in msg_khong_conn)
 
 # Google chỉ hiện màn TICK TỪNG QUYỀN cho quyền CHƯA từng cấp, nên "đăng nhập lại mà không
@@ -110,7 +110,7 @@ check("không biết conn -> không bịa tên quyền", "freebusy" not in msg_k
 # phải nói ra điều đó kèm đường thoát duy nhất (gỡ app ở trang quyền của tài khoản Google).
 check("báo lỗi thiếu quyền có chỉ đường gỡ quyền cũ ở Google",
       "myaccount.google.com/permissions" in msg)
-check("và nói rõ không hiện ô tick là bình thường", "bình thường" in msg)
+check("và nói rõ không hiện ô tick là bình thường", "normal" in msg)
 health_src = (SERVER / "connect_health.py").read_text(encoding="utf-8")
 check("vòng check sức khoẻ cũng chỉ đường gỡ quyền cũ",
       "myaccount.google.com/permissions" in health_src)
@@ -139,7 +139,7 @@ hidden = {"c1": {"perm": "readonly", "ns": "google-calendar",
 hint = mcp_hub._hidden_hint(hidden)
 check("tool bị ẩn -> nêu tên tool", "create_event" in hint)
 check("tool bị ẩn -> nêu mức quyền đang chặn", "readonly" in hint)
-check("tool bị ẩn -> dặn model đừng kết luận là kết nối hỏng", "ĐỪNG kết luận" in hint)
+check("tool bị ẩn -> dặn model đừng kết luận là kết nối hỏng", "do NOT conclude" in hint)
 check("lọc theo nguồn: nguồn khác thì không kể",
       mcp_hub._hidden_hint(hidden, {"pancake"}) == "")
 check("lọc theo nguồn: trúng nguồn thì có kể",

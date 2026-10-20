@@ -132,7 +132,7 @@ check("bật staging: file trong vault vẫn đọc bình thường",
 loi = _no(dong({"path": str(DAN)}))
 check("tắt staging: từ chối đọc file ngoài brain", loi.startswith("ERROR:"))
 check("câu từ chối nói rõ đây là ranh giới brain, không phải lỗi máy",
-      "ngoài bộ não" in loi and "khoá tool file trong brain" in loi)
+      "outside the working brain" in loi and "locks the file tool to the brain" in loi)
 
 loi_ngoai = _no(mo({"path": str(NGOAI)}))
 check("bật staging vẫn từ chối file khác trên ổ đĩa", loi_ngoai.startswith("ERROR:"))

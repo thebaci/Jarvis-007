@@ -249,7 +249,7 @@ async def _dispatch_tests():
 
     # search không khớp → thông điệp kèm menu (không phải JSON tool)
     res_empty = await mcp_client_call(lr, mcp_hub._LAZY_SEARCH, {"query": ""})
-    check("dispatch search rỗng → gợi ý menu", "Nguồn đang đấu" in res_empty)
+    check("dispatch search rỗng → gợi ý menu", "Connected sources" in res_empty)
 
     # run gọi đúng tool pool → dispatch tới _guard của tool đó
     _calls.clear()
@@ -431,7 +431,7 @@ check("thực đơn nêu tên hiển thị của plugin", "TTS Dropship" in _men
 check("thực đơn nói plugin đó LÀM GÌ (mô tả từ manifest)", "dropship" in _menu.lower())
 check("đếm đúng số tool của riêng plugin đó", "2 tool" in _menu)
 check("builtin vẫn ở nhóm javis với mô tả nội bộ",
-      "javis (" in _menu and "skill của brain" in _menu)
+      "javis (" in _menu and "brain skills" in _menu)
 
 # Không có `group_desc` (plugin đời cũ) thì vẫn phải gọi tên nhóm, chỉ là thiếu mô tả - suy
 # biến nghiêng về "nói được tên" chứ không quay lại gộp chung.

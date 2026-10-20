@@ -150,10 +150,10 @@ check("KHÔNG có workspace: file repo KHÔNG đọc được (đúng hành vi c
 # Lưu ý: đường dẫn tương đối kiểu này ghép vào brain vẫn hợp lệ VỀ MẶT CHỮ, chỉ là không có
 # file ở đó - nên câu lỗi là "không có file", không phải "nằm ngoài". Đây chính là lý do rào
 # hai gốc phải xét TỒN TẠI chứ không chỉ xét chứa.
-check("KHÔNG có workspace: báo không có file (không phải nằm ngoài)", "không có file" in r)
+check("KHÔNG có workspace: báo không có file (không phải nằm ngoài)", "no such file" in r)
 r = doc("../../../etc/passwd")
 check("KHÔNG có workspace: thoát ra ngoài brain vẫn bị chặn bằng câu cũ",
-      "nằm ngoài bộ não đang làm việc" in r)
+      "outside the working brain" in r)
 
 ws = str(REPO.resolve())
 check("CÓ workspace: đọc được file trong repo", "def login()" in doc("server/auth.py", ws))
@@ -163,7 +163,7 @@ check("CÓ workspace: vẫn đọc được file trong brain (không cướp g�
 r = doc("../../../etc/passwd", ws)
 check("CÓ workspace: thoát ra ngoài cả hai gốc vẫn bị chặn", r.startswith("ERROR:"))
 check("CÓ workspace: câu lỗi nói rõ MỌI nơi được phép đọc (spec 7.1)",
-      "bộ não" in r and "thư mục làm việc" in r)
+      "working brain" in r and "working folder" in r)
 check("CÓ workspace: câu lỗi in ra thư mục làm việc để model biết mình đang ở đâu", ws in r)
 
 
@@ -200,7 +200,7 @@ r = ghi("../../../tmp/ngoai.py", "x", ws)
 check("ghi ra ngoài cả hai gốc -> câu lỗi NÓI ĐƯỢC, không ném exception",
       r.startswith("ERROR:"))
 check("câu lỗi khi ghi cũng nêu đủ các nơi được phép ghi",
-      "bộ não" in r and "thư mục làm việc" in r)
+      "working brain" in r and "working folder" in r)
 check("câu lỗi khi ghi in ra thư mục làm việc", ws in r)
 
 

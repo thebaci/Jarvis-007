@@ -54,24 +54,24 @@ cid, err = mcp_store.add_connection("custom", {"label": "POS Thử", "url": "htt
 check("dựng được một kết nối thử", bool(cid), err)
 ra = json.loads(mcp_hub._connections_json())
 check("phần tử đầu là ghi chú cho model", "ghi_chu" in ra[0])
-check("ghi chú nói kết nối dùng chung cho MỌI brain", "MỌI brain" in ra[0]["ghi_chu"])
-check("và cấm nói 'gắn nguồn vào brain'", "gắn nguồn vào brain" in ra[0]["ghi_chu"])
+check("ghi chú nói kết nối dùng chung cho MỌI brain", "EVERY brain" in ra[0]["ghi_chu"])
+check("và cấm nói 'gắn nguồn vào brain'", "attaching a source to a brain" in ra[0]["ghi_chu"])
 rec = next(r for r in ra if r.get("label") == "POS Thử")
 check("kết nối đang bật, chưa có lỗi thì không bị dán trạng thái xấu",
-      rec.get("trang_thai") in (None, "ổn"), rec.get("trang_thai"))
+      rec.get("trang_thai") in (None, "ok"), rec.get("trang_thai"))
 # Nguồn không dò được: phải nói THẲNG là nguồn hỏng, kèm việc cần làm.
 ra2 = json.loads(mcp_hub._connections_json(bo_qua={cid}))
 rec2 = next(r for r in ra2 if r.get("label") == "POS Thử")
 check("CANARY: nguồn dò hụt thì trạng thái nói nguồn đang hỏng, không phải chưa gắn brain",
-      "KHÔNG DÒ ĐƯỢC" in rec2.get("trang_thai", "") and "Kết nối" in rec2.get("trang_thai", ""),
+      "CANNOT BE PROBED" in rec2.get("trang_thai", "") and "Connections" in rec2.get("trang_thai", ""),
       rec2.get("trang_thai"))
 mcp_store.toggle_connection(cid)
 ra3 = json.loads(mcp_hub._connections_json())
 rec3 = next(r for r in ra3 if r.get("label") == "POS Thử")
 check("nguồn đang tắt thì nói đang tắt và bật lại là mọi brain dùng được",
-      "ĐANG TẮT" in rec3.get("trang_thai", "") and "mọi brain" in rec3.get("trang_thai", ""))
+      "OFF" in rec3.get("trang_thai", "") and "every brain" in rec3.get("trang_thai", ""))
 check("mô tả tool javis_connections cũng nói dùng chung cho mọi brain",
-      "DÙNG CHUNG cho mọi brain" in _hub)
+      "SHARED by every brain" in _hub)
 check("danh sách nguồn dò hụt được đưa vào javis_connections",
       "_connections_json(include_ambient, hidden, bo_qua)" in _hub)
 

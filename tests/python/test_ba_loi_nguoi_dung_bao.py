@@ -95,12 +95,12 @@ khoi = src[i:i + 1400]
 
 check("tìm được nhánh từ chối ghi", i > 0 and "readonly" in khoi)
 check("CANARY: nói rõ KHÔNG phải lỗi sandbox (đây chính là câu model bịa ra)",
-      "sandbox" in khoi.lower() and "KHÔNG phải" in khoi)
-check("nói rõ không phải lỗi ổ đĩa", "ổ đĩa" in khoi)
+      "sandbox" in khoi.lower() and "NOT a disk error" in khoi)
+check("nói rõ không phải lỗi ổ đĩa", "disk error" in khoi)
 check("chỉ đúng chỗ chỉnh: trang Việc + mức Ghi nháp",
-      "trang Việc" in khoi and "Ghi nháp" in khoi)
+      "Work page" in khoi and "Draft writing" in khoi)
 check("dặn model đừng thử ghi lại mà trả nội dung ra câu trả lời",
-      "ĐỪNG thử ghi lại" in khoi)
+      "do NOT try writing again" in khoi)
 
 # Chạy THẬT nhánh từ chối, không chỉ đọc chữ trong nguồn.
 import asyncio  # noqa: E402
@@ -117,7 +117,7 @@ if ghi:
     check("mức suggest thì từ chối thật", kq.startswith("ERROR"))
     check("và KHÔNG tạo file nào trên đĩa", not (vault / "thu.md").exists())
     check("câu trả về mang đủ thông tin để người dùng tự sửa",
-          "Ghi nháp" in kq and "sandbox" in kq.lower(), kq[:80])
+          "Draft writing" in kq and "sandbox" in kq.lower(), kq[:80])
 
 tools2, route2 = mcp_hub._builtin_tools("auto", str(vault))
 kq2 = asyncio.run(route2["javis_write_file"]["call"]({"path": "thu.md", "content": "xin chao"}))

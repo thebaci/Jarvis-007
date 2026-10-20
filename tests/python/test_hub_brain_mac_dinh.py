@@ -100,7 +100,7 @@ async def chay():
     check("nhiều brain + chưa có phiên nào -> vẫn từ chối, không chạy nhầm brain",
           ra.startswith("ERROR:"))
     check("lỗi nêu đích danh header còn thiếu", "X-Javis-Vault" in ra)
-    check("lỗi chỉ ra nguồn gây thiếu (cấu hình MCP phía client)", "cấu hình MCP" in ra)
+    check("lỗi chỉ ra nguồn gây thiếu (cấu hình MCP phía client)", "MCP config" in ra)
 
     # ── 2. Có header -> chạy, và KHÔNG kèm dòng ghi chú brain ──
     ra = await goi(MAC_DINH, "javis_task", {"op": "list"})
@@ -133,7 +133,7 @@ async def chay():
     ra = await goi(str(_TMP / "khong-co-that"), "javis_task", {"op": "list"})
     check("header trỏ đường dẫn không có thật -> không chết câm",
           not ra.startswith("ERROR: it is not known"))
-    check("báo rõ header có gửi nhưng không dùng được", "không có thật" in ra or "không dùng được" in ra)
+    check("báo rõ header có gửi nhưng không dùng được", "does not exist" in ra or "cannot use it" in ra)
 
 
 asyncio.run(chay())
