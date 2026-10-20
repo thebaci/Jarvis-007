@@ -1,7 +1,7 @@
 # ============================================================================
-# Javis OS - BUILD TỪ SOURCE (thay vì pull image GHCR).
+# Jarvis 007 - BUILD FROM SOURCE (instead of pulling the GHCR image).
 #   docker compose -f docker-compose.build.yml up -d --build
-# Dùng khi: tự host registry riêng, fork sửa code, hoặc test image trước khi đẩy.
+# Use when: self-hosting your own registry, forking and editing code, or testing an image before pushing it.
 # ============================================================================
 services:
   javis:
@@ -10,7 +10,7 @@ services:
       args:
         CLAUDE_CLI_VERSION: ${CLAUDE_CLI_VERSION:-latest}
     image: ghcr.io/blogminhquy/javis-os:latest
-    container_name: ${JAVIS_NAME:-javis}          # đổi trong .env khi chạy nhiều bản trên một máy
+    container_name: ${JAVIS_NAME:-javis}          # change in .env when running several copies on one machine
     restart: unless-stopped
     env_file:
       - path: .env
@@ -19,7 +19,7 @@ services:
       - "${JAVIS_HOST_PORT:-7777}:7777"
     volumes:
       - javis-data:/data
-      - javis-brains:/brains      # đổi sang  ./brains:/brains  nếu muốn git-backup (chown -R 10001 ./brains)
+      - javis-brains:/brains      # switch to  ./brains:/brains  if you want git backup (chown -R 10001 ./brains)
       - claude-auth:/home/javis/.claude
       - codex-auth:/home/javis/.codex
     healthcheck:

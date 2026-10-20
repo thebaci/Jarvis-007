@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# JAVIS OS - macOS auto-start (LaunchAgent) installer
+# JARVIS 007 - macOS auto-start (LaunchAgent) installer
 #   ./bin/javis-autostart.sh install     # start at login (default)
 #   ./bin/javis-autostart.sh uninstall    # remove
 #
@@ -10,9 +10,10 @@
 set -u
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-# Nhãn PHẢI khớp mặc định của updater.py/watchdog.sh (com.javis.os): update trên Mac nhận
-# diện launchd qua đúng nhãn này để đổi ca bằng kickstart -k; lệch nhãn là updater tưởng
-# không có launchd, kill PID + nohup -> KeepAlive respawn giành cổng 7777.
+# The label MUST match the default in updater.py/watchdog.sh (com.javis.os): on a Mac the
+# updater detects launchd through exactly this label so it can swap instances with
+# kickstart -k; a mismatched label makes the updater think there is no launchd, so it
+# kills the PID + nohup and the KeepAlive respawn grabs port 7777.
 LABEL="${JAVIS_LAUNCHD_LABEL:-com.javis.os}"
 PLIST="${HOME}/Library/LaunchAgents/${LABEL}.plist"
 PORT="${JAVIS_PORT:-7777}"
@@ -22,7 +23,7 @@ ACTION="${1:-install}"
 if [ "${ACTION}" = "uninstall" ]; then
   launchctl unload "${PLIST}" 2>/dev/null || true
   rm -f "${PLIST}"
-  echo "JAVIS OS auto-start removed."
+  echo "JARVIS 007 auto-start removed."
   exit 0
 fi
 
@@ -66,5 +67,5 @@ PLISTEOF
 
 launchctl unload "${PLIST}" 2>/dev/null || true
 launchctl load "${PLIST}"
-echo "JAVIS OS auto-start installed -> http://127.0.0.1:${PORT}"
+echo "JARVIS 007 auto-start installed -> http://127.0.0.1:${PORT}"
 echo "Remove with: ./bin/javis-autostart.sh uninstall"

@@ -1,44 +1,44 @@
 #!/bin/sh
-# Entrypoint container: DỜI các thư mục HOME mà CLI ngoài ghi vào sang volume /data
-# rồi mới chạy lệnh chính (uvicorn).
+# Container entrypoint: MOVES the HOME directories that external CLIs write into over to the /data
+# volume, then runs the main command (uvicorn).
 #
-# Vì sao tồn tại (báo cáo 16/08): Antigravity CLI (`agy`) do người dùng tự cài vào
-# ~/.local/bin và giữ đăng nhập trong ~/.antigravity / ~/.config / ~/.gemini - tất cả nằm trong
-# HOME của container, mà HOME KHÔNG nằm trên volume nào (chỉ /data, /brains, ~/.claude,
-# ~/.codex được persist). Mỗi lần cập nhật image là container mới, HOME mới tinh: bay
-# cả binary lẫn đăng nhập, người dùng phải cài + đăng nhập lại từ đầu, mãi mãi.
+# Why it exists (report of 16/08): the Antigravity CLI (`agy`) is installed by the user into
+# ~/.local/bin and keeps its login in ~/.antigravity / ~/.config / ~/.gemini - all of which live in
+# the container's HOME, and HOME is NOT on any volume (only /data, /brains, ~/.claude and
+# ~/.codex are persisted). Every image update is a new container with a brand new HOME: the
+# binary and the login both vanish, and the user has to install and sign in from scratch, forever.
 #
-# Cách chữa: mỗi lần boot, link ~/.local, ~/.antigravity, ~/.config, ~/.gemini, ~/.grok vào /data/home/
-# (volume /data sẵn có nên KHÔNG cần người dùng sửa docker-compose - chỉ cần image mới).
-# Lần đầu sau khi có bản này, nội dung đang có trong HOME được dọn sang volume trước
-# khi link, nên ai đã lỡ cài agy trong container hiện tại cũng không mất gì.
+# The fix: on every boot, link ~/.local, ~/.antigravity, ~/.config, ~/.gemini, ~/.grok into /data/home/
+# (the /data volume already exists, so the user does NOT need to edit docker-compose - only the new
+# image is needed). The first time after this version, whatever is currently in HOME is moved to
+# the volume before linking, so anyone who already installed agy in the current container loses nothing.
 #
-# An toàn: mọi bước đều nhịn lỗi (|| true / continue) - /data hỏng quyền thì bỏ qua
-# việc link và server VẪN LÊN, chỉ mất tính năng giữ-qua-update chứ không chết app.
+# Safe: every step tolerates errors (|| true / continue) - if /data has broken permissions the
+# linking is skipped and the server STILL starts; only the survive-an-update feature is lost, the app does not die.
 set -u
 
 PERSIST_ROOT="${JAVIS_HOME_PERSIST:-/data/home}"
 
-# ~/.gemini: `agy` để cấu hình MCP (~/.gemini/config/mcp_config.json - chỗ Javis đấu hub
-# vào) và token OAuth của MCP ở đó. Thiếu nó thì mỗi lần cập nhật là mất hết kết nối MCP
-# người dùng tự thêm, dù đăng nhập Google vẫn còn.
+# ~/.gemini: `agy` keeps its MCP config (~/.gemini/config/mcp_config.json - where Jarvis 007 plugs
+# the hub in) and the MCP OAuth tokens there. Without it, every update loses all the MCP
+# connections the user added by hand, even though the Google login survives.
 #
-# ~/.grok: đăng nhập xAI của Grok Build (`~/.grok/auth.json`) cộng cấu hình cá nhân. Bỏ sót
-# từ 0.50.0 tới 0.50.3, và nó hỏng đúng kiểu đã hỏng với `agy` hồi 16/08 - chỉ khó thấy hơn
-# một bậc: binary `grok` nằm ở ~/.local/bin nên ĐƯỢC giữ, thẻ Models vẫn báo "Đã cài CLI",
-# chỉ mỗi phiên đăng nhập là bay. Người dùng báo 29/08: "mỗi lần nâng cấp bản mới là grok
-# lại bị logout". Thêm một chữ vào danh sách này là xong, không phải sửa docker-compose.
+# ~/.grok: the xAI login of Grok Build (`~/.grok/auth.json`) plus personal config. It was missed
+# from 0.50.0 to 0.50.3, and it broke the same way `agy` did on 16/08 - just one step harder to
+# spot: the `grok` binary sits in ~/.local/bin so it WAS kept, the Models card still said "CLI installed",
+# and only the login session vanished. A user reported on 29/08: "every time I upgrade to a new version grok
+# gets logged out again". Adding one word to this list is the whole fix, no docker-compose edit needed.
 #
-# ~/.google_workspace_mcp: phiên đăng nhập Google Workspace của MCP cùng tên. Thiếu thì mỗi lần
-# dựng lại container là phải đăng nhập Google lại (báo cáo 13/10/2026).
+# ~/.google_workspace_mcp: the Google Workspace login session of the MCP of the same name. Without it, every
+# container rebuild forces a new Google sign-in (report of 13/10/2026).
 for d in .local .antigravity .config .gemini .grok .google_workspace_mcp; do
     src="$HOME/$d"
     dst="$PERSIST_ROOT/$d"
-    # Đã là symlink (boot thứ hai trở đi) → xong từ lâu.
+    # Already a symlink (second boot onward) -> done long ago.
     [ -L "$src" ] && continue
     mkdir -p "$dst" 2>/dev/null || continue
-    # Container hiện tại đã có sẵn nội dung (agy cài trước bản này) → dọn sang volume,
-    # KHÔNG ghi đè file đã có bên volume (bản bên volume là bản sống qua update).
+    # The current container already has content (agy installed before this version) -> move it to the volume,
+    # do NOT overwrite files already on the volume (the volume copy is the one that survives updates).
     if [ -d "$src" ]; then
         cp -an "$src/." "$dst/" 2>/dev/null || true
         rm -rf "$src" 2>/dev/null || continue
@@ -46,62 +46,62 @@ for d in .local .antigravity .config .gemini .grok .google_workspace_mcp; do
     ln -sfn "$dst" "$src" 2>/dev/null || true
 done
 
-# ~/.claude.json: cấu hình toàn cục của Claude Code (MCP cấp người dùng, trạng thái đã giới thiệu,
-# lựa chọn đã chốt). Là một FILE nằm cạnh volume ~/.claude chứ không ở trong nó, nên trước bản
-# này nó bay theo mỗi lần dựng lại container (báo cáo 13/10/2026). Link file sang /data/home.
-# Claude Code ghi xuyên qua symlink; nếu có lần nó thay link bằng file thật thì boot sau dọn
-# file đó sang volume rồi link lại, nên mất nhiều nhất phần đổi giữa hai lần boot.
+# ~/.claude.json: Claude Code's global config (user-level MCP, onboarding state, choices already
+# made). It is a FILE sitting next to the ~/.claude volume, not inside it, so before this version
+# it vanished on every container rebuild (report of 13/10/2026). Link the file into /data/home.
+# Claude Code writes through the symlink; if it ever replaces the link with a real file, the next
+# boot moves that file to the volume and links again, so at most the changes made between two boots are lost.
 f="$HOME/.claude.json"
 pf="$PERSIST_ROOT/.claude.json"
 if [ ! -L "$f" ] && mkdir -p "$PERSIST_ROOT" 2>/dev/null; then
     if [ -f "$f" ]; then
-        # Bản trên volume là bản sống qua update, nên nó THẮNG; chỉ khi file trong HOME mới hơn
-        # (Claude Code vừa ghi thay link trong chính container này) mới chép đè sang volume.
+        # The volume copy is the one that survives updates, so it WINS; only when the file in HOME is newer
+        # (Claude Code just wrote over the link inside this very container) is it copied over to the volume.
         if [ ! -f "$pf" ] || [ "$f" -nt "$pf" ]; then
             cp -p "$f" "$pf" 2>/dev/null || true
         fi
         [ -f "$pf" ] && rm -f "$f" 2>/dev/null
     fi
-    # Máy mới tinh: tạo sẵn một cấu hình rỗng hợp lệ trên volume để link ngay từ boot đầu.
+    # Brand new machine: pre-create a valid empty config on the volume so it can be linked from the first boot.
     [ -e "$f" ] || [ -f "$pf" ] || printf '{}\n' > "$pf" 2>/dev/null || true
     if [ ! -e "$f" ] && [ -f "$pf" ]; then
         ln -sfn "$pf" "$f" 2>/dev/null || cp -p "$pf" "$f" 2>/dev/null || true
     fi
 fi
 
-# Tự cài Antigravity CLI (`agy`) và Grok Build (`grok`) nếu máy chưa có (0.85.1).
+# Auto-install the Antigravity CLI (`agy`) and Grok Build (`grok`) if the machine does not have them (0.85.1).
 #
-# Vì sao không có sẵn trong image như claude/codex: hai CLI này không phát hành qua npm mà qua
-# script tải về của chính Google và xAI, và nhúng binary của họ vào image công khai trên GHCR là
-# phân phối lại phần mềm của người khác. Nên image để trống, còn container tự tải về lúc chạy,
-# đúng như `install.sh` và `install.ps1` đã làm cho bản cài trên máy từ 0.59.13.
+# Why they are not baked into the image like claude/codex: these two CLIs are not released through npm but through
+# the download scripts of Google and xAI themselves, and embedding their binaries in a public GHCR image is
+# redistributing someone else's software. So the image leaves them out and the container downloads them at runtime,
+# exactly as `install.sh` and `install.ps1` have done for installs on a machine since 0.59.13.
 #
-# Trước bản này, người dùng Docker thấy thẻ "CLI chưa cài" ở trang Models kèm một lệnh phải tự gõ,
-# mà khách cài qua Hostinger gần như không có chỗ để gõ. Giờ container tự làm hộ.
+# Before this version, Docker users saw a "CLI not installed" card on the Models page with a command they had to type,
+# and customers who installed through Hostinger had almost nowhere to type it. Now the container does it for them.
 #
-# - CHẠY NỀN: server lên ngay, không chờ hai lượt tải. Thẻ Models đọc file trạng thái bên dưới
-#   để nói "đang tự cài" thay vì đưa lệnh bắt người ta gõ.
-# - CÀI MỘT LẦN: agy vào ~/.local/bin, grok vào ~/.grok/bin, cả hai đã được link sang /data ở
-#   vòng lặp trên nên SỐNG QUA mọi lần cập nhật image. Boot sau thấy có rồi thì không làm gì.
-# - HỎNG THÌ THÔI: mạng chặn, nhà cung cấp đổi URL... chỉ ghi lại để thẻ Models nói thật, lần
-#   khởi động sau thử lại. Không bao giờ cản server lên.
-# - Tắt hẳn: đặt JAVIS_AUTO_INSTALL_CLIS=0 (máy không ra Internet, hoặc không muốn có hai CLI này).
+# - RUNS IN THE BACKGROUND: the server starts immediately, without waiting for the two downloads. The Models card reads
+#   the state files below to say "installing automatically" instead of handing over a command to type.
+# - INSTALLS ONCE: agy goes to ~/.local/bin, grok to ~/.grok/bin, and both were already linked into /data in the
+#   loop above, so they SURVIVE every image update. On later boots, seeing them present, it does nothing.
+# - IF IT FAILS, IT FAILS: network blocked, vendor changed the URL... it only records the outcome so the Models card
+#   tells the truth, and the next start tries again. It never stops the server from starting.
+# - Turn it off entirely: set JAVIS_AUTO_INSTALL_CLIS=0 (machine with no Internet, or you do not want these two CLIs).
 CLI_STATE="$PERSIST_ROOT/.cli-auto-install"
-co_cli() {   # <tên binary> <đường dẫn cài mặc định>
+co_cli() {   # <binary name> <default install path>
     command -v "$1" >/dev/null 2>&1 || [ -x "$2" ] || [ -x "$HOME/.local/bin/$1" ]
 }
-tu_cai_cli() {   # <tên binary> <đường dẫn cài mặc định> <URL script cài>
+tu_cai_cli() {   # <binary name> <default install path> <install script URL>
     co_cli "$1" "$2" && { echo "ok $(date +%s)" > "$CLI_STATE/$1" 2>/dev/null; return 0; }
     echo "installing $(date +%s)" > "$CLI_STATE/$1" 2>/dev/null
-    echo "[$(date -u +%FT%TZ)] cài $1 từ $3" >> "$CLI_STATE/install.log" 2>/dev/null
+    echo "[$(date -u +%FT%TZ)] installing $1 from $3" >> "$CLI_STATE/install.log" 2>/dev/null
     if curl -fsSL --max-time 300 "$3" | bash >> "$CLI_STATE/install.log" 2>&1 && co_cli "$1" "$2"; then
         echo "ok $(date +%s)" > "$CLI_STATE/$1" 2>/dev/null
     else
         echo "failed $(date +%s)" > "$CLI_STATE/$1" 2>/dev/null
     fi
 }
-# Tách hai lớp: lớp ngoài thoát ngay nên lớp trong mồ côi và về tay tini (PID 1), tini dọn nó khi
-# xong. Chỉ một lớp thì sau `exec` nó là con của uvicorn, Python không dọn con lạ, để lại zombie.
+# Two layers: the outer one exits at once so the inner one is orphaned and adopted by tini (PID 1), which reaps it
+# when done. With only one layer, after `exec` it would be a child of uvicorn, Python does not reap strangers, and a zombie is left.
 if [ "${JAVIS_AUTO_INSTALL_CLIS:-1}" != "0" ] && mkdir -p "$CLI_STATE" 2>/dev/null; then
     ( (
         tu_cai_cli agy "$HOME/.local/bin/agy" https://antigravity.google/cli/install.sh

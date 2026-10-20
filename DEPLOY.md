@@ -1,171 +1,184 @@
-# Cài đặt Javis OS trên server / VPS
+# Installing Jarvis 007 on a server / VPS
 
-***Tiếng Việt** · [English](DEPLOY.en.md)*
+***English** · also published as [DEPLOY.en.md](DEPLOY.en.md)*
 
-Javis OS là một AI agent cá nhân + Second Brain. "Bộ não" của nó là **Claude Code CLI**
-(đăng nhập một lần, không cần API key). Có 3 cách chạy - chọn 1.
+Jarvis 007 is a personal AI agent plus a Second Brain. Its "brain" is the **Claude Code CLI**
+(sign in once, no API key needed). There are 3 ways to run it, pick one.
 
-> ⚠️ **An toàn:** Javis chạy Claude với toàn quyền trên máy. Khi chạy public (Docker/VPS/Hostinger),
-> Javis **tự bật bắt buộc đăng nhập** - mở app ra là màn **tạo tài khoản admin / đăng nhập**, không
-> ai điều khiển được khi chưa đặt mật khẩu. (Chạy nội bộ muốn tắt: `JAVIS_REQUIRE_LOGIN=0`.)
+> ⚠️ **Safety:** Jarvis 007 runs Claude with full power on the machine. When running public
+> (Docker/VPS/Hostinger), Jarvis 007 **turns forced login on by itself**, so opening the app gives the
+> **create admin / sign in** screen and nobody can drive it before a password exists. (To turn that
+> off for internal use: `JAVIS_REQUIRE_LOGIN=0`.)
 
 ---
 
-## Cách 1 - Hostinger Docker Manager (1-click, nhanh nhất) ⚡
+## Way 1 - Hostinger Docker Manager (1-click, the fastest) ⚡
 
-> 🛒 **Chưa có VPS?** [Đăng ký VPS Hostinger tại đây](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN). VPS có sẵn Docker Manager nên cài Javis đúng một cú bấm. Thuê xong quay lại làm các bước dưới.
+> 🛒 **No VPS yet?** [Get a Hostinger VPS here](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN). Docker Manager comes built in, so Jarvis 007 installs in one click. Once it is ready, come back to the steps below.
 
-VPS Hostinger → **Docker Manager → Compose → URL** → dán link rồi **Deploy**:
+On the Hostinger VPS go to **Docker Manager → Compose → URL**, paste the link and **Deploy**:
 ```
 https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.yml
 ```
-Hostinger pull image + chạy. Mở app bằng `http://<ip-vps>:7777` (IP xem ở hPanel → VPS) → ra
-màn **tạo tài khoản admin**.
+Hostinger pulls the image and runs it. Open the app at `http://<vps-ip>:7777` (the IP is in
+hPanel → VPS) and you get the **create admin account** screen.
 
-> 🌐 **Muốn LINK RIÊNG có HTTPS (bỏ `:7777`, để mic/voice chạy) mà KHÔNG cần mua tên miền?** Dùng
-> `docker-compose.hostinger.yml` + đặt `DOMAIN_NAME=javis.<hostname-vps>.hstgr.cloud` - xem mục
-> **"Link mặc định + HTTPS trên Hostinger"** ở phần HTTPS bên dưới. Compose gốc này chỉ vào được bằng IP:7777.
+> 🌐 **Want a PRIVATE LINK with HTTPS (dropping `:7777` so the mic and voice work) WITHOUT buying a
+> domain?** Use `docker-compose.hostinger.yml` and set `DOMAIN_NAME=javis.<vps-hostname>.hstgr.cloud`;
+> see **"The default link + HTTPS on Hostinger"** in the HTTPS section below. This base compose file
+> is only reachable by IP:7777.
 
-**3 việc làm 1 lần:**
-1. **Để image GHCR ở chế độ Public:** GitHub → repo `javis-os` → **Packages** → `javis-os`
-   → *Package settings* → Visibility = **Public** (để Hostinger pull không cần đăng nhập registry).
-   Image do CI tự build mỗi lần push lên `main` (xem mục Cập nhật).
-2. **Tạo tài khoản admin an toàn** (Claude chạy full quyền nên không để ai cũng tạo được):
-   - **Cách A (khuyến nghị):** trong compose Hostinger, điền hai trường có sẵn
-     `JAVIS_ADMIN_USER` + `JAVIS_ADMIN_PASSWORD` → admin tạo sẵn lúc khởi động,
-     mở app ra **đăng nhập luôn**.
-   - **Cách B:** bỏ trống → mở app **ngay sau khi deploy** và tự đặt tên đăng nhập + mật khẩu
-     (tối thiểu 8 ký tự). Lưu ý: khi chưa có admin, **ai mở link trước sẽ tạo được admin**, nên đừng
-     để server public trống admin lâu.
-   - Vào được rồi thì **bật 2FA** (trang **Tài khoản**) để bảo vệ tài khoản.
-3. **Đăng nhập Claude (bộ não) 1 lần:** mở **App terminal** và chạy:
-   `claude auth login --claudeai` → mở link, dán code. (token lưu trong volume, không mất khi update.)
+**3 things to do once:**
+1. **Set the GHCR image to Public:** GitHub → the `javis-os` repo → **Packages** → `javis-os`
+   → *Package settings* → Visibility = **Public** (so Hostinger can pull without a registry login).
+   The image is built by CI on every push to `main` (see the Updates section).
+2. **Create the admin account safely** (Claude runs at full power, so account creation must not be
+   open to everyone):
+   - **Way A (recommended):** in the Hostinger compose, fill the two existing fields
+     `JAVIS_ADMIN_USER` + `JAVIS_ADMIN_PASSWORD`, and the admin is created at startup so opening
+     the app takes you **straight to sign-in**.
+   - **Way B:** leave them empty, open the app **right after deploying** and set a username and
+     password (at least 8 characters) yourself. Note: while no admin exists, **whoever opens the link
+     first can create it**, so do not leave a public server without an admin for long.
+   - Once inside, **turn on 2FA** (the **Account** page) to protect the account.
+3. **Sign Claude in (the brain) once:** open the **App terminal** and run:
+   `claude auth login --claudeai`, open the link, paste the code. (The token lives in a volume and
+   survives updates.)
 
 ---
 
-## Cách 2 - Docker trên VPS bất kỳ (pull image, không cần clone source)
+## Way 2 - Docker on any VPS (pull the image, no source clone needed)
 
-> 🛒 **Cần thuê VPS?** [VPS Hostinger](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN) chạy được cả cách này.
+> 🛒 **Need a VPS?** A [Hostinger VPS](https://www.hostinger.com?REFERRALCODE=UTRBLOGMIDSN) runs this option too.
 
-Cần Docker. Chưa có? `curl -fsSL https://get.docker.com | sh`
+Docker is required. Do not have it? `curl -fsSL https://get.docker.com | sh`
 ```bash
 mkdir javis && cd javis
 curl -fsSLO https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.yml
 
-docker compose run --rm javis claude auth login --claudeai   # ĐĂNG NHẬP CLAUDE 1 LẦN (link + code)
-docker compose up -d                                          # pull image GHCR + chạy
+docker compose run --rm javis claude auth login --claudeai   # SIGN CLAUDE IN ONCE (link + code)
+docker compose up -d                                          # pull the GHCR image and run
 ```
-Mở `http://<ip-vps>:7777` (hoặc qua tunnel ở dưới) → ra màn tạo tài khoản admin.
-Muốn build từ source thay vì pull: `curl -O .../docker-compose.build.yml` rồi
+Open `http://<vps-ip>:7777` (or through a tunnel, below) and you get the create-admin screen.
+To build from source instead of pulling: `curl -O .../docker-compose.build.yml` then
 `docker compose -f docker-compose.build.yml up -d --build`.
 
-Lệnh hằng ngày:
+Everyday commands:
 ```bash
-docker compose logs -f     # xem Javis đang làm gì
-docker compose restart     # khởi động lại
-docker compose down        # tắt
-docker compose build --pull && docker compose up -d   # cập nhật
+docker compose logs -f     # see what Jarvis 007 is doing
+docker compose restart     # restart
+docker compose down        # stop
+docker compose build --pull && docker compose up -d   # update
 ```
 
-Mọi ghi chú / vault / settings nằm trong Docker volume (`javis-data`, `claude-auth`) →
-**không mất** khi restart hay update.
+Every note, vault and setting lives in Docker volumes (`javis-data`, `claude-auth`), so
+**nothing is lost** on a restart or an update.
 
-### 🔒 HTTPS tự động
+### 🔒 Automatic HTTPS
 
-> ⚠️ **Voice/mic BẮT BUỘC HTTPS.** Trình duyệt chỉ cho cấp quyền micro/camera trên `https://` (hoặc
-> localhost) - mở bằng `http://<ip>:7777` thì mic luôn bị chặn, KHÔNG bật tay được. **Không có chứng
-> chỉ HTTPS nào cấp cho IP trần** → muốn mic chạy phải dùng 1 trong các cách dưới (tên miền hoặc tunnel).
+> ⚠️ **Voice and the mic REQUIRE HTTPS.** Browsers only grant microphone and camera permission over
+> `https://` (or on localhost), so opening `http://<ip>:7777` always blocks the mic with no manual
+> override. **No HTTPS certificate is issued for a bare IP**, so making the mic work means one of the
+> ways below (a domain or a tunnel).
 >
-> **Nhanh nhất (không cần tên miền) - Cloudflare Tunnel:**
+> **The fastest (no domain needed), a Cloudflare Tunnel:**
 > ```bash
 > docker compose --profile tunnel up -d
 > docker compose logs tunnel | grep trycloudflare
 > ```
-> → mở URL `https://...trycloudflare.com` → mic + voice chạy. (URL đổi mỗi restart; muốn cố định →
-> *named tunnel* + `TUNNEL_TOKEN`, xem mục Cloudflare Tunnel bên dưới.)
+> then open the `https://...trycloudflare.com` URL and the mic and voice work. (The URL changes on
+> every restart; for a stable one use a *named tunnel* plus `TUNNEL_TOKEN`, see the Cloudflare Tunnel
+> section below.)
 
-#### 🌐 Tên miền + HTTPS trên Hostinger (KHÔNG cần mua tên miền)
+#### 🌐 A domain + HTTPS on Hostinger (NO domain purchase needed)
 
-Hostinger có sẵn **wildcard DNS** `*.<hostname-vps>.hstgr.cloud` + **Traefik** tự cấp SSL. Nên bạn lấy được
-link riêng chạy HTTPS mà không cần mua tên miền. **Lưu ý (đã kiểm chứng):** Hostinger **KHÔNG** tự cấp biến
-`TRAEFIK_HOST` cho compose dán tay (chỉ cấp cho app Catalog), nên **bắt buộc đặt 1 biến `DOMAIN_NAME`**:
+Hostinger provides **wildcard DNS** `*.<vps-hostname>.hstgr.cloud` plus **Traefik** issuing SSL
+automatically. So you get a private link on HTTPS without buying a domain. **Note (verified):** Hostinger
+does **NOT** provide the `TRAEFIK_HOST` variable for a hand-pasted compose (only for Catalog apps), so
+you **must set a `DOMAIN_NAME` variable**:
 
-1. Xem **hostname VPS** ở hPanel → VPS (vd `srv1782015.hstgr.cloud`).
+1. Find the **VPS hostname** in hPanel → VPS (for example `srv1782015.hstgr.cloud`).
 2. Docker Manager → Compose → URL:
    ```
    https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.hostinger.yml
    ```
-3. Ô **Environment** của mẫu mới chỉ còn 3 trường có ý nghĩa:
-   - `DOMAIN_NAME`: đặt `javis.<hostname-vps>.hstgr.cloud`
-     (vd `javis.srv1782015.hstgr.cloud`), hoặc tên miền riêng đã trỏ DNS A về IP VPS.
-   - `JAVIS_ADMIN_USER`: tên đăng nhập, mặc định `admin`.
-   - `JAVIS_ADMIN_PASSWORD`: mật khẩu mạnh anh tự đặt; để trống thì phải tự tạo tài khoản trên
-     màn chạy lần đầu ngay sau khi deploy (ai mở link trước sẽ tạo được admin).
-   - `JAVIS_AUTO_UPDATE` (tuỳ chọn): đặt `true` thì Javis TỰ cập nhật mỗi ngày. Bỏ trống thì
-     vẫn cập nhật được bằng nút **⬆ Cập nhật ngay** trong app - từ 0.55.56 stack Hostinger đã
-     kèm sẵn Watchtower nên nút đó có ngay từ lần cài đầu.
+3. The new template's **Environment** box has only 3 meaningful fields:
+   - `DOMAIN_NAME`: set `javis.<vps-hostname>.hstgr.cloud`
+     (for example `javis.srv1782015.hstgr.cloud`), or your own domain with an A record pointed at the
+     VPS IP.
+   - `JAVIS_ADMIN_USER`: the username, `admin` by default.
+   - `JAVIS_ADMIN_PASSWORD`: a strong password you choose; leaving it empty means creating the
+     account yourself on the first-run screen right after deploying (whoever opens the link first
+     can create the admin).
 
-   Các trường kỹ thuật cũ như `JAVIS_HOST`, `JAVIS_PORT`, đường dẫn state/brain và
-   `CLAUDE_CWD` đã được dọn khỏi form; Docker image vẫn tự dùng đúng giá trị mặc định.
-4. **Deploy** → đợi 1-3 phút Traefik cấp SSL → mở `https://<DOMAIN_NAME>`.
+   The older technical fields such as `JAVIS_HOST`, `JAVIS_PORT`, the state and brain paths and
+   `CLAUDE_CWD` have been cleared from the form; the Docker image still uses the right defaults.
+4. **Deploy**, wait 1-3 minutes for Traefik to issue SSL, then open `https://<DOMAIN_NAME>`.
 
-> Thiếu `DOMAIN_NAME` thì vẫn deploy được (chạy tạm ở `:7777`, chưa có HTTPS). Không thấy ô Environment?
-> Bấm **Manage → sửa .yaml**, đổi thẳng dòng `Host(...)` thành `Host(\`javis.srv1782015.hstgr.cloud\`)`.
-> **Điểm mấu chốt:** nhãn Traefik gắn thẳng vào service, **KHÔNG khai báo
-> `networks:` / `external: traefik-proxy`** (chỗ này trước đây làm deploy báo "network not found").
-> **Caddy (`docker-compose.https.yml`) KHÔNG dùng trên Hostinger** vì cổng 80/443 đã bị Traefik của họ chiếm.
-> Không rành? Dùng **Cloudflare Tunnel** (mục dưới) - cho URL HTTPS mà không đụng gì tới proxy của Hostinger.
+> Without `DOMAIN_NAME` it still deploys (running temporarily on `:7777` with no HTTPS). No Environment
+> box? Click **Manage → edit the .yaml** and change the `Host(...)` line directly to
+> `Host(\`javis.srv1782015.hstgr.cloud\`)`.
+> **The key point:** the Traefik labels attach straight to the service, with **NO
+> `networks:` / `external: traefik-proxy` declaration** (that is what used to make the deploy report
+> "network not found").
+> **Caddy (`docker-compose.https.yml`) is NOT used on Hostinger** because ports 80/443 are already held
+> by their Traefik.
+> Not confident? Use a **Cloudflare Tunnel** (below), which gives an HTTPS URL without touching
+> Hostinger's proxy at all.
 
-**VPS có tên miền riêng - auto Let's Encrypt, đặt NGAY TRONG APP (khuyên dùng):**
+**A VPS with your own domain, automatic Let's Encrypt, configured RIGHT IN THE APP (recommended):**
 
-Không cần đặt `DOMAIN` lúc chạy nữa - bật Caddy một lần rồi khai báo tên miền trong giao diện.
-1. Bật Caddy (On-Demand TLS): `docker compose -f docker-compose.yml -f docker-compose.https.yml up -d`
-   *(cần Docker Compose v2.23.1+ - kiểm tra `docker compose version`)*
-2. Mở `http://<ip-vps>:7777` → **Cài đặt → Giọng nói, thương hiệu & truy cập → Tên miền & SSL** → nhập `javis.tencuaban.com` → **Lưu & kiểm tra**.
-3. Wizard hiện đúng bản ghi DNS cần tạo (A: `javis.tencuaban.com → <ip-vps>`) và có nút sao chép.
-   Trỏ DNS xong, đợi lan.
-4. Mở `https://javis.tencuaban.com` → Caddy **tự xin + gia hạn** chứng chỉ ở lần mở đầu, cookie
-   Secure tự bật. Xong.
+You no longer set `DOMAIN` at run time; enable Caddy once then declare the domain in the interface.
+1. Enable Caddy (On-Demand TLS): `docker compose -f docker-compose.yml -f docker-compose.https.yml up -d`
+   *(needs Docker Compose v2.23.1+, check with `docker compose version`)*
+2. Open `http://<vps-ip>:7777` → **Settings → Voice, branding and access → Domain and SSL** → enter
+   `javis.yourname.com` → **Save and check**.
+3. The wizard shows the exact DNS record to create (A: `javis.yourname.com → <vps-ip>`) with a copy
+   button. Point the DNS then wait for propagation.
+4. Open `https://javis.yourname.com` and Caddy **obtains and renews** the certificate on the first
+   visit, with the Secure cookie turned on automatically. Done.
 
-> An toàn: Caddy hỏi backend (`/tls-check`) trước khi xin cert → **chỉ** cấp cho đúng tên miền bạn đã
-> nhập trong app. Kẻ trỏ DNS bừa vào IP không ép server xin cert lung tung được (khỏi cạn rate-limit
-> Let's Encrypt). Đổi/xoá tên miền: sửa lại trong ⚙ Cài đặt, **không** phải chạy lại lệnh compose.
+> Safety: Caddy asks the backend (`/tls-check`) before requesting a certificate, so it **only** issues
+> for the domain you entered in the app. Someone pointing arbitrary DNS at the IP cannot force the
+> server into requesting random certificates (which would exhaust the Let's Encrypt rate limit).
+> Changing or removing the domain: edit it in ⚙ Settings, with **no** compose command to rerun.
 
-**Không có tên miền:** dùng Cloudflare Tunnel ngay dưới đây (cũng cho URL HTTPS).
+**No domain:** use the Cloudflare Tunnel right below (which also gives an HTTPS URL).
 
 ---
 
-## 🏢 Chạy NHIỀU bản Javis trên cùng một VPS (mỗi bản một link riêng)
+## 🏢 Running SEVERAL Jarvis 007 instances on one VPS (each with its own link)
 
-Một VPS chạy được bao nhiêu bản Javis cũng được - mỗi bản một tên miền phụ, một kho dữ liệu
-riêng, không bản nào thấy brain hay tài khoản của bản nào.
+One VPS can run any number of Jarvis 007 instances, each on its own subdomain with its own data store,
+and no instance sees another's brain or accounts.
 
-**Ba thứ phải KHÁC NHAU giữa các bản.** Trùng cái nào là hỏng đúng cái đó:
+**Three things must DIFFER between instances.** Whichever one collides is what breaks:
 
-| Biến | Vì sao phải khác | Trùng thì bị gì |
+| Variable | Why it must differ | What a collision causes |
 |---|---|---|
-| `JAVIS_NAME` | Docker đặt tên container theo phạm vi cả máy | `name is already in use`, bản sau không lên |
-| `JAVIS_HOST_PORT` | Một cổng máy chủ chỉ một container giữ được | `port is already allocated` |
-| `DOMAIN_NAME` | Mỗi link phải trỏ về đúng một bản | Hai bản giành nhau một link |
+| `JAVIS_NAME` | Docker names containers machine-wide | `name is already in use`, the second instance never starts |
+| `JAVIS_HOST_PORT` | One host port can only be held by one container | `port is already allocated` |
+| `DOMAIN_NAME` | Each link must point at exactly one instance | Two instances fighting over one link |
 
-Bỏ trống cả ba = `javis` + cổng `7777`, tức **y hệt cách cài cũ** - đang chạy một bản thì không
-phải sửa gì.
+Leaving all three empty gives `javis` plus port `7777`, which is **exactly the old install**, so
+running a single instance needs no change at all.
 
-### Trên Hostinger Docker Manager
+### On Hostinger Docker Manager
 
-Deploy `docker-compose.hostinger.yml` **thêm một lần nữa** thành stack mới, điền Environment:
+Deploy `docker-compose.hostinger.yml` **once more** as a new stack, filling in the Environment:
 
 ```
-Stack 1:  DOMAIN_NAME=shop.srv1782015.hstgr.cloud     (JAVIS_NAME, JAVIS_HOST_PORT bỏ trống)
+Stack 1:  DOMAIN_NAME=shop.srv1782015.hstgr.cloud     (JAVIS_NAME, JAVIS_HOST_PORT left empty)
 Stack 2:  DOMAIN_NAME=canhan.srv1782015.hstgr.cloud   JAVIS_NAME=javis-canhan   JAVIS_HOST_PORT=7778
 ```
 
-Wildcard DNS `*.hstgr.cloud` có sẵn nên tên miền phụ nào cũng trỏ được ngay, Traefik tự cấp SSL.
+The wildcard DNS `*.hstgr.cloud` is already there so any subdomain resolves immediately, and Traefik
+issues SSL itself.
 
-### Trên VPS tự quản (Docker + proxy dùng chung)
+### On a self-managed VPS (Docker plus a shared proxy)
 
-Một máy chỉ có **một cổng 443**, nên Caddy phải đứng NGOÀI mọi bản. Chạy proxy **một lần cho cả
-máy**:
+A machine has only **one port 443**, so Caddy must live OUTSIDE every instance. Run the proxy **once
+for the whole machine**:
 
 ```bash
 docker network create javis-web
@@ -173,7 +186,7 @@ curl -fsSLO https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-c
 docker compose -f docker-compose.proxy.yml -p javis-proxy up -d
 ```
 
-Rồi mỗi bản một **thư mục riêng**:
+Then give each instance **its own folder**:
 
 ```bash
 mkdir -p ~/javis-shop && cd ~/javis-shop
@@ -183,162 +196,181 @@ cat > .env <<'EOF'
 JAVIS_NAME=javis-shop
 JAVIS_HOST_PORT=7777
 JAVIS_BIND=127.0.0.1
-DOMAIN_NAME=shop.tencuaban.com
+DOMAIN_NAME=shop.yourname.com
 JAVIS_ADMIN_USER=admin
-JAVIS_ADMIN_PASSWORD=matkhau-manh-cua-ban
+JAVIS_ADMIN_PASSWORD=your-strong-password
 EOF
 chmod 600 .env
 
 CF="-f docker-compose.yml -f docker-compose.multi.yml"
-docker compose $CF run --rm javis claude auth login --claudeai   # đăng nhập Claude cho BẢN NÀY
+docker compose $CF run --rm javis claude auth login --claudeai   # sign Claude in for THIS instance
 docker compose $CF up -d
 ```
 
-Bản thứ hai làm y hệt ở `~/javis-canhan`, đổi `.env` thành `javis-canhan` / `7778` /
-`canhan.tencuaban.com`. Trỏ DNS bản ghi A cho từng tên miền phụ về IP VPS là xong - proxy **tự
-phát hiện bản mới qua nhãn Docker**, không phải sửa gì ở proxy, cũng không phải restart nó.
+Do the same for the second instance in `~/javis-canhan`, changing `.env` to `javis-canhan` / `7778` /
+`canhan.yourname.com`. Point an A record for each subdomain at the VPS IP and you are done: the proxy
+**discovers new instances through Docker labels**, so nothing on the proxy needs editing and it does
+not need restarting.
 
-> Mỗi bản là một tài khoản admin riêng, nên đặt `JAVIS_ADMIN_*` cho **từng** `.env` (mật khẩu
-> khác nhau). Bỏ trống thì bản đó mở ra màn tạo tài khoản, ai vào link trước sẽ tạo được admin,
-> nên phải tạo ngay sau khi chạy.
+> Each instance has its own admin account, so set `JAVIS_ADMIN_*` in **each** `.env` (with different
+> passwords). Leaving them empty opens that instance on the create-account screen, where whoever
+> opens the link first can create the admin, so create it right after starting.
 
-> `JAVIS_BIND=127.0.0.1` thu cổng về loopback vì đã có proxy lo HTTPS. Vẫn vào gỡ rối được bằng
-> `ssh -L 7777:localhost:7777 user@<ip-vps>` khi DNS chưa lan tới.
+> `JAVIS_BIND=127.0.0.1` pulls the port back to loopback because the proxy handles HTTPS. You can
+> still get in to debug with `ssh -L 7777:localhost:7777 user@<vps-ip>` while DNS has not propagated.
 
-**Cập nhật** vẫn là `./update.sh` trong từng thư mục - script đọc `.env` của thư mục đang đứng
-nên chỉ đụng đúng bản đó. Bản đầu tiên đang chạy `docker-compose.https.yml` (Caddy nằm trong
-project) thì chuyển nó sang `docker-compose.multi.yml` trước khi dựng bản thứ hai, không thì hai
-Caddy tranh cổng 443.
+**Updating** is still `./update.sh` in each folder; the script reads the `.env` of the folder you are
+standing in so it only touches that instance. If the first instance runs `docker-compose.https.yml`
+(with Caddy inside the project), move it to `docker-compose.multi.yml` before standing up the second
+one, or two Caddys will fight over port 443.
 
-### Cài native (không Docker)
+### A native install (no Docker)
 
-Clone vào thư mục khác rồi đặt hai biến trước khi chạy:
+Clone into a different folder then set two variables before running:
 
 ```bash
 JAVIS_NAME=javis-shop JAVIS_PORT=7778 ./install.sh
 ```
 
-Dịch vụ systemd sẽ là `javis-shop.service` (`journalctl -u javis-shop -f`) thay vì ghi đè
-`javis.service` của bản trước. Phần HTTPS tự lo bằng nginx/Caddy sẵn có trên máy.
+The systemd service becomes `javis-shop.service` (`journalctl -u javis-shop -f`) rather than
+overwriting the previous instance's `javis.service`. HTTPS is handled by whichever nginx or Caddy the
+machine already runs.
 
-### Cái gì dùng chung, cái gì riêng
+### What is shared and what is private
 
-**Riêng từng bản:** brain, ghi chú, cài đặt, tài khoản admin, kết nối MCP, việc nền, và **token
-đăng nhập Claude/ChatGPT** (mỗi bản phải `claude auth login` một lần).
+**Private to each instance:** the brain, the notes, the settings, the admin account, the MCP
+connections, the background work, and **the Claude/ChatGPT login token** (each instance needs its own
+`claude auth login`).
 
-**Dùng chung:** không có gì. Muốn hai bản xài chung một lần đăng nhập Claude thì trỏ chung
-volume `claude-auth` - làm được nhưng tự chịu trách nhiệm, vì hai bản sẽ cùng đốt một hạn mức.
-
----
-
-### 🌐 Truy cập từ xa (Hostinger / VPS bất kỳ) - Cloudflare Tunnel
-
-Mở giao diện Javis từ máy khác mà KHÔNG cần mở port / không cần tên miền:
-
-1. **Đặt mật khẩu TRƯỚC (bắt buộc):** mở Javis (qua SSH tunnel ở bước 5) → Dashboard → **Tài khoản** → đặt mật khẩu admin. Javis chạy Claude toàn quyền trên máy → TUYỆT ĐỐI không phơi ra Internet khi chưa có mật khẩu. (Server cũng in cảnh báo nếu chạy public mà chưa đặt.)
-2. Bật tunnel: `docker compose --profile tunnel up -d`
-3. Lấy URL: `docker compose logs tunnel | grep trycloudflare` → mở `https://<ngẫu-nhiên>.trycloudflare.com` trên trình duyệt bất kỳ, đăng nhập mật khẩu. Giờ xem & thao tác Javis từ xa.
-
-**URL cố định (tên miền riêng, kiểu `*.hstgr.cloud`):** tạo *named tunnel* ở Cloudflare Zero Trust (miễn phí) → lấy token → `TUNNEL_TOKEN=...` vào `.env` → đổi dòng `command` của service `tunnel` sang bản `run --token` (comment sẵn trong `docker-compose.yml`), trỏ tới `http://javis:7777`. Quick tunnel đổi URL mỗi lần restart; named tunnel cho URL ổn định.
+**Shared:** nothing. To have two instances share one Claude login, point them at the same
+`claude-auth` volume; that works but is at your own risk, because both will burn the same quota.
 
 ---
 
-## Cách 2 - Cài trực tiếp lên Linux/macOS (không Docker)
+### 🌐 Remote access (Hostinger / any VPS) with a Cloudflare Tunnel
+
+Open the Jarvis 007 interface from another machine with NO open ports and NO domain:
+
+1. **Set a password FIRST (mandatory):** open Jarvis 007 (through the SSH tunnel in step 5) → Dashboard →
+   **Account** → set the admin password. Jarvis 007 runs Claude with full power on the machine, so it must
+   NEVER be exposed to the Internet without a password. (The server also prints a warning when running
+   public without one.)
+2. Start the tunnel: `docker compose --profile tunnel up -d`
+3. Get the URL: `docker compose logs tunnel | grep trycloudflare`, then open
+   `https://<random>.trycloudflare.com` in any browser and sign in with the password. Now you can view
+   and drive Jarvis 007 remotely.
+
+**A stable URL (your own domain, `*.hstgr.cloud` style):** create a *named tunnel* in Cloudflare Zero
+Trust (free), take the token, put `TUNNEL_TOKEN=...` into `.env`, change the `tunnel` service's
+`command` line to the `run --token` variant (commented out in `docker-compose.yml`), and point it at
+`http://javis:7777`. A quick tunnel changes its URL on every restart; a named tunnel gives a stable one.
+
+---
+
+## Way 2 - Installing directly on Linux/macOS (no Docker)
 
 ```bash
 git clone https://github.com/blogminhquy/javis-os.git javis && cd javis
 chmod +x install.sh && ./install.sh
 ```
 
-Script tự cài Python + Node + Claude CLI, tạo venv, cài deps, đăng ký dịch vụ tự chạy khi
-boot (systemd) và in ra địa chỉ. Nếu nó báo Claude chưa đăng nhập, chạy 1 lần:
+The script installs Python, Node and the Claude CLI, creates a venv, installs dependencies, registers
+a service to start at boot (systemd) and prints the address. If it reports that Claude is not signed
+in, run once:
 ```bash
 claude auth login --claudeai
 ```
-Quản lý dịch vụ: `journalctl -u javis -f` · `sudo systemctl restart javis`
+Managing the service: `journalctl -u javis -f` · `sudo systemctl restart javis`
 
 ---
 
-## Cách 3 - Windows (máy cá nhân)
+## Way 3 - Windows (a personal machine)
 
-Double-click `setup.bat` (chạy hiện cửa sổ) hoặc `start-javis.vbs` (chạy ngầm).
-Dừng bằng `stop-javis.bat`. Mở http://localhost:7777
+Double-click `setup.bat` (which shows a window) or `start-javis.vbs` (which runs in the background).
+Stop it with `stop-javis.bat`. Open http://localhost:7777
 
 ---
 
-## Biến môi trường (`.env`)
+## Environment variables (`.env`)
 
-| Biến | Ý nghĩa | Mặc định |
+| Variable | Meaning | Default |
 |---|---|---|
-| `JAVIS_HOST` | Địa chỉ nghe. `127.0.0.1` = chỉ máy này; `0.0.0.0` = mọi nơi (Docker tự đặt) | `127.0.0.1` |
-| `JAVIS_PORT` | Cổng | `7777` |
-| `JAVIS_STATE_DIR` | Nơi Javis ghi state (settings, sessions, loop config) | `server/` (Docker: `/data/state`) |
-| `OBSIDIAN_VAULT_PATH` | Vault Second Brain chính | `vault/` trong repo (Docker: `/data/vault`) |
-| `BRAIN_PATH` | Thư mục brain | `brain/` trong repo (Docker: `/data/brain`) |
-| `CLAUDE_CWD` | Thư mục dự phòng của Claude CLI (chat chạy trong thư mục brain) | repo root |
+| `JAVIS_HOST` | The listening address. `127.0.0.1` = this machine only; `0.0.0.0` = everywhere (Docker sets this itself) | `127.0.0.1` |
+| `JAVIS_PORT` | The port | `7777` |
+| `JAVIS_STATE_DIR` | Where Jarvis 007 writes state (settings, sessions, loop configuration) | `server/` (Docker: `/data/state`) |
+| `OBSIDIAN_VAULT_PATH` | The main Second Brain vault | `vault/` in the repo (Docker: `/data/vault`) |
+| `BRAIN_PATH` | The brain folder | `brain/` in the repo (Docker: `/data/brain`) |
+| `CLAUDE_CWD` | Fallback folder for the Claude CLI (chat runs inside the brain folder) | the repo root |
 
 ---
 
-## 🔄 Cập nhật khi có code mới
+## 🔄 Updating when new code lands
 
-> **Nhanh nhất - bấm ngay trong app:** mở **Cập nhật** (rail trái) → khung **Javis OS** hiện
-> phiên bản đang chạy + tự kiểm tra bản mới trên GitHub. Có bản mới → bấm **⬆ Cập nhật ngay**,
-> app tự kéo bản mới + khởi động lại (~20-40s), khỏi vào terminal.
-> - **Docker/VPS:** nút này chạy nhờ service **watchtower**, và từ 0.55.56 nó **đi kèm sẵn**
->   trong cả `docker-compose.yml` lẫn `docker-compose.hostinger.yml` - cài mới là có nút ngay.
->   Máy nào còn thiếu nút là đang chạy bằng file compose cũ (trước đó Watchtower nằm trong
->   `profiles: ["update"]` nên `docker compose up -d` không bật nó). Lấy bản mới rồi dựng lại:
+> **The fastest, right in the app:** open **Updates** (the left rail) and the **Jarvis 007** panel shows
+> the running version and checks GitHub for a newer one. When there is one, click **⬆ Update now** and
+> the app pulls the new version and restarts (~20-40s), with no terminal needed.
+> - **Docker/VPS:** the button runs through the **watchtower** service, and since 0.55.56 it
+>   **ships by default** in both `docker-compose.yml` and `docker-compose.hostinger.yml`, so a
+>   fresh install has the button straight away. A machine still missing it is running from an
+>   older compose file (Watchtower used to sit under `profiles: ["update"]`, which
+>   `docker compose up -d` does not start). Fetch the new file and bring it up again:
 >   ```bash
 >   curl -fsSLO https://raw.githubusercontent.com/blogminhquy/javis-os/main/docker-compose.yml
 >   docker compose up -d --pull always
 >   ```
->   Chưa muốn đổi file compose thì bật riêng cũng được: `docker compose --profile update up -d`.
->   Chỉ Watchtower được cấp quyền Docker (socket); app Javis KHÔNG → an toàn. Không có nó cũng
->   được, khung sẽ chỉ *báo có bản mới* + chỉ cách cập nhật tay.
-> - **Có nút mà bấm không chạy, container `javis-watchtower` cứ Restarting:** stack dựng bằng
->   compose trước 0.65.20 dùng image `containrrr/watchtower` (đã ngừng phát triển), log báo
->   `client version 1.25 is too old`. Docker mới từ chối bản đó. Dựng lại MỘT LẦN bằng compose
->   mới (Hostinger: Docker Manager, dán lại URL compose rồi Deploy; VPS: hai lệnh ở trên), compose
->   mới dùng bản fork `ghcr.io/nicholas-fedor/watchtower:1` tự thương lượng phiên bản với Docker.
-> - **Muốn TỰ cập nhật, khỏi bấm nút:** đặt `JAVIS_AUTO_UPDATE=true` trong `.env` (Hostinger: ô
->   Environment) rồi dựng lại. Mặc định tắt vì tự cập nhật là app tự khởi động lại bất cứ lúc
->   nào có bản mới, cắt ngang việc nền. Chu kỳ đổi bằng `JAVIS_AUTO_UPDATE_INTERVAL` (giây).
-> - **Native/Windows:** nút chạy `update.sh` (git pull + restart) giúp bạn.
+>   Not ready to swap the compose file? Starting it on its own works too:
+>   `docker compose --profile update up -d`.
+>   Only Watchtower is granted Docker access (the socket); the Jarvis 007 app is NOT, which is what makes it
+>   safe. Going without it is fine too, and the panel then only *reports a new version* and explains how
+>   to update by hand.
+> - **The button is there but does nothing, and `javis-watchtower` keeps Restarting:** a stack
+>   built from a compose file older than 0.65.20 uses the `containrrr/watchtower` image (no
+>   longer maintained), whose log says `client version 1.25 is too old`. Newer Docker rejects it.
+>   Redeploy ONCE from the new compose (Hostinger: Docker Manager, paste the compose URL again and
+>   Deploy; VPS: the two commands above); it uses the maintained fork
+>   `ghcr.io/nicholas-fedor/watchtower:1`, which negotiates the API version with Docker.
+> - **Want it fully automatic, with no button:** set `JAVIS_AUTO_UPDATE=true` in `.env`
+>   (Hostinger: the Environment box) and bring the stack up again. It is off by default because
+>   auto-updating means the app restarts itself whenever a new version lands, cutting across
+>   background work. Change the cadence with `JAVIS_AUTO_UPDATE_INTERVAL` (seconds).
+> - **Native/Windows:** the button runs `update.sh` (git pull plus restart) for you.
 
-Repo & image GHCR đều **Public** → `git clone`/`pull` và `docker pull` không cần đăng nhập.
+The repo and the GHCR image are both **Public**, so `git clone`/`pull` and `docker pull` need no login.
 
-Mỗi khi bạn push code mới, trên VPS chỉ cần:
+Whenever you push new code, on the VPS all you need is:
 
 ```bash
 cd javis && ./update.sh
 ```
 
-Script tự `git pull` rồi:
-- **Docker**: `docker compose build && docker compose up -d` - dữ liệu trong volume KHÔNG mất.
-- **Native (systemd)**: `pip install -r requirements.txt` + `systemctl restart javis`.
+The script runs `git pull` then:
+- **Docker**: `docker compose build && docker compose up -d`, and data in the volumes is NOT lost.
+- **Native (systemd)**: `pip install -r requirements.txt` plus `systemctl restart javis`.
 
-Ép chế độ: `./update.sh docker` hoặc `./update.sh native`. Làm tay tương đương:
+To force a mode: `./update.sh docker` or `./update.sh native`. The manual equivalent:
 ```bash
 git pull && docker compose build && docker compose up -d          # Docker
 git pull && ./.venv/bin/pip install -r requirements.txt && sudo systemctl restart javis   # Native
 ```
 
-Trên máy Windows của bạn, đẩy code lên GitHub: `git add -A && git commit -m "..." && git push`
+On your Windows machine, pushing code to GitHub: `git add -A && git commit -m "..." && git push`
 
-Để trống = dùng mặc định in-repo → cài trên máy mới chạy được ngay, không cần sửa gì.
+Leaving variables empty uses the in-repo defaults, so an install on a new machine runs immediately with
+nothing to edit.
 
 ---
 
-## Đăng nhập Claude là bước duy nhất bắt buộc
+## Signing Claude in is the only mandatory step
 
-"Bộ não" của Javis là Claude Code CLI. Token đăng nhập nằm trong `~/.claude`
-(Docker: volume `claude-auth`). Đăng nhập 1 lần → tồn tại qua mọi restart/update.
-Nếu đã đăng nhập trên máy khác, có thể copy thư mục `~/.claude` sang.
+Jarvis 007's "brain" is the Claude Code CLI. The login token lives in `~/.claude`
+(Docker: the `claude-auth` volume). Sign in once and it survives every restart and update.
+If you already signed in on another machine, you can copy the `~/.claude` folder across.
 
-## (Tuỳ chọn) Dùng ChatGPT (gói Plus) trong chat
+## (Optional) Using ChatGPT (the Plus plan) in chat
 
-Provider **OpenAI OAuth (ChatGPT)** chat qua **Codex CLI** (đã cài sẵn trong image). Đăng nhập 1 lần:
-mở **App terminal** chạy `codex login` (mở link, đăng nhập ChatGPT). Token lưu ở `~/.codex`
-(Docker: volume `codex-auth`) → giữ qua mọi update. Kiểm tra: `codex --version`. Sau đó vào
-**Models → Đổi model → ChatGPT** là chat dùng được. (ChatGPT-qua-codex là thử nghiệm; muốn ổn
-định/đa model hơn thì dùng **OpenRouter** - 1 key mọi model - hoặc Claude.)
+The **OpenAI OAuth (ChatGPT)** provider chats through the **Codex CLI** (already installed in the
+image). Sign in once: open the **App terminal** and run `codex login` (opening the link and signing
+into ChatGPT). The token lives in `~/.codex` (Docker: the `codex-auth` volume) and survives every
+update. Check it with `codex --version`. Then go to **Models → Change model → ChatGPT** and chat works.
+(ChatGPT-through-codex is experimental; for something more stable or with more models, use
+**OpenRouter**, one key for every model, or Claude.)
