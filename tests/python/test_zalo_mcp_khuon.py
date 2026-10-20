@@ -272,7 +272,7 @@ async def gui_loi():
 tb = asyncio.run(gui_loi())
 ds = chatbot_log.doc(bid, 10)
 check("gửi Zalo lỗi thì ghi vào nhật ký bot kèm lý do thật",
-      ds and "Gửi Zalo lỗi" in ds[0]["loi"] and "từ chối" in ds[0]["loi"], ds[:1])
+      ds and "Zalo send failed" in ds[0]["loi"] and "từ chối" in ds[0]["loi"], ds[:1])
 check("và ghi câu định gửi để chủ biết bot đã nói gì mà không tới nơi",
       ds and ds[0]["dap"] == "Dạ em đây ạ" and ds[0]["chat_id"] == "5550001", ds[:1])
 

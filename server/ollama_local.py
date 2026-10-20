@@ -373,7 +373,7 @@ def _gpu() -> tuple:
     return "", 0.0
 
 
-APPLE_GPU = "Apple Silicon (bộ nhớ dùng chung)"
+APPLE_GPU = "Apple Silicon (shared memory)"
 
 
 def la_apple_silicon() -> bool:

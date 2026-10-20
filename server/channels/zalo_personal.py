@@ -34,22 +34,22 @@ def cau_vao_nhom(ev: dict) -> str:
     greeting of its own, so a bot whose owner never asked for one must not start greeting people."""
     from datetime import datetime
     md = (ev.get("metadata") or {}).get("member_join") or {}
-    ten = str(ev.get("sender_name") or "").strip() or str(ev.get("sender_id") or "").strip() or "Một người"
+    ten = str(ev.get("sender_name") or "").strip() or str(ev.get("sender_id") or "").strip() or "Someone"
     try:
         luc = datetime.fromtimestamp(float(md.get("time") or ev.get("created_at") or time.time()), localefmt.tz())
-        gio = luc.strftime("%H:%M ngày %d/%m/%Y")
+        gio = luc.strftime("%H:%M on %d/%m/%Y")
     except (TypeError, ValueError, OverflowError, OSError):
         gio = ""
     if md.get("added_by_me"):
-        cach = ", do chính tài khoản này thêm vào"
+        cach = ", added by this account itself"
     elif md.get("added_by"):
-        cach = ", do một thành viên khác thêm vào"
+        cach = ", added by another member"
     else:
         cach = ""
-    return (f"[Sự kiện nhóm, KHÔNG phải tin nhắn: {ten} vừa vào nhóm"
-            + (f" lúc {gio}" if gio else "") + cach + ". "
-            "Làm đúng theo chỉ dẫn của bạn về người mới vào nhóm; câu bạn gửi sẽ tự tag người này. "
-            "Chỉ dẫn của bạn không nói gì về người mới vào nhóm thì trả đúng [IM_LANG].]")
+    return (f"[Group event, NOT a message: {ten} just joined the group"
+            + (f" at {gio}" if gio else "") + cach + ". "
+            "Follow your instructions about newcomers to the group; the message you send will tag this person automatically. "
+            "If your instructions say nothing about newcomers, reply exactly [IM_LANG].]")
 
 
 def tai_khoan():
@@ -163,7 +163,7 @@ def _danh_ba_nhom(conn_id: str, chat_id: str) -> list:
         import conversations
         return conversations.group_speakers(f"zalo_personal:{conn_id}", str(chat_id))
     except Exception as e:      # noqa: BLE001 - no directory = only the answered person gets tagged
-        print(f"[zalo-personal] danh bạ nhóm lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[zalo-personal] group directory error: {type(e).__name__}: {e}", file=sys.stderr)
         return []
 
 
@@ -190,8 +190,8 @@ def _tag_result(conn_id: str, ok: bool) -> None:
     st["fails"] += 1
     if st["fails"] >= TAG_FAIL_LIMIT:
         st["fails"], st["until"] = 0, time.time() + TAG_PAUSE
-        print(f"[zalo-personal] tag người hỏng {TAG_FAIL_LIMIT} lần liên tiếp, nghỉ {TAG_PAUSE // 60} phút "
-              f"(tin vẫn gửi như thường)", file=sys.stderr)
+        print(f"[zalo-personal] tagging failed {TAG_FAIL_LIMIT} times in a row, pausing for {TAG_PAUSE // 60} minutes "
+              f"(messages still go out as usual)", file=sys.stderr)
 
 
 async def _send_tagged(conn: dict, chat_id: str, text: str, mention) -> Optional[tuple]:
@@ -227,8 +227,8 @@ async def _send_tagged(conn: dict, chat_id: str, text: str, mention) -> Optional
         return True, ""
     _tag_result(cid, False)
     if zalo_cli.is_timeout(err):
-        return False, f"không rõ tin có tag đã đi chưa ({err})"
-    print(f"[zalo-personal] gửi có tag lỗi, gửi lại không tag: {err[:200]}", file=sys.stderr)
+        return False, f"unclear whether the tagged message went out ({err})"
+    print(f"[zalo-personal] sending with a tag failed, resending without the tag: {err[:200]}", file=sys.stderr)
     return None
 
 
@@ -444,7 +444,7 @@ class Transport:
             if asyncio.iscoroutine(r):
                 await r
         except Exception as e:
-            print(f"[zalo-personal bot {self.conn_id}] báo nhóm lỗi: {e}", file=sys.stderr)
+            print(f"[zalo-personal bot {self.conn_id}] group notice error: {e}", file=sys.stderr)
 
     def _nho_anh_tron(self, ev: dict, thread: str):
         import zalo_personal_channel as zc
@@ -460,7 +460,7 @@ class Transport:
                                  "image_url": url, "message_id": str(ev.get("external_message_id") or ""),
                                  "account_id": self.conn_id})
         except Exception as e:      # noqa: BLE001 - nhớ ảnh hỏng không được làm sập vòng đọc tin
-            print(f"[zalo-personal bot {self.conn_id}] nhớ ảnh trơn lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"[zalo-personal bot {self.conn_id}] remembering the plain photo failed: {type(e).__name__}: {e}", file=sys.stderr)
 
     async def _tai_file(self, files: list, text: str, meta: dict, thread: str, chi_file: bool) -> tuple:
         """Tải các file khách gửi về `inbox/khach` của brain bot, rồi gắn dấu file vào lượt.
@@ -480,7 +480,7 @@ class Transport:
         if cfg.get("muc_quyen") not in ("auto", "full"):
             if chi_file:
                 return text, [], False
-            return text + "\n[Khách có gửi kèm file; bot này không có quyền lưu file nên không mở được.]", [], True
+            return text + "\n[The customer attached a file; this bot has no permission to save files so it cannot open it.]", [], True
         # A group message that tags the account or replies to it is answered during the owner's yield when the
         # bot's yield time was set explicitly (0.172.0, see `xu_ly`), so its file must be downloaded too.
         goi_trong_nhuong = (meta.get("chat_type") == "group" and (meta.get("mentioned") or meta.get("reply_to_bot"))
@@ -497,7 +497,7 @@ class Transport:
         ddir = self.download_dir(thread) if callable(self.download_dir) else self.download_dir
         inbox = Path(ddir) if ddir else None
         if inbox is None or inbox.parts[-2:] != ("inbox", "khach"):
-            raise ValueError("thiếu thư mục inbox/khach của brain bot")
+            raise ValueError("the bot brain is missing the inbox/khach folder")
         da_tai = []
         for att in files:
             saved, why = await zalo_attachments.fetch_file(att, inbox)
@@ -505,7 +505,7 @@ class Transport:
                 da_tai.append(saved)
                 text += "\n" + zalo_attachments.turn_text(saved)
             else:
-                text += "\n[Không tải được file Zalo: " + why + ". Không suy đoán nội dung.]"
+                text += "\n[Could not download the Zalo file: " + why + ". Do not guess the content.]"
         if zc._BOTS.get(self.conn_id) is not self:
             for f in da_tai:
                 f.unlink(missing_ok=True)
@@ -571,7 +571,7 @@ class Transport:
             gop = bool(md0.get("gop"))
             text = (conversations.chu_thich_anh(ev.get("text")) if co_anh and not gop else str(ev.get("text") or "").strip())
         if chi_file and not text:
-            text = "(người dùng gửi file)"
+            text = "(the user sent a file)"
         thread = str(ev.get("external_chat_id") or "")
         if not thread:
             return
@@ -588,7 +588,7 @@ class Transport:
             # ở đây, nên bot không bao giờ thấy ảnh gửi trơn (15/10/2026). Đưa cho bot kèm ảnh, Agent tự quyết hỏi gì.
             if not (co_anh and loai == "private" and (ev.get("metadata") or {}).get("image_url")):
                 return
-            text = "[Khách gửi một ảnh, không kèm lời nhắn]"
+            text = "[The customer sent a photo with no message]"
         # Không biết cuộc chat là nhóm hay chat riêng (đã hỏi lại bảng mà vẫn không thấy): KHÔNG trả
         # lời. Đoán là chat riêng nghĩa là trả lời từng tin của một nhóm, dưới tên người thật.
         if (ev.get("metadata") or {}).get("chua_ro_loai"):
@@ -646,8 +646,8 @@ class Transport:
                 from datetime import datetime
                 gio, url = zc.anh_rieng_gan_day(self.conn_id, thread)
                 meta.update(co_anh=True, image_url=url, anh_truoc=True)
-                text = (text + "\n[Kèm ảnh khách gửi lúc " + datetime.fromtimestamp(gio, localefmt.tz()).strftime("%H:%M")
-                        + " trong cuộc chat này, có thể liên quan tới tin trên]")
+                text = (text + "\n[Attached: photo the customer sent at " + datetime.fromtimestamp(gio, localefmt.tz()).strftime("%H:%M")
+                        + " in this chat, may be related to the message above]")
         duoc_goi = False
         pol = None
         if vao_nhom:
@@ -673,7 +673,7 @@ class Transport:
                     pol = self.policy.prepare(text, meta)
                 except Exception as e:      # noqa: BLE001 - bộ phán xử hỏng thì giữ luật cũ, không được nuốt tin
                     pol = None
-                    print(f"[zalo-personal bot {self.conn_id}] bộ phán xử lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+                    print(f"[zalo-personal bot {self.conn_id}] judge error: {type(e).__name__}: {e}", file=sys.stderr)
                 duoc_goi = duoc_goi or bool(meta.get("mentioned"))
         try:
             if self.precheck_fn:
@@ -716,11 +716,11 @@ class Transport:
                     cu = zc.lay_bo_do(self.conn_id, thread)
                     meta["bo_do_n"] = int(cu.get("n") or 0)
                     if cu:
-                        meta["ghi_chu_dau"] = ("[Ghi chú của Javis, không phải lời khách: câu trả lời trước của bạn CHƯA được gửi "
-                                               "vì khách nhắn thêm trong lúc bạn soạn. Các tin khách chưa được đáp, theo thứ tự: "
-                                               + " / ".join(cu["texts"]) + ". Hãy trả lời MỘT lần cho các tin này cùng tin mới "
-                                               "bên dưới, đừng hỏi lại điều khách đã nói. Việc lượt trước đã làm bằng công cụ (ghi file, gửi tin, "
-                                               "đặt lịch) là ĐÃ xong, đừng làm lại.]")
+                        meta["ghi_chu_dau"] = ("[Note from Jarvis 007, not the customer's words: your previous reply was NOT sent "
+                                               "because the customer wrote more while you were composing. The customer messages not yet answered, in order: "
+                                               + " / ".join(cu["texts"]) + ". Answer ONCE for these messages together with the new message "
+                                               "below, do not ask again about what the customer already said. What the previous turn already did with tools (writing files, sending messages, "
+                                               "setting reminders) is ALREADY done, do not redo it.]")
                 try:
                     out = await self.answer_fn(text, meta, None)
                 except BaseException:
@@ -756,7 +756,7 @@ class Transport:
             raise
         except Exception as e:
             self.last_error = f"{type(e).__name__}: {e}"[:300]
-            print(f"[zalo-personal bot {self.conn_id}] lượt hỏng: {self.last_error}",
+            print(f"[zalo-personal bot {self.conn_id}] turn failed: {self.last_error}",
                   file=sys.stderr)
 
     async def _gui(self, thread: str, cau: str, chat_type: str = "private", meta: Optional[dict] = None):
@@ -796,10 +796,10 @@ class Transport:
                 return
             chatbot_log.ghi(bid, {
                 "chat_id": thread, "chat_type": chat_type, "user_name": "",
-                "hoi": "(bot gửi tin vào " + ("nhóm" if chat_type == "group" else "chat riêng") + ")",
+                "hoi": "(bot sends a message to " + ("a group" if chat_type == "group" else "a private chat") + ")",
                 "dap": cau,
-                "loi": f"Gửi Zalo lỗi: {loi}. Câu định gửi: {cau[:200]}",
+                "loi": f"Zalo send failed: {loi}. Message it was about to send: {cau[:200]}",
                 "muc_quyen": (cfg or {}).get("muc_quyen") or "suggest",
             })
         except Exception as e:
-            print(f"[zalo-personal bot {self.conn_id}] ghi nhật ký lỗi gửi: {e}", file=sys.stderr)
+            print(f"[zalo-personal bot {self.conn_id}] failed to write the send-error log: {e}", file=sys.stderr)

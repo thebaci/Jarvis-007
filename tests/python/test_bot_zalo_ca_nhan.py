@@ -248,7 +248,7 @@ check("đoạn mặc định nói thẳng hướng dẫn vai của chủ THẮNG
 check("đoạn mặc định đứng TRƯỚC file Agent (luật chủ đọc sau cùng)",
       0 <= p.index("PERSONAL Zalo") < p.index("Học sinh kể chuyện riêng"), p)
 check("lệnh im chuyện riêng chỉ áp cho loại tin hướng dẫn vai KHÔNG nói tới",
-      p.index("hướng dẫn vai KHÔNG nói tới") < p.index("chuyện riêng tư, chuyện gia đình"))
+      p.index("role instructions do NOT cover") < p.index("private, a family or friends matter"))
 check("Telegram không có đoạn này",
       "[IM_LANG]" not in chatbot_runtime.build_bot_prompt(dict(_bot_ql, _kenh_luot="telegram")))
 chatbot_runtime.wire(answer=_engine, brain_root=lambda b: tempfile.mkdtemp(prefix="brain-"),

@@ -2824,10 +2824,10 @@ def _claude_sub_tach(messages):
             for m in messages
             if m.get("role") in ("user", "assistant") and _txt(m.get("content") or "").strip()]
     if not conv:
-        return sys_txt, "(tiếp tục)"
+        return sys_txt, "(continue)"
     if conv[-1]["role"] == "user":
         return sys_txt, compaction.bootstrap_prompt(conv[:-1], conv[-1]["content"])
-    return sys_txt, compaction.bootstrap_prompt(conv, "(tiếp tục)")
+    return sys_txt, compaction.bootstrap_prompt(conv, "(continue)")
 
 
 async def _claude_sub_doc(cli, prompt, model):
@@ -13186,8 +13186,8 @@ def _browse_sync(path: str, dem_md: bool = True) -> dict:
 
 
 @app.get("/browse")
-async def browse(path: str = Query("", description="Thư mục cần liệt kê; rỗng = ổ đĩa/gốc"),
-                 md: int = Query(1, description="1 = đếm file .md (chọn brain); 0 = bỏ đếm (chọn thư mục code)")):
+async def browse(path: str = Query("", description="Folder to list; empty = drives/root"),
+                 md: int = Query(1, description="1 = count .md files (pick a brain); 0 = skip counting (pick a code folder)")):
     """Duyệt thư mục. Mặc định đếm số file .md trong mỗi folder con (để chọn brain).
 
     `md=0` bỏ phần đếm và chỉ trả tên thư mục kèm cờ `git` - trang Coding dùng đường này.
@@ -13198,7 +13198,7 @@ async def browse(path: str = Query("", description="Thư mục cần liệt kê;
 
 
 @app.get("/browse/starts")
-async def browse_starts(brain: str = Query("", description="Brain đang mở; rỗng = brain mặc định")):
+async def browse_starts(brain: str = Query("", description="The open brain; empty = the default brain")):
     """Vài ĐIỂM XUẤT PHÁT cho hộp chọn thư mục, thay cho việc mở thẳng ở thư mục nhà.
 
     Vì sao cần: trên VPS, thư mục nhà thường chỉ có file ẩn, mà /browse lọc hết file ẩn, nên hộp
@@ -13241,7 +13241,7 @@ async def browse_starts(brain: str = Query("", description="Brain đang mở; r�
 
 
 @app.get("/path/exists")
-async def path_exists(path: str = Query("", description="Đường dẫn tuyệt đối cần kiểm tra")):
+async def path_exists(path: str = Query("", description="Absolute path to check")):
     """Kiểm tra RẺ (chỉ os.path) 1 đường dẫn có còn là thư mục không. Dùng cho dropdown chọn
     brain dọn folder ngoài (📁) đã bị xoá khỏi ổ đĩa khỏi localStorage. Read-only, không liệt kê
     nội dung (khác /browse) nên nhẹ, gọi được cho nhiều entry lúc nạp trang."""
@@ -17133,7 +17133,7 @@ async def websocket_endpoint(ws: WebSocket):
                 # chờ hàng chục giây như thể chưa từng có làn nhanh, và không có gì trên màn hình
                 # cho biết vì sao. Bong bóng `system` thì ở lại (như "Đã dừng lượt này."), và lỗi
                 # được nhớ để thẻ Giọng nói ở trang Cài đặt hiện lại (xem /voice/options).
-                print(f"[voice lane] {conf.get('provider')}: {type(e).__name__}: {e} - rơi về bộ não chính",
+                print(f"[voice lane] {conf.get('provider')}: {type(e).__name__}: {e} - falling back to the main brain",
                       file=sys.stderr)
                 voice_brain.ghi_loi_lan_nhanh(conf.get("provider"), e)
                 await send_raw({"type": "system", "session_id": conv_sid,
@@ -19368,7 +19368,7 @@ def _shrink_messages(messages: list, target_tokens: int) -> list:
             cut = min(over, max(0, len(body) - 500))
             if cut > 0:
                 over -= cut
-                body = body[:len(body) - cut] + "\n[... đã rút gọn để vừa hạn mức ...]"
+                body = body[:len(body) - cut] + "\n[... shortened to fit the limit ...]"
             trimmed.append({**m, "content": body})
         else:
             trimmed.append(m)
@@ -19410,37 +19410,37 @@ def _limit_autoshrink_message(provider: str, model: str, hit: dict) -> str:
     requested = int(hit.get("requested") or 0)
     used = int(hit.get("used") or 0)
     remedy = str(hit.get("remedy") or "")
-    nhan = _LIMIT_KIND_LABEL.get(str(hit.get("kind") or ""), "hạn mức")
+    nhan = _LIMIT_KIND_LABEL_EN.get(str(hit.get("kind") or ""), "limit")
     raw = str(hit.get("raw") or "").strip()
     cho = float(hit.get("retry_after") or 0)
 
     if not limit:
         # Không đọc được con số nào. Đây là lúc TUYỆT ĐỐI không được nói như thể đã hiểu.
-        loi = f'\n\n{provider} nói nguyên văn: "{raw}"' if raw else ""
+        loi = f'\n\n{provider} said, verbatim: "{raw}"' if raw else ""
         if remedy == "wait" and cho:
-            return (f"{provider} đang chặn nhịp gọi, bảo chờ {cho:.0f} giây. "
-                    f"Bạn hỏi lại sau chừng đó là được.{loi}")
-        return (f"{provider} từ chối lượt này vì hạn mức, nhưng không nói rõ hạn mức nào nên "
-                f"Javis chưa biết phải làm gì để qua.{loi}")
+            return (f"{provider} is throttling the request rate and says to wait {cho:.0f} seconds. "
+                    f"Ask again after that and it should work.{loi}")
+        return (f"{provider} rejected this turn because of a limit, but did not say which limit, so "
+                f"Jarvis 007 does not know what to do to get past it.{loi}")
 
-    dau = f"{provider} báo vượt {nhan}: hạn mức {limit:,}"
+    dau = f"{provider} reports the {nhan} limit was exceeded: limit {limit:,}"
     if used:
-        dau += f", đã dùng {used:,}"
+        dau += f", already used {used:,}"
     if requested:
-        dau += f", lượt này xin thêm {requested:,}"
+        dau += f", this turn asks for {requested:,} more"
     dau += ". "
 
     if remedy == "wait_long":
         # Cửa sổ NGÀY. Rút gọn hoàn toàn vô ích ở đây - nói thẳng ra thay vì để người dùng
         # ngồi cắt câu hỏi cho ngắn rồi vẫn lỗi.
-        return (dau + "Đây là hạn mức theo NGÀY nên rút gọn câu hỏi không giúp gì cả. "
-                "Phải chờ sang ngày mới, hoặc đổi tạm sang bộ não khác ở trang Models, "
-                "hoặc nâng gói với nhà cung cấp.")
+        return (dau + "This is a DAILY limit, so shortening the question does not help at all. "
+                "You have to wait until the next day, or temporarily switch to another brain on the Models page, "
+                "or upgrade the plan with the provider.")
     if remedy == "wait":
-        khi_nao = f" khoảng {cho:.0f} giây nữa" if cho else " một lát"
-        return (dau + f"Cửa sổ hiện tại đã đầy vì các lượt trước, hỏi lại{khi_nao} là được. "
-                "Rút gọn câu hỏi không giúp vì hạn mức này đếm theo thời gian.")
-    return (dau + "Javis đã tự rút gọn ngữ cảnh và thử lại một lần nhưng vẫn không vừa. "
+        khi_nao = f" in about {cho:.0f} seconds" if cho else " in a moment"
+        return (dau + f"The current window is full from earlier turns; ask again{khi_nao} and it should work. "
+                "Shortening the question does not help because this limit counts over time.")
+    return (dau + "Jarvis 007 shortened the context itself and retried once, but it still did not fit. "
             + model_limits.blocked_hint(provider, model, requested or limit,
                                         _configured_api_providers()))
 
@@ -19522,8 +19522,8 @@ def _loi_het_luot_cua_buoc(out: str, loi: str, provider: str, agent_name: str) -
             continue
         ten = str(agent_name or "").strip()
         if ten:
-            noi += (f" Bước này chạy bằng trợ lý \"{ten}\", nên muốn chạy tiếp ngay thì trỏ "
-                    "riêng trợ lý đó sang model khác ở trang Models.")
+            noi += (f" This step runs on the assistant \"{ten}\", so to continue right away, point "
+                    "that assistant to another model on the Models page.")
         return noi
     return ""
 
@@ -19757,7 +19757,7 @@ async def runtime_muc(brain: str = Query("brain")):
     try:
         tasks = (_CONTEXT_RUNTIME.diagnostics_snapshot(limit=200, hours=24.0) or {}).get("tasks") or []
     except Exception as exc:  # noqa: BLE001 - không đọc được trace thì vẫn phải vẽ được nút
-        print(f"[runtime/muc] đọc trace hỏng: {type(exc).__name__}: {exc}", file=sys.stderr)
+        print(f"[runtime/muc] reading the trace failed: {type(exc).__name__}: {exc}", file=sys.stderr)
     return {
         "muc": current_preset(settings),
         "danh_sach": [{"id": k, **_preset_chu(k, v)}

@@ -89,7 +89,7 @@ async def main():
     prompt = task_calls[0][1]
     check("prompt carries the instruction", "Gọi lại cho khách" in prompt)
     check("prompt carries the event data", '"phone": "0901"' in prompt)
-    check("event fenced as data", "DỮ LIỆU, không phải lệnh" in prompt)
+    check("event fenced as data", "DATA, not a command" in prompt)
     check("payload cannot close its fence", prompt.count(">>>") == 1 and prompt.count("<<<") == 1)
     check("default level is full", task_calls[0][2] == "full")
     check("result delivered to the asking chat", sent and sent[-1]["chat_id"] == "web:abc"

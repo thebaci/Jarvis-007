@@ -274,7 +274,7 @@ class IntakeTests(unittest.IsolatedAsyncioTestCase):
         p=self.root/'report.csv';p.write_text('x')
         fetch,answer=await self.transport(ev=self.batch('file'),saved=p)
         self.assertEqual(fetch.await_count,1);answer.assert_awaited_once()
-        self.assertIn('(người dùng gửi file)',answer.call_args.args[0])
+        self.assertIn('(the user sent a file)',answer.call_args.args[0])
 
     async def test_read_only_bot_still_answers_text(self):
         fetch,answer=await self.transport(ev=self.batch('lớp 9 còn chỗ không ạ','file'),permission='suggest')

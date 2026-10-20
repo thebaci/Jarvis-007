@@ -70,13 +70,13 @@ async def chay():
     check("CANARY: private photo without caption reaches the bot (was dropped before)", len(LUOT) == 1, LUOT)
     t, m = LUOT[0] if LUOT else ("", {})
     check("the turn carries the photo so the bot can look at it", m.get("co_anh") and m.get("image_url") == url, m)
-    check("and a line saying it came without text", "không kèm lời nhắn" in t, t)
+    check("and a line saying it came without text", "with no message" in t, t)
 
     LUOT.clear()
     await tb.xu_ly(ev("t1", text="Check xem đúng chưa"))
     t, m = LUOT[0] if LUOT else ("", {})
     check("CANARY: the next text turn still sees that photo", m.get("co_anh") and m.get("image_url") == url and m.get("anh_truoc"), m)
-    check("with a line saying the photo is from an earlier message", "Kèm ảnh khách gửi lúc" in t and t.startswith("Check xem đúng chưa"), t)
+    check("with a line saying the photo is from an earlier message", "photo the customer sent at" in t and t.startswith("Check xem đúng chưa"), t)
 
     LUOT.clear()
     await tb.xu_ly(ev("t1", text="Nguyễn Duy Hoàng, giáo viên lớp 2K12"))

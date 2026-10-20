@@ -126,12 +126,12 @@ check("tin thường KHÔNG mang cờ vào nhóm",
 
 cau = zalo_personal.cau_vao_nhom(ev)
 check("câu cho Agent nói rõ là sự kiện, có tên và giờ vào",
-      "KHÔNG phải tin nhắn" in cau and "Thu Hà" in cau and "vừa vào nhóm lúc" in cau, cau)
+      "NOT a message" in cau and "Thu Hà" in cau and "just joined the group at" in cau, cau)
 check("CANARY: câu cho Agent dặn im bằng [IM_LANG] khi chỉ dẫn không nói gì về người mới (Javis không tự chào)",
       chatbot_runtime.IM_LANG in cau, cau)
 ev_me = zc.chuan_hoa_tin(dict(CONN), join_msg("7002", "Nam", "j1", added_by_me=True), TEN)
 check("người do chính tài khoản này thêm vào thì nói rõ",
-      "chính tài khoản này thêm vào" in zalo_personal.cau_vao_nhom(ev_me))
+      "added by this account itself" in zalo_personal.cau_vao_nhom(ev_me))
 
 # ============================================================
 # 2. Cổng: sự kiện không phải chuyện trò
@@ -170,7 +170,7 @@ async def chay():
     await doc()
     check("người mới vào nhóm đã cho phép: Agent nhận đúng một lượt", len(LUOT) == 1, LUOT)
     check("lượt đó là câu sự kiện có tên người mới",
-          LUOT and "vừa vào nhóm" in LUOT[-1]["text"] and "Thu Hà" in LUOT[-1]["text"], LUOT[-1:] and LUOT[-1]["text"])
+          LUOT and "just joined the group" in LUOT[-1]["text"] and "Thu Hà" in LUOT[-1]["text"], LUOT[-1:] and LUOT[-1]["text"])
     check("câu Agent viết được gửi vào nhóm và TAG đúng người mới",
           len(CLI) == 1 and CLI[0]["pos"][0] == NHOM and CLI[0]["pos"][1].startswith("@Thu Hà ")
           and "7101" in " ".join(CLI[0]["opts"]) and not GUI, (CLI, GUI))
