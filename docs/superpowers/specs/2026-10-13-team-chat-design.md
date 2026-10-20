@@ -1,950 +1,950 @@
-# Nhóm chat team nhiều agent (thiết kế)
+# Multi-agent team chat (design)
 
-**Trạng thái:** bản thiết kế vòng 1. **Chủ dự án chốt D1 tới D7 theo đề xuất và cho triển khai (13/10/2026)**, bắt đầu từ T0 rồi T1 ([kế hoạch](../plans/2026-10-13-team-chat-t0-t1.md)). Chưa gọi model, chưa pilot, chưa merge, không đụng VPS.
+**Status:** round 1 design. **The project owner settled D1 through D7 as proposed and approved implementation (13/10/2026)**, starting with T0 and then T1 ([plan](../plans/2026-10-13-team-chat-t0-t1.md)). No model has been called, no pilot has run, nothing is merged, and the VPS is untouched.
 
-- **Nền:** `main` `bfb1c29f9e87e8b43a0bf1a8a43d3535581047d6` (0.109.0). Cộng hưởng A1 0.87.0, A2 0.88.0, A3 0.89.0, A4 0.96.0, A5 0.109.0 đã phát hành; tag cho agent 0.100.0.
-- **Nhánh:** `claude/team-chat-design`. Chưa giữ số phiên bản: số được giữ khi bắt đầu viết mã T1 (mục 19), theo `docs/quy-uoc-dev.md`.
-- **Đầu vào:**
-  - GOAL của chủ dự án ngày 13/10/2026, gồm ba phần: nhóm chat team; trưởng nhóm và chế độ Toàn quyền; sáu reaction.
-  - [Biên bản rà mã](../../dev/team-chat-audit-2026-10-13.md).
-  - [Lộ trình agent](2026-10-08-resonance-agent-scope-roadmap.md), [thiết kế A4](2026-10-10-resonance-a4-handoff-grants-design.md), [thiết kế A5](2026-10-11-resonance-a5-maker-reviewer-design.md), [tag của agent](../../dev/agent-tags.md).
-- **Wireframe và sơ đồ:** [team-chat-wireframes.md](../../dev/team-chat-wireframes.md).
-- **Mức bằng chứng:** chỉ đọc mã và tài liệu. Mọi điều "đã có" đều dẫn file và hàm ở biên bản rà mã. Test tài liệu không phải bằng chứng sản phẩm chạy.
+- **Base:** `main` `bfb1c29f9e87e8b43a0bf1a8a43d3535581047d6` (0.109.0). Resonance A1 0.87.0, A2 0.88.0, A3 0.89.0, A4 0.96.0 and A5 0.109.0 have shipped; the agent tag shipped in 0.100.0.
+- **Branch:** `claude/team-chat-design`. No version number reserved yet: the number is reserved when T1 coding starts (section 19), per `docs/quy-uoc-dev.md`.
+- **Inputs:**
+  - The project owner's GOAL of 13/10/2026, in three parts: the team chat group; the team leader and Full access mode; six reactions.
+  - [Code audit report](../../dev/team-chat-audit-2026-10-13.md).
+  - [Agent roadmap](2026-10-08-resonance-agent-scope-roadmap.md), [A4 design](2026-10-10-resonance-a4-handoff-grants-design.md), [A5 design](2026-10-11-resonance-a5-maker-reviewer-design.md), [agent tags](../../dev/agent-tags.md).
+- **Wireframes and diagrams:** [team-chat-wireframes.md](../../dev/team-chat-wireframes.md).
+- **Evidence level:** code and docs reading only. Every "already exists" claim cites a file and function in the code audit report. A documentation test is not evidence that the product runs.
 
-## 1. Mục tiêu và ngoài phạm vi
+## 1. Goals and out of scope
 
-### 1.1 Trải nghiệm
+### 1.1 Experience
 
-Anh làm việc với nhiều agent trong các nhóm chat, quen như nhóm Zalo nhưng nằm trong Jarvis 007:
-- **Danh sách nhóm**, tạo được nhiều nhóm theo việc hay chủ đề. Mỗi nhóm có tên, mô tả, thành viên, lịch sử và công việc riêng.
-- **Thành viên:** thêm agent có sẵn, hoặc tạo agent mới rồi đưa vào nhóm. Một agent ở được nhiều nhóm.
-- **Trưởng nhóm:** mỗi nhóm có một trưởng nhóm là agent do anh chọn.
-  - Gửi yêu cầu chung thì trưởng nhóm điều phối, phân công và tổng hợp.
-  - Anh vẫn @ giao việc hay trao đổi trực tiếp với từng agent.
-- **Phối hợp:** agent trao đổi đầu vào và trả kết quả vào đúng nhóm.
-- **Cài đặt nhóm:** có việc đang làm, hàng đợi và nút **Ưu tiên**.
-- **Màn Trợ lý (Cộng sự):** mỗi trợ lý hiện trạng thái và công tắc Cộng hưởng.
-- **Phản hồi:** mỗi câu trả lời của agent có đủ sáu reaction: 👍 Thích, ❤️ Tim, 😂 Haha, 😮 Wow, 😢 Huhu, 😡 Phẫn nộ.
-- **Hai chế độ trưởng nhóm:** Quyền giới hạn và Toàn quyền.
+You work with many agents in team chats, familiar from Zalo groups but living inside Jarvis 007:
+- **Team list**: you can create many teams by job or topic. Each team has a name, description, members, history and its own jobs.
+- **Members:** add an existing agent, or create a new agent and put it in the team. One agent can be in many teams.
+- **Team leader:** each team has one team leader, an agent you choose.
+  - When you send a general request, the team leader coordinates, assigns and summarizes.
+  - You can still @ an agent to hand out work or talk to it directly.
+- **Coordination:** agents exchange inputs and post results into the right team.
+- **Team settings:** current job, queue and a **Prioritize** button.
+- **Partners screen:** each assistant shows its status and a Resonance switch.
+- **Feedback:** every agent reply has the full set of six reactions: 👍 Like, ❤️ Love, 😂 Haha, 😮 Wow, 😢 Sad, 😡 Angry.
+- **Two team leader modes:** Limited access and Full access.
 
-### 1.2 Phân biệt, không gộp
+### 1.2 Distinctions, not merges
 
-| Khái niệm | Là gì | Quan hệ với nhóm chat |
+| Concept | What it is | Relation to the team chat |
 |---|---|---|
-| Tag (0.100.0) | Nhãn phân loại agent | Chỉ để lọc khi chọn thành viên. Không phải nhóm, không thêm thành viên, không chọn trưởng nhóm, không cấp quyền |
-| Nhóm Zalo/Telegram của chatbot | Một bot nói chuyện với người ngoài trên kênh ngoài | Không liên quan. Nhóm chat team không nối với Zalo trong bản này |
-| Workflow | Đường ống các bước nối tiếp | Một việc nhóm có thể dùng workflow làm thân, không thay nhóm |
-| Cặp làm/review A5 | Một agent làm, một agent review cho mỗi **mục tiêu Cộng hưởng** | Agent trong nhóm vẫn có thể có mục tiêu Cộng hưởng với cặp A5. Cặp A5 không phải cấu trúc nhóm; nhóm không giới hạn hai agent |
-| Mục tiêu Cộng hưởng (goal) | Việc dài hạn agent tự theo đuổi | Tin trong nhóm không tự tạo goal. Goal tạo trong lượt nhóm báo về đúng nhóm (mục 10.3) |
+| Tag (0.100.0) | A label that classifies agents | Only used for filtering when picking members. Not a team, adds no members, does not choose the team leader, grants no permission |
+| Chatbot Zalo/Telegram group | A bot talking to outside people on an outside channel | Unrelated. The team chat is not connected to Zalo in this version |
+| Workflow | A pipeline of sequential steps | A team job can use a workflow as its body; it does not replace the team |
+| A5 maker/reviewer pair | One agent makes, one agent reviews, for each **Resonance goal** | An agent in a team can still have a Resonance goal with an A5 pair. The A5 pair is not a team structure; a team is not limited to two agents |
+| Resonance goal | A long-term job an agent pursues on its own | A message in the team does not create a goal by itself. A goal created during a team turn reports back to that same team (section 10.3) |
 
-### 1.3 Ngoài phạm vi bản đầu
+### 1.3 Out of scope for the first version
 
-- nhiều tài khoản, phân quyền tổ chức;
-- gọi thoại, video;
-- tích hợp nhóm Zalo thật;
-- engine riêng cho từng agent ở mọi loại lượt (mục 12.1);
-- đưa usage việc nền lên màn usage chung (việc riêng đã ghi sau A5);
-- nguồn yêu cầu do host ghim cho reviewer A5 (việc riêng).
+- multiple accounts, organization-level permissions;
+- voice or video calls;
+- integration with real Zalo groups;
+- a separate engine per agent for every kind of turn (section 12.1);
+- surfacing background-job usage on the shared usage screen (a separate item, recorded after A5);
+- a request source pinned by the host for the A5 reviewer (a separate item).
 
-## 2. Hiện trạng tóm tắt
+## 2. Current state in brief
 
-Chi tiết và dẫn mã ở [biên bản rà mã](../../dev/team-chat-audit-2026-10-13.md).
+Details and code references are in the [code audit report](../../dev/team-chat-audit-2026-10-13.md).
 
-**Chưa có:**
-- nhóm và thành viên;
-- người gửi trên tin nhắn;
+**Does not exist yet:**
+- teams and members;
+- a sender on messages;
 - @mention;
-- hàng việc theo nhóm;
-- khoá bận theo agent;
-- sổ lượt theo việc;
-- sáu reaction;
-- công tắc Cộng hưởng trên dòng trợ lý.
+- a per-team job queue;
+- a per-agent busy lock;
+- a per-job turn ledger;
+- the six reactions;
+- a Resonance switch on the assistant row.
 
-**Đã có và dùng lại:**
+**Already exists and is reused:**
 
-| Cần | Dùng lại | Đổi gì |
+| Need | Reuse | What changes |
 |---|---|---|
-| Hội thoại nhóm | Phiên (`sessions`) với kênh mới `team:<team_id>`; phân trang `get_messages_page` | Thêm cột người gửi vào `messages` |
-| Gửi, stream, nối lại | `/ws`, `ChatRuntime`, `push_to_chat` | Gói tin mang `team_id`, người nhận, `client_msg_id` |
-| Lời nhắc agent | `_agent_sysprompt`, bộ nhớ agent, `_ket_luot_agent` | Thêm khối ngữ cảnh nhóm |
-| Lưu bền việc, lease, phục hồi, huỷ, báo về chat | Bảng `tasks` của Kanban, `claim`, `heartbeat`, `reclaim_stale`, `_report` | Làn `team` riêng (mục 5.4) |
-| Danh tính bền | `resonance_agents.agent_key` | Đăng ký mã cho mọi thành viên, không cần bật Cộng hưởng |
-| Công tắc Cộng hưởng | `POST /resonance/agents/toggle` và hợp đồng A1 | Đưa lên dòng trợ lý; trang Cài đặt chỉ còn tóm tắt |
-| Cổng A4, A5 | Giữ nguyên | Không đổi |
+| Team conversation | A session (`sessions`) with a new channel `team:<team_id>`; pagination `get_messages_page` | Add a sender column to `messages` |
+| Send, stream, reconnect | `/ws`, `ChatRuntime`, `push_to_chat` | The packet carries `team_id`, recipient, `client_msg_id` |
+| Agent prompt | `_agent_sysprompt`, agent memory, `_ket_luot_agent` | Add a team context block |
+| Durable jobs, lease, recovery, cancel, report back to chat | The Kanban `tasks` table, `claim`, `heartbeat`, `reclaim_stale`, `_report` | A separate `team` lane (section 5.4) |
+| Durable identity | `resonance_agents.agent_key` | Register a key for every member, with no need to enable Resonance |
+| Resonance switch | `POST /resonance/agents/toggle` and the A1 contract | Moved onto the assistant row; the Settings page keeps only a summary |
+| A4, A5 gates | Unchanged | No change |
 
-## 3. Ba phương án kiến trúc
+## 3. Three architecture options
 
-| | A. Nhóm trên phiên + làn `team` trong Kanban (**chọn**) | B. Dựng nhóm trên Cộng hưởng | C. Hệ nhóm độc lập |
+| | A. Team on a session + `team` lane in Kanban (**chosen**) | B. Build teams on Resonance | C. A standalone team system |
 |---|---|---|---|
-| Hội thoại | Phiên kênh `team:` | Phiên kênh `team:` | Kho tin riêng |
-| Việc nhóm | Dòng trong `tasks` của Kanban, làn `team`, trạng thái riêng | Mỗi việc là một goal | Bảng việc riêng |
-| Ai chạy việc | Bộ chạy nhóm, lượt chat của agent (có công cụ) | Lượt chỉ chữ của Cộng hưởng | Bộ chạy riêng |
-| Ưu | Dùng lại lease, phục hồi, huỷ, báo về chat, trang Công việc. Một chỗ cho mọi việc nền. Không đụng hợp đồng A1 tới A5 | Có sẵn sổ lượt, hạn mức, review | Tự do thiết kế |
-| Nhược | Phải tách làn để mã Kanban cũ không nhặt nhầm; thêm vài cột | Goal là việc dài hạn chỉ chữ, có trần cố định và lịch thức; mỗi tin thành goal trái yêu cầu "tin thường không tạo goal"; đổi hợp đồng đã phát hành | Thêm một hệ giao việc cạnh tranh với Kanban: đúng điều GOAL cấm |
+| Conversation | `team:` channel session | `team:` channel session | Its own message store |
+| Team jobs | Rows in the Kanban `tasks` table, `team` lane, own statuses | Each job is a goal | Its own jobs table |
+| Who runs jobs | Team runner, the agent's chat turn (with tools) | Resonance's text-only turn | Its own runner |
+| Pros | Reuses lease, recovery, cancel, report back to chat, the Work page. One place for all background work. Does not touch the A1 to A5 contracts | Already has the turn ledger, quota, review | Free design |
+| Cons | The lane must be separate so old Kanban code does not pick jobs up by mistake; adds a few columns | A goal is a long-term text-only job with a fixed ceiling and a wake schedule; turning every message into a goal contradicts "ordinary messages do not create goals"; changes a shipped contract | Adds a second work-assignment system competing with Kanban: exactly what the GOAL forbids |
 
-**Chọn A**, với ba lý do:
-- Việc nhóm là việc người dùng giao, chạy một lần, cần thứ tự và hiển thị. Hàng Kanban đã có đủ phần lưu bền, khoá và phục hồi.
-- Cộng hưởng giữ nguyên vai trò cho mục tiêu dài hạn.
-- Không sinh hệ thứ ba.
+**Choose A**, for three reasons:
+- A team job is a job the user hands out, run once, needing order and visibility. A Kanban row already has durable storage, locking and recovery.
+- Resonance keeps its role for long-term goals.
+- It does not create a third system.
 
-## 4. Bất biến
+## 4. Invariants
 
-1. **Host quản lý danh tính.** Mã nhóm, thành viên, agent, lượt, tin và việc do host cấp. Không tin mã do model tự khai.
-2. **Tin thường không tạo việc hay goal.** Chỉ hành động có quyền mới tạo việc (mục 7.1, 7.3). Tin của agent không tự đánh thức agent khác.
-3. **Một lời gọi model tính đúng một lần.**
-   - Giữ chỗ trong sổ lượt trước khi dựng engine.
-   - Lỗi trước mốc gọi engine thì hoàn lượt.
-   - Gửi lại request, nối lại hay restart không gọi lại.
-4. **Kết quả chỉ được áp dụng khi còn đúng** việc, revision, người được giao và tư cách thành viên. Sai một điều thì kết quả được lưu là "đến muộn, không áp dụng".
-5. **Lệnh của chủ nhóm luôn thắng:** dừng, huỷ, thu hồi, bỏ thành viên. Toàn quyền không vô hiệu được lệnh của chủ.
-6. **Mỗi nhóm thuộc đúng một brain.** Không mở truy cập chéo brain. Ngữ cảnh của một nhóm không vào lượt của nhóm khác hay chat riêng.
-7. **Hợp đồng A1 tới A5 giữ nguyên.** Đổi vị trí giao diện không đổi chính sách. Không tin nhắn nào mở rộng quyền, bỏ cổng A4 hay vượt yêu cầu review A5.
-8. **"Không giới hạn" là trạng thái rõ ràng**, không giả bằng số lớn. Trần nào còn áp (kỹ thuật, nhà cung cấp, máy chủ) thì phải hiện ra.
+1. **The host manages identity.** Team ids, members, agents, turns, messages and jobs are issued by the host. Never trust an id the model declares itself.
+2. **Ordinary messages do not create jobs or goals.** Only an authorized action creates a job (sections 7.1, 7.3). An agent's message does not wake another agent by itself.
+3. **A model call is counted exactly once.**
+   - Reserve a slot in the turn ledger before building the engine.
+   - An error before the engine-call mark refunds the turn.
+   - Resending a request, reconnecting or restarting does not call again.
+4. **A result is applied only while it is still correct** for the job, revision, assignee and membership. If any one is wrong, the result is saved as "arrived late, not applied".
+5. **The team owner's command always wins:** stop, cancel, revoke, remove a member. Full access cannot override the owner's command.
+6. **Each team belongs to exactly one brain.** No cross-brain access is opened. One team's context does not enter another team's turn or a private chat.
+7. **The A1 to A5 contracts stay unchanged.** Moving the place in the UI does not change the policy. No message widens permissions, bypasses the A4 gate or skips the A5 review requirement.
+8. **"Unlimited" is an explicit state**, not faked with a big number. Any ceiling that still applies (technical, provider, server) must be shown.
 
-## 5. Mô hình dữ liệu
+## 5. Data model
 
-### 5.1 Danh tính agent: một sổ chung
+### 5.1 Agent identity: one shared ledger
 
-Mã bền của agent dùng lại `resonance_agents` (cùng file `resonance.sqlite3`).
-- Thêm hàm `agent_register(p, slug)`: tạo mã với `enabled=0` nếu chưa có dòng sống. Owner gọi, hoặc host gọi khi thêm thành viên.
-- Không đổi nghĩa cột `enabled`: nó vẫn chỉ là công tắc Cộng hưởng.
-- Tên bảng giữ nguyên để không phải di trú. Tài liệu gọi nó là "sổ danh tính agent".
+An agent's durable key reuses `resonance_agents` (same `resonance.sqlite3` file).
+- Add a function `agent_register(p, slug)`: creates a key with `enabled=0` if there is no live row yet. The owner calls it, or the host calls it when adding a member.
+- The meaning of the `enabled` column does not change: it is still only the Resonance switch.
+- The table name stays so that no migration is needed. Docs call it the "agent identity ledger".
 
-Hệ quả:
-- **Đổi tên** chỉ đổi `name` trong file; mã và slug giữ nguyên, nên tư cách thành viên giữ nguyên.
-- **Xoá agent** gọi `agent_retire` như hiện nay: mã thành `retired`, dòng thành viên hiện "đã xoá", việc của agent vào trạng thái chặn (mục 6.4).
-- **Tạo lại cùng slug** sinh mã mới, không là thành viên, không thừa hưởng việc hay quyền.
-- **Lỗ hổng cũ:** tạo agent trùng tên đang ghi đè âm thầm file cũ (biên bản mục 2). T1 sửa: tạo mới mà slug đã có thì server trả 409, kèm gợi ý slug khác. Không ghi đè.
+Consequences:
+- **Rename** only changes `name` in the file; the key and slug stay, so membership stays.
+- **Deleting an agent** calls `agent_retire` as today: the key becomes `retired`, the member row shows "deleted", and the agent's jobs go into a blocked state (section 6.4).
+- **Recreating the same slug** produces a new key that is not a member and inherits no jobs or permissions.
+- **Old hole:** creating an agent with a duplicate name silently overwrites the old file (audit report section 2). T1 fixes it: creating a new agent whose slug already exists makes the server return 409, with a suggestion for another slug. No overwrite.
 
-### 5.2 Kho nhóm mới: `team.sqlite3`
+### 5.2 New team store: `team.sqlite3`
 
-File mới ở `JAVIS_STATE_DIR`, module mới `server/team_store.py`. Mã cũ bỏ qua file này nên hạ phiên bản an toàn (mục 18).
+A new file in `JAVIS_STATE_DIR`, a new module `server/team_store.py`. Old code ignores this file, so downgrading is safe (section 18).
 
-| Bảng | Cột chính | Ghi chú |
+| Table | Main columns | Notes |
 |---|---|---|
-| `teams` | `team_id` (`tm_`+hex), `brain_id`, `name`, `description`, `session_id` (phiên `team:`), `leader_key` (null được), `leader_mode` (`limited`/`full`), `status` (`active`/`paused`/`archived`), `queue_version`, `caps_json`, `created_at`, `updated_at` | `queue_version` tăng mỗi lần đổi hàng đợi, dùng cho CAS |
-| `team_members` | `team_id`, `agent_key`, `slug_at_join`, `role` (`member`/`leader`), `status` (`active`/`removed`/`agent_gone`), `managed_by_team` (0/1), `joined_at`, `left_at` | PK (`team_id`, `agent_key`). Một agent ở nhiều nhóm |
-| `team_events` | `id`, `team_id`, `kind`, `by` (`owner`/`leader:<key>`), `before_json`, `after_json`, `created_at` | Nhật ký: thành viên, trưởng nhóm, chế độ quyền, trần, ưu tiên, huỷ |
-| `team_steps` | `step_id`, `task_id`, `team_id`, `seq`, `kind` (`plan`/`work`/`help`/`synthesize`/`reply`), `agent_key`, `job_revision`, `brief`, `input_refs_json`, `status`, `parent_step`, `result_msg_id`, `applied` (0/1), `created_at`, `updated_at` | Các bước nội bộ của một việc nhóm. **Không phải việc cấp nhóm** |
-| `team_turns` | `turn_id`, `team_id`, `task_id` (null được với lượt trò chuyện), `step_id`, `agent_key`, `role` (`leader_reply`/`member_reply`/`plan`/`work`/`help`/`synthesize`), `engine`, `model`, `status` (`reserved`/`running`/`ok`/`error`/`refunded`/`interrupted`), `engine_at`, `tokens_in`, `tokens_out`, `cost_usd`, `created_at`, `settled_at` | Sổ lượt. Một dòng cho mỗi lời gọi model |
-| `agent_busy` | `agent_key` PK, `team_id`, `turn_id`, `lease_until` | Khoá bận theo agent trên toàn hệ thống (mục 8.7) |
+| `teams` | `team_id` (`tm_`+hex), `brain_id`, `name`, `description`, `session_id` (the `team:` session), `leader_key` (nullable), `leader_mode` (`limited`/`full`), `status` (`active`/`paused`/`archived`), `queue_version`, `caps_json`, `created_at`, `updated_at` | `queue_version` increases on every queue change, used for CAS |
+| `team_members` | `team_id`, `agent_key`, `slug_at_join`, `role` (`member`/`leader`), `status` (`active`/`removed`/`agent_gone`), `managed_by_team` (0/1), `joined_at`, `left_at` | PK (`team_id`, `agent_key`). One agent in many teams |
+| `team_events` | `id`, `team_id`, `kind`, `by` (`owner`/`leader:<key>`), `before_json`, `after_json`, `created_at` | Log: members, team leader, permission mode, ceilings, priority, cancel |
+| `team_steps` | `step_id`, `task_id`, `team_id`, `seq`, `kind` (`plan`/`work`/`help`/`synthesize`/`reply`), `agent_key`, `job_revision`, `brief`, `input_refs_json`, `status`, `parent_step`, `result_msg_id`, `applied` (0/1), `created_at`, `updated_at` | Internal steps of one team job. **Not team-level jobs** |
+| `team_turns` | `turn_id`, `team_id`, `task_id` (nullable for chat turns), `step_id`, `agent_key`, `role` (`leader_reply`/`member_reply`/`plan`/`work`/`help`/`synthesize`), `engine`, `model`, `status` (`reserved`/`running`/`ok`/`error`/`refunded`/`interrupted`), `engine_at`, `tokens_in`, `tokens_out`, `cost_usd`, `created_at`, `settled_at` | Turn ledger. One row per model call |
+| `agent_busy` | `agent_key` PK, `team_id`, `turn_id`, `lease_until` | A system-wide per-agent busy lock (section 8.7) |
 | `team_reactions` | `id`, `team_id`, `session_id`, `message_id`, `responder`, `agent_key`, `task_id`, `content_sha`, `value`, `reason`, `comment`, `seq`, `created_at`, `updated_at` | UNIQUE (`session_id`, `message_id`, `responder`) |
-| `team_reaction_log` | `id`, `reaction_id`, `value`, `reason`, `comment`, `nonce`, `created_at` | Ghi nối tiếp. UNIQUE (`reaction_id`, `nonce`) |
-| `team_authority` | `team_id`, `seq`, `mode`, `grant_json`, `by`, `created_at`, `revoked_at` | Lịch sử cấp và thu hồi Toàn quyền (mục 13) |
+| `team_reaction_log` | `id`, `reaction_id`, `value`, `reason`, `comment`, `nonce`, `created_at` | Append-only. UNIQUE (`reaction_id`, `nonce`) |
+| `team_authority` | `team_id`, `seq`, `mode`, `grant_json`, `by`, `created_at`, `revoked_at` | History of Full access grants and revocations (section 13) |
 
-### 5.3 Thêm cột vào `messages` của `sessions.db`
+### 5.3 New columns on `messages` in `sessions.db`
 
-Các cột thêm đều cho phép null, mã cũ bỏ qua:
+All added columns allow null, and old code ignores them:
 
-| Cột | Nghĩa |
+| Column | Meaning |
 |---|---|
 | `author_kind` | `owner` / `agent` / `system` |
-| `author_ref` | `agent_key` khi `author_kind=agent`, rỗng khi khác |
-| `client_msg_id` | Mã tin do client sinh; UNIQUE (`session_id`, `client_msg_id`) khi khác null |
-| `reply_to` | Mã tin được trả lời |
-| `task_id` | Việc nhóm liên quan, null được |
-| `step_id` | Bước liên quan, null được |
-| `meta_json` | Mention đã kiểm, cờ "đến muộn", trạng thái kết quả |
+| `author_ref` | `agent_key` when `author_kind=agent`, empty otherwise |
+| `client_msg_id` | Message id generated by the client; UNIQUE (`session_id`, `client_msg_id`) when not null |
+| `reply_to` | Id of the message being replied to |
+| `task_id` | The related team job, nullable |
+| `step_id` | The related step, nullable |
+| `meta_json` | Validated mentions, the "arrived late" flag, result status |
 
-- Tin cũ không có tác giả hiển thị như hiện nay.
-- Chỉ phiên kênh `team:` mới ghi các cột này ở T1. Chat thường không đổi.
+- Old messages with no author display as they do today.
+- In T1 only `team:` channel sessions write these columns. Ordinary chat is unchanged.
 
-### 5.4 Thêm cột vào `tasks` của Kanban (làn `team`)
+### 5.4 New columns on Kanban `tasks` (the `team` lane)
 
-| Cột | Nghĩa |
+| Column | Meaning |
 |---|---|
-| `lane` | `''` (Kanban cũ) hay `team` |
-| `team_id` | Nhóm sở hữu việc |
-| `team_seq` | Số thứ tự thêm vào hàng của nhóm, tăng dần |
-| `team_prio` | null = thường; số = thứ tự trong làn ưu tiên |
-| `team_rev` | Revision của yêu cầu, tăng khi chủ nhóm sửa yêu cầu |
-| `assignee_key` | Agent được giao trực tiếp (null nếu giao chung cho trưởng nhóm) |
-| `coordinator_key` | Trưởng nhóm điều phối, ghim lúc bắt đầu, đổi kèm sự kiện |
-| `source_ref` | `msg:<session_id>:<message_id>` của tin giao việc |
+| `lane` | `''` (old Kanban) or `team` |
+| `team_id` | The team that owns the job |
+| `team_seq` | Sequence number added to the team queue, increasing |
+| `team_prio` | null = normal; a number = position in the priority lane |
+| `team_rev` | Revision of the request, increases when the team owner edits the request |
+| `assignee_key` | The agent assigned directly (null if assigned generally to the team leader) |
+| `coordinator_key` | The team leader coordinating, pinned at start, changed together with an event |
+| `source_ref` | `msg:<session_id>:<message_id>` of the message that assigned the job |
 
-- **Trạng thái của làn `team`** dùng giá trị riêng: `team_queued`, `team_running`, `team_blocked`, rồi `done` / `cancelled` khi kết thúc.
-- `next_candidate`, `reclaim_stale`, `/kanban/run` và `/kanban/nudge` chỉ làm việc với `triage`/`ready`/`running`. Vì vậy mã Kanban (cả bản cũ khi hạ phiên bản) không bao giờ nhặt việc nhóm.
-- **Khoá idempotency** = `source_ref`.
-- **Tắt gộp theo tiêu đề cho làn `team`:** hai việc khác nhau cùng tên vẫn là hai việc.
+- **Statuses of the `team` lane** use their own values: `team_queued`, `team_running`, `team_blocked`, then `done` / `cancelled` when finished.
+- `next_candidate`, `reclaim_stale`, `/kanban/run` and `/kanban/nudge` only work with `triage`/`ready`/`running`. So Kanban code (including the old version after a downgrade) never picks up a team job.
+- **Idempotency key** = `source_ref`.
+- **Title-based merging is disabled for the `team` lane:** two different jobs with the same name are still two jobs.
 
-## 6. Vai và quyền
+## 6. Roles and permissions
 
-### 6.1 Ba vai
+### 6.1 Three roles
 
-| Vai | Là ai | Được làm |
+| Role | Who | Allowed to |
 |---|---|---|
-| Chủ nhóm | Người dùng (owner của dashboard) | Mọi thứ: tạo, sửa, lưu trữ nhóm; tạo agent; thêm, bỏ thành viên; chọn, đổi trưởng nhóm; đổi chế độ quyền; ưu tiên, huỷ, dừng; đặt trần |
-| Trưởng nhóm | Một agent thành viên do chủ chọn | Quyền giới hạn: điều phối trong việc được giao. Toàn quyền: thêm như mục 13 |
-| Thành viên | Agent trong nhóm | Trả lời khi được gọi; làm bước được giao; nhờ hỗ trợ trong trần; nộp kết quả |
+| Team owner | The user (the dashboard owner) | Everything: create, edit, archive teams; create agents; add and remove members; choose and change the team leader; change the permission mode; prioritize, cancel, stop; set ceilings |
+| Team leader | A member agent chosen by the owner | Limited access: coordinate within the assigned job. Full access: additionally as in section 13 |
+| Member | An agent in the team | Reply when called; do an assigned step; ask for help within the ceiling; submit results |
 
-- Bản đầu không có nhiều tài khoản: "chủ nhóm" là owner đã đăng nhập dashboard.
-- Mọi route quản lý nhóm đi qua lớp auth và CSRF như các route owner hiện có.
-- Agent chỉ hành động qua công cụ `javis_team` (mục 15.2), với danh tính lấy từ `turn_context`, không từ tham số model.
+- The first version has no multiple accounts: "team owner" is the owner logged in to the dashboard.
+- Every team management route goes through the auth and CSRF layer like the existing owner routes.
+- An agent acts only through the `javis_team` tool (section 15.2), with identity taken from `turn_context`, not from a model parameter.
 
-### 6.2 Ma trận quyền
+### 6.2 Permission matrix
 
-| Hành động | Chủ nhóm | Trưởng nhóm (giới hạn) | Trưởng nhóm (Toàn quyền) | Thành viên |
+| Action | Team owner | Team leader (limited) | Team leader (Full access) | Member |
 |---|---|---|---|---|
-| Tạo, sửa tên, mô tả nhóm | Có | Không | Không | Không |
-| Tạo agent mới | Có (qua `POST /agents` hiện có) | Không | Có, agent thành "do nhóm quản lý" | Không |
-| Thêm, bỏ thành viên | Có | Đề xuất (chủ bấm) | Có | Không |
-| Chọn, đổi trưởng nhóm; đổi chế độ quyền | Có | Không | Không (không tự nâng mình) | Không |
-| Mở việc nhóm | Có | Đề xuất (chủ bấm) | Có, trong phạm vi được giao | Không |
-| Phân công bước trong việc đang chạy | n/a | Có | Có | Không |
-| Nhờ thành viên khác hỗ trợ | n/a | Có | Có | Có, trong trần |
-| Ưu tiên, bỏ ưu tiên việc chờ | Có | Không | Có | Không |
-| Ngắt việc đang chạy | Có | Không | Chỉ khi chủ bật quyền riêng "Được ngắt việc" | Không |
-| Huỷ việc | Có | Không | Có, với việc chờ; với việc đang chạy cần quyền "Được ngắt việc" | Không |
-| Bật, tắt Cộng hưởng | Có (mọi agent) | Không | Chỉ agent do nhóm quản lý (mục 13.3) | Không |
-| Đổi trần | Có | Không | Trong mức chủ cho phép (mục 13.2) | Không |
-| Duyệt phạm vi ghi A4 | Có (trên thẻ) | Không | Chỉ trong thư mục nhóm nếu chủ chọn (D4) | Không |
+| Create a team, edit its name and description | Yes | No | No | No |
+| Create a new agent | Yes (through the existing `POST /agents`) | No | Yes, the agent becomes "managed by the team" | No |
+| Add and remove members | Yes | Suggests (owner taps) | Yes | No |
+| Choose or change the team leader; change the permission mode | Yes | No | No (cannot raise itself) | No |
+| Open a team job | Yes | Suggests (owner taps) | Yes, within the assigned scope | No |
+| Assign a step in a running job | n/a | Yes | Yes | No |
+| Ask another member for help | n/a | Yes | Yes | Yes, within the ceiling |
+| Prioritize, un-prioritize a waiting job | Yes | No | Yes | No |
+| Interrupt a running job | Yes | No | Only when the owner turns on the separate permission "Can interrupt jobs" | No |
+| Cancel a job | Yes | No | Yes, for waiting jobs; for running jobs it needs the "Can interrupt jobs" permission | No |
+| Turn Resonance on and off | Yes (any agent) | No | Only agents managed by the team (section 13.3) | No |
+| Change ceilings | Yes | No | Within the level the owner allows (section 13.2) | No |
+| Approve an A4 write scope | Yes (on the card) | No | Only inside the team folder if the owner chooses so (D4) | No |
 
-### 6.3 Đổi hay bỏ trưởng nhóm khi đang chạy
+### 6.3 Changing or removing the team leader mid-run
 
-- **Ghim:** `coordinator_key` của việc ghim lúc bắt đầu.
-- **Khi chủ đổi trưởng nhóm:**
-  - Lượt đang chạy của trưởng nhóm cũ được chạy hết, kết quả lưu nhưng **không áp dụng** như điều phối (`applied=0`, ghi "trưởng nhóm đã đổi").
-  - Ở điểm điều phối kế tiếp, việc chuyển cho trưởng nhóm mới, kèm sự kiện `coordinator_changed`.
-- **Khi chủ bỏ trưởng nhóm mà không chọn người thay:**
-  - Việc đang chạy cần điều phối vào `team_blocked` với lý do `no_leader`.
-  - Nhóm hiện băng rôn "Nhóm chưa có trưởng nhóm".
-  - Việc @ trực tiếp vẫn chạy.
-  - Việc chung mới vẫn vào hàng nhưng không bắt đầu.
-  - Không bao giờ âm thầm mất điều phối.
-- **Khi trưởng nhóm bị xoá khỏi Jarvis 007:** xử lý như bỏ trưởng nhóm.
+- **Pinning:** the job's `coordinator_key` is pinned at the start.
+- **When the owner changes the team leader:**
+  - The old team leader's running turn is allowed to finish; its result is saved but **not applied** as coordination (`applied=0`, labeled "team leader changed").
+  - At the next coordination point, the job moves to the new team leader, with a `coordinator_changed` event.
+- **When the owner removes the team leader without choosing a replacement:**
+  - A running job that needs coordination goes to `team_blocked` with reason `no_leader`.
+  - The team shows a banner "The team has no team leader".
+  - Jobs @-addressed directly still run.
+  - New general jobs still enter the queue but do not start.
+  - Coordination is never lost silently.
+- **When the team leader is deleted from Jarvis 007:** handled like removing the team leader.
 
-### 6.4 Bỏ thành viên đang có việc
+### 6.4 Removing a member who has work
 
-- **Bước chưa tới mốc gọi engine:** huỷ và hoàn lượt.
-- **Bước đã gọi engine:** chạy hết, kết quả lưu với `applied=0` và nhãn "thành viên đã rời nhóm".
-- Việc quay về điểm điều phối để trưởng nhóm phân công lại.
-- Nếu việc được giao trực tiếp cho người đó, việc vào `team_blocked` với lý do `assignee_removed`; chủ chọn giao lại hay huỷ.
-- Bỏ khỏi nhóm không xoá agent khỏi Jarvis 007 hay khỏi nhóm khác. Bộ nhớ của agent giữ nguyên.
+- **A step that has not reached the engine-call mark:** cancel and refund the turn.
+- **A step that already called the engine:** runs to the end, the result is saved with `applied=0` and the label "member left the team".
+- The job goes back to the coordination point so the team leader can reassign.
+- If the job was assigned directly to that person, the job goes to `team_blocked` with reason `assignee_removed`; the owner chooses to reassign or cancel.
+- Removing from a team does not delete the agent from Jarvis 007 or from other teams. The agent's memory stays.
 
-## 7. Luồng chat và phối hợp
+## 7. Chat and coordination flows
 
-### 7.1 Hai loại tin của chủ nhóm
+### 7.1 Two kinds of owner message
 
-Khung soạn có công tắc **"Giao việc"**, mặc định tắt.
+The composer has an **"Assign work"** switch, off by default.
 
-| | Trò chuyện (mặc định) | Giao việc |
+| | Chat (default) | Assign work |
 |---|---|---|
-| Tạo việc nhóm | Không | Có, một việc |
-| Vào hàng đợi | Không | Có |
-| Lượt model | Lượt trả lời ngắn (mục 7.2) | Theo việc |
+| Creates a team job | No | Yes, one job |
+| Enters the queue | No | Yes |
+| Model turn | A short reply turn (section 7.2) | Per job |
 
-Trưởng nhóm có thể **đề xuất** biến một trao đổi thành việc, bằng `javis_team op=propose_job`:
-- Quyền giới hạn: đề xuất hiện thành thẻ "Trưởng nhóm đề xuất giao việc: ..." với hai nút Tạo việc và Bỏ qua. Chưa bấm thì không có việc nào.
-- Toàn quyền: trưởng nhóm mở việc thẳng, trong phạm vi được giao. Thẻ vẫn hiện để chủ nhìn thấy và huỷ được.
+The team leader can **suggest** turning a discussion into a job, with `javis_team op=propose_job`:
+- Limited access: the suggestion appears as a card "The team leader suggests a job: ..." with two buttons, Create job and Skip. Until tapped, no job exists.
+- Full access: the team leader opens the job directly, within the assigned scope. The card still shows so the owner can see it and cancel.
 
-### 7.2 Định tuyến tin trò chuyện
+### 7.2 Routing chat messages
 
-@mention là danh sách có cấu trúc do khung soạn tạo khi chọn từ gợi ý: `mentions=[agent_key...]`. Server kiểm từng mã với danh sách thành viên đang hoạt động. Chữ "@tên" gõ tay mà không chọn từ gợi ý chỉ là chữ.
+An @mention is a structured list produced by the composer when picking from suggestions: `mentions=[agent_key...]`. The server checks each key against the list of active members. Text "@name" typed by hand without picking from suggestions is just text.
 
-| Tin | Ai trả lời | Số lượt |
+| Message | Who replies | Number of turns |
 |---|---|---|
-| Không @ | Trưởng nhóm (D1). Nhóm chưa có trưởng nhóm: không lượt nào, hiện "Nhóm chưa có trưởng nhóm; @ một thành viên để hỏi trực tiếp" | 1 |
-| Một @X | Chỉ X; trưởng nhóm không bị gọi | 1 |
-| Nhiều @ (tối đa 3, chỉnh được) | Từng người theo thứ tự @; người sau thấy câu trả lời của người trước trong cùng lượt hỏi | Bằng số @ hợp lệ |
-| Quá số @ cho phép | Từ chối gửi, nói rõ trần | 0 |
-| @ không còn hợp lệ (đã rời, đã xoá, `missing`) | Bỏ qua người đó, hiện "X không còn trong nhóm"; người hợp lệ vẫn trả lời | Bằng số @ hợp lệ |
+| No @ | The team leader (D1). A team with no team leader: no turn, shows "The team has no team leader; @ a member to ask directly" | 1 |
+| One @X | Only X; the team leader is not called | 1 |
+| Several @ (at most 3, adjustable) | Each person in @ order; later ones see earlier answers within the same question | Equal to the number of valid @ |
+| More @ than allowed | Sending is refused, stating the ceiling | 0 |
+| An @ that is no longer valid (left, deleted, `missing`) | That person is skipped, shows "X is no longer in the team"; valid people still reply | Equal to the number of valid @ |
 
-- **Tin của agent không đánh thức ai.** Chữ "@Y" trong câu trả lời của agent chỉ là chữ. Agent muốn nhờ người khác phải gọi `javis_team op=request_help` trong một việc đang chạy (mục 7.4).
-- Lượt trả lời trò chuyện chạy ngay khi agent rảnh. Không đi qua hàng việc nhóm, nhưng phải đợi khoá bận của agent (mục 8.7).
-- Lượt trả lời trò chuyện không được mở việc, không được nhờ người khác. Nó chỉ trả lời, hoặc đề xuất việc (mục 7.1).
+- **An agent's message wakes nobody.** The text "@Y" in an agent's reply is just text. An agent that wants help from another must call `javis_team op=request_help` inside a running job (section 7.4).
+- A chat reply turn runs as soon as the agent is free. It does not go through the team job queue, but it must wait for the agent's busy lock (section 8.7).
+- A chat reply turn cannot open a job or ask others for help. It only replies, or suggests a job (section 7.1).
 
-### 7.3 Giao việc
+### 7.3 Assigning work
 
-| Tin "Giao việc" | Việc tạo ra |
+| "Assign work" message | The job created |
 |---|---|
-| Không @ | Giao chung: `assignee_key` null, `coordinator_key` = trưởng nhóm. Bắt đầu bằng bước `plan` của trưởng nhóm |
-| @X | Giao trực tiếp: `assignee_key` = X, `coordinator_key` = trưởng nhóm (chỉ theo dõi). Bắt đầu bằng bước `work` của X; trưởng nhóm không làm lại phần của X |
-| Nhiều @ | Một việc, danh sách người làm lưu trong `metadata.assignees`; trưởng nhóm tổng hợp nếu có hơn một người |
+| No @ | General assignment: `assignee_key` null, `coordinator_key` = team leader. Starts with the team leader's `plan` step |
+| @X | Direct assignment: `assignee_key` = X, `coordinator_key` = team leader (follow-up only). Starts with X's `work` step; the team leader does not redo X's part |
+| Several @ | One job, the list of workers is stored in `metadata.assignees`; the team leader summarizes if there is more than one person |
 
-- **Không tạo việc trùng:** khoá = `source_ref`. Gửi lại cùng `client_msg_id` trả lại tin cũ và việc cũ.
-- **Ví dụ luồng B (giao chung):**
-  1. Chủ gửi "Giao việc: soạn kế hoạch ra mắt".
-  2. Việc `team_queued` vào hàng.
-  3. Tới lượt, bước `plan` của trưởng nhóm gọi `javis_team op=assign` cho thành viên 1 và 2, mỗi người kèm brief và đầu vào.
-  4. Host ghi hai bước `work`.
-  5. Từng bước chạy (tuần tự mặc định); kết quả đăng vào nhóm với tác giả là thành viên và nhãn việc.
-  6. Bước `synthesize` của trưởng nhóm đăng bản tổng hợp; việc `done`.
+- **No duplicate jobs:** key = `source_ref`. Resending the same `client_msg_id` returns the old message and the old job.
+- **Example of flow B (general assignment):**
+  1. The owner sends "Assign work: draft the launch plan".
+  2. The job goes into the queue as `team_queued`.
+  3. When its turn comes, the team leader's `plan` step calls `javis_team op=assign` for members 1 and 2, each with a brief and inputs.
+  4. The host writes two `work` steps.
+  5. Each step runs (sequentially by default); results are posted into the team with the member as author and a job label.
+  6. The team leader's `synthesize` step posts the summary; the job is `done`.
 
-### 7.4 Nhờ hỗ trợ (luồng D)
+### 7.4 Asking for help (flow D)
 
-1. Đang ở bước `work`, agent A gọi `javis_team op=request_help(B, câu hỏi, đầu vào)`.
-2. Host ghi bước `help` cho B, với `parent_step` là bước của A. Bước của A kết thúc với trạng thái chờ.
-3. Bước của B chạy, trả lời được lưu.
-4. Host tạo lượt tiếp của A với câu trả lời của B làm đầu vào. A làm tiếp.
+1. During a `work` step, agent A calls `javis_team op=request_help(B, question, inputs)`.
+2. The host writes a `help` step for B, with `parent_step` being A's step. A's step ends in a waiting state.
+3. B's step runs and the answer is saved.
+4. The host creates A's next turn with B's answer as input. A continues.
 
-**Trần chống vòng (mặc định, chỉnh được ở mục 12.3):**
-- độ sâu nhờ hỗ trợ: 2 (A nhờ B, B nhờ C; C không nhờ tiếp);
-- **A nhờ B rồi B nhờ lại A trong cùng một việc: chặn**, kèm ghi "không nhờ ngược";
-- số bước mỗi việc: 8;
-- số lượt model mỗi việc: 12;
-- **không tiến triển:** hai lượt liền nhau của cùng một bước mà không có kết quả mới (cùng `content_sha`) thì dừng bước đó. Việc vào `team_blocked`, lý do `no_progress`.
+**Loop-prevention ceilings (defaults, adjustable in section 12.3):**
+- help depth: 2 (A asks B, B asks C; C does not ask further);
+- **A asks B and then B asks A back in the same job: blocked**, with the note "no asking back";
+- steps per job: 8;
+- model turns per job: 12;
+- **no progress:** two consecutive turns of the same step with no new result (same `content_sha`) stop that step. The job goes to `team_blocked` with reason `no_progress`.
 
-### 7.5 Cùng agent ở hai nhóm (luồng E)
+### 7.5 The same agent in two teams (flow E)
 
-Mỗi cặp (nhóm, agent) có một **mạch thành viên** riêng: phiên ẩn kênh `teammate:<team_id>:<agent_key>`, giữ `cli_session_id` và `codex_thread_id` để resume.
+Each (team, agent) pair has its own **member thread**: a hidden session on channel `teammate:<team_id>:<agent_key>`, keeping `cli_session_id` and `codex_thread_id` for resume.
 
-- Phiên `team:` hiện lịch sử chung, chỉ trên trang Nhóm. Mạch thành viên chỉ giữ mạch engine.
-- `list_sessions` ẩn cả tiền tố `team:` lẫn `teammate:`, như đang ẩn `agent:`, `workflow:`, `coding:`, `bot:`. Hai loại phiên này không hiện trong danh sách lịch sử của chat chính.
-- Lượt ở nhóm X chỉ nhận ngữ cảnh của nhóm X (mục 11.2).
-- Kết quả gắn `team_id` và `task_id` của lượt đó, nên luôn đăng về đúng nhóm.
+- The `team:` session shows the shared history, only on the Teams page. The member thread only holds the engine thread.
+- `list_sessions` hides both the `team:` and `teammate:` prefixes, as it already hides `agent:`, `workflow:`, `coding:`, `bot:`. These two kinds of session do not appear in the main chat's history list.
+- A turn in team X receives only team X's context (section 11.2).
+- Results carry that turn's `team_id` and `task_id`, so they always post back to the right team.
 
-### 7.6 Chủ chen lời, sửa hay huỷ (luồng F)
+### 7.6 The owner interrupts, edits or cancels (flow F)
 
-Khi nhóm đang chạy một việc, khung soạn hiện "Đang làm: <tóm tắt việc>" với hai nút.
+While the team is running a job, the composer shows "Working: <job summary>" with two buttons.
 
-**"Sửa yêu cầu":**
-- Chủ nhập phần sửa; việc tăng `team_rev`.
-- Bước chưa bắt đầu dùng revision mới.
-- Bước đang chạy chạy hết, kết quả gắn revision cũ: được lưu và hiện nhưng `applied=0`, nhãn "theo yêu cầu cũ".
-- Ở điểm điều phối kế tiếp, trưởng nhóm (hay người được giao trực tiếp) lập lại kế hoạch theo revision mới.
+**"Edit request":**
+- The owner enters the edit; the job's `team_rev` increases.
+- Steps that have not started use the new revision.
+- A running step runs to the end, its result carries the old revision: it is saved and shown but `applied=0`, labeled "per the old request".
+- At the next coordination point, the team leader (or the directly assigned person) re-plans per the new revision.
 
-**"Huỷ việc":**
-- Huỷ lượt đang chạy (`cancel_all` theo thẻ của lượt). Bước chưa tới mốc gọi engine thì hoàn lượt.
-- Việc `cancelled`. Kết quả đến sau được lưu với nhãn "đến sau khi huỷ, không áp dụng".
+**"Cancel job":**
+- Cancels running turns (`cancel_all` by the turn's tag). A step that has not reached the engine-call mark refunds its turn.
+- The job becomes `cancelled`. A result arriving later is saved with the label "arrived after cancel, not applied".
 
-Tin trò chuyện chen vào trong lúc chạy đi theo mục 7.2. Nếu người được @ đang bận trong việc, câu trả lời chờ khoá bận và hiện "X đang làm việc '<tóm tắt>', sẽ trả lời sau".
+A chat message interjected during a run follows section 7.2. If the @-addressed person is busy in a job, the reply waits for the busy lock and shows "X is working on '<summary>', will reply later".
 
-### 7.7 Liên kết tin, việc, sản phẩm
+### 7.7 Linking messages, jobs and products
 
-- Mỗi việc có `source_ref` trỏ về tin giao việc.
-- Mỗi bước có `input_refs` (mã tin và mã kết quả bước trước) và `result_msg_id`.
-- Mỗi tin của agent trong việc mang `task_id`, `step_id` và `reply_to`.
-- File sản phẩm (nếu có, qua A4 hay công cụ ghi) ghi đường dẫn và `sha256` vào `meta_json` của tin kết quả.
+- Each job has a `source_ref` pointing back to the assigning message.
+- Each step has `input_refs` (message ids and earlier step result ids) and `result_msg_id`.
+- Each agent message within a job carries `task_id`, `step_id` and `reply_to`.
+- Product files (if any, through A4 or a write tool) record the path and `sha256` in the `meta_json` of the result message.
 
-Giao diện:
-- lọc khung chat theo một việc;
-- bấm nhãn việc trên tin để mở chi tiết việc;
-- chi tiết việc liệt kê tin nguồn, các bước, các trao đổi và sản phẩm.
+UI:
+- filter the chat by one job;
+- tap the job label on a message to open the job details;
+- the job details list the source message, the steps, the exchanges and the products.
 
-Nhiều việc trong cùng nhóm không lẫn nhau vì mọi liên kết đi theo mã, không theo vị trí trong khung chat.
+Many jobs in the same team do not get mixed up because every link goes by id, not by position in the chat.
 
-## 8. Hàng đợi và nút Ưu tiên
+## 8. Queue and the Prioritize button
 
-### 8.1 Đơn vị và trạng thái
+### 8.1 Unit and statuses
 
-- **Đơn vị xếp hàng là việc cấp nhóm** (một dòng `tasks` làn `team`). Các bước nội bộ (`team_steps`) không phải việc cấp nhóm và không hiện trong hàng.
-- **Mỗi nhóm chạy tối đa một việc tại một thời điểm.** Toàn quyền có thể đổi mức song song (mục 13.2).
+- **The queueing unit is the team-level job** (one `tasks` row in the `team` lane). Internal steps (`team_steps`) are not team-level jobs and do not appear in the queue.
+- **Each team runs at most one job at a time.** Full access can change the level to parallel (section 13.2).
 
-| Trạng thái | Nghĩa | Giữ chỗ chạy của nhóm? |
+| Status | Meaning | Holds the team's run slot? |
 |---|---|---|
-| `team_queued` | Đang chờ | Không |
-| `team_running` | Đang làm | Có |
-| `team_blocked` | Bị chặn, lý do: `waiting_user`, `failed`, `no_leader`, `assignee_removed`, `interrupted`, `no_progress`, `cap_reached`, `agent_busy_long` | **Không:** hàng đi tiếp |
-| `done` / `cancelled` | Lịch sử | Không |
+| `team_queued` | Waiting | No |
+| `team_running` | Working | Yes |
+| `team_blocked` | Blocked, reasons: `waiting_user`, `failed`, `no_leader`, `assignee_removed`, `interrupted`, `no_progress`, `cap_reached`, `agent_busy_long` | **No:** the queue moves on |
+| `done` / `cancelled` | History | No |
 
-### 8.2 Thứ tự
+### 8.2 Order
 
-Thứ tự chạy của các việc chờ trong một nhóm:
+The run order of waiting jobs in a team:
 
 ```
 ORDER BY (team_prio IS NULL), team_prio, team_seq
 ```
 
-- `team_seq` tăng theo thời điểm thêm vào hàng.
-- `team_prio` = null với việc thường. Bấm Ưu tiên thì `team_prio = (max team_prio của nhóm) + 1`, nên các việc ưu tiên chạy theo **thứ tự được bấm ưu tiên**, và cả nhóm ưu tiên đứng trước mọi việc thường.
-- **Bấm Ưu tiên lần nữa** trên việc đã ưu tiên: không đổi gì, trả lại vị trí hiện tại. Không có "đẩy lên đầu nhóm ưu tiên" trong bản đầu.
-- **Bỏ ưu tiên:** đặt `team_prio = null`. Việc về đúng vị trí theo `team_seq` ban đầu.
-- **Ưu tiên không ngắt việc đang chạy,** không nhân đôi việc, không tăng trần, không gọi model.
+- `team_seq` increases with the time of joining the queue.
+- `team_prio` = null for normal jobs. Tapping Prioritize sets `team_prio = (max team_prio of the team) + 1`, so prioritized jobs run in the **order they were prioritized**, and the whole priority group stands before every normal job.
+- **Tapping Prioritize again** on an already prioritized job: nothing changes, it returns the current position. There is no "push to the front of the priority group" in the first version.
+- **Un-prioritize:** sets `team_prio = null`. The job returns to its position by its original `team_seq`.
+- **Prioritizing does not interrupt a running job,** does not duplicate a job, does not raise a ceiling, does not call a model.
 
-**Ví dụ bắt buộc.** A đang chạy; B, C đang chờ (`team_seq` của B nhỏ hơn C). Chủ bấm Ưu tiên C:
-- C nhận `team_prio = 1`; thứ tự chờ thành C, B.
-- A chạy tiếp, không bị ngắt.
-- A xong thì C chạy, rồi B.
-- A không chạy lại; C không chen ngang A.
+**Mandatory example.** A is running; B and C are waiting (B's `team_seq` is smaller than C's). The owner taps Prioritize on C:
+- C gets `team_prio = 1`; the waiting order becomes C, B.
+- A keeps running, not interrupted.
+- When A finishes, C runs, then B.
+- A does not run again; C does not cut in on A.
 
-### 8.3 Ai được chạy tiếp
+### 8.3 Who runs next
 
-Bộ điều phối nhóm mới, `team_runner.dispatch`, chạy trong vòng 5 giây của Kanban và cũng được gọi khi có sự kiện. Với mỗi nhóm `active` không có việc `team_running` (hay còn chỗ song song):
-- lấy việc đầu hàng;
-- nhận việc bằng một giao dịch `BEGIN IMMEDIATE`: kiểm không có việc khác đang chạy trong nhóm, kiểm `queue_version` chưa đổi, đặt `team_running`, ghi `task_runs`.
+The new team dispatcher, `team_runner.dispatch`, runs in the Kanban 5-second loop and is also called on events. For each `active` team with no `team_running` job (or with a free parallel slot):
+- take the job at the head of the queue;
+- claim the job in one `BEGIN IMMEDIATE` transaction: check that no other job is running in the team, check that `queue_version` has not changed, set `team_running`, write `task_runs`.
 
-Việc nhóm **không phụ thuộc công tắc "AI tự vận hành"** của bảng Kanban: việc nhóm là việc chủ giao rõ. Công tắc riêng của nhóm là Tạm dừng nhóm (`teams.status=paused`).
+A team job **does not depend on the "AI self-driving" switch** of the Kanban board: a team job is a job the owner explicitly handed out. The team's own switch is Pause team (`teams.status=paused`).
 
-**Pool chạy:**
-- việc nhóm dùng pool riêng `team_max_parallel` (mặc định 2 nhóm cùng lúc trên cả máy), không lấy chỗ của Kanban;
-- lượt trò chuyện không vào pool này, chỉ đợi khoá bận của agent.
+**Run pool:**
+- team jobs use their own pool `team_max_parallel` (default 2 teams at once on the whole machine), and do not take Kanban's slots;
+- chat turns do not enter this pool, they only wait for the agent's busy lock.
 
-### 8.4 Bị chặn, lỗi, chờ người dùng
+### 8.4 Blocked, errors, waiting for the user
 
-- **Việc bị chặn rời chỗ chạy**, và hàng đi tiếp. Nhóm không bao giờ kẹt vì một việc chờ vô hạn.
-- **Việc bị chặn hiện ở mục "Bị chặn/chờ anh"**, có lý do bằng chữ và nút phù hợp: Trả lời, Chạy lại bước, Giao lại, Huỷ.
-- **Huy hiệu số việc chờ anh** hiện trên dòng nhóm trong danh sách nhóm. Mỗi lần một việc bị chặn có một tin vào hộp thư (chuông).
-- **Khi được gỡ chặn** (chủ trả lời, chạy lại), việc về `team_queued` với `team_seq` và `team_prio` cũ. Nó vẫn đứng đúng chỗ cũ, thường là đầu hàng vì vào sớm.
-- **Nhắc lại:** việc chờ chủ quá 24 giờ có một tin nhắc (không gọi model). Không tự huỷ.
+- **A blocked job leaves the run slot**, and the queue moves on. A team is never stuck because of one job waiting forever.
+- **A blocked job shows in the "Blocked/waiting for you" section**, with a reason in words and fitting buttons: Reply, Rerun step, Reassign, Cancel.
+- **A badge with the number of jobs waiting for you** shows on the team row in the team list. Each time a job is blocked, one message goes to the inbox (the bell).
+- **When unblocked** (the owner replies, reruns), the job returns to `team_queued` with its old `team_seq` and `team_prio`. It still stands in its old place, usually the head of the queue because it joined early.
+- **Reminder:** a job waiting on the owner for more than 24 hours gets one reminder message (no model call). It is not cancelled automatically.
 
-### 8.5 Hai tab cùng đổi, điều phối vừa nhận việc
+### 8.5 Two tabs change at once, the dispatcher just claimed a job
 
-- Mọi thao tác hàng đợi (ưu tiên, bỏ ưu tiên, huỷ việc chờ) gửi kèm `expected_queue_version`.
-- Server dùng CAS trong cùng giao dịch với bước nhận việc. Sai version thì trả 409 kèm hàng đợi mới; giao diện vẽ lại theo trạng thái thật và báo "Hàng đợi vừa thay đổi".
-- Nếu bộ điều phối đã nhận B ngay trước lúc lệnh ưu tiên C được ghi, B là việc đang chạy, C đứng đầu hàng chờ. Giao diện hiện đúng như vậy. Không có trạng thái nào mà hai việc cùng chạy trong một nhóm.
+- Every queue operation (prioritize, un-prioritize, cancel a waiting job) sends `expected_queue_version`.
+- The server uses CAS in the same transaction as the claim step. A wrong version returns 409 with the new queue; the UI redraws from the real state and says "The queue just changed".
+- If the dispatcher claimed B right before the Prioritize C command was written, B is the running job and C is at the head of the waiting queue. The UI shows exactly that. There is no state in which two jobs run in the same team at once.
 
 ### 8.6 Restart
 
-| Lúc restart | Sau khi khởi động lại |
+| At restart | After starting again |
 |---|---|
-| Việc `team_running` có bước chưa tới mốc gọi engine | Bước về chờ, hoàn lượt; việc tiếp tục ở bước đó |
-| Bước đã gọi engine mà chưa kết thúc | Bước thành `interrupted`, lượt tính một lần; việc vào `team_blocked`, lý do `interrupted`, nút "Chạy lại bước". **Không tự chạy lại**, để tránh trả tiền hai lần |
-| Việc chờ | Giữ nguyên thứ tự |
+| A `team_running` job whose step has not reached the engine-call mark | The step goes back to waiting, the turn is refunded; the job continues at that step |
+| A step that called the engine but did not finish | The step becomes `interrupted`, the turn is counted once; the job goes to `team_blocked` with reason `interrupted`, button "Rerun step". **It does not rerun by itself**, to avoid paying twice |
+| Waiting jobs | Keep their order |
 
-- Hàng đợi và thứ tự lưu trong `kanban.sqlite3`, nên còn nguyên qua F5, nối lại và restart.
-- Lease 90 giây của Kanban được dùng cho việc `team_running`. Hàm thu hồi riêng `team_reclaim` xử lý như bảng trên.
+- The queue and the order are stored in `kanban.sqlite3`, so they survive F5, reconnects and restarts.
+- Kanban's 90-second lease is used for `team_running` jobs. A separate reclaim function `team_reclaim` handles things as in the table above.
 
-### 8.7 Cùng agent bận ở nhiều nhóm
+### 8.7 The same agent busy in many teams
 
-- **Khoá bận theo agent** (`agent_busy`, mặc định một lượt mỗi agent cùng lúc trên cả máy, D3).
-  - Lý do: tránh hai lượt cùng ghi `MEMORY.md` của agent, và tránh lẫn mạch.
-  - Khoá có lease, nhịp làm mới như Kanban.
-- Khi việc ở nhóm X cần agent đang bận ở nhóm Y:
-  - bước ở X chờ khoá, không mất chỗ trong việc;
-  - giao diện nhóm X hiện "<Tên> đang làm ở nhóm Y";
-  - khoá nhả theo thứ tự xin (FIFO theo thời điểm xin), nên không nhóm nào bị bỏ quên.
-- Chờ quá 30 phút thì việc vào `team_blocked`, lý do `agent_busy_long`, để chủ thấy và quyết.
-- Chat riêng 1:1 với agent và mục tiêu Cộng hưởng của agent **không** lấy khoá này ở T1, vì chúng có cơ chế riêng. Tài liệu ghi rõ đây là giới hạn: một agent vẫn có thể cùng lúc chạy một lượt nhóm và một lượt chat riêng.
+- **Per-agent busy lock** (`agent_busy`, default one turn per agent at a time on the whole machine, D3).
+  - Reason: avoid two turns writing the agent's `MEMORY.md` at once, and avoid mixing threads.
+  - The lock has a lease, with a renewal heartbeat like Kanban.
+- When a job in team X needs an agent that is busy in team Y:
+  - the step in X waits for the lock, without losing its place in the job;
+  - team X's UI shows "<Name> is working in team Y";
+  - the lock is released in request order (FIFO by request time), so no team is forgotten.
+- After waiting more than 30 minutes the job goes to `team_blocked` with reason `agent_busy_long`, so the owner sees it and decides.
+- A private 1:1 chat with the agent and the agent's Resonance goals **do not** take this lock in T1, because they have their own mechanisms. The docs state this is a limitation: an agent can still run a team turn and a private chat turn at the same time.
 
-## 9. Một lượt của thành viên
+## 9. A member's turn
 
-### 9.1 Đường chạy
+### 9.1 Run path
 
-1. **Giữ chỗ:**
-   - ghi `team_turns` (`reserved`);
-   - lấy khoá `agent_busy`;
-   - kiểm trần của việc và của nhóm;
-   - kiểm thành viên còn `active`, việc còn đúng revision.
-2. **Dựng engine:** dùng đường chat của agent như hiện nay (`_chat_provider_for_session` với mạch thành viên). Model theo mục 12.1.
-3. **Lời nhắc:**
-   - lời nhắc hệ thống của agent (`_agent_sysprompt`: vai, bộ nhớ, luật chủ dặn, bài học);
-   - khối nhóm (mục 11.2);
-   - khối phản hồi (mục 14.4).
-4. **Mốc gọi engine:** ghi `engine_at` ngay trước lời gọi. Lỗi trước mốc thì hoàn lượt (`refunded`).
-5. **Công cụ:**
-   - bộ công cụ của agent như chat riêng, cộng `javis_team`;
-   - `javis_task` ẩn trong lượt nhóm, vì giao việc nền trong nhóm đi qua `javis_team`, một chỗ;
-   - `javis_goal` chỉ có khi agent bật Cộng hưởng.
-6. **Kết thúc:**
-   - kiểm lại thành viên, revision, việc chưa huỷ, trưởng nhóm chưa đổi (nếu là lượt điều phối);
-   - đủ điều kiện thì đăng tin vào phiên `team:` với tác giả là agent, `applied=1`;
-   - không đủ thì đăng với nhãn đến muộn, `applied=0`;
-   - ghi token và chi phí; nhả khoá;
-   - `_ket_luot_agent` xử lý `JAVIS_LESSON` / `JAVIS_RULE` như hiện nay: luật chỉ ghi khi chính chủ nói trong lượt đó.
+1. **Reserve:**
+   - write `team_turns` (`reserved`);
+   - take the `agent_busy` lock;
+   - check the ceilings of the job and of the team;
+   - check that the member is still `active` and the job is still at the right revision.
+2. **Build the engine:** use the agent's chat path as today (`_chat_provider_for_session` with the member thread). Model per section 12.1.
+3. **Prompt:**
+   - the agent's system prompt (`_agent_sysprompt`: role, memory, the owner's standing rules, lessons);
+   - the team block (section 11.2);
+   - the feedback block (section 14.4).
+4. **Engine-call mark:** write `engine_at` right before the call. An error before the mark refunds the turn (`refunded`).
+5. **Tools:**
+   - the agent's toolset as in private chat, plus `javis_team`;
+   - `javis_task` is hidden in team turns, because assigning background work inside a team goes through `javis_team`, in one place;
+   - `javis_goal` exists only when the agent has Resonance on.
+6. **Finish:**
+   - re-check the member, the revision, that the job is not cancelled, that the team leader has not changed (for a coordination turn);
+   - if all conditions hold, post the message into the `team:` session with the agent as author, `applied=1`;
+   - if not, post it with the late label, `applied=0`;
+   - record tokens and cost; release the lock;
+   - `_ket_luot_agent` handles `JAVIS_LESSON` / `JAVIS_RULE` as today: a rule is only written when the owner themselves said it in that turn.
 
-### 9.2 Kết quả dễ hiểu
+### 9.2 Readable results
 
-Mỗi tin của agent trong việc hiện:
-- tên và ảnh agent;
-- nhãn việc (bấm được);
-- vai trong việc (Lập kế hoạch, Làm, Hỗ trợ, Tổng hợp);
-- trạng thái (Đang làm, Xong, Lỗi, Đến muộn, Theo yêu cầu cũ).
+Each agent message within a job shows:
+- the agent's name and picture;
+- the job label (tappable);
+- the role in the job (Planning, Working, Helping, Summary);
+- the status (Working, Done, Error, Late, Per old request).
 
-Bản tổng hợp cuối có nhãn "Kết quả việc".
+The final summary carries the label "Job result".
 
-## 10. Công tắc Cộng hưởng trên từng trợ lý
+## 10. The Resonance switch on each assistant
 
-### 10.1 Vị trí
+### 10.1 Location
 
-- **Mỗi dòng trợ lý ở cột trái trang Cộng sự** (`workspace.js` `mucHtml`):
-  - chữ "Cộng hưởng: Bật" hay "Cộng hưởng: Tắt", và một công tắc có nhãn cho trình đọc màn hình (không chỉ dựa vào màu);
-  - agent `missing` hiện "Cần xác nhận" và một liên kết mở cột phải, nơi có hai nút xác nhận như hiện nay.
-- `GET /agents?prompt=0` trả thêm `resonance: {enabled, status, registered}`, nối với sổ danh tính trong một lần đọc. Không gọi thêm request cho từng dòng.
-- **Cột phải** (bảng Cộng hưởng của agent): giữ ô Người review, mục tiêu, bài học, các nút xác nhận. Công tắc trong bảng này **được bỏ**, để không có hai công tắc cho cùng một agent trên cùng màn.
-- **Trang Cài đặt:**
-  - bỏ danh sách công tắc theo agent;
-  - thay bằng một dòng tóm tắt "N trợ lý đang bật Cộng hưởng · Quản lý ở trang Cộng sự", kèm liên kết;
-  - giữ các công cụ chung đang có: mục tiêu mồ côi, gán mục tiêu chưa có chủ, ghi chú công tắc brain cũ.
-- **Danh sách thành viên trong cài đặt nhóm:** hiện cùng trạng thái. Đổi tại đây dùng **đúng route** `POST /resonance/agents/toggle`, cùng quyền chủ.
+- **Each assistant row in the left column of the Partners page** (`workspace.js` `mucHtml`):
+  - the text "Resonance: On" or "Resonance: Off", and a switch with a label for screen readers (not relying on color alone);
+  - a `missing` agent shows "Needs confirmation" and a link that opens the right column, where the two confirm buttons are as today.
+- `GET /agents?prompt=0` also returns `resonance: {enabled, status, registered}`, joined with the identity ledger in one read. No extra request per row.
+- **The right column** (the agent's Resonance panel): keeps the Reviewer field, goals, lessons and the confirm buttons. The switch in this panel is **removed**, so there are not two switches for the same agent on the same screen.
+- **Settings page:**
+  - remove the per-agent switch list;
+  - replace it with one summary line "N assistants have Resonance on · Manage on the Partners page", with a link;
+  - keep the existing shared tools: orphan goals, assigning ownerless goals, the note about the old brain switch.
+- **Member list in the team settings:** shows the same status. Changing it here uses **exactly the same route** `POST /resonance/agents/toggle`, with the same owner permission.
 
-### 10.2 Hành vi
+### 10.2 Behavior
 
-- **Gửi và chờ:** gửi `{slug, enabled}`; công tắc ở trạng thái "đang lưu" cho tới khi server trả lời.
-  - Chỉ báo thành công khi server xác nhận.
-  - Lỗi hay 409 thì tải lại `GET /resonance/agents` và vẽ theo trạng thái thật (sửa lỗi hiện tại: 409 chỉ hiện chữ).
-- **Đồng bộ hai tab:**
-  - sau mỗi lần đổi, phát sự kiện `javis:resonance-agents-changed` trong tab;
-  - server phát gói `{"type":"resonance_agents"}` qua WebSocket để tab khác tải lại.
-- **Tắt agent đang có việc:** hộp xác nhận nêu tác động thật:
-  - số mục tiêu Cộng hưởng đang mở sẽ dừng ở bước kế tiếp (hợp đồng A1);
-  - các nhóm agent đang tham gia;
-  - "việc nhóm không bị dừng bởi công tắc này; muốn dừng việc nhóm thì huỷ ở cài đặt nhóm".
-- **Giữ luồng `missing`, xác nhận danh tính, "cần mở phiên mới" của A1.** Công tắc trên dòng không gửi `session_id`. Khi server trả trạng thái cần phiên mới, cột phải hiện nút như hiện nay.
-- **Agent không bao giờ tự bật Cộng hưởng.** Riêng ở Toàn quyền, trưởng nhóm bật hay tắt được agent do nhóm quản lý, qua cùng hàm của kho với `by=leader:<key>` và ghi sự kiện (mục 13.3). Agent khác vẫn chỉ chủ đổi được.
+- **Send and wait:** send `{slug, enabled}`; the switch stays in a "saving" state until the server answers.
+  - Show success only when the server confirms.
+  - On an error or 409, reload `GET /resonance/agents` and redraw from the real state (fixes the current bug: a 409 only shows text).
+- **Two-tab sync:**
+  - after every change, fire the event `javis:resonance-agents-changed` within the tab;
+  - the server broadcasts a packet `{"type":"resonance_agents"}` over WebSocket so other tabs reload.
+- **Turning off an agent that has work:** the confirmation box states the real impact:
+  - the number of open Resonance goals that will stop at their next step (A1 contract);
+  - the teams the agent takes part in;
+  - "team jobs are not stopped by this switch; to stop team jobs, cancel them in the team settings".
+- **Keep the A1 `missing` flow, identity confirmation and "needs a new session".** The switch on the row does not send `session_id`. When the server returns a state that needs a new session, the right column shows the button as today.
+- **An agent never turns on Resonance by itself.** Only under Full access, the team leader can turn a team-managed agent on or off, through the same store function with `by=leader:<key>` and logging an event (section 13.3). Other agents can still only be changed by the owner.
 
-### 10.3 Agent chưa bật Cộng hưởng làm được gì
+### 10.3 What an agent without Resonance can do
 
-| Việc | Chưa bật | Đã bật |
+| Activity | Off | On |
 |---|---|---|
-| Trò chuyện trong nhóm, trả lời khi được @ | Có | Có |
-| Làm bước trong việc nhóm (lượt chat có công cụ của agent) | Có | Có |
-| Là trưởng nhóm | Có | Có |
-| Tạo và theo đuổi mục tiêu Cộng hưởng (`javis_goal`), bàn giao sản phẩm theo A4 | Không | Có; báo cáo của goal tạo trong lượt nhóm về đúng phiên `team:` đó |
-| Là reviewer A5 | Không | Có |
+| Chat in the team, reply when @-mentioned | Yes | Yes |
+| Do a step in a team job (the agent's chat turn with tools) | Yes | Yes |
+| Be the team leader | Yes | Yes |
+| Create and pursue Resonance goals (`javis_goal`), hand over products per A4 | No | Yes; the report of a goal created in a team turn goes back to that same `team:` session |
+| Be an A5 reviewer | No | Yes |
 
-Tư cách thành viên **không** tự cấp quyền Cộng hưởng.
+Membership does **not** grant Resonance permission by itself.
 
-## 11. Danh tính, quyền và ngữ cảnh
+## 11. Identity, permissions and context
 
-### 11.1 Nhóm và brain
+### 11.1 Team and brain
 
-- Mỗi nhóm thuộc đúng một brain (`teams.brain_id`). Thành viên phải là agent của brain đó.
-- Đổi brain trên dashboard thì danh sách nhóm đổi theo.
-- Quyền đọc, ghi file của agent trong lượt nhóm **giống hệt** trong chat riêng: tư cách thành viên không thêm quyền file nào.
+- Each team belongs to exactly one brain (`teams.brain_id`). Members must be agents of that brain.
+- Changing the brain on the dashboard changes the team list with it.
+- The agent's file read and write permissions in a team turn are **exactly the same** as in private chat: membership adds no file permission.
 
-### 11.2 Khối ngữ cảnh nhóm
+### 11.2 The team context block
 
-Khối nhóm do code dựng, không gọi model:
-- tên, mô tả nhóm;
-- danh sách thành viên (tên, vai, có phải trưởng nhóm);
-- vai của chính agent trong lượt này;
-- việc hiện tại: tóm tắt, revision, bước, brief, đầu vào (theo `input_refs`);
-- **tin mới trong nhóm kể từ lượt trước của chính agent ở nhóm này**, tối đa 20 tin và 8.000 ký tự. Mạch resume của agent giữ phần cũ hơn.
-- **"Sổ quyết định" của nhóm:** các tin chủ ghim là quyết định (nút "Ghim làm quyết định"), tối đa 20 dòng. Lịch sử dài vẫn giữ yêu cầu và quyết định mà không phải gửi lại toàn bộ.
+The team block is built by code, with no model call:
+- the team's name and description;
+- the member list (name, role, whether it is the team leader);
+- the agent's own role in this turn;
+- the current job: summary, revision, step, brief, inputs (per `input_refs`);
+- **new messages in the team since this agent's own previous turn in this team**, at most 20 messages and 8,000 characters. The agent's resume thread keeps anything older.
+- **The team's "decision log":** messages the owner pinned as decisions (the "Pin as decision" button), at most 20 lines. A long history still keeps the request and the decisions without resending everything.
 
-Khối nhóm **không** gồm:
-- hội thoại riêng của chủ;
-- dữ liệu của nhóm khác;
-- `CLAUDE.md` và bộ nhớ của chủ (giống chat agent hiện nay);
-- bí mật cấu hình.
+The team block does **not** include:
+- the owner's private conversations;
+- data of other teams;
+- `CLAUDE.md` and the owner's memory (same as today's agent chat);
+- configuration secrets.
 
-**Bộ nhớ dùng chung và bộ nhớ riêng:**
-- **Chung:** `memory/agents/<slug>/MEMORY.md` thuộc agent, dùng ở mọi nhóm. Bài học tự học ở nhóm X có thể ảnh hưởng nhóm Y; thiết kế chấp nhận và ghi rõ.
-- **Riêng:** ngữ cảnh từng nhóm nằm ở phiên `team:` và mạch thành viên.
+**Shared memory and private memory:**
+- **Shared:** `memory/agents/<slug>/MEMORY.md` belongs to the agent and is used in every team. A lesson self-learned in team X may affect team Y; the design accepts this and says so.
+- **Private:** each team's context lives in the `team:` session and the member thread.
 
-### 11.3 Ai chịu trách nhiệm, kết quả về đâu
+### 11.3 Who is responsible, where results go
 
-| Câu hỏi | Trả lời |
+| Question | Answer |
 |---|---|
-| Ai chịu trách nhiệm cuối cho việc nhóm | Trưởng nhóm điều phối (`coordinator_key`) với việc chung; người được giao với việc @ trực tiếp. Chủ nhóm quyết nghiệm thu |
-| Ai chịu trách nhiệm cuối cho goal | Như A1: agent sở hữu goal. Goal tạo trong lượt nhóm có `origin` là phiên `team:` đó, nên báo cáo về đúng nhóm |
-| Kết quả, thông báo đi đâu | Phiên `team:` của nhóm; việc bị chặn có thêm tin vào hộp thư |
+| Who is ultimately responsible for a team job | The coordinating team leader (`coordinator_key`) for general jobs; the assignee for jobs addressed directly with @. The team owner decides acceptance |
+| Who is ultimately responsible for a goal | As in A1: the agent that owns the goal. A goal created in a team turn has its `origin` set to that `team:` session, so its report goes back to the right team |
+| Where results and notifications go | The team's `team:` session; a blocked job also sends a message to the inbox |
 
-### 11.4 Dừng, huỷ, tắt, thu hồi
+### 11.4 Stop, cancel, turn off, revoke
 
-| Lệnh của chủ | Tác động |
+| Owner command | Effect |
 |---|---|
-| Tạm dừng nhóm | Không bắt đầu việc mới hay lượt trò chuyện mới. Lượt đang chạy chạy hết, kết quả áp dụng nếu còn đúng. Việc đang chạy giữ `team_running` và dừng ở điểm điều phối kế tiếp |
-| Huỷ việc | Mục 7.6 |
-| Bỏ thành viên, đổi trưởng nhóm | Mục 6.3, 6.4 |
-| Tắt Cộng hưởng của agent | Chỉ ảnh hưởng goal (hợp đồng A1). Việc nhóm không đổi |
-| Thu hồi Toàn quyền | Mục 13.5 |
-| Xoá agent | Mã thành `retired`; thành viên thành `agent_gone`; xử lý như bỏ thành viên |
-| Lưu trữ nhóm | Như tạm dừng, cộng huỷ mọi việc chờ; lịch sử giữ, đọc được |
+| Pause team | No new jobs or new chat turns start. Running turns run to the end, and their results are applied if still correct. A running job keeps `team_running` and stops at the next coordination point |
+| Cancel job | Section 7.6 |
+| Remove a member, change the team leader | Sections 6.3, 6.4 |
+| Turn off an agent's Resonance | Only affects goals (A1 contract). Team jobs do not change |
+| Revoke Full access | Section 13.5 |
+| Delete an agent | The key becomes `retired`; the member becomes `agent_gone`; handled like removing a member |
+| Archive the team | Like pause, plus cancel every waiting job; history is kept and readable |
 
-**Phần đã cam kết ghi hay đăng** đi theo hợp đồng A4: bản đã cam kết đăng vẫn hoàn tất; bản chưa cam kết thì hết hiệu lực.
+**Parts already committed to write or post** follow the A4 contract: a version already committed to post still completes; a version not yet committed expires.
 
-## 12. Model, hạn mức và phục hồi
+## 12. Model, quota and recovery
 
-### 12.1 Model cho từng loại lượt
+### 12.1 Model for each kind of turn
 
-| Lượt | Model |
+| Turn | Model |
 |---|---|
-| Lượt trò chuyện, lập kế hoạch, làm, hỗ trợ, tổng hợp trong nhóm | Đường chat của agent: dùng `model` + `model_provider` của agent khi có đủ; không đủ thì model chính |
-| Mục tiêu Cộng hưởng (cả cặp A5) | Model việc nền chung, chỉ chữ, như A1 tới A5. Không đổi |
-| Việc Kanban thường | Như hiện nay (aux) |
+| Chat, planning, working, helping and summary turns in a team | The agent's chat path: use the agent's `model` + `model_provider` when both are present; otherwise the main model |
+| Resonance goals (including the A5 pair) | The shared background-work model, text-only, as in A1 to A5. Unchanged |
+| Ordinary Kanban jobs | As today (aux) |
 
-Trong lượt nhóm, model của agent được đọc từ file agent **mỗi lượt**, không ghim theo phiên. Lý do: mạch thành viên là phiên ẩn, ảnh chụp lúc tạo phiên sẽ cũ.
+In a team turn, the agent's model is read from the agent file **on every turn**, not pinned per session. Reason: the member thread is a hidden session, and a snapshot taken when the session was created would go stale.
 
-**Không hứa quá:**
-- Provider của agent thiếu khoá thì lượt dùng model chính và ghi rõ trong sổ lượt.
-- Grok và Antigravity hiện không ghi usage (biên bản mục 4); sổ lượt nhóm vẫn đếm lượt, nhưng token để trống.
+**Do not promise too much:**
+- If the agent's provider is missing a key, the turn uses the main model and says so in the turn ledger.
+- Grok and Antigravity do not record usage today (audit report section 4); the team turn ledger still counts turns, but leaves tokens empty.
 
-### 12.2 Tính lượt
+### 12.2 Counting turns
 
-- **Một dòng `team_turns` cho mỗi lời gọi model**, có vai (`role`), việc, bước, agent, engine, model, token, chi phí.
-- **Trước mốc `engine_at`:** lỗi thì `refunded`, không tính.
-- **Sau mốc:** tính, kể cả lỗi, hết giờ hay bị huỷ.
-- **Restart giữa chừng:** `interrupted`, tính một lần, không tự chạy lại.
-- **Cài đặt nhóm, tab Lượt:** lượt và token theo việc, theo agent, theo ngày.
-- Màn usage chung chưa nhận các lượt này (việc riêng đã ghi).
+- **One `team_turns` row per model call**, with role (`role`), job, step, agent, engine, model, tokens, cost.
+- **Before the `engine_at` mark:** an error means `refunded`, not counted.
+- **After the mark:** counted, including errors, timeouts or cancels.
+- **Restart midway:** `interrupted`, counted once, not rerun automatically.
+- **Team settings, Turns tab:** turns and tokens by job, by agent, by day.
+- The shared usage screen does not yet receive these turns (a separate item is recorded).
 
-### 12.3 Trần mặc định (Quyền giới hạn)
+### 12.3 Default ceilings (Limited access)
 
-| Trần | Mặc định | Đơn vị |
+| Ceiling | Default | Unit |
 |---|---|---|
-| Lượt model mỗi việc | 12 | việc |
-| Bước mỗi việc | 8 | việc |
-| Độ sâu nhờ hỗ trợ | 2 | việc |
-| Nhờ ngược trong một việc | 0 (chặn) | việc |
-| Lượt không tiến triển liên tiếp | 2 | bước |
-| @ mỗi tin | 3 | tin |
-| Lượt model mỗi nhóm mỗi ngày | 100 | nhóm |
-| Việc đang chạy mỗi nhóm | 1 | nhóm |
-| Nhóm chạy việc cùng lúc trên cả máy | 2 | máy |
-| Lượt cùng lúc của một agent | 1 | agent |
-| Chờ khoá bận trước khi báo chặn | 30 phút | việc |
+| Model turns per job | 12 | job |
+| Steps per job | 8 | job |
+| Help depth | 2 | job |
+| Asking back within a job | 0 (blocked) | job |
+| Consecutive no-progress turns | 2 | step |
+| @ per message | 3 | message |
+| Model turns per team per day | 100 | team |
+| Running jobs per team | 1 | team |
+| Teams running jobs at once on the whole machine | 2 | machine |
+| Simultaneous turns of one agent | 1 | agent |
+| Wait for the busy lock before reporting blocked | 30 minutes | job |
 
-- **Trần lượt mỗi nhóm mỗi ngày** tính mọi lượt của nhóm, kể cả lượt trò chuyện. Chạm trần thì tin trò chuyện vẫn được lưu nhưng không có lượt trả lời; nhóm hiện "Nhóm đã dùng hết N lượt hôm nay".
-- **Chạm trần của việc:** việc vào `team_blocked`, lý do `cap_reached`, nói rõ trần nào. Chủ chọn Cho thêm lượt (chỉ chủ ở chế độ giới hạn) hay Huỷ.
-- **Không vượt trần bằng cách tạo thêm việc:**
-  - lượt của mọi việc cộng vào trần ngày của nhóm;
-  - trưởng nhóm ở chế độ giới hạn không tự mở việc;
-  - nhờ hỗ trợ là bước trong cùng việc, cộng vào trần của việc đó.
-- **Agent không tự nâng trần hay đổi provider.**
+- **The per-team daily turn ceiling** counts every turn of the team, including chat turns. When the ceiling is hit, chat messages are still saved but get no reply turn; the team shows "The team has used all N turns today".
+- **Hitting a job's ceiling:** the job goes to `team_blocked` with reason `cap_reached`, naming which ceiling. The owner chooses Allow more turns (only the owner in limited mode) or Cancel.
+- **A ceiling cannot be bypassed by creating more jobs:**
+  - the turns of every job add up to the team's daily ceiling;
+  - a team leader in limited mode does not open jobs by itself;
+  - asking for help is a step within the same job, and adds to that job's ceiling.
+- **An agent does not raise a ceiling or change provider by itself.**
 
-### 12.4 Chống trùng và đầu ra lỗi thời
+### 12.4 Duplicate prevention and stale output
 
-| Tình huống | Cách chặn |
+| Situation | How it is blocked |
 |---|---|
-| Gửi lại tin sau rớt mạng | `client_msg_id` UNIQUE trong phiên; trùng thì trả tin cũ và không tạo lượt |
-| Giao việc trùng | Khoá việc là `source_ref` |
-| Bước chạy trùng | `team_steps` CAS `queued` thành `running`; mỗi bước tối đa một lượt `running` |
-| Nối lại WebSocket | Lượt là job của server; nối lại không tạo lượt |
-| Đầu ra muộn | Mục 9.1 bước 6: kiểm thành viên, revision, huỷ, trưởng nhóm trước khi áp dụng |
+| Resending a message after a network drop | `client_msg_id` is UNIQUE in the session; a duplicate returns the old message and creates no turn |
+| Duplicate job assignment | The job key is `source_ref` |
+| A step running twice | `team_steps` CAS `queued` to `running`; at most one `running` turn per step |
+| WebSocket reconnect | A turn is a server job; reconnecting creates no turn |
+| Late output | Section 9.1 step 6: check member, revision, cancel, team leader before applying |
 
-### 12.5 Hiệu năng
+### 12.5 Performance
 
-- Danh sách nhóm phân trang (50 dòng mỗi trang), kèm số việc chờ anh. Đếm bằng chỉ mục, không tải việc của mọi nhóm.
-- Khung chat dùng phân trang theo con trỏ đang có (30 tin, tối đa 200).
-- Mở một nhóm chỉ tải: 30 tin mới nhất, việc đang chạy, 20 việc chờ đầu, 20 việc bị chặn, thành viên. Lịch sử việc tải khi mở tab Lịch sử.
-- Mọi I/O SQLite chạy trong luồng phụ như các kho hiện có, không chặn vòng sự kiện.
-- **Đo:**
-  - API: thời gian `GET /teams`, `GET /teams/{id}`, `GET /teams/{id}/queue` với 50 nhóm và 5.000 tin;
-  - trình duyệt: thời gian vẽ khung chat 200 tin;
-  - ghi rõ máy đo. Số trên máy local hay sandbox không phải bằng chứng VPS.
+- The team list is paginated (50 rows per page), with the number of jobs waiting for you. Counted by index, without loading the jobs of every team.
+- The chat uses the existing cursor pagination (30 messages, at most 200).
+- Opening a team loads only: the 30 newest messages, the running job, the first 20 waiting jobs, 20 blocked jobs, the members. Job history loads when the History tab opens.
+- All SQLite I/O runs in a worker thread like the existing stores, without blocking the event loop.
+- **Measure:**
+  - API: time of `GET /teams`, `GET /teams/{id}`, `GET /teams/{id}/queue` with 50 teams and 5,000 messages;
+  - browser: time to draw a 200-message chat;
+  - state which machine measured. A number from a local or sandbox machine is not evidence for the VPS.
 
-## 13. Trưởng nhóm Toàn quyền
+## 13. Full access team leader
 
-### 13.1 Bật, tắt, phạm vi
+### 13.1 Turning on and off, scope
 
-- Chủ bật "Toàn quyền cho trưởng nhóm" trong cài đặt nhóm. Bật xong lưu một dòng `team_authority`.
-- **Trưởng nhóm không tự nâng mình lên Toàn quyền.** Không công cụ nào đổi được `leader_mode`.
-- **Hộp cấp quyền ghi rõ:**
-  - phạm vi: trong nhóm này;
-  - các agent nhóm được quản lý;
-  - provider và model được dùng (chọn từ provider đã cấu hình; không thêm tài khoản hay thông tin đăng nhập);
-  - nguồn thanh toán: gói thuê bao hay API trả phí;
-  - các trần (mục 13.2);
-  - có cho "Được ngắt việc đang chạy" hay không (mặc định không);
-  - có cho duyệt phạm vi ghi trong thư mục nhóm hay không (D4).
-- **Đổi trưởng nhóm thì Toàn quyền không chuyển theo.** Nhóm về Quyền giới hạn cho tới khi chủ bật lại cho trưởng nhóm mới.
+- The owner turns on "Full access for the team leader" in the team settings. After turning it on, one `team_authority` row is saved.
+- **The team leader does not raise itself to Full access.** No tool can change `leader_mode`.
+- **The grant box states clearly:**
+  - scope: within this team;
+  - the agents the team manages;
+  - the providers and models that may be used (chosen from already configured providers; no account or credentials are added);
+  - the payment source: a subscription plan or a paid API;
+  - the ceilings (section 13.2);
+  - whether "Can interrupt running jobs" is allowed (default no);
+  - whether approving write scopes inside the team folder is allowed (D4).
+- **When the team leader changes, Full access does not carry over.** The team goes back to Limited access until the owner turns it on again for the new team leader.
 
-### 13.2 Trần ở Toàn quyền
+### 13.2 Ceilings under Full access
 
-- Mỗi trần ở mục 12.3 có ba trạng thái: **số**, **Không giới hạn**, hay **Theo mặc định**.
-- "Không giới hạn" lưu là `null` kèm cờ `unlimited=true`. Mã kiểm trần coi đó là không có trần, **không thay bằng một số lớn**.
-- **Chủ đặt trần trần (ceiling) cho từng mục.** Trưởng nhóm Toàn quyền đổi được trần của nhóm trong mức trần trần đó. Trần trần là "Không giới hạn" thì trưởng nhóm đặt được bất kỳ giá trị nào.
-- **Trần không bỏ được, luôn hiện trong hộp cấp quyền:**
-  - `JAVIS_RESONANCE_CALL_CEILING` do máy chủ đặt (chỉ ảnh hưởng goal);
-  - hạn mức của gói thuê bao hay của nhà cung cấp;
-  - quyền của tài khoản;
-  - giới hạn kỹ thuật (mục 13.6, nhóm c).
-- **Mục tiêu Cộng hưởng tạo bởi agent trong nhóm Toàn quyền** nhận trần của goal (lượt mỗi goal, chia vai A5, số vòng sửa) từ cài đặt nhóm thay cho hằng số. Cần sửa mã (mục 13.6). Cổng review A5 vẫn giữ.
+- Each ceiling in section 12.3 has three states: a **number**, **Unlimited**, or **Use default**.
+- "Unlimited" is stored as `null` with the flag `unlimited=true`. The ceiling-check code treats it as no ceiling and **does not replace it with a big number**.
+- **The owner sets a maximum (a ceiling on the ceiling) for each item.** A Full access team leader can change the team's ceilings within that maximum. If the maximum is "Unlimited", the team leader can set any value.
+- **Ceilings that cannot be removed, always shown in the grant box:**
+  - `JAVIS_RESONANCE_CALL_CEILING` set by the server (only affects goals);
+  - the quota of the subscription plan or of the provider;
+  - account permissions;
+  - technical limits (section 13.6, group c).
+- **Resonance goals created by an agent in a Full access team** take the goal ceilings (turns per goal, A5 role split, number of revision rounds) from the team settings instead of constants. This needs a code change (section 13.6). The A5 review gate stays.
 
-### 13.3 Cấu hình dùng chung của agent
+### 13.3 An agent's shared configuration
 
-Một agent có thể ở nhiều nhóm, nên đổi cấu hình chung (lời nhắc, model, Cộng hưởng) ảnh hưởng mọi nhóm.
+An agent can be in many teams, so changing the shared configuration (prompt, model, Resonance) affects every team.
 
-- **Agent do nhóm quản lý:** agent do trưởng nhóm Toàn quyền tạo, hoặc agent chủ đánh dấu "giao cho nhóm này quản lý". Mỗi agent tối đa một nhóm quản lý.
-  - Trưởng nhóm Toàn quyền sửa được lời nhắc, model (trong danh sách provider được cấp) và Cộng hưởng của agent này.
-  - Mọi thay đổi ghi `by=leader:<key>`, `team_id`.
-- **Agent không do nhóm quản lý:** trưởng nhóm không đổi được cấu hình chung (D5).
-- **Đổi cấu hình của agent đang ở nhóm khác:** hộp xác nhận (với chủ) hay tin báo (với trưởng nhóm) liệt kê các nhóm khác bị ảnh hưởng. Không âm thầm mở rộng quyền từ một nhóm sang mọi nhóm.
+- **Team-managed agent:** an agent created by a Full access team leader, or an agent the owner marks "assign to this team to manage". Each agent has at most one managing team.
+  - A Full access team leader can edit this agent's prompt, model (within the granted provider list) and Resonance.
+  - Every change is logged with `by=leader:<key>`, `team_id`.
+- **An agent not managed by the team:** the team leader cannot change the shared configuration (D5).
+- **Changing the configuration of an agent that is also in other teams:** a confirmation box (for the owner) or a notice (for the team leader) lists the other teams affected. Permissions are never silently widened from one team to every team.
 
-### 13.4 Toàn quyền và hàng đợi
+### 13.4 Full access and the queue
 
-- Trưởng nhóm Toàn quyền đổi được thứ tự các **việc chờ** (ưu tiên, bỏ ưu tiên), với cùng CAS như chủ.
-- **Quy tắc "việc đang làm chạy hết rồi mới nhận việc kế" giữ nguyên.** Ngắt hay huỷ việc đang chạy chỉ được khi chủ bật quyền riêng "Được ngắt việc đang chạy"; khi đó lý do ngắt ghi vào sự kiện và hiện trong nhóm.
+- A Full access team leader can change the order of **waiting jobs** (prioritize, un-prioritize), with the same CAS as the owner.
+- **The rule "the running job finishes before the next one is taken" stays.** Interrupting or cancelling a running job is allowed only when the owner turns on the separate permission "Can interrupt running jobs"; in that case the reason for interrupting is written into an event and shown in the team.
 
-### 13.5 Thu hồi
+### 13.5 Revoking
 
-Chủ thu hồi bất cứ lúc nào: tắt Toàn quyền, đổi trưởng nhóm hay dừng nhóm.
-- Ghi `revoked_at`. Mọi lời gọi `javis_team` sau mốc đó kiểm lại chế độ trong giao dịch và bị từ chối.
-- Lượt đang chạy của trưởng nhóm chạy hết. Hành động quản trị nó yêu cầu sau mốc thu hồi bị từ chối. Kết quả nội dung vẫn áp dụng nếu hợp lệ ở Quyền giới hạn.
-- Trần quay về mức của Quyền giới hạn. Việc đang chạy vượt trần mới vào `team_blocked`, lý do `cap_reached`, chờ chủ.
-- Agent do nhóm quản lý vẫn tồn tại; trưởng nhóm hết quyền sửa chúng.
+The owner can revoke at any time: turn off Full access, change the team leader, or stop the team.
+- Write `revoked_at`. Every `javis_team` call after that mark re-checks the mode inside the transaction and is refused.
+- The team leader's running turn runs to the end. Admin actions it requests after the revoke mark are refused. Content results are still applied if valid under Limited access.
+- Ceilings go back to the Limited access level. A running job that exceeds the new ceiling goes to `team_blocked` with reason `cap_reached`, waiting for the owner.
+- Team-managed agents still exist; the team leader loses the right to edit them.
 
-### 13.6 Bảng giới hạn hiện có và cách xử lý trong Toàn quyền
+### 13.6 Existing limits and how they are handled under Full access
 
-Nhóm: (a) trần sản phẩm, (b) bảo đảm toàn vẹn, (c) giới hạn kỹ thuật hay bên ngoài.
+Groups: (a) product ceiling, (b) integrity guarantee, (c) technical or external limit.
 
-| Giới hạn | Giá trị | Ở đâu | Nhóm | Trong Toàn quyền | Cần sửa mã? |
+| Limit | Value | Where | Group | Under Full access | Code change needed? |
 |---|---|---|---|---|---|
-| Lượt mỗi goal | 6 | `resonance.py:451`, `begin_action` CAS | a | Lấy theo cài đặt nhóm | Có: truyền `budget_calls` lúc tạo goal |
-| Lượt goal có đội, chia vai | 8, 4/4 | `resonance_store.py:311-312` | a | Theo cài đặt nhóm | Có: hằng số thành tham số khi gắn đội |
-| Số vòng sửa A5 | 2 | `resonance_store.py:313` | a | Theo cài đặt nhóm | Có |
-| Lượt review tính trên một bản ghim | 3 | `resonance_heartbeat.py:57` | a | Theo cài đặt nhóm | Có |
-| Thử lại, lùi, nhịp kiểm (15 phút, 1 h/4 h/24 h, 6 h tới 7 ngày) | | `resonance_heartbeat.py:28-38` | a | Giữ trong bản đầu | Có nếu muốn mở |
-| Không còn lệnh nâng ngân sách goal đã hết | | | a | Thêm lệnh "Cho thêm lượt" cho chủ, và cho trưởng nhóm Toàn quyền trong trần trần | Có |
-| Trần toàn máy `JAVIS_RESONANCE_CALL_CEILING` | env | `resonance_store.py:32-59` | a (cấp máy chủ) | Không bỏ; hiện trong hộp cấp quyền | Không |
-| Engine chỉ chữ cho goal | | `main._resonance_engine` | b | Giữ | Không |
-| Thư mục cấm đăng (`javis`, `plugins`, `skills`, `agents`, `workflows`, `memory`, dotfile) | | `resonance.py:2268-2280` | b | Giữ | Không |
-| Loại file sản phẩm `.md`/`.txt`, 1 MB | | `resonance.py:1025-1026` | b/a | Giữ trong bản đầu | Có nếu muốn mở |
-| Duyệt phạm vi ghi A4 trên thẻ | chỉ chủ | `approve_scope` | b | Chỉ thư mục nhóm nếu chủ chọn (D4) | Có: nguồn cấp mới `team_full` cho đúng thư mục |
-| Cổng review A5 | | `resonance_store.py:2425-2430` | b | Giữ; trưởng nhóm không bỏ được yêu cầu review | Không |
-| Một lượt chạy mỗi goal (lease), CAS, ghim hash, khoá idempotency | | | b | Giữ | Không |
-| Công tắc Cộng hưởng chỉ chủ | | `_owner_only` | b | Trưởng nhóm đổi được agent do nhóm quản lý | Có: `by=leader` và kiểm quản lý trong kho |
-| Kanban `max_workers` | 2 | `tasks.py:138` | a/c | Không áp cho việc nhóm (pool riêng) | Có |
-| Kanban gộp việc cùng tiêu đề | | `task_store.enqueue` | a | Tắt cho làn `team` | Có |
-| Kanban `priority` 1..3 cố định lúc tạo | | `task_store.py:288` | a | Làn `team` dùng `team_prio` | Có |
-| Kanban lease 90 giây, nhịp 20 giây | | `tasks.py:41-42` | c | Giữ | Không |
-| Workflow `max_retries` theo bước | 1 | `main.py:9906` | a | Theo cài đặt nhóm khi việc chạy workflow | Có |
-| Trần nhóm (mục 12.3) | | mới | a | Số, Không giới hạn, Theo mặc định | Mới |
-| Một lượt mỗi agent cùng lúc | 1 | mới | a | Chủ đổi được; trưởng nhóm không | Mới |
-| Phát hiện vòng không tiến triển | 2 lượt | mới | b (luôn bật) | Vẫn phát hiện. Ở "Không giới hạn", chính sách là **tạm dừng việc và báo**, chủ bấm Tiếp tục mới chạy tiếp; không âm thầm chạy | Mới |
-| Lệnh dừng, huỷ, thu hồi của chủ | | | b | Luôn thắng | Không |
-| Hạn mức gói thuê bao, nhà cung cấp | | | c | Không vượt | Không |
+| Turns per goal | 6 | `resonance.py:451`, `begin_action` CAS | a | Taken from the team settings | Yes: pass `budget_calls` when creating a goal |
+| Turns of a goal with a team, role split | 8, 4/4 | `resonance_store.py:311-312` | a | Per the team settings | Yes: constants become parameters when attaching a team |
+| Number of A5 revision rounds | 2 | `resonance_store.py:313` | a | Per the team settings | Yes |
+| Review turns counted per pinned version | 3 | `resonance_heartbeat.py:57` | a | Per the team settings | Yes |
+| Retry, backoff, check cadence (15 minutes, 1 h/4 h/24 h, 6 h to 7 days) | | `resonance_heartbeat.py:28-38` | a | Kept in the first version | Yes if we want to open it |
+| No command to raise an exhausted goal budget | | | a | Add an "Allow more turns" command for the owner, and for the Full access team leader within the maximum | Yes |
+| Machine-wide ceiling `JAVIS_RESONANCE_CALL_CEILING` | env | `resonance_store.py:32-59` | a (server level) | Cannot be removed; shown in the grant box | No |
+| Text-only engine for goals | | `main._resonance_engine` | b | Kept | No |
+| Folders forbidden for posting (`javis`, `plugins`, `skills`, `agents`, `workflows`, `memory`, dotfiles) | | `resonance.py:2268-2280` | b | Kept | No |
+| Product file type `.md`/`.txt`, 1 MB | | `resonance.py:1025-1026` | b/a | Kept in the first version | Yes if we want to open it |
+| Approving the A4 write scope on the card | owner only | `approve_scope` | b | Only the team folder if the owner chooses so (D4) | Yes: a new grant source `team_full` for exactly that folder |
+| A5 review gate | | `resonance_store.py:2425-2430` | b | Kept; the team leader cannot waive the review requirement | No |
+| One run per goal (lease), CAS, pinned hash, idempotency key | | | b | Kept | No |
+| Resonance switch is owner-only | | `_owner_only` | b | The team leader can change team-managed agents | Yes: `by=leader` and a management check in the store |
+| Kanban `max_workers` | 2 | `tasks.py:138` | a/c | Does not apply to team jobs (own pool) | Yes |
+| Kanban merging of jobs with the same title | | `task_store.enqueue` | a | Disabled for the `team` lane | Yes |
+| Kanban `priority` 1..3 fixed at creation | | `task_store.py:288` | a | The `team` lane uses `team_prio` | Yes |
+| Kanban lease 90 seconds, heartbeat 20 seconds | | `tasks.py:41-42` | c | Kept | No |
+| Workflow `max_retries` per step | 1 | `main.py:9906` | a | Per the team settings when the job runs a workflow | Yes |
+| Team ceilings (section 12.3) | | new | a | Number, Unlimited, Use default | New |
+| One turn per agent at a time | 1 | new | a | The owner can change it; the team leader cannot | New |
+| No-progress loop detection | 2 turns | new | b (always on) | Still detects. At "Unlimited", the policy is to **pause the job and report**, and it runs again only after the owner taps Continue; it never runs silently | New |
+| The owner's stop, cancel, revoke commands | | | b | Always win | No |
+| Quota of the subscription plan, of the provider | | | c | Cannot be exceeded | No |
 
-## 14. Sáu reaction và vòng phản hồi
+## 14. Six reactions and the feedback loop
 
-### 14.1 Giá trị
+### 14.1 Values
 
-Đúng sáu giá trị lưu nguyên, không gộp:
+Exactly six values are stored as they are, not merged:
 
-| Giá trị | Emoji | Nhãn |
+| Value | Emoji | Label |
 |---|---|---|
-| `like` | 👍 | Thích |
-| `love` | ❤️ | Tim / Yêu thích |
+| `like` | 👍 | Like |
+| `love` | ❤️ | Love |
 | `haha` | 😂 | Haha |
-| `wow` | 😮 | Ồ / Wow |
-| `sad` | 😢 | Huhu / Buồn |
-| `angry` | 😡 | Phẫn nộ / Nổi nóng |
+| `wow` | 😮 | Wow |
+| `sad` | 😢 | Sad |
+| `angry` | 😡 | Angry |
 
-- Cộng thêm `none` để bỏ reaction.
-- Mỗi người phản hồi có một reaction trên một tin: chọn cái khác là đổi, chọn lại cái đang chọn là bỏ.
+- Plus `none` to remove a reaction.
+- Each responder has one reaction per message: picking a different one changes it, picking the one already selected removes it.
 
-### 14.2 Lưu
+### 14.2 Storage
 
-- **Bảng `team_reactions`:** người phản hồi, tin (`session_id`, `message_id`), agent (`author_ref` của tin), nhóm, việc, `content_sha` của nội dung tin lúc bấm.
-- **`team_reaction_log`** ghi nối tiếp mọi lần đổi, với `nonce` chống gửi trùng.
-- Giữ qua F5 và restart.
-- **Không dùng bảng `reactions` của A3:** bảng đó bắt buộc gắn goal và tin báo do host ghi (biên bản mục 7).
+- **Table `team_reactions`:** responder, message (`session_id`, `message_id`), agent (the message's `author_ref`), team, job, and the `content_sha` of the message content at the time of the tap.
+- **`team_reaction_log`** appends every change, with a `nonce` to prevent duplicate sends.
+- Kept across F5 and restarts.
+- **Does not use A3's `reactions` table:** that table requires a goal and a report message written by the host (audit report section 7).
 
-### 14.3 Giao diện
+### 14.3 UI
 
-- **Desktop:** rê chuột vào tin của agent hiện nút mặt cười; bấm mở bộ chọn sáu emoji ngay tại tin.
-- **Điện thoại:** nhấn giữ tin mở cùng bộ chọn dạng hàng ngang lớn; vùng chạm tối thiểu 44px.
-- Emoji đã chọn hiện dưới tin; bấm vào để đổi hay bỏ.
-- **Phần bổ sung, không thay sáu emoji:**
-  - **Lý do chất lượng** (chọn được nhiều): "Đúng ý", "Sai dữ kiện", "Thiếu ý", "Quá dài", "Khó hiểu", "Lạc đề";
-  - **góp ý bằng chữ** (tối đa 500 ký tự).
-- Mọi chữ có khoá i18n ở cả `vi.json` và `en.json`.
+- **Desktop:** hovering over an agent's message shows a smiley button; tapping it opens the six-emoji picker right at the message.
+- **Phone:** a long press on a message opens the same picker as a large horizontal row; minimum touch target 44px.
+- The chosen emoji shows under the message; tap it to change or remove it.
+- **Additions, which do not replace the six emoji:**
+  - **Quality reasons** (multiple choice): "On point", "Wrong facts", "Missing points", "Too long", "Unclear", "Off topic";
+  - **a written comment** (at most 500 characters).
+- Every string has an i18n key in both `vi.json` and `en.json`.
 
-### 14.4 Vòng phản hồi
+### 14.4 The feedback loop
 
-Không gọi model riêng cho mỗi lần bấm. Mọi xử lý bằng code.
+No separate model call for each tap. Everything is handled by code.
 
-**1. Tách hai loại tín hiệu:**
+**1. Separate two kinds of signal:**
 
-| Tín hiệu | Nghĩa trong thiết kế |
+| Signal | Meaning in the design |
 |---|---|
-| Emoji (sáu loại) | Tín hiệu **cảm xúc**. Có thể hướng tới nội dung được kể (Huhu vì câu chuyện buồn; Phẫn nộ vì sự việc), tới cách trả lời, hay là đùa, mỉa mai. Không bao giờ tự là đánh giá chất lượng |
-| Lý do chất lượng và góp ý chữ | Tín hiệu **đánh giá**, có thể dẫn tới điều chỉnh |
+| Emoji (six kinds) | An **emotional** signal. It can be aimed at the content being told (Sad about a sad story; Angry about an event), at the way of answering, or be a joke or sarcasm. It is never a quality rating by itself |
+| Quality reasons and written comment | An **evaluation** signal, which can lead to adjustment |
 
-**2. Điều không được suy ra:** từ emoji, hệ thống không suy ra "agent làm sai", "phải sửa ngay", "việc đã đạt" hay "goal đã đạt". Cụ thể:
-- reaction không đổi trạng thái việc, goal hay hàng đợi;
-- không đánh thức agent;
-- không mở lượt.
+**2. What must not be inferred:** from an emoji, the system does not infer "the agent did it wrong", "must fix now", "the job passed" or "the goal is met". Specifically:
+- a reaction does not change the status of a job, goal or queue;
+- it does not wake an agent;
+- it does not open a turn.
 
-**3. Đưa vào lượt kế tiếp:** ở lượt kế tiếp của **chính agent đó trong chính nhóm đó**, khối "Phản hồi gần đây của chủ nhóm" (tối đa 5 mục, 30 ngày, chỉ mục chưa bị bỏ) liệt kê cho mỗi tin:
-- đoạn trích ngắn;
-- emoji gốc, không đổi tên;
-- lý do chất lượng;
-- góp ý chữ.
+**3. Feeding it into the next turn:** in the next turn of **that same agent in that same team**, a block "Recent feedback from the team owner" (at most 5 entries, 30 days, only entries not removed) lists for each message:
+- a short excerpt;
+- the original emoji, not renamed;
+- the quality reasons;
+- the written comment.
 
-Kèm câu dặn cố định:
+Together with a fixed note:
 
-> Emoji là cảm xúc của chủ nhóm, có thể về sự việc được kể; đừng coi là chấm điểm. Chỉ điều chỉnh theo lý do chất lượng và góp ý chữ. Chưa rõ thì giữ cách làm.
+> The emoji is the team owner's feeling, possibly about the event being told; do not treat it as a score. Adjust only according to the quality reasons and the written comment. If unclear, keep your way of working.
 
-**4. Không tạo bài học chắc chắn từ emoji.**
-- Bài học bền chỉ đến từ lý do chất lượng hay góp ý chữ, qua cơ chế đề xuất có nguồn: một gợi ý "Bài học đề xuất" hiện ở bảng agent, chủ bấm nhận mới thành bài học.
-- Cơ chế đề xuất làm ở T2 nếu đủ đơn giản; nếu không thì để mốc sau, và T2 chỉ đưa phản hồi vào ngữ cảnh.
+**4. No firm lesson is created from an emoji.**
+- A durable lesson comes only from quality reasons or a written comment, through a sourced suggestion mechanism: a "Suggested lesson" appears in the agent panel, and it becomes a lesson only when the owner taps accept.
+- The suggestion mechanism is built in T2 if simple enough; otherwise it is left to a later milestone, and T2 only feeds the feedback into the context.
 
-**5. Thu hồi:** chủ bỏ reaction, sửa hay xoá góp ý thì mục đó rời khỏi khối phản hồi ở lượt kế. Bài học đã nhận có nút gỡ như A3.
+**5. Revoking:** when the owner removes a reaction, or edits or deletes a comment, that entry leaves the feedback block on the next turn. An accepted lesson has a remove button as in A3.
 
-**6. Phạm vi học:** phản hồi trong nhóm X chỉ vào lượt ở nhóm X. Bài học đã nhận thuộc agent nên dùng ở mọi nơi; điều này hiện rõ trong hộp "Nhận bài học".
+**6. Scope of learning:** feedback in team X only goes into turns in team X. An accepted lesson belongs to the agent so it is used everywhere; this is shown clearly in the "Accept lesson" box.
 
-## 15. API và công cụ dự kiến
+## 15. Planned API and tools
 
-### 15.1 Route của chủ (dashboard, auth và CSRF như hiện nay)
+### 15.1 Owner routes (dashboard, auth and CSRF as today)
 
-| Route | Việc |
+| Route | Purpose |
 |---|---|
-| `GET /teams?brain=&cursor=` | Danh sách nhóm, phân trang |
-| `POST /teams` | Tạo nhóm `{name, description, members:[slug], leader_slug}` (đăng ký mã cho thành viên) |
-| `GET /teams/{id}` | Nhóm, thành viên, trưởng nhóm, chế độ, trần, việc đang chạy, số việc chờ và bị chặn |
-| `PATCH /teams/{id}` | Tên, mô tả, trạng thái (`active`/`paused`/`archived`) |
-| `POST /teams/{id}/members` | Thêm `{slug}` hay tạo agent mới rồi thêm (gọi `POST /agents` hiện có trước) |
-| `DELETE /teams/{id}/members/{agent_key}` | Bỏ thành viên |
-| `POST /teams/{id}/leader` | Chọn, đổi, bỏ trưởng nhóm `{agent_key or null}` |
-| `POST /teams/{id}/authority` | Bật, sửa, thu hồi Toàn quyền `{mode, grant}` |
-| `GET /teams/{id}/queue` | Việc đang chạy, chờ (đúng thứ tự), bị chặn; `queue_version` |
+| `GET /teams?brain=&cursor=` | Team list, paginated |
+| `POST /teams` | Create a team `{name, description, members:[slug], leader_slug}` (registers keys for members) |
+| `GET /teams/{id}` | The team, members, team leader, mode, ceilings, running job, number of waiting and blocked jobs |
+| `PATCH /teams/{id}` | Name, description, status (`active`/`paused`/`archived`) |
+| `POST /teams/{id}/members` | Add `{slug}` or create a new agent and then add it (calls the existing `POST /agents` first) |
+| `DELETE /teams/{id}/members/{agent_key}` | Remove a member |
+| `POST /teams/{id}/leader` | Choose, change, remove the team leader `{agent_key or null}` |
+| `POST /teams/{id}/authority` | Turn on, edit, revoke Full access `{mode, grant}` |
+| `GET /teams/{id}/queue` | Running, waiting (in the right order), blocked jobs; `queue_version` |
 | `POST /teams/{id}/queue/{task_id}/priority` | `{on: true/false, expected_queue_version}` |
-| `POST /teams/{id}/tasks/{task_id}/cancel` | Huỷ việc |
-| `POST /teams/{id}/tasks/{task_id}/amend` | Sửa yêu cầu, tăng `team_rev` |
-| `POST /teams/{id}/tasks/{task_id}/unblock` | Trả lời, chạy lại bước, giao lại `{action, ...}` |
+| `POST /teams/{id}/tasks/{task_id}/cancel` | Cancel a job |
+| `POST /teams/{id}/tasks/{task_id}/amend` | Edit the request, increases `team_rev` |
+| `POST /teams/{id}/tasks/{task_id}/unblock` | Reply, rerun step, reassign `{action, ...}` |
 | `POST /teams/{id}/messages/{mid}/reaction` | `{value, reasons, comment, nonce}` |
-| `POST /teams/{id}/messages/{mid}/decision` | Ghim hay bỏ ghim làm quyết định |
-| `GET /teams/{id}/turns` | Sổ lượt theo việc, agent, ngày |
+| `POST /teams/{id}/messages/{mid}/decision` | Pin or unpin as a decision |
+| `GET /teams/{id}/turns` | Turn ledger by job, agent, day |
 
-Gửi tin đi qua `/ws` như chat hiện nay. Gói tin thêm các trường:
+Sending a message goes through `/ws` as in today's chat. The packet adds these fields:
 - `team_id`;
-- `client_msg_id` (bắt buộc với phiên `team:`);
+- `client_msg_id` (required for `team:` sessions);
 - `mentions:[agent_key]`;
 - `as_job: bool`.
 
-### 15.2 Công cụ `javis_team` (chỉ trong lượt nhóm)
+### 15.2 The `javis_team` tool (only in team turns)
 
-| `op` | Ai | Việc |
+| `op` | Who | Purpose |
 |---|---|---|
-| `assign` | Trưởng nhóm, trong bước `plan` | Tạo bước `work` cho một thành viên, kèm brief và đầu vào |
-| `request_help` | Thành viên đang ở bước `work` | Tạo bước `help` (mục 7.4) |
-| `submit` | Người đang làm bước | Nộp kết quả của bước; host đăng tin |
-| `propose_job` | Trưởng nhóm | Đề xuất việc (mục 7.1) |
-| `open_job`, `reprioritize`, `add_member`, `remove_member`, `create_agent`, `set_cap`, `set_resonance` | Trưởng nhóm Toàn quyền | Như mục 13, mỗi lời gọi kiểm chế độ trong giao dịch |
+| `assign` | Team leader, in the `plan` step | Create a `work` step for a member, with a brief and inputs |
+| `request_help` | A member in a `work` step | Create a `help` step (section 7.4) |
+| `submit` | The person doing the step | Submit the step's result; the host posts the message |
+| `propose_job` | Team leader | Suggest a job (section 7.1) |
+| `open_job`, `reprioritize`, `add_member`, `remove_member`, `create_agent`, `set_cap`, `set_resonance` | Full access team leader | As in section 13, each call checks the mode inside the transaction |
 
-Danh tính, nhóm, việc, bước lấy từ `turn_context` (thêm khoá `team_id`, `task_id`, `step_id`). Tham số model chỉ mang nội dung (brief, câu hỏi, kết quả).
+Identity, team, job and step come from `turn_context` (adding the keys `team_id`, `task_id`, `step_id`). Model parameters carry content only (brief, question, result).
 
-## 16. Giao diện
+## 16. User interface
 
-Wireframe đầy đủ (desktop, màn hẹp, các trạng thái) ở [team-chat-wireframes.md](../../dev/team-chat-wireframes.md).
+Full wireframes (desktop, narrow screen, the states) are in [team-chat-wireframes.md](../../dev/team-chat-wireframes.md).
 
-- **Thanh bên:** thêm mục "Nhóm" cạnh "Cộng sự". Trang Nhóm gồm ba phần:
-  - danh sách nhóm (trái);
-  - khung chat (giữa);
-  - cài đặt nhóm (phải, ngăn kéo trên màn hẹp) với các tab Thành viên, Việc, Lượt, Cài đặt.
-- **Khung chat:**
-  - tin có tên và ảnh người gửi;
-  - nhãn việc trên tin;
-  - @ có gợi ý từ danh sách thành viên;
-  - công tắc "Giao việc" trong khung soạn;
-  - thanh "Đang làm: ..." với hai nút Sửa yêu cầu và Huỷ.
-- **Màn hẹp:** danh sách nhóm là trang đầu; chạm một nhóm mở khung chat toàn màn; cài đặt nhóm là trang trượt lên.
-- **Theo đúng các quy ước đang có:**
-  - trang cài đặt xếp một cột, nút Lưu ở cuối;
-  - không bảng hai ô;
-  - lớp có `display:flex` phải kèm luật `[hidden]{display:none}` riêng.
+- **Sidebar:** add a "Teams" item next to "Partners". The Teams page has three parts:
+  - the team list (left);
+  - the chat (middle);
+  - the team settings (right, a drawer on narrow screens) with the tabs Members, Jobs, Turns, Settings.
+- **Chat:**
+  - messages show the sender's name and picture;
+  - a job label on messages;
+  - @ with suggestions from the member list;
+  - an "Assign work" switch in the composer;
+  - a "Working: ..." bar with two buttons, Edit request and Cancel.
+- **Narrow screen:** the team list is the first page; tapping a team opens a full-screen chat; the team settings are a page that slides up.
+- **Following the existing conventions:**
+  - settings pages are a single column, with the Save button at the bottom;
+  - no two-cell tables;
+  - a class with `display:flex` must come with its own `[hidden]{display:none}` rule.
 
-## 17. Đo hiệu năng
+## 17. Performance measurement
 
-Xem mục 12.5. Đo trước và sau T1 trên cùng máy:
-- thời gian API (phía server) cho các route nhóm;
-- thời gian trình duyệt (vẽ khung chat, mở cài đặt nhóm).
+See section 12.5. Measure before and after T1 on the same machine:
+- API time (server side) for the team routes;
+- browser time (drawing the chat, opening the team settings).
 
-Hai loại số đo ghi tách nhau. Kết luận về VPS chỉ có khi đo trên VPS sau khi chủ dự án duyệt riêng.
+The two kinds of measurement are recorded separately. A conclusion about the VPS exists only when measured on the VPS after the project owner approves it separately.
 
-## 18. Nâng và hạ phiên bản
+## 18. Upgrading and downgrading
 
-- **Kho mới** `team.sqlite3`: mã cũ không đọc.
-- **Cột thêm vào `messages` và `tasks`** đều cho phép null, mã cũ bỏ qua.
-- **Trạng thái `team_*`** không nằm trong tập trạng thái mà mã Kanban cũ nhặt, nên khi hạ phiên bản, việc nhóm không bị mã cũ chạy bằng aux.
-- **Snapshot lần đầu nâng:** chép `kanban.sqlite3` và `sessions.db` thành `.pre-<số phiên bản T1>`, bằng SQLite backup như A5.
-- **Công cụ khôi phục** `tools/team_chat_restore_pre.py`, theo mẫu `tools/resonance_restore_pre_a5.py`.
-- **Test quay về** chạy mã bản phát hành thật trước T1 qua `git show`, như `test_resonance_a5_rollback.py`.
-- **Hạ không khôi phục:** mã cũ hiện các dòng `team_*` trên trang Công việc với trạng thái lạ nhưng không chạy chúng. Phiên `team:` hiện như phiên thường. Ghi rõ trong hướng dẫn.
+- **New store** `team.sqlite3`: old code does not read it.
+- **Columns added to `messages` and `tasks`** all allow null, and old code ignores them.
+- **The `team_*` statuses** are not in the set of statuses that old Kanban code picks up, so after a downgrade, team jobs are not run by old code with aux.
+- **Snapshot on first upgrade:** copy `kanban.sqlite3` and `sessions.db` to `.pre-<T1 version number>`, using SQLite backup as in A5.
+- **Restore tool** `tools/team_chat_restore_pre.py`, modeled on `tools/resonance_restore_pre_a5.py`.
+- **Rollback test** runs the real release code from before T1 via `git show`, like `test_resonance_a5_rollback.py`.
+- **Downgrade without restoring:** old code shows the `team_*` rows on the Jobs page with an unfamiliar status but does not run them. A `team:` session shows as an ordinary session. State this clearly in the guide.
 
-## 19. Mốc triển khai
+## 19. Implementation milestones
 
-| Mốc | Nội dung | Luồng hữu ích |
+| Milestone | Content | Useful flow |
 |---|---|---|
-| **T0** (nhỏ, làm trước được) | Công tắc Cộng hưởng trên dòng trợ lý; `/agents` trả trạng thái; trang Cài đặt chỉ còn tóm tắt; tải lại khi 409; đồng bộ hai tab | Bật, tắt ngay trên màn Trợ lý |
-| **T1** (lõi nhóm chat) | Mục 5 đến 12 ở chế độ Quyền giới hạn, trần mặc định cố định, các màn ở mục 16 | **Tạo nhóm, thêm agent, chọn trưởng nhóm, giao chung hay @, hàng đợi có Ưu tiên, phối hợp và nhờ hỗ trợ, kết quả về đúng nhóm** |
-| **T2** | Sáu reaction, lý do, góp ý; khối phản hồi trong lượt kế; (đề xuất bài học nếu đủ đơn giản) | Phản hồi theo đủ sáu cảm xúc |
-| **T3** | Toàn quyền: hộp cấp quyền, trần chỉnh được và "Không giới hạn", agent do nhóm quản lý, công cụ quản trị cho trưởng nhóm, trần goal theo nhóm (mục 13.6), quyền "Được ngắt việc", phát hiện vòng có chính sách | Trưởng nhóm tự vận hành trong phạm vi chủ cấp |
-| **T4** | Lịch sử dài: tóm tắt bằng code, tìm trong nhóm, đo trên VPS (cần duyệt riêng) | Nhiều nhóm, lịch sử dài |
+| **T0** (small, can be done first) | Resonance switch on the assistant row; `/agents` returns the status; the Settings page keeps only a summary; reload on 409; two-tab sync | Turn on and off right on the Assistants screen |
+| **T1** (the team chat core) | Sections 5 to 12 in Limited access mode, fixed default ceilings, the screens in section 16 | **Create a team, add agents, choose a team leader, assign generally or by @, a queue with Prioritize, coordination and asking for help, results back to the right team** |
+| **T2** | Six reactions, reasons, comments; the feedback block in the next turn; (a lesson suggestion if simple enough) | Feedback with all six feelings |
+| **T3** | Full access: the grant box, adjustable ceilings and "Unlimited", team-managed agents, admin tools for the team leader, per-team goal ceilings (section 13.6), the "Can interrupt jobs" permission, loop detection with a policy | The team leader runs itself within the scope the owner grants |
+| **T4** | Long history: code-based summaries, search within a team, measurement on the VPS (needs separate approval) | Many teams, long history |
 
-- Mỗi mốc là một PR, giữ số phiên bản khi bắt đầu viết mã.
-- **T1 lớn nhất. Không tách nhỏ hơn**, vì GOAL đòi mốc đầu phải có đủ luồng từ tạo nhóm tới kết quả đúng nhóm.
-- **Pilot model thật** cho từng mốc là gói riêng, có đầu vào, engine, trần và lời duyệt riêng. Thiết kế này không cấp phép pilot.
+- Each milestone is one PR, reserving the version number when coding starts.
+- **T1 is the largest. Do not split it smaller**, because the GOAL demands the first milestone have the full flow from creating a team to a result in the right team.
+- **A real-model pilot** for each milestone is a separate package, with its own inputs, engine, ceilings and approval. This design does not authorize a pilot.
 
-## 20. Ma trận nghiệm thu
+## 20. Acceptance matrix
 
-Mọi ca chạy bằng **engine giả** trừ khi ghi khác. Mã ca: TC. "Mốc" là mốc đầu tiên phải đạt.
+Every case runs on a **fake engine** unless stated otherwise. Case code: TC. "Milestone" is the first milestone that must pass.
 
-| Mã | Ca | Mốc | Đường mã dự kiến | Bằng chứng |
+| Code | Case | Milestone | Planned code path | Evidence |
 |---|---|---|---|---|
-| TC1 | Tạo ba nhóm; cùng một agent ở hai nhóm, làm trưởng nhóm ở một nhóm, thành viên ở nhóm kia | T1 | `team_store.create`, `add_member`, `agent_register` | Test kho và route; ảnh chụp danh sách nhóm |
-| TC2 | Thêm agent có sẵn; tạo agent mới trong cài đặt nhóm (qua `POST /agents`) rồi thêm; bỏ thành viên; agent vẫn còn ở Jarvis 007 và nhóm khác | T1 | route `members` | Test |
-| TC3 | Tạo agent trùng slug trả 409, không ghi đè file cũ | T1 | `POST /agents` | Test so bytes file cũ |
-| TC4 | Đổi tag của thành viên: tư cách thành viên, trưởng nhóm, quyền không đổi | T1 | `/capability/meta` | Test |
-| TC5 | Đổi tên agent: vẫn là thành viên; xoá rồi tạo lại cùng slug: mã mới, không là thành viên, không nhận việc cũ | T1 | `agent_retire`, `team_members.status` | Test |
-| TC6 | Tin không @: chỉ trưởng nhóm trả lời một lượt; nhóm không có trưởng nhóm: 0 lượt, có băng rôn | T1 | định tuyến mục 7.2 | Sổ lượt của engine giả |
-| TC7 | Một @, nhiều @ (đúng thứ tự, người sau thấy người trước), quá trần @, @ thành viên đã rời | T1 | như trên | Sổ lượt, tin hiển thị |
-| TC8 | Chữ "@Y" trong câu trả lời của agent không đánh thức Y | T1 | | Sổ lượt = 0 cho Y |
-| TC9 | Tin thường không tạo việc hay goal; công tắc "Giao việc" tạo đúng một việc; gửi lại cùng `client_msg_id` không tạo thêm tin, việc hay lượt | T1 | `client_msg_id`, `source_ref` | Đếm dòng `tasks`, `messages`, `team_turns` |
-| TC10 | Giao chung: bước `plan`, hai bước `work`, `synthesize`; kết quả có tác giả, nhãn việc, trạng thái | T1 | `team_runner` | Test luồng với engine giả |
-| TC11 | @ giao trực tiếp: bắt đầu bằng `work` của người được @; trưởng nhóm không làm lại; việc vẫn vào hàng chung | T1 | | Test |
-| TC12 | Nhờ hỗ trợ A sang B rồi A tiếp tục; B nhờ ngược A bị chặn; độ sâu 3 bị chặn; không tiến triển hai lượt thì chặn | T1 | `request_help` | Test |
-| TC13 | Trần lượt mỗi việc, bước mỗi việc, lượt mỗi ngày của nhóm: chạm trần thì `cap_reached`, không gọi thêm | T1 | kiểm trần lúc giữ chỗ | Sổ lượt |
-| TC14 | **A đang chạy, B, C chờ, ưu tiên C: thứ tự A, C, B; A không chạy lại; C không chen** | T1 | `team_prio`, `dispatch` | Test với đồng hồ giả |
-| TC15 | Ưu tiên lặp (không đổi gì); bỏ ưu tiên (về vị trí cũ); hai việc ưu tiên theo thứ tự bấm | T1 | | Test |
-| TC16 | Hai tab cùng đổi thứ tự: một bên 409 và nhận hàng đợi mới; không bao giờ hai việc chạy cùng lúc trong một nhóm | T1 | CAS `queue_version` | Test đồng thời |
-| TC17 | Restart giữa lúc nhận việc, giữa bước trước mốc engine, sau mốc engine | T1 | `team_reclaim` | Test với kho thật, server dựng lại |
-| TC18 | Việc chờ chủ, việc lỗi: rời chỗ chạy, hàng đi tiếp, hiện ở "Bị chặn", có tin hộp thư, có nhắc sau 24 giờ | T1 | | Test |
-| TC19 | Bỏ thành viên đang làm (trước và sau mốc engine); đổi trưởng nhóm giữa việc; bỏ trưởng nhóm thì `no_leader` | T1 | mục 6.3, 6.4 | Test |
-| TC20 | Sửa yêu cầu và huỷ việc giữa chừng; kết quả muộn có nhãn, `applied=0` | T1 | mục 7.6 | Test |
-| TC21 | Cùng agent ở hai nhóm cùng có việc: khoá bận, chờ FIFO, mỗi kết quả về đúng nhóm, ngữ cảnh không lẫn | T1 | `agent_busy`, mạch thành viên | Test kiểm lời nhắc gửi engine giả |
-| TC22 | Không lẫn dữ liệu: lời nhắc của lượt nhóm không chứa tin nhóm khác, chat riêng hay bộ nhớ chủ | T1 | khối nhóm mục 11.2 | Test so lời nhắc |
-| TC23 | Agent chưa bật Cộng hưởng làm được bước nhóm nhưng không có `javis_goal`; goal tạo trong lượt nhóm báo về đúng phiên `team:` | T1 | | Test |
-| TC24 | Cổng A4 và A5 giữ nguyên: tin nhắn không cấp quyền ghi; goal có đội vẫn cần reviewer đạt | T1 | test A4, A5 hiện có chạy lại | Test hồi quy |
-| TC25 | Công tắc Cộng hưởng trên dòng trợ lý: chỉ báo thành công khi server xác nhận; 409 thì tải lại; hai tab đồng bộ; danh sách thành viên nhóm hiện cùng trạng thái | T0/T1 | `workspace.js`, route toggle | Test JS, smoke giao diện |
-| TC26 | Tắt agent đang có việc: hộp xác nhận nêu goal và các nhóm; việc nhóm không dừng | T0/T1 | | Smoke giao diện |
-| TC27 | Trang Cài đặt không còn công tắc theo agent; có tóm tắt và liên kết | T0 | | Test i18n, smoke |
-| TC28 | Sáu reaction: chọn, đổi, bỏ; desktop và điện thoại; giữ qua F5, restart; đúng người, tin, agent, nhóm, `content_sha` | T2 | `team_reactions` | Test kho, smoke giao diện |
-| TC29 | Reaction không đổi trạng thái việc, goal, hàng đợi, không mở lượt, không gọi model | T2 | | Sổ lượt = 0 |
-| TC30 | Khối phản hồi ở lượt kế giữ emoji gốc, lý do, góp ý; có câu dặn; chỉ trong đúng nhóm; bỏ reaction thì rời khối | T2 | | Test so lời nhắc |
-| TC31 | Toàn quyền: trưởng nhóm không tự bật được; chủ bật thì ghi `team_authority`; trưởng nhóm thêm thành viên, tạo agent, đổi thứ tự việc chờ; mọi thao tác có sự kiện | T3 | `javis_team` op quản trị | Test |
-| TC32 | "Không giới hạn" là `null` + cờ, không phải số; trần máy chủ và hạn mức nhà cung cấp vẫn hiện và vẫn áp | T3 | | Test |
-| TC33 | Trưởng nhóm Toàn quyền không sửa được cấu hình agent không do nhóm quản lý; sửa agent do nhóm quản lý thì báo các nhóm khác bị ảnh hưởng | T3 | | Test |
-| TC34 | Thu hồi Toàn quyền giữa lượt: công cụ quản trị sau mốc bị từ chối; trần về mức giới hạn; việc vượt trần bị chặn | T3 | | Test |
-| TC35 | Không có quyền "Được ngắt việc" thì trưởng nhóm Toàn quyền không ngắt được việc đang chạy | T3 | | Test |
-| TC36 | Vòng không tiến triển ở "Không giới hạn": tạm dừng và báo, không chạy tiếp âm thầm | T3 | | Test |
-| TC37 | Màn hẹp 375px và desktop: danh sách nhóm, chat, cài đặt nhóm, bộ chọn reaction, không cuộn ngang | T1/T2 | | Ảnh chụp sandbox |
-| TC38 | 50 nhóm, 5.000 tin: mở nhóm chỉ tải trang đầu; số đo API và trình duyệt ghi tách nhau | T1/T4 | | Số đo kèm máy đo |
-| TC39 | Quay về bản trước T1 bằng snapshot; hạ không khôi phục không chạy việc nhóm | T1 | công cụ khôi phục | Test quay về với mã phát hành thật |
+| TC1 | Create three teams; the same agent in two teams, team leader in one team, member in the other | T1 | `team_store.create`, `add_member`, `agent_register` | Store and route tests; screenshot of the team list |
+| TC2 | Add an existing agent; create a new agent in the team settings (through `POST /agents`) and then add it; remove a member; the agent remains in Jarvis 007 and in other teams | T1 | `members` route | Test |
+| TC3 | Creating an agent with a duplicate slug returns 409, without overwriting the old file | T1 | `POST /agents` | Test comparing the old file's bytes |
+| TC4 | Change a member's tag: membership, team leader and permissions do not change | T1 | `/capability/meta` | Test |
+| TC5 | Rename an agent: still a member; delete then recreate with the same slug: new key, not a member, does not receive old jobs | T1 | `agent_retire`, `team_members.status` | Test |
+| TC6 | A message with no @: only the team leader replies, one turn; a team with no team leader: 0 turns, with a banner | T1 | routing in section 7.2 | Fake engine's turn ledger |
+| TC7 | One @, several @ (in the right order, later people see earlier ones), over the @ ceiling, @ of a member who left | T1 | as above | Turn ledger, displayed messages |
+| TC8 | The text "@Y" in an agent's reply does not wake Y | T1 | | Turn ledger = 0 for Y |
+| TC9 | An ordinary message creates no job or goal; the "Assign work" switch creates exactly one job; resending the same `client_msg_id` creates no extra message, job or turn | T1 | `client_msg_id`, `source_ref` | Count the rows of `tasks`, `messages`, `team_turns` |
+| TC10 | General assignment: `plan` step, two `work` steps, `synthesize`; results have an author, job label, status | T1 | `team_runner` | Flow test with the fake engine |
+| TC11 | Direct @ assignment: starts with the @-mentioned person's `work`; the team leader does not redo it; the job still enters the shared queue | T1 | | Test |
+| TC12 | Asking for help from A to B and A continues; B asking A back is blocked; depth 3 is blocked; no progress in two turns blocks | T1 | `request_help` | Test |
+| TC13 | Ceilings for turns per job, steps per job, turns per team per day: hitting a ceiling gives `cap_reached`, no further calls | T1 | ceiling check at reservation | Turn ledger |
+| TC14 | **A is running, B and C wait, prioritize C: order A, C, B; A does not run again; C does not cut in** | T1 | `team_prio`, `dispatch` | Test with a fake clock |
+| TC15 | Repeated prioritize (changes nothing); un-prioritize (back to the old position); two prioritized jobs in tap order | T1 | | Test |
+| TC16 | Two tabs change the order at once: one side gets 409 and receives the new queue; never two jobs running at once in one team | T1 | CAS `queue_version` | Concurrency test |
+| TC17 | Restart in the middle of claiming a job, in the middle of a step before the engine mark, after the engine mark | T1 | `team_reclaim` | Test with the real store, server rebuilt |
+| TC18 | A job waiting on the owner, a failed job: leaves the run slot, the queue moves on, shows in "Blocked", has an inbox message, has a reminder after 24 hours | T1 | | Test |
+| TC19 | Remove a working member (before and after the engine mark); change the team leader mid-job; removing the team leader gives `no_leader` | T1 | sections 6.3, 6.4 | Test |
+| TC20 | Edit the request and cancel a job midway; a late result has a label, `applied=0` | T1 | section 7.6 | Test |
+| TC21 | The same agent in two teams, both with jobs: busy lock, FIFO wait, each result goes to the right team, contexts do not mix | T1 | `agent_busy`, member thread | Test inspecting the prompt sent to the fake engine |
+| TC22 | No data mixing: a team turn's prompt contains no messages of other teams, private chat or the owner's memory | T1 | team block in section 11.2 | Test comparing prompts |
+| TC23 | An agent without Resonance can do team steps but has no `javis_goal`; a goal created in a team turn reports back to the right `team:` session | T1 | | Test |
+| TC24 | The A4 and A5 gates stay unchanged: a message grants no write permission; a goal with a team still needs a passing reviewer | T1 | existing A4, A5 tests rerun | Regression test |
+| TC25 | Resonance switch on the assistant row: shows success only when the server confirms; reloads on 409; two tabs sync; the team member list shows the same status | T0/T1 | `workspace.js`, toggle route | JS test, UI smoke |
+| TC26 | Turn off an agent that has work: the confirmation box names goals and teams; team jobs do not stop | T0/T1 | | UI smoke |
+| TC27 | The Settings page no longer has a per-agent switch; has a summary and a link | T0 | | i18n test, smoke |
+| TC28 | Six reactions: choose, change, remove; desktop and phone; kept across F5 and restart; correct person, message, agent, team, `content_sha` | T2 | `team_reactions` | Store test, UI smoke |
+| TC29 | A reaction does not change the status of a job, goal or queue, opens no turn, calls no model | T2 | | Turn ledger = 0 |
+| TC30 | The feedback block in the next turn keeps the original emoji, reasons, comment; has the fixed note; only within the right team; removing a reaction removes it from the block | T2 | | Test comparing prompts |
+| TC31 | Full access: the team leader cannot turn it on itself; when the owner turns it on, `team_authority` is written; the team leader adds members, creates agents, changes the order of waiting jobs; every action has an event | T3 | `javis_team` admin op | Test |
+| TC32 | "Unlimited" is `null` + a flag, not a number; the server ceiling and the provider quota are still shown and still apply | T3 | | Test |
+| TC33 | A Full access team leader cannot edit the configuration of an agent not managed by the team; editing a team-managed agent reports the other teams affected | T3 | | Test |
+| TC34 | Revoke Full access mid-turn: admin tools after the mark are refused; ceilings go back to the limited level; a job over the ceiling is blocked | T3 | | Test |
+| TC35 | Without the "Can interrupt jobs" permission, a Full access team leader cannot interrupt a running job | T3 | | Test |
+| TC36 | A no-progress loop at "Unlimited": pause and report, does not keep running silently | T3 | | Test |
+| TC37 | Narrow 375px screen and desktop: team list, chat, team settings, reaction picker, no horizontal scrolling | T1/T2 | | Sandbox screenshots |
+| TC38 | 50 teams, 5,000 messages: opening a team loads only the first page; API and browser measurements recorded separately | T1/T4 | | Measurements with the measuring machine |
+| TC39 | Rollback to the version before T1 via snapshot; a downgrade without restore does not run team jobs | T1 | restore tool | Rollback test with the real release code |
 
-## 21. Bảng quyết định
+## 21. Decision table
 
-### 21.1 Yêu cầu đã chốt (theo GOAL, không hỏi lại)
+### 21.1 Requirements already settled (per the GOAL, not asked again)
 
-- Nhiều nhóm; nhóm có tên, mô tả, thành viên, lịch sử, việc riêng.
-- Agent ở nhiều nhóm; mỗi nhóm một trưởng nhóm do chủ chọn.
-- Tag chỉ phân loại; cặp A5 không phải cấu trúc nhóm.
-- Hàng đợi: việc đang làm chạy tiếp; Ưu tiên xét trước việc thường sau khi việc đang làm xong; lưu bền; @ giao trực tiếp vẫn vào hàng chung; ví dụ A, C, B.
-- Công tắc Cộng hưởng trên màn Trợ lý, chỉ báo thành công khi server xác nhận.
-- Hai chế độ trưởng nhóm. "Không giới hạn" là trạng thái rõ. Chủ luôn thu hồi được.
-- Sáu reaction, giữ loại emoji gốc, không suy diễn chắc chắn, không gọi model cho mỗi lần bấm.
+- Many teams; a team has a name, description, members, history, its own jobs.
+- An agent in many teams; each team has one team leader chosen by the owner.
+- A tag only classifies; an A5 pair is not a team structure.
+- Queue: the running job continues; Prioritize is considered before normal jobs after the running job finishes; durable storage; a direct @ assignment still enters the shared queue; the example A, C, B.
+- The Resonance switch on the Assistants screen, showing success only when the server confirms.
+- Two team leader modes. "Unlimited" is an explicit state. The owner can always revoke.
+- Six reactions, keeping the original emoji kind, no firm inference, no model call for each tap.
 
-### 21.2 Mặc định đề xuất (em tự chọn, có lý do; đổi được khi review)
+### 21.2 Proposed defaults (my picks, with reasons; changeable at review)
 
-| # | Mặc định | Lý do |
+| # | Default | Reason |
 |---|---|---|
-| M1 | Kiến trúc A (mục 3) | Dùng lại lưu bền và phục hồi của Kanban, không thêm hệ giao việc |
-| M2 | Một việc chạy mỗi nhóm; hai nhóm chạy cùng lúc trên cả máy | Đúng yêu cầu hàng đợi; giữ chi phí và tải trong tầm |
-| M3 | Ưu tiên theo thứ tự bấm; bấm lặp không đổi; bỏ ưu tiên về vị trí cũ | Dễ hiểu, xác định được |
-| M4 | Việc bị chặn rời chỗ chạy | Không để nhóm kẹt vô hình |
-| M5 | Bước đã gọi engine bị gián đoạn khi restart: không tự chạy lại | Tránh trả tiền hai lần |
-| M6 | Trần mặc định ở mục 12.3 | Đủ cho một việc vừa (lập kế hoạch, ba người làm, hỗ trợ, tổng hợp) |
-| M7 | Model của agent đọc mỗi lượt từ file agent | Mạch thành viên là phiên ẩn, ảnh chụp sẽ cũ |
-| M8 | `javis_task` ẩn trong lượt nhóm | Một chỗ giao việc trong nhóm |
-| M9 | Bỏ công tắc trùng ở cột phải và trang Cài đặt | Không hai công tắc cho một agent |
-| M10 | Bảng reaction riêng cho nhóm, không dùng bảng A3 | Bảng A3 gắn goal và tin báo |
-| M11 | Toàn quyền không chuyển theo khi đổi trưởng nhóm | Quyền gắn người, không gắn chức danh |
+| M1 | Architecture A (section 3) | Reuses Kanban's durable storage and recovery, adds no work-assignment system |
+| M2 | One job runs per team; two teams run at once on the whole machine | Matches the queue requirement; keeps cost and load in range |
+| M3 | Priority in tap order; repeated taps change nothing; un-prioritize returns to the old position | Easy to understand, deterministic |
+| M4 | A blocked job leaves the run slot | A team is never stuck invisibly |
+| M5 | A step that already called the engine and was interrupted by a restart: does not rerun by itself | Avoids paying twice |
+| M6 | Default ceilings in section 12.3 | Enough for a medium job (planning, three people working, help, summary) |
+| M7 | The agent's model is read on every turn from the agent file | The member thread is a hidden session, a snapshot would go stale |
+| M8 | `javis_task` is hidden in team turns | One place to assign work inside a team |
+| M9 | Remove the duplicate switch in the right column and the Settings page | Not two switches for one agent |
+| M10 | A separate reaction table for teams, not A3's table | A3's table is tied to goals and report messages |
+| M11 | Full access does not carry over when the team leader changes | Permission is tied to a person, not a title |
 
-### 21.3 Điểm đã chốt (chủ dự án đồng ý cả bảy đề xuất, 13/10/2026)
+### 21.3 Settled points (the project owner agreed to all seven proposals, 13/10/2026)
 
-| # | Câu hỏi | Đã chốt | Ảnh hưởng |
+| # | Question | Settled | Impact |
 |---|---|---|---|
-| D1 | Tin không @ ở chế độ trò chuyện: trưởng nhóm trả lời (một lượt mỗi tin), hay không ai trả lời trừ khi @? | Trưởng nhóm trả lời | Chi phí mỗi tin, cảm giác "nhóm có người" |
-| D2 | Giao việc: chỉ khi anh bật "Giao việc", hay trưởng nhóm được tự nhận ra yêu cầu và đề xuất (anh bấm một lần)? | Cả hai: công tắc rõ ràng, cộng đề xuất của trưởng nhóm cần anh bấm | Số lần bấm và chi phí |
-| D3 | Một agent chỉ chạy một lượt nhóm cùng lúc trên cả máy (an toàn bộ nhớ, chậm hơn khi agent ở nhiều nhóm)? | Có | Tốc độ và chống lẫn |
-| D4 | Toàn quyền có được duyệt quyền ghi file A4 không? | Chỉ trong một thư mục nhóm do anh chọn; ngoài thư mục đó vẫn chờ anh bấm trên thẻ | Mở một phần cổng A4 |
-| D5 | Trưởng nhóm Toàn quyền sửa cấu hình chung (lời nhắc, model, Cộng hưởng) của agent nào? | Chỉ agent do nhóm quản lý | Ảnh hưởng chéo nhóm |
-| D6 | "Không giới hạn" lượt model có được áp cho provider API trả phí? | Chỉ cho provider anh tích trong hộp cấp quyền; luôn hiện số đã dùng | Chi phí |
-| D7 | Trần mặc định mục 12.3 (12 lượt mỗi việc, 8 bước, 3 @, 100 lượt mỗi nhóm mỗi ngày) | Như bảng | Chi phí và độ sâu phối hợp |
+| D1 | A message with no @ in chat mode: does the team leader reply (one turn per message), or does nobody reply unless @-mentioned? | The team leader replies | Cost per message, the feeling that "the team has someone there" |
+| D2 | Assigning work: only when you turn on "Assign work", or may the team leader recognize a request itself and suggest it (you tap once)? | Both: an explicit switch, plus the team leader's suggestion that needs your tap | Number of taps and cost |
+| D3 | An agent runs only one team turn at a time on the whole machine (memory safety, slower when an agent is in many teams)? | Yes | Speed and preventing mix-ups |
+| D4 | May Full access approve A4 file write permission? | Only inside one team folder you choose; outside that folder it still waits for your tap on the card | Opens part of the A4 gate |
+| D5 | Which agents' shared configuration (prompt, model, Resonance) can a Full access team leader edit? | Only team-managed agents | Cross-team impact |
+| D6 | May "Unlimited" model turns apply to a paid API provider? | Only to providers you tick in the grant box; the amount used is always shown | Cost |
+| D7 | Default ceilings in section 12.3 (12 turns per job, 8 steps, 3 @, 100 turns per team per day) | As in the table | Cost and depth of coordination |
 
-## 22. Tự soát mâu thuẫn
+## 22. Self-check for contradictions
 
-| Cặp có thể vênh | Kết luận |
+| Pair that might disagree | Conclusion |
 |---|---|
-| Ưu tiên và "@ trực tiếp không vượt hàng" | Không vênh: @ giao việc vào hàng chung; chỉ Ưu tiên của chủ hay trưởng nhóm Toàn quyền đổi thứ tự |
-| Lượt trò chuyện không qua hàng và "một việc chạy mỗi nhóm" | Không vênh: lượt trò chuyện không phải việc nhóm; nó chỉ đợi khoá bận của agent. Ghi rõ ở mục 7.2 |
-| Toàn quyền và "lệnh của chủ luôn thắng" | Không vênh: mọi thao tác Toàn quyền kiểm chế độ trong giao dịch; thu hồi có mốc `revoked_at` |
-| Toàn quyền và "việc đang làm chạy hết" | Không vênh: ngắt cần quyền riêng mặc định tắt (mục 13.4) |
-| Tắt Cộng hưởng và việc nhóm | Đã chốt: công tắc chỉ ảnh hưởng goal; hộp xác nhận nói rõ (mục 10.2) |
-| Restart và chống gọi trùng | Bước đã gọi engine không tự chạy lại; bước chưa gọi thì hoàn lượt (mục 8.6) |
-| Huỷ việc và bản đã cam kết đăng A4 | Theo A4: bản đã cam kết vẫn hoàn tất; chưa cam kết thì hết hiệu lực (mục 11.4) |
-| Reaction và vòng học | Emoji không đổi trạng thái hay tạo bài học chắc chắn; chỉ lý do và góp ý chữ dẫn tới đề xuất (mục 14.4) |
-| Khoá bận theo agent và chat riêng, goal | Giới hạn đã ghi: T1 chưa khoá chat riêng và goal (mục 8.7) |
-| Model riêng của agent và Cộng hưởng | Goal vẫn dùng model việc nền như A1 tới A5; ghi rõ ở mục 12.1 |
+| Prioritize and "a direct @ does not skip the queue" | No conflict: an @ assignment enters the shared queue; only the owner's Prioritize, or a Full access team leader's, changes the order |
+| Chat turns not going through the queue and "one job runs per team" | No conflict: a chat turn is not a team job; it only waits for the agent's busy lock. Stated in section 7.2 |
+| Full access and "the owner's command always wins" | No conflict: every Full access action checks the mode inside the transaction; revoking has the `revoked_at` mark |
+| Full access and "the running job finishes" | No conflict: interrupting needs a separate permission that is off by default (section 13.4) |
+| Turning off Resonance and team jobs | Settled: the switch only affects goals; the confirmation box says so clearly (section 10.2) |
+| Restart and duplicate-call prevention | A step that already called the engine does not rerun by itself; a step that has not called is refunded (section 8.6) |
+| Cancelling a job and an A4 version already committed to post | Per A4: a version already committed still completes; one not yet committed expires (section 11.4) |
+| Reactions and the learning loop | An emoji does not change status or create a firm lesson; only reasons and written comments lead to a suggestion (section 14.4) |
+| Per-agent busy lock and private chat, goals | The recorded limitation: T1 does not lock private chat and goals (section 8.7) |
+| An agent's own model and Resonance | Goals still use the background-work model as in A1 to A5; stated in section 12.1 |

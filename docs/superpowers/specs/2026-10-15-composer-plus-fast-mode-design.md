@@ -100,7 +100,7 @@ Adding a feature later only takes a `register` call. Default items:
    attaches it to the message like any attachment but without uploading it again. This needs a small endpoint
    `GET /files/resolve?path=` that returns the absolute path after checking it is inside the brain root (blocks `..` and
    symlinks pointing outside). app.js exposes `window.JavisAttach = { upload, addBrainFile }`, and `addBrainFile` pushes
-   into `pendingAttachments` with the existing `[File đính kèm ...]` block.
+   into `pendingAttachments` with the existing `[File đính kèm ...]` block (Vietnamese for "attached file", a machine token kept verbatim).
 4. **Commands and skills** (/): focus the input, insert "/" at the cursor, and fire an `input` event so chat-slash.js
    opens its menu.
 5. **Connections ›**: a submenu built from GET `/connect/health` (plus names from the catalog), one status dot per

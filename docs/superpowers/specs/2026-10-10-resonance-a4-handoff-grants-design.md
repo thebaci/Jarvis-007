@@ -1,544 +1,544 @@
-# Resonance A4: nộp sản phẩm đa engine qua một hợp đồng host, kèm quyền có phạm vi
+# Resonance A4: multi-engine deliverable submission through one host contract, with scoped permissions
 
-**Trạng thái:** thiết kế **chốt** (vòng 5, phương án dự phòng D1), reviewer chấp thuận để code. **Mã A4 đạt review mã vòng 5** (`5b5e3ef0`; mục 17: I1, I2 đã được chấp nhận; I10 tới I16). Smoke giao diện, bộ chạy pilot và pilot thật một lần (11/10, khép bằng hậu kiểm): [biên bản](../../dev/resonance-a4-verification.md). **đã phát hành 0.96.0** (`d36ebb3e`, PR #604, 11/10/2026; CI `main` run 38146898745 và build image run 38146898746 thành công; image `ghcr.io/blogminhquy/javis-os:0.96.0`, digest `sha256:8f1751d2…`; VPS chưa kéo). Đổi cơ chế cấp quyền ngoài bản này thì gửi diff thiết kế review trước.
+**Status:** design **final** (round 5, fallback option D1), reviewer approved for coding. **The A4 code passed round 5 code review** (`5b5e3ef0`; section 17: I1, I2 accepted; I10 to I16). UI smoke test, pilot runner and one real pilot (11/10, closed by a post-check): [record](../../dev/resonance-a4-verification.md). **Released as 0.96.0** (`d36ebb3e`, PR #604, 11/10/2026; CI `main` run 38146898745 and image build run 38146898746 succeeded; image `ghcr.io/blogminhquy/javis-os:0.96.0`, digest `sha256:8f1751d2…`; VPS has not pulled it yet). A change to the permission mechanism beyond this version must send a design diff for review first.
 
-- **Nhánh:** `claude/resonance-a4-handoff-grants`, PR nháp #604, số **0.96.0** (đặt 0.90.0; `main` đi qua 0.91.0, 0.92.1, 0.94.0 rồi 0.95.1 nên đánh số lại bốn lần).
-- **Vòng 1** (`5edfc9b6`) chưa đạt: 3 P1, 2 P2 (`exports/reviews/PR-604-A4-design-r1-review.md`, ngoài git).
-- **Vòng 2** (`99c88447`) chưa đạt: 1 P1, 3 P2, 6 lưu ý nhỏ (`exports/reviews/PR-604-A4-design-r2-review.md`, ngoài git).
-- **Vòng 3** (`efa1fce3`) chưa đạt: 1 P1, 1 P2, 3 lưu ý nhỏ (`exports/reviews/PR-604-A4-design-r3-review.md`, ngoài git). Phần bản nháp, chấp thuận, `sealed`, tiếp nhận, khoá theo revision và legacy đã đạt ở mức thiết kế.
-- **Vòng 4** (`bd6ad1d1`): thứ tự quyền và ba lưu ý đạt; bộ nhận chỉ thị còn nhận nhầm (`exports/reviews/PR-604-A4-design-r4-review.md`, ngoài git). Chốt phương án dự phòng D1: **A4 không cấp quyền từ lời chat**.
-- Bảng đối chiếu từng điểm review ở mục 16. Kiến trúc và phạm vi giữ nguyên qua cả hai vòng.
+- **Branch:** `claude/resonance-a4-handoff-grants`, draft PR #604, version **0.96.0** (reserved as 0.90.0; `main` went through 0.91.0, 0.92.1, 0.94.0 and then 0.95.1, so the number was reassigned four times).
+- **Round 1** (`5edfc9b6`) not passed: 3 P1, 2 P2 (`exports/reviews/PR-604-A4-design-r1-review.md`, outside git).
+- **Round 2** (`99c88447`) not passed: 1 P1, 3 P2, 6 minor notes (`exports/reviews/PR-604-A4-design-r2-review.md`, outside git).
+- **Round 3** (`efa1fce3`) not passed: 1 P1, 1 P2, 3 minor notes (`exports/reviews/PR-604-A4-design-r3-review.md`, outside git). The draft, approval, `sealed`, adoption, per-revision locking and legacy parts passed at design level.
+- **Round 4** (`bd6ad1d1`): the permission order and three notes passed; the directive receiver still accepted wrong input (`exports/reviews/PR-604-A4-design-r4-review.md`, outside git). Fallback option D1 chosen: **A4 does not grant permission from chat text**.
+- The table mapping each review point is in section 16. The architecture and scope stayed unchanged through both rounds.
 
-**Nền và đầu vào:**
+**Base and inputs:**
 
-- **Nền:** thiết kế viết trên `main` `33a3c1aa` (0.89.0); mã đã merge `main` `1d0b515c` (0.91.0: 0.89.1, 0.89.2, DeepSeek) rồi `709e3db9` (0.92.1: đăng nhập, màn cài đặt đầu) `b7e09dbf` (0.92.2: Ollama cục bộ có công cụ) `55bc8e86` (0.94.0: bot xem ảnh khách) và `adb103ed` (0.95.1: Ollama cục bộ tắt suy nghĩ mặc định). A1 0.87.0, A2 0.88.0, A3 0.89.0, bản hiệu năng 0.88.5 (#602) đã vào `main`.
-- **Lộ trình:** [agent scope roadmap](2026-10-08-resonance-agent-scope-roadmap.md), mục 7 (A4, A5).
-- **Đầu vào giao quyền** (ngoài git):
-  - báo cáo Paperclip 08/10: `exports/reviews/paperclip-javis-assessment-2026-10-08.md`;
-  - bản bổ sung 10/10: `exports/reviews/2026-10-10-resonance-delegation-paperclip-review-supplement.md`.
+- **Base:** the design was written on `main` `33a3c1aa` (0.89.0); the code has merged `main` `1d0b515c` (0.91.0: 0.89.1, 0.89.2, DeepSeek), then `709e3db9` (0.92.1: sign-in, first-run setup screen), `b7e09dbf` (0.92.2: local Ollama with tools), `55bc8e86` (0.94.0: bot views customer images) and `adb103ed` (0.95.1: local Ollama thinking off by default). A1 0.87.0, A2 0.88.0, A3 0.89.0 and the performance release 0.88.5 (#602) are already in `main`.
+- **Roadmap:** [agent scope roadmap](2026-10-08-resonance-agent-scope-roadmap.md), section 7 (A4, A5).
+- **Delegation inputs** (outside git):
+  - Paperclip report of 08/10: `exports/reviews/paperclip-javis-assessment-2026-10-08.md`;
+  - supplement of 10/10: `exports/reviews/2026-10-10-resonance-delegation-paperclip-review-supplement.md`.
 
-**Mức bằng chứng:**
+**Level of evidence:**
 
-- Đã khảo sát mã thật tại `9716cecf`, trùng `33a3c1aa` ở `server/`.
-- Không gọi model. Chưa có mã hay test A4.
-- Mục 2 là mã đã đọc. Mọi thứ khác là đề xuất.
+- The real code was surveyed at `9716cecf`, which matches `33a3c1aa` in `server/`.
+- No model was called. No A4 code or tests existed yet.
+- Section 2 is code that was actually read. Everything else is a proposal.
 
-## 1. Mục tiêu và ngoài phạm vi
+## 1. Goals and out of scope
 
-**Mục tiêu A4:** mọi engine nộp sản phẩm của một mục tiêu theo **cùng một hợp đồng host**.
+**A4 goal:** every engine submits the deliverable of a goal under **one host contract**.
 
-> Host xác định ai đang làm và ghim quyền của lượt đó. Engine nộp nội dung qua đường host kiểm. Host tự đọc và băm bytes, lưu thành bản nộp có biên nhận, rồi tự đăng vào đích qua quyền, guard và baseline thật.
+> The host determines who is working and pins the permission for that turn. The engine submits content through a path the host checks. The host reads and hashes the bytes itself, stores them as a submission with a receipt, then publishes to the destination itself through the real permission, guard and baseline.
 
-Kèm theo là **quyền có phạm vi** học từ Paperclip, ở mức tối thiểu A4 cần:
+Alongside it come **scoped permissions** learned from Paperclip, at the minimum A4 needs:
 
-- Phạm vi gốc do chủ dự án xác lập, độc lập với tiêu chí model sửa.
-- Quyền của từng revision chỉ hẹp lại từ phạm vi gốc.
-- Quyền được ghim vào từng lượt.
-- Thu hồi bằng `generation`.
-- Kiểm ở mọi điểm tác động.
+- The root scope is set by the project owner, independent of the criteria the model edits.
+- The permission of each revision can only narrow from the root scope.
+- The permission is pinned to each turn.
+- Revocation goes through `generation`.
+- It is checked at every point of effect.
 
-A5 dùng lại đúng hợp đồng này cho cặp làm/review.
+A5 reuses exactly this contract for the maker/reviewer pair.
 
-**Người dùng thấy:**
+**What the user sees:**
 
-- Anh giao kết quả một lần.
-- **Đích mới hay đổi phạm vi:** anh bấm Cho phép trên thẻ, kèm đúng đường file. Kể cả khi lời giao đã nêu đích, Jarvis 007 vẫn hỏi một lần; A4 không suy quyền ghi từ lời chat.
-- **Phạm vi đã cấp:** trợ lý tự làm tiếp, không hỏi lại từng bước hay từng lần sửa.
-- **Bản nháp được giữ:** bản trợ lý soạn trước khi anh cho phép được giữ làm nháp. Anh bấm Cho phép thì Jarvis 007 đăng đúng bản đó, bước này không gọi model. Mục tiêu chưa có bản nháp thì sau khi cho phép, việc nền chạy theo ngân sách lượt như thường.
-- Thẻ mục tiêu hiện: được làm gì, trên file nào, tối đa bao nhiêu lượt, có được giao tiếp không, nút Thu hồi.
+- You hand over a result once.
+- **New destination or changed scope:** you click Allow on the card, with the exact file path. Even when the assignment already names the destination, Jarvis 007 still asks once; A4 does not infer write permission from chat text.
+- **Scope already granted:** the assistant keeps working on its own, without asking again at each step or each edit.
+- **Drafts are kept:** a version the assistant wrote before you allowed it is kept as a draft. When you click Allow, Jarvis 007 publishes exactly that version, and this step does not call the model. A goal with no draft yet: after you allow it, the background job runs on the usual per-turn budget.
+- The goal card shows: what it may do, on which file, at most how many turns, whether it may contact others, and a Revoke button.
 
-**Giữ nguyên:**
+**Kept unchanged:**
 
-- **Luật hạn mức A1 tới A3:** giữ chỗ trong giao dịch, trần chung, "chưa gọi thì trả, đã gọi thì giữ", `call_holds`.
-- **Luật đăng:**
-  - đích hợp lệ: đường trong brain, đuôi `.md`/`.txt`, tối đa 1MB, không thuộc thư mục cấm;
-  - guard kiểm trên bản ứng viên;
-  - CAS theo `published`;
-  - các cổng hiện có của `_gate`: mục tiêu active, không tạm dừng, guard, trợ lý, baseline.
-- **Một sản phẩm mỗi mục tiêu.** Đích là `_deliverable_rel`, tức đường `artifact_contract` **đầu tiên** của revision. Đường thứ hai trong tiêu chí (nếu có) chỉ được evaluator của host đọc để chấm, không vào prompt, không được ghi.
-- **Lượt việc nền** vẫn chỉ sinh chữ.
-- **Kho:** bảng cũ không đổi cột. A4 chỉ thêm bảng mới.
+- **A1 to A3 quota rules:** reserving within a transaction, the shared cap, "refund if not yet called, keep if already called", `call_holds`.
+- **Publish rules:**
+  - valid destination: a path inside the brain, extension `.md`/`.txt`, at most 1MB, not in a forbidden folder;
+  - the guard checks the candidate version;
+  - CAS on `published`;
+  - the existing `_gate` checks: goal active, not paused, guard, assistant, baseline.
+- **One deliverable per goal.** The destination is `_deliverable_rel`, i.e. the **first** `artifact_contract` path of the revision. A second path in the criteria (if any) may only be read by the host's evaluator for grading; it does not go into the prompt and may not be written.
+- **Background turns** still only produce text.
+- **Store:** existing tables get no column changes. A4 only adds new tables.
 
-**Ngoài phạm vi A4:**
+**Out of scope for A4:**
 
-- **Đội hai vai, việc con, quyền con thực sự được cấp:** thuộc A5. A4 có cơ chế cha/con vì chính quyền revision là con của phạm vi gốc (mục 5), nhưng không có đường giao việc cho trợ lý thứ hai.
-- **Sandbox cho engine có công cụ native:** A4 không hứa chặn Bash/Write native (mục 6.3).
-- **Mở việc nền cho Codex, Grok, Antigravity.**
-- **Mô hình công ty, vai trò, trust rule, policy engine của Paperclip.**
-- **Nhiều sản phẩm mỗi mục tiêu.**
-- **Cấp quyền từ lời chat.** A4 không có bộ nhận chỉ thị và không có nguồn quyền `owner_message` (mục 5.2.1, D1).
-- **Hạn dùng quyền (`expires_at`).** Không có trong A4 (D10).
-- **Chạy tiếp mục tiêu có quyền A4 bằng mã 0.95.1 sau khi hạ phiên bản.** Không hỗ trợ (mục 7.4).
+- **Two-role teams, sub-jobs, truly granted child permissions:** these belong to A5. A4 has a parent/child mechanism because the revision permission is itself a child of the root scope (section 5), but there is no path for delegating work to a second assistant.
+- **Sandbox for engines with native tools:** A4 does not promise to block native Bash/Write (section 6.3).
+- **Opening background jobs to Codex, Grok, Antigravity.**
+- **Paperclip's company model, roles, trust rules and policy engine.**
+- **Several deliverables per goal.**
+- **Granting permission from chat text.** A4 has no directive receiver and no `owner_message` permission source (section 5.2.1, D1).
+- **Permission expiry (`expires_at`).** Not in A4 (D10).
+- **Continuing a goal that has A4 permissions with 0.95.1 code after a downgrade.** Not supported (section 7.4).
 
-## 2. Hiện trạng: dùng lại và khoảng trống (mã tại `9716cecf`)
+## 2. Current state: what is reused and the gaps (code at `9716cecf`)
 
-| Đã có | Chỗ trong mã | Khoảng trống A4 lấp |
+| Already exists | Where in the code | Gap A4 fills |
 |---|---|---|
-| Danh tính lượt do host gắn: `kenh`, `session_id`, `message_id`, `agent{key, slug, config_version}`. Truyền qua `X-Javis-Turn` (Claude, Codex) hay trong tiến trình (engine API). Khoá lượt chỉ sống trong tiến trình và bị huỷ khi lượt kết thúc (`turn_context.reset`) | `turn_context.make/current/issue_key/resolve_key`, `main.run_turn`, `mcp_hub` | Lượt không mang mục tiêu, revision, quyền, `generation`, thời điểm bắt đầu. Grok và Antigravity không truyền khoá lượt |
-| Cổng trợ lý hai lớp, ghim version | `resonance.agent_gate`, `resonance_store._agent_block`, `begin_action`, `finish_handoff` | Không có phạm vi theo đường hay thao tác |
-| `CapabilityGrant` (replan workflow) | `agent_runtime.py` | Chỉ trong bộ nhớ, không lưu, không thu hồi. A4 không mở rộng lớp này |
-| Hạn mức SQLite, hoàn lượt, `call_holds`, đối soát | `resonance_store.begin_action/finish_action/reconcile_holds` | Đủ. Quyền không thêm bộ đếm |
-| Việc nền chỉ chữ: host ghi `output_root/<action_id>.md`, băm bằng đọc lại | `resonance.run_once`, `_work_post_core` | `_work_post_core` ghi receipt, đăng, chấm trong một mạch. Chưa có bản nộp trước bước đăng (mục 4.4) |
-| Đăng: kiểm đường, guard, CAS | `resonance._publish`, `_gate` | **Nhánh file đích đã cùng hash gọi `set_published` rồi trả `same` trước `begin_action`.** Chưa có cổng quyền. Đọc rồi ghi không có điểm thứ tự với thu hồi |
-| Bàn giao chat Claude: biên nhận Write theo id, so bytes | `note_turn_event`, `handoff_after_turn`, `finish_handoff` | **`finish_handoff` giả định file đã ở đích và ghi `published` ngay**; không chép bản nháp nào. Khoá sự kiện tiếp nhận là `adopt:<revision>` |
-| Mở bàn giao khi lập hay sửa mục tiêu trong lượt chat | `resonance_store._open_handoff` (khoá `(goal, revision)`, `INSERT OR REPLACE`, `message_ref`) | Kho cho phép **hai mục tiêu cùng phiên, cùng đích, cùng `pending`**. Một tin lập rồi sửa cùng mục tiêu tạo hai dòng bàn giao theo revision |
-| Bàn giao hết hạn sau khởi động lại | `handoff_gate` (chủ sở hữu theo tiến trình) | Chưa phân biệt "lượt hết nhận lời gọi" với "bản host đã nhận còn được hoàn tất" |
-| Đối soát lượt nền dở | `resonance._reconcile` (chỉ chốt receipt), `_publish_latest` (đăng đầu ra trần) | Chưa có bản nộp, chưa có liên kết |
-| Mô hình được sửa tiêu chí, đường đích khi có câu trích trong tin | `resonance.validate_proposal`, `revise_goal` | **Câu trích không phải chấp thuận mở quyền vào đường mới** |
-| `resume` gỡ tạm dừng | `resonance.apply_command(..., "resume")` | Mã 0.95.1 không biết quyền: hạ phiên bản rồi bấm Tiếp tục là chạy lại |
-| Helper đường dẫn: chặn đường tuyệt đối, đường resolve ra ngoài brain, symlink trỏ ra ngoài | `resonance._brain_file` | **Nhận `a/../a/x.md` và `./a/x.md`** vì chúng resolve vẫn trong brain (đã chạy thử). Chưa so khớp theo chữ hoa thường trên Windows |
-| Snapshot khi nâng kho: SQLite backup API, lấy cả phần trong WAL, một lần, không ghi đè | `GoalStore._backup_before(marker_table, suffix)` | Dùng lại cho 0.96.0 (mục 7.4) |
+| Turn identity attached by the host: `kenh`, `session_id`, `message_id`, `agent{key, slug, config_version}`. Passed through `X-Javis-Turn` (Claude, Codex) or in-process (API engines). The turn key lives only in the process and is destroyed when the turn ends (`turn_context.reset`) | `turn_context.make/current/issue_key/resolve_key`, `main.run_turn`, `mcp_hub` | A turn carries no goal, revision, permission, `generation` or start time. Grok and Antigravity do not pass the turn key |
+| Two-layer assistant gate, version pinning | `resonance.agent_gate`, `resonance_store._agent_block`, `begin_action`, `finish_handoff` | No scope by path or by operation |
+| `CapabilityGrant` (workflow replan) | `agent_runtime.py` | In memory only, not stored, not revocable. A4 does not extend this class |
+| SQLite quota, turn refund, `call_holds`, reconciliation | `resonance_store.begin_action/finish_action/reconcile_holds` | Sufficient. Permission adds no counter |
+| Text-only background work: the host writes `output_root/<action_id>.md` and hashes by reading it back | `resonance.run_once`, `_work_post_core` | `_work_post_core` writes the receipt, publishes and grades in one pass. There is no submission before the publish step (section 4.4) |
+| Publish: path check, guard, CAS | `resonance._publish`, `_gate` | **The branch where the target file already has the same hash calls `set_published` and returns `same` before `begin_action`.** There is no permission gate. Reading then writing has no ordering point against revocation |
+| Claude chat handoff: Write receipt by id, compare bytes | `note_turn_event`, `handoff_after_turn`, `finish_handoff` | **`finish_handoff` assumes the file is already at the destination and writes `published` immediately**; it copies no draft. The adoption event key is `adopt:<revision>` |
+| Opening a handoff when creating or editing a goal in a chat turn | `resonance_store._open_handoff` (key `(goal, revision)`, `INSERT OR REPLACE`, `message_ref`) | The store allows **two goals in the same session, with the same destination, both `pending`**. One message that creates and then edits the same goal makes two handoff rows by revision |
+| Handoff expiry after restart | `handoff_gate` (owner is per process) | Does not yet distinguish "the turn no longer accepts calls" from "a submission the host has accepted can still be completed" |
+| Reconciling interrupted background turns | `resonance._reconcile` (only settles the receipt), `_publish_latest` (publishes bare output) | No submission, no link yet |
+| The model may edit criteria and the destination path when a quote appears in the message | `resonance.validate_proposal`, `revise_goal` | **A quote is not an approval to open permission on a new path** |
+| `resume` clears the pause | `resonance.apply_command(..., "resume")` | 0.95.1 code does not know permissions: downgrade, then press Resume, and it runs again |
+| Path helper: blocks absolute paths, paths that resolve outside the brain, symlinks pointing outside | `resonance._brain_file` | **It accepts `a/../a/x.md` and `./a/x.md`** because they still resolve inside the brain (tested). It does not yet compare case-insensitively on Windows |
+| Snapshot when upgrading the store: SQLite backup API, includes the WAL part, once, no overwrite | `GoalStore._backup_before(marker_table, suffix)` | Reused for 0.96.0 (section 7.4) |
 
-- **Không có công cụ "nộp sản phẩm".**
-- **Ý tưởng cũ chưa thành mã:** tài liệu 06/10 có `GoalGrant`, `AuthorityService`, `X-Javis-Run`, nhưng chưa có dòng mã nào.
+- **There is no "submit deliverable" tool.**
+- **Old ideas not yet in code:** the 06/10 document has `GoalGrant`, `AuthorityService`, `X-Javis-Run`, but not a single line of code exists.
 
-## 3. Năm bất biến
+## 3. Five invariants
 
-Lấy từ bản bổ sung 10/10, mục 5. A4 hiện thực các bất biến 1 tới 4; bất biến 5 thuộc A5.
+Taken from the 10/10 supplement, section 5. A4 implements invariants 1 to 4; invariant 5 belongs to A5.
 
-1. **Host giữ danh tính và cấp quyền.**
-   - Model chỉ đề xuất.
-   - Câu trích, nút "Đúng ý", revision do model sửa, hay **đường file chỉ xuất hiện trong tin** đều **không** phải chấp thuận mở quyền.
-   - Chat thường không có quyền Resonance.
-2. **Giao xuống chỉ thu hẹp.**
-   - Quyền revision = phần giao của phạm vi gốc và cái revision cần.
-   - Thiếu phạm vi, phạm vi lạ hay cấu hình hỏng thì không có quyền tác động.
-3. **Chỉ lượt đang giữ đúng quyền được tác động.**
-   - Quyền ghim vào lượt lúc host mở liên kết.
-   - Tại điểm tác động, kiểm quyền đã ghim còn sống với đúng `generation` của nó **và** của phạm vi gốc.
-   - Cấp lại hay chấp thuận giữa lượt không cho lượt cũ hưởng quyền mới.
-4. **Chi phí và tác động có một nguồn ghi nhận.**
-   - Cùng khoá và cùng dấu vân tay thao tác chỉ tạo một tác động.
-   - Tác động đã qua điểm commit thì hoàn tất hay báo xung đột; không tự hoàn rồi chạy lại.
-   - Hết quyền nhận lời gọi mới **không** xoá quyền hoàn tất bản host đã nhận, khi quyền đã ghim vẫn còn.
-5. **Làm, review và chốt đạt là ba quyền khác nhau.** Đây là phần của A5.
+1. **The host holds identity and grants permission.**
+   - The model only proposes.
+   - A quote, the "That's right" button, a revision edited by the model, or **a file path that merely appears in the message** are **not** approval to open permission.
+   - Ordinary chat has no Resonance permission.
+2. **Delegation only narrows.**
+   - Revision permission = the intersection of the root scope and what the revision needs.
+   - A missing scope, an unknown scope or a corrupted configuration means no permission to act.
+3. **Only the turn that holds the exact permission may act.**
+   - The permission is pinned to the turn when the host opens the link.
+   - At the point of effect, check that the pinned permission is still alive with its own `generation` **and** that of the root scope.
+   - Re-granting or approving mid-turn does not give the old turn the new permission.
+4. **Cost and effect have one source of record.**
+   - The same key and the same operation fingerprint produce only one effect.
+   - An effect that has passed its commit point is completed or reported as a conflict; it is never undone and rerun automatically.
+   - Running out of authority to accept new calls does **not** remove the authority to complete a submission the host already accepted, as long as the pinned permission is still alive.
+5. **Making, reviewing and settling as done are three different permissions.** This is A5's part.
 
-## 4. Hợp đồng nộp sản phẩm
+## 4. The submission contract
 
-### 4.1 Bốn nguồn, một bảng bản nộp
+### 4.1 Four sources, one submissions table
 
-| Nguồn | Engine | Nội dung đến từ | Bytes ở đâu khi thành bản nộp |
+| Source | Engine | Where the content comes from | Where the bytes are when it becomes a submission |
 |---|---|---|---|
-| `background_text` (đã có) | Claude, engine API | Model trả chữ | Host đã ghi `output_root/<action_id>.md` |
-| `submit_tool` (mới) | Engine có khoá lượt tới hub: Claude, Codex, engine API | Model gọi `javis_submit_deliverable` | Host ghi `output_root/submissions/<id>.md` (vùng nháp) |
-| `observed_write` (đã có, giữ làm đường phụ) | Claude trong chat | Model Write thẳng vào đích | Engine đã ghi ở đích |
-| `approved_draft` (mới) | Không có engine | Chủ dự án Cho phép một bản nháp đã giữ (mục 5.3) | Chính file nháp cũ, không chép lại |
+| `background_text` (exists) | Claude, API engines | The model returns text | The host already wrote `output_root/<action_id>.md` |
+| `submit_tool` (new) | Engines that carry the turn key to the hub: Claude, Codex, API engines | The model calls `javis_submit_deliverable` | The host writes `output_root/submissions/<id>.md` (draft area) |
+| `observed_write` (exists, kept as a side path) | Claude in chat | The model Writes straight to the destination | The engine already wrote it at the destination |
+| `approved_draft` (new) | No engine | The project owner clicks Allow on a kept draft (section 5.3) | The old draft file itself, not copied again |
 
-Mỗi bản nộp là một dòng `submissions` (mục 7.1), gắn với một **liên kết** (mục 4.2).
+Each submission is one `submissions` row (section 7.1), attached to one **binding** (section 4.2).
 
-**Hai luật chung cho mọi bản nộp:**
+**Two rules common to every submission:**
 
-- **Bản nộp chưa phải bản đã đăng.** Chỉ host đăng, theo mục 4.5. Riêng `observed_write` có một ngoại lệ (mục 4.4).
-- **Bản chưa đăng không bao giờ được coi là bản người dùng đã xem hay đã duyệt** (mục 4.6). Bản nháp chờ chấp thuận chỉ hiện kích thước và nút xem trước trên thẻ; bấm Cho phép là duyệt phạm vi kèm đúng bản đó, không phải "Đạt yêu cầu".
+- **A submission is not a published version.** Only the host publishes, per section 4.5. `observed_write` has one exception (section 4.4).
+- **An unpublished version is never treated as one the user has seen or approved** (section 4.6). A draft awaiting approval only shows its size and a preview button on the card; clicking Allow approves the scope together with exactly that version, not "Meets the bar".
 
-### 4.2 Liên kết: ghim quyền vào từng lượt
+### 4.2 Binding: pinning permission to each turn
 
-Bảng `bindings` (mục 7.1). Mỗi dòng ghim cứng, không bao giờ sửa sang quyền khác:
+The `bindings` table (section 7.1). Each row is pinned hard and is never edited to point at a different permission:
 
-- **Mục tiêu:** `goal_id`, `revision`.
-- **Loại thẩm quyền** `authority`:
-  - `grant`: ghim `grant_id`, `grant_generation`, `root_id`, `root_generation`;
-  - `draft`: ghim `scope_request_id` đang chờ chủ dự án; không có quyền revision, không có phạm vi gốc.
-- **Trợ lý:** `agent_key`, `agent_config_version`.
-- **Nguồn:** `origin_kind` cộng `origin_ref`.
-- **Trạng thái:** `status`.
+- **Goal:** `goal_id`, `revision`.
+- **Authority type** `authority`:
+  - `grant`: pins `grant_id`, `grant_generation`, `root_id`, `root_generation`;
+  - `draft`: pins the `scope_request_id` that is waiting for the project owner; no revision permission, no root scope.
+- **Assistant:** `agent_key`, `agent_config_version`.
+- **Origin:** `origin_kind` plus `origin_ref`.
+- **State:** `status`.
 
-Trường `origin_kind` nhận năm giá trị:
+The `origin_kind` field takes five values:
 
-| `origin_kind` | `origin_ref` | Ai tạo, khi nào |
+| `origin_kind` | `origin_ref` | Who creates it, when |
 |---|---|---|
-| `handoff` | `<session_id>:<message_id>` | Host, trong **cùng giao dịch** với `_open_handoff`, mỗi lần mục tiêu được lập hay sửa giữa lượt chat. Không đòi biết mục tiêu từ đầu lượt |
-| `action` | `<action_id>` | Host, trong cùng giao dịch với `begin_action(work)` |
-| `experiment` | `<experiment_id>` | Host, trong cùng giao dịch với `begin_experiment` (phép thử A3) |
-| `followup` | `<action_id>` | Host, khi lượt làm sản phẩm A3 dùng lượt giữ (`begin_action` với `use_hold`) |
-| `approval` | `<scope_request_id>` | Host, trong giao dịch `approve_scope` khi chủ dự án chọn một bản nháp (mục 5.3) |
-| `republish` | mã mới mỗi lần | Host, khi file đích bị xoá mà revision hiện tại có bản ĐÃ đăng (I2): chép đúng bản đã đăng (cùng mục tiêu, revision, đích, sha) dưới liên kết mới ghim quyền revision ĐANG hiệu lực. Không bao giờ hợp thức hoá bản `candidate` hay `stale` chưa từng đăng |
+| `handoff` | `<session_id>:<message_id>` | The host, in the **same transaction** as `_open_handoff`, each time a goal is created or edited in the middle of a chat turn. It does not require knowing the goal from the start of the turn |
+| `action` | `<action_id>` | The host, in the same transaction as `begin_action(work)` |
+| `experiment` | `<experiment_id>` | The host, in the same transaction as `begin_experiment` (an A3 trial) |
+| `followup` | `<action_id>` | The host, when the A3 deliverable turn uses a hold (`begin_action` with `use_hold`) |
+| `approval` | `<scope_request_id>` | The host, in the `approve_scope` transaction when the project owner chooses a draft (section 5.3) |
+| `republish` | a new code each time | The host, when the destination file is deleted but the current revision has a PUBLISHED version (I2): it copies exactly the published version (same goal, revision, destination, sha) under a new binding that pins the revision permission currently IN EFFECT. It never legitimizes a `candidate` or `stale` version that was never published |
 
-**Khoá và lần mở.** `UNIQUE(goal_id, revision, origin_kind, origin_ref)`:
+**Key and reopening.** `UNIQUE(goal_id, revision, origin_kind, origin_ref)`:
 
-- Một tin lập mục tiêu (revision 1) rồi sửa nó (revision 2) có **hai** liên kết, mỗi revision một dòng.
-- Mở lại đúng `(goal, revision, origin)` (phát lại lời gọi sửa không đổi gì): `INSERT ... ON CONFLICT DO NOTHING`, rồi đọc dòng có sẵn. Dòng còn `live` thì trả mã của nó; không còn `live` thì không có liên kết nào cho lượt này. **Không bao giờ `INSERT OR REPLACE`**, vì bản nộp và hành động đang tham chiếu dòng cũ.
-- Mở liên kết revision mới làm, trong cùng giao dịch: bản nộp `candidate` và `awaiting_scope` của revision cũ thành `superseded`; liên kết revision cũ thành `closed`. Bản nộp đang `publishing` để bước 3 của mục 4.5 tự huỷ, vì revision không còn khớp.
+- A message that creates a goal (revision 1) and then edits it (revision 2) has **two** bindings, one row per revision.
+- Reopening exactly `(goal, revision, origin)` (replaying an edit call that changes nothing): `INSERT ... ON CONFLICT DO NOTHING`, then read the existing row. If the row is still `live`, return its code; if it is no longer `live`, there is no binding for this turn. **Never `INSERT OR REPLACE`**, because submissions and actions reference the old row.
+- Opening the binding for a new revision does the following in the same transaction: `candidate` and `awaiting_scope` submissions of the old revision become `superseded`; the old revision's binding becomes `closed`. A submission that is `publishing` is left so that step 3 of section 4.5 cancels itself, since the revision no longer matches.
 
-**Ghim phạm vi gốc theo lượt chat** (chỉ `origin_kind=handoff`). Liên kết `grant` mới của một tin chỉ được mở khi đủ hai điều:
+**Pinning the root scope per chat turn** (only `origin_kind=handoff`). A new `grant` binding for a message may be opened only when both of these hold:
 
-1. Mọi liên kết trước đó của cùng `(goal_id, origin_ref)` ghim **cùng** `root_id` và `root_generation` với phạm vi gốc đang `active`. Có một liên kết đã `dead`, hay gốc hiện hành khác gốc đã ghim, thì từ chối (`turn_authority_changed`).
-2. Với liên kết đầu tiên của tin cho mục tiêu đó (lượt chưa từng chạm mục tiêu): gốc phải có `root.seq <= turn.authority_seq`. Không có ngoại lệ: A4 không có gốc nào do chính lượt chat tạo ra.
+1. Every earlier binding for the same `(goal_id, origin_ref)` pins the **same** `root_id` and `root_generation` as the currently `active` root scope. If one binding is already `dead`, or the current root differs from the pinned root, refuse (`turn_authority_changed`).
+2. For the first binding of the message for that goal (the turn has never touched the goal): the root must satisfy `root.seq <= turn.authority_seq`. No exceptions: A4 has no root created by the chat turn itself.
 
-**Thứ tự quyền do kho quản lý, không dùng giờ máy.**
+**Permission ordering is managed by the store, not by the machine clock.**
 
-- Bảng một dòng `authority_clock(seq)`. Mọi giao dịch tạo gốc, thu hồi, chấp thuận, cấp lại (đều `BEGIN IMMEDIATE`) tăng `seq` thêm một trong chính giao dịch đó. Gốc mới mang `grants.seq` bằng giá trị vừa tăng.
-- Lượt có trợ lý: `main.run_turn` đọc `authority_clock.seq` (một lần đọc theo khoá chính) **trước khi engine chạy**, ghi vào `turn.authority_seq`. Trường này do host đặt; model không thấy, không sửa được.
-- Vì các giao dịch ghi được SQLite tuần tự hoá, lần đọc ở đầu lượt thấy kho **hoặc trước hoặc sau** một lần cấp lại. Gốc cấp lại sau lần đọc luôn có `seq` lớn hơn, nên lượt đó không nhận được, kể cả lần đầu chạm mục tiêu. Đồng hồ lùi hay hai thời điểm trùng nhau không ảnh hưởng.
-- `seq` lưu trong kho, nên khởi động lại không làm nó lùi. Lượt của tiến trình cũ chết theo tiến trình.
-- Không đọc được `seq` lúc dựng lượt: `authority_seq = -1`. Lượt vẫn chat bình thường, nhưng không mở được liên kết `grant` dưới gốc có sẵn (đóng khi lỗi); việc nền làm tiếp như thường.
-- `created_at` của gốc chỉ để hiển thị và kiểm toán, không làm căn cứ quyền.
+- A one-row table `authority_clock(seq)`. Every transaction that creates a root, revokes, approves or re-grants (all `BEGIN IMMEDIATE`) increments `seq` by one inside that same transaction. A new root carries `grants.seq` equal to the value just incremented.
+- A turn with an assistant: `main.run_turn` reads `authority_clock.seq` (a single primary-key read) **before the engine runs** and writes it to `turn.authority_seq`. The host sets this field; the model cannot see or edit it.
+- Because SQLite serializes write transactions, the read at the start of the turn sees the store **either before or after** a re-grant. A root re-granted after the read always has a larger `seq`, so that turn cannot accept it, even on its first touch of the goal. A clock moving backward or two identical timestamps have no effect.
+- `seq` is stored in the store, so a restart does not move it backward. Turns of the old process die with the process.
+- If `seq` cannot be read when building the turn: `authority_seq = -1`. The turn still chats normally, but cannot open a `grant` binding under an existing root (fail closed); background work continues as usual.
+- A root's `created_at` is only for display and audit, not a basis for permission.
 
-Hệ quả: thu hồi rồi cấp lại, hay chủ dự án Cho phép trong khi lượt cũ còn chạy, đều không cho lượt đó lấy liên kết dưới gốc mới, dù lượt đã có liên kết hay mới chạm mục tiêu lần đầu, qua lời sửa hay lời gọi đến muộn. Lời sửa mục tiêu vẫn được ghi; lượt đó chỉ không có quyền nộp, và việc nền làm tiếp dưới liên kết của nó.
+Consequence: revoking then re-granting, or the project owner clicking Allow while the old turn is still running, never lets that turn take a binding under the new root, whether the turn already had a binding or is touching the goal for the first time, whether through an edit or a late call. The goal edit is still recorded; that turn simply has no permission to submit, and background work continues under its own binding.
 
-**Vòng đời liên kết:**
+**Binding lifecycle:**
 
-| `status` | Nhận lời nộp mới | Hoàn tất bản host đã nhận | Vào trạng thái này khi |
+| `status` | Accepts new submissions | Completes a submission the host already accepted | Enters this state when |
 |---|---|---|---|
-| `live` | Có | Có | Host mở liên kết |
-| `sealed` | **Không** | Có | Lượt chat kết thúc hay hết hạn (kể cả sau khởi động lại); lượt nền ghi xong đầu ra hay bị ngắt; phép thử kết thúc. Liên kết `approval` sinh ra ở `sealed` |
-| `closed` | Không | Không | Mọi bản nộp của liên kết đã ở trạng thái cuối; hay revision mới thay chỗ |
-| `dead` | Không | Không | Thu hồi |
+| `live` | Yes | Yes | The host opens the binding |
+| `sealed` | **No** | Yes | The chat turn ends or expires (including after a restart); a background turn finishes writing its output or is interrupted; a trial ends. An `approval` binding is born `sealed` |
+| `closed` | No | No | Every submission of the binding is in a final state; or a new revision replaces it |
+| `dead` | No | No | Revoked |
 
-**Hai phép kiểm**, đều chỉ đọc trong giao dịch:
+**Two checks**, both read-only inside a transaction:
 
-- `binding_accepts(c, b)`: cổng của lời nộp mới.
+- `binding_accepts(c, b)`: the gate for a new submission.
   1. `b.status = live`.
-  2. Thẩm quyền còn hiệu lực:
-     - `grant`: dòng `b.grant_id` đang `active` với `generation = b.grant_generation`, **và** gốc `b.root_id` đang `active` với `generation = b.root_generation`;
-     - `draft`: yêu cầu `b.scope_request_id` còn `pending`, đúng revision và trợ lý của liên kết.
-  3. `_agent_block(b.agent_key, b.agent_config_version)` không báo gì.
-  4. Revision hiện hành của mục tiêu bằng `b.revision`.
-- `binding_may_finish(c, b)`: cổng hoàn tất một bản nộp đã nhận (đăng, tiếp nhận, đối soát).
-  - Như trên, nhưng điều 1 là `b.status IN (live, sealed)`.
-  - Thẩm quyền phải là `grant`. Liên kết `draft` **không bao giờ** đăng hay tiếp nhận được.
+  2. The authority is still in effect:
+     - `grant`: the row `b.grant_id` is `active` with `generation = b.grant_generation`, **and** the root `b.root_id` is `active` with `generation = b.root_generation`;
+     - `draft`: the request `b.scope_request_id` is still `pending`, with the right revision and the binding's assistant.
+  3. `_agent_block(b.agent_key, b.agent_config_version)` reports nothing.
+  4. The goal's current revision equals `b.revision`.
+- `binding_may_finish(c, b)`: the gate for completing an accepted submission (publish, adopt, reconcile).
+  - Same as above, but item 1 is `b.status IN (live, sealed)`.
+  - The authority must be `grant`. A `draft` binding can **never** publish or adopt.
 
-Hai phép kiểm này chỉ là kiểm quyền. Bước đăng vẫn chạy đủ cổng `_gate` hiện có (mục 4.5).
+These two checks are permission checks only. The publish step still runs the full existing `_gate` (section 4.5).
 
-**Hệ quả:**
+**Consequences:**
 
-- **Cấp lại không cứu được lượt cũ.** Thu hồi tăng `generation` của gốc và chuyển liên kết thành `dead`. Cấp lại tạo gốc **mới** (`id` mới). Lượt cũ vẫn ghim gốc cũ.
-- **Lời gọi từ lượt đã chết bị chặn hai lớp:**
-  - khoá lượt của tiến trình cũ không còn (`no_turn`);
-  - trong cùng tiến trình, liên kết đã `sealed` nên lời nộp bị từ chối (`turn_closed`).
-- **Khởi động lại không làm mất bản đã nhận.** Bàn giao hết hạn chỉ chuyển liên kết sang `sealed`. Đối soát vẫn đăng được bản `candidate` đã nhận, dưới đúng quyền đã ghim, nếu quyền đó còn hiệu lực (mục 4.7).
+- **Re-granting does not rescue an old turn.** Revoking increments the root's `generation` and turns the binding `dead`. Re-granting creates a **new** root (new `id`). The old turn still pins the old root.
+- **Calls from a dead turn are blocked in two layers:**
+  - the turn key of the old process no longer exists (`no_turn`);
+  - within the same process, the binding is `sealed`, so the submission is refused (`turn_closed`).
+- **A restart does not lose an accepted submission.** Handoff expiry only moves the binding to `sealed`. Reconciliation can still publish the accepted `candidate` submission, under exactly the pinned permission, if that permission is still in effect (section 4.7).
 
-### 4.3 Công cụ `javis_submit_deliverable`
+### 4.3 The `javis_submit_deliverable` tool
 
-**Đầu vào:**
+**Input:**
 
-- `path`: đường đích.
-- `content`: toàn văn.
-- `submission_key`: không bắt buộc.
-- `handoff`: không bắt buộc. Đây là mã liên kết host đã trả trong kết quả công cụ lập hay sửa mục tiêu.
+- `path`: the destination path.
+- `content`: the full text.
+- `submission_key`: optional.
+- `handoff`: optional. This is the binding code the host returned in the result of the tool that created or edited the goal.
 
-Model không truyền được mục tiêu, trợ lý hay quyền. `handoff` chỉ dùng để chọn giữa các liên kết của **chính lượt đang gọi**.
+The model cannot pass a goal, assistant or permission. `handoff` is only used to choose among the bindings of **the calling turn itself**.
 
-**Các bước.** Hỏng ở bước 1 tới 5 thì không có bản nộp nào được chấp nhận và không có tác động nào lên đích. File nháp hay bằng chứng mồ côi có thể còn lại ở bước 6; mục 4.7 nói cách đối soát.
+**Steps.** If steps 1 to 5 fail, no submission is accepted and nothing affects the destination. A draft file or orphan evidence may remain at step 6; section 4.7 describes how it is reconciled.
 
-1. **Danh tính lượt** (`turn_context` theo khoá lượt).
-   - Không có lượt: `no_turn`.
-   - Lượt không mang trợ lý (chat thường, kênh ngoài, workflow): `not_agent_turn`.
-2. **Khoá đường** (`resonance_grants.path_key`).
-   - Từ chối trước khi resolve nếu có đoạn `.` hay `..`, đường tuyệt đối, ký tự điều khiển. Không mở alias.
-   - Rồi qua `_brain_file`: resolve thật, kiểm còn trong brain, chặn symlink trỏ ra ngoài. Thêm kiểm đuôi, kích thước, thư mục cấm.
-   - Khoá so khớp là đường tương đối POSIX, qua `os.path.normcase` trên Windows. Không so tiền tố chuỗi.
-3. **Tìm liên kết của lượt.**
-   - Lấy mọi liên kết `origin_kind=handoff`, `origin_ref = <session_id>:<message_id>` **của đúng lượt đang gọi**, đúng `agent_key` và `config_version` của lượt, **ở mọi trạng thái**.
-   - Có `handoff` thì phải là một trong số đó.
-   - Lọc theo khoá đường của đích mà liên kết trỏ tới (quyền revision với `grant`, yêu cầu phạm vi với `draft`).
-   - Hơn 1 dòng sau lọc: `ambiguous_handoff`, không đoán. Ví dụ: cùng tin sửa mục tiêu hai lần cùng đích thì có hai liên kết (một `closed`, một `live`); lời nộp không kèm `handoff` ra `ambiguous_handoff`. Công cụ lập và sửa mục tiêu luôn trả `handoff` **mới** của revision vừa tạo, và mô tả công cụ nộp dặn model gửi kèm mã đó. A4 không tự chọn dòng đầu hay dòng cuối.
-4. **Nội dung.**
-   - Đổi gạch dài thành "-", có đếm số lần đổi.
-   - sha256 tính trên bytes sẽ ghi.
-5. **Khoá, dấu vân tay, phát lại.** Thứ tự cố định: danh tính (bước 1) và liên kết của chính lượt (bước 3) **trước**, rồi mới tra biên nhận cũ.
-   - Dấu vân tay `fp` = sha256 của `(binding_id, khoá đường, sha nội dung, source)`.
-   - Khoá: `<binding_id>:<khoá đường>`, hay `<binding_id>:<submission_key>` nếu model đưa khoá.
-   - Cùng khoá, cùng `fp`: trả biên nhận đã có, kèm trạng thái **hiện tại** của nó (có thể đã `stale`). Không tạo tác động mới. Đúng cả khi liên kết đã `sealed` hay `dead`.
-   - Cùng khoá, khác `fp`: `submission_conflict`.
-   - Khác đích mà cùng khoá tuỳ chọn cũng khác `fp`, nên ra xung đột.
-   - Không có biên nhận cũ: cần đúng một liên kết qua `binding_accepts`. Không có thì trả lý do cụ thể: `turn_closed`, `grant_revoked`, `scope_decided`, `revision_changed`, `agent_changed`, `no_open_handoff`, `path_not_in_scope`.
-6. **Ghi.**
-   - Ghi file nháp `output_root/submissions/<submission_id>.md` (file tạm rồi `os.replace`), đọc lại để băm, lưu bằng chứng.
-   - Rồi **một giao dịch** kiểm lại `binding_accepts` và quyền:
-     - liên kết `grant`: quyền revision có `submit` và đúng đích; chèn `submissions` trạng thái `candidate`;
-     - liên kết `draft`: đường bằng đường của yêu cầu; chèn trạng thái `awaiting_scope`.
-   - Kho bằng chứng và hệ thống file không nằm trong giao dịch SQLite. Hỏng giữa chừng để lại file hay bằng chứng mồ côi, không có dòng.
-7. **Trả biên nhận:** mã bản nộp, sha, kích thước, trạng thái. Không có nội dung.
+1. **Turn identity** (`turn_context` by turn key).
+   - No turn: `no_turn`.
+   - A turn that carries no assistant (ordinary chat, external channel, workflow): `not_agent_turn`.
+2. **Path key** (`resonance_grants.path_key`).
+   - Refuse before resolving if there is a `.` or `..` segment, an absolute path, or a control character. No alias is opened.
+   - Then pass through `_brain_file`: real resolve, check it is still inside the brain, block symlinks pointing outside. Add checks on extension, size and forbidden folders.
+   - The matching key is the POSIX relative path, passed through `os.path.normcase` on Windows. No string-prefix comparison.
+3. **Find the turn's binding.**
+   - Take every binding with `origin_kind=handoff`, `origin_ref = <session_id>:<message_id>` **of the calling turn itself**, with the turn's own `agent_key` and `config_version`, **in every state**.
+   - If `handoff` is given, it must be one of them.
+   - Filter by the path key of the destination the binding points to (the revision permission for `grant`, the scope request for `draft`).
+   - More than 1 row after filtering: `ambiguous_handoff`, no guessing. Example: the same message edits a goal twice with the same destination, so there are two bindings (one `closed`, one `live`); a submission without `handoff` gives `ambiguous_handoff`. The tools that create and edit goals always return the **new** `handoff` of the revision just created, and the submit tool's description tells the model to send that code along. A4 does not pick the first or the last row itself.
+4. **Content.**
+   - Replace long dashes with "-", counting the number of replacements.
+   - Compute sha256 over the bytes that will be written.
+5. **Key, fingerprint, replay.** Fixed order: identity (step 1) and the turn's own binding (step 3) **first**, then look up an old receipt.
+   - Fingerprint `fp` = sha256 of `(binding_id, path key, content sha, source)`.
+   - Key: `<binding_id>:<path key>`, or `<binding_id>:<submission_key>` if the model gives a key.
+   - Same key, same `fp`: return the existing receipt, with its **current** state (it may already be `stale`). No new effect. Holds even when the binding is already `sealed` or `dead`.
+   - Same key, different `fp`: `submission_conflict`.
+   - A different destination with the same optional key also has a different `fp`, so it yields a conflict.
+   - No old receipt: exactly one binding must pass `binding_accepts`. If not, return a specific reason: `turn_closed`, `grant_revoked`, `scope_decided`, `revision_changed`, `agent_changed`, `no_open_handoff`, `path_not_in_scope`.
+6. **Write.**
+   - Write the draft file `output_root/submissions/<submission_id>.md` (temp file then `os.replace`), read it back to hash, store the evidence.
+   - Then **one transaction** re-checks `binding_accepts` and the permission:
+     - `grant` binding: the revision permission has `submit` and the right destination; insert `submissions` with state `candidate`;
+     - `draft` binding: the path equals the request's path; insert state `awaiting_scope`.
+   - The evidence store and the file system are not inside the SQLite transaction. A failure midway leaves an orphan file or evidence, with no row.
+7. **Return the receipt:** submission id, sha, size, state. No content.
 
-### 4.4 Bảng chuyển trạng thái theo nguồn
+### 4.4 State transition table by source
 
-**Trạng thái của `submissions`:**
+**States of `submissions`:**
 
-| Trạng thái | Nghĩa | Cuối? |
+| State | Meaning | Final? |
 |---|---|---|
-| `awaiting_scope` | Bản nháp giữ dưới liên kết `draft`, chờ chủ dự án quyết phạm vi | Không |
-| `candidate` | Bản nộp hợp lệ dưới liên kết `grant`, chưa đăng | Không |
-| `publishing` | Đã có ý định đăng, đang chờ mốc commit | Không |
-| `published` | Đã đăng, bytes ở đích đã đối chiếu khớp. `adopted_at` rỗng nghĩa là chưa tiếp nhận xong | Không, tới khi có `adopted_at` |
-| `adopted_in_place` | Chỉ `observed_write` | Có |
-| `promoted` | Bản nháp đã được chủ dự án chọn; dòng `approved_draft` mới mang nó đi tiếp | Có |
-| `conflict` | Đích có bytes không khớp baseline | Có |
-| `stale` | Quyền đã ghim hết hiệu lực trước mốc commit | Có |
-| `superseded` | Có bản mới hơn cùng liên kết, hay revision mới thay chỗ | Có |
-| `rejected` | Bị từ chối, gồm chủ dự án bấm Không | Có |
+| `awaiting_scope` | A draft kept under a `draft` binding, waiting for the project owner to decide the scope | No |
+| `candidate` | A valid submission under a `grant` binding, not yet published | No |
+| `publishing` | Publish intent recorded, waiting for the commit point | No |
+| `published` | Published, bytes at the destination checked and matching. An empty `adopted_at` means adoption is not finished yet | No, until `adopted_at` is set |
+| `adopted_in_place` | `observed_write` only | Yes |
+| `promoted` | The draft was chosen by the project owner; a new `approved_draft` row carries it forward | Yes |
+| `conflict` | The destination holds bytes that do not match the baseline | Yes |
+| `stale` | The pinned permission lapsed before the commit point | Yes |
+| `superseded` | A newer submission exists under the same binding, or a new revision took its place | Yes |
+| `rejected` | Refused, including the project owner clicking No | Yes |
 
-**`submit_tool`, liên kết `grant`:**
+**`submit_tool`, `grant` binding:**
 
-1. `candidate`: mục 4.3.
-2. Cuối lượt chat, `handoff_after_turn` chuyển liên kết sang `sealed`, chọn bản `candidate` mới nhất của liên kết này (bản cũ hơn thành `superseded`) và gọi **đăng của host** (mục 4.5), đọc bytes từ file nháp.
-3. Đăng xong: `published`, rồi `adopt_submission` (bản tách mới của `finish_handoff`):
-   - nối bằng chứng `chat_output` đã lưu ở bước nộp (`INSERT OR IGNORE`);
-   - sự kiện `artifact_adopted` với khoá `adopt:<submission_id>` (thay `adopt:<revision>` cũ, vì một revision có thể có nhiều bản qua nhiều lần);
-   - đóng bàn giao; nhả lịch nếu cổng hiện có cho phép;
-   - ghi `adopted_at`. Tất cả trong một giao dịch. **Không ghi `published` lần nữa**, vì đăng đã ghi.
-4. Đăng gặp xung đột: `conflict`, báo thật. Bàn giao không tiếp nhận gì, giữ bản nháp.
+1. `candidate`: section 4.3.
+2. At the end of the chat turn, `handoff_after_turn` moves the binding to `sealed`, picks the newest `candidate` of this binding (older ones become `superseded`) and calls the **host publish** (section 4.5), reading bytes from the draft file.
+3. After publishing: `published`, then `adopt_submission` (the new split-out part of `finish_handoff`):
+   - attach the `chat_output` evidence stored at submission time (`INSERT OR IGNORE`);
+   - an `artifact_adopted` event with key `adopt:<submission_id>` (replacing the old `adopt:<revision>`, because one revision can have several submissions over several attempts);
+   - close the handoff; release the schedule if the existing gate allows;
+   - write `adopted_at`. All in one transaction. **Do not write `published` again**, since the publish already wrote it.
+4. If publishing hits a conflict: `conflict`, reported truthfully. The handoff adopts nothing and keeps the draft.
 
-**`submit_tool`, liên kết `draft`:** bản nộp ở `awaiting_scope`. Cuối lượt, liên kết thành `sealed`, không đăng, không giữ lượt nền. Đi tiếp theo mục 5.3 (Cho phép hay Không).
+**`submit_tool`, `draft` binding:** the submission is at `awaiting_scope`. At the end of the turn the binding becomes `sealed`; nothing is published and no background turn is held. It proceeds per section 5.3 (Allow or No).
 
-**`approved_draft`:** dòng mới do `approve_scope` tạo, liên kết `approval` (`sealed`), trạng thái `candidate`, `derived_from` trỏ về bản nháp cũ (đã `promoted`). Đăng và tiếp nhận như bước 2 tới 4 của `submit_tool`. Sự kiện tiếp nhận ghi nguồn `owner_approval`.
+**`approved_draft`:** a new row created by `approve_scope`, with an `approval` binding (`sealed`), state `candidate`, and `derived_from` pointing back to the old draft (already `promoted`). Publishing and adoption follow steps 2 to 4 of `submit_tool`. The adoption event records the source `owner_approval`.
 
-**`background_text`:** sắp lại thứ tự `_work_post_core`:
+**`background_text`:** reorder `_work_post_core`:
 
-1. Receipt, rồi bằng chứng. Liên kết `action` chuyển `sealed`.
-2. **Chèn bản nộp `candidate`** với liên kết `action` của lượt, qua `binding_may_finish`. Không qua thì `stale`.
-3. Chấm trên bản ứng viên, như hôm nay.
-4. Đăng **từ bản nộp** (mục 4.5).
-5. `_publish_latest` (đăng lại khi lần trước bị chặn) chỉ lấy bản `candidate` của revision hiện hành có `binding_may_finish`. Không lấy đầu ra hành động trần như trước.
+1. Receipt, then evidence. The `action` binding moves to `sealed`.
+2. **Insert a `candidate` submission** with the turn's `action` binding, through `binding_may_finish`. If it does not pass, `stale`.
+3. Grade on the candidate version, as today.
+4. Publish **from the submission** (section 4.5).
+5. `_publish_latest` (republish when the previous attempt was blocked) only takes the `candidate` submission of the current revision that has `binding_may_finish`. It no longer takes bare action output as before.
 
 **`observed_write`:**
 
-- Engine đã ghi bytes ở đích, nên đây là **ngoại lệ**: host tiếp nhận tại chỗ, không đăng lại.
-- Điều kiện tiếp nhận:
-  - biên nhận Write hợp lệ, theo luật cũ;
-  - bytes ở đích khớp sha của biên nhận;
-  - `binding_may_finish` của liên kết `handoff`, thẩm quyền `grant`;
-  - quyền có `publish` cho đúng đích;
-  - cổng `_gate` hiện có.
-- Đạt thì ghi `adopted_in_place` và mốc `published`, kèm nguồn `observed_write`. Biên bản ghi rõ đây là file engine đã ghi, không phải file host vừa đăng.
-- Liên kết `draft` không bao giờ tiếp nhận Write tại chỗ. File trợ lý tự Write khi chưa có phạm vi thành bytes lạ ở đích, xử lý như A2.
+- The engine already wrote the bytes at the destination, so this is an **exception**: the host adopts in place and does not publish again.
+- Conditions for adoption:
+  - a valid Write receipt, under the old rules;
+  - bytes at the destination match the receipt's sha;
+  - `binding_may_finish` of the `handoff` binding, authority `grant`;
+  - the permission has `publish` for exactly this destination;
+  - the existing `_gate`.
+- If met, write `adopted_in_place` and the `published` marker, with source `observed_write`. The record states clearly that this is a file the engine wrote, not a file the host just published.
+- A `draft` binding never adopts an in-place Write. A file the assistant Writes on its own before a scope exists becomes foreign bytes at the destination, handled as in A2.
 
-**Cùng lượt có Write A ở đích và nộp B (D3):**
+**Same turn has Write A at the destination and submission B (D3):**
 
-1. Nếu A có biên nhận hợp lệ và tiếp nhận được, host tiếp nhận A tại chỗ trước, A thành baseline. Sau đó host đăng B đè lên A qua CAS và guard, vì baseline lúc này đã là A.
-2. Nếu A không có biên nhận hợp lệ, đích đang mang bytes lạ không có baseline. Host báo `conflict` cho B.
-3. **Không bao giờ ghi baseline của B lên file A** để ép đăng.
+1. If A has a valid receipt and can be adopted, the host adopts A in place first, and A becomes the baseline. Then the host publishes B over A through CAS and the guard, because the baseline is now A.
+2. If A has no valid receipt, the destination carries foreign bytes with no baseline. The host reports `conflict` for B.
+3. **Never write B's baseline onto file A** to force the publish.
 
-### 4.5 Đăng của host: thứ tự với thu hồi
+### 4.5 Host publish: ordering against revocation
 
-Mọi đường thay mốc sản phẩm đi qua đúng một hàm `host_publish(submission)`:
-- đăng thường;
-- nhánh cùng nội dung (`same`);
-- đăng lại;
-- đối soát;
-- lượt làm sản phẩm A3;
-- bản nháp được chủ dự án chọn.
+Every path that changes the deliverable marker goes through exactly one function, `host_publish(submission)`:
+- normal publish;
+- the same-content branch (`same`);
+- republish;
+- reconciliation;
+- the A3 deliverable turn;
+- a draft chosen by the project owner.
 
-Bốn bước, không giữ khoá trong lúc gọi model hay ghi file:
+Four steps, holding no lock while calling the model or writing files:
 
-1. **Ý định.** Giao dịch kiểm:
-   - `binding_may_finish` của bản nộp;
-   - quyền có `publish` và đích đúng;
-   - **đủ cổng `_gate` hiện có:** mục tiêu active, không tạm dừng, guard trên bytes bản nộp, trợ lý;
-   - đọc baseline (`published`) và hash hiện tại của đích.
+1. **Intent.** A transaction checks:
+   - `binding_may_finish` of the submission;
+   - the permission has `publish` and the right destination;
+   - **the full existing `_gate`:** goal active, not paused, guard on the submission's bytes, assistant;
+   - it reads the baseline (`published`) and the current hash of the destination.
 
-   Đạt thì ghi `actions(kind=publish)` mang `binding_id`, `submission_id` và chuyển bản nộp sang `publishing`.
-   - Đích đã cùng hash với bản nộp (nhánh `same`): tới bước 4 luôn, **trong chính giao dịch này**, sau khi đã kiểm quyền. Bỏ con đường đi vòng hiện có.
-2. **Ghi tạm.** Ghi file tạm cạnh đích, ngoài giao dịch.
-3. **Mốc commit.** Giao dịch `BEGIN IMMEDIATE`:
-   - kiểm lại `binding_may_finish` và các cổng `_gate`;
-   - đọc lại hash đích, so với baseline đã đọc ở bước 1.
+   If met, it writes `actions(kind=publish)` carrying `binding_id` and `submission_id`, and moves the submission to `publishing`.
+   - Destination already has the same hash as the submission (the `same` branch): go straight to step 4, **inside this very transaction**, after the permission check. The existing detour path is removed.
+2. **Temporary write.** Write a temp file next to the destination, outside the transaction.
+3. **Commit point.** A `BEGIN IMMEDIATE` transaction:
+   - re-check `binding_may_finish` and the `_gate` checks;
+   - re-read the destination hash and compare it with the baseline read in step 1.
 
-   Đạt thì ghi `commit_at` vào hành động đăng. Thao tác thu hồi cũng dùng `BEGIN IMMEDIATE` trên cùng kho, nên hai việc được **tuần tự hoá**:
-   - **Thu hồi commit trước:** bước 3 thấy liên kết chết, xoá file tạm, hành động thành `aborted`, bản nộp về `stale`.
-   - **Bước 3 commit trước:** tác động đã được phép. Thu hồi sau đó chặn các tác động tiếp theo, không huỷ tác động này.
-4. **Thay file và ghi mốc.**
-   - `os.replace`, rồi đọc lại hash đích.
-   - Khớp: giao dịch `set_published`, bản nộp `published`.
-   - Không khớp: `conflict`.
+   If met, write `commit_at` into the publish action. A revoke operation also uses `BEGIN IMMEDIATE` on the same store, so the two are **serialized**:
+   - **Revoke commits first:** step 3 sees the binding dead, deletes the temp file, the action becomes `aborted`, and the submission goes back to `stale`.
+   - **Step 3 commits first:** the effect has been allowed. A later revoke blocks subsequent effects but does not cancel this one.
+4. **Replace the file and write the marker.**
+   - `os.replace`, then re-read the destination hash.
+   - Match: `set_published` transaction, submission `published`.
+   - No match: `conflict`.
 
-**Luật tác động đã commit.** Từ lúc có `commit_at`, việc hoàn tất bước 4 (kể cả trong đối soát) **không** kiểm lại liên kết, quyền hay tạm dừng; chỉ kiểm baseline và hash. Đây là luật riêng của tác động đã commit, không áp cho bản `candidate` chưa có ý định.
+**Rule for a committed effect.** From the moment `commit_at` exists, completing step 4 (including during reconciliation) does **not** re-check the binding, permission or pause; it only checks the baseline and hash. This is a rule specific to committed effects and does not apply to a `candidate` submission with no intent.
 
-**Thông báo khi thu hồi chen giữa:**
+**Messages when a revoke lands in between:**
 
-- Có `commit_at`, chưa có bằng chứng ở đích: "Lần đăng đã được chốt trước khi thu hồi; Jarvis 007 đang hoàn tất." Chưa nói file đã đăng.
-- Bước 4 khớp hash: "Đã hoàn tất lần đăng được chốt trước khi thu hồi" kèm sha. Không nói "đã đăng trước khi thu hồi", vì file có thể được thay sau lúc thu hồi.
-- Bước 4 không khớp: báo xung đột như mọi lần đăng khác.
+- `commit_at` exists, no evidence at the destination yet: "The publish was committed before the revoke; Jarvis 007 is finishing it." It does not yet say the file was published.
+- Step 4 hash matches: "Finished the publish that was committed before the revoke", with the sha. It does not say "published before the revoke", because the file may have been replaced after the revoke.
+- Step 4 does not match: report a conflict as with any other publish.
 
-Thẻ mục tiêu và hướng dẫn ghi rõ luật này.
+The goal card and the guide state this rule explicitly.
 
-**Giới hạn (nói đúng phần phát hiện được):** không có tính nguyên tử giữa SQLite và hệ thống file.
+**Limit (stating exactly what is detectable):** there is no atomicity between SQLite and the file system.
 
-- Người dùng sửa file **trước** bước 3: bước 3 thấy hash khác baseline, huỷ đăng, giữ bản nháp.
-- Người dùng sửa file **sau** `os.replace` nhưng trước khi đọc lại: bước 4 thấy hash khác, ghi `conflict`.
-- Người dùng sửa file **giữa bước 3 và `os.replace`**: `os.replace` ghi đè bản sửa đó, và hash đọc lại vẫn đúng bản nộp, nên **không phát hiện được**. Bản sửa ấy mất. Đây là khe TOCTOU đã công bố, giữ ngắn nhất có thể bằng cách để bước 3 và `os.replace` liền nhau trong cùng luồng.
+- The user edits the file **before** step 3: step 3 sees a hash different from the baseline, cancels the publish and keeps the draft.
+- The user edits the file **after** `os.replace` but before the re-read: step 4 sees a different hash and writes `conflict`.
+- The user edits the file **between step 3 and `os.replace`**: `os.replace` overwrites that edit, and the re-read hash still equals the submission, so it is **not detected**. That edit is lost. This is the published TOCTOU gap, kept as short as possible by keeping step 3 and `os.replace` adjacent in the same thread.
 
-### 4.6 Ai đọc gì ở từng trạng thái
+### 4.6 Who reads what in each state
 
-| Bên đọc | Đọc |
+| Reader | Reads |
 |---|---|
-| Evaluator `artifact_contract`, `_artifact_file`, `artifact_ref` | Bytes đã đăng ở đích (như hôm nay). Chấm ứng viên trước khi đăng dùng bytes bản nộp, giống luật guard trên ứng viên hiện có |
-| "Bản hiện có" trong prompt việc nền | **Chỉ bytes đã đăng** ở đích thuộc `read_paths`. Không bao giờ dùng bản nộp chưa đăng hay bản nháp chờ chấp thuận |
-| Xác nhận "Đạt yêu cầu" của người dùng | Gắn sha đã đăng; không gắn bản nháp |
-| Thẻ mục tiêu | Bản đã đăng; số bản chờ đăng hay xung đột; bản nháp chờ chấp thuận (kích thước, sha rút gọn, nút xem trước) |
-| `_publish_latest` | Bản `candidate` có `binding_may_finish`, không lấy đầu ra trần |
+| `artifact_contract` evaluator, `_artifact_file`, `artifact_ref` | The published bytes at the destination (as today). Grading a candidate before publish uses the submission's bytes, like the existing guard rule on candidates |
+| "Current version" in the background job prompt | **Only published bytes** at the destination that belongs to `read_paths`. Never an unpublished submission or a draft awaiting approval |
+| The user's "Meets the bar" confirmation | Attached to the published sha; not attached to a draft |
+| Goal card | The published version; the number of versions waiting to publish or in conflict; the draft awaiting approval (size, short sha, preview button) |
+| `_publish_latest` | A `candidate` submission with `binding_may_finish`; does not take bare output |
 
-### 4.7 Điểm hỏng và đối soát (không gọi model)
+### 4.7 Failure points and reconciliation (no model call)
 
-Đối soát chạy ở lần thức sau, cùng chỗ `_reconcile` hiện có. Mọi bước chỉ dùng bytes, hash và dòng host đã nhận, dưới **quyền đã ghim** của liên kết; không lấy gốc mới, không ghim lại. Chạy hai lần không nhân đôi bằng chứng, sự kiện hay lần nhả lịch.
+Reconciliation runs at the next wake, in the same place as the existing `_reconcile`. Every step uses only bytes, hashes and rows the host has accepted, under the binding's **pinned permission**; it takes no new root and does no re-pinning. Running it twice does not duplicate evidence, events or schedule releases.
 
-| Điểm hỏng | Trạng thái để lại | Đối soát |
+| Failure point | State left behind | Reconciliation |
 |---|---|---|
-| Đã ghi file nháp, chưa chèn dòng | File mồ côi trong `submissions/` | Bỏ qua. Không tự nhận file không có dòng. Dọn sau 7 ngày |
-| Lượt chat: đã chèn `candidate`, tiến trình chết trước `handoff_after_turn` | `candidate`, liên kết `live`, bàn giao `pending` | Khởi động lại: bàn giao hết hạn, liên kết `sealed`. `binding_may_finish` qua thì đăng (mục 4.5) rồi tiếp nhận. Không qua thì `stale` (thu hồi), `superseded` (revision đổi), `stale` lý do trợ lý (trợ lý đổi) |
-| Lượt chat: đã chèn `awaiting_scope`, tiến trình chết | `awaiting_scope`, liên kết `live` | Liên kết `sealed`. Bản nháp vẫn chờ chủ dự án; không đăng |
-| Lượt nền: đã ghi đầu ra, chết trước khi chèn bản nộp | Hành động bị ngắt, có file đầu ra | `_reconcile` chốt receipt như hôm nay, liên kết `sealed`, rồi chèn bản nộp từ đầu ra **của host** nếu `binding_may_finish`, không thì `stale`. Đăng đi qua `_publish_latest` và mục 4.5 |
-| Lượt nền: đã chèn `candidate`, chết trước khi đăng | `candidate`, liên kết `sealed` | `_publish_latest` đăng nếu `binding_may_finish` |
-| Có ý định, chưa qua mốc commit | `publishing`, hành động chưa có `commit_at` | Xoá file tạm, hành động `aborted`. Bản nộp về `candidate` nếu `binding_may_finish`, không thì `stale` |
-| Qua mốc commit, chưa `os.replace` | Hành động có `commit_at` | Luật tác động đã commit: đích vẫn bằng baseline thì thay file và ghi mốc. Đích đã khác: `conflict` |
-| Đã thay file, chưa ghi mốc | Hành động có `commit_at` | Đích bằng sha bản nộp: ghi mốc, `published`. Khác: `conflict` |
-| **Đã đăng và ghi mốc, chưa tiếp nhận** | `published`, `adopted_at` rỗng | Gọi lại `adopt_submission`: nối bằng chứng `INSERT OR IGNORE`, sự kiện theo khoá `adopt:<submission_id>` (bảng sự kiện đã có `UNIQUE(goal_id, idempotency_key)`), đóng bàn giao nếu còn mở, ghi `adopted_at`. Nhả lịch chỉ khi `adopted_at` đang rỗng và cổng hiện có cho phép, trong cùng giao dịch, nên đúng một lần. Bằng chứng và sự kiện vẫn ghi khi đã thu hồi sau commit, vì tác động là thật; khi đó không nhả lịch |
-| Bản nháp được chọn, chết trước khi đăng | `approved_draft` ở `candidate`, liên kết `approval` `sealed` | Như dòng lượt nền đã chèn `candidate` |
-| Lượt chat chết, Claude Write không còn biên nhận | Bàn giao hết hạn | Như hôm nay: đích lạ không có baseline thành drift hay `conflict` (A2). Không nhận làm sản phẩm |
-| Đã commit, lỗi đọc hay ghi TẠM THỜI khi thay file hay khi đối soát (file đang mở) | Hành động có `commit_at`, `running` | Không phải bằng chứng đích đã đổi: giữ `running`, nới hạn có giãn cách (60 giây nhân đôi, tối đa 1 giờ), hẹn lịch `settle`. Chỉ chốt `conflict` khi đọc được đích và nó khác cả baseline lẫn bản nộp (I11) |
-| Đã commit, rồi mục tiêu bị thu hồi, tạm dừng, huỷ hay kết thúc | Hành động có `commit_at` | Lịch `settle` riêng vẫn tới hạn: chỉ hoàn tất hay xác minh xung đột đúng hành động đó, không mở lượt việc, không cấp lại quyền, không đăng bản khác (I10) |
-| File đích bị xoá sau khi đã đăng | Bản nộp `published` | Đăng lại bản đó qua nguồn `republish` khi quyền hiện tại còn hiệu lực, 0 lượt model (I2) |
-| File NHÁP không đọc được tạm thời (khi đăng hay khi đối soát) | `candidate` hay hành động đã commit | Không phải xung đột đích: giữ nghĩa vụ, thử lại có giãn cách. File nháp mất hay sai hash: bản nộp `rejected` lý do `draft_missing`/`draft_hash_mismatch`, hành động `failed`, không đăng bytes sai (I13) |
-| Đã đăng, bước tiếp nhận lỗi (khoá SQLite, chết giữa chừng), kể cả rồi thu hồi, tạm dừng, huỷ | `published`, `adopted_at` rỗng | Lịch `settle` còn tới khi tiếp nhận xong; lần thức `settle` tiếp nhận đúng một lần mọi trạng thái mục tiêu (I14) |
-| Lần đăng đã chốt còn chờ thay file hay chờ tiếp nhận, trong lúc lịch làm việc tới hạn | Hành động đã commit hay bản chưa tiếp nhận | Lịch làm việc gác `publish_settling`, giữ mọi lý do, không mở lượt việc hay phép thử; xong thì gỡ gác và xét tiếp (I15) |
-| Lỗi I/O phát sinh NGAY trong lần thức làm việc đang tự đăng bản `candidate` đã giữ (thay file sau mốc commit, đọc file nháp trước mốc commit, tiếp nhận) | Hành động đã commit, bản nộp được giữ, hay bản chưa tiếp nhận | Xét lại nghĩa vụ ngay sau khi đăng, gác `publish_settling` trước quyết định làm việc. File nháp chưa đọc được trước mốc commit: bản nộp giữ `candidate` kèm `hold_until`, lịch `settle` đọc lại giãn cách 60 giây, gấp đôi, trần 1 giờ; đọc được thì bỏ giữ để lịch làm việc đăng đúng bản đó rồi mới đánh giá (I16) |
+| Draft file written, row not inserted | Orphan file in `submissions/` | Ignored. A file with no row is never adopted. Cleaned after 7 days |
+| Chat turn: `candidate` inserted, process died before `handoff_after_turn` | `candidate`, binding `live`, handoff `pending` | On restart: the handoff expires, the binding is `sealed`. If `binding_may_finish` passes, publish (section 4.5) then adopt. If not, `stale` (revoked), `superseded` (revision changed), `stale` with an assistant reason (assistant changed) |
+| Chat turn: `awaiting_scope` inserted, process died | `awaiting_scope`, binding `live` | The binding becomes `sealed`. The draft still waits for the project owner; nothing is published |
+| Background turn: output written, died before the submission was inserted | Interrupted action, output file exists | `_reconcile` settles the receipt as today, the binding becomes `sealed`, then inserts a submission from the **host's** output if `binding_may_finish`, otherwise `stale`. Publishing goes through `_publish_latest` and section 4.5 |
+| Background turn: `candidate` inserted, died before publishing | `candidate`, binding `sealed` | `_publish_latest` publishes if `binding_may_finish` |
+| Intent recorded, commit point not reached | `publishing`, action has no `commit_at` | Delete the temp file, action `aborted`. The submission goes back to `candidate` if `binding_may_finish`, otherwise `stale` |
+| Commit point passed, no `os.replace` yet | Action has `commit_at` | Rule for a committed effect: if the destination still equals the baseline, replace the file and write the marker. If the destination already differs: `conflict` |
+| File replaced, marker not written | Action has `commit_at` | Destination equals the submission's sha: write the marker, `published`. Different: `conflict` |
+| **Published and marker written, not yet adopted** | `published`, `adopted_at` empty | Call `adopt_submission` again: attach evidence with `INSERT OR IGNORE`, event with key `adopt:<submission_id>` (the events table already has `UNIQUE(goal_id, idempotency_key)`), close the handoff if still open, write `adopted_at`. Release the schedule only when `adopted_at` is empty and the existing gate allows, in the same transaction, so exactly once. Evidence and event are still written when revoked after the commit, because the effect is real; in that case the schedule is not released |
+| Draft chosen, died before publishing | `approved_draft` at `candidate`, `approval` binding `sealed` | Same as the row for a background turn that inserted `candidate` |
+| Chat turn died, Claude Write has no receipt left | Handoff expired | As today: foreign bytes at the destination with no baseline become drift or `conflict` (A2). Not accepted as the deliverable |
+| Committed, TEMPORARY read or write error when replacing the file or reconciling (file open) | Action has `commit_at`, `running` | This is not evidence that the destination changed: keep `running`, extend the deadline with spacing (60 seconds doubling, at most 1 hour), schedule a `settle` wake. Settle `conflict` only when the destination can be read and it differs from both the baseline and the submission (I11) |
+| Committed, then the goal is revoked, paused, cancelled or finished | Action has `commit_at` | Its own `settle` schedule still comes due: it only completes or verifies the conflict of exactly that action, opens no work turn, grants no permission again, and publishes no other version (I10) |
+| Destination file deleted after being published | `published` submission | Republish that version through source `republish` when the current permission is still in effect, 0 model turns (I2) |
+| DRAFT file temporarily unreadable (during publish or reconciliation) | `candidate` or committed action | Not a destination conflict: keep the obligation, retry with spacing. Draft file lost or wrong hash: the submission is `rejected` with reason `draft_missing`/`draft_hash_mismatch`, the action `failed`, wrong bytes are never published (I13) |
+| Published, adoption step fails (SQLite lock, died midway), even after a later revoke, pause or cancel | `published`, `adopted_at` empty | The `settle` schedule remains until adoption finishes; the `settle` wake adopts exactly once in every goal state (I14) |
+| A settled publish still waiting for the file replace or for adoption while the work schedule comes due | Committed action or unadopted version | The work schedule holds `publish_settling`, keeps every reason, opens no work turn or trial; when done, it lifts the hold and considers the goal again (I15) |
+| I/O error arising RIGHT IN a work wake that is publishing a kept `candidate` itself (file replace after the commit point, reading the draft file before the commit point, adoption) | Committed action, kept submission, or unadopted version | Re-evaluate the obligation right after publishing, hold `publish_settling` before the work decision. Draft file not yet readable before the commit point: the submission stays `candidate` with `hold_until`, the `settle` schedule rereads with 60-second spacing, doubling, capped at 1 hour; once readable, release the hold so the work schedule publishes exactly that version and only then evaluates (I16) |
 
-Liên kết `sealed` chuyển `closed` trong cùng giao dịch đưa bản nộp cuối cùng của nó về trạng thái cuối.
+A `sealed` binding moves to `closed` in the same transaction that takes its last submission to a final state.
 
-## 5. Quyền có phạm vi
+## 5. Scoped permissions
 
-### 5.1 Hai tầng: phạm vi gốc và quyền revision
+### 5.1 Two tiers: root scope and revision permission
 
-Cả hai tầng nằm trong bảng `grants` (mục 7.1):
+Both tiers live in the `grants` table (section 7.1):
 
-- **Phạm vi gốc** (`kind=root`, `parent_id` rỗng). Do chủ dự án xác lập. **Độc lập với tiêu chí model sửa.**
-  - Mang đích được phép (một đường, vì A4 có một sản phẩm mỗi mục tiêu).
-  - Mang tập thao tác: `read_deliverable`, `submit`, `publish`; `communicate` luôn tắt.
-  - Mang bằng chứng nguồn (`source_ref_json`, mục 5.2).
-  - Có `generation`, `status`.
-- **Quyền revision** (`kind=revision`, cha là phạm vi gốc).
-  - Bằng `narrow(gốc, cái revision cần)`.
-  - Cái revision cần lấy từ `_deliverable_rel(revision)`, không phải mọi đường tiêu chí.
-  - Ghi `parent_generation` = `generation` của gốc lúc cấp.
+- **Root scope** (`kind=root`, empty `parent_id`). Set by the project owner. **Independent of the criteria the model edits.**
+  - Carries the allowed destination (one path, since A4 has one deliverable per goal).
+  - Carries the set of operations: `read_deliverable`, `submit`, `publish`; `communicate` is always off.
+  - Carries the source evidence (`source_ref_json`, section 5.2).
+  - Has `generation` and `status`.
+- **Revision permission** (`kind=revision`, parent is the root scope).
+  - Equals `narrow(root, what the revision needs)`.
+  - What the revision needs is taken from `_deliverable_rel(revision)`, not from every criteria path.
+  - Records `parent_generation` = the root's `generation` at grant time.
 
-**Quyền revision hiệu lực** khi chính nó `active` **và** gốc `active` với đúng `parent_generation`. Liên kết ghim cả hai (mục 4.2).
+**A revision permission is in effect** when it is itself `active` **and** the root is `active` with exactly `parent_generation`. The binding pins both (section 4.2).
 
-### 5.2 Phạm vi gốc đến từ đâu
+### 5.2 Where the root scope comes from
 
-| `source` | Khi nào | Đích | Bằng chứng ghi kèm |
+| `source` | When | Destination | Evidence recorded with it |
 |---|---|---|---|
-| `owner_approved` | Chủ dự án bấm "Cho phép" trên thẻ cho **một yêu cầu cụ thể** host đưa ra (mục 5.3) | Đường của yêu cầu | `scope_request_id`, người bấm |
-| `legacy_frozen` | Giao dịch nâng kho lên 0.96.0, cho mục tiêu lập trước đó | `_deliverable_rel` của revision **tại lúc nâng** | Revision và sha khung lúc nâng. **Tương thích legacy**, không khẳng định chủ dự án đã duyệt |
+| `owner_approved` | The project owner clicks "Allow" on the card for **one specific request** the host issued (section 5.3) | The request's path | `scope_request_id`, who clicked |
+| `legacy_frozen` | The store-upgrade transaction to 0.96.0, for goals created earlier | `_deliverable_rel` of the revision **at upgrade time** | The revision and frame sha at upgrade time. **Legacy compatibility**; it does not claim the project owner approved |
 
-**Mục tiêu mới lập trong lượt chat luôn chưa có phạm vi gốc**, dù lời giao có nêu đích hay không. Mục tiêu ở trạng thái **chờ chấp thuận phạm vi**:
+**A goal newly created in a chat turn never has a root scope yet**, whether or not the assignment names a destination. The goal is in the state **waiting for scope approval**:
 
-- Host ghi `scope_requests` (kind `create` hay `expand`) mang đường, revision, trợ lý, version, tin gốc.
-- Thẻ hiện "Trợ lý muốn ghi vào `Inbox/x.md`. Cho phép / Không".
-- **Chưa giữ lượt việc nền nào.** Prompt không đọc đích.
-- Lượt chat đang chạy nhận liên kết `draft` (mục 4.2): nộp được bản nháp vào vùng nháp, **không** đọc, **không** đăng.
+- The host writes `scope_requests` (kind `create` or `expand`) carrying the path, revision, assistant, version and source message.
+- The card shows "The assistant wants to write to `Inbox/x.md`. Allow / No".
+- **No background turn is held yet.** The prompt does not read the destination.
+- The running chat turn gets a `draft` binding (section 4.2): it can submit a draft into the draft area, but it **cannot** read and **cannot** publish.
 
-**Đóng băng legacy ngay lúc nâng.** Giao dịch nâng kho (sau snapshot ở mục 7.4, trước khi bất kỳ mã A4 nào nhận lời gọi) tạo gốc `legacy_frozen` cho mỗi mục tiêu có trợ lý và có `_deliverable_rel`, đọc từ revision đang lưu. Không còn cấp lười ở "lần thức đầu", nên không có khe cho model sửa đích trước khi đóng băng. Mục tiêu chưa gán trợ lý hay không có đường sản phẩm không có gốc.
+**Legacy freeze at upgrade time.** The store-upgrade transaction (after the snapshot in section 7.4, before any A4 code accepts a call) creates a `legacy_frozen` root for every goal that has an assistant and a `_deliverable_rel`, read from the stored revision. There is no more lazy granting at the "first wake", so there is no gap for the model to edit the destination before the freeze. A goal with no assigned assistant or no deliverable path gets no root.
 
-#### 5.2.1 Không cấp quyền từ lời chat (D1)
+#### 5.2.1 No permission from chat text (D1)
 
-Vòng 2 tới vòng 4 thử một bộ nhận chỉ thị ghi thuần (khuôn mệnh lệnh, danh sách từ chặn). Mỗi vòng review vẫn tìm được câu thường bị nhận nhầm thành quyền ghi, như "Đây là ví dụ minh họa. Ghi vào `Inbox/x.md`." hay "Ghi vào `Inbox/x.md` là câu cần dịch.". Nguyên nhân là danh sách hữu hạn không phân biệt được **nhắc tới** một lệnh với **yêu cầu thực hiện** lệnh đó.
+Rounds 2 to 4 tried a pure-write directive receiver (an imperative template and a blocklist of words). Every review round still found ordinary sentences that were mistaken for write permission, such as "This is an illustrative example. Write to `Inbox/x.md`." or "Write to `Inbox/x.md` is the sentence to translate." The cause is that a finite list cannot tell **mentioning** a command from **requesting** that the command be carried out.
 
-A4 chốt:
+A4 decides:
 
-- **Không có nguồn `owner_message`.** Model vẫn hiểu lời giao và đề xuất đích trong khung mục tiêu; hiểu mục tiêu không phải cấp quyền ghi.
-- Đích chỉ có quyền qua thẻ (`owner_approved`) hay đóng băng legacy (`legacy_frozen`).
-- Không có module phân tích lời để cấp quyền. Nếu sau này cần gợi ý đường trên thẻ, phần gợi ý chỉ là đề xuất, không tạo gốc, không nâng quyền.
-- "Giao một lần" giữ ở chỗ: đã cho phép một đích thì các revision sau cùng đích tự có quyền (mục 5.3), không hỏi lại.
+- **There is no `owner_message` source.** The model still understands the assignment and proposes a destination in the goal frame; understanding the goal is not granting write permission.
+- A destination gets permission only through the card (`owner_approved`) or the legacy freeze (`legacy_frozen`).
+- There is no module that parses text to grant permission. If a path suggestion on the card is needed later, the suggestion is only a proposal; it creates no root and raises no permission.
+- "Hand over once" holds in this sense: once a destination has been allowed, later revisions with the same destination get permission automatically (section 5.3), without asking again.
 
-### 5.3 Sửa mục tiêu, chấp thuận, thu hồi, cấp lại
+### 5.3 Editing a goal, approval, revocation, re-granting
 
-**Revision mới cùng đích** (góp ý, nói lại, model sửa tiêu chí mà `_deliverable_rel` không đổi):
-- Host cấp quyền revision mới bằng `narrow(gốc hiện hành, đích)`.
-- Quyền revision cũ thành `superseded`; bản nộp và liên kết của revision cũ theo mục 4.2.
+**A new revision with the same destination** (feedback, rephrasing, the model editing criteria while `_deliverable_rel` does not change):
+- The host grants the new revision permission as `narrow(current root, destination)`.
+- The old revision permission becomes `superseded`; the old revision's submissions and bindings follow section 4.2.
 
-**Revision mới khác đích:**
-- `narrow` cho phần giao rỗng ở thao tác ghi, dù lời sửa có nêu đích mới. Host ghi yêu cầu `expand`, mục tiêu chờ, thẻ hỏi một lần kèm đường cụ thể. Không giữ lượt nào. Lượt chat đang chạy nhận liên kết `draft` cho revision mới.
+**A new revision with a different destination:**
+- `narrow` yields an empty intersection on the write operations, even if the edit names the new destination. The host writes an `expand` request, the goal waits, and the card asks once with the specific path. No turn is held. The running chat turn gets a `draft` binding for the new revision.
 
-**Câu trích và nút "Đúng ý"** chỉ xác nhận cách hiểu, **không** mở phạm vi.
+**A quote and the "That's right" button** only confirm the understanding; they do **not** open scope.
 
-**Cho phép (`approve_scope`).** Một giao dịch `BEGIN IMMEDIATE`, kiểm hết rồi mới ghi:
+**Allow (`approve_scope`).** One `BEGIN IMMEDIATE` transaction that checks everything before writing:
 
-1. Yêu cầu `request_id` tồn tại, còn `pending`.
-2. `request.revision` bằng revision hiện hành; `path` gửi lên bằng `request.path` theo khoá đường.
-3. Trợ lý của mục tiêu bằng `request.agent_key`, và `_agent_block` với `request.agent_config_version` không báo gì. Mục tiêu chưa lưu trữ hay xong.
-4. Nếu thẻ gửi kèm `submission_id` và `sha256` (bản nháp anh đã thấy): bản đó còn `awaiting_scope`, thuộc liên kết `draft` của đúng yêu cầu, đúng sha, và là bản mới nhất của yêu cầu. Nếu thẻ không gửi bản nháp mà yêu cầu đang có bản nháp: từ chối, vì thẻ đã cũ.
+1. The request `request_id` exists and is still `pending`.
+2. `request.revision` equals the current revision; the submitted `path` equals `request.path` by path key.
+3. The goal's assistant equals `request.agent_key`, and `_agent_block` with `request.agent_config_version` reports nothing. The goal is not archived or done.
+4. If the card sends `submission_id` and `sha256` (the draft you saw): that draft is still `awaiting_scope`, belongs to the `draft` binding of exactly this request, has the right sha, and is the newest draft of the request. If the card sends no draft while the request has one: refuse, because the card is out of date.
 
-Sai bất kỳ điều nào: `scope_request_stale`, **không tạo gốc nào**. Đạt thì trong cùng giao dịch:
+If any check fails: `scope_request_stale`, **no root is created**. If all pass, in the same transaction:
 
-- tạo gốc `owner_approved` (gốc cũ, nếu là `expand`, thành `superseded`) và quyền revision;
-- yêu cầu thành `approved`;
-- liên kết `draft` thành `closed`; các bản nháp khác của nó thành `superseded`;
-- có bản nháp được chọn thì: bản đó thành `promoted`; tạo liên kết `approval` (`sealed`, ghim gốc và quyền mới); tạo bản nộp `approved_draft` ở `candidate` trỏ về cùng file nháp và sha.
+- create the `owner_approved` root (the old root, if this is `expand`, becomes `superseded`) and the revision permission;
+- the request becomes `approved`;
+- the `draft` binding becomes `closed`; its other drafts become `superseded`;
+- if a draft was chosen: that draft becomes `promoted`; create an `approval` binding (`sealed`, pinning the new root and permission); create an `approved_draft` submission at `candidate` pointing to the same draft file and sha.
 
-Sau giao dịch, host gọi `host_publish` rồi `adopt_submission` cho bản `approved_draft`. **Không gọi model.** Không có bản nháp thì mục tiêu đi tiếp như bình thường: lần thức sau giữ lượt việc nền dưới gốc mới.
+After the transaction, the host calls `host_publish` and then `adopt_submission` for the `approved_draft` submission. **No model call.** With no draft, the goal continues as usual: the next wake holds a background work turn under the new root.
 
-Lượt chat cũ không hưởng gì: liên kết `draft` của nó đã `closed`, nên lời nộp sau đó bị từ chối (`scope_decided`); sửa mục tiêu thêm lần nữa cũng không mở được liên kết dưới gốc mới (luật ghim gốc theo lượt, mục 4.2).
+The old chat turn gains nothing: its `draft` binding is already `closed`, so a later submission is refused (`scope_decided`); editing the goal again also cannot open a binding under the new root (the per-turn root pinning rule, section 4.2).
 
-**Không (`deny_scope`).** Cùng các kiểm 1 tới 3. Yêu cầu `denied`, bản nháp `rejected`, liên kết `draft` `closed`. Mục tiêu vẫn chờ. Chủ dự án có thể nói lại để trợ lý sửa về đích cũ.
+**No (`deny_scope`).** The same checks 1 to 3. The request is `denied`, the draft is `rejected`, the `draft` binding is `closed`. The goal keeps waiting. The project owner can speak again so the assistant edits back to the old destination.
 
-**Thẻ cũ.** Revision mới thay yêu cầu cũ bằng `superseded`; thu hồi không đụng yêu cầu đã quyết. Bấm Cho phép trên thẻ của yêu cầu đã `superseded`, `denied` hay `approved` luôn ra `scope_request_stale`. Bấm thẻ cũ không bao giờ là cấp lại.
+**Old card.** A new revision replaces the old request with `superseded`; revocation does not touch a request that is already decided. Clicking Allow on the card of a request that is `superseded`, `denied` or `approved` always gives `scope_request_stale`. Clicking an old card is never a re-grant.
 
-**Thu hồi** (nút Thu hồi quyền trên thẻ). Tắt Cộng hưởng của trợ lý KHÔNG phải thu hồi (I1): gốc giữ nguyên, nhưng mọi liên kết đang dở chết ngay vì ghim version trợ lý (§4.2 điều 3) và không bao giờ hồi sinh; bật lại thì lượt MỚI làm tiếp dưới gốc cũ. Lần đăng đã qua mốc commit trước khi tắt vẫn hoàn tất theo luật tác động đã commit. Thu hồi là một giao dịch `BEGIN IMMEDIATE`:
-- gốc thành `revoked` và `generation += 1`;
-- bản nộp `candidate`, `awaiting_scope`, và `publishing` **chưa có** `commit_at` của mục tiêu thành `stale`. Bản có `commit_at` đi tiếp theo luật tác động đã commit;
-- mục tiêu tạm dừng bằng lệnh `pause` có sẵn;
-- liên kết `live` và `sealed` thành `dead`;
-- yêu cầu phạm vi `pending` (nếu có) thành `withdrawn`.
+**Revoke** (the Revoke permission button on the card). Turning off Auto (Resonance) for the assistant is NOT a revocation (I1): the root stays as it is, but every in-progress binding dies immediately because it pins the assistant version (§4.2 item 3) and never comes back to life; turning it back on lets a NEW turn continue under the old root. A publish that passed the commit point before the switch-off still completes under the committed-effect rule. Revoking is one `BEGIN IMMEDIATE` transaction:
+- the root becomes `revoked` and `generation += 1`;
+- the goal's `candidate`, `awaiting_scope`, and `publishing` submissions that have **no** `commit_at` become `stale`. A submission with `commit_at` proceeds under the committed-effect rule;
+- the goal is paused with the existing `pause` command;
+- `live` and `sealed` bindings become `dead`;
+- a `pending` scope request (if any) becomes `withdrawn`.
 
-**Cấp lại** là hành động owner riêng (Tiếp tục khi đang thu hồi), không phải hệ quả của thẻ nào:
-- tạo phạm vi gốc **mới** (`owner_approved`, đích như gốc cũ) và quyền revision mới;
-- không đảo dòng cũ, không đổi liên kết cũ;
-- bản nộp `stale` không được đăng. Muốn dùng lại nội dung thì trợ lý nộp lại dưới liên kết mới.
+**Re-granting** is a separate owner action (Resume while revoked), not a consequence of any card:
+- create a **new** root scope (`owner_approved`, destination as in the old root) and a new revision permission;
+- do not flip old rows, do not change old bindings;
+- a `stale` submission is not published. To reuse the content, the assistant submits again under the new binding.
 
-### 5.4 `narrow` (dùng cho quyền revision trong A4, quyền con trong A5)
+### 5.4 `narrow` (used for revision permission in A4, child permission in A5)
 
 `narrow(parent, request) -> grant | reason`:
-- Thao tác, đường ghi, đường đọc, người nhận đều là **phần giao**.
-- `goal_id` và `brain_id` phải trùng.
-- `communicate` chỉ có khi cha có.
-- Yêu cầu thiếu trường hay có giá trị lạ: phần giao rỗng.
-- So đường bằng khoá đường của mục 4.3 bước 2.
+- Operations, write paths, read paths and recipients are all the **intersection**.
+- `goal_id` and `brain_id` must match.
+- `communicate` exists only when the parent has it.
+- A request with a missing field or an unknown value: empty intersection.
+- Compare paths by the path key from section 4.3 step 2.
 
-### 5.5 Mọi điểm kiểm
+### 5.5 Every check point
 
-| Điểm | Kiểm (trong giao dịch) |
+| Point | Check (inside a transaction) |
 |---|---|
-| Mở liên kết `handoff` | Gốc đang `active`, luật ghim gốc theo lượt (mục 4.2). Không có gốc thì liên kết `draft` theo yêu cầu đang chờ |
-| `javis_submit_deliverable` | Liên kết của đúng lượt; phát lại trước, rồi `binding_accepts`; quyền `submit` + đích, hay đúng đường của yêu cầu |
-| `begin_action(work)` | Quyền revision hiệu lực. Ghi liên kết `action`. Không có thì không giữ lượt (`grant_missing`, `scope_pending`, `grant_revoked`) |
-| `begin_experiment` (phép thử A3) | Như trên, liên kết `experiment`. Mỗi lượt thử kiểm `binding_accepts` ở cổng lượt sẵn có (`_TrialCall`). Hỏng thì phép thử dừng `inconclusive` với lý do quyền, theo đường dừng sẵn có |
-| Lượt làm sản phẩm A3 (`use_hold`) | Liên kết `followup` mới, kiểm quyền hiện hành, không kế thừa liên kết của phép thử |
-| Dựng prompt việc nền | Chỉ bytes đã đăng ở `read_paths` của quyền đã ghim |
-| `host_publish` bước 1 và 3 | `binding_may_finish` + `_gate` (mục 4.5), gồm nhánh `same` |
-| `host_publish` bước 4 | Luật tác động đã commit: chỉ baseline và hash |
-| Tiếp nhận Write tại chỗ | `binding_may_finish` (`grant`) + `publish` + đích + `_gate` |
-| `approve_scope`, `deny_scope` | CAS yêu cầu, revision, đường, trợ lý, bản nháp (mục 5.3) |
-| Đối soát, đăng lại | Dùng liên kết của bản nộp. Không ghim lại sang quyền mới |
-| Giao diện | Chỉ hiển thị, không làm căn cứ |
+| Opening a `handoff` binding | Root is `active`, the per-turn root pinning rule (section 4.2). With no root, a `draft` binding by the pending request |
+| `javis_submit_deliverable` | The binding of exactly this turn; replay first, then `binding_accepts`; permission `submit` + destination, or exactly the request's path |
+| `begin_action(work)` | Revision permission in effect. Writes an `action` binding. If absent, no turn is held (`grant_missing`, `scope_pending`, `grant_revoked`) |
+| `begin_experiment` (A3 trial) | As above, `experiment` binding. Each trial turn checks `binding_accepts` at the existing turn gate (`_TrialCall`). On failure the trial stops `inconclusive` with a permission reason, through the existing stop path |
+| A3 deliverable turn (`use_hold`) | A new `followup` binding, checking the current permission, not inheriting the trial's binding |
+| Building the background-job prompt | Only published bytes at the pinned permission's `read_paths` |
+| `host_publish` steps 1 and 3 | `binding_may_finish` + `_gate` (section 4.5), including the `same` branch |
+| `host_publish` step 4 | Committed-effect rule: baseline and hash only |
+| Adopting an in-place Write | `binding_may_finish` (`grant`) + `publish` + destination + `_gate` |
+| `approve_scope`, `deny_scope` | CAS on request, revision, path, assistant, draft (section 5.3) |
+| Reconciliation, republish | Use the submission's binding. No re-pinning to a new permission |
+| UI | Display only, not a basis for permission |
 
-## 6. Engine: khả năng thật và giới hạn
+## 6. Engines: real capabilities and limits
 
-### 6.1 Bảng khả năng do host khai (`ENGINE_CAPS`)
+### 6.1 The capability table declared by the host (`ENGINE_CAPS`)
 
-| Provider | Khoá lượt tới hub | Nộp qua công cụ | Quan sát Write có biên nhận | Chặn ghi native | Việc nền chỉ chữ |
+| Provider | Turn key reaches hub | Submit via tool | Observe Write with receipt | Block native writes | Text-only background work |
 |---|---|---|---|---|---|
-| `anthropic-cli` | Có (header) | Có | Có | Theo từng lời gọi (`can_use_tool`) khi có `allowed_tools` | Có |
-| `openai-oauth` (Codex) | Có (`-c`) | **Có (mới)** | Không | Chỉ sandbox; tắt được bằng `JAVIS_CODEX_SANDBOX=off` | Không |
-| `grok-cli` | **Không** | Không | Không | `--deny` theo mức | Không |
-| `antigravity-cli` | **Không** | Không | Không | Chỉ sandbox | Không |
-| Engine API | Có (trong tiến trình) | **Có (mới)** | Không | Không có công cụ native | Có |
+| `anthropic-cli` | Yes (header) | Yes | Yes | Per call (`can_use_tool`) when there is `allowed_tools` | Yes |
+| `openai-oauth` (Codex) | Yes (`-c`) | **Yes (new)** | No | Sandbox only; can be turned off with `JAVIS_CODEX_SANDBOX=off` | No |
+| `grok-cli` | **No** | No | No | `--deny` by level | No |
+| `antigravity-cli` | **No** | No | No | Sandbox only | No |
+| API engines | Yes (in-process) | **Yes (new)** | No | No native tools | Yes |
 
-Khi code, kiểm **đường truyền thật** của Claude, Codex và engine API: khoá lượt tới hub qua header, tham số `-c` và trong tiến trình. Không chỉ kiểm bằng ngữ cảnh lượt giả (review D4/D5).
+When coding, check the **real transport path** of Claude, Codex and the API engines: the turn key reaching the hub through a header, the `-c` parameter, and in-process. Do not check only with a fake turn context (review D4/D5).
 
-### 6.2 Việc nền giữ nguyên danh sách
+### 6.2 Background work keeps the same list
 
-Codex và Grok còn công cụ native. Với Antigravity, `strip_tools` làm chuỗi lùi về Claude. Muốn mở việc nền cho các engine này cần bằng chứng chạy không công cụ; A4 không có.
+Codex and Grok still have native tools. For Antigravity, `strip_tools` makes the fallback chain go back to Claude. Opening background work to these engines needs evidence of a tool-free run; A4 has none.
 
-### 6.3 Giới hạn phải nói thật
+### 6.3 Limits that must be stated honestly
 
-- **Hub không chặn được native.** Kiểm ở hub không chặn Bash hay Write native của engine có toàn quyền hệ điều hành. Trợ lý Write thẳng khi chưa có phạm vi thì file đó là bytes lạ, không thành sản phẩm.
-- **Biên nhận chỉ chứng minh điều đã nộp.** A4 bảo đảm host chỉ tiếp nhận và đăng bản đi qua hợp đồng.
-- **`communicate` tắt chỉ trong hợp đồng Resonance.** Không tuyên bố mọi công cụ workflow, task hay native ngoài hợp đồng đã bị chặn (D8).
-- **`read_paths` chỉ là phạm vi prompt của việc nền A4.** Đây không phải hạn chế toàn bộ việc đọc của chat hay engine native (D9).
+- **The hub cannot block native tools.** A check at the hub does not block Bash or Write native to an engine with full OS access. If the assistant Writes directly before a scope exists, that file is foreign bytes and does not become the deliverable.
+- **A receipt only proves what was submitted.** A4 guarantees that the host only adopts and publishes versions that pass through the contract.
+- **`communicate` is off only within the Resonance contract.** It does not claim that every workflow, task or native tool outside the contract is blocked (D8).
+- **`read_paths` is only the prompt scope of A4 background work.** It is not a restriction on all reading by chat or native engines (D9).
 
-## 7. Kho
+## 7. Store
 
-### 7.1 Bảng mới
+### 7.1 New tables
 
 ```sql
 CREATE TABLE IF NOT EXISTS grants(
@@ -590,334 +590,334 @@ CREATE INDEX IF NOT EXISTS submissions_goal ON submissions(goal_id, revision, st
 CREATE INDEX IF NOT EXISTS submissions_binding ON submissions(binding_id, status);
 ```
 
-- Hành động đăng mang `binding_id`, `submission_id` và `commit_at` trong `intent_json` / `receipt_json` của bảng `actions` có sẵn, không thêm cột.
-- `idem_key` của `approved_draft` là `approval:<scope_request_id>`, nên bấm Cho phép hai lần không tạo hai bản.
-- `CHECK` trạng thái và `authority` để ở tầng mã (cùng kiểu các bảng A1 tới A3), có test riêng.
+- The publish action carries `binding_id`, `submission_id` and `commit_at` in the `intent_json` / `receipt_json` of the existing `actions` table; no columns are added.
+- The `idem_key` of `approved_draft` is `approval:<scope_request_id>`, so clicking Allow twice does not create two versions.
+- `CHECK` constraints on state and `authority` are left to the code layer (same style as the A1 to A3 tables), with their own tests.
 
-### 7.2 Nguồn chuẩn
+### 7.2 Source of truth
 
-- **Phạm vi:** dòng gốc `active` của mục tiêu. Không có dòng nào thì không có quyền.
-- **Quyền của lượt:** chỉ liên kết đã ghim. Không suy từ quyền hiện hành lúc gọi.
-- **Sản phẩm:** `published` và `evidence_links`, như A1 tới A3. `submissions` là sổ đầu vào.
-- **Hạn mức:** `goals.calls_used` và sổ của A1 tới A3.
+- **Scope:** the goal's `active` root row. No row means no permission.
+- **Turn permission:** only the pinned binding. It is not inferred from the permission currently in effect at call time.
+- **Deliverable:** `published` and `evidence_links`, as in A1 to A3. `submissions` is the input ledger.
+- **Quota:** `goals.calls_used` and the A1 to A3 ledger.
 
-### 7.3 Đăng
+### 7.3 Publishing
 
-Theo mục 4.5. Không hứa nguyên tử với hệ thống file.
+Per section 4.5. No atomicity is promised with the file system.
 
-### 7.4 Nâng cấp, hạ phiên bản, nâng lại (chọn chính sách giới hạn)
+### 7.4 Upgrade, downgrade, upgrade again (choosing a limited policy)
 
-Review vòng 1 chỉ ra `apply_command(..., "resume")` của 0.95.1 gỡ tạm dừng mà không biết quyền. Vì vậy tạm dừng **không** bảo toàn được việc thu hồi khi chạy bằng mã cũ. A4 chọn chính sách giới hạn:
+Round 1 review pointed out that the 0.95.1 `apply_command(..., "resume")` clears the pause without knowing about permissions. So a pause does **not** preserve a revocation when running with old code. A4 chooses a limited policy:
 
-**Hạ về 0.95.1 chỉ hỗ trợ khôi phục snapshot hay đọc hồ sơ.** Không hỗ trợ chạy tiếp mục tiêu có quyền A4 bằng mã cũ.
+**Downgrading to 0.95.1 only supports restoring a snapshot or reading the records.** Continuing to run a goal that has A4 permissions with old code is not supported.
 
-- **Lúc nâng lên:**
-  1. `GoalStore._backup_before("grants", ".pre-0.96.0")`: dùng lại helper có sẵn, SQLite backup API (lấy cả phần trong WAL), chỉ khi kho chưa có bảng `grants`, không ghi đè bản đã có.
-  2. Tạo bảng mới.
-  3. Đóng băng legacy (mục 5.2) trong cùng giao dịch tạo bảng, trước khi server nhận lời gọi.
-- **Hạ đúng cách,** bằng script đi kèm `tools/resonance_restore_pre_a4.py`, chạy khi Jarvis 007 đã tắt:
-  1. Chép kho **hiện tại** sang `resonance.sqlite3.post-0.96.0-<thời điểm>` bằng SQLite backup API, để giữ hồ sơ sau nâng.
-  2. Khôi phục snapshot vào đường kho bằng backup API, rồi dọn `-wal`/`-shm` cũ.
-  3. Chạy 0.95.1.
-  - Mọi thay đổi của mục tiêu sau lúc nâng bị mất khỏi kho chạy: lượt đã chạy, bản đã đăng ghi trong kho, phản hồi. Bản sao ở bước 1 vẫn đọc được.
-  - File đã đăng trong brain vẫn còn, và 0.95.1 có thể thấy chúng là drift so với mốc cũ (A2).
-  - Biên bản phát hành ghi rõ hậu quả này.
-- **Hạ không khôi phục snapshot (không hỗ trợ):**
-  - mã cũ không đọc `grants`, nên bấm Tiếp tục là chạy lại mục tiêu đã thu hồi;
-  - A4 không hứa gì về trường hợp này.
-- **Nâng lại sau khi mã cũ đã chạy** (bảng `grants` đã có, nên không đóng băng lại):
-  - revision không có dòng quyền revision tương ứng là revision mã cũ tạo. A4 **không tự cấp** quyền cho nó: cùng đích với gốc đang `active` thì vẫn chờ chủ dự án như yêu cầu `expand` (mục 5.3);
-  - mục tiêu mã cũ lập sau khi hạ không có gốc nào, nên chờ chấp thuận;
-  - gốc đã `revoked` vẫn `revoked`, không có đường tự hồi sinh.
+- **On upgrade:**
+  1. `GoalStore._backup_before("grants", ".pre-0.96.0")`: reuse the existing helper, the SQLite backup API (includes the WAL part), only when the store has no `grants` table yet, never overwriting an existing copy.
+  2. Create the new tables.
+  3. Legacy freeze (section 5.2) in the same transaction that creates the tables, before the server accepts calls.
+- **A proper downgrade,** with the bundled script `tools/resonance_restore_pre_a4.py`, run while Jarvis 007 is off:
+  1. Copy the **current** store to `resonance.sqlite3.post-0.96.0-<time>` with the SQLite backup API, to keep the post-upgrade records.
+  2. Restore the snapshot into the store path with the backup API, then clean up old `-wal`/`-shm` files.
+  3. Run 0.95.1.
+  - Every goal change after the upgrade is lost from the running store: turns already run, published versions recorded in the store, feedback. The copy from step 1 can still be read.
+  - Files already published in the brain remain, and 0.95.1 may see them as drift against the old marker (A2).
+  - The release notes state this consequence clearly.
+- **Downgrading without restoring the snapshot (not supported):**
+  - old code does not read `grants`, so clicking Resume reruns a revoked goal;
+  - A4 promises nothing for this case.
+- **Upgrading again after old code has run** (the `grants` table already exists, so no re-freeze):
+  - a revision with no matching revision-permission row is a revision created by old code. A4 **does not grant** permission to it by itself: with the same destination as the `active` root it still waits for the project owner like an `expand` request (section 5.3);
+  - a goal created by old code after the downgrade has no root, so it waits for approval;
+  - a root that is already `revoked` stays `revoked`; there is no path to revive it automatically.
 
-## 8. Giao diện
+## 8. UI
 
-- **Thẻ mục tiêu**, dòng quyền: "Được: nộp và đăng `Inbox/x.md` · đọc `Inbox/x.md` · tối đa 6 lượt · không giao tiếp với trợ lý khác", kèm nút **Thu hồi quyền** (xác nhận một lần).
-- **Chờ chấp thuận:** "Trợ lý muốn ghi vào `Private/y.md`. Cho phép / Không".
-  - Có bản nháp: thêm "Trợ lý đã soạn sẵn một bản (3,2 KB). Cho phép sẽ đăng đúng bản này" và nút Xem trước.
-  - Thẻ gửi `request_id`, `path`, `submission_id`, `sha256` đã hiển thị. Thẻ cũ nhận lời "Thẻ đã cũ, tải lại để xem yêu cầu hiện tại".
-- **Bản nháp:** "1 bản nháp chờ đăng", hay "Bản nháp bị xung đột với file hiện có; xem trong lịch sử".
-- **Thu hồi chen giữa lần đăng:** "Lần đăng đã được chốt trước khi thu hồi; Jarvis 007 đang hoàn tất", rồi "Đã hoàn tất lần đăng được chốt trước khi thu hồi" khi có bằng chứng ở đích.
-- **Trang Cộng sự:** bảng khả năng engine (mục 6.1).
-- Chữ qua `vi.json` và `en.json`. Không có ô cấu hình quyền kỹ thuật.
+- **Goal card**, permission line: "Allowed: submit and publish `Inbox/x.md` · read `Inbox/x.md` · up to 6 calls · no contact with other assistants", with the **Revoke permission** button (confirmed once).
+- **Waiting for approval:** "The assistant wants to write to `Private/y.md`. Allow / No".
+  - With a draft: add "The assistant already drafted a version (3.2 KB). Allowing publishes exactly this version" and a Preview button.
+  - The card sends the displayed `request_id`, `path`, `submission_id`, `sha256`. An old card gets the message "This card is out of date, reload to see the current request".
+- **Drafts:** "1 draft waiting to publish", or "A draft conflicts with the existing file; see the history".
+- **Revoke landing in the middle of a publish:** "The publish was committed before the revoke; Jarvis 007 is finishing it", then "Finished the publish that was committed before the revoke" once there is evidence at the destination.
+- **Collaborators page:** the engine capability table (section 6.1).
+- Text goes through `vi.json` and `en.json`. There is no technical permission configuration field.
 
-## 9. Chốt dừng và lỗi
+## 9. Stop points and errors
 
-| Tình huống | Hành vi |
+| Situation | Behavior |
 |---|---|
-| Thu hồi khi lượt chat còn sống | Lời nộp sau đó hỏng `binding_accepts` (liên kết `dead`). Bản nộp trước đó thành `stale` ngay trong giao dịch thu hồi. Lượt đã chạy vẫn tính |
-| Thu hồi rồi cấp lại khi cùng lượt chat còn sống | Lượt vẫn ghim gốc cũ, mọi lời nộp bị từ chối; sửa mục tiêu thêm cũng không mở được liên kết mới (`turn_authority_changed`). Trợ lý cần lượt mới |
-| Chủ dự án Cho phép khi lượt chat có bản nháp còn sống | Bản nháp được chọn đăng qua liên kết `approval`. Lượt chat không nộp thêm được (`scope_decided`) |
-| Thu hồi khi lượt nền đang gọi engine | Đầu ra ghi như hôm nay. Bản nộp chèn sau có liên kết `dead` nên `stale`. Không đăng. Lượt đã dùng giữ nguyên |
-| Thu hồi sau ý định đăng, trước khi thay file | Thứ tự theo mốc commit (mục 4.5) |
-| Cùng nội dung sau thu hồi | Nhánh `same` kiểm quyền trước, nên không tạo baseline |
-| Đổi trợ lý hay phiên bản giữa lượt | Như A1: `agent_changed`, hỏng điều 3 của cả hai phép kiểm |
-| Khởi động lại khi có bản đã nhận | Liên kết `sealed`; đối soát hoàn tất nếu quyền đã ghim còn hiệu lực (mục 4.7) |
-| Phép thử A3 gặp quyền bị thu hồi | Dừng `inconclusive` (lý do quyền), hoàn lượt chưa ghi ý định theo luật A3 |
+| Revoke while the chat turn is still alive | A later submission fails `binding_accepts` (binding `dead`). An earlier submission becomes `stale` right in the revoke transaction. Turns already run still count |
+| Revoke then re-grant while the same chat turn is still alive | The turn still pins the old root, every submission is refused; editing the goal again also cannot open a new binding (`turn_authority_changed`). The assistant needs a new turn |
+| Project owner clicks Allow while the chat turn has a live draft | The chosen draft is published through the `approval` binding. The chat turn cannot submit more (`scope_decided`) |
+| Revoke while a background turn is calling the engine | Output is recorded as today. A submission inserted afterwards has a `dead` binding so it is `stale`. Not published. Turns already used stay as they are |
+| Revoke after the publish intent, before the file replace | Ordering follows the commit point (section 4.5) |
+| Same content after a revoke | The `same` branch checks permission first, so no baseline is created |
+| Assistant or version changes mid-turn | As in A1: `agent_changed`, fails item 3 of both checks |
+| Restart while an accepted submission exists | Binding `sealed`; reconciliation completes it if the pinned permission is still in effect (section 4.7) |
+| A3 trial meets a revoked permission | Stops `inconclusive` (permission reason), refunds a turn that has no recorded intent under the A3 rule |
 
-## 10. API và công cụ
+## 10. API and tools
 
-- **`javis_submit_deliverable(path, content, submission_key?, handoff?)`:** công cụ hub.
-  - Công cụ lập và sửa mục tiêu trả thêm `handoff` (mã liên kết) khi host mở liên kết, và `scope: "granted" | "pending"`.
-- **`GET /goals/{id}`:** thêm các trường:
-  - `scope`: gốc, đích, nguồn, trạng thái;
-  - `grant`: quyền revision;
-  - `scope_request`: nếu có, kèm bản nháp mới nhất (mã, sha, kích thước);
-  - `submissions` gần nhất.
+- **`javis_submit_deliverable(path, content, submission_key?, handoff?)`:** a hub tool.
+  - The tools that create and edit goals also return `handoff` (the binding code) when the host opens a binding, and `scope: "granted" | "pending"`.
+- **`GET /goals/{id}`:** adds these fields:
+  - `scope`: root, destination, source, state;
+  - `grant`: the revision permission;
+  - `scope_request`: if present, with the newest draft (code, sha, size);
+  - the most recent `submissions`.
 - **`POST /goals/{id}/commands`:**
   - `revoke_grant`: owner, CAS `expected_revision`;
-  - `approve_scope`: owner, mang `request_id`, `path`, và `submission_id` + `sha256` khi thẻ có bản nháp; CAS theo mục 5.3;
-  - `deny_scope`: owner, mang `request_id`;
-  - `resume`: khi gốc `revoked` thì cấp lại theo mục 5.3.
-- Không route nào cho model tạo, mở rộng, chấp thuận hay cấp lại quyền.
+  - `approve_scope`: owner, carries `request_id`, `path`, and `submission_id` + `sha256` when the card has a draft; CAS per section 5.3;
+  - `deny_scope`: owner, carries `request_id`;
+  - `resume`: when the root is `revoked`, re-grants per section 5.3.
+- No route lets the model create, expand, approve or re-grant permission.
 
-## 11. Hiệu năng
+## 11. Performance
 
-- Đọc quyền, liên kết và bản nộp theo chỉ mục; một truy vấn mỗi điểm kiểm. Không quét file hay trợ lý mỗi nhịp.
-- I/O của công cụ nộp và của đăng chạy ở luồng phụ. Giao dịch `BEGIN IMMEDIATE` chỉ bọc đọc và ghi kho, không bọc lời gọi model.
-- Mỗi lượt có trợ lý đọc thêm một dòng `authority_clock` theo khoá chính lúc dựng lượt. Lượt chat thường không đọc.
-- Đóng băng legacy chạy một lần lúc nâng, trên số mục tiêu đang có.
-- Thẻ đọc quyền trong `goal_view` đã giới hạn (0.88.5).
+- Permission, binding and submission reads go by index; one query per check point. No scanning of files or assistants on every tick.
+- The I/O of the submit tool and of publishing runs on a side thread. A `BEGIN IMMEDIATE` transaction only wraps store reads and writes, never a model call.
+- Each turn with an assistant reads one extra `authority_clock` row by primary key when building the turn. An ordinary chat turn does not read it.
+- The legacy freeze runs once at upgrade time, over the goals that exist.
+- The card's permission reads in `goal_view` are already bounded (0.88.5).
 
-## 12. Ma trận nghiệm thu (đồng hồ giả, engine giả, không model thật)
+## 12. Acceptance matrix (fake clock, fake engine, no real model)
 
-Mỗi ca có đối chứng hợp lệ đi qua. Ca race chèn thay đổi ngay trước giao dịch cần bảo vệ. Ca âm kiểm cả ba thứ: không có quyền đọc đích vào prompt, không đăng, không giữ lượt nền.
+Each case has a valid control that passes. Race cases insert the change right before the transaction being protected. Negative cases check all three things: no permission to read the destination into the prompt, no publish, no background turn held.
 
-### 12.1 Ca vòng 1 (giữ, sửa theo thiết kế mới)
+### 12.1 Round 1 cases (kept, adjusted to the new design)
 
-| Ca | Kỳ vọng |
+| Case | Expectation |
 |---|---|
-| G1 | `narrow` với người nhận không có quyền: phần giao rỗng |
-| G2 | Quyền con xin đích rộng hơn hay mục tiêu khác: từ chối |
-| G3 | Không có `communicate`: không đường nào trong hợp đồng tạo việc cho trợ lý thứ ba |
-| G4 | Model tự khai mục tiêu, trợ lý, chủ dự án; MCP tên giống công cụ nộp: không nâng quyền |
-| G5 | Thu hồi ngay trước giao dịch nộp: `grant_revoked`, không bản nộp |
-| G6 | Cấp lại, lời nộp của liên kết cũ đến muộn: từ chối. Bản nộp cũ `stale`, không đăng |
-| G7 | Thu hồi khi lượt nền đang gọi engine: `stale`, không đăng, lượt vẫn tính |
-| G8 | Khởi động lại sau thu hồi: không tự hồi sinh, không hoàn hai lần |
-| G9 | Lỗi trước hay sau khi engine có thể chạy: giữ luật A1 tới A3 |
-| G10 | Cùng khoá, cùng dấu vân tay: trả biên nhận cũ. Cùng khoá, khác dấu vân tay: `submission_conflict` |
-| G11 | Sửa file trợ lý để tự thêm quyền: quyền host không đổi; `agent_changed` |
-| G12 | Prompt việc nền không chứa file ngoài `read_paths`, không chứa bản nháp chưa đăng hay chờ chấp thuận |
-| G13 | Đích ngoài phạm vi, `..`, `.`, symlink ra ngoài, đuôi lạ, quá 1MB: từ chối trước khi ghi |
-| G14 | Engine tự ghi native vào đích mà không nộp: không thành sản phẩm; đăng gặp `conflict` |
-| G15 | Không có quyền, quyền hỏng, thao tác lạ: không giữ lượt |
-| G17 | Nhiệm vụ hợp lệ trong phạm vi: nộp, đăng, tiếp nhận đúng một lần, không gọi thêm model |
-| G18 | Nhiều mục tiêu chưa tới hạn: không đọc file, không đánh thức model; event loop không bị chặn khi nộp song song |
-| G20 | Chat thường, kênh ngoài, workflow gọi công cụ nộp: `not_agent_turn` |
-| G22 | Bảng khả năng engine. **Kiểm đường truyền thật**: header của Claude, `-c` của Codex, trong tiến trình của engine API. Grok và Antigravity bị từ chối |
+| G1 | `narrow` with a recipient that has no permission: empty intersection |
+| G2 | A child permission asking for a wider destination or a different goal: refused |
+| G3 | No `communicate`: no path within the contract creates work for a third assistant |
+| G4 | The model declares its own goal, assistant, project owner; an MCP named like the submit tool: no permission raise |
+| G5 | Revoke right before the submit transaction: `grant_revoked`, no submission |
+| G6 | Re-grant, a submission from the old binding arrives late: refused. The old submission is `stale`, not published |
+| G7 | Revoke while a background turn is calling the engine: `stale`, not published, the turn still counts |
+| G8 | Restart after a revoke: does not revive itself, does not complete twice |
+| G9 | Error before or after the engine could run: keep the A1 to A3 rule |
+| G10 | Same key, same fingerprint: return the old receipt. Same key, different fingerprint: `submission_conflict` |
+| G11 | Editing the assistant file to add permission itself: host permission unchanged; `agent_changed` |
+| G12 | The background-job prompt contains no file outside `read_paths`, and no unpublished draft or draft awaiting approval |
+| G13 | Destination outside the scope, `..`, `.`, symlink pointing outside, unusual extension, over 1MB: refused before writing |
+| G14 | The engine writes natively to the destination without submitting: does not become the deliverable; publishing hits `conflict` |
+| G15 | No permission, corrupted permission, unknown operation: no turn held |
+| G17 | A valid task within the scope: submitted, published, adopted exactly once, no extra model call |
+| G18 | Many goals not yet due: no file reads, no model wake-ups; the event loop is not blocked by parallel submissions |
+| G20 | Ordinary chat, external channel, workflow calling the submit tool: `not_agent_turn` |
+| G22 | Engine capability table. **Check the real transport path**: Claude's header, Codex's `-c`, the API engine's in-process. Grok and Antigravity are refused |
 
-### 12.2 Ca theo review vòng 1
+### 12.2 Cases from the round 1 review
 
-| Ca | Tình huống | Kỳ vọng | Điểm review |
+| Case | Situation | Expectation | Review point |
 |---|---|---|---|
-| G23 | Góp ý không nhắc đường, model đổi hay thêm đích (có câu trích hợp lệ) | Không cấp quyền vào đích mới; ghi `scope_requests`; không giữ lượt; không đọc đích mới vào prompt | r1 P1-1 |
-| G24 | Revision mới cùng đích | Quyền revision mới tự cấp trong phạm vi, không hỏi | r1 P1-1 |
-| G25 | Chủ dự án Cho phép đúng đường của yêu cầu; gửi đường khác với yêu cầu | Khớp: gốc mới `owner_approved`, làm tiếp. Lệch: `scope_request_stale`, không gốc | r1 P1-1 |
-| G26 | Mục tiêu có hai đường tiêu chí | Quyền và đích chỉ là đường đầu (`_deliverable_rel`); đường hai chỉ được evaluator đọc | r1 P1-1 |
-| G27 | Lập mục tiêu: lời chủ dự án nêu đích bằng lệnh trực tiếp; đích do trợ lý tự chọn | Cả hai chờ chấp thuận, chưa giữ lượt, không đọc đích vào prompt. Sau khi Cho phép thì chạy bình thường | r1 P1-1, r2 P1-1, r4 D1 |
-| G28 | Mục tiêu cũ trước 0.96.0 | Gốc `legacy_frozen` đúng `_deliverable_rel` lúc nâng. Mục tiêu chờ gán không có quyền | r1 P1-1 |
-| G29 | Thu hồi rồi cấp lại khi cùng lượt chat còn sống | Lượt đó không nộp được nữa | r1 P1-2 |
-| G30 | Lời nộp cùng phiên nhưng khoá lượt là tin khác (đan xen hai tin) | Chỉ thấy liên kết của tin mình | r1 P1-2, P2-1 |
-| G31 | Thu hồi sau bước 1 (ý định), trước bước 3 (mốc commit) | Đăng bị huỷ, file đích không đổi, bản nộp `stale` | r1 P1-2 |
-| G32 | Mốc commit commit trước, thu hồi ngay sau, trước `os.replace` | Tác động hoàn tất. Lúc chưa thay file báo "đã được chốt trước khi thu hồi"; sau khi khớp hash mới báo "đã hoàn tất lần đăng được chốt trước khi thu hồi". Lần đăng sau bị chặn | r1 P1-2, r2 lưu ý 2 |
-| G33 | Nhánh `same` sau thu hồi | Không tạo baseline | r1 P1-2 |
-| G34 | Phép thử A3 khi quyền bị thu hồi giữa lượt thử | Dừng `inconclusive`, lý do quyền; lượt làm sản phẩm không chạy | r1 P1-2 |
-| G35 | Đối soát hành động mang liên kết `generation` cũ | Không đăng, không ghim lại | r1 P1-2 |
-| G36 | Nộp khi đích chưa có | Host đăng: file được tạo, mốc đúng sha | r1 P1-3 |
-| G37 | Nộp khi đích có bản người dùng không có baseline | `conflict`, file người dùng nguyên vẹn, bản nháp giữ lại | r1 P1-3 |
-| G38 | Cùng lượt: Write A hợp lệ, rồi nộp B | Tiếp nhận A tại chỗ, rồi đăng B qua CAS; mốc cuối là B | r1 P1-3 |
-| G39 | Write A không có biên nhận, nộp B | `conflict`; không ghi baseline B lên A | r1 P1-3 |
-| G40 | Hỏng ở từng điểm của mục 4.7 (chèn lỗi ngay trước và sau mỗi bước) | Đối soát đúng bảng; 0 lượt model; không nhận file mồ côi | r1 P1-3 |
-| G41 | Bản nộp hợp lệ hoàn tất mà không cần model viết lại | Lượt nền và lượt chat đều đăng từ bản nộp | r1 P1-3 |
-| G42 | `finish_handoff` cũ không còn được gọi với bản nháp chưa ở đích | Chỉ `adopt_submission` sau khi đăng, hay tiếp nhận tại chỗ khi có biên nhận Write | r1 P1-3 |
-| G43 | Hai mục tiêu cùng phiên, cùng đích, cùng tin | `ambiguous_handoff`. Có `handoff` hợp lệ thì chọn đúng | r1 P2-1 |
-| G44 | Cùng khoá tuỳ chọn, cùng bytes, khác đích | `submission_conflict` | r1 P2-1 |
-| G45 | Đường alias: chữ hoa thường trên Windows; `./a/x.md`, `a/../a/x.md` | Chữ hoa thường về cùng khoá. `.` và `..` bị từ chối ở khoá đường, dù `_brain_file` nhận; symlink ra ngoài bị chặn | r1 P2-1, r2 lưu ý 4 |
-| G46 | Phát lại sau khi thu hồi và cấp lại, trong cùng lượt còn sống | Trả biên nhận cũ với trạng thái `stale` (tra biên nhận trước cổng `binding_accepts`); không tác động mới. Lượt khác hay tiến trình mới: `no_turn` hay không thấy liên kết | r1 P2-1, r2 lưu ý 5 |
-| G47 | Nâng lên A4 | Có `resonance.sqlite3.pre-0.96.0` đúng một bản, tạo bằng backup API, có cả dữ liệu còn trong WAL | r1 P2-2, r2 lưu ý 3 |
-| G48 | A4 thu hồi, rồi chạy `resume` của mã 0.95.1 (lấy qua `git archive`) | Ghi nhận đúng là không hỗ trợ: mã cũ chạy lại. Test chứng minh giới hạn được ghi trong tài liệu là đúng sự thật, không chứng minh là được chặn | r1 P2-2 |
-| G49 | Nâng lại sau khi mã cũ tạo revision mới và lập mục tiêu mới | Không tự cấp quyền cho revision hay mục tiêu đó; gốc `revoked` vẫn `revoked` | r1 P2-2 |
-| G50 | Chạy script khôi phục rồi chạy 0.95.1 | Có bản `post-0.96.0-*` bằng kho trước khôi phục; kho mở được, mục tiêu ở trạng thái lúc nâng lên | r1 P2-2, r2 lưu ý 3 |
+| G23 | Feedback that does not mention a path, the model changes or adds a destination (with a valid quote) | No permission into the new destination; write `scope_requests`; no turn held; the new destination is not read into the prompt | r1 P1-1 |
+| G24 | New revision with the same destination | The new revision permission is granted automatically within the scope, without asking | r1 P1-1 |
+| G25 | The project owner clicks Allow with exactly the request's path; sends a path different from the request | Match: new `owner_approved` root, continues. Mismatch: `scope_request_stale`, no root | r1 P1-1 |
+| G26 | A goal with two criteria paths | Permission and destination are only the first path (`_deliverable_rel`); the second path is only read by the evaluator | r1 P1-1 |
+| G27 | Creating a goal: the project owner's message names the destination as a direct command; a destination the assistant chose itself | Both wait for approval, no turn held yet, the destination is not read into the prompt. After Allow, runs normally | r1 P1-1, r2 P1-1, r4 D1 |
+| G28 | An old goal from before 0.96.0 | `legacy_frozen` root with exactly the `_deliverable_rel` at upgrade time. A goal waiting for assignment has no permission | r1 P1-1 |
+| G29 | Revoke then re-grant while the same chat turn is still alive | That turn can no longer submit | r1 P1-2 |
+| G30 | A submission in the same session but the turn key belongs to another message (two interleaved messages) | Sees only its own message's binding | r1 P1-2, P2-1 |
+| G31 | Revoke after step 1 (intent), before step 3 (commit point) | The publish is cancelled, the destination file is unchanged, the submission is `stale` | r1 P1-2 |
+| G32 | The commit point commits first, revoke right after, before `os.replace` | The effect completes. Before the file is replaced it says "was committed before the revoke"; only after the hash matches does it say "finished the publish that was committed before the revoke". Later publishes are blocked | r1 P1-2, r2 note 2 |
+| G33 | The `same` branch after a revoke | Creates no baseline | r1 P1-2 |
+| G34 | An A3 trial when the permission is revoked in the middle of a trial turn | Stops `inconclusive`, permission reason; the deliverable turn does not run | r1 P1-2 |
+| G35 | Reconciling an action that carries a binding with an old `generation` | Not published, no re-pinning | r1 P1-2 |
+| G36 | Submit when the destination does not exist yet | The host publishes: the file is created, the marker has the right sha | r1 P1-3 |
+| G37 | Submit when the destination has a user version with no baseline | `conflict`, the user's file is intact, the draft is kept | r1 P1-3 |
+| G38 | Same turn: valid Write A, then submit B | Adopt A in place, then publish B through CAS; the final marker is B | r1 P1-3 |
+| G39 | Write A with no receipt, submit B | `conflict`; B's baseline is not written onto A | r1 P1-3 |
+| G40 | Failure at each point of section 4.7 (inject an error right before and after each step) | Reconciliation follows the table exactly; 0 model turns; no orphan file is adopted | r1 P1-3 |
+| G41 | A valid submission completes without the model rewriting | Both the background turn and the chat turn publish from the submission | r1 P1-3 |
+| G42 | The old `finish_handoff` is no longer called with a draft that is not at the destination | Only `adopt_submission` after publishing, or in-place adoption when there is a Write receipt | r1 P1-3 |
+| G43 | Two goals in the same session, same destination, same message | `ambiguous_handoff`. With a valid `handoff`, the right one is chosen | r1 P2-1 |
+| G44 | Same optional key, same bytes, different destination | `submission_conflict` | r1 P2-1 |
+| G45 | Alias paths: letter case on Windows; `./a/x.md`, `a/../a/x.md` | Letter case maps to the same key. `.` and `..` are refused at the path key even though `_brain_file` accepts them; symlinks pointing outside are blocked | r1 P2-1, r2 note 4 |
+| G46 | Replay after a revoke and re-grant, within the same live turn | Return the old receipt with state `stale` (receipt lookup before the `binding_accepts` gate); no new effect. A different turn or a new process: `no_turn` or no binding found | r1 P2-1, r2 note 5 |
+| G47 | Upgrade to A4 | Exactly one `resonance.sqlite3.pre-0.96.0` copy, made with the backup API, including data still in the WAL | r1 P2-2, r2 note 3 |
+| G48 | A4 revokes, then run `resume` of the 0.95.1 code (taken through `git archive`) | Records correctly that this is not supported: old code reruns. The test proves the limit written in the documentation is true; it does not prove it is blocked | r1 P2-2 |
+| G49 | Upgrade again after old code created a new revision and a new goal | No permission is granted automatically for that revision or goal; a `revoked` root stays `revoked` | r1 P2-2 |
+| G50 | Run the restore script, then run 0.95.1 | A `post-0.96.0-*` copy equal to the pre-restore store exists; the store opens, goals are in their state at upgrade time | r1 P2-2, r2 note 3 |
 
-### 12.3 Ca theo review vòng 2
+### 12.3 Cases from the round 2 review
 
-| Ca | Tình huống | Kỳ vọng | Điểm review |
+| Case | Situation | Expectation | Review point |
 |---|---|---|---|
-| G51 | "Soạn ghi chú mới, đừng ghi vào `Private/giu-nguyen.md`", model chọn đúng đường đó làm đích | Chờ chấp thuận; ca âm ba mặt (không gốc, không đọc đích vào prompt, không đăng, không giữ lượt nền) | r2 P1-1, r4 D1 |
-| G52 | "Đọc `Private/giu-nguyen.md` để tham khảo, ghi bản mới vào `Inbox/ban-moi.md`" | Đường nào cũng chờ chấp thuận, ca âm ba mặt | r2 P1-1, r4 D1 |
-| G53 | Tin dán đoạn của người khác có "ghi vào `Private/giu-nguyen.md`" | Chờ chấp thuận, ca âm ba mặt | r2 P1-1, r4 D1 |
-| G54 | Lệnh trực tiếp "Ghi vào `Inbox/x.md` bản tóm tắt" | Vẫn chờ chấp thuận. Cho phép đúng đường thì gốc `owner_approved`, chạy bình thường | r2 P1-1, r4 D1 |
-| G55 | "ghi vào `x.md` được không?"; hai đường trong một tin | Chờ chấp thuận | r2 P1-1, r4 D1 |
-| G56 | Mục tiêu legacy được model sửa sang đích mới bởi mã 0.95.1 ngay trước khi nâng, rồi sửa tiếp sau khi nâng | Gốc đóng băng theo revision lưu lúc nâng. Sửa sau nâng sang đích khác thì chờ `expand`; không đọc đích mới vào prompt | r2 P1-1 |
-| G57 | Lập mục tiêu đích model chọn, nộp, kết thúc chat, chủ dự án Cho phép | 1 lượt model (của chat), 0 lượt sau duyệt. Bản nháp `promoted`, bản `approved_draft` `published`, gốc `owner_approved`, liên kết `approval`, tiếp nhận đúng một lần | r2 P2-1 |
-| G58 | Như G57 nhưng chủ dự án bấm Không | Bản nháp `rejected`, không gốc, không đăng, không giữ lượt | r2 P2-1 |
-| G59 | Bấm Cho phép trên thẻ cũ: sau revision mới; sau Không; sau khi có bản nháp mới hơn; sau thu hồi rồi cấp lại | `scope_request_stale`, không tạo gốc | r2 P2-1 |
-| G60 | Lượt chat còn sống nộp tiếp sau khi chủ dự án đã Cho phép | `scope_decided`; lượt đó sửa mục tiêu thêm cũng không có liên kết dưới gốc mới | r2 P2-1, P2-3 |
-| G61 | Liên kết `draft` cố đăng hay tiếp nhận Write tại chỗ | Bị chặn bởi `binding_may_finish` | r2 P2-1 |
-| G62 | Khởi động lại sau khi chèn `candidate` của lượt chat | Liên kết `sealed`; đối soát đăng và tiếp nhận, 0 lượt model | r2 P2-2 |
-| G63 | Khởi động lại sau receipt nền, trước khi chèn bản nộp; và sau khi chèn, trước khi đăng | Hoàn tất từ đầu ra của host, 0 lượt model | r2 P2-2 |
-| G64 | Khởi động lại sau `published`, trước khi tiếp nhận | Tiếp nhận một lần: một bằng chứng, một sự kiện, nhả lịch một lần. Chạy đối soát hai lần không nhân đôi | r2 P2-2 |
-| G65 | Như G62 nhưng thu hồi, đổi revision hay đổi trợ lý trước khi đối soát | Không đăng; `stale` hay `superseded`; không ghim sang quyền mới | r2 P2-2 |
-| G66 | Lời nộp muộn từ lượt đã kết thúc (cùng tiến trình, khoá đã huỷ; và mô phỏng còn khoá nhưng liên kết `sealed`) | `no_turn`; `turn_closed` | r2 P2-2 |
-| G67 | Cùng tin: lập mục tiêu (r1) rồi sửa (r2), nộp ở mỗi revision | Hai liên kết; bản r1 `superseded`; chỉ bản r2 được đăng | r2 P2-3 |
-| G68 | Hai lần sửa có thay đổi trong một tin; và phát lại lời sửa không đổi gì | Ba liên kết theo revision; phát lại trả liên kết có sẵn, không dòng mới, không `REPLACE` | r2 P2-3 |
-| G69 | Bản nộp r1 cố đăng sau khi mục tiêu sang r2 | Bị chặn ở điều 4 của `binding_may_finish` | r2 P2-3 |
-| G70 | Thu hồi rồi cấp lại, lượt cũ sửa mục tiêu để lấy liên kết mới | `turn_authority_changed`, do cổng ghim gốc theo lượt, không do lỗi `UNIQUE` | r2 P2-3 |
-| G71 | Người dùng sửa file giữa bước 3 và `os.replace` | Ca ghi nhận giới hạn: bản sửa mất, không báo xung đột. Hai ca đối chứng (sửa trước bước 3, sửa sau `os.replace`) đều phát hiện | r2 lưu ý 1 |
-| G72 | `host_publish` khi mục tiêu tạm dừng, guard chặn, hay baseline lệch, dù liên kết hợp lệ | Không đăng; cổng `_gate` vẫn chạy | r2 lưu ý 6 |
+| G51 | "Draft a new note, do not write to `Private/giu-nguyen.md`", and the model picks exactly that path as the destination | Waits for approval; three-sided negative case (no root, the destination is not read into the prompt, no publish, no background turn held) | r2 P1-1, r4 D1 |
+| G52 | "Read `Private/giu-nguyen.md` for reference, write the new version to `Inbox/ban-moi.md`" | Either path waits for approval, three-sided negative case | r2 P1-1, r4 D1 |
+| G53 | A message pasting someone else's text that contains "write to `Private/giu-nguyen.md`" | Waits for approval, three-sided negative case | r2 P1-1, r4 D1 |
+| G54 | Direct command "Write the summary to `Inbox/x.md`" | Still waits for approval. Allowing exactly that path gives an `owner_approved` root and runs normally | r2 P1-1, r4 D1 |
+| G55 | "can you write to `x.md`?"; two paths in one message | Waits for approval | r2 P1-1, r4 D1 |
+| G56 | A legacy goal that 0.95.1 code had the model edit to a new destination right before the upgrade, then edited again after the upgrade | The root is frozen from the revision stored at upgrade time. An edit after the upgrade to a different destination waits for `expand`; the new destination is not read into the prompt | r2 P1-1 |
+| G57 | Create a goal with a destination the model chose, submit, end the chat, the project owner clicks Allow | 1 model turn (the chat's), 0 turns after approval. The draft is `promoted`, the `approved_draft` submission is `published`, root `owner_approved`, binding `approval`, adopted exactly once | r2 P2-1 |
+| G58 | Like G57 but the project owner clicks No | The draft is `rejected`, no root, no publish, no turn held | r2 P2-1 |
+| G59 | Clicking Allow on an old card: after a new revision; after No; after a newer draft exists; after a revoke and re-grant | `scope_request_stale`, no root is created | r2 P2-1 |
+| G60 | A live chat turn keeps submitting after the project owner has clicked Allow | `scope_decided`; that turn editing the goal again also gets no binding under the new root | r2 P2-1, P2-3 |
+| G61 | A `draft` binding tries to publish or adopt an in-place Write | Blocked by `binding_may_finish` | r2 P2-1 |
+| G62 | Restart after the chat turn's `candidate` was inserted | Binding `sealed`; reconciliation publishes and adopts, 0 model turns | r2 P2-2 |
+| G63 | Restart after the background receipt, before the submission is inserted; and after it is inserted, before publishing | Completes from the host's output, 0 model turns | r2 P2-2 |
+| G64 | Restart after `published`, before adoption | Adopts once: one evidence, one event, schedule released once. Running reconciliation twice does not duplicate | r2 P2-2 |
+| G65 | Like G62 but revoke, revision change or assistant change before reconciliation | Not published; `stale` or `superseded`; no pinning to the new permission | r2 P2-2 |
+| G66 | A late submission from a finished turn (same process, key destroyed; and a simulation where the key still exists but the binding is `sealed`) | `no_turn`; `turn_closed` | r2 P2-2 |
+| G67 | Same message: create a goal (r1) then edit (r2), submit at each revision | Two bindings; the r1 submission is `superseded`; only the r2 submission is published | r2 P2-3 |
+| G68 | Two edits with changes in one message; and replaying an edit that changes nothing | Three bindings by revision; the replay returns the existing binding, no new row, no `REPLACE` | r2 P2-3 |
+| G69 | The r1 submission tries to publish after the goal moved to r2 | Blocked at item 4 of `binding_may_finish` | r2 P2-3 |
+| G70 | Revoke then re-grant, the old turn edits the goal to obtain a new binding | `turn_authority_changed`, from the per-turn root pinning gate, not from a `UNIQUE` error | r2 P2-3 |
+| G71 | The user edits the file between step 3 and `os.replace` | A case recording the limit: the edit is lost, no conflict reported. Two control cases (edit before step 3, edit after `os.replace`) are both detected | r2 note 1 |
+| G72 | `host_publish` when the goal is paused, the guard blocks, or the baseline differs, even though the binding is valid | Not published; the `_gate` still runs | r2 note 6 |
 
-### 12.4 Ca theo review vòng 3
+### 12.4 Cases from the round 3 review
 
-| Ca | Tình huống | Kỳ vọng | Điểm review |
+| Case | Situation | Expectation | Review point |
 |---|---|---|---|
-| G73 | "Nếu anh duyệt sau, ghi vào Inbox/x.md." | Chờ chấp thuận, ca âm ba mặt (không phụ thuộc bộ nhận nào) | r3 P1-1, r4 D1 |
-| G74 | "Có nên ghi vào Inbox/x.md?" | Chờ chấp thuận, ca âm ba mặt (không phụ thuộc bộ nhận nào) | r3 P1-1, r4 D1 |
-| G75 | "Anh định ghi vào Inbox/x.md." | Chờ chấp thuận, ca âm ba mặt (không phụ thuộc bộ nhận nào) | r3 P1-1, r4 D1 |
-| G76 | "If I approve later, write to Inbox/x.md" | Chờ chấp thuận, ca âm ba mặt (không phụ thuộc bộ nhận nào) | r3 P1-1, r4 D1 |
-| G77 | Điều kiện hay phủ định ở câu khác, không lặp đường: "Chưa chắc lắm, đừng vội. Ghi vào Inbox/x.md." | Chờ chấp thuận, ca âm ba mặt (không phụ thuộc bộ nhận nào) | r3 P1-1, r4 D1 |
-| G78 | Lệnh trực tiếp có dấu chấm cuối, đường có dấu chấm trong tên (`Notes/a.b.md`) | Chờ chấp thuận; thẻ hiện đúng đường nguyên vẹn; Cho phép thì gốc mang đúng khoá đường | r3 P1-1, r4 D1 |
-| G79 | Ba câu phản ví dụ vòng 4 (yêu cầu dịch, ví dụ minh họa, đuôi "là câu cần dịch") | Chờ chấp thuận; không có mã nào đọc lời chat để cấp quyền | r4 P1 |
-| G80 | Lượt T chưa chạm mục tiêu G; trong lượt, thu hồi rồi cấp lại G; đồng hồ bị lùi trước lần cấp lại; T gọi sửa G lần đầu | Không có liên kết `grant` (`turn_authority_changed`), vì `root.seq > turn.authority_seq` | r3 P2-1 |
-| G81 | Như G80 với đồng hồ bình thường, và với `created_at` của gốc mới bằng đúng thời điểm bắt đầu lượt | Cùng kết quả G80; giờ máy không tham gia quyết định | r3 P2-1 |
-| G82 | Đối chứng: gốc có thật trước lượt (`owner_approved` hay `legacy_frozen`) | Mở được liên kết `grant` | r3 P2-1, r4 D1 |
-| G83 | Lời sửa mục tiêu hay lời nộp **đến muộn** của lượt cũ sau cấp lại (cả khi lượt chưa từng có liên kết) | Lời sửa vẫn ghi; không liên kết, không nộp; G60, G70 giữ nguyên | r3 P2-1 |
-| G84 | Không đọc được `authority_clock` lúc dựng lượt | `authority_seq = -1`; chat chạy, không mở liên kết `grant` dưới gốc có sẵn; việc nền không đổi | r3 P2-1 |
-| G85 | Cùng tin sửa hai lần cùng đích, nộp không kèm `handoff`; rồi nộp kèm `handoff` mới | `ambiguous_handoff`; kèm mã thì đúng liên kết `live`. G67, G68 dùng mã do công cụ trả | r3 lưu ý 2 |
-| G86 | Đối soát hoàn tất một lần đăng đã commit dưới quyền đã thu hồi | Chỉ hoàn tất đúng hành động đã commit; không mở hành động đăng mới, không chèn bản nộp mới, không đăng bản `candidate` khác dưới quyền cũ | r3 lưu ý 3 |
+| G73 | "If you approve later, write to Inbox/x.md." (Vietnamese original: "Nếu anh duyệt sau, ghi vào Inbox/x.md.") | Waits for approval, three-sided negative case (does not depend on any receiver) | r3 P1-1, r4 D1 |
+| G74 | "Should we write to Inbox/x.md?" (Vietnamese original: "Có nên ghi vào Inbox/x.md?") | Waits for approval, three-sided negative case (does not depend on any receiver) | r3 P1-1, r4 D1 |
+| G75 | "You plan to write to Inbox/x.md." (Vietnamese original: "Anh định ghi vào Inbox/x.md.") | Waits for approval, three-sided negative case (does not depend on any receiver) | r3 P1-1, r4 D1 |
+| G76 | "If I approve later, write to Inbox/x.md" | Waits for approval, three-sided negative case (does not depend on any receiver) | r3 P1-1, r4 D1 |
+| G77 | A condition or negation in another sentence, not repeating the path: "Not sure yet, do not rush. Write to Inbox/x.md." (Vietnamese original: "Chưa chắc lắm, đừng vội. Ghi vào Inbox/x.md.") | Waits for approval, three-sided negative case (does not depend on any receiver) | r3 P1-1, r4 D1 |
+| G78 | A direct command with a trailing period, a path with a dot in its name (`Notes/a.b.md`) | Waits for approval; the card shows the full intact path; on Allow the root carries the exact path key | r3 P1-1, r4 D1 |
+| G79 | The three counter-example sentences of round 4 (a translation request, an illustrative example, a tail "is the sentence to translate") | Waits for approval; no code reads chat text to grant permission | r4 P1 |
+| G80 | Turn T has not touched goal G; during the turn, G is revoked then re-granted; the clock is moved backward before the re-grant; T calls an edit on G for the first time | No `grant` binding (`turn_authority_changed`), because `root.seq > turn.authority_seq` | r3 P2-1 |
+| G81 | Like G80 with a normal clock, and with the new root's `created_at` equal to exactly the turn's start time | Same result as G80; the machine time takes no part in the decision | r3 P2-1 |
+| G82 | Control: a root that really exists before the turn (`owner_approved` or `legacy_frozen`) | A `grant` binding can be opened | r3 P2-1, r4 D1 |
+| G83 | A goal edit or a submission from an old turn **arriving late** after a re-grant (including when the turn never had a binding) | The edit is still recorded; no binding, no submission; G60, G70 unchanged | r3 P2-1 |
+| G84 | `authority_clock` cannot be read when building the turn | `authority_seq = -1`; chat runs, no `grant` binding is opened under an existing root; background work unchanged | r3 P2-1 |
+| G85 | Same message edits twice with the same destination, submits without `handoff`; then submits with the new `handoff` | `ambiguous_handoff`; with the code, the right `live` binding. G67, G68 use the code returned by the tool | r3 note 2 |
+| G86 | Reconciliation completes a committed publish under a revoked permission | Only completes exactly the committed action; opens no new publish action, inserts no new submission, publishes no other `candidate` submission under the old permission | r3 note 3 |
 
-Bảng câu của `test_resonance_a4_directive.py` ghi kết quả thật của danh sách động từ, kể cả các câu bỏ sót (ví dụ "viết bản mới ở `x.md`" không có động từ trong danh sách nên đi qua thẻ). Bỏ sót được chấp nhận, nhận nhầm thì không.
+The sentence table of `test_resonance_a4_directive.py` records the real results of the verb list, including the sentences it missed (for example the Vietnamese "viết bản mới ở `x.md`" ("write the new version at `x.md`") has no verb in the list so it goes through the card). Missing a sentence is accepted; mistaking one for permission is not.
 
-### 12.5 Chuyển sang A5
+### 12.5 Moved to A5
 
-| Ca | Lý do |
+| Case | Reason |
 |---|---|
-| Hai việc con tranh lượt cuối | A4 không có việc con |
-| Đổi người nhận trước khi callback hoàn tất | A5 |
-| Worker nộp review dưới danh tính reviewer | A5 |
-| Hash, revision, tiêu chí đổi sau review | A5 |
-| Approval công cụ, gửi kênh khác | A4 không có quyền gửi kênh |
+| Two sub-jobs racing for the last turn | A4 has no sub-jobs |
+| Changing the recipient before the callback completes | A5 |
+| A worker submitting a review under the reviewer's identity | A5 |
+| Hash, revision, criteria changing after a review | A5 |
+| Tool approval, sending to another channel | A4 has no channel-sending permission |
 
-## 13. Quyết định mặc định cần review
+## 13. Default decisions that need review
 
-| # | Quyết định | Trạng thái |
+| # | Decision | Status |
 |---|---|---|
-| D1 | Phạm vi gốc độc lập với tiêu chí và **không cấp từ lời chat**. Đích mới hay đổi phạm vi đi qua thẻ; phạm vi đã cấp dùng tiếp tự động; bản nháp giữ, duyệt rồi đăng không gọi model | **Chốt** theo r4 (phương án dự phòng) |
-| D2 | Đăng chỉ qua `host_publish`, giữ đủ `_gate` | Giữ, thêm r2 lưu ý 6 |
-| D3 | Giữ quan sát Write; quy tắc Write A + nộp B ở mục 4.4 | Sửa theo r1 P1-3 |
-| D4 | Grok và Antigravity không nhận bàn giao chat | Giữ; kiểm đường truyền thật khi code |
-| D5 | Không mở việc nền thêm | Giữ |
-| D6 | Thu hồi = gốc `revoked` + `stale` (trừ tác động đã commit) + tạm dừng, trong một giao dịch | Giữ; làm rõ tác động đã commit |
-| D7 | Mở rộng qua yêu cầu có đường cụ thể, chủ dự án Cho phép bằng CAS | Sửa theo r2 P2-1 |
-| D8 | `communicate` tắt trong hợp đồng Resonance | Giữ, phạm vi ghi đúng ở mục 6.3 |
-| D9 | `read_paths` là phạm vi prompt việc nền | Giữ, phạm vi ghi đúng ở mục 6.3 |
-| D10 | Không có hạn dùng quyền trong A4 | Giữ |
-| D11 | Hạ phiên bản chỉ hỗ trợ khôi phục snapshot, có script giữ bản kho hiện tại | Sửa theo r2 lưu ý 3 |
-| D12 | **Giữ bản nháp trước duyệt** (liên kết `draft`, không đọc, không đăng), Cho phép thì đăng đúng bản đó qua liên kết `approval`, 0 lượt model. Không chọn cách từ chối nộp trước duyệt, vì theo D1 mọi mục tiêu mới đều qua thẻ và cách đó tốn thêm một lượt model mỗi lần | Mới, r2 P2-1 |
-| D13 | Liên kết có `sealed`: hết nhận lời nộp, còn hoàn tất bản đã nhận dưới quyền đã ghim | Mới, r2 P2-2 |
-| D14 | Khoá liên kết theo revision; ghim gốc theo lượt bằng thứ tự `authority_clock.seq` do kho cấp, chụp lúc dựng lượt. Không dùng giờ máy | Mới ở r2 P2-3; sửa theo r3 P2-1 |
-| D15 | Khoá đường từ chối `.` và `..`, không mở alias | Mới, r2 lưu ý 4 |
+| D1 | The root scope is independent of the criteria and is **not granted from chat text**. A new destination or a scope change goes through the card; an already granted scope continues automatically; a draft is kept, and after approval it is published without a model call | **Final** per r4 (fallback option) |
+| D2 | Publishing only through `host_publish`, keeping the full `_gate` | Kept, plus r2 note 6 |
+| D3 | Keep Write observation; the Write A + submit B rule in section 4.4 | Fixed per r1 P1-3 |
+| D4 | Grok and Antigravity do not accept chat handoff | Kept; check the real transport path when coding |
+| D5 | No more background work is opened | Kept |
+| D6 | Revoke = root `revoked` + `stale` (except committed effects) + pause, in one transaction | Kept; committed effects clarified |
+| D7 | Expansion through a request with a specific path, the project owner clicks Allow with CAS | Fixed per r2 P2-1 |
+| D8 | `communicate` is off within the Resonance contract | Kept, scope stated accurately in section 6.3 |
+| D9 | `read_paths` is the background-job prompt scope | Kept, scope stated accurately in section 6.3 |
+| D10 | No permission expiry in A4 | Kept |
+| D11 | A downgrade only supports restoring a snapshot, with a script that keeps a copy of the current store | Fixed per r2 note 3 |
+| D12 | **Keep the draft before approval** (`draft` binding, no read, no publish); on Allow, publish exactly that version through the `approval` binding, 0 model turns. Not chosen: refusing submission before approval, because under D1 every new goal goes through the card and that approach costs one extra model turn each time | New, r2 P2-1 |
+| D13 | A binding has `sealed`: it stops accepting submissions but can still complete an accepted version under the pinned permission | New, r2 P2-2 |
+| D14 | Binding key by revision; per-turn root pinning by the store-issued `authority_clock.seq` order, captured when the turn is built. Machine time is not used | New at r2 P2-3; fixed per r3 P2-1 |
+| D15 | The path key refuses `.` and `..`, no alias is opened | New, r2 note 4 |
 
-## 14. Kế hoạch code (sau khi thiết kế đạt review)
+## 14. Code plan (after the design passes review)
 
-1. **Kho:**
-   - bảng ở mục 7.1, gồm `authority_clock`; snapshot qua `_backup_before`; đóng băng legacy trong giao dịch nâng (gốc legacy nhận `seq` trong cùng giao dịch);
-   - `scope_*` (gốc, yêu cầu, chấp thuận, từ chối, thu hồi, cấp lại), `grant_rev_*`;
-   - `binding_open/seal/close`, `binding_accepts`, `binding_may_finish`, gắn vào `_open_handoff`, `begin_action`, `begin_experiment`;
-   - `submission_*`, `adopt_submission` (khoá `adopt:<submission_id>`);
-   - giao dịch `BEGIN IMMEDIATE` cho mốc commit, thu hồi, chấp thuận.
-2. **Chính sách thuần** (`resonance_grants.py`): `path_key`, `narrow`, `allows`, dấu vân tay, `ENGINE_CAPS`. Không có bộ phân tích lời.
-3. **Danh tính lượt:** `turn_context.make` thêm `authority_seq`; `main.run_turn` đọc `authority_clock` cho lượt có trợ lý trước khi engine chạy.
-4. **Hợp đồng** (`resonance.py`):
-   - `host_publish` bốn bước, thay mọi chỗ gọi `set_published` và `_publish`;
-   - sắp lại `_work_post_core`;
-   - `_publish_latest` theo bản nộp;
-   - `handoff_after_turn` theo bản nộp, quy tắc A/B, niêm liên kết;
-   - cổng trong phép thử A3;
-   - đối soát theo mục 4.7.
-5. **Công cụ hub** `javis_submit_deliverable` (plugin `javis-goal`). Công cụ lập và sửa mục tiêu trả `handoff` và `scope`.
-6. **API** theo mục 10.
-7. **Giao diện** theo mục 8.
-8. **Script** `tools/resonance_restore_pre_a4.py` (repo không có thư mục `scripts/`).
-9. **Test:**
-   - `test_resonance_a4_grants.py`: ma trận 12.1 tới 12.3;
-   - `test_resonance_a4_rollback.py`: G47 tới G50 với `33a3c1aa`;
+1. **Store:**
+   - the tables in section 7.1, including `authority_clock`; snapshot through `_backup_before`; legacy freeze inside the upgrade transaction (the legacy root gets `seq` in the same transaction);
+   - `scope_*` (root, request, approve, deny, revoke, re-grant), `grant_rev_*`;
+   - `binding_open/seal/close`, `binding_accepts`, `binding_may_finish`, attached to `_open_handoff`, `begin_action`, `begin_experiment`;
+   - `submission_*`, `adopt_submission` (key `adopt:<submission_id>`);
+   - `BEGIN IMMEDIATE` transactions for the commit point, revoke, approve.
+2. **Pure policy** (`resonance_grants.py`): `path_key`, `narrow`, `allows`, fingerprint, `ENGINE_CAPS`. No text parser.
+3. **Turn identity:** `turn_context.make` adds `authority_seq`; `main.run_turn` reads `authority_clock` for a turn with an assistant before the engine runs.
+4. **Contract** (`resonance.py`):
+   - the four-step `host_publish`, replacing every call site of `set_published` and `_publish`;
+   - reorder `_work_post_core`;
+   - `_publish_latest` by submission;
+   - `handoff_after_turn` by submission, the A/B rule, sealing bindings;
+   - the gate in A3 trials;
+   - reconciliation per section 4.7.
+5. **Hub tool** `javis_submit_deliverable` (plugin `javis-goal`). The tools that create and edit goals return `handoff` and `scope`.
+6. **API** per section 10.
+7. **UI** per section 8.
+8. **Script** `tools/resonance_restore_pre_a4.py` (the repo has no `scripts/` folder).
+9. **Tests:**
+   - `test_resonance_a4_grants.py`: the matrix 12.1 to 12.3;
+   - `test_resonance_a4_rollback.py`: G47 to G50 with `33a3c1aa`;
    - `test_resonance_a4_ui.js`;
-   - một test đường truyền khoá lượt thật cho Claude, Codex và engine API.
-10. **Tài liệu:** hướng dẫn, biên bản, lộ trình, ghi chú phát hành về hạ phiên bản và luật tác động đã commit.
+   - one real turn-key transport test for Claude, Codex and the API engine.
+10. **Documentation:** guide, record, roadmap, release notes about downgrading and the committed-effect rule.
 
-## 15. Ranh giới bằng chứng
+## 15. Evidence boundary
 
-- **17 ca Paperclip** là bằng chứng về Paperclip.
-- **10 kiểm của reviewer vòng 1**, **13 kiểm vòng 2** và **16 kiểm vòng 3** chứng minh giả định về mã nền và mâu thuẫn trong văn bản thiết kế. Đó không phải test A4.
-- **Mục 2:** đọc mã tại `9716cecf`. Dòng `_brain_file` nhận `a/../a/x.md` đã chạy thử trên mã đó; reviewer vòng 3 đã kiểm lại và đính chính nhận xét vòng 2. D15 là luật mới của `path_key`, không sửa helper dùng chung.
-- **Phần còn lại** là đề xuất.
+- **The 17 Paperclip cases** are evidence about Paperclip.
+- **The reviewer's 10 checks in round 1**, **13 checks in round 2** and **16 checks in round 3** prove assumptions about the base code and contradictions in the design text. They are not A4 tests.
+- **Section 2:** code read at `9716cecf`. The row stating that `_brain_file` accepts `a/../a/x.md` was tested on that code; the round 3 reviewer rechecked it and corrected the round 2 remark. D15 is a new rule of `path_key`, and does not change the shared helper.
+- **The rest** is proposal.
 
-## 16. Thay đổi theo review
+## 16. Changes after review
 
-### 16.1 Sau review vòng 1 (`5edfc9b6`)
+### 16.1 After the round 1 review (`5edfc9b6`)
 
-| Điểm | Sửa | Mục |
+| Point | Fix | Section |
 |---|---|---|
-| P1-1: revision do model sửa tự cấp quyền vào đích mới | Phạm vi gốc độc lập với tiêu chí. Quyền revision = `narrow(gốc, _deliverable_rel)`. Đổi đích thì thành yêu cầu mở rộng chờ chủ dự án với đường cụ thể. Legacy đóng băng, ghi rõ là tương thích. Một sản phẩm mỗi mục tiêu | 1, 5.1 tới 5.3, 12.2 (G23 tới G28) |
-| P1-2: chưa ghim quyền vào lượt; nhánh `same` đi vòng; chưa có thứ tự với thu hồi | Bảng `bindings` ghim quyền revision, gốc, `generation`, trợ lý, nguồn lượt. `host_publish` bốn bước có mốc commit `BEGIN IMMEDIATE` tuần tự với thu hồi. Mọi đường thay mốc qua đó | 4.2, 4.5, 5.5, 9, 12.2 (G29 tới G35) |
-| P1-3: dùng `finish_handoff` như thể bản nháp đã ở đích; bản nộp nền chèn sau bước đăng | Bảng chuyển trạng thái theo nguồn. Đăng bytes từ bản nháp qua `host_publish`. `adopt_submission` tách khỏi ghi mốc. Sắp lại `_work_post_core`. Quy tắc Write A + nộp B. Bảng ai đọc gì. Bảng đối soát | 4.4, 4.6, 4.7, 12.2 (G36 tới G42) |
-| P2-1: chọn mục tiêu theo phiên + đường; chống trùng chỉ theo sha | Chọn theo liên kết của đúng tin đang gọi; nhiều kết quả thì `ambiguous_handoff`. Dấu vân tay toàn thao tác. Khoá đường chuẩn hoá | 4.3, 12.2 (G43 tới G46) |
-| P2-2: tạm dừng không bảo toàn thu hồi khi chạy mã 0.95.1 | Hạ phiên bản chỉ khôi phục snapshot. Nâng lại không tự cấp quyền cho revision mã cũ tạo. Bỏ `expires_at` | 7.4, D10, D11, 12.2 (G47 tới G50) |
+| P1-1: a revision edited by the model grants itself permission to a new destination | The root scope is independent of the criteria. Revision permission = `narrow(root, _deliverable_rel)`. Changing the destination becomes an expansion request waiting for the project owner with a specific path. Legacy is frozen, stated as compatibility. One deliverable per goal | 1, 5.1 to 5.3, 12.2 (G23 to G28) |
+| P1-2: permission not pinned to the turn; the `same` branch detours; no ordering against revocation | The `bindings` table pins revision permission, root, `generation`, assistant, turn source. The four-step `host_publish` has a `BEGIN IMMEDIATE` commit point serialized with revocation. Every path that changes the marker goes through it | 4.2, 4.5, 5.5, 9, 12.2 (G29 to G35) |
+| P1-3: using `finish_handoff` as if the draft were at the destination; the background submission inserted after the publish step | State transition table by source. Publish bytes from the draft through `host_publish`. `adopt_submission` split from writing the marker. Reorder `_work_post_core`. The Write A + submit B rule. Who-reads-what table. Reconciliation table | 4.4, 4.6, 4.7, 12.2 (G36 to G42) |
+| P2-1: choosing the goal by session + path; dedupe by sha only | Choose by the binding of exactly the calling message; with several results, `ambiguous_handoff`. Whole-operation fingerprint. Normalized path key | 4.3, 12.2 (G43 to G46) |
+| P2-2: a pause does not preserve revocation when running 0.95.1 code | A downgrade only restores a snapshot. Upgrading again does not grant permission to revisions old code created. `expires_at` removed | 7.4, D10, D11, 12.2 (G47 to G50) |
 
-### 16.2 Sau review vòng 2 (`99c88447`)
+### 16.2 After the round 2 review (`99c88447`)
 
-| Điểm | Sửa | Mục |
+| Point | Fix | Section |
 |---|---|---|
-| P1-1: đường có mặt trong lời chủ dự án chưa chứng minh quyền ghi; legacy lấy revision hiện hành lúc thức | `owner_message` chỉ khi bộ nhận chỉ thị thuần tìm thấy đúng một chỉ thị ghi rõ ràng, bỏ phần trích và dán, chặn phủ định và động từ đọc; ghi bằng chứng mệnh đề. Không chắc thì chờ chấp thuận. Đóng băng legacy trong giao dịch nâng, đọc revision lưu lúc nâng | 1, 3, 5.2, 5.2.1, 5.3, 12.3 (G51 tới G56), D1 |
-| P2-1: chờ chấp thuận không có root nhưng submit đòi root; chưa có đường dùng bản nháp sau duyệt; thẻ cũ | Chọn giữ bản nháp: liên kết `draft` ghim yêu cầu đang chờ, chỉ nộp vào vùng nháp (`awaiting_scope`), không đọc, không đăng. `approve_scope` CAS yêu cầu, revision, đường, trợ lý, bản nháp trong một giao dịch, tạo gốc mới, liên kết `approval` và bản `approved_draft`; 0 lượt model. Lượt chat cũ không hưởng quyền mới. Thẻ cũ không bao giờ cấp gốc | 4.1, 4.2, 4.4, 5.2, 5.3, 8, 10, 12.3 (G57 tới G61), D7, D12 |
-| P2-2: đóng liên kết khi khởi động lại làm mất bản đã nhận; thiếu dòng đã đăng chưa tiếp nhận | Tách `live` (nhận lời nộp) với `sealed` (chỉ hoàn tất bản đã nhận dưới quyền đã ghim). Hai phép kiểm `binding_accepts` và `binding_may_finish`. Luật tác động đã commit riêng. Thêm dòng đã đăng chưa tiếp nhận, khoá `adopt:<submission_id>`, `adopted_at` giữ nhả lịch đúng một lần | 3, 4.2, 4.4, 4.5, 4.7, 9, 12.3 (G62 tới G66), D13 |
-| P2-3: `UNIQUE(goal_id, origin_kind, origin_ref)` chặn hai revision trong một tin | Khoá `UNIQUE(goal_id, revision, origin_kind, origin_ref)`; mở lại cùng khoá trả dòng có sẵn, không `REPLACE`; revision mới làm bản cũ `superseded`. Ghim gốc theo lượt (vòng 3 dùng `turn.started_at`; vòng 4 thay bằng `authority_clock.seq`, mục 16.3) để lượt cũ không lấy gốc mới bằng cách sửa thêm | 4.2, 7.1, 12.3 (G67 tới G70), D14 |
-| Lưu ý 1: đọc lại hash sau `os.replace` không phát hiện bản sửa bị ghi đè | Viết lại mục giới hạn theo ba khe thời gian; nói rõ khe không phát hiện được | 4.5, G71 |
-| Lưu ý 2: "đã đăng" khi mới commit | Hai thông báo: "đã được chốt trước khi thu hồi" và "đã đăng trước khi thu hồi" khi có bằng chứng ở đích | 4.5, 8, G32 |
-| Lưu ý 3: snapshot chép thô với WAL; giữ kho hiện tại trước khôi phục | Dùng `_backup_before`; script khôi phục chép kho hiện tại bằng backup API trước | 7.4, G47, G50, D11 |
-| Lưu ý 4: luật `..` không thống nhất | Chạy thử: `_brain_file` thật ra nhận `a/../a/x.md`. Chốt khoá đường từ chối `.` và `..` | 2, 4.3, G13, G45, D15 |
-| Lưu ý 5: thứ tự tra biên nhận và lọc liên kết sống | Danh tính và liên kết của lượt trước, tra biên nhận cũ, rồi mới cổng `binding_accepts` cho lời nộp mới | 4.3, G46 |
-| Lưu ý 6: `binding_valid` không thay `_gate` | `host_publish` bước 1 và 3 chạy đủ `_gate`; ghi rõ ở mục 1, 4.2, 5.5 | 1, 4.2, 4.5, 5.5, G72 |
+| P1-1: a path present in the project owner's message does not prove write permission; legacy took the current revision at wake time | `owner_message` only when a pure directive receiver finds exactly one clear write directive, excluding quoted and pasted parts, blocking negation and read verbs; records proposition evidence. When unsure, waits for approval. Legacy frozen in the upgrade transaction, reading the revision stored at upgrade time | 1, 3, 5.2, 5.2.1, 5.3, 12.3 (G51 to G56), D1 |
+| P2-1: waiting for approval has no root but submit demands a root; no path to use the draft after approval; old cards | Chose to keep the draft: the `draft` binding pins the pending request, may only submit into the draft area (`awaiting_scope`), no read, no publish. `approve_scope` CAS on request, revision, path, assistant, draft in one transaction, creates a new root, an `approval` binding and an `approved_draft` version; 0 model turns. The old chat turn does not benefit from the new permission. An old card never grants a root | 4.1, 4.2, 4.4, 5.2, 5.3, 8, 10, 12.3 (G57 to G61), D7, D12 |
+| P2-2: closing the binding on restart loses accepted versions; missing the row for published but not yet adopted | Split `live` (accepts submissions) from `sealed` (only completes accepted versions under the pinned permission). Two checks `binding_accepts` and `binding_may_finish`. A separate committed-effect rule. Added the row for published but not adopted, key `adopt:<submission_id>`, `adopted_at` holds the schedule release to exactly once | 3, 4.2, 4.4, 4.5, 4.7, 9, 12.3 (G62 to G66), D13 |
+| P2-3: `UNIQUE(goal_id, origin_kind, origin_ref)` blocks two revisions in one message | Key `UNIQUE(goal_id, revision, origin_kind, origin_ref)`; reopening the same key returns the existing row, no `REPLACE`; a new revision makes the old version `superseded`. Per-turn root pinning (round 3 used `turn.started_at`; round 4 replaced it with `authority_clock.seq`, section 16.3) so an old turn cannot take the new root by editing again | 4.2, 7.1, 12.3 (G67 to G70), D14 |
+| Note 1: re-reading the hash after `os.replace` does not detect an overwritten edit | Rewrote the limit section around three time gaps; states clearly which gap is undetectable | 4.5, G71 |
+| Note 2: "published" when only committed | Two messages: "was committed before the revoke" and "published before the revoke" once there is evidence at the destination | 4.5, 8, G32 |
+| Note 3: raw snapshot copy with WAL; keep the current store before restoring | Use `_backup_before`; the restore script copies the current store with the backup API first | 7.4, G47, G50, D11 |
+| Note 4: the `..` rule is not uniform | Tested: `_brain_file` actually accepts `a/../a/x.md`. Decided the path key refuses `.` and `..` | 2, 4.3, G13, G45, D15 |
+| Note 5: order of receipt lookup and live-binding filtering | Identity and the turn's binding first, then the old receipt lookup, then the `binding_accepts` gate for a new submission | 4.3, G46 |
+| Note 6: `binding_valid` does not replace `_gate` | `host_publish` steps 1 and 3 run the full `_gate`; stated in sections 1, 4.2, 5.5 | 1, 4.2, 4.5, 5.5, G72 |
 
-### 16.3 Sau review vòng 3 (`efa1fce3`)
+### 16.3 After the round 3 review (`efa1fce3`)
 
-| Điểm | Sửa | Mục |
+| Point | Fix | Section |
 |---|---|---|
-| P1-1: bộ nhận chỉ thị cấp quyền từ câu điều kiện, câu hỏi, lời dự định; tách dấu chấm làm vỡ đường | Nhận token đường trước mọi bước tách. Cổng ngữ cảnh cả tin chạy trước khi tách câu: `?`, điều kiện, hỏi, dự định, phủ định ở bất kỳ đâu thì chờ. Không tách theo dấu phẩy. Câu phải khớp **trọn** một khuôn mệnh lệnh, phần mở đầu chỉ từ danh sách đóng. Bảng ví dụ dương và âm. Ghi phương án dự phòng bỏ cấp tự động trong D1 | 5.2.1, 12.4 (G73 tới G79), D1 |
-| P2-1: so `created_at` với `started_at` cấp nhầm khi đồng hồ lùi hay trùng thời điểm, nhất là lần đầu lượt chạm mục tiêu | Thứ tự do kho cấp: `authority_clock.seq` tăng trong mọi giao dịch tạo gốc, thu hồi, chấp thuận, cấp lại; lượt có trợ lý chụp `seq` trước khi engine chạy; liên kết đầu tiên chỉ nhận gốc có `seq` không vượt ảnh chụp, trừ gốc do chính tin tạo. Đọc lỗi thì đóng. `created_at` chỉ để hiển thị | 4.2, 7.1, 11, 14, 12.4 (G80 tới G84), D14 |
-| Lưu ý 1: "Đã đăng trước khi thu hồi" sai thời điểm | Đổi thành "Đã hoàn tất lần đăng được chốt trước khi thu hồi" | 4.5, 8, G32 |
-| Lưu ý 2: không kèm `handoff` thì hai revision cùng tin ra `ambiguous_handoff` | Giữ hành vi đó, nói rõ; công cụ lập và sửa trả mã mới, mô tả công cụ nộp dặn gửi kèm; G67, G68 dùng mã | 4.3, G85 |
-| Lưu ý 3: hoàn tất tác động đã commit khác mở tác động mới | Ca kiểm quyền cũ chỉ hoàn tất đúng hành động đã commit | G86 |
-| Đính chính của reviewer về `_brain_file` | Ghi nhận ở mục 15; D15 giữ là luật mới của `path_key` | 15, D15 |
+| P1-1: the directive receiver granted permission from conditional sentences, questions, statements of intent; splitting on periods broke paths | Recognize the path token before any splitting step. A whole-message context gate runs before sentence splitting: `?`, condition, question, intent, negation anywhere means wait. No splitting on commas. A sentence must match a command template **in full**, the opening part only from a closed list. A table of positive and negative examples. Recorded the fallback of dropping automatic granting in D1 | 5.2.1, 12.4 (G73 to G79), D1 |
+| P2-1: comparing `created_at` with `started_at` granted wrongly when the clock moved backward or two instants coincided, especially on a turn's first touch of a goal | Store-issued order: `authority_clock.seq` increments in every transaction that creates a root, revokes, approves, re-grants; a turn with an assistant captures `seq` before the engine runs; the first binding only accepts a root whose `seq` does not exceed the snapshot, except a root created by the message itself. Fail closed on read error. `created_at` is for display only | 4.2, 7.1, 11, 14, 12.4 (G80 to G84), D14 |
+| Note 1: "Published before the revoke" has the wrong timing | Changed to "Finished the publish that was committed before the revoke" | 4.5, 8, G32 |
+| Note 2: without `handoff`, two revisions in the same message give `ambiguous_handoff` | Keep that behavior, state it clearly; the tools that create and edit return a new code, the submit tool's description tells the model to send it along; G67, G68 use the code | 4.3, G85 |
+| Note 3: completing a committed effect differs from opening a new effect | A case checking that the old permission only completes exactly the committed action | G86 |
+| Reviewer's correction about `_brain_file` | Recorded in section 15; D15 stays as the new rule of `path_key` | 15, D15 |
 
-### 16.4 Sau review vòng 4 (`bd6ad1d1`): chốt D1
+### 16.4 After the round 4 review (`bd6ad1d1`): D1 finalized
 
-| Điểm | Sửa | Mục |
+| Point | Fix | Section |
 |---|---|---|
-| P1: bộ nhận chỉ thị vẫn nhận câu nhắc tới lệnh (dịch, ví dụ, đuôi tự do) thành quyền ghi | Bỏ nguồn `owner_message` và bộ nhận khỏi A4. Mọi đích mới hay đổi phạm vi qua thẻ; phạm vi đã cấp và legacy giữ nguyên; bản nháp duyệt rồi đăng 0 lượt model | 1, 4.2, 5.2, 5.2.1, 5.3, 6.3, 11, 12, 13 (D1, D12), 14 |
-| Ngoại lệ thứ tự cho gốc do chính tin tạo | Bỏ, vì không còn nguồn đó | 4.2 |
-| Kỳ vọng ca cũ dựa trên `owner_message` | G27, G51 tới G55, G73 tới G79, G82 đổi sang chờ thẻ hay gốc có trước lượt | 12 |
+| P1: the directive receiver still mistook sentences that mention a command (translation, example, free tail) for write permission | Dropped the `owner_message` source and the receiver from A4. Every new destination or scope change goes through the card; an already granted scope and legacy stay unchanged; an approved draft is published with 0 model turns | 1, 4.2, 5.2, 5.2.1, 5.3, 6.3, 11, 12, 13 (D1, D12), 14 |
+| Order exception for a root created by the message itself | Removed, since that source no longer exists | 4.2 |
+| Old case expectations based on `owner_message` | G27, G51 to G55, G73 to G79, G82 changed to wait for the card or a root that exists before the turn | 12 |
 
-## 17. Ghi chú triển khai
+## 17. Implementation notes
 
-Các điểm dưới đây là chỗ mã phải chọn mà thiết kế chưa nói hết, hay chỗ hành vi cũ đổi theo thiết kế. Hai điểm đầu chạm cơ chế quyền nên **cần reviewer xác nhận** trước khi chốt mã; mã hiện chọn phương án được ghi.
+The points below are where the code had to choose something the design did not fully say, or where old behavior changed because of the design. The first two touch the permission mechanism, so they **need reviewer confirmation** before the code is finalized; the code currently chooses the option written down.
 
-| # | Điểm | Mã chọn | Vì sao |
+| # | Point | What the code chose | Why |
 |---|---|---|---|
-| I1 | §5.3 ghi "Thu hồi (nút Thu hồi quyền, hay tắt Cộng hưởng của trợ lý)" | **Tắt Cộng hưởng KHÔNG thu hồi gốc.** Liên kết vẫn chết ngay vì ghim version trợ lý (§4.2 điều 3); bật lại thì lượt mới làm tiếp dưới gốc cũ | Giữ hành vi A1 "bật lại thì chạy tiếp". **Reviewer chấp nhận ở review mã vòng 1**; §5.3 đã sửa theo |
-| I2 | §4.5 liệt kê "đăng lại" nhưng §4.2 không có nguồn cho nó | File đích bị xoá thì `_publish_latest` tạo bản nộp `republish` chép bản đã đăng, dưới liên kết **mới** `republish` ghim quyền revision ĐANG hiệu lực (không dùng lại liên kết cũ). Không có quyền hiệu lực thì không đăng lại | Giữ hành vi A2 "xoá file thì đăng lại bản hiệu lực, 0 lượt model". **Reviewer chấp nhận ở review mã vòng 1**; đã ghi vào §4.2 và §4.7 |
-| I3 | Mục tiêu không có đường sản phẩm (chỉ có tiêu chí người dùng xác nhận) | `scope_state=none`: không cần phạm vi, việc nền chạy như 0.95.1, không có gì để đăng | Không có đích để cho phép; chặn chúng thì mục tiêu kẹt vĩnh viễn |
-| I4 | Hệ quả của D1 với Claude | Write trong lượt LẬP mục tiêu không được tiếp nhận (bytes lạ ở đích). Chỉ bản nộp qua `javis_submit_deliverable` được giữ làm nháp. Gợi ý trong prompt và kết quả `javis_goal` dặn bộ não nộp qua công cụ, không Write thẳng | Đúng §4.4 ("liên kết draft không bao giờ tiếp nhận Write tại chỗ"). Câu hỏi mở cho A5: có nên chuyển một Write có biên nhận thành bản nháp không; mã chưa làm |
-| I5 | A1 quyết định 4 (đăng lại đầu ra giữ sau khi tắt bật, ý định mới theo version hiện tại) | Thay bằng §4.2 điều 3: bản nộp `stale`, lần thức sau làm lại một lượt | "Host không bao giờ sửa liên kết đang dở sang quyền mới". Test A1 sửa kỳ vọng, có chú thích |
-| I6 | Revision do mã cũ tạo, hay mục tiêu vừa gán, cần phạm vi mà chưa có yêu cầu | `_gate` gọi `ensure_scope_request`: chỉ ghi yêu cầu chờ, không cấp | Để thẻ có nút Cho phép; §7.4 |
-| I7 | `origin_ref` của liên kết `handoff` | Dùng `message_ref` (`msg:<phiên>:<tin>`), cùng khoá với bảng `handoffs` | Tương đương `<session_id>:<message_id>` của §4.2 |
-| I8 | Báo chờ cho phép | Không có tin outbox riêng; thẻ đẩy sau lượt chat đã hiện câu hỏi, thẻ và trang Cộng sự cũng hiện | Tránh hai tin cho cùng một việc |
-| I9 | Bàn giao cuối lượt | `main` bàn giao MỌI mục tiêu tin đó lập hay sửa (trước chỉ mục tiêu đầu tiên), biên nhận Write lấy một lần | Mỗi mục tiêu có liên kết riêng phải được niêm |
-| I10 | Đường tới đối soát của tác động đã commit (review mã vòng 1, P2-2) | Lịch vật lý riêng `kind=settle`, đặt trong giao dịch mốc commit (hạn khoá + 1), không bị gác bởi tạm dừng, thu hồi, huỷ, kết thúc; `due_wakeups` nhận nó mọi trạng thái; lần thức `settle` chỉ chạy `_reconcile_publish` cho hành động đã commit rồi dọn lịch khi không còn | Thu hồi tạm dừng mục tiêu và `_recompute_wake` gác mọi lịch làm việc, nên trước đó tác động đã chốt mất đường hoàn tất |
-| I11 | Lỗi I/O tạm thời sau mốc commit (review mã vòng 1, P2-1) | `publish_retry`: giữ `running`, nới hạn giãn cách, hẹn `settle`; `conflict` chỉ khi đọc được đích và nó khác cả baseline lẫn bản nộp | Không đọc hay không ghi được không phải bằng chứng xung đột |
-| I12 | Phản hồi "Chưa đúng ý" trước mốc commit (review mã vòng 1, P1-1) | `_publish_held` đọc phản hồi cách hiểu mới nhất của đúng revision TRONG giao dịch ý định (kể cả nhánh `same`) và giao dịch mốc commit; bị chặn thì bản nộp về `candidate`, đổi lại "Đúng ý" thì lần sau đăng | Can thiệp của người dùng ghi trước mốc commit phải thắng, như thu hồi |
-| I13 | Lỗi đọc FILE NHÁP (review mã vòng 2, P2-1) | `_sub_read` tách `draft_unreadable` (I/O tạm thời: giữ nghĩa vụ, `publish_retry` hay giữ `candidate`) khỏi `draft_missing` và `draft_hash_mismatch` (`reject_submission`: lý do riêng, không phải `target_changed`, không đăng bytes sai) | Không đọc được bản nháp không phải bằng chứng file đích đổi |
-| I14 | Nghĩa vụ tiếp nhận sau đăng (review mã vòng 2, P2-2) | Lịch `settle` chỉ bỏ khi không còn hành động đã commit đang chạy VÀ không còn bản `submit_tool`/`approved_draft` đã đăng chưa tiếp nhận; nhánh `same` đặt lịch ngay; lỗi ở bước tiếp nhận không văng ra ngoài; lần thức `settle` tiếp nhận các bản này | Đăng và tiếp nhận là hai giao dịch; khe giữa chúng phải có đường phục hồi kể cả khi lịch làm việc đã gác |
-| I15 | Lịch làm việc khi còn nghĩa vụ hoàn tất (review mã vòng 2, P2-3) | `_wake_work` gác `waiting/publish_settling` (thuộc `_parked`) trước khi xét đăng lại hay mở lượt; `_settle_done` gỡ gác và tính lại lịch khi nghĩa vụ về 0 | Bản hợp lệ đã có, chỉ chưa vào đích; gọi model lúc này là tiêu hạn mức vô ích |
-| I16 | Lỗi đăng phát sinh trong chính lần thức làm việc (review mã vòng 3) | `_wake_work` gọi lại `settle_pending` SAU `_publish_latest`; `host_publish` gặp `draft_unreadable` thì `hold_submission` (cột `hold_attempts`, `hold_until`; `_settle_left` đếm bản đang giữ); lần thức `settle` đọc lại file nháp, đọc được thì `release_hold`, mất hay sai hash thì `reject_submission`, bản không còn là bản sẽ đăng thì bỏ giữ; `settle_cleanup` đặt lịch đúng giờ nghĩa vụ sớm nhất | Cổng đầu lần thức chỉ thấy nghĩa vụ có TỪ TRƯỚC; nghĩa vụ vừa sinh trong nhịp cũng phải chặn lượt model, và nhánh chưa commit cần đường thử lại bằng code riêng |
+| I1 | §5.3 says "Revoke (the Revoke permission button, or turning off Resonance for the assistant)" | **Turning off Resonance does NOT revoke the root.** Bindings still die immediately because they pin the assistant version (§4.2 item 3); turning it back on lets a new turn continue under the old root | Keeps the A1 behavior "turn it back on and it keeps going". **The reviewer accepted this at code review round 1**; §5.3 was fixed accordingly |
+| I2 | §4.5 lists "republish" but §4.2 has no source for it | When the destination file is deleted, `_publish_latest` creates a `republish` submission that copies the published version, under a **new** `republish` binding that pins the revision permission IN EFFECT now (the old binding is not reused). With no permission in effect, it does not republish | Keeps the A2 behavior "if the file is deleted, republish the effective version, 0 model turns". **The reviewer accepted this at code review round 1**; recorded in §4.2 and §4.7 |
+| I3 | A goal with no deliverable path (only user-confirmed criteria) | `scope_state=none`: no scope needed, background work runs like 0.95.1, there is nothing to publish | There is no destination to allow; blocking them would leave the goal stuck forever |
+| I4 | Consequence of D1 for Claude | A Write in the turn that CREATES the goal is not adopted (foreign bytes at the destination). Only a submission through `javis_submit_deliverable` is kept as a draft. The hint in the prompt and in the `javis_goal` result tells the brain to submit through the tool, not Write directly | Matches §4.4 ("a draft binding never adopts an in-place Write"). Open question for A5: whether a Write with a receipt should be turned into a draft; the code does not do this yet |
+| I5 | A1 decision 4 (republish held output after switching off and on, new intent by the current version) | Replaced by §4.2 item 3: the submission is `stale`, the next wake redoes one turn | "The host never edits an in-progress binding to a new permission". The A1 test's expectation was fixed, with an annotation |
+| I6 | A revision created by old code, or a goal just assigned, needs a scope but has no request yet | `_gate` calls `ensure_scope_request`: it only writes a waiting request, grants nothing | So the card has an Allow button; §7.4 |
+| I7 | `origin_ref` of a `handoff` binding | Uses `message_ref` (`msg:<session>:<message>`), the same key as the `handoffs` table | Equivalent to the `<session_id>:<message_id>` of §4.2 |
+| I8 | Notifying that permission is awaited | No separate outbox message; the card pushed after the chat turn already shows the question, and the card and the Collaborators page also show it | Avoids two messages for the same thing |
+| I9 | End-of-turn handoff | `main` hands over EVERY goal that message created or edited (before, only the first goal), the Write receipt is taken once | Each goal with its own binding must be sealed |
+| I10 | The path to reconciliation of a committed effect (code review round 1, P2-2) | A separate physical schedule `kind=settle`, set in the commit-point transaction (lock deadline + 1), not parked by pause, revoke, cancel, finish; `due_wakeups` takes it in every state; the `settle` wake only runs `_reconcile_publish` for the committed action, then cleans up the schedule when none remain | A revoke pauses the goal and `_recompute_wake` parks every work schedule, so before this a committed effect lost its path to completion |
+| I11 | Temporary I/O error after the commit point (code review round 1, P2-1) | `publish_retry`: keep `running`, extend the deadline with spacing, schedule `settle`; `conflict` only when the destination can be read and differs from both the baseline and the submission | Being unable to read or write is not evidence of a conflict |
+| I12 | "Not quite" feedback before the commit point (code review round 1, P1-1) | `_publish_held` reads the newest understanding feedback of exactly this revision INSIDE the intent transaction (including the `same` branch) and the commit-point transaction; if blocked, the submission goes back to `candidate`, and if changed back to "That's right" it publishes next time | A user intervention recorded before the commit point must win, like a revoke |
+| I13 | DRAFT FILE read error (code review round 2, P2-1) | `_sub_read` separates `draft_unreadable` (temporary I/O: keep the obligation, `publish_retry` or keep `candidate`) from `draft_missing` and `draft_hash_mismatch` (`reject_submission`: its own reason, not `target_changed`, wrong bytes are not published) | Being unable to read the draft is not evidence the destination file changed |
+| I14 | Adoption obligation after publishing (code review round 2, P2-2) | The `settle` schedule is dropped only when no committed action is running AND no published but unadopted `submit_tool`/`approved_draft` version remains; the `same` branch sets the schedule immediately; an error in the adoption step does not escape; the `settle` wake adopts these versions | Publishing and adoption are two transactions; the gap between them must have a recovery path even when the work schedule is parked |
+| I15 | Work schedule while a completion obligation remains (code review round 2, P2-3) | `_wake_work` parks `waiting/publish_settling` (part of `_parked`) before considering republish or opening a turn; `_settle_done` lifts the park and recomputes the schedule when the obligation reaches 0 | A valid version already exists, it just has not reached the destination; calling the model now would burn quota for nothing |
+| I16 | Publish error arising in the work wake itself (code review round 3) | `_wake_work` calls `settle_pending` again AFTER `_publish_latest`; when `host_publish` meets `draft_unreadable` it does `hold_submission` (column `hold_attempts`, `hold_until`; `_settle_left` counts held versions); the `settle` wake rereads the draft file, releases the hold with `release_hold` if readable, `reject_submission` if lost or wrong hash, and drops the hold if the version is no longer the one to publish; `settle_cleanup` sets the schedule at the earliest obligation's time | The gate at the start of the wake only sees obligations that existed BEFORE; an obligation just born in the tick must also block a model turn, and the uncommitted branch needs a retry path with its own code |

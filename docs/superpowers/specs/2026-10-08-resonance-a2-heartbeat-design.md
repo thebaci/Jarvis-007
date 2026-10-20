@@ -1,302 +1,302 @@
-# Resonance A2: nhịp tim thích nghi theo lý do
+# Resonance A2: adaptive heartbeat driven by reasons
 
-**Trạng thái:** thiết kế đạt review ở vòng 4 (`cb11fc23`); mã A2 đạt review ở `b5975b7e`, kiểm tích hợp đạt (biên bản: `docs/dev/resonance-a2-verification.md`); đã phát hành 0.88.0 (`c101d108`). Hướng dẫn dùng và quay về: `docs/dev/resonance-a2-heartbeat.md`. Nhánh `claude/resonance-a2-heartbeat`, đặt số 0.88.0.
+**Status:** design passed review in round 4 (`cb11fc23`); the A2 code passed review at `b5975b7e`, integration check passed (record: `docs/dev/resonance-a2-verification.md`); shipped in 0.88.0 (`c101d108`). Guide to use and roll back: `docs/dev/resonance-a2-heartbeat.md`. Branch `claude/resonance-a2-heartbeat`, version number reserved 0.88.0.
 
-- **Nền:** lúc thiết kế, nhánh A1 tại `077bcf73` (0.87.0). A1 đã squash vào `main` thành `fdfec7c5` ngày 09/10/2026; nhánh A2 đã chuyển sang `main`.
-- **Lộ trình:** [agent scope roadmap](2026-10-08-resonance-agent-scope-roadmap.md), mục 5.
-- **Vòng 1** (`7504bf6a`) được review: 2 P1, 2 P2, 5 chỗ cần làm rõ. **Vòng 2** (`e95a3260`): 4 P2 và 2 lưu ý. **Vòng 3** (`fe92e753`): 1 P2. Mục 15 liệt kê từng điểm và chỗ sửa.
-- Không gọi model để làm thiết kế này. Chưa có pilot A2.
+- **Base:** at design time, the A1 branch at `077bcf73` (0.87.0). A1 was squashed into `main` as `fdfec7c5` on 2026-10-09; the A2 branch has moved onto `main`.
+- **Roadmap:** [agent scope roadmap](2026-10-08-resonance-agent-scope-roadmap.md), section 5.
+- **Round 1** (`7504bf6a`) was reviewed: 2 P1, 2 P2, 5 points to clarify. **Round 2** (`e95a3260`): 4 P2 and 2 notes. **Round 3** (`fe92e753`): 1 P2. Section 15 lists each point and where it was fixed.
+- No model was called to produce this design. There is no A2 pilot yet.
 
-## 1. Mục tiêu và ngoài phạm vi
+## 1. Goals and out of scope
 
-**Mục tiêu:**
-- Trợ lý chỉ thức khi có lý do cụ thể.
-- Chỉ gọi model khi có bước đầu chưa làm, có tin mới từ người dùng, hoặc được thử lại trong trần.
-- Đang chờ thì ngủ.
-- Mỗi lần thức đều ghi lý do và quyết định.
-- Lần thức không gọi model cũng phải rẻ cho máy chủ (mục 11).
+**Goals:**
+- The assistant wakes only when there is a specific reason.
+- Call the model only when there is a first step not yet done, new news from the user, or an automatic retry within the ceiling.
+- When waiting, sleep.
+- Every wake records its reason and decision.
+- A wake that calls no model must also be cheap for the server (section 11).
 
-**Giữ nguyên:**
-- Một scheduler: `tick` trong vòng lặp nền 30 giây, nhận lịch bằng CAS (`claim_wake`), khoá lượt (`claim_lease`), đối soát khi tiến trình chết giữa chừng (`_reconcile`).
-- Cổng bàn giao, hạn mức lượt gọi, outbox chống báo lặp, bảo vệ file của `_publish`.
-- Bảng cũ không đổi cột (test `PRE_A1` vẫn khoá). A2 chỉ thêm bảng phụ.
+**Unchanged:**
+- One scheduler: `tick` in the 30-second background loop, taking the schedule by CAS (`claim_wake`), the turn lease (`claim_lease`), and reconciliation when the process dies midway (`_reconcile`).
+- The handoff gate, the call budget, the outbox that prevents duplicate notices, the file protection of `_publish`.
+- Old tables keep their columns (the `PRE_A1` test still locks them). A2 only adds side tables.
 
-**Ngoài phạm vi:**
-- Học từ reaction và phản hồi: để A3.
-- Adapter nguồn sự kiện ngoài (MCP, webhook, theo dõi file tức thời).
-- Quyền thay file người dùng đã sửa, và bản đề xuất tự sinh khi có xung đột (mục 5).
-- Liên kết lịch `javis_schedule` với mục tiêu, và chặn lịch trùng (mục 9).
-- Hạn mức theo trợ lý hay theo ngày (mục 14, câu 3).
-- Đường giao việc từ chat thường sang trợ lý.
+**Out of scope:**
+- Learning from reactions and feedback: left to A3.
+- Adapters for external event sources (MCP, webhook, instant file watching).
+- Permission to replace a file the user edited, and the auto-generated proposal on conflict (section 5).
+- Linking the `javis_schedule` schedule to a goal, and blocking duplicate schedules (section 9).
+- A per-assistant or per-day budget (section 14, question 3).
+- The path for assigning work from ordinary chat to an assistant.
 
-## 2. Hiện trạng và khoảng trống (mã tại `077bcf73`)
+## 2. Current state and gaps (code at `077bcf73`)
 
-| # | Hiện trạng | Hệ quả |
+| # | Current state | Consequence |
 |---|---|---|
-| G1 | `tick` gọi `advance(..., {"kind": "wake"})` cho mọi lịch `work`. Lý do chỉ là câu chữ trong `wakeups.reason`, bị ghi đè mỗi lần hẹn | `advance` không biết vì sao mình thức |
-| G2 | Mọi lần thức `wake` có kết quả chưa đạt, và không phải chỉ chờ người dùng, đều vào `_work_step` (gọi model). Gồm cả lần xem lại (`_bounded_review`), lần kiểm lại sau khi bật trợ lý, lần phục hồi sau lượt bị ngắt | Gọi model khi không có gì mới |
-| G3 | `RETRY_NOT_MET_S` 15 phút lặp tới hết hạn mức, không xét tiến bộ | Tốn lượt khi bế tắc |
-| G4 | `ERROR_BACKOFF_S` dừng ở 24 giờ rồi lặp mãi. Lỗi đếm trên mọi revision | Lỗi cố định vẫn gọi model mỗi ngày |
-| G5 | `due_wakeups` bỏ qua mục tiêu tạm dừng, nên lịch `observe` cũng dừng. `_gate` trả về sớm trước khi hẹn lại `observe` | Tạm dừng thì mất theo dõi guard mà không ai biết. Tắt trợ lý thì guard thôi được theo dõi lặng lẽ |
-| G6 | Không có sổ ghi các lần thức | Không trả lời được vì sao một lần thức gọi model |
-| G7 | Thẻ hiện `next_wake.reason` là câu tiếng Việt thô | Lệch i18n |
-| G8 | Lần thức chạy trên event loop: SQLite và đọc file đồng bộ | Nhiều mục tiêu tới hạn cùng lúc có thể làm tab chậm, dù không gọi model |
+| G1 | `tick` calls `advance(..., {"kind": "wake"})` for every `work` schedule. The reason is only wording in `wakeups.reason`, overwritten at every scheduling | `advance` does not know why it is awake |
+| G2 | Every `wake` with an unmet result that is not just waiting for the user goes into `_work_step` (calls the model). This includes review wakes (`_bounded_review`), the re-check after enabling the assistant, and recovery after an interrupted turn | The model is called when there is nothing new |
+| G3 | `RETRY_NOT_MET_S` of 15 minutes repeats until the budget runs out, ignoring progress | Turns are wasted when stuck |
+| G4 | `ERROR_BACKOFF_S` stops at 24 hours and then repeats forever. Errors are counted across all revisions | A permanent error still calls the model every day |
+| G5 | `due_wakeups` skips paused goals, so the `observe` schedule stops too. `_gate` returns early before rescheduling `observe` | Pausing loses guard monitoring and nobody knows. Switching the assistant off means the guard is silently no longer watched |
+| G6 | There is no ledger of wakes | Cannot answer why a wake called the model |
+| G7 | The card shows `next_wake.reason`, a raw Vietnamese sentence | Out of line with i18n |
+| G8 | A wake runs on the event loop: synchronous SQLite and file reads | Many goals due at once can slow the tab, even without calling a model |
 
-## 3. Lý do thức: danh tính, lớp, vòng đời
+## 3. Wake reasons: identity, class, lifecycle
 
-### Hai nguồn lý do, một mốc đủ điều kiện
+### Two sources of reasons, one eligibility time
 
-Mọi lý do có hai mốc:
-- `created_at`: lúc tiếp nhận;
-- `due_at`: lúc **đủ điều kiện** được xét.
+Every reason has two timestamps:
+- `created_at`: when it was taken in;
+- `due_at`: when it becomes **eligible** to be considered.
 
-Ảnh chụp và lịch chỉ dựa vào `due_at`, cho cả hai nguồn. Có mặt trong kho chưa có nghĩa là đã tới lúc thực hiện.
+The snapshot and the schedule rely only on `due_at`, for both sources. Being present in the store does not mean it is time to act.
 
-**Sự kiện** (`origin=event`): do một việc đã xảy ra sinh ra.
-- Mỗi sự kiện có `source_ref` ổn định, lấy từ chính nguồn: id dòng `goal_events`, `rev:<n>`, `handoff:<rev>`, id sự kiện trợ lý.
-- Giao lại cùng sự kiện (thử lại HTTP, hai tab, khởi động lại) cho ra cùng `source_ref`. Chỉ mục duy nhất từng phần chặn dòng thứ hai, dù dòng đầu còn chờ hay đã phục vụ.
-- Dòng đã phục vụ không bị xoá khi mục tiêu còn active, nên việc giao lại về sau vẫn bị nhận ra. Không dùng TTL để chống trùng.
-- `due_at = created_at`, trừ `user_schedule`: ở đó `due_at` là giờ người dùng hẹn.
-  - Sự kiện hẹn giờ tương lai có id ổn định ngay lúc ghi.
-  - Trước giờ đó nó không vào ảnh chụp, không kéo lịch, không bị phục vụ.
-  - Khởi động lại vẫn giữ giờ, vì giờ nằm trong kho.
+**Event** (`origin=event`): produced by something that has happened.
+- Each event has a stable `source_ref`, taken from the source itself: the id of a `goal_events` row, `rev:<n>`, `handoff:<rev>`, the id of an assistant event.
+- Redelivering the same event (HTTP retry, two tabs, restart) yields the same `source_ref`. A partial unique index blocks a second row, whether the first is still waiting or already served.
+- A served row is not deleted while the goal is active, so later redelivery is still recognized. No TTL is used to prevent duplicates.
+- `due_at = created_at`, except `user_schedule`: there `due_at` is the time the user scheduled.
+  - A future-scheduled event has a stable id at write time.
+  - Before that time it does not enter the snapshot, does not pull the schedule, and is not served.
+  - A restart still keeps the time, because the time lives in the store.
 
-**Hẹn giờ** (`origin=timer`): do chính sách hay cổng hẹn.
-- Mỗi lần hẹn là một **lần mới**, `source_ref = tm_<ngẫu nhiên>`, không có ràng buộc duy nhất. Hai lần xem lại định kỳ liên tiếp là hai dòng khác nhau.
-- Mỗi hẹn thuộc một **nghĩa vụ** (`slot`):
+**Timer** (`origin=timer`): produced by the policy or the gate scheduling.
+- Each scheduling is a **new instance**, `source_ref = tm_<random>`, with no uniqueness constraint. Two consecutive periodic reviews are two different rows.
+- Each timer belongs to one **duty** (`slot`):
   - `retry`: `retry_not_met`, `error_retry`, `recovery`;
   - `check`: `review`, `deadline`, `drift_recheck`, `agent_recheck`, `guard_recheck`, `handoff_wait`;
   - `observe`: `guard_observe`.
-- Mỗi mục tiêu có tối đa một hẹn đang chờ cho **mỗi nghĩa vụ**. Hẹn mới chỉ thay hẹn cũ cùng nghĩa vụ (`superseded`, cùng giao dịch).
-  - Kiểm hạn chót không xoá lượt thử lại đang chờ, và ngược lại.
-- `wakeups` vẫn chỉ có một dòng `work` và một dòng `observe` cho mỗi mục tiêu. Đó là **lịch vật lý**, tính lại từ các nghĩa vụ (mục "Lịch vật lý" dưới).
+- Each goal has at most one pending timer for **each duty**. A new timer only replaces an old one of the same duty (`superseded`, same transaction).
+  - A deadline check does not delete a pending retry, and vice versa.
+- `wakeups` still has only one `work` row and one `observe` row per goal. That is the **physical schedule**, recomputed from the duties (section "Physical schedule" below).
 
-**Revision nguồn:** mọi lý do ghi `revision`.
-- Sự kiện lấy revision từ dòng nguồn: phản hồi mang `expected_revision`, `rev:<n>` mang `n`.
-- Hẹn giờ lấy revision lúc hẹn.
-- Lý do của revision cũ không mở lượt model và không đặt lại trần của revision mới. Lúc xét, chúng được chốt `served` với `settled_by = stale_revision`. Revision mới đã có lý do `revised` của nó.
+**Source revision:** every reason records `revision`.
+- An event takes its revision from the source row: feedback carries `expected_revision`, `rev:<n>` carries `n`.
+- A timer takes the revision at scheduling time.
+- A reason from an old revision does not open a model turn and does not reset the ceiling of the new revision. When considered, it is settled `served` with `settled_by = stale_revision`. The new revision already has its own `revised` reason.
 
-### Lớp
+### Classes
 
-| Lớp | Mã | Được mở lượt model? |
+| Class | Codes | May open a model turn? |
 |---|---|---|
-| Bước đầu | `created`, `revised`, `assigned` | Có, chỉ khi revision hiện tại chưa có lượt việc và chưa có bản tiếp nhận từ chat |
-| Tin mới | `feedback` (mọi phản hồi trừ reaction), `user_schedule` | Có, trong hạn mức |
-| Thử lại tự động | `retry_not_met`, `error_retry`, `recovery` | Có, theo trần ở mục 4 |
-| Chỉ kiểm | `handoff_wait`, `handoff_done`, `resumed`, `agent_enabled`, `agent_recheck`, `agent_changed`, `guard_recheck`, `review`, `deadline`, `drift_recheck`, **mã lạ** | Không bao giờ |
-| Quan sát | `guard_observe` | Không bao giờ. Không đăng sản phẩm |
+| First step | `created`, `revised`, `assigned` | Yes, only when the current revision has no work turn yet and no draft taken in from chat |
+| New news | `feedback` (every feedback except a reaction), `user_schedule` | Yes, within the budget |
+| Automatic retry | `retry_not_met`, `error_retry`, `recovery` | Yes, under the ceiling in section 4 |
+| Check only | `handoff_wait`, `handoff_done`, `resumed`, `agent_enabled`, `agent_recheck`, `agent_changed`, `guard_recheck`, `review`, `deadline`, `drift_recheck`, **unknown code** | Never |
+| Observe | `guard_observe` | Never. Does not publish the product |
 
-- **Chỉ lý do mở được lượt model.** Revision chưa có đầu ra không tự thành lý do: nếu ảnh chụp chỉ có `review`, `deadline`, quan sát hay mã lạ, thì không gọi model.
-- **Mục tiêu có từ trước A2** không có dòng lý do. Lần đầu A2 mở kho, với mỗi mục tiêu active, kho dựng lại lý do từ chính `goal_events`:
-  - revision hiện tại chưa có lượt việc: một lý do `created`, `source_ref = migrate:rev:<n>`;
-  - phản hồi (`feedback.*`) ghi sau lượt việc gần nhất của revision: một lý do `feedback` mỗi phản hồi, `source_ref` là id dòng sự kiện, cùng khoá với lúc ghi thường.
-  - Lịch `wakeups` cũ không có dòng lý do nào thì lần thức đó coi như `review` (chỉ kiểm).
+- **Only a reason can open a model turn.** A revision with no output yet does not become a reason by itself: if the snapshot has only `review`, `deadline`, observation or an unknown code, the model is not called.
+- **A goal that predates A2** has no reason rows. The first time A2 opens the store, for each active goal, the store rebuilds reasons from `goal_events` itself:
+  - the current revision has no work turn: one `created` reason, `source_ref = migrate:rev:<n>`;
+  - feedback (`feedback.*`) written after the latest work turn of the revision: one `feedback` reason per feedback, `source_ref` is the event row id, the same key as at normal write time.
+  - An old `wakeups` schedule with no reason row counts that wake as `review` (check only).
 
-### Vòng đời
+### Lifecycle
 
-`pending` sang `served` (có `settled_by`), hay `pending` sang `superseded` (chỉ hẹn giờ).
+`pending` to `served` (with `settled_by`), or `pending` to `superseded` (timers only).
 
-1. **Ảnh chụp:** `advance` giữ khoá lượt rồi đọc các lý do `pending` có `due_at <= now`, với cả sự kiện lẫn hẹn giờ.
-   - Chỉ id trong ảnh chụp được xét và được phục vụ.
-   - Lý do đến trong lúc lượt đang chạy vẫn `pending` cho lần sau.
-2. **Bị cổng chặn** (trợ lý tắt, tạm dừng, cách hiểu bị bác, guard `unknown`, đang chờ bàn giao): **không phục vụ lý do nào mở được lượt model** (bước đầu, tin mới, thử lại).
-   - Ghi `wake_log` kèm id đã thấy.
-   - Các lý do đó còn nguyên, kể cả giờ đủ điều kiện ban đầu. Khi gỡ chặn (`resumed`, `agent_enabled`, `guard_recheck` thấy guard đọc lại được), lần thức sau thấy lại chúng.
-   - Hẹn `check` đã tới hạn (xem lại, hạn chót) thì đã xét xong:
-     - cổng có hẹn kiểm lại thì hẹn đó thay hẹn cũ, cùng nghĩa vụ `check`;
-     - cổng không có hẹn kiểm lại (tạm dừng, hết hạn mức, guard đã chạm) thì chốt `served`.
-     - Không mất gì: lần thức đầu tiên sau khi gỡ chặn tính lại hẹn `check` từ trạng thái mục tiêu (lịch xem lại, hạn chót).
-3. **Quyết định `work`:** `begin_action` đánh dấu `served` cho mọi id trong ảnh chụp, cùng giao dịch ghi ý định hành động. Ý định ghi kèm danh sách id.
-   - Lượt model lỗi thì đi theo luật lỗi.
-   - Nội dung góp ý không mất: prompt đọc chuỗi ý định và phản hồi từ kho, không đọc từ lý do.
-4. **Quyết định khác** (qua cổng, không gọi model), trong cùng giao dịch ghi `wake_log`:
-   - Lý do **chỉ kiểm** và **thử lại tự động** được phục vụ, vì đã xét xong.
-   - Lý do **bước đầu** và **tin mới** chỉ được phục vụ khi kết luận là không cần làm: đã đạt, chỉ còn chờ người dùng xác nhận, hay bản chat vừa tiếp nhận đã đáp ứng.
-   - Bị chặn vì hết hạn mức thì giữ `pending`.
-5. **Quan sát** chỉ phục vụ đúng hẹn `guard_observe` của nó, không đụng lý do `work`.
+1. **Snapshot:** `advance` holds the turn lease and then reads the `pending` reasons with `due_at <= now`, both events and timers.
+   - Only ids in the snapshot are considered and served.
+   - A reason arriving while a turn is running stays `pending` for the next time.
+2. **Blocked by a gate** (assistant off, paused, understanding rejected, guard `unknown`, waiting for handoff): **no reason that can open a model turn is served** (first step, new news, retry).
+   - Write a `wake_log` with the ids seen.
+   - Those reasons stay intact, including their original eligibility time. When the block is lifted (`resumed`, `agent_enabled`, `guard_recheck` finding the guard readable again), the next wake sees them again.
+   - A `check` timer that has come due (review, deadline) has been considered:
+     - if the gate has a re-check timer, that timer replaces the old one, same `check` duty;
+     - if the gate has no re-check timer (paused, budget exhausted, guard already hit), it is settled `served`.
+     - Nothing is lost: the first wake after the block is lifted recomputes the `check` timer from the goal state (review schedule, deadline).
+3. **`work` decision:** `begin_action` marks `served` every id in the snapshot, in the same transaction that writes the action intent. The intent carries the list of ids.
+   - If the model turn fails, the error rule applies.
+   - The feedback text is not lost: the prompt reads the intent chain and feedback from the store, not from the reasons.
+4. **Other decisions** (through a gate, no model call), in the same transaction that writes `wake_log`:
+   - **Check only** and **automatic retry** reasons are served, because they have been considered.
+   - **First step** and **new news** reasons are only served when the conclusion is that nothing needs doing: already met, only waiting for user confirmation, or the chat draft just taken in satisfies it.
+   - Blocked by budget exhaustion: keep `pending`.
+5. **Observe** serves only its own `guard_observe` timer and does not touch `work` reasons.
 
-### Lịch vật lý
+### Physical schedule
 
-Một nguyên tắc chung cho sự kiện và hẹn giờ: **nghĩa vụ còn lưu chưa chắc đã được đưa vào lịch có thể chạy.**
+One common principle for events and timers: **a stored duty is not necessarily placed on a schedule that can run.**
 
-Sau mỗi lần thức, `wakeups.due_at` của `work` tính theo trạng thái lúc lần thức kết thúc:
+After every wake, the `work` `wakeups.due_at` is computed from the state at the end of the wake:
 
-- **Không bị gác:** mốc sớm nhất trong
-  - `due_at` của các hẹn giờ đang chờ, ở cả nghĩa vụ `retry` lẫn `check`;
-  - `due_at` của các sự kiện đang chờ.
-- **Bị gác:** chỉ `due_at` của **hẹn gỡ gác** vừa đặt ở nghĩa vụ `check` (`agent_recheck`, `guard_recheck`, `drift_recheck`, `handoff_wait`).
-  - Sự kiện và hẹn `retry` đang chờ không được tính, dù đã quá giờ.
-  - Không có hẹn gỡ gác thì xoá dòng `work`. Mục tiêu chờ sự kiện chủ động.
+- **Not parked:** the earliest of
+  - the `due_at` of pending timers, in both the `retry` and `check` duties;
+  - the `due_at` of pending events.
+- **Parked:** only the `due_at` of the **unpark timer** just set in the `check` duty (`agent_recheck`, `guard_recheck`, `drift_recheck`, `handoff_wait`).
+  - Pending events and `retry` timers are not counted, even if overdue.
+  - With no unpark timer, delete the `work` row. The goal waits for an active event.
 
-Không còn mốc nào thì xoá dòng `work`.
+If no time remains, delete the `work` row.
 
-**Bị gác:** còn nghĩa vụ nhưng không thể phục vụ ngay, nên không kéo lịch, kể cả khi giờ đủ điều kiện đã qua.
-- Gác khi lần thức kết thúc ở trạng thái không phục vụ được lý do mở lượt:
-  - `blocked` (bị cổng chặn, hết hạn mức, lỗi cố định);
-  - đang chờ lượt chat bàn giao (lịch là hẹn `handoff_wait` 30 giây, như MVP);
+**Parked:** a duty remains but cannot be served right away, so it does not pull the schedule, even when its eligibility time has passed.
+- Park when a wake ends in a state that cannot serve a reason that opens a turn:
+  - `blocked` (blocked by a gate, budget exhausted, permanent error);
+  - waiting for the handoff chat turn (the schedule is a 30-second `handoff_wait` timer, as in the MVP);
   - `waiting`/`source_drift`.
-- Đường gỡ gác:
-  - hẹn kiểm lại của cổng (`agent_recheck`, `guard_recheck`), hay `drift_recheck` (mục 5);
-  - thao tác gỡ chặn (`resumed`, `agent_enabled`);
-  - một sự kiện mới. Sự kiện mới đặt lịch về `due_at` của nó lúc ghi, nên thức **đúng một lần** để kiểm, rồi lại gác nếu vẫn chưa phục vụ được.
-- Hết hạn mức và lỗi cố định không có hẹn kiểm lại. Chỉ sự kiện mới gỡ được, như MVP.
-- **Hẹn `retry` bị gác** giữ nguyên bản ghi, giờ đủ điều kiện, revision và chuỗi lỗi hay bế tắc. Khi gỡ gác, lần thức đầu tiên xét lại nó theo quyền, revision, guard và hạn mức lúc đó:
-  - đã quá giờ thì xét ngay, đúng một lần, trong trần ở mục 4;
-  - chưa tới giờ thì vẫn chờ đúng mốc backoff;
-  - bật lại trợ lý hay hồi phục guard không đặt lại chuỗi lỗi hay bế tắc;
-  - không dùng `served` để giả là lượt chưa gọi đã chạy.
-- **Gác là trạng thái lưu trong kho** (`goals.run_state`, cùng các hẹn đang chờ). Khởi động lại không bật lại vòng thức dày.
-- Mục tiêu bị gác không giữ mốc trong quá khứ, nên không chiếm suất `TICK_LIMIT` của mục tiêu khác.
+- Ways to unpark:
+  - the gate's re-check timer (`agent_recheck`, `guard_recheck`), or `drift_recheck` (section 5);
+  - an unblocking action (`resumed`, `agent_enabled`);
+  - a new event. A new event sets the schedule to its own `due_at` at write time, so it wakes **exactly once** to check, then parks again if it still cannot be served.
+- Budget exhaustion and a permanent error have no re-check timer. Only a new event can unpark, as in the MVP.
+- A **parked `retry` timer** keeps its record, eligibility time, revision and error or stall streak. On unparking, the first wake reconsiders it under the permission, revision, guard and budget of that moment:
+  - if overdue, consider it right away, exactly once, under the ceiling in section 4;
+  - if not yet due, still wait for the exact backoff time;
+  - re-enabling the assistant or the guard recovering does not reset the error or stall streak;
+  - `served` is not used to pretend a turn that was never called has run.
+- **Parking is a state stored in the store** (`goals.run_state`, together with the pending timers). A restart does not turn the dense wake loop back on.
+- A parked goal does not hold a time in the past, so it does not take a `TICK_LIMIT` slot from another goal.
 
-**Hệ quả:**
-- Sự kiện đến trong lúc lượt chạy, không bị gác, kéo lịch về `now` sau lượt.
-- Hẹn tương lai (`user_schedule`, thử lại) không kéo lịch sớm.
-- Lần kiểm vì hạn chót xảy ra trước mốc thử lại thì không thấy lượt thử lại trong ảnh chụp (chưa đủ điều kiện). Lượt thử lại vẫn chờ, và lịch sau lần kiểm về lại đúng mốc thử lại. Kiểm sớm không làm thử lại chạy trước mốc backoff.
-- Đang chờ hay đang bị chặn thì không có vòng thức 30 giây, trừ chờ bàn giao (hẹn `handoff_wait` 30 giây, như MVP, chỉ trong lúc lượt chat chạy).
+**Consequences:**
+- An event arriving while a turn runs, not parked, pulls the schedule to `now` after the turn.
+- A future timer (`user_schedule`, retry) does not pull the schedule earlier.
+- If a deadline check happens before the retry time, the retry is not in the snapshot (not yet eligible). The retry still waits, and the schedule after the check goes back to exactly the retry time. An early check does not make a retry run before its backoff time.
+- When waiting or blocked there is no 30-second wake loop, except while waiting for handoff (a 30-second `handoff_wait` timer, as in the MVP, only while the chat turn runs).
 
-**Cùng thời điểm:** cả hẹn `check` lẫn `retry` đều đã tới hạn thì cùng vào một ảnh chụp, và chỉ có một quyết định.
-- Thứ tự quyết định (mục 4) xét thử lại.
-- Phần kiểm (đánh giá, hạn chót) luôn chạy trước, trong cùng lần thức đó.
-- Cả hai được phục vụ cùng nhau.
+**At the same moment:** if both the `check` and `retry` timers have come due they enter one snapshot, and there is only one decision.
+- The decision order (section 4) considers the retry.
+- The check part (assessment, deadline) always runs first, in that same wake.
+- Both are served together.
 
-**Đối soát sau khi quay về bản cũ:**
-- Bản 0.87 có thể đã làm việc mà không ghi id lý do. Lúc mở kho, sự kiện `pending` cùng revision có `created_at` **trước lúc lượt việc bắt đầu** (`actions.created_at`, không phải lúc lượt kết thúc) được chốt `served`, với `settled_by` là lượt đó.
-- Chỉ những sự kiện đó lượt cũ mới có thể đã thấy trong đầu vào. Sự kiện đến sau lúc lượt bắt đầu vẫn `pending`.
-- Đây chỉ là đường đối soát cho trường hợp này, không thay luật ảnh chụp.
+**Reconciliation after rolling back to the old version:**
+- Version 0.87 may have done work without recording reason ids. When the store is opened, `pending` events of the same revision whose `created_at` is **before the work turn started** (`actions.created_at`, not when the turn ended) are settled `served`, with `settled_by` set to that turn.
+- Only those events could have been seen in the input of the old turn. An event arriving after the turn started stays `pending`.
+- This is only a reconciliation path for this case; it does not replace the snapshot rule.
 
-## 4. Chính sách `heartbeat.v1`
+## 4. Policy `heartbeat.v1`
 
-Một hàm thuần `decide(goal, snapshot, history, assessment, now, policy) -> Decision` trong module mới `server/resonance_heartbeat.py`. Không I/O, test bằng bảng.
+A pure function `decide(goal, snapshot, history, assessment, now, policy) -> Decision` in a new module `server/resonance_heartbeat.py`. No I/O, tested by table.
 
-### Thứ tự quyết định
+### Decision order
 
-1. `_gate` (mục 7) chặn: `blocked`, không phục vụ gì.
-2. Cổng bàn giao còn chờ: hẹn `handoff_wait`, không phục vụ gì.
-3. `_publish_latest`, rồi đánh giá bằng code, rồi kiểm sửa ngoài luồng (mục 5). Không bước nào gọi model.
-4. Đã đạt, hay chỉ còn chờ người dùng: `evaluate`. Phục vụ cả ảnh chụp, hẹn theo bảng dưới.
-5. Bị chờ do sửa ngoài luồng (mục 5): `evaluate`, giữ `pending` các lý do bước đầu và tin mới.
-6. Ảnh chụp có **tin mới**: `work`, nếu còn lượt (bất kể dự phòng).
-7. Ảnh chụp có **bước đầu** và revision chưa có lượt việc hay bản tiếp nhận: `work`, nếu còn lượt.
-8. Ảnh chụp có **thử lại tự động** và trần cho phép: `work`.
-9. Còn lại: `evaluate` hay `sleep`. **0 lượt model.**
+1. `_gate` (section 7) blocks: `blocked`, nothing is served.
+2. The handoff gate is still waiting: a `handoff_wait` timer, nothing is served.
+3. `_publish_latest`, then code assessment, then the out-of-band edit check (section 5). No step calls a model.
+4. Already met, or only waiting for the user: `evaluate`. Serve the whole snapshot, schedule per the table below.
+5. Waiting because of an out-of-band edit (section 5): `evaluate`, keep the first-step and new-news reasons `pending`.
+6. The snapshot has **new news**: `work`, if turns remain (regardless of the reserve).
+7. The snapshot has a **first step** and the revision has no work turn or intake yet: `work`, if turns remain.
+8. The snapshot has an **automatic retry** and the ceiling allows: `work`.
+9. Otherwise: `evaluate` or `sleep`. **0 model turns.**
 
-Bước 6 hay 7 mà hết lượt: `blocked`/`budget`, giữ lý do `pending`, không hẹn `work`.
+At step 6 or 7, if no turns remain: `blocked`/`budget`, keep the reason `pending`, do not schedule `work`.
 
-### Tiến bộ và bế tắc
+### Progress and stall
 
-- **Mốc tốt nhất:** số tiêu chí đạt cao nhất sau các lượt việc trong cùng revision, tính từ tin mới gần nhất (hay từ đầu revision).
-- **Tiến bộ:** lượt mới vượt mốc tốt nhất. Lượt tụt rồi hồi lại bằng mốc cũ không tính là tiến bộ, nên dao động không đặt lại chuỗi.
-- **Chuỗi bế tắc** (`stall`): số lượt việc liên tiếp không vượt mốc, cũng tính từ tin mới gần nhất.
-- `stall >= STALL_AFTER` thì dừng thử tự động: `waiting`/`stalled`, báo **một lần** mỗi revision (`goal.stalled`).
-  - Đây không phải thất bại. Mục tiêu vẫn active.
-  - Tin mới (góp ý, revision mới) mở lại theo luật, chuỗi tính lại từ 0.
-  - Tiêu chí thành công không đổi.
+- **Best mark:** the highest number of met criteria after the work turns within the same revision, counted from the latest new news (or from the start of the revision).
+- **Progress:** a new turn that exceeds the best mark. A turn that drops and then recovers to the old mark does not count as progress, so oscillation does not reset the streak.
+- **Stall streak** (`stall`): the number of consecutive work turns that do not exceed the mark, also counted from the latest new news.
+- `stall >= STALL_AFTER` stops automatic tries: `waiting`/`stalled`, reported **once** per revision (`goal.stalled`).
+  - This is not a failure. The goal stays active.
+  - New news (feedback, a new revision) reopens it by the rules, and the streak restarts from 0.
+  - The success criteria do not change.
 
-### Trần thử lại tự động (một luật chung)
+### Automatic retry ceiling (one common rule)
 
-Một lượt `retry_not_met`, `error_retry` hay `recovery` chỉ được chạy khi **cả hai** điều kiện đúng:
+A `retry_not_met`, `error_retry` or `recovery` turn may only run when **both** conditions hold:
 
-- **Còn lượt dự phòng:** `budget_calls - calls_used > AUTO_RESERVE_CALLS`. Lượt cuối để dành cho lúc người dùng góp ý. Tin mới và bước đầu dùng được lượt đó.
-- **Chưa chạm trần riêng của nhánh:**
+- **A reserve turn remains:** `budget_calls - calls_used > AUTO_RESERVE_CALLS`. The last turn is kept for when the user gives feedback. New news and first steps can use that turn.
+- **The branch's own ceiling is not reached:**
   - `retry_not_met`: `stall < STALL_AFTER`.
-  - `error_retry` và `recovery`: số lượt việc lỗi tính từ tin mới gần nhất trong revision nhỏ hơn `ERROR_MAX_FAILS`, và lỗi gần nhất không thuộc nhóm cố định.
-  - `ERROR_MAX_FAILS = 3` là **ba lượt lỗi tổng cộng**, gồm cả lượt đầu, tức tối đa hai lần thử lại. Lượt bị ngắt đã đối soát tính là một lượt lỗi.
+  - `error_retry` and `recovery`: the number of failed work turns counted from the latest new news in the revision is below `ERROR_MAX_FAILS`, and the latest error is not in the permanent group.
+  - `ERROR_MAX_FAILS = 3` means **three failed turns in total**, including the first, so at most two retries. An interrupted turn that has been reconciled counts as one failed turn.
 
-**Lỗi cố định và tạm thời:** bảng mã chốt lúc code, từ mã engine thật trả về.
-- Cố định: dựng engine hỏng (`engine_build`), vùng ghi sai (`output_scope`), hết hạn mức (`budget_exhausted`).
-- Tạm thời: hết giờ, bị ngắt (`interrupted`), quá tải, hết hạn mức gói thuê bao có giờ mở lại.
-- Mã chưa biết coi là tạm thời, vẫn bị trần.
-- Hết trần hay lỗi cố định: `blocked` theo mã, báo một lần, không hẹn `work`. Tin mới mở lại.
+**Permanent and transient errors:** the code table is fixed at coding time, from the codes the real engine returns.
+- Permanent: broken engine build (`engine_build`), wrong write area (`output_scope`), budget exhausted (`budget_exhausted`).
+- Transient: timeout, interrupted (`interrupted`), overload, a subscription plan limit that reopens at a known time.
+- An unknown code is treated as transient, still under the ceiling.
+- Ceiling reached or a permanent error: `blocked` by code, reported once, no `work` scheduled. New news reopens it.
 
-### Hẹn lịch kế tiếp
+### Scheduling the next wake
 
-| Tình huống | Lịch `work` | Mã |
+| Situation | `work` schedule | Code |
 |---|---|---|
-| Chưa đạt, thử lại được | `retry`: `now + RETRY_BASE_S × 2^stall` | `retry_not_met` |
-| Lỗi tạm thời, thử lại được | `retry`: mốc mở lại hạn mức + 60 giây nếu biết; không thì `ERROR_BACKOFF_S[fails-1]` | `error_retry` |
-| Bế tắc, hết trần, lỗi cố định, hết hạn mức | Không hẹn | |
-| Chờ người dùng (xác nhận, cách hiểu bị bác, khám phá xong) | Không hẹn | |
-| Sửa ngoài luồng không đạt | `check`: `DRIFT_RECHECK_MIN_S`, nhân đôi tới `DRIFT_RECHECK_MAX_S` (mục 5) | `drift_recheck` |
-| Đạt ở chế độ duy trì, hay không có lý do làm | `check`: xem lại giãn dần | `review` |
-| Có hạn chót chưa tới | `check`: xem phần gần hạn | `deadline` |
+| Not met, can retry | `retry`: `now + RETRY_BASE_S × 2^stall` | `retry_not_met` |
+| Transient error, can retry | `retry`: the limit reopening time + 60 seconds if known; otherwise `ERROR_BACKOFF_S[fails-1]` | `error_retry` |
+| Stalled, ceiling reached, permanent error, budget exhausted | No schedule | |
+| Waiting for the user (confirmation, understanding rejected, exploration done) | No schedule | |
+| Out-of-band edit not meeting the bar | `check`: `DRIFT_RECHECK_MIN_S`, doubling up to `DRIFT_RECHECK_MAX_S` (section 5) | `drift_recheck` |
+| Met in maintenance mode, or no reason to work | `check`: review with growing intervals | `review` |
+| A deadline not yet reached | `check`: see the near-deadline part | `deadline` |
 
-Hai nghĩa vụ `retry` và `check` được hẹn độc lập. Một lần thức có thể đặt cả hai.
+The two duties `retry` and `check` are scheduled independently. One wake can set both.
 
-**Xem lại giãn dần:**
-- Bắt đầu `REVIEW_MIN_S`. Lần xem lại không thấy gì đổi thì nhân đôi, tối đa `REVIEW_MAX_S`.
-- Thấy đổi thì về lại `REVIEW_MIN_S`. "Đổi" gồm kết quả đánh giá, hash sản phẩm, trạng thái guard.
-- Lần xem lại chỉ chạy code. Giãn nhịp để bớt việc vặt cho máy chủ, không phải để bớt lượt model.
+**Review with growing intervals:**
+- Start at `REVIEW_MIN_S`. If a review sees no change, double, up to `REVIEW_MAX_S`.
+- If it sees a change, go back to `REVIEW_MIN_S`. "Change" includes the assessment result, the product hash, the guard state.
+- A review only runs code. The intervals grow to reduce chores for the server, not to reduce model turns.
 
-**Gần hạn chót** (`horizon.kind = deadline`, `at` là hạn), ưu tiên theo thứ tự:
-1. Còn hơn `2 × CHECK_MIN_S`: hẹn `check` là sớm nhất giữa lịch xem lại và `now + (at - now) / 2`.
-2. Còn từ 0 tới `2 × CHECK_MIN_S`: một lần kiểm đúng `at`. Độ trễ ở mục 11.
-3. Qua hạn mà chưa đạt:
-   - ghi sự kiện `deadline_passed` và báo **một lần** mỗi revision (`goal.deadline_passed`);
-   - không tự gia hạn, không kết luận thành công hay thất bại, không mở lượt model vì hạn;
-   - sau đó về lịch xem lại thường.
+**Near a deadline** (`horizon.kind = deadline`, `at` is the deadline), by priority:
+1. More than `2 × CHECK_MIN_S` left: a `check` timer at the earliest of the review schedule and `now + (at - now) / 2`.
+2. Between 0 and `2 × CHECK_MIN_S` left: a single check exactly at `at`. Latency in section 11.
+3. Past the deadline and not met:
+   - record a `deadline_passed` event and report **once** per revision (`goal.deadline_passed`);
+   - do not extend it by itself, do not conclude success or failure, do not open a model turn because of the deadline;
+   - afterwards go back to the normal review schedule.
 
-`deadline` thuộc lớp chỉ kiểm và chỉ chiếm nghĩa vụ `check`. Lượt thử lại hay backoff đang chờ không bị dời sớm hay muộn vì hạn chót.
+`deadline` belongs to the check-only class and occupies only the `check` duty. A pending retry or backoff is not moved earlier or later because of the deadline.
 
-### Tham số (phiên bản `heartbeat.v1`)
+### Parameters (version `heartbeat.v1`)
 
-| Tên | Mặc định | Ghi chú |
+| Name | Default | Note |
 |---|---|---|
-| `RETRY_BASE_S` | 900 | 15 phút như MVP |
-| `STALL_AFTER` | 2 | review chấp nhận làm mặc định |
+| `RETRY_BASE_S` | 900 | 15 minutes as in the MVP |
+| `STALL_AFTER` | 2 | review accepted this as the default |
 | `AUTO_RESERVE_CALLS` | 1 | |
-| `ERROR_MAX_FAILS` | 3 | ba lượt lỗi tổng cộng, tính từ tin mới gần nhất |
-| `ERROR_BACKOFF_S` | 1, 4, 24 giờ | như MVP |
-| `REVIEW_MIN_S` | 6 giờ | như MVP |
-| `REVIEW_MAX_S` | 7 ngày | mới; MVP dừng ở 24 giờ |
-| `CHECK_MIN_S` | 15 phút | gần hạn |
-| `GUARD_OBSERVE_S` | 1 giờ | như MVP, không giãn |
-| `DRIFT_RECHECK_MIN_S` | 1 giờ | kiểm lại khi chờ file sửa tay |
-| `DRIFT_RECHECK_MAX_S` | 24 giờ | |
+| `ERROR_MAX_FAILS` | 3 | three failed turns in total, counted from the latest new news |
+| `ERROR_BACKOFF_S` | 1, 4, 24 hours | as in the MVP |
+| `REVIEW_MIN_S` | 6 hours | as in the MVP |
+| `REVIEW_MAX_S` | 7 days | new; the MVP stops at 24 hours |
+| `CHECK_MIN_S` | 15 minutes | near a deadline |
+| `GUARD_OBSERVE_S` | 1 hour | as in the MVP, no growth |
+| `DRIFT_RECHECK_MIN_S` | 1 hour | re-check while waiting for a hand-edited file |
+| `DRIFT_RECHECK_MAX_S` | 24 hours | |
 
-- Đây là hằng có phiên bản trong module chính sách, không phải ô cài đặt.
-- Mỗi lần thức ghi `policy_version`. Đổi mặc định thì tăng phiên bản.
-- Test thay tham số qua đối số của `decide`.
+- These are versioned constants in the policy module, not settings fields.
+- Every wake records `policy_version`. Changing a default bumps the version.
+- Tests replace parameters through the arguments of `decide`.
 
-## 5. File bị sửa ngoài luồng
+## 5. Files edited out of band
 
-Hiện tại, `_publish` không thay file khi hash trên đĩa khác mốc đã đăng (`published`), và báo `goal.publish_conflict` một lần cho mỗi hash. A2 giữ nguyên bảo vệ này, và **tách mốc quan sát khỏi mốc được phép thay file**.
+Today, `_publish` does not replace a file when the hash on disk differs from the published mark (`published`), and reports `goal.publish_conflict` once per hash. A2 keeps this protection and **separates the observation mark from the mark that permits replacing the file**.
 
-- **Mốc được phép thay file:** vẫn là bảng `published`. A2 không bao giờ ghi bảng này chỉ vì quan sát, nên không lách được bảo vệ.
-- **Mốc quan sát:** bảng phụ `source_observations(goal_id, path, sha256, first_seen_at, verdict)`.
-  - Lần xem lại đọc bytes và tính hash file sản phẩm, không dùng hash đệm (mục 11). Hash khác `published` là **sửa ngoài luồng**.
-  - Hash chưa có trong bảng: ghi một dòng (H1, rồi H2 là dòng khác), báo một lần theo idem sẵn có `publish_conflict:<path>:<hash>`.
-  - Hash đã có: không ghi, không báo.
-- **Quyết định:**
-  - **Không gọi model** vì sửa ngoài luồng. Host không có quyền thay file đó, nên bản model viết ra cũng không đăng được.
-  - Bản người dùng vẫn đạt tiêu chí: ghi nhận, `healthy`, xem lại như thường.
-  - Bản người dùng không đạt: `waiting`/`source_drift`.
-    - Lý do bước đầu và tin mới giữ `pending` và **bị gác** (mục 3), nên không kéo lịch về `now`.
-    - Lịch duy nhất là hẹn `drift_recheck` ở nghĩa vụ `check`.
-- **Đường phục hồi** là kiểm lại bằng code, có khoảng cách:
-  - `drift_recheck` bắt đầu `DRIFT_RECHECK_MIN_S` (1 giờ), mỗi lần vẫn sửa ngoài luồng thì nhân đôi, tối đa `DRIFT_RECHECK_MAX_S` (24 giờ).
-  - Mỗi lần đọc một file tối đa 1 MB, không gọi model.
-  - Sự kiện mới (góp ý, tiếp tục) thì kiểm ngay một lần.
-  - Thẻ nói rõ: "File bị sửa ngoài Jarvis 007. Jarvis 007 tự kiểm lại lúc <giờ>; góp ý để kiểm ngay." Thời gian phát hiện chậm nhất là `DRIFT_RECHECK_MAX_S`.
-- **Thoát trạng thái chờ:**
-  - Người dùng đưa file về đúng mốc đã đăng: hết sửa ngoài luồng, đánh giá như thường. Góp ý đang gác được xử lý đúng một lần ở lần thức đó.
-  - Người dùng xoá file: không còn xung đột. Bản đang hiệu lực là lượt việc nền thì `_publish_latest` đăng lại mà không gọi model. Bản đang hiệu lực là bản tiếp nhận từ chat thì hiện chưa có đường đăng lại (`_publish_latest` trả `superseded`), nên A2 coi như sửa ngoài luồng: chờ, báo một lần, không gọi model.
-  - Người dùng sửa cách hiểu, đổi đường dẫn: thành revision mới, đi luồng thường.
-  - Bất kỳ lựa chọn nào trao quyền ghi đè, hay cho model viết bản đề xuất cạnh file, là quyền mới. A2 không làm, ghi ở ngoài phạm vi.
-- **Guard** vẫn quan sát file đó theo quyền hiện có (mục 7).
+- **The mark that permits replacing the file:** still the `published` table. A2 never writes this table just because of observation, so it cannot bypass the protection.
+- **The observation mark:** a side table `source_observations(goal_id, path, sha256, first_seen_at, verdict)`.
+  - A review reads the bytes and computes the hash of the product file, without a cached hash (section 11). A hash different from `published` is an **out-of-band edit**.
+  - A hash not yet in the table: write a row (H1, then H2 is another row), report once using the existing idem `publish_conflict:<path>:<hash>`.
+  - A hash already there: no write, no report.
+- **Decision:**
+  - **Do not call a model** because of an out-of-band edit. The host has no permission to replace that file, so a version the model wrote could not be published either.
+  - If the user's version still meets the criteria: record it, `healthy`, review as usual.
+  - If the user's version does not meet them: `waiting`/`source_drift`.
+    - First-step and new-news reasons stay `pending` and **parked** (section 3), so they do not pull the schedule to `now`.
+    - The only schedule is a `drift_recheck` timer in the `check` duty.
+- **The recovery path** is a re-check by code, with spacing:
+  - `drift_recheck` starts at `DRIFT_RECHECK_MIN_S` (1 hour), doubling each time the file is still edited out of band, up to `DRIFT_RECHECK_MAX_S` (24 hours).
+  - Each time it reads one file of at most 1 MB, with no model call.
+  - A new event (feedback, resume) triggers an immediate single check.
+  - The card says it clearly: "The file was edited outside Jarvis 007. Jarvis 007 re-checks it at <time>; give feedback to check now." The slowest detection time is `DRIFT_RECHECK_MAX_S`.
+- **Leaving the waiting state:**
+  - The user restores the file to the published mark: the out-of-band edit is gone, assess as usual. Parked feedback is handled exactly once in that wake.
+  - The user deletes the file: there is no conflict any more. If the version in effect is a background work turn, `_publish_latest` republishes without calling a model. If the version in effect is a draft taken in from chat, there is currently no republish path (`_publish_latest` returns `superseded`), so A2 treats it as an out-of-band edit: wait, report once, no model call.
+  - The user edits the understanding or changes the path: it becomes a new revision, normal flow.
+  - Any option that grants permission to overwrite, or lets the model write a proposed version beside the file, is a new permission. A2 does not do it, noted in out of scope.
+- **The guard** still observes that file under existing permissions (section 7).
 
-## 6. Kho
+## 6. Store
 
-Ba bảng phụ. Không bảng cũ nào đổi cột.
+Three side tables. No old table changes columns.
 
 ```sql
 CREATE TABLE IF NOT EXISTS wake_reasons(
   id INTEGER PRIMARY KEY AUTOINCREMENT, goal_id TEXT NOT NULL, brain_id TEXT NOT NULL,
   wake_kind TEXT NOT NULL,                 -- work | observe
   code TEXT NOT NULL, origin TEXT NOT NULL, -- event | timer
-  slot TEXT NOT NULL DEFAULT '',           -- retry | check | observe (hẹn giờ); rỗng với sự kiện
-  revision INTEGER NOT NULL,               -- revision nguồn
+  slot TEXT NOT NULL DEFAULT '',           -- retry | check | observe (timers); empty for events
+  revision INTEGER NOT NULL,               -- source revision
   source_ref TEXT NOT NULL,
-  due_at REAL NOT NULL,                    -- lúc đủ điều kiện được xét (sự kiện: lúc ghi, trừ user_schedule)
+  due_at REAL NOT NULL,                    -- when it becomes eligible to be considered (event: write time, except user_schedule)
   state TEXT NOT NULL DEFAULT 'pending',   -- pending | served | superseded
   created_at REAL NOT NULL, settled_at REAL, settled_by TEXT NOT NULL DEFAULT '');
 CREATE UNIQUE INDEX IF NOT EXISTS wake_reasons_event
@@ -305,7 +305,7 @@ CREATE INDEX IF NOT EXISTS wake_reasons_pending ON wake_reasons(goal_id, state, 
 CREATE TABLE IF NOT EXISTS wake_log(
   id INTEGER PRIMARY KEY AUTOINCREMENT, goal_id TEXT NOT NULL, brain_id TEXT NOT NULL,
   revision INTEGER NOT NULL, wake_kind TEXT NOT NULL,
-  seen_json TEXT NOT NULL, served_json TEXT NOT NULL,     -- id lý do đã thấy và đã phục vụ
+  seen_json TEXT NOT NULL, served_json TEXT NOT NULL,     -- reason ids seen and served
   policy_version TEXT NOT NULL,
   decision TEXT NOT NULL,                                 -- work | evaluate | observe | sleep | blocked
   why TEXT NOT NULL DEFAULT '', action_id TEXT NOT NULL DEFAULT '', model_calls INTEGER NOT NULL DEFAULT 0,
@@ -315,290 +315,290 @@ CREATE TABLE IF NOT EXISTS source_observations(
   verdict TEXT NOT NULL DEFAULT '', PRIMARY KEY(goal_id, path, sha256));
 ```
 
-**Ghi lý do:**
-- Sự kiện: `INSERT OR IGNORE`. Chỉ mục từng phần chỉ áp cho `origin='event'`, nên chống giao lại không chặn hẹn giờ.
-- Hẹn giờ: `UPDATE ... SET state='superseded'` các hẹn **cùng `slot`** đang chờ, rồi `INSERT` lần mới, trong một giao dịch.
-- Cả hai đều tính lại `wakeups` theo mục "Lịch vật lý", cùng giao dịch.
+**Writing reasons:**
+- Events: `INSERT OR IGNORE`. The partial index only applies to `origin='event'`, so the redelivery guard does not block timers.
+- Timers: `UPDATE ... SET state='superseded'` the pending timers of the **same `slot`**, then `INSERT` the new instance, in one transaction.
+- Both recompute `wakeups` per the "Physical schedule" section, in the same transaction.
 
-**Giữ sổ:**
-- `wake_log`: tối đa 200 dòng mỗi mục tiêu, cắt lúc ghi. Đây là sổ xem lại, không dùng để chống trùng.
+**Keeping the ledgers:**
+- `wake_log`: at most 200 rows per goal, trimmed at write time. This is a review ledger, not used to prevent duplicates.
 - `wake_reasons`:
-  - `superseded` và hẹn giờ `served` quá 30 ngày được xoá lúc ghi;
-  - sự kiện giữ tới khi mục tiêu kết thúc, rồi xoá cùng lúc chuyển trạng thái cuối, vì mục tiêu đã kết thúc không nhận sự kiện nữa.
-- **Sao lưu:** lần đầu mở kho ở 0.88.0 chép `resonance.sqlite3.pre-a2.bak`, chỉ một lần, như A1.
+  - `superseded` rows and `served` timers older than 30 days are deleted at write time;
+  - events are kept until the goal ends, then deleted at the same time as the final status change, because an ended goal receives no more events.
+- **Backup:** the first time the store is opened in 0.88.0 it copies `resonance.sqlite3.pre-a2.bak`, only once, like A1.
 
-**`_wake`** nhận thêm `code`, `origin`, `source_ref`. Câu `reason` trong `wakeups` vẫn ghi cho bản 0.87 đọc.
+**`_wake`** gains `code`, `origin`, `source_ref`. The `reason` sentence in `wakeups` is still written for version 0.87 to read.
 
-**`due_wakeups`:** nhận lịch `observe` của mục tiêu đang tạm dừng (mục 7). Lịch `work` của mục tiêu tạm dừng vẫn bỏ qua như cũ.
+**`due_wakeups`:** takes the `observe` schedule of a paused goal (section 7). The `work` schedule of a paused goal is still skipped as before.
 
-## 7. Cổng: nhánh làm việc và nhánh quan sát
+## 7. Gates: the work branch and the observe branch
 
-`_gate` tách thành hai cổng dùng chung các bước kiểm danh tính và quyền.
+`_gate` splits into two gates that share the identity and permission checks.
 
-| Kiểm | Nhánh làm việc (`work`) | Nhánh quan sát (`observe`) |
+| Check | Work branch (`work`) | Observe branch (`observe`) |
 |---|---|---|
-| Mục tiêu còn active | chặn | chặn |
-| Chưa gán trợ lý | chặn, không hẹn | dừng quan sát |
-| Trợ lý tắt, mất file, nghỉ, đổi phiên bản | chặn, hẹn `agent_recheck` | dừng quan sát, báo `monitoring_lost` (dưới) |
-| Người dùng tạm dừng | chặn | **đi tiếp** |
-| Cách hiểu bị bác | chặn | **đi tiếp** |
-| Guard đã chạm trước đó | chặn | dừng (đã báo) |
-| Đang chờ bàn giao | chặn | **đi tiếp** |
-| Đọc guard | có, rồi chặn nếu chạm hay `unknown` | có |
+| Goal still active | block | block |
+| No assistant assigned | block, no schedule | stop observing |
+| Assistant off, file missing, retired, version changed | block, `agent_recheck` timer | stop observing, report `monitoring_lost` (below) |
+| User paused | block | **continue** |
+| Understanding rejected | block | **continue** |
+| Guard already hit | block | stop (already reported) |
+| Waiting for handoff | block | **continue** |
+| Read the guard | yes, then block if hit or `unknown` | yes |
 
-**Nhánh quan sát** chỉ chạy `observe_guards`:
-- Guard chạm: `blocked`/`guard`, xoá lịch, báo như MVP.
-- Guard `unknown`: ghi đánh giá, giữ `guard_unknown` nếu nhánh làm việc đã đặt.
-- Không bao giờ đăng sản phẩm, gọi model, hay phục vụ lý do `work`.
+**The observe branch** only runs `observe_guards`:
+- Guard hit: `blocked`/`guard`, clear the schedule, report as in the MVP.
+- Guard `unknown`: record the assessment, keep `guard_unknown` if the work branch has set it.
+- Never publishes a product, calls a model, or serves a `work` reason.
 
-**Tắt trợ lý** (review chấp nhận đề xuất, mục 14):
-- Dừng quan sát và xoá lịch `observe`.
-- Mục tiêu có guard thì báo **một lần mỗi đợt mất quyền** `goal.monitoring_lost`, idem theo sự kiện tắt hay mất file của trợ lý. Báo liệt kê guard không còn được theo dõi.
-- Thẻ giữ dòng "Không còn theo dõi guard" cho tới khi được theo dõi lại. Không hiện như đang an toàn.
-- Bật lại: `wake_agent_goals` hẹn `observe` ngay và lý do `agent_enabled`. Nhánh làm việc đọc guard trong cổng trước mọi tác động.
+**Switching the assistant off** (the review accepted the proposal, section 14):
+- Stop observing and clear the `observe` schedule.
+- A goal that has a guard reports `goal.monitoring_lost` **once per loss-of-permission episode**, idem by the assistant's off or file-missing event. The report lists the guards no longer being watched.
+- The card keeps the line "Guards are no longer being watched" until they are watched again. It is not shown as safe.
+- Turning on again: `wake_agent_goals` schedules `observe` right away with the reason `agent_enabled`. The work branch reads the guard in the gate before any effect.
 
-**Tạm dừng một mục tiêu:** khác tắt trợ lý. Vẫn quan sát bằng code, và guard chạm vẫn báo.
+**Pausing a goal:** different from switching the assistant off. It still observes by code, and a guard hit is still reported.
 
-## 8. Luồng một lần thức
+## 8. Flow of one wake
 
-1. `tick` (mục 11) nhận tối đa `limit` lịch tới hạn, gọi `advance(goal_id, {"kind": "wake"|"observe"}, deps)`.
-2. `advance` giữ khoá lượt, chạy `_reconcile` (chốt lượt dở; lượt `work` bị ngắt thành lỗi `interrupted`), rồi chụp ảnh lý do.
-3. Nhánh quan sát: mục 7, ghi `wake_log`, hẹn `guard_observe` mới.
-4. Nhánh làm việc: thứ tự quyết định ở mục 4, rồi `_work_step` nếu ra `work`, rồi `_settle`.
-5. Ghi `wake_log`: đã thấy, đã phục vụ, quyết định, `action_id`, số lượt model (0 hay 1), lịch kế tiếp. Tính lại `wakeups` theo mục 3.
+1. `tick` (section 11) takes at most `limit` due schedules and calls `advance(goal_id, {"kind": "wake"|"observe"}, deps)`.
+2. `advance` holds the turn lease, runs `_reconcile` (settles an unfinished turn; a `work` turn that was interrupted becomes the error `interrupted`), then takes the reason snapshot.
+3. Observe branch: section 7, write `wake_log`, schedule a new `guard_observe`.
+4. Work branch: the decision order in section 4, then `_work_step` if the result is `work`, then `_settle`.
+5. Write `wake_log`: seen, served, decision, `action_id`, number of model turns (0 or 1), next schedule. Recompute `wakeups` per section 3.
 
-**`advance` nhận thẳng sự kiện:**
-- `reaction` vẫn không làm gì.
-- `user_schedule` ghi lý do sự kiện rồi hẹn.
-- `start`, `user_message`, `resume` của các chỗ gọi cũ đổi thành lý do tương ứng.
+**`advance` takes events directly:**
+- `reaction` still does nothing.
+- `user_schedule` writes an event reason and then schedules.
+- `start`, `user_message`, `resume` from old call sites become the corresponding reasons.
 
-**Thông báo không tự kích hoạt:**
-- `drain_outbox` và `_resonance_notify` không ghi `wake_reasons`.
-- Tin báo của trợ lý vào chat là tin `assistant`, không tạo lượt chat.
-- Chỉ lời và thao tác của người dùng hay chủ dự án sinh lý do lớp tin mới.
+**Notices do not trigger themselves:**
+- `drain_outbox` and `_resonance_notify` do not write `wake_reasons`.
+- A notice from the assistant in chat is an `assistant` message and does not create a chat turn.
+- Only words and actions of the user or the project owner produce new-news-class reasons.
 
-## 9. Một bên quản lịch: thu hẹp cam kết
+## 9. One side owns the schedule: a narrower commitment
 
-Review chỉ ra rằng chặn `javis_schedule` theo cờ toàn lượt (`goal_touched`) vừa chặn nhầm nhắc việc độc lập, vừa bỏ sót lịch trùng tạo ở lượt khác. A2 **bỏ** chặn đó.
+The review pointed out that blocking `javis_schedule` by a whole-turn flag (`goal_touched`) both wrongly blocks an independent reminder and misses a duplicate schedule created in another turn. A2 **drops** that block.
 
-**A2 bảo đảm:**
-- Lịch theo đuổi một mục tiêu chỉ nằm ở `wakeups` của Resonance.
-- Mỗi mục tiêu chỉ có một hẹn giờ `work` và một hẹn giờ `observe` đang chờ.
-- Hai scheduler không cùng nhận một lịch.
-- Hẹn giờ cho mục tiêu đi qua `javis_goal` (`user_schedule`).
+**A2 guarantees:**
+- The schedule that pursues a goal lives only in Resonance's `wakeups`.
+- Each goal has only one pending `work` timer and one `observe` timer.
+- Two schedulers do not take the same schedule.
+- Timers for a goal go through `javis_goal` (`user_schedule`).
 
-**A2 không bảo đảm:** người dùng hay model tạo thêm loop hay nhắc hẹn riêng cho cùng việc.
-- Chưa có liên kết lịch với mục tiêu do host kiểm, và không dùng model để đoán hai yêu cầu có cùng nghĩa không.
-- `_RESONANCE_GOAL_HINT` thêm một câu gợi ý (không ràng buộc): "việc đã thành mục tiêu thì Jarvis 007 tự giữ lịch; chỉ tạo nhắc hẹn khi đó là việc khác".
-- Nhắc hẹn và loop độc lập dùng như cũ, ở mọi thứ tự.
+**A2 does not guarantee against:** the user or the model creating an extra loop or a separate reminder for the same work.
+- There is no host-checked link between a schedule and a goal, and a model is not used to guess whether two requests mean the same thing.
+- `_RESONANCE_GOAL_HINT` adds one hint sentence (non-binding): "once work has become a goal, Jarvis 007 keeps the schedule itself; only create a reminder when it is a different task".
+- Independent reminders and loops are used as before, in any order.
 
-Liên kết rõ từ lịch tới mục tiêu (trường `goal_id` do host kiểm trong `javis_schedule`) là hạng mục sau, nằm ngoài phạm vi.
+An explicit link from a schedule to a goal (a `goal_id` field checked by the host in `javis_schedule`) is a later item, out of scope.
 
-## 10. API và giao diện
+## 10. API and UI
 
-**`goal_view`** thêm:
+**`goal_view`** adds:
 - `next_wake.code`;
 - `observe`: `{"state": "on"|"lost"|"none", "next_at", "lost_reason"}`;
-- `wakes_recent`: 5 dòng `wake_log` gần nhất (thời điểm, mã lý do chính, quyết định, có gọi model không);
-- `source_drift`: hash và thời điểm thấy nếu đang chờ do sửa ngoài luồng.
+- `wakes_recent`: the 5 most recent `wake_log` rows (time, main reason code, decision, whether a model was called);
+- `source_drift`: the hash and the time seen if waiting because of an out-of-band edit.
 
-`next_wake.reason` (câu thô) giữ cho trang cũ.
+`next_wake.reason` (the raw sentence) is kept for the old page.
 
-**Thẻ mục tiêu** (`chat-resonance.js`, dùng chung ở khung trợ lý A1):
-- "Lần thức tới" hiện nhãn theo mã, qua `vi.json`/`en.json` (`resonance.wake.<code>`).
-- Mục gập "Các lần thức gần đây", ví dụ "09/10 02:00 · xem lại định kỳ · không gọi model".
-- Nhãn và câu báo cho `stalled`, `source_drift`, `deadline_passed`, cùng dòng "Không còn theo dõi guard".
+**The goal card** (`chat-resonance.js`, shared in the A1 assistant panel):
+- "Next wake" shows a label by code, through `vi.json`/`en.json` (`resonance.wake.<code>`).
+- A collapsible section "Recent wake-ups", for example "10/09 02:00 · periodic review · no model call".
+- Labels and messages for `stalled`, `source_drift`, `deadline_passed`, plus the line "Guards are no longer being watched".
 
-Không thêm ô cài đặt nào.
+No settings field is added.
 
-## 11. Hiệu năng
+## 11. Performance
 
-Không gọi model chưa có nghĩa là rẻ cho máy chủ. A2 phải giữ các bất biến sau:
+Not calling a model does not mean cheap for the server. A2 must keep these invariants:
 
-- **Không quét khi chưa tới hạn.** Mỗi nhịp 30 giây chỉ có một truy vấn chỉ mục `wakeups_due`. Không đọc file, không hash, không đọc lý do của mục tiêu chưa tới hạn.
-- **Giới hạn mỗi nhịp:** `tick` xử lý tối đa `TICK_LIMIT = 3` lịch như MVP. Mỗi lần thức chỉ kiểm:
-  - một file sản phẩm (tối đa `PUBLISH_MAX_BYTES` 1 MB);
-  - các file guard của chính mục tiêu (tối đa `GUARDS_MAX` 5);
-  - một số câu SQLite cố định, không phụ thuộc số mục tiêu.
-- **Không giữ event loop:** phần chỉ chạy code của lần thức (cổng, đọc file, hash, đánh giá, ghi sổ) chạy trong `asyncio.to_thread`. Chỉ lượt model là `await` trên loop, như hiện nay. Dùng cùng cách đo độ trễ timer với PR #592.
-- **Không có hash đệm trong A2.** `(path, mtime_ns, size)` giống nhau không bảo đảm cùng bytes: chép file giữ nguyên thời gian là một ví dụ.
-  - Mọi điểm quyết định đọc bytes thật: phát hiện sửa ngoài luồng, quyền đăng (`_publish`), `artifact_ref`, xác nhận của người dùng, guard.
-  - Chi phí đã có trần: chỉ khi lịch tới hạn, tối đa một sản phẩm 1 MB cùng 5 file guard mỗi lần thức. Lần sau cần đệm thì đệm chỉ làm gợi ý, có lịch tái xác minh bytes, và không dùng ở các điểm quyết định trên.
-- **Độ trễ khi nhiều lịch cùng tới hạn:** `due_wakeups` xếp theo `due_at`, nên lịch cũ nhất luôn được nhận trước, không có lịch bị bỏ đói.
-  - Có N lịch tới hạn cùng lúc thì lịch cuối trễ tối đa `ceil(N / TICK_LIMIT)` nhịp.
-  - Mốc "trễ tối đa một nhịp" ở hạn chót chỉ đúng khi không quá `TICK_LIMIT` lịch tới hạn cùng nhịp. A2 không tăng `TICK_LIMIT` hay số lượt model để đạt mốc này.
-- **Không kéo thêm tối ưu toàn ứng dụng.** Phần khác của hiệu năng VPS ở PR #592 và việc hạ tầng.
+- **No scanning before it is due.** Each 30-second beat has a single indexed query on `wakeups_due`. No file reads, no hashing, no reading the reasons of a goal that is not yet due.
+- **A limit per beat:** `tick` handles at most `TICK_LIMIT = 3` schedules as in the MVP. Each wake only checks:
+  - one product file (at most `PUBLISH_MAX_BYTES`, 1 MB);
+  - the goal's own guard files (at most `GUARDS_MAX`, 5);
+  - a fixed number of SQLite statements, independent of the number of goals.
+- **Do not hold the event loop:** the code-only part of a wake (gate, file reads, hash, assessment, ledger writes) runs in `asyncio.to_thread`. Only the model turn is `await`ed on the loop, as today. Use the same timer-latency measurement as PR #592.
+- **No cached hash in A2.** The same `(path, mtime_ns, size)` does not guarantee the same bytes: copying a file while keeping its timestamps is one example.
+  - Every decision point reads the real bytes: detecting an out-of-band edit, permission to publish (`_publish`), `artifact_ref`, user confirmation, the guard.
+  - The cost already has a ceiling: only when the schedule is due, at most one 1 MB product and 5 guard files per wake. If a cache is needed later, the cache is only a hint, has a schedule to re-verify the bytes, and is not used at the decision points above.
+- **Latency when many schedules are due at once:** `due_wakeups` orders by `due_at`, so the oldest schedule is always taken first and none is starved.
+  - With N schedules due at the same moment the last one is late by at most `ceil(N / TICK_LIMIT)` beats.
+  - The "late by at most one beat" mark at a deadline only holds when no more than `TICK_LIMIT` schedules are due in the same beat. A2 does not raise `TICK_LIMIT` or the number of model turns to meet this mark.
+- **No whole-app optimization pulled in.** The rest of VPS performance is in PR #592 and infrastructure work.
 
-**Kiểm:**
-- 200 mục tiêu, chỉ 3 tới hạn: một nhịp không đọc file nào của 197 mục tiêu còn lại (đếm bằng cách vá `Path.read_bytes`/`open`).
-- 50 mục tiêu cùng tới hạn: mỗi nhịp đúng 3.
-- Trễ timer của event loop trong lúc nhịp xử lý 3 mục tiêu có file 1 MB: dưới 50 ms (so với đối chứng chạy thẳng trên loop). Đây là phép đo trong môi trường test xác định, không phải lời hứa cho mọi VPS.
-- 10 lịch cùng tới hạn: nhận theo thứ tự `due_at`, lịch cuối trễ tối đa 4 nhịp, không lịch nào bị bỏ đói.
-- File không đổi, chưa tới hạn: không bị đọc ở nhịp nào.
-- Số câu SQLite mỗi lần thức không tăng theo số mục tiêu.
+**Tests:**
+- 200 goals, only 3 due: one beat reads no file of the other 197 goals (counted by patching `Path.read_bytes`/`open`).
+- 50 goals due at the same time: exactly 3 per beat.
+- Event loop timer latency while a beat handles 3 goals with 1 MB files: under 50 ms (compared with a control run directly on the loop). This is a measurement in a deterministic test environment, not a promise for every VPS.
+- 10 schedules due at the same time: taken in `due_at` order, the last one late by at most 4 beats, none starved.
+- A file that is unchanged and not yet due: not read in any beat.
+- The number of SQLite statements per wake does not grow with the number of goals.
 
-## 12. Quay về và nâng lại
+## 12. Rolling back and upgrading again
 
-- **Quay về 0.87.0:** chạy được trên kho đã nâng.
-  - Bản cũ bỏ qua ba bảng mới. `wakeups` vẫn hợp lệ.
-  - Bản 0.87 chạy lại chính sách MVP: có thể gọi model ở lần xem lại như trước A2. Hướng dẫn quay về ghi rõ.
-- **Nâng lại:** đối soát ở mục 3 chốt các sự kiện mà bản cũ đã xử lý bằng lượt việc không gắn lý do.
-- **Bản sao `pre-a2.bak`:** dùng như `pre-a1.bak` (`docs/dev/resonance-a1-migration.md`).
+- **Rolling back to 0.87.0:** runs on the upgraded store.
+  - The old version ignores the three new tables. `wakeups` is still valid.
+  - Version 0.87 reruns the MVP policy: it may call the model at a review as before A2. The rollback guide states this clearly.
+- **Upgrading again:** the reconciliation in section 3 settles the events that the old version already handled with a work turn that carried no reason.
+- **The `pre-a2.bak` copy:** used like `pre-a1.bak` (`docs/dev/resonance-a1-migration.md`).
 
-## 13. Nghiệm thu (đồng hồ giả, không model)
+## 13. Acceptance (fake clock, no model)
 
-Mỗi ca đếm số lần dựng engine (`engine_factory`) và đọc `wake_log`.
+Each case counts the number of engine builds (`engine_factory`) and reads `wake_log`.
 
-**Nhịp và lượt model**
+**Beat and model turns**
 
-| Ca | Kỳ vọng |
+| Case | Expectation |
 |---|---|
-| Đạt và đang chờ người dùng, chạy giả 30 ngày | 0 lượt model. Mọi lần thức có dòng sổ |
-| Duy trì đạt, sản phẩm không đổi, 30 ngày | 0 lượt model. Xem lại giãn 6 giờ, 12 giờ, 24 giờ... tới 7 ngày |
-| Hai lần xem lại định kỳ liên tiếp | Cả hai đều chạy, hai dòng lý do khác nhau |
-| Ảnh chụp chỉ có `review`, `deadline`, quan sát hay mã lạ, revision chưa có đầu ra | 0 lượt model |
-| Hai lượt không vượt mốc tốt nhất | Dừng thử tự động, `stalled`, báo một lần, mục tiêu vẫn active |
-| Lượt tụt rồi hồi về mốc cũ | Không tính là tiến bộ, chuỗi không đặt lại |
-| Lượt vượt mốc tốt nhất | Được thử tiếp |
-| Góp ý sau khi `stalled` | Đúng 1 lượt, chuỗi tính lại |
-| Còn 1 lượt | Cả `retry_not_met` lẫn `error_retry` đều không dùng. Góp ý thì dùng được |
-| Lỗi tạm thời | Tối đa 3 lượt lỗi tổng cộng, rồi `blocked`, báo một lần |
-| Lỗi cố định | Không thử lại tự động |
-| Chết giữa lượt model | Đối soát, tính một lượt lỗi, thử lại theo trần |
-| Hạn chót còn 20 phút | Một lần kiểm đúng hạn, trễ tối đa một nhịp khi không quá tải |
-| Thử lại hẹn phút 15, hạn chót phút 20 | Cả hai nghĩa vụ còn. Lần kiểm hạn ở phút 5 hay 10 không xoá, không chạy sớm lượt thử lại. Phút 15 thử lại, phút 20 kiểm hạn |
-| Backoff lỗi 1 giờ, hạn chót sau 20 phút | Kiểm hạn ở phút 20 không gọi model. Lượt thử lại vẫn ở mốc 1 giờ |
-| Thử lại và kiểm hạn cùng tới hạn | Một ảnh chụp, một quyết định, cả hai được phục vụ |
-| Khởi động lại khi đang có cả hai nghĩa vụ | Cả hai còn, đúng mốc |
-| Qua hạn chưa đạt | `deadline_passed` báo một lần, không gia hạn, không gọi model vì hạn |
-| Hết hạn mức | `blocked`/`budget`, giữ lý do, 0 lượt model |
+| Met and waiting for the user, simulated 30-day run | 0 model turns. Every wake has a ledger row |
+| Maintenance met, product unchanged, 30 days | 0 model turns. Review intervals grow 6 hours, 12 hours, 24 hours... up to 7 days |
+| Two consecutive periodic reviews | Both run, two different reason rows |
+| Snapshot has only `review`, `deadline`, observation or an unknown code, revision has no output | 0 model turns |
+| Two turns that do not exceed the best mark | Automatic tries stop, `stalled`, reported once, goal stays active |
+| A turn that drops and recovers to the old mark | Not counted as progress, streak not reset |
+| A turn that exceeds the best mark | May try again |
+| Feedback after `stalled` | Exactly 1 turn, streak recomputed |
+| 1 turn left | Neither `retry_not_met` nor `error_retry` uses it. Feedback can use it |
+| Transient error | At most 3 failed turns in total, then `blocked`, reported once |
+| Permanent error | No automatic retry |
+| Dies in the middle of a model turn | Reconcile, count one failed turn, retry under the ceiling |
+| Deadline in 20 minutes | One check exactly at the deadline, late by at most one beat when not overloaded |
+| Retry scheduled for minute 15, deadline at minute 20 | Both duties remain. A deadline check at minute 5 or 10 does not delete it and does not run the retry early. Minute 15 retries, minute 20 checks the deadline |
+| Error backoff 1 hour, deadline in 20 minutes | The deadline check at minute 20 calls no model. The retry stays at the 1 hour mark |
+| Retry and deadline check due together | One snapshot, one decision, both served |
+| Restart while both duties exist | Both remain, at the exact times |
+| Past the deadline and not met | `deadline_passed` reported once, not extended, no model call because of the deadline |
+| Budget exhausted | `blocked`/`budget`, keep the reason, 0 model turns |
 
-**Vòng đời lý do**
+**Reason lifecycle**
 
-| Ca | Kỳ vọng |
+| Case | Expectation |
 |---|---|
-| Góp ý, rồi tạm dừng trước lần thức, rồi tiếp tục | Góp ý được xử lý đúng một lần sau khi tiếp tục |
-| Góp ý, rồi tắt trợ lý, rồi bật lại | Như trên |
-| Góp ý trong lúc guard `unknown`, guard đọc lại được | Như trên |
-| Quan sát chạy trong lúc tạm dừng | Góp ý vẫn `pending` |
-| Góp ý đến trong lúc lượt model đang chạy | Còn `pending`, lịch về `now` sau lượt, xử lý ở lần sau |
-| Giao lại cùng góp ý (trước và sau khi phục vụ) | Một dòng, xử lý một lần |
-| Người dùng hẹn xem lại sau 1 giờ, có lần thức chỉ kiểm ở giây 30 | Lần thức đó không thấy lịch hẹn, không gọi model, không phục vụ nó. Lịch vật lý vẫn ở mốc 1 giờ |
-| Như trên, khởi động lại giữa chừng | Giờ hẹn giữ nguyên |
-| Thử lại tới hạn khi guard `unknown` | 0 lượt model, thử lại còn chờ. Lịch là mốc `guard_recheck`; các nhịp ở giữa không nhận lại mục tiêu |
-| Thử lại tới hạn khi trợ lý tắt | Như trên, lịch là mốc `agent_recheck` |
-| Thử lại tới hạn khi tạm dừng hay hết hạn mức | Không có lịch `work`; thử lại còn chờ |
-| Khởi động lại khi đang bị gác | Lịch giữ mốc gỡ gác, không thức dày |
-| Gỡ gác, thử lại đã quá giờ | Xét đúng một lần trong trần; chuỗi lỗi, bế tắc không đặt lại |
-| Gỡ gác, thử lại chưa tới giờ | Chờ đúng mốc backoff |
-| Hẹn `check` tới hạn khi bị chặn | Được thay bằng hẹn kiểm lại, hay chốt; không giữ lịch ở quá khứ |
-| Chờ bàn giao, `source_drift` có thử lại cũ đã quá giờ | Lịch là hẹn chờ đã chọn, thử lại không thắng |
-| 5 mục tiêu bị gác có thử lại cũ, cùng 3 mục tiêu sẵn sàng | Nhịp kế tiếp nhận cả 3 mục tiêu sẵn sàng; mục tiêu bị gác không chiếm suất |
-| Tới giờ hẹn | Mở lượt nếu trạng thái và hạn mức cho phép |
-| Gửi lại cùng lịch hẹn | Không nhân đôi |
-| Phản hồi và hẹn giờ của revision cũ, sau khi có revision mới | Chốt `stale_revision`, không mở lượt, không đặt lại trần của revision mới |
-| Chết sau khi nhận lịch, trước khi ghi sổ; khởi động lại | Lý do còn, xử lý đúng một lần |
-| Chết sau `begin_action` | Không làm lại lý do đã phục vụ; đối soát theo luật lỗi |
-| Quay về 0.87 làm việc, rồi nâng lại | Sự kiện cũ được chốt theo lượt không gắn lý do, không gọi model thêm |
-| Tin báo của trợ lý vào chat | Không sinh lý do, không lần thức nào |
-| Hai `tick` song song trên cùng kho | Một bên nhận, tối đa 1 lượt model |
+| Feedback, then pause before the wake, then resume | The feedback is handled exactly once after resuming |
+| Feedback, then switch the assistant off, then on again | As above |
+| Feedback while the guard is `unknown`, the guard becomes readable again | As above |
+| Observation runs while paused | The feedback stays `pending` |
+| Feedback arrives while a model turn is running | Stays `pending`, schedule goes to `now` after the turn, handled next time |
+| Redelivery of the same feedback (before and after serving) | One row, handled once |
+| The user schedules a review in 1 hour, a check-only wake happens at second 30 | That wake does not see the scheduled item, calls no model, does not serve it. The physical schedule stays at the 1 hour mark |
+| As above, restart in the middle | The scheduled time is kept |
+| A retry comes due while the guard is `unknown` | 0 model turns, the retry keeps waiting. The schedule is the `guard_recheck` time; the beats in between do not pick the goal up again |
+| A retry comes due while the assistant is off | As above, the schedule is the `agent_recheck` time |
+| A retry comes due while paused or budget exhausted | No `work` schedule; the retry keeps waiting |
+| Restart while parked | The schedule keeps the unpark time, no dense waking |
+| Unparked, the retry is overdue | Considered exactly once under the ceiling; error and stall streaks not reset |
+| Unparked, the retry is not yet due | Waits for the exact backoff time |
+| A `check` timer comes due while blocked | Replaced by a re-check timer, or settled; no schedule kept in the past |
+| Waiting for handoff, `source_drift` with an old overdue retry | The schedule is the chosen wait timer, the retry does not win |
+| 5 parked goals with old retries, plus 3 ready goals | The next beat takes all 3 ready goals; parked goals take no slot |
+| The scheduled time arrives | Opens a turn if the state and budget allow |
+| Resending the same scheduled item | Not duplicated |
+| Feedback and timers of an old revision, after a new revision exists | Settled `stale_revision`, no turn opened, the new revision's ceiling not reset |
+| Dies after taking the schedule, before writing the ledger; restart | The reason remains, handled exactly once |
+| Dies after `begin_action` | A served reason is not redone; reconcile by the error rule |
+| Roll back to 0.87 which does work, then upgrade again | Old events settled by the turn without a reason, no extra model call |
+| An assistant notice in chat | Produces no reason, no wake |
+| Two parallel `tick`s on the same store | One takes it, at most 1 model turn |
 
-**Sửa ngoài luồng**
+**Out-of-band edit**
 
-| Ca | Kỳ vọng |
+| Case | Expectation |
 |---|---|
-| Sửa tay H1 làm hỏng tiêu chí, 10 lần xem lại | 0 lượt model, một dòng quan sát, báo một lần, `source_drift` |
-| Có góp ý đang chờ rồi file bị sửa tay, chạy giả 30 ngày | 0 lượt model. Lần thức chỉ theo `drift_recheck` (1, 2, 4... tới 24 giờ), không thức mỗi 30 giây |
-| Như trên, mục tiêu không có guard, người dùng đưa file về mốc cũ | Phát hiện ở `drift_recheck` kế tiếp, góp ý xử lý đúng một lần |
-| Như trên, có góp ý mới trong lúc chờ | Kiểm ngay một lần; còn sửa ngoài luồng thì lại gác |
-| Như trên, tắt rồi bật trợ lý, hay khởi động lại | Góp ý không mất |
-| Cùng path, size, mtime nhưng bytes khác | Nhận ra ở lần kiểm kế tiếp |
-| Quyền đăng, `artifact_ref`, xác nhận sau khi file đổi bytes | Dùng hash đọc từ bytes hiện tại, không dùng hash cũ |
-| Sửa tiếp thành H2 | Dòng quan sát thứ hai, báo thêm một lần |
-| Sửa tay vẫn đạt | Ghi nhận, `healthy`, 0 lượt model |
-| Đưa file về mốc đã đăng | Hết `source_drift`, 0 lượt model |
-| Xoá file, bản hiệu lực từ việc nền | Đăng lại đầu ra đã lưu, 0 lượt model |
-| Xoá file, bản hiệu lực từ chat | `source_drift`, báo một lần, 0 lượt model |
-| Nâng lên A2 khi đang có góp ý chưa xử lý | Lý do `feedback` dựng từ `goal_events`, xử lý đúng một lần |
-| Bảng `published` sau mọi ca trên | Không đổi do quan sát |
-| Guard trên file bị sửa tay | Vẫn quan sát |
+| A hand edit H1 breaks the criteria, 10 reviews | 0 model turns, one observation row, reported once, `source_drift` |
+| Feedback is pending and then the file is hand-edited, simulated 30 days | 0 model turns. Wakes follow only `drift_recheck` (1, 2, 4... up to 24 hours), not every 30 seconds |
+| As above, the goal has no guard, the user restores the file to the old mark | Detected at the next `drift_recheck`, the feedback handled exactly once |
+| As above, new feedback arrives while waiting | Check immediately once; if still edited out of band, park again |
+| As above, switch the assistant off and on, or restart | The feedback is not lost |
+| Same path, size, mtime but different bytes | Recognized at the next check |
+| Publish permission, `artifact_ref`, confirmation after the file's bytes change | Use the hash read from the current bytes, not an old hash |
+| Edited again into H2 | A second observation row, reported once more |
+| A hand edit that still meets the bar | Recorded, `healthy`, 0 model turns |
+| The file is restored to the published mark | `source_drift` ends, 0 model turns |
+| The file is deleted, the version in effect is from background work | Republish the stored output, 0 model turns |
+| The file is deleted, the version in effect is from chat | `source_drift`, reported once, 0 model turns |
+| Upgrade to A2 while feedback is unhandled | A `feedback` reason built from `goal_events`, handled exactly once |
+| The `published` table after all the cases above | Not changed by observation |
+| A guard on a hand-edited file | Still observes |
 
 **Guard**
 
-| Ca | Kỳ vọng |
+| Case | Expectation |
 |---|---|
-| Tạm dừng, guard chạm | Phát hiện, `blocked`/`guard`, báo |
-| Chờ xác nhận, guard chạm | Phát hiện |
-| Cách hiểu bị bác, guard chạm | Phát hiện |
-| Tắt trợ lý có guard | `monitoring_lost` một lần, thẻ hiện "Không còn theo dõi guard". Tắt lần hai sau khi bật lại: báo thêm một lần |
-| Bật lại | Quan sát ngay, đọc guard trước mọi tác động |
-| Guard `unknown` rồi đọc lại được | Kiểm bằng code, 0 lượt model khi chưa đọc được |
+| Paused, guard hit | Detected, `blocked`/`guard`, reported |
+| Waiting for confirmation, guard hit | Detected |
+| Understanding rejected, guard hit | Detected |
+| Switch off an assistant that has a guard | `monitoring_lost` once, the card shows "Guards are no longer being watched". A second switch-off after turning on again: reported once more |
+| Turn on again | Observe right away, read the guard before any effect |
+| Guard `unknown` then readable again | Checked by code, 0 model turns while it cannot be read |
 
-**Lịch độc lập**
+**Independent schedules**
 
-| Ca | Kỳ vọng |
+| Case | Expectation |
 |---|---|
-| Lập mục tiêu X rồi tạo nhắc Y trong cùng lượt | Y tạo được |
-| Tạo nhắc Y rồi lập X, ở lượt khác | Cả hai còn nguyên |
+| Create goal X and then reminder Y in the same turn | Y can be created |
+| Create reminder Y and then goal X, in another turn | Both remain intact |
 
-**Hiệu năng:** các ca ở mục 11.
+**Performance:** the cases in section 11.
 
-**Quay về:** mã 0.87.0 thật chạy trên kho đã nâng, như test rollback A1.
+**Rollback:** the real 0.87.0 code runs on the upgraded store, like the A1 rollback test.
 
-Các test MVP khẳng định hành vi cũ (`no_source_uses_bounded_review`, thử lại 15 phút lặp tới hết hạn mức) được sửa theo chính sách mới. Mỗi chỗ sửa ghi trong bàn giao, không xoá ca.
+The MVP tests that assert the old behavior (`no_source_uses_bounded_review`, the 15-minute retry repeating until the budget runs out) are updated to the new policy. Each change is recorded in the handoff; no case is deleted.
 
-## 14. Quyết định mặc định
+## 14. Default decisions
 
-Review vòng 1 đề xuất, khớp với đề xuất của thiết kế. Chủ dự án có thể đổi.
+Proposed by the round 1 review, matching the design's proposal. The project owner can change them.
 
-1. **Tắt trợ lý:** ngừng theo dõi guard, báo một lần mỗi đợt mất quyền, thẻ hiện rõ đã ngừng. Tạm dừng mục tiêu thì vẫn quan sát (mục 7).
-2. **Hai lượt không tiến bộ:** dừng thử tự động và chuyển sang chờ, không kết luận thất bại (mục 4). Không thêm ô cài đặt.
-3. **Hạn mức theo trợ lý:** không làm ở A2, giữ các trần hiện có.
+1. **Switching the assistant off:** stop watching guards, report once per loss-of-permission episode, the card shows clearly that watching has stopped. Pausing a goal still observes (section 7).
+2. **Two turns without progress:** stop automatic tries and move to waiting, without concluding failure (section 4). No settings field is added.
+3. **A per-assistant budget:** not done in A2, keep the existing ceilings.
 
-## 15. Thay đổi sau các vòng review
+## 15. Changes after the review rounds
 
-### Sau review vòng 1
+### After review round 1
 
-Review: `exports/reviews/PR-590-final-and-PR-593-A2-design-review.md` (ngoài git), tại `7504bf6a`.
+Review: `exports/reviews/PR-590-final-and-PR-593-A2-design-review.md` (outside git), at `7504bf6a`.
 
-| Điểm | Sửa |
+| Point | Fix |
 |---|---|
-| P1-1: sửa tay kích hoạt model mà không có quyền đăng | Bỏ `source_changed` khỏi lớp tin mới. Tách mốc quan sát (`source_observations`) khỏi mốc thay file (`published`). Sửa ngoài luồng chỉ ghi nhận, báo một lần mỗi hash, chờ; không gọi model (mục 5) |
-| P1-2: tiêu thụ lý do khi bị chặn | Vòng đời `pending`/`served`/`superseded`, ảnh chụp theo id. Bị chặn không phục vụ gì. Bước đầu và tin mới chỉ được phục vụ bởi lượt việc hay kết luận không cần làm. Nhánh quan sát tách cổng, không đụng lý do `work` (mục 3, 7) |
-| P2-1: khoá chống trùng chặn lần định kỳ sau | Tách sự kiện (chỉ mục duy nhất từng phần theo `source_ref` nguồn) khỏi hẹn giờ (mỗi lần một id, hẹn mới thay hẹn cũ). Không dùng TTL để chống trùng (mục 3, 6) |
-| P2-2: `goal_touched` chặn cả lượt | Bỏ chặn. Thu hẹp cam kết về lịch nội bộ của mục tiêu; liên kết lịch với mục tiêu để sau (mục 9) |
-| Đếm tiến bộ | Mốc tốt nhất trong revision, dao động không đặt lại chuỗi; bế tắc là chờ, không phải thất bại (mục 4) |
-| Lượt dự phòng và lỗi | Một luật chung cho mọi thử lại tự động; ba lượt lỗi tổng cộng (mục 4) |
-| Gần hạn | Thứ tự ưu tiên rõ, một lần kiểm đúng hạn, qua hạn báo một lần (mục 4) |
-| Lý do lạ | Chỉ lý do mở được lượt model; mã lạ thuộc lớp chỉ kiểm (mục 3, 4) |
-| Hiệu năng | Mục 11 mới: không quét khi chưa tới hạn, giới hạn mỗi nhịp, chạy ngoài event loop, ca kiểm đo được |
+| P1-1: a hand edit triggers the model without permission to publish | Removed `source_changed` from the new-news class. Separated the observation mark (`source_observations`) from the file-replacement mark (`published`). An out-of-band edit is only recorded, reported once per hash, and waited on; no model call (section 5) |
+| P1-2: consuming reasons when blocked | `pending`/`served`/`superseded` lifecycle, snapshot by id. Blocked serves nothing. First steps and new news are only served by a work turn or a conclusion that nothing needs doing. The observe branch has its own gate and does not touch `work` reasons (sections 3, 7) |
+| P2-1: the duplicate guard key blocks a later periodic instance | Separated events (partial unique index by the source's `source_ref`) from timers (a fresh id each time, a new timer replaces the old one). No TTL is used to prevent duplicates (sections 3, 6) |
+| P2-2: `goal_touched` blocks the whole turn | Removed the block. Narrowed the commitment to the goal's internal schedule; linking schedules to goals is left for later (section 9) |
+| Counting progress | Best mark within the revision, oscillation does not reset the streak; a stall is waiting, not failure (section 4) |
+| Reserve turn and errors | One common rule for every automatic retry; three failed turns in total (section 4) |
+| Near a deadline | Clear priority order, a single check exactly on time, report once after the deadline (section 4) |
+| Unknown reasons | Only a reason can open a model turn; an unknown code belongs to the check-only class (sections 3, 4) |
+| Performance | New section 11: no scanning before due, a limit per beat, runs off the event loop, measurable test cases |
 
-### Sau review vòng 2
+### After review round 2
 
-Review: `exports/reviews/PR-593-A2-design-r2-e95a3260-review.md` (ngoài git), tại `e95a3260`.
+Review: `exports/reviews/PR-593-A2-design-r2-e95a3260-review.md` (outside git), at `e95a3260`.
 
-| Điểm | Sửa |
+| Point | Fix |
 |---|---|
-| P2-1: `user_schedule` chạy trước giờ hẹn | Mọi lý do có `due_at` là lúc đủ điều kiện. Ảnh chụp và lịch chỉ dựa vào `due_at`, với cả sự kiện. Lịch hẹn tương lai có id ngay nhưng không vào ảnh chụp, không kéo lịch (mục 3) |
-| P2-2: kiểm hạn chót thay mất lượt thử lại | Hẹn giờ chia nghĩa vụ `retry`, `check`, `observe`; hẹn mới chỉ thay hẹn cùng nghĩa vụ. Lịch vật lý tính từ mọi nghĩa vụ còn chờ. Có luật cho cùng thời điểm (mục 3, 4) |
-| P2-3: chờ file sửa tay thức mỗi 30 giây | Sự kiện bị gác khi `blocked` hay `source_drift`, không kéo lịch về `now`. Đường phục hồi là `drift_recheck` bằng code, 1 giờ nhân đôi tới 24 giờ; sự kiện mới kiểm ngay một lần; thẻ nói rõ (mục 3, 5) |
-| P2-4: hash đệm theo metadata | Bỏ hash đệm khỏi A2. Mọi điểm quyết định đọc bytes thật (mục 11) |
-| Lưu ý revision | Lý do ghi `revision` nguồn; lý do revision cũ chốt `stale_revision` (mục 3). Đối soát khi nâng chỉ chốt sự kiện có trước lúc lượt cũ **bắt đầu** |
-| Lưu ý độ trễ | Nhận theo `due_at`, không bỏ đói; trễ tối đa `ceil(N / TICK_LIMIT)` nhịp; mốc một nhịp chỉ đúng khi không quá tải; 50 ms là phép đo môi trường test (mục 11) |
+| P2-1: `user_schedule` runs before the scheduled time | Every reason has a `due_at` that is the eligibility time. The snapshot and the schedule rely only on `due_at`, for events too. A future-scheduled item has an id right away but does not enter the snapshot and does not pull the schedule (section 3) |
+| P2-2: a deadline check replaces a retry | Timers are split into the duties `retry`, `check`, `observe`; a new timer only replaces one of the same duty. The physical schedule is computed from all pending duties. There is a rule for the same moment (sections 3, 4) |
+| P2-3: waiting for a hand-edited file wakes every 30 seconds | Events are parked when `blocked` or `source_drift`, and do not pull the schedule to `now`. The recovery path is a code `drift_recheck`, 1 hour doubling to 24 hours; a new event checks immediately once; the card says it clearly (sections 3, 5) |
+| P2-4: a hash cached by metadata | Removed the cached hash from A2. Every decision point reads the real bytes (section 11) |
+| Revision note | Reasons record the source `revision`; reasons of an old revision are settled `stale_revision` (section 3). Reconciliation on upgrade only settles events that predate the moment the old turn **started** |
+| Latency note | Taken by `due_at`, no starvation; late by at most `ceil(N / TICK_LIMIT)` beats; the one-beat mark only holds when not overloaded; 50 ms is a test environment measurement (section 11) |
 
-### Sau review vòng 3
+### After review round 3
 
-Review: `exports/reviews/PR-593-A2-design-r3-fe92e753-review.md` (ngoài git), tại `fe92e753`.
+Review: `exports/reviews/PR-593-A2-design-r3-fe92e753-review.md` (outside git), at `fe92e753`.
 
-| Điểm | Sửa |
+| Point | Fix |
 |---|---|
-| P2: hẹn thử lại đã tới hạn kéo lịch về quá khứ khi bị chặn | Một nguyên tắc cho sự kiện và hẹn giờ: bị gác thì lịch vật lý chỉ lấy hẹn gỡ gác. Hẹn thử lại giữ nguyên bản ghi, giờ, chuỗi; gỡ gác thì xét lại theo trần hiện tại. Hẹn `check` tới hạn khi bị chặn được thay hay chốt (mục 3) |
+| P2: an overdue retry timer pulls the schedule into the past when blocked | One principle for events and timers: when parked, the physical schedule only takes the unpark timer. A retry timer keeps its record, time and streak; when unparked it is reconsidered under the current ceiling. A `check` timer that comes due while blocked is replaced or settled (section 3) |
 
-## 16. Kế hoạch code (sau khi thiết kế đạt review)
+## 16. Code plan (after the design passes review)
 
-1. `resonance_heartbeat.py`: `decide` và test bảng.
-2. Kho: ba bảng phụ, `_wake` theo nguồn và nghĩa vụ, lịch vật lý, vòng đời lý do, gác sự kiện, đối soát khi nâng, bản sao `pre-a2`, `due_wakeups` cho `observe` khi tạm dừng.
-3. `advance`: ảnh chụp, hai cổng, `decide`, ghi sổ, sửa ngoài luồng, `stalled`, `deadline_passed`, `monitoring_lost`, chạy phần code trong luồng phụ.
-4. `goal_view`, thẻ, i18n, câu gợi ý trong `_RESONANCE_GOAL_HINT`.
-5. Test nghiệm thu mục 13, sửa test MVP theo chính sách mới, test quay về 0.87.0.
-6. Hướng dẫn: mục A2 trong tài liệu cách dùng và quay về.
+1. `resonance_heartbeat.py`: `decide` and table tests.
+2. Store: three side tables, `_wake` by source and duty, physical schedule, reason lifecycle, parking events, reconciliation on upgrade, the `pre-a2` copy, `due_wakeups` for `observe` when paused.
+3. `advance`: snapshot, two gates, `decide`, ledger writes, out-of-band edits, `stalled`, `deadline_passed`, `monitoring_lost`, run the code part in a worker thread.
+4. `goal_view`, the card, i18n, the hint sentence in `_RESONANCE_GOAL_HINT`.
+5. The section 13 acceptance tests, fix the MVP tests to the new policy, the rollback to 0.87.0 test.
+6. Guide: the A2 section in the usage and rollback document.

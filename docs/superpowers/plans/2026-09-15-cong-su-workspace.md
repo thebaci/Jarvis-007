@@ -1,29 +1,29 @@
-# Trang Cộng sự + kho lịch sử chạy quy trình - Kế hoạch triển khai
+# Partners page + workflow run history store - Implementation plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Một trang "Cộng sự" thay hai trang Trợ lý/Quy trình, chat được với từng trợ lý và từng quy trình trên cùng khung chat của app, mọi lần chạy quy trình được lưu lại và Jarvis 007 tra được.
+**Goal:** One "Partners" page replaces the two pages Agents and Workflows. You can chat with each agent and each workflow in the app's existing chat frame, every workflow run is saved, and Jarvis 007 can look runs up.
 
-**Architecture:** Mọi thứ là một phiên chat: phiên kênh `agent:<slug>` đổi system prompt sang prompt của trợ lý, phiên kênh `workflow:<slug>` biến mỗi tin thành một lần chạy `execute_workflow` và trả kết quả như một lượt chat. Kho `workflow_runs.sqlite3` ghi mọi lần chạy (từ trang Cộng sự lẫn Kanban). Dashboard mượn khung chat có sẵn, thêm cột trái (danh sách) và cột phải (cài đặt / tiến độ / lịch sử).
+**Architecture:** Everything is a chat session: a session on channel `agent:<slug>` swaps the system prompt for that agent's prompt, and a session on channel `workflow:<slug>` turns each message into one `execute_workflow` run and returns the result as a chat turn. The `workflow_runs.sqlite3` store records every run (from the Partners page and from Kanban). The dashboard reuses the existing chat frame and adds a left column (list) and a right column (settings / progress / history).
 
-**Tech Stack:** Python 3 + FastAPI + sqlite3 (server/), vanilla JS + Alpine (dashboard/), test chạy bằng `python tests/run.py <lọc>` (tự chọn .venv), test JS bằng node.
+**Tech Stack:** Python 3 + FastAPI + sqlite3 (server/), vanilla JS + Alpine (dashboard/), tests run with `python tests/run.py <filter>` (picks .venv automatically), JS tests with node.
 
 **Spec:** `docs/superpowers/specs/2026-09-15-cong-su-workspace-design.md`
 
 ## Global Constraints
 
-- KHÔNG dùng ký tự em dash (U+2014) ở bất kỳ đâu: code, chuỗi, comment, docs, CHANGELOG. Dùng "-" hoặc viết lại câu.
-- Chuỗi hiển thị cho người dùng phải là tiếng Việt có dấu, lấy từ từ điển `dashboard/i18n/vi.json` (kèm `en.json`), không viết cứng trong JS.
-- Tên hàm/biến mới trong server viết theo phong cách repo (tiếng Việt không dấu hoặc tiếng Anh ngắn), comment tiếng Việt giải thích VÌ SAO.
-- Trang mới phải đăng ký ở đủ ba nơi: `RAIL_ITEMS` (dashboard/console.js), `PAGES` (dashboard/ui-actions.js), `PAGES` (server/ui_targets.py). `tests/js/test_ui_actions.js` canh việc này.
-- Test Python theo khuôn repo: file `tests/python/test_<ten>.py`, đầu file `from _paths import ROOT, SERVER`, đặt `os.environ["JAVIS_STATE_DIR"]` sang thư mục tạm TRƯỚC khi import module server, hàm `check(name, cond)` in `ok`/`FAIL`, cuối file `sys.exit(1 if fails else 0)`.
-- Chạy test: `python tests/run.py <tên-lọc>` (Windows tự dùng .venv). Trên máy này có 13 file Python đỏ sẵn trên main sạch (xem memory), chỉ quan tâm test của mình.
-- Commit nhỏ, mỗi task một commit, kết thúc message commit bằng `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
-- Nhánh làm việc: `feat/cong-su-workspace` (đã có, chứa spec).
+- Do NOT use the em dash character (U+2014) anywhere: code, strings, comments, docs, CHANGELOG. Use "-" or rewrite the sentence.
+- User-facing strings must be Vietnamese with diacritics, taken from the dictionary `dashboard/i18n/vi.json` (with `en.json` alongside), never hard-coded in JS.
+- New function/variable names on the server follow the repo style (Vietnamese without diacritics, or short English); comments are in Vietnamese and explain WHY.
+- A new page must be registered in all three places: `RAIL_ITEMS` (dashboard/console.js), `PAGES` (dashboard/ui-actions.js), `PAGES` (server/ui_targets.py). `tests/js/test_ui_actions.js` guards this.
+- Python tests follow the repo mould: file `tests/python/test_<name>.py`, start with `from _paths import ROOT, SERVER`, set `os.environ["JAVIS_STATE_DIR"]` to a temp folder BEFORE importing the server module, a `check(name, cond)` function that prints `ok`/`FAIL`, and `sys.exit(1 if fails else 0)` at the end.
+- Run tests: `python tests/run.py <filter-name>` (on Windows it uses .venv automatically). On this machine 13 Python files are already red on a clean main (see memory); only care about your own tests.
+- Small commits, one commit per task, and end the commit message with `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
+- Working branch: `feat/cong-su-workspace` (already exists, contains the spec).
 
 ---
 
-### Task 1: Kho lịch sử chạy `server/workflow_runs.py`
+### Task 1: Run history store `server/workflow_runs.py`
 
 **Files:**
 - Create: `server/workflow_runs.py`
@@ -31,26 +31,27 @@
 
 **Interfaces:**
 - Produces:
-  - `workflow_runs.get_store() -> WorkflowRunStore` (singleton, DB tại `config.STATE_DIR / "workflow_runs.sqlite3"`)
+  - `workflow_runs.get_store() -> WorkflowRunStore` (singleton, DB at `config.STATE_DIR / "workflow_runs.sqlite3"`)
   - `WorkflowRunStore.bat_dau(*, brain, slug, name, input, source, session_id="") -> str` (run_id)
-  - `WorkflowRunStore.ghi_buoc(run_id, i, **fields)` với fields trong `agent, task, output, verified, error`
+  - `WorkflowRunStore.ghi_buoc(run_id, i, **fields)` with fields among `agent, task, output, verified, error`
   - `WorkflowRunStore.ket_thuc(run_id, status, *, output="", error="", task_id="")`
   - `WorkflowRunStore.lay(run_id) -> dict | None`
   - `WorkflowRunStore.gan_nhat(brain, *, slug=None, session_id=None, status=None, limit=20) -> list[dict]`
   - `WorkflowRunStore.dem_theo_phien(session_id) -> int`
   - `WorkflowRunStore.tim_theo_task(task_id) -> dict | None`
   - `WorkflowRunStore.moc_moi_nhat_theo_slug(brain) -> dict[str, float]`
-  - Hằng: `TRANG_THAI = ("running", "done", "error", "waiting")`, `NHAN_TRANG_THAI = {"running": "đang chạy", "done": "xong", "error": "lỗi", "waiting": "chờ duyệt"}`
+  - Constants: `TRANG_THAI = ("running", "done", "error", "waiting")`, `NHAN_TRANG_THAI = {"running": "đang chạy", "done": "xong", "error": "lỗi", "waiting": "chờ duyệt"}` (Vietnamese status labels: running, done, error, awaiting review)
 
-- [ ] **Step 1: Viết test đỏ**
+- [ ] **Step 1: Write the failing test**
 
 ```python
-"""Kho lịch sử chạy quy trình (server/workflow_runs.py).
+"""Workflow run history store (server/workflow_runs.py).
 
     python tests/run.py workflow_runs
 
-Vì sao có kho này: trước đây bấm Chạy ở trang Quy trình thì kết quả stream vào một ngăn kéo
-tạm, đóng là mất. Hỏi Jarvis 007 "quy trình chạy gần nhất ra sao" là không có gì để tra.
+Why this store exists: before, pressing Run on the Workflows page streamed the result into a
+temporary drawer, and closing it lost everything. Asking Jarvis 007 "how did the latest
+workflow run go" had nothing to look up.
 """
 from _paths import ROOT, SERVER  # noqa: E402,F401
 import os
@@ -72,7 +73,7 @@ def check(name, cond):
 
 st = workflow_runs.get_store()
 
-# 1. Bắt đầu một lần chạy -> có id, trạng thái running
+# 1. Start a run -> has an id, status running
 rid = st.bat_dau(brain="/b1", slug="viet-bai", name="Viết bài", input="chủ đề A",
                  source="web", session_id="s1")
 r = st.lay(rid)
@@ -80,7 +81,7 @@ check("bat_dau tra id va running", bool(rid) and r["status"] == "running")
 check("bat_dau giu input/source/session", r["input"] == "chủ đề A" and r["source"] == "web"
       and r["session_id"] == "s1" and r["name"] == "Viết bài")
 
-# 2. Ghi bước: tạo mới rồi cập nhật cùng chỉ số
+# 2. Write steps: create new, then update the same index
 st.ghi_buoc(rid, 0, agent="Nhà nghiên cứu", task="tìm hiểu")
 st.ghi_buoc(rid, 0, output="kết quả bước 0", verified=True)
 st.ghi_buoc(rid, 1, agent="Người viết", task="viết", error="hết hạn")
@@ -89,12 +90,12 @@ check("ghi_buoc gop cung chi so", len(steps) == 2 and steps[0]["agent"] == "Nhà
       and steps[0]["output"] == "kết quả bước 0" and steps[0]["verified"] is True)
 check("ghi_buoc giu loi buoc", steps[1]["error"] == "hết hạn")
 
-# 3. Kết thúc: done + output, finished_at có
+# 3. Finish: done + output, finished_at is set
 st.ket_thuc(rid, "done", output="bài hoàn chỉnh")
 r = st.lay(rid)
 check("ket_thuc done", r["status"] == "done" and r["output"] == "bài hoàn chỉnh" and r["finished_at"] > 0)
 
-# 4. Cắt độ dài: input 4000, task 2000, output bước 4000, output cuối 20000
+# 4. Truncation: input 4000, task 2000, step output 4000, final output 20000
 rid2 = st.bat_dau(brain="/b1", slug="viet-bai", name="Viết bài", input="x" * 9000, source="kanban")
 st.ghi_buoc(rid2, 0, task="t" * 5000, output="o" * 9000)
 st.ket_thuc(rid2, "error", output="k" * 30000, error="lỗi thật")
@@ -104,7 +105,7 @@ check("cat task 2000 va output buoc 4000", len(r2["steps"][0]["task"]) == 2000
       and len(r2["steps"][0]["output"]) == 4000)
 check("cat output cuoi 20000", len(r2["output"]) == 20000 and r2["error"] == "lỗi thật")
 
-# 5. gan_nhat: mới nhất trước, lọc slug/session/status, limit
+# 5. gan_nhat: newest first, filter by slug/session/status, limit
 rid3 = st.bat_dau(brain="/b1", slug="ban-tin", name="Bản tin", input="", source="web", session_id="s2")
 ds = st.gan_nhat("/b1")
 check("gan_nhat moi nhat truoc", [x["id"] for x in ds] == [rid3, rid2, rid])
@@ -123,32 +124,34 @@ check("tim_theo_task", (st.tim_theo_task("task-77") or {}).get("id") == rid3
 moc = st.moc_moi_nhat_theo_slug("/b1")
 check("moc_moi_nhat_theo_slug", set(moc) == {"viet-bai", "ban-tin"} and moc["ban-tin"] >= moc["viet-bai"])
 
-# 7. Nhãn trạng thái tiếng Việt có đủ
+# 7. All Vietnamese status labels are present
 check("nhan trang thai", set(workflow_runs.NHAN_TRANG_THAI) == set(workflow_runs.TRANG_THAI))
 
 print("\nFAIL:" if fails else "\nOK - workflow_runs", fails or "")
 sys.exit(1 if fails else 0)
 ```
 
-- [ ] **Step 2: Chạy test, phải đỏ vì thiếu module**
+- [ ] **Step 2: Run the test, it must be red because the module is missing**
 
 Run: `python tests/run.py workflow_runs`
 Expected: FAIL / ModuleNotFoundError: workflow_runs
 
-- [ ] **Step 3: Viết `server/workflow_runs.py`**
+- [ ] **Step 3: Write `server/workflow_runs.py`**
 
 ```python
-"""Kho lịch sử chạy quy trình - SQLite trong JAVIS_STATE_DIR.
+"""Workflow run history store - SQLite inside JAVIS_STATE_DIR.
 
-Vì sao có: tới 0.58.5, bấm Chạy ở trang Quy trình thì kết quả chỉ stream vào một ngăn kéo tạm,
-đóng là mất, và Jarvis 007 không có chỗ nào để tra "quy trình chạy gần nhất ra sao". Kho này ghi
-MỌI lần chạy, bất kể khởi phát từ trang Cộng sự, Kanban, nhắc hẹn hay loop, vì nó được bọc
-ngay trong `execute_workflow` (main.py) chứ không ở từng chỗ gọi.
+Why it exists: up to 0.58.5, pressing Run on the Workflows page only streamed the result into a
+temporary drawer, closing it lost everything, and Jarvis 007 had nowhere to look up "how did the
+latest workflow run go". This store records EVERY run, whether it was started from the Partners
+page, Kanban, a reminder or a loop, because it is wrapped right inside `execute_workflow`
+(main.py) rather than at each call site.
 
-Vì sao SQLite riêng chứ không chung kanban.sqlite3: task_store là hàng đợi có luật chuyển
-trạng thái riêng; lịch sử chạy chỉ là nhật ký append. Tách file thì hai bên không kéo nhau.
+Why its own SQLite and not the shared kanban.sqlite3: task_store is a queue with its own state
+transition rules; run history is just an append-only log. Separate files keep the two from
+dragging each other along.
 
-Ghi chú: KHÔNG dùng ký tự em dash ở bất kỳ đâu trong file này.
+Note: do NOT use the em dash character anywhere in this file.
 """
 from __future__ import annotations
 
@@ -165,9 +168,9 @@ from config import STATE_DIR
 TRANG_THAI = ("running", "done", "error", "waiting")
 NHAN_TRANG_THAI = {"running": "đang chạy", "done": "xong", "error": "lỗi", "waiting": "chờ duyệt"}
 
-# Trần ký tự. Kết quả tool đi thẳng vào ngữ cảnh chat (engine API cắt 8000), nên kho giữ đủ
-# để đọc lại chứ không giữ nguyên bản: đầu vào 4000, việc mỗi bước 2000, kết quả mỗi bước
-# 4000, kết quả cuối 20000, tóm tắt trong danh sách 200.
+# Character caps. Tool results go straight into the chat context (the API engines cut at 8000),
+# so the store keeps enough to read back rather than the original: input 4000, task per step 2000,
+# output per step 4000, final output 20000, summary in the list 200.
 TRAN_INPUT = 4000
 TRAN_TASK = 2000
 TRAN_OUT_BUOC = 4000
@@ -216,7 +219,7 @@ class WorkflowRunStore:
         with self._lock:
             self._db.executescript(_SCHEMA)
 
-    # ---- ghi ----
+    # ---- write ----
     def bat_dau(self, *, brain: str, slug: str, name: str, input: str, source: str,
                 session_id: str = "") -> str:
         rid = uuid.uuid4().hex
@@ -230,7 +233,7 @@ class WorkflowRunStore:
         return rid
 
     def ghi_buoc(self, run_id: str, i: int, **fields: Any) -> None:
-        """Gộp vào bước `i` (tạo mới nếu chưa có). Chỉ nhận agent, task, output, verified, error."""
+        """Merge into step `i` (create it if missing). Only accepts agent, task, output, verified, error."""
         with self._lock:
             row = self._db.execute("SELECT steps_json FROM workflow_runs WHERE id=?", (run_id,)).fetchone()
             if not row:
@@ -265,7 +268,7 @@ class WorkflowRunStore:
                  _cat(error, TRAN_OUT_BUOC), str(task_id or ""), str(task_id or ""), run_id))
             self._db.commit()
 
-    # ---- đọc ----
+    # ---- read ----
     @staticmethod
     def _row(r: sqlite3.Row, day_du: bool) -> Dict[str, Any]:
         d = {k: r[k] for k in _COT}
@@ -330,50 +333,50 @@ def get_store() -> WorkflowRunStore:
         return _STORE
 ```
 
-Lưu ý: `gan_nhat` trong test kiểm `moc["ban-tin"] >= moc["viet-bai"]`; hai lần `bat_dau` liên tiếp có thể cùng `time.time()` nên dùng `>=`, đúng như test.
+Note: the test checks `moc["ban-tin"] >= moc["viet-bai"]`; two consecutive `bat_dau` calls may get the same `time.time()`, so use `>=`, exactly as the test does.
 
-- [ ] **Step 4: Chạy test, phải xanh**
+- [ ] **Step 4: Run the test, it must be green**
 
 Run: `python tests/run.py workflow_runs`
-Expected: mọi dòng `ok`, kết thúc `OK - workflow_runs`
+Expected: every line `ok`, ending with `OK - workflow_runs`
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add server/workflow_runs.py tests/python/test_workflow_runs.py
-git commit -m "Kho lịch sử chạy quy trình (workflow_runs.py)
+git commit -m "Workflow run history store (workflow_runs.py)
 
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 2: Ghi lịch sử ngay trong `execute_workflow` + API đọc lịch sử
+### Task 2: Record history right inside `execute_workflow` + history read API
 
 **Files:**
-- Modify: `server/main.py` (quanh `execute_workflow` :7600, `execute_workflow_resume` :7743, `workflows_index` :6544, `agents_index` :5405, route `/workflows/run` :7827)
-- Modify: `server/tasks.py:720` (truyền `source="kanban"`)
+- Modify: `server/main.py` (around `execute_workflow` :7600, `execute_workflow_resume` :7743, `workflows_index` :6544, `agents_index` :5405, route `/workflows/run` :7827)
+- Modify: `server/tasks.py:720` (pass `source="kanban"`)
 - Test: `tests/python/test_workflow_runs_api.py`
 
 **Interfaces:**
 - Consumes: `workflow_runs.get_store()` (Task 1)
 - Produces:
-  - `execute_workflow(brain, slug, input="", tools=None, session_id="", source="other")`: sự kiện `start` có thêm `run_id`
+  - `execute_workflow(brain, slug, input="", tools=None, session_id="", source="other")`: the `start` event gains a `run_id`
   - `execute_workflow_resume(brain, slug, task_id, node_id, code, tools=None, session_id="", source="other")`
-  - `_ghi_lich_su(gen, *, brain, slug, name, input, source, session_id, run_id=None)` async generator bọc
+  - `_ghi_lich_su(gen, *, brain, slug, name, input, source, session_id, run_id=None)` async wrapper generator
   - `GET /workflows/runs?slug=&brain=&limit=` -> `{"runs": [...]}`
-  - `GET /workflows/runs/{run_id}` -> bản ghi đầy đủ hoặc 404
-  - `GET /workflows` mỗi mục thêm `last_run_at` (float, 0 nếu chưa chạy)
-  - `GET /agents` mỗi mục thêm `last_chat_at` (float, 0 nếu chưa chat)
+  - `GET /workflows/runs/{run_id}` -> full record or 404
+  - `GET /workflows` each item gains `last_run_at` (float, 0 if never run)
+  - `GET /agents` each item gains `last_chat_at` (float, 0 if never chatted)
 
-- [ ] **Step 1: Viết test đỏ cho generator bọc và hai route**
+- [ ] **Step 1: Write the failing test for the wrapper generator and the two routes**
 
 ```python
-"""Ghi lịch sử chạy ngay trong execute_workflow + route đọc lịch sử.
+"""Record run history right inside execute_workflow + routes that read the history.
 
     python tests/run.py workflow_runs_api
 
-Không chạy engine thật: bọc một generator giả phát đúng dãy sự kiện của execute_workflow.
+Does not run a real engine: wraps a fake generator that emits exactly the event sequence of execute_workflow.
 """
 from _paths import ROOT, SERVER  # noqa: E402,F401
 import asyncio
@@ -443,14 +446,14 @@ evs = asyncio.run(gom(main._ghi_lich_su(gia_wait(), brain="/b", slug="dang-bai",
 r = st.lay(evs[0]["run_id"])
 check("ban ghi waiting + task_id", r["status"] == "waiting" and r["task_id"] == "tk1")
 
-# Resume: truyền run_id cũ thì cập nhật đúng bản ghi đó thay vì tạo mới
+# Resume: passing the old run_id updates that exact record instead of creating a new one
 truoc = len(st.gan_nhat("/b"))
 evs = asyncio.run(gom(main._ghi_lich_su(gia_done(), brain="/b", slug="dang-bai", name="Đăng bài",
                                         input="", source="web", session_id="s2", run_id=r["id"])))
 check("resume cap nhat ban ghi cu", len(st.gan_nhat("/b")) == truoc and st.lay(r["id"])["status"] == "done")
 
 
-# Dừng giữa chừng (client đóng): bản ghi không kẹt ở running
+# Stopped midway (client closed): the record is not left stuck at running
 async def dung_som():
     gen = main._ghi_lich_su(gia_done(), brain="/b", slug="viet-bai", name="Viết bài",
                             input="", source="web", session_id="s3")
@@ -461,7 +464,7 @@ async def dung_som():
 rid = asyncio.run(dung_som())
 check("dong som -> error 'dung giua chung'", st.lay(rid)["status"] == "error")
 
-# Route đọc
+# Read routes
 c = TestClient(main.app)
 ds = c.get("/workflows/runs", params={"brain": "/b", "limit": 5}).json()["runs"]
 check("GET /workflows/runs tra danh sach gon", len(ds) == 5 and "output_tom_tat" in ds[0] and "output" not in ds[0])
@@ -475,28 +478,28 @@ print("\nFAIL:" if fails else "\nOK - workflow_runs_api", fails or "")
 sys.exit(1 if fails else 0)
 ```
 
-Ghi chú cho route: `brain` ở đây là chuỗi bất kỳ; route phải khoá bằng `_brain_key(brain)`. Với brain giả "/b", `_brain_root("/b")` trả về gì thì kho dùng đúng chuỗi đó, test chỉ cần route và generator bọc dùng CÙNG hàm khoá. Vì vậy trong test, brain truyền cho `_ghi_lich_su` phải qua cùng phép khoá: sửa test cho khớp bằng cách đặt `B = main._brain_key("/b")` và truyền `brain=B` vào `_ghi_lich_su`, còn route thì truyền `brain="/b"` (route tự khoá). Làm ngay khi viết test.
+Note on the route: `brain` here is an arbitrary string; the route must key it with `_brain_key(brain)`. With the fake brain "/b", whatever `_brain_root("/b")` returns is exactly the string the store uses; the test only needs the route and the wrapper generator to use the SAME key function. So in the test, the brain passed to `_ghi_lich_su` must go through the same keying: fix the test to match by setting `B = main._brain_key("/b")` and passing `brain=B` into `_ghi_lich_su`, while the route gets `brain="/b"` (the route keys it itself). Do this as soon as you write the test.
 
-- [ ] **Step 2: Chạy test, phải đỏ**
+- [ ] **Step 2: Run the test, it must be red**
 
 Run: `python tests/run.py workflow_runs_api`
 Expected: AttributeError: module 'main' has no attribute '_ghi_lich_su'
 
-- [ ] **Step 3: Thêm generator bọc và đổi tên hàm cũ trong main.py**
+- [ ] **Step 3: Add the wrapper generator and rename the old function in main.py**
 
-Đổi tên hàm hiện tại `execute_workflow` (dòng ~7600) thành `_execute_workflow_raw` (giữ nguyên thân, kể cả docstring). Ngay dưới nó thêm:
+Rename the current `execute_workflow` function (line ~7600) to `_execute_workflow_raw` (keep the body as is, docstring included). Right below it add:
 
 ```python
 async def _ghi_lich_su(gen, *, brain, slug, name, input, source, session_id, run_id=None):
-    """Bọc luồng sự kiện của một lần chạy workflow để ghi kho lịch sử (workflow_runs).
+    """Wrap the event stream of one workflow run so the history store (workflow_runs) gets written.
 
-    Không nuốt, không đổi sự kiện nào; chỉ gắn thêm `run_id` vào sự kiện `start`. Đặt ở đây
-    (chứ không ở từng chỗ gọi) để trang Cộng sự, Kanban, nhắc hẹn và loop đều được ghi mà
-    không ai phải nhớ. `run_id` truyền vào khi chạy TIẾP một lần đang chờ duyệt: cập nhật
-    đúng bản ghi cũ thay vì đẻ bản mới.
+    It swallows no event and changes none; it only attaches `run_id` to the `start` event. It lives here
+    (not at each call site) so the Partners page, Kanban, reminders and loops are all recorded
+    without anyone having to remember. `run_id` is passed in when RESUMING a run that was waiting for
+    approval: it updates the old record instead of spawning a new one.
 
-    Luồng bị đóng giữa chừng (người dùng dừng, client rớt) thì `finally` chốt bản ghi là
-    lỗi "dừng giữa chừng", không để nó kẹt ở "đang chạy" mãi.
+    If the stream is closed midway (the user stops it, the client drops), `finally` marks the record
+    as an error "stopped midway" so it is never stuck at "running" forever.
     """
     import workflow_runs
     st = workflow_runs.get_store()
@@ -533,8 +536,8 @@ async def _ghi_lich_su(gen, *, brain, slug, name, input, source, session_id, run
 
 
 async def execute_workflow(brain, slug, input="", tools=None, session_id="", source="other"):
-    """Chạy workflow và GHI LỊCH SỬ. Mọi chỗ gọi (trang Cộng sự, Kanban, nhắc hẹn) đi qua đây.
-    `source`: web | kanban | reminder | loop | other, chỉ để lọc khi đọc lại."""
+    """Run a workflow and RECORD HISTORY. Every call site (Partners page, Kanban, reminders) goes through here.
+    `source`: web | kanban | reminder | loop | other, only used for filtering when reading back."""
     wf_file = _workflows_dir(brain) / f"{slug}.md"
     if not wf_file.exists():
         yield {"type": "error", "content": "workflow not found"}
@@ -547,12 +550,12 @@ async def execute_workflow(brain, slug, input="", tools=None, session_id="", sou
         yield ev
 ```
 
-Tương tự với `execute_workflow_resume` (dòng ~7743): đổi tên thân cũ thành `_execute_workflow_resume_raw(brain, slug, task_id, node_id, code, tools=None, session_id="")` và thêm:
+Do the same with `execute_workflow_resume` (line ~7743): rename the old body to `_execute_workflow_resume_raw(brain, slug, task_id, node_id, code, tools=None, session_id="")` and add:
 
 ```python
 async def execute_workflow_resume(brain, slug, task_id, node_id, code, tools=None,
                                   session_id="", source="other"):
-    """Chạy tiếp lần đang chờ duyệt, ghi vào ĐÚNG bản ghi lịch sử đang `waiting`."""
+    """Resume a run that is waiting for approval, writing into the EXACT history record that is `waiting`."""
     import workflow_runs
     cu = workflow_runs.get_store().tim_theo_task(task_id)
     wf_file = _workflows_dir(brain) / f"{slug}.md"
@@ -565,16 +568,16 @@ async def execute_workflow_resume(brain, slug, task_id, node_id, code, tools=Non
         yield ev
 ```
 
-Kiểm bằng grep rằng không còn chỗ nào gọi `execute_workflow(` với tham số vị trí vượt quá `tools` (tasks.py:720 truyền 4 vị trí, hợp lệ). `deps=execute_workflow` ở main.py:8290 giữ nguyên (nay trỏ vào hàm bọc).
+Use grep to check that no call site is left that calls `execute_workflow(` with positional arguments beyond `tools` (tasks.py:720 passes 4 positionals, which is valid). `deps=execute_workflow` at main.py:8290 stays as is (it now points at the wrapper function).
 
-- [ ] **Step 4: Thêm hai route đọc và trường sắp xếp**
+- [ ] **Step 4: Add the two read routes and the sort fields**
 
-Ngay trên `@app.get("/workflows/run")` (dòng ~7827) thêm (khai `/workflows/runs/{run_id}` SAU `/workflows/runs` không sao vì đường khác nhau, nhưng cả hai phải khai TRƯỚC bất kỳ route `/workflows/{gì đó}` động nếu sau này có):
+Right above `@app.get("/workflows/run")` (line ~7827) add (declaring `/workflows/runs/{run_id}` AFTER `/workflows/runs` is fine because the paths differ, but both must be declared BEFORE any dynamic `/workflows/{something}` route if one is added later):
 
 ```python
 @app.get("/workflows/runs")
 async def workflow_runs_list(brain: str = Query("brain"), slug: str = Query(""), limit: int = Query(20)):
-    """Lịch sử chạy quy trình, mới nhất trước, bản gọn (không kèm kết quả đầy đủ)."""
+    """Workflow run history, newest first, compact form (without the full result)."""
     import workflow_runs
     return {"runs": workflow_runs.get_store().gan_nhat(
         _brain_key(brain), slug=slug or None, limit=max(1, min(int(limit or 20), 100)))}
@@ -589,7 +592,7 @@ async def workflow_runs_get(run_id: str):
     return r
 ```
 
-Trong `workflows_index(brain)` (dòng ~6544): sau vòng lặp, gắn mốc chạy gần nhất:
+In `workflows_index(brain)` (line ~6544): after the loop, attach the latest run timestamp:
 
 ```python
     try:
@@ -602,7 +605,7 @@ Trong `workflows_index(brain)` (dòng ~6544): sau vòng lặp, gắn mốc chạ
     return out
 ```
 
-Trong `agents_index(brain)` (dòng ~5405): sau vòng lặp:
+In `agents_index(brain)` (line ~5405): after the loop:
 
 ```python
     try:
@@ -614,44 +617,44 @@ Trong `agents_index(brain)` (dòng ~5405): sau vòng lặp:
     return out
 ```
 
-`moc_cap_nhat_theo_kenh` là hàm mới của `SessionStore` (viết ở Task 3). Để Task 2 chạy độc lập, Task 2 chỉ thêm đoạn trên cho agents khi Task 3 đã xong; nếu làm Task 2 trước thì để `try/except` đó nguyên (nó rơi về `{}`), nhưng NHỚ quay lại Task 3 để hàm tồn tại thật.
+`moc_cap_nhat_theo_kenh` is a new `SessionStore` method (written in Task 3). So that Task 2 can run on its own, Task 2 only adds the snippet above for agents once Task 3 is done; if you do Task 2 first, leave that `try/except` as is (it falls back to `{}`), but REMEMBER to come back in Task 3 so the method really exists.
 
-Trong `server/tasks.py:720`, gọi `self.deps.execute_workflow(task["brain_root"], slug, intent, tools, source="kanban")`. Kiểm `TaskDeps` (grep `execute_workflow` trong tasks.py) là `Callable` không ràng kiểu tham số; nếu là dataclass với chữ ký cố định thì thêm `source` vào chữ ký đó.
+In `server/tasks.py:720`, call `self.deps.execute_workflow(task["brain_root"], slug, intent, tools, source="kanban")`. Check that `TaskDeps` (grep `execute_workflow` in tasks.py) is a `Callable` with untyped parameters; if it is a dataclass with a fixed signature, add `source` to that signature.
 
-- [ ] **Step 5: Chạy test, phải xanh; chạy cả test cũ liên quan**
+- [ ] **Step 5: Run the test, it must be green; also run the related old tests**
 
-Run: `python tests/run.py workflow_runs_api` rồi `python tests/run.py workflow_graph` và `python tests/run.py tasks_autonomous`
-Expected: test mới xanh; hai test cũ giữ nguyên kết quả như trên main (so với `git stash` không được dùng, xem memory về cây làm việc dùng chung: nếu nghi ngờ, chạy test đó trên worktree sạch).
+Run: `python tests/run.py workflow_runs_api`, then `python tests/run.py workflow_graph` and `python tests/run.py tasks_autonomous`
+Expected: the new test is green; the two old tests keep the same result as on main (do not use `git stash`, see the memory about the shared working tree: if in doubt, run that test on a clean worktree).
 
 - [ ] **Step 6: Commit**
 
 ```bash
 git add server/main.py server/tasks.py tests/python/test_workflow_runs_api.py
-git commit -m "Ghi lịch sử mọi lần chạy workflow, thêm /workflows/runs
+git commit -m "Record history for every workflow run, add /workflows/runs
 
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 3: Phiên theo kênh cộng sự trong kho phiên
+### Task 3: Partner-channel sessions in the session store
 
 **Files:**
 - Modify: `server/sessions.py` (`list_sessions` :562)
-- Modify: `server/main.py` (`sessions_list` :12412, thêm `POST /sessions/new` ngay dưới)
+- Modify: `server/main.py` (`sessions_list` :12412, add `POST /sessions/new` right below it)
 - Test: `tests/python/test_sessions_kenh_cong_su.py`
 
 **Interfaces:**
 - Produces:
-  - `SessionStore.list_sessions(..., channel: Optional[str] = None)`: `channel` cụ thể thì lọc đúng kênh; `None` thì loại các kênh tiền tố `agent:` và `workflow:`
+  - `SessionStore.list_sessions(..., channel: Optional[str] = None)`: a specific `channel` filters to exactly that channel; `None` excludes channels with the prefixes `agent:` and `workflow:`
   - `SessionStore.moc_cap_nhat_theo_kenh(brain, tien_to) -> dict[channel, updated_at]`
-  - `GET /sessions?channel=` ; `POST /sessions/new` (Form: `brain`, `channel`) -> `{"id", "channel"}`; 400 nếu kênh sai dạng; 404 nếu trợ lý/quy trình không có file.
-  - Hằng trong `sessions.py`: `KENH_CONG_SU = ("agent:", "workflow:")`
+  - `GET /sessions?channel=` ; `POST /sessions/new` (Form: `brain`, `channel`) -> `{"id", "channel"}`; 400 if the channel is malformed; 404 if the agent/workflow has no file.
+  - Constant in `sessions.py`: `KENH_CONG_SU = ("agent:", "workflow:")`
 
-- [ ] **Step 1: Viết test đỏ**
+- [ ] **Step 1: Write the failing test**
 
 ```python
-"""Phiên chat theo kênh cộng sự: agent:<slug>, workflow:<slug>.
+"""Chat sessions by partner channel: agent:<slug>, workflow:<slug>.
 
     python tests/run.py sessions_kenh_cong_su
 """
@@ -699,7 +702,7 @@ r = cl.post("/sessions/new", data={"brain": "brain", "channel": "agent:khong-ton
 check("POST /sessions/new agent khong co -> 404", r.status_code == 404)
 r = cl.post("/sessions/new", data={"brain": "brain", "channel": "gi-do"})
 check("POST /sessions/new kenh sai dang -> 400", r.status_code == 400)
-# Tạo một agent thật trong brain test rồi mở phiên
+# Create a real agent in the test brain, then open a session
 ag_dir = main._agents_dir("brain"); ag_dir.mkdir(parents=True, exist_ok=True)
 (ag_dir / "nguoi-viet.md").write_text("---\nname: Người viết\nrole: viết\nmodel: gpt-5\nmodel_provider: openai-oauth\n---\nViết hay.\n", encoding="utf-8")
 r = cl.post("/sessions/new", data={"brain": "brain", "channel": "agent:nguoi-viet"})
@@ -714,25 +717,25 @@ print("\nFAIL:" if fails else "\nOK - sessions_kenh_cong_su", fails or "")
 sys.exit(1 if fails else 0)
 ```
 
-Lưu ý: `main.get_store()` phải trỏ cùng DB với `sessions.get_store()` (env `JAVIS_SESSIONS_DB` đặt trước import). Nếu `_agents_dir("brain")` trỏ vào brain thật của máy thì đổi test sang tạo brain tạm: đặt `os.environ["JAVIS_BRAINS_DIR"]` hay biến tương đương mà `_brain_root` đọc (grep `def _brain_root` để biết biến env), ĐẶT TRƯỚC `import main`. Không được ghi file vào brain thật của máy.
+Note: `main.get_store()` must point at the same DB as `sessions.get_store()` (env `JAVIS_SESSIONS_DB` set before the import). If `_agents_dir("brain")` points into the machine's real brain, switch the test to create a temporary brain: set `os.environ["JAVIS_BRAINS_DIR"]` or whatever equivalent variable `_brain_root` reads (grep `def _brain_root` to find the env variable), SET BEFORE `import main`. Never write files into the machine's real brain.
 
-- [ ] **Step 2: Chạy test, phải đỏ**
+- [ ] **Step 2: Run the test, it must be red**
 
 Run: `python tests/run.py sessions_kenh_cong_su`
 Expected: TypeError: list_sessions() got an unexpected keyword argument 'channel'
 
-- [ ] **Step 3: Sửa `sessions.py`**
+- [ ] **Step 3: Edit `sessions.py`**
 
-Thêm hằng gần đầu file (sau `WEB` hằng khác nếu có):
+Add a constant near the top of the file (after the `WEB` constant, if any):
 
 ```python
-# Kênh của phiên "cộng sự": chat với MỘT trợ lý hoặc MỘT quy trình (trang Cộng sự, 0.59).
-# Thanh lịch sử của trang Trò chuyện không liệt kê các kênh này: chúng thuộc về cột phải của
-# trang Cộng sự, lẫn vào đây thì người dùng thấy hai bản ghi cho một việc.
+# Channels of "partner" sessions: chat with ONE agent or ONE workflow (Partners page, 0.59).
+# The history bar of the Chat page does not list these channels: they belong to the right column of the
+# Partners page, and mixing them in here would show the user two records for one job.
 KENH_CONG_SU = ("agent:", "workflow:")
 ```
 
-Trong `list_sessions`, thêm tham số `channel: Optional[str] = None` và trong phần dựng `where`:
+In `list_sessions`, add the parameter `channel: Optional[str] = None` and in the part that builds `where`:
 
 ```python
         if channel:
@@ -744,12 +747,12 @@ Trong `list_sessions`, thêm tham số `channel: Optional[str] = None` và trong
                 params.append(tien_to + "%")
 ```
 
-Thêm phương thức mới cạnh `list_sessions`:
+Add a new method next to `list_sessions`:
 
 ```python
     def moc_cap_nhat_theo_kenh(self, brain: Any, tien_to: str) -> Dict[str, float]:
-        """{kênh: updated_at mới nhất} cho các kênh bắt đầu bằng `tien_to` (vd "agent:").
-        Trang Cộng sự dùng để xếp trợ lý vừa chat gần nhất lên đầu."""
+        """{channel: latest updated_at} for channels that start with `tien_to` (e.g. "agent:").
+        The Partners page uses it to put the agent chatted with most recently at the top."""
         cond, bparams = loc_brain(brain)
         sql = "SELECT channel, MAX(updated_at) AS m FROM sessions s WHERE s.channel LIKE ?"
         params: list = [tien_to + "%"]
@@ -760,13 +763,13 @@ Thêm phương thức mới cạnh `list_sessions`:
         return {r["channel"]: float(r["m"] or 0) for r in self._read(sql, tuple(params))}
 ```
 
-Kiểm chữ ký `self._read(sql, params)` trong file (grep `def _read`) và gọi đúng dạng nó nhận.
+Check the signature of `self._read(sql, params)` in the file (grep `def _read`) and call it in the form it accepts.
 
-- [ ] **Step 4: Sửa route trong main.py**
+- [ ] **Step 4: Edit the routes in main.py**
 
-`sessions_list`: thêm `channel: str = Query("")` và truyền `channel=channel or None`.
+`sessions_list`: add `channel: str = Query("")` and pass `channel=channel or None`.
 
-Ngay dưới `sessions_list` (TRƯỚC `@app.get("/sessions/{session_id}")`, vì `/sessions/new` là POST nên không đụng nhưng đặt gần cho dễ đọc):
+Right below `sessions_list` (BEFORE `@app.get("/sessions/{session_id}")`; since `/sessions/new` is a POST it does not collide, but put it nearby for readability):
 
 ```python
 _KENH_CONG_SU_RE = re.compile(r"^(agent|workflow):([a-z0-9][a-z0-9-]*)$")
@@ -774,9 +777,9 @@ _KENH_CONG_SU_RE = re.compile(r"^(agent|workflow):([a-z0-9][a-z0-9-]*)$")
 
 @app.post("/sessions/new")
 async def sessions_new(brain: str = Form("brain"), channel: str = Form("web")):
-    """Mở một phiên TRỐNG với kênh định trước. Trang Cộng sự gọi trước tin đầu tiên: kho phiên
-    phải biết phiên này là chat với trợ lý/quy trình nào thì lượt đầu mới đi đúng đường.
-    Phiên chat thường vẫn mint id ở client như cũ; route này chỉ cho kênh cộng sự."""
+    """Open an EMPTY session with a preset channel. The Partners page calls it before the first message: the
+    session store must know which agent/workflow this session chats with so the first turn takes the right path.
+    Normal chat sessions still mint their id on the client as before; this route is only for partner channels."""
     ch = (channel or "").strip()
     m = _KENH_CONG_SU_RE.match(ch)
     if not m:
@@ -798,25 +801,25 @@ async def sessions_new(brain: str = Form("brain"), channel: str = Form("web")):
     return {"id": sid, "channel": ch}
 ```
 
-Route này cần đăng nhập như các route `/sessions` khác (không thêm vào danh sách miễn auth).
+This route requires login like the other `/sessions` routes (do not add it to the auth-exempt list).
 
-- [ ] **Step 5: Hoàn tất `agents_index.last_chat_at` (Task 2 Step 4) nếu chưa, rồi chạy test**
+- [ ] **Step 5: Finish `agents_index.last_chat_at` (Task 2 Step 4) if not done yet, then run the tests**
 
-Run: `python tests/run.py sessions_kenh_cong_su` và `python tests/run.py telegram_sessions`
-Expected: xanh; test cũ không đổi.
+Run: `python tests/run.py sessions_kenh_cong_su` and `python tests/run.py telegram_sessions`
+Expected: green; the old test is unchanged.
 
 - [ ] **Step 6: Commit**
 
 ```bash
 git add server/sessions.py server/main.py tests/python/test_sessions_kenh_cong_su.py
-git commit -m "Phiên chat theo kênh agent:/workflow:, POST /sessions/new
+git commit -m "Chat sessions by agent:/workflow: channel, POST /sessions/new
 
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 4: Module thuần `server/workflow_chat.py` (ghép đầu vào, dựng tin, tiêu thụ sự kiện)
+### Task 4: Pure module `server/workflow_chat.py` (input assembly, message building, event consumption)
 
 **Files:**
 - Create: `server/workflow_chat.py`
@@ -829,13 +832,13 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
   - `tin_xong(so_lan, so_buoc, giay, ket_qua) -> str`
   - `tin_loi(i, agent, loi) -> str`
   - `tin_cho_duyet(node, prompt) -> str`
-  - `async chay(events, emit) -> dict` với khoá `trang_thai` ("done"|"error"|"waiting"), `ket_qua`, `so_buoc`, `loi` ({"i","agent","content"} hoặc None), `wait` (dict sự kiện wait_user hoặc None), `run_id`
-  - Hằng `TRAN_KET_QUA_TRUOC = 8000`
+  - `async chay(events, emit) -> dict` with keys `trang_thai` ("done"|"error"|"waiting"), `ket_qua`, `so_buoc`, `loi` ({"i","agent","content"} or None), `wait` (the wait_user event dict or None), `run_id`
+  - Constant `TRAN_KET_QUA_TRUOC = 8000`
 
-- [ ] **Step 1: Viết test đỏ**
+- [ ] **Step 1: Write the failing test**
 
 ```python
-"""workflow_chat: phần thuần của "chạy quy trình như một lượt chat".
+"""workflow_chat: the pure part of "run a workflow as a chat turn".
 
     python tests/run.py workflow_chat
 """
@@ -860,13 +863,13 @@ check("persona workflow", wc.persona_cua_phien({"channel": "workflow:viet-bai"})
 check("persona web/None/rong", wc.persona_cua_phien({"channel": "web"}) is None and wc.persona_cua_phien(None) is None
       and wc.persona_cua_phien({"channel": "agent:"}) is None)
 
-# ghép đầu vào
+# assemble input
 check("ghep khong co ket qua truoc", wc.ghep_dau_vao("viết về A", "") == "viết về A")
 g = wc.ghep_dau_vao("sửa đoạn 2", "x" * 9000)
 check("ghep co ket qua truoc, cat 8000", g.startswith("sửa đoạn 2\n\n# Kết quả lần trước\n") and g.endswith("x" * 8000)
       and len(g) == len("sửa đoạn 2\n\n# Kết quả lần trước\n") + 8000)
 
-# tin
+# messages
 check("tin_xong", wc.tin_xong(2, 3, 42, "bài") == "Lần chạy #2 · 3 bước · 42 giây\n\nbài")
 check("tin_xong rong", "không có nội dung" in wc.tin_xong(1, 1, 0, ""))
 check("tin_loi", wc.tin_loi(1, "Người viết", "engine chết") == "Quy trình dừng ở bước 2 (Người viết): engine chết")
@@ -877,7 +880,7 @@ check("tin_cho_duyet khong prompt", wc.tin_cho_duyet("dang", "") ==
       "Quy trình đang chờ duyệt bước \"dang\". Bấm Duyệt ở cột phải để chạy tiếp.")
 
 
-# chay(): tiêu thụ sự kiện, emit đúng khung
+# chay(): consumes events, emits the right frames
 async def gia(evs):
     for e in evs:
         yield e
@@ -926,7 +929,7 @@ kq, fr = run([{"type": "start", "workflow": "W", "steps": 1}])
 check("chay luong dut -> error", kq["trang_thai"] == "error" and "không kết thúc" in kq["loi"]["content"])
 
 
-# chay() đóng generator khi bị huỷ
+# chay() closes the generator when cancelled
 class Dem:
     dong = False
 
@@ -958,29 +961,29 @@ print("\nFAIL:" if fails else "\nOK - workflow_chat", fails or "")
 sys.exit(1 if fails else 0)
 ```
 
-- [ ] **Step 2: Chạy test, phải đỏ**
+- [ ] **Step 2: Run the test, it must be red**
 
 Run: `python tests/run.py workflow_chat`
 Expected: ModuleNotFoundError: workflow_chat
 
-- [ ] **Step 3: Viết `server/workflow_chat.py`**
+- [ ] **Step 3: Write `server/workflow_chat.py`**
 
 ```python
-"""Chat với cộng sự: phần THUẦN (không I/O) của trang Cộng sự.
+"""Chat with partners: the PURE part (no I/O) of the Partners page.
 
-Hai việc:
-1. `persona_cua_phien`: đọc cột `channel` của một phiên ra ("agent"|"workflow", slug). main.py
-   dùng nó ở bộ điều phối lượt để rẽ nhánh: phiên trợ lý đổi system prompt, phiên quy trình
-   chạy `execute_workflow` thay vì hỏi bộ não chính.
-2. Quy trình chạy như một lượt chat: `chay()` tiêu thụ luồng sự kiện của execute_workflow,
-   đẩy khung WebSocket cho khung chat (status) và cột phải (wf_event), rồi trả về kết quả
-   để main.py dựng tin trả lời bằng `tin_xong` / `tin_loi` / `tin_cho_duyet`. Tách khỏi
-   main.py để test được bằng một generator giả, không cần engine.
+Two jobs:
+1. `persona_cua_phien`: reads the `channel` column of a session into ("agent"|"workflow", slug). main.py
+   uses it in the turn dispatcher to branch: an agent session swaps the system prompt, a workflow
+   session runs `execute_workflow` instead of asking the main brain.
+2. A workflow run as a chat turn: `chay()` consumes the event stream of execute_workflow,
+   pushes WebSocket frames to the chat frame (status) and the right column (wf_event), then returns the result
+   so main.py can build the reply with `tin_xong` / `tin_loi` / `tin_cho_duyet`. Split out of
+   main.py so it can be tested with a fake generator, no engine needed.
 
-Luật quan trọng: một lần chạy KHÔNG BAO GIỜ kết thúc mà không có tin trong chat. Luồng đứt
-(engine chết không kịp phát `error`) vẫn thành `trang_thai="error"` với câu lỗi rõ.
+Key rule: a run NEVER ends without a message in the chat. A broken stream
+(the engine died before it could emit `error`) still becomes `trang_thai="error"` with a clear error sentence.
 
-Ghi chú: KHÔNG dùng ký tự em dash.
+Note: do NOT use the em dash character.
 """
 from __future__ import annotations
 
@@ -1000,7 +1003,7 @@ def persona_cua_phien(row: Optional[dict]) -> Optional[Tuple[str, str]]:
 
 
 def ghep_dau_vao(user_message: str, ket_qua_truoc: str) -> str:
-    """Tin sau trong cùng hội thoại vẫn hiểu được "sửa đoạn 2": nối kết quả lần trước vào."""
+    """Later messages in the same conversation can still understand "edit paragraph 2": append the previous result."""
     u = str(user_message or "")
     k = str(ket_qua_truoc or "")
     if not k:
@@ -1028,14 +1031,14 @@ def tin_cho_duyet(node: str, prompt: str) -> str:
 
 
 async def chay(events, emit: Callable[[dict], Awaitable[None]]) -> Dict[str, Any]:
-    """Tiêu thụ luồng sự kiện của một lần chạy. `emit(frame)` gửi khung về trình duyệt.
+    """Consume the event stream of one run. `emit(frame)` sends a frame back to the browser.
 
-    Khung phát ra:
-    - `status` mỗi khi một bước bắt đầu (chip "đang làm" của khung chat);
-    - `wf_event` cho MỌI sự kiện trừ `step_text` (cột phải vẽ tiến độ; step_text quá dày và
-      cột phải không hiện chữ từng bước).
-    Không phát `stream`: main.py gửi cả tin trả lời một lần sau khi có kết quả, để bong bóng
-    sống và bản lưu giống hệt nhau.
+    Frames emitted:
+    - `status` whenever a step starts (the "working" chip of the chat frame);
+    - `wf_event` for EVERY event except `step_text` (the right column draws progress; step_text is too
+      dense and the right column does not show per-step text).
+    It does not emit `stream`: main.py sends the whole reply once after the result is in, so the live
+    bubble and the saved copy are identical.
     """
     kq: Dict[str, Any] = {"trang_thai": "error", "ket_qua": "", "so_buoc": 0, "loi": None,
                           "wait": None, "run_id": ""}
@@ -1083,7 +1086,7 @@ async def chay(events, emit: Callable[[dict], Awaitable[None]]) -> Dict[str, Any
     return kq
 ```
 
-- [ ] **Step 4: Chạy test, phải xanh**
+- [ ] **Step 4: Run the test, it must be green**
 
 Run: `python tests/run.py workflow_chat`
 Expected: OK - workflow_chat
@@ -1092,32 +1095,32 @@ Expected: OK - workflow_chat
 
 ```bash
 git add server/workflow_chat.py tests/python/test_workflow_chat.py
-git commit -m "workflow_chat: phần thuần của chat với quy trình
+git commit -m "workflow_chat: the pure part of chatting with workflows
 
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 5: Phiên trợ lý đổi system prompt trong `_do_turn`
+### Task 5: Agent sessions swap the system prompt in `_do_turn`
 
 **Files:**
-- Modify: `server/main.py`: thêm `_agent_chat_prompt` gần `_workflow_agent_helpers` (:7348); sửa `_do_turn` (:10870 trở đi: `_row0`, `_legacy_system_prompt` :10948, `_subscription_system_prompt` :10960, chỗ `_phase8_plan.action == "use"` :11536, chỗ lưu lượt :11819)
+- Modify: `server/main.py`: add `_agent_chat_prompt` near `_workflow_agent_helpers` (:7348); edit `_do_turn` (:10870 onward: `_row0`, `_legacy_system_prompt` :10948, `_subscription_system_prompt` :10960, the `_phase8_plan.action == "use"` spot :11536, the turn-saving spot :11819)
 - Test: `tests/python/test_agent_chat_prompt.py`
 
 **Interfaces:**
-- Consumes: `workflow_chat.persona_cua_phien` (Task 4), `_workflow_agent_helpers` (có sẵn), `_log_agent_run`, `_ghi_bai_hoc`/`_boc_bai_hoc` (có sẵn)
-- Produces: `_agent_chat_prompt(brain, slug) -> str` (ném `FileNotFoundError` nếu trợ lý không có file); `_ket_luot_agent(brain, slug, user_message, final_text) -> str` (bóc JAVIS_LESSON, ghi bộ nhớ + nhật ký, trả text sạch)
+- Consumes: `workflow_chat.persona_cua_phien` (Task 4), `_workflow_agent_helpers` (existing), `_log_agent_run`, `_ghi_bai_hoc`/`_boc_bai_hoc` (existing)
+- Produces: `_agent_chat_prompt(brain, slug) -> str` (raises `FileNotFoundError` if the agent has no file); `_ket_luot_agent(brain, slug, user_message, final_text) -> str` (strips JAVIS_LESSON, writes memory + log, returns clean text)
 
-- [ ] **Step 1: Viết test đỏ**
+- [ ] **Step 1: Write the failing test**
 
 ```python
-"""Chat với một trợ lý ở trang Cộng sự: system prompt là prompt của trợ lý, không phải Jarvis 007.
+"""Chat with one agent on the Partners page: the system prompt is the agent's prompt, not Jarvis 007's.
 
     python tests/run.py agent_chat_prompt
 
-Không chạy engine. Kiểm hai hàm thuần trong main.py và canh (bằng đọc mã) rằng bộ điều
-phối lượt rẽ nhánh theo persona ở đủ các chỗ chọn prompt.
+Does not run an engine. Checks two pure functions in main.py and guards (by reading the code) that the turn
+dispatcher branches on persona at every place that picks a prompt.
 """
 from _paths import ROOT, SERVER  # noqa: E402,F401
 import os
@@ -1139,7 +1142,7 @@ def check(name, cond):
         fails.append(name)
 
 
-# Brain tạm (xem ghi chú Task 3 về biến env chọn thư mục brains; đặt TRƯỚC import main nếu cần)
+# Temporary brain (see the Task 3 note about the env variable that picks the brains folder; set BEFORE import main if needed)
 ag_dir = main._agents_dir("brain"); ag_dir.mkdir(parents=True, exist_ok=True)
 (ag_dir / "nguoi-viet.md").write_text("---\nname: Người viết\nrole: viết bài\nskills: [viet-email]\n---\nViết súc tích.\n",
                                        encoding="utf-8")
@@ -1161,7 +1164,7 @@ check("bai hoc vao bo nho agent", mem.exists() and "chủ thích câu ngắn" in
 runs = list((main._brain_memory_dir("brain") / "agents" / "nguoi-viet" / "runs").glob("*.md"))
 check("nhat ky run cua agent co dong", runs and "viết giúp" in runs[0].read_text(encoding="utf-8"))
 
-# Canh mã: _do_turn rẽ theo persona ở các chỗ chọn prompt
+# Code guard: _do_turn branches on persona at the places that pick a prompt
 src = (SERVER / "main.py").read_text(encoding="utf-8")
 than = src[src.index("async def _do_turn("):src.index("async def run_turn(")]
 check("_do_turn doc persona tu phien", "_persona = workflow_chat.persona_cua_phien(_row0)" in than)
@@ -1175,21 +1178,21 @@ print("\nFAIL:" if fails else "\nOK - agent_chat_prompt", fails or "")
 sys.exit(1 if fails else 0)
 ```
 
-- [ ] **Step 2: Chạy test, phải đỏ**
+- [ ] **Step 2: Run the test, it must be red**
 
 Run: `python tests/run.py agent_chat_prompt`
 Expected: AttributeError: _agent_chat_prompt
 
-- [ ] **Step 3: Thêm hai hàm vào main.py ngay dưới `_workflow_agent_helpers`**
+- [ ] **Step 3: Add two functions to main.py right below `_workflow_agent_helpers`**
 
 ```python
 def _agent_chat_prompt(brain, slug) -> str:
-    """System prompt khi CHỦ chat trực tiếp với một trợ lý ở trang Cộng sự.
+    """System prompt when the OWNER chats directly with one agent on the Partners page.
 
-    Là ĐÚNG prompt mà workflow dùng cho trợ lý đó (vai, thân file, kỹ năng, bộ nhớ riêng, luật
-    JAVIS_LESSON), cộng một câu nói rõ đây là trò chuyện chứ không phải một bước quy trình.
-    Cố ý KHÔNG nối CLAUDE.md, bộ nhớ của chủ hay khối kênh: người dùng đang muốn nói chuyện với
-    "Người viết", không phải với Jarvis 007 đội mũ Người viết.
+    It is EXACTLY the prompt the workflow uses for that agent (role, file body, skills, private memory,
+    JAVIS_LESSON rule), plus one sentence saying clearly that this is a conversation, not a workflow step.
+    It deliberately does NOT append CLAUDE.md, the owner's memory or the channel block: the user wants to talk to
+    "Người viết" (the Writer), not to Jarvis 007 wearing a Writer hat.
     """
     if not (_agents_dir(brain) / f"{slug}.md").exists():
         raise FileNotFoundError(slug)
@@ -1201,21 +1204,21 @@ def _agent_chat_prompt(brain, slug) -> str:
 
 
 def _ket_luot_agent(brain, slug, user_message, final_text) -> str:
-    """Cuối một lượt chat với trợ lý: bóc JAVIS_LESSON vào bộ nhớ trợ lý, ghi nhật ký chạy của
-    trợ lý (memory/agents/<slug>/runs), trả về text SẠCH để lưu phiên và hiện lên chat."""
+    """End of a chat turn with an agent: move JAVIS_LESSON into the agent's memory, write the agent's run
+    log (memory/agents/<slug>/runs), return the CLEAN text to store in the session and show in chat."""
     _mk, _agent_sysprompt, _log, _learn = _workflow_agent_helpers(brain, None)
     sach = _learn(slug, final_text or "")
     _log(slug, user_message or "", sach or "")
     return sach
 ```
 
-- [ ] **Step 4: Rẽ nhánh trong `_do_turn`**
+- [ ] **Step 4: Branch inside `_do_turn`**
 
-(a) Ngay sau dòng `_row0 = store.get_session(conv_sid) or {}` thêm:
+(a) Right after the line `_row0 = store.get_session(conv_sid) or {}` add:
 
 ```python
-            # Phiên cộng sự (trang Cộng sự, 0.59): kênh agent:<slug> đổi system prompt sang prompt
-            # của trợ lý đó. Đọc MỘT lần ở đây, mọi chỗ chọn prompt bên dưới đều hỏi `_persona`.
+            # Partner session (Partners page, 0.59): channel agent:<slug> swaps the system prompt for that
+            # agent's prompt. Read ONCE here; every prompt-picking spot below asks `_persona`.
             _persona = workflow_chat.persona_cua_phien(_row0)
             if _persona and _persona[0] == "agent" and not (_agents_dir(brain) / f"{_persona[1]}.md").exists():
                 await ws.send_text(json.dumps({"type": "error",
@@ -1223,7 +1226,7 @@ def _ket_luot_agent(brain, slug, user_message, final_text) -> str:
                 return ""
 ```
 
-Thêm `import workflow_chat` ở khối import đầu main.py (cạnh `import chatbot_runtime`).
+Add `import workflow_chat` in the import block at the top of main.py (next to `import chatbot_runtime`).
 
 (b) `_legacy_system_prompt`:
 
@@ -1244,58 +1247,58 @@ Thêm `import workflow_chat` ở khối import đầu main.py (cạnh `import ch
                 return sysprompt
 ```
 
-(c) `_subscription_system_prompt`: dòng đầu tiên SAU docstring:
+(c) `_subscription_system_prompt`: the first line AFTER the docstring:
 
 ```python
                 if _persona:
                     return _legacy_system_prompt(), None
 ```
 
-(d) Tại dòng ~11536 (`... if _phase8_plan.action == "use" else _legacy_system_prompt()`), đổi điều kiện thành `if _phase8_plan.action == "use" and not _persona else _legacy_system_prompt()`. Đọc 30 dòng quanh đó: nếu `_phase8_plan` được dựng bằng `prepare(...)` tốn công thì bọc cả việc dựng bằng `if not _persona`.
+(d) At line ~11536 (`... if _phase8_plan.action == "use" else _legacy_system_prompt()`), change the condition to `if _phase8_plan.action == "use" and not _persona else _legacy_system_prompt()`. Read 30 lines around it: if `_phase8_plan` is built with an expensive `prepare(...)`, wrap the whole build in `if not _persona`.
 
-(e) Fast Path: grep `used_fast_path = True` trong `_do_turn`; điều kiện vào fast path thêm `and not _persona` (fast path bỏ memory và lịch sử, và dùng prompt riêng, không hợp với trợ lý).
+(e) Fast Path: grep `used_fast_path = True` in `_do_turn`; add `and not _persona` to the condition for entering the fast path (the fast path drops memory and history, and uses its own prompt, which does not suit an agent).
 
-(f) Chỗ lưu lượt (dòng ~11819 `if final_text:`), ngay TRƯỚC `await _persist_turn(...)`:
+(f) The turn-saving spot (line ~11819 `if final_text:`), right BEFORE `await _persist_turn(...)`:
 
 ```python
                 if _persona and _persona[0] == "agent":
                     final_text = _ket_luot_agent(brain, _persona[1], user_message, final_text)
 ```
 
-(g) Kiểm `channel_context.strip_control_blocks` không xoá gì thêm; giữ nguyên.
+(g) Check that `channel_context.strip_control_blocks` does not strip anything extra; leave it as is.
 
-- [ ] **Step 5: Chạy test**
+- [ ] **Step 5: Run the tests**
 
-Run: `python tests/run.py agent_chat_prompt` rồi `python tests/run.py agent_tu_boi_dap` và `python tests/run.py chat_runtime`
-Expected: xanh; hai test cũ giữ nguyên.
+Run: `python tests/run.py agent_chat_prompt`, then `python tests/run.py agent_tu_boi_dap` and `python tests/run.py chat_runtime`
+Expected: green; the two old tests unchanged.
 
 - [ ] **Step 6: Commit**
 
 ```bash
 git add server/main.py tests/python/test_agent_chat_prompt.py
-git commit -m "Phiên agent:<slug> chat bằng prompt của chính trợ lý
+git commit -m "Session agent:<slug> chats using the agent's own prompt
 
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 6: Lượt quy trình trong WebSocket (`run_workflow_turn`) + duyệt tiếp (`wf_resume`)
+### Task 6: Workflow turn over WebSocket (`run_workflow_turn`) + resume on approval (`wf_resume`)
 
 **Files:**
-- Modify: `server/main.py`: trong `websocket_endpoint` (:10815): thêm `run_workflow_turn` cạnh `run_turn` (:11850); vòng nhận tin (:12150 trở đi): thêm action `wf_resume`, rẽ nhánh khi persona là workflow trước khi tạo `run_turn`
+- Modify: `server/main.py`: in `websocket_endpoint` (:10815): add `run_workflow_turn` next to `run_turn` (:11850); the message-receiving loop (:12150 onward): add the action `wf_resume`, branch when the persona is a workflow before creating `run_turn`
 - Test: `tests/python/test_workflow_turn_ws.py`
 
 **Interfaces:**
 - Consumes: `workflow_chat.chay/ghep_dau_vao/tin_*` (Task 4), `execute_workflow(..., source="web")`, `execute_workflow_resume(..., source="web")` (Task 2), `workflow_runs.get_store()` (Task 1), `_persist_turn`, `_SendProxy`, `_CHAT_RUNTIME`
-- Produces: khung WS `{"type":"wf_event","event":{...},"session_id"}`, `{"type":"status"}`, `{"type":"stream"}`, `{"type":"turn_done"}`; action client `{"action":"wf_resume","session_id","task_id","node","code"}`
+- Produces: WS frames `{"type":"wf_event","event":{...},"session_id"}`, `{"type":"status"}`, `{"type":"stream"}`, `{"type":"turn_done"}`; client action `{"action":"wf_resume","session_id","task_id","node","code"}`
 
-- [ ] **Step 1: Viết test đỏ (kiểm bằng đọc mã + chạy hàm lõi qua monkeypatch)**
+- [ ] **Step 1: Write the failing test (checked by reading code + running the core function via monkeypatch)**
 
-`run_workflow_turn` là closure trong `websocket_endpoint` nên không gọi thẳng được. Tách LÕI ra hàm module-level `_luot_quy_trinh(store, conv_sid, user_message, brain, slug, emit, resume=None) -> str` (trả text đã lưu), còn closure chỉ bọc trace, đăng ký job, `turn_done`. Test gọi `_luot_quy_trinh` với `execute_workflow` giả.
+`run_workflow_turn` is a closure inside `websocket_endpoint` so it cannot be called directly. Split the CORE into a module-level function `_luot_quy_trinh(store, conv_sid, user_message, brain, slug, emit, resume=None) -> str` (returns the saved text), and the closure only wraps tracing, job registration and `turn_done`. The test calls `_luot_quy_trinh` with a fake `execute_workflow`.
 
 ```python
-"""Lượt quy trình trong WebSocket: mỗi tin ở phiên workflow:<slug> là một lần chạy.
+"""Workflow turn over WebSocket: every message in a workflow:<slug> session is one run.
 
     python tests/run.py workflow_turn_ws
 """
@@ -1338,7 +1341,7 @@ async def gia_execute(brain, slug, input="", tools=None, session_id="", source="
     yield {"type": "done", "result": "BÀI 1"}
 
 
-main.execute_workflow = gia_execute   # _luot_quy_trinh tra cứu qua module lúc gọi
+main.execute_workflow = gia_execute   # _luot_quy_trinh looks it up through the module at call time
 
 
 def run(msg, resume=None):
@@ -1399,7 +1402,7 @@ text5, _ = run("Đã duyệt bước dang.", resume={"task_id": "tk9", "node": "
 check("resume goi execute_workflow_resume dung tham so", goi[-1].get("resume") == ("tk9", "dang", "ZZ")
       and text5.endswith("ĐÃ ĐĂNG"))
 
-# Canh mã vòng nhận tin
+# Code guard for the message-receiving loop
 src = (SERVER / "main.py").read_text(encoding="utf-8")
 ws = src[src.index("async def websocket_endpoint("):src.index("@app.get(\"/tts/voices\")") if "@app.get(\"/tts/voices\")" in src else len(src)]
 check("vong nhan tin re nhanh workflow", "run_workflow_turn(" in ws and 'action == "wf_resume"' in ws)
@@ -1408,23 +1411,23 @@ print("\nFAIL:" if fails else "\nOK - workflow_turn_ws", fails or "")
 sys.exit(1 if fails else 0)
 ```
 
-Nếu `@app.get("/tts/voices")` không nằm sau `websocket_endpoint` thì đổi mốc cắt sang một chuỗi chắc chắn nằm sau (vd `"# Phiên hội thoại - list / view / search"`).
+If `@app.get("/tts/voices")` does not come after `websocket_endpoint`, change the cut marker to a string that is certain to come after it (e.g. `"# Phiên hội thoại - list / view / search"`, a Vietnamese section comment meaning "Conversation sessions - list / view / search").
 
-- [ ] **Step 2: Chạy test, phải đỏ**
+- [ ] **Step 2: Run the test, it must be red**
 
 Run: `python tests/run.py workflow_turn_ws`
 Expected: AttributeError: _luot_quy_trinh
 
-- [ ] **Step 3: Thêm lõi module-level vào main.py (đặt ngay trên `_persist_turn`)**
+- [ ] **Step 3: Add the module-level core to main.py (put it right above `_persist_turn`)**
 
 ```python
 async def _luot_quy_trinh(store, conv_sid, user_message, brain, slug, emit, resume=None) -> str:
-    """LÕI của một lượt ở phiên workflow:<slug>: chạy quy trình, đẩy khung về trình duyệt, lưu
-    tin trả lời. Trả về text đã lưu. Không đăng ký job, không gửi turn_done: closure trong
-    websocket_endpoint lo, để hàm này gọi được từ test với execute_workflow giả.
+    """CORE of one turn in a workflow:<slug> session: run the workflow, push frames to the browser, save
+    the reply. Returns the saved text. It does not register a job and does not send turn_done: the closure in
+    websocket_endpoint handles that, so this function can be called from tests with a fake execute_workflow.
 
-    `resume` = {"task_id","node","code"} khi người dùng bấm Duyệt: chạy tiếp lần đang chờ.
-    Tra `execute_workflow` qua globals() LÚC GỌI để test thay được.
+    `resume` = {"task_id","node","code"} when the user pressed Approve: continue the run that is waiting.
+    Looks up `execute_workflow` through globals() AT CALL TIME so tests can replace it.
     """
     import workflow_runs
     st = workflow_runs.get_store()
@@ -1457,15 +1460,15 @@ async def _luot_quy_trinh(store, conv_sid, user_message, brain, slug, emit, resu
     return text
 ```
 
-Kiểm `time` đã import ở đầu main.py (grep `^import time`); nếu chưa thì thêm.
+Check that `time` is already imported at the top of main.py (grep `^import time`); if not, add it.
 
-- [ ] **Step 4: Closure `run_workflow_turn` trong `websocket_endpoint`, ngay dưới `run_turn`**
+- [ ] **Step 4: Closure `run_workflow_turn` in `websocket_endpoint`, right below `run_turn`**
 
 ```python
         async def run_workflow_turn(conv_sid, user_message, brain, turn_tag, runtime_trace, slug, resume=None):
-            """Lượt ở phiên workflow:<slug>. Cùng khung với run_turn (trace, Dừng, turn_done)
-            nhưng thân là _luot_quy_trinh. Lỗi bất ngờ vẫn thành một tin trong chat: luật của
-            trang Cộng sự là chạy quy trình không bao giờ kết thúc trong im lặng."""
+            """A turn in a workflow:<slug> session. Same frame as run_turn (trace, Stop, turn_done)
+            but the body is _luot_quy_trinh. An unexpected error still becomes a message in chat: the rule of
+            the Partners page is that a workflow run never ends in silence."""
             ws = _SendProxy(conv_sid, runtime_trace)
             _trace_token = context_runtime.bind_trace(runtime_trace)
 
@@ -1499,11 +1502,11 @@ Kiểm `time` đã import ở đầu main.py (grep `^import time`); nếu chưa 
                                 **context_runtime.event_fields(runtime_trace)})
 ```
 
-Đọc phần `finally` của `run_turn` (dòng ~11876 trở đi) và sao y các việc dọn khác nó làm sau `turn_done` (vd `_CHAT_RUNTIME` gỡ job, cập nhật dải việc nền) vào `finally` này, để hai closure không lệch.
+Read the `finally` part of `run_turn` (line ~11876 onward) and copy exactly any other cleanup it does after `turn_done` (e.g. `_CHAT_RUNTIME` removing the job, updating the background-work strip) into this `finally`, so the two closures do not drift apart.
 
-- [ ] **Step 5: Rẽ nhánh trong vòng nhận tin**
+- [ ] **Step 5: Branch in the message-receiving loop**
 
-(a) Ngay sau `store.append_message(conv_sid, "user", user_message)` và khối tạo `turn_tag`/`runtime_trace`, TRƯỚC khối Voice V2 `_vconf`, thêm:
+(a) Right after `store.append_message(conv_sid, "user", user_message)` and the block that creates `turn_tag`/`runtime_trace`, BEFORE the Voice V2 `_vconf` block, add:
 
 ```python
             _pers = workflow_chat.persona_cua_phien(store.get_session(conv_sid) or {})
@@ -1518,11 +1521,11 @@ Kiểm `time` đã import ở đầu main.py (grep `^import time`); nếu chưa 
                 continue
 ```
 
-(b) Thêm action mới cạnh `if action == "stop":`:
+(b) Add a new action next to `if action == "stop":`:
 
 ```python
             if action == "wf_resume":
-                # Nút Duyệt ở cột phải trang Cộng sự: chạy tiếp lần đang chờ, kết quả về cùng phiên.
+                # Approve button in the right column of the Partners page: continue the run that is waiting, result returns to the same session.
                 _sid = str(payload.get("session_id") or "")
                 _row = store.get_session(_sid) or {}
                 _pers = workflow_chat.persona_cua_phien(_row)
@@ -1548,25 +1551,25 @@ Kiểm `time` đã import ở đầu main.py (grep `^import time`); nếu chưa 
                 continue
 ```
 
-`_row.get("brain")` là khoá đã resolve (đường dẫn tuyệt đối); `_brain_root` nhận được cả đường dẫn tuyệt đối (xem `_brain_key`). Nếu không, dùng `payload.get("brain")` mà client gửi kèm.
+`_row.get("brain")` is the resolved key (an absolute path); `_brain_root` also accepts absolute paths (see `_brain_key`). If not, use the `payload.get("brain")` that the client sends along.
 
-- [ ] **Step 6: Chạy test**
+- [ ] **Step 6: Run the tests**
 
-Run: `python tests/run.py workflow_turn_ws` rồi `python tests/run.py chat_runtime` và `python tests/run.py viec_nen`
-Expected: xanh.
+Run: `python tests/run.py workflow_turn_ws`, then `python tests/run.py chat_runtime` and `python tests/run.py viec_nen`
+Expected: green.
 
 - [ ] **Step 7: Commit**
 
 ```bash
 git add server/main.py tests/python/test_workflow_turn_ws.py
-git commit -m "Phiên workflow:<slug>: mỗi tin là một lần chạy, kết quả về chat
+git commit -m "Session workflow:<slug>: every message is one run, result returns to chat
 
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 7: Plugin `javis-workflow` + dòng "lần chạy gần nhất" trong system prompt
+### Task 7: Plugin `javis-workflow` + a "latest run" line in the system prompt
 
 **Files:**
 - Create: `system/plugins/javis-workflow/plugin.yaml`, `system/plugins/javis-workflow/plugin.py`
@@ -1575,12 +1578,12 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 
 **Interfaces:**
 - Consumes: `workflow_runs.get_store()` (Task 1)
-- Produces: tool `javis_workflow` (op `runs` [slug?, limit?], op `show` [id]); hàm `_dong_lan_chay_gan_nhat(brain) -> str` trong main.py
+- Produces: tool `javis_workflow` (op `runs` [slug?, limit?], op `show` [id]); function `_dong_lan_chay_gan_nhat(brain) -> str` in main.py
 
-- [ ] **Step 1: Viết test đỏ**
+- [ ] **Step 1: Write the failing test**
 
 ```python
-"""Plugin javis-workflow: Jarvis 007 tra được lịch sử chạy quy trình từ mọi engine.
+"""Plugin javis-workflow: Jarvis 007 can look up workflow run history from every engine.
 
     python tests/run.py javis_workflow_plugin
 """
@@ -1637,7 +1640,7 @@ check("op la -> loi ro", "ERROR" in asyncio.run(h({"op": "bay"}, ctx)))
 ctx2 = plugins_host.PluginContext("javis-workflow", "bundled", ROOT / "system/plugins/javis-workflow", None)
 check("khong co vault_root -> loi ro", "ERROR" in asyncio.run(h({"op": "runs"}, ctx2)))
 
-# Dòng trong system prompt
+# The line in the system prompt
 import main  # noqa: E402
 d = main._dong_lan_chay_gan_nhat(B)
 check("dong lan chay gan nhat", d.startswith("Lần chạy quy trình gần nhất: Bản tin") and "lỗi" in d and "javis_workflow" in d)
@@ -1650,14 +1653,14 @@ print("\nFAIL:" if fails else "\nOK - javis_workflow_plugin", fails or "")
 sys.exit(1 if fails else 0)
 ```
 
-Trong `_dong_lan_chay_gan_nhat(B)`, test truyền `B` là đường dẫn tuyệt đối đã resolve; hàm phải khoá bằng `_brain_key(brain)` và `_brain_key` với đường dẫn tuyệt đối phải trả về chính nó (xem `_brain_root`). Nếu `_brain_root` từ chối đường dẫn ngoài thư mục brains thì test dùng `main._brain_key("brain")` làm `B` và ghi bản ghi với khoá đó.
+In `_dong_lan_chay_gan_nhat(B)`, the test passes `B` as a resolved absolute path; the function must key it with `_brain_key(brain)`, and `_brain_key` given an absolute path must return that same path (see `_brain_root`). If `_brain_root` rejects paths outside the brains folder, the test uses `main._brain_key("brain")` as `B` and writes the records with that key.
 
-- [ ] **Step 2: Chạy test, phải đỏ**
+- [ ] **Step 2: Run the test, it must be red**
 
 Run: `python tests/run.py javis_workflow_plugin`
 Expected: FileNotFoundError plugin.py
 
-- [ ] **Step 3: Viết plugin**
+- [ ] **Step 3: Write the plugin**
 
 `system/plugins/javis-workflow/plugin.yaml`:
 
@@ -1677,16 +1680,16 @@ hooks: []
 `system/plugins/javis-workflow/plugin.py`:
 
 ```python
-"""Plugin bundled: tool `javis_workflow` - đọc lịch sử chạy quy trình, từ MỌI engine.
+"""Bundled plugin: tool `javis_workflow` - read workflow run history, from EVERY engine.
 
-Vì sao tồn tại: kho `workflow_runs` (server/workflow_runs.py) ghi mọi lần chạy quy trình, nhưng
-bộ não chính không có đường nào tới nó. Người dùng hỏi "quy trình vừa chạy ra sao" là Jarvis 007
-trả lời trống, đúng lỗi chủ dự án báo 2026-09-15. Tool này chỉ ĐỌC (min_mode readonly), nên
-chạy được cả ở chế độ suggest. Muốn chạy quy trình thì giao việc Kanban (javis_task, route
-wf:<slug>) hoặc vào trang Cộng sự.
+Why it exists: the `workflow_runs` store (server/workflow_runs.py) records every workflow run, but
+the main brain has no path to it. When the user asked "how did the workflow that just ran go", Jarvis 007
+answered with nothing, exactly the bug the project owner reported on 2026-09-15. This tool only READS (min_mode readonly), so it
+works even in suggest mode. To run a workflow, hand it off as Kanban work (javis_task, route
+wf:<slug>) or go to the Partners page.
 
-Khoá brain: kho ghi `_brain_key` = đường dẫn tuyệt đối đã resolve của brain, nên ở đây cũng
-resolve `ctx.vault_root` cùng cách. `vault_root` rỗng thì báo lỗi rõ, không rơi về brain khác.
+Brain key: the store writes `_brain_key` = the resolved absolute path of the brain, so here we also
+resolve `ctx.vault_root` the same way. An empty `vault_root` gives a clear error, never falling back to another brain.
 """
 from __future__ import annotations
 
@@ -1696,7 +1699,7 @@ from pathlib import Path
 import workflow_runs
 
 _LIST_MAX = 20
-_TRAN_OUT = 6000     # kết quả cuối in ra tool: engine API cắt 8000, chừa chỗ cho phần còn lại
+_TRAN_OUT = 6000     # final result printed by the tool: the API engines cut at 8000, leave room for the rest
 
 
 def _khoa(ctx) -> str:
@@ -1786,15 +1789,15 @@ def register(ctx):
     )
 ```
 
-- [ ] **Step 4: Dòng trong system prompt**
+- [ ] **Step 4: The line in the system prompt**
 
-Trong main.py, ngay trên `_javis_capability_summary`:
+In main.py, right above `_javis_capability_summary`:
 
 ```python
 def _dong_lan_chay_gan_nhat(brain) -> str:
-    """Một dòng cho system prompt: lần chạy quy trình gần nhất của brain, rỗng nếu chưa có.
-    Nhờ dòng này, hỏi "quy trình chạy gần nhất ra sao" ở khung chat chính là Jarvis 007 biết ngay
-    có gì để tra và tra bằng tool nào."""
+    """One line for the system prompt: the brain's latest workflow run, empty if there is none.
+    Thanks to this line, when someone asks "how did the latest workflow run go" in the main chat frame, Jarvis 007 knows right away
+    there is something to look up and which tool to use."""
     try:
         import workflow_runs
         from datetime import datetime
@@ -1812,7 +1815,7 @@ def _dong_lan_chay_gan_nhat(brain) -> str:
             "Chi tiết hay các lần khác: tool javis_workflow (op=runs, op=show).")
 ```
 
-Trong `_javis_capability_summary`, sau khối `if c["workflows"]:`:
+In `_javis_capability_summary`, after the `if c["workflows"]:` block:
 
 ```python
     _lc = _dong_lan_chay_gan_nhat(brain)
@@ -1820,23 +1823,23 @@ Trong `_javis_capability_summary`, sau khối `if c["workflows"]:`:
         parts.append(_lc)
 ```
 
-- [ ] **Step 5: Chạy test**
+- [ ] **Step 5: Run the tests**
 
-Run: `python tests/run.py javis_workflow_plugin` rồi `python tests/run.py plugins_host`
-Expected: xanh.
+Run: `python tests/run.py javis_workflow_plugin`, then `python tests/run.py plugins_host`
+Expected: green.
 
 - [ ] **Step 6: Commit**
 
 ```bash
 git add system/plugins/javis-workflow server/main.py tests/python/test_javis_workflow_plugin.py
-git commit -m "Tool javis_workflow + dòng lần chạy gần nhất trong system prompt
+git commit -m "Tool javis_workflow + latest-run line in the system prompt
 
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 8: Đăng ký trang `workspace`, gỡ hai trang cũ, bí danh, từ điển
+### Task 8: Register the `workspace` page, remove the two old pages, aliases, dictionary
 
 **Files:**
 - Modify: `dashboard/console.js` (`VIEW_ICON` :27, `RAIL_ITEMS` :81, `RAIL_GROUPS` :104, `VIEW_META` :150, `STUDIO_PAGES` :163, `TRANG_GOP` :254, `renderPage` :396, `LOAI_KHO` :433)
@@ -1844,24 +1847,24 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Modify: `dashboard/packs.js:191-193`, `dashboard/chatbots.js:699`
 - Modify: `dashboard/i18n/vi.json`, `dashboard/i18n/en.json`
 - Modify: `tests/python/test_ui_bridge.py:100-102`
-- Test: `tests/js/test_ui_actions.js` (có sẵn), `tests/python/test_ui_bridge.py`
+- Test: `tests/js/test_ui_actions.js` (existing), `tests/python/test_ui_bridge.py`
 
 **Interfaces:**
-- Produces: id trang `workspace`; `renderPage` gọi `renderWorkspace(el)` (viết ở Task 9, tạm placeholder trong task này); khoá i18n `page.workspace.label|title|sub`
+- Produces: page id `workspace`; `renderPage` calls `renderWorkspace(el)` (written in Task 9, a temporary placeholder in this task); i18n keys `page.workspace.label|title|sub`
 
-- [ ] **Step 1: Sửa test kỳ vọng bí danh (đỏ trước)**
+- [ ] **Step 1: Fix the test's alias expectations (red first)**
 
-Trong `tests/python/test_ui_bridge.py` dòng 100-102 đổi kỳ vọng `"agents"` và `"workflows"` thành `"workspace"`, thêm một dòng:
+In `tests/python/test_ui_bridge.py` lines 100-102 change the expectations for `"agents"` and `"workflows"` to `"workspace"`, and add one line (the Vietnamese "cộng sự" is the old page name, meaning "partners"):
 
 ```python
     check("resolve_page: 'cộng sự' -> workspace", m.resolve_page("cộng sự") == "workspace")
 ```
 
-Run: `python tests/run.py ui_bridge` -> FAIL ở ba dòng đó.
+Run: `python tests/run.py ui_bridge` -> FAIL on those three lines.
 
-- [ ] **Step 2: Sửa server/ui_targets.py**
+- [ ] **Step 2: Edit server/ui_targets.py**
 
-`PAGES`: thay `"workflows", "agents"` bằng `"workspace"` (đúng vị trí của "workflows", bỏ "agents"):
+`PAGES`: replace `"workflows", "agents"` with `"workspace"` (in the position of "workflows", drop "agents"):
 
 ```python
 PAGES = (
@@ -1871,9 +1874,9 @@ PAGES = (
 )
 ```
 
-`ALIASES`: đổi mọi giá trị `"workflows"` và `"agents"` thành `"workspace"`, thêm `"cong su": "workspace", "workspace": "workspace", "tro ly va quy trinh": "workspace"`. Thêm comment: trang Trợ lý và Quy trình gộp thành Cộng sự ở 0.59.0, bí danh cũ giữ để lệnh nói quen tay không chết.
+`ALIASES`: change every value `"workflows"` and `"agents"` to `"workspace"`, and add `"cong su": "workspace", "workspace": "workspace", "tro ly va quy trinh": "workspace"` (the keys are Vietnamese spoken aliases without diacritics: "partners", "workspace", "agents and workflows"). Add a comment: the Agents and Workflows pages merged into Partners in 0.59.0, and the old aliases stay so that habitual spoken commands do not die.
 
-- [ ] **Step 3: Sửa dashboard/ui-actions.js**
+- [ ] **Step 3: Edit dashboard/ui-actions.js**
 
 ```js
   var PAGES = ["home", "chat", "settings", "workspace", "skills", "chatbots", "files",
@@ -1881,20 +1884,20 @@ PAGES = (
                "packs", "logs", "account", "usage", "pet"];
 ```
 
-- [ ] **Step 4: Sửa dashboard/console.js**
+- [ ] **Step 4: Edit dashboard/console.js**
 
-- `VIEW_ICON`: bỏ `workflows` và `agents`, thêm `workspace: "bot"` (icon `bot` có trong manifest; `users` không có, không thêm icon mới ở task này).
-- `RAIL_ITEMS`: `"home", "chat", "settings", "workspace", "skills", "chatbots", "files", ...` (bỏ workflows, agents).
-- `RAIL_GROUPS` nhóm `nang_luc`: `ids: ["workspace", "chatbots", "skills", "plugins"]`.
-- `VIEW_META`: danh sách id thay tương ứng.
+- `VIEW_ICON`: remove `workflows` and `agents`, add `workspace: "bot"` (the `bot` icon exists in the manifest; `users` does not, and no new icon is added in this task).
+- `RAIL_ITEMS`: `"home", "chat", "settings", "workspace", "skills", "chatbots", "files", ...` (remove workflows, agents).
+- `RAIL_GROUPS` group `nang_luc`: `ids: ["workspace", "chatbots", "skills", "plugins"]`.
+- `VIEW_META`: replace the id list accordingly.
 - `STUDIO_PAGES = ["skills"]`.
-- `TRANG_GOP = { runtime: "usage", agents: "workspace", workflows: "workspace" }` với comment: hai trang gộp ở 0.59.0; ai bấm nút cũ trong chat hay bookmark vẫn tới nơi.
-- `LOAI_KHO`: bỏ hai khoá `agents`, `workflows` (trang Cộng sự có nút Store riêng).
-- `renderPage`: thêm dòng `if (id === "workspace") return renderWorkspace(el);` NGAY TRƯỚC dòng `STUDIO_PAGES`.
-- Thêm hàm tạm (Task 9 thay thân thật):
+- `TRANG_GOP = { runtime: "usage", agents: "workspace", workflows: "workspace" }` with a comment: the two pages merged in 0.59.0; anyone who clicks an old button in chat or an old bookmark still arrives at the right place.
+- `LOAI_KHO`: remove the two keys `agents`, `workflows` (the Partners page has its own Store button).
+- `renderPage`: add the line `if (id === "workspace") return renderWorkspace(el);` RIGHT BEFORE the `STUDIO_PAGES` line.
+- Add a temporary function (Task 9 replaces the real body):
 
 ```js
-  // Trang Cộng sự: dựng bởi workspace.js, mượn khung chat như trang Trò chuyện.
+  // Partners page: built by workspace.js, borrows the chat frame like the Chat page.
   function renderWorkspace(el) {
     if (!window.JavisWorkspace) { el.innerHTML = placeholder("workspace", window.t("cs.mod_not_ready", { ten: "workspace.js" })); return; }
     _injectChatCss();
@@ -1905,13 +1908,13 @@ PAGES = (
   }
 ```
 
-- `packs.js:191-193`: `trang: "workspace"` cho `agent` và `workflow`.
+- `packs.js:191-193`: `trang: "workspace"` for `agent` and `workflow`.
 - `chatbots.js:699`: `window.JavisNav.go("workspace")`.
-- Grep toàn `dashboard/*.js` và `server/*.py` cho `"agents"`/`"workflows"` dùng như ID TRANG (không phải đường dẫn API `/agents`): còn chỗ nào thì đổi.
+- Grep all of `dashboard/*.js` and `server/*.py` for `"agents"`/`"workflows"` used as a PAGE ID (not the API path `/agents`): change any that remain.
 
-- [ ] **Step 5: Từ điển**
+- [ ] **Step 5: Dictionary**
 
-`vi.json`: bỏ 6 khoá `page.workflows.*`, `page.agents.*`; thêm:
+`vi.json`: remove the 6 keys `page.workflows.*`, `page.agents.*`; add:
 
 ```json
   "page.workspace.label": "Cộng sự",
@@ -1919,72 +1922,72 @@ PAGES = (
   "page.workspace.sub": "Trò chuyện với từng trợ lý, chạy quy trình, xem lại lịch sử",
 ```
 
-`en.json`: `"Partners"`, `"Partners (Agents & Workflows)"`, `"Chat with each agent, run workflows, review run history"`. Kiểm `tests/js/test_i18n.mjs` (nó có thể canh hai file cùng bộ khoá).
+`en.json`: `"Partners"`, `"Partners (Agents & Workflows)"`, `"Chat with each agent, run workflows, review run history"`. Check `tests/js/test_i18n.mjs` (it may guard that both files have the same key set).
 
-- [ ] **Step 6: Chạy test**
+- [ ] **Step 6: Run the tests**
 
 Run: `node tests/js/test_ui_actions.js`, `python tests/run.py ui_bridge`, `node tests/js/test_i18n.mjs`, `node tests/js/test_nhom_agent_workflow.js`
-Expected: xanh. Nếu `test_nhom_agent_workflow.js` canh trang `agents`/`workflows` bằng chuỗi trong console.js thì cập nhật kỳ vọng sang `workspace` (đọc test trước khi sửa).
+Expected: green. If `test_nhom_agent_workflow.js` guards the `agents`/`workflows` pages by strings in console.js, update the expectation to `workspace` (read the test before editing).
 
 - [ ] **Step 7: Commit**
 
 ```bash
 git add dashboard/console.js dashboard/ui-actions.js dashboard/packs.js dashboard/chatbots.js dashboard/i18n/vi.json dashboard/i18n/en.json server/ui_targets.py tests/python/test_ui_bridge.py tests/js/test_nhom_agent_workflow.js
-git commit -m "Trang Cộng sự thay hai trang Trợ lý và Quy trình trên thanh bên
+git commit -m "Partners page replaces the Agents and Workflows pages in the sidebar
 
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 9: `dashboard/workspace.js` (ba cột) + khung `wf_event` + trình sửa inline
+### Task 9: `dashboard/workspace.js` (three columns) + `wf_event` frame + inline editor
 
 **Files:**
 - Create: `dashboard/workspace.js`
-- Modify: `dashboard/index.html` (thêm `<script src="/static/workspace.js?v=1">` NGAY SAU `studio.js`, TRƯỚC `console.js`)
-- Modify: `dashboard/app.js` (chuỗi `else if (data.type === "system")` ~:678: thêm nhánh `wf_event`)
+- Modify: `dashboard/index.html` (add `<script src="/static/workspace.js?v=1">` RIGHT AFTER `studio.js`, BEFORE `console.js`)
+- Modify: `dashboard/app.js` (the `else if (data.type === "system")` chain ~:678: add a `wf_event` branch)
 - Modify: `dashboard/studio.js` (`editAgent(a)` :541, `editWorkflow(w)` :380, `window.JavisStudio` :76)
-- Modify: `dashboard/i18n/vi.json`, `en.json` (khoá `ws.*`)
+- Modify: `dashboard/i18n/vi.json`, `en.json` (`ws.*` keys)
 - Test: `tests/js/test_workspace.js`
 
 **Interfaces:**
 - Consumes: `POST /sessions/new`, `GET /sessions?channel=`, `GET /agents` (`last_chat_at`), `GET /workflows` (`last_run_at`), `GET /workflows/runs`, `window.JavisSessions.open/new/current/brain`, `window.JavisWsSend(obj)`, `window.JavisPacks.moKho(kind, fromPage, label)`, `window.JavisStudio.editAgent(a, opts)` / `editWorkflow(w, opts)`
-- Produces: `window.JavisWorkspace = { render(el, {borrow}), onWfEvent(frame), state() }`; khung WS gửi `{"action":"wf_resume", session_id, task_id, node, code, brain}`
+- Produces: `window.JavisWorkspace = { render(el, {borrow}), onWfEvent(frame), state() }`; WS frame sent `{"action":"wf_resume", session_id, task_id, node, code, brain}`
 
-- [ ] **Step 1: Sửa studio.js để trình sửa vẽ được vào host bất kỳ**
+- [ ] **Step 1: Edit studio.js so the editor can render into any host**
 
-Trong `editAgent(a)` đổi chữ ký thành `editAgent(a, opts)`; `opts = opts || {}`:
+In `editAgent(a)` change the signature to `editAgent(a, opts)`; `opts = opts || {}`:
 - `const box = opts.host || document.getElementById("editorBox");`
-- Mọi `editor.classList.add("open")` / `remove("open")` thay bằng `moDong(true|false)` với `const moDong = (mo) => { if (!opts.host) editor.classList.toggle("open", mo); };`
-- Nút Huỷ: `box.querySelector("#cancelEd").onclick = () => { if (opts.host) return; moDong(false); };` và khi có host thì ẩn nút Huỷ: thêm `style="display:none"` nếu `opts.host`.
-- Sau lưu: `moDong(false); if (opts.onSaved) opts.onSaved(); else loadAgents();`
-- Vì form dùng id (`#agName`...) và cả trang chỉ có MỘT form agent mở tại một lúc, giữ id.
+- Replace every `editor.classList.add("open")` / `remove("open")` with `moDong(true|false)` where `const moDong = (mo) => { if (!opts.host) editor.classList.toggle("open", mo); };`
+- Cancel button: `box.querySelector("#cancelEd").onclick = () => { if (opts.host) return; moDong(false); };` and when there is a host, hide the Cancel button: add `style="display:none"` if `opts.host`.
+- After saving: `moDong(false); if (opts.onSaved) opts.onSaved(); else loadAgents();`
+- Because the form uses ids (`#agName`...) and the whole page has only ONE agent form open at a time, keep the ids.
 
-`editWorkflow(w)` -> `editWorkflow(w, opts)`: sau lưu `editor.classList.remove("open"); if (opts && opts.onSaved) opts.onSaved(); else loadWorkflows();`. Modal `#studioEditor` vẫn dùng (nó nằm trong index.html toàn cục).
+`editWorkflow(w)` -> `editWorkflow(w, opts)`: after saving `editor.classList.remove("open"); if (opts && opts.onSaved) opts.onSaved(); else loadWorkflows();`. The `#studioEditor` modal is still used (it lives in the global index.html).
 
-`window.JavisStudio` thêm `editAgent, editWorkflow, exportItem`.
+Add `editAgent, editWorkflow, exportItem` to `window.JavisStudio`.
 
-- [ ] **Step 2: app.js chuyển khung `wf_event`**
+- [ ] **Step 2: app.js forwards the `wf_event` frame**
 
-Trong chuỗi `if/else` xử lý `data.type` (gần dòng 678), thêm TRƯỚC nhánh `"system"`:
+In the `if/else` chain that handles `data.type` (near line 678), add BEFORE the `"system"` branch:
 
 ```js
   } else if (data.type === "wf_event") {
-    // Tiến độ từng bước của một lần chạy quy trình (trang Cộng sự vẽ ở cột phải). Khung chat
-    // không vẽ gì: chip trạng thái đã đi bằng khung status riêng.
+    // Per-step progress of a workflow run (the Partners page draws it in the right column). The chat frame
+    // draws nothing: the status chip already travels in its own status frame.
     try { if (window.JavisWorkspace) window.JavisWorkspace.onWfEvent(data); } catch (e) {}
 ```
 
-- [ ] **Step 3: Viết test JS đỏ**
+- [ ] **Step 3: Write the failing JS test**
 
 `tests/js/test_workspace.js`:
 
 ```js
-/* Trang Cộng sự (dashboard/workspace.js): sắp xếp, chọn phiên, tiến độ quy trình.
+/* Partners page (dashboard/workspace.js): ordering, session picking, workflow progress.
 
        node tests/js/test_workspace.js
 
-   Chạy dưới node với DOM giả tối thiểu: workspace.js phơi phần thuần qua window.JavisWorkspace. */
+   Runs under node with a minimal fake DOM: workspace.js exposes its pure part through window.JavisWorkspace. */
 const fs = require("fs");
 const path = require("path");
 const root = path.join(__dirname, "..", "..");
@@ -1998,18 +2001,18 @@ const W = window.JavisWorkspace;
 let fails = [];
 function check(name, cond) { console.log((cond ? "ok   " : "FAIL ") + name); if (!cond) fails.push(name); }
 
-// Sắp xếp: mốc gần nhất lên đầu, chưa có mốc xếp sau theo tên
+// Ordering: most recent timestamp first, items with no timestamp sorted after by name
 const wfs = [{ slug: "a", name: "Bản tin", last_run_at: 0 }, { slug: "b", name: "Viết bài", last_run_at: 50 }, { slug: "c", name: "Ads", last_run_at: 99 }, { slug: "d", name: "Zalo", last_run_at: 0 }];
 check("xep quy trinh theo lan chay gan nhat", W.sapXep(wfs, "last_run_at").map(x => x.slug).join(",") === "c,b,a,d");
 const ags = [{ slug: "x", name: "Người viết", last_chat_at: 0 }, { slug: "y", name: "Jarvis 007", last_chat_at: 3 }];
 check("xep tro ly theo lan chat gan nhat", W.sapXep(ags, "last_chat_at").map(x => x.slug).join(",") === "y,x");
 
-// Lọc: tìm không dấu + nhóm
+// Filter: diacritic-insensitive search + group
 const ds = [{ slug: "a", name: "Người viết", role: "viết", group: "Marketing" }, { slug: "b", name: "Kế toán", role: "sổ sách", group: "Finance" }];
 check("loc theo chu khong dau", W.loc(ds, "nguoi viet", "").map(x => x.slug).join() === "a");
 check("loc theo nhom", W.loc(ds, "", "Finance").map(x => x.slug).join() === "b");
 
-// Tiến độ quy trình từ wf_event
+// Workflow progress from wf_event
 const st = W.tienDoMoi(3);
 W.apDung(st, { type: "step_start", i: 0, agent: "A" });
 check("step_start -> buoc 0 dang lam", st.buoc[0].trang_thai === "dang" && st.hien_tai === 0);
@@ -2026,7 +2029,7 @@ W.apDung(st2, { type: "error", content: "chết" });
 check("error -> buoc dang lam thanh loi", st2.trang_thai === "loi" && st2.buoc[0].trang_thai === "loi");
 check("phan tram", W.phanTram(W.tienDoMoi(4)) === 0 && W.phanTram(st) === 100);
 
-// Dây nối
+// Wiring
 const app = fs.readFileSync(path.join(root, "dashboard", "app.js"), "utf8");
 check("app.js chuyen wf_event sang JavisWorkspace", /data\.type === "wf_event"/.test(app) && /JavisWorkspace\.onWfEvent\(/.test(app));
 const html = fs.readFileSync(path.join(root, "dashboard", "index.html"), "utf8");
@@ -2041,33 +2044,33 @@ if (fails.length) { console.log("\nFAIL:", fails.length, fails); process.exit(1)
 console.log("\nOK - workspace");
 ```
 
-Run: `node tests/js/test_workspace.js` -> FAIL (module chưa có).
+Run: `node tests/js/test_workspace.js` -> FAIL (the module does not exist yet).
 
-- [ ] **Step 4: Viết `dashboard/workspace.js`**
+- [ ] **Step 4: Write `dashboard/workspace.js`**
 
 ```js
-/* workspace.js - trang Cộng sự: chat với từng trợ lý và từng quy trình trên cùng khung chat.
+/* workspace.js - Partners page: chat with each agent and each workflow in the same chat frame.
 
-   Ba cột: trái = danh sách (Trợ lý | Quy trình), giữa = khung chat MƯỢN của app (console.js
-   mượn/trả node, file này chỉ nhận slot), phải = cài đặt trợ lý hoặc tiến độ + lịch sử chạy.
+   Three columns: left = list (Agents | Workflows), middle = the app's BORROWED chat frame (console.js
+   borrows/returns the nodes, this file only receives the slot), right = agent settings or progress + run history.
 
-   Mỗi cộng sự có phiên riêng trong kho phiên (kênh agent:<slug> / workflow:<slug>). Gửi tin
-   vẫn đi đường WebSocket thường của app.js; server nhìn kênh của phiên mà rẽ nhánh. Khung
-   wf_event (tiến độ từng bước) app.js chuyển vào onWfEvent() ở đây.
+   Each partner has its own session in the session store (channel agent:<slug> / workflow:<slug>). Sending a message
+   still goes over the normal WebSocket path of app.js; the server looks at the session's channel and branches. The
+   wf_event frame (per-step progress) is forwarded by app.js into onWfEvent() here.
 
-   Phần thuần (sapXep, loc, tienDoMoi, apDung, phanTram) phơi ra để test bằng node.
-   Ghi chú: KHÔNG dùng ký tự em dash. Chữ hiện ra lấy từ từ điển window.t. */
+   The pure part (sapXep, loc, tienDoMoi, apDung, phanTram) is exposed so it can be tested with node.
+   Note: do NOT use the em dash character. Displayed text comes from the window.t dictionary. */
 (function () {
   "use strict";
   var t = function (k, v) { return (window.t ? window.t(k, v) : k); };
   var ic = function (n, o) { return (window.ic ? window.ic(n, o) : ""); };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); }
-  function khongDau(s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase(); }
+  function khongDau(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase(); }
   function brain() { try { return window.JavisSessions ? window.JavisSessions.brain() : "brain"; } catch (e) { return "brain"; } }
   async function api(url, opt) { var r = await fetch(url, opt); return r.json(); }
   function fd(o) { var f = new FormData(); Object.keys(o).forEach(function (k) { f.append(k, o[k]); }); return f; }
 
-  // ---------- phần thuần ----------
+  // ---------- pure part ----------
   function sapXep(ds, khoa) {
     return ds.slice().sort(function (a, b) {
       var ma = Number(a[khoa] || 0), mb = Number(b[khoa] || 0);
@@ -2105,9 +2108,9 @@ Run: `node tests/js/test_workspace.js` -> FAIL (module chưa có).
     return Math.round(st.buoc.filter(function (b) { return b.trang_thai === "xong"; }).length / st.buoc.length * 100);
   }
 
-  // ---------- trạng thái trang ----------
+  // ---------- page state ----------
   var S = { loai: "agent", q: "", nhom: "", agents: [], workflows: [], chon: { agent: null, workflow: null },
-            el: null, tienDo: {}, sessionCuaPhien: {} };   // tienDo[session_id] = tiến độ lần chạy đang xem
+            el: null, tienDo: {}, sessionCuaPhien: {} };   // tienDo[session_id] = progress of the run being viewed
 
   function danhSach() { return S.loai === "agent" ? S.agents : S.workflows; }
   function kenh(item) { return (S.loai === "agent" ? "agent:" : "workflow:") + item.slug; }
@@ -2120,7 +2123,7 @@ Run: `node tests/js/test_workspace.js` -> FAIL (module chưa có).
     S.workflows = sapXep((r[1].workflows || []).filter(function (w) { return w.status === "active"; }), "last_run_at");
   }
 
-  // ---------- dựng khung ----------
+  // ---------- build the frame ----------
   function render(el, opts) {
     S.el = el;
     el.innerHTML =
@@ -2187,7 +2190,7 @@ Run: `node tests/js/test_workspace.js` -> FAIL (module chưa có).
     veDanhSach(); moPhien(dangChon(), false);
   }
 
-  // ---------- phiên ----------
+  // ---------- sessions ----------
   async function moPhien(item, moiHan) {
     veGiua(item); vePhai(item);
     if (!item) return;
@@ -2215,7 +2218,7 @@ Run: `node tests/js/test_workspace.js` -> FAIL (module chưa có).
     if (inp) inp.placeholder = S.loai === "agent" ? t("ws.ph_agent", { ten: item.name }) : t("ws.ph_workflow");
   }
 
-  // ---------- cột phải ----------
+  // ---------- right column ----------
   function vePhai(item) {
     var host = S.el && S.el.querySelector("#wsRight"); if (!host) return;
     if (!item) { host.innerHTML = ""; return; }
@@ -2312,7 +2315,7 @@ Run: `node tests/js/test_workspace.js` -> FAIL (module chưa có).
     host.querySelectorAll("[data-sid]").forEach(function (b) { b.onclick = function () { window.JavisSessions && window.JavisSessions.open(b.dataset.sid); }; });
   }
 
-  // ---------- sự kiện quy trình từ WebSocket ----------
+  // ---------- workflow events from the WebSocket ----------
   function onWfEvent(frame) {
     var sid = frame.session_id, ev = frame.event || {}; if (!sid) return;
     var item = dangChon();
@@ -2322,7 +2325,7 @@ Run: `node tests/js/test_workspace.js` -> FAIL (module chưa có).
     if (item && S.loai === "workflow" && cur === sid) { veBuoc(item, S.tienDo[sid]); if (ev.type === "done" || ev.type === "error" || ev.type === "wait_user") { taiLichSu(item); taiDanhSach().then(veTrai); } }
   }
 
-  // ---------- tạo mới ----------
+  // ---------- create new ----------
   function taoMoi() {
     if (!window.JavisStudio) return;
     var sau = async function () { await taiDanhSach(); veTrai(); chonMacDinh(); };
@@ -2334,13 +2337,13 @@ Run: `node tests/js/test_workspace.js` -> FAIL (module chưa có).
 })();
 ```
 
-Khi `editAgent(null, {onSaved})` không có `host` thì mở modal như cũ (tạo mới). Kiểm `window.JavisSessions.current()` tồn tại (app.js:1084 có `current`).
+When `editAgent(null, {onSaved})` has no `host`, it opens the modal as before (create new). Check that `window.JavisSessions.current()` exists (app.js:1084 has `current`).
 
 - [ ] **Step 5: CSS**
 
-Thêm vào `dashboard/console.css` (cuối file) khối `.wspage` theo mẫu `.chatpage` trong `_injectChatCss` (console.js:6257): ba cột `display:flex; height:100%`, `.ws-left{width:260px}`, `.ws-right{width:320px; overflow:auto}`, `.ws-main{flex:1; min-width:0; display:flex; flex-direction:column}`, `.ws-slot{flex:1; min-height:0; display:flex; flex-direction:column}`, `.ws-seg` hai nút, `.ws-item.on` nền cam nhạt viền `#7d532d`, `.ws-step` có `.ws-num` tròn, `.ws-prog` thanh 4px màu `var(--accent)` (dùng biến màu có sẵn của theme, grep `--accent` hay tương đương trong style.css), `.ws-run` nút full-width. Màn hẹp `@media (max-width: 900px)`: `.ws-left`, `.ws-right` thành `position:absolute` ngăn kéo, hiện khi `.wspage.left-open` / `.right-open`. Dùng biến màu `var(--surface-1)`, `var(--glass-brd)`, `var(--text2)` như `.chatpage`.
+Add to `dashboard/console.css` (end of file) a `.wspage` block following the `.chatpage` pattern in `_injectChatCss` (console.js:6257): three columns `display:flex; height:100%`, `.ws-left{width:260px}`, `.ws-right{width:320px; overflow:auto}`, `.ws-main{flex:1; min-width:0; display:flex; flex-direction:column}`, `.ws-slot{flex:1; min-height:0; display:flex; flex-direction:column}`, `.ws-seg` two buttons, `.ws-item.on` light orange background with a `#7d532d` border, `.ws-step` with a round `.ws-num`, `.ws-prog` a 4px bar in `var(--accent)` (use the theme's existing color variable, grep `--accent` or the equivalent in style.css), `.ws-run` a full-width button. On narrow screens `@media (max-width: 900px)`: `.ws-left`, `.ws-right` become `position:absolute` drawers, shown when `.wspage.left-open` / `.right-open`. Use the color variables `var(--surface-1)`, `var(--glass-brd)`, `var(--text2)` like `.chatpage`.
 
-- [ ] **Step 6: Từ điển `ws.*`**
+- [ ] **Step 6: `ws.*` dictionary**
 
 vi.json:
 
@@ -2380,54 +2383,54 @@ vi.json:
   "ws.step_n": "Bước {n}",
 ```
 
-en.json: bản dịch tương ứng (Agents, Workflows, Search partners..., All groups, New, New agent, New workflow, Toggle list, Toggle panel, Nothing matches. Create one or browse Jarvis 007 Store., Pick a partner on the left, Workflow · {n} steps, Message {ten}..., Describe the result you want; each message is one run..., Could not open conversation, Agent settings, Recent chats, No chats yet, (untitled), Progress, Edit steps, Run history, No runs yet. Send a message to run., Running · Step {a}/{b}, Completed, Stopped on error, Waiting for approval, Ready, Waiting, In progress..., Done, Error, Step {n}).
+en.json: the matching translations (Agents, Workflows, Search partners..., All groups, New, New agent, New workflow, Toggle list, Toggle panel, Nothing matches. Create one or browse Jarvis 007 Store., Pick a partner on the left, Workflow · {n} steps, Message {ten}..., Describe the result you want; each message is one run..., Could not open conversation, Agent settings, Recent chats, No chats yet, (untitled), Progress, Edit steps, Run history, No runs yet. Send a message to run., Running · Step {a}/{b}, Completed, Stopped on error, Waiting for approval, Ready, Waiting, In progress..., Done, Error, Step {n}).
 
 - [ ] **Step 7: index.html**
 
-Sau dòng `studio.js?v=30` thêm `<script src="/static/workspace.js?v=1"></script>` (cache-bust theo VERSION tự gắn ở server, số v chỉ là mặc định).
+After the line `studio.js?v=30` add `<script src="/static/workspace.js?v=1"></script>` (cache-busting follows the VERSION that the server attaches automatically; the v number is only a default).
 
-- [ ] **Step 8: Chạy test và xem bằng trình duyệt**
+- [ ] **Step 8: Run the tests and check in a browser**
 
 Run: `node tests/js/test_workspace.js`, `node tests/js/test_ui_actions.js`, `node tests/js/test_i18n.mjs`, `node tests/js/test_studio_chon_model_agent.js`
-Expected: xanh.
+Expected: green.
 
-Khởi động server cục bộ (memory: port 7777, start-javis.bat, kill trực tiếp + đường dẫn tuyệt đối) rồi mở `http://localhost:7777`, vào Cộng sự:
-1. Tab Trợ lý: chọn một trợ lý, gửi "chào bạn, bạn là ai?" -> câu trả lời theo vai trợ lý. F5 -> hội thoại còn.
-2. Cột phải sửa vai trò, Lưu -> header đổi.
-3. Tab Quy trình: chọn quy trình mẫu (bấm Tạo mẫu ở trang Kỹ năng/Studio seed nếu chưa có: `POST /studio/seed`), gửi đầu vào -> chip "Bước 1/2..." hiện, cột phải sáng từng bước, tin kết quả "Lần chạy #1 · ..." xuất hiện. F5 giữa chừng -> vẫn thấy chạy tiếp.
-4. Gửi tin thứ hai "ngắn lại một nửa" -> tin "Lần chạy #2".
-5. Lịch sử chạy có 2 dòng; bấm dòng -> mở đúng phiên.
-6. Quay lại tab Quy trình: quy trình vừa chạy nằm đầu danh sách.
-7. Trang Trò chuyện: thanh lịch sử KHÔNG có phiên cộng sự. Hỏi Jarvis 007 "quy trình chạy gần nhất ra sao?" -> trả lời có tên quy trình và kết quả (qua tool javis_workflow).
-8. Nói/gõ ở chat chính "mở trang trợ lý" -> tới Cộng sự.
-9. Thu cửa sổ xuống 400px: hai cột thành ngăn kéo, khung chat dùng được.
+Start the server locally (memory: port 7777, start-javis.bat, kill directly + absolute path) then open `http://localhost:7777` and go to Partners:
+1. Agents tab: pick an agent, send "hello, who are you?" -> the answer follows the agent's role. F5 -> the conversation is still there.
+2. Edit the role in the right column, Save -> the header changes.
+3. Workflows tab: pick a sample workflow (press Create sample on the Skills/Studio page to seed it if missing: `POST /studio/seed`), send an input -> the "Step 1/2..." chip shows, the right column lights up step by step, the result message "Lần chạy #1 · ..." appears. F5 midway -> you still see it continue.
+4. Send a second message "make it half as long" -> the message "Lần chạy #2".
+5. Run history has 2 rows; click a row -> it opens the right session.
+6. Go back to the Workflows tab: the workflow that just ran is at the top of the list.
+7. Chat page: the history bar has NO partner sessions. Ask Jarvis 007 "how did the latest workflow run go?" -> the answer has the workflow name and result (through the tool javis_workflow).
+8. Say/type in the main chat "mở trang trợ lý" (Vietnamese for "open the agents page") -> it goes to Partners.
+9. Shrink the window to 400px: the two columns become drawers, the chat frame is usable.
 
-Ghi lại kết quả từng mục; mục nào hỏng thì sửa trước khi commit.
+Record the result of each item; fix any item that fails before committing.
 
 - [ ] **Step 9: Commit**
 
 ```bash
 git add dashboard/workspace.js dashboard/console.js dashboard/console.css dashboard/app.js dashboard/studio.js dashboard/index.html dashboard/i18n/vi.json dashboard/i18n/en.json tests/js/test_workspace.js
-git commit -m "Trang Cộng sự: chat với trợ lý và quy trình, tiến độ và lịch sử ở cột phải
+git commit -m "Partners page: chat with agents and workflows, progress and history in the right column
 
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 10: Tài liệu, CHANGELOG, VERSION, PR và merge
+### Task 10: Docs, CHANGELOG, VERSION, PR and merge
 
 **Files:**
-- Modify: `docs/07-agents-va-workflows.md` (mục "Mở ở đâu trong Jarvis 007" và cách chạy), `docs/en/07-agents-and-workflows.md`
+- Modify: `docs/07-agents-va-workflows.md` (the section "Where to open it in Jarvis 007" and how to run), `docs/en/07-agents-and-workflows.md`
 - Modify: `CHANGELOG.md`, `VERSION`
 
 - [ ] **Step 1: Docs**
 
-Trong `docs/07-agents-va-workflows.md`: mục "Mở ở đâu" đổi thành nhóm Năng lực có mục **Cộng sự** với hai tab Trợ lý | Quy trình; thêm mục "Trò chuyện với một trợ lý" (chọn ở cột trái, chat ở giữa, cài đặt ở cột phải, mỗi trợ lý có nhiều hội thoại); mục "Chạy quy trình" viết lại: gửi một tin là một lần chạy, tiến độ ở cột phải, kết quả về chat, tin sau nhớ kết quả trước, lịch sử chạy ở cột phải và Jarvis 007 tra được bằng câu hỏi ở khung chat chính. Sửa câu "bấm ▶ Chạy trực tiếp ở trang Workflows" thành "gửi tin ở trang Cộng sự". Bản tiếng Anh sửa tương ứng.
+In `docs/07-agents-va-workflows.md`: change the "Where to open it" section to the Capabilities group having a **Partners** item (in the Vietnamese doc: **Cộng sự**) with two tabs Agents | Workflows (Trợ lý | Quy trình); add a section "Chat with an agent" (pick on the left column, chat in the middle, settings in the right column, each agent has several conversations); rewrite the section "Run a workflow": sending a message is one run, progress is in the right column, the result comes back to chat, later messages remember the previous result, the run history is in the right column and Jarvis 007 can look it up from a question in the main chat frame. Change the sentence "press ▶ Run directly on the Workflows page" to "send a message on the Partners page". Update the English edition correspondingly.
 
 - [ ] **Step 2: CHANGELOG + VERSION**
 
-`git fetch origin` rồi đọc số trên `origin/main` (memory: bump theo số REMOTE). Nếu remote vẫn 0.58.x thì bản này là `0.59.0` (tính năng mới). Ghi VERSION và thêm đầu CHANGELOG:
+`git fetch origin` then read the number on `origin/main` (memory: bump by the REMOTE number). If the remote is still 0.58.x then this release is `0.59.0` (new feature). Write VERSION and add this at the top of CHANGELOG (the CHANGELOG.md itself is Vietnamese, so the Vietnamese entry below is the text to paste; the English gloss follows it):
 
 ```markdown
 ## [0.59.0] - 2026-09-15
@@ -2437,49 +2440,59 @@ Trong `docs/07-agents-va-workflows.md`: mục "Mở ở đâu" đổi thành nh�
 - **Lịch sử chạy được lưu lại.** Cột phải liệt kê các lần chạy gần nhất, bấm vào là mở lại; hỏi Jarvis 007 "quy trình chạy gần nhất ra sao" ở khung chat chính là có câu trả lời thật. Quy trình vừa chạy tự lên đầu danh sách.
 ```
 
-- [ ] **Step 3: Chạy toàn bộ test**
+English gloss of that entry (for `CHANGELOG.en.md`):
+
+```markdown
+## [0.59.0] - 2026-09-15
+### Added
+- **The Partners page replaces the Agents and Workflows pages.** Pick an agent and you can chat with it right away in exactly that role; each agent has its own conversations and its settings sit in the right column.
+- **Workflows run right inside the chat frame.** Sending a message is one run, per-step progress shows in the right column, the result comes back to chat, and later messages still remember the previous result so you can keep giving feedback.
+- **Run history is saved.** The right column lists the most recent runs and clicking one reopens it; ask Jarvis 007 "how did the latest workflow run go" in the main chat frame and you get a real answer. The workflow that just ran moves to the top of the list on its own.
+```
+
+- [ ] **Step 3: Run the whole test suite**
 
 Run: `python tests/run.py`
-Expected: các file mới xanh; các file đỏ chỉ là 13 file đỏ sẵn trên máy (so với danh sách trong memory `reference_test-do-gia-tren-may-nay`). Ghi rõ trong báo cáo.
+Expected: the new files are green; the only red files are the 13 files already red on this machine (compare with the list in the memory `reference_test-do-gia-tren-may-nay`, "reference: tests that are red on this machine"). State this clearly in the report.
 
 - [ ] **Step 4: Commit, push, PR, merge**
 
 ```bash
 git add docs CHANGELOG.md VERSION
-git commit -m "Docs + CHANGELOG 0.59.0: trang Cộng sự
+git commit -m "Docs + CHANGELOG 0.59.0: Partners page
 
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 git push -u origin feat/cong-su-workspace
-gh pr create --title "Trang Cộng sự: chat với trợ lý và quy trình, lưu lịch sử chạy (0.59.0)" --body "$(cat <<'EOF'
+gh pr create --title "Partners page: chat with agents and workflows, save run history (0.59.0)" --body "$(cat <<'EOF'
 Spec: docs/superpowers/specs/2026-09-15-cong-su-workspace-design.md
 Plan: docs/superpowers/plans/2026-09-15-cong-su-workspace.md
 
-- Trang `workspace` (Cộng sự) thay `agents` + `workflows`; ba cột, mượn khung chat của app.
-- Phiên kênh `agent:<slug>` dùng prompt của trợ lý; phiên `workflow:<slug>` biến mỗi tin thành một lần chạy `execute_workflow`, kết quả về chat, kể cả lỗi và chờ duyệt.
-- Kho `workflow_runs.sqlite3` ghi mọi lần chạy (Cộng sự, Kanban); `GET /workflows/runs`; tool `javis_workflow`; dòng "lần chạy gần nhất" trong system prompt.
-- `POST /sessions/new`, `GET /sessions?channel=`; thanh lịch sử chat chính bỏ phiên cộng sự.
+- Page `workspace` (Partners) replaces `agents` + `workflows`; three columns, borrows the app's chat frame.
+- A session on channel `agent:<slug>` uses the agent's prompt; a `workflow:<slug>` session turns each message into one `execute_workflow` run, with the result returned to chat, errors and waiting-for-approval included.
+- The `workflow_runs.sqlite3` store records every run (Partners, Kanban); `GET /workflows/runs`; tool `javis_workflow`; a "latest run" line in the system prompt.
+- `POST /sessions/new`, `GET /sessions?channel=`; the main chat history bar drops partner sessions.
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 EOF
 )"
 ```
 
-Chờ CI xanh (dùng ccd_pr để xem), rồi merge squash vào main theo luật repo (CLAUDE.md: CI xanh là merge thẳng, lịch sử tuyến tính). CI đỏ thì sửa trước, không merge.
+Wait for CI to go green (use ccd_pr to watch), then squash-merge into main per the repo rule (CLAUDE.md: green CI means merge straight in, linear history). If CI is red, fix it first and do not merge.
 
 ---
 
 ## Self-review
 
 **Spec coverage:**
-- §3 giao diện ba cột, ngăn kéo màn hẹp, Store, Tạo mới, sắp xếp: Task 9 (+ Task 8 đăng ký trang).
-- §4 phiên theo kênh, `POST /sessions/new`, lọc kênh, ghim model: Task 3.
-- §5 chat với trợ lý, JAVIS_LESSON, nhật ký, lỗi khi trợ lý mất: Task 5.
-- §6 lượt quy trình, status/wf_event/stream, tin xong/lỗi/chờ duyệt, nối kết quả trước, wf_resume: Task 4 + 6.
-- §7 kho lịch sử, bọc `execute_workflow`, `source`, API, `last_run_at`/`last_chat_at`: Task 1 + 2 (+3).
-- §8 plugin `javis_workflow`, dòng system prompt: Task 7.
-- §9 kiểm thử: mỗi task có test; kiểm tay ở Task 9 Step 8.
-- §11 docs, CHANGELOG, VERSION: Task 10.
+- Section 3 three-column UI, drawers on narrow screens, Store, Create new, ordering: Task 9 (+ Task 8 page registration).
+- Section 4 sessions by channel, `POST /sessions/new`, channel filter, model pinning: Task 3.
+- Section 5 chat with an agent, JAVIS_LESSON, log, error when the agent is gone: Task 5.
+- Section 6 workflow turn, status/wf_event/stream, done/error/waiting messages, appending the previous result, wf_resume: Task 4 + 6.
+- Section 7 history store, wrapping `execute_workflow`, `source`, API, `last_run_at`/`last_chat_at`: Task 1 + 2 (+3).
+- Section 8 plugin `javis_workflow`, system prompt line: Task 7.
+- Section 9 testing: every task has a test; manual check in Task 9 Step 8.
+- Section 11 docs, CHANGELOG, VERSION: Task 10.
 
-**Type consistency:** `execute_workflow(..., source=)` (Task 2) được Task 6 gọi đúng tên tham số; `workflow_chat.chay` trả các khoá `trang_thai/ket_qua/so_buoc/loi/wait/run_id` (Task 4) được `_luot_quy_trinh` (Task 6) đọc đúng; `gan_nhat` trả `output_tom_tat` (Task 1) được plugin (Task 7) và workspace.js (Task 9, dùng `input`, `nhan`, `session_id`, `started_at`, `status`) đọc đúng; `JavisStudio.editAgent(a, {host,onSaved})` (Task 9 Step 1) khớp cách gọi trong workspace.js.
+**Type consistency:** `execute_workflow(..., source=)` (Task 2) is called by Task 6 with the right parameter name; the keys `trang_thai/ket_qua/so_buoc/loi/wait/run_id` returned by `workflow_chat.chay` (Task 4) are read correctly by `_luot_quy_trinh` (Task 6); the `output_tom_tat` returned by `gan_nhat` (Task 1) is read correctly by the plugin (Task 7) and workspace.js (Task 9, which uses `input`, `nhan`, `session_id`, `started_at`, `status`); `JavisStudio.editAgent(a, {host,onSaved})` (Task 9 Step 1) matches how it is called in workspace.js.
 
-**Placeholder scan:** không còn "TBD"; các bước "đọc rồi sao y" (Task 6 Step 4 phần `finally`, Task 8 Step 4 grep id trang) là chỉ dẫn cụ thể về nơi đọc và việc làm.
+**Placeholder scan:** no "TBD" left; the "read then copy" steps (Task 6 Step 4 the `finally` part, Task 8 Step 4 grep for page ids) are concrete instructions about where to read and what to do.

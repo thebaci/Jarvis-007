@@ -1,331 +1,330 @@
-# Bộ phán xử hội thoại nhóm (0.65.0)
+# Group conversation arbiter (0.65.0)
 
-Ngày 2026-09-30. Trạng thái: đặc tả để làm MỘT lần, một PR (#502), nhiều commit theo mốc.
+Date 2026-09-30. Status: a spec to build in ONE go, one PR (#502), several commits by milestone.
 
-## 1. Vấn đề
+## 1. Problem
 
-Bot chuyên trách đứng trong nhóm chat (Zalo cá nhân, Telegram) phải tự quyết ba việc: có ai đang
-nói với mình không, có nên chen vào không, và nói thì nói gì. Bản 0.64.82 giải bằng một chuỗi luật
-cứng viết riêng cho một trường hợp:
+A dedicated bot standing in a chat group (personal Zalo, Telegram) has to decide three things by itself: is anyone
+talking to me, should I chime in, and if I speak, what do I say. Version 0.64.82 solved this with a chain of hard
+rules written for a single case:
 
-- `zalo_personal_channel.nhan_dien_goi` chỉ bắt "@tên". Gọi tên trơn ("javis vũ ơi") không được coi
-  là gọi bot.
-- `chatbot_tu_dong.nhin_nhu_cau_hoi` là cửa từ khoá (dấu hỏi, "sao", "giúp"...). Tin không khớp bị
-  loại, và cố ý KHÔNG ghi nhật ký, nên lỗi không để lại dấu vết.
-- Chỉ nhìn đúng MỘT tin. Người ta nhắn tiếp "vậy còn cái kia?" ngay sau khi bot trả lời thì bot coi
-  là tin lạ.
+- `zalo_personal_channel.nhan_dien_goi` only catches "@name". A plain name call ("javis vũ ơi", Vietnamese for "hey javis Vũ") is not counted
+  as calling the bot.
+- `chatbot_tu_dong.nhin_nhu_cau_hoi` is a keyword gate (question mark, "sao" (why/how), "giúp" (help)...). Messages that do not match are
+  dropped, and deliberately NOT logged, so errors leave no trace.
+- It looks at exactly ONE message. When people follow up with "vậy còn cái kia?" ("what about the other one, then?") right after the bot answers, the bot
+  treats it as a stranger's message.
 
-Chủ dự án (2026-09-30): muốn một cơ chế theo ngữ cảnh, không bó vào một bot, để nhiều bot khác nhau
-dần dần tự học cách trả lời trong nhóm; học TRỰC TIẾP chứ không theo tuần; bỏ bước duyệt vì bot dùng
-nick riêng nên nói nhầm là rẻ.
+The project owner (2026-09-30): wants a context-based mechanism, not tied to one bot, so that several different bots
+gradually learn by themselves how to answer in groups; learn LIVE rather than weekly; drop the approval step because the bot uses
+a personal account so speaking wrongly is cheap.
 
-Và điều quan trọng nhất, chủ nói rõ sau bản đặc tả đầu: chủ chạy NHIỀU bot với lĩnh vực và nhóm không
-liên quan nhau (ví dụ Jarvis 007 Vũ hỗ trợ về Jarvis 007, Nhi Mai và Ngọc Thu mỗi người một ngành khác). Cách
-trả lời của mỗi bot phải đến từ Agent của chính nó. Bản thiết kế không được mượn giọng, ca hay ví dụ
-của bot này cho bot kia, và không được thiên về trường hợp của Jarvis 007 Vũ.
+And the most important point, which the owner made clear after the first version of this spec: the owner runs MANY bots in unrelated fields and groups
+(for example Jarvis 007 Vũ supports Jarvis 007, while Nhi Mai and Ngọc Thu each have a different industry). Each bot's way of
+answering must come from its own Agent. The design must not borrow the voice, cases or examples
+of one bot for another, and must not lean toward Jarvis 007 Vũ's case.
 
-## 2. Mục tiêu và không mục tiêu
+## 2. Goals and non-goals
 
-Mục tiêu:
-1. Nhận ra bị gọi tên trơn, hiểu tin nối tiếp sau lượt bot vừa nói.
-2. Mọi quyết định, kể cả im, đều có dấu vết đọc được.
-3. Một bộ máy dùng chung cho mọi bot và mọi kênh; cái riêng của từng bot nằm trong dữ liệu
-   (hồ sơ, thẻ luật, ca đã học), không nằm trong mã.
-4. Học tức thì từ phản ứng của người thật; ca vừa gắn nhãn tác động ngay quyết định kế tiếp.
-5. Bot mới có hành vi hợp lý ngay ngày đầu THEO LĨNH VỰC CỦA NÓ (suy ra từ Agent và tài liệu của chính
-   bot), không mượn giọng hay ca của bot khác.
+Goals:
+1. Recognize being called by a plain name, understand follow-up messages after the bot's turn.
+2. Every decision, silence included, leaves a readable trace.
+3. One engine shared by every bot and every channel; what is specific to each bot lives in data
+   (profile, rule cards, learned cases), not in code.
+4. Learn instantly from real people's reactions; a case just labeled affects the very next decision.
+5. A new bot has reasonable behavior from day one FOR ITS OWN FIELD (inferred from the bot's own Agent and documents),
+   without borrowing another bot's voice or cases.
 
-Không mục tiêu: đổi NỘI DUNG câu bot nói (vẫn bám tài liệu và vai của Agent); huấn luyện hay tinh
-chỉnh model; học chéo giữa các người dùng; sửa cách bot chat riêng; chia sẻ ca, giọng hay luật giữa các bot.
+Non-goals: changing the CONTENT of what the bot says (it still sticks to the documents and the Agent's role); training or fine-tuning
+a model; cross-user learning; changing how the bot handles private chat; sharing cases, voice or rules between bots.
 
-## 3. Nguyên tắc
+## 3. Principles
 
-1. **Tách "được gọi" khỏi "nên chen vào".** Cái đầu là nhận diện, luật cứng và rộng tay. Cái sau là
-   phán đoán, mới là chỗ học. Trộn hai thứ này thì bot có thể học sai thành "bị gọi tên mà im cũng
-   được".
-2. **Học chỉ đổi việc NÓI HAY IM.** Không bao giờ đổi điều bot khẳng định. Nhờ vậy bỏ duyệt vẫn không
-   làm bot bịa thêm.
-3. **Rào cứng nằm ngoài vòng học** và là giới hạn của mọi thứ học được.
-4. **Sai về phía im.** Lỗi, hết giờ, JSON hỏng, tín hiệu mơ hồ: im. Ngoại lệ duy nhất là tin gọi
-   tên chắc chắn, luôn trả lời như chat riêng.
-5. **Ca đơn lẻ nhẹ, lời dạy của chủ nặng.** Chỉ chủ mới tạo được luật. Người khác trong nhóm là nguồn
-   không tin cậy: lời họ chỉ là tín hiệu yếu.
-6. **Ba tầng, học chỉ ghi vào tầng riêng.** Tầng chung chỉ có CƠ CHẾ trò chuyện nhóm, không có chủ đề,
-   giọng hay xưng hô. Tầng bot lấy từ Agent của chính bot. Tầng cuộc chat là văn hoá riêng của từng
-   nhóm. Điều học được chỉ ghi vào tầng bot hoặc tầng cuộc chat, không bao giờ ngược lên tầng chung,
-   và bot này không đọc được gì của bot kia (xem 4.1).
-7. **Bộ phán xử không viết câu trả lời.** Nó chỉ quyết nói hay im. Câu nói ra vẫn do engine của bot
-   chạy với prompt Agent của bot, nên giọng và cách trả lời luôn là của Agent.
-8. **Mở rộng bằng dữ liệu và cắm thêm, không bằng nhánh if.** Thêm tín hiệu, thêm kênh, thêm ngôn
-   ngữ là thêm một hàm hoặc một dòng dữ liệu.
-9. **Dữ liệu chat khách là dữ liệu nhạy cảm.** Học là bật riêng từng bot, mặc định TẮT; dữ liệu
-   ngoài git, có hạn giữ, xoá theo bot, có nút quên.
+1. **Separate "being called" from "should chime in".** The first is recognition, a hard and generous rule. The second is
+   judgment, which is where learning happens. Mixing the two lets the bot wrongly learn that "staying silent when called by name is fine".
+2. **Learning only changes SPEAK or STAY SILENT.** It never changes what the bot asserts. That way dropping approval still
+   does not make the bot invent more.
+3. **Hard guards sit outside the learning loop** and are the limit on everything that can be learned.
+4. **Err toward silence.** Errors, timeouts, broken JSON, ambiguous signals: silent. The only exception is a message that surely
+   calls the bot by name, which always gets answered like a private chat.
+5. **A single case is light, the owner's teaching is heavy.** Only the owner can create rules. Other people in the group are an untrusted
+   source: their words are only a weak signal.
+6. **Three layers, learning writes only to its own layer.** The shared layer holds only the group-conversation MECHANISM, no topic,
+   voice or form of address. The bot layer comes from the bot's own Agent. The chat layer is each group's own culture. What is learned is written
+   only to the bot layer or the chat layer, never upward into the shared layer,
+   and one bot cannot read anything of another bot (see 4.1).
+7. **The arbiter does not write the answer.** It only decides speak or stay silent. The sentence spoken is still run by the bot's engine
+   with the bot's Agent prompt, so the voice and way of answering are always the Agent's.
+8. **Extend by data and plug-ins, not by if branches.** Adding a signal, a channel or a language
+   is adding one function or one line of data.
+9. **Customer chat data is sensitive data.** Learning is switched on per bot, DEFAULT OFF; data
+   is kept out of git, has a retention limit, is deleted per bot, and has a forget button.
 
-## 4. Kiến trúc
+## 4. Architecture
 
 ```
-tin nhóm -> [Event chuẩn hoá] -> R rào cứng -> G nhận diện được gọi -> T tín hiệu
+group message -> [normalized Event] -> R hard guards -> G recognize being called -> T signals
                                                         |                  |
                                             certain --->|                  v
-                                       (trả lời luôn)   |          C cổng thô (rác/không tín hiệu -> silent + ghi vết)
+                                       (reply at once)  |          C coarse gate (junk/no signal -> silent + trace)
                                                         |                  |
-                                                        +----------> J người phán xử (model việc nền)
-                                                                     ^   |   nhận: guidelines + ca giống + 8 tin gần nhất
-                                                       ca giống -----+   v   trả: reply|silent + score + reason
-                                                       K kho ca           D so score với threshold(bot, chat)
+                                                        +----------> J arbiter (background-job model)
+                                                                     ^   |   receives: guidelines + similar cases + last 8 messages
+                                                       similar cases +   v   returns: reply|silent + score + reason
+                                                       K case store      D compare score with threshold(bot, chat)
                                                                      ^   |
                                                     label, lesson ---+   v
-                                                       O outcome tracker  <- mọi tin sau đó của cuộc chat
+                                                       O outcome tracker  <- every later message in the chat
 ```
 
-Ba khối dữ liệu tách rời, đổi cái này không đụng cái kia:
+Three separate data blocks, changing one does not touch the others:
 
-- **Sự kiện (Event):** khuôn chuẩn hoá, không phụ thuộc kênh. Bộ chuyển đổi của Zalo và Telegram
-  tự dựng.
-- **Hồ sơ (Profile):** riêng từng bot. Tên gọi, thẻ luật, độ hăng hái, người được dạy bot.
-- **Kho (Store):** ca đã học, nhật ký quyết định, ngưỡng theo cuộc chat.
+- **Event:** a normalized mold, independent of the channel. The Zalo and Telegram adapters
+  build it themselves.
+- **Profile:** per bot. Aliases, rule cards, eagerness, the people who teach the bot.
+- **Store:** learned cases, the decision log, per-chat thresholds.
 
-### 4.1 Ba tầng: cái gì đến từ đâu
+### 4.1 Three layers: what comes from where
 
-| Tầng | Chứa gì | Từ đâu | Ai đổi được |
+| Layer | Contains | From where | Who can change it |
 |---|---|---|---|
-| Chung | cơ chế: nhận diện gọi tên, tin nối tiếp, cách chấm điểm, ngưỡng gốc, từ khoá phản ứng, mẫu cơ chế | mã và dữ liệu trong repo, KHÔNG có chủ đề nào | chỉ bản cập nhật |
-| Bot | phạm vi đảm nhiệm và không đảm nhiệm, giọng, xưng hô, ngôn ngữ, khi nào nên lên tiếng | biên dịch từ file Agent và mục lục tài liệu brain của CHÍNH bot (5.10) | chủ sửa tay; tự soạn lại khi Agent đổi |
-| Cuộc chat | ngưỡng lệch, ca đã học, bài học | phản ứng trong chính nhóm đó | học tự động; chủ xoá được |
+| Shared | mechanism: recognizing name calls, follow-up messages, scoring method, base threshold, reaction keywords, mechanism templates | code and data in the repo, NO topic at all | only an update |
+| Bot | the scope it does and does not handle, voice, form of address, language, when to speak up | compiled from the Agent file and the brain's document index of the bot ITSELF (5.10) | the owner by hand; re-composed automatically when the Agent changes |
+| Chat | offset threshold, learned cases, lessons | reactions inside that very group | learned automatically; the owner can delete |
 
-Ví dụ với ba bot: Jarvis 007 Vũ nhận câu hỏi về Jarvis 007, Nhi Mai và Ngọc Thu mỗi người nhận đúng ngành của
-mình. Cả ba dùng CÙNG một bộ máy, nhưng hồ sơ vai, ca khởi tạo, ca đã học, ngưỡng và bài học đều tách
-riêng theo `bot_id` (và theo cuộc chat). Bộ phán xử của Nhi Mai không bao giờ đọc thấy ca, ví dụ hay
-giọng của Jarvis 007 Vũ. Ai học gì ở nhóm nào thì chỉ ở nhóm đó.
+An example with three bots: Jarvis 007 Vũ takes questions about Jarvis 007, Nhi Mai and Ngọc Thu each take their own field. All three use the SAME engine, but the
+role profile, bootstrap cases, learned cases, threshold and lessons are all separated
+by `bot_id` (and by chat). Nhi Mai's arbiter never sees the cases, examples or
+voice of Jarvis 007 Vũ. Whatever is learned in a group stays in that group.
 
-Mã mới nằm trong `server/chatbot_reply_policy.py` (bộ máy, thuần và test được) và
-`server/chatbot_reply_policy_store.py` (SQLite). Không nhét vào `chatbot_runtime.py` thêm nữa.
+New code lives in `server/chatbot_reply_policy.py` (the engine, pure and testable) and
+`server/chatbot_reply_policy_store.py` (SQLite). No more stuffing into `chatbot_runtime.py`.
 
-### 4.2 Sự kiện chuẩn hoá
+### 4.2 The normalized Event
 
 ```
 Event: channel, bot_id, chat_id, chat_type, msg_id, ts, text, sender_id, sender_name,
        sender_role ("owner" | "known" | "new"), mentioned (bool), reply_to_bot (bool),
-       window (tối đa 8 tin gần nhất: ts, sender_id, name, is_bot, text),
-       bot_last_spoke_ts (ts hoặc None), owner_typing (bool)
+       window (at most the last 8 messages: ts, sender_id, name, is_bot, text),
+       bot_last_spoke_ts (ts or None), owner_typing (bool)
 ```
 
-`window` lấy từ Hộp thư (`conversations.tin_nhan`) của đúng cuộc chat; chưa có thì rỗng, bộ máy
-vẫn chạy. Nội dung mỗi tin cắt 400 ký tự, gỡ marker nội bộ (`[IM_LANG]`, `JAVIS_`).
+`window` comes from the Inbox (`conversations.tin_nhan`) of that very chat; if none yet it is empty and the engine
+still runs. Each message's content is cut to 400 characters, with internal markers stripped (`[IM_LANG]`, `JAVIS_`).
 
-### 4.3 Quy ước đặt tên
+### 4.3 Naming convention
 
-Định danh mới (tên module, hàm, biến, trường dữ liệu, cột SQL, đường API, giá trị liệt kê, tên file dữ
-liệu) viết bằng TIẾNG ANH, theo yêu cầu của chủ 2026-09-30. Chuỗi hiển thị cho người dùng, chú thích và
-tài liệu vẫn là tiếng Việt có dấu. Tên cũ mà PR này chỉ gọi tới (như `chatbot_tu_dong`, `_ly_do_im`,
-`zalo_personal_channel.nhan_dien_goi`) giữ nguyên: đổi tên hàng loạt kéo theo dữ liệu đang lưu, đường
-API mà giao diện đang gọi và hàng trăm test, nên là một PR riêng, không lẫn vào đây.
+New identifiers (module names, functions, variables, data fields, SQL columns, API routes, enum values, data file
+names) are written in ENGLISH, at the owner's request on 2026-09-30. Strings displayed to users, comments and
+docs remain Vietnamese with diacritics. Old names that this PR only calls (such as `chatbot_tu_dong`, `_ly_do_im`,
+`zalo_personal_channel.nhan_dien_goi`) stay as they are: renaming in bulk drags in stored data, API routes
+that the UI calls, and hundreds of tests, so it is a separate PR, not mixed in here.
 
-| Khái niệm | Định danh |
+| Concept | Identifier |
 |---|---|
-| người phán xử, hồ sơ vai, kho ca | `judge`, `role_profile`, `cases` |
-| ngưỡng, độ lệch ngưỡng | `threshold`, `offset` |
-| mức được gọi: chắc chắn, có thể, không | `certain`, `possible`, `none` |
-| quyết định: nói, im | `reply`, `silent` |
-| nhãn: đúng, im nhầm, chen nhầm, lời dạy | `correct`, `missed`, `intruded`, `taught` |
-| chế độ: tắt, chạy thử, bật | `off`, `shadow`, `on` |
-| độ hăng hái: ít, vừa, nhiều | `low`, `medium`, `high` |
-| người nói: chủ, đã biết, mới | `owner`, `known`, `new` |
-| nguồn ca: tự động, chủ, khởi tạo | `auto`, `owner`, `bootstrap` |
-| người được dạy bot, tên gọi, bài học | `trainer_ids`, `aliases`, `lessons` |
+| arbiter, role profile, case store | `judge`, `role_profile`, `cases` |
+| threshold, threshold offset | `threshold`, `offset` |
+| calling level: certain, possible, none | `certain`, `possible`, `none` |
+| decision: speak, silent | `reply`, `silent` |
+| label: correct, wrongly silent, wrongly intruded, taught | `correct`, `missed`, `intruded`, `taught` |
+| mode: off, trial run, on | `off`, `shadow`, `on` |
+| eagerness: low, medium, high | `low`, `medium`, `high` |
+| speaker: owner, known, new | `owner`, `known`, `new` |
+| case source: automatic, owner, bootstrap | `auto`, `owner`, `bootstrap` |
+| people who teach the bot, aliases, lessons | `trainer_ids`, `aliases`, `lessons` |
 
-## 5. Các tầng
+## 5. The layers
 
-### 5.1 R: rào cứng (giữ nguyên, không học được)
+### 5.1 R: hard guards (kept as is, not learnable)
 
-> Phát hiện khi làm: khoảng nghỉ 20 giây giữa hai lần bot tự nói chặn luôn tin NỐI TIẾP của người bot vừa trả lời,
-> làm hỏng đúng tính năng "hiểu tin nối tiếp". Nên tin nối tiếp được nới khoảng nghỉ và trần theo người; trần theo
-> nhóm mỗi giờ vẫn áp (`chatbot_tu_dong.duoc_tra_loi(..., follow_up=True)`).
+> Discovered while building: the 20-second pause between two bot self-speaks also blocks the FOLLOW-UP message of the person the bot just answered,
+> breaking exactly the "understand follow-up messages" feature. So follow-up messages get a relaxed pause and per-person cap; the per-group
+> hourly cap still applies (`chatbot_tu_dong.duoc_tra_loi(..., follow_up=True)`).
 
-Nhóm chưa được cho phép thì im (`_nhom_duoc_phep`); người chưa chọn thì im; cuộc chat đã Tiếp
-quản; chủ vừa gõ tay (`chu_vua_nhan_tay`); tin cũ quá `TUOI_TOI_DA`; tin do chính nick gửi;
-hạn mức số lần tự nói (`chatbot_tu_dong.duoc_tra_loi`); không làm hành động ra ngoài do bộ phán
-xử. Rào chạy TRƯỚC mọi thứ tốn model và vẫn ở chỗ hiện tại trong `chatbot_runtime`.
+A group that is not yet allowed stays silent (`_nhom_duoc_phep`); a person not yet chosen stays silent; a chat already Taken
+over; the owner just typed by hand (`chu_vua_nhan_tay`); a message older than `TUOI_TOI_DA`; a message sent by the account itself;
+the cap on self-speaking count (`chatbot_tu_dong.duoc_tra_loi`); no outside actions performed by the arbiter.
+The guards run BEFORE anything that costs a model call and stay where they are now in `chatbot_runtime`.
 
-### 5.2 G: nhận diện được gọi
+### 5.2 G: recognizing being called
 
-Trả `address_level` ∈ `certain` | `possible` | `none` cùng bằng chứng. Chuẩn hoá: bỏ dấu, chữ thường, gộp khoảng
-trắng (dùng `chatbot_grounding._bo_dau`), khớp theo ranh giới từ.
+Returns `address_level` ∈ `certain` | `possible` | `none` together with the evidence. Normalization: strip diacritics, lowercase, collapse
+whitespace (using `chatbot_grounding._bo_dau`), match on word boundaries. The Vietnamese words below are kept as is because the matching is done on Vietnamese text.
 
-| Mức | Điều kiện |
+| Level | Condition |
 |---|---|
-| `certain` | `@tên`; `mentions` chứa id nick; reply vào tin của bot; tên gọi đứng ĐẦU câu (sau các chữ mở như "ê", "này", "alo", "hi", "chào"); tên gọi đi liền tiểu từ gọi ("ơi", "à", "ạ", "này", "nè", "nha", "ê") |
-| `possible` | tên gọi nằm giữa hoặc cuối câu không kèm tiểu từ ("hỏi javis vũ xem"); tin nối tiếp (5.3) |
-| `none` | còn lại |
+| `certain` | `@name`; `mentions` contains the account id; a reply to a bot message; the alias at the START of the sentence (after opening words such as "ê", "này", "alo", "hi", "chào", i.e. "hey", "listen", "hello", "hi", "greetings"); the alias directly followed by a calling particle ("ơi", "à", "ạ", "này", "nè", "nha", "ê", Vietnamese vocative particles roughly meaning "hey"/"please") |
+| `possible` | the alias in the middle or at the end of the sentence with no particle ("hỏi javis vũ xem", "go ask javis Vũ and see"); a follow-up message (5.3) |
+| `none` | everything else |
 
-Tên gọi (`aliases`) gồm: nhãn kết nối, tên hiển thị học được của nick, và danh sách tên do chủ tự
-thêm. KHÔNG tự lấy tên Agent hay tên bot ("@Lan" trong nhóm thường là một thành viên tên Lan). Tên
-tự suy phải dài từ 4 ký tự trở lên sau chuẩn hoá; tên do chủ thêm không bị luật này.
+Aliases (`aliases`) consist of: the connection label, the account's learned display name, and the list of names the owner
+adds by hand. It does NOT automatically take the Agent name or bot name ("@Lan" in a group is usually a member named Lan). A
+self-inferred name must be at least 4 characters long after normalization; names the owner adds are exempt from this rule.
 
-Ví dụ phải đúng (chạy cả bản không dấu): "javis vũ ơi" certain; "Jarvis 007 Vũ giúp anh cái này" certain;
-"alo javis vu" certain; "hỏi javis vũ xem" possible; "mai họp mấy giờ" none; "@Lan xem giúp" none.
+Examples that must come out right (also run in the no-diacritics form): "javis vũ ơi" certain; "Jarvis 007 Vũ giúp anh cái này" ("Jarvis 007 Vũ, help me with this") certain;
+"alo javis vu" certain; "hỏi javis vũ xem" possible; "mai họp mấy giờ" ("what time is the meeting tomorrow") none; "@Lan xem giúp" ("@Lan please take a look") none.
 
-`certain` thì trả lời luôn như chat riêng, KHÔNG qua người phán xử, KHÔNG cần tài liệu, không đếm
-hạn mức tự nói.
+`certain` gets answered at once like a private chat, does NOT go through the arbiter, does NOT need documents, and does not count against the
+self-speak cap.
 
-Nhận diện gọi tên trơn là SỬA LỖI nên áp dụng cho MỌI bot, kể cả khi bộ phán xử `mode = off`, nhưng chỉ dùng tên
-tự suy (nhãn kết nối, tên hiển thị của nick) và tên chủ khai. Cờ `mentioned` được đặt ở lớp vận chuyển (Zalo cá nhân)
-và ở từng điểm dùng (chốt chặn, `_answer`), vì `_gan_tai_khoan` bọc `meta` thành bản sao riêng cho từng callback nên
-đánh dấu ở một chỗ không truyền sang chỗ kia.
+Recognizing a plain name call is a BUG FIX so it applies to EVERY bot, even when the arbiter has `mode = off`, but it only uses self-inferred
+names (the connection label, the account's display name) and names the owner declared. The `mentioned` flag is set at the transport layer (personal Zalo)
+and at each point of use (the gate, `_answer`), because `_gan_tai_khoan` wraps `meta` into a separate copy per callback so
+marking in one place does not carry over to another.
 
-### 5.3 T: tín hiệu (sổ đăng ký, cắm thêm được)
+### 5.3 T: signals (a registry, pluggable)
 
-Mỗi tín hiệu là một hàm thuần `(Event, BotProfile) -> {value, evidence}` đăng ký bằng decorator.
-Thêm tín hiệu = thêm một hàm và một test; không đụng khung.
+Each signal is a pure function `(Event, BotProfile) -> {value, evidence}` registered with a decorator.
+Adding a signal = adding one function and one test; the frame is not touched.
 
-- `question_score`: điểm 0..1 từ dấu hỏi, từ khoá (bảng dữ liệu, thay `_HOI`), cấu trúc "có ... không".
-  Từ nay là TÍN HIỆU, không còn là cổng chặn.
-- `follow_up`: bot vừa nói trong nhóm ≤ 180 giây và tin này của đúng người bot vừa trả lời, hoặc
-  reply vào chuỗi đó.
-- `doc_match`: có phần tài liệu khớp (`chatbot_grounding.thu_thap`), kèm điểm. Chỉ tính cho
-  ứng viên, không quét đĩa cho mọi tin.
-- `sender_role`: chủ / đã biết (đã có hội thoại với bot) / mới.
-- `chat_pace`: mật độ tin trong 2 phút gần nhất (nhóm đang sôi nổi thì bot bớt chen).
-- `alias_mid_sentence`: tên gọi xuất hiện nhưng chưa đủ `certain`.
+- `question_score`: a 0..1 score from the question mark, keywords (a data table, replacing `_HOI`), the "có ... không" ("is there ... or not") structure.
+  From now on it is a SIGNAL, no longer a blocking gate.
+- `follow_up`: the bot spoke in the group within the last 180 seconds and this message is from exactly the person the bot just answered, or
+  a reply into that thread.
+- `doc_match`: a matching part of the documents exists (`chatbot_grounding.thu_thap`), with a score. Computed only for
+  candidates, no disk scan for every message.
+- `sender_role`: owner / known (already has a conversation with the bot) / new.
+- `chat_pace`: message density over the last 2 minutes (when the group is lively the bot chimes in less).
+- `alias_mid_sentence`: the alias appears but is not enough for `certain`.
 
-### 5.4 C: cổng thô
+### 5.4 C: coarse gate
 
-Chỉ vứt thứ hiển nhiên không phải: rỗng, không phải chữ, chỉ có link, một hai chữ không phải lời
-gọi, tin mở đầu bằng tag người khác khi `address_level = none`. Tin còn lại là **ứng viên** khi có ít nhất một
-trong: `address_level = possible`, `follow_up`, `question_score >= 0.5`, hoặc kho có ca dương giống (5.7). Không ứng
-viên thì im VÀ ghi vết `no_signal`.
+It only throws away what obviously is not a candidate: empty, not text, only a link, one or two words that are not a call,
+a message that opens by tagging someone else when `address_level = none`. The remaining messages are **candidates** when at least one
+of these holds: `address_level = possible`, `follow_up`, `question_score >= 0.5`, or the store has a similar positive case (5.7). A non-candidate
+stays silent AND leaves a `no_signal` trace.
 
-Bộ mã im đầy đủ (mỗi mã có nhãn đọc được ở giao diện): `junk`, `addressed_other`, `no_signal`, `no_grounding`,
-`rate_limited`, `rate_limited_user`, `just_spoke`, `owner_typing`, `policy_error`, `judge_silent`, `below_threshold`, và
-hai mã do bước SAU quyết định rút lại: `taken_over` (chủ đã Tiếp quản) và `agent_silent` (Agent chọn im).
+The full set of silence codes (each code has a readable label in the UI): `junk`, `addressed_other`, `no_signal`, `no_grounding`,
+`rate_limited`, `rate_limited_user`, `just_spoke`, `owner_typing`, `policy_error`, `judge_silent`, `below_threshold`, and
+two codes that a LATER step decides to retract: `taken_over` (the owner has Taken over) and `agent_silent` (the Agent chose silence).
 
-Giữ luật hiện có cho lời tự nói: khi `address_level = none` và không `follow_up`, bot chỉ mở miệng nếu có căn
-cứ. Cấu hình `grounding`: `docs` (mặc định, phải có `doc_match`) hoặc `role` (bot lấy chuyên
-môn từ vai của Agent, dùng cho bot tư vấn không dựa vào tài liệu). Ca đã học KHÔNG được miễn luật
-này.
+Keep the existing rule for self-speech: when `address_level = none` and not `follow_up`, the bot only opens its mouth if it has
+grounds. The `grounding` config: `docs` (default, must have `doc_match`) or `role` (the bot takes its expertise
+from the Agent's role, for advisory bots that do not rely on documents). Learned cases are NOT exempt from this
+rule.
 
-### 5.5 J: người phán xử
+### 5.5 J: the arbiter
 
-Một lượt model rẻ, chạy bằng engine "việc nền" (`aux_engine`, chủ đã chọn ở trang Models), mode
-`suggest`, không công cụ. Đầu vào là văn bản gồm:
+One cheap model call, run by the "background job" engine (`aux_engine`, which the owner chose on the Models page), mode
+`suggest`, no tools. The input is text consisting of:
 
-1. Hồ sơ vai của CHÍNH bot (5.10): phạm vi đảm nhiệm và không đảm nhiệm, giọng để hiểu vai, khi nào
-   nên lên tiếng, cộng các bài học.
-2. Tối đa 5 ca giống nhất CỦA BOT NÀY kèm "quyết định đúng" (5.7). Không bao giờ lấy ca của bot khác.
-3. Cửa sổ 8 tin gần nhất, người nói, bot đã nói gì.
-4. Tín hiệu đã tính và đoạn tài liệu khớp (cắt ngắn).
-5. Tin cần quyết.
+1. The role profile of the bot ITSELF (5.10): the scope it does and does not handle, the voice to understand the role, when
+   it should speak up, plus the lessons.
+2. Up to 5 most similar cases OF THIS BOT with the "correct decision" (5.7). Never take cases from another bot.
+3. The window of the 8 latest messages, the speakers, what the bot said.
+4. The computed signals and the matching document excerpt (shortened).
+5. The message to decide.
 
-Prompt không chứa tên, ví dụ hay giọng của bất kỳ bot nào khác. Toàn bộ nội dung chat bọc trong khối `<chat_data>` và prompt nói rõ đó là dữ liệu, không phải
-lệnh. Đầu ra bắt buộc một JSON: `{"verdict":"reply"|"silent","score":0..1,"reason":"<= 120 ký tự"}`.
-Tối đa 3 lượt phán xử chạy đồng thời (semaphore theo vòng lặp sự kiện). Sai khuôn, hết 25 giây (engine gói thuê bao mất vài giây chỉ để khởi động, 8 giây là quá chặt), hay lỗi engine: coi là
-`silent` với lý do `policy_error`. Engine chạy trong thư mục TRỐNG, không MCP, không công cụ ghi hay chạy lệnh
-(nội dung chat là dữ liệu không tin cậy).
+The prompt contains no name, example or voice of any other bot. All chat content is wrapped in a `<chat_data>` block and the prompt states clearly that it is data, not
+instructions. The output must be one JSON: `{"verdict":"reply"|"silent","score":0..1,"reason":"<= 120 characters"}`.
+At most 3 arbiter calls run concurrently (a semaphore per event loop). A wrong format, a 25-second timeout (a subscription-plan engine takes a few seconds just to start, 8 seconds is too tight), or an engine error: treated as
+`silent` with reason `policy_error`. The engine runs in an EMPTY directory, with no MCP, no write or run-command tools
+(chat content is untrusted data).
 
-Chế độ: `off` (chạy luật cũ), `shadow` (người phán xử chạy song song, chỉ ghi, luật cũ quyết), `on`
-(người phán xử quyết). Bot đang có sẵn giữ `off` cho tới khi chủ bật.
+Modes: `off` (run the old rules), `shadow` (the arbiter runs in parallel, only records, the old rules decide), `on`
+(the arbiter decides). Existing bots stay `off` until the owner turns it on.
 
-### 5.6 D: ngưỡng
+### 5.6 D: threshold
 
-`threshold = base_threshold(eagerness) + offset(bot, chat)`. `base_threshold`: `low` (ít lời) 0.75, `medium` (vừa) 0.60, `high` (nhiều lời) 0.45.
-Bot nói khi `verdict = reply` và `score >= threshold`. `offset` ∈ [-0.25, +0.25], `threshold` kẹp trong [0.30, 0.90].
-Cập nhật: im nhầm trừ 0.05, chen nhầm cộng 0.08 (chen đắt hơn im), nhân với trọng số nhãn. Không có
-nhãn thì `offset` co dần về 0 với chu kỳ bán rã 14 ngày. Ngưỡng theo TỪNG cuộc chat: nhóm khách
-thích bot nói nhiều, nhóm nội bộ thì không.
+`threshold = base_threshold(eagerness) + offset(bot, chat)`. `base_threshold`: `low` (few words) 0.75, `medium` 0.60, `high` (many words) 0.45.
+The bot speaks when `verdict = reply` and `score >= threshold`. `offset` ∈ [-0.25, +0.25], `threshold` is clamped to [0.30, 0.90].
+Update: wrongly silent subtracts 0.05, wrongly intruded adds 0.08 (intruding costs more than silence), multiplied by the label weight. With no
+labels `offset` decays toward 0 with a half-life of 14 days. The threshold is PER chat: a customer group
+likes the bot to speak a lot, an internal group does not.
 
-### 5.7 K: kho tình huống
+### 5.7 K: the case store
 
-Mỗi quyết định ứng viên ghi một dòng; khi có nhãn nó thành **ca**. Tra cứu không cần thư viện
-embedding: chỉ trong ca của CHÍNH bot này, điểm giống = 0.6 × Jaccard(token chuẩn hoá) + 0.25 × khớp đặc trưng (`address_level`, `follow_up`,
-`sender_role`) + 0.15 nếu cùng cuộc chat, nhân độ nhạt theo tuổi (bán rã 30 ngày) và trọng số ca.
-Lấy tối đa 5 ca điểm ≥ 0.25. "Quyết định đúng" của ca: `correct` thì giữ quyết định đã chọn,
-`missed` thì `reply`, `intruded` thì `silent`, `taught` thì theo lời dạy. Giao diện `tim_ca(event,
-k)` để sau này thay bằng embedding mà không đổi khung.
+Every candidate decision writes a row; when it gets a label it becomes a **case**. Lookup needs no embedding
+library: only among the cases of THIS bot itself, similarity = 0.6 × Jaccard(normalized tokens) + 0.25 × feature match (`address_level`, `follow_up`,
+`sender_role`) + 0.15 if the same chat, multiplied by age fading (30-day half-life) and the case weight.
+Take at most 5 cases with score ≥ 0.25. A case's "correct decision": `correct` keeps the decision made,
+`missed` gives `reply`, `intruded` gives `silent`, `taught` follows the teaching. The interface `tim_ca(event,
+k)` lets an embedding replace it later without changing the frame.
 
-**Khởi động cho bot mới, hai lớp và không lớp nào mang chủ đề của bot khác:**
+**Bootstrap for a new bot, two layers and neither carries another bot's topic:**
 
-1. *Mẫu cơ chế* (chung): `system/reply_policy/mechanics_vi.json`, khoảng 20 ca TRỪU TƯỢNG chỉ mô tả cơ
-   chế trò chuyện nhóm, viết bằng chỗ giữ `{bot_name}` và `{topic}` thay vì tên hay ngành cụ thể. Ví dụ:
-   "{ten_bot} ơi" thì trả lời; hai người đang trao đổi với nhau thì im; tin có tag người khác thì im;
-   "vậy còn cái kia?" ngay sau khi bot trả lời thì trả lời; một lời cảm ơn không nhắm vào bot thì im;
-   câu hỏi ngoài {chu_de} thì im. Khi dùng, `{bot_name}` thay bằng tên gọi của chính bot và `{topic}`
-   bằng phạm vi trong hồ sơ vai của bot. Test cấm tên ngành hay tên sản phẩm trong file này.
-2. *Ca khởi tạo theo vai* (riêng từng bot): lúc bật lần đầu và mỗi khi hồ sơ vai đổi, một lượt model
-   đọc Agent và mục lục tài liệu của chính bot rồi viết khoảng 12 tin mẫu ĐÚNG LĨNH VỰC ĐÓ: 5 tin nên
-   nói, 5 tin nên im, 2 tin ranh giới, kèm lý do. Lưu là ca `source = bootstrap`, trọng số thấp. Chủ xem
-   và xoá được. Mỗi ca thật cùng loại làm giảm trọng số ca khởi tạo giống nó, nên khi bot đã học đủ từ
-   nhóm thật thì các ca giả nhạt đi và biến mất.
+1. *Mechanism templates* (shared): `system/reply_policy/mechanics_vi.json`, about 20 ABSTRACT cases describing only the group-conversation
+   mechanism, written with the placeholders `{bot_name}` and `{topic}` instead of a specific name or industry. Examples:
+   "{ten_bot} ơi" ("hey {ten_bot}") then answer; two people talking to each other then stay silent; a message tagging someone else then stay silent;
+   "vậy còn cái kia?" ("what about the other one, then?") right after the bot answered then answer; a thank-you not aimed at the bot then stay silent;
+   a question outside {chu_de} ("{topic}") then stay silent. When used, `{bot_name}` is replaced by the bot's own alias and `{topic}`
+   by the scope in the bot's role profile. A test forbids industry names or product names in this file.
+2. *Role-based bootstrap cases* (per bot): at first switch-on and every time the role profile changes, one model call
+   reads the Agent and the document index of the bot itself and writes about 12 sample messages for EXACTLY THAT FIELD: 5 messages it should
+   answer, 5 it should stay silent on, 2 borderline, each with a reason. They are stored as cases with `source = bootstrap`, low weight. The owner can view
+   and delete them. Every real case of the same kind lowers the weight of the bootstrap case similar to it, so once the bot has learned enough from
+   real groups the fake cases fade and disappear.
 
-Nhờ vậy bot thứ hai, thứ ba khởi động khôn sẵn theo ngành CỦA NÓ mà không chép hành vi từ bot nào.
+This way the second and third bots start out smart for THEIR OWN industry without copying behavior from any bot.
 
-Trần: 500 ca mỗi bot, 200 mỗi cuộc chat; vượt thì bỏ ca có trọng số × độ mới thấp nhất, ca đã gộp
-vào thẻ luật thì xoá khỏi kho.
+Cap: 500 cases per bot, 200 per chat; beyond that, drop the case with the lowest weight × recency, and a case already merged
+into a rule card is deleted from the store.
 
-### 5.8 O: theo dõi hậu quả và gắn nhãn
+### 5.8 O: tracking consequences and labeling
 
-Mỗi quyết định ứng viên mở một cửa theo dõi 10 phút hoặc 8 tin, tuỳ cái nào tới trước. Mỗi tin
-mới của cuộc chat chạy qua `assign_label(watch, new_message)`, hàm thuần. Chỉ tín hiệu MẠNH mới gắn nhãn;
-**không phản ứng thì không nhãn** (bị phớt lờ là chuyện thường, và im thì vốn không có phản ứng để đo,
-dùng nó làm nhãn sẽ dạy bot nói nhiều hơn).
+Every candidate decision opens a tracking window of 10 minutes or 8 messages, whichever comes first. Each new message
+of the chat runs through `assign_label(watch, new_message)`, a pure function. Only STRONG signals assign a label;
+**no reaction means no label** (being ignored is normal, and silence by nature has no reaction to measure;
+using it as a label would teach the bot to speak more).
 
-| Quyết định | Tín hiệu | Nhãn | Trọng số |
+| Decision | Signal | Label | Weight |
 |---|---|---|---|
-| silent | cùng người hỏi lại ("sao không trả lời", "bot ơi", "ai biết không") hoặc gửi lại gần giống ≥ 0.6 | `missed` | 1.0 |
-| silent | có người gọi tên chắc chắn ngay sau, cùng chủ đề | `missed` | 0.8 |
-| silent | chủ tự trả lời thực chất cho đúng người hỏi | `missed` | 0.5 (chủ có thể chỉ tiện tay) |
-| reply (không được gọi) | chủ nói "đừng chen vào", "ai hỏi bot", "im đi" | `intruded` | 1.0 |
-| reply (không được gọi) | người khác nói câu tương tự | `intruded` | 0.5 |
-| reply (không được gọi) | chủ bấm Tiếp quản cuộc chat trong 10 phút | `intruded` | 0.7 |
-| reply | cảm ơn, "ok", "được rồi" | `correct` | 0.6 |
-| reply | hỏi tiếp đúng mạch (`follow_up`, reply vào bot) | `correct` | 0.8 |
-| bất kỳ | chủ bấm 👍 hoặc 👎 trong Nhật ký | theo nút | 1.5 |
+| silent | the same asker asks again ("sao không trả lời" = why no answer, "bot ơi" = hey bot, "ai biết không" = does anyone know) or resends something ≥ 0.6 similar | `missed` | 1.0 |
+| silent | someone surely calls the bot by name right after, same topic | `missed` | 0.8 |
+| silent | the owner gives a substantive answer to that very asker | `missed` | 0.5 (the owner may just have done it in passing) |
+| reply (not called) | the owner says "đừng chen vào" (don't butt in), "ai hỏi bot" (nobody asked the bot), "im đi" (shut up) | `intruded` | 1.0 |
+| reply (not called) | someone else says something similar | `intruded` | 0.5 |
+| reply (not called) | the owner clicks Take over on the chat within 10 minutes | `intruded` | 0.7 |
+| reply | thanks, "ok", "được rồi" (alright) | `correct` | 0.6 |
+| reply | a follow-up question on the same thread (`follow_up`, reply to the bot) | `correct` | 0.8 |
+| any | the owner clicks 👍 or 👎 in the Log | per the button | 1.5 |
 
-Bảng từ khoá tín hiệu nằm ở `system/reply_policy/keywords_vi.json` (đã bỏ dấu), thêm ngôn ngữ là thêm file.
-Chống spam nhãn: mỗi người tối đa 3 nhãn mỗi giờ mỗi bot, mỗi bot tối đa 50 ca mới mỗi ngày.
+The signal keyword table lives in `system/reply_policy/keywords_vi.json` (diacritics stripped); adding a language is adding a file.
+Label spam protection: each person at most 3 labels per hour per bot, each bot at most 50 new cases per day.
 
-### 5.8b Rà soát độc lập (30/09/2026): các sửa đã áp
+### 5.8b Independent review (2026-09-30): fixes applied
 
-Một lượt rà soát độc lập tìm ra chín lỗi thật, đã sửa và có test: (1) engine phán xử phải chạy với `allowed_tools` có giá
-trị (để trống là `bypassPermissions` và nạp cả cài đặt máy), cộng danh sách công cụ bị cấm; (2) lời dạy không gắn nhãn vào
-chính tin dạy; (3) gọi tên ngay sau đó chỉ tính "im nhầm" khi cùng chủ đề; (4) chữ của ca đã học nằm trong `<chat_data>`
-và bộ lọc thẻ bắt cả biến thể; (5) nhãn của chủ ghi đè chứ không cộng dồn (`cases.decision_id`); (6) quyết định `reply` bị
-chặn ở bước sau được rút lại (`amend_decision`), và Tiếp quản được kiểm TRƯỚC lượt model; (7) chữ mở đầu "này/ê" chỉ xét
-trên bản GIỮ DẤU nên "hôm nay Nhi Mai..." không còn là lời gọi; (8) Quên hết xoá cả nhật ký quyết định, và giao diện nói thật
-rằng chế độ Chạy thử/Bật ghi chữ chat 14 ngày kể cả khi chưa bật tự học; (9) giới hạn đồng thời, không quét đĩa trên vòng
-sự kiện.
+An independent review pass found nine real bugs, all fixed and covered by tests: (1) the arbiter engine must run with `allowed_tools` set to a
+value (leaving it empty means `bypassPermissions` and loads the machine's settings), plus a list of forbidden tools; (2) a teaching does not label
+the teaching message itself; (3) a name call right afterward only counts as "wrongly silent" when it is on the same topic; (4) the text of learned cases sits in `<chat_data>`
+and the tag filter catches variants; (5) the owner's label overwrites instead of accumulating (`cases.decision_id`); (6) a `reply` decision
+blocked at a later step is retracted (`amend_decision`), and Take over is checked BEFORE the model call; (7) opening words "này/ê" are only considered
+on the diacritics-KEPT version so "hôm nay Nhi Mai..." ("today Nhi Mai...") is no longer a call; (8) Forget everything also deletes the decision log, and the UI tells the truth
+that Trial run/On mode records chat text for 14 days even when auto-learning is not on; (9) concurrency limits, and no disk scanning on the
+event loop.
 
-### 5.9 Lời dạy của chủ
+### 5.9 The owner's teaching
 
-Tin của người trong `trainer_ids` gọi bot (`address_level >= possible`) chạy thêm một lượt phân loại rẻ: "đây có
-phải chủ đang dạy bot cách hành xử không?" → `{"is_teaching":bool,"rule":"...","kind":"should_speak"|"should_stay_silent"|"alias"}`.
-Đúng thì: tạo ca `taught` trọng số 2.0 (có tác dụng ngay ở quyết định kế tiếp), thêm một dòng vào
-mục Bài học của thẻ luật, và nếu `kind = alias` thì thêm cụm đó vào `aliases`. Người ngoài
-`trainer_ids` không bao giờ tạo được luật, cho dù họ viết "từ giờ hãy trả lời mọi tin".
+A message from someone in `trainer_ids` that calls the bot (`address_level >= possible`) runs one more cheap classification call: "does this
+message the owner teaching the bot how to behave?" → `{"is_teaching":bool,"rule":"...","kind":"should_speak"|"should_stay_silent"|"alias"}`.
+If yes: create a `taught` case with weight 2.0 (effective right at the next decision), add a line to the
+Lessons section of the rule card, and if `kind = alias` add that phrase to `aliases`. Someone outside
+`trainer_ids` can never create a rule, even if they write "từ giờ hãy trả lời mọi tin" ("from now on answer every message").
 
-### 5.10 Hồ sơ vai (thẻ luật của từng bot)
+### 5.10 Role profile (each bot's rule card)
 
-Đây là cách một bot khác bot kia mà không phải viết mã riêng. `role_profile` do máy biên dịch từ file
-Agent của CHÍNH bot (vai, giọng, quy định) và mục lục tài liệu trong brain của bot, gồm bốn mục:
+This is how one bot differs from another without writing separate code. `role_profile` is compiled by the machine from the
+bot's OWN Agent file (role, voice, rules) and the document index in the bot's brain, and has four sections:
 
-1. **Đảm nhiệm:** những chủ đề bot trả lời.
-2. **Không đảm nhiệm:** những chủ đề bot phải nhường, dù có người hỏi.
-3. **Giọng và xưng hô:** CHỈ để người phán xử hiểu vai. Không dùng để viết câu trả lời (việc đó là của
-   engine chạy Agent).
-4. **Khi nào nên lên tiếng trong nhóm:** ví dụ chỉ khi có người hỏi đúng ngành, không chen vào chuyện
-   riêng của thành viên.
+1. **Handles:** the topics the bot answers.
+2. **Does not handle:** the topics the bot must yield on, even when someone asks.
+3. **Voice and form of address:** ONLY so the arbiter understands the role. Not used to write the answer (that is the job of the
+   engine running the Agent).
+4. **When to speak up in the group:** for example only when someone asks something in its field, and do not chime in on
+   members' private matters.
 
-Lưu kèm `agent_hash`. File Agent hoặc mục lục tài liệu đổi thì soạn lại NHÁP mới và giữ nguyên phần
-chủ đã sửa tay: hai vùng riêng `generated_text` và `owner_text`, người phán xử đọc cả hai, vùng của chủ
-đè lên khi mâu thuẫn. Chủ sửa ở ô "Luật lên tiếng" (`guidelines`). Không có engine thì dùng mẫu tĩnh
-chỉ có bốn đầu mục để chủ điền.
+Stored with `agent_hash`. When the Agent file or the document index changes, a new DRAFT is re-composed and the part the
+owner edited by hand is preserved: two separate regions `generated_text` and `owner_text`, the arbiter reads both and the owner's region
+wins when they contradict. The owner edits in the "Speaking rules" box (`guidelines`). With no engine, a static template with only the four
+headings is used for the owner to fill in.
 
-`lessons` (máy ghi, theo mẫu `JAVIS_LESSON`: đề xuất lúc dùng, mã ghi, khử trùng, tối đa 15 dòng, dòng
-cũ nhất rơi ra) là phần thứ năm, riêng từng bot. KHÔNG có vòng nền viết lại hàng loạt (quyết định
-của chủ 2026-08-16).
+`lessons` (written by the machine, in the `JAVIS_LESSON` pattern: proposed at use time, written by code, deduplicated, at most 15 lines, the
+oldest line drops off) is the fifth part, per bot. There is NO background loop that rewrites in bulk (the owner's decision
+2026-08-16).
 
-## 6. Dữ liệu
+## 6. Data
 
-SQLite `chatbot_reply_policy.sqlite3` trong thư mục state, thêm vào `.gitignore`, WAL.
+SQLite `chatbot_reply_policy.sqlite3` in the state directory, added to `.gitignore`, WAL.
 
 ```
 decisions(id, bot_id, chat_id, msg_id, ts, text, sender, sender_id, sender_role, address_level, signals_json,
@@ -335,162 +334,162 @@ cases(id, bot_id, chat_id, ts, text, tokens, features_json, correct_verdict, rea
 watches(decision_id, expires_ts, messages_left)
 role_profiles(bot_id, generated_text, agent_hash, updated_ts)
 threshold_offsets(bot_id, chat_id, offset, updated_ts)
-lessons(id, bot_id, text, ts)                      -- bài học, tối đa 15 dòng mỗi bot
+lessons(id, bot_id, text, ts)                      -- lessons, at most 15 lines per bot
 ```
 
-Nút Quên hết xoá cả `decisions` (chữ chat của khách), không chỉ phần đã học. Giữ: dòng chưa gắn nhãn 14 ngày; ca đã gắn nhãn 180 ngày (có nhạt dần); nội dung cắt 400 ký tự.
-Xoá bot thì xoá sạch dòng của bot. Vòng đệm im: mọi tin bị im đều là một dòng `decisions` với
+The Forget all button also deletes `decisions` (the customers' chat text), not only the learned part. Retention: unlabeled rows 14 days; labeled cases 180 days (with fading); content cut to 400 characters.
+Deleting a bot deletes all of the bot's rows. The silence buffer: every silenced message is a `decisions` row with a
 `silence_code` (`no_signal`, `no_grounding`, `policy_error`, `rate_limited`, `just_spoke`...).
 
-## 7. Cấu hình, API, giao diện
+## 7. Configuration, API, UI
 
-Trường mới trong bản ghi bot (đi qua `chatbot_store`, có lọc và giá trị mặc định fail-closed):
+New fields in the bot record (going through `chatbot_store`, with filtering and fail-closed defaults):
 
 ```
-reply_policy: { aliases: [str], trainer_ids: [str], guidelines: str (di sản, xem 7.2) }
+reply_policy: { aliases: [str], trainer_ids: [str], guidelines: str (legacy, see 7.2) }
 ```
 
-Chỉ có nghĩa khi `reply_when = auto`. Bản 0.65.0 còn `mode`, `eagerness`, `grounding`, `learning_enabled`; xem 7.2 vì sao
-bản 0.65.1 bỏ chúng.
+It only means something when `reply_when = auto`. Version 0.65.0 also had `mode`, `eagerness`, `grounding`, `learning_enabled`; see 7.2 for why
+version 0.65.1 dropped them.
 
-### 7.2 Tự vận hành, không ô cài đặt (0.65.1)
+### 7.2 Self-operating, no settings (0.65.1)
 
-Chủ dự án nhận xét ngày 30/09/2026: cài đặt quá nhiều, muốn lược bớt và đẩy phần suy luận về AI để tự cải thiện. Nguyên tắc
-áp cho mọi thứ sau này của bộ phán xử: **thứ gì máy suy ra được từ dữ liệu sẵn có thì không thành ô cài đặt**. Bảy ô của
-0.65.0 được xử lý như sau:
+The project owner commented on 2026-09-30: too many settings, wants to trim them and push the inference back to the AI so it improves itself. The principle
+applies to everything later in the arbiter: **anything the machine can infer from existing data does not become a settings field**. The seven fields of
+0.65.0 were handled as follows:
 
-| Ô cũ | Nay |
+| Old field | Now |
 |---|---|
-| Chế độ Tắt / Chạy thử / Bật | Bỏ. Chọn "Tự đánh giá" là bật; muốn tắt thì chọn cách lên tiếng khác. Chạy thử thành công tắc của người vận hành: biến môi trường `JAVIS_REPLY_POLICY_SHADOW=1`. |
-| Độ hăng hái | Bỏ. Cố định mức vừa làm ngưỡng gốc; ngưỡng riêng từng nhóm tự nhích theo Đúng/Sai và phản ứng của nhóm (đã có từ 0.65.0), co dần về gốc theo chu kỳ 14 ngày. |
-| Căn cứ (tài liệu / vai) | Bỏ. Tự chọn: brain của bot có mảnh tài liệu nào thì bắt buộc có tài liệu khớp mới được tự nói, không có thì dựa vào vai. Đo ở thread nền cùng lần soạn hồ sơ vai (`chatbot_grounding.chi_muc`); chưa đo thì giữ luật chặt (tài liệu). |
-| Luật lên tiếng + nút Soạn từ vai trò | Bỏ. Hồ sơ vai vốn đã tự soạn và tự soạn lại khi Agent hay tài liệu đổi. Chữ chủ đã viết ở 0.65.0 được gộp MỘT LẦN vào bảng `lessons` (từng dòng) rồi xoá khỏi cấu hình; ghi hỏng thì giữ chữ cũ nên không mất luật nào. Route `draft-guidelines` bị gỡ. |
-| Tên gọi thêm | Bỏ khỏi form. Vẫn lưu trong `aliases`; thêm bằng cách dạy trong nhóm ("gọi em là Thu nhé", kind `alias` của mục 5.9). |
-| Bật tự học | Bỏ. Luôn bật khi ở chế độ Tự đánh giá. Đổi lại lời nói thật về dữ liệu ở dòng giải thích của form (400 ký tự, 14 ngày, ca 180 ngày) và nút Quên hết. |
-| Người được dạy bot | Bỏ ô nhập ID. Còn nút **Là chủ** ngay ở tin của mình trong menu Bộ phán xử: chọn trên dữ liệu thật, không phải gõ ID Zalo. |
+| Mode Off / Trial run / On | Dropped. Choosing "Auto-judge" is turning it on; to turn it off, choose another way of speaking up. Trial run became an operator's switch: the environment variable `JAVIS_REPLY_POLICY_SHADOW=1`. |
+| Eagerness | Dropped. Fixed at the medium level as the base threshold; each group's own threshold drifts by itself with Right/Wrong and the group's reactions (already there since 0.65.0), decaying back to the base with a 14-day period. |
+| Grounding (documents / role) | Dropped. Chosen automatically: if the bot's brain has any document chunks then a matching document is required before it may self-speak, if not it relies on the role. Measured on a background thread together with the role-profile compile (`chatbot_grounding.chi_muc`); until measured, the strict rule (documents) is kept. |
+| Speaking rules + the Compose from role button | Dropped. The role profile is already composed automatically and re-composed when the Agent or documents change. Text the owner wrote in 0.65.0 is merged ONCE into the `lessons` table (line by line) and then removed from the config; if the write fails the old text is kept so no rule is lost. The `draft-guidelines` route was removed. |
+| Extra aliases | Dropped from the form. Still stored in `aliases`; add by teaching in the group ("gọi em là Thu nhé", Vietnamese for "call me Thu, ok", kind `alias` from section 5.9). |
+| Turn on auto-learning | Dropped. Always on in Auto-judge mode. In exchange, the form's explanation line tells the truth about the data (400 characters, 14 days, cases 180 days) and there is the Forget all button. |
+| People who teach the bot | The ID input box is dropped. What remains is the **Make bot owner** button right on your own message in the Reply judge menu: choosing on real data, not typing a Zalo ID. |
 
-Hệ quả: `normalize_config` đọc `reply_policy` nhưng BỎ QUA các khoá đã nghỉ hưu, kẻo bot đã lưu form ở 0.65.0 (khi form
-luôn ghi `mode: "off"`) kẹt ở trạng thái tắt mà không còn nút nào sửa. `merge_config` chỉ ghi ba khoá còn ý nghĩa và dọn
-các khoá cũ khỏi bản ghi. Form bot không còn gửi `reply_policy`, nên lưu bot không thể ghi đè `aliases` hay `trainer_ids`.
+Consequence: `normalize_config` reads `reply_policy` but IGNORES the retired keys, lest a bot that saved the form in 0.65.0 (when the form
+always wrote `mode: "off"`) be stuck in the off state with no button left to fix it. `merge_config` writes only the three keys that still mean something and cleans
+the old keys out of the record. The bot form no longer sends `reply_policy`, so saving a bot cannot overwrite `aliases` or `trainer_ids`.
 
-Đánh đổi đã cân: mất chế độ Chạy thử ở giao diện. Bù lại mọi quyết định (kể cả im) đều hiện ở menu Bộ phán xử kèm Đúng/Sai,
-bộ phán xử vẫn sai về phía im, và người vận hành còn công tắc môi trường. Nếu sau này thấy thiếu chế độ thử, thêm lại thành
-một nút BẬT TẠM (tự tắt sau N ngày) chứ không thành cài đặt vĩnh viễn.
+Trade-off weighed: the Trial run mode is lost in the UI. In return every decision (silence included) shows in the Reply judge menu with Right/Wrong,
+the arbiter still errs toward silence, and the operator still has the environment switch. If a trial mode turns out to be missing later, add it back as
+a TEMPORARY ON button (turning itself off after N days) rather than a permanent setting.
 
-Đường mới, đặt SAU route cuối của `main.py` để `route_table.json` chỉ thêm dòng cuối:
+New routes, placed AFTER the last route of `main.py` so `route_table.json` only gets a row added at the end:
 
-- `GET /chatbots/{id}/reply-policy`: cấu hình, số ca, lệch ngưỡng từng cuộc chat, 100 quyết định gần nhất
-  (kể cả im), danh sách ca và bài học.
-- `POST /chatbots/{id}/reply-policy/label`: chủ gắn 👍/👎 cho một quyết định.
-- `POST /chatbots/{id}/reply-policy/cases/{case_id}/delete`: xoá một ca.
-- `POST /chatbots/{id}/reply-policy/forget`: quên hết, hoặc riêng một cuộc chat.
-- (bản 0.65.0 có thêm `POST .../draft-guidelines` soạn nháp thẻ luật; gỡ ở 0.65.1, hồ sơ vai tự soạn ở nền.)
+- `GET /chatbots/{id}/reply-policy`: the config, the case count, the threshold offset per chat, the 100 most recent decisions
+  (silence included), the list of cases and lessons.
+- `POST /chatbots/{id}/reply-policy/label`: the owner attaches 👍/👎 to a decision.
+- `POST /chatbots/{id}/reply-policy/cases/{case_id}/delete`: delete a case.
+- `POST /chatbots/{id}/reply-policy/forget`: forget everything, or only one chat.
+- (version 0.65.0 also had `POST .../draft-guidelines` composing a draft rule card; removed in 0.65.1, the role profile is composed automatically in the background.)
 
-Giao diện (một cột, đúng phong cách form hiện tại, đủ vi và en):
+UI (one column, in the style of the current form, complete vi and en):
 
-- Trong phần "Bot trả lời ai", khi chọn "Tự đánh giá": chỉ một dòng giải thích (bot tự cân nhắc, tự học,
-  và nói thật về chữ chat được lưu). Không ô nhập, không nút chọn (0.65.1; bản 0.65.0 có bảy ô, xem 7.2).
-- Menu "..." của thẻ bot thêm **Bộ phán xử**: bảng quyết định gần đây có cả tin bị im, mỗi dòng có
-  Đúng/Sai và nút Là chủ, danh sách bài học, hồ sơ vai, nút Quên hết.
+- In the "Who the bot answers" section, when "Auto-judge" is chosen: just one explanation line (the bot weighs things itself, learns by itself,
+  and tells the truth about chat text being stored). No input box, no option button (0.65.1; version 0.65.0 had seven fields, see 7.2).
+- The "..." menu of the bot card adds **Reply judge**: a table of recent decisions including silenced messages, each row has
+  Right/Wrong and the Make bot owner button, a list of lessons, the role profile, and the Forget all button.
 
-### 7.1 Lịch sử hội thoại của bot (M9)
+### 7.1 The bot's conversation history (M9)
 
-Chủ dự án (2026-09-30): "các đoạn hội thoại đang nằm ở Trò Chuyện, anh muốn chuyển thành các đoạn phản hồi lại nằm
-trong lịch sử của agent được nối với chatbot". Phiên của bot mang kênh `bot:<tên>` (xem `_tg_answer`) nên trước bản này
-lọt vào danh sách Trò chuyện, vì chỉ các kênh cộng sự (`agent:`, `workflow:`, `coding:`) bị loại ở đó.
+The project owner (2026-09-30): "the conversations are sitting in Chat, I want them to become replies that sit
+in the history of the agent connected to the chatbot". A bot's session carries the channel `bot:<name>` (see `_tg_answer`) so before this version
+it leaked into the Chat list, because only the partner channels (`agent:`, `workflow:`, `coding:`) were excluded there.
 
-- `sessions.KENH_BOT = ("bot:",)`: danh sách mặc định (Trò chuyện) loại thêm các kênh này. Vòng tự học (`channel="*"`)
-  vẫn thấy mọi phiên.
-- Lịch sử của một Agent (`channel="agent:<slug>"`) gộp thêm kênh `bot:` của MỌI bot dùng Agent đó (`also_channels`, do
-  `main._kenh_bot_cua_agent` tính từ kho bot theo slug Agent và brain của bot). Ô tìm ở cột lịch sử cũng vậy.
-- Giao diện: trong lịch sử Agent, phiên của bot mang nhãn **Bot** để phân biệt với cuộc chủ tự chat với Agent.
-- Tên phiên (0.65.1): phiên trong NHÓM đặt theo tên nhóm (`SessionStore.name_group_session`, chỉ khi phiên chưa có tên),
-  vì cả nhóm dùng chung một mạch nên tên theo tin đầu chỉ nói người nhắn đầu tiên. Chat riêng giữ tên theo tin đầu.
-  Phiên cũ (trước 0.65.1) giữ tên cũ tới khi nhóm nhắn lại; không có cột mã nhóm để đặt bù hàng loạt.
-- Không đổi kênh của phiên hiện có, nên không cần di trú dữ liệu.
+- `sessions.KENH_BOT = ("bot:",)`: the default list (Chat) additionally excludes these channels. The self-learning loop (`channel="*"`)
+  still sees every session.
+- An Agent's history (`channel="agent:<slug>"`) additionally merges the `bot:` channel of EVERY bot that uses that Agent (`also_channels`, computed by
+  `main._kenh_bot_cua_agent` from the bot store by Agent slug and the bot's brain). The search box in the history column does the same.
+- UI: in the Agent's history, a bot's session carries a **Bot** label to distinguish it from conversations the owner has with the Agent personally.
+- Session name (0.65.1): a session in a GROUP is named after the group name (`SessionStore.name_group_session`, only when the session has no name yet),
+  because the whole group shares one thread so a name from the first message only tells who messaged first. A private chat keeps the name from its first message.
+  Old sessions (before 0.65.1) keep the old name until the group messages again; there is no group-id column to backfill in bulk.
+- The channel of existing sessions is not changed, so no data migration is needed.
 
-## 8. Chỗ gắn vào mã hiện có
+## 8. Where it hooks into existing code
 
-- `zalo_personal_channel.nhan_dien_goi`: giữ nguyên chữ ký `(tag, rep)` cho chỗ gọi cũ, bên trong dùng
-  `chatbot_reply_policy.detect_address`; thêm bản trả mức `address_level`.
-- Lớp vận chuyển gọi `PolicyHooks.prepare/replied` (`chatbot_runtime.py`); Tiếp quản báo qua
+- `zalo_personal_channel.nhan_dien_goi`: keep the signature `(tag, rep)` for the old callers, inside it uses
+  `chatbot_reply_policy.detect_address`; add a version that returns the `address_level`.
+- The transport layer calls `PolicyHooks.prepare/replied` (`chatbot_runtime.py`); Take over reports through
   `conversations.dat_che_do` -> `note_takeover`.
-- `channels/zalo_personal.py::xu_ly`: dựng Event, đưa MỌI tin nhóm (kể cả tin sẽ bị loại) qua
-  `watches` để gắn nhãn cho quyết định trước; meta thêm `address_level`, `follow_up`.
-- `chatbot_runtime._answer`: khối `auto` gọi `chatbot_reply_policy.decide(...)` khi `mode != off`;
-  `shadow` chạy song song rồi bỏ kết quả. `_ly_do_im`, `_make_precheck_fn` không đổi.
-- Telegram: `TelegramBot._build_meta` đã có `mentioned`, `reply_to_bot`; nhận diện tên gọi chạy trong chốt chặn và
-  `_answer` (chỉ tên chủ khai). Chế độ Bật quyết định trong nhóm, nhưng Telegram không có cửa sổ tin nối tiếp và không
-  có Chạy thử (cần lớp vận chuyển đọc được toàn bộ tin nhóm, hiện chỉ Zalo cá nhân có).
-- `chatbot_store`: `_PATCHABLE`, `_public`, kiểm giá trị. `chatbot_log`: tin bị im KHÔNG vào JSONL
-  của bot (tránh nhiễu), vào kho mới và hiện ở Nhật ký qua bộ lọc "Cả tin bot im".
+- `channels/zalo_personal.py::xu_ly`: build the Event, pass EVERY group message (even messages that will be dropped) through
+  `watches` to label earlier decisions; meta adds `address_level`, `follow_up`.
+- `chatbot_runtime._answer`: the `auto` block calls `chatbot_reply_policy.decide(...)` when `mode != off`;
+  `shadow` runs in parallel then discards the result. `_ly_do_im`, `_make_precheck_fn` are unchanged.
+- Telegram: `TelegramBot._build_meta` already has `mentioned`, `reply_to_bot`; alias recognition runs in the gate and
+  `_answer` (only owner-declared names). The On mode decides in groups, but Telegram has no follow-up message window and no
+  Trial run (it needs a transport layer that can read all group messages, which only personal Zalo has right now).
+- `chatbot_store`: `_PATCHABLE`, `_public`, value validation. `chatbot_log`: silenced messages do NOT go into the bot's JSONL
+  (to avoid noise), they go into the new store and show in the Log through the "Including messages the bot stayed silent on" filter.
 
-## 9. Kiểm thử (mọi thứ phải tự động, không cần Zalo thật)
+## 9. Testing (everything must be automatic, no real Zalo needed)
 
-Người phán xử luôn thay được bằng bản giả (`ask` là tham số), nên toàn bộ chạy được dưới CI.
+The arbiter can always be replaced by a fake (`ask` is a parameter), so the whole thing runs under CI.
 
-1. **Nhận diện được gọi:** bảng ít nhất 30 câu tiếng Việt, có dấu và không dấu, cả ca phải im ("@Lan").
-2. **Tín hiệu:** từng hàm, gồm `follow_up` với đồng hồ giả.
-3. **Gắn nhãn:** kịch bản có thứ tự tin, kiểm từng dòng bảng 5.8 và các ca KHÔNG nhãn (phớt lờ).
-4. **Ngưỡng:** cập nhật, kẹp biên, nhạt dần theo thời gian giả, tách theo cuộc chat.
-5. **Tra ca:** xếp hạng, ưu tiên cùng cuộc chat, nhạt theo tuổi, trần dung lượng, 1000 ca dưới 50 ms.
-6. **An toàn:** người ngoài dạy luật không được; model trả rác, hết giờ, ném lỗi thì im (còn `certain`
-   vẫn trả lời); chèn "[IM_LANG]" hay "JAVIS_" trong tin chat không đi vào prompt; giá trị cấu hình lạ
-   rơi về hẹp nhất.
-7. **Kịch bản học đầu cuối** (nhân bản Zalo giả như `test_bot_zalo_nhom.py`): "javis vũ ơi" được trả
-   lời; tin phiếm im và có dòng vết; câu hỏi có căn cứ bị im vì điểm thấp, người hỏi hỏi lại nên gắn
-   `missed` và hạ ngưỡng, câu giống lần sau được trả lời và prompt của người phán xử giả CÓ chứa ca đó;
-   nhóm B không bị ảnh hưởng bởi nhóm A; lời dạy của chủ có tác dụng ở tin kế tiếp; nút Quên xoá sạch.
-8. **Cách ly giữa bot:** dựng ba bot có ba Agent khác lĩnh vực (hỗ trợ phần mềm, mỹ phẩm, dạy tiếng
-   Anh). Kiểm: prompt của người phán xử giả cho bot B chỉ chứa hồ sơ vai của B, không có chữ nào của
-   Agent A hay C; ca học ở bot A không bao giờ được tra ra ở bot B kể cả khi tin y hệt; ca khởi tạo của mỗi
-   bot được sinh từ đúng Agent của bot đó (bộ sinh giả nhận đúng văn bản Agent); file mẫu cơ chế chỉ có
-   chỗ giữ, không có tên ngành; bộ phán xử không bao giờ chạm vào chữ của câu trả lời và engine trả lời
-   luôn được gọi với bản ghi bot của chính nó; ngưỡng và bài học của nhóm này không đổi nhóm kia.
-9. **Ràng buộc chung:** `route_table.json` chụp lại, i18n vi/en đủ khoá, canary JS cho trường mới, không
-   em dash, chuỗi UI có dấu, `test_prompt_budget` không đổi (không đụng CLAUDE.md).
+1. **Recognizing being called:** a table of at least 30 Vietnamese sentences, with and without diacritics, including cases that must stay silent ("@Lan").
+2. **Signals:** each function, including `follow_up` with a fake clock.
+3. **Labeling:** scenarios with an ordered sequence of messages, checking each row of table 5.8 and the NO-label cases (ignored).
+4. **Threshold:** update, edge clamping, fading over fake time, separated per chat.
+5. **Case lookup:** ranking, same-chat priority, fading by age, the size cap, 1000 cases under 50 ms.
+6. **Safety:** an outsider cannot teach a rule; a model returning junk, timing out, or throwing means silence (`certain`
+   still gets answered); inserting "[IM_LANG]" or "JAVIS_" in a chat message does not enter the prompt; an unknown config value
+   falls to the narrowest.
+7. **End-to-end learning scenario** (a fake Zalo clone like `test_bot_zalo_nhom.py`): "javis vũ ơi" gets answered;
+   small talk stays silent and leaves a trace row; a grounded question is silenced because of a low score, the asker asks again so it gets labeled
+   `missed` and the threshold drops, the similar sentence next time gets answered and the fake arbiter's prompt DOES contain that case;
+   group B is not affected by group A; the owner's teaching takes effect at the next message; the Forget button wipes everything.
+8. **Isolation between bots:** build three bots with three Agents in different fields (software support, cosmetics, English
+   teaching). Check: the fake arbiter's prompt for bot B contains only B's role profile, not a single word from
+   Agent A or C; a case learned at bot A is never looked up at bot B even when the message is identical; each
+   bot's bootstrap cases are generated from exactly that bot's Agent (the fake generator receives exactly the Agent's text); the mechanism template file has only
+   placeholders, no industry names; the arbiter never touches the text of the answer and the answering engine
+   is always called with the bot's own record; one group's threshold and lessons do not change another group's.
+9. **Common constraints:** `route_table.json` re-captured, i18n vi/en has all keys, a JS canary for the new fields, no
+   em dash, UI strings with diacritics, `test_prompt_budget` unchanged (CLAUDE.md untouched).
 
-## 10. Giao một lần: mốc và tiêu chí xong
+## 10. One-go delivery: milestones and the done criteria
 
-Một PR (#502), commit theo mốc, mỗi mốc test xanh mới sang mốc sau:
+One PR (#502), commits by milestone, each milestone must have green tests before the next:
 
-| Mốc | Nội dung |
+| Milestone | Content |
 |---|---|
-| M1 | `chatbot_reply_policy.py`: Event, Profile, nhận diện được gọi, sổ tín hiệu, cổng thô + test |
-| M2 | Kho SQLite, ghi mọi quyết định kể cả im, giữ hạn, xoá theo bot |
-| M3 | Hồ sơ vai biên dịch từ Agent, người phán xử, ba chế độ tat/bong/chay, nối vào `_answer` và `xu_ly`, fail-closed |
-| M4 | Kho tình huống, tra cứu chỉ trong bot, mẫu cơ chế, ca khởi tạo theo vai, ngưỡng theo cuộc chat |
-| M5 | Theo dõi hậu quả, gắn nhãn, lời dạy của chủ, bài học |
-| M6 | Trường cấu hình, năm đường API, form và menu bot, i18n vi/en |
-| M7 | Tài liệu (`docs/25-chatbot.md`, `docs/12-zalo.md`), CHANGELOG cho điện thoại, `route_table.json`, ghi nhớ |
-| M8 | Kiểm sandbox thật với Zalo giả, chạy toàn bộ test, CI xanh, merge, xác nhận luồng phát hành |
-| M9 | Hội thoại của bot chuyên trách chuyển khỏi lịch sử Trò chuyện, vào lịch sử của Agent nối với chatbot (mục 7.1) |
+| M1 | `chatbot_reply_policy.py`: Event, Profile, recognizing being called, signal registry, coarse gate + tests |
+| M2 | The SQLite store, recording every decision including silence, retention, deletion per bot |
+| M3 | Role profile compiled from the Agent, the arbiter, three modes off/shadow/on (`tat`/`bong`/`chay` in the original naming), wired into `_answer` and `xu_ly`, fail-closed |
+| M4 | The case store, lookup only within the bot, mechanism templates, role-based bootstrap cases, per-chat threshold |
+| M5 | Consequence tracking, labeling, the owner's teaching, lessons |
+| M6 | Config fields, five API routes, bot form and menu, i18n vi/en |
+| M7 | Docs (`docs/25-chatbot.md`, `docs/12-zalo.md`), phone-friendly CHANGELOG, `route_table.json`, memory notes |
+| M8 | Real sandbox check with a fake Zalo, run the whole test suite, CI green, merge, confirm the release pipeline |
+| M9 | A dedicated bot's conversations move out of the Chat history, into the history of the Agent connected to the chatbot (section 7.1) |
 
-Xong khi TẤT CẢ đúng:
-1. Tám nhóm test đầu ở mục 9 có mặt và xanh; toàn bộ test JS xanh; test Python đỏ sẵn trên `main` sạch
-   (phân định bằng worktree sạch của `origin/main`) không tính.
-2. Kịch bản đầu cuối mục 9.7 chạy được, kèm ba bot khác lĩnh vực chạy cạnh nhau không lẫn nhau và đã xem trên sandbox: giao diện form và bảng quyết định
-   hiển thị đúng ở 1000 px và 375 px.
-3. Mặc định không đổi hành vi bot cũ (`mode = off`, `learning_enabled = false`): test hồi quy của
-   `test_bot_zalo_nhom.py` và `test_bot_doi_tuong.py` vẫn xanh nguyên.
-4. Mã mới dùng định danh tiếng Anh theo 4.3. Test quét tên và đổi tên hàng loạt mã cũ HOÃN theo chủ (2026-09-30:
-   "phần tiếng Anh thì để sau"), làm cùng đợt đổi tên.
-5. CI của PR xanh, đã squash-merge vào `main`, `VERSION` là 0.65.0 và lớn hơn bản trên `main` lúc merge,
-   luồng build ảnh Docker của `main` thành công.
+Done when ALL hold:
+1. The first eight test groups in section 9 exist and are green; all JS tests are green; Python tests already red on a clean `main`
+   (determined with a clean worktree of `origin/main`) do not count.
+2. The end-to-end scenario 9.7 runs, with three bots in different fields running side by side without mixing, and viewed on the sandbox: the form UI and the decision table
+   display correctly at 1000 px and 375 px.
+3. By default old bots' behavior does not change (`mode = off`, `learning_enabled = false`): the regression tests of
+   `test_bot_zalo_nhom.py` and `test_bot_doi_tuong.py` stay fully green.
+4. New code uses English identifiers per 4.3. The test scanning names and the bulk renaming of old code are DEFERRED at the owner's request (2026-09-30:
+   "the English part can wait", i.e. "phần tiếng Anh thì để sau"), to be done in the same batch as the renaming.
+5. The PR's CI is green, it has been squash-merged into `main`, `VERSION` is 0.65.0 and greater than the version on `main` at merge time,
+   and the Docker image build pipeline of `main` succeeded.
 
-## 11. Rủi ro đã cân
+## 11. Risks weighed
 
-- **Chi phí và độ trễ:** mỗi ứng viên tốn một lượt model rẻ (1 đến 2 giây). Cổng thô, tín hiệu và hạn
-  mức chặn trước; gọi tên chắc chắn không qua người phán xử.
-- **Nhãn nhiễu:** chỉ tín hiệu mạnh, trọng số nhỏ cho một ca, ca nhạt theo tuổi, ngưỡng bị kẹp biên,
-  nút Quên. Không dùng "tỉ lệ sai 50 quyết định gần nhất" làm căn cứ tự quay lại vì nhóm nhỏ mất nhiều
-  tuần mới đủ mẫu và nhãn lại nhiễu.
-- **Tiêm lệnh:** chỉ `trainer_ids` tạo luật; nội dung chat bị bọc và gỡ marker; đầu ra được kiểm khuôn.
-- **Riêng tư:** học là opt-in từng bot, dữ liệu ngoài git, có hạn giữ, xoá theo bot.
-- **Trôi hành vi:** ngưỡng kẹp biên, thẻ luật có trần, mẫu cơ chế làm điểm neo, và luôn có `shadow` để
-  so trước khi chuyển sang `on`.
+- **Cost and latency:** each candidate costs one cheap model call (1 to 2 seconds). The coarse gate, signals and caps
+  block first; a sure name call does not go through the arbiter.
+- **Noisy labels:** only strong signals, a small weight for a single case, cases fade with age, the threshold is clamped,
+  a Forget button. We do not use "error rate of the last 50 decisions" as grounds for self-rollback because a small group takes many
+  weeks to gather enough samples and the labels are noisy.
+- **Prompt injection:** only `trainer_ids` create rules; chat content is wrapped and has markers stripped; the output is format-checked.
+- **Privacy:** learning is opt-in per bot, data is outside git, has a retention limit, and is deleted per bot.
+- **Behavior drift:** the threshold is clamped, the rule card has a cap, mechanism templates act as an anchor, and there is always `shadow` to
+  compare before switching to `on`.
 
-## 12. Để ngỏ
+## 12. Left open
 
-Thay `find_cases` bằng embedding khi có hạ tầng; chia sẻ ca giữa các bot cùng lĩnh vực và cùng chủ, chỉ khi chủ bật rõ, không mặc định;
-tín hiệu cảm xúc; gắn nhãn từ reaction của Zalo nếu MCP mở ra; trang tổng hợp nhiều bot.
+Replace `find_cases` with an embedding when infrastructure exists; share cases between bots in the same field and of the same owner, only when the owner explicitly turns it on, not by default;
+emotion signals; labeling from Zalo reactions if the MCP exposes them; an aggregate page for many bots.
