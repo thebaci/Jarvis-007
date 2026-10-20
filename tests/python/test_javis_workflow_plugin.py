@@ -61,7 +61,7 @@ import main  # noqa: E402
 import localefmt  # noqa: E402  - da nap san server/ vao sys.path qua _paths
 
 d = main._dong_lan_chay_gan_nhat(B)
-check("dong lan chay gan nhat", d.startswith("Lần chạy quy trình gần nhất: Bản tin") and "lỗi" in d and "javis_workflow" in d)
+check("dong lan chay gan nhat", d.startswith("Most recent workflow run: Bản tin") and "lỗi" in d and "javis_workflow" in d)
 check("brain chua chay -> rong", main._dong_lan_chay_gan_nhat("/khong-co") == "")
 src = (SERVER / "main.py").read_text(encoding="utf-8")
 than = src[src.index("def _javis_capability_summary("):src.index("def _skill_router_block(")]

@@ -201,7 +201,7 @@ check("telegram: mất mạch thì mồi lại", "_rf = await _chay_claude(_cli_
 # 6. Prompt: dặn ghi file vào TRONG vault, link tương đối, đếm file bằng tool
 # ============================================================
 check("LỚP AGENTIC dặn ghi FILE THƯỜNG vào trong vault bằng đường dẫn tuyệt đối",
-      "FILE KHÁC (bài viết, báo cáo, nháp, dữ liệu): ghi VÀO TRONG vault root" in MAIN)
+      "OTHER FILES (articles, reports, drafts, data): write INSIDE the vault root" in MAIN)
 check("LỚP AGENTIC dặn đếm/liệt kê file bằng tool ngay lúc đó (không nhớ lại lượt trước)",
       "liệt kê lại thư mục bằng tool ngay lúc đó" in MAIN)
 # Luật này CỐ Ý không nằm trong CLAUDE.md: file đó đã sát trần 33.600 ký tự (test_prompt_budget),

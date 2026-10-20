@@ -167,7 +167,7 @@ check("máy không có Node: vẫn gửi được bằng MCP", ok and len(MCP) =
 reset((False, None, "Zalo quá 40 " + zalo_cli.TIMEOUT_MARK))
 ok, loi = send("Dạ để em hướng dẫn nhé", mention=LAN)
 check("CANARY: hết giờ là kết cục KHÔNG RÕ nên KHÔNG gửi lại bằng MCP (tránh hai câu dưới tên chủ trong nhóm)",
-      ok is False and MCP == [] and "không rõ" in loi, (ok, loi, MCP))
+      ok is False and MCP == [] and "unclear" in loi, (ok, loi, MCP))
 
 # ============================================================
 # 5. Hỏng liên tiếp thì nghỉ

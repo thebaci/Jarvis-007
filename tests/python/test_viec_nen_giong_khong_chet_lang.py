@@ -57,7 +57,7 @@ check("quá hạn thì nói thật bằng lời, không im",
 check("bị HUỶ cũng báo về khung chat rồi mới ném tiếp",
       re.search(r"except asyncio\.CancelledError:[\s\S]{0,300}push_to_chat\([\s\S]{0,200}raise", body) is not None)
 check("lỗi thường vẫn đẩy câu lỗi về chat (0.64.48: câu người đọc, không in tên lớp ngoại lệ)",
-      "Chưa làm được việc này" in body and 'viec["status"] = "failed"' in body)
+      "Could not do this job" in body and 'viec["status"] = "failed"' in body)
 check("gạch tên trong sổ việc ở finally (mọi đường ra)",
       re.search(r"finally:\s*\n\s*voice_brain\.note_task_done\(conv_sid, request\)", body) is not None)
 check("hạn giờ đặt ở cấp module, đọc được",
@@ -212,7 +212,7 @@ check("lưới 2: model vẫn cố giao việc để dừng việc thì cũng ch
       re.search(r"if voice_brain\.la_lenh_dung_viec\(ask\):[\s\S]{0,500}"
                 r"huy_viec_nen_giong\(conv_sid\)", src) is not None)
 check("không có việc nào đang chạy thì nói thật, không giả vờ đã dừng",
-      "Hiện không có việc nền nào đang chạy đâu." in src)
+      "There are no background jobs running right now." in src)
 
 print(("\n%d FAIL" % len(_fails)) if _fails else "\nTat ca OK")
 raise SystemExit(1 if _fails else 0)

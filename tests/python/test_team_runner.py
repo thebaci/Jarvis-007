@@ -149,7 +149,7 @@ s5 = r.submit(T["team_id"], "Hai bạn", mentions=["ag_hoa", "ag_minh"], client_
 run(r.run_replies(s5))
 # 0.142.0: ghi chú là câu cho chủ đọc, KHÔNG kèm mã agent (mã có "_" làm khung soạn ẩn cả câu, chủ không thấy gì).
 check("TC7 @ người đã rời: bỏ qua người đó, có ghi chú bằng tên, người hợp lệ vẫn trả lời",
-      s5["replies"] == ["ag_minh"] and any("không còn trong nhóm" in n and "ag_hoa" not in n for n in s5["notes"]), s5["notes"])
+      s5["replies"] == ["ag_minh"] and any("is no longer in the team" in n and "ag_hoa" not in n for n in s5["notes"]), s5["notes"])
 tm.add_member(T["team_id"], "ag_hoa", "hoa")
 
 fake.calls.clear()

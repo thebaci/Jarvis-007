@@ -69,7 +69,7 @@ check("báo xong có link file mới, đường dẫn tương đối trong brain
 check("báo xong nói thời gian chạy", bool(bao) and "4 min" in bao[-1][1], bao[-1][1] if bao else "")
 check("mở lượt nối tiếp đúng một lần", len(chay_tiep) == 1)
 check("lượt nối tiếp mang lời dặn và độ sâu +1",
-      bool(chay_tiep) and "Làm tiếp: ghép tiếng, gửi video" in chay_tiep[0][0] and chay_tiep[0][1] == 1)
+      bool(chay_tiep) and "Continue: ghép tiếng, gửi video" in chay_tiep[0][0] and chay_tiep[0][1] == 1)
 
 # 2. Chạm trần độ sâu: chỉ báo, mời nhắn "làm tiếp"
 bao.clear(); chay_tiep.clear()

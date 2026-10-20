@@ -127,7 +127,7 @@ async def chay():
     check("lượt thứ hai chạy sau đó, đúng MỘT câu trả lời gửi đi", len(LUOT) == 2 and len(GUI) == 1, (LUOT, GUI))
     ghi = LUOT[1][1].get("ghi_chu_dau") or ""
     check("lượt thứ hai nhận ghi chú: câu trước chưa gửi + chữ khách của lượt đầu",
-          "CHƯA được gửi" in ghi and "Con sinh ngày 15/05/2012" in ghi, ghi)
+          "was NOT sent" in ghi and "Con sinh ngày 15/05/2012" in ghi, ghi)
     check("chữ khách của lượt thứ hai vẫn nguyên, không dính ghi chú (Hộp thư sạch)",
           LUOT[1][0] == "Hiền 0900000000", LUOT[1][0])
     check("đếm số lần bỏ để có trần", LUOT[1][1].get("bo_do_n") == 1, LUOT[1][1])

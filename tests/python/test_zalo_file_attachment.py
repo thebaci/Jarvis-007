@@ -198,7 +198,7 @@ class IntakeTests(unittest.IsolatedAsyncioTestCase):
     async def test_download_error_reaches_answer(self):
         fetch,answer=await self.transport()
         fetch.assert_awaited_once();answer.assert_awaited_once()
-        self.assertIn('Không tải được file',answer.call_args.args[0])
+        self.assertIn('Could not download the Zalo file',answer.call_args.args[0])
         self.assertEqual(fetch.call_args.args[1],self.inbox)
 
     async def test_group_precheck_denied(self):
@@ -280,7 +280,7 @@ class IntakeTests(unittest.IsolatedAsyncioTestCase):
         fetch,answer=await self.transport(ev=self.batch('lớp 9 còn chỗ không ạ','file'),permission='suggest')
         fetch.assert_not_awaited();answer.assert_awaited_once()
         self.assertIn('lớp 9 còn chỗ không ạ',answer.call_args.args[0])
-        self.assertIn('không có quyền lưu file',answer.call_args.args[0])
+        self.assertIn('no permission to save files',answer.call_args.args[0])
 
     async def test_batched_stranger_file_dropped_text_kept(self):
         fetch,answer=await self.transport(ev=self.batch('chào','file'),changes={'sender_id':'stranger'})

@@ -50,11 +50,11 @@ with tempfile.TemporaryDirectory() as td:
     # không chỉ Claude/Codex) - xem tests/python/test_agent_model_da_nha.py.
     name, sp, model, prov = _sysprompt("chuyen-vien-test")
     check("CANARY: agent CHƯA có ký ức vẫn thấy khối bộ nhớ (hết con gà - quả trứng)",
-          "# Bộ nhớ của bạn" in sp and "chưa có ký ức" in sp)
+          "# Your memory" in sp and "no memories yet" in sp)
     check("prompt chỉ rõ ĐƯỜNG DẪN file MEMORY.md", "MEMORY.md" in sp)
     check("prompt có luật tự bồi đắp qua marker (model đề xuất, code ghi)",
-          "Tự bồi đắp" in sp and "JAVIS_LESSON" in sp)
-    check("luật CẤM agent tự sửa file bộ nhớ", "KHÔNG tự sửa file bộ nhớ" in sp)
+          "Self-improvement at use time" in sp and "JAVIS_LESSON" in sp)
+    check("luật CẤM agent tự sửa file bộ nhớ", "Do NOT edit the memory file directly" in sp)
     check("luật có phanh chống ghi vụn vặt và chống lặp",
           "ĐỪNG phát JAVIS_LESSON" in sp and "đừng lặp lại" in sp)
 
@@ -114,7 +114,7 @@ check("CANARY: _run_workflow_step nhận log_run (đường graph + resume hết
 check("runner cũ cũng bóc bài học trước khi out thành {{prev}}",
       "_learn(agent_slug, out)" in src)
 check("agent kiểm chứng cũng được ghi nhật ký (cả 2 đường)",
-      src.count("[kiểm chứng bước của") >= 2)
+      src.count("[verification of") >= 2)
 check("runner cũ vẫn ghi nhật ký qua cùng closure", "_log(agent_slug, task_f, out)" in src)
 
 # ---- 4. Nhật ký thô không vào git của brain ----

@@ -100,7 +100,7 @@ r.engine_for = lambda team, key, role: ("fake", "fake", planner)
 run(r.dispatch_once())
 t = ts.get_task(job)
 check("việc chặn vì hết lượt của việc", t["block_kind"] == "cap_reached"
-      and t["block_reason"].startswith("Việc đã dùng hết số lần trả lời"), t["block_reason"])
+      and t["block_reason"].startswith("The job has used up its allowed replies"), t["block_reason"])
 out = r.extend_job(job)
 check("Cho thêm lượt: nâng trần lượt mỗi việc (+6)", out and out["cap"] == "task_turns" and out["value"] == 7, out)
 run(r.dispatch_once())
@@ -121,7 +121,7 @@ job = r.submit(T["team_id"], "Việc hai người", as_job=True, client_msg_id="
 run(r.dispatch_once())
 t = ts.get_task(job)
 check("C1 kế hoạch giao hai người vượt trần 2 bước: chặn hết lượt", t["block_kind"] == "cap_reached"
-      and t["block_reason"].startswith("Việc đã dùng hết"), t["block_reason"])
+      and t["block_reason"].startswith("The job has used up"), t["block_reason"])
 out = r.extend_job(job)
 check("C1 Cho thêm lượt: nâng trần bước đủ chỗ cho hai bước bị từ chối (+4 trên số cần)", out and out["cap"] == "task_steps"
       and out["value"] == 3 + 4, out)

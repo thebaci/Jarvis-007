@@ -33,7 +33,7 @@ def check(name, cond, detail=""):
 # ---- 1. _tg_ket ----
 chu = main._tg_ket("Dạ còn hàng ạ", ["a.jpg"], "⚠ Model 'x' đã tự đổi.\n\n", ["hub sập"])
 check("owner channel unchanged: warning on top, mid-turn error at the bottom",
-      chu["text"].startswith("⚠ Model") and chu["text"].endswith("⚠ Có lỗi giữa lượt: hub sập") and "canh_bao" not in chu, chu)
+      chu["text"].startswith("⚠ Model") and chu["text"].endswith("⚠ An error occurred mid-turn: hub sập") and "canh_bao" not in chu, chu)
 khach = main._tg_ket("Dạ còn hàng ạ", ["a.jpg"], "⚠ Model 'x' đã tự đổi.\n\n", ["hub sập"], khach=True)
 check("customer bot: the reply is only the answer", khach["text"] == "Dạ còn hàng ạ" and khach["files"] == ["a.jpg"], khach)
 check("customer bot: warning and error go to canh_bao for the bot log",

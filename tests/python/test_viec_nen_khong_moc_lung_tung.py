@@ -99,7 +99,7 @@ check("push_to_chat gắn khối SAU khi bóc (không tự bóc mất)",
                 r"_k = khoi_viec\(viec\)", MAIN) is not None)
 check("kênh web nhận bản riêng cho thẻ", "push_to_chat(sid, (web or text) if viec else text, viec=viec)" in MAIN)
 bg = MAIN[MAIN.index("async def _voice_bg_task("):MAIN.index("async def _start_resumed_turn(")]
-check("việc nền giọng: kết quả mang thẻ", "push_to_chat(conv_sid, out or \"(việc nền xong nhưng không có nội dung)\", viec=viec)" in bg)
+check("việc nền giọng: kết quả mang thẻ", "push_to_chat(conv_sid, out or \"(background job finished but returned no content)\", viec=viec)" in bg)
 check("việc nền giọng: lỗi không còn in tên lớp ngoại lệ Python ra khung chat",
       "Việc nền lỗi: {type(e).__name__}" not in bg)
 check("việc nền giọng: bị dừng cũng là thẻ", 'viec=dict(viec, status="cancelled")' in bg)
