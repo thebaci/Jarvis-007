@@ -365,14 +365,14 @@ class WritePathCanary:
                 report.get("preflight_decision") != "would_allow"):
             return self._reject(
                 trace, policy, bucket, "write_compile_rejected",
-                "Yêu cầu vượt context budget đã xác minh cho vòng lập tham số. "
-                "Javis chưa gửi model call và chưa gọi tool.",
+                "Request exceeds the verified context budget for the parameters round. "
+                "Jarvis 007 has not sent a model call and has not called a tool.",
             )
         estimate = max(1, _int(report.get("estimated_input_tokens"), 1))
         if estimate > rule.hard_max_input_tokens:
             return self._reject(
                 trace, policy, bucket, "hard_input_limit",
-                "Yêu cầu vượt hard context limit. Javis chưa gửi model call nào.",
+                "Request exceeds the hard context limit. Jarvis 007 has not sent any model call.",
             )
         reserved_input = int(math.ceil(estimate * policy.estimator_safety_factor))
         path = self.runtime.pin_execution_path(
@@ -386,7 +386,7 @@ class WritePathCanary:
         if not admission.allowed:
             return self._plan(
                 "reject", admission.reason, policy, bucket, "write",
-                "Model hiện tại không còn đủ ngân sách token. Javis chưa gửi request nào.",
+                "The current model no longer has enough token budget. Jarvis 007 has not sent any request.",
             )
         lease = self.executor.issue_lease(
             trace, actor_id, brain, capability, profile, allow_write=True)
@@ -394,7 +394,7 @@ class WritePathCanary:
             self.runtime.release_quota(trace, admission.reservation_id, "lease_issue_failed")
             return self._plan(
                 "reject", "lease_issue_failed", policy, bucket, "write",
-                "Capability không đạt policy lease write. Javis chưa gọi model hoặc tool.",
+                "Capability did not pass the write policy lease. Jarvis 007 has not called a model or tool.",
             )
         rendered = compiled.capsule.rendered_request
         return WritePlan(

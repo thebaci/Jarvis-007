@@ -49,7 +49,7 @@ def ghep_dau_vao(user_message: str, ket_qua_truoc: str) -> str:
     k = str(ket_qua_truoc or "")
     if not k:
         return u
-    return f"{u}\n\n# Kết quả lần trước\n{k[:TRAN_KET_QUA_TRUOC]}"
+    return f"{u}\n\n# Previous result\n{k[:TRAN_KET_QUA_TRUOC]}"
 
 
 def tin_xong(so_lan: int, so_buoc: int, giay: int, ket_qua: str) -> str:
@@ -274,12 +274,12 @@ def khoi_quy_trinh_dang_mo(ten: str, slug: str, duong_dan: str, so_buoc: int,
     Liệt kê luôn tên các bước - hỏi "gộp bớt bước được không" mà phải đi đọc file mới biết có
     những bước gì thì lượt trả lời nào cũng tốn thêm một vòng đọc file.
     """
-    dong = [f"[QUY TRÌNH ĐANG MỞ trong trang Cộng sự: {ten} (slug: {slug}, {int(so_buoc)} bước)",
-            f"File quy trình: {duong_dan}"]
+    dong = [f"[QUY TRÌNH ĐANG MỞ trong trang Cộng sự: {ten} (slug: {slug}, {int(so_buoc)} steps)",
+            f"Workflow file: {duong_dan}"]
     for i, b in enumerate(buoc or []):
         t = str((b or {}).get("task") or "").strip().replace("\n", " ")
         dong.append(f"  B{i + 1}. {(b or {}).get('agent') or '?'}: {t[:120]}")
-    dong.append("Người dùng đang nói VỀ quy trình này, không phải đặt một đề bài cho nó. Đọc "
-                "file trên trước khi trả lời; được yêu cầu sửa/gộp/thêm/bớt bước thì ghi thẳng "
-                "vào chính file đó rồi nói đã đổi những gì. KHÔNG tự chạy quy trình.]")
+    dong.append("The user is talking ABOUT this workflow, not giving it a task. Read "
+                "the file above before answering; if asked to edit/merge/add/remove steps, write straight "
+                "into that file and then say what you changed. Do NOT run the workflow yourself.]")
     return "\n".join(dong)

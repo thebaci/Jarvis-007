@@ -174,7 +174,7 @@ class McpHttpSession:
             "clientInfo": {"name": "javis-os", "version": "1.0"},
         }, cho_lam_moi=False)
         if isinstance(res, dict) and res.get("error"):
-            raise McpHttpError("initialize lỗi: "
+            raise McpHttpError("initialize failed: "
                                + json.dumps(res["error"], ensure_ascii=False)[:300])
         await self._rpc("notifications/initialized", notify=True, cho_lam_moi=False)
         self._init_done = True
@@ -301,7 +301,7 @@ class McpStdioSession:
 
     async def start(self):
         if self._closed:
-            raise ConnectionError("phiên đã đóng")
+            raise ConnectionError("session closed")
         # First stdio start of this server lifetime: kill what an earlier lifetime left running
         # (crash, kill -9, updater). Two live `mcp start` for one Zalo account and Zalo feeds only
         # one of them - the bot reads the other and goes silent (2026-10-13). See mcp_orphans.
@@ -326,7 +326,7 @@ class McpStdioSession:
             # Closed WHILE the process was being created: `close()` saw no process to kill, and
             # the pool has already dropped this object, so nobody would ever close it again.
             self._kill_tree()
-            raise ConnectionError("phiên đã đóng")
+            raise ConnectionError("session closed")
         mcp_orphans.record(self.key, self.proc.pid, self.args)
 
     def _err_tail(self, n=8, cap=900):
@@ -356,7 +356,7 @@ class McpStdioSession:
     async def _rpc(self, method, params=None, notify=False, timeout=120):
         if not self.alive():
             # ConnectionError = lỗi TRƯỚC khi gửi request → pool được phép retry cả tool ghi
-            raise ConnectionError(f"process chết ({self._err_tail() or 'không rõ lý do'})")
+            raise ConnectionError(f"process died ({self._err_tail() or 'reason unknown'})")
         self._id += 1
         msg = {"jsonrpc": "2.0", "method": method}
         if not notify:
@@ -372,11 +372,11 @@ class McpStdioSession:
         while True:
             remain = deadline - time.time()
             if remain <= 0:
-                raise TimeoutError(f"tool không phản hồi sau {timeout}s")
+                raise TimeoutError(f"tool did not respond after {timeout}s")
             raw = await asyncio.wait_for(self.proc.stdout.readline(), timeout=remain)
             if not raw:
                 await self._doi_stderr_xong()
-                raise RuntimeError(f"process đóng stdout ({self._err_tail() or 'exit?'})")
+                raise RuntimeError(f"process closed stdout ({self._err_tail() or 'exit?'})")
             raw = raw.decode("utf-8", "replace").strip()
             if not raw:
                 continue
@@ -660,9 +660,9 @@ class SessionPool:
         key, h = spec.get("key") or _spec_hash(spec), _spec_hash(spec)
         down = self._down.get(key)
         if down and down[1] == h and time.time() - down[0] < _DOWN_TTL:
-            return (f"ERROR: nguồn {spec.get('label') or key} vừa không khởi động được "
-                    f"({down[2]}). Javis tạm ngừng gọi nguồn này {_DOWN_TTL} giây, đừng gọi lại "
-                    "liên tục: báo người dùng bấm Kiểm tra ở trang Kết nối.")
+            return (f"ERROR: source {spec.get('label') or key} just failed to start "
+                    f"({down[2]}). Jarvis 007 is pausing calls to this source for {_DOWN_TTL} seconds, do not call it again "
+                    "repeatedly: tell the user to press Check on the Connections page.")
         started = [False]
 
         async def _op(s):
@@ -680,7 +680,7 @@ class SessionPool:
         except Exception as e:
             if not started[0]:
                 self._down[key] = (time.time(), h, f"{type(e).__name__}: {str(e)[-300:]}")
-            return f"ERROR: gọi tool lỗi: {type(e).__name__}: {e}"
+            return f"ERROR: tool call failed: {type(e).__name__}: {e}"
 
 
 pool = SessionPool()
@@ -845,11 +845,11 @@ async def warm_pool(conns):
                 # đang chạy dở một tool call: lúc đó `tools/list` mới chỉ chờ khoá, chưa gửi
                 # gì, mà giết phiên là giết luôn việc đang chạy.
                 if pool.dang_goi_tool(spec):
-                    print(f"[mcp warm] {conn.get('label')}: đang chạy tool - để nguyên phiên",
+                    print(f"[mcp warm] {conn.get('label')}: a tool is running - leaving the session alone",
                           file=sys.stderr)
                 else:
                     pool.invalidate(spec.get("key") or _spec_hash(spec))
-                    print(f"[mcp warm] {conn.get('label')}: quá hạn làm nóng", file=sys.stderr)
+                    print(f"[mcp warm] {conn.get('label')}: warm-up timed out", file=sys.stderr)
             except Exception as e:
                 print(f"[mcp warm] {conn.get('label')}: {type(e).__name__}: {e}", file=sys.stderr)
         con_lanh.append(conn["id"])
@@ -908,14 +908,14 @@ async def discover_resolved(conns, bo_qua=None):
                 #     trong ống, lần sau đọc là lệch pha vĩnh viễn - vứt phiên, đừng tái dùng.
                 if pool.dang_goi_tool(spec):
                     cu = pool.tool_da_biet(spec)
-                    print(f"[mcp discover] {conn.get('label')}: đang chạy tool - giữ phiên, "
-                          f"dùng lại danh sách tool lần trước ({len(cu or [])} tool)",
+                    print(f"[mcp discover] {conn.get('label')}: a tool is running - keeping the session, "
+                          f"reusing the previous tool list ({len(cu or [])} tool)",
                           file=sys.stderr)
                     if cu:
                         return spec, cu
                 else:
                     pool.invalidate(spec.get("key") or _spec_hash(spec))
-                    print(f"[mcp discover] {conn.get('label')}: quá hạn dò tool - bỏ qua vòng này",
+                    print(f"[mcp discover] {conn.get('label')}: tool discovery timed out - skipping this round",
                           file=sys.stderr)
             except Exception as e:
                 print(f"[mcp discover] {conn.get('label')}: {type(e).__name__}: {e}", file=sys.stderr)
@@ -961,7 +961,7 @@ async def call_route(route, fn, arguments):
     """Gọi 1 tool theo fn. Entry: {"call"} (hub bọc sẵn) | {"spec","tool"} (pool) | {"server","tool"} (legacy)."""
     ent = route.get(fn)
     if not ent:
-        return f"ERROR: tool '{fn}' không tồn tại"
+        return f"ERROR: tool '{fn}' does not exist"
     try:
         if ent.get("call"):
             return await ent["call"](arguments or {})
@@ -970,5 +970,5 @@ async def call_route(route, fn, arguments):
         if ent.get("server") is not None:
             return await pool.call_tool(_legacy_spec(ent["server"]), ent["tool"], arguments or {})
     except Exception as e:
-        return f"ERROR: gọi tool lỗi: {type(e).__name__}: {e}"
-    return f"ERROR: route entry hỏng cho '{fn}'"
+        return f"ERROR: tool call failed: {type(e).__name__}: {e}"
+    return f"ERROR: broken route entry for '{fn}'"

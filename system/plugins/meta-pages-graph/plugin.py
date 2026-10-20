@@ -37,9 +37,9 @@ def _connected_id():
 
 def _check():
     if not _connected_id():
-        return ("Chưa kết nối Facebook Trang. Vào trang Kết nối, chọn 'Facebook Trang (tự tạo app - "
-                "Graph API)', làm theo hướng dẫn tạo Facebook App rồi đăng nhập (nhớ tick chọn Trang). "
-                "Sau đó gọi lại tool này.")
+        return ("Facebook Pages is not connected. Go to the Connections page, choose 'Facebook Pages (own app - "
+                "Graph API)', follow the steps to create a Facebook App, then sign in (remember to tick your Page). "
+                "Then call this tool again.")
     return None
 
 
@@ -116,8 +116,8 @@ async def _resolve_page(args, user_token):
     if err:
         return None, None, None, err
     if not pages:
-        return None, None, None, ("ERROR: Không thấy Trang nào bạn quản lý. Kiểm tra: bạn là Admin của Trang, "
-                                  "và khi đăng nhập Facebook đã TICK chọn Trang đó cho app.")
+        return None, None, None, ("ERROR: No Page that you manage was found. Check: you are an Admin of the Page, "
+                                  "and when signing in to Facebook you TICKED that Page for the app.")
     ref = str((args or {}).get("page_id") or (args or {}).get("page") or "").strip()
     if ref:
         rl = ref.lower()
@@ -125,18 +125,18 @@ async def _resolve_page(args, user_token):
             if str(p.get("id")) == ref or rl in str(p.get("name", "")).lower():
                 return p.get("id"), p.get("access_token"), p.get("name"), None
         avail = ", ".join(f"{p.get('name')} ({p.get('id')})" for p in pages)
-        return None, None, None, f"ERROR: Không khớp Trang '{ref}'. Trang bạn có: {avail}"
+        return None, None, None, f"ERROR: No Page matches '{ref}'. Your Pages: {avail}"
     if len(pages) == 1:
         p = pages[0]
         return p.get("id"), p.get("access_token"), p.get("name"), None
     avail = ", ".join(f"{p.get('name')} ({p.get('id')})" for p in pages)
-    return None, None, None, f"ERROR: Bạn có nhiều Trang, cần chỉ rõ page_id hoặc page (tên). Trang: {avail}"
+    return None, None, None, f"ERROR: You have several Pages, specify page_id or page (name). Pages: {avail}"
 
 
 async def _list(args, ctx):
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     pages, err = await _pages(token)
     if err:
         return err
@@ -149,7 +149,7 @@ async def _list(args, ctx):
 async def _posts(args, ctx):
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     pid, ptok, pname, err = await _resolve_page(args, token)
     if err:
         return err
@@ -167,11 +167,11 @@ async def _posts(args, ctx):
 async def _comments(args, ctx):
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     args = args or {}
     obj = str(args.get("post_id") or args.get("object_id") or "").strip()
     if not obj:
-        return "ERROR: thiếu 'post_id' (id bài cần đọc bình luận; lấy từ fb_page_posts)."
+        return "ERROR: missing 'post_id' (id of the post whose comments to read; get it from fb_page_posts)."
     # post_id dạng {pageid}_{postid}: tự suy Trang khi user không chỉ rõ.
     if not (args.get("page_id") or args.get("page")) and "_" in obj:
         args = {**args, "page_id": obj.split("_", 1)[0]}
@@ -191,12 +191,12 @@ async def _comments(args, ctx):
 async def _publish(args, ctx):
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     args = args or {}
     msg = str(args.get("message") or "").strip()
     link = str(args.get("link") or "").strip()
     if not msg and not link:
-        return "ERROR: cần 'message' (nội dung bài) hoặc 'link'."
+        return "ERROR: 'message' (post text) or 'link' is required."
     pid, ptok, pname, err = await _resolve_page(args, token)
     if err:
         return err
@@ -242,12 +242,12 @@ def _resolve_media(ref, cctx):
     from pathlib import Path
     ref = str(ref or "").strip()
     if not ref:
-        return None, None, "ERROR: thiếu đường dẫn file hoặc URL http(s) của media."
+        return None, None, "ERROR: missing the file path or http(s) URL of the media."
     if ref.startswith("http://") or ref.startswith("https://"):
         return ref, None, None
     roots = _media_roots(cctx)
     if not roots:
-        return None, None, "ERROR: không xác định được vault/vùng nhận file để tìm media."
+        return None, None, "ERROR: cannot determine the vault/file inbox area to look for the media."
     try:
         if Path(ref).is_absolute():
             rp = Path(ref).resolve()
@@ -259,9 +259,9 @@ def _resolve_media(ref, cctx):
                 if str(cand).startswith(str(r)) and cand.is_file():
                     return None, cand, None
     except OSError as e:
-        return None, None, f"ERROR: không đọc được đường dẫn ({type(e).__name__})."
-    return None, None, (f"ERROR: không thấy '{ref}' trong vault hay vùng nhận file của chat. "
-                        "File phải nằm trong vault, hoặc là file vừa gửi qua khung chat/Telegram.")
+        return None, None, f"ERROR: could not read the path ({type(e).__name__})."
+    return None, None, (f"ERROR: '{ref}' not found in the vault or the chat file inbox. "
+                        "The file must be inside the vault, or a file just sent through the chat box/Telegram.")
 
 
 async def _post_file(path_in_graph, file_path, data, token, base=GRAPH, timeout=900):
@@ -287,7 +287,7 @@ async def _post_file(path_in_graph, file_path, data, token, base=GRAPH, timeout=
 async def _publish_photo(args, cctx):
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     args = args or {}
     url, path, err = _resolve_media(args.get("photo") or args.get("image") or "", cctx)
     if err:
@@ -312,7 +312,7 @@ async def _publish_photo(args, cctx):
 async def _publish_video(args, cctx):
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     args = args or {}
     url, path, err = _resolve_media(args.get("video") or "", cctx)
     if err:
@@ -335,7 +335,7 @@ async def _publish_video(args, cctx):
         return _fmt(d)
     return json.dumps({"ok": True, "page": pname,
                        "video_id": d.get("id") if isinstance(d, dict) else None,
-                       "note": "Video Facebook xử lý nền vài phút rồi mới hiện trên Trang."},
+                       "note": "Facebook processes the video in the background for a few minutes before it appears on the Page."},
                       ensure_ascii=False, default=str)
 
 
@@ -344,15 +344,15 @@ async def _publish_album(args, cctx):
     rồi gom vào MỘT bài /feed qua attached_media. Meta cho tối đa 10 ảnh một bài."""
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     args = args or {}
     photos = args.get("photos") or []
     if isinstance(photos, str):   # model hay đưa chuỗi cách nhau dấu phẩy
         photos = [p.strip() for p in photos.split(",") if p.strip()]
     if len(photos) < 2:
-        return "ERROR: album cần ít nhất 2 ảnh trong 'photos' (1 ảnh thì dùng fb_page_photo)."
+        return "ERROR: an album needs at least 2 images in 'photos' (for 1 image use fb_page_photo)."
     if len(photos) > 10:
-        return f"ERROR: Meta cho tối đa 10 ảnh một bài, đang có {len(photos)}. Bớt lại hoặc chia 2 bài."
+        return f"ERROR: Meta allows at most 10 images per post, you have {len(photos)}. Remove some or split into 2 posts."
     pid, ptok, pname, perr = await _resolve_page(args, token)
     if perr:
         return perr
@@ -360,16 +360,16 @@ async def _publish_album(args, cctx):
     for i, ref in enumerate(photos):
         url, path, err = _resolve_media(ref, cctx)
         if err:
-            return f"{err} (ảnh thứ {i + 1}: {str(ref)[:80]})"
+            return f"{err} (image {i + 1}: {str(ref)[:80]})"
         if url:
             d = await _post(f"{pid}/photos", {"url": url, "published": "false"}, ptok)
         else:
             d = await _post_file(f"{pid}/photos", path, {"published": "false"}, ptok)
         if isinstance(d, dict) and d.get("error"):
-            return _fmt(d) + f" (ảnh thứ {i + 1})"
+            return _fmt(d) + f" (image {i + 1})"
         mid = (d or {}).get("id") if isinstance(d, dict) else None
         if not mid:
-            return f"ERROR: Facebook không trả id cho ảnh thứ {i + 1}."
+            return f"ERROR: Facebook returned no id for image {i + 1}."
         media_ids.append(mid)
     data = {}
     msg = str(args.get("message") or "").strip()
@@ -390,14 +390,14 @@ async def _edit_post(args, cctx):
     ảnh/video đã đính kèm (muốn đổi media thì xoá đăng lại, Javis không tự xoá)."""
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     args = args or {}
     post_id = str(args.get("post_id") or "").strip()
     msg = str(args.get("message") or "").strip()
     if not post_id:
-        return "ERROR: thiếu 'post_id' (id bài cần sửa, lấy từ fb_page_posts)."
+        return "ERROR: missing 'post_id' (id of the post to edit, get it from fb_page_posts)."
     if not msg:
-        return "ERROR: thiếu 'message' (nội dung MỚI thay cho nội dung cũ)."
+        return "ERROR: missing 'message' (the NEW text replacing the old text)."
     # post_id dạng {pageid}_{postid}: tự suy Trang như fb_page_comments
     if not (args.get("page_id") or args.get("page")) and "_" in post_id:
         args = {**args, "page_id": post_id.split("_", 1)[0]}
@@ -409,7 +409,7 @@ async def _edit_post(args, cctx):
         return _fmt(d)
     ok = bool(isinstance(d, dict) and (d.get("success") is True or d.get("id")))
     return json.dumps({"ok": ok, "page": pname, "post_id": post_id,
-                       "note": "" if ok else "Facebook trả về khác thường: " + str(d)[:120]},
+                       "note": "" if ok else "Facebook returned something unusual: " + str(d)[:120]},
                       ensure_ascii=False, default=str)
 
 
@@ -419,11 +419,11 @@ async def _delete_post(args, cctx):
     lại nội dung trả về cho người dùng đối chiếu (và có cái dán lại nếu lỡ tay)."""
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     args = args or {}
     post_id = str(args.get("post_id") or "").strip()
     if not post_id:
-        return "ERROR: thiếu 'post_id' (id bài cần xoá, lấy từ fb_page_posts)."
+        return "ERROR: missing 'post_id' (id of the post to delete, get it from fb_page_posts)."
     # post_id dạng {pageid}_{postid}: tự suy Trang như fb_page_edit
     if not (args.get("page_id") or args.get("page")) and "_" in post_id:
         args = {**args, "page_id": post_id.split("_", 1)[0]}
@@ -441,22 +441,22 @@ async def _delete_post(args, cctx):
     return json.dumps({"ok": ok, "page": pname, "post_id": post_id,
                        "noi_dung_da_xoa": (cu[:300] + "…") if len(cu) > 300 else cu,
                        "created_time": (snap or {}).get("created_time"),
-                       "note": "Đã xoá hẳn, KHÔNG khôi phục được." if ok
-                               else "Facebook trả về khác thường: " + str(d)[:120]},
+                       "note": "Permanently deleted, it can NOT be restored." if ok
+                               else "Facebook returned something unusual: " + str(d)[:120]},
                       ensure_ascii=False, default=str)
 
 
 async def _reply(args, ctx):
     token = await _token()
     if not token:
-        return "ERROR: " + (_check() or "chưa kết nối")
+        return "ERROR: " + (_check() or "not connected")
     args = args or {}
     target = str(args.get("comment_id") or args.get("object_id") or args.get("post_id") or "").strip()
     msg = str(args.get("message") or "").strip()
     if not target:
-        return "ERROR: thiếu 'comment_id' (bình luận cần trả lời) hoặc 'post_id' (để bình luận vào bài)."
+        return "ERROR: missing 'comment_id' (the comment to reply to) or 'post_id' (to comment on the post)."
     if not msg:
-        return "ERROR: thiếu 'message' (nội dung trả lời)."
+        return "ERROR: missing 'message' (the reply text)."
     pid, ptok, pname, err = await _resolve_page(args, token)
     if err:
         return err
@@ -471,111 +471,111 @@ async def _reply(args, ctx):
 def register(ctx):
     ctx.register_tool(
         name="fb_pages_list", min_mode="readonly", check_fn=_check, handler=_list,
-        description=("Liệt kê các Trang/Fanpage Facebook bạn quản lý (id, tên, hạng mục, quyền). Gọi đầu "
-                     "tiên để lấy id/tên Trang cho các tool khác. KHÔNG lộ token của Trang."),
+        description=("List the Facebook Pages/Fanpages you manage (id, name, category, permissions). Call this "
+                     "first to get the Page id/name for the other tools. Does NOT expose the Page token."),
         schema={"type": "object", "properties": {}},
     )
     ctx.register_tool(
         name="fb_page_posts", min_mode="readonly", check_fn=_check, handler=_posts,
-        description=("Đọc các bài GẦN ĐÂY trên một Trang của bạn (id bài, nội dung, thời gian, link, số bình "
-                     "luận). Bỏ trống page nếu chỉ có 1 Trang; nhiều Trang thì truyền page_id hoặc page (tên)."),
+        description=("Read the RECENT posts on one of your Pages (post id, text, time, link, comment "
+                     "count). Leave page empty if you have only 1 Page; with several Pages pass page_id or page (name)."),
         schema={"type": "object", "properties": {
-            "page_id": {"type": "string", "description": "id Trang (bỏ trống nếu chỉ có 1 Trang)"},
-            "page": {"type": "string", "description": "tên Trang (thay cho page_id)"},
-            "limit": {"type": "integer", "description": "Số bài tối đa (mặc định 10)"}}},
+            "page_id": {"type": "string", "description": "Page id (leave empty if you have only 1 Page)"},
+            "page": {"type": "string", "description": "Page name (instead of page_id)"},
+            "limit": {"type": "integer", "description": "Maximum number of posts (default 10)"}}},
     )
     ctx.register_tool(
         name="fb_page_comments", min_mode="readonly", check_fn=_check, handler=_comments,
-        description=("Đọc bình luận của MỘT bài trên Trang (người bình luận, nội dung, thời gian). Cần post_id "
-                     "lấy từ fb_page_posts. Trang tự suy từ post_id; nhiều Trang thì truyền thêm page_id/page nếu cần."),
+        description=("Read the comments of ONE post on the Page (commenter, text, time). Needs post_id "
+                     "from fb_page_posts. The Page is inferred from post_id; with several Pages also pass page_id/page if needed."),
         schema={"type": "object", "properties": {
-            "post_id": {"type": "string", "description": "id bài cần đọc bình luận (từ fb_page_posts)"},
-            "page_id": {"type": "string", "description": "id Trang (thường không cần, suy từ post_id)"},
-            "page": {"type": "string", "description": "tên Trang (tuỳ chọn)"},
-            "limit": {"type": "integer", "description": "Số bình luận tối đa (mặc định 25)"}},
+            "post_id": {"type": "string", "description": "id of the post whose comments to read (from fb_page_posts)"},
+            "page_id": {"type": "string", "description": "Page id (usually not needed, inferred from post_id)"},
+            "page": {"type": "string", "description": "Page name (optional)"},
+            "limit": {"type": "integer", "description": "Maximum number of comments (default 25)"}},
             "required": ["post_id"]},
     )
     ctx.register_tool(
         name="fb_page_post", min_mode="full", check_fn=_check, handler=_publish,
-        description=("ĐĂNG một bài lên Trang của bạn - hành động THẬT, công khai. Cần message (nội dung) và/hoặc "
-                     "link. Bỏ trống page nếu chỉ có 1 Trang; nhiều Trang thì truyền page_id/page."),
+        description=("PUBLISH a post to your Page - a REAL, public action. Needs message (text) and/or "
+                     "link. Leave page empty if you have only 1 Page; with several Pages pass page_id/page."),
         schema={"type": "object", "properties": {
-            "message": {"type": "string", "description": "Nội dung bài đăng"},
-            "link": {"type": "string", "description": "Link đính kèm (tuỳ chọn)"},
-            "page_id": {"type": "string", "description": "id Trang (bỏ trống nếu chỉ có 1 Trang)"},
-            "page": {"type": "string", "description": "tên Trang (thay cho page_id)"}}},
+            "message": {"type": "string", "description": "Post text"},
+            "link": {"type": "string", "description": "Attached link (optional)"},
+            "page_id": {"type": "string", "description": "Page id (leave empty if you have only 1 Page)"},
+            "page": {"type": "string", "description": "Page name (instead of page_id)"}}},
     )
     ctx.register_tool(
         name="fb_page_photo", min_mode="full", check_fn=_check, handler=_publish_photo,
-        description=("ĐĂNG ẢNH lên Trang của bạn - hành động THẬT, công khai. photo = đường dẫn file ảnh "
-                     "trong vault (vd attachments/anh.jpg) hoặc URL http(s). message = caption tuỳ chọn. "
-                     "Bỏ trống page nếu chỉ có 1 Trang."),
+        description=("PUBLISH A PHOTO to your Page - a REAL, public action. photo = path of an image file "
+                     "in the vault (e.g. attachments/photo.jpg) or an http(s) URL. message = optional caption. "
+                     "Leave page empty if you have only 1 Page."),
         schema={"type": "object", "properties": {
-            "photo": {"type": "string", "description": "Đường dẫn ảnh trong vault hoặc URL http(s)"},
-            "message": {"type": "string", "description": "Caption cho ảnh (tuỳ chọn)"},
-            "page_id": {"type": "string", "description": "id Trang (bỏ trống nếu chỉ có 1 Trang)"},
-            "page": {"type": "string", "description": "tên Trang (thay cho page_id)"}},
+            "photo": {"type": "string", "description": "Image path in the vault or http(s) URL"},
+            "message": {"type": "string", "description": "Caption for the photo (optional)"},
+            "page_id": {"type": "string", "description": "Page id (leave empty if you have only 1 Page)"},
+            "page": {"type": "string", "description": "Page name (instead of page_id)"}},
             "required": ["photo"]},
     )
     ctx.register_tool(
         name="fb_page_album", min_mode="full", check_fn=_check, handler=_publish_album,
-        description=("ĐĂNG ALBUM: nhiều ảnh (2-10) gom vào MỘT bài trên Trang - hành động THẬT, công khai. "
-                     "photos = danh sách đường dẫn ảnh trong vault hoặc URL http(s). message = caption chung. "
-                     "Một ảnh thì dùng fb_page_photo."),
+        description=("PUBLISH AN ALBUM: several images (2-10) grouped into ONE post on the Page - a REAL, public action. "
+                     "photos = list of image paths in the vault or http(s) URLs. message = shared caption. "
+                     "For a single image use fb_page_photo."),
         schema={"type": "object", "properties": {
             "photos": {"type": "array", "items": {"type": "string"},
-                       "description": "2-10 ảnh: đường dẫn trong vault hoặc URL http(s)"},
-            "message": {"type": "string", "description": "Caption chung của album (tuỳ chọn)"},
-            "page_id": {"type": "string", "description": "id Trang (bỏ trống nếu chỉ có 1 Trang)"},
-            "page": {"type": "string", "description": "tên Trang (thay cho page_id)"}},
+                       "description": "2-10 images: paths in the vault or http(s) URLs"},
+            "message": {"type": "string", "description": "Shared caption of the album (optional)"},
+            "page_id": {"type": "string", "description": "Page id (leave empty if you have only 1 Page)"},
+            "page": {"type": "string", "description": "Page name (instead of page_id)"}},
             "required": ["photos"]},
     )
     ctx.register_tool(
         name="fb_page_edit", min_mode="full", check_fn=_check, handler=_edit_post,
-        description=("SỬA nội dung chữ của một bài ĐÃ ĐĂNG trên Trang - hành động THẬT. Cần post_id (từ "
-                     "fb_page_posts) và message MỚI thay toàn bộ nội dung cũ. Meta không cho đổi ảnh/video "
-                     "đã đính kèm, chỉ đổi được chữ - muốn đổi ảnh thì đăng bài mới rồi fb_page_delete bài cũ."),
+        description=("EDIT the text of a post ALREADY published on the Page - a REAL action. Needs post_id (from "
+                     "fb_page_posts) and a NEW message replacing the whole old text. Meta does not allow changing attached images/videos, "
+                     "only the text - to change an image, publish a new post and then fb_page_delete the old one."),
         schema={"type": "object", "properties": {
-            "post_id": {"type": "string", "description": "id bài cần sửa (từ fb_page_posts)"},
-            "message": {"type": "string", "description": "Nội dung MỚI thay cho nội dung cũ"},
-            "page_id": {"type": "string", "description": "id Trang (thường tự suy từ post_id)"},
-            "page": {"type": "string", "description": "tên Trang (tuỳ chọn)"}},
+            "post_id": {"type": "string", "description": "id of the post to edit (from fb_page_posts)"},
+            "message": {"type": "string", "description": "NEW text replacing the old text"},
+            "page_id": {"type": "string", "description": "Page id (usually inferred from post_id)"},
+            "page": {"type": "string", "description": "Page name (optional)"}},
             "required": ["post_id", "message"]},
     )
     ctx.register_tool(
         name="fb_page_video", min_mode="full", check_fn=_check, handler=_publish_video,
-        description=("ĐĂNG VIDEO lên Trang của bạn - hành động THẬT, công khai. video = đường dẫn file "
-                     "video trong vault hoặc URL http(s) (tối đa cỡ 1GB). message = mô tả, title = tiêu đề, "
-                     "đều tuỳ chọn. Facebook xử lý nền vài phút mới hiện bài. Bỏ trống page nếu chỉ có 1 Trang."),
+        description=("PUBLISH A VIDEO to your Page - a REAL, public action. video = path of a video file "
+                     "in the vault or an http(s) URL (up to about 1GB). message = description, title = title, "
+                     "both optional. Facebook processes it in the background for a few minutes before the post appears. Leave page empty if you have only 1 Page."),
         schema={"type": "object", "properties": {
-            "video": {"type": "string", "description": "Đường dẫn video trong vault hoặc URL http(s)"},
-            "message": {"type": "string", "description": "Mô tả video (tuỳ chọn)"},
-            "title": {"type": "string", "description": "Tiêu đề video (tuỳ chọn)"},
-            "page_id": {"type": "string", "description": "id Trang (bỏ trống nếu chỉ có 1 Trang)"},
-            "page": {"type": "string", "description": "tên Trang (thay cho page_id)"}},
+            "video": {"type": "string", "description": "Video path in the vault or http(s) URL"},
+            "message": {"type": "string", "description": "Video description (optional)"},
+            "title": {"type": "string", "description": "Video title (optional)"},
+            "page_id": {"type": "string", "description": "Page id (leave empty if you have only 1 Page)"},
+            "page": {"type": "string", "description": "Page name (instead of page_id)"}},
             "required": ["video"]},
     )
     ctx.register_tool(
         name="fb_page_delete", min_mode="full", check_fn=_check, handler=_delete_post,
-        description=("XOÁ HẲN một bài đã đăng trên Trang - hành động THẬT, KHÔNG HOÀN TÁC ĐƯỢC (Trang không "
-                     "có thùng rác). Cần post_id từ fb_page_posts. CHỈ gọi khi người dùng nói rõ muốn xoá "
-                     "đúng bài đó; đừng tự xoá để 'dọn dẹp'. Xoá xong trả lại đoạn nội dung vừa xoá để đối chiếu."),
+        description=("PERMANENTLY DELETE a post published on the Page - a REAL action, it can NOT be undone (Pages have no "
+                     "recycle bin). Needs post_id from fb_page_posts. ONLY call when the user clearly says they want to delete "
+                     "exactly that post; never delete on your own to 'clean up'. After deleting, the deleted text is returned for cross-checking."),
         schema={"type": "object", "properties": {
-            "post_id": {"type": "string", "description": "id bài cần xoá (từ fb_page_posts)"},
-            "page_id": {"type": "string", "description": "id Trang (thường tự suy từ post_id)"},
-            "page": {"type": "string", "description": "tên Trang (tuỳ chọn)"}},
+            "post_id": {"type": "string", "description": "id of the post to delete (from fb_page_posts)"},
+            "page_id": {"type": "string", "description": "Page id (usually inferred from post_id)"},
+            "page": {"type": "string", "description": "Page name (optional)"}},
             "required": ["post_id"]},
     )
     ctx.register_tool(
         name="fb_page_reply", min_mode="full", check_fn=_check, handler=_reply,
-        description=("TRẢ LỜI một bình luận, hoặc bình luận vào một bài - hành động THẬT, công khai. Cần message "
-                     "và comment_id (trả lời bình luận) HOẶC post_id (bình luận vào bài). Nhiều Trang thì truyền "
+        description=("REPLY to a comment, or comment on a post - a REAL, public action. Needs message "
+                     "and comment_id (reply to a comment) OR post_id (comment on the post). With several Pages pass "
                      "page_id/page."),
         schema={"type": "object", "properties": {
-            "message": {"type": "string", "description": "Nội dung trả lời"},
-            "comment_id": {"type": "string", "description": "id bình luận cần trả lời"},
-            "post_id": {"type": "string", "description": "id bài (bình luận thẳng vào bài thay vì trả lời 1 comment)"},
-            "page_id": {"type": "string", "description": "id Trang (khi có nhiều Trang)"},
-            "page": {"type": "string", "description": "tên Trang (khi có nhiều Trang)"}},
+            "message": {"type": "string", "description": "Reply text"},
+            "comment_id": {"type": "string", "description": "id of the comment to reply to"},
+            "post_id": {"type": "string", "description": "post id (comment directly on the post instead of replying to a comment)"},
+            "page_id": {"type": "string", "description": "Page id (when there are several Pages)"},
+            "page": {"type": "string", "description": "Page name (when there are several Pages)"}},
             "required": ["message"]},
     )

@@ -160,7 +160,7 @@ check("hạn mức siết: nêu đúng mã lý do quota",
 check("hạn mức siết: có câu giải thích cho người dùng",
       bool((_plan.rejection_message or "").strip()))
 check("hạn mức siết: nói rõ là CHƯA gửi request đi",
-      "chưa gửi" in (_plan.rejection_message or "").lower())
+      "not sent" in (_plan.rejection_message or "").lower())
 check("hạn mức siết: gợi ý provider người dùng đang có",
       "openai" in _plan.rejection_message or "gemini" in _plan.rejection_message)
 shutil.rmtree(_tmp, ignore_errors=True)

@@ -79,7 +79,7 @@ check("lỗi thường vẫn giữ gợi ý key/URL cũ", "Kiểm tra lại key/
 src_client = (SERVER / "mcp_client.py").read_text(encoding="utf-8")
 check("stdout đóng thì đợi drain stderr rồi mới raise",
       "await self._doi_stderr_xong()" in src_client
-      and src_client.index("_doi_stderr_xong()") < src_client.index("process đóng stdout"))
+      and src_client.index("_doi_stderr_xong()") < src_client.index("process closed stdout"))
 
 # ---- 4. Catalog: ghim đúng chỗ, không ghim bừa ----
 cat = json.loads((ROOT / "system" / "mcp-catalog.json").read_text(encoding="utf-8"))

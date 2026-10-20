@@ -46,7 +46,7 @@ st.ket_thuc(r2, "error", error="engine chết")
 h = tool["handler"]
 out = asyncio.run(h({"op": "runs"}, ctx))
 check("runs liet ke moi nhat truoc, co ten/trang thai/id", out.index("Bản tin") < out.index("Viết bài")
-      and "lỗi" in out and "xong" in out and r1 in out and r2 in out)
+      and "error" in out and "xong" in out and r1 in out and r2 in out)
 out = asyncio.run(h({"op": "runs", "slug": "viet-bai"}, ctx))
 check("runs loc slug", "Viết bài" in out and "Bản tin" not in out)
 out = asyncio.run(h({"op": "show", "id": r1}, ctx))
@@ -85,7 +85,7 @@ for i in range(15):
 st.ket_thuc(r3, "error", error="tổng lỗi")
 out = asyncio.run(h({"op": "show", "id": r3}, ctx))
 check("show nhieu buoc loi dai bi cat, co danh dau con bao nhieu",
-      len(out) <= 7600 and "bước nữa" in out)
+      len(out) <= 7600 and "more steps" in out)
 
 # Fix round 1 (b): op=runs voi nhieu lan chay loi dai cung khong duoc phinh vo han.
 for i in range(10):

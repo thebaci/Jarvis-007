@@ -7000,12 +7000,12 @@ def _ghi_muc_bo_nho_agent(brain, slug, header, items, cap):
         moi = agent_rules.merge_bullets(text, header, items, cap=cap)
         mat = agent_rules.missing_owner_lines(text, moi, [_BAI_HOC_HEADER])
         if mat:
-            print(f"[agent-memory] chặn ghi {header} ({slug}): làm rơi {len(mat)} dòng của chủ",
+            print(f"[agent-memory] blocked write of {header} ({slug}): would drop {len(mat)} owner lines",
                   file=sys.stderr)
             return
         _atomic_write_text(f, moi.rstrip() + "\n")
     except Exception as e:
-        print(f"[agent-memory] ghi bộ nhớ lỗi ({slug}): {e}", file=sys.stderr)
+        print(f"[agent-memory] memory write error ({slug}): {e}", file=sys.stderr)
 
 
 def _ghi_bai_hoc(brain, slug, lessons):
@@ -7246,7 +7246,7 @@ async def save_agent(name: str = Form(...), role: str = Form(""), skills: str = 
 async def delete_agent(slug: str = Form(...), brain: str = Form("brain")):
     # slug ghép thẳng vào tên file: phải hợp lệ, không thì `../x` xoá được file ngoài thư mục agents.
     if not skill_router.valid_file_slug(slug):
-        return JSONResponse({"ok": False, "error": "slug không hợp lệ"}, status_code=400)
+        return JSONResponse({"ok": False, "error": "invalid slug"}, status_code=400)
     if javis_core.is_core_slug(slug):
         return _core_refusal()
     def _xoa():
@@ -7921,7 +7921,7 @@ def _md_hong_ghi_sach(broot: str, sach: bool) -> None:
         d[str(broot)] = {"sach": bool(sach), "ts": time.time()}
         _atomic_write_text(_MD_HONG_DAU, json.dumps(d, ensure_ascii=False, indent=1))
     except Exception as e:
-        print(f"[md-hong] không ghi được dấu đã soi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[md-hong] could not write the inspection marker: {type(e).__name__}: {e}", file=sys.stderr)
 
 
 
@@ -9671,7 +9671,7 @@ async def usage_ngan_sach(gia_goi_thang_usd: str = Form(""), ngan_sach_thang_usd
     cfgmod.write_settings(cfg)
     if m["ngan_sach_thang_usd"] != truoc:
         usage_saving.ghi_moc("ngan_sach", f"${m['ngan_sach_thang_usd']:g}", f"${truoc:g}",
-                             "Đổi trần tiền tháng")
+                             "Changed monthly money cap")
 
     # ĐỦ ĐIỀU KIỆN MỚI HẸN LỊCH. Hai thứ vừa bật đều hẹn giờ báo về cho người dùng: cảnh báo
     # ngân sách và báo cáo tuần. Chưa đấu kênh nào thì tới giờ chúng chạy xong rồi rơi vào hư
@@ -9735,19 +9735,19 @@ async def _kiem_ngan_sach(nhac: bool = True) -> dict:
     ns = usage_saving.ngan_sach(da, tran)
     bat_phanh = bool(mcfg.get("tu_phanh")) and ns.get("muc_do") == "het"
     usage_saving.dat_phanh(bat_phanh,
-                           f"đã tiêu ${da:.2f} trên trần ${tran:.2f} tháng này" if bat_phanh else "")
+                           f"spent ${da:.2f} of the ${tran:.2f} cap this month" if bat_phanh else "")
     if nhac and ns.get("muc_do") in ("sap_het", "het"):
         khoa = f"{ns['muc_do']}"
         if not usage_saving.da_nhac_chua(khoa):
-            usage_saving.ghi_moc("ngan_sach", khoa, "", f"Nhắc ngân sách: {khoa}")
+            usage_saving.ghi_moc("ngan_sach", khoa, "", f"Budget reminder: {khoa}")
             if ns["muc_do"] == "het":
-                tin = (f"Ngân sách API tháng này đã hết: tiêu ${da:.2f} trên trần ${tran:.2f}.\n"
-                       + ("Javis đã tự chuyển việc nền sang đường không tốn tiền."
+                tin = (f"This month's API budget is used up: spent ${da:.2f} of the ${tran:.2f} cap.\n"
+                       + ("Jarvis 007 switched background work to the no-cost path on its own."
                           if bat_phanh else
-                          "Tự phanh đang tắt nên việc nền vẫn tiêu tiền như thường."))
+                          "Auto-brake is off, so background work keeps spending money as usual."))
             else:
-                tin = (f"Ngân sách API tháng này đã dùng {ns['ty_le'] * 100:.0f}%: "
-                       f"${da:.2f} trên trần ${tran:.2f}. Còn ${ns['con']:.2f}.")
+                tin = (f"This month's API budget is {ns['ty_le'] * 100:.0f}% used: "
+                       f"${da:.2f} of the ${tran:.2f} cap. ${ns['con']:.2f} left.")
             try:
                 # kind="system": Javis TỰ nói, không phải trả lời câu ai hỏi. Đúng nhãn mà
                 # inbox.py đặt tên sẵn cho ca này ("cảnh báo hết hạn mức"), và nhãn đó là thứ
@@ -9782,7 +9782,7 @@ async def _bao_cao_tuan_neu_toi_gio() -> bool:
     tuan = f"tuan-{gio.isocalendar()[0]}-{gio.isocalendar()[1]}"
     if usage_saving.da_nhac_chua(tuan, gio):
         return False
-    usage_saving.ghi_moc("ngan_sach", tuan, "", "Đã gửi báo cáo token tuần")
+    usage_saving.ghi_moc("ngan_sach", tuan, "", "Weekly token report sent")
     try:
         # An account-level report with no brain: kind system (the bell and the owner's own Telegram, 0.186.0).
         await _notify_owner("" if dich == "auto" else dich, await _bao_cao_token("last_week"), kind="system")
@@ -9801,44 +9801,44 @@ async def _bao_cao_token(period: str = "this_week") -> str:
     try:
         s = await asyncio.to_thread(usage_index.summary, period=period)
     except Exception as e:  # noqa: BLE001
-        return f"Chưa dựng được báo cáo token: {type(e).__name__}."
+        return f"Could not build the token report: {type(e).__name__}."
     k = s.get("kpi") or {}
-    ten = _TEN_KY.get(period, "Kỳ này")
+    ten = _TEN_KY_EN.get(period, "This period")
     mcfg = cfgmod.read_settings().get("model", {}) or {}
     theo_prov = {x["key"]: x for x in (s.get("by_provider") or [])}
     that = float((theo_prov.get("api") or {}).get("cost") or 0)
     quy = sum(float(v.get("cost") or 0) for kk, v in theo_prov.items() if kk != "api")
 
-    d = [f"BÁO CÁO TOKEN - {ten.lower()}",
-         f"Tổng {_fmt_tok_vn(k.get('tokens'))} token qua {k.get('turns') or 0} lượt."]
+    d = [f"TOKEN REPORT - {ten.lower()}",
+         f"Total {_fmt_tok_en(k.get('tokens'))} tokens over {k.get('turns') or 0} turns."]
     if k.get("delta_pct") is not None:
-        chieu = "tăng" if k["delta_pct"] >= 0 else "giảm"
-        d.append(f"So kỳ trước {chieu} {abs(k['delta_pct']):.0f}%.")
-    d.append(f"Tiền mặt thật: ${that:,.2f}."
-             + (f" Quy theo giá API thì phần gói thuê bao đáng ${quy:,.0f}." if quy > 0 else ""))
+        chieu = "up" if k["delta_pct"] >= 0 else "down"
+        d.append(f"Versus the previous period: {chieu} {abs(k['delta_pct']):.0f}%.")
+    d.append(f"Real cash: ${that:,.2f}."
+             + (f" At API prices the subscription plan share is worth ${quy:,.0f}." if quy > 0 else ""))
 
     tran = float(mcfg.get("ngan_sach_thang_usd") or 0)
     if tran > 0:
         da = await _tien_that_thang()
-        d.append(f"Ngân sách tháng: đã dùng ${da:,.2f} trên ${tran:,.2f}.")
+        d.append(f"Monthly budget: used ${da:,.2f} of ${tran:,.2f}.")
 
     phi = await _phi_moi_muc("brain")
     muc_nay = current_preset(cfgmod.read_settings().get("context_runtime") or {})
     tk = usage_saving.tiet_kiem(await asyncio.to_thread(usage_index.luot_theo_ngay, period),
                                 phi, muc_nay)
     if tk.get("token"):
-        d.append(f"Chế độ tiết kiệm tránh được {_fmt_tok_vn(tk['token'])} token "
-                 f"({tk.get('phan_tram') or 0}% mỗi lượt).")
+        d.append(f"Saving mode avoided {_fmt_tok_en(tk['token'])} tokens "
+                 f"({tk.get('phan_tram') or 0}% per turn).")
 
     top_m = (s.get("by_model") or [])[:1]
     top_p = (s.get("by_project") or [])[:1]
     if top_m:
-        d.append(f"Model ngốn nhất: {top_m[0]['key']} ({_fmt_tok_vn(top_m[0]['tokens'])}).")
+        d.append(f"Top model: {top_m[0]['key']} ({_fmt_tok_en(top_m[0]['tokens'])}).")
     if top_p:
-        d.append(f"Nơi ngốn nhất: {top_p[0]['key']} ({_fmt_tok_vn(top_p[0]['tokens'])}).")
+        d.append(f"Top project: {top_p[0]['key']} ({_fmt_tok_en(top_p[0]['tokens'])}).")
     nen = next((x["tokens"] for x in (s.get("by_activity") or []) if x["key"] == "background"), 0)
     if nen and k.get("tokens"):
-        d.append(f"Việc chạy nền chiếm {nen / k['tokens'] * 100:.0f}% token.")
+        d.append(f"Background work accounts for {nen / k['tokens'] * 100:.0f}% of tokens.")
 
     try:
         cho = await asyncio.to_thread(usage_index.insights, period=period)
@@ -9910,7 +9910,7 @@ _VERDICT_YES_RE = re.compile(r"(\bĐẠT\b|\bPASS(ED)?\b)", re.IGNORECASE)
 def _workflow_verdict(v_out: str, v_error: str = "") -> tuple[bool, str, str]:
     """(passed, reason, fixes) from a verify agent's answer. Anything unclear is a FAIL."""
     if v_error and not (v_out or "").strip():
-        return False, f"Agent kiểm chứng lỗi, không kết luận được: {v_error[:200]}", ""
+        return False, f"The verifier agent failed and could not reach a conclusion: {v_error[:200]}", ""
     text = v_out or ""
     vm = re.search(r"\{.*\}", text, re.DOTALL)
     verdict = {}
@@ -9931,13 +9931,13 @@ def _workflow_verdict(v_out: str, v_error: str = "") -> tuple[bool, str, str]:
         return False, text.strip()[:300], ""
     if _VERDICT_YES_RE.search(text):
         return True, text.strip()[:300], ""
-    return False, "Agent kiểm chứng không trả kết luận đọc được (cần JSON có trường pass).", ""
+    return False, "The verifier agent returned no readable verdict (JSON with a pass field is needed).", ""
 
 
 def _verify_failed_message(step_no, agent_name, attempts, reason) -> str:
-    return (f"Bước {step_no} ({agent_name}) chưa qua kiểm chứng sau {attempts} lượt"
+    return (f"Step {step_no} ({agent_name}) did not pass verification after {attempts} attempts"
             + (f": {str(reason).strip()[:300]}" if str(reason or "").strip() else "")
-            + ". Quy trình dừng ở đây, không chạy tiếp các bước sau.")
+            + ". The workflow stops here and does not run the later steps.")
 
 
 async def _run_workflow_step(node, prompt, mk, agent_sysprompt, sink, router=None,
@@ -10003,15 +10003,15 @@ async def _run_workflow_step(node, prompt, mk, agent_sysprompt, sink, router=Non
         await sink({"type": "step_verify", "i": index, "node": node.id,
                     "agent": v_name, "attempt": attempt})
         v_sys = (
-            v_body + "\n\nVAI TRÒ KIỂM CHỨNG: Bạn là người ĐÁNH GIÁ độc lập. "
-            "Mặc định GIẢ ĐỊNH kết quả dưới đây ĐANG SAI và phải tự chứng minh. "
-            "Kiểm tra thực tế (đọc file/chạy thử nếu cần), KHÔNG chỉ đọc lướt. "
-            'CHỈ trả JSON 1 dòng: {"pass":true|false,"reason":"ngắn gọn vì sao","fixes":"cần sửa gì nếu fail"}.'
+            v_body + "\n\nVERIFIER ROLE: You are an independent EVALUATOR. "
+            "By default ASSUME the result below is WRONG and must prove itself. "
+            "Check it for real (read files / run it if needed), do NOT just skim. "
+            'Return ONLY one line of JSON: {"pass":true|false,"reason":"brief why","fixes":"what to fix if it fails"}.'
         )
         v_prompt = (
-            f"NHIỆM VỤ GỐC:\n{prompt}\n\n"
-            f"KẾT QUẢ CẦN KIỂM CHỨNG:\n{out}\n\n"
-            "Đánh giá kết quả có ĐẠT nhiệm vụ không. Trả JSON như hướng dẫn."
+            f"ORIGINAL TASK:\n{prompt}\n\n"
+            f"RESULT TO VERIFY:\n{out}\n\n"
+            "Judge whether the result PASSES the task. Return JSON as instructed."
         )
         vcli = mk(v_sys, v_model, v_prov)
         v_out = ""
@@ -10027,16 +10027,16 @@ async def _run_workflow_step(node, prompt, mk, agent_sysprompt, sink, router=Non
         if log_run:
             # Agent kiểm chứng cũng là agent đang LÀM VIỆC - nó nhìn thấy cả nhiệm vụ
             # lẫn kết quả bị chê, là agent học được nhiều nhất mà trước giờ mất dấu.
-            log_run(node.verify_agent, f"[kiểm chứng bước của {agent_name}] {prompt}", v_out)
+            log_run(node.verify_agent, f"[verification of {agent_name}'s step] {prompt}", v_out)
         verified = passed
         if passed or attempt >= node.max_retries:
             break
         attempt += 1
         await sink({"type": "step_retry", "i": index, "node": node.id, "attempt": attempt})
         cur_prompt = (
-            f"{prompt}\n\n# KẾT QUẢ LẦN TRƯỚC (bị kiểm chứng đánh giá CHƯA ĐẠT):\n{out[:8000]}\n\n"
-            f"# PHẢN HỒI KIỂM CHỨNG:\n- Vấn đề: {reason}\n- Cần sửa: {fixes}\n"
-            "CẢI THIỆN kết quả lần trước theo phản hồi: giữ phần đã tốt, sửa đúng chỗ bị chê. Làm cho ĐẠT."
+            f"{prompt}\n\n# PREVIOUS RESULT (judged NOT PASSED by the verifier):\n{out[:8000]}\n\n"
+            f"# VERIFIER FEEDBACK:\n- Problem: {reason}\n- To fix: {fixes}\n"
+            "IMPROVE the previous result per the feedback: keep what was good, fix exactly what was criticised. Make it PASS."
         )
     if learn:
         out = learn(node.agent, out)   # bóc JAVIS_LESSON + ghi bộ nhớ TRƯỚC khi out chảy tiếp
@@ -10150,25 +10150,25 @@ def _workflow_agent_helpers(brain, tools, mode=None):
         # bài học ngay trong lượt chạy, KHÔNG có job nền nào quét hàng loạt.
         mem_path = _brain_memory_dir(brain) / "agents" / aslug / "MEMORY.md"
         sysprompt = (
-            f"Bạn là agent **{ameta.get('name', aslug)}**.\nVai trò: {ameta.get('role','')}\n{abody}\n\n"
-            f"Skills khả dụng: {', '.join(ameta.get('skills', []) or []) or '(không)'}. Dùng skill khi cần.\n"
+            f"You are the agent **{ameta.get('name', aslug)}**.\nRole: {ameta.get('role','')}\n{abody}\n\n"
+            f"Available skills: {', '.join(ameta.get('skills', []) or []) or '(none)'}. Use a skill when needed.\n"
             + _agent_assets_block(brain, ameta)
-            + f"\n# Bộ nhớ của bạn (file: {mem_path}):\n{amem or '(chưa có ký ức nào)'}\n"
-            + "\n# Tự bồi đắp lúc dùng: nếu cuối nhiệm vụ rút ra được bài học TÁI DÙNG cho vai này "
-              "(cách làm tốt hơn, lỗi cần tránh, ngữ cảnh riêng đã học được), KẾT THÚC câu trả lời "
-              "bằng tối đa 2 dòng riêng, mỗi dòng đúng dạng `JAVIS_LESSON: <bài học một câu>`. "
-              "Javis tự ghi vào mục `## Bài học (tự học)` của file bộ nhớ trên (tự loại trùng, giữ "
-              f"{_BAI_HOC_TRAN} dòng mới nhất). KHÔNG tự sửa file bộ nhớ trực tiếp - phần ngoài mục "
-              "đó là của chủ. Lượt chạy không có gì đáng nhớ thì ĐỪNG phát JAVIS_LESSON, và đừng "
-              "lặp lại bài học đã có trong bộ nhớ.\n"
-            + "\n# Luật chủ dặn: khi CHỦ nói rõ một luật lâu dài cho vai này (\"từ giờ\", \"luôn\", "
-              "\"đừng bao giờ\", vd \"nhắn Zalo thì không dùng markdown\"), làm theo ngay VÀ kết thúc "
-              "câu trả lời bằng một dòng riêng `JAVIS_RULE: <luật một câu, giữ nguyên ý chủ>`. Javis ghi "
-              f"vào mục `{agent_rules.OWNER_RULES_HEADER}` của file bộ nhớ trên, mục này không bao giờ "
-              "bị tự xoá. CHỈ dùng cho lời chủ dặn; bài học bạn tự rút ra thì vẫn là JAVIS_LESSON. "
-              "Luật đã có trong mục đó thì đừng phát lại.\n"
+            + f"\n# Your memory (file: {mem_path}):\n{amem or '(no memories yet)'}\n"
+            + "\n# Self-improvement at use time: if at the end of the task you draw a REUSABLE lesson for this role "
+              "(a better way of working, a mistake to avoid, specific context you learned), END your answer "
+              "with at most 2 separate lines, each exactly in the form `JAVIS_LESSON: <one-sentence lesson>`. "
+              "Jarvis 007 writes it into the `## Bài học (tự học)` section of the memory file above (deduplicated, keeping the "
+              f"{_BAI_HOC_TRAN} newest lines). Do NOT edit the memory file directly - everything outside that section "
+              "belongs to the owner. If a run has nothing worth remembering, do NOT emit JAVIS_LESSON, and do not "
+              "repeat a lesson already in the memory.\n"
+            + "\n# Owner rules: when the OWNER states a long-term rule for this role (\"from now on\", \"always\", "
+              "\"never\", e.g. \"when messaging on Zalo, do not use markdown\"), follow it immediately AND end "
+              "your answer with a separate line `JAVIS_RULE: <one-sentence rule, keeping the owner's meaning>`. Jarvis 007 writes it "
+              f"into the `{agent_rules.OWNER_RULES_HEADER}` section of the memory file above, which is never "
+              "deleted automatically. Use it ONLY for what the owner states; lessons you draw yourself remain JAVIS_LESSON. "
+              "If a rule is already in that section, do not emit it again.\n"
             + _AGENT_TOOLKIT_BLOCK
-            + "\nLàm việc trong vault. Tập trung hoàn thành nhiệm vụ, trả kết quả rõ ràng, ngắn gọn."
+            + "\nWork inside the vault. Focus on finishing the task and return a clear, concise result."
         )
         return (ameta.get("name", aslug), sysprompt,
                 (ameta.get("model") or "").strip() or None,
@@ -10202,35 +10202,35 @@ def _workflow_agent_helpers(brain, tools, mode=None):
 # "có kết quả em báo lại ngay". Vai chuyên môn chỉ là CÁCH LÀM, không phải hàng rào công cụ:
 # agent chạy trên cùng hub tool với Javis. Ba luật dưới chốt đúng ba lỗi đó.
 _AGENT_TOOLKIT_BLOCK = (
-    "\n# Công cụ và giới hạn thật của bạn\n"
-    "- Vai trò ở trên là CHUYÊN MÔN CHÍNH, không phải hàng rào. Bạn có TOÀN BỘ bộ công cụ của "
-    "Javis qua hub: đọc/ghi file trong brain (`javis_read_file`, `javis_write_file`, "
-    "`javis_list_dir`), gọi các kết nối ngoài đã nối như Google Drive, Composio, POS, Zalo... "
-    "(`javis_connections` để xem đang nối gì, `javis_search_tools` rồi `javis_run_tool` để gọi), "
-    "chạy skill (`javis_use_skill`), giao việc nền Kanban (`javis_task`), đặt nhắc hẹn "
-    "(`javis_schedule`). Việc ngoài chuyên môn mà công cụ làm được (đẩy file lên Drive, đăng "
-    "bài, gửi tin) thì LÀM LUÔN bằng tool; KHÔNG từ chối vì \"không phải việc của vai này\" và "
-    "KHÔNG bảo chủ tự đi copy lệnh sang agent khác. Việc nền (`javis_task`) CHỈ khi chủ bảo "
-    "rõ một việc cần làm mà lượt này không làm xong được; bàn kế hoạch, nhắc tới chữ \"việc\", "
-    "hay bước tiếp theo do chính bạn nghĩ ra thì KHÔNG giao việc nền, nói ra trong câu trả lời.\n"
-    "- KHÔNG có cơ chế \"gọi agent khác\" hay \"bàn giao cho đồng nghiệp\". Chỉ được nói đã giao "
-    "việc khi CHÍNH BẠN vừa gọi `javis_task` trong lượt này và đọc được kết quả tool trả về. "
-    "Tuyệt đối không bịa tên agent, không kể rằng một agent khác \"đang làm\" hay \"vừa phản "
-    "hồi\". Thiếu kết nối (ví dụ chưa nối Drive) thì kiểm tra bằng `javis_connections` trước, "
-    "rồi nói đúng cái đang thiếu.\n"
-    "- Lượt trả lời của bạn KẾT THÚC khi bạn nói xong, không ai đánh thức bạn làm nốt. Không hẹn "
-    "\"có kết quả em báo lại\", \"sếp chờ em chút\". " + "Chỉ hai lối đúng: làm xong ngay trong lượt và "
-    "trả kết quả thật, hoặc giao việc nền / nhắc hẹn rồi nói rõ đã giao gì, kết quả về đâu. "
-    "Không làm được cả hai thì nói thẳng là chưa làm.\n"
+    "\n# Your real tools and limits\n"
+    "- The role above is your MAIN SPECIALTY, not a fence. You have the FULL toolkit of "
+    "Jarvis 007 through the hub: read/write files in the brain (`javis_read_file`, `javis_write_file`, "
+    "`javis_list_dir`), call connected external services such as Google Drive, Composio, POS, Zalo... "
+    "(`javis_connections` to see what is connected, `javis_search_tools` then `javis_run_tool` to call them), "
+    "run skills (`javis_use_skill`), queue Kanban background work (`javis_task`), set reminders "
+    "(`javis_schedule`). Work outside your specialty that the tools can do (push a file to Drive, post "
+    "an article, send a message) you DO right away with the tool; do NOT refuse because \"that is not this role's job\" and "
+    "do NOT tell the owner to go copy the command to another agent. Background work (`javis_task`) ONLY when the owner says "
+    "clearly that a job needs doing and this turn cannot finish it; discussing a plan, mentioning the word \"task\", "
+    "or a next step you thought of yourself is NOT grounds for background work, say it in the answer.\n"
+    "- There is NO mechanism to \"call another agent\" or \"hand off to a colleague\". You may only say you handed work off "
+    "when YOU just called `javis_task` in this turn and read the result the tool returned. "
+    "Never make up an agent name, never say another agent is \"working on it\" or \"just "
+    "replied\". If a connection is missing (for example Drive is not connected), check with `javis_connections` first, "
+    "then say exactly what is missing.\n"
+    "- Your turn ENDS when you finish speaking; nobody wakes you up to finish. Do not promise "
+    "\"I will report back when I have a result\", \"give me a moment\". " + "Only two paths are correct: finish right away this turn and "
+    "return the real result, or hand off background work / a reminder and state exactly what was handed off and where the result lands. "
+    "If you can do neither, say plainly that it has not been done.\n"
 )
 # Câu "chỉ hai lối" ở trên ĐÚNG khi trợ lý chưa bật Cộng hưởng. Bật rồi thì có lối thứ ba (javis_goal); để nguyên câu
 # cũ là bảo model rằng lối đó không tồn tại (review A1 tích hợp, P1-1). Thay đúng câu đó, chỉ trong phiên trò chuyện.
-_AGENT_HAI_LOI = ("Chỉ hai lối đúng: làm xong ngay trong lượt và trả kết quả thật, hoặc giao việc nền / nhắc hẹn rồi "
-                  "nói rõ đã giao gì, kết quả về đâu. Không làm được cả hai thì nói thẳng là chưa làm.")
-_AGENT_BA_LOI = ("Ba lối đúng: làm xong ngay trong lượt và trả kết quả thật; giao việc nền / nhắc hẹn rồi nói rõ đã "
-                 "giao gì, kết quả về đâu; hoặc, khi chủ giao trách nhiệm theo đuổi tới khi đạt, lập mục tiêu bằng "
-                 "javis_goal rồi nói rõ Javis làm tiếp ở nền trong hạn mức và kết quả tự về khung chat này. Không "
-                 "làm được lối nào thì nói thẳng là chưa làm.")
+_AGENT_HAI_LOI = ("Only two paths are correct: finish right away this turn and return the real result, or hand off background work / a reminder and "
+                  "state exactly what was handed off and where the result lands. If you can do neither, say plainly that it has not been done.")
+_AGENT_BA_LOI = ("Three paths are correct: finish right away this turn and return the real result; hand off background work / a reminder and state exactly what was "
+                 "handed off and where the result lands; or, when the owner hands over responsibility for pursuing something until achieved, set a goal with "
+                 "javis_goal and state that Jarvis 007 continues in the background within the limits and the result returns to this chat box on its own. If you can do "
+                 "none of them, say plainly that it has not been done.")
 
 
 def _agent_chat_prompt(brain, slug) -> str:

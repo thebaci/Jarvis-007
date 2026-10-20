@@ -203,8 +203,8 @@ def build_channel_block(source: str, meta: dict = None, telegram_running: bool =
             "a non-zero exit reports an error. Only runs files the user put in that folder themselves - do NOT invent arbitrary commands.",
             f"- ALWAYS keep \"chat_id\":\"{chat_id}\" so the reminder goes to the RIGHT person speaking.",
             ("- ALWAYS keep the \"brain\" field exactly as given in the command above (it points to the brain being chatted with) so the "
-             "reminder belongs to the RIGHT brain; if dropped, the reminder lands in the Default Brain by mistake." if brain_root else
-             "- (The session's brain could not be determined → the reminder will go to the Default Brain.)"),
+             "reminder belongs to the RIGHT brain; if dropped, the reminder lands in Brain Default by mistake." if brain_root else
+             "- (The session's brain could not be determined → the reminder will go to Brain Default.)"),
             "- After calling curl, read the returned JSON: ok=true with due_human means it is set - confirm BRIEFLY in words "
             "(e.g. \"Ok, I will remind you at 8:30 tomorrow morning\"). Do NOT say it is set unless curl returned ok=true.",
             "",

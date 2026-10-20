@@ -54,7 +54,7 @@ _cau = kq["noi_voi_javis"]
 check("câu thiếu key gọi đúng tên Groq", "Groq" in _cau)
 check("câu thiếu key chỉ đúng chỗ dán key", "Models" in _cau)
 check("câu thiếu key nói được cả ca đóng vai người thật với khách",
-      "người thật" in _cau and "đừng nhắc" in _cau)
+      "real person" in _cau and "do not mention" in _cau)
 
 kq = chay(stt.groq_nghe(b"x" * (stt.MAX_STT_MB * 1024 * 1024 + 10), "v.ogg", "k"))
 check("file vượt trần -> không gọi API, báo quá lớn", not kq["ok"] and kq["ly_do"] == "qua_lon")
@@ -153,7 +153,7 @@ check("nghe được -> khối mở đầu bằng marker thoại", out.startswit
 check("nghe được -> có câu vừa nói", "doanh thu hôm nay bao nhiêu" in out)
 check("nghe được -> KHÔNG báo 'đã tải về path' như file thường", "đã tải về" not in out)
 check("nghe được -> dặn xác nhận trước khi làm việc có tác động ra ngoài",
-      "Mình nghe:" in out and "xác nhận" in out)
+      "I heard:" in out and "confirm" in out)
 
 # --- caption thường thì ghép vào cuối; caption LỆNH thì để _caption_command_text lo ---
 out_cap = chay(_bot(_stt_ok)._ingest_attachment(None, _voice_msg("gấp nhé")))
@@ -206,7 +206,7 @@ check("audio cũng được nghe", out.startswith(tb.MARK_THOAI))
 out = chay(_bot(_stt_ok)._ingest_attachment(
     None, {"message_id": 10, "chat": {"id": "9"},
            "voice": {"file_id": "B", "file_size": (tb.MAX_DOWNLOAD_MB + 5) * 1024 * 1024}}))
-check("thoại quá dài -> báo quá lớn thay vì tải về rồi hỏng", "quá dài" in out)
+check("thoại quá dài -> báo quá lớn thay vì tải về rồi hỏng", "too long" in out)
 
 
 # ============================================================
@@ -257,7 +257,7 @@ check("Zalo chưa đấu STT -> nói về key Groq", "Groq" in out and "Models" 
 
 out = chay(_zbot(_stt_ok)._ingest_attachment(_ZClient(), zb.SK_VOICE, _zvoice()))
 check("Zalo nghe được -> khối mở đầu bằng marker thoại", out.startswith(stt.MARK_THOAI))
-check("Zalo nghe được -> ghi đúng tên kênh trong khối", "qua Zalo" in out)
+check("Zalo nghe được -> ghi đúng tên kênh trong khối", "via Zalo" in out)
 check("Zalo nghe được -> có câu vừa nói", "doanh thu hôm nay bao nhiêu" in out)
 check("Zalo nghe được -> KHÔNG lưu file .ogg vào inbox", "đã tải về" not in out)
 

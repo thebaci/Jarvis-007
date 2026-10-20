@@ -64,7 +64,7 @@ check("plugin: tool ghi (đăng/ảnh/album/video/sửa/xoá/trả lời) = full
 
 # chưa kết nối → _check chặn
 plug._connected_id = lambda: None
-check("plugin: _check chặn khi chưa kết nối", "Chưa kết nối" in (plug._check() or ""))
+check("plugin: _check chặn khi chưa kết nối", "is not connected" in (plug._check() or ""))
 
 
 # ---- 3. Handler (giả token + _get/_post, không mạng) ----
@@ -267,7 +267,7 @@ async def handler_tests():
           dels and dels[-1][0] == "P1_10" and dels[-1][1] == "PTOKA")
     check("fb_page_delete: trả ok + kèm nội dung vừa xoá để đối chiếu",
           '"ok": true' in r_del.lower() and "Bài cũ cần xoá" in r_del)
-    check("fb_page_delete: nói rõ không khôi phục được", "KHÔNG khôi phục" in r_del)
+    check("fb_page_delete: nói rõ không khôi phục được", "can NOT be restored" in r_del)
 
     n_before = len(dels)
     r_del_bad = await plug._delete_post({"post_id": "P1_99"}, None)

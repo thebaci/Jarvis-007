@@ -35,7 +35,7 @@ def _cat_toan(s: str) -> str:
     """Cắt CẢ chuỗi trả về ở trần chung, không để một lần chạy lỗi dài nuốt hết phần còn lại."""
     if len(s) <= _TRAN_TOAN:
         return s
-    return s[:_TRAN_TOAN] + "\n... (cắt bớt)"
+    return s[:_TRAN_TOAN] + "\n... (truncated)"
 
 
 def _khoa(ctx) -> str:
@@ -54,7 +54,7 @@ def _gio(ts: float) -> str:
 
 def _liet_ke(args, ctx) -> str:
     if not ctx.vault_root:
-        return "ERROR: chưa biết đang làm việc trên brain nào nên không xem được lịch sử."
+        return "ERROR: it is not known which brain is being worked on, so the history cannot be viewed."
     slug = str((args or {}).get("slug") or "").strip() or None
     try:
         limit = max(1, min(int((args or {}).get("limit") or 10), _LIST_MAX))
@@ -62,41 +62,41 @@ def _liet_ke(args, ctx) -> str:
         limit = 10
     ds = workflow_runs.get_store().gan_nhat(_khoa(ctx), slug=slug, limit=limit)
     if not ds:
-        return "Chưa có lần chạy quy trình nào" + (f" của '{slug}'" if slug else "") + "."
+        return "No workflow runs yet" + (f" for '{slug}'" if slug else "") + "."
     dong = []
     for r in ds:
-        dong.append(f"- {_gio(r['started_at'])} · {r['name']} ({r['slug']}) · {r['nhan']} · nguồn {r['source']}"
+        dong.append(f"- {_gio(r['started_at'])} · {r['name']} ({r['slug']}) · {r['nhan']} · source {r['source']}"
                     f" · id {r['id']}" + (f"\n  {r['output_tom_tat']}" if r.get("output_tom_tat") else "")
-                    + (f"\n  lỗi: {_cat(r['error'], _TRAN_LOI_DONG)}" if r.get("error") else ""))
-    dong.append("Xem đủ một lần: op=show với id ở trên.")
+                    + (f"\n  error: {_cat(r['error'], _TRAN_LOI_DONG)}" if r.get("error") else ""))
+    dong.append("To see one run in full: op=show with an id above.")
     return _cat_toan("\n".join(dong))
 
 
 def _xem(args, ctx) -> str:
     rid = str((args or {}).get("id") or "").strip()
     if not rid:
-        return "ERROR: op=show cần id của lần chạy (lấy từ op=runs)."
+        return "ERROR: op=show needs the id of a run (take it from op=runs)."
     r = workflow_runs.get_store().lay(rid)
     if not r:
-        return f"ERROR: không có lần chạy id {rid}."
-    ra = [f"{r['name']} ({r['slug']}) · {r['nhan']} · bắt đầu {_gio(r['started_at'])}"
-          + (f" · xong {_gio(r['finished_at'])}" if r.get("finished_at") else ""),
-          f"Đầu vào: {r['input'] or '(trống)'}"]
+        return f"ERROR: there is no run with id {rid}."
+    ra = [f"{r['name']} ({r['slug']}) · {r['nhan']} · started {_gio(r['started_at'])}"
+          + (f" · finished {_gio(r['finished_at'])}" if r.get("finished_at") else ""),
+          f"Input: {r['input'] or '(empty)'}"]
     buoc = r.get("steps") or []
     # Quy trình dài hàng chục bước, mỗi bước lại có thể mang lỗi dài - liệt kê hết là tràn trần
     # chung, nên chỉ in _TRAN_BUOC bước đầu rồi báo còn bao nhiêu, giống cách op=runs báo "+N việc".
     for s in buoc[:_TRAN_BUOC]:
-        kc = "" if s.get("verified") is None else (" · kiểm chứng đạt" if s.get("verified") else " · kiểm chứng CHƯA đạt")
-        ra.append(f"Bước {int(s.get('i', 0)) + 1} · {s.get('agent') or '?'}{kc}: {_cat(s.get('task'), _TRAN_TASK)}")
+        kc = "" if s.get("verified") is None else (" · verification passed" if s.get("verified") else " · verification NOT passed")
+        ra.append(f"Step {int(s.get('i', 0)) + 1} · {s.get('agent') or '?'}{kc}: {_cat(s.get('task'), _TRAN_TASK)}")
         if s.get("output"):
             ra.append("  -> " + str(s["output"])[:800])
         if s.get("error"):
-            ra.append("  lỗi: " + _cat(s["error"], _TRAN_LOI_BUOC))
+            ra.append("  error: " + _cat(s["error"], _TRAN_LOI_BUOC))
     if len(buoc) > _TRAN_BUOC:
-        ra.append(f"... (+{len(buoc) - _TRAN_BUOC} bước nữa)")
+        ra.append(f"... (+{len(buoc) - _TRAN_BUOC} more steps)")
     if r.get("error"):
-        ra.append(f"Lỗi: {r['error']}")
-    ra.append("Kết quả cuối:\n" + (str(r.get("output") or "")[:_TRAN_OUT] or "(không có)"))
+        ra.append(f"Error: {r['error']}")
+    ra.append("Final result:\n" + (str(r.get("output") or "")[:_TRAN_OUT] or "(none)"))
     return _cat_toan("\n".join(ra))
 
 
@@ -106,25 +106,25 @@ async def _chay(args, ctx) -> str:
         return _liet_ke(args, ctx)
     if op == "show":
         return _xem(args, ctx)
-    return "ERROR: op phải là 'runs' (liệt kê lần chạy) hoặc 'show' (xem một lần)."
+    return "ERROR: op must be 'runs' (list runs) or 'show' (view one run)."
 
 
 def register(ctx):
     ctx.register_tool(
         "javis_workflow",
-        "Lịch sử chạy quy trình (workflow). op=runs: các lần chạy gần nhất, mới trước, lọc theo "
-        "slug nếu có, limit mặc định 10. op=show: một lần chạy đầy đủ (đầu vào, từng bước, kết quả) "
-        "theo id. Dùng khi người dùng hỏi quy trình vừa chạy ra sao, kết quả lần trước, hay quy "
-        "trình nào đang chờ duyệt. Chỉ đọc; muốn chạy quy trình thì dùng javis_task với route "
-        "wf:<slug> hoặc trang Cộng sự.",
+        "Workflow run history. op=runs: the most recent runs, newest first, filtered by "
+        "slug if given, limit defaults to 10. op=show: one full run (input, each step, result) "
+        "by id. Use it when the user asks how the workflow that just ran went, what the last result was, or which "
+        "workflow is waiting for approval. Read only; to run a workflow use javis_task with route "
+        "wf:<slug> or the Partners page.",
         _chay,
         schema={
             "type": "object",
             "properties": {
                 "op": {"type": "string", "enum": ["runs", "show"]},
-                "slug": {"type": "string", "description": "Lọc theo quy trình (op=runs)"},
-                "limit": {"type": "integer", "description": "Số lần tối đa (op=runs)"},
-                "id": {"type": "string", "description": "Id lần chạy (op=show)"},
+                "slug": {"type": "string", "description": "Filter by workflow (op=runs)"},
+                "limit": {"type": "integer", "description": "Maximum number of runs (op=runs)"},
+                "id": {"type": "string", "description": "Run id (op=show)"},
             },
             "required": ["op"],
         },

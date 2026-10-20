@@ -186,12 +186,12 @@ STT_TIMEOUT = 120.0      # tin thoại dài vài phút vẫn phải kịp, mạn
 # Câu Javis nói khi chưa đấu key. Để ở đây (không rải trong từng kênh) vì mọi kênh nói CÙNG
 # một chuyện: thiếu đúng một thứ, và thứ đó nằm ở đúng một chỗ trong dashboard.
 _HD_THIEU_KEY = (
-    "[Người dùng vừa gửi TIN THOẠI. Javis chưa nghe được vì chưa đấu API key của Groq - "
-    "đó là thứ chuyển giọng nói thành chữ. Hãy nói với họ: muốn ra lệnh bằng ghi âm thì vào "
-    "trang Models trong dashboard, mục nhà cung cấp Groq (API), dán API key lấy ở "
-    "console.groq.com rồi lưu lại; xong là gửi tin thoại dùng được ngay, không cần cài gì thêm. "
-    "Trong lúc chờ thì nhờ họ gõ chữ. Nếu đang đóng vai người thật nói với khách thì CHỈ nhờ "
-    "họ gõ chữ, đừng nhắc gì tới API key hay dashboard.]")
+    "[The user just sent a VOICE MESSAGE. Jarvis 007 could not listen to it because no Groq API key "
+    "is connected - that is what turns speech into text. Tell them: to give commands by voice, go to "
+    "the Models page in the dashboard, the Groq (API) provider section, paste an API key from "
+    "console.groq.com and save it; after that voice messages work right away, nothing else to install. "
+    "Meanwhile ask them to type instead. If you are playing a real person talking to a customer, ONLY ask "
+    "them to type, and do not mention the API key or the dashboard at all.]")
 
 
 # Dòng mở đầu khối tin thoại đã nghe thành chữ, DÙNG CHUNG mọi kênh. Là hằng số vì
@@ -207,10 +207,10 @@ def khoi_thoai(nghe, kenh):
     thật (gửi tin, đăng bài, đặt lịch, tiêu tiền) là loại sai không rút lại được. Đọc lại
     câu nghe được TRƯỚC khi làm là chỗ duy nhất người dùng bắt lỗi được.
     """
-    dan = (MARK_THOAI + f" qua {kenh}. Javis đã nghe thành chữ (có thể nhầm vài từ) - câu ở "
-           "dưới. Cứ làm theo như user gõ tay. Nếu việc sắp làm có tác động RA NGOÀI (gửi "
-           "tin, đăng bài, đặt lịch, tiêu tiền, sửa file) thì mở đầu bằng một dòng "
-           "\"Mình nghe: ...\" rồi hỏi xác nhận trước khi làm.]")
+    dan = (MARK_THOAI + f" via {kenh}. Jarvis 007 transcribed it to text (it may have misheard a few words) - the "
+           "sentence is below. Act on it as if the user had typed it. If what you are about to do has an "
+           "OUTSIDE effect (sending a message, publishing a post, booking a slot, spending money, editing a file), "
+           "open with one line \"I heard: ...\" and ask for confirmation before doing it.]")
     return dan + "\n" + str(nghe or "").strip()
 
 
@@ -225,13 +225,13 @@ def loi_thanh_dong(ly_do, chi_tiet=""):
     if ly_do == "thieu_key":
         return _HD_THIEU_KEY
     if ly_do == "qua_lon":
-        return ("[Người dùng gửi một tin thoại quá dài để Javis nghe " + chi_tiet + ". "
-                "Nhờ họ thu ngắn lại hoặc gõ chữ.]")
+        return ("[The user sent a voice message too long for Jarvis 007 to listen to " + chi_tiet + ". "
+                "Ask them to make it shorter or type instead.]")
     if ly_do == "khong_nghe_ro":
-        return ("[Người dùng gửi tin thoại nhưng Javis nghe không ra chữ nào (có thể im lặng "
-                "hoặc quá ồn). Nhờ họ thu lại gần micro hơn, hoặc gõ chữ.]")
-    return ("[Người dùng gửi tin thoại nhưng Javis nghe hỏng: " + (chi_tiet or "lỗi không rõ") +
-            ". Nhờ họ gõ chữ, và báo là chỗ nghe giọng đang trục trặc.]")
+        return ("[The user sent a voice message but Jarvis 007 could not make out any words (it may be silent "
+                "or too noisy). Ask them to record again closer to the microphone, or type instead.]")
+    return ("[The user sent a voice message but Jarvis 007 failed to listen to it: " + (chi_tiet or "unknown error") +
+            ". Ask them to type instead, and tell them the voice listening is having trouble.]")
 
 
 async def groq_nghe(data, ten_file, api_key, model="", ngon_ngu=None, hotwords=""):
@@ -255,9 +255,9 @@ async def groq_nghe(data, ten_file, api_key, model="", ngon_ngu=None, hotwords="
     if not api_key:
         return {"ok": False, "ly_do": "thieu_key", "noi_voi_javis": loi_thanh_dong("thieu_key")}
     if not data:
-        return {"ok": False, "ly_do": "rong", "noi_voi_javis": loi_thanh_dong("loi", "file rỗng")}
+        return {"ok": False, "ly_do": "rong", "noi_voi_javis": loi_thanh_dong("loi", "empty file")}
     if len(data) > MAX_STT_MB * 1024 * 1024:
-        ct = f"({_mb(len(data))}MB, trần {MAX_STT_MB}MB)"
+        ct = f"({_mb(len(data))}MB, limit {MAX_STT_MB}MB)"
         return {"ok": False, "ly_do": "qua_lon", "noi_voi_javis": loi_thanh_dong("qua_lon", ct)}
 
     mdl = model or STT_MODEL_MAC_DINH

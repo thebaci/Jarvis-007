@@ -26,7 +26,7 @@ def register(ctx):
         args = args or {}
         url = str(args.get("url") or args.get("link") or "").strip()
         if not url:
-            return "ERROR: thiếu 'url' (link video YouTube cần đọc)."
+            return "ERROR: missing 'url' (the YouTube video link to read)."
         lang = str(args.get("lang") or "").strip() or None
         try:
             start_min = float(args.get("start_min") or 0)
@@ -45,25 +45,25 @@ def register(ctx):
     ctx.register_tool(
         name="javis_youtube_read",
         description=(
-            "Đọc LỜI THOẠI (phụ đề) của một video YouTube từ link, để tóm tắt hoặc trích ý. "
-            "GỌI TOOL NÀY mỗi khi người dùng gửi link YouTube (youtube.com, youtu.be, shorts) "
-            "và muốn tóm tắt/hỏi về nội dung video - ĐỪNG dùng WebFetch cho link YouTube, "
-            "trang đó không chứa lời thoại. Tham số: url (bắt buộc), lang (mã ngôn ngữ phụ đề "
-            "muốn ưu tiên, vd 'vi'/'en'), start_min (đọc tiếp từ phút thứ mấy, cho video dài bị "
-            "cắt bớt), timestamps (mặc định true), max_chars. Video không có phụ đề thì tool "
-            "báo rõ - khi đó ĐỪNG bịa nội dung. Tool tự đổi qua nhiều kiểu trình phát rồi tới "
-            "yt-dlp khi YouTube chặn máy chủ, nên link hỏng thật mới trả về lỗi."),
+            "Read the SPOKEN TEXT (captions) of a YouTube video from its link, to summarise it or pull out key points. "
+            "CALL THIS TOOL whenever the user sends a YouTube link (youtube.com, youtu.be, shorts) "
+            "and wants a summary of, or has questions about, the video - do NOT use WebFetch for YouTube links, "
+            "that page does not contain the spoken text. Parameters: url (required), lang (the caption language code "
+            "to prefer, e.g. 'vi'/'en'), start_min (continue reading from which minute, for long videos that were "
+            "truncated), timestamps (default true), max_chars. If the video has no captions the tool "
+            "says so clearly - in that case do NOT invent content. The tool switches between several player types and then to "
+            "yt-dlp when YouTube blocks the server, so only a truly broken link returns an error."),
         handler=_read, min_mode="readonly", emoji="🎬",
         schema={"type": "object", "properties": {
             "url": {"type": "string",
-                    "description": "Link video YouTube (watch, youtu.be, shorts, live, embed) hoặc mã video 11 ký tự"},
+                    "description": "YouTube video link (watch, youtu.be, shorts, live, embed) or the 11-character video id"},
             "lang": {"type": "string",
-                     "description": "Mã ngôn ngữ phụ đề ưu tiên, vd 'vi' hoặc 'en'. Bỏ trống thì theo ngôn ngữ giao diện, rồi tới tiếng Anh."},
+                     "description": "Preferred caption language code, e.g. 'vi' or 'en'. If left empty, follows the interface language, then English."},
             "start_min": {"type": "number",
-                          "description": "Đọc từ phút thứ mấy. Dùng khi lần trước bị cắt bớt vì video quá dài."},
+                          "description": "Read from which minute. Use when the previous read was truncated because the video is too long."},
             "timestamps": {"type": "boolean",
-                           "description": "Có gắn mốc thời gian [phút:giây] vào lời thoại không. Mặc định true."},
+                           "description": "Whether to attach [min:sec] timestamps to the spoken text. Default true."},
             "max_chars": {"type": "integer",
-                          "description": "Trần số ký tự lời thoại trả về (mặc định 40000, tối đa 120000)."}},
+                          "description": "Cap on the number of spoken-text characters returned (default 40000, max 120000)."}},
             "required": ["url"]},
     )

@@ -146,7 +146,7 @@ async def pick_openrouter_free(key: str = "") -> str:
             r.raise_for_status()
             data = (r.json() or {}).get("data") or []
     except Exception as e:
-        print(f"[aux router] không tải được danh sách model OpenRouter: {e}", file=sys.stderr)
+        print(f"[aux router] could not load the OpenRouter model list: {e}", file=sys.stderr)
     best, best_score = "", (-1, -1, -1)
     for m in data:
         mid = m.get("id") or ""
@@ -263,24 +263,24 @@ def availability(spec: dict, settings: dict = None) -> tuple:
         try:
             from claude_cli import find_codex_cli
             if not find_codex_cli():
-                return False, "Chưa cài Codex CLI (cần đăng nhập gói ChatGPT)."
+                return False, "Codex CLI is not installed (it needs a ChatGPT plan sign-in)."
         except Exception:
-            return False, "Không kiểm tra được Codex CLI."
+            return False, "Could not check Codex CLI."
         return True, ""
     if prov == GROK_CLI:
         try:
             import grok_cli as _g
             st = _g.auth_status()
             if not st.get("connected"):
-                return False, st.get("error") or "Grok Build CLI chưa sẵn sàng."
+                return False, st.get("error") or "Grok Build CLI is not ready."
         except Exception:
-            return False, "Không kiểm tra được Grok Build CLI."
+            return False, "Could not check Grok Build CLI."
         return True, ""
     if prov == ANTIGRAVITY:
         try:
             import antigravity_cli as _a
             if not _a.find_antigravity_cli():
-                return False, "Chưa cài Antigravity CLI (`agy`) trên máy chạy Javis."
+                return False, "Antigravity CLI (`agy`) is not installed on the machine running Jarvis 007."
             # Bản NỀN (đọc cache, làm mới bằng thread), KHÔNG phải auth_status(): hàm này chạy
             # ngay trong code async (học sau lượt chat, việc Kanban, nhắc hẹn, loop), mà
             # auth_status() hỏi thẳng `agy models` tới 80 giây. Cả app đứng theo: chủ repo đổi
@@ -288,9 +288,9 @@ def availability(spec: dict, settings: dict = None) -> tuple:
             # "dang_kiem" = mới khởi động, chưa có kết quả: cứ cho chạy, lượt thật tự báo lỗi.
             st = _a.auth_status_nen()
             if not st.get("connected") and not st.get("dang_kiem"):
-                return False, st.get("error") or "Antigravity CLI chưa đăng nhập Google."
+                return False, st.get("error") or "Antigravity CLI is not signed in to Google."
         except Exception:
-            return False, "Không kiểm tra được Antigravity CLI."
+            return False, "Could not check Antigravity CLI."
         return True, ""
     # Ollama máy nhà xét theo ĐỊA CHỈ, không theo khoá: Ollama trần không có xác thực nên
     # khoá rỗng là trạng thái BÌNH THƯỜNG. Để nó rơi vào nhánh kiểm khoá bên dưới thì mọi
@@ -298,18 +298,18 @@ def availability(spec: dict, settings: dict = None) -> tuple:
     if prov == "ollama-local":
         s = settings if settings is not None else cfgmod.read_settings()
         if not (s.get("model", {}) or {}).get("ollama_local_endpoint"):
-            return False, "Chưa đặt địa chỉ Ollama - vào trang Models, tab Local Model."
+            return False, "No Ollama address set - go to the Models page, Local Model tab."
         return True, ""
     if prov == "openai-compat":
         s = settings if settings is not None else cfgmod.read_settings()
         if not (s.get("model", {}) or {}).get("openai_compat_base"):
-            return False, "Chưa đặt Base URL cho OpenAI Compatible - vào trang Models."
+            return False, "No Base URL set for OpenAI Compatible - go to the Models page."
         return True, ""
     if prov in API_PROVIDERS:
         if not api_key_for(prov, settings):
-            return False, f"Chưa có API key cho {prov} - vào trang Model dán key trước."
+            return False, f"No API key for {prov} - paste the key on the Models page first."
         return True, ""
-    return False, f"Provider lạ: {prov}"
+    return False, f"Unknown provider: {prov}"
 
 
 class _ApiAuxEngine:
@@ -359,7 +359,7 @@ class _ApiAuxEngine:
                     s.setdefault("model", {})["fallback_openrouter_model"] = self.model
                     cfgmod.write_settings(s)
             except Exception as e:
-                print(f"[aux router] chọn model free lỗi: {e}", file=sys.stderr)
+                print(f"[aux router] picking a free model failed: {e}", file=sys.stderr)
             if not self.model:
                 import localefmt
                 yield {"type": "error", "content": localefmt.chu("Không chọn được model free OpenRouter.",
@@ -382,16 +382,16 @@ class _ApiAuxEngine:
         # ("phiên này bị chặn quyền"), khiến chủ đi sửa mức quyền trong khi mức quyền không hề
         # sai. Nói rõ THIẾU GÌ và VÌ SAO thì câu báo về mới dẫn đúng tới việc cần làm.
         sysprompt += (
-            "\n\n[Sự thật hệ thống - năng lực của phiên này] Bạn đang chạy bằng engine API "
-            f"'{self.provider}', KHÔNG phải Claude Code. Bạn có: các tool qua MCP Hub của Javis "
-            "(gồm tool đọc/ghi file trong vault và mọi MCP người dùng đã đấu vào Javis). "
-            "Bạn KHÔNG có: lệnh máy (Bash), tự mở URL (WebFetch/WebSearch), và KHÔNG có các "
-            "connector gắn thẳng vào TÀI KHOẢN Claude - Gmail, Google Drive, Google Calendar "
-            "gọi bằng tool native `mcp__<tên>__*` chỉ tồn tại trên engine Claude Code. "
-            "Nếu việc được giao cần một trong những thứ đó, hãy nói THẲNG là engine hiện tại "
-            "không có công cụ ấy và chủ cần đổi model việc nền sang Claude Code. TUYỆT ĐỐI "
-            "không mô tả chuyện này là bị chặn quyền hay thiếu quyền: mức quyền không liên "
-            "quan, đây là chuyện engine nào có tool nào."
+            "\n\n[Sự thật hệ thống - capabilities of this session] You are running on the API engine "
+            f"'{self.provider}', NOT Claude Code. You have: the tools through the Jarvis 007 MCP Hub "
+            "(including tools to read/write files in the vault and every MCP the user has connected to Jarvis 007). "
+            "You do NOT have: shell commands (Bash), opening URLs yourself (WebFetch/WebSearch), and NO "
+            "connectors attached directly to a Claude ACCOUNT - Gmail, Google Drive, Google Calendar "
+            "called with native `mcp__<name>__*` tools exist only on the Claude Code engine. "
+            "If the assigned job needs one of those things, say PLAINLY that the current engine "
+            "does not have that tool and the owner needs to switch the background model to Claude Code. NEVER "
+            "describe this as a blocked or missing permission: the permission level is irrelevant, "
+            "this is about which engine has which tools."
         )
         if sysprompt.strip():
             messages.append({"role": "system", "content": sysprompt})
@@ -570,8 +570,8 @@ class _FallbackChain:
         awake = [e for e in engines if not _resting(e, now)]
         resting = sorted((e for e in engines if _resting(e, now)), key=lambda e: _resting(e, now))
         for e in resting:
-            print(f"[aux router] {self._name(e)} đang nghỉ thêm {int(_resting(e, now) - now)} giây sau lỗi "
-                  "lần trước: thử sau cùng.", file=sys.stderr)
+            print(f"[aux router] {self._name(e)} is resting for another {int(_resting(e, now) - now)} seconds after its last "
+                  "error: trying it last.", file=sys.stderr)
         return awake + resting
 
     @staticmethod
@@ -581,24 +581,24 @@ class _FallbackChain:
             _COOLDOWN[key] = time.monotonic() + secs
 
     async def query(self, prompt: str):
-        fail = "chuỗi engine việc nền rỗng"
+        fail = "the background engine chain is empty"
         dau = ""      # lỗi của mắt xích ĐẦU TIÊN thật sự chạy - thường là lỗi có nghĩa nhất
         for e in self._order():
             try:
                 if not e.is_available():
-                    fail = f"{self._name(e)} không sẵn sàng"
+                    fail = f"{self._name(e)} is not available"
                     continue
                 got_final, got_error = False, None
                 async for ev in e.query(prompt):
                     t = (ev or {}).get("type")
                     if t == "error":
-                        got_error = ev.get("content") or f"{self._name(e)} trả error"
+                        got_error = ev.get("content") or f"{self._name(e)} returned an error"
                         # Hub bắt buộc không lên: mọi mắt sau lấy tool qua đúng hub đó, chạy tiếp
                         # là chạy mù rồi báo xong giả. Dừng cả chuỗi, trả nguyên lỗi
                         # (claude_cli.codex_error_text đã đặt lý do lên đầu).
                         if _hub_bat_buoc_hong(got_error):
-                            print(f"[aux router] {self._name(e)}: hub bắt buộc không lên - dừng chuỗi, "
-                                  "không thử mắt kế tiếp.", file=sys.stderr)
+                            print(f"[aux router] {self._name(e)}: the required hub did not come up - stopping the chain, "
+                                  "not trying the next link.", file=sys.stderr)
                             # Giữ cả lỗi của mắt TRƯỚC (vd Claude hết lượt gói): tasks._het_luot
                             # đọc nó để hoãn tới giờ gói mở lại. Lý do hub đứng đầu vì ô lỗi bị cắt.
                             yield {"type": "error",
@@ -613,8 +613,8 @@ class _FallbackChain:
                     # việc nền không tự gửi lại được -> vẫn phải nhảy sang mắt kế tiếp. Đọc CỜ
                     # chứ không khớp chữ: câu người đọc đã được viết lại cho dễ hiểu.
                     if t == "final" and ev.get("dua_token"):
-                        got_error = (f"{self._name(e)} trùng lúc làm mới phiên đăng nhập "
-                                     "(hai lượt cùng dùng một tài khoản)")
+                        got_error = (f"{self._name(e)} collided while refreshing the sign-in session "
+                                     "(two turns using the same account)")
                         break
                     if t == "final" and final_loi_dang_nhap(ev.get("content")):
                         got_error = (f"{self._name(e)} mất đăng nhập: "
@@ -626,12 +626,12 @@ class _FallbackChain:
                 if got_final:
                     _COOLDOWN.pop(_cool_key(e), None)            # it works again: no more rest
                     return                                       # mắt này chạy ngon → xong
-                fail = got_error or f"{self._name(e)} kết thúc mà không có final"
+                fail = got_error or f"{self._name(e)} finished without a final"
                 self._rest(e, fail)
             except Exception as exc:
                 fail = f"{self._name(e)}: {type(exc).__name__}: {exc}"
                 self._rest(e, fail)
-            print(f"[aux router] {self._name(e)} lỗi → thử mắt xích kế tiếp. Lý do: {str(fail)[:300]}",
+            print(f"[aux router] {self._name(e)} failed → trying the next link. Reason: {str(fail)[:300]}",
                   file=sys.stderr)
             dau = dau or str(fail)
         # Hết chuỗi: trả CẢ lỗi đầu lẫn lỗi cuối. Chỉ trả lỗi cuối ("openrouter không sẵn sàng")
@@ -820,7 +820,7 @@ def _main_fallback_engine(cli, mode, tag, settings, exclude, codex_profile=None)
         if prov in API_PROVIDERS:
             return _build_api(sp, cli, mode, t)
     except Exception as e:
-        print(f"[aux router] không dựng được mắt não-chính ({prov}): {e}", file=sys.stderr)
+        print(f"[aux router] could not build the main-brain link ({prov}): {e}", file=sys.stderr)
     return None
 
 
@@ -890,9 +890,9 @@ def strip_tools(engine, base):
                 keep.append(e)
                 continue
         except Exception as ex:      # noqa: BLE001 - cannot prove it is tool-free: drop it
-            print(f"[aux strip_tools] bỏ {type(e).__name__}: {type(ex).__name__}: {ex}", file=sys.stderr)
+            print(f"[aux strip_tools] dropping {type(e).__name__}: {type(ex).__name__}: {ex}", file=sys.stderr)
             continue
-        print(f"[aux strip_tools] bỏ {type(e).__name__}: không tắt được công cụ cho riêng lượt này", file=sys.stderr)
+        print(f"[aux strip_tools] dropping {type(e).__name__}: could not turn off the tools for this turn only", file=sys.stderr)
     if not keep:
         return base
     return keep[0] if len(keep) == 1 else _FallbackChain(keep)
@@ -931,7 +931,7 @@ def swap(cli, mode: str = None, tag: str = None, spec: dict = None,
                 return cli
             ok, why = availability(sp, settings)
             if not ok:
-                print(f"[aux] {why} → việc full tạm dùng lại Claude.", file=sys.stderr)
+                print(f"[aux] {why} → the full job temporarily falls back to Claude.", file=sys.stderr)
                 return cli
             if prov == CODEX:
                 return _build_codex(sp, cli, mode, tag, codex_profile)
@@ -956,7 +956,7 @@ def swap(cli, mode: str = None, tag: str = None, spec: dict = None,
             return _FallbackChain(chain) if len(chain) > 1 else cli
         ok, why = availability(sp, settings)
         if not ok:
-            print(f"[aux] {why} → việc nền tạm dùng lại Claude.", file=sys.stderr)
+            print(f"[aux] {why} → the background job temporarily falls back to Claude.", file=sys.stderr)
             return cli
         if prov == CODEX:
             primary = _build_codex(sp, cli, mode, tag, codex_profile)
@@ -978,5 +978,5 @@ def swap(cli, mode: str = None, tag: str = None, spec: dict = None,
             chain.append(or_free)
         return _FallbackChain(chain)
     except Exception as e:
-        print(f"[aux swap] {e} → giữ engine Claude.", file=sys.stderr)
+        print(f"[aux swap] {e} → keeping the Claude engine.", file=sys.stderr)
     return cli

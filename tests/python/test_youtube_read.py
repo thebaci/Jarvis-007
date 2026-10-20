@@ -178,13 +178,13 @@ async def main():
     assert "fmt=json3" in str(tt[0].url), str(tt[0].url)
     assert "key=" not in str(pl[0].url) and "prettyPrint=false" in str(pl[0].url), str(pl[0].url)
     txt = yt.render(r)
-    assert "LỜI THOẠI" in txt and "cau so 5" in txt and "Kênh Thử" in txt
+    assert "TRANSCRIPT" in txt and "cau so 5" in txt and "Kênh Thử" in txt
 
     # 5b) xin đọc tiếp quá cuối video: phải nói "đã đọc hết", không trả khối rỗng
     async with httpx.AsyncClient(transport=_transport()) as c:
         r = await yt.read("dQw4w9WgXcQ", start_min=99, client=c)
     assert r["ok"] and r["code"] == "exhausted" and r["transcript"] == "", r
-    assert "đã đọc HẾT" in yt.render(r)
+    assert "read IN FULL" in yt.render(r)
 
     # 6) json3 hỏng -> tự lui về XML, không bỏ cuộc
     ghi2 = []
@@ -200,24 +200,24 @@ async def main():
     assert r["ok"] is False and r["code"] == "no_captions", r
     assert r["title"], "vẫn phải có tiêu đề để Javis nói được đang bàn video nào"
     txt = yt.render(r)
-    assert "KHÔNG đọc được" in txt and "ĐỪNG bịa" in txt.replace("đừng bịa", "ĐỪNG bịa")
-    assert "Mô tả video" in txt
+    assert "Could NOT read" in txt and "DO NOT invent" in txt.replace("do not invent", "DO NOT invent")
+    assert "Video description" in txt
 
     # 8) video riêng tư / đã gỡ: nói đúng lý do, không nói chung chung
     async with httpx.AsyncClient(transport=_transport(
             player=_player(status="LOGIN_REQUIRED", reason="Sign in to confirm your age"))) as c:
         r = await yt.read("dQw4w9WgXcQ", client=c, cho_phep_ytdlp=False)
-    assert r["code"] == "unavailable" and "giới hạn tuổi" in r["error"], r
+    assert r["code"] == "unavailable" and "age-restricted" in r["error"], r
     async with httpx.AsyncClient(transport=_transport(player=_player(status="ERROR"))) as c:
         r = await yt.read("dQw4w9WgXcQ", client=c, cho_phep_ytdlp=False)
-    assert r["code"] == "unavailable" and "không tồn tại" in r["error"], r
+    assert r["code"] == "unavailable" and "does not exist" in r["error"], r
 
     # 9) YouTube chặn sạch (InnerTube 403 + trang watch rỗng): báo bị chặn, không im lặng
     async with httpx.AsyncClient(transport=_transport(player_status=403)) as c:
         r = await yt.read("dQw4w9WgXcQ", client=c, cho_phep_ytdlp=False)
     assert r["ok"] is False and r["code"] == "blocked", r
     assert any("403" in str(n) for n in r["notes"]), r["notes"]
-    assert "CHẶN MÁY CHỦ" in yt.render(r)
+    assert "BLOCKING THE SERVER" in yt.render(r)
     assert r["da_ket_noi"] > 0, "YouTube CÓ trả lời (403), không được coi là mạng hỏng"
 
     # 10) link rác: trả lỗi tử tế chứ không nổ
@@ -291,15 +291,15 @@ async def main():
     async with httpx.AsyncClient(transport=_transport(theo_client={"*": _bot()})) as c:
         r = await yt.read("dQw4w9WgXcQ", client=c, cho_phep_ytdlp=False)
     assert r["ok"] is False and r["code"] == "blocked", r
-    assert "robot" in r["error"] and "không hề riêng tư" in r["error"], r["error"]
-    assert "riêng tư." not in r["error"], r["error"]
+    assert "robot" in r["error"] and "not private at all" in r["error"], r["error"]
+    assert "private." not in r["error"], r["error"]
 
     # 16) ưu tiên lý do: video ĐÃ GỠ là sự thật về chính video nên thắng "nghi robot",
     #     vốn chỉ là chuyện của IP máy chủ.
     async with httpx.AsyncClient(transport=_transport(
             theo_client={"*": _bot(), "web": _player(captions=False, status="ERROR")})) as c:  # noqa: E501
         r = await yt.read("dQw4w9WgXcQ", client=c, cho_phep_ytdlp=False)
-    assert r["code"] == "unavailable" and "không tồn tại" in r["error"], r
+    assert r["code"] == "unavailable" and "does not exist" in r["error"], r
 
     # 17) đổi info yt-dlp sang khuôn captionTracks (hàm thuần, không cần cài yt-dlp)
     conv = yt._tu_ytdlp_info({
@@ -335,7 +335,7 @@ async def main():
         yt._ytdlp = goc_ytdlp
     assert r["ok"] and r["source"] == "yt-dlp", r
     assert r["title"] == "Cứu bởi yt-dlp" and "cau so 0" in r["transcript"], r
-    assert "Đọc được qua: yt-dlp" in yt.render(r)
+    assert "Read via: yt-dlp" in yt.render(r)
 
     # 19) yt-dlp cũng thua -> vẫn phải báo tử tế, không nổ, không im lặng
     async def _ytdlp_thua(url, notes, timeout_s=75.0):
@@ -413,7 +413,7 @@ async def main():
     ma, ly_do = yt._khong_xem_duoc({"playabilityStatus": {
         "status": "LOGIN_REQUIRED", "reason": "Đăng nhập để xác nhận bạn không phải robot"}})
     assert ma == "robot", f"lý do tiếng Việt bị phân loại nhầm thành {ma!r}"
-    assert "không hề riêng tư" in ly_do, ly_do
+    assert "not private at all" in ly_do, ly_do
 
     # 24) và câu hỏi gửi đi PHẢI bằng tiếng Anh, để lý do về luôn ổn định.
     #     Đây mới là lớp phòng thủ chính; danh sách tiếng Việt ở trên chỉ là lưới thứ hai.
@@ -438,7 +438,7 @@ async def main():
     ma, ly_do = yt._khong_xem_duoc({"playabilityStatus": {
         "status": "LOGIN_REQUIRED", "reason": "Sign in"}})
     assert ma == "dang_nhap", ma
-    assert "Hai khả năng" in ly_do and "ẩn danh" in ly_do, ly_do
+    assert "Two possibilities" in ly_do and "incognito" in ly_do, ly_do
 
     # 27) lý do nằm trong errorScreen thay vì reason thì vẫn phải đọc ra
     ma, _ = yt._khong_xem_duoc({"playabilityStatus": {
@@ -452,7 +452,7 @@ async def main():
     async with httpx.AsyncClient(transport=_transport(theo_client={"*": _bot()})) as c:
         r = await yt.read("dQw4w9WgXcQ", client=c, cho_phep_ytdlp=False)
     ra = yt.render(r)
-    assert "ĐÃ THỬ NHỮNG ĐƯỜNG SAU" in ra and "chép nguyên khối" in ra, ra
+    assert "THESE ROUTES WERE TRIED" in ra and "copy this block" in ra, ra
     assert "chỉ nói khi người dùng hỏi" not in ra
     for ten in _THU_TU:
         assert ten in ra, f"phần chẩn đoán thiếu đường {ten}"
@@ -493,7 +493,7 @@ async def main():
     async with httpx.AsyncClient(transport=_transport(theo_client={"*": bot_tran})) as c:
         r = await yt.read("dQw4w9WgXcQ", client=c, cho_phep_ytdlp=False)
     assert r["code"] == "blocked" and "robot" in r["error"], r
-    assert "không hề riêng tư" in r["error"], r["error"]
+    assert "not private at all" in r["error"], r["error"]
     assert sum(1 for n in r["notes"] if "robot" in str(n)) >= len(_THU_TU), r["notes"]
 
     # 31) một client ĐỌC ĐƯỢC video thì lời phàn nàn của client khác không còn là chẩn đoán:
@@ -535,14 +535,14 @@ async def main():
 
     # 33) render KHÔNG được khẳng định đã thử yt-dlp khi nó chưa hề chạy. Nói sai chỗ này tốn
     #     của người dùng cả buổi: họ tin là hết cách trong khi chỉ cần cài một gói.
-    assert "CHƯA CÀI" in yt._cau_ytdlp({"ytdlp": "chua_cai"}).upper()
+    assert "NOT HAVE YT-DLP" in yt._cau_ytdlp({"ytdlp": "chua_cai"}).upper()
     assert "pip install" in yt._cau_ytdlp({"ytdlp": "chua_cai"})
-    assert "chưa được chạy" in yt._cau_ytdlp({"ytdlp": "bo_qua"})
-    assert "đều bị từ chối" in yt._cau_ytdlp({"ytdlp": "da_chay"})
+    assert "did not run this time" in yt._cau_ytdlp({"ytdlp": "bo_qua"})
+    assert "all refused" in yt._cau_ytdlp({"ytdlp": "da_chay"})
     async with httpx.AsyncClient(transport=_transport(theo_client={"*": _bot()})) as c:
         r = await yt.read("dQw4w9WgXcQ", client=c, cho_phep_ytdlp=False)
     assert r["ytdlp"] == "tat"
-    assert "đã thử đủ" not in yt.render(r), "không được khoe đã thử yt-dlp khi nó bị tắt"
+    assert "tried every" not in yt.render(r).lower(), "không được khoe đã thử yt-dlp khi nó bị tắt"
 
     # 34) đặt tham số URL phải THAY chứ không nối: baseUrl thường đã có sẵn fmt=srv3, nối thêm
     #     là YouTube lấy giá trị đầu rồi trả XML, tốn một vòng mạng thừa.
@@ -575,7 +575,7 @@ async def main():
     finally:
         yt._ytdlp = goc_ytdlp
     assert r["code"] == "blocked", f'{r["code"]}: {r.get("error")}'
-    assert "KHÔNG có phụ đề" not in (r.get("error") or ""), r["error"]
+    assert "NO captions" not in (r.get("error") or ""), r["error"]
     assert "robot" in r["error"], r["error"]
 
     # 37) mạng máy chủ hỏng KHÔNG được đổ cho YouTube: người dùng sẽ đi thuê proxy dân cư
@@ -588,7 +588,7 @@ async def main():
     assert r["code"] == "network", f'{r["code"]}: {r.get("error")}'
     assert r["da_ket_noi"] == 0
     ra = yt.render(r)
-    assert "MẠNG RA NGOÀI" in r["error"] and "ĐANG CHẶN MÁY CHỦ" not in ra, ra
+    assert "OUTBOUND NETWORK" in r["error"] and "IS BLOCKING THE SERVER" not in ra, ra
 
     # 38) notes phải giữ NGUYÊN VĂN chuỗi reason - bằng chứng đắt nhất của người sửa mù
     async with httpx.AsyncClient(transport=_transport(theo_client={"*": _bot()})) as c:

@@ -105,7 +105,7 @@ check("raw Codex line kept for diagnosis", "Could not find home directory" in er
 
 # ---- 5. other failures keep the old wording ----
 check("other exits keep the old message",
-      claude_cli.codex_error_text(2, ["error: unexpected argument"]) == "Codex lỗi (exit 2):\nerror: unexpected argument")
+      claude_cli.codex_error_text(2, ["error: unexpected argument"]) == "Codex error (exit 2):\nerror: unexpected argument")
 
 # ---- 6. every spawn site gets the env ----
 import codex_models  # noqa: E402

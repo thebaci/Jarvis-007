@@ -194,13 +194,13 @@ for ten, blk in (("web", BLOCK_WEB), ("telegram", BLOCK_TG), ("cli", BLOCK_CLI))
     # Câu mẫu trong prompt viết theo giọng xưng hô HIỆN TẠI của Javis ("mình"), còn bộ dò ở
     # mục 1 vẫn phải bắt được mọi biến thể (em/anh/chị/tôi) vì máy đang chạy có thể còn giọng cũ.
     check(f"{ten}: prompt cấm hứa 'có kết quả mình báo ngay'",
-          "có kết quả mình báo ngay" in blk and "KHÔNG HỨA THỨ MÌNH KHÔNG LÀM ĐƯỢC" in blk)
+          "I will report as soon as I have a result" in blk and "DO NOT PROMISE WHAT YOU CANNOT DO" in blk)
     check(f"{ten}: prompt nói rõ luật áp cho MỌI biến thể xưng hô",
-          "biến thể xưng hô" in blk)
+          "any other variation" in blk)
     check(f"{ten}: prompt bắt thuật đúng kết quả tool khi điều phối tắt",
-          "điều phối đang TẮT" in blk)
+          "orchestration is OFF" in blk)
 check("web: prompt nói rõ server tự kiểm lời hứa",
-      "server tự dán một dòng đính chính" in BLOCK_WEB)
+      "pastes a correction line" in BLOCK_WEB)
 
 
 # ─────────── 5. Plugin javis-task: cổng điều phối phải ĐÚNG ───────────

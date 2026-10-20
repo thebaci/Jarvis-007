@@ -124,19 +124,19 @@ def _tu_kho(tu_khoa: str) -> list:
 
 
 def _mo_ta_card(c: dict) -> str:
-    o = [f"- {c.get('name')} (card '{c.get('group') or c.get('name')}' trong Kho kết nối"
-         + (f", nhóm {c.get('category')}" if c.get("category") else "") + ")"]
+    o = [f"- {c.get('name')} (card '{c.get('group') or c.get('name')}' in the Connection store"
+         + (f", group {c.get('category')}" if c.get("category") else "") + ")"]
     if c.get("auth_type") == "oauth":
-        o.append("  Cần ĐĂNG NHẬP (OAuth) nên phải bấm ở trang Kết nối, Javis không đăng nhập hộ được.")
+        o.append("  Needs a SIGN-IN (OAuth), so it must be clicked on the Connections page; Jarvis 007 cannot sign in for the user.")
     else:
         ten_o = ", ".join(f.get("label") or f.get("key") for f in (c.get("fields") or []))
-        o.append("  Cần điền: " + (ten_o or "không rõ, xem tại trang Kết nối") + ".")
+        o.append("  To fill in: " + (ten_o or "unknown, see the Connections page") + ".")
     return "\n".join(o)
 
 
 def _xem_o_dau(cid: str) -> str:
-    return (f"Xem và chỉnh ở trang Kết nối, khu 'Đã kết nối' (mã {cid}): đổi tên, nâng mức quyền, "
-            "bật/tắt, xoá.")
+    return (f"View and edit it on the Connections page, in the 'Connected' section (id {cid}): rename, raise the permission level, "
+            "turn on/off, delete.")
 
 
 def _tim(args, ctx) -> str:
@@ -145,19 +145,19 @@ def _tim(args, ctx) -> str:
     dang_co = mcp_store.list_connections()
     dong = []
     if kho:
-        dong.append(f"Kho kết nối có sẵn {len(kho)} dịch vụ khớp '{q}':")
+        dong.append(f"The Connection store already has {len(kho)} matching services for '{q}':")
         dong += [_mo_ta_card(c) for c in kho[:_FIND_MAX]]
         if len(kho) > _FIND_MAX:
-            dong.append(f"…(+{len(kho) - _FIND_MAX} dịch vụ nữa, xem đủ ở trang Kết nối)")
-        dong.append("Dịch vụ trong kho thì đấu bằng card của nó chứ ĐỪNG thêm kiểu tự khai URL - "
-                    "card mới có sẵn mẫu đăng nhập và phân loại tool đọc/ghi.")
+            dong.append(f"...(+{len(kho) - _FIND_MAX} more services, see them all on the Connections page)")
+        dong.append("A service in the store is connected through its own card, do NOT add it by declaring a URL yourself - "
+                    "only the card has the sign-in template and the read/write tool classification built in.")
     else:
-        dong.append(f"Kho kết nối không có dịch vụ nào khớp '{q}'. Nếu người dùng đưa được địa chỉ "
-                    "MCP (URL) hoặc lệnh chạy thì gọi lại tool này với op=add để tự khai.")
+        dong.append(f"The Connection store has no service matching '{q}'. If the user can give an MCP address "
+                    "(URL) or a run command, call this tool again with op=add to declare it yourself.")
     if dang_co:
         dong.append("")
-        dong.append("Đang đấu sẵn: " + ", ".join(
-            f"{c.get('label')}{'' if c.get('enabled') else ' (đang tắt)'}" for c in dang_co[:_FIND_MAX]))
+        dong.append("Already connected: " + ", ".join(
+            f"{c.get('label')}{'' if c.get('enabled') else ' (turned off)'}" for c in dang_co[:_FIND_MAX]))
     return "\n".join(dong)
 
 
@@ -175,32 +175,32 @@ async def _them(args, ctx) -> str:
         command, tham_so = phan[0], phan[1:]
 
     if not _TEN_HOP_LE.match(ten):
-        return ("ERROR: thiếu name - đặt tên hiển thị cho nguồn này (vd 'Context7', 'POS shop 2'). "
-                "Tên này là thứ người dùng thấy ở trang Kết nối.")
+        return ("ERROR: missing name - give this source a display name (e.g. 'Context7', 'POS shop 2'). "
+                "This name is what the user sees on the Connections page.")
 
     if not url and not command:
         kho = _tu_kho(ten)
         if kho:
-            return ("Chưa đấu gì cả. Dịch vụ này ĐÃ CÓ SẴN trong Kho kết nối, đấu bằng card của nó "
-                    "chứ không tự khai:\n" + "\n".join(_mo_ta_card(c) for c in kho[:_FIND_MAX])
-                    + "\nNói người dùng mở trang Kết nối, tìm card đó rồi bấm Kết nối. "
-                    "Javis không tự đăng nhập hộ được.")
-        return ("ERROR: thiếu url (MCP chạy qua mạng) hoặc command (MCP chạy bằng lệnh trên máy). "
-                "Hỏi người dùng địa chỉ MCP, hoặc gọi op=find để tra xem Kho kết nối có sẵn dịch vụ này chưa.")
+            return ("Nothing connected yet. This service ALREADY EXISTS in the Connection store; connect it through its own card "
+                    "instead of declaring it yourself:\n" + "\n".join(_mo_ta_card(c) for c in kho[:_FIND_MAX])
+                    + "\nTell the user to open the Connections page, find that card and click Connect. "
+                    "Jarvis 007 cannot sign in for the user.")
+        return ("ERROR: missing url (an MCP that runs over the network) or command (an MCP that runs by a command on the machine). "
+                "Ask the user for the MCP address, or call op=find to check whether the Connection store already has this service.")
 
     cu = _trung(url, command, tham_so)
     if cu:
-        return (f"Đã có sẵn rồi, KHÔNG thêm trùng: '{cu.get('label')}' "
-                f"({'đang bật' if cu.get('enabled') else 'ĐANG TẮT, bật lại ở trang Kết nối'}), "
-                f"mức quyền {cu.get('perm')}. " + _xem_o_dau(cu.get("id")))
+        return (f"Already exists, NOT adding a duplicate: '{cu.get('label')}' "
+                f"({'turned on' if cu.get('enabled') else 'TURNED OFF, turn it back on from the Connections page'}), "
+                f"permission level {cu.get('perm')}. " + _xem_o_dau(cu.get("id")))
 
     transport = _chuoi(args.get("transport")).lower()
     if transport not in ("http", "sse", "stdio"):
         transport = "stdio" if command else "http"
     if transport == "stdio" and not command:
-        return "ERROR: transport=stdio thì phải có command (lệnh chạy MCP server)."
+        return "ERROR: transport=stdio requires a command (the command that runs the MCP server)."
     if transport in ("http", "sse") and not url:
-        return f"ERROR: transport={transport} thì phải có url."
+        return f"ERROR: transport={transport} requires a url."
 
     perm = _chuoi(args.get("perm")).lower()
     if perm not in mcp_catalog.PERM_RANK:
@@ -217,7 +217,7 @@ async def _them(args, ctx) -> str:
         "perm": perm,
     })
     if loi:
-        return f"ERROR: không thêm được - {loi}"
+        return f"ERROR: could not add - {loi}"
 
     import mcp_hub   # nạp muộn: mcp_hub nạp plugins_host, import ở đầu file là vòng tròn
 
@@ -226,9 +226,9 @@ async def _them(args, ctx) -> str:
         mcp_store.update_connection(cid, {"enabled": False})
         mcp_hub.invalidate_cache()
         lenh = " ".join([command] + tham_so)
-        return (f"Đã thêm '{ten}' vào trang Kết nối nhưng ĐỂ TẮT, vì nguồn này chạy bằng lệnh trên "
-                f"máy chủ Javis: `{lenh}`. Người dùng tự đọc lệnh, thấy ổn thì bật ở trang Kết nối "
-                f"(Javis không tự bật loại này). Mức quyền đang đặt: {perm}. " + _xem_o_dau(cid))
+        return (f"Added '{ten}' to the Connections page but LEFT IT OFF, because this source runs by a command on the "
+                f"Jarvis 007 server: `{lenh}`. The user reads the command and, if it looks fine, turns it on from the Connections page "
+                f"(Jarvis 007 never turns this kind on by itself). Permission level set: {perm}. " + _xem_o_dau(cid))
 
     val = await mcp_hub.validate_connection(cid)
     if not val.get("ok"):
@@ -236,9 +236,9 @@ async def _them(args, ctx) -> str:
         # nó nằm đó và biết vì sao chưa chạy, chứ không phải một câu lỗi rồi trang Kết nối trống trơn.
         mcp_store.update_connection(cid, {"enabled": False})
         mcp_hub.invalidate_cache()
-        return (f"Đã thêm '{ten}' vào trang Kết nối nhưng ĐỂ TẮT vì thử kết nối không được: "
-                f"{val.get('error') or 'không rõ lý do'}\n"
-                "Nói đúng lỗi này cho người dùng, gợi ý kiểm tra lại URL hoặc key rồi sửa và bật lại. "
+        return (f"Added '{ten}' to the Connections page but LEFT IT OFF because the test connection failed: "
+                f"{val.get('error') or 'reason unknown'}\n"
+                "Tell the user this exact error, and suggest checking the URL or key, fixing it and turning it back on. "
                 + _xem_o_dau(cid))
 
     if val.get("label") and not ten:
@@ -248,9 +248,9 @@ async def _them(args, ctx) -> str:
         mcp_hub.codex_profile("full")   # để engine ChatGPT/Codex thấy nguồn mới ở lượt sau
     except Exception:
         pass
-    return (f"Đã đấu xong '{ten}' và nó đang chạy: thấy {val.get('tools', 0)} tool, mức quyền "
-            f"{perm} (mặc định an toàn, muốn cho ghi thì người dùng tự nâng ở trang Kết nối). "
-            "Mọi bộ não đều dùng được nguồn này qua hub. " + _xem_o_dau(cid))
+    return (f"Connected '{ten}' and it is running: {val.get('tools', 0)} tools found, permission level "
+            f"{perm} (a safe default; if writes should be allowed, the user raises it on the Connections page). "
+            "Every brain can use this source through the hub. " + _xem_o_dau(cid))
 
 
 async def _chay(args, ctx) -> str:
@@ -259,36 +259,36 @@ async def _chay(args, ctx) -> str:
         return await _them(args, ctx)
     if op == "find":
         return _tim(args, ctx)
-    return "ERROR: op phải là 'add' (đấu nguồn mới) hoặc 'find' (tra Kho kết nối xem đã có sẵn chưa)."
+    return "ERROR: op must be 'add' (connect a new source) or 'find' (check the Connection store for an existing one)."
 
 
 def register(ctx):
     ctx.register_tool(
         "javis_add_mcp",
-        "Đấu thêm một MCP server vào kho Kết nối của Javis, để nó HIỆN ra trang Kết nối và MỌI bộ "
-        "não dùng chung. Dùng tool này mỗi khi người dùng bảo thêm/đấu/nối một MCP hay một nguồn "
-        "dữ liệu; TUYỆT ĐỐI không dùng `claude mcp add` hay `codex mcp add` (rơi vào config riêng "
-        "của một CLI, người dùng không thấy trên trang Kết nối). "
-        "op=find: tra xem Kho kết nối có sẵn dịch vụ đó chưa (gọi trước khi tự khai URL). "
-        "op=add: cần name, cộng url (MCP qua mạng) hoặc command (MCP chạy bằng lệnh). headers cho "
-        "key dạng 'Authorization: Bearer xxx'. Mức quyền mặc định là chỉ đọc; chỉ truyền perm cao "
-        "hơn khi người dùng nói rõ. Nguồn chạy bằng lệnh luôn được thêm ở trạng thái TẮT để người "
-        "dùng tự duyệt. Báo lại cho người dùng biết nó nằm ở trang Kết nối.",
+        "Connect another MCP server into Jarvis 007's Connections store, so it SHOWS UP on the Connections page and EVERY "
+        "brain shares it. Use this tool every time the user asks to add/connect/link an MCP or a data "
+        "source (thêm/đấu/nối một MCP hay một nguồn dữ liệu); NEVER use `claude mcp add` or `codex mcp add` (they land in one "
+        "CLI's own config, which the user cannot see on the Connections page). "
+        "op=find: check whether the Connection store already has that service (call it before declaring a URL yourself). "
+        "op=add: needs name, plus url (a network MCP) or command (an MCP run by a command). headers for "
+        "keys such as 'Authorization: Bearer xxx'. The default permission level is read-only; only pass a higher perm "
+        "when the user says so clearly. A source run by a command is always added TURNED OFF so the "
+        "user can review it. Tell the user it lives on the Connections page.",
         _chay,
         schema={
             "type": "object",
             "properties": {
                 "op": {"type": "string", "enum": ["add", "find"]},
-                "name": {"type": "string", "description": "Tên hiển thị ở trang Kết nối (op=add), "
-                                                          "hoặc từ khoá dịch vụ (op=find)"},
-                "url": {"type": "string", "description": "Địa chỉ MCP, vd https://mcp.abc.com/mcp"},
-                "command": {"type": "string", "description": "Lệnh chạy MCP trên máy, vd npx"},
-                "args": {"type": "string", "description": "Tham số của lệnh, vd '-y @abc/mcp-server'"},
+                "name": {"type": "string", "description": "Display name on the Connections page (op=add), "
+                                                          "or a service keyword (op=find)"},
+                "url": {"type": "string", "description": "MCP address, e.g. https://mcp.abc.com/mcp"},
+                "command": {"type": "string", "description": "Command that runs the MCP on the machine, e.g. npx"},
+                "args": {"type": "string", "description": "Arguments of the command, e.g. '-y @abc/mcp-server'"},
                 "transport": {"type": "string", "enum": ["http", "sse", "stdio"]},
-                "headers": {"type": "string", "description": "Header xác thực, mỗi dòng 'Khoá: giá trị'"},
-                "env": {"type": "string", "description": "Biến môi trường cho lệnh, mỗi dòng 'KHOA=giá trị'"},
+                "headers": {"type": "string", "description": "Auth headers, one per line 'Key: value'"},
+                "env": {"type": "string", "description": "Environment variables for the command, one per line 'KEY=value'"},
                 "perm": {"type": "string", "enum": ["readonly", "safe", "full"],
-                         "description": "Mặc định readonly. Chỉ nâng khi người dùng yêu cầu rõ."},
+                         "description": "Default readonly. Only raise it when the user clearly asks."},
             },
             "required": ["op"],
         },

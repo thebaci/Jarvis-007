@@ -66,7 +66,7 @@ check("lan dau khong noi ket qua truoc", goi[0]["input"] == "viết về A" and 
       and goi[0]["session_id"] == sid)
 
 text2, _ = run("sửa ngắn lại")
-check("lan hai noi ket qua truoc + dem lan chay", goi[1]["input"].startswith("sửa ngắn lại\n\n# Kết quả lần trước\nBÀI 1")
+check("lan hai noi ket qua truoc + dem lan chay", goi[1]["input"].startswith("sửa ngắn lại\n\n# Previous result\nBÀI 1")
       and text2.startswith("Lần chạy #2"))
 
 

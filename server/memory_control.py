@@ -134,9 +134,9 @@ def set_learning(mem_dir: Path, on: bool) -> bool:
 
 
 LEARNING_OFF_NOTE = ("\n\n# === GHI NHỚ MỚI ĐANG TẮT ===\n"
-                     "Người dùng đã tắt việc lưu ghi nhớ mới cho brain này. Vẫn dùng bộ nhớ đã có, nhưng KHÔNG tạo hay "
-                     "sửa file trong memory/ và không thêm dòng vào MEMORY.md. Nếu người dùng nhờ nhớ điều gì, nói rõ "
-                     "việc ghi nhớ đang tắt và chỉ chỗ bật lại (Javis Core > Trí nhớ).")
+                     "The user has turned off saving new memories for this brain. Keep using the memory that already exists, but do NOT create or "
+                     "edit files in memory/ and do not add lines to MEMORY.md. If the user asks you to remember something, say clearly "
+                     "that memory saving is off and point to where to turn it back on (Javis Core > Memory).")
 
 
 # ── list / edit / forget ──────────────────────────────────────────────────────
@@ -256,8 +256,8 @@ def profile_block() -> str:
     """The person's profile for the prompt, before the brain's own memory (which wins where they differ)."""
     t = read_profile()
     return ("\n\n# === HỒ SƠ NGƯỜI DÙNG (chung mọi brain, do người dùng tự viết) ===\n"
-            "Cách xưng hô, ngôn ngữ, cách trình bày và mức chi tiết người dùng muốn. Bộ nhớ riêng của brain bên dưới "
-            "thắng khi hai bên khác nhau.\n" + t) if t else ""
+            "How the user wants to be addressed, the language, the format and the level of detail. The brain's own memory below "
+            "wins where the two differ.\n" + t) if t else ""
 
 
 # ── 0.188.0: hard block for Claude Code, and a source on every new memory ─────────────────────────────────────────

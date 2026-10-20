@@ -274,7 +274,7 @@ for label, lines in (("hub hung (timed out after 20s)", REQ_STDERR), ("hub port 
     check(f"codex_error_text, {label}: names the hub server and keeps the exit code", "javis:" in txt and "1" in txt)
     check(f"codex_error_text, {label}: bounded length", len(txt) < 600, len(txt))
 other = claude_cli.codex_error_text(2, ["Error: unexpected status 401 Unauthorized"])
-check("codex_error_text, unrelated error: old format kept", other.startswith("Codex lỗi (exit 2):") and "401" in other, other)
+check("codex_error_text, unrelated error: old format kept", other.startswith("Codex error (exit 2):") and "401" in other, other)
 BLIND = "Không thấy tool google-workspace__search_gmail_messages nên chưa đọc được thư."
 
 codex = FakeEngine([{"type": "error", "content": REQ_ERR}], provider="openai-oauth")

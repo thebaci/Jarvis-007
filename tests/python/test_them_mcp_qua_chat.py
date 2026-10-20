@@ -90,7 +90,7 @@ check("kho vẫn trống sau các lượt lỗi", so_luong() == 0)
 
 # ---- dịch vụ ĐÃ CÓ trong Kho kết nối thì chỉ sang card, không đẻ bản custom song song ----
 r = chay(op="add", name="Gmail")
-check("Gmail (có sẵn trong kho) không bị thêm kiểu tự khai", "Kho kết nối" in r)
+check("Gmail (có sẵn trong kho) không bị thêm kiểu tự khai", "Connection store" in r)
 check("Gmail không tạo connection rỗng token", so_luong() == 0)
 r = chay(op="find", name="gmail")
 check("op=find tra được kho", "Gmail" in r)
@@ -102,7 +102,7 @@ check("stdio được thêm vào kho", c is not None)
 check("stdio để TẮT, chờ người dùng duyệt", bool(c) and c.get("enabled") is False)
 check("lệnh gõ nguyên cụm được tách đúng",
       bool(c) and c.get("command") == "npx" and list(c.get("args") or []) == ["-y", "@abc/mcp-server"])
-check("câu trả lời chỉ đường tới trang Kết nối", "trang Kết nối" in r)
+check("câu trả lời chỉ đường tới trang Kết nối", "Connections page" in r)
 
 # ---- http: thử kết nối OK thì bật, và mức quyền mặc định là chỉ đọc ----
 import mcp_hub  # noqa: E402  - nạp sau khi đã trỏ kho sang thư mục tạm
@@ -141,7 +141,7 @@ mcp_hub.validate_connection = _val_ok
 truoc = so_luong()
 r = chay(op="add", name="Context7 lần hai", url="https://mcp.context7.com/mcp/")
 check("URL trùng thì không thêm nữa", so_luong() == truoc)
-check("nói rõ là đã có sẵn", "Đã có sẵn" in r)
+check("nói rõ là đã có sẵn", "Already exists" in r)
 truoc = so_luong()
 chay(op="add", name="stdio lần hai", command="npx", args="-y @abc/mcp-server")
 check("lệnh stdio trùng thì không thêm nữa", so_luong() == truoc)

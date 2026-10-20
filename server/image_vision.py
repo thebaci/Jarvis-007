@@ -33,22 +33,22 @@ VISION_MODEL = _VISION_ENV or image_gen.HOST_MODEL
 MAX_IMAGES = image_gen.MAX_REF_IMAGES
 MAX_OUTPUT_CHARS = 12_000
 INSTRUCTIONS = (
-    "Bạn là đôi mắt của một trợ lý AI không tự xem được ảnh. Mô tả ĐÚNG những gì thấy trong ảnh để trợ lý đó dùng: "
-    "chép lại NGUYÊN VĂN mọi chữ, số, giá, mã đơn, số điện thoại, ngày giờ đọc được; nêu đồ vật, người, bối cảnh, biểu đồ, "
-    "bảng. Không đoán điều không thấy, chỗ mờ thì nói là mờ. Trả lời bằng ngôn ngữ của phần yêu cầu."
+    "You are the eyes of an AI assistant that cannot view images itself. Describe EXACTLY what you see in the image for that assistant to use: "
+    "copy out VERBATIM every word, number, price, order code, phone number, date and time you can read; mention objects, people, setting, charts, "
+    "tables. Do not guess at what you cannot see, and say so where something is blurry. Answer in the language of the request."
 )
 
 
 def build_prompt(question: str = "", labels: Optional[List[str]] = None) -> str:
     """The text part of the request: what to look for, plus one label per image so the answer can be matched back."""
     q = str(question or "").strip()
-    lines = [f"Yêu cầu: {q}" if q else "Yêu cầu: mô tả chi tiết từng ảnh."]
+    lines = [f"Request: {q}" if q else "Request: describe each image in detail."]
     labels = [str(x or "").strip() for x in (labels or [])]
     if len(labels) > 1 or any(labels):
-        lines.append("Các ảnh gửi kèm theo đúng thứ tự:")
+        lines.append("The attached images, in order:")
         for i, lab in enumerate(labels, 1):
-            lines.append(f"- Ảnh {i}" + (f": {lab}" if lab else ""))
-        lines.append("Trả lời theo từng ảnh, mở đầu mỗi phần bằng \"Ảnh N:\".")
+            lines.append(f"- Image {i}" + (f": {lab}" if lab else ""))
+        lines.append("Answer image by image, starting each part with \"Image N:\".")
     return "\n".join(lines)
 
 

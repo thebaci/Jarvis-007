@@ -54,9 +54,9 @@ pl = iv.build_payload("hỏi", ["data:image/jpeg;base64,AAA"], model="m")
 check("vision payload: text then input_image, no tools, streamed", pl["input"][0]["content"][1]["type"] == "input_image"
       and "tools" not in pl and pl["stream"] is True and pl["model"] == "m")
 pr = iv.build_prompt("tổng tiền", ["tin 1, Lan", "tin 2, Quý"])
-check("prompt lists one label per image and asks for an answer per image", "Ảnh 1: tin 1, Lan" in pr and "Ảnh 2" in pr
+check("prompt lists one label per image and asks for an answer per image", "Image 1: tin 1, Lan" in pr and "Image 2" in pr
       and "tổng tiền" in pr)
-check("single unlabeled image: no list", "Ảnh 1" not in iv.build_prompt("", [""]))
+check("single unlabeled image: no list", "Image 1" not in iv.build_prompt("", [""]))
 check("completed event text is a fallback", iv.text_from_completed(
     {"response": {"output": [{"content": [{"type": "output_text", "text": "xin chào"}]}]}}) == "xin chào")
 

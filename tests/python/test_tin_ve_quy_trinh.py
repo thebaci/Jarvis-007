@@ -115,7 +115,7 @@ _khoi = workflow_chat.khoi_quy_trinh_dang_mo(
 check("khối ngữ cảnh mang ĐƯỜNG DẪN file quy trình", "/brains/Trang Javis/workflows/viet-bai.md" in _khoi)
 check("khối ngữ cảnh liệt kê bước + agent", "B1. nguoi-viet: viết bản thảo" in _khoi
       and "B2. nguoi-sua" in _khoi)
-check("khối ngữ cảnh cấm tự chạy quy trình", "KHÔNG tự chạy" in _khoi)
+check("khối ngữ cảnh cấm tự chạy quy trình", "Do NOT run the workflow" in _khoi)
 check("khối ngữ cảnh mở bằng dấu hiệu máy đọc được", _khoi.startswith("[QUY TRÌNH ĐANG MỞ"))
 
 

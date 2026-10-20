@@ -95,15 +95,15 @@ check("TTS bóc ô bảng markdown", "\\|" in _clean)
 # ============================================================
 # 3. Khối kênh dashboard: dạy trình bày, vì nó đứng cuối prompt
 # ============================================================
-check("khối web có hẳn mục cách trình bày", "Cách trình bày trong khung chat này" in _WEB)
-check("web: nói rõ khung chat render đủ markdown", "render ĐỦ markdown" in _WEB)
-for tu in ("gạch đầu dòng", "in đậm", "###", "bảng"):
+check("khối web có hẳn mục cách trình bày", "How to format in this chat box" in _WEB)
+check("web: nói rõ khung chat render đủ markdown", "renders FULL markdown" in _WEB)
+for tu in ("bullets", "bold", "###", "tables"):
     check(f"web: có dạy '{tu}'", tu in _WEB.lower() or tu in _WEB)
-check("web: gọi tên đúng cái bệnh (văn xuôi liền mạch)", "văn xuôi liền mạch" in _WEB)
+check("web: gọi tên đúng cái bệnh (văn xuôi liền mạch)", "unbroken prose paragraphs" in _WEB)
 check("web: trấn an chuyện giọng đọc để khỏi tự siết lại",
-      "bóc markdown" in _WEB)
+      "strips markdown" in _WEB)
 check("web: vẫn dặn ngắn gọn, không lấy định dạng làm cớ viết dài",
-      "giọng người đang nói" in _WEB and "viết dài" in _WEB)
+      "voice of a person speaking" in _WEB and "write longer" in _WEB)
 check("khối web không dính em dash", "—" not in _WEB)
 
 
@@ -125,11 +125,11 @@ check("capsule không dính em dash", "—" not in _hd_web and "—" not in _loi
 # ============================================================
 # 5. Nới cho web KHÔNG được tràn sang kênh chữ thuần
 # ============================================================
-check("Telegram: vẫn cấm bảng", "đừng dùng bảng" in _TG)
-check("Zalo: vẫn cấm bảng", "đừng dùng bảng" in _ZL)
-check("CLI: vẫn cấm bảng", "TUYỆT ĐỐI không dùng bảng" in _CLI)
+check("Telegram: vẫn cấm bảng", "do not use tables" in _TG)
+check("Zalo: vẫn cấm bảng", "do not use tables" in _ZL)
+check("CLI: vẫn cấm bảng", "NEVER use tables" in _CLI)
 check("CLI: vẫn cấm ảnh nhúng và link markdown",
-      "không nhúng ảnh" in _CLI and "không dùng link markdown" in _CLI)
+      "do not embed images" in _CLI and "do not use markdown links" in _CLI)
 # Hợp đồng capsule của hai kênh này cũng vậy - cùng một luật, hai đường đi.
 check("capsule Telegram: vẫn cấm bảng",
       "no Markdown tables" in context_compiler.ContextCompiler._channel_contract("telegram"))
@@ -137,7 +137,7 @@ check("capsule CLI: vẫn cấm bảng",
       "NO Markdown tables" in context_compiler.ContextCompiler._channel_contract("cli"))
 # Nhưng gạch đầu dòng thì kênh nào cũng hiện được, nên kênh nào cũng được dạy dùng.
 for ten, khoi in (("Telegram", _TG), ("Zalo", _ZL), ("CLI", _CLI)):
-    check(f"{ten}: vẫn được dùng gạch đầu dòng khi liệt kê", "gạch đầu dòng" in khoi)
+    check(f"{ten}: vẫn được dùng gạch đầu dòng khi liệt kê", "bullets" in khoi)
 # CLI không tô đậm được: dạy nó dùng ** là dạy nó in ra nguyên dấu sao.
 check("CLI: không dạy dùng ** để in đậm",
       not re.search(r"in đậm[^.\n]*\*\*", _CLI))

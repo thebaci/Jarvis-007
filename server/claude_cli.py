@@ -280,7 +280,7 @@ def _binary_da_nho(ten: str) -> Optional[str]:
             return None
     except Exception:
         return None
-    print(f"[tim_binary] PATH không còn '{ten}', dùng lại chỗ đã nhớ: {p}", file=sys.stderr)
+    print(f"[tim_binary] '{ten}' is no longer on PATH, reusing the remembered location: {p}", file=sys.stderr)
     return p
 
 
@@ -662,7 +662,7 @@ def auth_status(bo_qua_cache: bool = False):
         if cu.get("connected") and not ra["connected"]:
             # Đang đăng nhập mà CLI báo mất - in dấu vết CÓ GIỜ để lần sau chủ báo "thi thoảng
             # bị đăng xuất" thì log nói được nó xảy ra lúc nào, cạnh sự kiện gì.
-            print(f"[claude auth] CLI báo ĐÃ ĐĂNG XUẤT (trước đó đang đăng nhập) lúc "
+            print(f"[claude auth] CLI reports SIGNED OUT (it was signed in before) at "
                   f"{time.strftime('%Y-%m-%d %H:%M:%S')}", file=sys.stderr)
         _AUTH_CACHE.update(ts=now, val=dict(ra))
         return ra
@@ -757,8 +757,8 @@ def giu_credentials() -> str:
             bak = b.read_text(encoding="utf-8")
         except Exception:
             if raw is not None:
-                print("[claude auth] .credentials.json HỎNG (JSON không đọc được) và không có "
-                      "bản sao lưu - phải đăng nhập lại.", file=sys.stderr)
+                print("[claude auth] .credentials.json is CORRUPT (unreadable JSON) and there is no "
+                      "backup copy - sign in again.", file=sys.stderr)
                 return "hong"
             return ""
         if not _cred_co_token(bak):
@@ -772,12 +772,12 @@ def giu_credentials() -> str:
         os.replace(tmp, p)
         auth_quen_cache()
         print("[claude auth] .credentials.json "
-              + ("hỏng" if raw is not None else "biến mất")
-              + " - đã PHỤC HỒI từ bản sao lưu. Đây là dấu vết của một tiến trình claude bị "
-              "giết giữa lúc ghi file token.", file=sys.stderr)
+              + ("was corrupt" if raw is not None else "disappeared")
+              + " - RESTORED from the backup copy. This is the trace of a claude process killed "
+              "while it was writing the token file.", file=sys.stderr)
         return "restore"
     except Exception as e:
-        print(f"[claude auth] vệ sĩ credentials lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[claude auth] credentials guard error: {type(e).__name__}: {e}", file=sys.stderr)
         return ""
 
 
@@ -1018,8 +1018,8 @@ def claude_engine(system_prompt=None, cwd=None, tag="chat", allowed_tools=None, 
     mode = os.getenv("JAVIS_CLAUDE_ENGINE", "sdk").strip().lower()
     if mode in ("cli", "sdk-loops") and not _engine_env_warned:
         _engine_env_warned = True
-        print(f"[claude engine] JAVIS_CLAUDE_ENGINE={mode} đã gỡ từ v0.9.37 - engine Claude "
-              "luôn chạy Agent SDK. Gặp lỗi hãy báo issue kèm log.", file=sys.stderr)
+        print(f"[claude engine] JAVIS_CLAUDE_ENGINE={mode} was removed in v0.9.37 - the Claude engine "
+              "always runs the Agent SDK. If you hit an error, report an issue with the log.", file=sys.stderr)
     from claude_sdk_engine import ClaudeSDK
     return ClaudeSDK(system_prompt=system_prompt, cwd=cwd, tag=tag,
                      allowed_tools=allowed_tools, model=model)
@@ -1454,7 +1454,7 @@ def codex_error_text(returncode, stderr_lines) -> str:
             "started under another account. Sign out of Windows and back in (or restart), then "
             "start Javis again from that same account.\n\nDetails from Codex (exit "
             + str(returncode) + "):\n" + raw)
-    return "Codex lỗi (exit " + str(returncode) + "):\n" + raw
+    return "Codex error (exit " + str(returncode) + "):\n" + raw
 
 
 def _codex_dung_provider_rieng() -> bool:
@@ -1476,7 +1476,7 @@ def ghi_codex_ws_hong(ly_do: str = "") -> None:
         f.write_text(json.dumps({"ts": time.time(), "ly_do": str(ly_do)[:300]},
                                 ensure_ascii=False), encoding="utf-8")
     except Exception as e:
-        print(f"[codex ws] không ghi được dấu hỏng: {e}", file=sys.stderr)
+        print(f"[codex ws] could not write the broken marker: {e}", file=sys.stderr)
 
 
 def codex_transport() -> str:
@@ -1593,7 +1593,7 @@ class CodexCLI:
                 import turn_context
                 luot = turn_context.codex_override()
             except Exception as e:   # noqa: BLE001 - no key means "nobody", never a broken turn
-                print(f"[codex] khoá lượt lỗi: {type(e).__name__}: {e}", file=sys.stderr)
+                print(f"[codex] turn key error: {type(e).__name__}: {e}", file=sys.stderr)
                 luot = None
             if luot:
                 args += ["-c", luot]
@@ -1783,8 +1783,8 @@ class CodexCLI:
             # bản CLI, còn dấu vết của bwrap thì luôn đi qua đây nguyên văn.
             if not sandbox_hong and isinstance(item, str) and _SANDBOX_HONG.search(item):
                 sandbox_hong = True
-                print(f"[codex sandbox] rào riêng của Codex không khởi động được "
-                      f"(sandbox={self.sandbox or 'bypass'}) - xem _NOTE_SANDBOX_HONG",
+                print(f"[codex sandbox] Codex's own sandbox could not start "
+                      f"(sandbox={self.sandbox or 'bypass'}) - see _NOTE_SANDBOX_HONG",
                       file=sys.stderr)
             try:
                 ev = json.loads(item)
