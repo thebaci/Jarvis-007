@@ -1,391 +1,403 @@
-# Gọi điện với Jarvis 007: ChatGPT Live
+# Calling Jarvis 007: ChatGPT Live
 
-Ngày 01/10/2026. Chủ dự án đã duyệt thiết kế trong phiên cùng ngày. Đây là tài liệu thiết kế
-DUY NHẤT cho giọng nói: các spec giọng nói cũ (Voice V1, V2, tai nghe lại, nhịp thích nghi, tập
-trung, kiểm toán 24/09) đã gộp phần còn đúng vào Phụ lục A rồi xoá. Code trỏ về tài liệu này.
+October 1, 2026. The project owner approved the design in a session on the same day. This is the
+ONLY design document for voice: the older voice specs (Voice V1, V2, headset-again, adaptive pacing,
+focus, the 09/24 audit) have had their still-valid parts merged into Appendix A and were then deleted.
+Code points back to this document.
 
-**Trạng thái: đã làm xong** cả ba bước của mục 6: ChatGPT Live ở 0.65.17, trải nghiệm gọi điện ở
-0.65.18, trang cài đặt gọn ở 0.65.19. Còn treo một việc dọn dẹp: gỡ hẳn code nhịp thích nghi đã
-tắt (Phụ lục A8).
+**Status: done**, all three steps of section 6: ChatGPT Live in 0.65.17, the calling experience in
+0.65.18, the tidier settings page in 0.65.19. One cleanup is still pending: removing the disabled
+adaptive-pacing code entirely (Appendix A8).
 
-## 1. Mục tiêu và các quyết định đã chốt
+## 1. Goal and decisions already settled
 
-Người dùng muốn nói chuyện với Jarvis 007 như gọi điện: nghe và nói cùng lúc, chen ngang lúc nào
-cũng được, đáp gần như ngay, và phải cài đặt ít nhất có thể.
+The user wants to talk to Jarvis 007 like a phone call: listen and speak at the same time, interrupt
+whenever they like, get a near-instant reply, and configure as little as possible.
 
-| Quyết định | Chốt |
+| Decision | Settled |
 |---|---|
-| Bấm nút mic | **Gọi điện**: bấm một lần mở cuộc gọi, bấm lần nữa (hoặc Esc) là cúp |
-| Màn hình lúc gọi | **Thanh gọi mỏng trên khung chat**, lời hai bên thành bong bóng chat thường |
-| Ai trả lời | **Chia việc**: chuyện trò thì model nói chuyện đáp ngay; cần dữ liệu, MCP, file, ghi nhớ, mở trang thì giao bộ não Jarvis 007 người dùng đã chọn |
-| Đường chính | **ChatGPT Live** (Codex realtime, không cần API key) |
-| Im lặng lâu | Im 30 giây thì **ngắt kết nối nghe**, câu nói thật đầu tiên là nối lại, không cần gọi tên (0.65.22); thanh gọi vẫn giữ |
-| Phím Space | **Bỏ** phím tắt nói. Chỉ còn nút mic, Esc để cúp |
-| Giọng mặc định | **juniper** |
-| Tên hiện ra | Chỉ ghi **ChatGPT Live** (nhãn, thông báo, CHANGELOG). Không dùng chữ "song công" ở chỗ người dùng đọc |
-| Cài đặt | Trang chính còn 3 thứ; máy tự suy ra mọi thứ còn lại (mục 5) |
-| Tai Claude | Không làm: model Claude không nhận âm thanh, giọng nói của Claude Code cần token claude.ai mà Jarvis 007 không đọc |
+| Pressing the mic button | **Phone call**: one press opens the call, another press (or Esc) hangs up |
+| Screen during a call | **A thin call bar above the chat frame**, both sides' words become ordinary chat bubbles |
+| Who answers | **Split the work**: small talk goes to the conversational model that replies instantly; anything needing data, MCP, files, memory or opening a page goes to the Jarvis 007 brain the user chose |
+| Main path | **ChatGPT Live** (Codex realtime, no API key needed) |
+| Long silence | After 30 seconds of silence, **drop the listening connection**; the first real sentence reconnects it, no need to say a name (0.65.22); the call bar stays |
+| Space key | **Removed** as a push-to-talk shortcut. Only the mic button remains, Esc hangs up |
+| Default voice | **juniper** |
+| Name shown | Only **ChatGPT Live** (labels, notices, CHANGELOG). The term "full duplex" is not used anywhere the user reads |
+| Settings | The main page keeps 3 things; the machine infers everything else (section 5) |
+| Claude ears | Not built: Claude models do not accept audio, and Claude Code's voice needs a claude.ai token that Jarvis 007 does not read |
 
-## 2. Số đo làm căn cứ
+## 2. Measurements used as evidence
 
-**Nghe câu Việt pha tiếng Anh** (`tools/stt_bench`, 20 câu lệnh, giọng tổng hợp Edge TTS):
+**Listening to Vietnamese mixed with English** (`tools/stt_bench`, 20 commands, Edge TTS synthetic voice):
 
-| Cách nghe | Từ sai | Thuật ngữ đúng | Lệnh đúng trọn | Thời gian |
+| Way of listening | Wrong words | Correct terms | Fully correct commands | Time |
 |---|---|---|---|---|
-| Chrome Web Speech thô | 41% | 11/42 | 4/20 | tức thì |
-| Chrome rồi model sửa chữ | 23% | 28/42 | 11/20 | thêm 1 lượt model |
-| Groq Whisper qua /stt (0.65.15) | 14% | 33/42 | 13/20 | 0,9 giây |
-| ChatGPT realtime | 13% | 33/42 | 12/20 | chữ về 0,46 giây sau khi nói xong |
-| Gemini nghe file qua agy | 5% | 39/42 | 17/20 | 7 đến 17 giây, loại |
+| Raw Chrome Web Speech | 41% | 11/42 | 4/20 | instant |
+| Chrome, then a model fixes the text | 23% | 28/42 | 11/20 | one extra model turn |
+| Groq Whisper via /stt (0.65.15) | 14% | 33/42 | 13/20 | 0.9 seconds |
+| ChatGPT realtime | 13% | 33/42 | 12/20 | text arrives 0.46 seconds after speech ends |
+| Gemini listening to a file via agy | 5% | 39/42 | 17/20 | 7 to 17 seconds, rejected |
 
-Rào sửa chữ `safe_transcript_rewrite` chặn 9 trên 13 câu sửa đúng, và có câu Chrome làm mất hẳn
-thông tin, nên sửa chữ sau khi nghe không phải đường chính.
+The `safe_transcript_rewrite` guard blocks 9 of 13 correct rewrites, and in one case Chrome lost
+information outright, so fixing the text after listening is not the main path.
 
-**Thử ChatGPT Live** (Codex 0.153.4 và 0.159.3, 01/10, kịch bản giọng tổng hợp):
-- Tiếng Việt tự nhiên, xưng hô đúng ("Dạ, em vẫn ổn anh ơi, cảm ơn anh").
-- Tiếng đầu tiên của Jarvis 007 ra **0,44 đến 0,85 giây** sau khi người dùng nói xong (lượt đầu ~2 giây).
-- Handoff tới **0,5 giây** sau câu hỏi; trả kết quả bằng `appendSpeech`, model đọc gần nguyên văn.
-- Chen ngang khi Jarvis 007 đang kể chuyện: Jarvis 007 dừng, đáp "Dạ vâng, em dừng đây ạ".
-- Phiên 15 phút không rớt. Lỗi lẻ: câu đầu sau 3 phút im bị tách đôi ("Doanh" / "là bao nhiêu
-  em") và chữ về trễ ~29 giây. Ngắt khi im 30 giây và ghép yêu cầu ngắn (mục 3.2) xử lý chuyện này.
+**ChatGPT Live trial** (Codex 0.153.4 and 0.159.3, 10/01, synthetic-voice script):
+- Natural Vietnamese, correct forms of address ("Dạ, em vẫn ổn anh ơi, cảm ơn anh", meaning "Yes, I'm still fine, thank you" in a polite younger-to-older register).
+- Jarvis 007's first sound comes out **0.44 to 0.85 seconds** after the user finishes speaking (about 2 seconds for the first turn).
+- Handoff arrives up to **0.5 seconds** after the question; the result comes back through `appendSpeech`, and the model reads it out almost verbatim.
+- Interrupting while Jarvis 007 is telling a story: Jarvis 007 stops and answers "Dạ vâng, em dừng đây ạ" (roughly "Yes, I'll stop here").
+- A 15-minute session did not drop. Isolated bugs: the first sentence after 3 minutes of silence was split in two ("Doanh" / "là bao nhiêu em", meaning "Revenue" / "is how much") and the text arrived about 29 seconds late. Dropping the connection after 30 seconds of silence and merging short requests (section 3.2) handle this.
 
-## 3. Kiến trúc
+## 3. Architecture
 
-### 3.1 Chọn đường gọi
+### 3.1 Choosing the call path
 
-Khoá `voice.call_engine` = `auto` (mặc định) | `chatgpt` | `api` | `basic`. `auto` chọn theo thứ tự:
+The key `voice.call_engine` = `auto` (default) | `chatgpt` | `api` | `basic`. `auto` picks in this order:
 
-1. **chatgpt**: đã nối ChatGPT (trang Models) và Codex chạy được realtime (dò một lần rồi nhớ).
-2. **api**: Live qua API key hiện có (`voice.live_provider` gemini | openai | gpt-live), khi có key.
-3. **basic**: đường dự phòng Cơ bản cho mọi máy, mọi bộ não (mục 3.6).
+1. **chatgpt**: ChatGPT is connected (Models page) and Codex can run realtime (probed once, then remembered).
+2. **api**: Live through an existing API key (`voice.live_provider` gemini | openai | gpt-live), when a key exists.
+3. **basic**: the Basic fallback path for every machine and every brain (section 3.6).
 
-Chọn tay mà đường đó không chạy được thì rơi xuống đường kế tiếp và dòng "Đang dùng" nói rõ lý do,
-giống `voice_ear.select_ear`.
+If a path is chosen by hand but cannot run, it falls to the next path and the "Using" line states the
+reason, the same as `voice_ear.select_ear`.
 
-### 3.2 Nhà cung cấp `codex-plan` (server)
+### 3.2 The `codex-plan` provider (server)
 
-Một lớp mới trong `server/voice_live.py`, cùng giao diện `LiveProvider`, KHÔNG cần key
-(`make_provider` thêm nhánh không key).
+A new class in `server/voice_live.py`, with the same `LiveProvider` interface, needing NO key
+(`make_provider` gets a keyless branch).
 
-**Tiến trình.** Một `codex -c features.realtime_conversation=true app-server` sống lâu cho cả máy
-chủ (cờ bắt buộc với Codex trước 0.159, vô hại từ 0.159; Docker đang ghim 0.153.4). Tìm binary bằng
-`claude_cli.find_codex_cli()`. Khuôn JSON-RPC theo `codex_models.list_models` (`initialize` với
-`capabilities.experimentalApi = true`, từ chối mọi yêu cầu duyệt quyền server gửi về). Mỗi cuộc
-gọi, và mỗi lần nối lại sau khi ngắt vì im lặng, mở một thread MỚI: dùng lại thread cho lần
-`realtime/start` thứ hai thì ICE hỏng.
+**Process.** One long-lived `codex -c features.realtime_conversation=true app-server` for the whole
+server (the flag is required by Codex before 0.159 and harmless from 0.159; Docker pins 0.153.4). The
+binary is found with `claude_cli.find_codex_cli()`. The JSON-RPC pattern follows
+`codex_models.list_models` (`initialize` with `capabilities.experimentalApi = true`, rejecting every
+permission approval request the server sends back). Every call, and every reconnect after a
+silence drop, opens a NEW thread: reusing a thread for a second `realtime/start` breaks ICE.
 
-**Thread.** `thread/start {ephemeral: true, cwd: <thư mục tạm rỗng>, sandbox: "read-only",
+**Thread.** `thread/start {ephemeral: true, cwd: <empty temp folder>, sandbox: "read-only",
 approvalPolicy: "never", developerInstructions: "Reply only: [FINAL]"}`.
 
-**Phiên realtime.** `thread/realtime/start`:
-- `version: "v3"`, `outputModality: "audio"`, `transport: {type: "webrtc", sdp: <offer của trình duyệt>}`.
-- `voice`: `voice.chatgpt_voice`, mặc định `juniper`. Danh sách hợp lệ của v3: juniper, maple,
-  spruce, ember, vale, breeze, arbor, sol, cove (marin, alloy... bị từ chối).
-- `prompt`: nhân cách Jarvis 007 cho giọng nói (mục 3.3).
-- `includeStartupContext: false`. BẮT BUỘC: mặc định Codex nhét ~5.300 token quét máy và thư mục
-  làm việc vào prompt.
+**Realtime session.** `thread/realtime/start`:
+- `version: "v3"`, `outputModality: "audio"`, `transport: {type: "webrtc", sdp: <the browser's offer>}`.
+- `voice`: `voice.chatgpt_voice`, default `juniper`. Valid list for v3: juniper, maple,
+  spruce, ember, vale, breeze, arbor, sol, cove (marin, alloy... are rejected).
+- `prompt`: the Jarvis 007 persona for voice (section 3.3).
+- `includeStartupContext: false`. REQUIRED: by default Codex stuffs about 5,300 tokens of machine and
+  working-directory scanning into the prompt.
 - `clientManagedHandoffs: true`, `delegationAckFiller: true`, `flushTranscriptTailOnSessionEnd: false`.
 - `realtimeStartInstructions: "Do no work. Reply only: [FINAL]"`.
-- `initialItems`: mục lục bộ nhớ (`memory/MEMORY.md`) và ~12 lượt chat gần nhất của phiên, trong
-  trần 128 mục và 8.192 token.
+- `initialItems`: the memory index (`memory/MEMORY.md`) and about 12 most recent chat turns of the
+  session, within a ceiling of 128 items and 8,192 tokens.
 
-Âm thanh đi THẲNG trình duyệt tới OpenAI. Máy chủ Jarvis 007 chỉ chuyển gói bắt tay SDP, nên chạy được
-cả khi Jarvis 007 nằm trên VPS. Jarvis 007 không bao giờ đọc token: app-server tự lo đăng nhập.
+Audio goes DIRECTLY from the browser to OpenAI. The Jarvis 007 server only relays the SDP handshake
+packet, so it also works when Jarvis 007 sits on a VPS. Jarvis 007 never reads the token: the app-server
+handles login itself.
 
-**Handoff về bộ não Jarvis 007.**
-1. Sự kiện tới là `thread/realtime/itemAdded` với `item.type == "handoff_request"`, kèm
-   `input_transcript`. Không có method riêng (khung `GPTLive` cũ đoán sai tên).
-2. Yêu cầu quá ngắn (dưới 3 tiếng) thì ghép với lời người dùng vừa nói trong ~10 giây trước.
-3. Phát `tool_call ask_javis` như các Live khác: `_voice_ask_javis` chạy nền, kèm khối ngữ cảnh
-   giao diện, bằng bộ não chính người dùng đã chọn.
-4. Codex luôn TỰ mở một lượt agent cho mỗi handoff (`turn/started`): gọi `turn/interrupt` ngay.
-   `developerInstructions` ở trên là lưới đỡ khi interrupt thua cuộc đua.
-5. Có kết quả: bản ĐẦY ĐỦ hiện thành bong bóng chat (bảng, link, file). Bản NÓI được rút từ đó
-   (lột markdown, giữ số liệu, trần ~600 ký tự) rồi gửi `thread/realtime/appendSpeech`, qua HÀNG CHỜ
-   (0.65.23): đẩy giữa lúc model đang nói thì nó trộn hai nội dung vào cùng một lượt (đo trên Codex
-   0.153.4 và 0.158, chủ dự án nghe như hai giọng chồng nhau), nên chỉ đẩy khi model im 0,4 giây, vừa
-   đẩy mà model chưa mở lời thì chờ tới 8 giây, 4 giây không có chữ mới coi như đã im, trần 90 giây.
-   `send_tool_result` trả về ngay, route không đứng chờ. Lượt model
-   nói ngay sau đó là lời ĐỌC LẠI bản đã hiện: route không gửi chữ của nó lên trình duyệt và không
-   ghi vào lịch sử (0.65.21), nếu không người dùng thấy cùng một nội dung hai lần. Người dùng nói
-   hay gõ tiếp, hoặc chen ngang, thì xoá cờ đó để lời đáp mới vẫn hiện.
-6. **Lời nói thêm trong lúc chờ** (0.65.21, lỗi chủ dự án báo 01/10): Codex coi handoff tới khi việc
-   trước còn chạy là lời CHỈNH HƯỚNG việc đó, nên câu kiểu "Ok, xong thì báo anh nhé" thành một
-   handoff nữa. Route lọc các lần giao việc theo phiên gọi: câu chỉ gồm từ xác nhận
-   (`voice_live.is_followup_ack`) hay chỉ lặp lại yêu cầu đang chạy (`is_same_request`) thì đóng
-   bằng `send_tool_ack` (ChatGPT Live: không nói gì; Live qua API: trả một câu ghi nhận cho đúng lời
-   gọi tool) và không chạy bộ não; câu có ý mới chạy với `parallel_request` (kèm việc đang chạy, báo
-   rõ chúng CHƯA xong), bộ não trả `JAVIS_NOOP` khi chẳng có gì mới thì không bong bóng, không đọc.
-   Prompt cũng dặn model đừng giao việc lại khi người dùng chỉ xác nhận. (0.65.21 xếp hàng câu có ý
-   mới SAU việc đang chạy; 0.71.2 bỏ khoá đó, xem mục 7.)
-7. **Hỏi giữa chừng không im re** (0.71.2, chủ dự án báo 03/10): khoá xếp hàng của 0.65.21 làm MỌI
-   câu giao việc chờ cả việc dài xong. Việc chạy mấy phút thì "xong chưa", "có nghe không" đều im, rồi
-   khi việc xong các câu chờ chạy lần lượt và câu trả lời cũ bị đọc dồn (câu hỏi 17:45 trả lời 17:56).
-   Nay route giữ sổ `jobs` (việc nào, bắt đầu lúc nào, bước hiện tại từ `progress` của
-   `_voice_ask_javis`) và:
-   - câu HỎI TIẾN ĐỘ (`is_progress_question`, cố ý hẹp) khi đang có việc: trả lời NGAY bằng
-     `status_line` qua `say_status`, không chạy bộ não. Hãng không có kênh nói thêm (Live qua API)
-     thì trả đúng câu đó bằng `send_tool_ack`. Không đánh dấu `readback`, vì model tự nói một câu đệm
-     ngay sau mỗi lần giao việc, đánh dấu sẽ nuốt nhầm câu đệm đó;
-   - việc mới thật chạy SONG SONG, mạch engine riêng (`key` dùng một lần, `_voice_ask_javis` dọn
-     phiên RAM của nó), kết quả về khi nào đọc khi đó, mỗi kết quả trả đúng handoff của nó;
-   - `_heartbeat`: việc chạy quá `STATUS_FIRST_S` (60 giây) thì mỗi `STATUS_EVERY_S` (90 giây) Jarvis 007 tự
-     nói một câu tiến độ, chỉ khi `is_quiet()` (không ai nói, hàng lời đọc trống). Câu này là
-     `readback` nên không thành bong bóng, không vào lịch sử;
-   - `ChatGPTLive.say_status` đi chung hàng với lời đọc kết quả (không chen giữa câu đang nói) và bị
-     BỎ khỏi hàng nếu kết quả thật về trước, nếu không "em vẫn đang làm" bị đọc sau "xong rồi".
-   Chưa chạy trên cuộc gọi ChatGPT Live thật: kiểm bằng route chạy với nhà cung cấp giả.
+**Handoff to the Jarvis 007 brain.**
+1. The event that arrives is `thread/realtime/itemAdded` with `item.type == "handoff_request"`, carrying
+   `input_transcript`. There is no dedicated method (the old `GPTLive` frame guessed the name wrong).
+2. A request that is too short (under 3 words) is merged with what the user just said in the previous ~10 seconds.
+3. Emit `tool_call ask_javis` like the other Live providers: `_voice_ask_javis` runs in the background,
+   carrying the interface-context block, using the main brain the user chose.
+4. Codex ALWAYS opens an agent turn on its own for every handoff (`turn/started`): call `turn/interrupt`
+   immediately. The `developerInstructions` above is a safety net for when the interrupt loses the race.
+5. When there is a result: the FULL version appears as a chat bubble (tables, links, files). The SPOKEN
+   version is derived from it (strip markdown, keep figures, ceiling about 600 characters) and sent with
+   `thread/realtime/appendSpeech`, through a QUEUE (0.65.23): pushing while the model is mid-speech makes it
+   mix two pieces of content into one turn (measured on Codex 0.153.4 and 0.158, the project owner
+   heard it as two overlapping voices), so it only pushes when the model has been silent for 0.4
+   seconds; right after a push, if the model has not started speaking, it waits up to 8 seconds; 4
+   seconds with no new text counts as silent; ceiling 90 seconds. `send_tool_result` returns
+   immediately, the route does not stand waiting. The model turn spoken right afterwards is a
+   READ-BACK of the version already shown: the route does not send its text to the browser and does not
+   write it to history (0.65.21), otherwise the user sees the same content twice. When the user speaks
+   or types again, or interrupts, that flag is cleared so the new reply still appears.
+6. **Extra speech while waiting** (0.65.21, bug reported by the project owner 10/01): Codex treats a
+   handoff that arrives while the earlier job is still running as a STEERING message for that job, so a
+   sentence like "Ok, tell me when it's done" ("Ok, xong thì báo anh nhé") turned into another handoff.
+   The route filters handoffs per call session: a sentence made only of acknowledgement words
+   (`voice_live.is_followup_ack`) or one that merely repeats the running request (`is_same_request`) is
+   closed with `send_tool_ack` (ChatGPT Live: says nothing; Live over API: returns an acknowledgement
+   sentence to match the tool call) and the brain is not run; a sentence with a new intent runs with
+   `parallel_request` (along with the running jobs, stating clearly that they are NOT done yet), and
+   when the brain returns `JAVIS_NOOP` because there is nothing new, there is no bubble and no speech.
+   The prompt also tells the model not to hand off again when the user is only acknowledging. (0.65.21
+   queued a sentence with a new intent AFTER the running job; 0.71.2 dropped that lock, see section 7.)
+7. **Asking mid-way is no longer met with silence** (0.71.2, reported by the project owner 10/03): the
+   0.65.21 queue lock made EVERY handoff sentence wait for the whole long job to finish. When a job ran
+   for minutes, "is it done yet" and "can you hear me" both met silence, and when the job finished the
+   waiting sentences ran one after another and the old answers were read out in a rush (the 17:45
+   question answered at 17:56). Now the route keeps a `jobs` ledger (which job, when it started, the
+   current step from the `progress` of `_voice_ask_javis`) and:
+   - a PROGRESS QUESTION (`is_progress_question`, deliberately narrow) while a job is running: answered
+     IMMEDIATELY with `status_line` through `say_status`, without running the brain. A vendor with no
+     extra speech channel (Live over API) gets exactly that sentence returned through `send_tool_ack`.
+     It is not marked `readback`, because the model itself says a filler sentence right after every
+     handoff, and marking it would wrongly swallow that filler;
+   - a genuinely new job runs IN PARALLEL, in its own engine thread (a single-use `key`,
+     `_voice_ask_javis` cleans up its in-RAM session), the result returns whenever it is ready and is read
+     out then, each result answering its own handoff;
+   - `_heartbeat`: a job running past `STATUS_FIRST_S` (60 seconds) gets Jarvis 007 speaking a progress
+     sentence by itself every `STATUS_EVERY_S` (90 seconds), only when `is_quiet()` (nobody is talking,
+     the read-aloud queue is empty). This sentence is a `readback`, so it does not become a bubble and
+     does not enter history;
+   - `ChatGPTLive.say_status` shares the queue with result read-outs (it does not cut into a sentence
+     being spoken) and is DROPPED from the queue if the real result arrives first, otherwise "I'm still
+     working on it" would be read after "done".
+   Not yet run on a real ChatGPT Live call: checked with the route running against a fake provider.
 
-**Sự kiện dịch sang khung Live chung.** `sdp` thành `webrtc_answer`; `started` thành `ready`;
-`transcript/delta|done` thành `transcript` (lời người dùng `done` là `final`); assistant `done`
-thành `turn_done`; `error`/`closed` thành `error` (nối lại một lần rồi mới báo người dùng). Chen
-ngang do chính model xử lý (VAD phía server): `interrupt` và `truncate_played` không làm gì.
+**Events translated into the shared Live frame.** `sdp` becomes `webrtc_answer`; `started` becomes `ready`;
+`transcript/delta|done` becomes `transcript` (the user's `done` is `final`); assistant `done`
+becomes `turn_done`; `error`/`closed` becomes `error` (reconnect once before telling the user). Interruption is
+handled by the model itself (server-side VAD): `interrupt` and `truncate_played` do nothing.
 
-### 3.3 Nhân cách giọng nói
+### 3.3 Voice persona
 
-Prompt riêng cho model nói chuyện, tiếng Việt, ngắn: nói như người qua điện thoại, 1 đến 2 câu;
-XƯNG HÔ theo cách người dùng đang xưng (bộ nhớ trong `initialItems` cho biết), không ép cố định;
-chuyện trò, giải thích kiến thức chung thì trả lời thẳng; MỌI câu cần dữ liệu thật hay hành động
-(số liệu, đơn, lịch, email, file, mở trang, gửi tin, ghi nhớ) thì nói một câu đệm rồi giao việc,
-không đoán; có kết quả thì đọc lại, không thêm số; bị chen ngang thì dừng và nghe.
+A dedicated prompt for the conversational model, in Vietnamese, short: talk like a person on the phone,
+1 to 2 sentences; FORM OF ADDRESS follows how the user addresses themselves (the memory in `initialItems`
+tells it), not forced to a fixed one; small talk and general-knowledge explanations are answered directly;
+EVERY sentence that needs real data or an action (figures, orders, calendar, email, files, opening a
+page, sending a message, remembering) gets one filler sentence and then a handoff, no guessing; when a result
+arrives it is read back with no added numbers; when interrupted it stops and listens.
 
-### 3.4 Khung `/ws/voice-live` và trình duyệt
+### 3.4 The `/ws/voice-live` frame and the browser
 
-`/ws/voice-live` giữ vai kênh điều khiển, thêm chế độ WebRTC:
-- `ready` mang `transport: "webrtc"` khi nhà cung cấp là `codex-plan`.
-- Trình duyệt gửi `{type: "webrtc_offer", sdp}`, nhận `{type: "webrtc_answer", sdp}`.
-- `transcript`, `tool`, `turn_done`, `error` giữ nguyên khuôn; thêm khung `handoff_result`
-  (bản đầy đủ) để vẽ bong bóng kết quả.
+`/ws/voice-live` stays the control channel, with a WebRTC mode added:
+- `ready` carries `transport: "webrtc"` when the provider is `codex-plan`.
+- The browser sends `{type: "webrtc_offer", sdp}` and receives `{type: "webrtc_answer", sdp}`.
+- `transcript`, `tool`, `turn_done`, `error` keep their shape; a `handoff_result` frame (the full
+  version) is added to draw the result bubble.
 
-`dashboard/voice-live.js` thêm nhánh WebRTC: `RTCPeerConnection` với transceiver audio
-`sendrecv` lấy track mic (`echoCancellation`, `noiseSuppression`), kênh dữ liệu `oai-events`
-(bắt buộc phải có trong offer), tiếng Jarvis 007 phát qua một phần tử `<audio>`; mức âm hai phía cho
-orb lấy từ analyser (track remote phải gắn vào một phần tử media thì mới chảy vào WebAudio). Bỏ
-qua đường PCM của các Live khác. Điện thoại chạy được vì WebRTC chỉ dùng MỘT đường mic.
+`dashboard/voice-live.js` gets a WebRTC branch: an `RTCPeerConnection` with an audio transceiver
+`sendrecv` taking the mic track (`echoCancellation`, `noiseSuppression`), the data channel `oai-events`
+(it must be present in the offer), Jarvis 007's voice played through an `<audio>` element; both sides'
+audio levels for the orb come from an analyser (the remote track must be attached to a media element
+before it flows into WebAudio). The PCM path of the other Live providers is skipped. Phones work because
+WebRTC uses only ONE mic path.
 
-### 3.5 Im lâu thì ngắt, nói là nối lại (0.65.22)
+### 3.5 Hang up on long silence, speak to reconnect (0.65.22)
 
-Im 30 giây (đếm từ lúc cả hai bên cùng im) thì `thread/realtime/stop`, đóng WebRTC, thanh gọi
-chuyển sang "Đang chờ, cứ nói là Jarvis 007 nghe". Bộ nghe miễn phí của trình duyệt (`liveWake` trong
-app.js) chờ CÂU NÓI THẬT (`attention.wakes`: có tên gọi, hoặc từ hai chữ trở lên); nghe được thì mở
-thread mới và gửi câu đó làm lời đầu (`appendText`). Từ 0.65.24 nối SỚM: chữ tạm đầu tiên đủ hai
-chữ là bắt tay WebRTC ngay mà chưa giữ mic (`deferMic`, bộ nghe còn giữ mic, điện thoại chỉ cho một
-bên), câu chốt xong mới `attachMic` và gửi câu; câu chốt chỉ là tiếng ậm ừ hay 12 giây không có câu
-thì đóng. Lúc chờ, câu trọn ý chốt sau 0,7 giây (câu dở dang giữ độ chờ dài). Đo trên server thử
-(Codex 0.153.4): từ câu chốt tới chữ đầu của Jarvis 007 3,29 giây xuống 1,35 giây. Lợi ích: đỡ hạn mức lúc im, và
-tránh lỗi phiên ngồi im lâu. Chữ đang nghe hiện thành nháp, `console.debug` ghi câu nghe được và
-quyết định.
+After 30 seconds of silence (counted from when both sides are silent) it runs `thread/realtime/stop`,
+closes WebRTC, and the call bar changes to "Waiting, just speak to continue" (`call.waiting_wake`). The browser's free listener (`liveWake` in
+app.js) waits for a REAL SENTENCE (`attention.wakes`: it has a call name, or is two words or more); once heard
+it opens a new thread and sends that sentence as the first words (`appendText`). From 0.65.24 it reconnects EARLY: the first interim text
+of two words starts the WebRTC handshake right away without holding the mic (`deferMic`, the listener
+still holds the mic, a phone allows only one holder), and only once the sentence is final does it `attachMic` and send the sentence; if the final
+sentence is only a filler sound, or 12 seconds pass with no sentence, it closes. While waiting, a complete
+sentence is finalised after 0.7 seconds (an unfinished sentence keeps the longer wait). Measured on the test server
+(Codex 0.153.4): from the final sentence to Jarvis 007's first text went from 3.29 seconds down to 1.35 seconds. Benefit: saves quota while
+silent, and avoids the bug of a session that sits silent for a long time. Text being heard shows as a draft, and `console.debug` logs the sentence heard and
+the decision.
 
-Bản 0.65.15 đến 0.65.21 bắt phải gọi "Jarvis 007" và có công tắc "Tập trung" (tắt thì giữ kết nối suốt).
-Chủ dự án bỏ cả hai ngày 01/10: trình duyệt hay chép tên thành "David" nên gọi tên không nối lại
-được (không dùng Groq cho việc này vì người dùng cơ bản không cài), và lúc còn nối thì Live vốn đã
-nghe mọi tiếng trong phòng nên bắt gọi tên không chặn được TV bao nhiêu. Đường Cơ bản không có kết
-nối nào để ngắt nên nghe suốt cuộc gọi (`attention.enabled` chỉ bật ở Live, `datCheDoGiong`).
+Versions 0.65.15 to 0.65.21 forced the user to say "Jarvis 007" and had a "Focus" switch (when off, the connection
+was kept throughout). The project owner dropped both on 10/01: the browser often transcribes the name as "David" so
+saying the name could not reconnect (Groq is not used for this because basic users do not install it), and while
+connected the Live path already listens to every sound in the room so requiring the name did not block the TV
+much. The Basic path has no connection to drop so it listens through the whole call (`attention.enabled` is only on in Live, `datCheDoGiong`).
 
-Máy không có bộ nhận giọng của trình duyệt (hay nó bị chặn): dự phòng đo âm lượng mic
-(`SpeechLevel`, nền chỉ học từ mẫu yên và có trần). Có người nói là nối lại, nhưng câu đó mất chữ.
+A machine with no browser speech recogniser (or where it is blocked): fall back to measuring mic volume
+(`SpeechLevel`, the floor learns only from quiet samples and has a ceiling). Someone speaking reconnects the call, but that sentence loses its words.
 
-**Nối lại hỏng giữa cuộc gọi (0.65.25).** Cuộc gọi đã nối ChatGPT Live ít nhất một lần
-(`_cuocGoiDaNoi`) thì nối lại hỏng KHÔNG chuyển sang đường Cơ bản: thử lại một lần sau 0,8 giây
-với đúng câu vừa nói, vẫn hỏng thì báo một dòng ("Chưa nối lại được ChatGPT Live. Cứ nói lại là
-Jarvis 007 thử tiếp.") và quay về chờ. Chủ dự án báo 02/10: nối lại hỏng rơi xuống đường Cơ bản đọc
-bằng giọng Edge nên nghe như Jarvis 007 tự đổi giọng nữ sang giọng nam giữa chừng, trong khi ý muốn là
-ChatGPT lo trọn cuộc gọi. Chỉ lần mở ĐẦU cuộc gọi hỏng mới chuyển đường Cơ bản như mục 3.1. Nối sớm
-không nằm trong cú bấm nào, nên `AudioContext.resume()` chỉ được chờ tối đa 1 giây (iPhone có thể
-treo nó mãi).
+**Reconnect failing mid-call (0.65.25).** A call that has connected ChatGPT Live at least once
+(`_cuocGoiDaNoi`) does NOT switch to the Basic path when a reconnect fails: it retries once after 0.8 seconds
+with the very sentence just spoken, and if that still fails it shows one line ("Chưa nối lại được ChatGPT Live. Cứ nói lại là
+Jarvis 007 thử tiếp.", meaning "Could not reconnect ChatGPT Live yet. Just speak again and Jarvis 007 will try again.") and goes back to waiting. The project owner reported on 10/02: a failed reconnect fell to the Basic path reading
+in the Edge voice so it sounded as if Jarvis 007 changed from a female to a male voice midway, whereas the intent was
+for ChatGPT to carry the whole call. Only a failed FIRST open of the call switches to the Basic path as in section 3.1. The early reconnect
+is not inside any tap, so `AudioContext.resume()` may only be awaited for at most 1 second (an iPhone can
+hang it forever).
 
-**Màn hình sáng.** Điện thoại khoá màn hình là trình duyệt cắt mic, cuộc gọi chết lặng (chủ dự án
-báo trên iPhone, app mở từ màn hình chính). Trong lúc gọi, `screen-awake.js` xin Screen Wake Lock
-ngay trong cú bấm mic, xin lại khi trang hiện lại, nhả khi cúp máy. Máy không hỗ trợ thì bỏ qua.
+**Screen awake.** When a phone locks its screen the browser cuts the mic and the call goes silent (the project owner
+reported it on an iPhone, app opened from the home screen). During a call, `screen-awake.js` requests a Screen Wake Lock
+right inside the mic tap, requests it again when the page becomes visible again, and releases it on hangup. A device that does not support it is skipped.
 
-### 3.6 Đường dự phòng `basic`
+### 3.6 The `basic` fallback path
 
-Cùng trải nghiệm gọi điện nhưng mỗi lúc chỉ một bên nói, cho máy không có Live: Web Speech làm nháp và điểm
-dừng câu, tai nghe lại (Groq) chốt chữ, Làn nhanh nếu có bộ não giọng (không thì bộ não chính),
-giọng Edge. Mic tự mở lại sau mỗi câu, ngắt lời bằng mẹo nhá tiếng (Phụ lục A2). Đây chính là
-chế độ rảnh tay hiện nay, chỉ đổi vỏ.
+The same calling experience but only one side speaks at a time, for machines with no Live: Web Speech does the draft and the
+sentence stop point, the headset-again (Groq) finalises the text, the Fast lane if there is a voice brain (otherwise the main brain),
+the Edge voice. The mic reopens itself after every sentence, interrupting works with the tone-flash trick (Appendix A2). This is exactly the
+current hands-free mode, only the shell changes.
 
-## 4. Trải nghiệm gọi điện
+## 4. The calling experience
 
-- **Nút mic** đổi thành **Cúp máy** khi đang gọi. Esc cũng cúp. Phím Space không còn làm gì.
-- **Thanh gọi** nằm ngay trên khung chat, ở mọi trang có khung chat (cả trang Trò chuyện):
-  chấm trạng thái + chữ ("Đang nghe", "Jarvis 007 đang nói", "Đang làm: <tên việc>", "Đang chờ, gọi
-  Jarvis 007 để nói tiếp", "Đang nối lại"), đồng hồ cuộc gọi, nút **Tắt mic** (`track.enabled =
-  false`, Jarvis 007 vẫn nói được) và nút **Cúp máy**.
-- **Bong bóng**: lời người dùng hiện dạng nháp trong lúc nói rồi chốt; lời Jarvis 007 chạy theo tiếng
-  đọc; kết quả handoff là một bong bóng đầy đủ. Tất cả vào lịch sử phiên như tin thường.
-- **Orb** (trang chủ) và linh vật vẫn theo trạng thái thật, vẽ qua `capNhatOrb()`.
-- **Lỗi**: không nối được đường đang dùng thì báo một dòng và tự chuyển xuống đường kế tiếp trong
-  mục 3.1, không bắt người dùng vào cài đặt. Riêng nối lại GIỮA cuộc gọi ChatGPT Live thì không
-  chuyển đường (mục 3.5).
-- Gõ chữ trong lúc gọi vẫn được: chữ gửi vào cuộc gọi (`appendText`).
+- **Mic button** turns into **Hang up** during a call. Esc also hangs up. The Space key does nothing any more.
+- **Call bar** sits right above the chat frame, on every page that has a chat frame (including the Chat page):
+  a status dot + text ("Listening", "Jarvis 007 is speaking", "Working: <job name>", "Waiting, speak to
+  continue", "Reconnecting"), a call timer, a **Mute** button (`track.enabled =
+  false`, Jarvis 007 can still speak) and a **Hang up** button.
+- **Bubbles**: the user's words appear as a draft while they speak and then settle; Jarvis 007's words run along with the
+  spoken voice; a handoff result is one full bubble. All of it enters session history like ordinary messages.
+- **Orb** (home page) and the mascot still follow the real state, drawn through `capNhatOrb()`.
+- **Errors**: if the path in use cannot connect, show one line and automatically move down to the next path in
+  section 3.1, without making the user go into settings. A reconnect MID-call of ChatGPT Live is the exception and does not
+  switch path (section 3.5).
+- Typing during a call still works: the text is sent into the call (`appendText`).
 
-## 5. Trang cài đặt Giọng nói
+## 5. The Voice settings page
 
 ```
-GIỌNG NÓI
-  Đang dùng: ChatGPT Live                            <- kèm lý do khi đang ở đường dự phòng
-  Giọng Jarvis 007   [ juniper                 v ] [▶]    <- danh sách đổi theo đường gọi
-  > Nâng cao
-      Đường gọi      [ Tự động v ]  (Tự động / ChatGPT Live / Live API key / Cơ bản)
-      Bộ não trả lời nhanh [ Tự động (đang là ...) v ]  (chỉ đường Cơ bản)
-      Model          [ Mặc định của hãng v ]  (model của bộ não đang dùng, 0.65.26)
-      Tốc độ đọc     [ 1,10x  v ]   (chỉ đường Cơ bản)
-      ElevenLabs     key + Voice ID (chỉ khi chọn giọng ElevenLabs)
+VOICE
+  Using: ChatGPT Live                                <- with the reason when on a fallback path
+  Jarvis 007's voice [ juniper                 v ] [▶]    <- list changes with the call path
+  > Advanced
+      Call path      [ Automatic v ]  (Automatic / ChatGPT Live / Live with an API key / Basic)
+      Quick-reply brain [ Automatic (now ...) v ]  (Basic path only)
+      Model          [ Provider default v ]  (model of the brain in use, 0.65.26)
+      Speaking rate  [ 1.10x  v ]   (Basic path only)
+      ElevenLabs     key + Voice ID (only when an ElevenLabs voice is chosen)
 ```
 
-- **Mọi ô tự lưu khi đổi**, không còn nút Lưu. Xếp một cột.
-- **Giọng Jarvis 007**: đường chatgpt hiện 9 giọng v3, "Nghe thử" phát mẫu thu sẵn
-  (`dashboard/voices/<giọng>.mp3`, vài chục KB mỗi giọng); đường api hiện giọng của nhà cung
-  cấp đó; đường basic hiện giọng Edge, giọng OpenAI khi đã có key ở trang Models, và giọng
-  ElevenLabs riêng (key và Voice ID ở Nâng cao). Ở đường basic, chọn giọng là chọn luôn nhà
-  cung cấp giọng đọc.
-- **Bỏ khỏi giao diện, máy tự lo**: đọc trả lời bằng giọng (trùng nút mic), nhịp hội thoại thử
-  nghiệm (gỡ hẳn ô nhập; code điều khiển ép tắt, chờ PR dọn riêng), từ hay nghe nhầm (tự lấy tên trợ lý và tên kết nối MCP), ô
-  API key OpenAI (ở trang Models), ngôn ngữ nghe (theo ngôn ngữ giao diện), im lặng rồi gửi (mặc
-  định 1,2 giây), ngắt lời bằng giọng (luôn bật), tai nghe lại (luôn tự chọn), khoá chết
-  `loc_tap_am`, khoá cũ `stt_provider`.
-- **Bộ não trả lời nhanh** (bỏ ở 0.65.19, trả lại ở 0.65.25 vì chủ dự án muốn tự chỉnh; từ 0.65.31 cả khối bộ não + Model chỉ HIỆN khi `call.engine` là basic, kể cả Tự động rơi xuống Cơ bản, vì để hiện cạnh ChatGPT Live thì đọc như bộ não đó đang trả lời): Tự động
-  (bộ não đầu tiên sẵn trên gói, ghi kèm tên đang dùng), Bộ não chính (lưu `mode = standard`), hoặc
-  một bộ não cụ thể (lưu `mode = fast` + `brain_provider`); bộ não chưa sẵn ghi "(chưa sẵn)". Chỉ
-  dùng ở đường Cơ bản: ChatGPT Live tự nghe và tự trả lời, việc cần dữ liệu đi bộ não chính.
-- **Model** (0.65.26): model của bộ não đang dùng (Tự động thì của bộ não máy đang chọn); ẩn khi
-  chọn Bộ não chính. Lưu theo TỪNG bộ não (`brain_models` = {bộ não: model}, gửi lên bằng
-  `brain_model_for` + `brain_model`), vì tên model chỉ có nghĩa với đúng hãng của nó. Khoá chung cũ
-  `brain_model` bị bỏ qua lúc chạy: đổi bộ não ở 0.65.25 mà khoá đó còn tên model ChatGPT thì
-  Antigravity nhận `--model gpt-6-luna` và từ chối. Danh sách tải riêng qua
-  `GET /voice/brain-models?provider=` (chỉ chạy `agy models` khi chọn Antigravity); bộ não API chưa
-  có danh sách nên chỉ có Mặc định. Model đã lưu mà danh sách không còn thì vẫn hiện, ghi "(không
-  còn trong danh sách)". Câu báo trong khung chat khi lỗi tên model chỉ tới ô này, không bảo vào
-  trang Models.
-- **Giữ dữ liệu cũ**: giá trị người dùng đã lưu ở các ô bị bỏ vẫn được đọc và dùng tiếp (ví dụ từ
-  đã khai ở hotwords vẫn vào từ mồi); chỉ ô nhập biến mất. Khoá mới không đè khoá cũ.
-- Cập nhật allowlist `POST /settings` (nhánh `voice`) và `test_luu_cai_dat_giong.py` cùng lúc.
-- **Bộ não giọng tự chọn** (`voice_brain.auto_brain`): Làn nhanh mà khoá `brain_provider` rỗng thì
-  dùng bộ não đầu tiên sẵn trên gói theo thứ tự antigravity, codex, claude, grok (dò binary và
-  token đã lưu, không hỏi mạng, nhớ 60 giây). Không có cái nào thì tin từ mic đi bộ não chính.
-  Khoá cũ `mode = live` tính như Làn nhanh vì Live nay là đường gọi riêng.
-- Thẻ đọc `GET /voice/options?brains=0`: bỏ danh sách bộ não nên không chạy `agy models` (có khi
-  tới 30 giây); trả thêm `call` (đường gọi), `tts` (giọng đọc đường basic), `voice_brain`, và
-  từ 0.65.25 `brain_choices` (`voice_brain.brain_available`: gói soi binary và token, API soi key
-  đã lưu) cùng `brain_auto`.
+- **Every field saves itself on change**, there is no Save button any more. Laid out in one column.
+- **Jarvis 007's voice**: the chatgpt path shows the 9 v3 voices, "Preview" plays a pre-recorded sample
+  (`dashboard/voices/<voice>.mp3`, a few tens of KB per voice); the api path shows that provider's
+  voices; the basic path shows Edge voices, OpenAI voices once a key exists on the Models page, and the
+  separate ElevenLabs voice (key and Voice ID under Advanced). On the basic path, choosing a voice also chooses the
+  speech provider.
+- **Removed from the UI, the machine handles it**: reading replies aloud with voice (duplicates the mic button), the
+  experimental conversation pacing (the input field is removed entirely; the control code is forced off, awaiting a separate cleanup PR), words that are often misheard (it takes the assistant's name and the MCP connection names on its own), the
+  OpenAI API key field (it is on the Models page), listening language (follows the interface language), silence before sending (default
+  1.2 seconds), interrupting by voice (always on), headset-again (always auto-selected), the dead key
+  `loc_tap_am`, the old key `stt_provider`.
+- **Quick-reply brain** (removed in 0.65.19, brought back in 0.65.25 because the project owner wanted to adjust it; since 0.65.31 the whole brain + Model block is only SHOWN when `call.engine` is basic, including when Automatic falls to Basic, because showing it next to ChatGPT Live reads as if that brain were answering): Automatic
+  (the first brain available on the plan, with the name in use noted), Main brain (saves `mode = standard`), or
+  a specific brain (saves `mode = fast` + `brain_provider`); a brain not ready is written "(not ready)". Used
+  only on the Basic path: ChatGPT Live listens and answers by itself, and work needing data goes to the main brain.
+- **Model** (0.65.26): the model of the brain in use (on Automatic, that of the brain the machine picked); hidden when
+  Main brain is chosen. Saved PER brain (`brain_models` = {brain: model}, sent up with
+  `brain_model_for` + `brain_model`), because a model name only means something to its own vendor. The old shared key
+  `brain_model` is ignored at run time: when the brain was changed in 0.65.25 while that key still held a ChatGPT model name,
+  Antigravity received `--model gpt-6-luna` and rejected it. The list loads separately through
+  `GET /voice/brain-models?provider=` (it runs `agy models` only when Antigravity is chosen); API brains have no
+  list yet so they only have Default. A saved model that is no longer in the list still shows, marked "(no longer listed)". The message in the chat frame for a model-name error points only to this field, and does not say to go to
+  the Models page.
+- **Keep old data**: values the user already saved in the removed fields are still read and still used (for example, words
+  already declared in hotwords still go into the priming words); only the input field disappears. A new key never overwrites the old key.
+- The `POST /settings` allowlist (the `voice` branch) and `test_luu_cai_dat_giong.py` are updated together.
+- **Self-chosen voice brain** (`voice_brain.auto_brain`): in the Fast lane, when the `brain_provider` key is empty
+  it uses the first brain available on the plan in the order antigravity, codex, claude, grok (probing the binary and
+  the saved token, no network question, remembered for 60 seconds). If none exists, messages from the mic go to the main brain.
+  The old key `mode = live` counts as the Fast lane because Live is now its own call path.
+- The read endpoint `GET /voice/options?brains=0`: drops the brain list so it does not run `agy models` (sometimes
+  up to 30 seconds); it also returns `call` (the call path), `tts` (the basic-path voice), `voice_brain`, and
+  from 0.65.25 `brain_choices` (`voice_brain.brain_available`: plans check the binary and token, APIs check the saved
+  key) along with `brain_auto`.
 
-## 6. Thứ tự làm (mỗi bước một PR, đặt số phiên bản trước theo `docs/quy-uoc-dev.md`)
+## 6. Order of work (one PR per step, reserve the version number first per `docs/quy-uoc-dev.md`)
 
-1. **ChatGPT Live**: nhà cung cấp `codex-plan`, khung WebRTC trên `/ws/voice-live`, nhánh
-   WebRTC trong `voice-live.js`, handoff về bộ não Jarvis 007 + bong bóng kết quả, ngắt khi im 20 giây,
-   giọng juniper, mẫu thu sẵn 9 giọng. Chọn được trong ô nhà cung cấp Live hiện có.
-2. **Trải nghiệm gọi điện cho mọi đường**: thanh gọi, nút Cúp máy, Tắt mic, bỏ Space, chọn đường
-   gọi tự động (mục 3.1), đường basic dùng vỏ mới.
-3. **Gọn trang cài đặt** như mục 5, gỡ nhịp thích nghi khỏi giao diện.
+1. **ChatGPT Live**: the `codex-plan` provider, the WebRTC frame on `/ws/voice-live`, the WebRTC
+   branch in `voice-live.js`, handoff to the Jarvis 007 brain + result bubble, drop after 20 seconds of silence,
+   the juniper voice, pre-recorded samples for 9 voices. Selectable in the existing Live provider field.
+2. **Calling experience for every path**: call bar, Hang up button, Mute, remove Space, automatic call
+   path choice (section 3.1), the basic path using the new shell.
+3. **Tidy the settings page** as in section 5, remove adaptive pacing from the UI.
 
-## 7. Kiểm thử
+## 7. Testing
 
-- **Python** (app-server giả qua `popen_factory`): khuôn `thread/start` và `realtime/start` (có
-  `includeStartupContext: false`, cờ feature, giọng mặc định juniper); handoff thành `tool_call`
-  với yêu cầu ghép khi quá ngắn; `turn/started` bị interrupt; kết quả đi `appendSpeech` đã rút gọn
-  và bong bóng đầy đủ; từ chối yêu cầu duyệt quyền; nối lại một lần khi `closed`; chọn đường gọi.
-- **JS** (node): nhánh WebRTC tạo offer có `oai-events`, đặt answer, không phát PCM; thanh gọi
-  theo trạng thái; Esc cúp, Space không làm gì; im 30 giây thì ngắt và câu nói thật nối lại (`liveWake`); trang
-  cài đặt tự lưu và không còn các ô đã bỏ.
-- **Thử thật**: máy tính và điện thoại (Android Chrome, iPhone Safari): chuyện trò, hỏi số liệu
-  (handoff), mở trang, chen ngang, im quá 30 giây rồi nói tiếp, cuộc gọi 15 phút.
-- **Bộ đo**: `tools/stt_bench` cho phần nghe; bộ thử trong scratchpad của phiên 01/10
-  (`spike_live.py`) là mẫu cho một runner Live sau này.
+- **Python** (a fake app-server through `popen_factory`): the shape of `thread/start` and `realtime/start` (with
+  `includeStartupContext: false`, the feature flag, default voice juniper); handoff becoming `tool_call`
+  with a merged request when too short; `turn/started` being interrupted; the result going out as shortened `appendSpeech`
+  and a full bubble; refusing permission approval requests; one reconnect on `closed`; call path selection.
+- **JS** (node): the WebRTC branch creates an offer with `oai-events`, sets the answer, plays no PCM; the call bar
+  follows state; Esc hangs up, Space does nothing; 30 seconds of silence drops it and a real sentence reconnects (`liveWake`); the settings
+  page saves itself and no longer has the removed fields.
+- **Real trial**: computer and phone (Android Chrome, iPhone Safari): small talk, asking for figures
+  (handoff), opening a page, interrupting, silence past 30 seconds then speaking again, a 15-minute call.
+- **Benchmark harness**: `tools/stt_bench` for the listening part; the test set in the scratchpad of the 10/01 session
+  (`spike_live.py`) is the template for a later Live runner.
 
-## 8. Rủi ro
+## 8. Risks
 
-- **API realtime của Codex là bản thử nghiệm**: dò khả năng khi mở cuộc gọi, hỏng thì tự xuống
-  đường kế tiếp và báo lý do. Bám bản Codex mới (0.159 đã ổn định cờ realtime).
-- **Hạn mức gói ChatGPT**: cả cuộc gọi lẫn mỗi lượt Codex bị interrupt đều tính vào hạn mức. Chủ
-  dự án chấp nhận. Ngắt khi im 30 giây giảm đáng kể.
-- **Điều khoản dùng gói**: OpenAI chưa nói rõ giới hạn cho cách dùng này. Một người ngồi gọi thì
-  gần với dùng cá nhân thường; nhiều người dùng chung một gói qua cùng một Jarvis 007 thì nằm ngoài
-  cách dùng cá nhân, giống lưu ý trong CLAUDE.md về gói Claude và gói xAI. Đừng hứa suông.
-- **Giọng và tính cách lớp ngoài là của OpenAI**: bộ não người dùng chọn chỉ làm phần việc phía
-  sau. Ai muốn giọng khác thì ép đường gọi sang Cơ bản.
-- **Riêng tư**: âm thanh đi tới OpenAI suốt lúc nghe. Ngắt khi im lặng và tắt mic giới hạn
-  phần này; `includeStartupContext` luôn tắt để không lộ thông tin máy.
+- **The Codex realtime API is experimental**: capability is probed when a call opens, and if it fails it drops to the
+  next path by itself and states the reason. Track new Codex versions (0.159 stabilised the realtime flag).
+- **ChatGPT plan quota**: both the call and every interrupted Codex turn count toward the quota. The project
+  owner accepts this. Dropping on 30 seconds of silence reduces it significantly.
+- **Plan terms of use**: OpenAI has not spelled out the limits for this use. One person sitting and calling is
+  close to ordinary personal use; several people sharing one plan through the same Jarvis 007 falls outside
+  personal use, like the note in CLAUDE.md about the Claude plan and the xAI plan. Do not offer empty reassurance.
+- **The voice and personality of the outer layer belong to OpenAI**: the brain the user chooses only does the work
+  behind it. Anyone who wants a different voice forces the call path to Basic.
+- **Privacy**: audio goes to OpenAI the whole time it is listening. Dropping on silence and muting the mic limit
+  this; `includeStartupContext` is always off so machine information is not exposed.
 
-## Phụ lục A. Các lớp giọng nói đang chạy
+## Appendix A. The voice layers that are running
 
-Rút từ các spec cũ (Voice V1, V2, tai nghe lại, nhịp thích nghi, tập trung, kiểm toán 24/09), chỉ
-giữ phần đã đối chiếu đúng với code ngày 01/10/2026. Code trỏ về các mục dưới đây.
+Distilled from the older specs (Voice V1, V2, headset-again, adaptive pacing, focus, the 09/24 audit), keeping only
+what was checked against the code on 10/01/2026. Code points back to the entries below.
 
-### A1. Đạo diễn lượt nói (voice-turn.js) và trạng thái orb
-- Module thuần, không đụng DOM hay audio. voice.js và app.js gửi sự kiện vào, nhận về một MẢNG hành động (`commit`, `hold`, `stop_tts`, `stop_turn`, `pause_tts`, `resume_tts`, `listen`, `speak_filler`, `flush_deferred`) rồi tự thực hiện.
-- Trạng thái suy ra từ cờ theo một danh sách ưu tiên (`_recompute`): reconnecting, error, interrupted, user_speaking, waiting_for_user, speaking, processing, listening, idle. Thêm trạng thái thì thêm vào danh sách này, không viết tay từng cặp chuyển.
-- Chờ hết lượt theo hai ngưỡng, một đồng hồ duy nhất, có lời mới thì đặt lại. Câu kết bằng liên từ, giới từ, dấu phẩy, tiếng ậm ừ ("ừm", "ờ", "kiểu") hoặc chỉ gọi "Jarvis 007" thì chờ `maxDelay` 2200 ms; còn lại chờ `minDelay` 1200 ms (`javis.endpoint`). Không bao giờ chốt lượt rỗng. Không có "à" trong danh sách vì "vậy à" là câu đã xong. Không dùng mô hình dò hết lượt vì LiveKit không hỗ trợ tiếng Việt.
-- Cụm CHỜ/DỪNG phải khớp trọn câu sau khi bỏ "Jarvis 007 ơi" và tiểu từ đuôi; bản nói lắp vẫn nhận nếu mọi từ thuộc bộ từ vựng; câu có từ lạ ("khoan, mở Chrome") là tin thường. CHỜ thì không gửi và giữ tối đa 90 giây. DỪNG thì chỉ dừng đọc (0.65.28): lượt đang chạy viết nốt câu trả lời vào khung chat, phần còn lại không đọc.
-- **Trong cuộc gọi không có gì tự dừng lượt** (0.65.28, chủ dự án chốt 02/10 sau khi thấy "Đã dừng lượt này" liên tục ở đường Cơ bản): lượt chỉ dừng khi cúp máy hoặc bấm Dừng. Câu nói lúc Jarvis 007 đang trả lời xếp hàng (`xepCauChoLuot`, nhiều câu thì ghép), hiện thành nháp, và chỉ gửi khi lượt cũ xong VÀ loa đọc xong (`guiCauChoLuot`, gọi từ `turn_done`, `onSpeakEnd` và nhịp canh loa). Cắt lời hay nói "thôi" thì `stop_tts` đánh dấu lượt đang chạy `imLoa`: không đọc thêm, chữ hiện đủ thay vì theo lời. Ngoài cuộc gọi (mic một lần) vẫn dừng lượt cũ rồi gửi như trước.
-- Câu tiến độ: đang xử lý quá 2,5 giây (đang gọi tool thì 1,2 giây) mà chưa có chữ thật nào ra loa thì nói đúng một lần mỗi lượt.
-- Tin nền (frame `push`) chỉ đọc khi ở `idle`/`listening`, trạng thái khác thì hoãn; chữ vẫn hiện ngay.
-- Orb chỉ hiện trạng thái thật lấy từ đạo diễn (`ORB_LABEL` trong app.js), chỉ vẽ qua `capNhatOrb()`. Hậu tố MẠNG CHẬM chỉ hiện khi khúc TTS mất hơn 2500 ms mới phát.
+### A1. Turn director (voice-turn.js) and orb state
+- A pure module, touching no DOM or audio. voice.js and app.js send events in and get back an ARRAY of actions (`commit`, `hold`, `stop_tts`, `stop_turn`, `pause_tts`, `resume_tts`, `listen`, `speak_filler`, `flush_deferred`) which they carry out themselves.
+- State is derived from flags by a priority list (`_recompute`): reconnecting, error, interrupted, user_speaking, waiting_for_user, speaking, processing, listening, idle. To add a state, add it to this list, do not hand-write each transition pair.
+- End-of-turn waiting uses two thresholds, a single clock, reset when new words arrive. A sentence ending in a conjunction, preposition, comma, filler sound ("ừm", "ờ", "kiểu", Vietnamese hesitation words roughly like "um", "uh", "like") or only calling "Jarvis 007" waits `maxDelay` 2200 ms; otherwise it waits `minDelay` 1200 ms (`javis.endpoint`). It never commits an empty turn. "à" is not in the list because "vậy à" ("is that so") is a finished sentence. No end-of-turn detection model is used because LiveKit does not support Vietnamese.
+- The WAIT/STOP phrases must match the whole sentence after removing "Jarvis 007 ơi" (a Vietnamese vocative, "hey Jarvis 007") and trailing particles; a stuttered version is still accepted if every word belongs to the vocabulary; a sentence with an unknown word ("khoan, mở Chrome", meaning "hold on, open Chrome") is a normal message. WAIT does not send and holds for at most 90 seconds. STOP only stops reading aloud (0.65.28): the running turn finishes writing its answer into the chat frame, and the rest is not read.
+- **During a call nothing stops a turn on its own** (0.65.28, settled by the project owner 10/02 after seeing "Đã dừng lượt này" ("This turn was stopped") over and over on the Basic path): a turn stops only on hangup or the Stop button. A sentence spoken while Jarvis 007 is answering is queued (`xepCauChoLuot`, several sentences are merged), shown as a draft, and sent only when the old turn is done AND the speaker has finished reading (`guiCauChoLuot`, called from `turn_done`, `onSpeakEnd` and the speaker watchdog tick). Cutting in or saying "thôi" ("enough") makes `stop_tts` mark the running turn `imLoa` (speaker silenced): no more reading aloud, the text shows in full instead of following the speech. Outside a call (one-shot mic) it still stops the old turn and then sends, as before.
+- Progress sentence: if processing exceeds 2.5 seconds (1.2 seconds while calling a tool) with no real text yet out of the speaker, it speaks exactly once per turn.
+- Background news (the `push` frame) is read only in `idle`/`listening`, deferred in other states; the text still shows immediately.
+- The orb only shows the real state taken from the director (`ORB_LABEL` in app.js), drawn only through `capNhatOrb()`. The SLOW NETWORK suffix only appears when a TTS chunk takes more than 2500 ms to play.
 
-### A2. Tai và miệng ở trình duyệt (voice.js, voice-chunker.js)
-- Web Speech thu mic bằng luồng riêng, không được khử vọng, nên phải ngừng nhận dạng khi TTS phát, không thì nó chép giọng Jarvis 007 thành lời người dùng. Cũng vì thế cố ý không làm tiếng đệm "ừ, à".
-- Ngắt lời bằng NHÁ TIẾNG: 2 nhịp 100 ms vượt ngưỡng chỉ là nghi ngờ; hạ loa còn 12% trong 4 nhịp rồi đo lại, tiếng vọng tụt theo âm lượng còn giọng người thì không (còn trên 45%). Là người thì `bargeConfirmed` dừng hẳn lời đọc (không chờ chữ); lượt đang chạy KHÔNG bị dừng (0.65.28, xem A1). Mức vọng của phòng tự học, lưu `javis.nenVong`, chặn trên 0.3.
-- Điện thoại chỉ cho MỘT đường thu mic: mobile không ghi âm song song và không có tai nghe lại ở đường Web Speech. WebRTC (mục 3.4) dùng đúng một đường nên chạy được.
-- Chrome Android giao final là cả câu và còn sửa câu giữa các mảnh: ghép bằng `ghepManh`, không `+=`. iOS ép `continuous=false` và hay không chốt final (ghép `_duoiTam`). Mỗi lượt tối đa 30 giây.
-- Chữ đã hiện lúc chốt là bất biến: final đến muộn, STT phụ hay AI đều không được sửa âm thầm. Stop trước khi có kết quả nào thì nhận final đầu tiên.
-- TTS Edge stream byte ngay; khúc đầu lấy trước khi trả response để lỗi thành 502 thật. Khúc lỗi thì thử lại cùng giọng một lần rồi báo, không đổi nhà cung cấp, không chuyển sang giọng của thiết bị. Epoch chặn callback audio cũ. Emma Multilingual là giọng Edge mặc định.
-- voice-chunker.js cho mọi làn: cụm đầu cắt sớm (6 từ có phẩy hoặc liên từ, hoặc đủ 12 từ), cụm sau cắt ở hết câu hoặc quá 220 ký tự; im 400 ms thì chỉ đẩy cụm khi loa đang im. Không đọc từng mẩu stream vì mỗi cụm là một yêu cầu TTS. Bỏ khối mã, dừng ở `<!--`. Không có "so"/"or" trong danh sách liên từ.
+### A2. Ears and mouth in the browser (voice.js, voice-chunker.js)
+- Web Speech captures the mic on its own stream, with no echo cancellation, so recognition must stop while TTS plays, otherwise it transcribes Jarvis 007's voice as the user's words. For the same reason a "ừ, à" (Vietnamese "uh-huh" / "ah") filler sound is deliberately not made.
+- Interrupting works by a TONE FLASH: 2 beats of 100 ms above the threshold is only a suspicion; lower the speaker to 12% for 4 beats and measure again, echo drops with the volume while a human voice does not (still above 45%). If it is a person, `bargeConfirmed` stops the reading outright (without waiting for text); the running turn is NOT stopped (0.65.28, see A1). The room's echo level is self-learned, saved as `javis.nenVong`, capped at 0.3.
+- A phone allows only ONE mic capture path: mobile does not record in parallel and has no headset-again on the Web Speech path. WebRTC (section 3.4) uses exactly one path so it works.
+- Chrome Android delivers the final as the whole sentence and still revises the sentence between fragments: merge with `ghepManh`, not `+=`. iOS forces `continuous=false` and often fails to finalise (merge `_duoiTam`). Each turn is at most 30 seconds.
+- Text already shown at commit time is immutable: a late final, the secondary STT or AI must not silently edit it. Stopping before any result arrives accepts the first final.
+- Edge TTS streams bytes immediately; the first chunk is fetched before the response is returned so an error becomes a real 502. A failed chunk is retried once with the same voice and then reported, without changing provider and without switching to the device's voice. An epoch blocks stale audio callbacks. Emma Multilingual is the default Edge voice.
+- voice-chunker.js for every lane: the first chunk is cut early (6 words with a comma or conjunction, or a full 12 words), later chunks are cut at the end of a sentence or past 220 characters; after 400 ms of silence it only pushes a chunk when the speaker is quiet. It does not read each streamed fragment because each chunk is one TTS request. Code blocks are dropped, stopping at `<!--`. "so"/"or" are not in the conjunction list.
 
-### A3. Làn nhanh: bộ não giọng (voice_brain.py)
-- Tin mang `voice: true` (kể cả chữ gõ lúc rảnh tay) đi bộ não giọng. Mọi bộ não chỉ cần hợp đồng `stream(text, history)`, tự đóng sau 5 phút không nói.
-- Bốn marker không bao giờ ra loa: `JAVIS_NGHE`, `JAVIS_ASK_MAIN`, `JAVIS_UI`, `JAVIS_BO_QUA` (cái cuối chỉ còn là di sản: prompt cấm dùng, không còn xoá lời).
-- Thiếu `JAVIS_NGHE`, hoặc câu diễn giải bị `safe_transcript_rewrite` từ chối (ngưỡng âm 0,6, tối đa 4 tiếng một cụm, không đụng số, phủ định hay lệnh), thì bộ não chính nhận nguyên văn kèm `GHI_CHU_CAU_NGHE`. Việc rơi này IM LẶNG (chỉ một dòng trạng thái thoáng qua), nên khối ngữ cảnh đứng trước lời nói phải được tách đủ: `nghe_sua.split_ui_context` nhận cả khối FILE ĐANG MỞ lẫn NGỮ CẢNH GIAO DIỆN (0.65.29). Trước đó đang mở file thì mọi lượt nói lặng lẽ sang bộ não chính dù đã chọn bộ não trả lời nhanh.
-- `JAVIS_ASK_MAIN`: lượt giọng kết thúc ngay, việc chạy nền dưới khoá `voice:<sid>:<id>`. Task phải được giữ tham chiếu (`_nho_viec_nen_giong`) kẻo bộ gom rác nuốt. Chặn việc trùng (độ giống từ 0,8), tối đa 3 việc song song. "Dừng việc nền" là luật cứng trong code, không thành việc mới.
-- `JAVIS_UI` không đánh thức bộ não chính (lượt đó có lúc mang hơn 200 nghìn token ngữ cảnh).
-- `MODES`, `BRAIN_PROVIDERS`, `STT_PROVIDERS` là nguồn duy nhất cho cả trang Cài đặt lẫn nhánh lưu `POST /settings`.
-- Lớp sửa tên tất định `nghe_sua.sua` ("David" thành "Jarvis 007") chạy trước khi lưu; gỡ nó thì Jarvis 007 đáp "anh nói là David".
+### A3. The Fast lane: the voice brain (voice_brain.py)
+- Messages carrying `voice: true` (including text typed while hands-free) go to the voice brain. Every brain only needs the contract `stream(text, history)`, and closes itself after 5 minutes of silence.
+- Four markers never reach the speaker: `JAVIS_NGHE`, `JAVIS_ASK_MAIN`, `JAVIS_UI`, `JAVIS_BO_QUA` (the last is only a legacy: the prompt forbids using it, and it no longer deletes speech).
+- With no `JAVIS_NGHE`, or when the paraphrase is rejected by `safe_transcript_rewrite` (phonetic threshold 0.6, at most 4 words per phrase, not touching numbers, negations or commands), the main brain receives the verbatim text with `GHI_CHU_CAU_NGHE`. This fall-through is SILENT (only a fleeting status line), so the context block standing before the speech must be split out completely: `nghe_sua.split_ui_context` accepts both the FILE ĐANG MỞ block and the NGỮ CẢNH GIAO DIỆN block (0.65.29). Before that, with a file open, every spoken turn silently went to the main brain even though a quick-reply brain was chosen.
+- `JAVIS_ASK_MAIN`: the voice turn ends immediately, the job runs in the background under the lock `voice:<sid>:<id>`. The task must hold a reference (`_nho_viec_nen_giong`) or the garbage collector swallows it. Duplicate jobs are blocked (word similarity 0.8), at most 3 in parallel. "Stop the background job" is a hard rule in code and does not become a new job.
+- `JAVIS_UI` does not wake the main brain (that turn sometimes carries over 200 thousand tokens of context).
+- `MODES`, `BRAIN_PROVIDERS`, `STT_PROVIDERS` are the single source for both the Settings page and the `POST /settings` save branch.
+- The deterministic name-fix layer `nghe_sua.sua` ("David" becomes "Jarvis 007") runs before saving; remove it and Jarvis 007 answers "anh nói là David" (Vietnamese for "you said David", in an older-brother register).
 
-### A4. Tai nghe lại (voice_ear.py, stt.py, nghe_sua.py)
-- `voice.ear` = auto | groq | off, CỐ Ý không có mặc định trong config.py; khoá cũ `stt_provider: "groq"` vẫn tính là chọn tay.
-- `transcribe_upload`: Groq Whisper, `loc_ao_giac`, `nghe_sua.sua`, rồi `khop_ban_nhap` (chống bịa: lệch bản nháp thì giữ bản nháp). Tên kết nối MCP chỉ làm mồi cho Whisper, không vào lớp sửa mờ.
-- Chỉ tải lên khi bản ghi phủ hết cả lượt; không lấy độ dài làm bằng chứng bản nào đúng. Lượt đầu sau khi tải trang chờ luồng mic rồi mới mở nhận dạng.
-- `loc_ao_giac` cắt câu outro YouTube do Whisper bịa, xét theo từng câu; thà sót một câu bịa còn hơn nuốt lời thật. Gặp mẫu bịa mới thì thêm mẫu VÀ thêm một câu thật gần giống vào test.
-- Số đo và các đường đã loại: mục 1 và mục 2. Codex realtime: mục 3.2.
+### A4. Headset-again (voice_ear.py, stt.py, nghe_sua.py)
+- `voice.ear` = auto | groq | off, DELIBERATELY with no default in config.py; the old key `stt_provider: "groq"` still counts as a manual choice.
+- `transcribe_upload`: Groq Whisper, `loc_ao_giac`, `nghe_sua.sua`, then `khop_ban_nhap` (anti-fabrication: if it deviates from the draft, keep the draft). MCP connection names only prime Whisper, they do not enter the fuzzy fix layer.
+- Upload only when the recording covers the entire turn; length is not taken as evidence of which version is right. The first turn after page load waits for the mic stream before opening recognition.
+- `loc_ao_giac` cuts the YouTube outro sentences that Whisper invents, judged per sentence; better to miss one invented sentence than swallow real words. On meeting a new invented pattern, add the pattern AND add a real sentence close to it to the test.
+- Measurements and the paths rejected: sections 1 and 2. Codex realtime: section 3.2.
 
-### A5. Live qua API key (voice_live.py, voice-live.js)
-- Trình duyệt gửi PCM16 16 kHz, nhận 24 kHz. Nhà cung cấp mới chỉ cần một lớp con `LiveProvider`.
-- `ask_javis` chạy nền. Gemini 3.1 Flash Live (mặc định) chưa có tool bất đồng bộ nên model im chờ; OpenAI Realtime phải xếp `response.create` chờ tới `response.done`.
-- Ngắt lời: trình duyệt gửi `played` (số ms thực đã phát) để server cắt ngữ cảnh đúng chỗ đã nghe. Gemini phải chờ `setupComplete` trước khi gửi PCM; transcript người dùng tách khỏi `turnComplete` của model.
-- `generation` sở hữu socket và callback của từng phiên. GPT-Live chưa chạy thật lần nào, và đoán sai tên khung delegation (mục 3.2).
+### A5. Live over an API key (voice_live.py, voice-live.js)
+- The browser sends PCM16 at 16 kHz and receives 24 kHz. A new provider only needs one `LiveProvider` subclass.
+- `ask_javis` runs in the background. Gemini 3.1 Flash Live (default) has no asynchronous tool yet so the model waits silently; OpenAI Realtime must queue `response.create` until `response.done`.
+- Interruption: the browser sends `played` (the real ms played) so the server cuts the context at exactly where it was heard. Gemini must wait for `setupComplete` before sending PCM; the user transcript is separate from the model's `turnComplete`.
+- `generation` owns the socket and callbacks of each session. GPT-Live has never run for real, and guessed the delegation frame name wrong (section 3.2).
 
-### A6. Điều khiển giao diện bằng giọng (ui_bridge.py, plugin javis-ui, desktop-apps)
-- Điều khiển đi bằng TOOL, không bằng khối chữ trong câu trả lời: server lột mọi `JAVIS_*`, không có đường báo kết quả về, và Telegram sẽ thấy rác.
-- `ui_bridge.request` gửi `ui_action` tới các tab và chờ `ui_result`; không có tab thì báo lỗi ngay, quá 4 giây thì hết giờ. Dashboard kiểm lại target trước khi chạy.
-- Trang mới phải thêm ở BA nơi: `RAIL_ITEMS` (console.js), `PAGES` (ui-actions.js), `PAGES` cùng bí danh không dấu trong `server/ui_targets.py`. Nhóm thanh bên dùng khoá `id` vì nhãn đổi theo ngôn ngữ.
-- desktop-apps: mở và đóng làm ngay không hỏi lại (chủ dự án chọn). Đóng mặc định là đóng lịch sự để app tự hỏi lưu; `force` chỉ khi người dùng nói ép tắt. Tự chặn khi chạy trong Docker hay Linux không màn hình.
-- Khối `[NGỮ CẢNH GIAO DIỆN: ...]` bị lột khỏi bong bóng và tiêu đề; `kênh=giọng` yêu cầu trả lời 2 đến 4 câu. Đường tắt `JAVIS_UI` chỉ có `open_page`, `open_group`, `sidebar`, `scroll`; `open_file` và `open_task` chỉ có ở tool `javis_ui`.
+### A6. Controlling the UI by voice (ui_bridge.py, plugin javis-ui, desktop-apps)
+- Control goes through a TOOL, not a text block in the answer: the server strips every `JAVIS_*`, there is no path to report a result back, and Telegram would see garbage.
+- `ui_bridge.request` sends `ui_action` to the tabs and waits for `ui_result`; with no tab it reports an error immediately, and after 4 seconds it times out. The dashboard re-checks the target before running.
+- A new page must be added in THREE places: `RAIL_ITEMS` (console.js), `PAGES` (ui-actions.js), `PAGES` with the diacritic-free aliases in `server/ui_targets.py`. Sidebar groups use the key `id` because labels change by language.
+- desktop-apps: opening and closing happen right away with no confirmation (the project owner's choice). Closing is by default a polite close so the app asks to save itself; `force` only when the user says to force quit. It blocks itself when running in Docker or on headless Linux.
+- The `[NGỮ CẢNH GIAO DIỆN: ...]` (interface context) block is stripped from bubbles and titles; `kênh=giọng` (channel=voice) asks for an answer of 2 to 4 sentences. The `JAVIS_UI` shortcut only has `open_page`, `open_group`, `sidebar`, `scroll`; `open_file` and `open_task` exist only in the `javis_ui` tool.
 
-### A7. Cửa chú ý khi im lâu (voice-attention.js)
-- Đây là cửa chú ý, KHÔNG phải nhận diện người nói. Từ 0.65.22 chỉ bật ở đường Live: im 30 giây (`IDLE_MS`) thì ngắt nhà cung cấp, câu nói thật đầu tiên (`wakes`) là nối lại. Đường Cơ bản nghe suốt cuộc gọi.
-- Công tắc `focus_mode` đã gỡ khỏi trang Cài đặt; khoá cũ server vẫn nhận nhưng app.js không đọc. Không xoá lời đã nhận dựa trên việc đoán tạp âm từ chữ.
-- Câu mở đầu gần giống tên gọi ("David ơi") không mở cửa, chỉ được đưa cho tai nghe lại.
-- Live khi đang chờ: đóng kết nối, gửi câu gọi đúng một lần sau `ready`, nạp lại tối đa 12 tin hoặc 8.000 ký tự.
-- Giới hạn đã biết: TV nói "Jarvis 007" vẫn đánh thức được.
+### A7. Attention gate on long silence (voice-attention.js)
+- This is an attention gate, NOT speaker recognition. From 0.65.22 it is only on in the Live path: 30 seconds of silence (`IDLE_MS`) drops the provider, and the first real sentence (`wakes`) reconnects it. The Basic path listens through the whole call.
+- The `focus_mode` switch has been removed from the Settings page; the server still accepts the old key but app.js does not read it. Words already received are not deleted based on guessing noise from the text.
+- An opening sentence close to the call name ("David ơi", "hey David") does not open the gate, it is only handed to headset-again.
+- Live while waiting: close the connection, send the calling sentence exactly once after `ready`, reload at most 12 messages or 8,000 characters.
+- Known limit: a TV saying "Jarvis 007" can still wake it.
 
-### A8. Nhịp hội thoại thích nghi (đã gỡ khỏi giao diện ở 0.65.19, code còn chờ dọn)
-- Từng bật qua `javis.adaptive` (off | observe | natural). Từ 0.65.19 `voice-adaptive-ui.js` ép `off`, bỏ qua giá trị đã lưu, và không còn ô nào trên trang; code điều khiển (`voice-adaptive.js`, nhánh `adaptive` trong `app.js`) chờ một PR gỡ hẳn.
-- Biên nhận SQLite (`voice_turn_protocol.py`) bảo đảm gửi lại không làm chạy lại hành động. `ack_only` (ghi nhận mà không trả lời) rất hẹp: chưa chắc thì trả lời bình thường.
-- Khi gỡ giao diện phải giữ hai bảo đảm: chữ đã chốt là bất biến, và epoch chặn callback cũ.
+### A8. Adaptive conversation pacing (removed from the UI in 0.65.19, code still awaiting cleanup)
+- It was once switched on through `javis.adaptive` (off | observe | natural). From 0.65.19 `voice-adaptive-ui.js` forces `off`, ignores the saved value, and no field remains on the page; the control code (`voice-adaptive.js`, the `adaptive` branch in `app.js`) awaits a PR to remove it entirely.
+- The SQLite receipt (`voice_turn_protocol.py`) guarantees that a resend does not rerun an action. `ack_only` (acknowledging without answering) is very narrow: when unsure, answer normally.
+- When removing the UI, keep two guarantees: committed text is immutable, and the epoch blocks old callbacks.
 
-## Phụ lục B. Luật đang có test canh
+## Appendix B. Rules guarded by tests
 
-- `test_voice_turn.js`: máy trạng thái, chờ hai ngưỡng, CHỜ/DỪNG, chen ngang, hoãn tin nền.
-- `test_orb_trang_thai_that.js`, `test_ngat_loi_nha_tieng.js`: orb chỉ đi qua đạo diễn; hằng số nhá tiếng, `bargeMinTicks = 2`.
-- `test_mic_dien_thoai_mot_duong_thu.js`: một đường thu mic trên điện thoại. `test_mic_doc_chong_va_loa_theo_mic.js`: không cộng dồn mảnh trên Android. `test_mic_khong_tu_gui.js`: mic không tự gửi tiếng động.
-- `test_voice_capture_lifecycle.js`, `test_voice_app_session.js`: bản ghi phủ hết lượt, thứ tự STT, final muộn, đổi chat.
-- `test_voice_chunker.js`, `test_voice_v3_mot_luong.js`, `test_voice_v2_day_noi.js`: cắt cụm và dây nối.
-- `test_ui_actions.js`: ba danh sách trang và hai danh sách nhóm phải khớp. `test_ui_bridge.py`, `test_desktop_apps_plugin.py`, `test_channel_ui_prompt.py`, `test_ui_context.js`: điều khiển giao diện và khối ngữ cảnh.
-- `test_tts_stream.py`: Edge stream, lỗi ngay thành 502. `test_voice_privacy.py`: query `/tts` không vào log.
-- `test_luu_cai_dat_giong.py`: lưu rồi đọc lại cài đặt giọng (bẫy: phải dùng `base_url=http://127.0.0.1:7777`, không thì 403).
-- `test_stt_ao_giac.py`, `test_stt_route.py`, `test_voice_ear_select.py`, `test_voice_ear_upload.js`: tai nghe lại.
-- `test_voice_brain.py`, `test_voice_transcript_integrity.py`, `test_voice_turn_integrity.py`, `test_voice_ten_javis.py`, `test_nghe_sua.py`, `test_voice_tap_am.py`: marker, rào `JAVIS_NGHE`, sửa tên Jarvis 007.
-- `test_viec_nen_giong_khong_chet_lang.py`, `test_viec_nen_giong_dung_khung_chat.py`: việc nền giữ tham chiếu, báo về đúng khung chat.
-- `test_voice_attention.js`, `test_voice_focus_app.js`, `test_voice_live_focus.py`: tập trung.
+- `test_voice_turn.js`: the state machine, two-threshold waiting, WAIT/STOP, interruption, deferring background news.
+- `test_orb_trang_thai_that.js`, `test_ngat_loi_nha_tieng.js`: the orb only goes through the director; tone-flash constants, `bargeMinTicks = 2`.
+- `test_mic_dien_thoai_mot_duong_thu.js`: one mic capture path on phones. `test_mic_doc_chong_va_loa_theo_mic.js`: no accumulating fragments on Android. `test_mic_khong_tu_gui.js`: the mic does not send noise by itself.
+- `test_voice_capture_lifecycle.js`, `test_voice_app_session.js`: the recording covers the turn, STT order, late final, changing chat.
+- `test_voice_chunker.js`, `test_voice_v3_mot_luong.js`, `test_voice_v2_day_noi.js`: chunk cutting and the wiring.
+- `test_ui_actions.js`: the three page lists and two group lists must match. `test_ui_bridge.py`, `test_desktop_apps_plugin.py`, `test_channel_ui_prompt.py`, `test_ui_context.js`: UI control and the context block.
+- `test_tts_stream.py`: Edge streaming, an immediate error becomes 502. `test_voice_privacy.py`: the `/tts` query does not enter the log.
+- `test_luu_cai_dat_giong.py`: save then re-read the voice settings (trap: it must use `base_url=http://127.0.0.1:7777`, otherwise 403).
+- `test_stt_ao_giac.py`, `test_stt_route.py`, `test_voice_ear_select.py`, `test_voice_ear_upload.js`: headset-again.
+- `test_voice_brain.py`, `test_voice_transcript_integrity.py`, `test_voice_turn_integrity.py`, `test_voice_ten_javis.py`, `test_nghe_sua.py`, `test_voice_tap_am.py`: markers, the `JAVIS_NGHE` guard, fixing the Jarvis 007 name.
+- `test_viec_nen_giong_khong_chet_lang.py`, `test_viec_nen_giong_dung_khung_chat.py`: background jobs hold their reference, report back to the right chat frame.
+- `test_voice_attention.js`, `test_voice_focus_app.js`, `test_voice_live_focus.py`: focus.
 - `test_voice_live.py`, `test_voice_live_transcription.py`, `test_voice_live_language.py`, `test_voice_live_lifecycle.js`: Live.
-- `test_voice_adaptive*.js`, `test_voice_turn_protocol.py`, `test_voice_protocol_ws.py`: nhịp thích nghi và biên nhận.
-- `test_route_table.py`: thêm hay đổi route thì chụp lại bảng (`--update`) trong cùng commit.
+- `test_voice_adaptive*.js`, `test_voice_turn_protocol.py`, `test_voice_protocol_ws.py`: adaptive pacing and the receipt.
+- `test_route_table.py`: adding or changing a route means re-snapshotting the table (`--update`) in the same commit.

@@ -1,82 +1,82 @@
-# Gói pilot nhóm chat thích nghi trên model thật (T1-T4)
+# Adaptive team chat pilot package on a real model (T1-T4)
 
-Trạng thái: **đã chạy một lần 2026-10-16** trên 0.170.0, chủ duyệt trần 30 (thấp hơn mức 60 đề xuất ở mục 3). Báo cáo gốc và
-bằng chứng nằm ngoài repo: `exports/reviews/team-adaptive/pilot-2026-10-16/PILOT-REPORT.md`. Không ai chạy lại gói này, thử lại, nâng trần hay đổi sang API trả phí khi chưa có lệnh duyệt trực tiếp
-của chủ dự án (GOAL mục 13). Engine giả đã chứng minh phần kỹ thuật (ma trận: [team-chat-acceptance-matrix.md](team-chat-acceptance-matrix.md));
-engine giả KHÔNG chứng minh chất lượng thảo luận, phán xử hay học trên model thật. Gói này là để chứng minh phần đó.
+Status: **run once on 2026-10-16** on 0.170.0, with the owner approving a ceiling of 30 (lower than the 60 proposed in section 3). The original report and
+evidence are outside the repo: `exports/reviews/team-adaptive/pilot-2026-10-16/PILOT-REPORT.md`. Nobody reruns this package, retries, raises the ceiling or switches to a paid API without a direct approval order
+from the project owner (GOAL section 13). The fake engine proved the technical part (matrix: [team-chat-acceptance-matrix.md](team-chat-acceptance-matrix.md));
+the fake engine does NOT prove discussion quality, judging or learning on a real model. This package exists to prove that part.
 
-## 1. Điều kiện trước khi xin duyệt
+## 1. Preconditions before asking for approval
 
-- Head đã chốt: SHA của nhánh tích hợp T1-T4 có CI xanh trên đúng head đó; ghi SHA vào báo cáo. Phần L của T3 (bài học, góp ý
-  đồng đội, tự rà soát) đã ghép ở nhánh T3 (cuối `054975b3`, review xác minh đạt).
-- Checkout sạch (`git status` rỗng), `.venv` của repo, state MỚI trong thư mục tạm (không dùng state thật của chủ), brain pilot
-  riêng gồm 4 trợ lý có vai khác nhau: điều phối (Lan), số liệu (Minh), nội dung (Hoa), kiểm chứng (Tuấn).
-- Server sandbox trên cổng 7788 (không bao giờ 7777), `JAVIS_STATE_DIR` trỏ state tạm. Tắt bằng cổng
-  (`Get-NetTCPConnection -LocalPort 7788 | Stop-Process`), không theo dòng lệnh.
-- Engine và provider do chủ chọn trên trang Models của sandbox (Jarvis 007 không tự chọn model). Ghi lại: engine nhóm (model riêng
-  của từng trợ lý hay model chính), engine việc nền (lô phán xử, lượt quét). Không API trả phí nếu chủ không nói rõ.
-- `JAVIS_PULSE_TICK_PAUSED=0` chỉ khi kịch bản P4 chạy; các kịch bản khác để nhịp nền dừng (`=1`) và gọi tick bằng tay để đếm
-  được lượt.
-- **Nhịp nền dừng khi MỘT TRONG HAI cờ bằng 1:** `JAVIS_PULSE_TICK_PAUSED` hay `JAVIS_RESONANCE_TICK_PAUSED` (`_pulse_tick` trong
-  `server/main.py`). Kịch bản cần nhịp (P4, lượt chủ động của P5, lượt xem xét phản hồi của P6) phải đặt CẢ HAI bằng 0. Pilot
-  2026-10-16 phần 2 chỉ đặt cờ thứ nhất nên 4 tick không chạy lượt nào, lý do `reaction_review` nằm chờ.
+- Fixed head: the SHA of the T1-T4 integration branch with green CI on exactly that head; record the SHA in the report. Part L of T3 (lessons, teammate
+  feedback, self-review) is merged on the T3 branch (last `054975b3`, verification review passed).
+- Clean checkout (`git status` empty), the repo's `.venv`, a NEW state in a temp directory (do not use the owner's real state), and a dedicated pilot
+  brain with 4 assistants in different roles: coordinator (Lan), data (Minh), content (Hoa), verifier (Tuan).
+- Sandbox server on port 7788 (never 7777), `JAVIS_STATE_DIR` pointing at the temp state. Stop it by port
+  (`Get-NetTCPConnection -LocalPort 7788 | Stop-Process`), not by command line.
+- Engine and provider are chosen by the owner on the sandbox's Models page (Jarvis 007 does not pick a model itself). Record: the team engine (each
+  assistant's own model or the main model), the background-work engine (judging batch, scan turns). No paid API unless the owner says so explicitly.
+- `JAVIS_PULSE_TICK_PAUSED=0` only when scenario P4 runs; for the other scenarios keep the background rhythm paused (`=1`) and call tick by hand so that
+  turns can be counted.
+- **The background rhythm is paused when EITHER flag equals 1:** `JAVIS_PULSE_TICK_PAUSED` or `JAVIS_RESONANCE_TICK_PAUSED` (`_pulse_tick` in
+  `server/main.py`). Scenarios that need the rhythm (P4, the proactive turn of P5, the feedback review turn of P6) must set BOTH to 0. In the
+  2026-10-16 pilot, part 2 set only the first flag, so 4 ticks ran no turn at all, which is why `reaction_review` sat waiting.
 
-## 2. Cổng duyệt của chủ
+## 2. The owner's approval gate
 
-Gửi chủ đúng một tin gồm: SHA, danh sách kịch bản (mục 4), trần lượt (mục 3), engine/provider, thời gian dự kiến, cách dừng.
-Chỉ bắt đầu khi chủ trả lời duyệt rõ ràng trong chat. Ghi nguyên văn câu duyệt và thời điểm vào hồ sơ. Mỗi lần chạy lại (kể cả
-sau lỗi kỹ thuật) là một lần xin duyệt mới.
+Send the owner exactly one message containing: the SHA, the scenario list (section 4), the turn ceiling (section 3), engine/provider, the estimated time, and how to stop.
+Start only when the owner replies with a clear approval in chat. Record the approval sentence verbatim and its time in the record. Every rerun (even
+after a technical failure) is a new approval request.
 
-## 3. Trần lượt (`JAVIS_RESONANCE_CALL_CEILING`)
+## 3. Turn ceiling (`JAVIS_RESONANCE_CALL_CEILING`)
 
-Trần chung tính trọn đời trên state (thiết kế 9.1): mọi lượt nhóm, lô phán xử, lượt quét, xem xét, tự rà soát. State mới nên
-bắt đầu từ 0. Đề xuất **`JAVIS_RESONANCE_CALL_CEILING=60`**:
+The shared ceiling is lifetime on the state (design 9.1): every team turn, judging batch, scan turn, review and self-review. A new state should
+start from 0. Proposed **`JAVIS_RESONANCE_CALL_CEILING=60`**:
 
-| Kịch bản | Lượt dự kiến | Gồm |
+| Scenario | Expected turns | Includes |
 |---|---|---|
-| P1 gọi trực tiếp và tự lên tiếng | 10 | 3 tin x (1 lượt trả lời + 1 lô phán xử) + tối đa 4 lượt tự lên tiếng |
-| P2 phân công, phản hồi, sửa bản | 14 | kế hoạch, 2 bước làm, 1 kiểm chứng, 1 tổng hợp, sửa yêu cầu một lần rồi làm lại |
-| P3 sáu reaction và dạy phán xử | 6 | 2 lượt trả lời để có tin, 2 lô phán xử sau nhãn, 2 dự phòng |
-| P4 nhịp và lần thức | 8 | tối đa 4 lượt quét qua 4 tick, 4 dự phòng |
-| P5 chat riêng | 6 | 2 câu hỏi trực tiếp (ngoài trần: chủ tự gõ) + 2 lượt chủ động có phán xử + 2 dự phòng |
-| P6 học trong đội (cần L) | 8 | 2 lượt xem xét phản hồi, 1 tự rà soát, lượt kế tiếp để thấy thay đổi |
-| P7 ghi nhận đóng góp | 4 | 1 tổng hợp có 2 đầu vào, phản hồi kết quả cuối |
-| Dự phòng 20% nghĩa vụ | (tự động) | lượt tự phát chỉ dùng tới floor(60 x 0.8) = 48 |
+| P1 direct call and speaking up unprompted | 10 | 3 messages x (1 reply turn + 1 judging batch) + up to 4 speak-up turns |
+| P2 assignment, feedback, revising a version | 14 | plan, 2 work steps, 1 verification, 1 synthesis, one request revision and then redo |
+| P3 six reactions and teaching the judge | 6 | 2 reply turns to get messages, 2 judging batches after the labels, 2 spare |
+| P4 rhythm and wake-up | 8 | up to 4 scan turns over 4 ticks, 4 spare |
+| P5 private chat | 6 | 2 direct questions (outside the ceiling: the owner types them) + 2 proactive turns with judging + 2 spare |
+| P6 learning in the team (needs L) | 8 | 2 feedback review turns, 1 self-review, the next turn to see the change |
+| P7 contribution credit | 4 | 1 synthesis with 2 inputs, feedback on the final result |
+| 20% reserve for obligations | (automatic) | spontaneous turns are used only up to floor(60 x 0.8) = 48 |
 
-Thêm: `daily_turns` của nhóm pilot 40, `judge_daily` 20, `agent_daily_calls` 6 mặc định. Hạn giờ mỗi lượt nhóm giữ mặc định
+Also: the pilot team's `daily_turns` is 40, `judge_daily` 20, and `agent_daily_calls` stays at the default 6. The per-team-turn time limit stays at the default
 (`JAVIS_TEAM_TURN_TIMEOUT=600`).
 
-## 4. Kịch bản và ca của ma trận
+## 4. Scenarios and matrix cases
 
-| Mã | Làm gì | Ca chứng minh | Chỉ có test giả trước pilot |
+| Code | What it does | Cases proved | Only fake-engine tests before the pilot |
 |---|---|---|---|
-| P1 | Chủ @Minh hỏi số liệu; rồi một câu hỏi chung không @; rồi một câu tán gẫu | 2, 19, 10 | đúng |
-| P2 | Giao việc "kế hoạch nhập hàng tháng 11" cho nhóm; Tuấn kiểm chứng; chủ sửa yêu cầu sau kết quả | 3, 12, 11 | đúng |
-| P3 | Thả sáu emoji ở nhóm và chat riêng, đổi, bỏ; sửa một ca im thành "Đáng lẽ nên nói", một ca nói thành "chen ngang" | 4, 21, 9 | đúng |
-| P4 | Bật Auto cho Minh, Hoa; để nhịp chạy 4 tick; một nhóm có việc, một nhóm im | 6, 7, 23, 24 | đúng (đồng hồ giả) |
-| P5 | Chat riêng với Hoa: hỏi trực tiếp; để Hoa có lượt chủ động | 20 | đúng |
-| P6 | Phản hồi có lý do chất lượng cho Hoa; chờ lượt xem xét; lượt kế tiếp đổi cách làm | 5, 17, 25, 26 | đúng (L đã ghép ở nhánh T3 `054975b3`) |
-| P7 | Thả ❤️ trên bản tổng hợp của P2 | 8, 28 | đúng |
+| P1 | Owner @Minh asks for numbers; then a general question without @; then a chit-chat message | 2, 19, 10 | yes |
+| P2 | Assign the team the job "November restocking plan"; Tuan verifies; the owner revises the request after the result | 3, 12, 11 | yes |
+| P3 | Drop six emoji in the group and in private chat, change them, remove them; fix one silent case to "Should have spoken", and one spoken case to "interrupted" | 4, 21, 9 | yes |
+| P4 | Turn on Auto for Minh and Hoa; let the rhythm run 4 ticks; one group has work, one is silent | 6, 7, 23, 24 | yes (fake clock) |
+| P5 | Private chat with Hoa: a direct question; let Hoa take a proactive turn | 20 | yes |
+| P6 | Feedback with a quality reason for Hoa; wait for the review turn; the next turn changes the way of working | 5, 17, 25, 26 | yes (L merged on the T3 branch `054975b3`) |
+| P7 | Drop a heart on the P2 synthesis | 8, 28 | yes |
 
-## 5. Điều kiện dừng (dừng ngay, không thử lại)
+## 5. Stop conditions (stop immediately, no retry)
 
-- Chạm trần chung (lượt bị chặn `server_ceiling`), hay vượt tổng dự kiến của một kịch bản quá 50%.
-- Một lượt gọi công cụ, đọc ghi file, hay gửi ra kênh ngoài (Zalo, Telegram) trong nhóm: lỗi an toàn.
-- Vòng gọi lặp (cùng cặp trợ lý gọi nhau quá 2 tầng), hay một lý do chạy hai lượt.
-- Lỗi đăng nhập hay hết hạn mức của nhà cung cấp: dừng, ghi là lỗi kỹ thuật, không đổi provider.
-- Bất kỳ dấu hiệu dữ liệu của state thật bị đụng.
+- The shared ceiling is hit (turn blocked with `server_ceiling`), or one scenario exceeds its expected total by more than 50%.
+- Any tool call, file read/write, or send to an outside channel (Zalo, Telegram) inside the team: a safety failure.
+- A looping call chain (the same pair of assistants calling each other more than 2 levels deep), or one reason running two turns.
+- A login error or provider quota exhaustion: stop, record it as a technical failure, do not switch provider.
+- Any sign that the real state's data was touched.
 
-## 6. Bằng chứng cần giữ (không sửa sau khi chạy)
+## 6. Evidence to keep (not edited after the run)
 
-- SHA, lệnh, biến môi trường (che khoá), câu duyệt của chủ, giờ bắt đầu và kết thúc.
-- Bản sao state sau pilot (`team.sqlite3`, `conversations.db`, `resonance.sqlite3`, `agent_judge.sqlite3`, `kanban.sqlite3`)
-  bằng SQLite backup API, kèm `agent_calls` xuất CSV (mục đích, trạng thái, obligation, mốc engine).
-- Ảnh chụp trang Nhóm (desktop, màn hẹp, hai ngôn ngữ), khung nhịp và lịch sử phán xử của từng trợ lý.
-- Log server sandbox.
-- Kết luận tách năm loại: kỹ thuật đạt, nội dung chờ chủ duyệt, nghiệp vụ chưa hoàn tất, dừng ở cổng, lỗi kỹ thuật. Báo cáo
-  gốc giữ nguyên; hậu kiểm viết file riêng, không sửa bằng chứng gốc.
+- SHA, commands, environment variables (keys masked), the owner's approval sentence, start and end times.
+- A copy of the state after the pilot (`team.sqlite3`, `conversations.db`, `resonance.sqlite3`, `agent_judge.sqlite3`, `kanban.sqlite3`)
+  made with the SQLite backup API, plus `agent_calls` exported as CSV (purpose, status, obligation, engine milestones).
+- Screenshots of the Teams page (desktop, narrow screen, two languages), the rhythm panel and each assistant's judging history.
+- The sandbox server log.
+- The conclusion split into five kinds: technical pass, content awaiting the owner's approval, business not finished, stopped at the gate, technical failure. The original report
+  stays as it is; the post-check is written to a separate file and the original evidence is not edited.
 
-## 7. Quay về sau pilot
+## 7. Returning to normal after the pilot
 
-State pilot là thư mục tạm riêng: xoá sandbox, không cần công cụ khôi phục. Nếu pilot chạy trên một state có sẵn (chỉ khi chủ
-yêu cầu), dùng chuỗi khôi phục ở [team-chat-t4-ops.md](team-chat-t4-ops.md) mục 4 trên bản sao lấy trước pilot.
+The pilot state is its own temp directory: delete the sandbox, no restore tool needed. If the pilot ran on an existing state (only when the owner
+asks), use the restore sequence in [team-chat-t4-ops.md](team-chat-t4-ops.md) section 4 on a copy taken before the pilot.

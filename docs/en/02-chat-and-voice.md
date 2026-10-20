@@ -439,7 +439,7 @@ If none is available, spoken turns go to the main brain. Questions that need dat
 
 ### Listening ear: Vietnamese mixed with English
 
-On the Basic path the browser only hears one language, so a sentence like "Mở dashboard Facebook ads" often comes out as "Mở double Facebook add". The **listening ear** is a multilingual model that listens to the audio of what you just said again before settling the text in the bubble. The browser's interim text still shows instantly while you talk.
+On the Basic path the browser only hears one language, so a Vietnamese sentence like "Mở dashboard Facebook ads" (open the Facebook ads dashboard) often comes out as "Mở double Facebook add". The **listening ear** is a multilingual model that listens to the audio of what you just said again before settling the text in the bubble. The browser's interim text still shows instantly while you talk.
 
 - Jarvis 007 always picks the ear itself: **Groq Whisper** when a Groq key is on the **Models** page, otherwise the browser's text as before.
 - Measured on 20 Vietnamese-English mixed commands: the browser got 41% of words wrong, the Groq ear 14%. Each sentence takes about 1 second longer.

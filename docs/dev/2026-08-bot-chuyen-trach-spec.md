@@ -1,123 +1,128 @@
-# Đề xuất: Bot chuyên trách - biến Agent thành chatbot trả lời khách
+# Proposal: Dedicated bots - turning an Agent into a chatbot that answers customers
 
-Chủ repo nêu ngày 2026-08-04, thay cho ý "Cho Agent gắn chatbot AI" còn để mở trong
-`2026-08-backlog-spec.md` mục 2. Ý đã rõ hẳn, và nó không trùng cách hiểu nào trong ba cách
-em đoán lúc đó.
+The repo owner raised this on 2026-08-04, replacing the "Let an Agent attach an AI chatbot" idea
+left open in `2026-08-backlog-spec.md` section 2. The intent is now fully clear, and it does not
+match any of the three interpretations I guessed at the time.
 
-Trạng thái: **đã làm xong cả bốn giai đoạn**. Giai đoạn 1 ra ở 0.19.0; giai đoạn 2, 3, 4 ra ở
-0.20.0 (kèm một lỗ của 0.19.0 phải vá, ghi ở mục 7). Hướng dẫn người dùng: `docs/25-chatbot.md`.
+Status: **all four phases are done**. Phase 1 shipped in 0.19.0; phases 2, 3 and 4 shipped in
+0.20.0 (along with one hole in 0.19.0 that had to be patched, recorded in section 7). User guide:
+`docs/25-chatbot.md`.
 
-## 0. Đã chốt (2026-08-04)
+## 0. Settled (2026-08-04)
 
-Chủ repo chốt ba điều, và cả ba đều làm thiết kế gọn lại chứ không phình ra:
+The repo owner settled three things, and all three made the design tighter rather than bigger:
 
-1. **Mỗi bot một brain riêng.** Cách ly vật lý, không phải rào bằng mã.
-2. **Mỗi bot một token riêng.** Mỗi con có tên và ảnh đại diện riêng trong nhóm khách.
-3. **Có trang Chatbot trong dashboard** để quản lý mọi bot đang chạy. Tạo bot thì **chọn Agent
-   đã có, hoặc tạo Agent mới ngay tại chỗ**.
+1. **One dedicated brain per bot.** Physical isolation, not a barrier made of code.
+2. **One dedicated token per bot.** Each one has its own name and avatar in the customer group.
+3. **A Chatbot page in the dashboard** to manage every running bot. Creating a bot means
+   **choosing an existing Agent, or creating a new Agent right there**.
 
-Điều số 3 đổi thứ tự lộ trình: trang quản lý không còn là việc cuối mà là **cửa vào**. Không có
-nó thì bot phải tạo bằng cách sửa tay file `.md`, rồi làm xong trang lại vứt đường đó đi. Xem
-mục 7 đã xếp lại.
+Point 3 changes the order of the roadmap: the management page is no longer the last job but the
+**entry point**. Without it, bots would have to be created by hand-editing a `.md` file, and then
+once the page was built that path would be thrown away. See section 7, reordered.
 
-Hai điều đầu hoá ra gần như miễn phí, vì Jarvis 007 đã có sẵn:
+The first two turned out to be almost free, because Jarvis 007 already has:
 
-- **Nhiều brain là chuyện có sẵn từ lâu**: `GET /brains`, `POST /brains/new` (tự seed cấu trúc
-  chuẩn), `POST /brains/delete` (`server/main.py:3270`). Tạo brain cho bot là gọi đúng API đó,
-  không viết kho thứ hai.
-- **Thêm một trang vào rail** là thêm một mục vào `RAIL_ITEMS` rồi xếp vào một nhóm của
-  `RAIL_GROUPS` (`dashboard/console.js:78`). Đề xuất xếp vào nhóm **Năng lực**, ngay cạnh
-  Agents, vì luồng tạo bot bắt đầu từ một Agent. Trang **Kênh** hiện có là kênh của CHỦ, khác
-  loại, không gộp.
+- **Multiple brains have existed for a long time**: `GET /brains`, `POST /brains/new` (seeds the
+  standard structure by itself), `POST /brains/delete` (`server/main.py:3270`). Creating a brain
+  for a bot means calling exactly that API, not writing a second store.
+- **Adding a page to the rail** means adding an entry to `RAIL_ITEMS` and placing it in a group of
+  `RAIL_GROUPS` (`dashboard/console.js:78`). Proposed placement is the **Capabilities** group,
+  right next to Agents, because the bot creation flow starts from an Agent. The existing
+  **Admin channels** page is the OWNER's channel, a different kind, so it is not merged.
 
-## 1. Ý muốn, diễn đạt lại cho chắc
+## 1. The wish, restated to be sure
 
-> Jarvis 007 đang có nhiều Agent, mỗi Agent gắn Skill và Workflow riêng. Tận dụng chúng để tạo ra
-> các chatbot, **mỗi con chuyên một lĩnh vực**, đứng ra trả lời giúp. Chatbot trả lời qua
-> Telegram, hoặc thả thẳng vào nhóm chăm sóc khách hàng.
+> Jarvis 007 has many Agents, each with its own Skills and Workflows attached. Make use of them to
+> create chatbots, **each one specialized in one field**, stepping in to answer. The chatbots
+> answer through Telegram, or are dropped straight into a customer care group.
 
-Nếu em hiểu đúng thì đích đến là: chủ shop có sẵn một Agent "Tư vấn sản phẩm" và một Agent
-"Chính sách bảo hành". Bấm một nút, mỗi con thành một bot Telegram riêng, thả vào nhóm khách.
-Khách hỏi trong nhóm, bot trả lời trong đúng phạm vi lĩnh vực của nó.
+If I understood correctly, the destination is: a shop owner already has an Agent "Product advice"
+and an Agent "Warranty policy". Press a button, and each becomes its own Telegram bot, dropped into
+the customer group. A customer asks in the group, and the bot answers within the scope of its field.
 
-## 2. Tin tốt: phần lớn nguyên liệu đã có
+## 2. Good news: most of the ingredients already exist
 
-- **Agent** đã có vai trò, system prompt, danh sách Skill và model riêng
-  (`server/main.py:3432`). Đây chính là "bộ não chuyên lĩnh vực" mà ý tưởng cần.
-- **Kênh Telegram** đã chạy thật, có long-polling, đa phiên theo `chat_id`, gửi file, nút bấm.
-- **Lõi một lượt trả lời** (`_tg_answer`, `server/main.py:8830`) đã là chỗ dùng chung cho
-  dashboard, Telegram và CLI. Thêm kênh thứ tư đi qua đúng lõi này là đường đã có sẵn, không
-  phải nhân bản runtime (bài học 0.17.0).
-- **Nhóm Telegram đã hỗ trợ sẵn ở tầng dữ liệu**: id nhóm là số âm và mã đã cố ý không lọc dấu
-  trừ (`telegram_bot.py:26`). Meta mỗi tin đã mang sẵn `chat_type` và `chat_title`
-  (`telegram_bot.py:263`), hiện chưa ai dùng.
+- **Agent** already has its own role, system prompt, Skill list and model
+  (`server/main.py:3432`). This is exactly the "domain-specialist brain" the idea needs.
+- **The Telegram channel** already runs for real, with long-polling, multiple sessions by
+  `chat_id`, file sending and buttons.
+- **The core of one answer turn** (`_tg_answer`, `server/main.py:8830`) is already the shared place
+  for the dashboard, Telegram and the CLI. Adding a fourth channel through exactly this core is a
+  path that already exists, with no need to duplicate the runtime (the lesson of 0.17.0).
+- **Telegram groups are already supported at the data layer**: a group id is a negative number and
+  the code deliberately does not filter out the minus sign (`telegram_bot.py:26`). The meta of
+  every message already carries `chat_type` and `chat_title` (`telegram_bot.py:263`), which nobody
+  uses yet.
 
-## 3. Tin phải nhìn thẳng: mọi giả định an toàn hôm nay đều đảo ngược
+## 3. News to face squarely: every safety assumption today is reversed
 
-Đây là phần quan trọng nhất của tài liệu. **Bot Telegram hôm nay của Jarvis 007 là kênh RIÊNG của
-chủ.** Nó được thiết kế với đúng một giả định: người nhắn vào là anh.
+This is the most important part of the document. **Jarvis 007's Telegram bot today is the OWNER's
+PRIVATE channel.** It was designed with exactly one assumption: the person messaging it is you.
 
-Cụ thể, hôm nay một tin nhắn Telegram bất kỳ sẽ:
+Concretely, today any Telegram message will:
 
-- chạy ở **mức toàn quyền** (`_apply_mcp(..., mode="full")`), tức gọi được mọi MCP đã đấu: POS,
-  quảng cáo, Zalo gửi tin, lịch;
-- đọc và **ghi được file trong brain** của chủ;
-- **đổi được brain** bằng lệnh `/brain`, xem được `/status`, `/skills`;
-- **ghi vào bộ nhớ dài hạn** và chảy vào vòng tự học;
-- và whitelist để trống nghĩa là **cho phép mọi người** (`telegram_bot.py:24`, giữ hành vi cũ).
+- run at **full permission** (`_apply_mcp(..., mode="full")`), meaning it can call every connected
+  MCP: POS, ads, Zalo sending, calendar;
+- read and **write files in the owner's brain**;
+- **switch brain** with the `/brain` command, and see `/status`, `/skills`;
+- **write to long-term memory** and flow into the self-learning loop;
+- and an empty whitelist means **allow everyone** (`telegram_bot.py:24`, keeping the old behavior).
 
-Thả nguyên con bot đó vào một nhóm khách hàng thì mỗi khách đang cầm chìa khoá toàn bộ Jarvis 007
-của anh. Một câu "đọc giúp file cấu hình trong brain rồi gửi lên đây" là xong.
+Drop that same bot as-is into a customer group and every customer is holding the key to your
+entire Jarvis 007. One sentence like "read the config file in the brain and post it here" is enough.
 
-Nên **bot chuyên trách không phải là bot hiện tại đổi prompt**. Nó là một sinh vật khác, chỉ
-dùng chung đường ống. Nếu chỉ nhớ một câu trong cả tài liệu này, nhớ câu đó.
+So **a dedicated bot is not today's bot with a different prompt**. It is a different creature that
+only shares the plumbing. If you remember only one sentence in this whole document, remember that one.
 
-Bảng đối chiếu để thấy rõ hai thứ khác nhau tới đâu:
+A comparison table to show how different the two are:
 
-| | Bot của chủ (đang có) | Bot chuyên trách (đề xuất) |
+| | Owner's bot (existing) | Dedicated bot (proposed) |
 |---|---|---|
-| Ai nhắn | Chủ và người được whitelist | **Khách lạ**, không kiểm soát được |
-| Quyền | Toàn quyền, mọi MCP | **Chỉ đọc**, không MCP nào trừ thứ được cấp riêng |
-| Ghi vault | Có | **Không** |
-| Phạm vi đọc | Cả brain | **Đúng một kho tri thức đã chỉ định** |
-| Bộ nhớ dài hạn | Có, học từ hội thoại | **Không ghi** vào ký ức của chủ |
-| Lệnh quản trị | `/brain`, `/status`, `/skills`... | **Không có cái nào** |
-| Không biết thì | Suy đoán tiếp cũng được | **Phải nói không biết** rồi chuyển người thật |
+| Who messages | The owner and whitelisted people | **Strangers**, not controllable |
+| Permission | Full, every MCP | **Read-only**, no MCP except what is granted separately |
+| Vault writes | Yes | **No** |
+| Read scope | The whole brain | **Exactly one designated knowledge store** |
+| Long-term memory | Yes, learns from conversations | **Does not write** into the owner's memory |
+| Admin commands | `/brain`, `/status`, `/skills`... | **None** |
+| When it does not know | Fine to keep guessing | **Must say it does not know** and hand off to a human |
 
-## 4. Bot là một BẢN GHI RIÊNG, trỏ tới một Agent
+## 4. A bot is its OWN RECORD, pointing to an Agent
 
-### Bản nháp đầu của em sai chỗ này, ghi lại để khỏi quay về
+### My first draft was wrong here, recorded so we do not go back
 
-Lúc đầu em định nhét khối `publish` vào thẳng file Agent, lý do "anh bảo tận dụng Agent, đừng
-đẻ thêm thực thể mới". Nghe hợp lý, nhưng ba quyết định ở mục 0 làm nó gãy:
+At first I planned to stuff a `publish` block straight into the Agent file, on the grounds of
+"you said to make use of Agents, don't spawn a new entity". It sounded reasonable, but the three
+decisions in section 0 break it:
 
-- **Agent nằm TRONG một brain** (`<brain>/Javis/agents/<slug>.md`), còn bot lại **đọc brain
-  riêng của nó**. Chọn một Agent ở brain chính rồi cho bot đọc brain khác thì khối `publish`
-  nằm ở brain chính đang mô tả một thứ sống ở brain khác. Sai chỗ ngay từ khái niệm.
-- **Token là bí mật**, không được nằm trong file `.md` mà chủ mở ra sửa trong Obsidian.
-- **Bot có vòng đời** (đang chạy, đã tắt, lỗi). Vòng đời không thuộc về một file tài liệu.
-- Xoá Agent thì bot thành mồ côi, mà không có chỗ nào để báo.
+- **An Agent lives INSIDE a brain** (`<brain>/Javis/agents/<slug>.md`), while the bot **reads its
+  own brain**. Choose an Agent in the main brain and have the bot read a different brain, and the
+  `publish` block sitting in the main brain describes something that lives in another brain. Wrong
+  place from the concept itself.
+- **A token is a secret**, and must not sit in a `.md` file the owner opens and edits in Obsidian.
+- **A bot has a lifecycle** (running, off, error). A lifecycle does not belong to a document file.
+- Delete the Agent and the bot becomes an orphan, with nowhere to report it.
 
-**Nguyên tắc "đừng đẻ thực thể mới" vẫn đúng, nhưng áp sai chỗ.** Thứ không được nhân bản là
-khái niệm **Agent** (vai trò, prompt, skill, model) - và nó không bị nhân bản: bot chỉ **trỏ
-tới** một Agent chứ không chép lại. Còn bản thân cái bot thì đúng là một thứ mới: nó có token,
-có brain, có vòng đời, có nhóm.
+**The principle "don't spawn a new entity" is still right, but applied in the wrong place.** What
+must not be duplicated is the **Agent** concept (role, prompt, skills, model) - and it is not
+duplicated: the bot only **points to** an Agent rather than copying it. The bot itself really is
+something new: it has a token, a brain, a lifecycle, and groups.
 
-### Lưu ở đâu
+### Where to store it
 
-Đi theo đúng khuôn `mcp_store` đang dùng cho các kết nối MCP - cùng bài toán, cùng lời giải:
+Follow exactly the mould `mcp_store` uses for MCP connections - same problem, same solution:
 
 ```
-<JAVIS_STATE_DIR>/chatbots.json      ← danh sách bot (KHÔNG có token)
-<JAVIS_STATE_DIR>/secrets            ← token, mã hoá, qua secrets_store
+<JAVIS_STATE_DIR>/chatbots.json      ← the list of bots (NO tokens)
+<JAVIS_STATE_DIR>/secrets            ← tokens, encrypted, via secrets_store
 ```
 
-Một bản ghi bot:
+One bot record:
 
 ```json
 {
   "id": "bot_a1b2c3",
-  "name": "Tư vấn sản phẩm",
+  "name": "Product advice",
   "icon": "message-circle",
   "enabled": false,
 
@@ -135,329 +140,365 @@ Một bản ghi bot:
 }
 ```
 
-Ba điều đáng chú ý trong hình dạng này:
-
-1. **`agent` là con trỏ hai phần** (brain + slug), không phải bản chép. Sửa Agent ở trang
-   Agents là bot đổi theo ngay, không phải sửa hai chỗ.
-2. **`brain` là brain bot ĐỌC**, khác brain chứa Agent. Đây chính là chỗ bản nháp đầu gãy.
-3. **Không có token**, chỉ có `token_ref`. Cùng cách kho MCP cất khoá của các kết nối.
-
-Xoá Agent mà còn bot trỏ vào thì **cảnh báo và chặn**, giống cách xoá Project không được xoá
-hội thoại: người dùng không đoán được hậu quả thì đừng để họ gánh nó.
-
-### Năm mảnh của một bot
-
-1. **Bộ não** = Agent được trỏ tới (vai trò + prompt + skill). Có sẵn.
-2. **Kho tri thức** = brain riêng của bot. Có sẵn API tạo và seed.
-3. **Kênh** = một bot Telegram riêng. Cần cho chạy nhiều poller cùng lúc.
-4. **Mức quyền** = khoá cứng ở chỉ-đọc. Cơ chế đã có (`min_mode`, `effective_perm`), nối đúng chỗ.
-5. **Đường thoát** = chuyển người thật khi bí. Chưa có, phải viết.
-
-## 5. Ba quyết định lớn, kèm khuyến nghị
-
-### 5.1 Mỗi bot một token riêng (ĐÃ CHỐT)
-
-- **Một token riêng cho mỗi bot** (đề xuất chọn): mỗi con có tên, ảnh đại diện và `@handle`
-  riêng do anh tạo ở BotFather. Thả vào nhóm khách thì nó là "Trợ lý Sản phẩm" chứ không phải
-  "Jarvis 007 của anh Quý". Đây là khác biệt về hình ảnh thương hiệu, không phải chuyện kỹ thuật.
-  Giá phải trả: phải cho chạy nhiều poller cùng lúc, hiện `_TG_BOT` đang là biến toàn cục một
-  cái (`server/main.py:9548`).
-- **Một bot chung**: nhẹ hơn nhiều, nhưng mọi lĩnh vực chung một danh tính, và không thả được
-  hai bot khác nhau vào hai nhóm khác nhau.
-
-### 5.2 Mỗi bot một brain riêng (ĐÃ CHỐT)
-
-- **Brain riêng cho bot** (đề xuất chọn): tạo một brain nhỏ chỉ chứa tri thức khách được xem.
-  Cách ly vật lý là cách ly duy nhất không hỏng khi ai đó viết sai một dòng code sau này.
-- Đọc brain chính nhưng giới hạn thư mục: đỡ công chuẩn bị, nhưng rào chỉ nằm ở mã. Một lỗi
-  đường dẫn là lộ cả brain.
-
-Đã chốt brain riêng. Chi phí thật thấp hơn tưởng: `POST /brains/new` đã tự seed cấu trúc
-chuẩn, nên trang Chatbot chỉ việc gọi nó rồi mở trình sửa cho chủ đổ tri thức vào.
-
-### 5.3 Trong nhóm thì khi nào bot mở miệng?
-
-Bot trả lời mọi tin trong nhóm khách là thảm hoạ: khách nói chuyện với nhau cũng bị chen vào.
-
-- **Chỉ khi được gọi tên hoặc reply thẳng vào bot** (đề xuất mặc định). Telegram còn giúp một
-  tay: bot mặc định bật chế độ riêng tư, trong nhóm chỉ nhận được tin nhắc tên nó, tin reply
-  nó, và lệnh. Nghĩa là hành vi đúng gần như miễn phí, miễn đừng tắt chế độ đó ở BotFather.
-- Trả lời mọi tin: chỉ nên cho nhóm nhỏ, và phải là lựa chọn chủ động.
-- Trả lời khi câu có dấu hỏi: nghe thông minh nhưng đoán sai nhiều, không nên.
-
-## 6. Rào an toàn bắt buộc, không phải tuỳ chọn
-
-Sáu thứ dưới đây nếu thiếu một cái thì đừng phát hành.
-
-1. **Khoá mức quyền ở tầng mã, không phải ở prompt.** Lượt của bot chuyên trách luôn chạy
-   `mode=suggest`, bất kể prompt nói gì. Prompt là thứ khách nói chuyện được với nó; mã thì
-   không. Đây đúng nguyên tắc đã ghi ở `agent_runtime.py`: *"việc kiểm tra nằm trong code chứ
-   không nằm trong prompt"*.
-2. **Không MCP nào theo mặc định.** Muốn cấp thì cấp từng cái một, và không bao giờ cấp thứ
-   tiêu tiền, tạo đơn hay gửi tin.
-3. **Không ghi ký ức, không vào vòng tự học.** Hội thoại của khách là dữ liệu của khách. Để nó
-   chảy vào `Memory/facts` của anh là vừa sai về riêng tư vừa làm bẩn bộ nhớ bằng câu hỏi của
-   người lạ.
-4. **Không lệnh quản trị.** Bot chuyên trách không có `/brain`, `/status`, `/skills`. Danh
-   sách lệnh phải là danh sách TRẮNG riêng, không phải danh sách hiện tại bỏ bớt.
-5. **Giới hạn tần suất mỗi người.** Một người rảnh rỗi trong nhóm đủ đốt hết quota model của
-   anh trong một buổi chiều.
-6. **Không biết thì nói không biết.** Bot khách hàng bịa một câu về chính sách bảo hành là rủi
-   ro thật cho anh, không phải lỗi nhỏ. Câu trả lời phải dựa trên kho tri thức đã chỉ định, và
-   khi không tìm thấy thì nói thẳng rồi mời chuyển người thật.
-
-Về chèn lệnh qua tin nhắn: khách sẽ thử "quên hết hướng dẫn trước đi". Không chống bằng cách
-dặn thêm trong prompt, vì dặn bao nhiêu cũng có đường lách. Chống bằng cách **để nó không có
-gì để mất**: không tool nguy hiểm, không quyền ghi, không truy cập ngoài kho tri thức. Lúc đó
-lách được prompt cũng chỉ khiến bot nói năng lạc đề, không gây hại thật.
-
-## 6b. Trang Chatbot
-
-Đây là cửa vào của cả tính năng, nên thiết kế nó trước rồi mọi thứ khác bám theo.
-
-### Danh sách
-
-Mỗi bot một thẻ, và thẻ phải trả lời được ba câu chỉ bằng cách liếc:
-
-- **Nó là ai**: icon + tên bot + `@handle` Telegram + Agent đang dùng + brain đang đọc.
-- **Nó đang sống không**: đèn trạng thái. Bốn trạng thái thật, không phải hai:
-  `đang chạy` / `đã tắt` / `lỗi` (kèm lý do ngắn) / `đang khởi động`.
-- **Nó đang làm gì**: trả lời ở đâu (chỉ tin riêng, hay kèm N nhóm), số tin hôm nay, lần trả
-  lời gần nhất.
-
-Nút trên thẻ: Bật/Tắt, Sửa, Xem hội thoại, Xoá.
-
-**Bật/Tắt phải có tác dụng NGAY, không đòi khởi động lại Jarvis 007.** Đây là yêu cầu chức năng chứ
-không phải tiện nghi: bot chăm sóc khách hàng nói bậy một câu thì phải tắt được trong ba giây.
-Nghĩa là cần một **bộ giám sát bot**: mỗi bot là một task long-polling riêng, bật thì tạo
-task, tắt thì huỷ task, sửa token thì huỷ rồi tạo lại.
-
-### Luồng tạo bot
-
-Năm bước, kiểu trình hướng dẫn giống trang Kết nối đang làm:
-
-1. **Tên và icon bot.** Icon lấy từ bộ icon Lucide sẵn có (giống bộ chọn icon của Project ở
-   0.18.1, dùng lại `Icons.names()`).
-2. **Bộ não** - chọn một trong hai:
-   - **Chọn Agent đã có**: danh sách Agent trong brain hiện tại, kèm vai trò và skill đã gán.
-   - **Tạo Agent mới ngay tại chỗ**: form rút gọn (tên, vai trò, prompt, chọn skill, model),
-     ghi ra `Javis/agents/<slug>.md` bằng đúng `POST /agents` đang có. **Không viết đường tạo
-     agent thứ hai** - form này chỉ là lối tắt tới cùng một endpoint.
-3. **Brain riêng.** Mặc định đề xuất tạo brain mới tên `bot-<slug>` qua `POST /brains/new`
-   (đã tự seed cấu trúc chuẩn). Cho phép chọn brain có sẵn nếu chủ muốn hai bot dùng chung.
-   Sau khi tạo, mở thẳng trình sửa để đổ tri thức vào, kèm một câu nhắc: **bot chỉ biết những
-   gì nằm trong brain này**.
-4. **Token Telegram.** Dán token lấy từ BotFather, kèm nút **Kiểm tra**: gọi `getMe`, hiện ra
-   tên bot và `@handle` để chủ biết mình vừa dán đúng con nào. Token cất vào kho bí mật đã mã
-   hoá (`secrets_store`), **không bao giờ ghi vào file `.md`** và không bao giờ trả ngược ra
-   giao diện.
-5. **Soát lại rồi tạo.** Bot tạo ra luôn ở trạng thái **TẮT**. Chủ tự bật sau khi đã thử nhắn
-   riêng cho nó.
-
-Thêm nhóm thì làm sau, ở màn Sửa, vì lấy id nhóm phải mời bot vào nhóm trước đã. Kèm một mẹo
-ngay trên màn hình: mời bot vào nhóm rồi gõ `/id`, bot trả lại id nhóm để dán vào đây.
-
-### Ba cái bẫy phải xử ngay từ đầu
-
-1. **Trùng token = Telegram trả 409 và cả hai bot cùng chết.** Một token chỉ được một tiến
-   trình long-polling. Nên phải chặn ở tầng lưu: không cho hai bot dùng chung token, và không
-   cho dùng lại token của bot chính của chủ. Kiểm bằng cách so `getMe` chứ đừng so chuỗi token
-   (cùng một bot vẫn có thể dán vào hai lần với khoảng trắng khác nhau).
-2. **Sửa token khi bot đang chạy.** Phải huỷ task cũ TRƯỚC khi tạo task mới, không thì có lúc
-   hai poller cùng sống và rơi vào bẫy 1.
-3. **Bot chết âm thầm.** Token bị thu hồi ở BotFather, mạng rớt, Telegram đổi lỗi. Poller phải
-   ghi lại lỗi cuối và đẩy lên thẻ, vì "bot không trả lời khách" là thứ chủ chỉ phát hiện khi
-   khách phàn nàn. Đây đúng loại hỏng im lặng repo này đã vá hai lần trong tháng.
-
-### Xem hội thoại khách
-
-Dùng lại đúng kho hội thoại sẵn có: cột `channel` đã có trong `sessions`, đặt
-`channel = "bot:<slug>"`. Nghĩa là hội thoại khách tự động có tìm kiếm toàn văn, phân trang và
-ghim - không viết kho thứ hai. Và vì `list_sessions` lọc theo brain, hội thoại của bot nằm ở
-brain riêng của nó nên **không lẫn vào Lịch sử của chủ**.
-
-## 7. Lộ trình bốn giai đoạn
-
-Xếp lại sau khi chốt trang Chatbot là cửa vào. Nguyên tắc giữ nguyên: mỗi giai đoạn xong là
-**có thứ dùng được thật**, không phải xong hết mới thấy gì.
-
-**Giai đoạn 1 - Tạo và chạy được một bot, chỉ nhắn riêng.** XONG, 0.19.0.
-Kho bot + bộ giám sát nhiều poller (gỡ `_TG_BOT` khỏi thế biến toàn cục một cái) + trang
-Chatbot đủ dùng: danh sách, trình tạo năm bước, bật/tắt không cần khởi động lại. Lượt của bot
-đi qua `_tg_answer` với mức khoá cứng chỉ-đọc, không MCP, không lệnh quản trị.
-*Xong là*: tạo bot trên dashboard, nhắn riêng cho nó, nó trả lời đúng vai trò Agent và không
-đụng được gì ngoài brain của chính nó.
-
-**Giai đoạn 2 - Trả lời có căn cứ.** XONG, 0.20.0 (`server/chatbot_grounding.py`).
-Giới hạn phạm vi đọc trong brain của bot. Bắt dựa trên tài liệu, không tìm thấy thì nói không
-biết thay vì suy đoán.
-*Xong là*: bot trả lời theo tài liệu của anh thay vì theo trí nhớ chung của model.
-
-Ba điều học được khi làm thật, đáng ghi lại vì không đoán ra từ trên giấy:
-
-- **Chỉ giới hạn phạm vi đọc là chưa đủ.** Bot đã có tool đọc trỏ đúng brain của nó từ giai
-  đoạn 1, nhưng có tool đọc không bằng có đọc: model trả lời thẳng bằng trí nhớ chung thì câu
-  vẫn trôi chảy y hệt và chủ không phân biệt được từ bên ngoài. Nên tài liệu phải được tra
-  TRƯỚC và nhét sẵn vào prompt, không giao việc đó cho model tự quyết.
-- **Ngưỡng "coi như tìm thấy" phải đo bằng ĐỘ PHỦ câu hỏi, không phải điểm tuyệt đối.** "Cửa
-  hàng có tuyển lập trình viên Rust không" trúng đúng chữ "hàng" trong mục Giao hàng, mà "hàng"
-  hiếm nên IDF cao, nên điểm vượt ngưỡng. Thêm luật câu từ ba chữ có nghĩa trở lên phải trúng
-  ít nhất hai chữ.
-- **Từ dừng phải soạn riêng cho tiếng Việt BỎ DẤU.** "bán" và "bạn" cùng ra "ban"; loại "ban"
-  theo thói quen là mất luôn chữ có nghĩa nhất của một bot bán hàng.
-
-**Giai đoạn 3 - Vào nhóm.** XONG, 0.20.0.
-Dùng `chat_type` sẵn có. Chỉ trả lời khi được gọi tên hoặc reply. Lệnh `/id` lấy id nhóm.
-Chuyển người thật. Giới hạn tần suất mỗi người.
-*Xong là*: thả vào nhóm khách hàng dùng thật được.
-
-**Lỗ của 0.19.0 phát hiện khi rà lại giai đoạn này, ghi lại để đừng lặp:** luật mở miệng đọc
-hai cờ `mentioned`/`reply_to_bot`, mà `TelegramBot._build_meta` không hề gắn chúng. Điều kiện
-luôn sai nên bot IM trong MỌI nhóm. Bản 0.19.0 còn có test khẳng định đúng hành vi đó, và test
-vẫn xanh - vì nó kiểm HỢP ĐỒNG của hàm `_nen_tra_loi` (cho cờ vào thì ra gì) chứ không kiểm ai
-là người gắn cờ. Bài học: một luật đọc dữ liệu do NƠI KHÁC gắn thì phải có ít nhất một test đi
-từ đầu vào thô (ở đây là JSON update của Telegram) tới quyết định cuối, chứ test từng mảnh xanh
-hết vẫn hở đúng chỗ nối.
-
-**Giai đoạn 4 - Đo lường.** XONG, 0.20.0 (`server/chatbot_log.py`).
-Nhật ký hội thoại khách trên thẻ bot, và thống kê **câu hỏi bot trả lời không nổi**. Cái sau
-là thứ có giá trị kinh doanh thật: nó chỉ đúng chỗ tài liệu của anh đang thiếu.
-
-Làm rồi mới thấy: "bí" có hai loại, và loại thứ hai mới đáng chú ý. Không tìm ra tài liệu nào
-là loại dễ thấy. Tìm ra tài liệu rồi mà vẫn phải nói chưa có thông tin mới là loại tinh vi -
-tài liệu CÓ nhưng THIẾU Ý khách cần, và đó thường là chỗ đáng sửa nhất.
-
-## 8. Những gì em khuyên KHÔNG làm
-
-- **Đừng cho bot chuyên trách chạy Workflow ngay ở giai đoạn đầu.** Workflow chạy nhiều bước,
-  tốn thời gian và token; khách hỏi trong nhóm cần câu trả lời trong vài giây. Skill thì có,
-  Workflow để sau khi đã chạy ổn.
-- **Đừng dùng chung `chat_id` whitelist làm cơ chế phân quyền.** Whitelist là danh sách người
-  được nói chuyện, không phải danh sách người được làm gì. Hai thứ khác nhau, gộp là có ngày
-  nhầm.
-- **Đừng để bot tự gửi tin chủ động cho khách.** Trả lời khi được hỏi thì được, tự nhắn trước
-  là chạm vào cả rào an toàn của Jarvis 007 lẫn luật chống spam của Telegram.
-- **Đừng làm Zalo trước Telegram.** Zalo cá nhân đi qua thư viện không chính thức, tài khoản
-  có thể bị khoá; đem một tài khoản Zalo ra làm bot chăm sóc khách hàng là đặt cược vào thứ
-  không kiểm soát được. Telegram có API bot chính thức, làm xong ổn rồi hãy tính Zalo OA.
-
-### Cập nhật 2026-08-05: mục "khoá cứng ở chỉ-đọc" không còn đúng nữa
-
-Mục 4 (mảnh số 4), mục 6 (rào số 1 và số 2) và bảng ở mục 3 đều viết trên giả định **bot luôn
-chỉ đọc**. Chủ repo bỏ giả định đó: *"anh vẫn muốn có thể thực hiện nhiều task, nhưng em thêm
-phần thông báo cho anh để hiểu rõ nguy cơ khi sử dụng."* Xem mục 10.
-
-Giữ nguyên văn ba mục kia thay vì sửa lại, vì lý lẽ trong đó vẫn đúng cho mức mặc định - và
-đọc được vì sao mặc định phải là chỉ-đọc thì mới hiểu được cái giá của việc nâng mức.
-
-## 9. Còn cần anh chốt
-
-Hai câu đầu đã trả lời rồi (brain riêng, token riêng, có trang quản lý). Còn hai:
-
-1. **Bao nhiêu bot cho lần đầu?** Em khuyên **một con, một lĩnh vực hẹp, một nhóm**. Chạy thật
-   một tuần sẽ lộ ra nhiều thứ hơn là bàn tiếp trên giấy, và giai đoạn 1 vốn đã đủ để thử.
-2. **Khách hỏi ngoài phạm vi thì bot làm gì?** Im lặng, hay nói "để em chuyển anh chị cho nhân
-   viên"? Cái sau cần có người thật trực, nên phụ thuộc anh có người hay không. Nếu chưa có
-   thì mặc định nên là nói thẳng "cái này em chưa có thông tin" rồi dừng, chứ đừng đoán.
-
-## 10. Mở phạm vi (2026-08-05): ba mức quyền
-
-Chủ repo: *"ở chức năng tạo bot đang là chỉ đọc, anh muốn thêm chức năng được ghi và toàn
-quyền. Vì cơ bản anh vẫn muốn có thể thực hiện nhiều task, nhưng em thêm phần thông báo cho
-anh để hiểu rõ nguy cơ khi sử dụng."* Ra ở 0.24.0.
-
-### Bài toán thật nằm ở đâu
-
-Không phải "làm sao cấp tool cho bot" - cấp tool là chuyện dễ. Bài toán là **cấp tool mà không
-đánh mất hai rào đã có**, vì hai rào đó chính là lý do 0.21.0 tồn tại:
-
-1. **Cách ly brain.** Bot chỉ thấy brain của nó.
-2. **Không lệnh máy.** Không Bash, không web, không agent con.
-
-Đường dễ nhất - mở CLI cho bot rồi giới hạn bằng `allowed_tools` như loop đang làm - **mất cả
-hai cùng lúc**. `Read` của Claude Code nhận đường dẫn TUYỆT ĐỐI, nên một allowlist có `Read`
-là bot đọc được mọi brain và cả `/etc/passwd`. Đúng lỗ 0.21.0 đã phải vá, và vá bằng cách bỏ
-tool hẳn.
-
-### Lời giải: tool CHỈ đến từ hub, trên cả tám bộ não
-
-Bot không bao giờ mở CLI. Ở mức nới quyền nó đi vòng gọi tool kiểu API (`*_chat_with_mcp`) với
-tool lấy từ `mcp_hub.discover_all(muc_quyen, vault_root=<brain của bot>)`. Ba hệ quả, và cả ba
-đều là hệ quả của KIẾN TRÚC chứ không phải một rào phải canh:
-
-- Tool file đi qua `_safe_path(vault_root)` → cách ly brain giữ nguyên **kể cả ở mức full**.
-- Hub không có Bash/WebFetch/WebSearch/Task → rào số 2 giữ nguyên.
-- `muc_quyen` thành `mode` của hub → `mcp_catalog.allowed()` chặn nhóm nguy hiểm ở mức `auto`
-  ngay tại chỗ gọi, không phụ thuộc prompt.
-
-Hai gói thuê bao không bị bỏ lại (lời hứa "đổi bộ não không đổi năng lực"): ChatGPT đi
-`responses_with_mcp`, Claude Code đi `anthropic_chat_with_mcp` với `oauth_token` - tham số mới
-thêm ở bản này, mirror đúng cặp header mà `anthropic_stream` đã dùng.
-
-### Vì sao hai đường tách hẳn nhau
-
-`_bot_tra_loi` (không tool) và `_bot_tra_loi_co_tool` (có tool) là hai hàm riêng, dùng chung
-mấy mảnh nhỏ (lịch sử, đọc stream, ghim đường đo). Cố ý:
-
-- Đường không-tool phải **soi được bằng mắt** là không có tool nào, và có test cắt đúng thân
-  hàm đó ra kiểm (`test_chatbot_cach_ly.py` mục B2). Nhét cả hai vào một hàm với một cái `if`
-  thì canary ấy không viết được nữa.
-- Mức Chỉ đọc là mặc định, tức đường đi của gần như mọi bot. Nó không được động vào khi thêm
-  tính năng cho hai mức kia.
-
-### Chỗ dễ hỏng nhất, ghi lại để đừng lặp
-
-- **Rẽ nhánh phải fail-closed.** `if _muc in MUC_NANG` chứ không phải `if _muc != "suggest"`.
-  Vế sau thì một lỗi chính tả trong `chatbots.json`, hay một bản ghi cũ thiếu khoá, cũng đủ
-  cấp tool cho bot đang chat với người lạ.
-- **Giá trị lạ khi SỬA thì giữ mức cũ**, không rơi về mặc định. Rơi về mặc định là hạ quyền
-  im lặng: chủ tưởng bot vẫn làm việc, còn nó thì từ chối mọi tool mà không ai biết.
-- **Rào xác nhận phải ở KHO, không chỉ ở route.** Route là một trong nhiều đường vào (giao
-  diện, chat tự tạo bot, script của chủ). Đặt ở kho thì đường nào cũng đi qua.
-- **Chỉ chặn lúc NÂNG.** Bắt xác nhận lúc hạ mức là dựng rào đúng lúc chủ đang dập sự cố.
-- **Cảnh báo do server cấp, giao diện không chép.** Chép rồi thì một hôm server siết thêm rào
-  mà ô cảnh báo vẫn hứa như cũ, và chủ bấm đồng ý dựa trên một câu đã sai.
-
-### Cái KHÔNG giải được bằng mã, và phải nói thẳng với chủ
-
-Ở mức `full`, người điều khiển tool là **người nhắn cho bot**. Rào còn lại đúng bằng file Agent chủ viết,
-mà chữ thì lách được - đây chính là điều mục 6 đã cảnh báo ("không chống chèn lệnh bằng cách
-dặn thêm trong prompt"), chỉ khác là giờ bot CÓ thứ để mất.
-
-Nên phần "thông báo nguy cơ" chủ repo yêu cầu không phải là tính năng phụ, nó là **nửa còn lại
-của lời giải**: mã chặn được cái chặn được, phần còn lại chủ phải biết trước khi bấm. Vì thế
-cảnh báo kể ra cái MẤT ĐƯỢC (loại thao tác, không hoàn tác, ai điều khiển) chứ không phải một
-câu "hãy cẩn thận" - và nó xuất hiện ba lần: lúc chọn mức, lúc lưu mức `full`, lúc Bật bot.
-
-Một chỗ nữa phải giữ, vì bản đầu sai đúng chỗ này: cảnh báo tả theo **LOẠI THAO TÁC** (gửi đi,
-thanh toán, đặt/huỷ, xoá, công bố), KHÔNG kể tên việc của một ngành. Bản đầu viết "tạo đơn,
-tiêu tiền quảng cáo, đăng bài" - lọt tai người bán hàng, vô nghĩa với người dùng Jarvis 007 để quản
-lý dự án, chăm sức khoẻ hay dạy học. Tệ hơn: người đó đọc xong tưởng cảnh báo không áp cho
-mình rồi bật Toàn quyền vì nghĩ mình không có gì để mất. Chủ repo bác (2026-08-05): "nó cá
-nhân hóa với anh quá". Có canary ở cả test Python lẫn test JS.
-
-### Bẫy đã sập thật (0.24.0 → 0.24.2)
-
-Ghi lại vì nó là một kiểu ẩu có tên, và mục "chỗ dễ hỏng nhất" ở trên **không** nêu ra nó.
-
-**Nối đường đi thật vào một hàm chưa ai từng gọi.** Để giữ lời hứa "cả tám bộ não như nhau",
-0.24.0 cho gói ChatGPT đi `engine.responses_with_mcp`. Hàm đó có sẵn trong repo, tên đúng, chữ
-ký đúng, đọc qua thì hợp lý. Nhưng `git log -S responses_with_mcp` trả về đúng MỘT kết quả -
-chính commit 0.24.0 - nghĩa là trước đó **không nơi nào gọi nó**, và docstring của nó tự ghi
-EXPERIMENTAL. Chạy thật thì nó trả rỗng.
-
-Hai bài học tách bạch:
-
-1. **"Có sẵn trong repo" không đồng nghĩa "chạy được".** Trước khi nối một đường đi thật vào
-   một hàm chưa quen, chạy `git log -S <tên hàm>` xem đã có ai gọi chưa. Không có ai, hoặc
-   docstring ghi EXPERIMENTAL, thì coi như code chưa kiểm chứng - phải có đường lui.
-
-2. **Nâng quyền không được LẤY ĐI năng lực đã có.** Đây mới là phần đau. Bot đang trả lời tốt ở
-   mức Chỉ đọc; chủ nâng lên Được ghi để nó làm được NHIỀU hơn; kết quả nó ngừng trả lời hoàn
-   toàn. Một tính năng "thêm quyền" mà làm hỏng đường cơ bản thì tệ hơn hẳn việc không có tính
-   năng đó. Nay vòng tool rỗng thì chạy lại lượt đó không tool, và có test canh.
-
-Đường lui KHÔNG được im lặng. Chủ đặt Được ghi mà bot lặng lẽ chạy như Chỉ đọc là kiểu hỏng tệ
-hơn cả gãy hẳn - gãy thì còn nhìn thấy. Nên lượt chạy thiếu quyền mang theo `canh_bao` lên thẻ
-bot, đi đường RIÊNG chứ không mượn trường `loi`: `loi` kéo theo bộ đếm bí, kéo theo gọi người
-trực, và làm bẩn tab "Bot bí", trong khi đây là một lượt trả lời bình thường.
+Three things worth noting in this shape:
+
+1. **`agent` is a two-part pointer** (brain + slug), not a copy. Edit the Agent on the Agents page
+   and the bot changes with it right away, with no editing in two places.
+2. **`brain` is the brain the bot READS**, different from the brain holding the Agent. This is
+   exactly where the first draft broke.
+3. **No token**, only `token_ref`. The same way the MCP store keeps the keys of its connections.
+
+Deleting an Agent while a bot still points to it **warns and blocks**, just as deleting a Project
+must not delete conversations: if the user cannot guess the consequence, do not make them carry it.
+
+### The five pieces of a bot
+
+1. **Brain** = the Agent pointed to (role + prompt + skills). Already exists.
+2. **Knowledge store** = the bot's own brain. The API to create and seed it already exists.
+3. **Channel** = a dedicated Telegram bot. Needs support for running several pollers at once.
+4. **Permission level** = hard-locked to read-only. The mechanism exists (`min_mode`,
+   `effective_perm`), just wired to the right place.
+5. **Escape hatch** = hand off to a human when stuck. Does not exist yet, has to be written.
+
+## 5. Three big decisions, with recommendations
+
+### 5.1 One dedicated token per bot (SETTLED)
+
+- **One dedicated token per bot** (the proposal's pick): each has its own name, avatar and
+  `@handle` created by you at BotFather. Dropped into a customer group it is "Product Assistant"
+  rather than "Mr. Quy's Jarvis 007". This is a difference in brand image, not a technical matter.
+  The price to pay: several pollers must run at once, and currently `_TG_BOT` is a single global
+  variable (`server/main.py:9548`).
+- **One shared bot**: much lighter, but every field shares one identity, and you cannot drop two
+  different bots into two different groups.
+
+### 5.2 One dedicated brain per bot (SETTLED)
+
+- **A dedicated brain for the bot** (the proposal's pick): create a small brain holding only the
+  knowledge customers may see. Physical isolation is the only isolation that does not break when
+  someone writes a wrong line of code later.
+- Read the main brain but restrict folders: less preparation work, but the barrier lives only in
+  code. One path bug exposes the whole brain.
+
+A dedicated brain is settled. The real cost is lower than expected: `POST /brains/new` already
+seeds the standard structure, so the Chatbot page just calls it and then opens the editor for the
+owner to pour knowledge in.
+
+### 5.3 In a group, when does the bot speak up?
+
+A bot answering every message in the customer group is a disaster: customers chatting with each
+other get interrupted too.
+
+- **Only when called by name or replied to directly** (the proposed default). Telegram helps a
+  little: by default a bot has privacy mode on, so in a group it only receives messages that
+  mention its name, replies to it, and commands. That means the right behavior is almost free,
+  as long as you do not turn that mode off at BotFather.
+- Answer every message: only for a small group, and it must be a deliberate choice.
+- Answer when the sentence has a question mark: sounds smart but guesses wrong a lot, should not be done.
+
+## 6. Mandatory safety barriers, not options
+
+If even one of the six below is missing, do not release.
+
+1. **Lock the permission level at the code layer, not in the prompt.** A dedicated bot's turn
+   always runs `mode=suggest`, whatever the prompt says. The prompt is what customers can talk
+   to; the code is not. This is exactly the principle already written in `agent_runtime.py`:
+   *"the check lives in code, not in the prompt"*.
+2. **No MCP by default.** To grant, grant one at a time, and never grant anything that spends
+   money, creates orders or sends messages.
+3. **No memory writes, no self-learning loop.** A customer's conversation is the customer's data.
+   Letting it flow into your `Memory/facts` is both wrong for privacy and dirties the memory with
+   a stranger's questions.
+4. **No admin commands.** A dedicated bot has no `/brain`, `/status`, `/skills`. The command list
+   must be its own WHITE list, not the current list with some removed.
+5. **A per-person rate limit.** One idle person in the group is enough to burn through your model
+   quota in an afternoon.
+6. **If it does not know, say it does not know.** A customer bot making up a sentence about the
+   warranty policy is a real risk for you, not a small bug. The answer must rest on the designated
+   knowledge store, and when nothing is found, say so plainly and offer a handoff to a human.
+
+On injecting commands through messages: customers will try "forget all the previous instructions".
+Do not defend by adding more in the prompt, because however much you add there is a way around it.
+Defend by **leaving it nothing to lose**: no dangerous tools, no write permission, no access
+outside the knowledge store. Then getting around the prompt only makes the bot talk off-topic and
+does no real harm.
+
+## 6b. The Chatbot page
+
+This is the entry point of the whole feature, so design it first and let everything else follow.
+
+### The list
+
+One card per bot, and the card must answer three questions just by a glance:
+
+- **Who it is**: icon + bot name + Telegram `@handle` + the Agent in use + the brain being read.
+- **Whether it is alive**: a status light. Four real states, not two:
+  `running` / `off` / `error` (with a short reason) / `starting`.
+- **What it is doing**: where it answers (private messages only, or plus N groups), messages
+  today, the most recent answer.
+
+Buttons on the card: Turn on/Turn off, Edit, View conversations, Delete.
+
+**Turn on/Turn off must take effect IMMEDIATELY, without restarting Jarvis 007.** This is a
+functional requirement, not a convenience: if a customer care bot says one wrong thing, it must be
+possible to switch it off within three seconds. That means a **bot supervisor** is needed: each
+bot is its own long-polling task, turning on creates the task, turning off cancels the task,
+editing the token cancels then recreates.
+
+### The bot creation flow
+
+Five steps, wizard style like what the Connections page already does:
+
+1. **Bot name and icon.** The icon comes from the existing Lucide icon set (like the Project icon
+   picker in 0.18.1, reusing `Icons.names()`).
+2. **Brain** - choose one of two:
+   - **Choose an existing Agent**: the list of Agents in the current brain, with their role and
+     assigned skills.
+   - **Create a new Agent right here**: a shortened form (name, role, prompt, pick skills, model),
+     written to `Javis/agents/<slug>.md` through the existing `POST /agents`. **Do not write a
+     second agent creation path** - this form is just a shortcut to the same endpoint.
+3. **Dedicated brain.** By default it proposes creating a new brain named `bot-<slug>` via
+   `POST /brains/new` (which already seeds the standard structure). It allows choosing an existing
+   brain if the owner wants two bots to share one. After creation, open the editor straight away to
+   pour knowledge in, with a reminder: **the bot only knows what sits in this brain**.
+4. **Telegram token.** Paste the token from BotFather, with a **Check** button: it calls `getMe`
+   and shows the bot name and `@handle` so the owner knows which bot was just pasted. The token is
+   stored in the encrypted secret store (`secrets_store`), **never written to a `.md` file** and
+   never returned back to the UI.
+5. **Review, then create.** The bot is always created in the **OFF** state. The owner turns it on
+   after trying a private message to it.
+
+Adding groups comes later, on the Edit screen, because getting a group id means inviting the bot
+into the group first. With a tip right on the screen: invite the bot into the group, then type
+`/id`, and the bot returns the group id to paste here.
+
+### Three traps to handle from the very start
+
+1. **A duplicate token = Telegram returns 409 and both bots die together.** One token may have only
+   one long-polling process. So block it at the storage layer: do not let two bots share a token,
+   and do not allow reusing the owner's main bot token. Check by comparing `getMe` rather than
+   comparing token strings (the same bot can still be pasted twice with different whitespace).
+2. **Editing the token while the bot is running.** The old task must be cancelled BEFORE the new
+   one is created, otherwise at some moment two pollers are alive and you fall into trap 1.
+3. **A bot dying silently.** The token revoked at BotFather, the network dropping, Telegram
+   changing an error. The poller must record the last error and push it up to the card, because
+   "the bot is not answering customers" is something the owner only discovers when a customer
+   complains. This is exactly the kind of silent failure this repo has patched twice in a month.
+
+### Viewing customer conversations
+
+Reuse exactly the existing conversation store: the `channel` column already exists in `sessions`,
+set `channel = "bot:<slug>"`. That means customer conversations automatically get full-text
+search, pagination and pinning - no second store written. And because `list_sessions` filters by
+brain, a bot's conversations sit in its own brain so **they do not mix into the owner's History**.
+
+## 7. Four-phase roadmap
+
+Reordered after settling the Chatbot page as the entry point. The principle stays: when each phase
+is done there is **something really usable**, not that you see nothing until everything is done.
+
+**Phase 1 - Create and run one bot, private messages only.** DONE, 0.19.0.
+Bot store + a supervisor for multiple pollers (removing `_TG_BOT` from its single global variable
+form) + a Chatbot page good enough to use: the list, the five-step creator, on/off without a
+restart. The bot's turn goes through `_tg_answer` with a hard-locked read-only level, no MCP, no
+admin commands.
+*Done means*: create a bot on the dashboard, message it privately, it answers in the Agent's role
+and cannot touch anything outside its own brain.
+
+**Phase 2 - Grounded answers.** DONE, 0.20.0 (`server/chatbot_grounding.py`).
+Limit the read scope inside the bot's brain. Require answers to rest on documents, and when
+nothing is found say it does not know instead of guessing.
+*Done means*: the bot answers from your documents rather than from the model's general memory.
+
+Three things learned while really building it, worth recording because they cannot be guessed on paper:
+
+- **Limiting the read scope alone is not enough.** The bot already has a read tool pointing at its
+  own brain from phase 1, but having a read tool is not the same as reading: if the model answers
+  straight from general memory, the sentence is just as fluent and the owner cannot tell from the
+  outside. So the documents must be looked up BEFORE and stuffed into the prompt in advance, not
+  left for the model to decide.
+- **The threshold for "counts as found" must be measured by how much of the question is COVERED,
+  not by an absolute score.** "Does the shop hire Rust programmers" hits exactly the word "hàng"
+  (Vietnamese for "goods", the second half of the word for delivery) in the Giao hàng ("Delivery")
+  section, and since "hàng" is rare its IDF is high, so the score passed the threshold. Added a
+  rule: a sentence of three or more meaningful words must hit at least two of them.
+- **Stop words must be written specifically for Vietnamese WITHOUT diacritics.** "bán" (sell) and
+  "bạn" (you) both come out as "ban"; dropping "ban" out of habit loses the most meaningful word
+  for a sales bot.
+
+**Phase 3 - Into groups.** DONE, 0.20.0.
+Use the existing `chat_type`. Answer only when called by name or replied to. The `/id` command
+gets the group id. Hand off to a human. Per-person rate limit.
+*Done means*: it can be dropped into a customer group and used for real.
+
+**A hole in 0.19.0 found when reviewing this phase, recorded so it is not repeated:** the speaking
+rule reads two flags `mentioned`/`reply_to_bot`, but `TelegramBot._build_meta` never attached
+them. The condition was always false, so the bot stayed SILENT in EVERY group. Version 0.19.0 even
+had a test asserting exactly that behavior, and the test stayed green - because it checked the
+CONTRACT of the function `_nen_tra_loi` (given these flags, what comes out) rather than checking
+who attaches the flags. The lesson: a rule that reads data attached by SOMEWHERE ELSE must have at
+least one test going from raw input (here, Telegram's update JSON) to the final decision, because
+piece-by-piece tests all being green still leave a gap exactly at the joint.
+
+**Phase 4 - Measurement.** DONE, 0.20.0 (`server/chatbot_log.py`).
+A log of customer conversations on the bot card, and statistics on **questions the bot could not
+answer**. The latter has real business value: it points exactly at where your documents are missing something.
+
+Only after building it did we see that "stumped" comes in two kinds, and the second is the one
+worth watching. Finding no document at all is the easy-to-see kind. Finding a document and still
+having to say there is no information is the subtle kind - the document EXISTS but LACKS what the
+customer needs, and that is usually the place most worth fixing.
+
+## 8. What I advise NOT doing
+
+- **Do not let a dedicated bot run Workflows in the first phase.** A Workflow runs many steps and
+  costs time and tokens; a customer asking in a group needs an answer within seconds. Skills yes,
+  Workflows after it has run stably.
+- **Do not reuse the `chat_id` whitelist as the permission mechanism.** The whitelist is a list of
+  people allowed to talk, not a list of people allowed to do things. They are two different
+  things, and merging them leads to a mix-up one day.
+- **Do not let the bot proactively message customers on its own.** Answering when asked is fine,
+  messaging first on its own touches both Jarvis 007's safety barrier and Telegram's anti-spam rules.
+- **Do not do Zalo before Telegram.** A personal Zalo goes through an unofficial library and the
+  account can be locked; putting a Zalo account to work as a customer care bot is betting on
+  something uncontrollable. Telegram has an official bot API, so once it is stable, then consider Zalo OA.
+
+### Update 2026-08-05: the "hard-locked to read-only" item is no longer right
+
+Section 4 (piece number 4), section 6 (barriers number 1 and 2) and the table in section 3 were
+all written on the assumption that **the bot is always read-only**. The repo owner dropped that
+assumption: *"I still want to be able to do many tasks, but you add a notice so I understand the
+risk of using it."* See section 10.
+
+The text of those other sections is kept as it was instead of being rewritten, because the
+reasoning in them is still right for the default level - and reading why the default must be
+read-only is how you understand the cost of raising the level.
+
+## 9. Still needs you to settle
+
+The first two questions are already answered (own brain, own token, with a management page). Two remain:
+
+1. **How many bots for the first run?** I advise **one, one narrow field, one group**. Running for
+   real for a week will reveal more than continuing to discuss on paper, and phase 1 is already
+   enough to try.
+2. **What does the bot do when a customer asks outside its scope?** Stay silent, or say "I'll
+   hand you over to a staff member"? The latter needs a real person on duty, so it depends on
+   whether you have people. If not yet, the default should be to say plainly "I don't have
+   information on this yet" and stop, rather than guess.
+
+## 10. Opening the scope (2026-08-05): three permission levels
+
+The repo owner: *"in the bot creation feature it is read-only now, I want to add the ability to
+write and full power. Because basically I still want to be able to do many tasks, but you add a
+notice so I understand the risk of using it."* Shipped in 0.24.0.
+
+### Where the real problem lies
+
+It is not "how to grant tools to the bot" - granting tools is easy. The problem is **granting
+tools without losing the two barriers that already exist**, because those two barriers are exactly
+why 0.21.0 exists:
+
+1. **Brain isolation.** The bot only sees its own brain.
+2. **No machine commands.** No Bash, no web, no sub-agents.
+
+The easiest path - opening the CLI to the bot and then limiting it with `allowed_tools` as loops
+do - **loses both at once**. Claude Code's `Read` accepts an ABSOLUTE path, so an allowlist with
+`Read` lets the bot read every brain and even `/etc/passwd`. Exactly the hole 0.21.0 had to patch,
+and it patched it by dropping the tool altogether.
+
+### The solution: tools come ONLY from the hub, on all eight brains
+
+The bot never opens the CLI. At the raised levels it takes the detour of calling API-style tools
+(`*_chat_with_mcp`) with tools taken from
+`mcp_hub.discover_all(muc_quyen, vault_root=<the bot's brain>)`. Three consequences, and all three
+are consequences of the ARCHITECTURE rather than a barrier that must be watched:
+
+- File tools go through `_safe_path(vault_root)` → brain isolation stays intact **even at the full level**.
+- The hub has no Bash/WebFetch/WebSearch/Task → barrier number 2 stays intact.
+- `muc_quyen` becomes the hub's `mode` → `mcp_catalog.allowed()` blocks the dangerous group at the
+  `auto` level right at the call site, independent of the prompt.
+
+The two subscription plans are not left behind (the promise "switching brains does not change
+capability"): ChatGPT goes through `responses_with_mcp`, Claude Code goes through
+`anthropic_chat_with_mcp` with `oauth_token` - a parameter newly added in this release, mirroring
+exactly the header pair that `anthropic_stream` already uses.
+
+### Why the two paths are fully separate
+
+`_bot_tra_loi` (no tools) and `_bot_tra_loi_co_tool` (with tools) are two separate functions,
+sharing a few small pieces (history, stream reading, pinning the measuring path). This is on purpose:
+
+- The no-tool path must be **visibly verifiable by eye** as having no tools, and there is a test
+  that cuts exactly that function body out to check it (`test_chatbot_cach_ly.py` section B2).
+  Stuffing both into one function with one `if` means that canary can no longer be written.
+- The Read-only level is the default, meaning the path of almost every bot. It must not be touched
+  when adding features for the other two levels.
+
+### The easiest places to break, recorded so they are not repeated
+
+- **Branching must fail closed.** `if _muc in MUC_NANG` and not `if _muc != "suggest"`. With the
+  latter, a typo in `chatbots.json`, or an old record missing a key, is enough to hand tools to a
+  bot chatting with strangers.
+- **An unfamiliar value on EDIT keeps the old level**, it does not fall to the default. Falling to
+  the default is a silent downgrade of permission: the owner thinks the bot still works, while it
+  refuses every tool and nobody knows.
+- **The confirmation barrier must sit in the STORE, not only in the route.** The route is one of
+  many entrances (the UI, a chat that creates a bot by itself, the owner's script). Put it in the
+  store and every path goes through it.
+- **Only block when RAISING.** Demanding confirmation when lowering the level puts up a barrier
+  exactly when the owner is putting out an incident.
+- **The warning is issued by the server, the UI does not copy it.** Once copied, one day the server
+  tightens a barrier while the warning box still promises the old thing, and the owner clicks agree
+  based on a sentence that is already wrong.
+
+### What code CANNOT solve, and must be said plainly to the owner
+
+At the `full` level, the person controlling the tools is **the person messaging the bot**. The
+remaining barrier is only the Agent file the owner wrote, and words can be bypassed - this is
+exactly what section 6 warned about ("do not defend against command injection by adding more in
+the prompt"), the only difference being that now the bot HAS something to lose.
+
+So the "risk notice" the repo owner asked for is not a side feature, it is **the other half of the
+solution**: code blocks what can be blocked, and the owner must know the rest before clicking. That
+is why the warning lists what can be LOST (the kinds of operation, not undoable, who controls it)
+rather than a "be careful" sentence - and it appears three times: when choosing the level, when
+saving the `full` level, and when turning the bot on.
+
+One more point to hold, because the first version was wrong exactly here: the warning describes
+**KINDS OF OPERATION** (sending out, paying, booking/cancelling, deleting, publishing), it does NOT
+name the work of one industry. The first version wrote "creating orders, spending ad money,
+posting" - familiar to a seller, meaningless to a Jarvis 007 user who manages projects, looks after
+health or teaches. Worse: that person reads it and thinks the warning does not apply to them, then
+turns on Full power because they think they have nothing to lose. The repo owner rejected it
+(2026-08-05): "it's too personalized to me". There is a canary in both the Python test and the JS test.
+
+### A trap that really collapsed (0.24.0 → 0.24.2)
+
+Recorded because it is a named kind of sloppiness, and the "easiest places to break" section above
+does **not** name it.
+
+**Wiring a real path into a function nobody ever called.** To keep the promise "all eight brains
+the same", 0.24.0 sent the ChatGPT plan through `engine.responses_with_mcp`. That function already
+existed in the repo, with the right name and the right signature, and reading it looked
+reasonable. But `git log -S responses_with_mcp` returns exactly ONE result - the 0.24.0 commit
+itself - meaning that before it **nowhere called it**, and its docstring itself says EXPERIMENTAL.
+Run for real, it returned empty.
+
+Two separate lessons:
+
+1. **"Already in the repo" does not mean "works".** Before wiring a real path into an unfamiliar
+   function, run `git log -S <function name>` to see whether anyone has called it. If nobody has,
+   or the docstring says EXPERIMENTAL, treat the code as unverified - there must be a fallback.
+
+2. **Raising permission must not TAKE AWAY a capability that already exists.** This is the painful
+   part. The bot was answering well at the Read-only level; the owner raised it to Can write so it
+   could do MORE; the result was that it stopped answering entirely. A "add permission" feature
+   that breaks the basic path is far worse than not having the feature. Now when the tool loop
+   comes back empty, that turn is rerun without tools, and a test guards it.
+
+The fallback must NOT be silent. An owner who sets Can write while the bot quietly runs as
+Read-only is a worse kind of failure than breaking outright - a break is at least visible. So a
+turn that ran without its permission carries `canh_bao` ("warning") up to the bot card, through its
+OWN path rather than borrowing the `loi` ("error") field: `loi` drags in the stumped counter, which
+drags in calling the person on duty, and dirties the "Bot stumped" tab, while this is a normal
+answer turn.

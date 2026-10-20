@@ -1,32 +1,32 @@
-# Resonance A3: biên bản kiểm mã (09/10/2026)
+# Resonance A3: code verification record (09/10/2026)
 
-**Trạng thái:** mã A3 viết xong trên nhánh `claude/resonance-a3-feedback-learning` (PR #598, đặt số 0.89.0), **chờ review mã**. Thiết kế đạt review vòng 3 tại `d6239d54`. Chưa pilot model thật, chưa merge, chưa phát hành.
+**Status:** the A3 code is written on branch `claude/resonance-a3-feedback-learning` (PR #598, reserved number 0.89.0), **awaiting code review**. The design passed review round 3 at `d6239d54`. No real-model pilot yet, not merged, not released.
 
-Thiết kế: [2026-10-09-resonance-a3-feedback-learning-design.md](../superpowers/specs/2026-10-09-resonance-a3-feedback-learning-design.md) (mục 13 là ma trận; mục 19 là ghi chú triển khai). Hướng dẫn: [resonance-a3-learning.md](resonance-a3-learning.md).
+Design: [2026-10-09-resonance-a3-feedback-learning-design.md](../superpowers/specs/2026-10-09-resonance-a3-feedback-learning-design.md) (section 13 is the matrix; section 19 holds the implementation notes). Guide: [resonance-a3-learning.md](resonance-a3-learning.md).
 
-## Mã
+## Code
 
-| Phần | File |
+| Part | File |
 |---|---|
-| Chính sách thuần `learning.v1`, mục trình bày, tin bắt buộc, bộ học làn P | `server/resonance_learning.py` (mới) |
-| Kho: năm bảng A3, hai chỉ mục bài học, sổ giữ lượt, CAS bài học trong giao dịch M5, đối soát lượt giữ | `server/resonance_store.py` |
-| `heartbeat.v2`: lớp `FOLLOWUP`, `TRIAL` | `server/resonance_heartbeat.py` |
-| Bộ tình huống do host dựng, phép thử trong lần thức A2, lượt làm sản phẩm, đường báo làn P, khối `learning` của thẻ | `server/resonance.py` |
-| Route `/resonance/reactions`, `/resonance/lessons`, `/resonance/lessons/{id}/decision` | `server/resonance_api.py`, đăng ký ở cuối `server/main.py` |
-| Tra biên nhận theo tin | `server/sessions.py` (`report_receipt_by_message`) |
-| Giao diện | `dashboard/chat-resonance.js`, `dashboard/resonance-agent.js`, `dashboard/style.css`, `dashboard/i18n/vi.json`, `dashboard/i18n/en.json` (59 khoá mỗi thứ tiếng) |
+| Pure policy `learning.v1`, the presentation section, mandatory messages, the lane P learner | `server/resonance_learning.py` (new) |
+| Store: five A3 tables, two lesson indexes, the turn-hold ledger, lesson CAS inside the M5 transaction, reconciliation of held turns | `server/resonance_store.py` |
+| `heartbeat.v2`: the `FOLLOWUP` and `TRIAL` classes | `server/resonance_heartbeat.py` |
+| Host-built scenario set, the trial inside the A2 wake, the product-making turn, the lane P report path, the card's `learning` block | `server/resonance.py` |
+| Routes `/resonance/reactions`, `/resonance/lessons`, `/resonance/lessons/{id}/decision` | `server/resonance_api.py`, registered at the end of `server/main.py` |
+| Receipt lookup by message | `server/sessions.py` (`report_receipt_by_message`) |
+| UI | `dashboard/chat-resonance.js`, `dashboard/resonance-agent.js`, `dashboard/style.css`, `dashboard/i18n/vi.json`, `dashboard/i18n/en.json` (59 keys per language) |
 
-## Test đã chạy (máy local, `.venv` của checkout gốc, không model thật)
+## Tests run (local machine, the root checkout's `.venv`, no real model)
 
-| File | Kết quả |
+| File | Result |
 |---|---|
-| `tests/python/test_resonance_a3_learning.py` | 109 kiểm đạt |
-| `tests/python/test_resonance_a3_api.py` (main.app, biên nhận thật) | 18 kiểm đạt |
-| `tests/python/test_resonance_a3_rollback.py` (mã 0.88.1 thật, `83bff6bc`) | 11 kiểm đạt |
-| `tests/js/test_resonance_a3_ui.js` | 24 kiểm đạt |
-| 27 file test Resonance cũ (M1 tới M5, A1, A2), `test_route_table.py`, `test_version_khop_changelog.py`, `test_i18n.mjs`, ba test giao diện Resonance cũ | đều đạt |
+| `tests/python/test_resonance_a3_learning.py` | 109 checks passed |
+| `tests/python/test_resonance_a3_api.py` (main.app, real receipts) | 18 checks passed |
+| `tests/python/test_resonance_a3_rollback.py` (real 0.88.1 code, `83bff6bc`) | 11 checks passed |
+| `tests/js/test_resonance_a3_ui.js` | 24 checks passed |
+| 27 older Resonance test files (M1 to M5, A1, A2), `test_route_table.py`, `test_version_khop_changelog.py`, `test_i18n.mjs`, three older Resonance UI tests | all passed |
 
-Lệnh chạy lại:
+Commands to rerun:
 
 ```bash
 python tests/run.py resonance -v
@@ -34,151 +34,151 @@ python tests/run.py --js resonance i18n
 python tests/run.py route_table version_khop_changelog
 ```
 
-## Đối chiếu ma trận (thiết kế mục 13)
+## Matrix cross-check (design section 13)
 
-**13.1, bộ tối thiểu theo GOAL:**
+**13.1, the minimum set by GOAL:**
 
-| Ca | Chỗ kiểm |
+| Case | Where checked |
 |---|---|
-| G1 | `a3_learning` (reaction không mở lượt, không assessment, mục tiêu vẫn active) |
-| G2a, G2b, G2c | `a3_learning` (agent không ghi reaction hay quyết bài học; sai brain; phản hồi M4 sai revision) |
-| G2b, G2e | `a3_api` (phiên brain khác, tin người dùng, câu trả lời thường, khối thẻ do model tự viết) |
-| G2d | Hành vi M4 không đổi, khoá ở `test_resonance_mvp_feedback.py` |
-| G3a, G3b, G3c, G3d | `a3_learning` (đặt giá trị, nonce, đề xuất thứ hai, mở lại kho); G3d ở `a3_ui` |
+| G1 | `a3_learning` (a reaction opens no turn, no assessment, the goal stays active) |
+| G2a, G2b, G2c | `a3_learning` (the agent cannot write a reaction or decide a lesson; wrong brain; M4 feedback with the wrong revision) |
+| G2b, G2e | `a3_api` (a session of another brain, a user message, an ordinary reply, a card block the model wrote itself) |
+| G2d | M4 behavior unchanged, locked in `test_resonance_mvp_feedback.py` |
+| G3a, G3b, G3c, G3d | `a3_learning` (set value, nonce, second proposal, store reopen); G3d in `a3_ui` |
 | G4a, G4b, G4c | `a3_learning` |
-| G5a, G5b | `a3_learning` (thu hồi làn P; thu hồi làn M ở R1b) |
-| G6a, G6b, G6c, G6d, G6e | `a3_learning` (dừng giữa phép thử bằng engine giả gọi hành động ở lượt thứ 4) |
+| G5a, G5b | `a3_learning` (revoking lane P; revoking lane M in R1b) |
+| G6a, G6b, G6c, G6d, G6e | `a3_learning` (stopping mid-trial with a fake engine that calls the action on the 4th turn) |
 | G7a, G7b, G7c | `a3_learning` |
 
-**13.2, bổ sung theo thiết kế:**
+**13.2, additions per the design:**
 
-| Ca | Chỗ kiểm |
+| Case | Where checked |
 |---|---|
-| A1, A2, A3 | `a3_learning` và `a3_api` (drain_outbox thật, cờ `quiet`) |
-| A4 | Thay bằng R3a |
-| A5, A6, A7 | `a3_learning` (A7 là R3d) |
-| A8 | `a3_learning` (hash file trợ lý, sổ đăng ký) và `a3_api` |
-| A9 | `a3_learning` và `a3_api` (xoá tin thật trong kho phiên) |
+| A1, A2, A3 | `a3_learning` and `a3_api` (real drain_outbox, the `quiet` flag) |
+| A4 | Replaced by R3a |
+| A5, A6, A7 | `a3_learning` (A7 is R3d) |
+| A8 | `a3_learning` (assistant file hash, the registry) and `a3_api` |
+| A9 | `a3_learning` and `a3_api` (really deleting a message in the session store) |
 | A10, A11, A13 | `a3_learning` |
 | A12 | `a3_rollback` |
 | A14 | R5e |
 | A15 | `a3_ui` |
-| A16 | `a3_learning` và `a3_ui` |
+| A16 | `a3_learning` and `a3_ui` |
 
-**13.3, 13.4, theo review vòng 1 và 2:**
+**13.3, 13.4, per review rounds 1 and 2:**
 
-| Ca | Chỗ kiểm |
+| Case | Where checked |
 |---|---|
-| R1a | `a3_learning`: móc chèn Bỏ qua sau cổng cuối, trước giao dịch chốt |
+| R1a | `a3_learning`: a hook that inserts Dismiss after the final gate, before the settling transaction |
 | R1b, R1c, R1d | `a3_learning` |
-| R1e | Test M5 cũ (`test_resonance_mvp_trial*.py`) đạt nguyên |
-| R2a tới R2f | `a3_learning`; R2a thêm ở `a3_api` |
-| R3a tới R3i2 | `a3_learning` |
-| R4a tới R4d | `a3_learning` (`JAVIS_RESONANCE_CALL_CEILING=8`); R4d trong R3a (lượt sản phẩm chạy khi `left` đúng bằng lượt dự phòng) |
-| R5a, R5b, R5c | `a3_learning`, qua đường huỷ thật: huỷ lần thức đúng lúc pha chuẩn bị đang chạy |
+| R1e | The old M5 tests (`test_resonance_mvp_trial*.py`) pass unchanged |
+| R2a to R2f | `a3_learning`; R2a also in `a3_api` |
+| R3a to R3i2 | `a3_learning` |
+| R4a to R4d | `a3_learning` (`JAVIS_RESONANCE_CALL_CEILING=8`); R4d inside R3a (the product turn runs when `left` equals exactly the reserve turn) |
+| R5a, R5b, R5c | `a3_learning`, through the real cancel path: cancelling the wake exactly while the prepare phase is running |
 | R5d, R5e | `a3_learning` |
-| R6a tới R6d | `a3_rollback`, mã 0.88.1 thật |
-| R7a tới R7d | `a3_learning` |
+| R6a to R6d | `a3_rollback`, real 0.88.1 code |
+| R7a to R7d | `a3_learning` |
 
-## Số liệu chính đã kiểm
+## Key figures verified
 
-- **Trọn vòng làn M, hạn mức 9 (R3a):**
-  - 3 lượt việc, 4 lượt phép thử, 1 lượt làm sản phẩm bằng lượt giữ: tổng 8 lượt engine, `calls_used` = 8, còn 1 lượt dự phòng.
-  - Lượt sản phẩm dùng cách mới, mục tiêu đạt.
-  - Bốn action phép thử mang revision hiện tại; prompt của tình huống giữ riêng dựng từ lời của revision 1.
-- **Hạn mức mặc định 6 (R3b):** `skipped/budget`, 0 lượt thêm.
-- **Trần chung 8 (R4a):** góp ý tiếp quản lượt giữ, `calls_used` vẫn 8, `FOLLOWUP` không chạy thêm.
-- **Huỷ trước engine (R5a):**
-  - lượt giữ về `held` với `gen` 2, `calls_used` vẫn 8;
-  - huỷ lặp trả False;
-  - tick sau chạy đúng một lần.
-- **Chết giữa phép thử (R5e):**
-  - mở kho không chốt phép thử khi chưa có lần thức giữ khoá;
-  - lần thức sau chốt `interrupted`, bài học `unknown`, lượt giữ trả một lần;
-  - `calls_used` = 3 + số lượt thử đã ghi ý định.
+- **Full lane M cycle, quota 9 (R3a):**
+  - 3 work turns, 4 trial turns, 1 product-making turn using the held turn: 8 engine turns in total, `calls_used` = 8, 1 reserve turn left.
+  - The product turn used the new method, and the goal was achieved.
+  - The four trial actions carry the current revision; the prompt of the separately kept scenario is built from the words of revision 1.
+- **Default quota 6 (R3b):** `skipped/budget`, 0 extra turns.
+- **Shared ceiling 8 (R4a):** feedback takes over the held turn, `calls_used` stays 8, and `FOLLOWUP` does not run any more.
+- **Cancel before the engine (R5a):**
+  - the held turn goes back to `held` with `gen` 2, `calls_used` stays 8;
+  - a repeated cancel returns False;
+  - the next tick runs exactly once.
+- **Dying mid-trial (R5e):**
+  - reopening the store does not settle the trial while no wake holds the lock;
+  - the next wake settles it as `interrupted`, the lesson as `unknown`, and returns the held turn once;
+  - `calls_used` = 3 + the number of trial turns whose intent was recorded.
 - **A3 → 0.88.1 → A3 (R6a):**
-  - mã cũ chốt lý do làm sản phẩm với 0 lượt engine, không đụng lượt giữ;
-  - A3 dựng lại đúng một lý do (`gen` 2), chạy một lần;
-  - mở lại lần ba không thêm gì.
+  - the old code settles the product-making reason with 0 engine turns, without touching the held turn;
+  - A3 rebuilds exactly one reason (`gen` 2), and runs once;
+  - a third reopen adds nothing.
 
-## Lỗi thật tìm ra khi viết test
+## Real bugs found while writing tests
 
-- **R5e:** phép thử bị ngắt giữa chừng không để lại lịch thức nào, nên lượt giữ kẹt `held` và phép thử kẹt `running`. Đã sửa bằng hẹn `action_recovery` (chỉ kiểm) ở lúc khoá phép thử hết hạn (thiết kế mục 19, I2).
-- **Tin `goal.method_changed` không được gửi:** `begin_action` chưa trả `hold_id`. Đã sửa, R3a khoá.
-- **Mục Bài học gắn trình nghe click mỗi lần vẽ lại:** một lần bấm sẽ gửi nhiều request. Đã chặn bằng cờ gắn một lần.
+- **R5e:** a trial interrupted midway left no wake schedule at all, so the held turn stayed stuck in `held` and the trial stuck in `running`. Fixed by scheduling an `action_recovery` (check only) at the moment the trial lock expires (design section 19, I2).
+- **The `goal.method_changed` message was not sent:** `begin_action` did not yet return `hold_id`. Fixed, and R3a locks it in.
+- **The Lessons section attached a click listener on every redraw:** one click would send several requests. Prevented with an attach-once flag.
 
-## Giới hạn
+## Limits
 
-- Chưa có pilot model thật. Đề xuất pilot ở thiết kế mục 13.5: tối đa 8 lượt, hạn mức 9, cần anh duyệt riêng.
-- Chưa soi giao diện trên trình duyệt thật; giao diện chỉ được kiểm bằng hàm thuần dưới node.
-- Toàn bộ bộ test của dự án (`python tests/run.py`, 626 file): 608 xanh, 18 đỏ trước khi sửa lỗi emoji. Phân định bằng cách chạy đúng 18 file đó trên bản sạch của `main` (`83bff6bc`, git archive):
-  - 15 file cũng đỏ trên `main`: agy_prompt_dai, antigravity_cli, ba_loi_mac_va_telegram, cai_windows, grok_cli, ignore_files, install_admin, khoi_dong_nhe, link_file_uri, machine_translations, memory_hoa_thuong, model_theo_phien, ollama_local, terminal, windows_no_console.
-  - `test_icons`: lỗi thật của A3 (emoji trên hàng phản hồi), đã sửa thành nhãn chữ, chạy lại xanh.
-  - `test_project_khung`: chạy riêng trên nhánh A3 thì xanh, chỉ đỏ thoáng qua lúc chạy cả bộ.
-  - `test_image_vision`: đỏ do thư mục `__pycache__` sót lại trong worktree (`system/plugins/zalo-image`), không do mã A3.
-- Làn M sẽ thường bị bỏ qua trong dùng thật (cần hạn mức từ 9 và một cách hiểu trước cùng tiêu chí); đây là giới hạn đã chốt ở D4, không phải lỗi.
+- No real-model pilot yet. The pilot proposal is in design section 13.5: at most 8 turns, quota 9, needing separate approval from you.
+- The UI has not been inspected in a real browser; the UI was only checked through pure functions under node.
+- The project's whole test suite (`python tests/run.py`, 626 files): 608 green, 18 red before the emoji fix. Told apart by running exactly those 18 files on a clean copy of `main` (`83bff6bc`, git archive):
+  - 15 files are also red on `main`: agy_prompt_dai, antigravity_cli, ba_loi_mac_va_telegram, cai_windows, grok_cli, ignore_files, install_admin, khoi_dong_nhe, link_file_uri, machine_translations, memory_hoa_thuong, model_theo_phien, ollama_local, terminal, windows_no_console.
+  - `test_icons`: a real A3 bug (an emoji on the feedback row), fixed into a text label, rerun green.
+  - `test_project_khung`: run alone on the A3 branch it is green, red only fleetingly during the full-suite run.
+  - `test_image_vision`: red because of a leftover `__pycache__` folder in the worktree (`system/plugins/zalo-image`), not because of A3 code.
+- Lane M will often be skipped in real use (it needs a quota of 9 or more and an earlier understanding with the same criteria); this is a limit settled in D4, not a bug.
 
-## Sau review mã vòng 1 (`5b4f48a6`)
+## After code review round 1 (`5b4f48a6`)
 
-Báo cáo: `exports/reviews/PR-598-A3-code-5b4f48a6-review.md` (ngoài git), 3 P2. Sửa ở `efdfb8a8`.
+Report: `exports/reviews/PR-598-A3-code-5b4f48a6-review.md` (outside git), 3 P2s. Fixed at `efdfb8a8`.
 
-| Điểm | Sửa | Hồi quy |
+| Item | Fix | Regression |
 |---|---|---|
-| P2-1: dọn phép thử xoá cả nghĩa vụ `check`, mất `guard_recheck` vừa ghi | Hẹn đối soát của phép thử là mã riêng `trial_recovery` (nghĩa vụ `trial`), chỉ chốt đúng hẹn đó theo id | RV1: guard chưa xác định giữa phép thử, sửa nguồn, mục tiêu hết kẹt; đối chứng guard nhảy thật vẫn giữ chốt |
-| P2-2: Áp dụng đề xuất đã hết hạn | `lesson_decide(apply)` kiểm `expires_at` và căn cứ còn sống trong giao dịch | RV2 ở kho (hết hạn, mất căn cứ, đối chứng còn hạn) và qua route thật (409 `expired`) |
-| P2-3: kho và file của phép thử chạy trên event loop | Mọi bước kho, file, bằng chứng ở luồng phụ, chờ xong khi bị huỷ; lượt thử bị huỷ trước engine thành `not_run` và được hoàn; route A3 chạy kho ở luồng phụ | RV3: lưu trữ chậm 150 ms ở ba bước, loop không bị chặn; huỷ và huỷ lặp lúc giữ chỗ, lúc ghi ý định, lúc chốt (khoá nhả sau worker); lỗi lưu trữ lúc chốt |
+| P2-1: cleaning up the trial also wiped the `check` obligation, losing the `guard_recheck` just written | The trial's reconciliation appointment gets its own code `trial_recovery` (obligation `trial`), and only that appointment is settled, by id | RV1: guard undetermined mid-trial, fix the source, the goal gets unstuck; a control where the guard really jumps still keeps the settlement |
+| P2-2: Applying an expired proposal | `lesson_decide(apply)` checks `expires_at` and that the basis is still alive inside the transaction | RV2 at the store (expired, basis lost, control still within time) and through the real route (409 `expired`) |
+| P2-3: the trial's store and file work ran on the event loop | Every store, file and evidence step on a worker thread, waiting to finish when cancelled; a trial turn cancelled before the engine becomes `not_run` and is refunded; the A3 routes run the store on a worker thread | RV3: storage slowed by 150 ms at three steps, the loop is not blocked; cancel and repeated cancel at reservation, at intent recording, at settling (lock released after the worker); a storage error at settling |
 
-Script kiểm độc lập của reviewer chạy với `--expect-fixed` trên `efdfb8a8`: kết quả ở `exports/reviews/A3-code-r2-review-script-output.txt`.
+The reviewer's independent check script ran with `--expect-fixed` on `efdfb8a8`: the result is in `exports/reviews/A3-code-r2-review-script-output.txt`.
 
-## Sau review mã vòng 2 (`61d0d8ca`)
+## After code review round 2 (`61d0d8ca`)
 
-Báo cáo: `exports/reviews/PR-598-A3-r2-61d0d8ca-review.md` (ngoài git), 2 P2. Sửa ở `52cf70e4`.
+Report: `exports/reviews/PR-598-A3-r2-61d0d8ca-review.md` (outside git), 2 P2s. Fixed at `52cf70e4`.
 
-| Điểm | Sửa | Hồi quy |
+| Item | Fix | Regression |
 |---|---|---|
-| P2-1: mkdir lỗi sau khi giữ chỗ đã commit bị đọc thành "chưa tạo", hẹn đối soát bị chốt, 5 lượt kẹt | Tách giao dịch giữ chỗ khỏi tạo thư mục; lỗi sau commit chốt phép thử và hoàn đủ; chốt lỗi thì giữ phép thử `running` và hẹn đối soát; lỗi trước commit ghi `storage_error` | RV4: chặn bằng file thật, khôi phục, khởi động lại, đối soát lặp; chốt cũng lỗi rồi tự chốt sau; lỗi trước commit |
-| P2-2: `_agent_intent` đọc SQLite trên event loop | Chạy qua `_off_loop` | RV5: mọi lần `agent_by_key` trong phép thử nằm ngoài loop, đồng hồ canh không khựng |
+| P2-1: a mkdir failure after the reservation had committed was read as "not created", the reconciliation appointment was settled, 5 turns stuck | Separate the reservation transaction from creating the folder; a failure after commit settles the trial and refunds in full; if settling fails too, keep the trial `running` and schedule a reconciliation; a failure before commit records `storage_error` | RV4: blocking with a real file, recovery, restart, repeated reconciliation; settling also fails then settles itself later; failure before commit |
+| P2-2: `_agent_intent` read SQLite on the event loop | Run through `_off_loop` | RV5: every `agent_by_key` call in the trial is off the loop, the watchdog clock does not stall |
 
-Hai script kiểm độc lập của reviewer chạy với `--expect-fixed` trên `52cf70e4`: `exports/reviews/A3-code-r3-script-r1-output.txt` và `exports/reviews/A3-code-r3-script-r2-output.txt`.
+The reviewer's two independent check scripts ran with `--expect-fixed` on `52cf70e4`: `exports/reviews/A3-code-r3-script-r1-output.txt` and `exports/reviews/A3-code-r3-script-r2-output.txt`.
 
-Giới hạn còn ghi rõ:
-- `run_once` (dùng chung với lượt việc A2) vẫn có vài thao tác siêu dữ liệu file nhỏ (`resolve`, `is_dir`, `exists`) và việc dựng engine trên event loop.
-- `_TrialCall.release` khi engine không dựng được vẫn gọi kho đồng bộ, như `_ReservedCall` của A2.
-- Đây là đường đã có từ A2, không đổi trong A3.
+Limits still stated:
+- `run_once` (shared with the A2 work turn) still has a few small file-metadata operations (`resolve`, `is_dir`, `exists`) and builds the engine on the event loop.
+- `_TrialCall.release`, when the engine cannot be built, still calls the store synchronously, like A2's `_ReservedCall`.
+- These paths existed since A2 and are unchanged in A3.
 
-## Soi giao diện trên sandbox (sau `b33f3e3b`)
+## UI inspection on the sandbox (after `b33f3e3b`)
 
-Server sandbox port 7788, state và brain riêng trong `exports/sandbox-a3` (ngoài git), tick nền tắt, engine giả theo prompt (`exports/sandbox-a3/seed.py`). Trình duyệt trong app, desktop 1366x860 và khổ hẹp 375x812, tiếng Việt. 0 lượt model thật. Biên bản đầy đủ và ảnh: `exports/reviews/A3-ui-sandbox-record.md`, `exports/reviews/a3-ui/`.
+Sandbox server on port 7788, its own state and brain in `exports/sandbox-a3` (outside git), background tick off, a prompt-driven fake engine (`exports/sandbox-a3/seed.py`). In-app browser, desktop 1366x860 and a narrow 375x812, Vietnamese. 0 real model turns. Full record and screenshots: `exports/reviews/A3-ui-sandbox-record.md`, `exports/reviews/a3-ui/`.
 
-Năm lỗi giao diện tìm ra và đã sửa, gộp thành bốn dòng (I12 tới I14 ở thiết kế mục 19):
+Five UI bugs found and fixed, merged into four lines (I12 to I14 in design section 19):
 
-| Lỗi | Sửa | Hồi quy |
+| Bug | Fix | Regression |
 |---|---|---|
-| Hàng phản hồi không hiện ở trang Cộng sự (GET 400 vì phiên trống, rồi vì phiên của trợ lý trước) | Trang gửi phiên trống; server tra biên nhận theo khoá báo cáo và mục tiêu | UI1 (API): GET và POST theo bộ ba phiên trống; vẫn chặt với phiên sai, brain khác, khoá không có biên nhận. UI4 (JS) |
-| Xem trước hiện markdown thô, bài học cách làm hiện mã `work.checklist.v1` | `plainMd`, `to_label`, `goal_label`; phép thử đang chờ có khối riêng với nút Bỏ qua | UI2 (API và JS) |
-| Ghi chú xung đột 409 mất ngay khi danh sách vẽ lại | Giữ ghi chú qua một lần vẽ | UI3 (JS) |
-| Mục Bài học không tải lại sau phản hồi | Sự kiện `javis:resonance-lessons` | UI5 (JS) |
+| The feedback row did not show on the Partners page (GET 400 because of an empty session, then because of the previous assistant's session) | The page sends an empty session; the server looks up the receipt by report key and goal | UI1 (API): GET and POST by the empty-session triple; still strict with a wrong session, another brain, a key with no receipt. UI4 (JS) |
+| The preview showed raw markdown, the method lesson showed the code `work.checklist.v1` | `plainMd`, `to_label`, `goal_label`; a pending trial has its own block with a Dismiss button | UI2 (API and JS) |
+| The 409 conflict note vanished as soon as the list redrew | Keep the note across one redraw | UI3 (JS) |
+| The Lessons section did not reload after feedback | The event `javis:resonance-lessons` | UI5 (JS) |
 
-Mười kiểm mới (4 Python, 6 JS) đều đỏ trên mã `b33f3e3b` và xanh trên mã đã sửa.
+Ten new checks (4 Python, 6 JS) were all red on the code at `b33f3e3b` and green on the fixed code.
 
-## Bộ chạy pilot A3 (chưa chạy thật)
+## The A3 pilot runner (not yet run for real)
 
-`tests/python/test_resonance_a3_pilot.py`, sửa gói pilot theo review `224a109a` (ba P2). Không đặt biến thì bỏ qua.
+`tests/python/test_resonance_a3_pilot.py`, fixing the pilot package per the review `224a109a` (three P2s). Skipped when the variable is not set.
 
-- **Hai lớp trần.** Trần kho `JAVIS_RESONANCE_CALL_CEILING=8` đếm cả 3 lượt giả gieo bế tắc. Cổng lượt thật riêng ở biên gọi engine: tối đa 5, ghi sổ xuống đĩa trước mỗi lời gọi, không đặt lại, không hoàn.
-- **Dừng ngay khi lỗi.** Lượt lỗi, hết giờ, bị huỷ, đầu ra hỏng hay token sắp hết hạn thì cổng đóng; mọi lời gọi sau bị từ chối trước engine (host thấy engine chưa sẵn sàng, không tính lượt). Tiến trình chết giữa lời gọi thì dòng `reserved` vẫn tính.
-- **Luật M5 giữ nguyên.** Nhánh áp dụng chỉ khi `eligible` (hơn ở tập thử, không kém ở đâu, không unknown). Nhãn nhánh giữ nguyên nguyên nhân: `rejected/no_improvement`, `rejected/regression`, `inconclusive/unknown`, `technical_failed (...)`.
+- **Two layers of ceiling.** The store ceiling `JAVIS_RESONANCE_CALL_CEILING=8` also counts the 3 fake turns that seed the deadlock. A separate real-turn gate at the engine-call boundary: at most 5, written to the ledger on disk before every call, never reset, never refunded.
+- **Stop immediately on error.** On an error turn, a timeout, a cancellation, a broken output, or a token about to expire, the gate closes; every later call is refused before the engine (the host sees the engine as not ready, no turn counted). If the process dies mid-call, the `reserved` row still counts.
+- **The M5 rule is kept.** The apply branch only when `eligible` (better on the trial set, worse nowhere, no unknown). The branch label keeps the cause: `rejected/no_improvement`, `rejected/regression`, `inconclusive/unknown`, `technical_failed (...)`.
 
-Dry chạy 13 kịch bản bằng hai tiến trình mỗi kịch bản (dựng và chạy, rồi mở lại kho với cổng đóng hẳn và đối soát hai lượt): thắng, no_improvement, regression, unknown, lỗi engine ở lượt đầu, lượt cuối phép thử và lượt sản phẩm, hết giờ, token sắp hết hạn, tiến trình chết giữa lời gọi, lỗi lưu trữ khi chốt, trần cổng giữa phép thử, trần kho thiếu. Kết quả và câu duyệt: `exports/reviews/A3-pilot-run-request.md` (ngoài git).
+The dry run covers 13 scenarios using two processes per scenario (build and run, then reopen the store with the gate fully closed and reconcile the two turns): win, no_improvement, regression, unknown, an engine error on the first turn, on the last trial turn and on the product turn, timeout, token about to expire, the process dying mid-call, a storage error at settling, the gate ceiling mid-trial, the store ceiling too low. Results and the approval wording: `exports/reviews/A3-pilot-run-request.md` (outside git).
 
-Review bộ chạy `ffcbc940` (ngoài git: `PR-598-A3-pilot-ffcbc940-review.md`), hai P2, sửa trong bộ chạy, không đổi `server/` hay kịch bản:
+Runner review `ffcbc940` (outside git: `PR-598-A3-pilot-ffcbc940-review.md`), two P2s, fixed in the runner, with no change to `server/` or the scenario:
 
-| Điểm | Sửa | Hồi quy (trong dry, qua mã thật) |
+| Item | Fix | Regression (in the dry run, through real code) |
 |---|---|---|
-| P2-1: nhánh lỗi kỹ thuật vẫn ra `pending_content_review` | Một hàm tổng kết `finalize` cho lần chạy thật: tiền điều kiện, mã thoát hai tiến trình, cấu trúc báo cáo, cổng không đóng, sổ hợp lệ, giai đoạn 2 không gọi engine, số lượt khớp đúng nhánh nội dung. Còn lại là `technical_failed`, ghi FAIL nên thoát khác 0; nhánh gốc giữ nguyên | `finalize` trên 12 kịch bản; `main_real` thật với `run`/`auth` giả trên 8 ca (no_improvement, lỗi lượt đầu, token, chết giữa lượt, sai số lượt, giai đoạn 2 thoát 1, thiếu báo cáo, cổng xác thực hỏng) |
-| P2-2: sổ lượt hỏng bị coi là sổ mới | Sổ rỗng chỉ tạo bằng `RealCallGate.create` lúc bắt đầu lần chạy, kèm file dấu `.started`. Đọc lỗi, JSON hỏng, sai cấu trúc, sai số thứ tự, trạng thái lạ, đổi trần, mất file sau khi bắt đầu, hay sổ ít lượt hơn biên nhận trong kho: cổng đóng, không giữ chỗ, không ghi đè, ghi nhật ký lỗi | 13 ca sổ, gồm đối chứng tạo mới và mở lại sau dòng `reserved` |
+| P2-1: the technical-failure branch still came out as `pending_content_review` | A single summarizing function `finalize` for the real run: preconditions, the exit codes of the two processes, the report structure, the gate not closed, a valid ledger, phase 2 not calling the engine, the turn count matching exactly the content branch. Anything else is `technical_failed`, recorded as FAIL so it exits non-zero; the original branch is kept | `finalize` on 12 scenarios; the real `main_real` with a fake `run`/`auth` on 8 cases (no_improvement, first-turn error, token, dying mid-turn, wrong turn count, phase 2 exiting 1, missing report, broken auth gate) |
+| P2-2: a broken turn ledger was treated as a new ledger | An empty ledger is only created by `RealCallGate.create` at the start of the run, together with a `.started` marker file. A read error, broken JSON, wrong structure, wrong sequence number, unknown state, changed ceiling, a file lost after the start, or a ledger with fewer turns than the receipts in the store: the gate closes, does not reserve, does not overwrite, and logs the error | 13 ledger cases, including controls for fresh creation and reopening after a `reserved` row |
 
-## Pilot thật (10/10/2026) và thay đổi sau pilot
+## The real pilot (10/10/2026) and the changes after the pilot
 
-- **Pilot:** chạy một lần tại `fd9c034b` theo duyệt của chủ dự án. 4 lượt Sonnet qua Claude Code (trần 5), kết quả `rejected/no_improvement` (cả hai tình huống `met/met`), không áp dụng cách mới, lượt giữ trả lại, giai đoạn 2 không gọi engine. Review nội dung đạt trong phạm vi kịch bản; nhánh `eligible` rồi làm lại sản phẩm vẫn chưa có bằng chứng model thật. Hồ sơ gốc và biên bản hậu kiểm ngoài git: `exports/reviews/a3-pilot/real/`, `exports/reviews/A3-pilot-real-result.md`.
-- **Thời gian chờ sau Thu hồi (`learning.v2`, I15):** Thu hồi chặn đề xuất lại cùng (trợ lý, khoá, giá trị) 14 ngày như Bỏ qua. Hồi quy TV trong `test_resonance_a3_learning.py`: trong 14 ngày không đề xuất lại; khoá khác và trợ lý khác không bị chặn; hết 14 ngày đề xuất lại khi phản hồi còn trong cửa sổ, không tự áp dụng; phản hồi cũ ra ngoài cửa sổ thì không đủ. Ca "một ngày sau Thu hồi" đỏ trên kho bản cũ.
+- **Pilot:** run once at `fd9c034b` with the project owner's approval. 4 Sonnet turns through Claude Code (ceiling 5), result `rejected/no_improvement` (both scenarios `met/met`), the new method was not applied, the held turn was returned, phase 2 did not call the engine. The content review passed within the scope of the scenario; the `eligible` branch followed by redoing the product still has no real-model evidence. Original record and post-check report outside git: `exports/reviews/a3-pilot/real/`, `exports/reviews/A3-pilot-real-result.md`.
+- **Waiting time after Revoke (`learning.v2`, I15):** Revoke blocks re-proposing the same (assistant, key, value) for 14 days, the same as Dismiss. The TV regression in `test_resonance_a3_learning.py`: within 14 days it does not propose again; a different key and a different assistant are not blocked; after 14 days it proposes again if the feedback is still within the window, and never applies by itself; old feedback outside the window is not enough. The "one day after Revoke" case was red on the old-version store.

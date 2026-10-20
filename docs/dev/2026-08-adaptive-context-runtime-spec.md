@@ -1,227 +1,227 @@
-# Adaptive Context Runtime cho Jarvis 007
+# Adaptive Context Runtime for Jarvis 007
 
-Ngày: 2026-08-01
-Trạng thái: **Code Phase 0-9 đã hoàn tất; Phase 0-4 chạy `shadow`, canary Phase 5-9 tắt mặc định**
-Phạm vi: dashboard, Telegram, các engine API, Claude/Codex CLI, task nền, workflow và MCP Hub
+Date: 2026-08-01
+Status: **Code for Phases 0-9 is complete; Phases 0-4 run in `shadow`, and the Phase 5-9 canaries are off by default**
+Scope: dashboard, Telegram, API engines, Claude/Codex CLI, background tasks, workflows and MCP Hub
 
-Bản sửa lộ trình: 2026-08-01. Task State tối thiểu, bảo mật trace và quota ledger được đưa lên đầu; multi-round read-only, tool write, workflow, agent và model routing được tách thành các phase độc lập.
+Roadmap revision: 2026-08-01. Minimal Task State, trace security and the quota ledger moved to the front; multi-round read-only, write tools, workflows, agents and model routing were split into independent phases.
 
-Tiến độ triển khai ngày 2026-08-01:
+Implementation progress as of 2026-08-01:
 
-- Đã có `task_id`/`step_id`, event envelope, SQLite `runtime.db`, revision pinning, optimistic version guard, budget/deadline envelope, evidence ref chỉ lưu hash và quota reservation observe-only.
-- Đã gắn trace chung vào dashboard và Telegram cho API, Claude CLI và Codex CLI mà không đổi prompt, model, tool list hay dispatch.
-- Token attribution chỉ lưu số đo kích thước; raw prompt, message, tool arguments/result, secret và source ref không được ghi vào runtime store.
-- Đã có synthetic gold fixture, prompt-contract baseline và regression tests cho lifecycle, privacy, multi-round usage, quota reconciliation và version conflict.
-- Đã có Capability Registry SQLite dẫn xuất theo từng brain/source, FTS5, schema hash, stable ID/revision, ModelProfile, integrity check và tự quarantine/rebuild khi database hỏng.
-- Resolver deterministic đã có hard filter cho brain, health, source, permission và side effect; sau đó mới chấm alias/FTS/coverage và dynamic cutoff. Embedding chỉ là adapter đo recall bổ sung.
-- Registry refresh và Resolver chạy background bằng thread, chỉ ghi `resolver.shadow` đã redaction vào task trace; không thay tool list gửi model.
-- Benchmark synthetic cục bộ với 5.000 capability: rebuild khoảng 2,7 giây ở background; resolve median khoảng 8,4 ms và p95 khoảng 12,6 ms sau khi cache revision.
-- Context Compiler shadow đã có `ContextItem`, budget theo ModelProfile/adapter, renderer và tokenizer adapter thay thế được, quota preflight observe-only, source map/hash và giải thích capability được chọn/loại.
-- Core contract shadow không nhúng toàn bộ MEMORY, skill index hay capability catalog; memory và history production vẫn do legacy quản lý trong Phase 4.
-- Deterministic Quality Gate ghi baseline trên output legacy của Dashboard và Telegram, không sửa hoặc chặn câu trả lời.
-- Benchmark synthetic cục bộ với Registry 5.000 capability và một capability được chọn: capsule 415 token, compile median khoảng 1,0 ms và p95 khoảng 1,6 ms.
-- Fast Path Phase 5 đã có classifier bảo thủ, stable session hash, task path pinning, registry freshness/revision gate, hard-quota profile versioned, rolling-window admission atomic và direct API stream đúng một model call.
-- Fast Path không đọc legacy system prompt, MEMORY, history hoặc tool schema. Request tool/live-data/side-effect/memory/attachment/không chắc chắn vẫn đi legacy trước model call.
-- Benchmark local 250 task chat-thuần gồm resolve + compile + pin + SQLite quota admission: median 5,4 ms, p95 7,8 ms, capsule median 401 token; giảm khoảng 97% so với riêng `CLAUDE.md + MEMORY.md` theo cùng estimator, chưa tính history và tool schema legacy.
-- Cấu hình mặc định vẫn là `mode=shadow`, `allocation_basis_points=0` và không có quota profile. Vì vậy merge code Phase 5 không tự chuyển bất kỳ người dùng thật nào sang đường mới.
-- Phase 6 đã có đường single-step read-only độc lập với tool loop cũ: resolver chỉ nhận effect `none/read`, compiler phơi đúng một schema, model lập arguments đúng một vòng, gateway validate bằng JSON Schema rồi gọi route qua lease dùng một lần.
-- Kết quả read được redaction, mã hoá thành artifact và lưu provenance `evidence://`; vòng model thứ hai chỉ nhận objective hiện tại cùng excerpt giới hạn. Quality Gate bắt buộc evidence ref và chặn tuyên bố hành động write trên đường read-only.
-- Schema được đối chiếu lại với discovery read-only ngay trước model call. Nếu revision lệch, runtime force-refresh inventory, rebase task khi chưa có invocation và resolve lại; schema vẫn không ổn định thì về legacy mà không chạy schema cũ.
-- Admission giữ quota cho tổng hai vòng trước khi gửi request. Timeout, arguments sai, tool-call contract sai và evidence encryption không sẵn sàng đều fail-closed, không tự replan hoặc replay qua vòng MCP tám lượt.
-- Rollout Phase 6 có allocation và allowlist capability group riêng. Mặc định `readonly_canary.allocation_basis_points=0`, `capability_profiles=[]`; tool đa hành động còn bị yêu cầu constraint arguments tĩnh trước khi cấp lease.
-- Phase 7 đã có planner chỉ nhận manifest tóm tắt; exact schema chỉ nạp trong argument round của từng read step. DAG chỉ cho `none/read`, dependency rỗng được chạy song song theo `max_parallel`; write intent và conversation reference vẫn về legacy.
-- Structured Task State gồm revision pin, logical step, budget, failure signature và evidence map; objective/state đều được mã hoá. Checkpoint append-only được ghi trước tool I/O và sau từng layer, còn event chỉ giữ metadata/hash.
-- Resume chỉ chạy khi actor, runtime, policy, Registry, model và quota rule vẫn đúng revision đã pin. Runtime reconcile invocation/evidence ledger trước; read step đã có artifact hợp lệ không bị gọi lại sau restart.
-- Token, latency, số model round và monetary budget được kiểm tra ở cấp task; rolling TPM vẫn admission trước từng batch model. Loop dừng khi đủ evidence, hết budget/deadline, không còn capability, failure lặp hoặc marginal information gain thấp.
-- Phase 7 có `orchestrator_canary` và allowlist độc lập, mặc định allocation `0` cùng profiles rỗng. Quota rule phải khai cả limit và đơn giá thật; thiếu metadata monetary thì fail-closed về legacy trước model/tool.
-- Phase 8 đã có ba nguồn độc lập dùng chung Compiler: conversation state có transcript refs, MemoryIndex có file/line refs + widening/conflict fallback, và SkillSource manifest-only chỉ nạp đúng một body sau resolve.
-- Ba canary Phase 8 có bucket/rollback riêng, hard-quota gate chung và allocation mặc định 0. File memory cùng transcript gốc vẫn là source of truth; SQLite state/index chỉ là projection có thể dựng lại.
-- Phase 0, Phase 3 và Phase 4 chỉ được coi là **qua release gate** sau khi có đủ mẫu production đã redaction, đối chiếu usage/tokenizer thật và owner duyệt baseline/miss critical. Vì vậy Phase 5-8 chưa được phép ảnh hưởng request thật.
+- Done: `task_id`/`step_id`, event envelope, SQLite `runtime.db`, revision pinning, optimistic version guard, budget/deadline envelope, evidence refs that store only a hash, and observe-only quota reservation.
+- Done: a shared trace attached to the dashboard and Telegram for the API, Claude CLI and Codex CLI, without changing the prompt, model, tool list or dispatch.
+- Token attribution stores only size measurements; raw prompts, messages, tool arguments/results, secrets and source refs are never written to the runtime store.
+- Done: a synthetic gold fixture, a prompt-contract baseline and regression tests for lifecycle, privacy, multi-round usage, quota reconciliation and version conflicts.
+- Done: a SQLite Capability Registry derived per brain/source, with FTS5, schema hash, stable ID/revision, ModelProfile, integrity check and automatic quarantine/rebuild when the database is corrupted.
+- The deterministic Resolver already applies hard filters for brain, health, source, permission and side effect; only then does it score alias/FTS/coverage and apply a dynamic cutoff. Embedding is only an adapter that measures extra recall.
+- Registry refresh and the Resolver run in a background thread and write only a redacted `resolver.shadow` into the task trace; they do not change the tool list sent to the model.
+- Local synthetic benchmark with 5,000 capabilities: rebuild takes about 2.7 seconds in the background; resolve has a median of about 8.4 ms and a p95 of about 12.6 ms once the revision is cached.
+- Context Compiler shadow now has `ContextItem`, a budget per ModelProfile/adapter, a renderer and a swappable tokenizer adapter, observe-only quota preflight, a source map/hash, and an explanation of which capabilities were selected or dropped.
+- The core contract shadow does not embed the entire MEMORY, the skill index or the capability catalog; production memory and history are still managed by legacy code in Phase 4.
+- The Deterministic Quality Gate records a baseline on the legacy output of the Dashboard and Telegram, without editing or blocking answers.
+- Local synthetic benchmark with a 5,000-capability Registry and one selected capability: a 415-token capsule, compile median about 1.0 ms and p95 about 1.6 ms.
+- Phase 5 Fast Path now has a conservative classifier, a stable session hash, task path pinning, a registry freshness/revision gate, a versioned hard-quota profile, atomic rolling-window admission and a direct API stream with exactly one model call.
+- Fast Path does not read the legacy system prompt, MEMORY, history or tool schemas. Requests that involve tools, live data, side effects, memory, attachments or any uncertainty still go through legacy before the model call.
+- Local benchmark of 250 pure-chat tasks covering resolve + compile + pin + SQLite quota admission: median 5.4 ms, p95 7.8 ms, median capsule 401 tokens; about 97% smaller than `CLAUDE.md + MEMORY.md` alone under the same estimator, not counting legacy history and tool schemas.
+- The default configuration is still `mode=shadow`, `allocation_basis_points=0` and no quota profile. So merging the Phase 5 code does not move any real user onto the new path.
+- Phase 6 now has a single-step read-only path independent of the old tool loop: the resolver accepts only the effects `none/read`, the compiler exposes exactly one schema, the model builds arguments in exactly one round, and the gateway validates them against JSON Schema and then calls the route through a single-use lease.
+- Read results are redacted, encrypted into an artifact and stored with `evidence://` provenance; the second model round receives only the current objective plus a bounded excerpt. The Quality Gate requires an evidence ref and blocks claims of write actions on the read-only path.
+- The schema is re-checked against read-only discovery right before the model call. If the revision has drifted, the runtime force-refreshes the inventory, rebases the task when no invocation exists yet, and resolves again; if the schema is still unstable it falls back to legacy without running the stale schema.
+- Admission reserves quota for both rounds combined before sending the request. Timeouts, wrong arguments, a wrong tool-call contract and unavailable evidence encryption all fail closed, with no automatic replan or replay through the eight-round MCP loop.
+- The Phase 6 rollout has its own allocation and capability-group allowlist. By default `readonly_canary.allocation_basis_points=0` and `capability_profiles=[]`; a multi-action tool additionally requires static argument constraints before a lease is granted.
+- Phase 7 now has a planner that receives only summary manifests; exact schemas are loaded only in the argument round of each read step. The DAG allows only `none/read`, steps with no dependencies run in parallel up to `max_parallel`; write intents and conversation references still go to legacy.
+- Structured Task State holds the revision pin, logical steps, budget, failure signature and evidence map; both the objective and the state are encrypted. Append-only checkpoints are written before tool I/O and after each layer, while events keep only metadata/hashes.
+- Resume runs only when the actor, runtime, policy, Registry, model and quota rule are still at the pinned revision. The runtime reconciles the invocation/evidence ledger first; a read step that already has a valid artifact is not called again after a restart.
+- Tokens, latency, model round count and monetary budget are checked at the task level; rolling TPM still gates admission before each model batch. The loop stops when evidence is sufficient, the budget/deadline is exhausted, no capability remains, failures repeat, or marginal information gain is low.
+- Phase 7 has an `orchestrator_canary` and an independent allowlist, with default allocation `0` and empty profiles. A quota rule must declare both the limit and the real unit price; if monetary metadata is missing it fails closed to legacy before any model/tool call.
+- Phase 8 now has three independent sources sharing the Compiler: conversation state with transcript refs, a MemoryIndex with file/line refs plus widening/conflict fallback, and a manifest-only SkillSource that loads exactly one body after resolve.
+- The three Phase 8 canaries have their own buckets/rollback, a shared hard-quota gate and default allocation 0. The memory files and the original transcript remain the source of truth; the SQLite state/index is only a projection that can be rebuilt.
+- Phase 0, Phase 3 and Phase 4 count as having **passed the release gate** only after enough redacted production samples exist, usage/tokenizer figures have been reconciled against the real ones, and the owner has approved the baseline and critical misses. So Phases 5-8 are not yet allowed to affect real requests.
 
-## Rà soát lại Phase 0-8 (2026-08-02)
+## Re-review of Phases 0-8 (2026-08-02)
 
-Trước khi mở Phase 9, toàn bộ Phase 0-8 được review lại theo từng lát cắt. Kết quả: kiến trúc đúng hướng (store dẫn xuất, ID/revision content-addressed, hard filter cưỡng chế bằng code, checkpoint append-only có OCC, mặc định fail-closed), nhưng có một nhóm lỗi phải vá trước khi đụng tới write.
+Before opening Phase 9, all of Phases 0-8 were reviewed again slice by slice. Result: the architecture is going the right way (derived stores, content-addressed ID/revision, hard filters enforced in code, append-only checkpoints with OCC, fail-closed defaults), but a group of bugs had to be fixed before touching write.
 
-Đã sửa trong lượt này:
+Fixed in this round:
 
-- **Test Phase 0-8 chưa từng chạy ở CI.** CI chạy từng file test như script (`python tests/python/test_x.py`); tám file test viết theo kiểu pytest không có block `__main__` nên chỉ định nghĩa hàm rồi thoát 0. Đã thêm runner cho từng file và cài `pytest` trong workflow. 100 test giờ chạy thật.
-- **Settings sai kiểu làm sập lượt chat.** `ObserveRuntime._policy` và `FeaturePolicy.from_settings` parse ngoài try/except; một giá trị sai kiểu trong `settings.json` ném ra tận vòng websocket. Nay parse fail-closed về `off`/default.
-- **Shadow/canary làm hỏng lượt đã thành công.** `_record_quality_shadow` và các `prepare` của Phase 5/6/7/8 không có ranh giới exception; lỗi ở nhánh quan sát biến một lượt thành công thành báo lỗi. Nay mọi nhánh đều bọc và rơi về legacy.
-- **Quota ledger nuốt usage thật.** Reservation hết TTL giữa stream bị lật `EXPIRED`, `consume_quota`/`record_usage` bỏ qua nên token thật biến mất khỏi rolling window (chính các lượt dài và đắt nhất). Nay reconcile được cả trạng thái `EXPIRED`.
-- **Budget của Compiler mâu thuẫn với preflight.** `task_tokens_remaining` không trừ output reserve nên có capsule `compiled` mà preflight lại `would_reject`. Cửa sổ context khai nhỏ hơn output reserve còn rơi về fallback LỚN HƠN cửa sổ thật.
-- **Quality Gate chặn nhầm tường thuật dữ liệu.** Regex cũ bắt mọi cụm "đã gửi/đã tạo", nên câu tóm tắt email/lịch hợp lệ bị thay bằng thông báo chặn. Nay chỉ bắt claim hành động của chính assistant, đồng thời phủ thêm dạng bị động ("đã được gửi", "was created"). Footer `Nguồn:` chuyển xuống SAU khi chấm để check citation không còn là code chết.
-- **Classifier mất tín hiệu tiếng Việt.** NFKD không phân rã `đ`, nên các deny-pattern ASCII (`dinh kem`, `dat lich`, `dang bai`) không bao giờ khớp câu tiếng Việt thật. Đã map `đ→d` ở cả bốn module dùng `_norm`, thêm deny cho URL, tham chiếu hội thoại và kỳ thời gian tương đối.
-- **Registry.** Source `plugin` không nằm trong sweep nên gỡ plugin xong capability ma vẫn resolve được; hai tool trùng tên làm `IntegrityError` rollback TOÀN BỘ refresh của brain; thiếu index `source_key` và xoá FTS theo từng dòng. Đã sửa cả ba, và đưa `refresh_tools`/`resolve` của Phase 6-7 ra khỏi event loop.
-- **Executor cho phép tham số ngoài hợp đồng.** JSON Schema mặc định cho qua key thừa, nên model tuồn được tham số lạ xuống tool. Nay default-deny, chỉ khai rõ `additionalProperties: true` mới cho qua. Thêm chốt sổ invocation khi lượt bị huỷ.
-- **Evidence store.** Cưỡng chế `enc:` và chặn path thoát ra ngoài ngay tại ranh giới store thay vì tin caller; redaction phủ thêm JWT, khoá AWS/Google, secret trong query string và tên khoá dạng `x-api-key`.
-- **Memory index trả sai fact.** Bộ chia đoạn cộng dồn số dòng sau khi đã bỏ dòng trống, nên mọi đoạn từ thứ hai trở đi lệch dần; khi có conflict, `_read_detail` đọc theo ref lệch và THAY excerpt đúng bằng nội dung của fact khác. Nay ref bám dòng thật của file, và index tự dựng lại khi `schema_version` đổi.
-- **Benchmark Phase 5 đọc dữ liệu người dùng.** Test đọc `brains/My Bullet Journal/Memory/MEMORY.md` (nằm trong `.gitignore`) nên luôn đỏ ở checkout sạch. Đã thay bằng fixture tổng hợp đã commit.
+- **The Phase 0-8 tests never ran in CI.** CI runs each test file as a script (`python tests/python/test_x.py`); eight test files written in pytest style had no `__main__` block, so they only defined functions and exited 0. A runner was added for each file and `pytest` is now installed in the workflow. 100 tests now actually run.
+- **Wrongly typed settings crashed the chat turn.** `ObserveRuntime._policy` and `FeaturePolicy.from_settings` parsed outside a try/except; a wrongly typed value in `settings.json` raised all the way up to the websocket loop. Parsing now fails closed to `off`/default.
+- **Shadow/canary broke turns that had succeeded.** `_record_quality_shadow` and the Phase 5/6/7/8 `prepare` steps had no exception boundary; an error in an observation branch turned a successful turn into an error report. Every branch is now wrapped and falls back to legacy.
+- **The quota ledger swallowed real usage.** A reservation whose TTL ran out mid-stream was flipped to `EXPIRED`, and `consume_quota`/`record_usage` skipped it, so the real tokens vanished from the rolling window (precisely for the longest and most expensive turns). It can now reconcile the `EXPIRED` state too.
+- **The Compiler budget contradicted preflight.** `task_tokens_remaining` did not subtract the output reserve, so a `compiled` capsule could still get `would_reject` from preflight. A declared context window smaller than the output reserve also fell back to a fallback LARGER than the real window.
+- **The Quality Gate wrongly blocked data narration.** The old regex caught every "đã gửi/đã tạo" phrase ("already sent/already created"), so valid email/calendar summary sentences were replaced by a block notice. It now catches only action claims by the assistant itself, and also covers passive forms ("đã được gửi", "was created"). The `Nguồn:` ("Source:") footer moved to AFTER scoring so the citation check is no longer dead code.
+- **The classifier lost Vietnamese signals.** NFKD does not decompose `đ`, so the ASCII deny-patterns (`dinh kem` "attachment", `dat lich` "book a schedule", `dang bai` "publish a post") never matched real Vietnamese sentences. `đ→d` is now mapped in all four modules that use `_norm`, and denies were added for URLs, conversation references and relative time periods.
+- **Registry.** The `plugin` source was not in the sweep, so after a plugin was removed its ghost capability could still resolve; two tools with the same name caused an `IntegrityError` that rolled back the WHOLE refresh of a brain; the `source_key` index was missing and FTS deletion ran row by row. All three are fixed, and Phase 6-7's `refresh_tools`/`resolve` were moved out of the event loop.
+- **The executor allowed parameters outside the contract.** The default JSON Schema lets extra keys through, so the model could smuggle unknown parameters down to the tool. It is now default-deny; only an explicit `additionalProperties: true` lets them through. An invocation close-out was also added for when a turn is cancelled.
+- **Evidence store.** `enc:` is now enforced and path escapes are blocked right at the store boundary instead of trusting the caller; redaction now also covers JWTs, AWS/Google keys, secrets in query strings and key names such as `x-api-key`.
+- **The memory index returned the wrong fact.** The chunker accumulated line numbers after dropping blank lines, so every chunk from the second one on drifted further off; on a conflict, `_read_detail` read by the drifted ref and REPLACED the correct excerpt with the content of a different fact. Refs now follow the file's real lines, and the index rebuilds itself when `schema_version` changes.
+- **The Phase 5 benchmark read user data.** The test read `brains/My Bullet Journal/Memory/MEMORY.md` (which is in `.gitignore`) so it was always red on a clean checkout. It was replaced with a committed synthetic fixture.
 
-Còn nợ, phải làm trong hoặc trước Phase 9:
+Still owed, to be done during or before Phase 9:
 
-- ~~Resume của Phase 7 so pin bằng NHÃN (`id` của quota rule)~~ **đã sửa 2026-08-02**: pin thêm `quota_rule_hash` (băm toàn bộ giá trị rule) và `model_profile_revision`, nên đổi giá/TPM mà giữ nguyên `id`, hoặc đổi model profile giữa chừng, đều làm resume dừng thay vì âm thầm dùng giá trị mới. Còn lại: deadline không được gia hạn khi resume nên restart lâu hơn deadline là không resume được gì.
-- `_continue` reset mọi step `RUNNING` về `PENDING` rồi chạy lại - đúng với read, nhưng chính là lỗi chạy trùng nếu áp cho write. Phase 9 phải có trạng thái `UNKNOWN` + reconcile thay vì retry mù.
-- `runtime_invocations` chưa có `idempotency_key UNIQUE` như spec mục 18.6 yêu cầu; hiện dựa vào lease dùng một lần.
-- Failure signature mới chặn vòng lặp planner, chưa chặn vòng lặp lỗi ở step thực thi.
-- Shadow production resolve bằng `ActorPolicy(mode="full")` nên không đo được miss do permission - đúng cái filter Phase 9 dựa vào.
-- Compiler chưa đọc `conflicts_with`, chưa có check "fact định lượng phải có evidence", và `QualityDecision` còn thiếu `missing_evidence`/`suggested_queries` theo mục 16.3.
+- ~~Phase 7 resume compared the pin by LABEL (the quota rule's `id`)~~ **fixed 2026-08-02**: the pin now also holds `quota_rule_hash` (a hash over all the rule's values) and `model_profile_revision`, so changing the price/TPM while keeping the same `id`, or changing the model profile midway, makes resume stop instead of silently using the new values. What remains: the deadline is not extended on resume, so a restart longer than the deadline cannot resume anything.
+- `_continue` resets every `RUNNING` step to `PENDING` and then reruns it - correct for read, but exactly the duplicate-execution bug if applied to write. Phase 9 must have an `UNKNOWN` state plus reconcile instead of a blind retry.
+- `runtime_invocations` does not yet have `idempotency_key UNIQUE` as spec section 18.6 requires; it currently relies on the single-use lease.
+- The failure signature only stops planner loops so far, not failure loops in execution steps.
+- Production shadow resolves with `ActorPolicy(mode="full")`, so it cannot measure misses caused by permission - exactly the filter Phase 9 depends on.
+- The Compiler does not yet read `conflicts_with`, has no "quantitative facts must have evidence" check, and `QualityDecision` still lacks `missing_evidence`/`suggested_queries` per section 16.3.
 
-## 0. Quyết định kiến trúc
+## 0. Architecture decision
 
-Jarvis 007 sẽ chuyển từ cách dựng request theo kiểu "nối mọi thứ có thể hữu ích vào prompt" sang một runtime biên dịch context theo từng bước của nhiệm vụ.
+Jarvis 007 will move from building requests by "concatenating everything that might be useful into the prompt" to a runtime that compiles context for each step of the task.
 
-Mục tiêu bất biến là:
+The invariant goal is:
 
-> Số capability có thể tăng từ vài chục lên hàng chục nghìn nhưng context của một bước chỉ tăng theo số capability thật sự cần cho bước đó.
+> The number of capabilities can grow from a few dozen to tens of thousands, but the context of one step grows only with the number of capabilities that step actually needs.
 
-Capability trong tài liệu này bao gồm MCP tool, builtin tool, plugin tool, skill, workflow, agent, model, nguồn memory, nguồn evidence và validator.
+In this document, capability covers MCP tools, builtin tools, plugin tools, skills, workflows, agents, models, memory sources, evidence sources and validators.
 
-Runtime mới không xoá các nguồn dữ liệu hiện tại và không biến vector database thành nguồn sự thật. Registry, index, embedding, summary và working state đều là dữ liệu dẫn xuất, có thể dựng lại từ nguồn gốc.
+The new runtime does not delete the current data sources and does not turn a vector database into the source of truth. The Registry, index, embeddings, summaries and working state are all derived data that can be rebuilt from the original.
 
-Không triển khai bằng một lần viết lại lớn. Runtime mới phải chạy song song với đường hiện tại, có shadow mode, canary mode và fallback theo từng lượt.
+It will not be delivered as one big rewrite. The new runtime must run alongside the current path, with a shadow mode, a canary mode and a per-turn fallback.
 
-## 1. Bối cảnh và số đo hiện tại
+## 1. Background and current measurements
 
-Đo trên brain `brains/My Bullet Journal` ngày 2026-08-01:
+Measured on the brain `brains/My Bullet Journal` on 2026-08-01:
 
-| Thành phần | Kích thước ký tự |
+| Component | Size in characters |
 |---|---:|
-| `CLAUDE.md` gốc của Jarvis 007 | 21.479 |
-| `Memory/MEMORY.md` được nạp | 18.723 |
-| Khối capability và skill router | khoảng 4.600 |
-| System prompt hoàn chỉnh | 45.625 |
-| 26 schema tool gửi qua API | 17.161 |
-| Tổng cố định trước lịch sử và câu hỏi | khoảng 62.800 |
+| The original `CLAUDE.md` of Jarvis 007 | 21,479 |
+| `Memory/MEMORY.md` as loaded | 18,723 |
+| Capability block and skill router | about 4,600 |
+| Complete system prompt | 45,625 |
+| 26 tool schemas sent through the API | 17,161 |
+| Fixed total before history and the question | about 62,800 |
 
-Với tokenizer của từng model, payload trên có thể vượt 12.000 token trước khi model sinh câu trả lời. Việc thêm memory, skill, plugin hoặc MCP hiện có thể làm chi phí context tăng tuyến tính.
+With each model's tokenizer, the payload above can exceed 12,000 tokens before the model generates an answer. Adding memory, skills, plugins or MCPs can make the context cost grow linearly.
 
-Các điểm ghép hiện tại:
+Current join points:
 
-- `server/main.py:266` dựng system prompt từ luật gốc, memory, capability và skill.
-- `server/main.py:5481` dựng prompt cho dashboard.
-- `server/main.py:5587` ghép lịch sử API qua compaction.
-- `server/main.py:5590` chuyển request sang MCP/tool loop.
-- `server/mcp_hub.py:610` discover toàn bộ tool.
-- `server/engine.py:1077` đưa messages và tool schema vào payload provider.
-- `server/compaction.py:100` quản lý phần lịch sử đã và chưa nén.
+- `server/main.py:266` builds the system prompt from the base rules, memory, capabilities and skills.
+- `server/main.py:5481` builds the prompt for the dashboard.
+- `server/main.py:5587` stitches the API history through compaction.
+- `server/main.py:5590` hands the request to the MCP/tool loop.
+- `server/mcp_hub.py:610` discovers every tool.
+- `server/engine.py:1077` puts messages and tool schemas into the provider payload.
+- `server/compaction.py:100` manages the compacted and not-yet-compacted parts of history.
 
-Các phần có thể tái sử dụng:
+Parts that can be reused:
 
-- MCP Hub đã chuẩn hoá route, permission và lazy discovery cho connector.
-- `compaction.py` đã có summary cuộn và fallback.
-- `engine.py` đã có adapter provider và tool loop.
-- Skill, workflow, plugin và model đã có metadata ban đầu.
-- SQLite, FTS5, usage store và session store đã tồn tại trong hệ thống.
+- MCP Hub already standardizes routing, permissions and lazy discovery for connectors.
+- `compaction.py` already has rolling summaries and a fallback.
+- `engine.py` already has provider adapters and a tool loop.
+- Skills, workflows, plugins and models already have initial metadata.
+- SQLite, FTS5, the usage store and the session store already exist in the system.
 
-## 2. Mục tiêu
+## 2. Goals
 
-### 2.1 Mục tiêu chức năng
+### 2.1 Functional goals
 
-1. Giữ nguyên toàn bộ năng lực hiện có của Jarvis 007.
-2. Thêm MCP, skill, workflow, agent hoặc model mà không phải sửa system prompt trung tâm.
-3. Context ban đầu không chứa danh sách đầy đủ capability.
-4. Mỗi bước chỉ nhận schema chính xác của capability được chọn cho bước đó.
-5. Nhiệm vụ đơn giản vẫn trả lời trong một model call.
-6. Nhiệm vụ phức tạp được phép resolve, execute và replan qua nhiều vòng.
-7. Memory đầy đủ vẫn được lưu, nhưng model chỉ nhận evidence liên quan.
-8. Mọi hành động có side effect phải có policy, audit và chống chạy trùng.
-9. Có thể đổi model theo từng bước mà không làm mất trạng thái nhiệm vụ.
-10. Mọi quyết định chọn context, capability và model đều truy vết được.
+1. Keep every existing capability of Jarvis 007.
+2. Add an MCP, skill, workflow, agent or model without editing the central system prompt.
+3. The initial context does not contain the full list of capabilities.
+4. Each step receives only the exact schema of the capability chosen for that step.
+5. A simple task is still answered in one model call.
+6. A complex task is allowed to resolve, execute and replan over several rounds.
+7. Full memory is still stored, but the model receives only the relevant evidence.
+8. Every action with a side effect must have a policy, an audit trail and protection against duplicate execution.
+9. The model can be switched per step without losing task state.
+10. Every decision about context, capability and model selection is traceable.
 
-### 2.2 Mục tiêu hiệu năng
+### 2.2 Performance goals
 
-1. Chi phí context tăng theo `k`, là số capability được dùng trong bước hiện tại, không tăng theo tổng số capability `N`.
-2. Resolver thông thường chạy local, không cần gọi LLM.
-3. Fast path không thêm model round so với hiện tại.
-4. Read-only tool độc lập có thể chạy song song.
-5. Tổng token của toàn task được tối ưu, không chỉ token của request đầu tiên.
-6. Hệ thống theo dõi TPM, RPM, concurrency, chi phí và output reserve theo thời gian thực.
+1. Context cost grows with `k`, the number of capabilities used in the current step, and not with the total number of capabilities `N`.
+2. The resolver normally runs locally, with no LLM call.
+3. Fast path adds no model round compared with today.
+4. Independent read-only tools can run in parallel.
+5. The total tokens of the whole task are optimized, not just the tokens of the first request.
+6. The system tracks TPM, RPM, concurrency, cost and output reserve in real time.
 
-### 2.3 Mục tiêu chất lượng
+### 2.3 Quality goals
 
-1. Không giảm khả năng tìm đúng tool, skill, workflow hoặc memory.
-2. Khi resolver không chắc chắn, hệ thống phải mở rộng truy xuất hoặc fallback, không tự tin bỏ sót.
-3. Fact quan trọng trong câu trả lời phải có provenance nội bộ.
-4. Tool arguments phải được validate bằng schema thật trước khi chạy.
-5. Model không được quyết định quyền hoặc vượt policy bằng nội dung prompt.
+1. No reduction in the ability to find the right tool, skill, workflow or memory.
+2. When the resolver is not certain, the system must widen retrieval or fall back, and must not confidently miss.
+3. Important facts in an answer must have internal provenance.
+4. Tool arguments must be validated against the real schema before running.
+5. The model must not be able to decide permissions or exceed policy through prompt content.
 
-## 3. Không phải mục tiêu
+## 3. Non-goals
 
-- Không thay toàn bộ database hiện tại bằng vector database.
-- Không chuyển memory gốc sang một định dạng độc quyền.
-- Không ép mọi câu hỏi đi qua agent loop nhiều vòng.
-- Không tạo một bản prompt riêng được hardcode cho từng provider.
-- Không loại bỏ Claude/Codex native session.
-- Không gộp ngay toàn bộ dashboard, Telegram, task nền và workflow vào một lần refactor.
-- Không cho LLM tự quyết định quyền, quota hoặc side effect.
-- Không xoá fallback hiện tại trước khi replay benchmark đạt yêu cầu.
+- Do not replace the entire current database with a vector database.
+- Do not move the original memory into a proprietary format.
+- Do not force every question through a multi-round agent loop.
+- Do not create a separate hardcoded prompt for each provider.
+- Do not remove Claude/Codex native sessions.
+- Do not merge the dashboard, Telegram, background tasks and workflows into one refactor all at once.
+- Do not let the LLM decide permissions, quotas or side effects.
+- Do not delete the current fallback before the benchmark replay meets the requirements.
 
-## 4. Các nguyên tắc bất biến
+## 4. Invariant principles
 
-### 4.1 Context phải có kích thước cấu trúc gần như cố định
+### 4.1 Context must have a nearly fixed structural size
 
-Core prompt chỉ mô tả giao thức làm việc, danh tính tối thiểu và các ràng buộc cần cho bước hiện tại. Nó không liệt kê toàn bộ memory, skill, workflow hay tool.
+The core prompt describes only the working protocol, a minimal identity and the constraints needed for the current step. It does not list all memory, skills, workflows or tools.
 
-Thêm 1.000 capability mới vào Registry không được tự động thêm 1.000 dòng vào prompt.
+Adding 1,000 new capabilities to the Registry must not automatically add 1,000 lines to the prompt.
 
-### 4.2 Nguồn sự thật ở ngoài model
+### 4.2 The source of truth lives outside the model
 
-- File memory, skill và workflow là nguồn sự thật nội dung.
-- MCP server là nguồn sự thật schema tool.
-- Settings và model catalog là nguồn sự thật cấu hình provider.
-- Registry và index chỉ là bản dẫn xuất.
-- Task state và evidence phải tồn tại ngoài context của model.
+- Memory, skill and workflow files are the source of truth for content.
+- The MCP server is the source of truth for tool schemas.
+- Settings and the model catalog are the source of truth for provider configuration.
+- The Registry and index are only derived copies.
+- Task state and evidence must exist outside the model's context.
 
 ### 4.3 Exact schema at execution time
 
-Model chỉ được sinh arguments cho schema đầy đủ đã được chọn và đưa vào capsule của bước hiện tại. Không yêu cầu model đoán tham số từ tên tool hoặc mô tả rút gọn.
+The model may generate arguments only for the full schema that was selected and placed in the current step's capsule. The model is not asked to guess parameters from a tool name or a shortened description.
 
-### 4.4 Enforcement ở gateway
+### 4.4 Enforcement at the gateway
 
-Permission, confirmation, rate limit, path scope, idempotency và side-effect policy phải được thực thi bằng code. Prompt chỉ giúp model hành xử tốt, không phải hàng rào an toàn cuối cùng.
+Permission, confirmation, rate limit, path scope, idempotency and side-effect policy must be enforced by code. The prompt only helps the model behave well; it is not the final safety barrier.
 
-### 4.5 Adaptive thay vì hardcode số lượng
+### 4.5 Adaptive instead of hardcoded counts
 
-Không dùng một con số cố định kiểu "luôn lấy 5 memory", "luôn giữ 12 message" hoặc "luôn phơi 8 tool" làm logic chính.
+Do not use a fixed number such as "always take 5 memories", "always keep 12 messages" or "always expose 8 tools" as the main logic.
 
-Runtime chọn số lượng dựa trên:
+The runtime chooses quantities based on:
 
-- ngân sách token còn lại;
-- độ tin cậy của retrieval;
-- độ chênh điểm giữa ứng viên;
-- mức độ phủ mục tiêu;
-- độ rủi ro của hành động;
-- giá trị thông tin dự kiến;
-- chi phí và độ trễ hiện tại.
+- the remaining token budget;
+- retrieval confidence;
+- the score gap between candidates;
+- how much of the goal is covered;
+- the risk of the action;
+- the expected value of the information;
+- the current cost and latency.
 
-Các giới hạn tuyệt đối chỉ là safety ceiling cấu hình được, không phải thuật toán chọn context.
+Absolute limits are only configurable safety ceilings, not the algorithm for choosing context.
 
-## 5. Thuật ngữ
+## 5. Terminology
 
-| Thuật ngữ | Nghĩa |
+| Term | Meaning |
 |---|---|
-| Capability | Một năng lực có thể discover, describe hoặc invoke |
-| Manifest | Metadata chuẩn hoá của capability |
-| Registry | Kho manifest và version, không nằm trong prompt |
-| Resolver | Thành phần tìm capability phù hợp với mục tiêu |
-| Context item | Một đơn vị nội dung có nguồn, điểm giá trị và chi phí token |
-| Context capsule | Context đã biên dịch cho đúng một bước |
-| Task | Mục tiêu xuyên suốt một hoặc nhiều vòng |
-| Step | Một lần suy luận hoặc thực thi trong task |
-| Evidence | Dữ liệu có nguồn do memory, file hoặc tool cung cấp |
-| Artifact | Kết quả đầy đủ lưu ngoài prompt, được tham chiếu bằng ID |
-| Quality gate | Bộ đánh giá task đã đủ bằng chứng để trả lời hay chưa |
-| Shadow mode | Runtime mới tính quyết định nhưng đường cũ vẫn thực thi |
+| Capability | An ability that can be discovered, described or invoked |
+| Manifest | Standardized metadata of a capability |
+| Registry | The store of manifests and versions, not placed in the prompt |
+| Resolver | The component that finds the capability that fits a goal |
+| Context item | A unit of content with a source, a value score and a token cost |
+| Context capsule | Context compiled for exactly one step |
+| Task | A goal spanning one or more rounds |
+| Step | One reasoning or execution pass within a task |
+| Evidence | Sourced data supplied by memory, files or tools |
+| Artifact | A full result stored outside the prompt and referenced by ID |
+| Quality gate | The evaluator of whether a task has enough evidence to answer |
+| Shadow mode | The new runtime computes decisions but the old path still executes |
 
-## 6. Kiến trúc tổng thể
+## 6. Overall architecture
 
 ```mermaid
 flowchart TD
-    U[User hoặc trigger nền] --> I[Turn Ingress]
+    U[User or background trigger] --> I[Turn Ingress]
     I --> S[Task State]
     I --> R[Adaptive Resolver]
     R <--> G[Capability Registry]
-    R <--> MI[Memory và Evidence Index]
+    R <--> MI[Memory and Evidence Index]
     R --> C[Context Compiler]
     S --> C
     C --> O[Task Orchestrator]
@@ -232,8 +232,8 @@ flowchart TD
     X --> ES[Evidence Store]
     ES --> C
     O --> Q[Quality Gate]
-    Q -->|đủ| A[Response]
-    Q -->|thiếu| R
+    Q -->|sufficient| A[Response]
+    Q -->|insufficient| R
     P[Policy Engine] --> C
     P --> X
     QS[Quota Scheduler] --> C
@@ -242,26 +242,26 @@ flowchart TD
 
 ## 7. Capability Registry
 
-### 7.1 Vai trò
+### 7.1 Role
 
-Registry cung cấp một giao diện thống nhất cho:
+The Registry provides one unified interface for:
 
-- MCP tool từ mọi connection;
-- builtin tool trong Jarvis 007;
-- plugin tool;
-- skill;
-- workflow và agent;
-- model/provider;
-- memory collection;
-- validator và transformer.
+- MCP tools from every connection;
+- builtin tools in Jarvis 007;
+- plugin tools;
+- skills;
+- workflows and agents;
+- models/providers;
+- memory collections;
+- validators and transformers.
 
-Registry không được nối toàn bộ manifest vào system prompt.
+The Registry must not concatenate all manifests into the system prompt.
 
-Phạm vi dài hạn của Registry là tất cả các loại trên. MVP chỉ ingest MCP tool, builtin tool, plugin tool và ModelProfile tối thiểu. Skill, workflow, agent và memory collection được đưa vào sau khi đường tool đã chứng minh hoạt động. Cách chia này tránh thiết kế một manifest phổ quát quá sớm mà chưa có consumer thật.
+The long-term scope of the Registry is all of the types above. The MVP ingests only MCP tools, builtin tools, plugin tools and a minimal ModelProfile. Skills, workflows, agents and memory collections come in after the tool path has proven it works. This split avoids designing a universal manifest too early without a real consumer.
 
 ### 7.2 Capability manifest
 
-Schema logic phiên bản đầu:
+First-version logical schema:
 
 ```python
 @dataclass(frozen=True)
@@ -291,18 +291,18 @@ class CapabilityManifest:
     metadata: dict
 ```
 
-Quy ước:
+Conventions:
 
-- `id` ổn định, có namespace, ví dụ `mcp.google-calendar.create-event`.
-- `revision` thay đổi khi schema hoặc hành vi thay đổi.
-- `side_effect` thuộc nhóm `none`, `read`, `write`, `dangerous`.
-- `source_ref` chỉ tới MCP connection, file skill, workflow hoặc adapter model gốc.
-- `source_hash` dùng invalidation và replay.
-- Manifest không chứa secret.
+- `id` is stable and namespaced, for example `mcp.google-calendar.create-event`.
+- `revision` changes when the schema or behavior changes.
+- `side_effect` is one of `none`, `read`, `write`, `dangerous`.
+- `source_ref` points to the original MCP connection, skill file, workflow or model adapter.
+- `source_hash` is used for invalidation and replay.
+- A manifest contains no secrets.
 
 ### 7.3 Storage
 
-Dùng SQLite trong `JAVIS_STATE_DIR`, ví dụ `capabilities.db`:
+Use SQLite in `JAVIS_STATE_DIR`, for example `capabilities.db`:
 
 ```sql
 CREATE TABLE capabilities (
@@ -337,11 +337,11 @@ CREATE TABLE capability_stats (
 );
 ```
 
-FTS5 index dùng cho name, summary, intent, alias và ví dụ. Embedding index là adapter tuỳ chọn, không phải điều kiện boot.
+The FTS5 index covers name, summary, intent, alias and examples. The embedding index is an optional adapter, not a boot requirement.
 
 ### 7.4 Ingestion adapter
 
-Mỗi nguồn triển khai một adapter:
+Each source implements an adapter:
 
 ```python
 class CapabilitySource(Protocol):
@@ -349,34 +349,34 @@ class CapabilitySource(Protocol):
     async def manifests(self, snapshot: SourceSnapshot) -> AsyncIterator[CapabilityManifest]: ...
 ```
 
-Nguồn tối thiểu:
+Minimum sources:
 
-- `MCPSource`: chuyển kết quả `tools/list` thành manifest.
-- `BuiltinSource`: đăng ký builtin tool và policy.
-- `PluginSource`: đọc plugin manifest và tool registration.
-- `SkillSource`: đọc frontmatter và source path, không đọc toàn thân skill vào Registry.
-- `WorkflowSource`: đọc input, output, trigger và dependency.
-- `ModelSource`: đọc catalog model và capability provider.
-- `MemorySource`: đăng ký collection, không biến từng fact thành tool.
+- `MCPSource`: turns the `tools/list` result into manifests.
+- `BuiltinSource`: registers builtin tools and policy.
+- `PluginSource`: reads the plugin manifest and tool registration.
+- `SkillSource`: reads the frontmatter and source path, and does not read the whole skill body into the Registry.
+- `WorkflowSource`: reads input, output, trigger and dependency.
+- `ModelSource`: reads the model catalog and provider capabilities.
+- `MemorySource`: registers collections, and does not turn each fact into a tool.
 
-Thứ tự triển khai source adapter:
+Order of rolling out source adapters:
 
-1. MCP, builtin và plugin tool.
-2. ModelProfile tối thiểu để compiler và quota preflight dùng.
-3. Skill và memory collection sau khi read-only tool path ổn định.
-4. Workflow và agent sau khi Task Orchestrator có checkpoint/resume.
+1. MCP, builtin and plugin tools.
+2. A minimal ModelProfile for the compiler and quota preflight to use.
+3. Skill and memory collection once the read-only tool path is stable.
+4. Workflow and agent once the Task Orchestrator has checkpoint/resume.
 
-### 7.5 Đồng bộ và invalidation
+### 7.5 Sync and invalidation
 
-- Registry được cập nhật nền khi source hash đổi.
-- Request chat không chờ full rescan nếu đang có snapshot hợp lệ.
-- Nếu source lỗi, giữ revision tốt gần nhất và đánh dấu degraded.
-- Nếu Registry hỏng, có thể xoá database dẫn xuất và dựng lại.
-- Việc thay đổi một source chỉ invalidation capability thuộc source đó.
+- The Registry is updated in the background when a source hash changes.
+- A chat request does not wait for a full rescan if a valid snapshot exists.
+- If a source fails, keep the latest good revision and mark it degraded.
+- If the Registry is corrupted, the derived database can be deleted and rebuilt.
+- Changing one source invalidates only the capabilities belonging to that source.
 
-### 7.6 Điểm mở rộng
+### 7.6 Extension points
 
-Lõi không import trực tiếp từng connector, model hoặc workflow mới. Extension đăng ký qua giao diện:
+The core does not directly import each new connector, model or workflow. Extensions register through an interface:
 
 ```python
 @dataclass
@@ -391,20 +391,20 @@ class RuntimeExtension:
     validators: list[QualityValidator]
 ```
 
-Quy tắc đăng ký:
+Registration rules:
 
-- Mỗi extension có namespace riêng.
-- Trùng capability ID là lỗi, không cho extension mới shadow im lặng.
-- Extension có thể thêm kind mới nhưng phải khai báo renderer và executor tương ứng.
-- Extension không được ghi thẳng vào Registry database; chỉ phát manifest qua source adapter.
-- Extension unload làm capability chuyển disabled/degraded, không xoá audit hoặc task history.
-- Runtime extension API có version; không dùng import side effect làm hợp đồng ngầm.
+- Each extension has its own namespace.
+- A duplicate capability ID is an error; a new extension is not allowed to silently shadow another.
+- An extension can add a new kind but must declare the matching renderer and executor.
+- An extension must not write directly into the Registry database; it only emits manifests through a source adapter.
+- Unloading an extension turns its capabilities disabled/degraded, and does not delete the audit trail or task history.
+- The runtime extension API is versioned; import side effects are not used as an implicit contract.
 
-Thêm MCP mới chỉ cần connection và `tools/list`. Thêm model mới chỉ cần ModelProfile source và engine adapter. Thêm workflow mới chỉ cần manifest và graph source. Không trường hợp nào yêu cầu sửa core prompt.
+Adding a new MCP needs only a connection and `tools/list`. Adding a new model needs only a ModelProfile source and an engine adapter. Adding a new workflow needs only a manifest and a graph source. In no case is a change to the core prompt required.
 
 ## 8. Adaptive Resolver
 
-### 8.1 Input và output
+### 8.1 Input and output
 
 ```python
 @dataclass
@@ -430,19 +430,19 @@ class ResolveResult:
     trace_id: str
 ```
 
-`recommended_path` có thể là `fast`, `tool`, `workflow`, `agentic`, `ask_user` hoặc `fallback_legacy`.
+`recommended_path` can be `fast`, `tool`, `workflow`, `agentic`, `ask_user` or `fallback_legacy`.
 
-### 8.2 Pipeline tìm kiếm
+### 8.2 Search pipeline
 
-1. Phân rã objective thành nhu cầu dữ liệu và hành động.
-2. Hard filter theo enabled, permission, channel, brain, dependency và health.
-3. Lấy ứng viên bằng FTS, alias, semantic index và dependency graph.
-4. Boost capability từng chạy thành công với intent tương tự.
-5. Penalize capability lỗi, chậm, tốn quota hoặc yêu cầu quyền chưa có.
-6. Tính coverage của toàn bộ objective, không chỉ điểm từng tool.
-7. Chọn tập ứng viên bằng marginal utility thay vì top-k cố định.
+1. Decompose the objective into data and action needs.
+2. Hard-filter by enabled, permission, channel, brain, dependency and health.
+3. Fetch candidates through FTS, alias, the semantic index and the dependency graph.
+4. Boost capabilities that previously succeeded on a similar intent.
+5. Penalize capabilities that are failing, slow, quota-hungry or need a permission that is not yet granted.
+6. Compute the coverage of the whole objective, not just each tool's score.
+7. Choose the candidate set by marginal utility instead of a fixed top-k.
 
-Điểm khái niệm:
+Conceptual score:
 
 ```text
 utility = relevance
@@ -457,45 +457,45 @@ utility = relevance
         - risk_cost
 ```
 
-Các trọng số thuộc `ResolverPolicy`, có version và có thể thay đổi mà không sửa manifest.
+The weights belong to `ResolverPolicy`, are versioned, and can change without editing manifests.
 
-Resolver phiên bản đầu phải deterministic và giải thích được. Nó dùng hard filter, alias, FTS, coverage và score gap. Embedding chỉ bổ sung recall khi FTS chưa đủ. Chưa tự học trọng số online và chưa boost mạnh theo số lần capability từng được chọn, vì cơ chế đó dễ tạo vòng lặp phổ biến khiến capability mới không có cơ hội xuất hiện.
+The first version of the Resolver must be deterministic and explainable. It uses hard filters, alias, FTS, coverage and score gap. Embedding only adds recall when FTS is not enough. It does not yet learn weights online and does not yet boost strongly by how often a capability was chosen before, because that mechanism easily creates a popularity loop that gives new capabilities no chance to appear.
 
 ### 8.3 Dynamic cutoff
 
-Resolver dừng thêm ứng viên khi thoả tất cả điều kiện:
+The Resolver stops adding candidates when all of these conditions hold:
 
-- các nhu cầu bắt buộc đã được phủ;
-- ứng viên kế tiếp không tăng coverage đáng kể;
-- độ chênh điểm cho thấy lựa chọn đã rõ;
-- token cost của schema kế tiếp lớn hơn giá trị dự kiến;
-- confidence đạt mức yêu cầu theo risk class.
+- the required needs are covered;
+- the next candidate does not raise coverage meaningfully;
+- the score gap shows the choice is already clear;
+- the token cost of the next schema is larger than its expected value;
+- confidence reaches the level required by the risk class.
 
-Khi confidence thấp:
+When confidence is low:
 
-- mở rộng query bằng alias hoặc graph neighbor;
-- tìm workflow thay vì tool đơn;
-- hỏi model planner bằng capsule nhỏ;
-- hỏi lại người dùng nếu có nhiều hành động write khác nhau;
-- fallback về đường hiện tại hoặc model có ngân sách lớn hơn.
+- widen the query with aliases or graph neighbors;
+- look for a workflow instead of a single tool;
+- ask a planner model with a small capsule;
+- ask the user again if there are several different write actions;
+- fall back to the current path or to a model with a larger budget.
 
 ### 8.4 Shadow mode
 
-Trong shadow mode:
+In shadow mode:
 
-- Resolver ghi candidates và confidence.
-- Đường hiện tại vẫn nhận full prompt/tool như cũ.
-- Sau lượt, trace so sánh tool thực sự được gọi với candidates.
-- Không có quyết định shadow nào được chạy tool hoặc thay câu trả lời.
+- The Resolver records candidates and confidence.
+- The current path still receives the full prompt/tools as before.
+- After the turn, the trace compares the tools actually called against the candidates.
+- No shadow decision is allowed to run a tool or replace the answer.
 
-Shadow replay là cổng bắt buộc trước canary, nhưng hành vi cũ không được coi là nhãn đúng duy nhất. Đánh giá cần hai tập:
+Shadow replay is a mandatory gate before canary, but the old behavior is not treated as the only correct label. Evaluation needs two sets:
 
-- Replay tự động để phát hiện khác biệt với đường hiện tại.
-- Gold benchmark do người duyệt đánh dấu capability, evidence và kết quả đúng.
+- Automatic replay to detect differences from the current path.
+- A gold benchmark where a human reviewer marks the correct capability, evidence and result.
 
-Nếu Resolver mới chọn workflow hoặc capability tốt hơn đường cũ, benchmark phải ghi nhận là cải thiện thay vì mismatch.
+If the new Resolver picks a workflow or capability that is better than the old path, the benchmark must record it as an improvement rather than a mismatch.
 
-## 9. Model Registry và Quota Scheduler
+## 9. Model Registry and Quota Scheduler
 
 ### 9.1 Model profile
 
@@ -518,18 +518,18 @@ class ModelProfile:
     reliability: dict
 ```
 
-Profile được hợp nhất từ:
+A profile is merged from:
 
-- catalog mặc định có version;
-- metadata live của provider nếu có;
-- override của người dùng;
-- usage và error quan sát được.
+- a versioned default catalog;
+- live provider metadata, if available;
+- user overrides;
+- observed usage and errors.
 
-Không tin tuyệt đối một nguồn. Mọi field có provenance và thời điểm cập nhật.
+No single source is trusted absolutely. Every field has provenance and an update time.
 
 ### 9.2 Quota snapshot
 
-Quota Scheduler duy trì cửa sổ trượt theo actor, provider và model:
+The Quota Scheduler maintains a sliding window per actor, provider and model:
 
 ```python
 @dataclass
@@ -542,33 +542,33 @@ class QuotaSnapshot:
     confidence: float
 ```
 
-Trước khi gửi request:
+Before sending a request:
 
-1. Tokenizer adapter đếm request dự kiến.
-2. Nếu chưa có tokenizer chính xác, estimator dùng sai số đã học từ usage thật và safety margin.
-3. Scheduler reserve token atomically.
-4. Khi provider trả usage, reservation được reconcile.
-5. Khi lỗi trước generation, reservation được giải phóng theo policy provider.
+1. The tokenizer adapter counts the expected request.
+2. If there is no exact tokenizer yet, the estimator uses the error learned from real usage plus a safety margin.
+3. The Scheduler reserves tokens atomically.
+4. When the provider returns usage, the reservation is reconciled.
+5. On an error before generation, the reservation is released according to the provider policy.
 
 ### 9.3 Model routing
 
-Model Router chọn model theo từng step dựa trên:
+The Model Router picks a model for each step based on:
 
-- output contract;
-- tool/vision/reasoning requirement;
-- context và quota còn lại;
-- deadline và latency;
-- risk và quality requirement;
-- chi phí task còn lại;
-- reliability live.
+- the output contract;
+- the tool/vision/reasoning requirement;
+- the remaining context and quota;
+- the deadline and latency;
+- the risk and quality requirement;
+- the remaining task cost;
+- live reliability.
 
-Không đổi model chỉ để tiết kiệm nếu việc đổi làm mất năng lực cần thiết.
+Do not switch models just to save money if the switch loses a needed capability.
 
 ## 10. Context Compiler
 
 ### 10.1 Context item
 
-Mọi nội dung có thể đi vào prompt phải được chuẩn hoá:
+Every piece of content that can enter the prompt must be normalized:
 
 ```python
 @dataclass(frozen=True)
@@ -589,7 +589,7 @@ class ContextItem:
     metadata: dict
 ```
 
-Các `kind` ban đầu:
+The initial `kind` values:
 
 - `core_contract`;
 - `policy_clause`;
@@ -617,18 +617,18 @@ class ContextBudget:
     monetary_remaining: float | None
 ```
 
-`max_input_tokens` được tính từ model profile, quota snapshot, task budget và output reserve. Nó không nằm trong một hằng số chung cho mọi model.
+`max_input_tokens` is computed from the model profile, the quota snapshot, the task budget and the output reserve. It does not sit in one shared constant for every model.
 
-### 10.3 Thuật toán compile
+### 10.3 Compile algorithm
 
-1. Nạp các item bắt buộc nhỏ nhất: objective, output contract, policy áp dụng và active state.
-2. Loại item sai brain, sai actor, hết hạn hoặc không đủ trust.
-3. Hợp nhất item trùng theo source hash.
-4. Phát hiện conflict và giữ cả hai nếu conflict chưa được giải quyết.
-5. Chọn item có utility/token cao cho tới khi coverage đủ hoặc marginal utility không còn hợp lý.
-6. Nếu item bắt buộc làm vượt budget, không cắt âm thầm. Trả quyết định `recompile`, `change_model`, `defer`, `ask_user` hoặc `fallback`.
-7. Render capsule theo adapter của model.
-8. Đếm token lần cuối trên payload đã render, gồm cả tool schema.
+1. Load the smallest required items: objective, output contract, applicable policy and active state.
+2. Drop items for the wrong brain, wrong actor, expired, or without enough trust.
+3. Merge duplicate items by source hash.
+4. Detect conflicts and keep both if a conflict is not yet resolved.
+5. Pick items with high utility per token until coverage is sufficient or marginal utility is no longer reasonable.
+6. If a required item pushes the request over budget, do not cut silently. Return a decision of `recompile`, `change_model`, `defer`, `ask_user` or `fallback`.
+7. Render the capsule using the model's adapter.
+8. Count tokens one last time on the rendered payload, tool schemas included.
 
 Pseudo-code:
 
@@ -669,31 +669,31 @@ class ContextCapsule:
     capsule_hash: str
 ```
 
-Capsule phải có `source_map` để trace biết câu nào đến từ đâu. Không đưa `source_map` dài vào model nếu adapter không cần, nhưng phải lưu ngoài prompt.
+A capsule must have a `source_map` so the trace knows where each statement came from. Do not put a long `source_map` into the model if the adapter does not need it, but it must be stored outside the prompt.
 
 ### 10.5 Core contract
 
-Core contract chỉ chứa:
+The core contract contains only:
 
-- danh tính và cách giao tiếp tối thiểu;
-- quy tắc tuân theo capsule;
-- quy tắc không bịa tool/evidence;
-- cách báo thiếu dữ liệu;
-- hợp đồng trả output;
-- chỉ dẫn rằng quyền và side effect do gateway kiểm soát.
+- a minimal identity and communication style;
+- the rule to follow the capsule;
+- the rule not to invent tools or evidence;
+- how to report missing data;
+- the output contract;
+- the instruction that permissions and side effects are controlled by the gateway.
 
-Luật chi tiết được tách thành policy clause và chỉ nạp khi scope khớp. Các luật bắt buộc ở mọi nơi phải được enforcement bằng code nếu có thể.
+Detailed rules are split into policy clauses and loaded only when the scope matches. Rules that must hold everywhere should be enforced in code where possible.
 
-## 11. Memory và Conversation State
+## 11. Memory and Conversation State
 
-### 11.1 Bốn lớp memory
+### 11.1 Four memory layers
 
-1. `Event store`: hội thoại, tool event, file event và quyết định gốc.
-2. `Fact store`: fact đã chưng cất, có source, confidence và thời gian.
-3. `Relationship index`: liên kết người, dự án, file, task và fact.
-4. `Working state`: mục tiêu, giả định, quyết định và việc dang dở của task hiện tại.
+1. `Event store`: the original conversations, tool events, file events and decisions.
+2. `Fact store`: distilled facts, with source, confidence and time.
+3. `Relationship index`: links between people, projects, files, tasks and facts.
+4. `Working state`: the goals, assumptions, decisions and unfinished work of the current task.
 
-`MEMORY.md` tiếp tục tồn tại trong giai đoạn chuyển tiếp và vẫn là nguồn người dùng đọc được. Runtime mới không dựa vào việc nhúng toàn file.
+`MEMORY.md` keeps existing during the transition and remains a source users can read. The new runtime does not rely on embedding the whole file.
 
 ### 11.2 Memory record
 
@@ -716,24 +716,24 @@ class MemoryRecord:
 
 ### 11.3 Retrieval cascade
 
-1. Active working state của task.
-2. Identity/core facts có scope phù hợp.
-3. Exact keyword và entity match.
-4. FTS và semantic retrieval.
-5. Graph expansion khi thiếu coverage.
-6. Đọc file nguồn khi cần chi tiết hoặc có conflict.
+1. The task's active working state.
+2. Identity/core facts with a matching scope.
+3. Exact keyword and entity match.
+4. FTS and semantic retrieval.
+5. Graph expansion when coverage is lacking.
+6. Read the source file when detail is needed or there is a conflict.
 
-Số record được chọn theo coverage và budget, không theo một top-k cố định.
+The number of records chosen follows coverage and budget, not a fixed top-k.
 
-### 11.4 Lịch sử hội thoại
+### 11.4 Conversation history
 
-Không dùng một summary văn xuôi làm nguồn duy nhất. Session cần ba dạng dữ liệu:
+A single prose summary is not used as the only source. A session needs three forms of data:
 
-- transcript gốc trong `conversations.db`;
+- the original transcript in `conversations.db`;
 - structured conversation state;
-- summary dẫn xuất để đọc nhanh.
+- a derived summary for quick reading.
 
-Structured state tối thiểu:
+Minimum structured state:
 
 ```json
 {
@@ -747,15 +747,15 @@ Structured state tối thiểu:
 }
 ```
 
-Khi compiler cần chi tiết bị thiếu trong state, nó có thể truy ngược transcript bằng source ref.
+When the compiler needs a detail missing from the state, it can trace back to the transcript through a source ref.
 
 ## 12. Evidence Store
 
-### 12.1 Mục đích
+### 12.1 Purpose
 
-Tool result, file content và dữ liệu lớn được lưu ngoài prompt. Model chỉ nhận excerpt phù hợp và artifact ID.
+Tool results, file contents and large data are stored outside the prompt. The model receives only the relevant excerpt and the artifact ID.
 
-Ví dụ:
+Example:
 
 ```text
 evidence://task/01J4.../step/03/google-calendar-events
@@ -781,14 +781,14 @@ class Evidence:
     metadata: dict
 ```
 
-### 12.3 Quy tắc
+### 12.3 Rules
 
-- Full result được lưu nguyên hoặc chuẩn hoá thành artifact.
-- Secret phải được redaction trước khi index hoặc trace.
-- Excerpt phải giữ source location, row, page hoặc JSON path nếu có.
-- Evidence read-only có thể cache theo manifest policy và input hash.
-- Evidence write response không được dùng cache để giả định hành động đã chạy.
-- Artifact lớn phải có pagination hoặc query interface.
+- The full result is stored as is, or normalized into an artifact.
+- Secrets must be redacted before indexing or tracing.
+- An excerpt must keep the source location, row, page or JSON path if there is one.
+- Read-only evidence can be cached by manifest policy and input hash.
+- A write response must not be served from cache to assume the action has run.
+- A large artifact must have pagination or a query interface.
 
 ## 13. Task Orchestrator
 
@@ -798,7 +798,7 @@ class Evidence:
 CREATED
   -> RESOLVING
   -> COMPILING
-  -> MODEL_RUNNING hoặc EXECUTING
+  -> MODEL_RUNNING or EXECUTING
   -> EVALUATING
   -> COMPLETED
   -> WAITING_USER
@@ -807,7 +807,7 @@ CREATED
   -> CANCELLED
 ```
 
-Mỗi state transition được lưu atomically và phát event có `task_id`, `step_id`, `attempt`.
+Each state transition is stored atomically and emits an event carrying `task_id`, `step_id` and `attempt`.
 
 ### 13.2 Task state
 
@@ -837,69 +837,69 @@ class TaskState:
     updated_at: float
 ```
 
-`version` dùng optimistic concurrency control. Step hoàn thành trên state version cũ không được đè state mới. Năm trường revision được ghim khi tạo task; task không tự nhảy sang runtime, policy, Registry hoặc model metadata mới giữa chừng.
+`version` is used for optimistic concurrency control. A step that finishes on an old state version must not overwrite a newer state. The five revision fields are pinned when the task is created; a task does not jump to a new runtime, policy, Registry or model metadata midway.
 
-### 13.3 Ba execution path
+### 13.3 Three execution paths
 
 #### Fast path
 
-Áp dụng khi không cần dữ liệu live, không có side effect và Context Compiler đã đủ evidence.
+Applies when no live data is needed, there is no side effect, and the Context Compiler already has enough evidence.
 
 ```text
-resolve local -> compile -> một model call -> quality gate -> response
+resolve local -> compile -> one model call -> quality gate -> response
 ```
 
 #### Tool path
 
-Áp dụng khi cần một nhóm capability rõ ràng.
+Applies when a clearly defined group of capabilities is needed.
 
 ```text
 resolve local -> compile exact schemas -> model tool call
 -> validate -> execute -> evidence -> compile final -> response
 ```
 
-Nếu objective và arguments có thể được xác định an toàn bằng gateway, có thể execute trước model và chỉ dùng model để tổng hợp.
+If the objective and arguments can be determined safely by the gateway, it can execute before the model and use the model only to synthesize.
 
 #### Agentic path
 
-Áp dụng khi objective nhiều bước, có dependency hoặc resolver chưa đủ coverage.
+Applies when the objective has many steps or dependencies, or the resolver does not have enough coverage.
 
 ```text
 plan -> resolve step -> compile -> execute -> evidence
--> evaluate -> replan hoặc finalize
+-> evaluate -> replan or finalize
 ```
 
-### 13.4 Điều kiện mở vòng mới
+### 13.4 Conditions for opening a new round
 
-Chỉ mở step mới khi một trong các điều kiện đúng:
+Open a new step only when one of these conditions is true:
 
-- output contract chưa được thoả;
-- evidence bắt buộc còn thiếu;
-- conflict chưa được giải quyết;
-- tool yêu cầu follow-up;
-- validator trả lỗi có thể sửa;
-- model trả nhu cầu dữ liệu cụ thể có thể resolve.
+- the output contract is not yet satisfied;
+- required evidence is still missing;
+- a conflict is unresolved;
+- a tool requires a follow-up;
+- a validator returned a fixable error;
+- the model returned a specific data need that can be resolved.
 
-Không mở vòng mới chỉ vì model nói chung chung rằng nó muốn "tìm thêm".
+Do not open a new round just because the model says in general terms that it wants to "look further".
 
-### 13.5 Điều kiện dừng
+### 13.5 Stop conditions
 
-- Objective đã đạt và Quality Gate pass.
-- Marginal information gain thấp hơn chi phí tiếp tục.
-- Task budget hoặc deadline đã hết.
-- Cần quyền hoặc xác nhận mới.
-- Không còn capability healthy phù hợp.
-- Cùng một failure signature lặp lại theo retry policy.
+- The objective is met and the Quality Gate passes.
+- Marginal information gain is lower than the cost of continuing.
+- The task budget or deadline is exhausted.
+- A new permission or confirmation is needed.
+- No suitable healthy capability remains.
+- The same failure signature repeats according to the retry policy.
 
 ### 13.6 Parallel execution
 
-- Chỉ parallel capability `none` hoặc `read` độc lập.
-- Dependency graph phải chứng minh không cần output của nhau.
-- Tool write mặc định chạy tuần tự.
-- Hai write vào cùng resource lock key không được chạy song song.
-- Kết quả parallel được lưu thành evidence riêng rồi mới merge.
+- Only independent `none` or `read` capabilities run in parallel.
+- The dependency graph must prove they do not need each other's output.
+- Write tools run sequentially by default.
+- Two writes to the same resource lock key must not run in parallel.
+- Parallel results are stored as separate evidence and only then merged.
 
-### 13.7 Sequence nhiều vòng mẫu
+### 13.7 Sample multi-round sequence
 
 ```mermaid
 sequenceDiagram
@@ -911,36 +911,36 @@ sequenceDiagram
     participant X as Executor
     participant E as Evidence Store
 
-    U->>O: "Kiểm tra lịch và đặt cuộc họp phù hợp"
-    O->>R: resolve mục tiêu và dữ liệu còn thiếu
+    U->>O: "Check my calendar and book a suitable meeting"
+    O->>R: resolve the goal and the missing data
     R-->>O: calendar.list, exact schema
-    O->>C: compile step đọc lịch
-    C-->>M: capsule nhỏ + schema list
+    O->>C: compile the calendar-read step
+    C-->>M: small capsule + list schema
     M-->>O: tool arguments
     O->>X: invoke read lease
-    X-->>E: lịch đầy đủ thành artifact
+    X-->>E: full calendar stored as an artifact
     E-->>O: excerpt + evidence ref
-    O->>R: resolve bước chọn slot và tạo lịch
-    R-->>O: calendar.create, cần xác nhận write
-    O->>C: compile lựa chọn + evidence
-    C-->>M: capsule chọn slot
-    M-->>O: đề xuất slot + draft arguments
-    O-->>U: yêu cầu xác nhận
-    U->>O: xác nhận
-    O->>X: invoke write với idempotency key
-    X-->>E: kết quả thật
-    O->>C: compile final capsule
-    C-->>M: evidence kết quả
-    M-->>U: xác nhận cuộc họp đã tạo
+    O->>R: resolve the slot-picking and event-creating step
+    R-->>O: calendar.create, write confirmation required
+    O->>C: compile the choice + evidence
+    C-->>M: slot-picking capsule
+    M-->>O: proposed slot + draft arguments
+    O-->>U: ask for confirmation
+    U->>O: confirm
+    O->>X: invoke write with an idempotency key
+    X-->>E: the real result
+    O->>C: compile the final capsule
+    C-->>M: result evidence
+    M-->>U: confirm the meeting has been created
 ```
 
-Ở vòng thứ hai, model không nhận lại toàn bộ JSON lịch. Nó nhận excerpt đã chọn và evidence ref. Nếu cần kiểm tra slot khác, compiler đọc đúng phần artifact cần thiết.
+In the second round, the model does not receive the full calendar JSON again. It receives the selected excerpt and the evidence ref. If it needs to check another slot, the compiler reads exactly the needed part of the artifact.
 
-## 14. Capability Executor và side effect
+## 14. Capability Executor and side effects
 
 ### 14.1 Capability lease
 
-Resolver không cấp quyền thực thi vĩnh viễn. Orchestrator tạo lease:
+The Resolver does not grant permanent execution rights. The Orchestrator creates a lease:
 
 ```python
 @dataclass
@@ -956,17 +956,17 @@ class CapabilityLease:
     expires_at: float
 ```
 
-Executor từ chối invocation nếu revision, scope, actor hoặc expiry không khớp.
+The Executor rejects an invocation if the revision, scope, actor or expiry does not match.
 
 ### 14.2 Idempotency
 
-Mọi invocation write có:
+Every write invocation has:
 
 ```text
 idempotency_key = hash(task_id, logical_action_id, capability_id, normalized_args)
 ```
 
-Executor lưu:
+The Executor stores:
 
 ```text
 PREPARED -> RUNNING -> SUCCEEDED
@@ -975,23 +975,23 @@ PREPARED -> RUNNING -> SUCCEEDED
                     -> UNKNOWN
 ```
 
-Nếu trạng thái `UNKNOWN`, không tự retry write. Phải reconcile bằng read tool hoặc yêu cầu người dùng.
+If the state is `UNKNOWN`, the write is not retried automatically. It must be reconciled with a read tool or by asking the user.
 
 ### 14.3 Validation
 
-Trước khi chạy:
+Before running:
 
 1. Validate JSON Schema.
-2. Validate permission và mode.
+2. Validate permission and mode.
 3. Validate resource scope.
-4. Validate confirmation requirement.
+4. Validate the confirmation requirement.
 5. Validate idempotency.
-6. Validate quota và rate limit.
-7. Ghi audit PREPARED.
+6. Validate quota and rate limit.
+7. Write the PREPARED audit record.
 
-## 15. Workflow và agent như capability
+## 15. Workflows and agents as capabilities
 
-Workflow manifest mở rộng:
+Extended workflow manifest:
 
 ```python
 @dataclass(frozen=True)
@@ -1005,7 +1005,7 @@ class WorkflowManifest:
     max_risk: str
 ```
 
-Workflow graph có node:
+A workflow graph has these nodes:
 
 - capability invocation;
 - model step;
@@ -1015,38 +1015,38 @@ Workflow graph có node:
 - checkpoint;
 - compensation.
 
-Workflow có thể gọi workflow khác bằng capability ID. Dependency được resolve theo revision, không copy nội dung workflow con vào prompt.
+A workflow can call another workflow by capability ID. Dependencies are resolved by revision, and the content of a child workflow is not copied into the prompt.
 
-Agent là workflow có quyền tự replan trong policy và task budget đã cấp. Agent không có quyền truy cập mọi capability mặc định.
+An agent is a workflow that may replan on its own within the policy and the task budget it was granted. An agent does not get access to every capability by default.
 
 ## 16. Quality Gate
 
-Quality Gate được triển khai theo hai tầng. Tầng deterministic xuất hiện từ fast path và read-only tool path. Model validator chỉ được thêm sau khi deterministic checks không đủ và task budget cho phép. Không đợi đến phase tool write mới kiểm tra chất lượng.
+The Quality Gate is implemented in two layers. The deterministic layer appears from the fast path and the read-only tool path. A model validator is added only after deterministic checks are not enough and the task budget allows. Quality is not checked only once the tool write phase arrives.
 
 ### 16.1 Input
 
-Quality Gate nhận:
+The Quality Gate receives:
 
-- objective;
-- output contract;
-- active state;
-- evidence map;
-- draft answer hoặc planned action;
+- the objective;
+- the output contract;
+- the active state;
+- the evidence map;
+- a draft answer or planned action;
 - unresolved items;
-- risk class.
+- the risk class.
 
-### 16.2 Kiểm tra deterministic trước
+### 16.2 Deterministic checks first
 
-- Có đủ field bắt buộc không?
-- Fact định lượng có evidence không?
-- Có conflict chưa giải quyết không?
-- Tool write đã thành công hay chỉ được đề xuất?
-- Câu trả lời có tuyên bố vượt evidence không?
-- Output có đúng schema/channel không?
+- Are all required fields present?
+- Do quantitative facts have evidence?
+- Is there an unresolved conflict?
+- Did a write tool succeed, or was it only proposed?
+- Does the answer claim more than the evidence supports?
+- Is the output in the right schema/channel?
 
-Chỉ dùng model validator khi deterministic checks không đủ và giá trị kiểm tra lớn hơn chi phí.
+Use a model validator only when deterministic checks are not enough and the value of the check exceeds its cost.
 
-### 16.3 Kết quả
+### 16.3 Result
 
 ```python
 @dataclass
@@ -1060,22 +1060,22 @@ class QualityDecision:
 
 ## 17. Policy Engine
 
-Policy Engine quyết định:
+The Policy Engine decides:
 
-- actor có quyền thấy capability nào;
-- action có cần xác nhận không;
-- path/file/resource scope;
-- dữ liệu nào được gửi tới provider nào;
-- evidence nào chứa dữ liệu nhạy cảm;
-- capability nào được chạy song song;
-- retry và compensation cho side effect;
-- model/provider nào được dùng với dữ liệu hiện tại.
+- which capabilities an actor may see;
+- whether an action needs confirmation;
+- the path/file/resource scope;
+- which data may be sent to which provider;
+- which evidence contains sensitive data;
+- which capabilities may run in parallel;
+- retry and compensation for side effects;
+- which model/provider may be used with the current data.
 
-Policy là versioned data hoặc code có test, không được chôn trong system prompt dài.
+Policy is versioned data or tested code, and must not be buried in a long system prompt.
 
-Tool description và tool result luôn được coi là untrusted content. Chúng không thể tự sửa policy.
+Tool descriptions and tool results are always treated as untrusted content. They cannot edit policy on their own.
 
-## 18. Giao diện nội bộ
+## 18. Internal interfaces
 
 ### 18.1 Runtime entry point
 
@@ -1086,7 +1086,7 @@ class AdaptiveRuntime:
     async def cancel_task(self, task_id: str) -> None: ...
 ```
 
-`TurnRequest` chứa channel, session, brain, actor, user content, attachment refs và model preference. Nó không chứa full system prompt.
+`TurnRequest` holds the channel, session, brain, actor, user content, attachment refs and model preference. It does not hold the full system prompt.
 
 ### 18.2 Resolver
 
@@ -1117,11 +1117,11 @@ class ModelEngine(Protocol):
     async def generate(self, request: ModelRequest) -> AsyncIterator[ModelEvent]: ...
 ```
 
-Adapter provider không tự build context và không tự discover tool.
+A provider adapter does not build context on its own and does not discover tools on its own.
 
 ### 18.6 Persistence schema
 
-Runtime state dùng SQLite transactional. Có thể đặt trong database mới `runtime.db` ở bản đầu để rollback độc lập với `conversations.db`.
+Runtime state uses transactional SQLite. In the first version it can live in a new database `runtime.db` so it can be rolled back independently of `conversations.db`.
 
 ```sql
 CREATE TABLE runtime_tasks (
@@ -1216,17 +1216,17 @@ CREATE TABLE quota_reservations (
 );
 ```
 
-Yêu cầu transaction:
+Transaction requirements:
 
-- Tạo step và chuyển task status trong cùng transaction.
-- Claim invocation bằng unique idempotency key trước khi gọi tool write.
-- Cập nhật task dùng `WHERE version = expected_version`; không cập nhật được thì reload và merge/replan.
-- Event chỉ append, không update. Payload lớn nằm trong Evidence Store, event chỉ giữ ref.
-- Reservation hết hạn được reconciler thu hồi, không dựa vào process memory.
+- Create the step and change the task status in the same transaction.
+- Claim an invocation by its unique idempotency key before calling a write tool.
+- Update the task with `WHERE version = expected_version`; if the update fails, reload and merge/replan.
+- Events are append-only, never updated. Large payloads live in the Evidence Store, and events keep only a ref.
+- Expired reservations are reclaimed by a reconciler, and do not depend on process memory.
 
-### 18.7 Tương thích channel event
+### 18.7 Channel event compatibility
 
-Runtime phát event nội bộ chuẩn:
+The runtime emits a standard internal event:
 
 ```python
 @dataclass
@@ -1238,23 +1238,23 @@ class RuntimeEvent:
     trace_payload: dict
 ```
 
-`TurnSink` chuyển event sang giao thức hiện tại:
+`TurnSink` converts events into the current protocol:
 
-| Runtime event | Dashboard/Telegram hiện tại |
+| Runtime event | Current Dashboard/Telegram |
 |---|---|
 | `task.status` | `status` |
 | `model.delta` | `stream` |
 | `capability.started` | `tool_call` |
-| `capability.finished` | `tool_result` hoặc chỉ trace |
+| `capability.finished` | `tool_result` or trace only |
 | `task.completed` | `response` |
 | `task.failed` | `error` |
-| `task.waiting_user` | câu hỏi/ask block hiện có |
+| `task.waiting_user` | the existing question/ask block |
 
-Frontend cũ không cần hiểu Registry, capsule hay evidence để tiếp tục hiển thị chat. Các field `task_id` và `step_id` được thêm theo cách tương thích ngược.
+The old frontend does not need to understand the Registry, capsules or evidence to keep showing the chat. The `task_id` and `step_id` fields are added in a backward-compatible way.
 
-## 19. Tích hợp với code hiện tại
+## 19. Integration with current code
 
-### 19.1 Module mới
+### 19.1 New modules
 
 ```text
 server/
@@ -1273,70 +1273,70 @@ server/
   quality_gate.py
 ```
 
-Không bắt buộc tạo tất cả file ngay. Tách theo phase và chỉ tạo abstraction khi có ít nhất một đường chạy thật dùng nó.
+It is not necessary to create all files at once. Split by phase and create an abstraction only when at least one real path uses it.
 
 ### 19.2 `mcp_hub.py`
 
-Giữ:
+Keep:
 
 - connection resolution;
-- permission guard;
+- the permission guard;
 - route invocation;
-- connector adapter;
-- audit và rate limit hiện có.
+- the connector adapter;
+- the existing audit and rate limit.
 
-Thêm:
+Add:
 
-- xuất manifest snapshot;
+- manifest snapshot export;
 - source revision;
-- executor route theo capability ID và revision;
+- an executor route by capability ID and revision;
 - background refresh;
-- không discover toàn bộ trong hot path khi snapshot còn hợp lệ.
+- no discovering everything in the hot path while the snapshot is still valid.
 
-Lazy tool hiện tại trở thành fallback trong giai đoạn chuyển tiếp.
+The current lazy tool becomes a fallback during the transition.
 
 ### 19.3 `engine.py`
 
-Giữ:
+Keep:
 
-- provider HTTP adapter;
+- the provider HTTP adapter;
 - event parsing;
 - tool call parsing;
 - usage collection.
 
-Di chuyển dần ra ngoài:
+Move out gradually:
 
-- quyết định tool nào được phơi;
+- the decision of which tool to expose;
 - multi-round orchestration;
 - quota reservation;
-- task stop condition;
-- policy và idempotency.
+- the task stop condition;
+- policy and idempotency.
 
-Trong giai đoạn đầu, `_cc_tool_loop` vẫn là executor cũ phía sau compatibility adapter.
+In the early phase, `_cc_tool_loop` remains the old executor behind a compatibility adapter.
 
 ### 19.4 `compaction.py`
 
-Giữ summary cuộn làm fallback. Thêm structured conversation state và source refs. Không xoá transcript gốc.
+Keep the rolling summary as a fallback. Add structured conversation state and source refs. Do not delete the original transcript.
 
-Về sau `prepare_history` trở thành một ContextItem source thay vì tự quyết định payload cuối.
+Later, `prepare_history` becomes a ContextItem source instead of deciding the final payload itself.
 
 ### 19.5 `main.py`
 
-Giai đoạn đầu chỉ thay điểm gọi ở dashboard API provider:
+In the early phase, only the call point in the dashboard API provider is replaced:
 
 ```text
 _do_turn
-  -> runtime.run_turn nếu feature flag bật
-  -> đường hiện tại nếu tắt hoặc fallback
+  -> runtime.run_turn if the feature flag is on
+  -> the current path if it is off or on fallback
 ```
 
-Không refactor dashboard và Telegram cùng một commit. Sau khi dashboard ổn định mới đưa Telegram, task nền và reminder qua cùng runtime entry point.
+Do not refactor the dashboard and Telegram in the same commit. Only after the dashboard is stable, move Telegram, background tasks and reminders onto the same runtime entry point.
 
 ### 19.6 CLI engine
 
-Claude/Codex native session có context management riêng. Runtime mới vẫn có thể dùng Resolver, Registry, Evidence và Policy nhưng adapter quyết định phần nào cần gửi. Không ép CLI đi qua OpenAI-style tool schema.
+Claude/Codex native sessions have their own context management. The new runtime can still use the Resolver, Registry, Evidence and Policy, but the adapter decides what needs to be sent. The CLI is not forced through an OpenAI-style tool schema.
 
-## 20. Cấu hình và feature flag
+## 20. Configuration and feature flags
 
 ```json
 {
@@ -1354,42 +1354,42 @@ Claude/Codex native session có context management riêng. Runtime mới vẫn c
 
 `mode`:
 
-- `off`: chỉ đường cũ.
-- `observe`: chỉ token attribution và trace.
-- `shadow`: resolve/compile nhưng không thực thi quyết định mới.
-- `canary`: bật theo actor/session/provider policy.
-- `on`: runtime mới là đường chính, legacy vẫn có thể fallback.
+- `off`: only the old path.
+- `observe`: only token attribution and trace.
+- `shadow`: resolve/compile but do not execute the new decisions.
+- `canary`: enabled by actor/session/provider policy.
+- `on`: the new runtime is the main path, and legacy can still be a fallback.
 
-Canary selection phải ổn định theo hash session hoặc actor, không random lại mỗi lượt.
+Canary selection must be stable by session or actor hash, not re-randomized every turn.
 
-Khi tạo task, runtime phải ghim `runtime_version`, `resolver_policy_version`, `compiler_policy_version`, `registry_revision` và `model_profile_revision`. Canary không được đổi runtime giữa một task đang chạy. Schema nguồn thay đổi giữa chừng phải tạo revision mismatch và resolve lại có kiểm soát.
+When creating a task, the runtime must pin `runtime_version`, `resolver_policy_version`, `compiler_policy_version`, `registry_revision` and `model_profile_revision`. A canary must not change the runtime in the middle of a running task. A source schema that changes midway must produce a revision mismatch and a controlled re-resolve.
 
-Không đưa các con số top-k cố định vào Settings UI. UI chỉ chọn policy profile và hiển thị metrics. Chi tiết policy là cấu hình kỹ thuật versioned.
+Do not put fixed top-k numbers into the Settings UI. The UI only picks a policy profile and shows metrics. The policy details are versioned technical configuration.
 
 ## 21. Observability
 
-### 21.1 Trace bắt buộc
+### 21.1 Mandatory trace
 
-Trước khi bật trace thật phải chốt retention, redaction, encryption-at-rest nếu cần, quyền xem và quy tắc export. Phase quan sát không được thu raw secret hoặc full sensitive artifact rồi mới quyết định cách bảo vệ sau.
+Before turning on the real trace, retention, redaction, encryption-at-rest if needed, view permissions and export rules must be settled. The observation phase must not collect raw secrets or full sensitive artifacts and only then decide how to protect them.
 
-Mỗi task ghi:
+Each task records:
 
-- objective chuẩn hoá;
-- resolver query và candidate score;
-- capability bị filter và lý do;
-- context item được chọn hoặc loại;
-- token estimate và token thật;
-- model route và lý do;
-- quota reservation;
-- tool arguments đã redaction;
+- the normalized objective;
+- the resolver query and candidate scores;
+- capabilities filtered out, and why;
+- context items chosen or dropped;
+- the token estimate and the real tokens;
+- the model route and why;
+- quota reservations;
+- redacted tool arguments;
 - evidence refs;
-- quality decision;
-- fallback và retry;
-- latency từng stage.
+- the quality decision;
+- fallbacks and retries;
+- latency per stage.
 
 ### 21.2 Token attribution
 
-Usage phải phân rã tối thiểu:
+Usage must be broken down at a minimum into:
 
 ```text
 core_contract
@@ -1404,246 +1404,246 @@ user_input
 output
 ```
 
-Đo cả:
+Also measure:
 
-- token request đầu;
-- tổng token toàn task;
-- số model round;
-- số tool round;
-- token bị lặp lại giữa các vòng.
+- the tokens of the first request;
+- the total tokens of the whole task;
+- the number of model rounds;
+- the number of tool rounds;
+- the tokens repeated across rounds.
 
 ### 21.3 Metrics
 
-- resolver recall trên replay;
+- resolver recall on replay;
 - capability precision;
 - task success rate;
 - write duplicate rate;
 - fallback rate;
 - quality revision rate;
-- input/output token theo task;
-- P50/P95 latency fast path và agentic path;
-- provider error theo loại;
-- quota rejection tránh được trước khi gửi;
-- registry freshness và degraded source.
+- input/output tokens per task;
+- P50/P95 latency of the fast path and the agentic path;
+- provider errors by type;
+- quota rejections avoided before sending;
+- registry freshness and degraded sources.
 
-## 22. Bảo mật
+## 22. Security
 
-1. Manifest không chứa credential.
-2. Trace và evidence được redaction bằng cùng lớp bảo vệ conversation log hiện tại.
-3. Capability search chỉ trả capability actor có quyền thấy.
-4. Model không nhận secret để tự gọi MCP trực tiếp nếu gateway có thể giữ secret.
-5. Source từ web, MCP và file ngoài được đánh dấu trust level.
-6. Policy clause có precedence cao hơn untrusted content.
-7. Tool write cần lease và idempotency.
-8. Artifact path phải nằm trong state dir hoặc brain scope được phép.
-9. Provider routing phải xét data residency và user policy.
-10. Replay fixture phải xoá secret và dữ liệu cá nhân trước khi commit.
+1. Manifests contain no credentials.
+2. Traces and evidence are redacted with the same protection layer as the current conversation log.
+3. Capability search returns only capabilities the actor is allowed to see.
+4. The model does not receive secrets to call an MCP directly if the gateway can hold the secret.
+5. Sources from the web, MCP and external files are marked with a trust level.
+6. Policy clauses have higher precedence than untrusted content.
+7. Write tools need a lease and idempotency.
+8. Artifact paths must be inside the state dir or an allowed brain scope.
+9. Provider routing must take data residency and user policy into account.
+10. Replay fixtures must have secrets and personal data removed before commit.
 
-## 23. Failure mode và fallback
+## 23. Failure modes and fallback
 
-| Failure | Hành vi |
+| Failure | Behavior |
 |---|---|
-| Registry unavailable | Dùng snapshot tốt gần nhất hoặc legacy discovery |
-| Registry stale | Đánh dấu trace, refresh nền, không tự mất capability |
-| Resolver confidence thấp | Widen retrieval, planner nhỏ, hỏi user hoặc fallback |
-| Compiler vượt budget | Đổi model, giảm evidence theo utility, chia step hoặc fallback |
-| Token estimate sai | Reconcile usage, cập nhật error model, tăng safety margin |
-| Provider hết TPM | Queue, đổi model/provider theo policy hoặc báo rõ |
-| Tool schema đổi giữa resolve và invoke | Lease revision mismatch, resolve lại |
-| Read tool timeout | Retry theo manifest hoặc dùng evidence cache hợp lệ |
-| Write tool timeout | Chuyển UNKNOWN, reconcile, không retry mù |
-| Quality Gate thiếu evidence | Resolve thêm hoặc hỏi user |
-| Runtime exception | Ghi trace và fallback legacy nếu chưa có side effect |
-| Exception sau side effect | Không fallback chạy lại; resume từ task state |
+| Registry unavailable | Use the latest good snapshot or legacy discovery |
+| Registry stale | Mark the trace, refresh in the background, never lose a capability on its own |
+| Low resolver confidence | Widen retrieval, small planner, ask the user or fall back |
+| Compiler over budget | Change model, reduce evidence by utility, split the step or fall back |
+| Wrong token estimate | Reconcile usage, update the error model, raise the safety margin |
+| Provider out of TPM | Queue, switch model/provider by policy, or report it clearly |
+| Tool schema changes between resolve and invoke | Lease revision mismatch, resolve again |
+| Read tool timeout | Retry per the manifest or use a valid evidence cache |
+| Write tool timeout | Move to UNKNOWN, reconcile, never retry blindly |
+| Quality Gate lacks evidence | Resolve more or ask the user |
+| Runtime exception | Record the trace and fall back to legacy if no side effect has happened yet |
+| Exception after a side effect | Do not fall back and rerun; resume from the task state |
 
-Nguyên tắc quan trọng: chỉ fallback sang đường cũ khi chắc chắn chưa có side effect chưa được reconcile.
+Key principle: fall back to the old path only when it is certain that no unreconciled side effect exists.
 
-Fallback theo thứ tự policy, không mặc định quay thẳng về legacy trên cùng provider:
+Fallback follows the policy order, and does not default to going straight back to legacy on the same provider:
 
 ```text
-recompile context nhỏ hơn
--> chia objective thành nhiều step
--> chờ quota nếu deadline cho phép
--> đổi model/provider đủ năng lực và được phép nhận dữ liệu
--> legacy chỉ khi provider còn đủ ngân sách
--> báo rõ hoặc hỏi người dùng
+recompile a smaller context
+-> split the objective into several steps
+-> wait for quota if the deadline allows
+-> switch to a model/provider that is capable enough and allowed to receive the data
+-> legacy only if the provider still has enough budget
+-> report clearly or ask the user
 ```
 
-Sau side effect, fallback chỉ được resume từ Task State và invocation ledger. Không dựng lại toàn lượt bằng đường legacy.
+After a side effect, fallback may only resume from the Task State and the invocation ledger. The whole turn is not rebuilt through the legacy path.
 
-## 24. Kế hoạch triển khai đã phản biện
+## 24. Rollout plan, after critique
 
-Mỗi phase chỉ chứng minh một nhóm giả thuyết, có feature flag, release gate và rollback độc lập. Runtime mới không được tiếp quản thêm một loại task chỉ vì phase trước đã merge code; nó chỉ được bật khi benchmark của đúng loại task đó đạt gate.
+Each phase proves only one group of hypotheses, and has a feature flag, a release gate and an independent rollback. The new runtime must not take over another kind of task just because the previous phase's code was merged; it may be turned on only when the benchmark for exactly that kind of task meets its gate.
 
-### Phase 0: Lưới đo lường, bảo mật trace và benchmark
+### Phase 0: Measurement net, trace security and benchmark
 
-Trạng thái triển khai: instrumentation và fixture đã có; đang thu baseline observe-only, chưa qua release gate cần owner duyệt.
+Implementation status: instrumentation and fixtures exist; the observe-only baseline is being collected, and the phase has not yet passed the release gate that needs owner approval.
 
-Quyết định bắt buộc trước khi thu trace production:
+Decisions required before collecting production traces:
 
-- trường nào được lưu hoặc phải redaction;
-- retention theo trace, evidence và artifact;
-- quyền xem của user/admin;
-- policy export trace;
-- fixture nào được phép commit;
-- dữ liệu nào cần encryption-at-rest hoặc không được index.
+- which fields may be stored or must be redacted;
+- retention for traces, evidence and artifacts;
+- view permissions for user/admin;
+- the trace export policy;
+- which fixtures may be committed;
+- which data needs encryption-at-rest or must not be indexed.
 
-Thay đổi:
+Changes:
 
-- Token attribution cho payload hiện tại.
-- Correlation ID xuyên dashboard, Telegram và task nền.
-- Replay fixture đã redaction.
-- Gold benchmark có người duyệt cho chat, memory, tool, workflow và write.
-- Metrics tổng token toàn task, latency, tool success và provider error.
-- Prompt contract tests cho identity, safety, permission, channel và brain scope.
+- Token attribution for the current payload.
+- A correlation ID across the dashboard, Telegram and background tasks.
+- Redacted replay fixtures.
+- A gold benchmark with human review for chat, memory, tool, workflow and write.
+- Metrics for total task tokens, latency, tool success and provider errors.
+- Prompt contract tests for identity, safety, permission, channel and brain scope.
 
-Không thay đổi câu trả lời, prompt hoặc tool dispatch.
+No change to answers, prompts or tool dispatch.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Có thể tái hiện payload và quyết định tool của đường hiện tại.
-- Token estimate được đối chiếu với usage thật của provider đang dùng.
-- Replay và gold benchmark có owner duyệt chất lượng.
-- Trace không chứa secret/raw sensitive artifact trong fixture và kiểm thử.
-- Baseline được chốt theo từng nhóm task, không chỉ số trung bình toàn hệ thống.
+- The payload and the tool decisions of the current path can be reproduced.
+- The token estimate is reconciled against the real usage of the provider in use.
+- The replay and gold benchmark have owner-approved quality.
+- The trace contains no secrets or raw sensitive artifacts in fixtures and tests.
+- The baseline is fixed per task group, not just as a system-wide average.
 
-Rollback: bỏ instrumentation hook và background exporter. Dữ liệu trace đã tạo được dọn theo retention policy đã chốt.
+Rollback: remove the instrumentation hook and the background exporter. Trace data already created is cleaned up under the agreed retention policy.
 
-### Phase 1: Runtime substrate tối thiểu
+### Phase 1: Minimal runtime substrate
 
-Trạng thái triển khai: substrate observe-only đã có; đường legacy vẫn là nơi duy nhất thực thi quyết định.
+Implementation status: the observe-only substrate exists; the legacy path is still the only place that executes decisions.
 
-Mục tiêu là tạo xương sống trước khi Registry, Compiler và Evidence Store tự phát sinh những kiểu state riêng.
+The goal is to create the backbone before the Registry, Compiler and Evidence Store each spawn their own kinds of state.
 
-Thay đổi:
+Changes:
 
-- `task_id`, `step_id` và RuntimeEvent envelope.
-- `runtime_tasks`, `runtime_steps`, `runtime_events` tối thiểu.
-- Ghim runtime/policy/registry/model revision theo task.
-- Task token budget và deadline.
-- Quota reservation observe-only, chưa chặn request.
-- Evidence ref tối thiểu, chưa cần artifact store đầy đủ.
-- Optimistic concurrency bằng task version.
+- `task_id`, `step_id` and the RuntimeEvent envelope.
+- Minimal `runtime_tasks`, `runtime_steps` and `runtime_events`.
+- Pin the runtime/policy/registry/model revision per task.
+- Task token budget and deadline.
+- Observe-only quota reservation that does not block requests yet.
+- A minimal evidence ref, without needing a full artifact store yet.
+- Optimistic concurrency through the task version.
 
-Đường cũ vẫn thực thi. Runtime substrate chỉ bọc và quan sát lượt hiện tại.
+The old path still executes. The runtime substrate only wraps and observes the current turn.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Mọi lượt có task/step trace nhất quán.
-- Restart không làm mất event đã commit.
-- Canary assignment không đổi giữa một task.
-- Dashboard và Telegram dùng cùng event contract dù mới chỉ dashboard được kích hoạt sau này.
-- Quota reservation estimate được reconcile với usage thật.
+- Every turn has a consistent task/step trace.
+- A restart does not lose committed events.
+- Canary assignment does not change within a task.
+- The dashboard and Telegram use the same event contract, even though only the dashboard will be activated later.
+- The quota reservation estimate is reconciled with real usage.
 
-Rollback: TurnSink bỏ runtime envelope và quay về event hiện tại. Database runtime là độc lập, không ảnh hưởng conversation store.
+Rollback: TurnSink drops the runtime envelope and returns to the current events. The runtime database is independent and does not affect the conversation store.
 
 ### Phase 2: Capability Registry MVP
 
-Trạng thái triển khai: code và regression tests đã có; đang chờ inventory production sau restart để xác nhận tương đương toàn bộ source đang đấu.
+Implementation status: code and regression tests exist; waiting on the production inventory after a restart to confirm equivalence across all wired sources.
 
-Thay đổi:
+Changes:
 
-- SQLite Registry và schema migration/rebuild.
-- MCP, builtin và plugin tool source adapter.
-- ModelProfile tối thiểu cho model đang cấu hình.
-- Revision, source hash, health và integrity check.
-- FTS5 cho name, alias, summary và intent.
-- Chưa yêu cầu embedding để boot.
-- Chưa ingest workflow, agent hoặc từng memory fact.
-- Không thay tool list gửi model.
+- SQLite Registry and schema migration/rebuild.
+- MCP, builtin and plugin tool source adapters.
+- A minimal ModelProfile for the configured model.
+- Revision, source hash, health and integrity check.
+- FTS5 for name, alias, summary and intent.
+- Embedding is not yet required to boot.
+- Workflows, agents and individual memory facts are not ingested yet.
+- The tool list sent to the model is not replaced.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Registry rebuild tương đương nguồn tool hiện tại.
-- Thêm hoặc xoá source chỉ thay manifest liên quan.
-- Registry corrupt có thể dựng lại mà không mất connection/settings.
-- Source refresh không chặn event loop và request chat.
-- Capability ID/revision ổn định qua restart khi source không đổi.
+- A Registry rebuild is equivalent to the current tool sources.
+- Adding or removing a source changes only the related manifests.
+- A corrupted Registry can be rebuilt without losing connections/settings.
+- Source refresh does not block the event loop or chat requests.
+- Capability ID/revision stay stable across restarts when the source is unchanged.
 
-Rollback: tắt Registry consumer, giữ hoặc xoá database dẫn xuất.
+Rollback: turn off the Registry consumer, and keep or delete the derived database.
 
-### Phase 3: Resolver deterministic ở shadow mode
+### Phase 3: Deterministic Resolver in shadow mode
 
-Trạng thái triển khai: shadow worker đã có trên dashboard và Telegram cho API/Claude/Codex; chưa dùng kết quả để cắt hoặc thêm tool production.
+Implementation status: the shadow worker exists on the dashboard and Telegram for API/Claude/Codex; its results are not yet used to cut or add production tools.
 
-Thay đổi:
+Changes:
 
-- Hard filter theo actor, permission, brain, channel, health và side effect.
+- Hard filters by actor, permission, brain, channel, health and side effect.
 - Alias + FTS + coverage + score gap.
-- Dynamic cutoff deterministic.
-- Embedding adapter chỉ chạy bổ sung để đo recall, không phải nguồn duy nhất.
-- Shadow report so với replay và gold benchmark.
-- Phân loại miss: index, alias, permission, coverage, stale revision hoặc nhãn cũ sai.
-- Chưa tự học trọng số online.
+- Deterministic dynamic cutoff.
+- The embedding adapter runs only as an addition to measure recall, and is not the only source.
+- A shadow report against the replay and the gold benchmark.
+- Miss classification: index, alias, permission, coverage, stale revision, or a wrong old label.
+- No online weight learning yet.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Resolver đạt release gate trên gold benchmark critical.
-- Mọi miss critical có nguyên nhân và test hồi quy.
-- Capability mới không bị lịch sử popularity che khuất.
-- Resolver latency không ảnh hưởng hot path vì chạy shadow/cache.
-- Khác biệt tốt hơn đường cũ được reviewer xác nhận, không tính là lỗi.
+- The Resolver meets the release gate on the critical gold benchmark.
+- Every critical miss has a cause and a regression test.
+- A new capability is not hidden by popularity history.
+- Resolver latency does not affect the hot path because it runs in shadow/cache.
+- Differences that are better than the old path are confirmed by a reviewer and not counted as errors.
 
-Rollback: tắt shadow worker, Registry tiếp tục tồn tại không có consumer runtime.
+Rollback: turn off the shadow worker; the Registry keeps existing with no runtime consumer.
 
-### Phase 4: Context Compiler ở shadow mode
+### Phase 4: Context Compiler in shadow mode
 
-Trạng thái triển khai: compiler và Quality Gate shadow đã gắn vào Dashboard/Telegram; capsule chỉ tồn tại trong RAM và chưa có đường gọi model.
+Implementation status: the compiler and Quality Gate shadow are attached to the Dashboard/Telegram; the capsule exists only in RAM and has no path to the model yet.
 
-Thay đổi:
+Changes:
 
-- ContextItem, ContextBudget và capsule renderer.
-- Core contract nhỏ nhưng chưa thay prompt production.
-- Tokenizer adapter và quota preflight observe-only.
-- Context attribution và source map.
-- Compiler dựng song song capsule dự kiến cho fast path và tool path.
-- Deterministic Quality Gate chạy trên output đường cũ để tạo baseline.
-- Prompt contract tests chạy với capsule mới.
+- ContextItem, ContextBudget and the capsule renderer.
+- A small core contract that does not yet replace the production prompt.
+- Tokenizer adapter and observe-only quota preflight.
+- Context attribution and source map.
+- The compiler builds the expected capsule in parallel for the fast path and tool path.
+- The deterministic Quality Gate runs on the old path's output to create a baseline.
+- Prompt contract tests run with the new capsule.
 
-Memory và lịch sử production vẫn theo đường cũ. Capsule shadow không được gửi model live.
+Memory and history in production still follow the old path. The shadow capsule is not sent to the live model.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Capsule luôn nằm trong budget sau render cuối.
-- Prompt contract tests pass trên các provider mục tiêu.
-- Compiler giải thích được item nào được chọn/loại.
-- Thêm capability không liên quan không làm capsule hiện có tăng.
-- Token estimate sai số nằm trong release gate đã chốt từ Phase 0.
+- The capsule is always within budget after the final render.
+- Prompt contract tests pass on the target providers.
+- The compiler can explain which items were chosen/dropped.
+- Adding an unrelated capability does not grow the existing capsule.
+- The token estimate error is within the release gate settled in Phase 0.
 
-Rollback: tắt compiler shadow và tokenizer observer.
+Rollback: turn off the compiler shadow and the tokenizer observer.
 
 ### Phase 5: Fast path canary
 
-Trạng thái triển khai: code và test harness đã hoàn tất; production canary chưa bật vì release
-gate Phase 0/3/4 chưa được owner duyệt. “Hoàn tất Phase 5” ở mức code không đồng nghĩa tự động
-tăng allocation production.
+Implementation status: code and the test harness are complete; the production canary is not on because
+the Phase 0/3/4 release gate has not been approved by the owner. "Phase 5 complete" at the code level
+does not mean production allocation increases automatically.
 
-Phạm vi chỉ gồm chat không tool, không side effect và không yêu cầu dữ liệu live.
+The scope covers only chat with no tools, no side effects and no live data requirement.
 
-Thay đổi:
+Changes:
 
-- Gửi capsule mới cho một canary ổn định trên dashboard API provider.
-- Một model call như baseline.
-- Quota admission control thật.
+- Send the new capsule to a stable canary on the dashboard API provider.
+- One model call, as in the baseline.
+- Real quota admission control.
 - Deterministic Quality Gate.
-- Fallback policy theo budget, không mặc định legacy cùng provider.
-- Legacy prompt vẫn dùng cho session/task ngoài canary.
+- A fallback policy driven by budget, and not defaulting to legacy on the same provider.
+- The legacy prompt is still used for sessions/tasks outside the canary.
 
-Guard thực thi:
+Execution guards:
 
-- Assignment dùng SHA-256 của `salt + session_id`, bucket 0..9.999 và được pin vào task.
-- Chỉ `dashboard` + provider `api`; Telegram, CLI và OAuth không vào Phase 5.
-- Registry phải có snapshot tươi và revision phải đúng revision task đã pin.
-- Classifier chỉ nhận chat tự chứa thuộc nhóm giải thích, viết/biến đổi, hội thoại hoặc reasoning;
-  mọi tín hiệu live data, external source, capability, side effect, memory/history và attachment
-  đều fallback legacy.
-- Provider/model phải match một hard-quota rule versioned do operator khai theo tài khoản thật.
-  Jarvis 007 không hardcode quota thương mại theo tên provider.
-- Estimator được cộng safety factor trước reservation. Rolling TPM được reserve atomically trong
-  SQLite; request vượt budget bị chặn với `model_rounds=0`, không replay legacy cùng provider.
-- Sau khi model bắt đầu, Quality Gate chỉ đánh dấu kết quả; không gọi model lần hai trong Phase 5.
+- Assignment uses the SHA-256 of `salt + session_id`, a bucket of 0..9,999, and is pinned to the task.
+- Only `dashboard` + provider `api`; Telegram, CLI and OAuth are not in Phase 5.
+- The Registry must have a fresh snapshot and the revision must equal the revision the task pinned.
+- The classifier accepts only self-contained chat in the explain, write/transform, conversation or reasoning groups;
+  every signal of live data, an external source, a capability, a side effect, memory/history and attachment
+  falls back to legacy.
+- The provider/model must match a versioned hard-quota rule declared by the operator for the real account.
+  Jarvis 007 does not hardcode commercial quotas by provider name.
+- The estimator is multiplied by a safety factor before reservation. Rolling TPM is reserved atomically in
+  SQLite; a request over budget is blocked with `model_rounds=0`, and is not replayed through legacy on the same provider.
+- After the model has started, the Quality Gate only marks the result; it does not call the model a second time in Phase 5.
 
-Cấu hình rollout mẫu, mặc định repository giữ allocation bằng 0 và danh sách quota rỗng:
+A sample rollout configuration; by default the repository keeps allocation at 0 and the quota list empty:
 
 ```json
 {
@@ -1673,124 +1673,124 @@ Cấu hình rollout mẫu, mặc định repository giữ allocation bằng 0 v�
 }
 ```
 
-Con số trên chỉ minh hoạ cấu trúc, không phải quota mặc định. Trước khi bật phải thay bằng limit
-thật của account/model, chạy release gate rồi tăng lần lượt 0,1% → 1% → 5%; mỗi nấc giữ đủ mẫu
-để so task success, quality, token và p95 latency với legacy cohort.
+The numbers above only illustrate the structure and are not the default quota. Before turning it on, replace them with the real limits
+of the account/model, run the release gate, then raise in steps of 0.1% → 1% → 5%; each step holds enough samples
+to compare task success, quality, tokens and p95 latency against the legacy cohort.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Task success và prompt contract không thấp hơn baseline ngoài biên đã thống nhất.
-- Fast path không tăng số model round.
-- P95 latency không tăng đáng kể.
-- Request chắc chắn vượt hard quota không bị gửi.
-- Tổng token giảm trên workload fast path, không chỉ một prompt mẫu.
+- Task success and prompt contract are not lower than the baseline beyond the agreed margin.
+- Fast path does not increase the number of model rounds.
+- P95 latency does not rise significantly.
+- A request that certainly exceeds the hard quota is not sent.
+- Total tokens fall on the fast path workload, not just on one sample prompt.
 
-Rollback: pin task mới về legacy. Task đang chạy tiếp tục theo runtime version đã ghim.
+Rollback: pin new tasks to legacy. Tasks already running continue on the pinned runtime version.
 
 ### Phase 6: Single-step read-only capability path
 
-Trạng thái code ngày 2026-08-01: **hoàn tất, chưa bật production**. Đường này chỉ áp dụng cho
-dashboard + provider API, capability effect `none/read` có profile allowlist rõ ràng và model/account có
-hard quota profile. CLI, OAuth, Telegram, attachment, skill, write tool, capability mơ hồ và request ngoài
-allocation tiếp tục dùng legacy. Việc bật production vẫn phụ thuộc release gate Phase 0/3/4 và benchmark
-canary với quota thật của từng account/model.
+Code status as of 2026-08-01: **complete, not yet turned on in production**. This path applies only to
+dashboard + the API provider, capability effects `none/read` with an explicit profile allowlist, and a model/account that has a
+hard quota profile. CLI, OAuth, Telegram, attachments, skills, write tools, ambiguous capabilities and requests outside
+the allocation keep using legacy. Turning it on in production still depends on the Phase 0/3/4 release gate and the benchmark
+canary with the real quota of each account/model.
 
-Thay đổi:
+Changes:
 
-- Resolver chọn capability read-only.
-- Compiler phơi exact schema cho đúng step.
-- Capability lease và argument validation.
-- Evidence Store/artifact cơ bản.
-- Một vòng tool và một vòng tổng hợp, chưa cho replan tự do.
-- Quality Gate kiểm tra evidence, output contract và tuyên bố hành động.
-- Skill vẫn theo cơ chế cũ trong phase này.
+- The Resolver selects a read-only capability.
+- The Compiler exposes the exact schema for exactly that step.
+- Capability lease and argument validation.
+- A basic Evidence Store/artifact.
+- One tool round and one synthesis round, with no free replanning yet.
+- The Quality Gate checks evidence, the output contract and action claims.
+- Skills still follow the old mechanism in this phase.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Tool selection và arguments đạt release gate.
-- Read result có provenance và artifact ref.
-- Schema revision mismatch được resolve lại, không chạy schema cũ.
-- Tổng token toàn task giảm hoặc có lý do evidence rõ ràng khi tăng.
-- Tool timeout không làm mất task state.
+- Tool selection and arguments meet the release gate.
+- Read results have provenance and an artifact ref.
+- A schema revision mismatch is resolved again, and the old schema is not run.
+- Total task tokens fall, or there is a clear evidence reason when they rise.
+- A tool timeout does not lose the task state.
 
-Rollback: capability group trở về MCP Hub hiện tại nếu chưa có side effect. Evidence đã tạo giữ theo retention policy.
+Rollback: the capability group goes back to the current MCP Hub if no side effect has occurred. Evidence already created is kept under the retention policy.
 
 ### Phase 7: Multi-round read-only Orchestrator
 
-Trạng thái code ngày 2026-08-01: **hoàn tất, chưa bật production**. Phase 7 có allocation,
-capability allowlist, task budget và quota/price profile riêng. Dashboard API mới là route canary;
-CLI, OAuth, Telegram, attachment, memory/history dependency và mọi write intent vẫn dùng legacy.
-Task mới có thể bị dừng bằng cách giữ allocation bằng 0; checkpoint đang chạy chỉ resume trên đúng
-runtime/policy/Registry/model metadata revision đã ghim.
+Code status as of 2026-08-01: **complete, not yet turned on in production**. Phase 7 has its own allocation,
+capability allowlist, task budget and quota/price profile. The Dashboard API is only a canary route;
+CLI, OAuth, Telegram, attachments, memory/history dependencies and every write intent keep using legacy.
+New tasks can be stopped by holding allocation at 0; a running checkpoint resumes only on exactly the
+pinned runtime/policy/Registry/model metadata revision.
 
-Thay đổi:
+Changes:
 
-- Plan, resolve, compile, execute, evaluate và replan.
-- Structured Task State đầy đủ.
-- Checkpoint và resume sau restart.
-- Parallel read theo dependency graph.
-- Task-level token, latency và monetary budget.
-- Stop condition và marginal information gain.
-- Không bật tool write.
+- Plan, resolve, compile, execute, evaluate and replan.
+- Full structured Task State.
+- Checkpoint and resume after restart.
+- Parallel reads by the dependency graph.
+- Task-level token, latency and monetary budget.
+- Stop conditions and marginal information gain.
+- Write tools are not turned on.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Resume không lặp lại read step đã có evidence hợp lệ nếu policy cho reuse.
-- Loop dừng đúng khi đủ evidence, hết budget hoặc cần người dùng.
-- Parallel read cho kết quả tương đương sequential baseline.
-- Tổng token toàn task được đo và không tăng mất kiểm soát vì nhiều vòng.
-- Runtime exception có thể resume hoặc fallback an toàn vì chưa có side effect.
+- Resume does not repeat a read step that already has valid evidence, if policy allows reuse.
+- The loop stops correctly when evidence is sufficient, the budget runs out, or the user is needed.
+- Parallel reads give results equivalent to the sequential baseline.
+- Total task tokens are measured and do not grow out of control because of multiple rounds.
+- A runtime exception can resume or fall back safely because there is no side effect yet.
 
-Rollback: tắt tạo task agentic mới. Task read-only đang chạy có thể dừng hoặc resume cùng runtime version.
+Rollback: turn off creating new agentic tasks. A running read-only task can stop or resume on the same runtime version.
 
-### Phase 8: Memory, conversation state và lazy skill
+### Phase 8: Memory, conversation state and lazy skill
 
-Trạng thái code ngày 2026-08-01: **hoàn tất, chưa bật production**. Runtime version là
-`adaptive-v7`; ba allocation mặc định đều bằng 0. Đường Phase 8 chỉ thay nguồn context trước
-API chat hiện hữu, không tạo engine mới và không thay MCP Hub/tool execution. CLI, OAuth,
-Telegram và các phiên ngoài allocation tiếp tục dùng prompt/history cũ.
+Code status as of 2026-08-01: **complete, not yet turned on in production**. The runtime version is
+`adaptive-v7`; all three allocations default to 0. The Phase 8 path only replaces the context source before the
+existing API chat; it creates no new engine and does not replace MCP Hub/tool execution. CLI, OAuth,
+Telegram and sessions outside the allocation keep using the old prompt/history.
 
-Ba canary độc lập dùng chung Context Compiler:
+Three independent canaries share the Context Compiler:
 
 1. Structured conversation state.
-2. Memory retrieval có source ref.
+2. Memory retrieval with a source ref.
 3. Lazy skill loading.
 
-Thay đổi:
+Changes:
 
-- Memory index dẫn xuất và rebuild.
-- Structured goals, decisions, constraints, artifacts và open questions.
-- Retrieval cascade, conflict detection và dynamic widening.
-- SkillSource và skill manifest được đưa vào Registry.
-- Chỉ nạp thân skill sau khi Resolver chọn.
-- Core identity facts nhỏ vẫn có thể luôn hiện diện theo policy.
-- Transcript và file memory gốc không bị xoá.
+- A derived memory index with rebuild.
+- Structured goals, decisions, constraints, artifacts and open questions.
+- Retrieval cascade, conflict detection and dynamic widening.
+- SkillSource and skill manifests are brought into the Registry.
+- Load the skill body only after the Resolver selects it.
+- Small core identity facts may still always be present by policy.
+- The original transcript and memory files are not deleted.
 
-Contract đã triển khai:
+Implemented contract:
 
-- `ConversationStateStore` chiếu transcript SQLite thành goals, decisions, constraints,
-  artifacts, entities, open questions và last completed step. Mỗi item mang
-  `session:<session_id>:message:<id>`; projection có source hash, bounded và dựng lại được.
-- `MemoryIndex` quét Markdown dưới `memory/` hoặc `Memory/`, bỏ `conversations/`, lưu excerpt
-  bounded cùng `file:<relative-path>#Lx-Ly`. Index FTS + graph đều là dữ liệu dẫn xuất; file
-  Markdown là nguồn sự thật và không bị sửa khi rebuild.
-- Retrieval đi theo cascade active state → identity/core → exact keyword/entity → FTS → graph
-  widening → đọc lại source file. Source hash sai, không có kết quả cho memory intent hoặc confidence
-  thấp sẽ fallback `MEMORY.md`; conflict giữ cả hai source thay vì tự chọn im lặng.
-- `SkillSource` chỉ đọc YAML frontmatter bounded + relative path và đăng ký capability kind `skill`
-  vào Registry. Resolver tool hard-filter kind này; chỉ `LazySkillSource` được chọn đúng một manifest
-  rồi mới đọc thân `SKILL.md`. Skill thiếu description, mơ hồ, quá dài hoặc source đổi sẽ dùng router cũ.
-- Context Compiler nhận các `ContextItem` Phase 8, rank/budget sau render cuối và đưa chúng vào source
-  map. Required source không vừa budget làm cả capsule fallback; optional source bị loại có reason rõ.
-- Phase 8 dùng Core Contract nhỏ của Compiler; không bọc lại toàn bộ `CLAUDE.md`. Chỉ source legacy
-  chưa được canary sở hữu mới được chèn riêng (`MEMORY.md` hoặc router skill), nhờ vậy một nguồn có
-  thể rollout/rollback mà không kéo lại mọi nguồn khác.
-- Request Phase 8 ép MCP Hub sang lazy search/run kể cả pool đang dưới ngưỡng global; số MCP tăng chỉ
-  làm registry/menu phái sinh lớn hơn, không làm prompt đầu nạp tuyến tính theo toàn bộ tool schema.
-- Mỗi canary có stable bucket, policy version, channel/provider allowlist và rollback riêng. Canary chỉ
-  chạy khi operator khai hard quota thật; repository không suy đoán TPM/context theo model name.
+- `ConversationStateStore` projects the SQLite transcript into goals, decisions, constraints,
+  artifacts, entities, open questions and last completed step. Each item carries
+  `session:<session_id>:message:<id>`; the projection has a source hash, is bounded and can be rebuilt.
+- `MemoryIndex` scans Markdown under `memory/` or `Memory/`, skips `conversations/`, and stores a
+  bounded excerpt together with `file:<relative-path>#Lx-Ly`. The FTS + graph index is all derived data; the Markdown
+  files are the source of truth and are not edited on rebuild.
+- Retrieval follows the cascade active state → identity/core → exact keyword/entity → FTS → graph
+  widening → re-read the source file. A wrong source hash, no result for a memory intent, or low confidence
+  falls back to `MEMORY.md`; a conflict keeps both sources instead of silently picking one.
+- `SkillSource` reads only the bounded YAML frontmatter + relative path and registers a capability of kind `skill`
+  in the Registry. The tool Resolver hard-filters out this kind; only `LazySkillSource` picks exactly one manifest
+  and only then reads the body of `SKILL.md`. A skill with no description, an ambiguous or too-long one, or a changed source uses the old router.
+- The Context Compiler receives the Phase 8 `ContextItem`s, ranks/budgets them after the final render and puts them into the source
+  map. A required source that does not fit the budget makes the whole capsule fall back; an optional source that is dropped has a clear reason.
+- Phase 8 uses the Compiler's small Core Contract; it does not wrap the whole `CLAUDE.md` again. Only a legacy source
+  not yet owned by a canary is inserted separately (`MEMORY.md` or the skill router), so one source
+  can roll out/roll back without pulling every other source back.
+- A Phase 8 request forces MCP Hub into lazy search/run even if the pool is under the global threshold; a growing number of MCPs
+  only makes the derived registry/menu bigger, and does not make the first prompt load linearly with all tool schemas.
+- Each canary has its own stable bucket, policy version, channel/provider allowlist and rollback. A canary only
+  runs when the operator declares a real hard quota; the repository does not guess TPM/context from a model name.
 
-Cấu hình rollout mẫu, không phải giá trị production:
+A sample rollout configuration, not a production value:
 
 ```json
 {
@@ -1813,581 +1813,582 @@ Cấu hình rollout mẫu, không phải giá trị production:
 }
 ```
 
-Rollout từng nguồn theo 0,1% → 1% → 5%; không bật đồng thời cả ba ở nấc đầu. Với memory phải
-chạy gold benchmark theo brain thật trước khi tăng. Code complete không đồng nghĩa release gate đã duyệt.
+Roll out each source in steps of 0.1% → 1% → 5%; do not turn on all three at once in the first step. For memory, the
+gold benchmark must run on the real brain before increasing. Code complete does not mean the release gate has been approved.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Gold benchmark memory không giảm recall.
-- Có thể truy từ answer fact về file hoặc transcript gốc.
-- Low-confidence retrieval mở rộng hoặc fallback thay vì trả lời tự tin.
-- Lazy skill không làm giảm tỷ lệ kích hoạt đúng.
-- Memory index và structured state rebuild được.
+- The memory gold benchmark shows no drop in recall.
+- A fact in an answer can be traced back to the original file or transcript.
+- Low-confidence retrieval widens or falls back instead of answering confidently.
+- Lazy skill does not reduce the rate of correct activation.
+- The memory index and structured state can be rebuilt.
 
-Rollback từng canary độc lập: conversation dùng compaction cũ, memory dùng `MEMORY.md`, skill dùng router cũ.
+Rollback of each canary independently: conversation uses the old compaction, memory uses `MEMORY.md`, skill uses the old router.
 
-### Phase 9: Tool write theo từng capability group
+### Phase 9: Write tools per capability group
 
-Trạng thái code ngày 2026-08-02: **hoàn tất, chưa bật production**. Runtime version
-`write-single-step-v1`; `write_canary.allocation_basis_points=0` và `capability_profiles=[]`
-nên mặc định không request thật nào đi qua. Chỉ dashboard + provider API; CLI, OAuth,
-Telegram, attachment và mọi capability effect `dangerous` tiếp tục dùng legacy.
+Code status as of 2026-08-02: **complete, not yet turned on in production**. Runtime version
+`write-single-step-v1`; `write_canary.allocation_basis_points=0` and `capability_profiles=[]`
+so by default no real request passes through. Only dashboard + the API provider; CLI, OAuth,
+Telegram, attachments and every capability with effect `dangerous` keep using legacy.
 
-Thay đổi:
+Changes:
 
 - Idempotency ledger.
 - Confirmation policy.
 - Resource lock.
-- Reconciliation cho timeout/UNKNOWN.
+- Reconciliation for timeout/UNKNOWN.
 - Sequential write.
-- Compensation chỉ khi capability khai báo và đã kiểm thử.
-- Canary riêng cho từng connector/capability group.
+- Compensation only when the capability declares it and it has been tested.
+- A separate canary for each connector/capability group.
 
-Không bật một cờ chung cho toàn bộ write tool.
+Do not turn on one shared flag for all write tools.
 
-Contract đã triển khai:
+Implemented contract:
 
-- **Hai lượt, không phải một.** Lượt một chỉ LẬP tham số (đúng một model call, forced
-  tool call) rồi ghi ý định vào ledger ở trạng thái `PREPARED` và hỏi lại người dùng.
-  Lượt hai KHÔNG có model call nào: tham số đã duyệt được khoá bằng `args_hash`, nên
-  model không có cơ hội đổi ý giữa lúc duyệt và lúc chạy.
-- **Xác nhận phải tường minh.** Người dùng phải gõ lại đúng `XAC NHAN <mã 6 ký tự>`.
-  "ok", "đồng ý", "ừ" cố tình KHÔNG được chấp nhận: một câu ừ hử không đủ làm bằng
-  chứng cho hành động không hoàn tác được. Mã suy ra từ chính ý định (`task_id` +
-  `args_hash` + salt) nên tính lại được, không phải số ngẫu nhiên.
-- **Ba hàng rào chống chạy trùng, mỗi cái đủ sức một mình.** `idempotency_key` UNIQUE
-  ở tầng SQLite (spec 18.6), resource lock theo tài nguyên (`resource_lock_fields` của
-  từng group; không khai thì khoá theo cả capability), và chuyển trạng thái có điều
-  kiện `PREPARED → RUNNING → kết thúc`. Tám lượt xác nhận đồng thời cho cùng ý định
-  chỉ chạy tool đúng một lần.
-- **UNKNOWN không bao giờ retry.** Timeout, huỷ giữa chừng và exception phía client
-  đều chuyển `UNKNOWN` và **giữ** resource lock, nên không write mới nào đè lên cùng
-  tài nguyên trước khi có kết luận. Chỉ hai đường kết luận được: một capability READ
-  do group khai (`reconcile_capability_id` + `reconcile_success_marker`), hoặc người
-  dùng. Tool trả `ERROR:` tường minh mới được coi là bằng chứng CHƯA chạy.
-- **Restart không chạy lại gì.** `sweep_stale_writes` ở startup chuyển mọi write còn
-  `RUNNING` sang `UNKNOWN` và giữ lock; write đã `SUCCEEDED` giữ nguyên. Cùng một ý
-  định sau restart cho ra cùng `idempotency_key`.
-- **Group không reconcile được thì về legacy**, trừ khi operator khai rõ
-  `allow_unreconcilable: true` cho group đó.
-- **Raw arguments vẫn không vào runtime store.** Ledger chỉ giữ hash. Tham số đã duyệt
-  nằm trong RAM, nên restart giữa lúc chờ xác nhận làm lượt xác nhận fail-closed thay
-  vì chạy một hành động mà Jarvis 007 không còn đọc lại được tham số. Đây là đánh đổi có
-  chủ đích, không phải thiếu sót.
-- Audit nối được `task_id`, `step_id`, capability revision, `idempotency_key`,
-  `provider_request_id` và evidence ref; chuỗi sự kiện `write.prepared` →
+- **Two turns, not one.** Turn one only BUILDS the arguments (exactly one model call, a forced
+  tool call), then records the intent in the ledger in the `PREPARED` state and asks the user back.
+  Turn two has NO model call at all: the approved arguments are locked by `args_hash`, so
+  the model has no chance to change its mind between approval and execution.
+- **Confirmation must be explicit.** The user must type back exactly `XAC NHAN <6-character code>` (the literal
+  Vietnamese confirmation phrase, "XAC NHAN" meaning "CONFIRM", with no diacritics).
+  "ok", "đồng ý" ("agreed") and "ừ" ("yeah") are deliberately NOT accepted: a vague "yeah" is not enough as
+  proof for an action that cannot be undone. The code is derived from the intent itself (`task_id` +
+  `args_hash` + salt), so it can be recomputed and is not a random number.
+- **Three duplicate-execution barriers, each strong enough alone.** A UNIQUE `idempotency_key`
+  at the SQLite layer (spec 18.6), a per-resource lock (the `resource_lock_fields` of
+  each group; if not declared, it locks the whole capability), and a conditional state transition
+  `PREPARED → RUNNING → finished`. Eight concurrent confirmations for the same intent
+  run the tool exactly once.
+- **UNKNOWN never retries.** A timeout, a cancellation midway and a client-side exception
+  all move to `UNKNOWN` and **keep** the resource lock, so no new write overwrites the same
+  resource before there is a conclusion. Only two ways to reach a conclusion: a READ capability
+  declared by the group (`reconcile_capability_id` + `reconcile_success_marker`), or the user.
+  Only a tool that returns an explicit `ERROR:` is treated as evidence that it has NOT run.
+- **A restart reruns nothing.** `sweep_stale_writes` at startup moves every write still
+  `RUNNING` to `UNKNOWN` and keeps the lock; a write that is already `SUCCEEDED` is left alone. The same
+  intent after a restart yields the same `idempotency_key`.
+- **A group that cannot reconcile goes back to legacy**, unless the operator explicitly declares
+  `allow_unreconcilable: true` for that group.
+- **Raw arguments still do not enter the runtime store.** The ledger keeps only the hash. The approved arguments
+  live in RAM, so a restart while waiting for confirmation makes the confirmation turn fail closed instead
+  of running an action whose arguments Jarvis 007 can no longer read back. This is a deliberate
+  tradeoff, not an omission.
+- The audit links `task_id`, `step_id`, capability revision, `idempotency_key`,
+  `provider_request_id` and the evidence ref; the event chain is `write.prepared` →
   `write.started` → `write.finished` (→ `write.reconciled`).
 
-Chưa làm trong phase này: compensation (chưa capability nào khai), write nhiều bước
-trong một task, và write trên đường Phase 7 orchestrator - `_continue` của Phase 7 vẫn
-reset step `RUNNING` về `PENDING` nên chỉ an toàn cho read.
+Not done in this phase: compensation (no capability declares any yet), multi-step writes
+within one task, and writes on the Phase 7 orchestrator path - Phase 7's `_continue` still
+resets `RUNNING` steps to `PENDING`, so it is safe only for read.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Duplicate write bằng 0 trong integration và chaos test.
-- Resume sau restart không chạy lại action đã hoàn thành.
-- UNKNOWN được reconcile hoặc dừng an toàn.
-- Tool không có khả năng reconcile tiếp tục dùng legacy hoặc yêu cầu xác nhận đặc biệt.
-- Audit liên kết được task, step, capability revision và provider request ID.
+- Zero duplicate writes in integration and chaos tests.
+- Resume after a restart does not rerun an action that has completed.
+- UNKNOWN is reconciled or stops safely.
+- A tool that cannot reconcile keeps using legacy or requires a special confirmation.
+- The audit can link the task, step, capability revision and provider request ID.
 
-Rollback: tắt task write mới của capability group. Không rollback task đang có side effect bằng cách chạy lại legacy; task đó phải resume cùng runtime version và invocation ledger.
+Rollback: turn off new write tasks for the capability group. A task that already has a side effect is not rolled back by rerunning legacy; that task must resume on the same runtime version and invocation ledger.
 
 ### Phase 10: Workflow capability graph
 
-Trạng thái code ngày 2026-08-02: **hoàn tất, chưa bật production**. `workflow_canary` mặc định
-allocation `0` và `allowed_slugs` rỗng (fail-closed), nên mọi workflow tiếp tục chạy bằng runner
-cũ. Đường mới dùng CHUNG engine, prompt và bộ event với runner cũ; khác biệt duy nhất là nó có
-trạng thái.
+Code status as of 2026-08-02: **complete, not yet turned on in production**. `workflow_canary` defaults to
+allocation `0` and an empty `allowed_slugs` (fail-closed), so every workflow keeps running on the
+old runner. The new path SHARES the engine, prompt and event set with the old runner; the only difference is that it has
+state.
 
-Ba bất biến đã có test canh, mỗi cái được kiểm chứng bằng cách gỡ hàng rào ra xem test có đỏ:
+Three invariants are guarded by tests, each verified by removing the barrier to see whether the test goes red:
 
-- **Node đã xong không chạy lại.** Resume đọc checkpoint; node `COMPLETED` giữ nguyên output.
-- **Node ghi không bao giờ tự chạy.** Workflow nền không có ai để hỏi, nên gặp node ghi là dừng
-  ở `WAITING_USER`. Xác nhận sai node thì vẫn đứng yên.
-- **Workflow con ghim theo revision.** Thiếu revision là từ chối biên dịch; revision lệch là node
-  hỏng, không chạy nhầm bản mới.
+- **A node that is done does not run again.** Resume reads the checkpoint; a `COMPLETED` node keeps its output.
+- **A write node never runs on its own.** A background workflow has no one to ask, so on meeting a write node it stops
+  at `WAITING_USER`. Confirming the wrong node still leaves it standing still.
+- **A child workflow is pinned by revision.** A missing revision is refused at compile time; a mismatched revision is a
+  broken node, and the newer version is not run by mistake.
 
-Câu hỏi mục 30.3 ý 5 đã có câu trả lời: workflow hiện tại **không có hợp đồng dữ liệu nào cả**
-(bốn trường mỗi bước, truyền dữ liệu bằng thay chuỗi `{{prev}}`, chỉ output bước cuối quan sát
-được). Vì vậy adapter phải **tự suy ra** hợp đồng chứ không đọc được từ file, và hợp đồng suy ra
-được đánh dấu `derived: true`. Làm output giàu hơn "chuỗi của bước cuối" là ĐỔI HÀNH VI, không
-phải di trú - để lại cho một thay đổi riêng có canary riêng.
+The question in section 30.3 point 5 has an answer: the current workflow has **no data contract at all**
+(four fields per step, data passed by replacing the string `{{prev}}`, and only the last step's output is
+observable). So the adapter must **infer** the contract itself rather than read it from the file, and an inferred contract
+is marked `derived: true`. Making the output richer than "the last step's string" is CHANGING BEHAVIOR, not
+a migration - left to a separate change with its own canary.
 
-Node `capability` **đã chạy được**: đọc thì chạy thẳng, ghi thì dừng hỏi rồi chạy sau khi duyệt
-đúng mã. Mã suy ra từ task + node + arguments nên restart vẫn tính lại được, và mã của node này
-không duyệt được node khác. Tham số của node là TĨNH (người viết workflow khai trong file, không
-phải model sinh) nên đường này an toàn hơn Phase 9 một bậc. Hai lớp chặn "chưa duyệt không chạy":
-`workflow_runtime` dừng trước, và `workflow_capability_guard` là lớp thứ hai - tách thành hàm gọi
-được vì một hàng rào không kiểm được là hàng rào không tin được.
+The `capability` node **can now run**: a read runs straight away, a write stops to ask and then runs after the
+exact code is approved. The code is derived from task + node + arguments so a restart can still recompute it, and one node's code
+cannot approve another node. A node's arguments are STATIC (the workflow author declares them in the file, not
+generated by the model) so this path is one notch safer than Phase 9. Two layers block "not approved, does not run":
+`workflow_runtime` stops first, and `workflow_capability_guard` is the second layer - split out as a function that can be
+called directly because a barrier that cannot be tested is a barrier that cannot be trusted.
 
-Ngoài phạm vi phase này: `workflow_call` mới được validate và checkpoint, chưa tự thực thi.
+Out of scope for this phase: `workflow_call` is only validated and checkpointed so far, not executed on its own.
 
-Thay đổi:
+Changes:
 
-- WorkflowSource và WorkflowManifest.
+- WorkflowSource and WorkflowManifest.
 - Typed input/output.
-- DAG, condition, parallel group, wait user và checkpoint.
-- Nested workflow theo revision.
-- Compatibility adapter cho workflow hiện tại.
-- Compensation contract cho node write nếu có.
+- DAG, condition, parallel group, wait user and checkpoint.
+- Nested workflows by revision.
+- A compatibility adapter for the current workflow.
+- A compensation contract for write nodes, if any.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Workflow hiện tại chạy tương đương qua adapter.
-- Checkpoint resume đúng node, không chạy lại node write đã hoàn thành.
-- Nested workflow giữ task/evidence lineage.
-- Workflow mới được Registry nhận mà không sửa core prompt.
+- The current workflow runs equivalently through the adapter.
+- Checkpoint resume lands on the right node, and does not rerun a write node that has completed.
+- A nested workflow keeps the task/evidence lineage.
+- A new workflow is picked up by the Registry without editing the core prompt.
 
-Rollback: workflow mới trở về runner hiện tại; task workflow đang chạy giữ runtime version đã ghim.
+Rollback: a new workflow goes back to the current runner; a running workflow task keeps its pinned runtime version.
 
 ### Phase 11: Agent replanning
 
-Trạng thái code ngày 2026-08-02: **hoàn tất, chưa bật production**. `agent_canary` mặc định
-allocation `0` và `allowed_slugs` rỗng. Workflow chỉ được replan khi TỰ KHAI `agent: true`
-trong frontmatter; workflow thường giữ đồ thị cố định của Phase 10.
+Code status as of 2026-08-02: **complete, not yet turned on in production**. `agent_canary` defaults to
+allocation `0` and an empty `allowed_slugs`. A workflow may replan only when it DECLARES `agent: true`
+in its frontmatter; an ordinary workflow keeps the fixed graph of Phase 10.
 
-Bất biến trung tâm, và cũng là thứ dễ hỏng nhất:
+The central invariant, and also the easiest thing to break:
 
-> **Replan không bao giờ được cấp thêm quyền.**
+> **Replanning never grants additional permission.**
 
-Tập quyền (`CapabilityGrant`) được ghim từ đồ thị GỐC lúc khởi tạo: agent nào được gọi,
-capability nào được dùng, có được ghi hay không. Node do model đề xuất phải nằm trọn trong
-tập đó. Model không thể mở rộng quyền của chính nó bằng cách đề xuất kế hoạch mới - đây là
-lý do phép kiểm nằm trong code chứ không nằm trong prompt (mục 4.4).
+The permission set (`CapabilityGrant`) is pinned from the ORIGINAL graph at initialization: which agents may be called,
+which capabilities may be used, and whether writing is allowed. A node proposed by the model must fall entirely within
+that set. The model cannot widen its own permissions by proposing a new plan - this is
+why the check lives in code and not in the prompt (section 4.4).
 
-Ba điểm thiết kế đáng ghi lại:
+Three design points worth recording:
 
-- **Một node xấu chặn cả lô.** Kế hoạch có node vượt quyền thì dừng toàn bộ vòng, không
-  lặng lẽ bỏ node đó rồi chạy phần còn lại - chạy một nửa kế hoạch của model là hành vi
-  không ai suy luận được.
-- **Model chỉ được thêm `model_step` và `capability`.** `workflow_call`, `wait_user` và
-  `compensation` là thứ người viết workflow khai, không phải thứ model tự thêm giữa chừng.
-- **Lặp lại cùng dấu vết lỗi thì escalate**, không thử mãi. Dấu vết chỉ gồm node nào hỏng
-  vì lý do gì, không kèm nội dung.
+- **One bad node blocks the whole batch.** A plan with an out-of-permission node stops the whole round, and does not
+  quietly drop that node and run the rest - running half of the model's plan is behavior
+  nobody can reason about.
+- **The model may add only `model_step` and `capability`.** `workflow_call`, `wait_user` and
+  `compensation` are things the workflow author declares, not things the model adds on its own midway.
+- **Repeating the same failure signature escalates**, and does not keep trying. The signature consists only of which node failed
+  and why, without content.
 
-Người lập kế hoạch bằng model **đã được đấu vào**: danh sách agent/capability đã cấp đi thẳng
-vào `enum` của schema tool, nên model không tự do bịa tên. Nhưng prompt KHÔNG phải hàng rào -
-mọi đề xuất vẫn bị `CapabilityGrant` kiểm lại trong code và một node vượt quyền chặn cả lô.
-Không có quyền nào thì không tốn một model call; provider lỗi thì trả rỗng chứ không phá vòng
-chạy. Việc TĂNG allocation vẫn phụ thuộc gold benchmark theo đúng điều kiện qua phase bên dưới.
+The model-based planner **is now wired in**: the list of granted agents/capabilities goes straight
+into the `enum` of the tool schema, so the model cannot freely invent names. But the prompt is NOT the barrier -
+every proposal is still re-checked by `CapabilityGrant` in code and an out-of-permission node blocks the whole batch.
+With no permission granted it costs no model call; if the provider fails it returns empty rather than breaking the
+run. INCREASING allocation still depends on the gold benchmark under the conditions to pass the phase below.
 
-Thay đổi:
+Changes:
 
-- Agent như workflow có quyền replan trong capability lease và task budget.
-- Quality Gate có thể yêu cầu gather_more/revise.
-- Stop condition, retry policy và escalation rõ ràng.
-- Không tự cấp thêm permission khi replan.
+- An agent as a workflow that may replan within the capability lease and task budget.
+- The Quality Gate can request gather_more/revise.
+- A clear stop condition, retry policy and escalation.
+- No granting of extra permission on replan.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Agent không vượt budget, permission hoặc deadline.
-- Replan lặp lại cùng failure signature bị dừng/escalate.
-- Replay chứng minh agentic path tốt hơn workflow deterministic cho nhóm task được bật.
+- The agent does not exceed budget, permission or deadline.
+- A replan that repeats the same failure signature is stopped/escalated.
+- Replay proves the agentic path is better than the deterministic workflow for the enabled task groups.
 
-Rollback: tắt agent task mới; workflow deterministic vẫn hoạt động.
+Rollback: turn off new agent tasks; the deterministic workflow keeps working.
 
 ### Phase 12: Per-step Model Router
 
-Đây là phase cuối vì model switching làm tăng mạnh số biến khi debug.
+This is the last phase because model switching greatly increases the number of variables when debugging.
 
-Trạng thái code ngày 2026-08-02: **hoàn tất, chưa bật production**. `model_router_canary`
-mặc định allocation `0` và danh sách `models` rỗng, nên router luôn trả `keep` và model
-người dùng chọn ở trang Models vẫn là model chạy thật.
+Code status as of 2026-08-02: **complete, not yet turned on in production**. `model_router_canary`
+defaults to allocation `0` and an empty `models` list, so the router always returns `keep` and the model
+the user picked on the Models page is still the model that actually runs.
 
-Router làm việc theo thứ tự CỨNG: **lọc trước, xếp hạng sau**. Ứng viên thiếu một năng lực
-bắt buộc, vượt cửa sổ context, bị chính sách dữ liệu cấm, chậm quá deadline hay đắt quá
-ngân sách bước đều bị loại hẳn - không có điểm số nào cứu được. Rẻ hơn chỉ là tiêu chí xếp
-hạng GIỮA những ứng viên đã đủ năng lực. Đó là cách diễn đạt bằng code của luật mục 9.3.
+The router works in a HARD order: **filter first, rank second**. A candidate missing a required
+capability, exceeding the context window, forbidden by the data policy, too slow for the deadline or too expensive for the
+step budget is dropped outright - no score can save it. Being cheaper is only a ranking criterion AMONG
+candidates that are already capable. That is the code expression of the rule in section 9.3.
 
-Hai quyết định đáng ghi lại:
+Two decisions worth recording:
 
-- **Không đoán năng lực theo tên model.** Rule không khai `supports: ["vision"]` thì model
-  đó không nhận ảnh, kể cả khi tên nó là `gpt-4o-super-vision-pro`. Đoán mò là cách chắc
-  chắn để một ngày nào đó gửi ảnh vào một model mù. Rule thiếu giá thật hoặc thiếu cửa sổ
-  context bị loại khỏi danh sách ứng viên, không được đoán bù.
-- **Không ai đủ năng lực thì GIỮ NGUYÊN model người dùng chọn**, không hạ tiêu chuẩn để có
-  cái mà chạy. Cờ `downgrade` tách riêng khỏi `priority`: `priority` là thứ tự xếp hạng,
-  còn `downgrade` là rào an toàn cho bước rủi ro cao.
+- **Do not guess capabilities from a model name.** If a rule does not declare `supports: ["vision"]` then
+  that model does not accept images, even if its name is `gpt-4o-super-vision-pro`. Guessing is a sure
+  way to one day send an image into a blind model. A rule missing a real price or a context window
+  is dropped from the candidate list, and is not guessed to fill the gap.
+- **If no one is capable, KEEP the model the user picked**, and do not lower the bar just to have
+  something to run. The `downgrade` flag is separate from `priority`: `priority` is the ranking order,
+  while `downgrade` is the safety barrier for high-risk steps.
 
-Router được nối vào việc chọn model cho từng bước workflow. Engine workflow chỉ chạy được
-CLI, nên có hai guard ở ranh giới: rule trỏ sang provider API thì giữ nguyên model của agent
-(không im lặng chạy model khác với thứ đã quyết), và route sang họ Codex mà model không phải
-model Codex cũng bị từ chối. Kích thước prompt thật được đưa vào request, nếu không bộ lọc
-cửa sổ context vô hiệu và prompt dài vẫn lọt vào model cửa sổ nhỏ.
+The router is wired into model selection for each workflow step. The workflow engine can only run
+CLI, so there are two guards at the boundary: a rule pointing to an API provider keeps the agent's model
+(it does not silently run a model different from what was decided), and a route to the Codex family where the model is not a
+Codex model is also rejected. The real prompt size is passed into the request, otherwise the context-window
+filter is disabled and a long prompt still slips into a small-window model.
 
-Chưa làm trong phase này: reliability live (hiện là số người vận hành khai, chưa tự học từ
-lỗi quan sát được) và validator bằng model.
+Not done in this phase: live reliability (it is currently a number the operator declares, not yet learned from
+observed errors) and a model-based validator.
 
-### Bài học tích hợp, ghi lại cho các thay đổi sau
+### Integration lessons, recorded for later changes
 
-Phase 10-12 sinh ra năm trạng thái mới (`wait_user`, `replan`, `escalation`, `resume`,
-`step_model`) và bốn lỗi tích hợp - tất cả đều là **code đúng, test xanh, nhưng không nối
-được với thứ nó phục vụ**:
+Phases 10-12 produced five new states (`wait_user`, `replan`, `escalation`, `resume`,
+`step_model`) and four integration bugs - all of them **correct code, green tests, but not wired
+to the thing it serves**:
 
-- Router viết xong mà không có ai gọi.
-- Event bước thiếu trường chỉ số nên Studio lặng lẽ vứt phần chữ đang chạy.
-- Studio không có nhánh cho trạng thái mới, nên workflow dừng chờ duyệt trông y hệt bị sập.
-- Dispatcher Kanban không bắt `wait_user`, nên task chờ duyệt bị chấm HOÀN THÀNH với kết quả
-  rỗng và việc cần người biến mất; đồng thời trace ghi "đang chờ người" thành `FAILED`, làm
-  lệch chính các chỉ số dùng làm điều kiện qua phase.
+- The router was written and nobody called it.
+- A step event lacked an index field, so Studio silently dropped the running text.
+- Studio had no branch for the new state, so a workflow stopped waiting for approval looked exactly like a crash.
+- The Kanban dispatcher did not catch `wait_user`, so a task waiting for approval was scored COMPLETED with an
+  empty result and the item that needed a person vanished; meanwhile the trace recorded "waiting for a person" as `FAILED`, which
+  skewed the very metrics used as conditions to pass the phase.
 
-Test đơn vị mù với họ lỗi này vì nó chỉ kiểm phần mình viết. Thứ bắt được chúng là đi NGƯỢC
-từ phía tiêu thụ: ai gọi cái này, cái này hiện ra ở đâu, ai đọc trạng thái này. Vì vậy đã
-thêm một test đối chiếu hai chiều: mọi loại event runtime phát ra đều phải có nhánh xử lý
-trong `studio.js`. Thay đổi sau nào thêm trạng thái mới mà quên phía hiển thị sẽ đỏ ngay.
+Unit tests are blind to this family of bugs because they check only the part they wrote. What catches them is going
+BACKWARD from the consuming side: who calls this, where does this show up, who reads this state. So a
+two-way cross-check test was added: every event type the runtime emits must have a handling branch
+in `studio.js`. Any later change that adds a new state and forgets the display side goes red immediately.
 
-Cùng họ lỗi đó, nhưng ở phía HTTP: `/workflows/resume` được thêm ở Phase 10 như một endpoint
-SSE, tức là buộc phải là `GET` (EventSource không POST được). Nó nằm sau `_auth_guard` nên
-không hở với người lạ, nhưng lớp chống CSRF sẵn có lại **không** phủ nó: `csrf_decision` chỉ
-xét Origin trên method ghi, trong khi điều hướng top-level bằng `GET` không gửi Origin và
-cookie `javis_session` đặt `SameSite=lax` thì vẫn đi kèm. Một trang lạ chỉ cần đẩy
-`location.href` sang là lệnh chạy trên máy nạn nhân, kể cả khi đã bật mật khẩu.
+The same family of bugs, but on the HTTP side: `/workflows/resume` was added in Phase 10 as an SSE endpoint,
+which means it had to be a `GET` (EventSource cannot POST). It sits behind `_auth_guard` so it is not
+open to strangers, but the existing CSRF layer does **not** cover it: `csrf_decision` only
+checks Origin on write methods, while a top-level `GET` navigation sends no Origin and the
+`javis_session` cookie set with `SameSite=lax` still goes along. A foreign page only needs to push
+`location.href` over and the command runs on the victim's machine, even when a password is enabled.
 
-Với `/workflows/resume` rủi ro thực tế thấp vì mã duyệt suy ra từ task + node + arguments nên
-không đoán được, nhưng endpoint anh em `/workflows/run` (có từ trước) thì nhận slug đoán được
-và chạy **full quyền**. Đã chốt bằng `web_security.navigation_decision`: nhóm
-`SIDE_EFFECT_GET` chỉ chạy khi `Sec-Fetch-Site` là `same-origin`, `none`, hoặc vắng mặt
-(curl/Claude CLI/Codex không gửi header này nên không bị khoá nhầm). Đổi `samesite="strict"`
-đã được cân nhắc và loại: nó sẽ giết luôn redirect OAuth ở `/connect/oauth/callback`.
+For `/workflows/resume` the real-world risk is low because the approval code is derived from task + node + arguments, so
+it cannot be guessed, but its sibling endpoint `/workflows/run` (which predates it) accepts a guessable slug
+and runs with **full permission**. This was settled with `web_security.navigation_decision`: the group
+`SIDE_EFFECT_GET` runs only when `Sec-Fetch-Site` is `same-origin`, `none`, or absent
+(curl/Claude CLI/Codex do not send this header so they are not locked out by mistake). Changing to `samesite="strict"`
+was considered and rejected: it would also kill the OAuth redirect at `/connect/oauth/callback`.
 
-Bài học chung: mỗi lần thêm endpoint, hỏi "lớp phòng thủ hiện có phủ đúng method này chưa",
-đừng giả định vì hàng xóm của nó được phủ.
+The general lesson: every time an endpoint is added, ask "does the existing defense cover exactly this method",
+and do not assume it does because its neighbor is covered.
 
-Thay đổi:
+Changes:
 
-- ModelSource đầy đủ và live reliability/quota profile.
-- Chọn model theo output contract, capability requirement, quota, risk và cost.
-- Structured state là hợp đồng giữa các model.
-- Validator model chỉ dùng khi deterministic checks không đủ.
-- Provider fallback theo data policy.
+- A full ModelSource and live reliability/quota profile.
+- Choose a model by output contract, capability requirement, quota, risk and cost.
+- Structured state is the contract between models.
+- A validator model is used only when deterministic checks are not enough.
+- Provider fallback by data policy.
 
-Điều kiện qua phase:
+Conditions to pass the phase:
 
-- Model switching không làm mất objective, evidence hoặc constraint.
-- Task quality không thấp hơn single-model baseline.
-- Chi phí/latency cải thiện trên nhóm task được route.
-- Provider/model mới được thêm bằng adapter + profile, không sửa Context Compiler.
+- Model switching does not lose the objective, evidence or constraints.
+- Task quality is not lower than the single-model baseline.
+- Cost/latency improve on the routed task groups.
+- A new provider/model is added through an adapter + profile, without editing the Context Compiler.
 
-Rollback: pin model chính hiện tại theo task policy; Registry và runtime còn nguyên.
+Rollback: pin the current main model per task policy; the Registry and runtime stay intact.
 
-### Bảy việc đóng lại khoảng cách với mục đích gốc (2026-08-02)
+### Seven items that close the gap with the original purpose (2026-08-02)
 
-Chi tiết ở `2026-08-adaptive-runtime-con-thieu.md`. Tóm tắt để spec không lệch với code:
+Details are in `2026-08-adaptive-runtime-con-thieu.md`. A summary so the spec does not drift from the code:
 
-- `mcp_hub.CORE_TOOL_FNS` - tầng lazy nhận cả builtin và plugin; ngưỡng xét cả KÍCH THƯỚC
-  schema chứ không chỉ số lượng tool. Schema mỗi lượt giảm 83%, có tác dụng ngay trên đường
-  legacy, không cần bật canary.
-- `tests/python/test_prompt_budget.py` - trần cho `CLAUDE.md`, `CORE_CONTRACT` và schema tool
-  hiện thẳng, cộng phép thử tổng phải vừa hạn mức Groq miễn phí.
-- `config._deep_merge` - gộp cấu hình ĐỆ QUY. Merge một tầng cũ làm ghi tay một knob canary
-  là xoá sạch `quota_profiles` anh em, và fail-closed biến nó thành hỏng CÂM.
-- `model_limits.py` - hạn mức gợi ý có ghi nguồn và cờ verify; `POST /runtime/quota`.
-- `POST /runtime/canary` - đặt allocation an toàn, CHẶN việc bật một đường chắc chắn
-  fail-closed, tắt về 0 thì luôn cho.
-- `quota_scheduler.py` - sổ cái TPM dùng chung, móc vào `usage_store.record`. Bảng đặt chỗ
-  nay chỉ đếm phần ĐANG BAY để không đếm hai lần.
-- `capability_index.py` - RRF fusion, nới rộng theo tín hiệu yếu, affinity nguồn.
+- `mcp_hub.CORE_TOOL_FNS` - the lazy layer now covers builtins and plugins; the threshold considers the SIZE of the
+  schema and not just the number of tools. The per-turn schema shrinks by 83%, taking effect straight away on the
+  legacy path, with no need to turn on a canary.
+- `tests/python/test_prompt_budget.py` - a ceiling for `CLAUDE.md`, `CORE_CONTRACT` and the directly exposed tool
+  schemas, plus a test that the total must fit the free Groq quota.
+- `config._deep_merge` - RECURSIVE configuration merging. The old one-level merge made hand-writing a single canary knob
+  wipe out its sibling `quota_profiles`, and fail-closed turned that into a SILENT breakage.
+- `model_limits.py` - suggested limits with a recorded source and a verify flag; `POST /runtime/quota`.
+- `POST /runtime/canary` - sets allocation safely, BLOCKS turning on a path that is certain to
+  fail closed, and always allows turning it down to 0.
+- `quota_scheduler.py` - a shared TPM ledger, hooked into `usage_store.record`. The reservation table
+  now counts only what is IN FLIGHT so nothing is counted twice.
+- `capability_index.py` - RRF fusion, widening on weak signals, source affinity.
 
-Ba đính chính so với bản phân tích ban đầu, ghi lại vì chúng cho thấy đọc code mà chưa chạy
-thì sai ở đâu: `CLAUDE.md` không hề phình (so byte với ký tự); fast path và readonly path
-không sai chiều fail-closed (Phase 8 mới là đường sai); TPM không phải chỗ để trống (lỗ nằm
-ở chỗ chỉ 4 trên 14 đường gọi model đi qua admission).
+Three corrections to the original analysis, recorded because they show where reading code without running it
+goes wrong: `CLAUDE.md` did not bloat at all (bytes were being compared with characters); the fast path and the readonly path
+did not fail closed in the wrong direction (Phase 8 was the wrong path); TPM was not a gap left empty (the hole was
+that only 4 of the 14 model-calling paths went through admission).
 
-## 25. Chiến lược kiểm thử
+## 25. Test strategy
 
-### 25.1 Unit test
+### 25.1 Unit tests
 
-- Manifest validation và revision.
+- Manifest validation and revision.
 - Source adapter normalization.
-- Resolver hard filter và scoring.
-- Dynamic cutoff theo coverage.
-- Context dedupe, conflict và budget.
+- Resolver hard filter and scoring.
+- Dynamic cutoff by coverage.
+- Context dedupe, conflict and budget.
 - Token reservation/reconciliation.
-- Lease expiry và revision mismatch.
-- Idempotency state machine.
-- Evidence redaction và source map.
-- Quality deterministic checks.
+- Lease expiry and revision mismatch.
+- The idempotency state machine.
+- Evidence redaction and source map.
+- Deterministic quality checks.
 
-### 25.2 Property test
+### 25.2 Property tests
 
-- Thêm capability không liên quan không được thay resolver result.
-- Đổi thứ tự ingestion không đổi Registry snapshot.
-- Compile cùng input và policy version cho cùng capsule hash.
-- Retry cùng idempotency key không tạo invocation mới.
-- Context luôn nằm trong budget sau render cuối.
-- Capability ngoài permission không bao giờ xuất hiện trong candidates.
+- Adding an unrelated capability must not change the resolver result.
+- Changing the ingestion order must not change the Registry snapshot.
+- Compiling the same input and policy version gives the same capsule hash.
+- Retrying with the same idempotency key does not create a new invocation.
+- Context always stays within budget after the final render.
+- A capability outside permission never appears in candidates.
 
-### 25.3 Integration test
+### 25.3 Integration tests
 
-- Fake MCP với schema thay đổi giữa resolve và invoke.
-- Fake provider trả usage khác estimate.
-- Provider 429 TPM trước và sau reservation.
-- Tool read timeout và cache fallback.
-- Tool write timeout sau khi server đã thực hiện action.
-- Restart process giữa RUNNING và SUCCEEDED.
-- Telegram và dashboard cùng session/task.
-- Brain switch không rò memory hoặc capability.
+- A fake MCP whose schema changes between resolve and invoke.
+- A fake provider that returns usage different from the estimate.
+- A provider 429 TPM before and after reservation.
+- A read tool timeout and the cache fallback.
+- A write tool timeout after the server has already performed the action.
+- A process restart between RUNNING and SUCCEEDED.
+- Telegram and the dashboard on the same session/task.
+- A brain switch does not leak memory or capabilities.
 
-### 25.4 Replay test
+### 25.4 Replay tests
 
-Replay phải bao phủ:
+Replay must cover:
 
-- chat không tool;
-- câu hỏi cần identity/core memory;
-- fact nằm sâu trong memory;
-- câu hỏi mơ hồ giữa hai connector;
-- một MCP read;
-- nhiều read độc lập;
-- write có confirmation;
-- workflow nhiều bước;
-- model không hỗ trợ tool;
-- provider thiếu TPM;
-- result MCP lớn;
-- capability vừa được cắm thêm;
-- capability bị disable hoặc mất quyền.
+- chat without tools;
+- a question that needs identity/core memory;
+- a fact buried deep in memory;
+- a question ambiguous between two connectors;
+- one MCP read;
+- several independent reads;
+- a write with confirmation;
+- a multi-step workflow;
+- a model that does not support tools;
+- a provider short on TPM;
+- a large MCP result;
+- a capability that was just plugged in;
+- a capability that is disabled or has lost permission.
 
-So sánh:
+Compare:
 
 - task success;
 - fact correctness;
-- capability selected;
+- the capability selected;
 - tool arguments;
 - side effects;
-- tổng token;
+- total tokens;
 - model rounds;
 - latency;
-- fallback reason.
+- the fallback reason.
 
-### 25.5 Chaos test
+### 25.5 Chaos tests
 
-- Kill process ở mọi task transition.
-- MCP disconnect giữa tool call.
-- Duplicate provider event.
+- Kill the process at every task transition.
+- MCP disconnect in the middle of a tool call.
+- A duplicate provider event.
 - Registry database locked/corrupt.
-- Evidence artifact mất file.
-- Quota snapshot stale.
-- Hai lượt cùng sửa một task state.
-- Provider trả response không đúng schema.
+- An evidence artifact missing its file.
+- A stale quota snapshot.
+- Two turns editing the same task state.
+- A provider returning a response that does not match the schema.
 
-### 25.6 Gold benchmark và prompt contract
+### 25.6 Gold benchmark and prompt contract
 
-Gold benchmark không lấy đường hiện tại làm chân lý duy nhất. Mỗi case critical có:
+The gold benchmark does not treat the current path as the only truth. Each critical case has:
 
-- objective và bối cảnh tối thiểu;
-- capability chấp nhận được, có thể nhiều hơn một;
-- capability hoặc hành động bị cấm;
-- evidence bắt buộc;
+- the objective and minimal background;
+- acceptable capabilities, possibly more than one;
+- forbidden capabilities or actions;
+- required evidence;
 - output facts/contract;
-- side effect mong đợi hoặc yêu cầu không được có side effect;
-- tiêu chí chấm thủ công khi không thể so exact text.
+- the expected side effect, or a requirement that there be no side effect;
+- manual grading criteria when exact text cannot be compared.
 
-Prompt contract chạy riêng cho:
+The prompt contract runs separately for:
 
-- danh tính và cách xưng hô;
-- không bịa tool/evidence;
-- không nhận đã thực hiện khi chưa có invocation thành công;
-- permission, confirmation và brain/file scope;
+- identity and forms of address;
+- not inventing tools/evidence;
+- not claiming something was done before a successful invocation;
+- permission, confirmation and brain/file scope;
 - channel behavior;
-- xử lý dữ liệu không tin cậy;
-- báo thiếu dữ liệu và confidence thấp.
+- handling of untrusted data;
+- reporting missing data and low confidence.
 
-Mọi resolver miss hoặc prompt regression critical phải tạo fixture hồi quy trước khi sửa policy.
+Every critical resolver miss or prompt regression must create a regression fixture before the policy is fixed.
 
-## 26. Tiêu chí nghiệm thu
+## 26. Acceptance criteria
 
-Các con số release gate phải được chốt sau Phase 0 dựa trên baseline thật. Chúng là tiêu chí phát hành, không phải ngưỡng runtime hardcode.
+The release gate numbers must be settled after Phase 0, based on the real baseline. They are release criteria, not hardcoded runtime thresholds.
 
-Tiêu chí cấu trúc bắt buộc:
+Mandatory structural criteria:
 
-1. Prompt ban đầu không serialize toàn bộ capability catalog.
-2. Thêm capability không liên quan không làm tăng context của replay hiện có.
-3. Exact schema chỉ được đưa vào step có lease tương ứng.
-4. Mọi evidence quan trọng có source ref.
-5. Mọi write có idempotency key và audit state.
-6. Registry, memory index và summary đều rebuild được.
-7. Có legacy fallback trước side effect.
-8. Có trace giải thích resolver, compiler, model route và quality decision.
+1. The initial prompt does not serialize the whole capability catalog.
+2. Adding an unrelated capability does not increase the context of the existing replay.
+3. An exact schema is placed only in a step that has the matching lease.
+4. Every important piece of evidence has a source ref.
+5. Every write has an idempotency key and an audit state.
+6. The Registry, memory index and summary can all be rebuilt.
+7. There is a legacy fallback before a side effect.
+8. There is a trace explaining the resolver, compiler, model route and quality decision.
 
-Release gate đề xuất để đội dự án xác nhận sau baseline:
+Proposed release gates for the project team to confirm after the baseline:
 
-- Resolver recall trên tập benchmark critical phải gần tuyệt đối.
-- Task success không thấp hơn baseline ngoài biên sai số đã thống nhất.
-- Duplicate write bằng 0 trong integration và chaos test.
-- Fast-path P95 không tăng đáng kể.
-- Tổng input token trung vị giảm rõ rệt trên workload thật.
-- Không có request bị gửi khi preflight đã biết chắc vượt hard quota.
-- Fallback rate giảm dần theo phase và mọi fallback có reason code.
+- Resolver recall on the critical benchmark set must be nearly perfect.
+- Task success is not lower than the baseline beyond the agreed margin of error.
+- Zero duplicate writes in integration and chaos tests.
+- Fast-path P95 does not rise significantly.
+- Median total input tokens fall clearly on the real workload.
+- No request is sent when preflight already knows for certain it exceeds the hard quota.
+- The fallback rate falls phase by phase and every fallback has a reason code.
 
-## 27. Dashboard vận hành
+## 27. Operations dashboard
 
-Thêm trang hoặc khối chẩn đoán dành cho admin:
+Add a page or a diagnostic block for admins:
 
-- Runtime mode và canary status.
-- Registry revision, số capability theo kind và source degraded.
-- Token attribution của từng task.
-- Resolver candidates và confidence.
-- Context capsule size theo kind.
-- Model route và quota reservation.
+- Runtime mode and canary status.
+- Registry revision, capability count by kind and degraded sources.
+- Token attribution per task.
+- Resolver candidates and confidence.
+- Context capsule size by kind.
+- Model route and quota reservation.
 - Tool invocation/idempotency state.
-- Evidence và source refs.
+- Evidence and source refs.
 - Quality Gate result.
-- Nút export trace đã redaction.
+- A button to export the redacted trace.
 
-Không hiển thị raw secret, access token hoặc full sensitive artifact.
+Do not display raw secrets, access tokens or full sensitive artifacts.
 
-## 28. Work breakdown ban đầu
+## 28. Initial work breakdown
 
-Nhóm việc A, an toàn quan sát và benchmark:
+Workstream A, observation safety and benchmark:
 
-- Chốt trace retention, redaction, ACL và export policy.
-- Định nghĩa `task_id`, `step_id`, trace event.
-- Hook token attribution vào payload hiện tại.
-- Lưu provider usage và estimate error.
-- Xây replay fixture format.
-- Xây gold benchmark và prompt contract tests.
+- Settle trace retention, redaction, ACL and export policy.
+- Define `task_id`, `step_id` and the trace event.
+- Hook token attribution into the current payload.
+- Store provider usage and estimate error.
+- Build the replay fixture format.
+- Build the gold benchmark and prompt contract tests.
 
-Nhóm việc B, runtime substrate:
+Workstream B, runtime substrate:
 
-- Task/step/event store tối thiểu.
-- Runtime và policy version pinning.
-- Task budget và optimistic concurrency.
-- Quota reservation observe-only.
-- TurnSink tương thích dashboard/Telegram.
+- A minimal task/step/event store.
+- Runtime and policy version pinning.
+- Task budget and optimistic concurrency.
+- Observe-only quota reservation.
+- A TurnSink compatible with the dashboard/Telegram.
 
-Nhóm việc C, Registry MVP:
+Workstream C, Registry MVP:
 
-- Schema SQLite và migration.
-- Adapter MCP/builtin/plugin.
-- ModelProfile tối thiểu.
-- Rebuild và integrity check.
-- Registry admin endpoint read-only.
+- SQLite schema and migration.
+- MCP/builtin/plugin adapters.
+- A minimal ModelProfile.
+- Rebuild and integrity check.
+- A read-only Registry admin endpoint.
 
-Nhóm việc D, Resolver deterministic:
+Workstream D, deterministic Resolver:
 
 - FTS index.
-- Optional embedding adapter chỉ để tăng recall.
-- Hard filters và policy.
-- Coverage model và dynamic cutoff.
-- Shadow comparison với replay và gold benchmark.
+- An optional embedding adapter only to increase recall.
+- Hard filters and policy.
+- Coverage model and dynamic cutoff.
+- Shadow comparison against the replay and gold benchmark.
 
-Nhóm việc E, Compiler và fast path:
+Workstream E, Compiler and fast path:
 
 - ContextItem sources.
 - Tokenizer adapters.
-- Budget và optimizer.
+- Budget and optimizer.
 - Core contract.
-- Capsule renderer cho OpenAI-style, Anthropic và CLI.
+- A capsule renderer for OpenAI-style, Anthropic and CLI.
 - Deterministic Quality Gate.
-- Fast-path canary và quota admission control.
+- Fast-path canary and quota admission control.
 
-Nhóm việc F, capability read-only:
+Workstream F, read-only capabilities:
 
 - Single-step read-only path.
 - Evidence Store.
-- Exact schema, lease và validation.
+- Exact schema, lease and validation.
 - Multi-round read-only Orchestrator.
-- Checkpoint, resume và parallel reads.
+- Checkpoint, resume and parallel reads.
 
-Nhóm việc G, memory và skill:
+Workstream G, memory and skills:
 
 - Structured conversation state.
 - Memory index/retrieval/source refs.
-- SkillSource và lazy skill loading.
-- Conflict detection và dynamic widening.
+- SkillSource and lazy skill loading.
+- Conflict detection and dynamic widening.
 
-Nhóm việc H, side effect:
+Workstream H, side effects:
 
 - Idempotency ledger.
 - Confirmation.
 - Resource lock.
 - Reconciliation.
-- Resume sau crash.
+- Resume after a crash.
 
-Nhóm việc I, workflow và agent:
+Workstream I, workflows and agents:
 
 - Workflow graph adapter.
 - Agent replan.
-- Checkpoint, nested workflow và compensation.
+- Checkpoint, nested workflow and compensation.
 
-Nhóm việc J, model routing và vận hành:
+Workstream J, model routing and operations:
 
 - Model Router.
-- Quota Scheduler đầy đủ.
-- Operational dashboard.
+- Full Quota Scheduler.
+- Operations dashboard.
 
-## 29. Thứ tự commit khuyến nghị
+## 29. Recommended commit order
 
-Mỗi mục dưới đây phải có test và revert độc lập:
+Each item below must have tests and an independent revert:
 
-1. Trace retention, redaction, ACL và export policy.
-2. Trace envelope, token attribution và prompt contract tests, không đổi hành vi.
-3. Replay fixture format, gold benchmark và baseline runner.
-4. Task/step/event store tối thiểu và runtime version pinning.
-5. Quota reservation observe-only và usage reconciliation.
-6. Registry database, migration và manifest validation.
-7. MCP/builtin/plugin source adapter, chưa có consumer.
-8. ModelProfile tối thiểu và Registry rebuild command.
-9. Resolver deterministic shadow và comparison report.
-10. Optional embedding recall experiment, không làm nguồn bắt buộc.
-11. Tokenizer adapter và quota preflight observe-only.
-12. ContextItem, core contract và compiler shadow.
-13. Deterministic Quality Gate trên output baseline.
-14. Fast-path canary cho chat không tool.
-15. Quota admission control và fallback policy theo budget.
-16. Evidence Store và artifact reference.
-17. Single-step read-only capability executor.
+1. Trace retention, redaction, ACL and export policy.
+2. Trace envelope, token attribution and prompt contract tests, with no behavior change.
+3. Replay fixture format, gold benchmark and baseline runner.
+4. A minimal task/step/event store and runtime version pinning.
+5. Observe-only quota reservation and usage reconciliation.
+6. Registry database, migration and manifest validation.
+7. MCP/builtin/plugin source adapters, with no consumer yet.
+8. A minimal ModelProfile and a Registry rebuild command.
+9. Deterministic Resolver shadow and comparison report.
+10. An optional embedding recall experiment, not a mandatory source.
+11. Tokenizer adapter and observe-only quota preflight.
+12. ContextItem, core contract and compiler shadow.
+13. Deterministic Quality Gate on the baseline output.
+14. Fast-path canary for chat without tools.
+15. Quota admission control and a budget-driven fallback policy.
+16. Evidence Store and artifact reference.
+17. A single-step read-only capability executor.
 18. Exact-schema read-tool canary.
-19. Multi-round read-only state machine và checkpoint.
-20. Parallel read, stop condition và task budget.
+19. A multi-round read-only state machine and checkpoint.
+20. Parallel read, stop condition and task budget.
 21. Structured conversation state canary.
 22. Memory retrieval canary.
-23. SkillSource và lazy skill canary.
-24. Idempotency, resource lock và write reconciliation.
-25. Write-tool canary theo từng capability group.
-26. Workflow compatibility adapter và DAG.
+23. SkillSource and lazy skill canary.
+24. Idempotency, resource lock and write reconciliation.
+25. Write-tool canary per capability group.
+26. Workflow compatibility adapter and DAG.
 27. Agent replanning canary.
 28. Per-step model routing canary.
-29. Operational dashboard và policy rollout cuối.
+29. Operations dashboard and the final policy rollout.
 
-## 30. Các quyết định cần chốt
+## 30. Decisions to settle
 
-### 30.1 Phải chốt trước Phase 0
+### 30.1 Must be settled before Phase 0
 
-1. Trace field nào được lưu, redaction thế nào và ai được xem?
-2. Trace/evidence/artifact retention theo loại dữ liệu và brain?
-3. Fixture nào được phép commit và ai duyệt dữ liệu đã ẩn danh?
-4. Release benchmark nào là critical và ai duyệt chất lượng?
-5. Prompt contract nào bắt buộc giữ qua mọi provider?
+1. Which trace fields are stored, how are they redacted and who may view them?
+2. Trace/evidence/artifact retention by data type and brain?
+3. Which fixtures may be committed and who approves the anonymized data?
+4. Which release benchmarks are critical and who approves quality?
+5. Which prompt contracts must be kept across every provider?
 
-### 30.2 Phải chốt trước Phase 1 và Phase 2
+### 30.2 Must be settled before Phase 1 and Phase 2
 
-1. Task/evidence database dùng `runtime.db` riêng hay thêm bảng vào `conversations.db`?
-2. Cách định danh actor thống nhất giữa dashboard, Telegram và task nền?
-3. Migration/version/backup policy của database dẫn xuất?
-4. Capability ID namespace và source revision contract?
+1. Does the task/evidence database use its own `runtime.db` or add tables to `conversations.db`?
+2. How is an actor identified consistently across the dashboard, Telegram and background tasks?
+3. The migration/version/backup policy of the derived databases?
+4. The capability ID namespace and the source revision contract?
 
-### 30.3 Có thể hoãn đến phase sử dụng
+### 30.3 Can be deferred until the phase that uses them
 
-1. Embedding dùng local model, provider embedding hay chỉ FTS?
-2. Policy dữ liệu nào không được gửi tới từng provider bên ngoài?
-3. Nguồn model limit nào được ưu tiên khi metadata provider mâu thuẫn override?
-4. Tool write nào đủ khả năng reconcile, tool nào phải giữ legacy?
-5. Workflow hiện tại có đủ input/output contract hay cần adapter dẫn xuất?
-6. Artifact retention đặc thù của từng capability?
+1. Does embedding use a local model, a provider embedding, or only FTS?
+2. Which data policy forbids sending to each external provider?
+3. Which model limit source takes priority when provider metadata contradicts an override?
+4. Which write tools can reconcile, and which must stay on legacy?
+5. Does the current workflow have enough input/output contracts, or does it need a derived adapter?
+6. Capability-specific artifact retention?
 
-## 31. Khuyến nghị chốt
+## 31. Final recommendation
 
-Mốc đầu tiên đáng đưa vào production là hết Phase 6:
+The first milestone worth putting into production is the end of Phase 6:
 
-- biết token đi đâu;
-- task, quota và runtime revision đã có xương sống;
-- Registry có thể mở rộng;
-- Resolver đã được kiểm chứng bằng shadow;
-- context ban đầu nhỏ;
-- fast path chạy capsule mới;
-- một read-only capability được nạp exact schema theo nhu cầu;
-- Groq và model hạn mức thấp có thể hoạt động mà không tạo nhánh prompt riêng.
+- we know where the tokens go;
+- tasks, quota and runtime revision have a backbone;
+- the Registry can scale;
+- the Resolver has been verified through shadow;
+- the initial context is small;
+- the fast path runs the new capsule;
+- one read-only capability is loaded with its exact schema on demand;
+- Groq and low-quota models can work without creating a separate prompt branch.
 
-Chỉ bắt đầu Phase 8 khi read-only Orchestrator đã ổn định, vì memory retrieval có rủi ro giảm chất lượng âm thầm. Chỉ bắt đầu Phase 9 khi idempotency, reconciliation và restart tests đã pass, vì write là ranh giới không thể rollback bằng cách chạy lại. Workflow, agent và model routing phải giữ thành ba phase riêng để mỗi lần chỉ thêm một nguồn biến động.
+Start Phase 8 only when the read-only Orchestrator is stable, because memory retrieval carries a risk of silent quality loss. Start Phase 9 only when the idempotency, reconciliation and restart tests have passed, because a write is a boundary that cannot be rolled back by rerunning. Workflow, agent and model routing must stay as three separate phases so that each step adds only one source of variability.
 
-Kiến trúc này không cam kết mọi task đều dùng ít token. Nó cam kết runtime chỉ chi token khi giá trị thông tin của bước tiếp theo xứng đáng, có ngân sách toàn task, có trace và có đường dừng. Đó là điều giúp Jarvis 007 mở rộng số capability mà vẫn giữ hiệu suất và chất lượng trả lời.
+This architecture does not promise that every task uses fewer tokens. It promises that the runtime spends tokens only when the information value of the next step justifies it, with a task-wide budget, a trace and a stop path. That is what lets Jarvis 007 scale the number of capabilities while keeping performance and answer quality.

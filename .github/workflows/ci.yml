@@ -2,19 +2,19 @@ name: CI
 
 on:
   push:
-    # `claude/**` là các nhánh phiên Claude Code làm việc trên repo này. Chúng luôn đẩy commit
-    # lên TRƯỚC rồi mới mở PR, mà lúc đó chưa có PR nên `pull_request` không bắt được, và mở
-    # PR sau đó có lúc GitHub không sinh run cho commit đã nằm sẵn ở nhánh. Kết quả: nhiều lần
-    # phải vào tab Actions bấm chạy tay, dễ sót. Nghe `push` trên đúng tiền tố này thì commit
-    # vừa lên là CI chạy ngay.
-    # Nhánh có PR mở sẽ chạy hai lần (một do push, một do pull_request). Chấp nhận: repo public
-    # nên Actions không tính phút, và hai run xanh đọc rõ hơn là một run bị huỷ giữa chừng.
+    # `claude/**` are the branches Claude Code sessions work on in this repo. They always push commits
+    # FIRST and only then open a PR, and at that point there is no PR so `pull_request` does not catch it, and opening
+    # the PR afterwards sometimes makes GitHub not create a run for a commit already on the branch. Result: many times
+    # someone had to go to the Actions tab and start a run by hand, easy to miss. Listening to `push` on exactly this prefix means
+    # CI runs as soon as the commit lands.
+    # A branch with an open PR runs twice (once from push, once from pull_request). Accepted: the repo is public
+    # so Actions minutes are not billed, and two green runs read more clearly than one run cancelled midway.
     branches: [ main, 'claude/**' ]
-  # BẮT BUỘC giữ: PR từ fork KHÔNG sinh sự kiện `push` ở repo này, chỉ `pull_request` mới bắt
-  # được. Repo đang có hơn 100 fork nên bỏ dòng này là đóng CI với mọi đóng góp bên ngoài.
+  # MUST keep: a PR from a fork does NOT generate a `push` event in this repo, only `pull_request` can catch
+  # it. The repo has over 100 forks so dropping this line shuts CI out of every outside contribution.
   pull_request:
-  # Chạy tay từ tab Actions. Vẫn giữ làm lối thoát cho nhánh không mang tiền tố `claude/`, và
-  # cho việc chạy lại một commit cũ mà không phải đẩy thêm commit rác.
+  # Manual run from the Actions tab. Kept as an escape hatch for branches without the `claude/` prefix, and
+  # for re-running an old commit without having to push a junk commit.
   workflow_dispatch:
 
 jobs:
@@ -23,76 +23,76 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # test_resonance_a1_rollback chạy MÃ 0.86.1 THẬT trên kho đã nâng lên A1 (review PR #590). Checkout mặc định
-      # chỉ có một commit, nên lấy riêng commit phát hành đó; thiếu nó thì test đỏ trên CI chứ không tự bỏ qua.
-      - name: Lấy commit 0.86.1 cho test quay về
+      # test_resonance_a1_rollback runs the REAL 0.86.1 CODE on a store already upgraded to A1 (review of PR #590). The default checkout
+      # has only one commit, so fetch that release commit separately; without it the test goes red on CI instead of skipping itself.
+      - name: Fetch the 0.86.1 commit for the rollback test
         run: git fetch --no-tags --depth=1 origin 09f254d0e4d009451dc58cb2e97788631c5acc1a
 
-      # test_resonance_a2_rollback chạy MÃ 0.87.0 (A1) THẬT trên kho đã nâng lên A2: commit squash của PR #590 trên main.
-      - name: Lấy commit 0.87.0 cho test quay về A2
+      # test_resonance_a2_rollback runs the REAL 0.87.0 (A1) CODE on a store already upgraded to A2: the squash commit of PR #590 on main.
+      - name: Fetch the 0.87.0 commit for the A2 rollback test
         run: git fetch --no-tags --depth=1 origin fdfec7c5c84c2663276d088194844e058d9a22aa
 
-      # test_resonance_a3_rollback chạy MÃ 0.88.1 (A2) THẬT trên kho đã nâng lên A3 (`83bff6bc`, PR #596 trên main).
-      - name: Lấy commit 0.88.1 cho test quay về A3
+      # test_resonance_a3_rollback runs the REAL 0.88.1 (A2) CODE on a store already upgraded to A3 (`83bff6bc`, PR #596 on main).
+      - name: Fetch the 0.88.1 commit for the A3 rollback test
         run: git fetch --no-tags --depth=1 origin 83bff6bcf5927c4f6ba83bff576a674f2269c0e5
 
-      # test_resonance_a4_rollback chạy MÃ 0.95.1 THẬT (bản cuối trước A4, `adb103ed`, PR #614 trên main): lập kho cũ,
-      # nâng lên A4, rồi khôi phục snapshot.
-      - name: Lấy commit 0.95.1 cho test quay về A4
+      # test_resonance_a4_rollback runs the REAL 0.95.1 CODE (the last release before A4, `adb103ed`, PR #614 on main): it sets up an old store,
+      # upgrades it to A4, then restores the snapshot.
+      - name: Fetch the 0.95.1 commit for the A4 rollback test
         run: git fetch --no-tags --depth=1 origin adb103ed7f1c61eb21127afd1ba746ee130c6439
 
-      # test_resonance_a5_rollback chạy MÃ 0.108.0 THẬT (bản cuối trước A5, `c4fb614d`, PR #625 trên main): lập kho cũ,
-      # nâng lên A5, rồi khôi phục snapshot.
-      - name: Lấy commit 0.108.0 cho test quay về A5
+      # test_resonance_a5_rollback runs the REAL 0.108.0 CODE (the last release before A5, `c4fb614d`, PR #625 on main): it sets up an old store,
+      # upgrades it to A5, then restores the snapshot.
+      - name: Fetch the 0.108.0 commit for the A5 rollback test
         run: git fetch --no-tags --depth=1 origin c4fb614d30b63e592e66a8f943cf2749bb33a412
 
-      # test_team_rollback chạy MÃ 0.139.0 THẬT (bản phát hành cuối trước nhóm chat team, `be1f8aa2` trên main): lập kho
-      # Kanban và kho phiên cũ, nâng lên 0.140.0, rồi khôi phục snapshot.
-      - name: Lấy commit 0.139.0 cho test quay về nhóm chat team
+      # test_team_rollback runs the REAL 0.139.0 CODE (the last release before team chat groups, `be1f8aa2` on main): it sets up an old
+      # Kanban store and session store, upgrades to 0.140.0, then restores the snapshot.
+      - name: Fetch the 0.139.0 commit for the team chat group rollback test
         run: git fetch --no-tags --depth=1 origin be1f8aa215395471c4640e5e8e109d44e02dc190
 
-      # test_team_adaptive_restore chạy MÃ 0.151.0 THẬT (bản cuối trước chuỗi team-adaptive, `1d1b52fa` trên main): lập ba
-      # kho cũ, nâng lên T2, rồi khôi phục snapshot `.pre-0.154.0`.
-      - name: Lấy commit 0.151.0 cho test khôi phục team-adaptive
+      # test_team_adaptive_restore runs the REAL 0.151.0 CODE (the last release before the team-adaptive series, `1d1b52fa` on main): it sets up three
+      # old stores, upgrades to T2, then restores the `.pre-0.154.0` snapshot.
+      - name: Fetch the 0.151.0 commit for the team-adaptive restore test
         run: git fetch --no-tags --depth=1 origin 1d1b52faed35a79aa5597f1fbde85b63da2bc3ea
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Cài dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # pytest KHÔNG phải dependency của app nên không nằm trong requirements.txt.
-          # Nhóm test Adaptive Runtime viết theo kiểu pytest (fixture tmp_path/monkeypatch);
-          # thiếu pytest thì block __main__ của chúng tự bỏ qua và cả trăm test "xanh" mà
-          # chưa chạy assertion nào.
+          # pytest is NOT an app dependency so it is not in requirements.txt.
+          # The Adaptive Runtime test group is written in pytest style (tmp_path/monkeypatch fixtures);
+          # without pytest their __main__ block skips itself and a hundred tests go "green"
+          # without running a single assertion.
           pip install pytest
 
-      - name: Byte-compile toàn bộ server + plugin
+      - name: Byte-compile all of server + plugins
         run: python -m compileall -q server system/plugins
 
-      # Byte-compile KHÔNG chạy code nên không thấy vòng import bị gãy. Server có 3 vòng
-      # đang được phá bằng import trong hàm (config<->secrets_store, oauth_mcp<->mcp_store,
-      # claude_cli<->claude_sdk_engine) cộng 8 module nữa dựa vào mẹo đó. Nâng nhầm một
-      # import lên đầu file là app chết lúc khởi động chứ không phải lúc build, mà CI cũ
-      # vẫn xanh rồi tự deploy lên VPS. Bước này đóng đúng khe hở đó.
-      - name: Import thật main (bắt vòng import mà byte-compile bỏ lọt)
+      # Byte-compile does NOT run code so it cannot see a broken import cycle. The server has 3 cycles
+      # being broken by imports inside functions (config<->secrets_store, oauth_mcp<->mcp_store,
+      # claude_cli<->claude_sdk_engine) plus 8 more modules relying on that trick. Wrongly hoisting one
+      # import to the top of a file kills the app at startup rather than at build time, and the old CI
+      # stayed green and then auto-deployed to the VPS. This step closes exactly that gap.
+      - name: Really import main (catches import cycles that byte-compile misses)
         env:
           PYTHONIOENCODING: utf-8
         run: |
           cd server
-          python -c "import main; print(f'ok, nap duoc main voi {len(main.app.routes)} muc route')"
+          python -c "import main; print(f'ok, main imported with {len(main.app.routes)} route entries')"
 
-      # Trước 0.9.242 chỉ 4 trong 11 test JS được liệt tay ở đây, 7 cái còn lại chưa từng
-      # chạy lần nào. Nay quét cả thư mục nên thêm test mới là tự chạy.
-      # Vòng lặp này in tên file TRƯỚC khi chạy, nên khi một test đỏ thì tên nó nằm lẫn
-      # giữa hàng nghìn dòng ở GIỮA log, còn phần đuôi (thứ duy nhất đọc được khi log bị
-      # cắt) lại là test cuối cùng - luôn xanh. Vụ 03/09: một test chập chờn làm đỏ CI, và
-      # không cách nào biết là test nào nếu không tải nguyên log về. Gom tên lại rồi in ở
-      # CUỐI, và đẩy luôn lên phần tóm tắt của GitHub để thấy ngay trên trang Actions.
-      - name: Chạy test JS dashboard
+      # Before 0.9.242 only 4 of the 11 JS tests were listed by hand here, and the other 7 had never
+      # run at all. Now the whole folder is scanned so a new test runs automatically.
+      # This loop prints the file name BEFORE running it, so when a test goes red its name is buried
+      # among thousands of lines in the MIDDLE of the log, while the tail (the only part readable when the log is
+      # cut off) is the last test - always green. The 03/09 incident: a flaky test turned CI red, and
+      # there was no way to tell which one without downloading the whole log. Collect the names and print them at the
+      # END, and also push them to the GitHub summary so they show right on the Actions page.
+      - name: Run JS tests (dashboard)
         run: |
           status=0
           dsdo=""
@@ -103,16 +103,16 @@ jobs:
           if [ -n "$dsdo" ]; then
             echo ""
             echo "======================================================"
-            echo "ĐỎ (test JS):$dsdo"
+            echo "FAILED (JS tests):$dsdo"
             echo "======================================================"
-            { echo "### Test JS đỏ"; for t in $dsdo; do echo "- \`$t\`"; done; } >> "$GITHUB_STEP_SUMMARY"
+            { echo "### Failing JS tests"; for t in $dsdo; do echo "- \`$t\`"; done; } >> "$GITHUB_STEP_SUMMARY"
           fi
           exit $status
 
-      # KHÔNG còn `cd server`: từ 0.9.242 test tự nạp đường dẫn qua tests/python/_paths.py
-      # nên chạy được từ bất kỳ thư mục làm việc nào. Trước đây chạy sai chỗ là hàng loạt
-      # test đỏ vì `import main` không thấy module, hoặc lặng lẽ đọc nhầm file.
-      - name: Chạy test Python (auth/secret/MCP-perm/traversal/CSRF + plugin)
+      # No more `cd server`: since 0.9.242 the tests load their own paths via tests/python/_paths.py
+      # so they run from any working directory. Before, running from the wrong place meant a swarm of
+      # red tests because `import main` could not see the module, or silently reading the wrong file.
+      - name: Run Python tests (auth/secret/MCP-perm/traversal/CSRF + plugin)
         env:
           PYTHONIOENCODING: utf-8
         run: |
@@ -125,33 +125,33 @@ jobs:
           if [ -n "$dsdo" ]; then
             echo ""
             echo "======================================================"
-            echo "ĐỎ (test Python):$dsdo"
+            echo "FAILED (Python tests):$dsdo"
             echo "======================================================"
-            { echo "### Test Python đỏ"; for t in $dsdo; do echo "- \`$t\`"; done; } >> "$GITHUB_STEP_SUMMARY"
+            { echo "### Failing Python tests"; for t in $dsdo; do echo "- \`$t\`"; done; } >> "$GITHUB_STEP_SUMMARY"
           fi
           exit $status
 
-  # Ảnh Docker nặng thêm bao nhiêu vì thư viện trình duyệt? Build THẬT rồi đọc số, không đoán.
-  # KHÔNG đẩy lên registry: workflow phát hành gắn tag `:latest` mà VPS người dùng kéo đúng tag
-  # đó, nên một bản build từ nhánh chưa kiểm tuyệt đối không được chạm vào nó.
+  # How much heavier does the Docker image get because of the browser libraries? Do a REAL build and read the number, do not guess.
+  # Do NOT push to the registry: the release workflow tags `:latest` and users' VPSes pull exactly that tag,
+  # so a build from an unreviewed branch must never touch it.
   do-anh:
-    name: Đo kích thước ảnh Docker
+    name: Measure Docker image size
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build ảnh (không đẩy) và đọc kích thước từng lớp
+      - name: Build the image (no push) and read the size of each layer
         run: |
           docker build -t javis-do:pr . 2>&1 | tail -5
           tong=$(docker image inspect javis-do:pr --format '{{.Size}}')
           lop=$(docker history javis-do:pr --no-trunc --format '{{.Size}}|{{.CreatedBy}}' \
                  | grep -i "playwright.*install-deps" | head -1 | cut -d'|' -f1)
           mb() { awk -v b="$1" 'BEGIN{printf "%.0f MB", b/1024/1024}'; }
-          echo "Tổng ảnh: $(mb "$tong")"
-          echo "Lớp thư viện trình duyệt: ${lop:-（không tìm thấy lớp）}"
+          echo "Total image: $(mb "$tong")"
+          echo "Browser library layer: ${lop:-(layer not found)}"
           {
-            echo "### Kích thước ảnh Docker"
-            echo "- Tổng: **$(mb "$tong")**"
-            echo "- Riêng thư viện trình duyệt: **${lop:-không đo được}**"
+            echo "### Docker image size"
+            echo "- Total: **$(mb "$tong")**"
+            echo "- Browser libraries alone: **${lop:-could not be measured}**"
             echo ""
-            echo "Trình duyệt KHÔNG nằm trong ảnh - tải bằng nút trong trang Công cụ."
+            echo "The browser is NOT in the image - it is downloaded with the button on the Plugins page."
           } >> "$GITHUB_STEP_SUMMARY"
