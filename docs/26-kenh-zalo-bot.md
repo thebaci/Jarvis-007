@@ -1,113 +1,113 @@
-# Kênh Zalo Bot
+# The Zalo Bot channel
 
 ***Tiếng Việt** · [English](en/26-zalo-bot-channel.md)*
 
-Hỏi Javis ngay trên Zalo, không cần mở dashboard và không cần cài Telegram. Bạn nhắn cho một bot Zalo riêng như nhắn cho một người, Javis trả lời bằng chính bộ não và bộ nhớ đang chạy trên máy hoặc VPS của bạn.
+Ask Jarvis 007 right inside Zalo, with no dashboard and no Telegram install. You message a dedicated Zalo bot as you would message a person, and Jarvis 007 answers with the very brain and memory running on your machine or VPS.
 
-Đây là kênh dùng **API chính thức** của Zalo, nên không có rủi ro khoá tài khoản.
+This channel uses Zalo's **official API**, so there is no risk of the account being locked.
 
-## Đừng lẫn với hai thứ Zalo khác trong Javis
+## Do not confuse it with the two other Zalo things in Jarvis 007
 
-Javis có ba chỗ dính tới Zalo. Đọc bảng này một lần rồi khỏi phải đoán.
+Jarvis 007 touches Zalo in three places. Read this table once and you never have to guess.
 
-| | Trang | Là ai | Để làm gì |
+| | Page | Who it is | What it is for |
 |---|---|---|---|
-| **Kênh Zalo Bot** (trang này) | Kênh | Một bot riêng | **Bạn** nhắn cho Javis |
-| [Chatbot](25-chatbot.md) | Chatbot | Một bot riêng, đứng tên Agent | **Khách** nhắn cho Javis |
-| [Zalo Agent MCP](12-zalo.md) | Kết nối | Chính tài khoản Zalo của bạn | Javis **thao tác thay bạn** |
+| **The Zalo Bot channel** (this page) | Channels | A dedicated bot | **You** messaging Jarvis 007 |
+| [Chatbot](25-chatbot.md) | Chatbot | A dedicated bot, under an Agent's name | **Customers** messaging Jarvis 007 |
+| [Zalo Agent MCP](12-zalo.md) | Connections | Your own Zalo account | Jarvis 007 **acting on your behalf** |
 
-Hai cái đầu dùng API chính thức, an toàn, nhưng chỉ thấy được thứ người ta nhắn thẳng cho bot. Cái thứ ba đăng nhập tài khoản thật của bạn nên đọc được hội thoại và nhắn cho bất kỳ ai, đổi lại tài khoản có thể bị hạn chế hoặc khoá.
+The first two use the official API and are safe, but they only see what people send directly to the bot. The third signs into your real account so it can read conversations and message anyone, at the cost of the account possibly being restricted or locked.
 
-Dùng cả ba cùng lúc cũng được, chúng không đụng nhau.
+Running all three at once is fine, they do not collide.
 
-## Lấy bot token
+## Getting the bot token
 
-1. Mở app Zalo, tìm Official Account **Zalo Bot Manager**.
-2. Trong khung chat, chọn **Tạo bot**.
-3. Đặt tên bot. Tên **bắt buộc mở đầu bằng chữ "Bot"**, ví dụ "Bot Javis Của Tôi".
-4. Zalo gửi token về cho bạn bằng tin nhắn, dạng `123456789:abc-xyz`.
+1. Open the Zalo app and find the Official Account **Zalo Bot Manager**.
+2. In the chat, choose **Create bot**.
+3. Name the bot. The name **must start with the word "Bot"**, for example "Bot Jarvis 007 Personal".
+4. Zalo sends you the token by message, shaped `123456789:abc-xyz`.
 
-Token này **không hết hạn** cho tới khi bạn tự đặt lại trong Zalo Bot Manager. Giữ kín, ai có token là điều khiển được bot.
+The token **does not expire** until you reset it yourself in Zalo Bot Manager. Keep it private, because whoever has it controls the bot.
 
-## Bật kênh
+## Turning the channel on
 
-1. Mở dashboard, nhóm **Kết nối**, mục **Kênh**.
-2. Kéo xuống thẻ **Zalo**.
-3. Tích **Bật bot Zalo**, dán token vào ô Bot token.
-4. **Ô "Chat ID được phép dùng" cứ để trống.** Bấm **Lưu & bật**.
-5. Mở Zalo trên điện thoại, tìm đúng bot vừa tạo, nhắn cho nó một câu bất kỳ.
-6. Bot đáp lại kèm một **mã ghép nối** gồm 4 chữ số.
-7. Quay lại thẻ Zalo trên dashboard. Bạn sẽ thấy một khối **Đang chờ bạn cho phép** với tên Zalo của bạn và đúng mã đó. Bấm **Cho phép**.
-8. Nhắn lại cho bot. Lần này Javis trả lời thật.
+1. Open the dashboard, the **Connections** group, the **Channels** item.
+2. Scroll to the **Zalo** card.
+3. Tick **Enable the Zalo bot** and paste the token into the Bot token field.
+4. **Leave the "Allowed Chat IDs" field empty.** Click **Save and enable**.
+5. Open Zalo on your phone, find the bot you just created, and send it any message.
+6. The bot replies with a 4-digit **pairing code**.
+7. Return to the Zalo card on the dashboard. You will see a **Waiting for your approval** block with your Zalo name and that exact code. Click **Allow**.
+8. Message the bot again. This time Jarvis 007 answers for real.
 
-### Vì sao phải làm vòng vèo như vậy
+### Why the roundabout flow
 
-Zalo không có công cụ nào để bạn tự tra id Zalo của chính mình, và id đó là một chuỗi như `6ede9afa66b88fe6d6a9` chứ không phải con số dễ đọc. Nên thay vì bắt bạn đi tìm nó, Javis đảo chiều: ai nhắn cho bot thì hiện lên dashboard kèm **tên Zalo thật**, bạn bấm một nút là xong.
+Zalo offers no way to look up your own Zalo id, and that id is a string like `6ede9afa66b88fe6d6a9` rather than a readable number. So instead of making you hunt for it, Jarvis 007 reverses the direction: whoever messages the bot appears on the dashboard with their **real Zalo name**, and one click is enough.
 
-Mã ghép nối để bạn chắc chắn đang cho phép đúng người khi có hai người trùng tên. Hỏi họ đọc mã trong tin bot vừa trả lời rồi đối chiếu.
+The pairing code is there so you can be sure you are approving the right person when two people share a name. Ask them to read the code from the bot's reply and compare.
 
-### Ô Chat ID trống nghĩa là CHƯA AI được phép
+### An empty Chat ID field means NOBODY is allowed
 
-Chỗ này Javis **cố ý làm khác Telegram**, đừng ngạc nhiên.
+Jarvis 007 **deliberately differs from Telegram** here, so do not be surprised.
 
-Bên [Telegram](11-telegram.md), để trống ô Chat ID nghĩa là ai tìm ra bot cũng dùng được, và tài liệu phải dặn bạn đừng để trống. Bên Zalo, để trống nghĩa là **chưa ai được phép cả**, mọi người nhắn tới đều rơi vào hàng chờ.
+In [Telegram](11-telegram.md), leaving the Chat ID field empty means anyone who finds the bot can use it, and the documentation has to warn you not to leave it empty. In Zalo, leaving it empty means **nobody is allowed yet**, and everyone who messages lands in a queue.
 
-Nếu không làm vậy thì chính cái luồng hướng dẫn ở trên sẽ tạo ra một con bot mà bất kỳ ai cũng chạm được vào brain của bạn, trong khoảng thời gian từ lúc bạn bật bot tới lúc bấm Cho phép.
+Without that, the very flow above would create a bot anyone could reach your brain through, during the window between enabling the bot and clicking Allow.
 
-## Dùng được gì qua Zalo
+## What you can do over Zalo
 
-Giống Telegram gần hết: hỏi số liệu qua MCP, đọc và ghi file trong brain, gọi skill, giao việc nền, đặt nhắc hẹn. Mọi engine đều dùng được vì công cụ đi qua MCP Hub chứ không gắn riêng vào bộ não nào.
+Almost everything Telegram does: asking for figures through MCP, reading and writing files in the brain, calling skills, queueing background work, setting reminders. Every engine works because the tools go through the MCP Hub rather than being tied to one brain.
 
-Các lệnh gõ nhanh (`/status`, `/reset`, `/stop`, `/model`, `/brain`, `/notes`...) cũng dùng được, nhưng **Zalo không hiện menu lệnh** như Telegram nên bạn phải gõ tay.
+The quick commands (`/status`, `/reset`, `/stop`, `/model`, `/brain`, `/notes`...) work too, but **Zalo shows no command menu** as Telegram does, so you have to type them.
 
-Kết quả việc nền và nhắc hẹn đặt từ Zalo sẽ **tự về đúng khung chat Zalo đó**, không rơi sang Telegram.
+Results of background work and reminders set from Zalo **come back to that same Zalo chat**, never diverting to Telegram.
 
-### Ra lệnh bằng ghi âm (tin thoại)
+### Commanding by voice message
 
-Bấm giữ micro trong Zalo, nói, thả tay. Javis nghe câu đó thành chữ và làm y như bạn gõ tay.
+Hold the microphone in Zalo, speak, release. Jarvis 007 turns that into text and acts exactly as if you had typed it.
 
-**Cần API key của Groq** - chỗ Javis mượn để chuyển giọng nói thành chữ (model Whisper). Vào dashboard, trang **Models**, mục **Groq (API)**, dán key lấy ở [console.groq.com](https://console.groq.com) rồi lưu. Chưa đấu thì gửi tin thoại Javis sẽ nói rõ là cần dán key, không im lặng. Dán xong dùng được ngay, không cần tắt bật lại bot.
+**A Groq API key is required**, which is where Jarvis 007 borrows speech-to-text (the Whisper model). In the dashboard, go to the **Models** page, the **Groq (API)** section, paste the key from [console.groq.com](https://console.groq.com) and save. Without it, sending a voice message makes Jarvis 007 state plainly that the key is needed rather than going silent. Once pasted it works immediately, with no need to restart the bot.
 
-Đây là **cùng một key với kênh Telegram**: đấu một lần là hai kênh cùng nghe được.
+It is **the same key as the Telegram channel**: attach it once and both channels can listen.
 
-Vài điều nên biết:
+A few things to know:
 
-- **Việc có tác động ra ngoài thì Javis hỏi lại trước.** Gửi tin, đăng bài, đặt lịch, tiêu tiền, sửa file: Javis mở đầu bằng một dòng "Em nghe: ..." rồi chờ bạn xác nhận. Hỏi số liệu, tra cứu, tóm tắt thì làm thẳng.
-- **File ghi âm không lưu vào brain.** Nghe xong lấy chữ là xong.
-- Nghe không ra chữ, file quá lớn, hay Groq trả lỗi thì bot nói rõ lý do. Không có ngả nào im lặng.
-- **Một rủi ro riêng của Zalo:** Zalo chưa công bố khuôn dữ liệu của tin thoại, nên có khả năng Javis không tìm thấy đường dẫn file ghi âm trong tin Zalo gửi về. Gặp ca đó, bot nói thẳng là không tải được file, và server ghi một dòng `[zalo voice] không tìm ra đường dẫn file thoại trong payload` kèm mẫu dữ liệu. Gửi dòng đó cho người phát triển là sửa được ngay. Bên Telegram không có rủi ro này vì khuôn dữ liệu đã công bố rõ.
+- **Anything with an outside effect makes Jarvis 007 confirm first.** Sending a message, publishing, booking a calendar slot, spending money, editing a file: Jarvis 007 opens with a line "I heard: ..." then waits for your confirmation. Asking for figures, looking things up and summarising happen straight away.
+- **The audio file is not saved into the brain.** Once heard and transcribed, it is done.
+- If it cannot be transcribed, the file is too large, or Groq returns an error, the bot states the reason. There is no silent path.
+- **One risk specific to Zalo:** Zalo has not published the data shape of voice messages, so Jarvis 007 may fail to find the audio file's URL in the message Zalo sends. In that case the bot says outright that it could not download the file, and the server logs a line `[zalo voice] không tìm ra đường dẫn file thoại trong payload` ("could not find the voice file path in the payload") with a data sample. Sending that line to the developer gets it fixed quickly. Telegram has no such risk because its data shape is clearly published.
 
-## Bốn chỗ Zalo làm được ít hơn Telegram
+## Four places where Zalo does less than Telegram
 
-Nói trước để bạn không tưởng là lỗi.
+Stated up front so you do not mistake them for bugs.
 
-**Không có tin trạng thái.** Zalo không cho sửa và không cho xoá tin đã gửi, nên Javis không thể hiện dòng "đang gọi công cụ..." rồi cập nhật nó như bên Telegram. Trong lúc chờ bạn chỉ thấy chấm "đang nhập". Bù lại, câu trả lời có kèm một dòng vết ở cuối kiểu `⚙ pos_statistics · Read · 8s` cho biết lượt đó đã chạm vào công cụ nào.
+**No status message.** Zalo allows neither editing nor deleting a sent message, so Jarvis 007 cannot show a "calling a tool..." line and update it as it does on Telegram. While waiting you only see the "typing" dots. In exchange, the answer carries a trace line at the end such as `⚙ pos_statistics · Read · 8s` telling you which tools that turn touched.
 
-**Không gửi được file tài liệu.** Zalo Bot chưa có API gửi tài liệu, nên PDF, bảng tính, .docx không đi qua kênh này được. Javis sẽ nói thẳng là chưa gửi được và đưa đường dẫn trong brain để bạn tự mở, chứ không im lặng nuốt file. Ảnh thì đang thử nghiệm.
+**Documents cannot be sent.** The Zalo Bot API has no document-sending endpoint, so PDFs, spreadsheets and .docx cannot travel through this channel. Jarvis 007 says plainly that it could not send and gives the path inside the brain for you to open, rather than swallowing the file silently. Images are experimental.
 
-**Trần 2000 ký tự một tin** (Telegram là 4096). Câu trả lời dài tự cắt thành nhiều tin liên tiếp.
+**A 2000-character ceiling per message** (Telegram's is 4096). A long answer is split into consecutive messages automatically.
 
-**Không có nút bấm.** Khi Javis phải hỏi lại một tham số, nó hạ xuống dạng câu hỏi kèm danh sách đánh số, bạn nhắn lại con số.
+**No buttons.** When Jarvis 007 has to ask back for a parameter, it degrades to a question with a numbered list and you reply with the number.
 
-## Nút Gửi test
+## The Send test button
 
-Bấm **Gửi test** để bắn một tin thử tới mọi ID đã cho phép. Nó chứng minh token và Chat ID đúng, **không** chứng minh bot đang nhận tin. Muốn biết bot có nhận tin không thì đọc dòng trạng thái, phải là **Bot đang nhận tin**.
+Click **Send test** to fire a test message to every allowed ID. It proves the token and Chat ID are right, it does **not** prove the bot is receiving messages. To know that, read the status line, which must say **The bot is receiving messages**.
 
-## Sự cố thường gặp
+## Common problems
 
-**Dán token xong báo "Token không hợp lệ (Zalo từ chối)".** Kiểm lại xem có phải bạn dán nhầm token Telegram không. Hai kênh dùng hai token hoàn toàn khác nhau.
+**Pasting the token reports "Invalid token (Zalo refused it)".** Check whether you pasted the Telegram token by mistake. The two channels use completely different tokens.
 
-**Nhắn cho bot mà không thấy gì.** Xem dòng trạng thái dưới thẻ Zalo. Nếu là "Bot đang nhận tin" mà vẫn im, kiểm khối **Đang chờ bạn cho phép**: nhiều khả năng bạn chưa bấm Cho phép cho chính mình.
+**You message the bot and nothing happens.** Look at the status line under the Zalo card. If it says the bot is receiving messages and it is still silent, check the **Waiting for your approval** block: most likely you have not clicked Allow for yourself.
 
-**Bot đáp mãi một câu xin mã ghép nối.** Đúng là chưa được cho phép. Vào dashboard bấm Cho phép rồi nhắn lại.
+**The bot keeps replying with a pairing-code request.** That is exactly what "not yet allowed" looks like. Go to the dashboard, click Allow, then message again.
 
-**Bot báo lỗi hạn mức.** Zalo chưa công bố con số hạn mức nào. Gặp lỗi 429 thì Javis tự nghỉ một phút rồi thử lại, và hiện lỗi ra dòng trạng thái.
+**The bot reports a rate limit.** Zalo has published no rate-limit figures. On a 429 Jarvis 007 rests for a minute then retries, and shows the error on the status line.
 
-**Bot xanh nhưng không trả lời ai.** Xem log server, tìm dòng `[zalo getUpdates] khuôn phản hồi lạ`. Tài liệu Zalo chưa công bố khuôn phản hồi của `getUpdates` nên Javis nhận nhiều khuôn và kêu ra khi gặp khuôn chưa biết. Gửi dòng đó cho người phát triển là sửa được nhanh.
+**The bot is green but answers nobody.** Check the server log for the line `[zalo getUpdates] khuôn phản hồi lạ` ("unfamiliar response shape"). Zalo's documentation has not published the response shape of `getUpdates`, so Jarvis 007 accepts several shapes and speaks up when it meets an unknown one. Sending that line to the developer gets it fixed fast.
 
-## Liên quan
+## Related
 
-- [Kênh Telegram](11-telegram.md) - kênh còn lại, nhiều tính năng hơn nhưng người Việt ít dùng.
-- [Chatbot](25-chatbot.md) - bot cho KHÁCH nhắn, cũng chạy được trên Zalo.
-- [Zalo Agent MCP](12-zalo.md) - đăng nhập tài khoản Zalo cá nhân để Javis thao tác thay bạn.
-- [Việc định kỳ & Nhắc hẹn](08-viec-dinh-ky.md) - nơi sinh ra các báo cáo nền gửi về kênh này.
+- [The Telegram channel](11-telegram.md) - the other channel, with more features but less used in Vietnam.
+- [Chatbot](25-chatbot.md) - the bot CUSTOMERS message, which also runs on Zalo.
+- [Zalo Agent MCP](12-zalo.md) - signing into a personal Zalo account so Jarvis 007 can act on your behalf.
+- [Recurring jobs and reminders](08-viec-dinh-ky.md) - where the background reports sent to this channel come from.

@@ -6,65 +6,65 @@ created: 2026-10-08
 updated: 2026-10-08
 ---
 
-# Hướng dẫn nhận hàng ở kho (dành cho nhân viên mới)
+# Warehouse receiving guide (for new staff)
 
-Tài liệu này dành cho bạn nếu **chưa từng nhận hàng bao giờ**. Cứ làm lần lượt từng bước bên dưới, không bỏ bước nào và không đổi thứ tự.
+This document is for you if you have **never received a delivery before**. Work through the steps below one at a time, without skipping any and without changing the order.
 
-Gặp bất cứ chuyện gì không chắc, hãy dừng lại và **gọi anh Tùng, quản lý kho**. Hỏi một câu thì nhanh hơn nhiều so với sửa một lần nhận sai.
+If you are unsure about anything, stop and **call Tùng, the warehouse manager**. Asking one question is much faster than fixing a wrongly received delivery.
 
-## Một vài từ cần biết
+## A few terms to know
 
-- **Kiện**: một thùng, bao hoặc gói hàng được giao tới.
-- **Phiếu giao**: tờ giấy tài xế mang theo, liệt kê từng dòng hàng (mã hàng, số lượng) mà bên giao nói là đã giao cho mình.
-- **Dòng hàng**: một hàng trên phiếu giao, ứng với một mã hàng.
-- **Sổ kho**: nơi ghi lại số hàng thực tế kho đã nhận.
+- **Package**: one box, sack or parcel of goods delivered.
+- **Delivery slip**: the sheet of paper the driver carries, listing each line of goods (item code, quantity) that the delivering party says it has delivered to us.
+- **Goods line**: one row on the delivery slip, matching one item code.
+- **Warehouse ledger**: where the quantity of goods the warehouse actually received is recorded.
 
-## Các bước nhận hàng
+## Receiving steps
 
-1. **Khi xe tới, đếm số kiện trước khi cho tài xế đi.** Đếm từng kiện được dỡ xuống và so với số kiện bên giao báo. Chưa đếm xong thì chưa để tài xế rời đi.
-2. **Xem tình trạng từng thùng.** Thùng nào bị móp, ướt hoặc rách thì để riêng ra một chỗ, không trộn chung với hàng tốt.
-3. **Chụp ảnh hàng hỏng, trước khi ký bất cứ thứ gì.** Với mỗi thùng để riêng ở bước 2, chụp:
-   - Một ảnh cả thùng, thấy rõ chỗ móp, ướt hoặc rách.
-   - Một ảnh cận chỗ hỏng.
-   - Một ảnh nhãn hoặc mã hàng trên thùng, để biết thùng đó là hàng gì.
+1. **When the truck arrives, count the packages before letting the driver leave.** Count each package unloaded and compare it with the number of packages the delivering party reported. Until the count is finished, do not let the driver go.
+2. **Look at the condition of each box.** Any box that is dented, wet or torn goes in a separate spot, not mixed with good goods.
+3. **Photograph the damaged goods, before signing anything.** For each box set apart in step 2, take:
+   - One photo of the whole box, clearly showing the dent, wet spot or tear.
+   - One close-up photo of the damage.
+   - One photo of the label or item code on the box, so it is clear what goods the box holds.
 
-   Chụp xong mới chuyển sang bước sau. Ảnh là bằng chứng hàng đã hỏng lúc giao tới, không phải do kho làm hỏng.
-4. **Ghi hàng hỏng vào phiếu giao.** Với mỗi thùng hỏng, ghi vào phiếu giao rằng đó là hàng hỏng.
-5. **Đối chiếu từng dòng hàng trên phiếu giao với hàng thực nhận.** Cầm phiếu giao, đi từ dòng đầu tới dòng cuối. Với mỗi dòng, làm 3 việc:
-   - Tìm hàng có **đúng mã hàng** ghi trên dòng đó.
-   - **Đếm số lượng** hàng đó mình thực nhận.
-   - So với **số lượng trên phiếu**, rồi đánh dấu ngay cạnh dòng: khớp, thiếu bao nhiêu, hay sai mã.
+   Only move on to the next step after taking the photos. The photos are evidence that the goods were already damaged on arrival, not damaged by the warehouse.
+4. **Write the damaged goods on the delivery slip.** For each damaged box, write on the delivery slip that it is damaged goods.
+5. **Check every line of goods on the delivery slip against the goods actually received.** Holding the delivery slip, go from the first line to the last. For each line, do 3 things:
+   - Find the goods with the **correct item code** written on that line.
+   - **Count the quantity** of those goods you actually received.
+   - Compare it with the **quantity on the slip**, then mark right next to the line: matches, how many short, or wrong code.
 
-   Không nhảy cóc, không gộp nhiều dòng đếm chung. Xem ví dụ ngay bên dưới.
+   Do not jump around, and do not count several lines together. See the example right below.
 
-   > **Ví dụ** (số liệu minh hoạ). Phiếu giao ghi 3 dòng, bạn đi đếm và được như sau:
+   > **Example** (illustrative figures). The delivery slip has 3 lines, and you go and count as follows:
    >
-   > | Dòng | Mã hàng trên phiếu | Số lượng trên phiếu | Bạn đếm được | Kết luận |
+   > | Line | Item code on slip | Quantity on slip | What you counted | Conclusion |
    > |---|---|---|---|---|
-   > | 1 | A101 | 10 thùng | 10 thùng mã A101 | Khớp |
-   > | 2 | B205 | 5 thùng | 4 thùng mã B205 | **Thiếu 1 thùng** |
-   > | 3 | C310 | 8 thùng | 8 thùng, nhưng nhãn ghi C311 | **Sai mã hàng** |
+   > | 1 | A101 | 10 boxes | 10 boxes of code A101 | Matches |
+   > | 2 | B205 | 5 boxes | 4 boxes of code B205 | **Short 1 box** |
+   > | 3 | C310 | 8 boxes | 8 boxes, but the label says C311 | **Wrong item code** |
    >
-   > Tổng trên phiếu là 23 thùng, bạn đếm được 22 thùng. Nhưng nếu chỉ so tổng thì bạn sẽ bỏ sót lỗi sai mã ở dòng 3. Vì vậy phải kiểm **từng dòng, cả mã lẫn số lượng**.
+   > The total on the slip is 23 boxes, and you counted 22 boxes. But if you compared only the totals, you would miss the wrong-code error on line 3. That is why you must check **every line, both code and quantity**.
    >
-   > Với ví dụ này, khi ký ở bước 6 bạn ghi cạnh chữ ký: "Dòng 2 B205 thiếu 1 thùng. Dòng 3 giao C311, không phải C310." Gặp sai mã như dòng 3 mà không biết xử lý tiếp thế nào thì gọi anh Tùng.
+   > In this example, when you sign in step 6 you write next to the signature: "Line 2 B205 short 1 box. Line 3 delivered C311, not C310." If you meet a wrong code like line 3 and do not know how to handle it next, call Tùng.
 
-6. **Chỉ ký nhận sau khi đã chụp ảnh, đếm và đối chiếu xong.** Nếu có hàng thiếu hoặc hỏng, ghi rõ ngay cạnh chữ ký (thiếu gì, hỏng gì).
-7. **Nhập số thực nhận vào sổ kho ngay trong ngày.** Nhập số mình đếm được thực tế, không chép số trên phiếu giao.
-8. **Không chắc ở bất kỳ bước nào thì gọi anh Tùng, quản lý kho**, trước khi ký hoặc trước khi nhập sổ.
+6. **Sign for receipt only after you have finished photographing, counting and checking.** If any goods are short or damaged, write it clearly right next to the signature (what is short, what is damaged).
+7. **Enter the quantity actually received in the warehouse ledger the same day.** Enter the number you really counted, do not copy the number on the delivery slip.
+8. **If you are unsure at any step, call Tùng, the warehouse manager**, before signing or before entering the ledger.
 
-## Lỗi hay gặp
+## Common mistakes
 
-- **Cho tài xế đi khi chưa đếm số kiện.** Sau khi xe đi rồi thì rất khó chứng minh thiếu kiện. Luôn đếm xong mới cho đi (bước 1).
-- **Quên chụp ảnh hàng hỏng, hoặc ký rồi mới chụp.** Không có ảnh thì khó chứng minh hàng hỏng từ lúc giao. Chụp trước khi ký (bước 3).
-- **Ký nhận trước rồi mới đếm.** Đã ký là coi như mình đồng ý đủ hàng. Chỉ ký sau bước 5 (bước 6).
-- **Ký mà không ghi chú thiếu hoặc hỏng.** Có thiếu, có hỏng thì phải ghi rõ cạnh chữ ký, không ghi coi như không có.
-- **Chỉ đếm tổng mà không đối chiếu từng dòng.** Tổng có thể khớp nhưng sai mã hàng, như dòng 3 trong ví dụ. Phải kiểm cả mã hàng lẫn số lượng của từng dòng (bước 5).
-- **Để thùng móp, ướt, rách lẫn vào hàng tốt.** Phải để riêng, chụp ảnh và ghi vào phiếu giao là hàng hỏng (bước 2, 3 và 4).
-- **Nhập sổ kho theo số trên phiếu giao.** Sổ kho phải là số thực nhận (bước 7).
-- **Để hôm sau mới nhập sổ.** Nhập trong ngày để số liệu không bị quên hay lệch.
-- **Tự đoán khi không chắc.** Gọi anh Tùng, quản lý kho.
+- **Letting the driver go before counting the packages.** After the truck has left, it is very hard to prove a package was missing. Always finish counting before letting them go (step 1).
+- **Forgetting to photograph damaged goods, or photographing only after signing.** Without photos it is hard to prove the goods were damaged from the moment of delivery. Photograph before signing (step 3).
+- **Signing first and counting afterwards.** Once signed, it counts as agreeing that all goods arrived. Sign only after step 5 (step 6).
+- **Signing without noting shortage or damage.** If anything is short or damaged, it must be written clearly next to the signature; if not written, it counts as not existing.
+- **Counting only the total without checking line by line.** The total may match while the item code is wrong, like line 3 in the example. You must check both the item code and the quantity of each line (step 5).
+- **Letting dented, wet or torn boxes get mixed in with good goods.** They must be kept apart, photographed, and noted on the delivery slip as damaged goods (steps 2, 3 and 4).
+- **Entering the ledger from the number on the delivery slip.** The ledger must hold the quantity actually received (step 7).
+- **Leaving the ledger entry for the next day.** Enter it the same day so the figures are not forgotten or off.
+- **Guessing when unsure.** Call Tùng, the warehouse manager.
 
-## Tóm tắt nhanh (dán ở khu nhận hàng)
+## Quick summary (post at the receiving area)
 
-Đếm kiện → Để riêng thùng hỏng → Chụp ảnh hàng hỏng → Ghi hỏng vào phiếu → Đối chiếu từng dòng (mã, số lượng) → Ký nhận, ghi rõ thiếu/hỏng cạnh chữ ký → Nhập sổ kho trong ngày → Không chắc thì gọi anh Tùng.
+Count packages → Set damaged boxes apart → Photograph damaged goods → Note damage on the slip → Check each line (code, quantity) → Sign, noting shortage/damage next to the signature → Enter the ledger the same day → If unsure, call Tùng.

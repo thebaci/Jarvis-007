@@ -1,42 +1,42 @@
-# D0: kiểm bản 0.86.0 trên localhost (08/10/2026)
+# D0: checking release 0.86.0 on localhost (2026-10-08)
 
-**Mức bằng chứng: vận hành cục bộ.** Đây KHÔNG phải kiểm VPS, cũng không phải kiểm server đang chạy ở cổng 7777 của máy chủ dự án. VPS chưa kiểm vì kết nối Hostinger trong phiên làm việc bị ngắt.
+**Evidence level: local operation.** This is NOT a VPS check, and it is not a check of the server running on port 7777 of the project's host machine. The VPS was not checked because the Hostinger connection in the working session was cut.
 
-| Mục | Giá trị |
+| Item | Value |
 |---|---|
-| Mã chạy | Worktree sạch tách từ commit phát hành `438f83097db4ee64e96b7b4880deb581521f217a` (VERSION 0.86.0). Lúc kiểm, `main` đã lên 0.86.1 (#589) nhưng bản kiểm cố ý ghim 0.86.0 |
-| Cách chạy | `python server/main.py` của worktree đó, cổng 7788, `JAVIS_STATE_DIR` và `BRAINS_DIR` tạm, `JAVIS_REQUIRE_LOGIN=0`, môi trường bỏ biến `CLAUDE*` / `ANTHROPIC*` của phiên Claude Code (giữ `CLAUDE_CONFIG_DIR`) |
-| Claude Code trên máy | 2.1.293 (cùng bản build vào image Docker 0.86.0) |
-| Script | `exports/reviews/D0-localhost-0860-smoke.py` (ngoài git). Log server và thư mục dữ liệu tạm đã xoá khi dọn; kết quả dưới đây chép từ đầu ra của lần chạy |
+| Code run | Clean worktree split from release commit `438f83097db4ee64e96b7b4880deb581521f217a` (VERSION 0.86.0). At check time, `main` had already moved to 0.86.1 (#589), but the check deliberately pinned 0.86.0 |
+| How it ran | `python server/main.py` from that worktree, port 7788, temporary `JAVIS_STATE_DIR` and `BRAINS_DIR`, `JAVIS_REQUIRE_LOGIN=0`, with the `CLAUDE*` / `ANTHROPIC*` variables of the Claude Code session removed from the environment (keeping `CLAUDE_CONFIG_DIR`) |
+| Claude Code on the machine | 2.1.293 (the same build that went into the 0.86.0 Docker image) |
+| Script | `exports/reviews/D0-localhost-0860-smoke.py` (outside git). The server log and the temporary data folder were deleted during cleanup; the results below are copied from the output of the run |
 
-## Kết quả không gọi model: 13/13
+## Results without calling a model: 13/13
 
-1. Khởi động sạch, `/health` 200 sau 7 giây.
-2. Dashboard `/` trả 200; `/app-version` báo `0.86.0`; asset gắn `?v=0.86.0`.
-3. Công tắc Resonance mặc định tắt (`{"ok": true, "enabled": false}`).
-4. WebSocket `/ws` nhận kết nối qua kiểm Origin.
-5. Tắt tính năng, mở dashboard, chờ hơn một nhịp scheduler (35 giây): không tạo `resonance.sqlite3`.
-6. Log server không có Traceback hay lỗi `[resonance`.
-7. Bật Resonance cho brain tạm qua API.
-8. Khởi động lại sau 7 giây.
-9. Sau khởi động lại công tắc vẫn bật (giữ trong brain).
-10. API danh sách mục tiêu chạy, trả rỗng.
-11. Bật và qua một nhịp scheduler: log không lỗi.
-12. Tắt lại Resonance.
-13. WebSocket vẫn nhận kết nối sau khởi động lại.
+1. Clean start, `/health` returned 200 after 7 seconds.
+2. Dashboard `/` returned 200; `/app-version` reported `0.86.0`; assets carry `?v=0.86.0`.
+3. The Resonance switch is off by default (`{"ok": true, "enabled": false}`).
+4. WebSocket `/ws` accepted the connection through the Origin check.
+5. With the feature off, opened the dashboard and waited more than one scheduler tick (35 seconds): no `resonance.sqlite3` was created.
+6. The server log has no Traceback or `[resonance` error.
+7. Turned Resonance on for the temporary brain through the API.
+8. Restarted after 7 seconds.
+9. After the restart the switch is still on (kept in the brain).
+10. The goal list API works and returns empty.
+11. Turned on and passed one scheduler tick: the log has no errors.
+12. Turned Resonance off again.
+13. WebSocket still accepts connections after the restart.
 
-Ghi chú:
-- Gọi thẳng `GET /resonance/goals` thì kho `resonance.sqlite3` được tạo dù tính năng tắt. Đây là chủ ý của M4 (xem và dừng mục tiêu cũ không đòi công tắc). Dashboard không tự gọi API này.
-- Trong trình duyệt, `/tools/optional` trả 401. Endpoint này đòi phiên đăng nhập, mà server thử tắt đăng nhập; không thuộc thay đổi Resonance.
+Notes:
+- Calling `GET /resonance/goals` directly creates the `resonance.sqlite3` store even when the feature is off. This is intentional in M4 (viewing and stopping old goals does not require the switch). The dashboard does not call this API on its own.
+- In the browser, `/tools/optional` returns 401. This endpoint requires a login session, and the test server had login turned off; it is not part of the Resonance change.
 
-## Một lượt chat thật: đạt
+## One real chat turn: passed
 
-- Người dùng duyệt đúng 1 lượt. Engine chép từ settings thật chỉ phần chọn engine: `anthropic-cli` / `claude-opus-5-5`, gói Max; token còn khoảng 15.400 giây trước khi gửi.
-- Tin: "Chào Javis, đây là tin thử sau khi nâng cấp. Em trả lời ngắn một câu: em đang chạy phiên bản nào và bằng bộ não gì?"
-- Kết quả sau 10 giây: khung `turn_done` có `engine_status: ok`, `turn_status: completed`, không có lỗi engine. Câu trả lời nêu đúng Claude Code và `claude-opus-5-5`, nói không thấy số phiên bản trong ngữ cảnh nên không báo.
-- Hội thoại được lưu vào danh sách phiên. Log server không có Traceback.
+- The user approved exactly 1 turn. For the engine, only the engine choice was copied from the real settings: `anthropic-cli` / `claude-opus-5-5`, Max plan; the token had about 15,400 seconds left before sending.
+- Message: "Chào Jarvis 007, đây là tin thử sau khi nâng cấp. Em trả lời ngắn một câu: em đang chạy phiên bản nào và bằng bộ não gì?" (Vietnamese: "Hello Jarvis 007, this is a test message after the upgrade. Answer in one short sentence: which version are you running and with what brain?")
+- Result after 10 seconds: the `turn_done` frame has `engine_status: ok`, `turn_status: completed`, and no engine error. The answer correctly named Claude Code and `claude-opus-5-5`, and said it does not see a version number in its context so it did not report one.
+- The conversation was saved to the session list. The server log has no Traceback.
 
-## Chưa có bằng chứng
+## No evidence yet
 
-- Một VPS cụ thể đã kéo image 0.86.0 và chạy ổn (phiên bản, chat, dữ liệu sau restart, log lỗi).
-- Bật thử Cộng hưởng trên brain hoặc agent thật với việc thật.
+- A specific VPS that pulled the 0.86.0 image and ran stably (version, chat, data after restart, error log).
+- A trial of Resonance on a real brain or agent with real work.
