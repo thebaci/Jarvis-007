@@ -1,266 +1,266 @@
-# Kết nối & số liệu kinh doanh
+# Connections & business data
 
 ***Tiếng Việt** · [English](en/09-connections-and-business-data.md)*
 
-Trang **Kết nối** là nơi bạn "đấu" Javis vào các công cụ bạn đang dùng: Pancake POS, Zalo, Webcake Landing, Botcake, quảng cáo Meta/Google/TikTok, lịch, CRM... Sau khi đấu, Javis đọc được số liệu THẬT và (nếu bạn cho quyền) thao tác thật trên các công cụ đó. Trang này hướng dẫn: kết nối một dịch vụ từ Kho, nối nhiều tài khoản, phân quyền, xem nhật ký, và cách đọc số liệu.
+The **Connections** page is where you wire Jarvis 007 into the tools you already use: Pancake POS, Zalo, Webcake Landing, Botcake, Meta/Google/TikTok ads, calendars, CRMs and more. Once connected, Jarvis 007 reads REAL numbers and, if you grant permission, takes real actions in those tools. This page covers connecting a service from the Store, wiring several accounts, permissions, the call log, and how to read the numbers.
 
-> **Từ bản 0.55.36: phần lớn dịch vụ nằm trong Javis Store, không đi kèm app nữa.**
+> **Since version 0.55.36: most services live in the Jarvis 007 Store rather than shipping with the app.**
 >
-> App chỉ còn cài sẵn **Composio**, **bộ Google** (Lịch, Gmail, Drive/Docs, Sheets, Tasks, Keep,
-> Ads, Search Console, NotebookLM), **Zalo**, **Botcake**, **Substack**, và ô **Tự thêm (nâng cao)**.
+> The app now bundles only **Composio**, the **Google set** (Calendar, Gmail, Drive/Docs, Sheets, Tasks, Keep,
+> Ads, Search Console, NotebookLM), **Zalo**, **Botcake**, **Substack**, and the **Add your own (advanced)** card.
 >
-> Mọi dịch vụ khác trong tài liệu này - Pancake POS, Shopify, Meta Ads, Facebook Trang, TikTok
-> Ads, Slack, Lark, n8n, Hostinger, Webcake... - vẫn dùng y hệt, chỉ thêm MỘT bước đầu: mở tab
-> **Javis Store** trên trang Kết nối, tìm dịch vụ, bấm **Cài đặt**. Sau đó nó hiện ở tab
-> **Kết nối sẵn có** và mọi hướng dẫn bên dưới đúng nguyên văn.
+> Every other service in this document (Pancake POS, Shopify, Meta Ads, Facebook Pages, TikTok
+> Ads, Slack, Lark, n8n, Hostinger, Webcake...) works exactly the same, with ONE extra first step: open the
+> **Jarvis 007 Store** tab on the Connections page, find the service and click **Install**. It then appears under
+> **Available connections** and every instruction below applies verbatim.
 >
-> Đổi lại: bản cập nhật của một dịch vụ tới thẳng qua kho, không phải chờ bản Javis mới. Nếu bạn
-> đã đấu tài khoản từ trước, trang Kết nối hiện sẵn nút cài lại đúng dịch vụ đó, và cài xong là
-> kết nối cũ chạy tiếp bằng đăng nhập cũ.
+> In exchange, a service update reaches you through the store rather than waiting for a new Jarvis 007 release. If you
+> already connected an account, the Connections page shows a button to reinstall exactly that service, and once installed
+> the old connection continues with the old login.
 
-## Tính năng này là gì
+## What this feature is
 
-Bên dưới, mỗi kết nối là một "đường ống" MCP (Model Context Protocol) nối Javis tới dịch vụ ngoài - nhưng bạn không cần biết chi tiết đó. Điểm mới từ bản 0.9:
+Underneath, each connection is an MCP (Model Context Protocol) pipe joining Jarvis 007 to an external service, but you do not need to know that detail. What changed in version 0.9:
 
-- **Kho kết nối cài sẵn**: chọn dịch vụ, dán API key (hoặc quét QR với Zalo) là xong. Javis tự kiểm tra key và tự đặt tên tài khoản (ví dụ lấy đúng tên cửa hàng từ Pancake POS). Không còn phải gõ URL hay header.
-- **Một dịch vụ, nhiều tài khoản**: 3 cửa hàng Pancake = 3 tài khoản trong cùng một thẻ Pancake POS. 2 số Zalo = 2 tài khoản Zalo chạy song song. Mỗi tài khoản bật/tắt, phân quyền, đặt mặc định riêng.
-- **Mọi bộ não dùng chung**: Claude Code, ChatGPT (Codex), OpenRouter, OpenAI API, Anthropic API và Google Gemini (API) đều dùng chung kho Kết nối này qua "hub" của Javis - đấu một lần, đổi model thoải mái. Riêng Gemini có một điểm lệch: phần chạy bên dưới đã gọi được công cụ qua hub, nhưng trang Kết nối vẫn hiện dòng cảnh báo vàng "⚠ Main Model đang là Google Gemini (API) - chưa hỗ trợ gọi công cụ. Đổi ở trang Models." vì danh sách trên giao diện chưa được cập nhật. Cứ dùng bình thường.
-- **Phân quyền cứng**: mỗi tài khoản có mức quyền. Javis CHẶN thật sự (không phải chỉ nhắc bằng lời) các thao tác vượt quyền, ví dụ tạo đơn khi đang ở mức Chỉ đọc.
+- **A built-in connection store**: pick a service, paste an API key (or scan a QR code for Zalo) and you are done. Jarvis 007 checks the key and names the account itself (taking the shop name straight from Pancake POS, for example). No more typing URLs or headers.
+- **One service, many accounts**: 3 Pancake shops = 3 accounts inside one Pancake POS card. 2 Zalo numbers = 2 Zalo accounts running side by side. Each account is enabled, permissioned and defaulted separately.
+- **Every brain shares them**: Claude Code, ChatGPT (Codex), OpenRouter, OpenAI API, Anthropic API and Google Gemini (API) all use this same Connections store through Jarvis 007's hub, so you wire once and change model freely. Gemini has one discrepancy: the runtime already calls tools through the hub, but the Connections page still shows a yellow warning saying the main model is Google Gemini (API) and does not support tool calling, because the interface list has not been updated. Use it normally.
+- **Hard permissions**: each account has a permission level. Jarvis 007 genuinely BLOCKS over-permission actions (rather than merely discouraging them in words), for example creating an order while set to Read only.
 
-## Mở ở đâu trong Javis
+## Where to find it in Jarvis 007
 
-1. Vào dashboard (cổng mặc định `7777`).
-2. Thanh bên trái, mở nhóm **Kết nối**, rồi bấm mục **Kết nối** (biểu tượng phích cắm, phụ đề "Nguồn dữ liệu & công cụ").
-3. Trang có 3 khu:
-   - **◆ Đã kết nối** - các tài khoản bạn đang đấu, kèm ô tick "Chỉ dùng kết nối của Javis (bỏ kết nối sẵn của máy)".
-   - **◆ Kết nối sẵn có** - những dịch vụ đã có trên máy, sẵn sàng đấu tài khoản, có ô "Tìm dịch vụ…" và dãy nút lọc: **Tất cả**, Kho ứng dụng, Bán hàng, Nhắn tin, Marketing, Văn phòng, Quảng cáo, Mạng xã hội, Sáng tạo. Sáu dịch vụ Google gom chung vào MỘT thẻ **Google** ghi "6 dịch vụ" - bấm **Chọn dịch vụ** trên thẻ đó mới ra danh sách con.
-   - **◆ Kết nối sẵn của Claude Code và Codex** - khối GẬP SẴN ở cuối trang, phụ đề "chỉ hiển thị - bấm để xem". Đây là những nguồn đã đăng nhập sẵn trong tài khoản Claude (đồng bộ từ claude.ai) và trong Codex CLI. Danh sách chỉ tải khi bạn bấm mở, và hơi lâu vì Javis phải kiểm tra tình trạng từng nguồn. Chỉ để xem, không sửa được ở đây.
+1. Open the dashboard (port `7777` by default).
+2. In the left sidebar, open the **Connections** group and click **Connections** (the plug icon, subtitled "Data sources & tools").
+3. The page has 3 areas:
+   - **◆ Connected** - the accounts you have wired, with a "Only use Jarvis 007 connections (ignore the machine's own)" checkbox.
+   - **◆ Available connections** - services present on the machine, ready to take an account, with a "Find a service…" box and filter buttons: **All**, App store, Sales, Messaging, Marketing, Office, Ads, Social, Creative. The six Google services collapse into ONE **Google** card reading "6 services"; click **Pick a service** on that card to see the sub-list.
+   - **◆ Claude Code and Codex built-in connections** - a COLLAPSED block at the bottom of the page, subtitled "display only, click to view". These are sources already signed into your Claude account (synced from claude.ai) and in the Codex CLI. The list only loads when you open it, and it takes a moment because Jarvis 007 checks each source's state. It is read-only here.
 
-## Cách dùng (từng bước)
+## How to use it (step by step)
 
-### 1. Kết nối Pancake POS (dán API key)
+### 1. Connecting Pancake POS (paste an API key)
 
-1. Ở **Kho kết nối**, tìm thẻ **Pancake POS**, bấm **Kết nối**.
-2. Làm theo hướng dẫn trong cửa sổ: mở Pancake POS > Cấu hình cửa hàng > Ứng dụng & API > tạo API key, rồi dán vào ô.
-3. Bấm **Kết nối**. Javis tự kiểm tra key - đúng thì hiện "✓ Đã kết nối: <tên cửa hàng>" và tài khoản xuất hiện ở khu Đã kết nối. Key sai thì báo lỗi ngay tại chỗ.
-4. Có nhiều cửa hàng? Bấm **+ Thêm tài khoản** trên thẻ Pancake POS, dán key của shop tiếp theo. Mỗi shop một chip riêng.
+1. In the **connection store**, find the **Pancake POS** card and click **Connect**.
+2. Follow the instructions in the dialog: open Pancake POS > Shop configuration > Apps & API > create an API key, then paste it in.
+3. Click **Connect**. Jarvis 007 verifies the key: on success it reads "✓ Connected: <shop name>" and the account appears under Connected. A wrong key reports the error on the spot.
+4. Several shops? Click **+ Add account** on the Pancake POS card and paste the next shop's key. Each shop gets its own chip.
 
-Pancake POS mặc định ở mức **Chỉ đọc** - Javis xem được doanh thu, đơn, khách... nhưng không thể tạo đơn hay đụng tiền. Muốn Javis thao tác thật, xem mục Phân quyền bên dưới.
+Pancake POS defaults to **Read only**, so Jarvis 007 can see revenue, orders and customers but cannot create orders or touch money. To let Jarvis 007 act, see Permissions below.
 
-### 1b. Kết nối TTS Dropship (token lấy từ trình duyệt)
+### 1b. Connecting TTS Dropship (token copied from the browser)
 
-Sàn dropship.thitruongsi.com **không phát hành API key**, nên thẻ này đăng nhập bằng chính token phiên của bạn trên trình duyệt. Cài **TTS Dropship** từ tab Javis Store trước, rồi:
+The dropship.thitruongsi.com marketplace **issues no API keys**, so this card signs in with your own browser session token. Install **TTS Dropship** from the Jarvis 007 Store tab first, then:
 
-1. Mở [dropship.thitruongsi.com](https://dropship.thitruongsi.com) và đăng nhập như bình thường.
-2. Bấm **F12** (máy Mac: Cmd + Option + I) > tab **Application** (Chrome/Edge) hoặc **Storage** (Firefox) > **Local Storage** > dòng của trang TTS.
-3. Copy toàn bộ giá trị của khoá **@publicToken** (chuỗi rất dài, bắt đầu bằng `eyJ`) rồi dán vào ô đầu tiên. Copy thêm **@refreshToken** dán vào ô thứ hai.
-4. Bấm **Kết nối**, rồi bảo Javis "kiểm tra kết nối TTS" để nó chạy `tts_health_check`.
+1. Open [dropship.thitruongsi.com](https://dropship.thitruongsi.com) and log in as usual.
+2. Press **F12** (Mac: Cmd + Option + I) > the **Application** tab (Chrome/Edge) or **Storage** (Firefox) > **Local Storage** > the row for the TTS site.
+3. Copy the whole value of the **@publicToken** key (a very long string starting with `eyJ`) into the first field. Copy **@refreshToken** into the second one.
+4. Click **Connect**, then ask Jarvis 007 to "check the TTS connection" so it runs `tts_health_check`.
 
-Ba điều nên biết trước khi dùng:
+Three things worth knowing up front:
 
-- **Token sống khoảng 3 ngày.** Javis đọc hạn ghi ngay trên token nên báo trước khi sắp hết, và khi hết thì nói rõ phải dán lại chứ không im lặng trả số liệu sai. Ô thứ ba, "Địa chỉ gia hạn token", cứ để trống: sàn chưa công bố địa chỉ đó, điền được thì Javis mới tự gia hạn.
-- **Sàn không cho sửa đơn đã tạo.** Vì vậy tool lên đơn, huỷ đơn và đánh giá đều bắt **xác nhận hai bước**: lần gọi đầu chỉ trả bản xem trước (khách, hàng, giá, phí ship, lãi ước tính), phải xác nhận rồi Javis mới tạo thật. Đây là chốt trong mã, không phải lời nhắc.
-- **Không có đường rút tiền.** Gói chỉ đọc được biểu phí rút; muốn rút thì vào ví trên web của sàn.
+- **The token lives about 3 days.** Jarvis 007 reads the expiry stamped inside the token, so it warns you before it runs out and says plainly what to do once it has, rather than quietly returning wrong numbers. Leave the third field, "Token refresh URL", empty: the marketplace has not published that address, and Jarvis 007 only auto-refreshes once you can fill it in.
+- **The marketplace does not allow editing an order once created.** So the order, cancel and rating tools all require **two-step confirmation**: the first call returns a preview only (customer, items, price, shipping, estimated profit), and Jarvis 007 creates the real order only after you confirm. That gate is in the code, not just a reminder.
+- **There is no withdrawal tool.** The pack can read the withdrawal fee schedule and nothing more; to withdraw, use the wallet on the marketplace's own site.
 
-Mặc định ở mức **Chỉ đọc**: tìm hàng, xem đơn, tra vận đơn, xem tiền về. Muốn Javis lên đơn thay bạn thì nâng lên **Toàn quyền** trên chip tài khoản, và đọc kỹ ô cảnh báo rủi ro ở đó.
+It defaults to **Read only**: finding products, reading orders, tracking shipments, checking incoming money. To let Jarvis 007 place orders for you, raise the account chip to **Full access** and read the risk warning shown there.
 
-### 2. Kết nối Zalo (quét QR)
+### 2. Connecting Zalo (QR scan)
 
-Cần Node.js 20+ trên máy chạy Javis (tải tại nodejs.org, cài một lần).
+Requires Node.js 20+ on the machine running Jarvis 007 (download from nodejs.org, install once).
 
-1. Ở Kho kết nối, bấm **Kết nối** trên thẻ **Zalo Agent MCP**.
-2. Đọc cảnh báo rủi ro: đây là công cụ KHÔNG chính thức, tài khoản Zalo có thể bị hạn chế hoặc khoá - khuyến nghị dùng tài khoản phụ. Bấm "Tôi hiểu rủi ro, hiện mã QR".
-3. Mở Zalo trên điện thoại > biểu tượng QR góc trên > quét mã trong màn hình Javis.
-4. Quét xong, tài khoản tự xuất hiện. Nối thêm số Zalo khác bằng **+ Thêm tài khoản** - các tài khoản chạy cô lập, không giẫm nhau.
+1. In the store, click **Connect** on the **Zalo Agent MCP** card.
+2. Read the risk warning: this is an UNOFFICIAL tool, and the Zalo account can be limited or locked, so a secondary account is recommended. Click "I understand the risk, show the QR code".
+3. Open Zalo on your phone > the QR icon in the top corner > scan the code on the Jarvis 007 screen.
+4. Once scanned, the account appears. Add another Zalo number with **+ Add account**; accounts run isolated and do not interfere.
 
-Zalo mặc định ở mức Toàn quyền để dùng được tool gửi tin. Có thể hạ xuống Ghi nháp hoặc
-Chỉ đọc trên chip tài khoản. Tích hợp mới dùng trực tiếp mười một tool của `javis-zalo`,
-không còn listener/webhook riêng hay chuyển tiếp tin sang Telegram. Xem
-[hướng dẫn Zalo Agent MCP](12-zalo.md).
+Zalo defaults to Full power so the send-message tool is usable. You can lower it to Draft or
+Read only on the account chip. The current integration uses the eleven `javis-zalo` tools directly,
+with no separate listener, webhook or Telegram forwarding. See
+[the Zalo Agent MCP guide](12-zalo.md).
 
-### 3b. Kết nối Slack / Systeme.io
+### 3b. Connecting Slack / Systeme.io
 
-- **Slack** (MCP chính chủ, chỉ cần đăng nhập trong dashboard): Slack bắt buộc MCP đi qua một app của chính bạn nên hơi nhiều bước một lần: vào api.slack.com/apps tạo app trong workspace, ở "OAuth & Permissions" thêm Redirect URL `http://localhost:7777/connect/oauth/callback` (VPS thì thêm địa chỉ tên miền) và thêm các "User Token Scopes" (search, channels, users, chat:write, canvases...), rồi copy Client ID + Secret dán vào cửa sổ kết nối. Nếu workspace bắt duyệt app thì cần admin chấp thuận. Mặc định Chỉ đọc - gửi tin phải nâng Toàn quyền.
-- **Systeme.io** (MCP chính chủ, dán key là xong): vào systeme.io > Cài đặt hồ sơ > "MCP & API keys" > tạo MCP key (hạn tối đa 90 ngày), dán vào. Javis quản lý được liên hệ, tag, newsletter, phễu. Mặc định Chỉ đọc.
-- **Lark** (MCP chính chủ, chạy local, cần Node.js 18+): nhắn tin, tài liệu, bảng dữ liệu Base, wiki, danh bạ trong Lark. Tạo một Lark app tại open.larksuite.com/app, cấp quyền (im, docx, bitable, contact...), lấy App ID + App Secret dán vào. Javis chỉ làm được đúng phạm vi quyền bạn cấp cho app. Mặc định Chỉ đọc - gửi tin nhắn và cấp quyền file phải nâng Toàn quyền.
+- **Slack** (first-party MCP, sign in from the dashboard): Slack requires the MCP to go through an app of your own, so it takes a few one-time steps: go to api.slack.com/apps, create an app in your workspace, under "OAuth & Permissions" add the Redirect URL `http://localhost:7777/connect/oauth/callback` (on a VPS add your domain address too) and add the "User Token Scopes" (search, channels, users, chat:write, canvases...), then copy the Client ID and Secret into the connection dialog. If your workspace requires app approval, an admin must approve it. Defaults to Read only; sending messages needs Full power.
+- **Systeme.io** (first-party MCP, paste a key and you are done): go to systeme.io > Profile settings > "MCP & API keys" > create an MCP key (90 days maximum) and paste it in. Jarvis 007 can manage contacts, tags, newsletters and funnels. Defaults to Read only.
+- **Lark** (first-party MCP, runs locally, needs Node.js 18+): messaging, documents, Base tables, wiki and contacts in Lark. Create a Lark app at open.larksuite.com/app, grant scopes (im, docx, bitable, contact...), and paste the App ID and App Secret. Jarvis 007 can only do what the scopes you granted allow. Defaults to Read only; sending messages and granting file access need Full power.
 
-### 3c. Kết nối Shopify (tra cứu cửa hàng)
+### 3c. Connecting Shopify (store lookup)
 
-Mỗi cửa hàng Shopify có sẵn một MCP công khai theo chuẩn UCP, nên đây là kết nối dễ nhất kho: **không cần API key, không cần cài app, và không cần bạn là chủ shop**.
+Every Shopify store exposes a public MCP following the UCP standard, making this the easiest connection in the store: **no API key, no app to install, and you do not have to own the shop**.
 
-1. Ở **Kho kết nối**, tìm thẻ **Shopify**, bấm **Kết nối**.
-2. Dán địa chỉ cửa hàng (tên miền riêng hay dạng `...myshopify.com` đều được). Gõ thiếu `https://`, thừa gạch chéo hay dán nguyên URL trang sản phẩm cũng không sao, Javis tự cắt về đúng tên miền.
-3. Ô **hồ sơ agent UCP** đã điền sẵn - cứ để nguyên rồi bấm Kết nối.
+1. In the **store**, find the **Shopify** card and click **Connect**.
+2. Paste the store address (a custom domain or a `...myshopify.com` address both work). Missing `https://`, a trailing slash or pasting a whole product URL is fine; Jarvis 007 trims it to the right domain.
+3. The **UCP agent profile** field is prefilled; leave it as is and click Connect.
 
-Javis tra được sản phẩm, giá, tồn kho, và dựng sẵn giỏ hàng để bạn bấm thanh toán. Mặc định **Chỉ đọc** (chỉ tra cứu); muốn Javis dựng giỏ hàng thật thì nâng lên **Ghi nháp**.
+Jarvis 007 can look up products, prices and stock, and build a cart for you to check out. It defaults to **Read only** (lookups only); to let Jarvis 007 build a real cart, raise it to **Draft**.
 
-Hai điều nên biết:
+Two things to know:
 
-- Giỏ hàng **chưa phải đơn hàng** và chưa trừ tiền. Shopify trả về một đường link để người thật bấm vào thanh toán - Javis không khai năng lực thanh toán nên không tự trả tiền được.
-- Đây là kênh **công khai của cửa hàng**, không phải cổng quản trị: nó không cho xem doanh thu, đơn hàng hay khách hàng của shop.
+- A cart is **not an order** and charges nothing. Shopify returns a link for a real person to click and pay; Jarvis 007 does not declare payment capability so it cannot pay by itself.
+- This is the store's **public channel**, not an admin portal: it cannot show the shop's revenue, orders or customers.
 
-Ô hồ sơ agent UCP là gì: Shopify bắt mỗi lời gọi phải kèm đường dẫn tới một tờ khai "agent này làm được những gì" để cửa hàng tải về và thoả thuận. Javis tự đính kèm ở mọi lời gọi, bạn không phải làm gì. Chỉ khi muốn dùng tờ khai riêng thì mới sửa ô đó.
+What the UCP agent profile field is: Shopify requires each call to carry a link to a declaration of "what this agent can do", which the store downloads and agrees to. Jarvis 007 attaches it on every call and you do nothing. Only change that field if you want to use your own declaration.
 
-### 3. Kết nối Webcake Landing / Botcake
+### 3. Connecting Webcake Landing / Botcake
 
-- **Webcake Landing**: lấy JWT tại webcake.io > Cài đặt > Mã truy cập > Tạo API keys, dán vào. Javis sẽ thiết kế/sửa landing page bằng lời nói. Cần Node.js 18+.
-- **Botcake**: mở Botcake > Cấu hình > Tích hợp > Public API > Tạo API Key; dán Page ID + key. Javis đọc được khách hàng, tag, flow và (nếu cho Toàn quyền) gửi flow tới khách.
+- **Webcake Landing**: get a JWT at webcake.io > Settings > Access tokens > Create API keys, and paste it in. Jarvis 007 then designs and edits landing pages by voice or text. Needs Node.js 18+.
+- **Botcake**: open Botcake > Configuration > Integrations > Public API > Create API Key; paste the Page ID and key. Jarvis 007 can read customers, tags and flows, and (with Full power) send flows to customers.
 
-### 4. Kết nối bộ Google (Sheets, Search Console, Lịch, Gmail, Workspace, Tasks, Keep)
+### 4. Connecting the Google set (Sheets, Search Console, Calendar, Gmail, Workspace, Tasks, Keep)
 
-Trừ Search Console, các dịch vụ Google nằm chung trong một thẻ **Google** ở Kho kết nối (ghi "6 dịch vụ"). Bấm **Chọn dịch vụ** để mở danh sách rồi chọn cái cần đấu. Đã tạo OAuth client cho một dịch vụ rồi thì các dịch vụ sau bấm **Dùng lại key** là xong, không phải vào Google Cloud lần nữa.
+Apart from Search Console, the Google services share one **Google** card in the store (reading "6 services"). Click **Pick a service** to open the list and choose. Once you have created an OAuth client for one service, later services just need **Reuse key**, with no second trip to Google Cloud.
 
-- **Google Sheets**: đổ báo cáo doanh thu/tồn kho/công nợ ra bảng tính. Tạo service account trong Google Cloud (hướng dẫn có trong cửa sổ kết nối), share thư mục Drive cho email service account, dán nội dung file key JSON + ID thư mục là xong - không cần đăng nhập gì thêm.
-- **Google Search Console**: số liệu SEO website (khách tìm từ khoá gì, lượt bấm). Cũng dán service account JSON, thêm email đó làm người dùng trong Search Console.
-- **Google Calendar** và **Gmail** (2 kết nối riêng, MCP chính chủ của Google, chạy remote nên dùng được cả trên VPS): Calendar xem lịch, tìm chỗ trống, tạo/sửa/xoá sự kiện, nhắc hẹn; Gmail đọc/tìm thư, soạn NHÁP, gắn nhãn. Điểm an toàn: server Gmail chính chủ KHÔNG có tool gửi thẳng, nên Javis luôn dừng ở bản nháp để bạn tự bấm gửi. Cần tạo OAuth client một lần (console.cloud.google.com > Thông tin xác thực > OAuth client ID loại "Ứng dụng web", thêm URI chuyển hướng đúng như cửa sổ kết nối chỉ, và thêm email mình vào Test users). Dán Client ID + Secret, bấm Kết nối là trình duyệt mở cho bạn đăng nhập Google. Dùng CHUNG một OAuth client cho cả Calendar lẫn Gmail (chỉ cần bật thêm API tương ứng). Cả hai mặc định Chỉ đọc; nâng lên Ghi nháp để tạo sự kiện/soạn nháp, Toàn quyền mới xoá được sự kiện. **Phải khai đủ phạm vi quyền** ở trang Quyền dữ liệu (Data Access) của Google Auth Platform - server MCP của Google không nhận mỗi phạm vi gộp `calendar`, riêng việc tìm giờ trống đòi đúng `calendar.events.freebusy`; thiếu nó thì đăng nhập vẫn xanh nhưng hễ kiểm tra rảnh bận là báo thiếu quyền, xoá đi cài lại không chữa được (cửa sổ kết nối liệt kê sẵn đủ danh sách để dán).
-- **Google Workspace** (Gmail + Lịch + Drive + Docs + Sheets trong 1 kết nối, chạy local): cần tạo OAuth client trong Google Cloud một lần (~10 phút, hướng dẫn từng bước trong cửa sổ kết nối), loại "Ứng dụng dành cho máy tính" nên KHÔNG phải khai URI chuyển hướng như hai thẻ trên. **Chỉ dùng được trên máy có màn hình**: lần đầu Javis gọi tool, trình duyệt của chính máy chạy Javis mở ra để bấm đồng ý - cài trên VPS thì dùng hai kết nối Calendar và Gmail ở trên. Bật API cho từng dịch vụ định dùng (Gmail, Calendar, Drive, Docs là bốn cái cơ bản; thêm Sheets, Slides, Forms, People, Tasks nếu cần) - quên cái nào thì đúng nhóm công cụ đó báo lỗi, phần còn lại vẫn chạy. Nên điền luôn ô email Google, bỏ trống thì mỗi lần gọi tool server lại hỏi ngược xem dùng tài khoản nào. Mặc định ở mức Ghi nháp: Javis soạn nháp mail, tạo lịch, tạo tài liệu được nhưng KHÔNG tự gửi mail hay xoá gì - bật Toàn quyền phải xác nhận rủi ro. Chọn cái này nếu muốn CẢ Drive/Docs/Sheets trong một mối; nếu chỉ cần Lịch + Gmail thì 2 kết nối riêng ở trên gọn hơn (ít công cụ, chạy remote, dùng được trên VPS).
-- **Google Tasks** (việc cần làm, chạy local qua `uvx`): xem danh sách, thêm việc, đặt hạn, đánh dấu xong. Chỉ xin quyền Tasks, không đọc được Gmail hay Drive. Dùng chung OAuth client với Google Workspace, chỉ cần bật thêm Google Tasks API cho project và tạo client loại "Ứng dụng dành cho máy tính". Mặc định **Ghi nháp** - ở mức này Javis đã tạo, sửa, đánh dấu xong và xoá được từng việc lẻ; Toàn quyền mới thêm quyền tạo/đổi tên/XOÁ cả danh sách (xoá danh sách là mất hết việc bên trong, không hoàn tác). Chạy chung server với Google Workspace nên cũng **chỉ dùng được trên máy có màn hình**: lần đầu Javis gọi tool, trình duyệt trên máy chạy Javis mở ra để bạn bấm đồng ý.
-- **Google Keep** (ghi chú, chạy local qua `uvx`): tìm note, tạo note và danh sách việc, gắn nhãn, ghim, lưu trữ. **Đọc kỹ trước khi đấu**: Keep không có API chính chủ nên kết nối này phải dùng **master token có TOÀN QUYỀN tài khoản Google** (Gmail, Drive, Photos), không phải OAuth giới hạn phạm vi như Gmail hay Lịch. Javis chỉ thao tác ghi chú, nhưng token đó nếu lộ là mở cả tài khoản. Cách đấu: bật xác minh 2 bước, tạo App Password 16 ký tự, dán email + chuỗi đó vào; Javis đổi lấy token và KHÔNG lưu lại App Password. Ô `unsafe_mode` để trống thì Javis chỉ sửa được note do chính nó tạo, gõ `true` thì sửa được mọi note kể cả note bạn viết tay. Mặc định **Chỉ đọc**.
+- **Google Sheets**: push revenue, stock and receivables reports into spreadsheets. Create a service account in Google Cloud (instructions are in the connection dialog), share a Drive folder with the service account email, and paste the JSON key contents plus the folder ID. Nothing else to sign into.
+- **Google Search Console**: website SEO data (which keywords people search, click counts). Also a service account JSON, with that email added as a user in Search Console.
+- **Google Calendar** and **Gmail** (2 separate connections, Google's first-party MCPs, running remotely so they work on a VPS too): Calendar reads the schedule, finds free slots, and creates, edits and deletes events and reminders; Gmail reads and searches mail, writes DRAFTS and applies labels. The safety point: the first-party Gmail server has NO direct send tool, so Jarvis 007 always stops at a draft for you to send. You create an OAuth client once (console.cloud.google.com > Credentials > OAuth client ID of type "Web application", add the redirect URI exactly as the connection dialog states, and add your own email to Test users). Paste the Client ID and Secret, click Connect, and the browser opens for you to sign into Google. Use the SAME OAuth client for both Calendar and Gmail (just enable the matching API). Both default to Read only; raise to Draft to create events and write drafts, and Full power to delete events. **You must declare the full scope list** on the Data Access page of the Google Auth Platform: Google's MCP server does not accept the umbrella `calendar` scope alone, and free/busy lookups specifically require `calendar.events.freebusy`; without it sign-in still turns green but any availability check reports a missing scope, and deleting and reinstalling does not fix it (the connection dialog lists the full set for you to paste).
+- **Google Workspace** (Gmail + Calendar + Drive + Docs + Sheets in one connection, running locally): create an OAuth client in Google Cloud once (about 10 minutes, step by step in the connection dialog), of type "Desktop app", so unlike the two cards above you do NOT declare a redirect URI. **Only usable on a machine with a screen**: the first time Jarvis 007 calls a tool, the browser on the machine running Jarvis 007 opens for you to approve, so on a VPS use the Calendar and Gmail connections above. Enable the API for each service you intend to use (Gmail, Calendar, Drive and Docs are the four basics; add Sheets, Slides, Forms, People, Tasks if needed); forgetting one makes that tool group fail while the rest keeps working. Fill in the Google email field too, since leaving it empty makes the server ask which account on every tool call. It defaults to Draft: Jarvis 007 writes mail drafts, creates events and creates documents but does NOT send mail or delete anything; Full power requires acknowledging the risk. Choose this if you want Drive/Docs/Sheets all in one; if you only need Calendar + Gmail, the two separate connections above are leaner (fewer tools, remote, VPS-friendly).
+- **Google Tasks** (to-do lists, running locally through `uvx`): view lists, add tasks, set due dates and mark them done. It only requests the Tasks scope and cannot read Gmail or Drive. It shares the OAuth client with Google Workspace; just enable the Google Tasks API for the project and create a "Desktop app" client. Defaults to **Draft**, at which level Jarvis 007 can already create, edit, complete and delete individual tasks; Full power adds creating, renaming and DELETING whole lists (deleting a list loses every task inside, with no undo). It runs on the same server as Google Workspace, so it is also **only usable on a machine with a screen**: the first tool call opens the browser on the Jarvis 007 machine for approval.
+- **Google Keep** (notes, running locally through `uvx`): search notes, create notes and to-do lists, label, pin and archive. **Read this before connecting**: Keep has no first-party API, so this connection must use a **master token with FULL Google account access** (Gmail, Drive, Photos), not a scoped OAuth token like Gmail or Calendar. Jarvis 007 only touches notes, but if that token leaks it opens the whole account. To connect: enable 2-step verification, create a 16-character App Password, and paste your email plus that string; Jarvis 007 exchanges it for a token and does NOT store the App Password. Leaving `unsafe_mode` empty means Jarvis 007 can only edit notes it created itself; typing `true` lets it edit every note, including ones you wrote by hand. Defaults to **Read only**.
 
-- **Google NotebookLM** (chạy local qua `uvx`): liệt kê notebook, đọc nguồn bên trong, hỏi đáp ngay trong notebook, thêm nguồn, lưu ghi chú, tạo tóm tắt hoặc audio ở Studio. **Đọc kỹ trước khi đấu**: NotebookLM chưa có API chính chủ, nên kết nối này mượn **cookie phiên trình duyệt** của bạn, tức là một credential tương đương đang đăng nhập tài khoản Google, không phải OAuth giới hạn phạm vi như Gmail hay Lịch. Cách đấu: trên **máy cá nhân có trình duyệt** (không làm được trên VPS) chạy `uvx --from "notebooklm-py[browser]" notebooklm login`, đăng nhập Google rồi mở NotebookLM một lần; sau đó mở tệp `~/.notebooklm/profiles/default/storage_state.json` vừa sinh ra, copy toàn bộ nội dung dán vào ô trong cửa sổ kết nối. Phiên hết hạn thì chạy lại lệnh đó và dán chuỗi mới. Mặc định **Chỉ đọc** - mức Ghi nháp mới cho hỏi đáp và tạo tóm tắt (tiêu quota NotebookLM), mức Toàn quyền mới cho xoá notebook và chia sẻ ra ngoài. Thư viện bên dưới (`notebooklm-py`) là bản không chính thức nên Google đổi giao thức lúc nào cũng có thể làm kết nối này gãy.
+- **Google NotebookLM** (running locally through `uvx`): list notebooks, read the sources inside, ask questions inside a notebook, add sources, save notes, and create summaries or audio in Studio. **Read this before connecting**: NotebookLM has no first-party API, so this connection borrows your **browser session cookie**, a credential equivalent to being signed into your Google account, not a scoped OAuth token like Gmail or Calendar. To connect: on a **personal machine with a browser** (not possible on a VPS) run `uvx --from "notebooklm-py[browser]" notebooklm login`, sign into Google and open NotebookLM once; then open the generated `~/.notebooklm/profiles/default/storage_state.json`, copy its whole contents and paste them into the field in the connection dialog. When the session expires, rerun that command and paste the new string. Defaults to **Read only**: Draft allows asking questions and creating summaries (spending NotebookLM quota), and Full power allows deleting notebooks and sharing them externally. The underlying library (`notebooklm-py`) is unofficial, so a Google protocol change can break this connection at any time.
 
-Mẹo: nếu chỉ cần Gmail/Lịch/Drive và bạn dùng engine Claude Code, cách nhanh hơn là bấm Connect ngay trong app Claude (claude.ai > Settings > Connectors) - Javis tự thấy chúng trong khối gập **◆ Kết nối sẵn của Claude Code và Codex** ở cuối trang.
+Tip: if you only need Gmail/Calendar/Drive and you use the Claude Code engine, the faster route is clicking Connect inside the Claude app itself (claude.ai > Settings > Connectors); Jarvis 007 sees them in the collapsed **◆ Claude Code and Codex built-in connections** block at the bottom of the page.
 
-Tương tự với engine ChatGPT (Codex): MCP bạn đã đăng ký thẳng trong Codex CLI (`codex mcp add <tên> --url https://...` cho server HTTP, hoặc `codex mcp add <tên> -- <lệnh>` cho server stdio) được engine ChatGPT tự nạp khi chạy, và cũng hiện trong chính khối gập đó (danh sách Codex nằm ngay dưới danh sách Claude Code). Server đăng nhập kiểu OAuth thì chạy `codex mcp login <tên>` một lần trong terminal. Server OAuth thêm ở form "Tự thêm (nâng cao)" của Javis cũng được đăng ký vào cả hai CLI (Claude Code lẫn Codex) để đổi engine không mất công cụ.
+The same holds for the ChatGPT (Codex) engine: MCPs you registered directly in the Codex CLI (`codex mcp add <name> --url https://...` for an HTTP server, or `codex mcp add <name> -- <command>` for a stdio server) are loaded by the ChatGPT engine at runtime and appear in that same collapsed block (the Codex list sits under the Claude Code list). For an OAuth server, run `codex mcp login <name>` once in the terminal. OAuth servers added through Jarvis 007's "Add your own (advanced)" form are registered into both CLIs (Claude Code and Codex) so switching engines does not lose tools.
 
-### 5. Kết nối quảng cáo (Meta Ads, Google Ads, TikTok Ads)
+### 5. Connecting ads (Meta Ads, Google Ads, TikTok Ads)
 
-Cả 3 mặc định ở mức **Chỉ đọc** - Javis xem báo cáo, phân tích chi phí/hiệu quả nhưng không đụng được vào chiến dịch.
+All 3 default to **Read only**, so Jarvis 007 reads reports and analyses cost and performance but cannot touch campaigns.
 
-- **Meta Ads (Facebook & Instagram)** có HAI kết nối trong kho, chọn 1:
-  - **Meta Ads (MCP chính chủ)**: MCP hosted của Meta. Hiện đang beta GIỚI HẠN: Meta chỉ cho vài ứng dụng được cấp phép sẵn (trợ lý ChatGPT/Claude/Perplexity) kết nối và đã tắt tự đăng ký, nên Javis - và cả công cụ khác - CHƯA nối tự phục vụ được. Không phải lỗi máy bạn; chờ Meta mở thêm theo tài khoản. Xem chi tiết bên dưới.
-  - **Meta Ads (tự tạo app - Graph API)**: cách CHẠY ĐƯỢC ngay hôm nay (giống Composio/byadsco dùng) - Javis gọi thẳng Marketing API của Meta bằng một Facebook App do BẠN tạo. CHỈ ĐỌC số liệu, không tiêu tiền. Hướng dẫn tạo app ở mục bên dưới.
-- **Google Ads**: MCP chính chủ của Google, thuần chỉ đọc (truy vấn số liệu GAQL: chiến dịch, chi phí, chuyển đổi, từ khoá). Cài đặt kỹ thuật nhất trong kho, cần bốn thứ: developer token (lấy trong Google Ads API Center của tài khoản quản lý MCC, mức Explorer là đủ để đọc), một project Google Cloud đã bật Google Ads API, một OAuth client ID loại **"Ứng dụng web"**, và trong client đó phải thêm URI chuyển hướng `http://localhost:7777/connect/oauth/callback` (chạy trên VPS thì thêm cả `https://<tên-miền>/connect/oauth/callback`). Điền xong bấm nút đăng nhập trên giao diện là trình duyệt mở cho bạn cấp quyền - **Javis tự dựng file đăng nhập, KHÔNG cần cài Google Cloud CLI và không phải chạy lệnh nào**. Ai đã tự chạy `gcloud` trước đó rồi thì dán thẳng nội dung file `application_default_credentials.json` vào ô cuối cho nhanh. Chạy ads qua agency/MCC thì điền thêm ID tài khoản quản lý. Gặp cảnh báo "ứng dụng chưa được xác minh" thì bấm Nâng cao > Tiếp tục, vì đây là app của chính bạn.
-- **TikTok Ads**: TikTok chưa mở MCP chính chủ (mới công bố tại TikTok World 5/2026), nên Javis dùng server cộng đồng chạy trên Marketing API chính thức - thuần chỉ đọc (tài khoản, chiến dịch, báo cáo). Tạo app Marketing API tại business-api.tiktok.com, lấy App ID + Secret + Access Token dán vào. Khi TikTok mở bản chính chủ sẽ thay trong kho.
+- **Meta Ads (Facebook & Instagram)** has TWO connections in the store; pick one:
+  - **Meta Ads (first-party MCP)**: Meta's hosted MCP. It is currently in LIMITED beta: Meta only lets a few pre-approved applications (the ChatGPT/Claude/Perplexity assistants) connect and has disabled self-registration, so Jarvis 007, like other tools, CANNOT self-serve yet. This is not a fault on your machine; wait for Meta to widen access. Details below.
+  - **Meta Ads (your own app, Graph API)**: the route that WORKS today (the same one Composio and byadsco use), where Jarvis 007 calls Meta's Marketing API directly using a Facebook App YOU create. READ ONLY for data, spending nothing. Instructions for creating the app are below.
+- **Google Ads**: Google's first-party MCP, purely read-only (GAQL queries: campaigns, cost, conversions, keywords). It is the most technical setup in the store and needs four things: a developer token (from the Google Ads API Center of your MCC manager account, Explorer level is enough for reading), a Google Cloud project with the Google Ads API enabled, an OAuth client ID of type **"Web application"**, and inside that client the redirect URI `http://localhost:7777/connect/oauth/callback` (on a VPS add `https://<your-domain>/connect/oauth/callback` too). Fill it in and click the sign-in button, and the browser opens for you to grant access: **Jarvis 007 builds the credentials file itself, with NO Google Cloud CLI and no commands to run**. If you already ran `gcloud` yourself, paste the contents of `application_default_credentials.json` into the last field for speed. If you run ads through an agency/MCC, add the manager account ID as well. If you see "this app is not verified", click Advanced > Continue, because it is your own app.
+- **TikTok Ads**: TikTok has not opened a first-party MCP (only announced at TikTok World in May 2026), so Jarvis 007 uses a community server on the official Marketing API, purely read-only (accounts, campaigns, reports). Create a Marketing API app at business-api.tiktok.com and paste the App ID, Secret and Access Token. It will be swapped for the first-party version when TikTok ships one.
 
-Google Ads và TikTok Ads chạy local qua công cụ `uv` - máy chạy Javis cần cài một lần: `winget install astral-sh.uv` (Windows) hoặc xem docs.astral.sh/uv. Riêng **Google Ads cần thêm Git** trên máy chạy Javis, vì `uvx` tải server thẳng từ GitHub. Thiếu Git là kết nối chết ngay, dù `uv` đã có.
+Google Ads and TikTok Ads run locally through the `uv` tool, which the Jarvis 007 machine needs once: `winget install astral-sh.uv` (Windows) or see docs.astral.sh/uv. **Google Ads also needs Git** on the Jarvis 007 machine, because `uvx` pulls the server straight from GitHub. Without Git the connection dies immediately even with `uv` installed.
 
-#### Kết nối Meta Ads qua Graph API (tự tạo Facebook App) - làm 1 lần, ~10 phút
+#### Connecting Meta Ads through the Graph API (your own Facebook App), one-time, about 10 minutes
 
-Đây là con đường tự phục vụ chạy được ngay, không phụ thuộc beta MCP của Meta. Bạn tạo một Facebook App của riêng mình, Javis dùng nó để đọc số liệu ad account của bạn. Vì app do chính bạn làm và giữ ở chế độ thử nghiệm, bạn tự cấp được quyền đọc mà KHÔNG cần Meta duyệt.
+This is the self-serve route that works today, independent of Meta's MCP beta. You create your own Facebook App and Jarvis 007 uses it to read your ad account data. Because the app is yours and stays in development mode, you can grant yourself read scopes WITHOUT Meta's App Review.
 
-**Trước khi bắt đầu: xem bạn đang dùng giao diện nào.** Meta đang chuyển dần trang quản lý ứng dụng sang bản mới, nên hai người mở cùng lúc có thể thấy hai kiểu menu khác nhau. Nhìn **cột trái** trong trang app:
+**Before you start: check which interface you have.** Meta is migrating the app management pages, so two people opening it at the same time can see two different menus. Look at the **left column** in the app:
 
-- Thấy mục **"Sản phẩm"** (Products) là **giao diện CŨ**.
-- Thấy mục **"Trường hợp sử dụng"** (Use cases) và KHÔNG có mục "Sản phẩm" là **giao diện MỚI**.
+- Seeing **"Products"** means the **OLD** interface.
+- Seeing **"Use cases"** and NO "Products" means the **NEW** interface.
 
-Hai bản làm giống nhau ở mọi bước, chỉ khác đúng chỗ mở phần Đăng nhập bằng Facebook (bước 2). Nếu bạn tìm mãi không thấy "Sản phẩm" hay "Đăng nhập bằng Facebook cho doanh nghiệp" thì gần như chắc chắn bạn đang ở bản mới, không phải do thiếu quyền hay do Business Manager chưa xác minh.
+Both are identical except for where you open Facebook Login (step 2). If you cannot find "Products" or "Facebook Login for Business", you are almost certainly on the new interface, and it is not a permission problem or an unverified Business Manager.
 
-1. Vào [developers.facebook.com/apps](https://developers.facebook.com/apps) > **Create App**. Chọn loại **Business** (hoặc "Other"), đặt tên bất kỳ (vd "Javis đọc ads").
-2. Mở phần **Đăng nhập bằng Facebook**, tuỳ giao diện:
-   - **Bản CŨ**: **Sản phẩm > Thêm sản phẩm** > thêm **Đăng nhập bằng Facebook** (bản THƯỜNG, KHÔNG phải "cho doanh nghiệp"), rồi bấm **Cài đặt**.
-   - **Bản MỚI**: cột trái **Trường hợp sử dụng** > mở **"Xác thực và yêu cầu dữ liệu từ người dùng qua phương thức Đăng nhập bằng Facebook"** > **Tùy chỉnh** > **Cài đặt**. Mục này thường đã có sẵn khi tạo app, bạn không phải thêm gì.
-3. Ô **URI chuyển hướng OAuth hợp lệ** (Valid OAuth Redirect URIs) - **làm khác nhau tuỳ nơi bạn cài Javis**:
-   - **Cài trên máy cá nhân** (địa chỉ `localhost`): **bỏ qua ô này, không cần điền.** Khi app ở Chế độ phát triển, Meta **tự động cho phép** chuyển hướng về localhost, nên ô này cố tình không nhận localhost. Meta có chú thích ngay tại đó: "Khi ở chế độ phát triển, hệ thống sẽ tự động cho phép http://localhost chuyển hướng và bạn không cần phải thêm vào đây." Không điền được là **đúng**, không phải lỗi, cứ đi tiếp. Chỉ nhớ Javis phải chạy ở địa chỉ **localhost** chứ không phải 127.0.0.1.
-   - **Cài trên VPS / tên miền riêng**: **bắt buộc phải điền**, dán đúng địa chỉ https của bạn rồi Lưu, vd `https://javis.tenmiencuaban.com/connect/oauth/callback`. Ngoài localhost thì Meta không tự cho phép và cũng bắt buộc **https**, thiếu bước này là đăng nhập bị từ chối.
-   - **Đừng tự gõ tay**: hộp thoại Kết nối của Javis có ô địa chỉ kèm nút **Sao chép** sinh sẵn ĐÚNG địa chỉ theo tên miền máy bạn - bấm Sao chép rồi dán nguyên văn. Facebook bắt khớp **từng ký tự** (kể cả dấu `/` cuối), lệch một chữ là báo **"URL bị chặn"**.
-   - **Cũng cho VPS / tên miền riêng**: vào **Cài đặt ứng dụng > Thông tin cơ bản**, ô **Miền ứng dụng** (App Domains) điền tên miền trần, vd `javis.tenmiencuaban.com` (KHÔNG có `https://`, KHÔNG có dấu `/`), kéo xuống cuối trang bấm **Lưu thay đổi**. Hộp thoại Kết nối của Javis cũng có ô Sao chép sẵn tên miền này. Thiếu bước này Facebook báo **"Không thể tải URL - Miền của URL này không được đưa vào miền của ứng dụng"**.
-   - Đừng vào "Cài đặt ứng dụng > Nâng cao", đó là chỗ khác không liên quan.
-4. Giữ app ở chế độ **Development** (công tắc góc trên cùng để ở "In development"). Đảm bảo bạn là **Admin** của app và của tài khoản quảng cáo muốn đọc - khi đó quyền `ads_read` tự cấp được, không cần App Review.
-5. **Bỏ qua "Xác minh doanh nghiệp" và "Xét duyệt ứng dụng"** dù bảng "Việc cần làm" của app có gợi ý. Hai bước đó chỉ cần khi app của bạn phục vụ doanh nghiệp KHÁC truy cập dữ liệu của họ; bạn tự dùng cho tài khoản của chính mình thì không cần, làm chỉ mất thêm nhiều ngày chờ duyệt.
-6. Vào **App settings > Basic**, copy **App ID** và **App Secret**.
-7. Về Javis, trang **Kết nối** > thẻ **Meta Ads (tự tạo app - Graph API)** > dán App ID + App Secret > **Kết nối**. Trình duyệt mở trang Facebook để bạn đồng ý; xong quay lại Javis bấm làm mới.
+1. Go to [developers.facebook.com/apps](https://developers.facebook.com/apps) > **Create App**. Pick the **Business** type (or "Other") and name it anything (for example "Jarvis 007 reads ads").
+2. Open the **Facebook Login** section, depending on the interface:
+   - **OLD**: **Products > Add product** > add **Facebook Login** (the REGULAR one, NOT "for Business"), then click **Settings**.
+   - **NEW**: left column **Use cases** > open **"Authenticate and request data from users with Facebook Login"** > **Customise** > **Settings**. That use case usually exists as soon as you create the app, so there is nothing to add.
+3. The **Valid OAuth Redirect URIs** field behaves **differently depending on where Jarvis 007 is installed**:
+   - **On a personal machine** (a `localhost` address): **skip this field, nothing to fill in.** While the app is in Development mode, Meta **automatically allows** redirects to localhost, so the field deliberately rejects localhost. Meta says so right there: in development mode, http://localhost redirects are automatically allowed and need not be added. Being unable to fill it in is **correct**, not a fault, so move on. Just make sure Jarvis 007 runs at **localhost** rather than 127.0.0.1.
+   - **On a VPS / custom domain**: **it is required**. Paste your exact https address and Save, for example `https://javis.yourdomain.com/connect/oauth/callback`. Outside localhost, Meta does not auto-allow and requires **https**; skipping this makes sign-in fail.
+   - **Do not type it by hand**: the Jarvis 007 connection dialog has an address field with a **Copy** button that generates the EXACT address for your machine's domain; click Copy and paste it verbatim. Facebook matches **character by character** (including a trailing `/`), and one wrong character produces **"URL blocked"**.
+   - **Also for VPS / custom domains**: go to **App settings > Basic**, and in **App Domains** enter the bare domain, for example `javis.yourdomain.com` (NO `https://`, NO `/`), then scroll to the bottom and click **Save changes**. The Jarvis 007 connection dialog has a Copy button for this domain too. Without it, Facebook reports **"Cannot load URL: the domain of this URL is not included in the app's domains"**.
+   - Do not go into "App settings > Advanced"; that is somewhere else entirely.
+4. Keep the app in **Development** mode (the toggle at the top stays on "In development"). Make sure you are an **Admin** of the app and of the ad account you want to read; that is what lets `ads_read` be granted without App Review.
+5. **Skip "Business verification" and "App review"** even though the app's "To do" panel suggests them. Those only matter when your app serves OTHER businesses accessing their data; using it for your own account needs neither, and doing it only adds days of waiting.
+6. Go to **App settings > Basic** and copy the **App ID** and **App Secret**.
+7. Back in Jarvis 007, on the **Connections** page > the **Meta Ads (your own app, Graph API)** card > paste the App ID and App Secret > **Connect**. The browser opens Facebook for you to approve; afterwards return to Jarvis 007 and refresh.
 
-Sau khi kết nối, hỏi Javis bằng lời: "tài khoản quảng cáo Facebook của tôi tuần này tiêu bao nhiêu, hiệu quả thế nào?". Javis có sẵn các công cụ đọc: danh sách tài khoản ads, hiệu suất (chi tiêu/hiển thị/click/CTR/CPC/reach/chuyển đổi) theo kỳ, và danh sách chiến dịch. Tất cả CHỈ ĐỌC - Javis không tạo/sửa chiến dịch, không tiêu tiền của bạn.
+Once connected, ask Jarvis 007 in words: "how much did my Facebook ad account spend this week, and how did it perform?". Jarvis 007 has read tools for the ad account list, performance (spend, impressions, clicks, CTR, CPC, reach, conversions) over a period, and the campaign list. All READ ONLY: Jarvis 007 does not create or edit campaigns and does not spend your money.
 
-Về thời hạn: token Facebook sống khoảng 60 ngày, Javis tự gia hạn khi còn dùng. Nếu quá lâu không dùng và token hết hạn, chỉ cần bấm Kết nối lại để đăng nhập Facebook một lần nữa.
+On expiry: Facebook tokens live about 60 days and Jarvis 007 refreshes them while in use. If it goes unused long enough to expire, just click Connect again to sign into Facebook once more.
 
-### 5b. Kết nối Facebook Trang và Theo dõi Facebook
+### 5b. Connecting Facebook Pages and Facebook Monitoring
 
-Hai kết nối này nằm ở nhóm **Mạng xã hội** trong Kho, khác hẳn nhau về mục đích:
+These two live in the **Social** group in the store and serve very different purposes:
 
-- **Facebook Trang (tự tạo app - Graph API)**: quản lý Trang/Fanpage của CHÍNH bạn. Chỉ đọc thì xem danh sách Trang, bài và bình luận; nâng Toàn quyền thì đăng bài chữ, ảnh, album nhiều ảnh, video, sửa bài đã đăng, trả lời và xoá bình luận. Cách đấu giống hệt Meta Ads (Graph API) ở trên và **dùng lại được đúng Facebook App đó** - vẫn phải bật thêm quyền Trang. Khi Facebook hỏi quyền, nhớ TICK chọn các Trang. Mặc định **Chỉ đọc**; xoá bài là không hoàn tác được (Trang không có thùng rác) nên chỉ nâng Toàn quyền khi thật sự cần Javis đăng bài.
-- **Theo dõi Facebook (Apify)**: theo dõi Trang và Nhóm **công khai** của người khác để tìm bài viral, trả về số share/react/bình luận để lọc bài hot. Điểm quan trọng: nó quét qua dịch vụ Apify chứ KHÔNG dùng tài khoản Facebook cá nhân của bạn, nên không lo bị khoá và chạy tốt trên VPS 24/7. Cách đấu: đăng ký apify.com, vào Console > Settings > API & Integrations copy "Personal API token", dán vào. Chi phí tính theo lượt quét, khoảng 2.6 USD cho 1000 bài. Kết nối này **chỉ đọc**, không có đường ghi. Nhóm KÍN chưa hỗ trợ (sẽ cần thêm cookie).
+- **Facebook Pages (your own app, Graph API)**: manage YOUR OWN Pages. Read only shows the Page list, posts and comments; Full power posts text, photos, multi-photo albums and video, edits published posts, and replies to and deletes comments. The setup is identical to Meta Ads (Graph API) above and **reuses the same Facebook App**, with Page scopes added. When Facebook asks for permissions, remember to TICK the Pages. Defaults to **Read only**; deleting a post cannot be undone (Pages have no recycle bin), so only raise to Full power when you genuinely want Jarvis 007 publishing.
+- **Facebook Monitoring (Apify)**: monitor other people's **public** Pages and Groups to find viral posts, returning share/reaction/comment counts so you can filter the hot ones. The important part: it scrapes through the Apify service and does NOT use your personal Facebook account, so there is no lock-out risk and it runs fine on a VPS 24/7. To connect: sign up at apify.com, go to Console > Settings > API & Integrations, copy the "Personal API token" and paste it in. Cost is per scrape, roughly 2.6 USD per 1000 posts. This connection is **read only** with no write path. Private groups are not supported yet (they would need a cookie).
 
-### 5c. Các kết nối còn lại trong kho
+### 5c. The remaining connections in the store
 
-- **Composio** (nhóm Kho ứng dụng): một kết nối mở ra nhiều app (Gmail, Notion, Sheets, GitHub, Linear, Slack...). Trong Composio **For You → Connect my agent**, lấy consumer key `ck_*` dành cho MCP client rồi dán vào Javis. Javis dùng `https://connect.composio.dev/mcp` với header `x-consumer-api-key`; Project API key `ak_*` và MCP server tạo trong Platform thuộc luồng khác. Kết nối app ở **For You → Connect Apps**. Nếu đã đổi key, bấm **Kết nối lại** trên thẻ Composio trong Javis để cập nhật key, rồi **Kiểm tra**; kết nối lại riêng Calendar không đổi key Javis đã lưu. **Lưu ý về quyền**: mọi hành động của mọi app đều chạy qua MỘT tool chung của Composio, nên Javis soi từng lệnh bên trong theo tên lệnh (LIST, GET, FETCH, SEARCH... là đọc). Mức Chỉ đọc (mặc định) đọc được dữ liệu các app đã nối và xem tài khoản đã nối; lệnh nào không chắc là đọc thì bị chặn. Muốn Javis sửa, gửi hoặc xoá thì nâng **Toàn quyền**, và khi đó Javis làm được MỌI hành động trên các app bạn đã nối.
-- **Higgsfield** (nhóm Sáng tạo): tạo và chỉnh ảnh/video bằng AI - sinh ảnh, sinh video, nâng nét, mở rộng khung hình, xoá nền, cắt nhân vật. Đăng nhập một chạm, không cần tạo app hay dán key: bấm **Kết nối** rồi đăng nhập tài khoản Higgsfield và cấp quyền. Mỗi lần tạo hoặc chỉnh **tiêu credit trả trước** trong tài khoản Higgsfield của bạn. Mặc định Ghi nháp (tạo được ngay, chặn xoá và thanh toán); muốn Javis chỉ xem lịch sử cho đỡ tốn credit thì hạ xuống Chỉ đọc.
-- **X (Twitter)** (nhóm Mạng xã hội): tìm và đọc bài đăng, xem hồ sơ và số liệu công khai qua MCP chính chủ của X. Vào developer.x.com > Developer Portal > Projects & Apps > tab "Keys and tokens" > Generate **Bearer Token**, dán vào. Đây là token App-only nên **chỉ đọc** - chưa đăng bài được.
-- **Substack** (nhóm Marketing): soạn và đăng bài viết / newsletter bằng lời. Javis gọi thẳng API Substack bằng Python nội bộ nên KHÔNG cần cài Node. Cần ba thứ: địa chỉ trang Substack của bạn, session token (cookie `substack.sid` lấy trong DevTools) và User ID; nút **Hướng dẫn** trong cửa sổ kết nối mở trang có trợ lý lấy nhanh User ID và địa chỉ trang. Mặc định **Ghi nháp** - chỉ tạo nháp, chưa đăng, chưa gửi ai. Muốn Javis đăng bài THẬT phải nâng Toàn quyền; kể cả khi đó, đăng mặc định chỉ lên web, chỉ khi bạn nói rõ "gửi email cho người đăng ký" Javis mới bật cờ gửi mail - và đã gửi mail thì không thu lại được. Session token có toàn quyền tài khoản Substack, giữ kín như mật khẩu.
+- **Composio** (App store group): one connection opens many apps (Gmail, Notion, Sheets, GitHub, Linear, Slack...). In Composio **For You → Connect my agent**, copy the `ck_*` consumer key for an MCP client and enter it in Jarvis 007. Jarvis 007 uses `https://connect.composio.dev/mcp` with the `x-consumer-api-key` header; a Platform Project key (`ak_*`) or a Platform MCP server belongs to a different flow. Connect apps under **For You → Connect Apps**. If the consumer key changes, use **Reconnect** on the Jarvis 007 Composio card to update it, then **Test**; reconnecting Calendar alone does not update Jarvis 007's stored key. **Permission note**: every action of every app runs through ONE shared Composio tool, so Jarvis 007 checks each inner action by its Composio name (LIST, GET, FETCH, SEARCH... count as reads). Read only (the default) can read data from the apps you connected and list connected accounts; anything not clearly a read is blocked. To let Jarvis 007 edit, send or delete, raise it to **Full power**, and at that point Jarvis 007 can take ANY action on the apps you connected.
+- **Higgsfield** (Creative group): create and edit images and video with AI: generate images, generate video, upscale, outpaint, remove backgrounds, cut out subjects. One-tap sign-in with no app to create and no key to paste: click **Connect**, sign into your Higgsfield account and approve. Each generation or edit **spends prepaid credits** in your Higgsfield account. Defaults to Draft (generation works, deletion and payment blocked); to let Jarvis 007 only browse history and save credits, lower it to Read only.
+- **X (Twitter)** (Social group): search and read posts, view public profiles and metrics through X's first-party MCP. Go to developer.x.com > Developer Portal > Projects & Apps > the "Keys and tokens" tab > generate a **Bearer Token** and paste it in. This is an App-only token, so it is **read only** and cannot post.
+- **Substack** (Marketing group): write and publish posts and newsletters in words. Jarvis 007 calls the Substack API directly from internal Python, so NO Node install is needed. It needs three things: your Substack address, a session token (the `substack.sid` cookie from DevTools) and your User ID; the **Instructions** button in the connection dialog opens a page with a helper for fetching the User ID and address quickly. Defaults to **Draft**: it only creates drafts, publishing nothing and emailing nobody. To let Jarvis 007 publish for REAL you must raise it to Full power; even then, publishing defaults to web only, and only when you explicitly say "email the subscribers" does Jarvis 007 set the mail flag, and a sent email cannot be recalled. The session token has full account access, so guard it like a password.
 
-### 6. Quản lý một tài khoản (chip)
+### 6. Managing one account (a chip)
 
-Bấm vào chip tài khoản ở khu Đã kết nối để mở menu:
+Click an account chip under Connected to open its menu:
 
-- **Test kết nối**: gọi thử, báo số công cụ khả dụng.
-- **Đặt làm mặc định**: khi có nhiều tài khoản cùng dịch vụ, Javis ưu tiên tài khoản mặc định khi bạn không nói rõ shop nào.
-- **Đổi tên** / **Tắt tạm** / **Xoá**.
-- **Đổi quyền**: xem mục Phân quyền.
-- **Chặn tool cụ thể**: dành cho người rành - gõ tên tool muốn cấm hẳn.
-- **Nhật ký gọi tool**: xem Javis đã gọi gì, lúc nào, bị chặn gì.
+- **Test connection**: makes a trial call and reports how many tools are available.
+- **Set as default**: with several accounts of the same service, Jarvis 007 prefers the default when you do not name a shop.
+- **Rename** / **Disable temporarily** / **Delete**.
+- **Change permission**: see Permissions.
+- **Block a specific tool**: for advanced users, type the name of a tool to forbid outright.
+- **Tool call log**: see what Jarvis 007 called, when, and what was blocked.
 
-### 7. Phân quyền 3 mức (quan trọng)
+### 7. The 3 permission levels (important)
 
-Mỗi tài khoản có một mức quyền, Javis chặn CỨNG tại chỗ:
+Each account has a permission level, and Jarvis 007 blocks HARD at the call site:
 
-- **Chỉ đọc**: chỉ xem số liệu. Tạo đơn, sửa dữ liệu, gửi tin... đều bị chặn. An toàn nhất, mặc định cho POS.
-- **Ghi nháp**: được ghi/sửa dữ liệu thường (ghi chú, sản phẩm...), vẫn CHẶN hành động tiền/đơn/gửi tin.
-- **Toàn quyền**: thao tác THẬT - tạo đơn, gửi tin, publish trang. Khi bật phải tick "Tôi hiểu rủi ro"; với Zalo có cảnh báo riêng.
+- **Read only**: view data only. Creating orders, editing data, sending messages are all blocked. The safest level, and the default for POS.
+- **Draft**: may write and edit ordinary data (notes, products...), while still BLOCKING money, order and messaging actions.
+- **Full power**: REAL actions: creating orders, sending messages, publishing pages. Enabling it requires ticking "I understand the risk"; Zalo carries its own additional warning.
 
-Thông minh hơn bản cũ: Javis hiểu cả công cụ "2 trong 1" của Pancake - cùng tool đơn hàng, hỏi `danh sách đơn` thì cho qua, `tạo đơn` thì chặn nếu chưa đủ quyền.
+Smarter than the old build: Jarvis 007 understands Pancake's "2 in 1" tools, where the same order tool passes for `list orders` but is blocked for `create order` when the permission is insufficient.
 
-Loop chạy nền còn bị siết thêm theo mode của loop: loop `suggest` chỉ đọc, loop `auto` không bao giờ đụng tiền/đơn/gửi tin - bất kể tài khoản đặt quyền gì.
+Background loops are restricted further by their own mode: a `suggest` loop is read-only, and an `auto` loop never touches money, orders or messaging, regardless of what the account permission says.
 
-### 8. Tự thêm dịch vụ ngoài kho (nâng cao)
+### 8. Adding a service that is not in the store (advanced)
 
-Dịch vụ chưa có trong Kho? Bấm thẻ **Tự thêm (nâng cao)** - form kỹ thuật như bản cũ (URL/lệnh + header/env, hỗ trợ HTTP, SSE, stdio). Dịch vụ đăng nhập kiểu OAuth chuẩn MCP thì Javis tự mở trang đăng nhập và tự giữ token, chạy được cả trên VPS.
+Service not in the store? Click the **Add your own (advanced)** card for the technical form from the old build (URL/command + headers/env, supporting HTTP, SSE and stdio). For services using standard MCP OAuth, Jarvis 007 opens the sign-in page itself and keeps the token, working on a VPS too.
 
-### 9. Gỡ một dịch vụ khỏi Kho cho gọn
+### 9. Removing a service from the store to keep it tidy
 
-Kho có 29 dịch vụ, và bình thường bạn chỉ dùng vài cái. Trỏ chuột vào một thẻ trong Kho, góc phải trên hiện dấu **×**: bấm là dịch vụ đó rời khỏi Kho, khỏi danh sách công cụ của mọi bộ não, và khỏi ngữ cảnh mỗi lượt chat.
+The store has 29 services and you normally use a handful. Hover a store card and an **×** appears in the top right: clicking it removes that service from the store, from every brain's tool list, and from the context of every chat turn.
 
-Ba điều nên biết trước khi bấm:
+Three things to know before clicking:
 
-- **Gỡ không phải xoá.** File của dịch vụ vẫn nằm trong bản cài, Javis chỉ ghi nhớ là bạn đã gỡ. Nhờ vậy cập nhật Javis lên bản mới **không** làm nó mọc lại, mà cài lại thì chỉ mất một cú bấm.
-- **Cài lại ở khu "Đã gỡ"**, nằm dưới Kho, mặc định gập. Mỗi dịch vụ đã gỡ là một hàng có nút **Cài lại**.
-- **Kết nối của bạn KHÔNG bị xoá.** Nếu đang có tài khoản đấu theo dịch vụ đó, Javis hỏi lại trước khi gỡ. Gỡ rồi thì các kết nối ấy **dừng chạy** (Javis không tự gọi chúng nữa) nhưng vẫn nằm nguyên ở khu Đã kết nối, và đầu trang hiện một dải nhắc. Cài lại dịch vụ là chúng chạy tiếp, không phải đấu lại từ đầu.
+- **Removing is not deleting.** The service's files stay in the installation; Jarvis 007 just remembers that you removed it. That is why updating Jarvis 007 does **not** bring it back, while reinstalling is one click.
+- **Reinstall in the "Removed" area**, below the store and collapsed by default. Each removed service is a row with a **Reinstall** button.
+- **Your connections are NOT deleted.** If you have accounts wired to that service, Jarvis 007 asks before removing. Once removed, those connections **stop running** (Jarvis 007 no longer calls them) but remain under Connected, and a reminder strip appears at the top of the page. Reinstalling the service resumes them with no rewiring.
 
-### 10. Chế độ "Chỉ dùng kết nối của Javis" (strict)
+### 10. "Only use Jarvis 007 connections" (strict) mode
 
-Tick ô này ở khu Đã kết nối nếu muốn Javis CHỈ dùng các kết nối khai ở đây, bỏ qua MCP cài sẵn trong Claude Code trên máy - kiểm soát chặt, tránh gọi nhầm công cụ của tài khoản Claude. Lưu ý: ô này áp cho engine Claude Code (cờ strict của Claude CLI); kho MCP gốc của Codex do lệnh codex quản riêng - muốn engine ChatGPT bỏ một server gốc thì gỡ bằng `codex mcp remove <tên>`.
+Tick this box under Connected if you want Jarvis 007 to use ONLY the connections declared here, ignoring MCPs installed in Claude Code on the machine: tighter control, avoiding accidental calls to your Claude account's tools. Note: this applies to the Claude Code engine (the Claude CLI strict flag); Codex's own MCP registry is managed by the codex command, so to make the ChatGPT engine drop a native server, remove it with `codex mcp remove <name>`.
 
-## Đọc số liệu
+## Reading the numbers
 
-Không đổi so với trước: hỏi trực tiếp trong chat ("hôm nay bán được bao nhiêu, so hôm qua thế nào?"), Javis gọi đúng nguồn, trả lời theo công thức số liệu + so kỳ trước + nguyên nhân + đề xuất, và tự đẩy 3-6 chỉ số lên bảng số liệu cột trái trang Javis. Kỳ đã đóng lưu cache trong `05 - Data Cache/` của brain. Có nhiều shop thì nói rõ tên shop, không nói thì Javis dùng tài khoản mặc định.
+Unchanged from before: ask directly in chat ("how much did we sell today, compared with yesterday?"), Jarvis 007 calls the right source and answers with the formula of numbers + comparison with the previous period + cause + recommendation, and pushes 3 to 6 metrics into the metrics panel in the left column of the Jarvis 007 screen. Closed periods are cached in the brain's `05 - Data Cache/`. With several shops, name the shop; without a name Jarvis 007 uses the default account.
 
-## Mẹo
+## Tips
 
-- Đặt tên tài khoản theo cửa hàng cho dễ gọi trong chat ("shop Kim Khí" vs "shop 2").
-- POS cứ để Chỉ đọc nếu bạn chỉ cần xem báo cáo - không lo Javis vô tình tạo đơn.
-- Tin nhắn đầu sau khi bật máy có thể hơi chậm với kết nối dạng chạy local (Zalo, Webcake) do phải khởi động công cụ - các lượt sau nhanh vì Javis giữ kết nối sống.
-- Nhật ký gọi tool là chỗ đầu tiên nên xem khi nghi Javis "làm gì đó lạ".
+- Name accounts after the shop so they are easy to reference in chat ("Kim Khi shop" versus "shop 2").
+- Leave POS on Read only if you only want reports; then Jarvis 007 cannot create an order by accident.
+- The first message after a restart can be slow for locally running connections (Zalo, Webcake) because the tool has to boot; later turns are fast because Jarvis 007 keeps the connection alive.
+- The tool call log is the first place to look when you suspect Jarvis 007 "did something odd".
 
-## Sự cố thường gặp
+## Common problems
 
-- **Facebook báo "URL bị chặn" lúc đăng nhập**: redirect URI trong app Facebook chưa khớp. Mở hộp thoại Kết nối của Javis, bấm **Sao chép** ở ô địa chỉ chuyển hướng rồi dán NGUYÊN VĂN vào ô "URI chuyển hướng OAuth hợp lệ" (Đăng nhập bằng Facebook > Cài đặt), Lưu. Đừng gõ tay - Facebook bắt khớp từng ký tự.
-- **Facebook báo "Không thể tải URL - Miền của URL này không được đưa vào miền của ứng dụng"**: thiếu Miền ứng dụng. Vào Cài đặt ứng dụng > Thông tin cơ bản > ô "Miền ứng dụng", dán tên miền trần (không https, không dấu /) - có sẵn ô Sao chép trong hộp thoại Kết nối - rồi bấm "Lưu thay đổi" ở cuối trang.
-- **Dán key báo "Key chưa đúng hoặc chưa đủ quyền"**: tạo lại API key trong dịch vụ, dán lại. Với Pancake kiểm tra key thuộc đúng cửa hàng.
-- **Zalo báo "Cần cài Node.js 20+"**: cài Node.js từ nodejs.org rồi thử lại.
-- **Google Ads / TikTok Ads báo không kết nối được**: kiểm tra máy đã cài `uv` chưa (`winget install astral-sh.uv`). Riêng **Google Ads phải có cả Git** vì `uvx` kéo server từ GitHub - máy thiếu Git thì có `uv` cũng chết. Lần kết nối đầu phải tải gói nên có thể chậm - bấm Test lại sau 1-2 phút.
-- **Meta Ads (MCP chính chủ) báo "chưa cho kết nối tự phục vụ / DCR"**: đúng thực tế, không phải lỗi máy bạn - MCP hosted của Meta đang beta, chỉ nhận vài ứng dụng được Meta cấp phép sẵn. Muốn đọc số liệu ngay thì dùng kết nối **Meta Ads (tự tạo app - Graph API)** ở trên.
-- **Meta Ads (Graph API) báo "Facebook từ chối / redirect_uri"**: kiểm tra theo nơi cài. Chạy trên **máy cá nhân**: (1) app đang ở chế độ Development - đây là thứ khiến localhost được chấp nhận, rời khỏi Development là hỏng ngay; (2) Javis mở bằng địa chỉ `localhost` chứ không phải 127.0.0.1; (3) App ID + App Secret dán đúng. Chạy trên **VPS/tên miền**: kiểm tra ô Valid OAuth Redirect URIs đã điền đúng địa chỉ **https** của bạn, khớp từng ký tự kể cả đường dẫn `/connect/oauth/callback`.
-- **Không điền được localhost vào ô "URI chuyển hướng OAuth hợp lệ"**: đúng như vậy, không phải lỗi. App ở Chế độ phát triển thì Meta tự cho phép localhost và chặn không cho thêm tay, có chú thích ngay cạnh ô. Bỏ qua ô đó và đi tiếp; chỉ bản chạy trên VPS/tên miền mới phải điền.
-- **Hiện bảng "Invalid Scopes: pages_show_list, pages_read_engagement, ..." (hoặc ads_read, business_management)**: **cứ bấm OK và đi tiếp.** Đây là cảnh báo Meta chỉ hiện cho người tạo app, **không chặn đăng nhập** - chính thông báo đó ghi "This message is only shown to developers". Khi app còn ở Chế độ phát triển và bạn là Quản trị viên của app, Facebook vẫn cấp đủ quyền, nên phần lớn trường hợp kết nối xong là dùng được ngay. Kiểm chứng nhanh: kết nối xong hỏi Javis "liệt kê các Trang của tôi"; thấy đủ Trang là ổn, không cần làm gì thêm.
+- **Facebook says "URL blocked" during sign-in**: the redirect URI in the Facebook app does not match. Open the Jarvis 007 connection dialog, click **Copy** on the redirect address and paste it VERBATIM into "Valid OAuth Redirect URIs" (Facebook Login > Settings), then Save. Do not type it; Facebook matches character by character.
+- **Facebook says "Cannot load URL: the domain of this URL is not included in the app's domains"**: App Domains is missing. Go to App settings > Basic > "App Domains", paste the bare domain (no https, no slash), using the Copy button in the connection dialog, and click "Save changes" at the bottom.
+- **Pasting a key reports that it is wrong or lacks permission**: recreate the API key in the service and paste again. For Pancake, check the key belongs to the right shop.
+- **Zalo reports that Node.js 20+ is required**: install Node.js from nodejs.org and try again.
+- **Google Ads / TikTok Ads will not connect**: check whether the machine has `uv` (`winget install astral-sh.uv`). **Google Ads also requires Git**, because `uvx` pulls the server from GitHub; without Git, `uv` alone is not enough. The first connection downloads packages so it can be slow; click Test again after a minute or two.
+- **Meta Ads (first-party MCP) reports that self-serve / DCR connection is not allowed**: that is accurate rather than a fault on your machine. Meta's hosted MCP is in beta and only accepts a few pre-approved applications. To read your numbers today, use the **Meta Ads (your own app, Graph API)** connection above.
+- **Meta Ads (Graph API) reports that Facebook refused / redirect_uri**: check by install type. On a **personal machine**: (1) the app is in Development mode, which is what makes localhost acceptable, and leaving Development breaks it immediately; (2) Jarvis 007 is opened at `localhost` rather than 127.0.0.1; (3) the App ID and App Secret were pasted correctly. On a **VPS/domain**: check that Valid OAuth Redirect URIs holds your exact **https** address, matching character by character including the `/connect/oauth/callback` path.
+- **You cannot enter localhost into "Valid OAuth Redirect URIs"**: correct, and not a fault. In Development mode Meta allows localhost automatically and blocks manual entry, with a note next to the field. Skip it and continue; only VPS/domain installs need to fill it in.
+- **A panel appears reading "Invalid Scopes: pages_show_list, pages_read_engagement, ..." (or ads_read, business_management)**: **click OK and continue.** This warning is only shown to the app's creator and **does not block sign-in**; the message itself says "This message is only shown to developers". While the app is in Development mode and you are an app Admin, Facebook still grants the scopes, so in most cases the connection works right away. A quick check: after connecting, ask Jarvis 007 to "list my Pages"; seeing them all means everything is fine.
 
-  **Chỉ khi** kết nối xong mà Javis không thấy Trang nào (hoặc không thấy tài khoản quảng cáo nào) thì mới cần thêm quyền cho app. Trong **giao diện mới**, quyền bị khoá theo trường hợp sử dụng: app tạo bằng trường hợp "Xác thực và yêu cầu dữ liệu từ người dùng" chỉ có `email` và `public_profile`. Cách thêm:
-  - **Quyền Trang**: **Thêm trường hợp sử dụng** > chọn **"Quản lý mọi thứ trên Trang của bạn"** > **Tùy chỉnh** > tab **Quyền** > bấm Thêm cho `pages_read_engagement`, `pages_manage_posts`, `pages_manage_engagement`. Hai quyền `pages_show_list` và `business_management` thường đã có sẵn trong trường hợp sử dụng này.
-  - **Quyền quảng cáo**: **Thêm trường hợp sử dụng** > chọn trường hợp liên quan quảng cáo (Marketing API) > **Tùy chỉnh** > tab **Quyền** > Thêm `ads_read` và `business_management`.
-  - **Giao diện cũ**: vào **Sản phẩm > Thêm sản phẩm**, thêm **Marketing API** (cho quảng cáo) hoặc **Đăng nhập bằng Facebook** bản thường (cho Trang); ở Chế độ phát triển bạn tự cấp được các quyền này mà không cần App Review.
-  Thêm xong quay lại Javis bấm Kết nối lại là chạy.
-- **Muốn cho Javis quản lý THÊM một Trang (fanpage) nữa**: bấm **Kết nối lại** trên thẻ Facebook Trang. Facebook sẽ hiện lại màn **"Chọn nội dung bạn cho phép"** - tick thêm Trang mới, đồng thời **giữ nguyên các Trang cũ** (bỏ tick Trang nào là Javis mất quyền Trang đó), rồi bấm Tiếp tục. Không phải xoá tài khoản đi đấu lại từ đầu. Nếu Facebook vẫn nhảy thẳng qua kiểu "Tiếp tục với tên bạn" mà không cho chọn, kiểm tra Javis đã cập nhật lên bản 0.9.249 trở lên; bản cũ thiếu tham số ép Facebook hỏi lại nên bị bỏ qua màn chọn Trang.
-- **Meta Ads (Graph API) báo "không thấy tài khoản quảng cáo"**: token thiếu quyền `ads_read` hoặc tài khoản Facebook đăng nhập không phải admin của ad account nào - kiểm tra vai trò trong Business/Ads Manager.
-- **Trong app không thấy mục "Sản phẩm", hoặc không thấy "Đăng nhập bằng Facebook cho doanh nghiệp"**: bạn đang ở **giao diện MỚI** của Meta, nơi menu Sản phẩm đã bị thay bằng **Trường hợp sử dụng**. Vào cột trái **Trường hợp sử dụng > Tùy chỉnh > Cài đặt** là thấy ô URI chuyển hướng. Đây KHÔNG phải do Business Manager chưa xác minh, cũng không phải do thiếu quyền - xem lại bước 2 ở mục hướng dẫn trên.
-- **Không thấy "Đăng nhập bằng Facebook cho doanh nghiệp" dù đã tìm đúng chỗ**: bản "cho doanh nghiệp" chỉ hiện với app tạo đúng **loại Doanh nghiệp (Business)**, và loại app đã tạo thì không đổi được. Nhưng cách đấu của Javis dùng **Đăng nhập bằng Facebook bản THƯỜNG**, nên bạn không cần bản cho doanh nghiệp.
-- **Mã QR hết hạn**: bấm thử lại để lấy QR mới (QR Zalo sống ~3 phút).
-- **Tool bị chặn kèm dòng "đang ở mức quyền hạn chế"**: đúng thiết kế - nâng quyền tài khoản trong menu chip nếu bạn thật sự muốn Javis làm việc đó.
-- **Nguồn chập chờn kiểu "lên được 1 đơn, đơn thứ 2 là rớt kết nối"** (hay gặp với Pancake POS): đã sửa ở **0.52.8**. Mỗi nguồn chỉ có một phiên, và mỗi lượt chat Javis lại hỏi lại danh sách tool trên chính phiên đó. Việc hỏi lại xếp hàng sau cái đơn đang chạy, chờ quá 20 giây thì bản cũ **giết cả phiên** - tức là giết luôn cái đơn đang lên dở, rồi lượt sau nguồn biến mất khỏi hộp công cụ nên Javis báo "chưa đấu POS". Nay nguồn đang chạy tool được để yên, và vẫn giữ nguyên danh sách tool của lần hỏi trước. Trang Kết nối cũng thôi báo đỏ oan lúc nguồn đang bận.
-- **Sau khi cập nhật từ bản cũ**: các server MCP cũ tự chuyển thành tài khoản trong trang Kết nối (bản gốc backup ở `mcp_servers.v1.bak.json`), không phải khai lại.
-- **Muốn quay về cơ chế cũ** (mỗi server một entry, không qua hub): đặt `"mcp": {"hub": false}` trong `server/settings.json` rồi khởi động lại.
+  **Only if** the connection completes and Jarvis 007 sees no Pages (or no ad accounts) do you need to add scopes. In the **new interface**, scopes are gated per use case: an app created with the "Authenticate and request data from users" use case only has `email` and `public_profile`. To add them:
+  - **Page scopes**: **Add use case** > pick **"Manage everything on your Page"** > **Customise** > the **Permissions** tab > click Add for `pages_read_engagement`, `pages_manage_posts`, `pages_manage_engagement`. `pages_show_list` and `business_management` usually come with that use case already.
+  - **Ads scopes**: **Add use case** > pick the ads-related use case (Marketing API) > **Customise** > the **Permissions** tab > add `ads_read` and `business_management`.
+  - **Old interface**: go to **Products > Add product** and add **Marketing API** (for ads) or regular **Facebook Login** (for Pages); in Development mode you can grant these to yourself without App Review.
+  Once added, return to Jarvis 007 and click Connect again.
+- **You want Jarvis 007 to manage ONE MORE Page**: click **Reconnect** on the Facebook Pages card. Facebook shows the **"Choose what you allow"** screen again: tick the new Page while **keeping the old ones ticked** (unticking a Page revokes Jarvis 007's access to it), then click Continue. There is no need to delete the account and start over. If Facebook skips straight past with "Continue as <your name>" without letting you choose, check that Jarvis 007 is on version 0.9.249 or later; older builds lacked the parameter forcing Facebook to ask again, so the Page selection screen was skipped.
+- **Meta Ads (Graph API) reports no ad accounts found**: the token lacks `ads_read`, or the signed-in Facebook account is not an admin of any ad account; check your role in Business/Ads Manager.
+- **The app has no "Products" item, or no "Facebook Login for Business"**: you are on Meta's **NEW** interface, where the Products menu was replaced by **Use cases**. Go to the left column **Use cases > Customise > Settings** to find the redirect URI field. This is NOT caused by an unverified Business Manager or missing permissions; see step 2 in the guide above.
+- **You cannot find "Facebook Login for Business" even in the right place**: the "for Business" version only appears for apps created with the **Business** type, and an app's type cannot be changed. But Jarvis 007's setup uses **regular Facebook Login**, so you do not need the business version.
+- **The QR code expired**: click retry for a new one (Zalo QR codes live about 3 minutes).
+- **A tool was blocked with a note about a restricted permission level**: that is by design. Raise the account's permission in the chip menu if you genuinely want Jarvis 007 doing that.
+- **A source that flickers, such as "the first order goes through, the second drops the connection"** (common with Pancake POS): fixed in **0.52.8**. Each source has one session, and every chat turn re-asks that session for its tool list. That re-ask queues behind the order in flight, and after 20 seconds the old build **killed the whole session**, killing the half-created order with it, after which the source vanished from the toolbox and Jarvis 007 reported that no POS was connected. Now a source that is running a tool is left alone, and the previous tool list is kept. The Connections page also stops flagging a busy source as broken.
+- **After updating from an older build**: old MCP servers migrate into accounts on the Connections page automatically (the original is backed up in `mcp_servers.v1.bak.json`), so nothing needs redeclaring.
+- **You want the old mechanism back** (one entry per server, no hub): set `"mcp": {"hub": false}` in `server/settings.json` and restart.
 
-## Liên quan
+## Related
 
-- [Models & engine](10-models-va-engine.md) - bộ não nào dùng được gì, đổi model ở đâu.
-- [Zalo Agent MCP](12-zalo.md) - đăng nhập QR, mười một tool và cách phân quyền.
-- [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md) - hỏi số liệu bằng lời.
-- [Mức dùng: token & chi phí](23-muc-dung-token.md) - xem việc gọi công cụ đang đốt bao nhiêu.
+- [Models & engines](10-models-va-engine.md) - which brain can use what, and where to switch model.
+- [Zalo Agent MCP](12-zalo.md) - QR sign-in, the eleven tools and permissions.
+- [Chat & voice](02-tro-chuyen-va-giong-noi.md) - asking for numbers in words.
+- [Usage: tokens & cost](23-muc-dung-token.md) - seeing how much tool calling is burning.

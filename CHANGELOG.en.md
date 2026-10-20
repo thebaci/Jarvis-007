@@ -2,7 +2,7 @@
 
 *[Tiếng Việt](CHANGELOG.md) · **English***
 
-Javis OS release history, newest first. You can also read it inside the app under **Settings → Updates**.
+Jarvis 007 release history, newest first. You can also read it inside the app under **Settings → Updates**.
 
 English entries start at 0.66.0. Every earlier release is described in the Vietnamese [CHANGELOG.md](CHANGELOG.md), which remains the maintainer's original; the in-app Updates page shows those older entries in Vietnamese.
 
@@ -16,15 +16,15 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.225.0] - 2026-10-19
 ### Improved
-- **Switching brains loads notes much faster.** Measured on a 2000-note brain over a VPS-like connection: first open went from 1.6 s to 0.24 s, and going back to a brain you just viewed takes 0.12 s. Javis no longer re-reads notes that did not change, remembers that across restarts, and does not download the graph again when you go back.
+- **Switching brains loads notes much faster.** Measured on a 2000-note brain over a VPS-like connection: first open went from 1.6 s to 0.24 s, and going back to a brain you just viewed takes 0.12 s. Jarvis 007 no longer re-reads notes that did not change, remembers that across restarts, and does not download the graph again when you go back.
 - **The whole app is lighter on a VPS:** lists and the main page are compressed before sending, the note graph data is about 16 times smaller and the main page 3 times smaller. Chat replies still stream word by word.
 
 ## [0.223.0] - 2026-10-19
 ### Added
-- **Pin straight from conversation search results.** Searching in the History column (Chat page, an assistant's or Javis Core's history, the Coding page) now shows a pin button on each result, with pinned chats first. No need to clear the search and dig through the list.
+- **Pin straight from conversation search results.** Searching in the History column (Chat page, an assistant's or Jarvis 007 Core's history, the Coding page) now shows a pin button on each result, with pinned chats first. No need to clear the search and dig through the list.
 - **Pin chats in the bot Inbox.** Hover a chat (on a phone the button is always shown) and press the pin to keep it at the top of the inbox, marked with a colored bar. Press again to unpin.
 ### Fixed
-- **Push notifications stay off once you turn them off.** Before, pressing Off worked until the next time Javis opened, when it quietly turned them back on because the browser still held the notification permission. Javis now remembers you turned them off on that device and only turns them on again when you press On.
+- **Push notifications stay off once you turn them off.** Before, pressing Off worked until the next time Jarvis 007 opened, when it quietly turned them back on because the browser still held the notification permission. Jarvis 007 now remembers you turned them off on that device and only turns them on again when you press On.
 
 ## [0.222.0] - 2026-10-19
 ### Added
@@ -32,25 +32,25 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 - **A Morning brief template** on the recurring-work page: one click fills in a 7 a.m. reminder (greeting, today's calendar, yesterday's talk, notable news). It is only created when you press Save.
 ### Improved
 - **Background jobs stop wasting time on a broken model.** A model that just failed rests for a while (5 minutes after a quota error, 30 after an outage, 6 hours after an access error) and the next jobs go straight to one that works.
-- **Javis still finds old memories when the list is too long:** memories that no longer fit are named so Javis knows to open them.
+- **Jarvis 007 still finds old memories when the list is too long:** memories that no longer fit are named so Jarvis 007 knows to open them.
 
 ## [0.221.0] - 2026-10-19
 ### Improved
-- **Javis only says "opened" when the app really came up.** After opening an app it checks the app is running; if not, it says plainly that it is not sure, instead of reporting success.
+- **Jarvis 007 only says "opened" when the app really came up.** After opening an app it checks the app is running; if not, it says plainly that it is not sure, instead of reporting success.
 - **An app that is already running is brought to the front** instead of being started twice. If Zalo sits behind other windows, "open Zalo" shows it.
 - **No more opening the wrong app with a similar name.** Very short names like "wp" must match exactly, and an unclear name gets a question instead of a guess.
 - Closing an app, forced or not, is also checked to make sure it really closed.
 
 ## [0.220.0] - 2026-10-19
 ### Improved
-- **Gemini Live calls no longer go silent while Javis looks something up.** Javis answers with a short sentence at once and keeps listening; the result is read out when nobody is talking. Long jobs get an occasional progress update.
+- **Gemini Live calls no longer go silent while Jarvis 007 looks something up.** Jarvis 007 answers with a short sentence at once and keeps listening; the result is read out when nobody is talking. Long jobs get an occasional progress update.
 - **No more answering the TV or the person next to you** (Gemini Live). Settings → Voice → Advanced has a new **Background speech filter** (on by default) and a **Reply pace**: Fast, Medium, Relaxed.
 - **The voice follows the language being read:** pick "Auto by language" and Vietnamese is read by Hoai My, English by Emma, Japanese, Chinese and Korean by a native voice. A short "OK" does not flip the voice.
 - **Smoother microphone on Live calls over an API key**, even while the page is busy. Japanese and Chinese replies are read sentence by sentence so speech starts sooner, and version numbers like "0.220.0" are no longer read in pieces.
 
 ## [0.219.0] - 2026-10-19
 ### Added
-- **Brains can be renamed now, Brain Default included, without breaking a single link.** Click the pencil next to the brain picker and type the new name. Javis changes only the display name and leaves the folder alone, so wiki links, links to files in notes and chats, bots, reminders, loops, background jobs and the GitHub backup all keep pointing to the right place.
+- **Brains can be renamed now, Brain Default included, without breaking a single link.** Click the pencil next to the brain picker and type the new name. Jarvis 007 changes only the display name and leaves the folder alone, so wiki links, links to files in notes and chats, bots, reminders, loops, background jobs and the GitHub backup all keep pointing to the right place.
 - **The name travels with the brain:** it is stored inside the brain (`Javis/brain.json`), so the GitHub backup carries it to other machines. Leave it empty to go back to the folder name.
 - **The new name shows everywhere:** the brain picker, the Work page, Settings, webhooks, Telegram (`/brain`, `/status`) and the `/brain` chat command. Typing the old folder name still selects it.
 
@@ -63,36 +63,36 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 ## [0.216.0] - 2026-10-18
 ### Added
 - **The bot inbox can search by phone number.** 0912 345 678, 84912345678 and +84 912 345 678 all find the same person.
-- **A number the inbox does not know yet is looked up on Zalo:** type a full number and Javis asks the connected personal Zalo accounts whose number it is, then shows the chat with that person. The number is kept on the customer, so the next search finds it at once.
+- **A number the inbox does not know yet is looked up on Zalo:** type a full number and Jarvis 007 asks the connected personal Zalo accounts whose number it is, then shows the chat with that person. The number is kept on the customer, so the next search finds it at once.
 - **Someone who never wrote is reported plainly:** "This number is Lan's Zalo, no conversation yet". A number with no Zalo account, or whose owner turned off search by phone, is reported too.
 - **Zalo is not asked twice:** answers are remembered (30 days when found, 1 day when not). At most 20 numbers are looked up per hour, because Zalo caps lookups per day.
-- **Swipe a message to the left to quote it (phone):** like Zalo, pull a bubble to the left until the orange quote mark shows, then lift your finger, and the message lands in the "Quoting" box above the input. Works on Javis's messages and your own, in the main chat and in chats with Javis Core or a partner. A short swipe or scrolling up and down does nothing.
+- **Swipe a message to the left to quote it (phone):** like Zalo, pull a bubble to the left until the orange quote mark shows, then lift your finger, and the message lands in the "Quoting" box above the input. Works on Jarvis 007's messages and your own, in the main chat and in chats with Jarvis 007 Core or a partner. A short swipe or scrolling up and down does nothing.
 
 ### Fixed
 - **The phone menu no longer closes by itself and leaves the screen dim:** on iPhone the menu slid in, then vanished, leaving only the dark backdrop. The menu now has a solid background instead of a blur (Safari can stop drawing a box that is blurred and sliding at once). The dim layer always goes with the menu, so closing the menu clears it. A single tap counted as two clicks no longer closes the menu it just opened.
 
 ## [0.214.0] - 2026-10-18
 ### Fixed
-- **Antigravity no longer blames Google when a turn runs too long:** a turn over 15 minutes is stopped by Antigravity CLI itself, and Javis used to report "Google is having a temporary problem, retried 2 times" without retrying at all. The message now says the turn ran too long, finished steps keep their results, and you can send "continue" or give the job to the background queue.
-- **"Retried N times" only shows when Javis really retried.** A turn that already did part of the work is not run again (that would repeat it), and the message says so.
+- **Antigravity no longer blames Google when a turn runs too long:** a turn over 15 minutes is stopped by Antigravity CLI itself, and Jarvis 007 used to report "Google is having a temporary problem, retried 2 times" without retrying at all. The message now says the turn ran too long, finished steps keep their results, and you can send "continue" or give the job to the background queue.
+- **"Retried N times" only shows when Jarvis 007 really retried.** A turn that already did part of the work is not run again (that would repeat it), and the message says so.
 
 ### Improved
-- **Pages are much cleaner: explanations fold into an (i) button.** The page keeps titles, states, inputs and buttons; the why, the caveats and the step-by-step help sit behind the (i) next to the title and open on a tap. Applied across Javis: Models, Settings, Channels, Chatbots, Plugins, Learning, Work, Teams, Assistants, Usage.
+- **Pages are much cleaner: explanations fold into an (i) button.** The page keeps titles, states, inputs and buttons; the why, the caveats and the step-by-step help sit behind the (i) next to the title and open on a tap. Applied across Jarvis 007: Models, Settings, Channels, Chatbots, Plugins, Learning, Work, Teams, Assistants, Usage.
 - **Long descriptions on cards (plugins, workflows) show two lines**, the full text is in the (i).
 - **Text in the explanation box is 16px**, easy to read on a phone.
 
 ## [0.213.0] - 2026-10-18
 ### Added
-- **Send more while Javis is working, now on Telegram, Discord, Slack, Lark, Messenger and Zalo too:** before, the bot replied "still on the previous message, send /stop" and dropped yours. Now it is kept, nothing is lost.
+- **Send more while Jarvis 007 is working, now on Telegram, Discord, Slack, Lark, Messenger and Zalo too:** before, the bot replied "still on the previous message, send /stop" and dropped yours. Now it is kept, nothing is lost.
 - **Codex (ChatGPT plan) now reads the new message within the turn**, on the web and the channels, like Enter in the Codex app: no more waiting for the current work to finish. Turn it off with `JAVIS_CODEX_STEER=0` if needed.
-- **On chat channels the bot answers with one short line** saying whether Javis reads it at the next step (Claude Code, Codex, the API-key brains) or right after the current answer (Grok, Antigravity).
+- **On chat channels the bot answers with one short line** saying whether Jarvis 007 reads it at the next step (Claude Code, Codex, the API-key brains) or right after the current answer (Grok, Antigravity).
 - **/stop ends the current work and drops what was waiting.** Customer-facing bots keep their old way: silent, follow-up messages merged into the next turn.
 
 ## [0.211.0] - 2026-10-17
 ### Improved
-- **The Claude Code card says one thing when the CLI is missing:** a single install box (Docker: update Javis; manual install: one command to copy) and only a Check again button. The Sign in button that could only fail is gone, and so are the version line and Update button for a program that is not there.
+- **The Claude Code card says one thing when the CLI is missing:** a single install box (Docker: update Jarvis 007; manual install: one command to copy) and only a Check again button. The Sign in button that could only fail is gone, and so are the version line and Update button for a program that is not there.
 - **Messages are no longer squeezed into a narrow column:** errors and hints sit under the buttons at full width, and buttons keep their height. The PATH and Windows details fold under "Installed but still missing?".
-- **Provider cards use 16px text**, easier to read on a phone. The card is now named "Claude Code" (Javis never uses its OAuth token), and the green shield lights only when the CLI is there.
+- **Provider cards use 16px text**, easier to read on a phone. The card is now named "Claude Code" (Jarvis 007 never uses its OAuth token), and the green shield lights only when the CLI is there.
 
 ## [0.210.0] - 2026-10-17
 ### Improved
@@ -125,14 +125,14 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.206.0] - 2026-10-17
 ### Added
-- **Send more while Javis is working, like Claude Code and Codex:** type and send while a turn runs; the work in progress is not stopped. Before, a message typed at this point was silently ignored.
+- **Send more while Jarvis 007 is working, like Claude Code and Codex:** type and send while a turn runs; the work in progress is not stopped. Before, a message typed at this point was silently ignored.
 - **Claude Code and the API-key brains read the new message at their next step:** a correction applies at once, a new task is taken on too, in parallel where possible.
 - **Codex, Grok and Antigravity run your message right after the current work**, since those engines run in one go. Nothing is lost.
 - **A status line under the message you sent:** will read it at the next step, read, or working on it.
 
 ## [0.205.0] - 2026-10-17
 ### Improved
-- **A partner with a new message moves to the top of the list:** you writing, the partner replying, or a background job reporting into its chat all push that card up (after Javis Core and the pinned ones).
+- **A partner with a new message moves to the top of the list:** you writing, the partner replying, or a background job reporting into its chat all push that card up (after Jarvis 007 Core and the pinned ones).
 - **An unread count on each partner card**, next to the time. Opening the chat clears it, in every open tab.
 - **Mute notifications per partner:** the ⋮ button has **Mute notifications** for 1 hour, 4 hours, until 8:00 AM or until turned back on. Messages still reach the chat and the bell, just without a sound or a push.
 
@@ -141,48 +141,48 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 - **A tidier Scheduled page:** a brain picker instead of every brain stacked up, a **Repeating job / Reminder** filter and paging at 10 jobs a page. Incidents and Log are their own tabs; Webhooks have their own page in the Work group.
 
 ### Fixed
-- **Scheduled calls really ring now:** the call used to ring only when the chat receiving the reminder was the open one, so usually nothing showed. The call card now shows on whichever Javis page is open.
+- **Scheduled calls really ring now:** the call used to ring only when the chat receiving the reminder was the open one, so usually nothing showed. The call card now shows on whichever Jarvis 007 page is open.
 - **A bigger Read all button in Notifications:** lit while something is unread, dimmed once all is read, and it now reads both tabs instead of only the open one.
 - **@mentions in Team messages look normal again**, no longer squeezed into a small circle with one letter per line.
 
 ## [0.203.0] - 2026-10-17
 ### Added
-- **Javis calls you at a set time:** reminders get a **Call me** box (or say "call me at 7am and read the report"). At that time an open Javis tab rings and shows an incoming-call card with **Answer** and **Decline**.
-- **Answer starts a voice call:** Javis reads the reminder or report briefly, asks if you need anything else, and you keep talking as with the mic button (ChatGPT Live when it is set up).
-- **Missing it costs nothing:** after 45 seconds it is a missed call and the content stays in the chat; with no Javis tab open, Telegram gets the message like any other reminder.
+- **Jarvis 007 calls you at a set time:** reminders get a **Call me** box (or say "call me at 7am and read the report"). At that time an open Jarvis 007 tab rings and shows an incoming-call card with **Answer** and **Decline**.
+- **Answer starts a voice call:** Jarvis 007 reads the reminder or report briefly, asks if you need anything else, and you keep talking as with the mic button (ChatGPT Live when it is set up).
+- **Missing it costs nothing:** after 45 seconds it is a missed call and the content stays in the chat; with no Jarvis 007 tab open, Telegram gets the message like any other reminder.
 
 ## [0.202.1] - 2026-10-17
 ### Improved
-- **Reminders that read aloud now really "call":** at the set time, if Javis is open, the voice note plays at once like a call, no press needed. When the browser blocks autoplay the player stays there to press; Telegram still receives the audio file as before.
+- **Reminders that read aloud now really "call":** at the set time, if Jarvis 007 is open, the voice note plays at once like a call, no press needed. When the browser blocks autoplay the player stays there to press; Telegram still receives the audio file as before.
 
 ## [0.202.0] - 2026-10-17
 ### Added
-- **Voice notes:** ask Javis to "read it to me" and it records a short spoken message as an mp3; the chat shows a player under the answer and Telegram receives it as audio. The words are still there as text below.
+- **Voice notes:** ask Jarvis 007 to "read it to me" and it records a short spoken message as an mp3; the chat shows a player under the answer and Telegram receives it as audio. The words are still there as text below.
 - **Reminders that read aloud:** tick **Read it aloud** and the reminder or report arrives with a voice note, easy to hear while driving or cooking.
-- **Keep the cache warm (optional, off by default):** on the Token usage page, switch it on and Javis keeps a Claude Code chat's one-hour prompt cache alive across a short break, so the next message does not reload the whole conversation. It stops at a usage limit or a cold cache.
+- **Keep the cache warm (optional, off by default):** on the Token usage page, switch it on and Jarvis 007 keeps a Claude Code chat's one-hour prompt cache alive across a short break, so the next message does not reload the whole conversation. It stops at a usage limit or a cold cache.
 
 ## [0.201.0] - 2026-10-17
 ### Added
 - **Charts and number tiles in the chat:** a revenue, order or ads report can carry a bar or line chart and a few key figures with their change, drawn right under the answer.
-- **Quick-choice buttons:** Javis can offer up to 4 buttons such as "Approve draft A"; a press sends that text as if you typed it. Telegram and Zalo get a readable text version.
-- **Javis recalls earlier chats:** start a new chat that mentions something from before and Javis looks through your other chats for a few relevant lines as context. Team chats and customer chats are never used.
+- **Quick-choice buttons:** Jarvis 007 can offer up to 4 buttons such as "Approve draft A"; a press sends that text as if you typed it. Telegram and Zalo get a readable text version.
+- **Jarvis 007 recalls earlier chats:** start a new chat that mentions something from before and Jarvis 007 looks through your other chats for a few relevant lines as context. Team chats and customer chats are never used.
 
 ## [0.200.0] - 2026-10-17
 ### Added
 - **Share a whole team as one file:** a team's ⋯ menu has **Share team**, which downloads its partners, skills and shared instructions. No chat history, keys, models or Auto switches; text that looks like a password or API key is removed before writing.
 - **Import a team:** the **Import team** button on the Teams page reads the file and shows who comes in before adding it. Partners you already have under the same name keep your version.
-- **See at once what Javis just created:** a chat turn that creates, edits or removes a schedule, loop, partner, workflow or skill shows a small "Created schedule: ..." line under the answer. New items get an **Undo** button.
+- **See at once what Jarvis 007 just created:** a chat turn that creates, edits or removes a schedule, loop, partner, workflow or skill shows a small "Created schedule: ..." line under the answer. New items get an **Undo** button.
 
 ## [0.199.0] - 2026-10-17
 ### Added
-- **Javis Core handles broken background runs:** when a Kanban job, loop, reminder or webhook fails, Javis Core hears first. A passing failure (a network glitch, a timeout) is run again once; something only you can fix (a sign-in, a key, a setting) gets one or two plain sentences on what to do.
+- **Jarvis 007 Core handles broken background runs:** when a Kanban job, loop, reminder or webhook fails, Jarvis 007 Core hears first. A passing failure (a network glitch, a timeout) is run again once; something only you can fix (a sign-in, a key, a setting) gets one or two plain sentences on what to do.
 - **No storm of messages:** a job that keeps failing is one incident, and a retry that fails again sends exactly one "needs you" message.
 - **Background health on the Work page:** see open incidents, close them with Done, and the last 24 hours of failures grouped by cause (14 runs of the same token error show as one line).
-- **Health scan from outside:** `python tools/sentinel.py` reads the data (read only) and works even while Javis is down.
+- **Health scan from outside:** `python tools/sentinel.py` reads the data (read only) and works even while Jarvis 007 is down.
 
 ## [0.198.0] - 2026-10-17
 ### Added
-- **Webhooks: outside systems start work in Javis.** On the Work page, the **Webhooks** section creates a secret link. When a landing page form, a payment or another app calls it, Javis runs the workflow or job you chose with the event data, then reports like a reminder.
+- **Webhooks: outside systems start work in Jarvis 007.** On the Work page, the **Webhooks** section creates a secret link. When a landing page form, a payment or another app calls it, Jarvis 007 runs the workflow or job you chose with the event data, then reports like a reminder.
 - **Safe by default:** the secret is shown once, with buttons to send a test, switch off and make a new token. A repeated delivery does not run twice, and each webhook runs at most 30 times an hour.
 - **A task reminder can remember its last run:** tick **Remember the last result** and each run knows what it already reported, so it reports only what is new. Good for watching competitor prices or a metric.
 
@@ -191,7 +191,7 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.197.1] - 2026-10-17
 ### Fixed
-- **Safari no longer loses the connection for minutes.** Safari has its own bug with the compression used on the live connection: a large message makes it cut the line, and every reconnect is cut again, while Chrome keeps working. Javis now turns that compression off, so every browser stays as stable as Chrome.
+- **Safari no longer loses the connection for minutes.** Safari has its own bug with the compression used on the live connection: a large message makes it cut the line, and every reconnect is cut again, while Chrome keeps working. Jarvis 007 now turns that compression off, so every browser stays as stable as Chrome.
 - **If it still drops, there is a trace:** each disconnect records the browser, the close code and how long it was down, and sends it to the server once back online, shown at `/health/loop`.
 
 ## [0.197.0] - 2026-10-17
@@ -266,15 +266,15 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ### Fixed
 - **Pinning a subfolder:** in the folder picker, a folder with folders inside has a **>**. Tap it to go inside, tap the name to pin that folder.
-- **Tapping a notice goes to the right place:** the "Ask Javis Core" button is gone. A notice that answers a chat reopens that chat; a system notice opens in Javis Core.
+- **Tapping a notice goes to the right place:** the "Ask Jarvis 007 Core" button is gone. A notice that answers a chat reopens that chat; a system notice opens in Jarvis 007 Core.
 - **Jobs tab:** with no jobs it says "No jobs yet" instead of "Could not load jobs". The selected tab has room around its label.
 
 ## [0.190.0] - 2026-10-16
 ### Improved
-- **Settings like the apps you know:** a colleague's settings column keeps only picture, name, description, instructions, documents, skills and model. Lessons, Revoke, Use everywhere and the Javis Core Memory section are gone: to change or forget something, just say so in chat, for example "forget the sales channel note".
-- **See what Javis just remembered:** a chat turn that saves, changes or forgets a memory shows a small "Remembered: ..." line under the answer, with **Undo**. If Javis says it remembered or forgot something while nothing changed, a correction line says so.
+- **Settings like the apps you know:** a colleague's settings column keeps only picture, name, description, instructions, documents, skills and model. Lessons, Revoke, Use everywhere and the Jarvis 007 Core Memory section are gone: to change or forget something, just say so in chat, for example "forget the sales channel note".
+- **See what Jarvis 007 just remembered:** a chat turn that saves, changes or forgets a memory shows a small "Remembered: ..." line under the answer, with **Undo**. If Jarvis 007 says it remembered or forgot something while nothing changed, a correction line says so.
 - **Tidier colleague cards:** the chat time is small and sits on the same row as the Auto switch in the bottom corner; the switch is back on every colleague. The Auto block in Settings is down to "Work on its own up to ... times a day" plus anything waiting on you.
-- **Release news stays out of Javis Core:** cards in the bell's News tab no longer have "Ask Javis Core".
+- **Release news stays out of Jarvis 007 Core:** cards in the bell's News tab no longer have "Ask Jarvis 007 Core".
 
 ## [0.189.1] - 2026-10-16
 ### Fixed
@@ -286,42 +286,42 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.188.0] - 2026-10-16
 ### Fixed
-- **A chat always runs on its own brain:** open a chat of another brain (from the bell or history) and keep writing, and Javis now answers with that brain's memory and files; the chat says which brain it belongs to, with a switch button. Clicking a notice of another brain switches the dashboard to it first.
-- **A quieter Javis Core:** runs that went fine stay in the notification bell; only reports that need you land in the chat. Reports sent to the Telegram of someone else sharing the bot are no longer copied into your Javis Core.
+- **A chat always runs on its own brain:** open a chat of another brain (from the bell or history) and keep writing, and Jarvis 007 now answers with that brain's memory and files; the chat says which brain it belongs to, with a switch button. Clicking a notice of another brain switches the dashboard to it first.
+- **A quieter Jarvis 007 Core:** runs that went fine stay in the notification bell; only reports that need you land in the chat. Reports sent to the Telegram of someone else sharing the bot are no longer copied into your Jarvis 007 Core.
 - **Turning learning off really blocks Claude Code:** when off, Claude Code cannot write anything into that brain's memory folder.
-- **New memories always carry a source:** Javis records the chat and date that produced them. The "Your Telegram" field is now a picker of the allowed IDs.
+- **New memories always carry a source:** Jarvis 007 records the chat and date that produced them. The "Your Telegram" field is now a picker of the allowed IDs.
 
 ## [0.187.0] - 2026-10-16
 ### Added
-- **Ask Javis Core about a notice:** cards in the bell have an **Ask Javis Core** button. The notice goes into your own Javis Core chat with its source and time so you can follow up; the shared notice itself does not change.
-- **See, edit and forget memories:** the Javis Core card has a **This brain's memory** section listing what Javis remembers and where it came from. Once forgotten, Javis does not learn it again from old chats; a switch turns off saving new memories.
+- **Ask Jarvis 007 Core about a notice:** cards in the bell have an **Ask Jarvis 007 Core** button. The notice goes into your own Jarvis 007 Core chat with its source and time so you can follow up; the shared notice itself does not change.
+- **See, edit and forget memories:** the Jarvis 007 Core card has a **This brain's memory** section listing what Jarvis 007 remembers and where it came from. Once forgotten, Jarvis 007 does not learn it again from old chats; a switch turns off saving new memories.
 - **Your profile, shared by every brain:** write once how to address you, language and level of detail; each brain's own memory still wins where they differ.
 ### Improved
 - **News read on one device is read on every device**, and push notifications are tied to the login: logging out stops that device receiving them. There is an option to **hide the text** in push notifications.
 
 ## [0.186.0] - 2026-10-16
 ### Fixed
-- **Reports without a chat of their own now go to the right brain's Javis Core:** background jobs, loops and reminders created on the Work page or without a chat report into the Javis Core of the brain that produced them, whatever brain you have open.
+- **Reports without a chat of their own now go to the right brain's Jarvis 007 Core:** background jobs, loops and reminders created on the Work page or without a chat report into the Jarvis 007 Core of the brain that produced them, whatever brain you have open.
 - **No more guessing on Telegram:** a report with no known recipient used to go to the FIRST Telegram ID on the list (possibly someone else sharing the bot), and a loop pausing itself went to EVERY ID. Now only your own Telegram gets them.
-- **New field "Your Telegram (receives reports)"** in the Telegram settings. With a single ID Javis uses it; with several you choose, Javis does not guess.
-- **No duplicates on retry:** a report sent again after a failure appears once. If the original chat was deleted the report goes to Javis Core; with neither a chat nor a brain it stays in the notification bell only.
+- **New field "Your Telegram (receives reports)"** in the Telegram settings. With a single ID Jarvis 007 uses it; with several you choose, Jarvis 007 does not guess.
+- **No duplicates on retry:** a report sent again after a failure appears once. If the original chat was deleted the report goes to Jarvis 007 Core; with neither a chat nor a brain it stays in the notification bell only.
 
 ## [0.185.0] - 2026-10-16
 ### Added
-- **Javis Core, a system assistant built into every brain:** it is always first on the Assistants page with a **System** badge, in old and new brains alike. It is the place to receive reports, ask follow-up questions and hand out work, with everything Javis can do.
+- **Jarvis 007 Core, a system assistant built into every brain:** it is always first on the Assistants page with a **System** badge, in old and new brains alike. It is the place to receive reports, ask follow-up questions and hand out work, with everything Jarvis 007 can do.
 - **It cannot be deleted, renamed, unpinned or edited:** the server refuses it, not just the buttons. Choosing its model works like any chat.
-- **Each brain has one default Javis Core chat:** delete or archive it and Javis makes a new empty one next time, without bringing back what you deleted.
-- **One update for every brain:** the Javis Core definition ships with the app instead of being copied into each brain, so your memory and personal settings stay as they are across updates.
+- **Each brain has one default Jarvis 007 Core chat:** delete or archive it and Jarvis 007 makes a new empty one next time, without bringing back what you deleted.
+- **One update for every brain:** the Jarvis 007 Core definition ships with the app instead of being copied into each brain, so your memory and personal settings stay as they are across updates.
 
 ## [0.184.0] - 2026-10-16
 ### Fixed
-- **Long press on a phone no longer triggers the phone's own text selection (iPhone and Android):** holding a message a little longer used to highlight the text and show the phone's Copy bar on top of the Javis menu. Now only the Javis menu appears (reactions, Reply, Copy...).
+- **Long press on a phone no longer triggers the phone's own text selection (iPhone and Android):** holding a message a little longer used to highlight the text and show the phone's Copy bar on top of the Jarvis 007 menu. Now only the Jarvis 007 menu appears (reactions, Reply, Copy...).
 - **Copying still works:** Copy in the menu copies the whole message. Text fields can still be selected and pasted into.
 
 ## [0.183.0] - 2026-10-16
 ### Fixed
-- **Zalo no longer silently misses a contact's reply:** every Javis restart or update used to wipe the Zalo message store, so a message that came in right then could vanish from all three ways of reading. The store is now kept (30 days) and survives restarts.
-- **Javis knows when messages may be missing:** each Zalo read now says whether the connection was down during that period. If it was, Javis says it is not certain, keeps the waiting step (approval, publishing) on hold and tells you, instead of concluding the contact has not replied.
+- **Zalo no longer silently misses a contact's reply:** every Jarvis 007 restart or update used to wipe the Zalo message store, so a message that came in right then could vanish from all three ways of reading. The store is now kept (30 days) and survives restarts.
+- **Jarvis 007 knows when messages may be missing:** each Zalo read now says whether the connection was down during that period. If it was, Jarvis 007 says it is not certain, keeps the waiting step (approval, publishing) on hold and tells you, instead of concluding the contact has not replied.
 - **Messages from an outage reach the Inbox:** messages Zalo replays after a reconnect now show up in the conversation Inbox too, not only in history.
 
 ## [0.182.0] - 2026-10-16
@@ -349,7 +349,7 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 ### Improved
 - **A tidy model button, like the Claude app:** it shows the model name only (for example "Opus 4.8", "GPT-5 mini"), without the provider. Pressing it still opens the provider and model picker as before; hover it to see the provider. A session with its own pinned model shows a small pin icon on the button; pinning works as before.
 - **Phone: the model button sits right under the message box**, next to the thinking-level button, instead of in the top bar. Pick a model where you type.
-- **Copy no longer slides away (computer):** while Javis is answering, the chat stops following the answer while your mouse is on a message's buttons or moving over a message. Move the mouse away and it catches up to the bottom.
+- **Copy no longer slides away (computer):** while Jarvis 007 is answering, the chat stops following the answer while your mouse is on a message's buttons or moving over a message. Move the mouse away and it catches up to the bottom.
 
 ## [0.179.0] - 2026-10-16
 ### Improved
@@ -360,7 +360,7 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.178.0] - 2026-10-16
 ### Added
-- **Use your own picture for an assistant:** when editing an assistant, an **Upload a picture** button sits under the preview. The picture is cropped square and shrunk before upload, then shows everywhere the assistant appears: the list, the chat and teams. Press **Use the Javis character** to go back.
+- **Use your own picture for an assistant:** when editing an assistant, an **Upload a picture** button sits under the preview. The picture is cropped square and shrunk before upload, then shows everywhere the assistant appears: the list, the chat and teams. Press **Use the Jarvis 007 character** to go back.
 - **A picture of your own for a team:** the Team picture field in team settings has the same Upload button. By default a team still shows the collage of its members' faces.
 - PNG, JPG, WEBP and GIF pictures up to 2MB are accepted.
 
@@ -381,7 +381,7 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.175.0] - 2026-10-16
 ### Fixed
-- **Connecting Higgsfield (and other MCP servers that sign in through Clerk) no longer fails with invalid_grant:** Javis asks only for the permissions the MCP server needs. If the provider refuses one, Javis drops it and reopens the sign-in page; other sign-in errors now show their real name.
+- **Connecting Higgsfield (and other MCP servers that sign in through Clerk) no longer fails with invalid_grant:** Jarvis 007 asks only for the permissions the MCP server needs. If the provider refuses one, Jarvis 007 drops it and reopens the sign-in page; other sign-in errors now show their real name.
 
 ### Improved
 - **Tidier assistant cards:** each card shows name, time and role. A third line appears only when something is going on, "Needs you 1" or "Working 2" in words, instead of a hand icon that looked like a pin. Auto shows as a small label only while it is on (turn it on from the three-dot menu or the Settings tab). Tags are no longer drawn on the card (filter at the top of the column, hover a card to see them).
@@ -391,17 +391,17 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.174.0] - 2026-10-16
 ### Added
-- **Import old personal Zalo messages into the Inbox:** right after signing Zalo in to Javis, press **Import old messages** (on the Zalo account card, or on the Zalo chip of a bot card). Javis takes about the last 2 weeks Zalo lets it reload, up to 5,000 messages.
+- **Import old personal Zalo messages into the Inbox:** right after signing Zalo in to Jarvis 007, press **Import old messages** (on the Zalo account card, or on the Zalo chip of a bot card). Jarvis 007 takes about the last 2 weeks Zalo lets it reload, up to 5,000 messages.
 - **Safe to run:** only chats with no message in the Inbox yet are filled, the bot does not answer these messages and they are not counted as unread. Pressing again never duplicates anything.
 
 ## [0.173.1] - 2026-10-16
 ### Improved
-- **Clearer /goal:** every time Javis nudges itself to keep going you see a line you can expand (round n/5) with a Stop goal button, and it survives a page reload.
-- Javis stops at once when it lacks a permission, a tool or data, says why and how to unblock it, instead of nudging itself again and again. At most 5 rounds.
+- **Clearer /goal:** every time Jarvis 007 nudges itself to keep going you see a line you can expand (round n/5) with a Stop goal button, and it survives a page reload.
+- Jarvis 007 stops at once when it lacks a permission, a tool or data, says why and how to unblock it, instead of nudging itself again and again. At most 5 rounds.
 
 ## [0.173.0] - 2026-10-16
 ### Added
-- **Javis creates and manages team chats from the chat box.** Ask for "a test team of three assistants" and Javis creates any missing assistant, sets up the team and picks the leader; renaming, adding or removing members, archiving or deleting a team works the same way.
+- **Jarvis 007 creates and manages team chats from the chat box.** Ask for "a test team of three assistants" and Jarvis 007 creates any missing assistant, sets up the team and picks the leader; renaming, adding or removing members, archiving or deleting a team works the same way.
 - Each assistant created this way can run its own model, so a mixed-model test team takes one request.
 - An archived team can now be deleted for good. If the team you have open is deleted, the Teams page closes it and tells you.
 
@@ -410,23 +410,23 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 - **Personal Zalo: set how many minutes the bot steps aside after you type by hand** (0 means never). The clock starts at your last hand-typed message, so in private chats the bot answers for you sooner than before. Once a number is set, a direct tag in a group is still answered right away.
 - **Per-chat exceptions:** one trusted person (a family member, say) gets their own permission level and wait, without raising the bot that answers strangers. Accept Zalo friend requests automatically (off by default) and hand the introduction to the bot. Plugins can add one line of context to each bot turn.
 ### Fixes
-- **Personal Zalo understands customers better:** a photo sent without text in a private chat reaches the bot and stays attached for 10 minutes. If the customer keeps typing while the bot composes, the stale reply is dropped and one answer covers everything. The role instructions you write always win over Javis's default. The bot no longer quotes old backups or agent and workflow files as documents.
+- **Personal Zalo understands customers better:** a photo sent without text in a private chat reaches the bot and stays attached for 10 minutes. If the customer keeps typing while the bot composes, the stale reply is dropped and one answer covers everything. The role instructions you write always win over Jarvis 007's default. The bot no longer quotes old backups or agent and workflow files as documents.
 - **Small fixes:** a reminder answering `[SILENT]` sends nothing. What you write under the self-learning history heading is no longer wiped. A `---` inside a sentence no longer turns a 16-step workflow into 14.
 
 ## [0.171.4] - 2026-10-16
 ### Fixed
-- **Calling an assistant by name in a team, without @, is now noticed.** An assistant named Minh never noticed its own name before, because without accents the name matched a common Vietnamese word and was ignored. Javis now compares names with their accents, so an everyday word that only looks like the name is still not a call.
+- **Calling an assistant by name in a team, without @, is now noticed.** An assistant named Minh never noticed its own name before, because without accents the name matched a common Vietnamese word and was ignored. Jarvis 007 now compares names with their accents, so an everyday word that only looks like the name is still not a call.
 
 ## [0.171.3] - 2026-10-16
 ### Fixed
-- **Team chat no longer shows made-up command names.** When an assistant's reply contains a command Javis does not support, the team now notes "the reply had an unsupported Javis command, dropped" instead of printing the raw code in the bubble.
+- **Team chat no longer shows made-up command names.** When an assistant's reply contains a command Jarvis 007 does not support, the team now notes "the reply had an unsupported Jarvis 007 command, dropped" instead of printing the raw code in the bubble.
 
 ## [0.171.2] - 2026-10-16
 ### Fixes
-- **A dropped connection no longer kills the whole turn:** when the connection to the model provider is cut (errors like `ReadError ... WinError 1236` on Windows), Javis resends up to 3 times, even in the middle of a turn that uses tools. If it still fails, the message names the usual causes (network, VPN, antivirus) instead of just pasting the error chain.
+- **A dropped connection no longer kills the whole turn:** when the connection to the model provider is cut (errors like `ReadError ... WinError 1236` on Windows), Jarvis 007 resends up to 3 times, even in the middle of a turn that uses tools. If it still fails, the message names the usual causes (network, VPN, antivirus) instead of just pasting the error chain.
 - **Long Zalo replies are split into several messages:** a long reply on personal Zalo is cut at the end of a paragraph or sentence and sent in order, instead of Zalo refusing it and the customer getting nothing. In groups, the person being answered is tagged only in the first message.
 ### Improved
-- **Bot alerts go to the notification bell only:** the Telegram message to an "on-duty person" is gone (its field had long been hidden from the form). A customer asking for a human, or the bot getting stuck twice in a row, now lands in the Javis bell with the customer's name. Technical failures still ring the bell as before.
+- **Bot alerts go to the notification bell only:** the Telegram message to an "on-duty person" is gone (its field had long been hidden from the form). A customer asking for a human, or the bot getting stuck twice in a row, now lands in the Jarvis 007 bell with the customer's name. Technical failures still ring the bell as before.
 
 ## [0.171.0] - 2026-10-15
 ### Added
@@ -465,17 +465,17 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.166.4] - 2026-10-15
 ### Fixed
-- **Saving a setting can no longer wipe the admin account, models and admin channels.** If `settings.json` was locked for a split second while Javis read it (common on Windows when antivirus scans a freshly written file), Javis took it for a fresh install, showed the setup wizard again, and the next save (saving the Lark channel, for example) wrote an empty setup over the real one. Javis now retries the read until it works, and never writes an empty setup over a machine that is already set up.
+- **Saving a setting can no longer wipe the admin account, models and admin channels.** If `settings.json` was locked for a split second while Jarvis 007 read it (common on Windows when antivirus scans a freshly written file), Jarvis 007 took it for a fresh install, showed the setup wizard again, and the next save (saving the Lark channel, for example) wrote an empty setup over the real one. Jarvis 007 now retries the read until it works, and never writes an empty setup over a machine that is already set up.
 
 ## [0.166.3] - 2026-10-15
 ### Fixed
 - **The bot no longer sends customers the "please wait a moment while I check" line when something technical breaks** (out of tokens, plan limit reached, model error). The customer receives nothing at all, on personal Zalo, Zalo OA, Telegram and WhatsApp.
-- **The owner hears about it in the Javis notification bell:** which bot failed, which customer wrote without an answer, and the error. One notice per failure streak; the next one comes only after the bot has worked again. The on-duty person (if set) is still alerted as before.
+- **The owner hears about it in the Jarvis 007 notification bell:** which bot failed, which customer wrote without an answer, and the error. One notice per failure streak; the next one comes only after the bot has worked again. The on-duty person (if set) is still alerted as before.
 
 ## [0.166.2] - 2026-10-15
 ### Fixed
-- **Creating images on the ChatGPT plan no longer gets stuck on "The 'gpt-5.5' model is not supported".** When your plan lacks that model, Javis switches to another model from your own account's ChatGPT model list and makes the image, with nothing to configure.
-- Next time Javis goes straight to the model that worked, so no extra failed round. Letting ChatGPT look at images for you is fixed the same way.
+- **Creating images on the ChatGPT plan no longer gets stuck on "The 'gpt-5.5' model is not supported".** When your plan lacks that model, Jarvis 007 switches to another model from your own account's ChatGPT model list and makes the image, with nothing to configure.
+- Next time Jarvis 007 goes straight to the model that worked, so no extra failed round. Letting ChatGPT look at images for you is fixed the same way.
 
 ## [0.165.1] - 2026-10-15
 ### Fixed
@@ -488,12 +488,12 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 ## [0.164.0] - 2026-10-15
 ### Added
 - **The Fast mode bolt now really switches each brain:** Claude Code and the Anthropic API (Opus 5.5, Opus 5, Opus 4.8), ChatGPT through Codex, the OpenAI API, OpenRouter and Gemini. Brains without Fast mode (Grok, Antigravity, Groq, DeepSeek, Ollama) keep a dimmed bolt.
-- **Bolt off means normal speed:** for Codex, Javis forces the normal tier even when the model or the Codex config defaults to Fast. Background runs (loops, reminders, Kanban, workflows, teams) and customer chatbots always run at normal speed, even if you once turned on `/fast` in Claude Code.
-- **When a provider refuses Fast mode** (account not eligible, limit reached), Javis resends at normal speed and the turn does not fail; hover the bolt to see why (e.g. usage credits need turning on).
+- **Bolt off means normal speed:** for Codex, Jarvis 007 forces the normal tier even when the model or the Codex config defaults to Fast. Background runs (loops, reminders, Kanban, workflows, teams) and customer chatbots always run at normal speed, even if you once turned on `/fast` in Claude Code.
+- **When a provider refuses Fast mode** (account not eligible, limit reached), Jarvis 007 resends at normal speed and the turn does not fail; hover the bolt to see why (e.g. usage credits need turning on).
 
 ## [0.162.0] - 2026-10-15
 ### Security
-- **Plugins you install load by default**, no environment variable needed. Each plugin still runs only after you click **Enable** on its card (a plugin Javis creates from chat always starts disabled), and the permission level still decides every tool call.
+- **Plugins you install load by default**, no environment variable needed. Each plugin still runs only after you click **Enable** on its card (a plugin Jarvis 007 creates from chat always starts disabled), and the permission level still decides every tool call.
 - To block user plugins on a machine altogether (a shared server, bots for strangers), set `JAVIS_ENABLE_USER_PLUGINS=false` and restart.
 
 ## [0.160.0] - 2026-10-15
@@ -553,7 +553,7 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 ## [0.141.0] - 2026-10-14
 ### Improved
 - **Zalo bots can see the photo in a quoted message.** Quote (reply to) a photo and tag the bot with "look at this" and the bot sees that photo. Before, the bot got only the text and said it could not see the photo, so you had to send the photo again and tag within 3 minutes.
-- Works in groups and private chats, and when you press "Reply for me" in the inbox. The photo must be one Javis read when it was sent, that is, sent after the Zalo account was connected.
+- Works in groups and private chats, and when you press "Reply for me" in the inbox. The photo must be one Jarvis 007 read when it was sent, that is, sent after the Zalo account was connected.
 
 ## [0.140.0] - 2026-10-14
 ### Added
@@ -565,30 +565,30 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.139.0] - 2026-10-14
 ### Fixed
-- **Sending Excel, PDF and Word files on Zalo no longer hangs.** Javis used to wait up to 2 minutes on such a file, then fail without delivering it (images went fine). Files now go through the Zalo connection that serves the inbox, so they reach the recipient.
-- **If Zalo does not confirm within a minute, Javis says so clearly and sends nothing**, so retrying is safe. No more waiting without knowing whether the file went.
-- After updating, **update the "Zalo extras" pack to 1.2.0** from the Store. Javis moves the Zalo connection to javis-zalo 1.4.0 on its own (no new QR scan).
+- **Sending Excel, PDF and Word files on Zalo no longer hangs.** Jarvis 007 used to wait up to 2 minutes on such a file, then fail without delivering it (images went fine). Files now go through the Zalo connection that serves the inbox, so they reach the recipient.
+- **If Zalo does not confirm within a minute, Jarvis 007 says so clearly and sends nothing**, so retrying is safe. No more waiting without knowing whether the file went.
+- After updating, **update the "Zalo extras" pack to 1.2.0** from the Store. Jarvis 007 moves the Zalo connection to javis-zalo 1.4.0 on its own (no new QR scan).
 - Thanks to @thanhtmfyu-lang for the contribution.
 
 ## [0.137.0] - 2026-10-14
 ### Fixed
-- **Antigravity CLI updates itself every day, so new models (such as Gemini 4 Argon) show up in Javis on their own.** The Antigravity model list comes straight from `agy`, and `agy` was never updated: the Docker build installed it once and left it there. Javis now runs `agy update` daily, Docker included. If `agy` is up to date and a model is still missing, your Google account has not been granted that model.
+- **Antigravity CLI updates itself every day, so new models (such as Gemini 4 Argon) show up in Jarvis 007 on their own.** The Antigravity model list comes straight from `agy`, and `agy` was never updated: the Docker build installed it once and left it there. Jarvis 007 now runs `agy update` daily, Docker included. If `agy` is up to date and a model is still missing, your Google account has not been granted that model.
 - **The bot no longer says it is having technical trouble and asks the customer to write again later** when a reply fails. That line told customers they were talking to a machine and made them do the work. The bot now asks them to wait a moment while it checks. The person on duty is still told about the real error, as before.
 
 ## [0.136.0] - 2026-10-14
 ### Improved
-- **The personal Zalo bot answers when you have not replied within 10 minutes.** Before, once you typed into a chat yourself, customer messages that came after were dropped and nobody answered. Javis now holds them; if you do not answer within 10 minutes the bot answers them all once, in private chats only.
+- **The personal Zalo bot answers when you have not replied within 10 minutes.** Before, once you typed into a chat yourself, customer messages that came after were dropped and nobody answered. Jarvis 007 now holds them; if you do not answer within 10 minutes the bot answers them all once, in private chats only.
 - **A customer who sends only a file or a photo without text also gets a fitting reply**: the bot is told what arrived (file name, photo), and a bot with Can write opens the file too. If you answer on the phone or from the Inbox, the bot stays out.
 - Thanks to @thanhtmfyu-lang for the contribution.
 
 ## [0.135.0] - 2026-10-14
 ### Fixed
-- **The Tools page now shows the Browser (Chromium) as Ready when it was installed by a recent Playwright.** Since Playwright 1.57 the headless browser's executable is called `chrome-headless-shell`. Javis did not know that name, so it kept saying "There is a browser folder but no executable, the download broke midway" on a complete, working install, however many times it was removed and downloaded again. Javis now recognises both the new and the old names. No new download is needed: after updating, the Tools page shows Ready.
+- **The Tools page now shows the Browser (Chromium) as Ready when it was installed by a recent Playwright.** Since Playwright 1.57 the headless browser's executable is called `chrome-headless-shell`. Jarvis 007 did not know that name, so it kept saying "There is a browser folder but no executable, the download broke midway" on a complete, working install, however many times it was removed and downloaded again. Jarvis 007 now recognises both the new and the old names. No new download is needed: after updating, the Tools page shows Ready.
 
 ## [0.134.0] - 2026-10-14
 ### Added
 - **Bots answer your Facebook Page inbox (Messenger).** Add a Messenger channel on the Chatbot page; attach it to an existing bot and that bot answers on Zalo and Messenger with the same Agent. Customer messages land in the inbox like on every other channel.
-- **The add-channel form shows the webhook address and verify token** to paste into the Meta app. When the bot is switched on, Javis subscribes the Page to the webhook by itself. If the token lacks the permission for that, the bot still runs and reminds you to subscribe the Page once by hand.
+- **The add-channel form shows the webhook address and verify token** to paste into the Meta app. When the bot is switched on, Jarvis 007 subscribes the Page to the webhook by itself. If the token lacks the permission for that, the bot still runs and reminds you to subscribe the Page once by hand.
 - **A wrong App secret is refused when you save**, instead of a bot that looks healthy but never hears a message.
 - **Meta errors read as words:** more than 24 hours since the customer last wrote, app not yet approved to message the public, expired token. Step-by-step guide in docs/en/31-messenger.md.
 - Thanks to @thanhtmfyu-lang for the contribution.
@@ -602,7 +602,7 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.131.0] - 2026-10-14
 ### Added
-- **An operator theme.** Put a `theme.css` file in the `branding` folder of Javis's data (next to the logo) and the dashboard takes your brand colours and fonts, kept across every update. Delete the file to get the original look back. See the Branding and domain guide.
+- **An operator theme.** Put a `theme.css` file in the `branding` folder of Jarvis 007's data (next to the logo) and the dashboard takes your brand colours and fonts, kept across every update. Delete the file to get the original look back. See the Branding and domain guide.
 - Thanks to @hodaclong for the contribution.
 
 ## [0.130.0] - 2026-10-14
@@ -627,7 +627,7 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.125.0] - 2026-10-14
 ### Fixed
-- **Background jobs on ChatGPT (Codex) no longer report a fake success when tools are missing.** Reminders, loops and Kanban jobs on Codex now wait for Javis's MCP Hub to come up. If it does not, the job fails with a clear reason instead of running without tools and still being recorded as done.
+- **Background jobs on ChatGPT (Codex) no longer report a fake success when tools are missing.** Reminders, loops and Kanban jobs on Codex now wait for Jarvis 007's MCP Hub to come up. If it does not, the job fails with a clear reason instead of running without tools and still being recorded as done.
 - Thanks to @dev23072005 for the contribution.
 
 ## [0.123.0] - 2026-10-14
@@ -637,7 +637,7 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.122.0] - 2026-10-14
 ### Security
-- **The open-file tool no longer runs programs.** Opening a file on the machine running Javis now refuses runnable files (scripts, programs, shortcuts). Opening an app by name works as before.
+- **The open-file tool no longer runs programs.** Opening a file on the machine running Jarvis 007 now refuses runnable files (scripts, programs, shortcuts). Opening an app by name works as before.
 - **The login session file is readable by the owner only**, like the secret key and the hub token.
 
 ## [0.119.0] - 2026-10-14
@@ -646,7 +646,7 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.118.0] - 2026-10-14
 ### Security
-- **Tighter checks on live connections to Javis.** Every real-time connection (chat, terminal, voice, graph) now passes the same origin checks as write actions, including on machines with no password set. Your dashboard, Telegram and command-line tools are not affected. Updating soon is recommended.
+- **Tighter checks on live connections to Jarvis 007.** Every real-time connection (chat, terminal, voice, graph) now passes the same origin checks as write actions, including on machines with no password set. Your dashboard, Telegram and command-line tools are not affected. Updating soon is recommended.
 
 ## [0.117.0] - 2026-10-14
 ### Security
@@ -654,8 +654,8 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.114.0] - 2026-10-14
 ### Fixed
-- **The Zalo bot no longer goes silent after Javis restarts.** A Javis that stopped uncleanly (a crash, a hard stop during an update) used to leave the old Zalo process running, so the account had two listening sessions. Zalo delivers to only one of them, the bot read the other and stayed quiet. Javis now records every connector process it starts and clears what an earlier run left behind.
-- **Safe cleanup.** It only clears a process when the old server is really gone and the process still runs the command Javis started, so nothing else is touched.
+- **The Zalo bot no longer goes silent after Jarvis 007 restarts.** A Jarvis 007 that stopped uncleanly (a crash, a hard stop during an update) used to leave the old Zalo process running, so the account had two listening sessions. Zalo delivers to only one of them, the bot read the other and stayed quiet. Jarvis 007 now records every connector process it starts and clears what an earlier run left behind.
+- **Safe cleanup.** It only clears a process when the old server is really gone and the process still runs the command Jarvis 007 started, so nothing else is touched.
 
 ## [0.109.0] - 2026-10-13
 ### Added
@@ -664,12 +664,12 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 - **The goal card shows who makes and who reviews**, which version was reviewed, who is being waited on and the calls left per role. **Turn the reviewer back on** and **Drop the review requirement** buttons appear when the goal is stuck.
 - Ongoing goals and discovery steps also wait for the reviewer to pass the version before reporting an update or a finished step; the same version is not reviewed again on schedule.
 - A call that fails before the model is reached is given back, not counted.
-- If a published file is edited by hand, a goal with a team waits instead of counting as done. To go back to 0.108.0: stop Javis and run `tools/resonance_restore_pre_a5.py`.
+- If a published file is edited by hand, a goal with a team waits instead of counting as done. To go back to 0.108.0: stop Jarvis 007 and run `tools/resonance_restore_pre_a5.py`.
 
 ## [0.108.0] - 2026-10-13
 ### Fixed
 - **The bot no longer sends plan-limit notices to customers.** Lines like "You've hit your session limit" or "API Error" used to be posted straight into a Zalo group, tagging the person who asked. That turn now counts as failed: whoever asked gets the usual apology, and the real reason is in the bot log.
-- **Messages you type by hand on personal Zalo reach the inbox.** Replies the owner or staff send from the phone now show as "You", and the bot steps back in that chat. The cause was in the Zalo CLI, which dropped every message from the account itself; Javis now runs javis-zalo 1.3.0.
+- **Messages you type by hand on personal Zalo reach the inbox.** Replies the owner or staff send from the phone now show as "You", and the bot steps back in that chat. The cause was in the Zalo CLI, which dropped every message from the account itself; Jarvis 007 now runs javis-zalo 1.3.0.
 - **No duplicates, no wrongful silence.** Images the bot just sent and lines you type in the inbox are recognised when they come back, so they are not recorded twice and the bot does not think you just stepped in.
 
 ## [0.107.0] - 2026-10-13
@@ -701,9 +701,9 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 
 ## [0.102.0] - 2026-10-12
 ### Added
-- **Lark (and Feishu) as a chatbot channel.** On the Chatbot page, add a Lark account with the App ID and App Secret of a separate Lark app, attach it to a bot, and the bot answers customers on Lark, with every chat in the Inbox and takeover like the other channels. No domain needed: Javis opens the connection out to Lark.
+- **Lark (and Feishu) as a chatbot channel.** On the Chatbot page, add a Lark account with the App ID and App Secret of a separate Lark app, attach it to a bot, and the bot answers customers on Lark, with every chat in the Inbox and takeover like the other channels. No domain needed: Jarvis 007 opens the connection out to Lark.
 - **Lark bots join groups, send images and documents**, see the photos customers send, and you can reply to a customer straight from the Inbox.
-- **Javis works out whether the app is on Lark or Feishu**, nothing to pick. Pasting the app that runs your admin channel is refused right away, since two connections on one app get messages split at random.
+- **Jarvis 007 works out whether the app is on Lark or Feishu**, nothing to pick. Pasting the app that runs your admin channel is refused right away, since two connections on one app get messages split at random.
 - **The Inbox shows Lark customer and group names** when the app may read contacts and chat info. Without those permissions the bot still runs and shows the ids.
 
 ## [0.100.0] - 2026-10-12
@@ -720,7 +720,7 @@ Format: each release is a `## [x.y.z] - date` block, with changes grouped under 
 - **"Deutsch" in the language pickers**, both under the side rail and in Settings, so you can switch back to German after choosing another language.
 
 ### Fixed
-- **Readers of the German interface no longer get Vietnamese from Javis.** The server speaks only Vietnamese and English, so for a language that exists only in the dashboard, Telegram messages, background work, the voice and the default brain now use English. Before, they could fall back to Vietnamese.
+- **Readers of the German interface no longer get Vietnamese from Jarvis 007.** The server speaks only Vietnamese and English, so for a language that exists only in the dashboard, Telegram messages, background work, the voice and the default brain now use English. Before, they could fall back to Vietnamese.
 
 Thanks to @sirschnake for contributing the German translation (#618).
 
@@ -733,14 +733,14 @@ Thanks to @sirschnake for contributing the German translation (#618).
 ### Added
 - **Resonance assistants only write to files you have allowed.** A new goal, or a switch to another file, makes the card ask "The assistant wants to write to ... Allow?" with the exact path. Once allowed, the assistant keeps working without asking again for each revision.
 - **What the assistant drafts before you allow it is kept as a draft.** Preview it, then Allow publishes exactly that version, with no new model call.
-- **Codex and API-key brains can also hand in their work during the chat**, through the same check as Claude: Javis reads, verifies and publishes the submission itself, and never overwrites a file you edited.
-- **A Revoke permission button on the goal card** stops the goal right away; press Resume to grant it again. To go back to 0.95.1, stop Javis and run `tools/resonance_restore_pre_a4.py`.
+- **Codex and API-key brains can also hand in their work during the chat**, through the same check as Claude: Jarvis 007 reads, verifies and publishes the submission itself, and never overwrites a file you edited.
+- **A Revoke permission button on the goal card** stops the goal right away; press Resume to grant it again. To go back to 0.95.1, stop Jarvis 007 and run `tools/resonance_restore_pre_a4.py`.
 
 ## [0.95.1] - 2026-10-11
 ### Fixed
-- **Ollama (Local) no longer "returns nothing" after thinking too long.** Models like qwen3 turn thinking on by themselves, and a job such as counting the rows of a file could spend the whole turn thinking without writing a word. Javis now switches thinking off for local models, with or without tools, so they answer directly.
+- **Ollama (Local) no longer "returns nothing" after thinking too long.** Models like qwen3 turn thinking on by themselves, and a job such as counting the rows of a file could spend the whole turn thinking without writing a word. Jarvis 007 now switches thinking off for local models, with or without tools, so they answer directly.
 - **The Effort button no longer drags the local model along.** Leave Effort at Medium or Very high for Claude and the local model still answers directly, so switching between the two no longer means toggling it every time.
-- **When a model only thinks and never answers, Javis says exactly that**, with what to do (lower the thinking level or split the task), instead of a "returned nothing" that looks like a lost connection.
+- **When a model only thinks and never answers, Jarvis 007 says exactly that**, with what to do (lower the thinking level or split the task), instead of a "returned nothing" that looks like a lost connection.
 
 Thanks to the user who reported this with a patch tested on a Mac.
 
@@ -750,13 +750,13 @@ Thanks to the user who reported this with a patch tested on a Mac.
 - **Bots remember what the earlier photo showed.** When a customer follows up about "the thing in that photo", the bot still knows, because the description stays in the conversation.
 
 ### Fixed
-- **Zalo photos are no longer dropped by mistake.** Zalo's photo server labels some photos as generic binary files instead of images, and Javis skipped them before the bot could see them. Javis now checks the file's own content to recognise an image.
+- **Zalo photos are no longer dropped by mistake.** Zalo's photo server labels some photos as generic binary files instead of images, and Jarvis 007 skipped them before the bot could see them. Jarvis 007 now checks the file's own content to recognise an image.
 - **The bot card shows the real error when a model rejects a photo**, instead of a generic "refused the image". When no brain can look, the card says why each one could not.
 
 ## [0.92.2] - 2026-10-11
 ### Fixed
-- **Ollama (Local) can use tools.** With a model running in Ollama on your own machine, the model could not read files or call any connection and said it had no tool permission, because Javis forgot to load tools for this kind of model. Local models now get the same tools as the API models, and the Connections page no longer says they cannot call tools.
-- **The Local Model page on Apple-chip Macs says the GPU is used.** It used to say "Runs on CPU and RAM" while Ollama ran fully on the chip's GPU. Javis now recognises Apple chips even when Python runs under Rosetta, counts the shared RAM as GPU memory, and no longer drops the GPU when you enter the RAM size by hand.
+- **Ollama (Local) can use tools.** With a model running in Ollama on your own machine, the model could not read files or call any connection and said it had no tool permission, because Jarvis 007 forgot to load tools for this kind of model. Local models now get the same tools as the API models, and the Connections page no longer says they cannot call tools.
+- **The Local Model page on Apple-chip Macs says the GPU is used.** It used to say "Runs on CPU and RAM" while Ollama ran fully on the chip's GPU. Jarvis 007 now recognises Apple chips even when Python runs under Rosetta, counts the shared RAM as GPU memory, and no longer drops the GPU when you enter the RAM size by hand.
 
 ### Improved
 - **API and local models can read PDF and Word (.docx) files.** These files used to come out as binary noise. A scanned PDF (images only) is reported plainly as having no text to read.
@@ -766,7 +766,7 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 ## [0.92.1] - 2026-10-11
 ### Fixed
 - **Signing in no longer fails on capital letters or invisible spaces.** Usernames ignore case now, so "Phong" and "phong" both work. A stray space before or after the password, which phone keyboards often add, no longer reads as a wrong password.
-- **When the password is right but the browser does not keep the session, Javis says so**, with the usual causes, instead of silently returning to an empty sign-in form.
+- **When the password is right but the browser does not keep the session, Jarvis 007 says so**, with the usual causes, instead of silently returning to an empty sign-in form.
 - **On a server that sets the account from its environment, the wrong-password message points out that the username is `JAVIS_ADMIN_USER`** (default admin). Resetting the password through Hostinger also resets the username, which is easy to miss.
 ### Improved
 - **The first-run screen is readable on the light theme.** Brain names, card borders and the Claude sign-in command used to be nearly invisible on a light background. On a public server, the admin account section now says it is required right away instead of a red line at the bottom.
@@ -774,7 +774,7 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 ## [0.91.0] - 2026-10-10
 ### Added
 - **DeepSeek is a new brain.** Paste a DeepSeek API key on the Models page to pick `deepseek-flash` or `deepseek-v4-pro` as the main brain, for agents or for background work, with the same tools as the other API engines.
-- **Thinking depth works with DeepSeek.** Set to Off, DeepSeek answers directly, cheaper and faster; turned on, it thinks first. If an older conversation does not fit thinking mode, Javis answers in normal mode with a one-line notice.
+- **Thinking depth works with DeepSeek.** Set to Off, DeepSeek answers directly, cheaper and faster; turned on, it thinks first. If an older conversation does not fit thinking mode, Jarvis 007 answers in normal mode with a one-line notice.
 
 ## [0.89.2] - 2026-10-10
 ### Improved
@@ -788,21 +788,21 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 ### Added
 - **Resonance assistants learn from feedback, with checks.** React to an assistant's notice to suggest shorter or less disruptive updates; you preview the change and decide whether to apply it.
 - **When stuck, the assistant tries one other method, only if the goal's budget covers both the trial and one more pass on the deliverable,** compared with the old method on the same criteria; a losing or unclear result keeps the old method.
-- **Every lesson has a source, a scope and a revoke button.** After you revoke or dismiss a suggestion, Javis waits 14 days before suggesting the same change again. Feedback never marks a goal done by itself and never grants more permissions or budget.
+- **Every lesson has a source, a scope and a revoke button.** After you revoke or dismiss a suggestion, Jarvis 007 waits 14 days before suggesting the same change again. Feedback never marks a goal done by itself and never grants more permissions or budget.
 
 ## [0.88.6] - 2026-10-10
 ### Fixed
-- **The Zalo bot card states the real reason when the Zalo connection drops.** The card used to show only a technical config line like `process closed stdout ([mcp] Config loaded: ...)`, with the real reason cut off. It now says it in plain words. If Zalo closed the session because the account was just opened somewhere else (Zalo Web in a browser, or another Javis machine signed in to the same account), the card says to close the other one and that Javis reconnects in about 2 minutes. If the Zalo sign-in expired, it says to sign in again with the QR code on the Connections page. Any other error shows the end of the message, where the real reason is.
+- **The Zalo bot card states the real reason when the Zalo connection drops.** The card used to show only a technical config line like `process closed stdout ([mcp] Config loaded: ...)`, with the real reason cut off. It now says it in plain words. If Zalo closed the session because the account was just opened somewhere else (Zalo Web in a browser, or another Jarvis 007 machine signed in to the same account), the card says to close the other one and that Jarvis 007 reconnects in about 2 minutes. If the Zalo sign-in expired, it says to sign in again with the QR code on the Connections page. Any other error shows the end of the message, where the real reason is.
 
 ## [0.88.5] - 2026-10-10
 ### Improved
 - **Conversations with many goal cards open faster.** Cards of the same goal share one load instead of one each, and are redrawn once.
-- **Opening a goal card no longer makes other pages wait.** Javis reads goal state on a separate thread and only reads what the card shows, so goals with a long history still open quickly.
-- **You can see how long Javis spends on each request.** Every response carries a `Server-Timing` header, to tell slowness in Javis from slowness in the network or proxy (Cloudflare).
+- **Opening a goal card no longer makes other pages wait.** Jarvis 007 reads goal state on a separate thread and only reads what the card shows, so goals with a long history still open quickly.
+- **You can see how long Jarvis 007 spends on each request.** Every response carries a `Server-Timing` header, to tell slowness in Jarvis 007 from slowness in the network or proxy (Cloudflare).
 
 ## [0.88.4] - 2026-10-09
 ### Fixed
-- **The Partners page no longer shows up empty now and then even though the brain has assistants.** Opening the app straight on this page, Javis does not know the brain yet, so it loads the default brain's list (empty), then loads again once the real brain is known. If the first load came back later, it overwrote the right list and the page said there were no partners yet. Results from an outdated load are now dropped. If the server reports an error while loading the list, the page shows the error with a Retry button instead of pretending the list is empty.
+- **The Partners page no longer shows up empty now and then even though the brain has assistants.** Opening the app straight on this page, Jarvis 007 does not know the brain yet, so it loads the default brain's list (empty), then loads again once the real brain is known. If the first load came back later, it overwrote the right list and the page said there were no partners yet. Results from an outdated load are now dropped. If the server reports an error while loading the list, the page shows the error with a Retry button instead of pretending the list is empty.
 
 ## [0.88.3] - 2026-10-09
 ### Fixed
@@ -812,7 +812,7 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 
 ## [0.88.2] - 2026-10-09
 ### Fixed
-- **Old ChatGPT chats recover by themselves after moving to another machine or VPS.** The Codex session files stay on the old machine, so an old chat kept failing with "no rollout found" while a new chat worked fine. Javis already rebuilds the context from chat history in this case, but did not recognise this error, especially when Codex only printed it and exited. Javis now recognises it and rebuilds once. Sign-in, usage limit and network errors are still reported as before. (Reported by @dev23072005, issue #595.)
+- **Old ChatGPT chats recover by themselves after moving to another machine or VPS.** The Codex session files stay on the old machine, so an old chat kept failing with "no rollout found" while a new chat worked fine. Jarvis 007 already rebuilds the context from chat history in this case, but did not recognise this error, especially when Codex only printed it and exited. Jarvis 007 now recognises it and rebuilds once. Sign-in, usage limit and network errors are still reported as before. (Reported by @dev23072005, issue #595.)
 
 ## [0.88.1] - 2026-10-09
 ### Fixed
@@ -822,7 +822,7 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 ### Improved
 - **Resonance assistants call the model only for a reason.** A new task, new feedback from you, or a retry still within its limit. While waiting on you they sleep; periodic reviews are code-only checks that back off to once a week.
 - **No pointless retries.** Two attempts in a row without progress pause retries until you give feedback; errors are retried at most 3 times; automatic retries always leave one call for your feedback.
-- **Files you edit by hand are not overwritten or redone.** Javis tells you once and re-checks on its own; a paused goal still watches its protective conditions, and turning an assistant off says clearly that watching stopped.
+- **Files you edit by hand are not overwritten or redone.** Jarvis 007 tells you once and re-checks on its own; a paused goal still watches its protective conditions, and turning an assistant off says clearly that watching stopped.
 - **The goal card shows why the assistant woke up** and its recent wake-ups, with or without a model call.
 
 ## [0.87.0] - 2026-10-08
@@ -837,24 +837,24 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 - **Settings are no longer wiped when you open the WhatsApp tab or allow someone to message a bot.** Since 0.71.0, three places meant to save one small piece but overwrote the whole settings file: opening the WhatsApp tab on the Admin channels page for the first time, allowing a Zalo chat, and allowing a Slack, WhatsApp, Discord or Lark user. Each time, the HTTPS domain, API keys, the Telegram connection and every other setting were lost. A Docker install with its own domain could also lose HTTPS after the next reverse proxy restart. All three now update only their own part. Thanks to the DaoVix team for reviewing the code and sending a detailed bug report.
 - **The settings file is written more safely.**
   - Writes are atomic: a machine shutting down mid-save no longer leaves a broken file.
-  - A backup of the last good save is kept in `settings.json.bak`. If the file is broken, Javis reads the backup instead of quietly falling back to defaults and writing them over it, and keeps the broken copy for manual recovery.
+  - A backup of the last good save is kept in `settings.json.bak`. If the file is broken, Jarvis 007 reads the backup instead of quietly falling back to defaults and writing them over it, and keeps the broken copy for manual recovery.
   - Several saves at once no longer overwrite each other's changes.
 
 ## [0.86.1] - 2026-10-08
 ### Improved
-- **With ChatGPT as the brain, the chat shows the step Javis is working on right away instead of going quiet until it finishes.** When Codex ran a long command (installing packages, scanning files, running a script), the chat used to show only "Javis is thinking..." counting up until the command finished, which looked like a hang. The step now appears the moment it starts, like "Running command: npm install", and is marked done when it finishes, just as with Claude.
+- **With ChatGPT as the brain, the chat shows the step Jarvis 007 is working on right away instead of going quiet until it finishes.** When Codex ran a long command (installing packages, scanning files, running a script), the chat used to show only "Jarvis 007 is thinking..." counting up until the command finished, which looked like a hang. The step now appears the moment it starts, like "Running command: npm install", and is marked done when it finishes, just as with Claude.
 
 ## [0.86.0] - 2026-10-08
 ### Added
-- **Resonance: Javis follows a task through until it is done.** When you hand over work that continues after the chat turn, Javis sets a goal with a clear finish line, works on it in the background within its budget, reports done only with evidence, and keeps the goal across restarts. The feature ships off and is turned on per brain.
-- **A "What I'm working toward" card in the chat.** Tap Right or Not quite for how Javis understood you, Accepted for the result, or pause it. Feedback you add in chat attaches to the same goal and Javis revises the version you actually saw; a draft Javis writes during the chat turn is kept as the first version instead of being rewritten.
-- **Try a new method before switching.** Javis compares its current way of working with one alternative on the same set of cases and switches only when the new one clearly wins; without enough evidence it keeps the current method.
+- **Resonance: Jarvis 007 follows a task through until it is done.** When you hand over work that continues after the chat turn, Jarvis 007 sets a goal with a clear finish line, works on it in the background within its budget, reports done only with evidence, and keeps the goal across restarts. The feature ships off and is turned on per brain.
+- **A "What I'm working toward" card in the chat.** Tap Right or Not quite for how Jarvis 007 understood you, Accepted for the result, or pause it. Feedback you add in chat attaches to the same goal and Jarvis 007 revises the version you actually saw; a draft Jarvis 007 writes during the chat turn is kept as the first version instead of being rewritten.
+- **Try a new method before switching.** Jarvis 007 compares its current way of working with one alternative on the same set of cases and switches only when the new one clearly wins; without enough evidence it keeps the current method.
 ### Fixed
-- **A chat turn that lands while Claude Code is refreshing its sign-in now says it can simply be resent.** Newer Claude Code reports this with a different message that Javis used to show raw in English; normal answers that happen to contain "already used" are no longer replaced by that error note.
+- **A chat turn that lands while Claude Code is refreshing its sign-in now says it can simply be resent.** Newer Claude Code reports this with a different message that Jarvis 007 used to show raw in English; normal answers that happen to contain "already used" are no longer replaced by that error note.
 
 ## [0.85.11] - 2026-10-08
 ### Fixed
-- **The chat no longer sits on "Javis is thinking..." when the connection dies silently.** A sleeping laptop, a Wi-Fi switch or a flaky network can kill the link between the page and Javis without the browser noticing. Javis still finished the work, but the answer never reached the page, so "thinking" kept counting and you had to resend the command. The page now checks in with Javis after a stretch of silence. If nothing answers, it reconnects by itself and pulls in the answer that is already done. The Stop button also always reaches Javis, even when the connection is dead.
+- **The chat no longer sits on "Jarvis 007 is thinking..." when the connection dies silently.** A sleeping laptop, a Wi-Fi switch or a flaky network can kill the link between the page and Jarvis 007 without the browser noticing. Jarvis 007 still finished the work, but the answer never reached the page, so "thinking" kept counting and you had to resend the command. The page now checks in with Jarvis 007 after a stretch of silence. If nothing answers, it reconnects by itself and pulls in the answer that is already done. The Stop button also always reaches Jarvis 007, even when the connection is dead.
 
 ## [0.85.10] - 2026-10-08
 ### Fixed
@@ -870,7 +870,7 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 
 ## [0.85.7] - 2026-10-08
 ### Fixed
-- **Brain sync with GitHub no longer fails on its very first push from a machine whose system language is not English.** When the GitHub repo was still empty, Javis read git's messages in the OS language and missed that case. It now talks to git in a neutral locale, so bootstrapping works regardless of the machine's language. (Contributed by @dev23072005.)
+- **Brain sync with GitHub no longer fails on its very first push from a machine whose system language is not English.** When the GitHub repo was still empty, Jarvis 007 read git's messages in the OS language and missed that case. It now talks to git in a neutral locale, so bootstrapping works regardless of the machine's language. (Contributed by @dev23072005.)
 
 ## [0.85.5] - 2026-10-07
 ### Improved
@@ -890,12 +890,12 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 
 ## [0.85.1] - 2026-10-07
 ### Improved
-- **The Docker edition installs Antigravity CLI and Grok Build by itself.** These two cards on the Models page used to say "CLI not installed" with a command to type, and a Hostinger install has nowhere to type it. Javis now installs them at startup, once, and keeps them across updates.
-- While installing, the card says "Javis is installing" instead of showing a command. If the install fails (no Internet on the server), the card says so and how to retry. Turn it off with `JAVIS_AUTO_INSTALL_CLIS=0`.
+- **The Docker edition installs Antigravity CLI and Grok Build by itself.** These two cards on the Models page used to say "CLI not installed" with a command to type, and a Hostinger install has nowhere to type it. Jarvis 007 now installs them at startup, once, and keeps them across updates.
+- While installing, the card says "Jarvis 007 is installing" instead of showing a command. If the install fails (no Internet on the server), the card says so and how to retry. Turn it off with `JAVIS_AUTO_INSTALL_CLIS=0`.
 
 ## [0.85.0] - 2026-10-07
 ### Added
-- **Chat with Javis from Lark/Feishu and Discord.** Both new channels connect outwards, so they run on a laptop too, no domain needed. A stranger who messages the bot gets a pairing code; click Allow and you are done.
+- **Chat with Jarvis 007 from Lark/Feishu and Discord.** Both new channels connect outwards, so they run on a laptop too, no domain needed. A stranger who messages the bot gets a pairing code; click Allow and you are done.
 ### Improved
 - **The "Channels" page is now "Admin channels"**, so it is not mixed up with the customer bots on the Chatbot page, and each channel has its own tab with a dot showing which ones are running.
 - **The confusing "Enable bot" checkbox is gone.** Each tab now starts with an On/Off switch that works immediately, the button at the bottom says what it does ("Save and turn on" or "Save changes"), and a missing field is named.
@@ -912,7 +912,7 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 
 ## [0.84.7] - 2026-10-06
 ### Added
-- **Approve people asking to join a Zalo group from Javis.** When someone asks to join a group that requires approval, Javis tells you through the bell and Telegram. Ask "who is waiting to join group X" to see the list, then say "approve everyone" or "approve Lan, reject Minh" and Javis does it and reports back per person.
+- **Approve people asking to join a Zalo group from Jarvis 007.** When someone asks to join a group that requires approval, Jarvis 007 tells you through the bell and Telegram. Ask "who is waiting to join group X" to see the list, then say "approve everyone" or "approve Lan, reject Minh" and Jarvis 007 does it and reports back per person.
 - A dedicated bot never approves on its own. The Zalo account must be the group's owner or a deputy, with the Zalo connection at Full access.
 
 ## [0.84.6] - 2026-10-06
@@ -926,24 +926,24 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 
 ## [0.84.2] - 2026-10-06
 ### Added
-- **See who joined a Zalo group and when.** Ask "who joined group X this week" and Javis answers with names and join times, including people your own account added. The log survives restarts.
-- **Bots receive a "new member joined" event.** In a group the bot is allowed in, its Agent follows the instructions you wrote (welcome, a question) and what it sends tags the newcomer. Javis has no greeting of its own: if the Agent was told nothing about newcomers, the bot stays silent.
+- **See who joined a Zalo group and when.** Ask "who joined group X this week" and Jarvis 007 answers with names and join times, including people your own account added. The log survives restarts.
+- **Bots receive a "new member joined" event.** In a group the bot is allowed in, its Agent follows the instructions you wrote (welcome, a question) and what it sends tags the newcomer. Jarvis 007 has no greeting of its own: if the Agent was told nothing about newcomers, the bot stays silent.
 - Zalo only reports joins while connected, and the member list has no join date, so people who joined before this feature or while the machine was off have no join time.
 
 ## [0.83.2] - 2026-10-06
 ### Security
 - **Bots can no longer be steered by invisible characters.** A stranger could slip instructions into a message using characters that do not show on screen (hidden characters, text-direction overrides), so the bot read them while the owner saw nothing in the inbox. Every message from Telegram, Zalo and customer bots is now cleaned of them before it reaches the brain and before it is saved.
 ### Improved
-- **A broken connection no longer makes Javis sit and wait.** When a source has just failed to start, further calls to it within a minute get an error right away instead of each one waiting up to a minute to fail. A successful Check on the Connections page puts the source back in use at once.
+- **A broken connection no longer makes Jarvis 007 sit and wait.** When a source has just failed to start, further calls to it within a minute get an error right away instead of each one waiting up to a minute to fail. A successful Check on the Connections page puts the source back in use at once.
 
 ## [0.83.1] - 2026-10-05
 ### Fixed
-- **On Windows, file paths in replies are clickable again.** When Javis says "Saved to C:\...\post-1.txt" without backticks, the chat now turns it into a link that opens the file, as it already did on Linux and macOS.
+- **On Windows, file paths in replies are clickable again.** When Jarvis 007 says "Saved to C:\...\post-1.txt" without backticks, the chat now turns it into a link that opens the file, as it already did on Linux and macOS.
 - **On Windows, changing the time zone in Settings now takes effect.** Any zone other than Vietnam used to fall back to Vietnam time without a word, because Windows has no time zone table. The update installs it.
 
 ## [0.83.0] - 2026-10-05
 ### Improved
-- **Zalo runs Javis's own build.** The personal Zalo connection now uses `javis-zalo`, which Javis maintains and fixes itself, instead of a third-party tool. Accounts already signed in by QR switch over on their own, no new scan needed.
+- **Zalo runs Jarvis 007's own build.** The personal Zalo connection now uses `javis-zalo`, which Jarvis 007 maintains and fixes itself, instead of a third-party tool. Accounts already signed in by QR switch over on their own, no new scan needed.
 - **Group message history works.** The brain can read older messages in groups as well as private chats, see who replied to whom and who was tagged, and find every message from one person or within a date range.
 - When the QR code expires or Zalo rejects it, the sign-in window says why, instead of reporting success and then not working.
 ### Security
@@ -953,27 +953,27 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 ### Improved
 - **Third-party MCP connections always run the latest official release.** Google Search Console, Google Workspace, Google Tasks, Google Keep, NotebookLM and Google Ads move to each new release as the publisher ships it, instead of staying on whatever version a machine downloaded first.
 - **Connections made earlier move to the new command too.** Each connection used to keep the command it was created with, so app fixes never reached machines that were already connected (old Zalo connections ran an unpinned version, old Google Sheets ones missed a fix). A command you edited by hand is kept.
-- **Google Ads no longer needs Git.** Javis runs Google's official PyPI release instead of unreleased code from GitHub, and the Google Cloud Project ID box is gone because nothing reads it.
+- **Google Ads no longer needs Git.** Jarvis 007 runs Google's official PyPI release instead of unreleased code from GitHub, and the Google Cloud Project ID box is gone because nothing reads it.
 ### Security
-- **Google Workspace can no longer run Apps Script at the Draft level.** The new Workspace release added a tool that runs Apps Script functions, and Javis had filed it as read-only. It now needs Full access, and the tools that import files into Docs, Sheets and Slides count as writes.
+- **Google Workspace can no longer run Apps Script at the Draft level.** The new Workspace release added a tool that runs Apps Script functions, and Jarvis 007 had filed it as read-only. It now needs Full access, and the tools that import files into Docs, Sheets and Slides count as writes.
 - Gateway connections (one tool that runs many commands, like the new Hostinger release) are checked per command inside: reads run at Read-only, unknown commands count as dangerous.
 
 ## [0.81.1] - 2026-10-05
 ### Fixed
-- **A mismatched encryption key no longer wipes your connections.** API keys, the ChatGPT login and the Telegram token are encrypted with the machine's own key. When that key did not match (volume recreated, key file lost), a single settings save, or the first startup after an update, used to overwrite them with empty values for good. Javis now keeps the old encrypted values, so putting the right key back restores every connection.
+- **A mismatched encryption key no longer wipes your connections.** API keys, the ChatGPT login and the Telegram token are encrypted with the machine's own key. When that key did not match (volume recreated, key file lost), a single settings save, or the first startup after an update, used to overwrite them with empty values for good. Jarvis 007 now keeps the old encrypted values, so putting the right key back restores every connection.
 - With the right key nothing changes: clearing or changing a key works as before, and a key you type again is always saved.
 
 ## [0.81.0] - 2026-10-05
 ### Added
 - **Bots look at customer photos with their own brain.** The photo goes straight into the chat turn for Claude, GPT, Gemini, OpenRouter, Groq, Ollama, the ChatGPT plan or the Claude Code plan to see, no longer depending on ChatGPT describing it. Photos are stored in the bot's brain and cleaned up like every other download.
 - **Telegram reads photos in groups.** A photo with the bot tagged in the caption, a reply to a photo that tags the bot, or a photo sent just before tagging the bot (within 3 minutes, same person) all work. A logo sent as a File counts as a photo too.
-- A brain that cannot see images (Antigravity, Grok Build, text-only models) makes the bot say plainly that it cannot see the photo, never guessing. If a model rejects the image, Javis resends the text so the customer still gets an answer.
+- A brain that cannot see images (Antigravity, Grok Build, text-only models) makes the bot say plainly that it cannot see the photo, never guessing. If a model rejects the image, Jarvis 007 resends the text so the customer still gets an answer.
 ### Fixed
 - The Telegram bot used to say it could read photos while it actually received only a file path line, which also leaked a server path to the model. That line is now removed before it reaches the bot.
 
 ## [0.80.1] - 2026-10-05
 ### Fixed
-- **Picking drive C in the brain folder picker no longer hangs on "Loading...".** Javis counted note files inside every subfolder, and `C:\Windows` alone holds hundreds of thousands of files, so the scan never finished. Each folder now gets a short counting budget, so drive C opens within a few seconds.
+- **Picking drive C in the brain folder picker no longer hangs on "Loading...".** Jarvis 007 counted note files inside every subfolder, and `C:\Windows` alone holds hundreds of thousands of files, so the scan never finished. Each folder now gets a short counting budget, so drive C opens within a few seconds.
 
 ## [0.80.0] - 2026-10-05
 ### Added
@@ -995,25 +995,25 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 
 ## [0.77.1] - 2026-10-05
 ### Fixed
-- **Changing the admin password on Hostinger now works.** `JAVIS_ADMIN_PASSWORD` used to apply only when no admin existed, so changing it in the Environment box and redeploying still said "Wrong username or password". Now, when the env value differs from last time, Javis resets the account to it; 2FA stays on and old sessions are signed out.
+- **Changing the admin password on Hostinger now works.** `JAVIS_ADMIN_PASSWORD` used to apply only when no admin existed, so changing it in the Environment box and redeploying still said "Wrong username or password". Now, when the env value differs from last time, Jarvis 007 resets the account to it; 2FA stays on and old sessions are signed out.
 - An unchanged env touches nothing, so a password you change in the dashboard is not overwritten on every restart. This is also the way to recover a forgotten password on a VPS, no SSH needed.
 ### Improved
 - **An eye button on the sign-in password field** so you can check what you typed.
 
 ## [0.77.0] - 2026-10-05
 ### Added
-- **The group bot's reply judge reviews and tunes itself.** Once enough feedback has gathered, Javis gives the bot's numbers to your main brain (the strongest model you picked) to find repeated patterns, and it changes at most 3 things: lessons, examples, each group's threshold, eagerness. You get one message whenever it changes something.
+- **The group bot's reply judge reviews and tunes itself.** Once enough feedback has gathered, Jarvis 007 gives the bot's numbers to your main brain (the strongest model you picked) to find repeated patterns, and it changes at most 3 things: lessons, examples, each group's threshold, eagerness. You get one message whenever it changes something.
 - **Wrong turns undo themselves.** After each review the bot is measured again: if it is marked wrong more often, that review is undone. Issues that need a code change are written to `Javis/gop-y-bo-phan-xu.md`.
-- **To adjust it, just tell Javis.** "Why is my bot so quiet?", "let the bot answer for me when customers tag me about class times", "undo the last review": Javis reads the real numbers and makes the change. Customer-facing bots never see these tools.
+- **To adjust it, just tell Jarvis 007.** "Why is my bot so quiet?", "let the bot answer for me when customers tag me about class times", "undo the last review": Jarvis 007 reads the real numbers and makes the change. Customer-facing bots never see these tools.
 ### Fixed
 - Messages that start by **@tagging someone else** (say, a customer tagging the owner about the bot's topic) used to be ignored no matter how often you marked them wrong. A thumbs-down now works, and the self-review can turn on considering such messages.
 
 ## [0.76.0] - 2026-10-05
 ### Improved
 - **The Skills page is easier to use.** Each skill has its own on/off switch on the right, so there are no longer two look-alike checkboxes where a wrong click turned a skill off. Click a skill to open its details: description, "When to use", usage, and Edit, Export, Delete.
-- **Pick several skills to take elsewhere.** A checkbox at the start of every card is always there; pick some and an "Export N skills" button appears. The .zip imports into another Javis, or unzip it into a .claude folder and Claude Code uses it right away. The other way round, importing a bundle with several skill folders now brings them all in, not just the first.
+- **Pick several skills to take elsewhere.** A checkbox at the start of every card is always there; pick some and an "Export N skills" button appears. The .zip imports into another Jarvis 007, or unzip it into a .claude folder and Claude Code uses it right away. The other way round, importing a bundle with several skill folders now brings them all in, not just the first.
 - **Filter and sort:** show On, Off or System skills, sort by Most used or Name. Duplicate groups such as "ai" and "AI" are merged, and saving a skill fixes its group name.
-- **Fixes:** turning a skill on or off on page 3 no longer jumps back to page 1. The description box counts characters and warns as soon as it passes 150 (the part Javis cannot read is shown in red), and a failed save now says why instead of closing the form as if it had saved.
+- **Fixes:** turning a skill on or off on page 3 no longer jumps back to page 1. The description box counts characters and warns as soon as it passes 150 (the part Jarvis 007 cannot read is shown in red), and a failed save now says why instead of closing the form as if it had saved.
 
 ## [0.75.1] - 2026-10-05
 ### Improved
@@ -1021,12 +1021,12 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 
 ## [0.74.2] - 2026-10-04
 ### Fixed
-- **ChatGPT no longer dies on the first turn with "Could not find home directory".** On some Windows computers Codex could not find the user folder, so it missed the ChatGPT sign-in even though the Models page showed it as connected. Javis now tells Codex where that folder is, so chat, the model list and ChatGPT Live work there.
+- **ChatGPT no longer dies on the first turn with "Could not find home directory".** On some Windows computers Codex could not find the user folder, so it missed the ChatGPT sign-in even though the Models page showed it as connected. Jarvis 007 now tells Codex where that folder is, so chat, the model list and ChatGPT Live work there.
 - **If it still happens, the error says what to do**: sign out of Windows and back in, or restart, instead of one cryptic English line.
 
 ## [0.74.1] - 2026-10-04
 ### Fixed
-- **The Zalo bot can see the images customers send.** Tag the bot on a photo (like "@YourBot here it is") and it no longer replies "I can only read the caption": Javis saves the photo into the bot's brain and has ChatGPT on your signed-in plan look at it and describe it, so the bot answers from what the photo actually shows. It also works when you press "Reply for me" in the Inbox.
+- **The Zalo bot can see the images customers send.** Tag the bot on a photo (like "@YourBot here it is") and it no longer replies "I can only read the caption": Jarvis 007 saves the photo into the bot's brain and has ChatGPT on your signed-in plan look at it and describe it, so the bot answers from what the photo actually shows. It also works when you press "Reply for me" in the Inbox.
 - **Without ChatGPT signed in, the bot still replies as before**, from the caption, and says plainly it could not see the photo, never guessing what is in it.
 
 ## [0.74.0] - 2026-10-04
@@ -1036,31 +1036,31 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 
 ## [0.73.0] - 2026-10-04
 ### Added
-- **Javis can see the images people post in a Zalo group.** Ask something like "look at the receipt Lan just posted in the Sales group" and Javis fetches it, shows it right in chat and says what is in it, copying text and numbers verbatim. Images come straight from Zalo, so the 2-hour limit is gone.
+- **Jarvis 007 can see the images people post in a Zalo group.** Ask something like "look at the receipt Lan just posted in the Sales group" and Jarvis 007 fetches it, shows it right in chat and says what is in it, copying text and numbers verbatim. Images come straight from Zalo, so the 2-hour limit is gone.
 - **Every brain can see images.** Claude Code and Codex open the image themselves. OpenRouter, Gemini and the other API engines have ChatGPT on your signed-in plan look at it and describe it, no API key needed, for any image in the brain, not only Zalo ones.
 ### Improved
-- **The extra Zalo tools moved to the "Zalo extras" pack on Javis Store.** Sending images, tagging people, notes, reminders, polls and reading group images no longer ship inside the app, so people who do not use Zalo do not carry them. Javis offers the pack right after you scan the Zalo QR.
+- **The extra Zalo tools moved to the "Zalo extras" pack on Jarvis 007 Store.** Sending images, tagging people, notes, reminders, polls and reading group images no longer ship inside the app, so people who do not use Zalo do not carry them. Jarvis 007 offers the pack right after you scan the Zalo QR.
 - **Already using Zalo?** Open the Connections page and press **Install companion pack** once to get every tool back. The Zalo connection, the Inbox and the Zalo chatbot keep working without it.
 
 ## [0.72.1] - 2026-10-04
 ### Fixed
-- **When Claude Code is too slow to start, Javis now says where it got stuck instead of guessing "probably a data source".** The error now tells you whether Claude Code reached Javis's tool hub at all, whether the hub answered fast or slow, and quotes the line Claude Code itself printed, such as an expired sign-in. The verdict comes first, so it stays readable on the bot card.
+- **When Claude Code is too slow to start, Jarvis 007 now says where it got stuck instead of guessing "probably a data source".** The error now tells you whether Claude Code reached Jarvis 007's tool hub at all, whether the hub answered fast or slow, and quotes the line Claude Code itself printed, such as an expired sign-in. The verdict comes first, so it stays readable on the bot card.
 - **The error no longer says "the allowed limit" from the second turn on.** It always names the real number of seconds.
 - Full details of every timeout are also written to the server log on a `[claude init timeout]` line.
 
 ## [0.71.2] - 2026-10-04
 ### Fixed
-- **A ChatGPT Live call no longer goes silent while Javis works on something long.** Every follow-up question used to wait behind the running job, so "are you done yet?" got no answer, and when the job finished Javis read out a pile of stale replies. Now a progress question is answered at once from the real state: what is running, for how long, and which step it is on.
-- **A new request no longer waits for the old one.** Asking for something else while Javis is still working runs it alongside, and each result is read out as it arrives.
-- **Javis speaks up during long jobs.** Past one minute, about every minute and a half, Javis says a short line that it is still working, whenever you are not talking. These lines are not saved to the chat history.
+- **A ChatGPT Live call no longer goes silent while Jarvis 007 works on something long.** Every follow-up question used to wait behind the running job, so "are you done yet?" got no answer, and when the job finished Jarvis 007 read out a pile of stale replies. Now a progress question is answered at once from the real state: what is running, for how long, and which step it is on.
+- **A new request no longer waits for the old one.** Asking for something else while Jarvis 007 is still working runs it alongside, and each result is read out as it arrives.
+- **Jarvis 007 speaks up during long jobs.** Past one minute, about every minute and a half, Jarvis 007 says a short line that it is still working, whenever you are not talking. These lines are not saved to the chat history.
 
 ## [0.71.1] - 2026-10-03
 ### Fixed
-- **The Models page lists the newest ChatGPT models, such as GPT-6.1-Sol.** On a machine with both Codex Desktop and the Codex CLI, Javis always asked the copy bundled with Codex Desktop, even when it was months old, so the model list stopped at an older generation. Javis now picks the newest Codex on the machine.
+- **The Models page lists the newest ChatGPT models, such as GPT-6.1-Sol.** On a machine with both Codex Desktop and the Codex CLI, Jarvis 007 always asked the copy bundled with Codex Desktop, even when it was months old, so the model list stopped at an older generation. Jarvis 007 now picks the newest Codex on the machine.
 
 ## [0.71.0] - 2026-10-03
 ### Added
-- **Chat with Javis on Slack and WhatsApp.** Turn them on from the Channels page, like Telegram and Zalo. Slack even runs on a laptop with no domain; WhatsApp uses Meta's official API and needs Javis on an HTTPS domain.
+- **Chat with Jarvis 007 on Slack and WhatsApp.** Turn them on from the Channels page, like Telegram and Zalo. Slack even runs on a laptop with no domain; WhatsApp uses Meta's official API and needs Jarvis 007 on an HTTPS domain.
 - **Customer bots on Slack and WhatsApp.** Add an account on the Chatbot page and an agent answers whoever writes in, with every chat in the shared inbox and takeover, as with Telegram and Zalo.
 - **Strangers never reach your brain.** An empty allow-list lets nobody in: whoever writes gets a pairing code and you click Allow once. Background work handed over from Slack or WhatsApp reports back there.
 - **A step-by-step guide** in docs/en/29-slack-whatsapp.md, with a Slack app manifest you paste and go.
@@ -1071,7 +1071,7 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 
 ## [0.70.1] - 2026-10-03
 ### Improved
-- **The README explains why your data stays yours.** "Why Javis" now covers the lock-in of keeping all your work on one AI vendor, and lists where each thing you build up (chat history, memory, skills, agents, workflows) lives on your machine, so a new model is a switch, not a fresh start.
+- **The README explains why your data stays yours.** "Why Jarvis 007" now covers the lock-in of keeping all your work on one AI vendor, and lists where each thing you build up (chat history, memory, skills, agents, workflows) lives on your machine, so a new model is a switch, not a fresh start.
 - **A row of flags at the top of the README.** Twelve flags, each linking to its translation. Emoji flags show as letters on Windows; these are real images.
 
 ## [0.70.0] - 2026-10-03
@@ -1081,7 +1081,7 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 
 ## [0.69.0] - 2026-10-03
 ### Improved
-- **The README now also comes in Chinese, Spanish and Japanese**, and so does the quick start. Each says plainly that it is a machine translation, that Javis replies in any language, and that the interface is in English and Vietnamese.
+- **The README now also comes in Chinese, Spanish and Japanese**, and so does the quick start. Each says plainly that it is a machine translation, that Jarvis 007 replies in any language, and that the interface is in English and Vietnamese.
 - **Stale translations get flagged.** After an edit to the English README, GitHub points out which translations need updating, without blocking a release.
 - **The website folder is gone.** The landing page will live elsewhere, which keeps the repo lean.
 
@@ -1097,7 +1097,7 @@ Thanks to the user who sent the bug report along with a patch tested on a Mac.
 
 ## [0.67.0] - 2026-10-02
 ### Improved
-- **Javis now speaks English all the way through.** Error messages, the Models page, the connection store (descriptions, guides, permission warnings), the Plugins page and newly created brains all appear in English when your browser is set to English. Vietnamese users see exactly what they saw before.
+- **Jarvis 007 now speaks English all the way through.** Error messages, the Models page, the connection store (descriptions, guides, permission warnings), the Plugins page and newly created brains all appear in English when your browser is set to English. Vietnamese users see exactly what they saw before.
 - **One language per device.** A phone set to Vietnamese and a laptop set to English each see their own language, including the text that comes back from the server.
 - **The website has an English version**, with the Vietnamese one a click away under "Tiếng Việt" in the menu.
 

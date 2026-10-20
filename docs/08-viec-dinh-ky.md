@@ -1,408 +1,408 @@
-# Việc định kỳ & Nhắc hẹn
+# Recurring jobs & reminders
 
 ***Tiếng Việt** · [English](en/08-recurring-jobs.md)*
 
-Trang **Việc định kỳ** là nơi bạn giao cho Javis những việc tự chạy khi bạn không ngồi trước máy: việc lặp theo chu kỳ (gọi là **loop**) và nhắc hẹn theo mốc giờ. Mỗi việc lặp tự thức dậy đúng chu kỳ, làm đúng một nhiệm vụ bạn mô tả, tự kiểm chứng rồi ghi nhật ký và nhắn kết quả về Telegram cho bạn.
+The **Recurring jobs** page is where you hand Jarvis 007 work that runs while you are not at the computer: jobs that repeat on a cycle (called **loops**) and reminders at a set time. Each loop wakes on its cycle, does exactly the one task you described, verifies itself, writes a log entry and messages the result to you on Telegram.
 
-Trang này gộp việc của **mọi brain**, không chỉ brain đang chọn ở thanh bên.
+This page aggregates jobs from **every brain**, not just the one selected in the sidebar.
 
-## Tính năng này là gì
+## What this feature is
 
-Hai loại việc sống chung một trang:
+Two kinds of job share one page:
 
-| Loại | Bản chất | Lưu ở đâu |
+| Kind | Nature | Stored where |
 |---|---|---|
-| 🔁 **Việc lặp** (loop) | Cứ mỗi N phút lại tự thức dậy làm đúng một việc rồi dừng. Chạy vô hạn cho tới khi bạn tắt. | Một file `.md` trong `Javis/loops/` của brain |
-| ⏰ **Nhắc hẹn** | Một mốc giờ cụ thể ("30 phút nữa", "8h30"), hoặc lịch cron lặp theo giờ cố định ("7h sáng mỗi ngày"). | `Javis/reminders.json` của brain |
+| 🔁 **Loop** | Every N minutes it wakes, does one job and stops. It runs forever until you switch it off. | An `.md` file in the brain's `Javis/loops/` |
+| ⏰ **Reminder** | A specific moment ("in 30 minutes", "8:30"), or a cron schedule repeating at a fixed time ("7am every day"). | The brain's `Javis/reminders.json` |
 
-Điểm khác nhau quan trọng: việc lặp tính theo **khoảng cách** giữa hai lần chạy, nhắc hẹn tính theo **mốc giờ**. "Mỗi 2 tiếng quét đơn" là việc lặp; "7h sáng nào cũng báo doanh thu" là nhắc hẹn dùng cron.
+The key difference: a loop counts the **gap** between runs, a reminder counts a **clock time**. "Scan orders every 2 hours" is a loop; "report revenue at 7am every day" is a reminder using cron.
 
-Bạn tạo được **nhiều việc lặp song song**, mỗi việc một file riêng. Nhưng chúng chạy **tuần tự**: tại một thời điểm toàn hệ thống chỉ có đúng một vòng đang chạy. Bộ đếm lịch của Javis kiểm tra mỗi 30 giây, mỗi lần kiểm chỉ chọn **một** việc lặp quá hạn lâu nhất để chạy. Vì vậy thời điểm chạy thật có thể lệch vài chục giây so với chu kỳ bạn đặt, và nếu đặt nhiều việc cùng lúc thì chúng xếp hàng chứ không chạy chồng nhau.
+You can create **many loops in parallel**, each in its own file. But they run **sequentially**: at any moment the whole system runs exactly one iteration. Jarvis 007's scheduler checks every 30 seconds, and each check picks **one** loop, the one most overdue. So the real run time can drift a few dozen seconds from the cycle you set, and several loops due at once queue rather than overlapping.
 
-Loop **đọc được dữ liệu thật qua MCP** (POS, quảng cáo, lịch, analytics...) để làm việc. Nó có ghi được file hay có thao tác thật ra ngoài hay không thì tuỳ **mức quyền** bạn chọn, xem mục "Ba mức quyền" bên dưới.
+A loop **can read real data through MCP** (POS, ads, calendar, analytics...) to do its work. Whether it can write files or take real outside actions depends on the **permission level** you pick, see "The three permission levels" below.
 
-Việc lặp được sửa trực tiếp bằng cách mở file `.md` trong Obsidian hoặc trang [Quản lý tệp tin](05-quan-ly-tep-tin.md). Trạng thái chạy (lần cuối, số vòng hôm nay, chuỗi lỗi) nằm tách ở `Javis/loop-state.json`, do server sở hữu, nên bạn sửa file định nghĩa mà không sợ giẫm chân.
+Loops can be edited directly by opening the `.md` file in Obsidian or the [File manager](05-quan-ly-tep-tin.md) page. Run state (last run, iterations today, error streak) lives separately in `Javis/loop-state.json`, owned by the server, so you can edit the definition file without stepping on it.
 
-## Mở ở đâu trong Javis
+## Where to find it in Jarvis 007
 
-1. Mở dashboard Javis (mặc định `http://localhost:7777`).
-2. Nhìn thanh điều hướng bên trái, bấm nhóm **Việc** để mở ra.
-3. Bấm mục **Việc định kỳ**.
+1. Open the Jarvis 007 dashboard (`http://localhost:7777` by default).
+2. In the left navigation rail, open the **Work** group.
+3. Click **Recurring jobs**.
 
-Trang mở ra với phụ đề "Việc định kỳ + nhắc hẹn đang chờ". Từ trên xuống dưới bạn thấy: một đoạn giới thiệu ngắn, hàng nút **+ Thêm việc** và **■ Dừng vòng đang chạy**, ô tìm kiếm, danh sách thẻ việc gom theo brain, cuối cùng là khối **Nhật ký gần đây**.
+The page opens with the subtitle "Recurring jobs + pending reminders". Top to bottom you see: a short introduction, the **+ Add job** and **■ Stop the running iteration** buttons, a search box, the job cards grouped by brain, and finally the **Recent log** block.
 
-Biểu mẫu tạo/sửa việc bị ẩn cho tới khi bạn bấm **+ Thêm việc** hoặc **Sửa** trên một thẻ.
+The create/edit form stays hidden until you click **+ Add job** or **Edit** on a card.
 
-## Cách dùng (từng bước)
+## How to use it (step by step)
 
-### Bước 1: Bấm "+ Thêm việc"
+### Step 1: Click "+ Add job"
 
-Biểu mẫu hiện ra ngay dưới hàng nút.
+The form appears right under the button row.
 
-### Bước 2: Chọn loại việc
+### Step 2: Pick the job kind
 
-Ở mục **Loại việc** có hai nút: **🔁 Việc lặp** (chọn sẵn) và **⏰ Nhắc hẹn**. Bấm để đổi. Chọn loại nào thì biểu mẫu đổi các ô bên dưới theo loại đó.
+**Job kind** has two buttons: **🔁 Loop** (preselected) and **⏰ Reminder**. Click to switch. The fields below change with the kind.
 
-Lưu ý: khi bạn bấm **Sửa** trên một thẻ có sẵn, hai nút này bị khoá và mờ đi. Biểu mẫu chỉ sửa được việc lặp; nhắc hẹn thì chỉ huỷ hoặc chuyển brain ngay trên thẻ.
+Note: clicking **Edit** on an existing card locks and dims these two buttons. The form only edits loops; reminders can only be cancelled or moved between brains from the card.
 
-### Bước 3: Đặt tên và mô tả
+### Step 3: Name and describe it
 
-- **Tên**: tên ngắn hiện trên thẻ, ví dụ "Đọc email mỗi 2 tiếng". Bỏ trống thì báo "Nhập tên".
-- **Mô tả nhiệm vụ (mỗi vòng Javis làm đúng việc này)**: đây là ô **bắt buộc** và là thứ quan trọng nhất. Javis không tự nghĩ ra việc; mỗi vòng nó làm đúng cái bạn viết trong ô này rồi dừng. Bỏ trống thì báo "Nhập mô tả nhiệm vụ (Javis cần biết mỗi vòng làm gì)".
+- **Name**: the short name shown on the card, for example "Read email every 2 hours". Leaving it empty reports "Enter a name".
+- **Task description (each iteration, Jarvis 007 does exactly this)**: this field is **required** and is the most important thing here. Jarvis 007 does not invent work; each iteration it does exactly what you wrote here, then stops. Leaving it empty reports that Jarvis 007 needs to know what each iteration should do.
 
-Khi bạn chọn **⏰ Nhắc hẹn**, nhãn ô mô tả đổi thành "Nội dung nhắc (Javis sẽ nhắc hoặc làm đúng việc này)", và báo lỗi khi để trống là "Nhập nội dung nhắc".
+Choosing **⏰ Reminder** relabels the field to "Reminder content (Jarvis 007 will remind you or do exactly this)", and the empty-field error becomes "Enter the reminder content".
 
-Viết mô tả càng cụ thể càng tốt: nói rõ đọc gì, làm gì, lưu vào đâu. Viết tự đủ, đừng phụ thuộc ngữ cảnh cuộc chat hiện tại, vì việc sẽ chạy lúc không ai ngồi đó. Ví dụ:
+Write the description as specifically as possible: say what to read, what to do, where to save it. Make it self-contained rather than relying on the current chat context, because it runs when nobody is there. For example:
 
-> Mỗi vòng đọc 1 source chưa xử lý trong 06 - Sources rồi đề xuất Wiki page nên tạo.
+> Each iteration, read 1 unprocessed source in 06 - Sources and propose which Wiki page to create.
 
-> Đọc số đơn hôm nay qua MCP POS, nếu thấp thì soạn nháp 1 caption đẩy hàng vào 05 - Projects.
+> Read today's order count through the POS MCP, and if it is low, draft one promotional caption into 05 - Projects.
 
-### Bước 4a (việc lặp): Chọn chế độ và chu kỳ
+### Step 4a (loops): pick the mode and the cycle
 
-- **Chế độ**: ba nút **Đề xuất (chỉ đọc)**, **Tự làm (ghi nháp)**, **Toàn quyền**. Mặc định của việc mới là **Toàn quyền** (từ 0.55.62; trước đó là Đề xuất). Xem mục "Ba mức quyền" bên dưới nếu muốn hạ.
-- **Chu kỳ (phút, tối thiểu 5)**: số phút giữa hai lần chạy. Ô điền sẵn **120**. Nhập nhỏ hơn 5 thì server tự nâng lên 5.
+- **Mode**: three buttons, **Suggest (read-only)**, **Auto (drafts)**, **Full power**. New jobs default to **Full power** (since 0.55.62; Suggest before that). See "The three permission levels" below if you want a lighter job.
+- **Cycle (minutes, minimum 5)**: the number of minutes between runs. The field is prefilled with **120**. Anything under 5 is raised to 5 by the server.
 
-Dưới biểu mẫu có dòng nhắc: "Toàn quyền (mặc định) = tự thao tác mọi thứ, kể cả ra ngoài. Tự làm = ghi nháp file + đọc MCP, không hành động ra ngoài. Đề xuất = chỉ đọc + gợi ý."
+Under the form there is a reminder line: Full power (default) = does everything itself, outside actions included. Auto = writes draft files and reads MCP, no outside actions. Suggest = read only plus suggestions.
 
-### Bước 4b (nhắc hẹn): Đặt "Khi nào" và "Kiểu"
+### Step 4b (reminders): set "When" and "Type"
 
-- **Khi nào**: ô nhập thời điểm. Xem đầy đủ các dạng nó hiểu ở mục Ô "Khi nào" hiểu những gì bên dưới. Bỏ trống thì báo lỗi `Nhập thời điểm (vd "30 phút nữa", "8h30", "0 7 * * *")`.
-- **Kiểu**: hai nút **⏰ Chỉ nhắc** (chọn sẵn) và **🤖 Tự làm rồi báo**.
-  - **⏰ Chỉ nhắc**: tới giờ Javis bắn thẳng một tin Telegram, mở đầu bằng "⏰ Nhắc anh: " rồi tới nội dung bạn viết. Không gọi model, không tốn token.
-  - **🤖 Tự làm rồi báo**: tới giờ Javis chạy engine để **làm** việc đó rồi gửi kết quả về Telegram.
-- **Được phép làm gì** (chỉ hiện khi chọn 🤖 Tự làm rồi báo): ba mức, mặc định **Toàn quyền**.
-  - **Chỉ đọc**: đọc dữ liệu thật qua MCP và đọc file, rồi báo lại. Không ghi gì, không làm gì ra ngoài.
-  - **Ghi file**: thêm quyền ghi file nháp trong brain. Hub vẫn chặn hành động ra ngoài ở mức này.
-  - **Toàn quyền** (mặc định): dùng được mọi công cụ bạn đã đấu, gồm cả hành động ra ngoài. Đây là mức duy nhất làm được những việc kiểu "tới giờ thì gửi tin", "tới giờ thì đăng bài", "tới giờ thì đặt lịch".
+- **When**: the time field. See the full list of accepted forms in "What the When field understands" below. Leaving it empty reports an error with examples such as "in 30 minutes", "8:30", "0 7 * * *".
+- **Type**: two buttons, **⏰ Remind only** (preselected) and **🤖 Do it and report**.
+  - **⏰ Remind only**: at the set time, Jarvis 007 sends a Telegram message starting with "⏰ Reminder: " followed by your text. No model call, no tokens.
+  - **🤖 Do it and report**: at the set time, Jarvis 007 runs the engine to actually **do** the job and sends the result to Telegram.
+- **What it may do** (only shown for 🤖 Do it and report): three levels, defaulting to **Full power**.
+  - **Read only**: reads real data through MCP and reads files, then reports. Writes nothing, does nothing outside.
+  - **Write files**: adds permission to write draft files in the brain. The hub still blocks outside actions at this level.
+  - **Full power** (default): every tool you connected, outside actions included. This is the only level that can do things like "send the message at that time", "publish at that time", "book the calendar at that time".
 
-  Vì sao mặc định là Toàn quyền: nhắc hẹn làm **đúng một việc bạn đã viết ra và hẹn giờ**, tức là một câu lệnh trong chat được dời sang giờ khác. Trói nó chặt hơn lúc bạn đang ngồi chat thì thành ra bạn dặn "10h mai gửi giúp tôi" mà tới 10h nó báo về là không được phép gửi. Thẻ việc gắn nhãn **toàn quyền** để bạn liếc một cái là biết. Việc chạy khi không có ai ngồi cạnh, nên hãy viết nội dung việc thật rõ.
+  Why the default is Full power: a reminder does **exactly the one thing you wrote down and scheduled**, which is a chat instruction moved to a later time. Restricting it more than when you sit chatting means telling it "send this for me at 10am tomorrow" and being told at 10am that it was not allowed to send. The job card carries a **full power** label so one glance tells you. It runs when nobody is next to it, so write the job text clearly.
 
-### Bước 5: Chọn brain
+### Step 5: Pick the brain
 
-Ô **Brain (nơi lưu việc)** cho chọn brain sẽ chứa việc này, mặc định là brain bạn đang xem ở thanh bên. Khi **Sửa** một việc lặp có sẵn, ô này bị khoá về đúng brain của nó. Muốn dời việc sang brain khác thì dùng ô **Chuyển brain…** trên thẻ, chứ đừng đổi lúc sửa.
+The **Brain (where the job is stored)** field picks which brain holds this job, defaulting to the one in your sidebar. When **editing** an existing loop, this field locks to its own brain. To move a job to another brain, use the **Move to brain…** picker on the card rather than changing it while editing.
 
-### Bước 6: Lưu
+### Step 6: Save
 
-Bấm **💾 Lưu**. Nút đổi thành "Đang lưu..." rồi trở lại. Lưu xong biểu mẫu tự đóng và danh sách tải lại. Lỗi thì hiện ngay cạnh nút, dạng "⚠ ..." màu vàng cam.
+Click **💾 Save**. The button reads "Saving..." then returns. On success the form closes and the list reloads. Errors appear next to the button as an orange "⚠ ..." line.
 
-### Bước 7: Bật việc lên
+### Step 7: Switch the job on
 
-**Việc lặp mới tạo từ dashboard luôn ở trạng thái TẮT.** Đây là chủ ý an toàn: bạn xem lại mô tả, xong mới bấm **Bật** trên thẻ của nó. Chưa bấm Bật thì nó không bao giờ tự chạy.
+**A loop created from the dashboard is always OFF.** That is deliberate safety: you reread the description, then click **Enable** on its card. Until you do, it never runs.
 
-Nhắc hẹn thì khác: tạo xong là đã ở hàng chờ, không cần bật.
+Reminders are different: once created they are already queued, with nothing to switch on.
 
-## Ba mức quyền (chế độ của việc lặp)
+## The three permission levels (loop modes)
 
-| Nút trên biểu mẫu | Nhãn trên thẻ | Javis được làm gì |
+| Button in the form | Label on the card | What Jarvis 007 may do |
 |---|---|---|
-| **Toàn quyền** | toàn quyền | Mở hết: mọi công cụ và mọi MCP, **thao tác thật ra bên ngoài** không cần hỏi: tạo đơn, chạy quảng cáo, đăng bài, gửi tin. **Mặc định** từ 0.55.62. |
-| **Tự làm (ghi nháp)** | tự làm (ghi nháp) | Đọc MCP + **ghi được file** trong brain (tạo/sửa note nháp). Hub chặn hành động ra ngoài. Có thêm bước tự kiểm chứng sau mỗi vòng. |
-| **Đề xuất (chỉ đọc)** | đề xuất | Chỉ dùng công cụ đọc, kể cả đọc dữ liệu thật qua MCP. **Không ghi file**. Mỗi vòng nêu 2-3 đề xuất hành động cụ thể. |
+| **Full power** | full power | Everything open: every tool and every MCP, **real outside actions** without asking: create orders, run ads, publish posts, send messages. **The default** since 0.55.62. |
+| **Auto (drafts)** | auto (drafts) | Reads MCP and **can write files** in the brain (creating or editing draft notes). The hub blocks outside actions. Adds a self-verification step after each iteration. |
+| **Suggest (read-only)** | suggest | Read-only tools, including reading real data through MCP. **No file writes**. Each iteration gives 2 to 3 concrete suggested actions. |
 
-Trước 0.55.62 Javis có một luật an toàn: việc chạy nền không bao giờ được tự tiêu tiền, lên đơn, đăng bài hay nhắn khách, nên mặc định là Đề xuất và chọn Toàn quyền phải qua hai hộp xác nhận. Chủ dự án đã bỏ luật đó: Javis giờ tự thao tác, hai mức nhẹ chỉ còn là lựa chọn cho ai muốn một loop cụ thể chỉ đọc hoặc chỉ ghi nháp. Loop toàn quyền chạy nền theo lịch không có người duyệt từng bước, nên hãy viết mô tả nhiệm vụ rõ phạm vi.
+Before 0.55.62 Jarvis 007 had a safety rule: background jobs could never spend money, create orders, publish or message customers on their own, so the default was Suggest and picking Full power went through two confirmation dialogs. The project owner removed that rule: Jarvis 007 now acts on its own, and the two lighter levels remain as options for a specific loop you want read-only or drafts-only. A full-power loop runs in the background on a schedule with nobody approving each step, so describe its task with a clear scope.
 
-## Ô "Khi nào" hiểu những gì
+## What the "When" field understands
 
-Ô này nhận bốn dạng, gợi ý sẵn trong ô là `30 phút nữa · 8h30 · 0 7 * * * · 2026-07-20 09:00`:
+It accepts four shapes, with the placeholder showing `in 30 minutes · 8:30 · 0 7 * * * · 2026-07-20 09:00`:
 
-| Bạn gõ | Javis hiểu |
+| You type | Jarvis 007 reads it as |
 |---|---|
-| `30 phút nữa`, `2 tiếng nữa`, `1.5 giờ`, `3 ngày` | Đếm ngược kể từ bây giờ. Đơn vị nhận: phút, tiếng, giờ, ngày (có dấu hoặc không dấu đều được). |
-| `8h30`, `8:30`, `8h` | Mốc giờ trong ngày. Nếu giờ đó đã qua rồi thì tự dời sang **ngày mai**. |
-| `2026-07-20 09:00` | Ngày giờ cụ thể. |
-| `0 7 * * *` | Biểu thức cron 5 trường (phút, giờ, ngày, tháng, thứ). Đây là **lịch lặp**: cứ tới giờ đó là chạy, chạy xong tự tính lần kế tiếp. `0 7 * * *` = 7h sáng mỗi ngày. Macro `@daily`, `@hourly`, `@weekly`, `@monthly` cũng nhận. |
+| `in 30 minutes`, `in 2 hours`, `1.5 hours`, `3 days` | A countdown from now. Units accepted: minutes, hours, days. |
+| `8h30`, `8:30`, `8h` | A time of day. If it already passed, it moves to **tomorrow**. |
+| `2026-07-20 09:00` | A specific date and time. |
+| `0 7 * * *` | A 5-field cron expression (minute, hour, day, month, weekday). This is a **repeating schedule**: it runs at that time and computes the next one. `0 7 * * *` = 7am every day. The macros `@daily`, `@hourly`, `@weekly`, `@monthly` are accepted too. |
 
-Mọi giờ tính theo giờ Việt Nam (UTC+7). Ba dạng đầu là hẹn **một lần** (chạy xong thì biến khỏi danh sách chờ); cron thì lặp mãi tới khi bạn huỷ. Hẹn một lần không được xa quá khoảng một năm.
+All times use Vietnam time (UTC+7). The first three forms are **one-shot** (once run, they leave the pending list); cron repeats until you cancel. A one-shot cannot be more than about a year out.
 
-## Danh sách việc
+## The job list
 
-### Ba tab: Việc, Sự cố, Nhật ký
+### Three tabs: Jobs, Incidents, Log
 
-Từ 0.204.0 trang chia thành ba tab ngay dưới nút **+ Thêm việc**. Tab **Việc** là danh sách việc, cạnh tên có số việc. Tab **Sự cố** là phần sức khoẻ việc nền, có số đỏ khi đang có sự cố mở. Tab **Nhật ký** là nhật ký gần đây. Trang nhớ tab bạn mở lần trước.
+From 0.204.0 the page has three tabs right under **+ Add job**. **Jobs** is the job list, with the job count next to it. **Incidents** is the background health section, with a red count while an incident is open. **Log** is the recent log. The page remembers the tab you had open.
 
-### Chọn bộ não
+### Picking a brain
 
-Ô chọn đầu tab Việc chỉ hiện việc của **một bộ não**, mặc định là bộ não bạn đang chọn ở thanh bên (ghi **đang xem**). Mỗi bộ não ghi kèm số việc, ví dụ `Brain Default (14)`. Chọn **Tất cả bộ não** thì thấy hết, mỗi thẻ có dòng nhỏ ghi thẻ đó thuộc bộ não nào. Trang nhớ lựa chọn này.
+The picker at the top of Jobs shows the jobs of **one brain**, by default the brain selected in your sidebar (marked **viewing**). Each brain shows its job count, for example `Brain Default (14)`. Pick **All brains** to see everything; each card then carries a small line naming its brain. The page remembers this choice.
 
-Cạnh đó là ba nút lọc **Tất cả**, **Việc lặp** và **Nhắc hẹn**.
+Next to it, three filters: **All**, **Repeating job** and **Reminder**.
 
-### Phân trang
+### Paging
 
-Mỗi trang **10 thẻ**, có nút **← Trước** và **Sau →** cùng dòng đếm "Trang 1/2 · 14 mục". Đổi bộ não, đổi bộ lọc hay gõ tìm kiếm thì quay về trang đầu.
+**10 cards** a page, with **← Previous** and **Next →** and a count line such as "Page 1/2 · 14 items". Changing the brain, the filter or the search goes back to the first page.
 
-Bộ não chưa có việc thì hiện dòng "Chưa có việc nào ở brain này. Bấm **+ Thêm việc**, hoặc nói với Javis trong chat."
+If the brain has no jobs, it reads "No jobs in this brain yet. Click **+ Add job**, or tell Jarvis 007 in chat."
 
-### Ô tìm kiếm
+### The search box
 
-Ô **🔍 Tìm việc theo tên...** lọc thẻ ngay khi bạn gõ, **bỏ dấu tiếng Việt** nên gõ "kho" vẫn khớp "khô", gõ "email" vẫn khớp "Email". Ô này tìm trong bộ não đang chọn (hoặc tất cả). Không khớp gì cả thì hiện "Không có việc nào khớp."
+The **🔍 Find a job by name...** box filters cards as you type, **ignoring Vietnamese accents**, so typing "kho" still matches "khô" and "email" still matches "Email". It searches the selected brain (or all of them). With no matches at all it reads "No job matches."
 
-### Đọc một thẻ việc lặp
+### Reading a loop card
 
-Thẻ bắt đầu bằng `🔁 <tên việc>` kèm slug (tên file) mờ ở bên cạnh, và một trạng thái ở góc phải:
+The card starts with `🔁 <job name>` and its slug (the file name) dimmed beside it, with a status in the top right:
 
-| Trạng thái | Nghĩa |
+| Status | Meaning |
 |---|---|
-| ⏳ đang chạy | Vòng của chính việc này đang chạy ngay lúc đó |
-| ⚠ tự tạm dừng | Đã hỏng 3 lần liên tiếp nên Javis tự khoá lại, xem mục "Tự tạm dừng" |
-| ● bật | Đang bật, sẽ tự chạy theo chu kỳ |
-| ○ tắt | Đang tắt, không tự chạy (thẻ hiển thị mờ) |
+| ⏳ running | This job's iteration is running right now |
+| ⚠ auto-paused | It failed 3 times in a row so Jarvis 007 locked it, see "Auto-pause" |
+| ● on | Enabled, running on its cycle |
+| ○ off | Disabled, not running (the card is dimmed) |
 
-Dòng thứ hai ghi chế độ và chu kỳ, ví dụ `toàn quyền · mỗi 120 phút`, kèm các thông tin nâng cao nếu có: tên loại nhiệm vụ cũ (khi khác "Tự định nghĩa"), `im lặng 23-07`, `tối đa 3/ngày (đã 1)`, `⚙ code · <thư mục>`.
+The second line shows the mode and cycle, for example `full power · every 120 minutes`, plus advanced information where present: the legacy task type (when it is not "Custom"), `quiet 23-07`, `max 3/day (1 used)`, `⚙ code · <folder>`.
 
-Dòng thứ ba là lịch sử ngắn: `lần cuối HH:MM` (hoặc `chưa chạy`), kết quả kiểm chứng gần nhất (` · ok` nếu sạch, hoặc `· ✓ Đạt: ...` / `· ✗ Chưa đạt: ...`), và `· kế tiếp ~HH:MM` nếu đang bật. Việc đang tự tạm dừng thì có thêm một dòng `⚠` ghi rõ lý do và thời điểm.
+The third line is a short history: `last HH:MM` (or `never run`), the latest verification result (` · ok` when clean, or `· ✓ Pass: ...` / `· ✗ Fail: ...`), and `· next ~HH:MM` when enabled. An auto-paused job adds a `⚠` line with the reason and the time.
 
-### Đọc một thẻ nhắc hẹn
+### Reading a reminder card
 
-Thẻ nhắc hẹn gọn hơn: tên (hoặc nội dung nếu không đặt tên), rồi một dòng phụ ghi thời điểm và kiểu. Kiểu là `nhắc` (chỉ nhắc), `tự làm + báo`, hoặc `script`. Riêng `tự làm + báo` có thêm nhãn mức quyền (`chỉ đọc`, `được ghi file`, hoặc `toàn quyền`).
+Reminder cards are more compact: the name (or the content if unnamed), then a secondary line with the time and the type. The type is `remind` (remind only), `do + report`, or `script`. `do + report` also shows a permission label (`read only`, `may write files`, or `full power`).
 
-Thời điểm luôn nói rõ **bao giờ chạy**, không bắt bạn tự đọc cron:
+The time always states **when it will run**, so you never have to read cron yourself:
 
-- Hẹn một lần: `một lần, kế tiếp mai 08:30 (còn 14 giờ)`.
-- Lịch lặp cron: lịch dịch thành lời rồi mới tới lần chạy kế tiếp, ví dụ `7:00 mỗi ngày · kế tiếp mai 07:00 (còn 14 giờ)`. Biểu thức thô vẫn in bên cạnh dạng `0 7 * * *` cho ai muốn kiểm.
-- Lặp theo khoảng cách: `lặp mỗi 60 phút · kế tiếp hôm nay 15:20 (còn 12 phút)`.
+- One-shot: `once, next tomorrow 08:30 (in 14 hours)`.
+- Cron schedule: the schedule in words, then the next run, for example `7:00 every day · next tomorrow 07:00 (in 14 hours)`. The raw expression is still printed alongside as `0 7 * * *` for anyone who wants to check.
+- Interval repeats: `repeats every 60 minutes · next today 15:20 (in 12 minutes)`.
 
-Giờ trong ngày hôm nay ghi `hôm nay HH:MM`, ngày mai ghi `mai HH:MM`, xa hơn ghi `HH:MM DD/MM`.
+Times today read `today HH:MM`, tomorrow reads `tomorrow HH:MM`, and further out reads `HH:MM DD/MM`.
 
-Nếu lần chạy trước bị lỗi (ví dụ không gửi được tin), thẻ có thêm một dòng `⚠ lần chạy trước lỗi: ...` để bạn biết mà xử lý, thay vì im lặng chạy sai mãi.
+If the previous run failed (for example the message could not be sent), the card adds a `⚠ previous run failed: ...` line so you can act on it instead of it failing silently forever.
 
-### Các nút trên thẻ
+### The buttons on a card
 
-Mọi nút đều nhắm đúng brain của chính thẻ đó, không phải brain đang chọn ở thanh bên.
+Every button targets that card's own brain, not the brain selected in the sidebar.
 
-Trên thẻ việc lặp:
+On a loop card:
 
-- **Bật** / **Tắt**: gạt trạng thái. Bật cũng xoá luôn trạng thái tự tạm dừng.
-- **▶ Chạy ngay**: chạy một vòng ngay lập tức, không chờ tới chu kỳ. Nút đổi thành "Đang chạy..." và danh sách tự tải lại sau khoảng 2,5 giây. Lưu ý: nút này **không** lưu biểu mẫu đang mở, nó chạy đúng nội dung đã lưu trong file. Bấm Chạy ngay cũng xoá trạng thái tự tạm dừng vì đây là hành động chủ động của bạn.
-- **Sửa**: mở lại biểu mẫu với nội dung của việc này.
-- **Xoá**: hỏi xác nhận rồi xoá hẳn file `Javis/loops/<slug>.md`.
-- **Chuyển brain…**: ô chọn để dời việc sang brain khác, giữ nguyên file và trạng thái chạy. Brain đích đã có việc trùng tên thì Javis từ chối và báo lỗi, không ghi đè. Việc đang chạy cũng không dời được, hãy thử lại sau.
+- **Enable** / **Disable**: flip the state. Enabling also clears an auto-pause.
+- **▶ Run now**: run one iteration immediately, without waiting for the cycle. The button reads "Running..." and the list reloads after about 2.5 seconds. Note: this button does **not** save an open form; it runs what is saved in the file. Running now also clears an auto-pause, because it is a deliberate action on your part.
+- **Edit**: reopen the form with this job's content.
+- **Delete**: asks to confirm, then removes `Javis/loops/<slug>.md` entirely.
+- **Move to brain…**: a picker to move the job to another brain, keeping its file and run state. If the target brain already has a job with the same name, Jarvis 007 refuses and reports the error rather than overwriting. A running job cannot be moved; try again later.
 
-Trên thẻ nhắc hẹn:
+On a reminder card:
 
-- **Sửa**: mở lại biểu mẫu với nội dung của nhắc hẹn này. Đổi được tên, nội dung, kiểu và giờ. Nếu là lịch cron thì ô "Khi nào" điền sẵn biểu thức cũ, sửa xong Javis tính lại lần chạy kế tiếp ngay. Nếu là hẹn một lần thì ô đó để trống và ghi giờ đang hẹn trong phần gợi ý: **để trống nghĩa là giữ nguyên giờ cũ**, chỉ gõ khi muốn đổi.
-- **Huỷ**: ngừng chạy nhưng bản ghi vẫn nằm trong lịch sử để tra lại.
-- **Xoá**: mất hẳn, không hoàn tác được.
-- **Chuyển brain…**: dời sang brain khác, giữ nguyên id và mọi thiết lập.
+- **Edit**: reopen the form with this reminder's content. You can change the name, content, type and time. For a cron schedule, the "When" field is prefilled with the old expression, and saving recomputes the next run immediately. For a one-shot, the field is empty with the current time shown in the placeholder: **empty means keep the existing time**, so only type when you want to change it.
+- **Cancel**: stop it running while keeping the record in history.
+- **Delete**: remove it entirely, with no undo.
+- **Move to brain…**: move it to another brain, keeping its id and every setting.
 
-## Chưa đấu Telegram thì Javis không tạo lịch
+## Without Telegram connected, Jarvis 007 will not create a schedule
 
-Nhắc hẹn và việc "tự làm rồi báo" chỉ có giá trị khi tới giờ nó **nói được với ai đó**, mà kênh báo duy nhất hiện nay là Telegram. Nếu bot Telegram chưa bật, chưa có token, hoặc chưa có Chat ID nào được phép, Javis **từ chối tạo** và nói rõ thiếu gì kèm lối sang trang [Kênh](11-telegram.md) để đấu.
+Reminders and "do it and report" jobs are only worth anything if, when the time comes, they can **tell someone**, and the only reporting channel today is Telegram. If the Telegram bot is off, has no token, or has no allowed Chat ID, Jarvis 007 **refuses to create** the job and says exactly what is missing, with a link to the [Channels](11-telegram.md) page to connect it.
 
-Đây là chỗ trước đây gây hiểu lầm nhiều nhất: Javis dựng job "sáng nào cũng báo email và lịch", job chạy đúng giờ thật, nhưng kết quả không gửi được cho ai và cũng không ai nói cho bạn biết là thiếu Telegram.
+This used to be the biggest source of confusion: Jarvis 007 would build a "report email and calendar every morning" job, the job would run on time, and the result reached nobody, with nothing telling you Telegram was missing.
 
-Nếu bạn vẫn muốn tạo (ví dụ định đấu Telegram sau), bấm **Vẫn tạo** ngay cạnh lời cảnh báo. Việc sẽ chạy đúng giờ, kết quả lưu trong Javis, chỉ là chưa gửi đi đâu.
+If you still want to create it (planning to connect Telegram later), click **Create anyway** next to the warning. The job runs on time and its result is stored in Jarvis 007, it simply goes nowhere.
 
-Khi trang Việc định kỳ phát hiện chưa có kênh báo, nó hiện một dải cảnh báo ở đầu trang, vì các việc đã tạo từ trước vẫn đang chạy mà không tới tay bạn.
+When the Recurring jobs page detects that no reporting channel exists, it shows a warning strip at the top, because jobs created earlier are still running and still not reaching you.
 
-Đặt lịch bằng lời qua chat cũng theo luật này: Javis phải soát trước xem nguồn dữ liệu đã đấu chưa và có chỗ báo kết quả chưa, thiếu thì nói thẳng rồi hỏi bạn, không tạo cho xong.
+Scheduling in words through chat follows the same rule: Jarvis 007 must check first whether the data sources are connected and whether there is a place to report to, and if something is missing it says so and asks, rather than creating something for the sake of it.
 
-## Chạy ngay và dừng vòng đang chạy
+## Run now and stopping the running iteration
 
-Nút **■ Dừng vòng đang chạy** ở đầu trang huỷ vòng **đang chạy trên toàn hệ thống**, bất kể vòng đó thuộc việc nào. Vì mỗi lúc chỉ có một vòng chạy nên nút này không cần chọn việc. Nó chỉ cắt tiến trình đang chạy, **không tắt việc**: tới chu kỳ sau nó lại chạy tiếp. Muốn ngừng hẳn thì bấm **Tắt** trên thẻ.
+The **■ Stop the running iteration** button at the top of the page aborts whatever iteration is **running system-wide**, whichever job it belongs to. Since only one runs at a time, the button needs no job selection. It only cuts the running process and **does not disable the job**: on the next cycle it runs again. To stop it for good, click **Disable** on the card.
 
-Nút này không đụng tới nhắc hẹn kiểu "🤖 Tự làm rồi báo" đang chạy.
+This button does not touch a running "🤖 Do it and report" reminder.
 
-Trong lúc có một vòng chạy, trang tự làm mới danh sách mỗi 5 giây để bạn thấy trạng thái đổi.
+While an iteration is running, the page refreshes the list every 5 seconds so you see the state change.
 
-## Bước tự kiểm chứng
+## The self-verification step
 
-Với chế độ **Tự làm (ghi nháp)** và **Toàn quyền**, sau khi làm xong việc, Javis chạy thêm một lượt kiểm tra độc lập: một "người soi" giả định kết quả vừa rồi là SAI, rồi đọc lại file liên quan để đối chiếu. Lượt kiểm chứng này **luôn chỉ được đọc**, kể cả với việc toàn quyền.
+In **Auto (drafts)** and **Full power** modes, after the work is done Jarvis 007 runs an independent check: a reviewer assumes the result is WRONG, then rereads the relevant files to compare. This verification pass is **always read-only**, even for full-power jobs.
 
-Bước này bị bỏ qua nếu vòng vừa rồi lỗi, hoặc kết quả nói "không có việc mới".
+The step is skipped if the iteration failed, or if the result says there was no new work.
 
-Tiêu chí soi thay đổi theo loại việc:
+The criteria vary by job type:
 
-- Việc thường: kết quả có đúng mục tiêu không, có hợp lý và khả thi không, có bịa hay làm hỏng file nào không.
-- Việc chạm số liệu kinh doanh: đề xuất có bám số thật không, có khả thi và đủ cụ thể không, có bịa số không.
-- Việc làm dày Wiki: có đúng quy ước Wiki không, có bịa hay thiếu trích dẫn không, có làm hỏng link không.
-- Việc dùng hồ sơ công cụ `code` (chỉ đặt được trong file `.md`): bắt buộc chạy `python -m py_compile` hoặc `node --check` cho từng file đã sửa và tất cả phải sạch, đồng thời diff phải nhỏ (dưới khoảng 80 dòng).
+- Ordinary jobs: does the result match the goal, is it sensible and feasible, did it invent anything or damage a file.
+- Jobs touching business data: are the suggestions grounded in real numbers, are they feasible and specific enough, were any figures invented.
+- Jobs thickening the Wiki: do they follow the Wiki conventions, is anything invented or missing citations, were any links broken.
+- Jobs using the `code` tool profile (settable only in the `.md` file): `python -m py_compile` or `node --check` must be run for every edited file and all must be clean, and the diff must be small (under about 80 lines).
 
-Với chế độ **Đề xuất** và **Tự làm (ghi nháp)** còn một tiêu chí cứng nữa: phát hiện bất kỳ hành động tiền, đơn hàng, quảng cáo, đăng bài hay gửi tin qua MCP là **trượt ngay**. Với chế độ **Toàn quyền** (mặc định) thì hành động thật là được phép, nên tiêu chí đổi thành: chỉ trượt nếu làm sai hoặc quá phạm vi nhiệm vụ, gây hại rõ ràng, hoặc đụng thứ ngoài ý bạn.
+In **Suggest** and **Auto (drafts)** modes there is one more hard criterion: detecting any money, order, ad, publishing or messaging action through MCP is an **immediate fail**. In **Full power** (the default), real actions are permitted, so the criterion becomes: fail only when it did the wrong thing or went beyond the task's scope, caused clear harm, or touched something you did not intend.
 
-Kết quả hiện dạng **✓ Đạt** hoặc **✗ Chưa đạt** kèm lý do ngắn, cả trên thẻ lẫn trong nhật ký.
+The result appears as **✓ Pass** or **✗ Fail** with a short reason, both on the card and in the log.
 
-## Tự tạm dừng khi hỏng 3 lần
+## Auto-pause after 3 failures
 
-Nếu một việc lặp hỏng **3 lần liên tiếp** (engine lỗi, hoặc kiểm chứng ✗ Chưa đạt), Javis tự khoá nó lại và ghi lý do dạng "Tự tạm dừng 20/07 14:35: 3 lần lỗi/kiểm chứng không đạt liên tiếp". Thẻ chuyển sang **⚠ tự tạm dừng** và không tự chạy nữa cho tới khi bạn can thiệp.
+If a loop fails **3 times in a row** (engine errors, or ✗ Fail verifications), Jarvis 007 locks it and records the reason, for example "Auto-paused 20/07 14:35: 3 consecutive failures or failed verifications". The card switches to **⚠ auto-paused** and stops running until you intervene.
 
-Lý do này ghi vào trạng thái runtime, **không** sửa file `.md` của bạn. Muốn chạy lại, bấm **Bật** hoặc **▶ Chạy ngay** trên thẻ, cả hai đều xoá khoá và reset chuỗi lỗi. Trước khi bật lại, hãy đọc nhật ký xem nó hỏng vì cái gì.
+That reason is written to runtime state and does **not** modify your `.md` file. To resume, click **Enable** or **▶ Run now** on the card; both clear the lock and reset the failure streak. Before resuming, read the log to see what broke.
 
-## Báo cáo về Telegram
+## Reporting to Telegram
 
-Đây là hành vi mặc định của Javis: **mỗi vòng chạy xong đều tự gửi kết quả về Telegram** cho người yêu cầu việc đó. Tin nhắn mở đầu bằng `✅ Loop '<tên việc>' vừa chạy...` (hoặc `⚠` nếu hỏng), rồi tới phần tóm tắt và dòng kiểm chứng.
+This is Jarvis 007's default behaviour: **every finished iteration sends its result to Telegram**, to whoever asked for that job. The message starts with `✅ Loop '<job name>' just ran...` (or `⚠` on failure), then the summary and the verification line.
 
-Gửi cho ai:
+Who receives it:
 
-- Việc tạo qua chat có gắn sẵn chat_id của người nói, nên báo về đúng người đó.
-- Việc tạo trên dashboard không biết bạn là ai, nên báo về **ID Telegram đầu tiên** trong danh sách cho phép.
+- Jobs created through chat carry the speaker's chat_id, so they report back to that person.
+- Jobs created on the dashboard do not know who you are, so they report to the **first Telegram ID** in the allow list.
 
-Muốn một việc ngừng báo mỗi vòng vì quá ồn, mở file `Javis/loops/<slug>.md` và đặt `notify: false` trong phần frontmatter.
+To stop one job reporting every iteration because it is too noisy, open `Javis/loops/<slug>.md` and set `notify: false` in the frontmatter.
 
-Nhắc hẹn cũng bắn qua Telegram. Nhắc hẹn tạo trên dashboard không gắn người nhận nên gửi cho **mọi ID** trong danh sách cho phép; nhắc hẹn đặt bằng lời qua chat thì gửi đúng người đã đặt.
+Reminders go through Telegram too. Reminders created on the dashboard have no attached recipient, so they go to **every ID** in the allow list; reminders set in words through chat go to the person who set them.
 
-Cả hai đều cần bot đã bật, xem [Kênh Telegram](11-telegram.md). Chưa bật bot thì việc vẫn chạy và vẫn ghi nhật ký, chỉ là không có tin báo.
+Both need the bot enabled, see [Telegram channel](11-telegram.md). Without it, jobs still run and still write logs, they simply send no message.
 
-## Nhật ký gần đây
+## Recent log
 
-Ở tab **Nhật ký**. Cạnh tiêu đề có một ô chọn để lọc:
+On the **Log** tab. Next to the title is a picker to filter:
 
-- **Nhật ký brain đang xem**: gộp mọi việc lặp của brain đang chọn ở thanh bên.
-- Hoặc chọn đúng một việc, hiển thị dạng `<tên việc> · <tên brain>`.
+- **Log for the brain you are viewing**: every loop of the brain selected in the sidebar.
+- Or one specific job, shown as `<job name> · <brain name>`.
 
-Javis tải 200 mục gần nhất rồi chia trang **10 mục** một trang, có nút **← Trước** và **Sau →**, kèm dòng đếm "Trang 1/5 · 47 mục". Chưa có gì thì hiện "Chưa có nhật ký."
+Jarvis 007 loads the 200 most recent entries and paginates **10 per page**, with **← Previous** and **Next →** buttons and a counter reading "Page 1/5 · 47 entries". With nothing yet it reads "No log entries."
 
-Mỗi mục bắt đầu bằng dòng tiêu đề dạng `## [2026-07-20 14:35] doc-source · loop (custom/auto) - scheduled`, trong đó `scheduled` nghĩa là chạy theo lịch, `manual` nghĩa là bạn bấm **▶ Chạy ngay**. Bên dưới là tóm tắt việc đã làm, dòng **Kiểm chứng** nếu có, và dòng cảnh báo nếu chính vòng đó khiến việc bị tự tạm dừng.
+Each entry starts with a heading such as `## [2026-07-20 14:35] doc-source · loop (custom/auto) - scheduled`, where `scheduled` means it ran on schedule and `manual` means you clicked **▶ Run now**. Below is the summary of what it did, a **Verification** line where present, and a warning line if that iteration is what auto-paused the job.
 
-Nhật ký cũng nằm trong brain dưới dạng file thật: `Javis/loop-log/YYYY-MM-DD.md`, mỗi ngày một file. Mở qua [Quản lý tệp tin](05-quan-ly-tep-tin.md) nếu muốn xem xa hơn 200 mục.
+The log also exists in the brain as real files: `Javis/loop-log/YYYY-MM-DD.md`, one per day. Open them through [File manager](05-quan-ly-tep-tin.md) to look further back than 200 entries.
 
-## Đặt lịch bằng lời trong chat
+## Scheduling in words through chat
 
-Bạn không bắt buộc phải vào trang này. Nói thẳng với Javis trong [Trò chuyện](02-tro-chuyen-va-giong-noi.md) hoặc qua Telegram cũng được, ví dụ:
+You do not have to use this page. Tell Jarvis 007 directly in [Chat](02-tro-chuyen-va-giong-noi.md) or over Telegram, for example:
 
-- "Tạo cho anh việc mỗi 2 tiếng quét đơn mới rồi tổng hợp."
-- "7h sáng nào cũng nhắc anh xem doanh thu hôm qua."
-- "30 phút nữa nhắc anh gọi khách."
-- "Còn việc gì đang chạy không?"
-- "Huỷ việc quét đơn đi."
+- "Create a job that scans new orders every 2 hours and summarises them."
+- "Remind me every day at 7am to check yesterday's revenue."
+- "Remind me in 30 minutes to call the customer."
+- "Is anything still running?"
+- "Cancel the order scanning job."
 
-Javis dùng công cụ `javis_schedule` (một plugin đi kèm app) để tự chọn đúng kho: lịch lặp theo khoảng cách thì ghi file vào `Javis/loops/`; mốc giờ cố định lặp lại hoặc hẹn một lần thì vào kho nhắc hẹn. Công cụ này tự đặt slug đúng chuẩn và **chặn trùng tên**: đã có việc cùng tên thì nó báo lỗi và bảo bạn sửa cái cũ, chứ không đẻ bản sao.
+Jarvis 007 uses the `javis_schedule` tool (a bundled plugin) to pick the right store: interval schedules become files in `Javis/loops/`; fixed repeating times and one-shots go into the reminder store. The tool sets a proper slug and **blocks duplicate names**: if a job with that name exists, it reports an error and tells you to edit the old one rather than spawning a copy.
 
-Hai rào an toàn cứng của đường này, không tham số nào đổi được:
+Two hard safety rails on this path, which no parameter can change:
 
-- Việc lặp tạo qua chat **luôn** ở `enabled: false`, và mặc định `mode: full` (nói "chỉ đọc" hoặc "chỉ ghi nháp" nếu muốn nhẹ hơn). Bạn phải vào trang Việc định kỳ bấm **Bật** thì nó mới chạy thật.
-- Không rõ chu kỳ (ví dụ bạn chỉ nói "mỗi sáng" mà không kèm giờ) thì công cụ báo lỗi và hỏi lại, tuyệt đối không tự đoán.
+- A loop created through chat is **always** `enabled: false`, and defaults to `mode: full` (say "read only" or "drafts only" for a lighter one). You must open the Recurring jobs page and click **Enable** for it to run for real.
+- If the cycle is unclear (you said "every morning" without a time), the tool reports an error and asks back, never guessing.
 
-## Webhook: hệ thống bên ngoài gọi Javis làm việc
+## Webhooks: outside systems start work in Jarvis 007
 
-Nhắc hẹn chạy theo giờ. Webhook chạy theo **sự kiện**: khách vừa điền form trên landing page, vừa thanh toán, hay một app khác vừa có dữ liệu mới thì Javis vào việc ngay, không phải chờ tới lượt lịch kế tiếp.
+Reminders run on the clock. A webhook runs on an **event**: a customer just filled the form on a landing page, just paid, or another app just has new data, and Jarvis 007 starts at once instead of waiting for the next scheduled run.
 
-**Tạo một webhook:** từ 0.204.0 webhook có trang riêng: mở nhóm **Việc** trên thanh bên, chọn **Webhook**, bấm **+ Thêm webhook**. Đặt tên, chọn brain, rồi chọn chạy gì:
+**Create a webhook:** from 0.204.0 webhooks have their own page: open the **Work** group in the sidebar, choose **Webhooks**, click **+ Add webhook**. Name it, pick a brain, then choose what runs:
 
-- **Một quy trình**: chọn quy trình có sẵn trong brain. Dữ liệu sự kiện thành đầu vào của quy trình.
-- **Một việc viết tay**: viết việc cần làm, ví dụ "Gọi lại cho khách trong 5 phút, ghi vào sổ khách hàng".
+- **A workflow**: pick an existing workflow in the brain. The event data becomes the workflow's input.
+- **A written job**: write what to do, for example "Call the customer back within 5 minutes and log them in the CRM".
 
-Chọn mức quyền như nhắc hẹn (Chỉ đọc, Được ghi file, Toàn quyền), rồi **Lưu**.
+Pick the permission level as for a reminder (Read only, Can write files, Full access), then **Save**.
 
-**Mã bí mật chỉ hiện một lần**, ngay sau khi lưu, kèm một lệnh `curl` để thử. Hệ thống gọi tới gửi mã trong header `Authorization: Bearer <mã>` (hoặc header `X-Javis-Token`, hoặc `?token=` cuối link nếu nó không đặt được header). Javis chỉ giữ bản băm của mã, nên quên mã thì bấm **Tạo mã mới**; mã cũ ngừng chạy ngay.
+**The secret is shown only once**, right after saving, together with a `curl` command to test it. The calling system sends it in the `Authorization: Bearer <token>` header (or the `X-Javis-Token` header, or `?token=` at the end of the link when it cannot set headers). Jarvis 007 keeps only a hash, so if you lose it press **New token**; the old one stops working at once.
 
-**Kết quả về đâu:** như nhắc hẹn, vào khung Javis Core của brain, hòm thư (chuông) và Telegram của bạn. Kết quả mở đầu bằng `[SILENT]` thì không báo.
+**Where results go:** like a reminder, to the brain's Jarvis 007 Core chat, the inbox (bell) and your Telegram. A result starting with `[SILENT]` is not reported.
 
-**Rào an toàn:**
+**Safety rails:**
 
-- Link sai mã, webhook đã tắt hay không tồn tại đều nhận cùng một câu từ chối, nên không ai dò được.
-- Dữ liệu sự kiện được đưa cho bộ não như **dữ liệu**, không phải lệnh. Giới hạn 32 KB mỗi lần gọi.
-- Mỗi webhook chạy từng việc một, chờ tối đa 5 việc, tối đa 30 lần mỗi giờ.
-- Hệ thống gọi lại vì mạng chập (gửi kèm header `Idempotency-Key` hoặc `X-Request-Id`) thì Javis nhận nhưng không chạy lần hai.
+- A wrong token, a switched-off webhook and an unknown one all get the same refusal, so nobody can probe.
+- The event data reaches the brain as **data**, not instructions. 32 KB per call at most.
+- Each webhook runs one job at a time, queues at most 5, and runs at most 30 times an hour.
+- When the sender retries after a network glitch (sending an `Idempotency-Key` or `X-Request-Id` header), Jarvis 007 acknowledges it without running twice.
 
-**Link phải ra được Internet.** Javis chạy trên VPS có tên miền thì dùng luôn. Chạy trên máy nhà thì cần một đường hầm (Cloudflare Tunnel, Tailscale Funnel) trỏ vào Javis.
+**The link must be reachable from the Internet.** On a VPS with a domain it works as is. On a home machine you need a tunnel (Cloudflare Tunnel, Tailscale Funnel) pointing at Jarvis 007.
 
-## Sức khoẻ việc nền: Javis Core lo sự cố
+## Background health: Jarvis 007 Core handles incidents
 
-Việc nền nào hỏng (việc Kanban, việc lặp tự tạm dừng, nhắc hẹn kiểu Tự làm rồi báo, webhook) thì **Javis Core** của brain đó được báo trước tiên, rồi quyết một trong ba:
+When a background run breaks (a Kanban job, a loop that paused itself, a Do it and report reminder, a webhook), the brain's **Jarvis 007 Core** hears first and decides one of three things:
 
-- **Chạy lại một lần** nếu lỗi thoáng qua (mạng chập, hết giờ, máy bận). Chỉ áp cho việc Kanban và nhắc hẹn; việc lặp và webhook không tự chạy lại.
-- **Báo bạn** một hai câu nếu chỉ bạn gỡ được: đăng nhập lại, khoá API, quyền, gói hết lượt, kết nối chưa đấu, việc đang tắt.
-- **Im** nếu việc đã tự ổn.
+- **Run it again once** for a passing failure (a network glitch, a timeout, a busy machine). Only for Kanban jobs and reminders; loops and webhooks are not re-run on their own.
+- **Tell you** in one or two sentences when only you can fix it: a sign-in, an API key, a permission, a plan out of quota, a connection not made, a job switched off.
+- **Stay quiet** when it already recovered.
 
-Quyết định do model việc nền đưa ra ở chế độ chỉ chữ (không công cụ nào), nhưng luật cứng do Javis giữ: lỗi về đăng nhập hay khoá không bao giờ được chạy lại, mỗi sự cố chạy lại tối đa một lần, và chạy lại vẫn hỏng thì chỉ báo đúng một tin. Không có model sẵn sàng thì Javis tự phân loại theo chữ lỗi.
+The background model decides in text-only mode (no tools), but Jarvis 007 keeps the hard rules: a sign-in or key error is never re-run, each incident is re-run at most once, and a retry that fails again sends exactly one message. With no model ready, Jarvis 007 classifies by the error text.
 
-Tab **Sự cố** của trang Việc định kỳ hiện các sự cố đang mở (bấm **Đã xử lý** để đóng) và các lỗi 24 giờ qua gom theo nguyên nhân. Muốn tắt hẳn việc báo cho Javis Core thì đặt `incidents.enabled` thành `false` trong cài đặt.
+The **Incidents** tab of the Recurring jobs page lists open incidents (press **Done** to close one) and the last 24 hours of failures grouped by cause. To stop reporting to Jarvis 007 Core, set `incidents.enabled` to `false` in the settings.
 
-**Khi Javis không mở được:** chạy `python tools/sentinel.py` trên máy chủ. Lệnh này chỉ đọc dữ liệu, không gọi model, in danh sách lỗi gom theo nguyên nhân; thêm `--json` để lấy bản máy đọc, `--out <thư mục>` để lưu báo cáo (thư mục phải nằm ngoài thư mục dữ liệu của Javis).
+**When Jarvis 007 will not open:** run `python tools/sentinel.py` on the server. It only reads data, calls no model, and prints the failures grouped by cause; add `--json` for a machine-readable copy and `--out <folder>` to save a report (the folder must be outside Jarvis 007's data folder).
 
-## Nhắc hẹn nhớ kết quả lần trước
+## Reminders that remember the last result
 
-Nhắc hẹn kiểu **Tự làm rồi báo** có thêm ô **Nhớ kết quả lần trước**. Bật lên thì mỗi lần chạy Javis nhận lại báo cáo lần trước (tối đa 2.000 ký tự), nên chỉ báo cái mới hay cái thay đổi. Hợp với việc theo dõi giá đối thủ, theo dõi chỉ số, rà hộp thư.
+A **Do it and report** reminder has a **Remember the last result** box. With it on, each run receives the previous report (up to 2,000 characters), so it reports only what is new or changed. Good for watching competitor prices, a metric or an inbox.
 
-Lịch lặp theo cron còn hiện **ba lần chạy tới** ngay trên thẻ. Lần chạy bị trễ vì máy tắt thì vẫn chạy bù một lần khi máy mở lại, và Javis được báo là đang chạy trễ để tính theo giờ hiện tại.
+A cron schedule also shows its **next three runs** on the card. A run missed because the machine was off still runs once when it comes back, and Jarvis 007 is told it is running late so it works from the current time.
 
-## Trường nâng cao (chỉ sửa được trong file .md)
+## Advanced fields (editable only in the .md file)
 
-Biểu mẫu trên dashboard cố ý giữ gọn. Những thứ dưới đây phải mở `Javis/loops/<slug>.md` và sửa phần frontmatter (qua [Quản lý tệp tin](05-quan-ly-tep-tin.md) hoặc Obsidian). Sửa xong, dashboard đọc lại ngay, không cần khởi động lại gì.
+The dashboard form is deliberately compact. The following require opening `Javis/loops/<slug>.md` and editing the frontmatter (through [File manager](05-quan-ly-tep-tin.md) or Obsidian). Once saved, the dashboard rereads it immediately, with no restart.
 
-| Trường | Ý nghĩa |
+| Field | Meaning |
 |---|---|
-| `quiet_hours` | Giờ im lặng, dạng `23-07` (không chạy từ 23h tới 7h, giờ Việt Nam). Chỉ nhận số giờ tròn. |
-| `max_runs_per_day` | Trần số vòng mỗi ngày. `0` = không giới hạn. Thẻ hiện `tối đa N/ngày (đã M)`. |
-| `workspace` | `vault` (mặc định, chạy trong brain) hoặc một đường dẫn thư mục tuyệt đối. Thư mục không tồn tại thì vòng chạy sẽ báo lỗi ngay. |
-| `tools_profile` | `vault-safe` (mặc định) hoặc `code`. Hồ sơ `code` mở Bash, WebFetch, WebSearch và làm việc trong `workspace`, nhưng **tắt hết MCP**. Đây là hồ sơ để loop sửa mã nguồn trong một thư mục bạn giao, và nó thật sự sửa được file trong đó, hãy cân nhắc kỹ. |
-| `ambient_mcp` | Mặc định tắt. Đặt `true` để việc lặp thấy lại các connector cài trên máy (Gmail, Drive, lịch qua claude.ai). Bật thì vẫn chặn cứng Bash, WebFetch, WebSearch. |
-| `owner_chat` | chat_id Telegram nhận báo cáo. Để trống thì báo về ID đầu tiên trong danh sách cho phép. |
-| `notify` | `false` để tắt báo cáo mỗi vòng của riêng việc này. |
-| `goal` | Loại nhiệm vụ. Mặc định và cũng là thứ dashboard luôn tạo ra là `custom`, nghĩa là mỗi vòng làm đúng phần thân file. Các giá trị cũ `business`, `brain`, `product` vẫn chạy được cho file viết tay, và khi khác `custom` thì thẻ hiện thêm nhãn phụ. |
+| `quiet_hours` | Quiet hours, in the form `23-07` (no runs from 23:00 to 07:00, Vietnam time). Whole hours only. |
+| `max_runs_per_day` | Daily iteration cap. `0` = unlimited. The card shows `max N/day (M used)`. |
+| `workspace` | `vault` (default, runs in the brain) or an absolute folder path. A folder that does not exist makes the iteration fail immediately. |
+| `tools_profile` | `vault-safe` (default) or `code`. The `code` profile opens Bash, WebFetch and WebSearch and works inside `workspace`, but **disables every MCP**. This is the profile for a loop that edits source code in a folder you assign, and it really does edit files there, so consider it carefully. |
+| `ambient_mcp` | Off by default. Set `true` to let the loop see connectors installed on the machine (Gmail, Drive, calendar via claude.ai). Even when on, Bash, WebFetch and WebSearch stay hard-blocked. |
+| `owner_chat` | The Telegram chat_id that receives reports. Empty means the first ID in the allow list. |
+| `notify` | `false` to turn off per-iteration reporting for this job only. |
+| `goal` | The task type. The default, and what the dashboard always creates, is `custom`, meaning each iteration does exactly what the file body says. The legacy values `business`, `brain`, `product` still work for hand-written files, and anything other than `custom` adds a secondary label to the card. |
 
-Phần **thân file** (bên dưới dấu `---` thứ hai) chính là ô "Mô tả nhiệm vụ" bạn gõ trên biểu mẫu.
+The **file body** (below the second `---`) is exactly the "Task description" you type in the form.
 
-## Bảng tra nhanh nút và trạng thái
+## Quick reference: buttons and states
 
-| Bạn thấy | Ý nghĩa / thao tác |
+| What you see | Meaning / action |
 |---|---|
-| **+ Thêm việc** | Mở biểu mẫu tạo việc mới |
-| **■ Dừng vòng đang chạy** | Huỷ vòng đang chạy trên toàn hệ, không tắt việc |
-| **🔁 Việc lặp** / **⏰ Nhắc hẹn** | Chọn loại việc (khoá khi đang sửa) |
-| **Toàn quyền** | Thao tác thật ra ngoài. Mặc định |
-| **Tự làm (ghi nháp)** | Ghi file nháp trong brain, hub chặn hành động ra ngoài |
-| **Đề xuất (chỉ đọc)** | Chỉ đọc, không ghi file |
-| **⏰ Chỉ nhắc** | Tới giờ bắn tin "⏰ Nhắc anh: ..." |
-| **🤖 Tự làm rồi báo** | Tới giờ chạy engine làm việc rồi báo kết quả |
-| **Được phép làm gì** | Mức quyền của kiểu Tự làm: Chỉ đọc / Ghi file / Toàn quyền (mặc định) |
-| **💾 Lưu** / **Huỷ** | Lưu hoặc đóng biểu mẫu |
-| Ô **🔍 Tìm việc theo tên...** | Lọc thẻ theo tên, bỏ dấu tiếng Việt |
-| **Bật** / **Tắt** | Gạt trạng thái chạy nền của một việc lặp |
-| **▶ Chạy ngay** | Chạy một vòng ngay, xoá trạng thái tự tạm dừng |
-| **Sửa** / **Xoá** | Sửa hoặc xoá hẳn file việc lặp |
-| **Chuyển brain…** | Dời việc sang brain khác |
-| **Sửa** (trên thẻ nhắc hẹn) | Đổi tên, nội dung, kiểu, giờ hoặc biểu thức cron |
-| **Huỷ** (trên thẻ nhắc hẹn) | Ngừng chạy, vẫn giữ trong lịch sử |
-| **Xoá** (trên thẻ nhắc hẹn) | Xoá hẳn bản ghi, không hoàn tác |
-| **Vẫn tạo** | Tạo lịch dù chưa đấu kênh báo kết quả |
-| ⏳ đang chạy | Vòng của việc này đang chạy |
-| ⚠ tự tạm dừng | Hỏng 3 lần liên tiếp, đã tự khoá |
-| ● bật / ○ tắt | Có tự chạy theo chu kỳ hay không |
-| ✓ Đạt / ✗ Chưa đạt | Kết quả bước tự kiểm chứng |
-| **← Trước** / **Sau →** | Lật trang nhật ký, 10 mục mỗi trang |
+| **+ Add job** | Open the create form |
+| **■ Stop the running iteration** | Abort the system-wide running iteration, without disabling the job |
+| **🔁 Loop** / **⏰ Reminder** | Pick the job kind (locked while editing) |
+| **Full power** | Real outside actions. The default |
+| **Auto (drafts)** | Writes draft files in the brain, the hub blocks outside actions |
+| **Suggest (read-only)** | Read only, no file writes |
+| **⏰ Remind only** | Sends "⏰ Reminder: ..." at the time |
+| **🤖 Do it and report** | Runs the engine at the time and reports the result |
+| **What it may do** | The permission level for Do it and report: Read only / Write files / Full power (default) |
+| **💾 Save** / **Cancel** | Save or close the form |
+| The **🔍 Find a job by name...** box | Filter cards by name, ignoring accents |
+| **Enable** / **Disable** | Flip a loop's background running state |
+| **▶ Run now** | Run one iteration immediately, clearing an auto-pause |
+| **Edit** / **Delete** | Edit or permanently remove the loop file |
+| **Move to brain…** | Move the job to another brain |
+| **Edit** (on a reminder card) | Change the name, content, type, time or cron expression |
+| **Cancel** (on a reminder card) | Stop it running while keeping it in history |
+| **Delete** (on a reminder card) | Remove the record entirely, no undo |
+| **Create anyway** | Create the schedule even with no reporting channel connected |
+| ⏳ running | This job's iteration is running |
+| ⚠ auto-paused | 3 consecutive failures, locked automatically |
+| ● on / ○ off | Whether it runs on its cycle |
+| ✓ Pass / ✗ Fail | The self-verification result |
+| **← Previous** / **Next →** | Page through the log, 10 per page |
 
-## Mẹo
+## Tips
 
-- **Chưa tin một loop mới thì hạ xuống Đề xuất (chỉ đọc).** Cho chạy vài vòng, đọc nhật ký xem chất lượng đề xuất thế nào, rồi mới trả về **Toàn quyền**.
-- **Đừng đặt chu kỳ quá dày.** 5-10 phút một vòng tốn token và tài nguyên máy thật. Đa số nhu cầu chỉ cần vài giờ một lần. Theo dõi mức tiêu ở [Mức dùng: token & chi phí](23-muc-dung-token.md).
-- **Dùng model rẻ cho việc nền.** Trang [Models & engine](10-models-va-engine.md) có khối "Model việc nền" áp cho cả loop, việc Kanban, nhắc hẹn và tự học. Chọn một model rẻ ở đó là tiết kiệm được nhiều.
-- **Đặt `quiet_hours` cho việc chạy ban đêm.** Nếu bạn để báo cáo Telegram bật, việc chạy lúc 3h sáng sẽ đánh thức bạn. Thêm `quiet_hours: 23-07` vào file, hoặc đặt `notify: false`.
-- **Một việc = một nhiệm vụ.** Mô tả ôm đồm nhiều việc thì mỗi vòng nó làm dở dang một mẩu. Tách thành nhiều việc lặp riêng, mỗi cái một chu kỳ, dễ đọc nhật ký hơn nhiều.
-- **Việc nào không cần suy nghĩ thì đừng gọi model.** Nhắc kiểu "⏰ Chỉ nhắc" không tốn token nào cả.
+- **Not sure about a new loop yet? Drop it to Suggest (read-only).** Let it run a few iterations, read the log to judge the quality of its suggestions, then move it back to **Full power**.
+- **Do not set the cycle too tight.** One iteration every 5 to 10 minutes burns tokens and real machine resources. Most needs are fine with a few hours. Watch the spend in [Usage: tokens & cost](23-muc-dung-token.md).
+- **Use a cheap model for background work.** The [Models & engines](10-models-va-engine.md) page has a "Background model" block that applies to loops, Kanban work, reminders and self-learning. Picking a cheap model there saves a lot.
+- **Set `quiet_hours` for jobs that run at night.** With Telegram reporting on, a job running at 3am wakes you. Add `quiet_hours: 23-07` to the file, or set `notify: false`.
+- **One job, one task.** A description that crams several jobs together makes each iteration do a fragment of each. Splitting them into separate loops, each with its own cycle, also makes the log far easier to read.
+- **Do not call a model for work that needs no thinking.** An "⏰ Remind only" reminder costs no tokens at all.
 
-## Sự cố thường gặp
+## Common problems
 
-**Đã tạo việc nhưng nó không bao giờ chạy.** Việc lặp tạo từ dashboard (và từ chat) mặc định **tắt**. Xem thẻ có đang ở **● bật** không; nếu là **○ tắt** thì bấm **Bật**.
+**You created a job and it never runs.** Loops created from the dashboard (and from chat) are **off** by default. Check whether the card is **● on**; if it is **○ off**, click **Enable**.
 
-**Bấm ▶ Chạy ngay mà không thấy gì.** Ba khả năng. Một là đang có vòng khác chạy ở đâu đó (toàn hệ chỉ một vòng cùng lúc) nên yêu cầu bị bỏ qua im lặng; đợi một chút rồi bấm lại. Hai là vòng cần thời gian, hãy đợi rồi tải lại trang và xem **Nhật ký gần đây**. Ba là engine chưa sẵn sàng, xem mục dưới.
+**Clicking ▶ Run now does nothing visible.** Three possibilities. One, another iteration is running somewhere (only one runs system-wide) so the request was skipped silently; wait a moment and click again. Two, the iteration takes time; wait, reload the page and check **Recent log**. Three, the engine is not ready, see below.
 
-**Thẻ hiện ⚠ tự tạm dừng.** Việc này đã hỏng 3 lần liên tiếp. Mở nhật ký, lọc đúng việc đó, đọc lý do. Sửa mô tả nhiệm vụ cho rõ hơn rồi bấm **Bật** hoặc **▶ Chạy ngay** để mở khoá.
+**The card shows ⚠ auto-paused.** That job failed 3 times in a row. Open the log, filter to that job and read the reason. Clarify the task description, then click **Enable** or **▶ Run now** to unlock it.
 
-**Kiểm chứng liên tục báo ✗ Chưa đạt.** Bước tự soi thấy kết quả chưa ổn (bịa số, sai quy ước Wiki, làm quá phạm vi). Đọc lý do trong nhật ký, mở file liên quan qua [Quản lý tệp tin](05-quan-ly-tep-tin.md) để kiểm tra. Thường là do mô tả nhiệm vụ quá mơ hồ nên mỗi vòng nó hiểu một kiểu.
+**Verification keeps reporting ✗ Fail.** The self-check finds the result unsatisfactory (invented figures, wrong Wiki conventions, work beyond scope). Read the reason in the log and open the relevant files through [File manager](05-quan-ly-tep-tin.md) to check. Usually the task description is too vague, so each iteration interprets it differently.
 
-**Kết quả báo "Claude CLI chưa cài".** Bộ não chưa sẵn sàng trên máy. Xem [Bắt đầu & thiết lập lần đầu](01-bat-dau-thiet-lap.md) và [Khắc phục sự cố & FAQ](17-khac-phuc-su-co.md).
+**The result says the Claude CLI is not installed.** The brain is not ready on the machine. See [Getting started & first-run setup](01-bat-dau-thiet-lap.md) and [Troubleshooting & FAQ](17-khac-phuc-su-co.md).
 
-**Chạy bằng ChatGPT thì báo `bwrap: Failed to make / slave: Permission denied`.** Codex (ChatGPT) bọc mọi lệnh đọc/ghi file của nó bằng bubblewrap, mà bubblewrap không khởi động nổi trong container Docker, nên việc nền không đọc được một file nào. Ảnh Docker từ bản 0.25.9 đã tắt sẵn rào riêng đó (`JAVIS_CODEX_SANDBOX=off`) nên chỉ cần **cập nhật lên bản mới** là hết. Nếu bạn tự dựng container riêng thì đặt biến môi trường đó, hoặc chuyển việc nền sang bộ não Claude. Chi tiết ở [Biến môi trường](16-cau-hinh-env.md).
+**Running on ChatGPT reports `bwrap: Failed to make / slave: Permission denied`.** Codex (ChatGPT) wraps all of its file reads and writes in bubblewrap, and bubblewrap cannot start inside a Docker container, so the background job cannot read a single file. The Docker image since version 0.25.9 already disables that particular sandbox (`JAVIS_CODEX_SANDBOX=off`), so **updating to a newer build** is enough. If you build your own container, set that environment variable, or move background work to the Claude brain. Details in [.env configuration](16-cau-hinh-env.md).
 
-**Việc lặp than không có số liệu kinh doanh.** Nó chỉ đọc được số thật khi bạn đã đấu nguồn. Vào [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md) để nối POS, quảng cáo hoặc kênh bán. Không có nguồn nào thì vòng đó dừng và báo lại một câu.
+**A loop complains that there is no business data.** It can only read real numbers once you connect a source. Go to [Connections & business data](09-mcp-va-so-lieu.md) to connect a POS, ads account or sales channel. With no source, the iteration stops and says so in one line.
 
-**Không tải được danh sách việc.** Trang hiện "Không tải được danh sách việc (mạng chậm hoặc hết giờ)" kèm liên kết **Thử lại**. Trên VPS yếu hoặc brain rất lớn, lần tải đầu có thể quá lâu; Javis đã tự thử lại một lần trước khi báo. Bấm **Thử lại**.
+**The job list will not load.** The page shows "Could not load the job list (slow network or timeout)" with a **Retry** link. On a weak VPS or a very large brain, the first load can take too long; Jarvis 007 already retried once before reporting. Click **Retry**.
 
-**Tạo việc qua Telegram xong lên dashboard không thấy.** Việc rơi vào brain khác. Trang này gộp mọi brain nên hãy cuộn xem các khối `🧠` khác, hoặc gõ tên việc vào ô tìm kiếm. Muốn dời về đúng chỗ thì dùng **Chuyển brain…** trên thẻ.
+**You created a job over Telegram and cannot see it on the dashboard.** It landed in another brain. This page aggregates every brain, so scroll to the other `🧠` blocks, or type the job name into the search box. To move it where it belongs, use **Move to brain…** on the card.
 
-**Không nhận được tin báo về Telegram.** Kiểm tra bot đã bật và Chat ID đã nằm trong danh sách cho phép chưa, xem [Kênh Telegram](11-telegram.md). Cũng kiểm tra file việc có bị đặt `notify: false` không.
+**No Telegram messages arrive.** Check that the bot is enabled and the Chat ID is in the allow list, see [Telegram channel](11-telegram.md). Also check whether the job file has `notify: false`.
 
-**Sửa file .md xong loop biến mất khỏi danh sách.** File hỏng frontmatter (thiếu cặp `---`, hoặc YAML sai) thì Javis bỏ qua file đó. Mở lại file, đối chiếu với một file loop khác còn chạy tốt, sửa cho đúng khuôn.
+**You edited the .md file and the loop vanished from the list.** The file has broken frontmatter (a missing `---` pair, or invalid YAML), so Jarvis 007 skips it. Reopen the file, compare it with another working loop file, and fix the shape.
 
-## Liên quan
+## Related
 
-- [Việc / Kanban](21-viec-kanban.md) - hàng đợi việc chạy một lần do AI điều phối, khác với việc lặp ở trang này.
-- [Tự học](22-tu-hoc.md) - việc nền riêng cho bộ nhớ và Wiki, có Curator và LINT Wiki.
-- [Kênh Telegram](11-telegram.md) - bật bot để nhận báo cáo mỗi vòng và nhắc hẹn.
-- [Kết nối & số liệu kinh doanh](09-mcp-va-so-lieu.md) - đấu nguồn để việc nền đọc được số thật.
-- [Models & engine](10-models-va-engine.md) - chọn model rẻ cho việc nền.
-- [Quản lý tệp tin](05-quan-ly-tep-tin.md) - mở file định nghĩa việc và file nhật ký.
-- [Trò chuyện & giọng nói](02-tro-chuyen-va-giong-noi.md) - đặt việc và nhắc hẹn bằng lời.
-- [Plugins](20-plugins.md) - hiểu về `javis_schedule` và các công cụ đi kèm app.
+- [Work / Kanban](21-viec-kanban.md) - the AI-dispatched queue of one-off jobs, different from the loops on this page.
+- [Self-learning](22-tu-hoc.md) - the dedicated background work for memory and the Wiki, with the Curator and Wiki LINT.
+- [Telegram channel](11-telegram.md) - enabling the bot to receive per-iteration reports and reminders.
+- [Connections & business data](09-mcp-va-so-lieu.md) - connecting sources so background work can read real numbers.
+- [Models & engines](10-models-va-engine.md) - picking a cheap model for background work.
+- [File manager](05-quan-ly-tep-tin.md) - opening job definition files and log files.
+- [Chat & voice](02-tro-chuyen-va-giong-noi.md) - creating jobs and reminders in words.
+- [Plugins](20-plugins.md) - understanding `javis_schedule` and the other bundled tools.

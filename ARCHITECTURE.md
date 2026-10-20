@@ -1,4 +1,4 @@
-# Javis OS architecture
+# Jarvis 007 architecture
 
 This is the entry point for contributors. Read it before touching code. It describes how the
 pieces fit together today (version in [VERSION](VERSION)); every claim here was checked against
@@ -8,13 +8,13 @@ The code base was written in Vietnamese: comments, docstrings and most identifie
 Vietnamese without diacritics (`bat` = start, `nhac_hen` = reminder, `viec_nen` = background
 job). Keep [docs/dev/GLOSSARY.md](docs/dev/GLOSSARY.md) open while reading the code.
 
-## What Javis is
+## What Jarvis 007 is
 
-Javis is a self-hosted personal AI assistant for "business and life". It runs as one Python
+Jarvis 007 is a self-hosted personal AI assistant for "business and life". It runs as one Python
 FastAPI server with a plain-JavaScript dashboard, and keeps everything it knows in a folder of
 markdown files (the "Second Brain", Obsidian-compatible). The model behind it is swappable: the
 user picks a "brain" (a subscription CLI such as Claude Code, or an API provider such as
-OpenRouter) and every brain gets the same tools through Javis's own MCP Hub. Javis is an
+OpenRouter) and every brain gets the same tools through Jarvis 007's own MCP Hub. Jarvis 007 is an
 orchestration layer, not an inference layer: when an answer is wrong, look first at the prompt
 it built, the tools it allowed and the brain folder it pointed at.
 
@@ -84,7 +84,7 @@ vendor:
 
 Things worth knowing:
 
-- Javis never reads the user's Claude login token; it runs the real `claude` binary through the
+- Jarvis 007 never reads the user's Claude login token; it runs the real `claude` binary through the
   official `claude-agent-sdk` (see `claude_auth.py` for why). Codex, Grok and Antigravity also
   keep their own credentials.
 - Gemini CLI was removed (Google cut personal tiers); Antigravity CLI replaced it.
@@ -115,7 +115,7 @@ User docs: [docs/en/10-models-and-engines.md](docs/en/10-models-and-engines.md).
   in order: `system/plugins/` (bundled), installed packs, `STATE_DIR/plugins/` (global user
   plugins) and `<brain>/plugins/`. User plugins load by default when their manifest is enabled;
   `JAVIS_ENABLE_USER_PLUGINS=false` turns them off.
-  Javis's own tools (`javis_task`, `javis_schedule`, `javis_ui`, ...) are bundled plugins.
+  Jarvis 007's own tools (`javis_task`, `javis_schedule`, `javis_ui`, ...) are bundled plugins.
 - **Packs.** `packs.py` loads extension packs from `STATE_DIR/packs/` so connectors and plugins
   can ship without a new release; `pack_install.py`, `packs_fetch.py` (HTTPS only, SSRF
   guarded), `packs_store.py` and `pack_vault.py` handle install, download, the store index and
@@ -133,7 +133,7 @@ operations index and media cleanup; Kanban has its own dispatcher.
 | Loops | `self_improve.py` | `<brain>/Javis/loops/<slug>.md`, state in `Javis/loop-state.json` | "Every X minutes find one unit of work"; run one at a time |
 | Reminders and cron jobs | `reminders.py`, `cron_util.py` | `<brain>/Javis/reminders.json` | Dependency-free 5-field cron parser |
 | Webhook triggers | `webhook_triggers.py` | `STATE_DIR/webhooks.json` (token hashes only) | `POST /hooks/<id>` runs a workflow or job from an outside event |
-| Incidents | `incident_desk.py` | `STATE_DIR/incidents.json` | A broken background run reaches Javis Core: retried once or the owner is told what to fix |
+| Incidents | `incident_desk.py` | `STATE_DIR/incidents.json` | A broken background run reaches Jarvis 007 Core: retried once or the owner is told what to fix |
 | Health scan | `sentinel.py`, `tools/sentinel.py` | (read only) | Groups failures from every store by cause; runs without the server |
 | Workflows | `execute_workflow()` in `main.py`, `workflow_runtime.py`, `workflow_runs.py` | `<brain>/workflows/<slug>.md`, run history in SQLite | A chain of agent steps with checkpoints |
 | Self-learning | `learn.py`, `git_brain.py` | `<brain>/memory/` | The learning fork is read-only; only trusted Python writes, and only when the brain is a git checkout |
@@ -259,7 +259,7 @@ the Vietnamese way for TTS), `voice_turn_protocol.py`, `voice_privacy.py`, `ui_b
 - **Connector catalog + MCP Hub** (`/hub/mcp`, `/connect/*`), **GitHub sync of brains**.
 - **Studio** (agents, skills, workflows), **File manager**, **Dataview lite**.
 - **Self-improving loops**, **Self-learning**, **Kanban task queue**, **Reminders**,
-  **Background jobs of one chat**, **Javis index**, **Plugins**.
+  **Background jobs of one chat**, **Jarvis 007 index**, **Plugins**.
 - **Version and updates**, **Autostart**, **Inbox and push**, **Branding**, **TTS**, **Voice
   V2**.
 - **Workflow sessions**, `_persist_turn()`, then **WebSocket `/ws`** (the main chat turn).
@@ -305,7 +305,7 @@ There are three separate places. Mixing them up is a classic mistake.
 | Place | Default | Holds | Owner |
 |-------|---------|-------|-------|
 | Code tree | the repo | `server/`, `dashboard/`, `system/`, `.claude/skills/`, `CLAUDE.md` | The repo. Not writable by the app inside Docker |
-| `JAVIS_STATE_DIR` | `server/` locally, `/data/state` in Docker | Runtime state, gitignored | Javis |
+| `JAVIS_STATE_DIR` | `server/` locally, `/data/state` in Docker | Runtime state, gitignored | Jarvis 007 |
 | `BRAINS_DIR` | `<repo>/brains`, `/brains` in Docker | One folder per brain | The user (can be pushed to a private GitHub repo) |
 
 **`JAVIS_STATE_DIR`** contains, among others: `settings.json` (secret fields stored `enc:`),
@@ -313,7 +313,7 @@ There are three separate places. Mixing them up is a classic mistake.
 history), `kanban.sqlite3`, `customer_conversations.sqlite3`, `mcp_servers.json`,
 `mcp_audit.jsonl`, `.oauth_mcp.json`, `chatbots.json`, `channel_accounts.json`, `inbox.json`,
 `usage*.json*`, `runtime.db`, `plugins/`, `plugins.json`, `packs/`, `branding/`, `javis.log`.
-Anything Javis writes at runtime goes here, never into the code tree.
+Anything Jarvis 007 writes at runtime goes here, never into the code tree.
 
 **A brain** (default `BRAINS_DIR/Brain Default`, scaffolded by `_ensure_brain_scaffold()` from
 `STANDARD_STRUCTURE`):
@@ -361,7 +361,7 @@ Developer conventions therefore live in `docs/quy-uoc-dev.md`, not in `CLAUDE.md
      (`catalog_i18n.py`).
    - New-brain seed files: `HAT_GIONG` in `server/brain_seed_i18n.py`.
 3. **Logic gates** (fast paths, "claimed but did not do it" detectors, ...) read per-language
-   word lists in `server/lexicon/` (`vi.py`, `en.py`). A language without a lexicon makes Javis
+   word lists in `server/lexicon/` (`vi.py`, `en.py`). A language without a lexicon makes Jarvis 007
    more expensive, never less safe; a half-written lexicon is dangerous.
 4. **Locale** (time zone, currency, number format) is independent of language and lives in
    `localefmt.py`. `lang_registry.py` is the single registry that knows everything about a
