@@ -18,7 +18,7 @@ def _clip(text, max_chars=8000):
         return text
     head = int(max_chars * 0.6)
     tail = max_chars - head
-    return (text[:head] + f"\n… [KẾT QUẢ BỊ CẮT - bỏ {len(text) - head - tail:,} ký tự giữa] …\n"
+    return (text[:head] + f"\n… [RESULT TRUNCATED - dropped {len(text) - head - tail:,} characters from the middle] …\n"
             + text[-tail:])
 
 
@@ -28,27 +28,27 @@ def _t(name, description, props=None, required=None):
 
 
 TOOLS = [
-    _t("botcake_customers", "Danh sách khách hàng (subscriber) của page Botcake, phân trang.",
-       {"page": {"type": "integer", "description": "trang, mặc định 1"}}),
-    _t("botcake_customer", "Lịch sử thao tác / chi tiết 1 khách theo PSID.",
+    _t("botcake_customers", "List of customers (subscribers) of the Botcake page, paginated.",
+       {"page": {"type": "integer", "description": "page, default 1"}}),
+    _t("botcake_customer", "Activity history / details of one customer by PSID.",
        {"psid": {"type": "string"}}, ["psid"]),
-    _t("botcake_customer_fields_get", "Đọc custom field của 1 khách theo PSID.",
+    _t("botcake_customer_fields_get", "Read the custom fields of one customer by PSID.",
        {"psid": {"type": "string"}}, ["psid"]),
-    _t("botcake_customer_fields_set", "Ghi 1 custom field cho khách (thao tác GHI).",
+    _t("botcake_customer_fields_set", "Write one custom field for a customer (a WRITE action).",
        {"psid": {"type": "string"}, "field_name": {"type": "string"}, "value": {"type": "string"}},
        ["psid", "field_name", "value"]),
-    _t("botcake_custom_fields", "Danh sách custom field của page."),
-    _t("botcake_tags", "Danh sách tag của page."),
-    _t("botcake_tag_statistic", "Thống kê số khách theo tag."),
-    _t("botcake_flows", "Danh sách flow (kịch bản chatbot) của page."),
-    _t("botcake_flow_statistics", "Thống kê 1 flow theo flow_id.",
+    _t("botcake_custom_fields", "List of the page's custom fields."),
+    _t("botcake_tags", "List of the page's tags."),
+    _t("botcake_tag_statistic", "Customer counts by tag."),
+    _t("botcake_flows", "List of the page's flows (chatbot scripts)."),
+    _t("botcake_flow_statistics", "Statistics of one flow by flow_id.",
        {"flow_id": {"type": "string"}}, ["flow_id"]),
-    _t("botcake_send_flow", "GỬI 1 flow THẬT tới khách (PSID) - tin nhắn sẽ đến người thật, "
-       "CHỈ dùng khi user yêu cầu rõ ràng. (Body API chưa verify 100% - nếu lỗi hãy báo lại.)",
+    _t("botcake_send_flow", "SEND one REAL flow to a customer (PSID) - the message will reach a real person, "
+       "use it ONLY when the user explicitly asks. (The API body is not 100% verified - if it errors, report it back.)",
        {"psid": {"type": "string"}, "flow_id": {"type": "string"}}, ["psid", "flow_id"]),
-    _t("botcake_keywords", "Danh sách keyword tự động trả lời của page."),
-    _t("botcake_sequences", "Danh sách sequence (chuỗi tin nhắn định kỳ) của page."),
-    _t("botcake_message_templates", "Danh sách message template của page."),
+    _t("botcake_keywords", "List of the page's auto-reply keywords."),
+    _t("botcake_sequences", "List of the page's sequences (recurring message series)."),
+    _t("botcake_message_templates", "List of the page's message templates."),
 ]
 
 # tool -> (method, path template có {page_id}/{psid}/{flow_id}, query builder?)
@@ -78,10 +78,10 @@ async def call(tool, arguments, spec):
     token = secrets.get("api_key", "")
     page_id = str(secrets.get("page_id", "")).strip()
     if not token or not page_id:
-        return "ERROR: kết nối Botcake thiếu page_id/API key - sửa lại ở trang Kết nối"
+        return "ERROR: the Botcake connection is missing page_id/API key - fix it on the Connections page"
     ent = _ROUTES.get(tool)
     if not ent:
-        return f"ERROR: tool '{tool}' không tồn tại trong cầu nối Botcake"
+        return f"ERROR: tool '{tool}' does not exist in the Botcake bridge"
     method, path = ent
     args = arguments or {}
     try:
@@ -105,6 +105,6 @@ async def call(tool, arguments, spec):
         try:
             return _clip(json.dumps(r.json(), ensure_ascii=False))
         except ValueError:
-            return _clip(r.text or "(rỗng)")
+            return _clip(r.text or "(empty)")
     except Exception as e:
-        return f"ERROR: Botcake không phản hồi: {type(e).__name__}: {e}"
+        return f"ERROR: Botcake did not respond: {type(e).__name__}: {e}"

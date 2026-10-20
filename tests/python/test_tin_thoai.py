@@ -194,7 +194,7 @@ check("stt_fn ném ngoại lệ -> nuốt lại thành câu nói, không gãy v�
 # --- video vẫn chưa xem được, nhưng câu từ chối không được nói lây sang voice ---
 out = chay(_bot(_stt_ok)._ingest_attachment(None, {"message_id": 8, "chat": {"id": "9"},
                                                    "video": {"file_id": "V"}}))
-check("video -> vẫn báo chưa xem được", "video" in out.lower() and "chưa xem được" in out)
+check("video -> vẫn báo chưa xem được", "video" in out.lower() and "cannot view" in out)
 check("câu từ chối video KHÔNG nhắc voice nữa", "voice" not in out.lower())
 
 # --- audio (file nhạc/ghi âm gửi dạng audio) đi chung đường thoại ---

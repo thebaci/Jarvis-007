@@ -36,7 +36,7 @@ def bench(label, fn, repeat=REPEAT):
     try:
         fn()
     except Exception as e:
-        print(f"  {label:<42} LỖI: {type(e).__name__}: {e}")
+        print(f"  {label:<42} ERROR: {type(e).__name__}: {e}")
         return None
     times = []
     for _ in range(repeat):
@@ -44,7 +44,7 @@ def bench(label, fn, repeat=REPEAT):
         try:
             fn()
         except Exception as e:
-            print(f"  {label:<42} LỖI: {type(e).__name__}: {e}")
+            print(f"  {label:<42} ERROR: {type(e).__name__}: {e}")
             return None
         times.append((time.perf_counter() - t0) * 1000)
     med = statistics.median(times)
@@ -65,32 +65,32 @@ def bench_import_main():
 
     base = statistics.median([run("pass") for _ in range(3)])
     full = statistics.median([run("import main") for _ in range(3)])
-    print(f"  {'import main (trừ khởi động interpreter)':<42} {full - base:8.1f} ms"
-          f"   (interpreter trần {base:.0f} ms)")
+    print(f"  {'import main (minus interpreter start-up)':<42} {full - base:8.1f} ms"
+          f"   (bare interpreter {base:.0f} ms)")
     return full - base
 
 
 def main_():
     brain = sys.argv[1] if len(sys.argv) > 1 else "brain"
 
-    print("Nạp main...", flush=True)
+    print("Loading main...", flush=True)
     t0 = time.perf_counter()
     import main  # noqa: E402
     import plugins_host  # noqa: E402
     import skill_router  # noqa: E402
     import usage_index  # noqa: E402
-    print(f"  (lần nạp trong tiến trình này: {(time.perf_counter() - t0) * 1000:.0f} ms)\n")
+    print(f"  (load time in this process: {(time.perf_counter() - t0) * 1000:.0f} ms)\n")
 
     root = main._brain_root(brain)
     print(f"Brain: {root}")
     try:
         n_md = sum(1 for _ in Path(root).rglob("*.md"))
         n_skill = len(skill_router.list_skills(root))
-        print(f"Quy mô: {n_md} file .md, {n_skill} skill\n")
+        print(f"Size: {n_md} .md files, {n_skill} skills\n")
     except Exception as e:
-        print(f"Quy mô: không đếm được ({e})\n")
+        print(f"Size: could not be counted ({e})\n")
 
-    print("== Đường nóng system prompt (chạy mỗi lượt chat, mỗi task, mỗi nhắc hẹn, mỗi tick loop) ==")
+    print("== System prompt hot path (runs every chat turn, every task, every reminder, every loop tick) ==")
     total = bench("build_system_prompt()", lambda: main.build_system_prompt(brain))
     bench("  skill_router.list_skills()", lambda: skill_router.list_skills(root))
     bench("  plugins_host.describe()", lambda: plugins_host.describe(str(root)))
@@ -98,27 +98,27 @@ def main_():
     bench("  _javis_capability_summary()", lambda: main._javis_capability_summary(brain))
     bench("  _skill_router_block()", lambda: main._skill_router_block(brain, root))
 
-    print("\n== Endpoint dashboard gọi lúc boot ==")
+    print("\n== Endpoints the dashboard calls at boot ==")
     # Đo LÕI THUẦN chứ không đo route handler: handler chỉ là vỏ `await to_thread(lõi)`, nên
     # gọi nó ở đây vừa cộng thêm chi phí dựng event loop + nhảy thread vào con số, vừa lặp lại
     # đúng lối gọi handler-như-hàm-thường mà 0.9.243 đã đi bịt (xem test handler_khong_goi_truc_tiep).
     bench("GET /brains (_list_brains_sync)", lambda: main._list_brains_sync())
 
-    print("\n== Truy vấn usage (từ 0.9.238 chạy trong to_thread, KHÔNG còn chặn loop) ==")
+    print("\n== Usage queries (since 0.9.238 they run in to_thread, no longer blocking the loop) ==")
     bench("usage_index.summary()", lambda: usage_index.summary())
     bench("usage_index.insights()", lambda: usage_index.insights())
 
-    print("\n== Chi phí khởi động ==")
+    print("\n== Start-up cost ==")
     bench_import_main()
 
-    print("\n== Đối chiếu với baseline giai đoạn 1 (brain 623 md / 30 skill) ==")
-    print("  Số dưới đây là thời gian CPU/đĩa của từng hàm. Với các hàm đã chuyển sang")
-    print("  to_thread thì con số này KHÔNG còn là thời gian chặn event loop - phần đó")
-    print("  được đo riêng bằng độ trễ nhịp tim trong test_brains_dem và test_kanban_snapshot.")
-    print(f"  build_system_prompt   baseline 150,8 ms -> nay {total:.1f} ms   (đích < 60)"
-          if total is not None else "  build_system_prompt: không đo được")
-    print("  GET /brains           baseline 136,1 ms  (nay chạy trong thread)")
-    print("  import main           baseline 2.263 ms  (đích < 1.400)")
+    print("\n== Comparison with the phase 1 baseline (brain of 623 md / 30 skills) ==")
+    print("  The numbers below are the CPU/disk time of each function. For functions moved to")
+    print("  to_thread this number is NO longer the time the event loop is blocked - that part")
+    print("  is measured separately by heartbeat latency in test_brains_dem and test_kanban_snapshot.")
+    print(f"  build_system_prompt   baseline 150.8 ms -> now {total:.1f} ms   (target < 60)"
+          if total is not None else "  build_system_prompt: could not be measured")
+    print("  GET /brains           baseline 136.1 ms  (now runs in a thread)")
+    print("  import main           baseline 2,263 ms  (target < 1,400)")
 
 
 if __name__ == "__main__":

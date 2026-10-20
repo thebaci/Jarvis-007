@@ -42,9 +42,9 @@ check("bỏ lượt sau một dòng khác: chỉ dòng kia ra loa",
 
 # Text alone cannot identify the speaker. Legacy markers are still parsed/suppressed,
 # but the model no longer has permission to delete accepted user speech.
-check("prompt forbids guessing noise", "Không đoán tiếng TV" in vb.SYSTEM_PROMPT)
+check("prompt forbids guessing noise", "Do not guess TV speech" in vb.SYSTEM_PROMPT)
 check("per-turn guard protects running brains with old prompts",
-      vb.BO_QUA_MARKER in vb.GHI_CHU_TAT_LOC and "không cắt bỏ" in vb.GHI_CHU_TAT_LOC)
+      vb.BO_QUA_MARKER in vb.GHI_CHU_TAT_LOC and "without cutting any part" in vb.GHI_CHU_TAT_LOC)
 for value in (None, False, True):
     check(f"legacy setting {value} cannot enable model noise deletion",
           vb.config_from_settings({"voice": {"loc_tap_am": value}})["loc_tap_am"] is False)

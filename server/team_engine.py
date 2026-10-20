@@ -65,12 +65,12 @@ def choose_spec(agent_model: str, agent_provider: str, main: dict, resolve: Call
         if not (tools_supported(prov) if tools else text_only_supported(prov)):
             # Grok Build, Antigravity: chưa có cơ chế chỉ chữ được kiểm. Chạy bằng model chính và NÓI RÕ trên tin (không
             # âm thầm đổi provider), thay vì để trợ lý im hay báo lỗi mỗi tin.
-            ok, why = False, "chưa chạy được lượt nhóm chỉ chữ (còn công cụ native không tắt riêng được)"
+            ok, why = False, "cannot run a text-only team turn yet (native tools cannot be turned off separately)"
         else:
             ok, why = available(spec)
         if ok:
             return spec
-        note = f"Model riêng của trợ lý ({prov}) chưa dùng được: {str(why or '').strip().rstrip('.')}. Lượt này chạy bằng model chính."
+        note = f"The assistant's own model ({prov}) cannot be used yet: {str(why or '').strip().rstrip('.')}. This turn runs on the main model."
     else:
         note = ""
     m = dict(main or {})
@@ -113,12 +113,12 @@ def build(spec: dict, base: Any, tag: str, settings: Optional[dict] = None) -> A
     model = str(spec.get("model") or "")
     if prov == CLAUDE:
         if not getattr(base, "allowed_tools", None):
-            raise TeamEngineUnavailable("engine Claude không có cổng chặn công cụ", prov)
+            raise TeamEngineUnavailable("the Claude engine has no tool-blocking gate", prov)
         base.model = model or None
         return base
     ok, why = aux_engine.availability({"provider": prov, "model": model}, settings)
     if not ok:
-        raise TeamEngineUnavailable(str(why or "provider chưa sẵn sàng"), prov)
+        raise TeamEngineUnavailable(str(why or "provider not ready"), prov)
     if prov == CODEX:
         from claude_cli import CodexCLI
         cc = CodexCLI(cwd=getattr(base, "cwd", None), tag=tag, model=model or None,
@@ -130,8 +130,8 @@ def build(spec: dict, base: Any, tag: str, settings: Optional[dict] = None) -> A
         eng.no_tools = True
         return eng
     raise TeamEngineUnavailable(
-        f"{prov} chưa chạy được lượt nhóm chỉ chữ (còn công cụ native không tắt riêng cho lượt này được). "
-        "Đổi model của trợ lý ở trang Cộng sự sang Claude, ChatGPT (Codex) hay một model API", prov)
+        f"{prov} cannot run a text-only team turn yet (native tools cannot be turned off separately for this turn). "
+        "Change the assistant's model on the Cộng sự page to Claude, ChatGPT (Codex) or an API model", prov)
 
 
 def build_tools(spec: dict, base: Any, tag: str, settings: Optional[dict] = None, mode: str = "full",
@@ -148,7 +148,7 @@ def build_tools(spec: dict, base: Any, tag: str, settings: Optional[dict] = None
         return base
     ok, why = aux_engine.availability({"provider": prov, "model": model}, settings)
     if not ok:
-        raise TeamEngineUnavailable(str(why or "provider chưa sẵn sàng"), prov)
+        raise TeamEngineUnavailable(str(why or "provider not ready"), prov)
     sp = {"provider": prov, "model": model}
     if prov == CODEX:
         return aux_engine._build_codex(sp, base, mode, tag, codex_profile)
@@ -158,4 +158,4 @@ def build_tools(spec: dict, base: Any, tag: str, settings: Optional[dict] = None
         return aux_engine._build_antigravity(sp, base, mode, tag)
     if prov in aux_engine.API_PROVIDERS:
         return aux_engine._build_api(sp, base, mode, tag)
-    raise TeamEngineUnavailable(f"{prov} chưa dựng được lượt làm việc có công cụ", prov)
+    raise TeamEngineUnavailable(f"{prov} cannot build a work turn with tools yet", prov)

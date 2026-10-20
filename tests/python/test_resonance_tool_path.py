@@ -158,7 +158,7 @@ check("javis_task: mô tả không nhắc javis_goal hay ranh giới Resonance",
       "javis_goal" not in desc_off.get("javis_task", "") and "hết trách nhiệm" not in desc_off.get("javis_task", ""))
 check("brain tắt: engine không nhận javis_goal", "javis_goal" not in desc_off)
 check("javis_goal (brain bật): nhắc sửa theo phản hồi và chỉ việc một lần sang javis_task",
-      "sửa theo phản hồi" in desc_on.get("javis_goal", "") and "javis_task" in desc_on.get("javis_goal", ""))
+      "fix from feedback" in desc_on.get("javis_goal", "") and "javis_task" in desc_on.get("javis_goal", ""))
 
 # 6. Nguồn tin người dùng: tool đọc đúng lượt đang chạy của brain
 k = luot_dang_chay.bat_dau("web:sess-tp", ON, msg_id=11, user_text="lời thật của người dùng")

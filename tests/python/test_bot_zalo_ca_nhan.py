@@ -244,7 +244,7 @@ chatbot_runtime.wire(answer=_engine, brain_root=lambda b: tempfile.mkdtemp(prefi
 _bot_ql = {"name": "Trợ lý", "agent": {"brain": "b", "slug": "tro-ly"}, "_kenh_luot": "zalo_personal"}
 p = chatbot_runtime.build_bot_prompt(_bot_ql)
 check("Zalo cá nhân vẫn có đoạn mặc định (im khi không chắc)", "[IM_LANG]" in p)
-check("đoạn mặc định nói thẳng hướng dẫn vai của chủ THẮNG nó", "LUÔN thắng đoạn này" in p)
+check("đoạn mặc định nói thẳng hướng dẫn vai của chủ THẮNG nó", "ALWAYS win over this section" in p)
 check("đoạn mặc định đứng TRƯỚC file Agent (luật chủ đọc sau cùng)",
       0 <= p.index("Zalo CÁ NHÂN của chủ") < p.index("Học sinh kể chuyện riêng"), p)
 check("lệnh im chuyện riêng chỉ áp cho loại tin hướng dẫn vai KHÔNG nói tới",
@@ -255,7 +255,7 @@ chatbot_runtime.wire(answer=_engine, brain_root=lambda b: tempfile.mkdtemp(prefi
                      read_agent=lambda br, slug: ({}, ""))
 p0 = chatbot_runtime.build_bot_prompt(_bot_ql)
 check("bot không nạp được Agent vẫn giữ mặc định an toàn (im)",
-      "[IM_LANG]" in p0 and "chưa nạp được hướng dẫn" in p0)
+      "[IM_LANG]" in p0 and "could not be loaded" in p0)
 
 print()
 if _fails:

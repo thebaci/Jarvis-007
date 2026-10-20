@@ -154,9 +154,9 @@ class IntakeTests(unittest.IsolatedAsyncioTestCase):
             p=self.root/('a'+ext); p.write_text('doanh thu 123')
             self.assertIn('doanh thu 123',za.turn_text(p))
         p=self.root/'a.xlsx'; p.write_bytes(b'PK')
-        self.assertIn('chưa đọc nội dung',za.turn_text(p))
+        self.assertIn('has not read the content',za.turn_text(p))
         p=self.root/'a.txt';p.write_bytes(b'\xff')
-        self.assertIn('Không đọc được',za.turn_text(p))
+        self.assertIn('Could not read',za.turn_text(p))
 
     def file_event(self):
         return zc.chuan_hoa_tin({'id':'a'},dict(LIVE,timestamp=__import__('time').time()*1000),{})

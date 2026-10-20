@@ -52,14 +52,14 @@ for c in VAN_LA_LENH:
 
 # ---- 2. Luật của bộ não giọng ----
 P = vb.SYSTEM_PROMPT
-check("luật: chỉ giao khi thật sự là lời nhờ", "CHỈ GIAO khi câu đó thật sự là lời nhờ" in P)
-check("luật: nhắc chữ 'việc' không phải lời nhờ", "Nhắc tới chữ 'việc'" in P and "KHÔNG" in P)
-check("luật: không chắc thì hỏi lại", "HỎI LẠI một" in P)
-check("luật: mỗi lời nhờ chỉ giao MỘT lần", "MỘT lần: câu nói tiếp" in P)
+check("luật: chỉ giao khi thật sự là lời nhờ", "ONLY HAND OFF when the sentence is truly a request" in P)
+check("luật: nhắc chữ 'việc' không phải lời nhờ", "Mentioning the word 'việc'" in P and "none of these is a request" in P)
+check("luật: không chắc thì hỏi lại", "ASK BACK with one short" in P)
+check("luật: mỗi lời nhờ chỉ giao MỘT lần", "ONCE: a follow-up sentence" in P)
 check("luật cũ 'giao việc' không còn đứng như một loại dữ liệu cần đẩy đi",
-      "ký ức dài hạn, giao việc, nhắc hẹn" not in P)
+      "ký ức dài hạn, giao việc, nhắc hẹn" not in P and "long-term memory, handing off tasks, reminders" not in P)
 check("khuôn cũ các test khác dựa vào vẫn còn",
-      "MỘT câu xác nhận" in P and "chạy NỀN" in P and "tự đứng được" in P and "KHÔNG giao việc mới" in P)
+      "ONE short confirmation sentence" in P and "runs in the BACKGROUND" in P and "self-contained" in P and "DO NOT hand off a new task" in P)
 
 # ---- 3. Chốt ở máy chủ: không trùng, không dồn ----
 vb._PENDING.clear()

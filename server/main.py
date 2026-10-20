@@ -13542,7 +13542,7 @@ async def _watchtower_update(token: str, started_at: str):
     reason = _watchtower_no_update_reason(status, body)
     if not reason:
         return
-    print(f"[update] watchtower trả lời mà không thay container (HTTP {status}, {body}): {reason}", file=_sys.stderr)
+    print(f"[update] watchtower answered without replacing the container (HTTP {status}, {body}): {reason}", file=_sys.stderr)
     st = _read_update_state()
     if st.get("phase") == "restarting" and st.get("started_at") == started_at:
         _write_update_state({"phase": "idle", "result": "error", "error": reason,
@@ -14643,7 +14643,7 @@ async def _tts_edge_stream(text: str, voice: str, rate: str):
             first = chunk["data"]
             break
     if not first:
-        raise RuntimeError("Edge TTS không trả audio.")
+        raise RuntimeError("Edge TTS returned no audio.")
 
     async def _rest():
         yield first
@@ -14658,7 +14658,7 @@ async def _tts_openai(text: str, rate: str, cfg: dict) -> bytes:
     import httpx
     key = (cfg.get("model", {}) or {}).get("openai_api_key", "")
     if not key:
-        raise RuntimeError("Chưa có OpenAI API key (đặt ở Models / Cài đặt).")
+        raise RuntimeError("No OpenAI API key yet (set it in Models / Settings).")
     v = cfg.get("voice", {}) or {}
     payload = {
         "model": v.get("openai_tts_model") or "gpt-4o-mini-tts",
@@ -14677,7 +14677,7 @@ async def _tts_elevenlabs(text: str, cfg: dict) -> bytes:
     v = cfg.get("voice", {}) or {}
     key = v.get("elevenlabs_key", "")
     if not key:
-        raise RuntimeError("Chưa có ElevenLabs API key.")
+        raise RuntimeError("No ElevenLabs API key yet.")
     voice_id = v.get("elevenlabs_voice") or "21m00Tcm4TlvDq8ikWAM"
     payload = {"text": text, "model_id": v.get("elevenlabs_model") or "eleven_multilingual_v2"}
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
@@ -14985,12 +14985,12 @@ async def _voice_ask_javis(request: str, conv_sid: str, brain: str, key: str = "
                                progress=progress, channel="cli",
                                phien_kho=str(conv_sid or ""), ghi_kho=False)
     except Exception as e:
-        return f"Bộ não chính lỗi: {type(e).__name__}: {e}"
+        return f"Main brain error: {type(e).__name__}: {e}"
     finally:
         if own_key:
             _TG_SESS.pop(key, None)
     if isinstance(out, dict):
-        return channel_context.strip_control_blocks(str(out.get("text") or ""))[:6000] or "(không có nội dung)"
+        return channel_context.strip_control_blocks(str(out.get("text") or ""))[:6000] or "(no content)"
     return str(out or "")[:6000]
 
 
@@ -15024,7 +15024,7 @@ async def voice_live_ws(ws: WebSocket, session_id: str = Query(""), brain: str =
         try:
             await asyncio.to_thread(openai_oauth.write_codex_auth)
         except Exception as e:
-            print(f"[chatgpt live] bắc cầu token: {e}", file=sys.stderr)
+            print(f"[chatgpt live] token bridge: {e}", file=sys.stderr)
         try:
             idx = _brain_memory_dir(_brain_root(brain)) / "MEMORY.md"
             if idx.exists():
@@ -15144,7 +15144,7 @@ async def voice_live_ws(ws: WebSocket, session_id: str = Query(""), brain: str =
             # bộ não. Bộ não chỉ trả lời được sau khi việc dài xong, nên đẩy câu này sang đó là im
             # re mấy phút rồi mới có câu trả lời cũ.
             text = voice_live.status_line(list(jobs.values()), asyncio.get_running_loop().time())
-            print(f"[voice live] câu hỏi tiến độ, trả lời từ trạng thái: {req[:80]!r}", file=sys.stderr)
+            print(f"[voice live] progress question, answering from status: {req[:80]!r}", file=sys.stderr)
             try:
                 # A provider that defers tool results needs THIS call answered, or the model waits on it forever.
                 if not _deferred(name) and await prov.say_status(text):
@@ -15161,7 +15161,7 @@ async def voice_live_ws(ws: WebSocket, session_id: str = Query(""), brain: str =
         if running and (voice_live.is_followup_ack(req) or any(voice_live.is_same_request(p, req) for p in running)):
             # Chỉ là xác nhận trong lúc chờ, hay model bắn lặp chính yêu cầu đang chạy: kết quả việc đang
             # chạy sẽ tới, không chạy bộ não lần nữa.
-            print(f"[voice live] bỏ lời nói thêm (xác nhận hoặc lặp): {req[:80]!r}", file=sys.stderr)
+            print(f"[voice live] dropped extra speech (acknowledgement or repeat): {req[:80]!r}", file=sys.stderr)
             try:
                 await prov.send_tool_ack(cid, name, voice_live.FOLLOWUP_ACK)
             except Exception:
@@ -15243,14 +15243,14 @@ async def voice_live_ws(ws: WebSocket, session_id: str = Query(""), brain: str =
                 result = await _voice_ask_javis(sent, conv_sid, brain, key=key, progress=_note_step,
                                                 call_lang=lang_mod.call_language(spoken["text"], lang))
             else:
-                result = f"Tool {name} không có."
+                result = f"Tool {name} does not exist."
         except Exception as e:
-            result = f"Bộ não chính lỗi: {type(e).__name__}: {e}"
+            result = f"Main brain error: {type(e).__name__}: {e}"
         finally:
             jobs.pop(job_id, None)
         if running and voice_live.is_noop_result(result):
             # Bộ não thấy câu nói thêm không có việc mới: không bong bóng, không đọc ra loa.
-            print(f"[voice live] lời nói thêm không có việc mới: {str(running[0])[:60]!r}", file=sys.stderr)
+            print(f"[voice live] extra speech with no new job: {str(running[0])[:60]!r}", file=sys.stderr)
             try:
                 if not deferred:   # a deferred call was already answered; a second answer is invalid
                     await prov.send_tool_ack(cid, name, voice_live.FOLLOWUP_ACK)
@@ -15565,12 +15565,12 @@ def _bao_lan_nhanh_bo_qua(vconf) -> bool:
     khoa = (mode, prov)
     if khoa not in _LAN_NHANH_DA_BAO:
         _LAN_NHANH_DA_BAO.add(khoa)
-        ly_do = ("không đọc được cài đặt giọng nói" if not vconf
-                 else f"chế độ giọng nói = {mode or 'standard'!r}" if mode != "fast"
-                 else "chế độ Làn nhanh nhưng chưa chọn bộ não giọng và không có bộ não nào sẵn trên gói "
+        ly_do = ("could not read the voice settings" if not vconf
+                 else f"voice mode = {mode or 'standard'!r}" if mode != "fast"
+                 else "Fast Lane mode but no voice brain is chosen and none is available on a plan "
                       "(Antigravity, ChatGPT, Claude Code, Grok Build)")
-        print(f"[voice lane] tin từ mic đi bộ não chính: {ly_do}. "
-              f"Đăng nhập một gói ở trang Models để có làn nhanh.", file=sys.stderr)
+        print(f"[voice lane] mic message goes to the main brain: {ly_do}. "
+              f"Sign in to a plan on the Models page to get the fast lane.", file=sys.stderr)
     return True
 
 
@@ -15922,10 +15922,10 @@ async def websocket_endpoint(ws: WebSocket):
                 # người dùng, không thuộc cây mã nguồn đang mở.
                 _apply_grok_hub(kcli, _brain_root(brain))
                 if not kcli.is_available():
-                    final_text = ("⚠ Chưa cài Grok Build CLI trên máy này. Cài một lần:\n\n"
+                    final_text = ("⚠ Grok Build CLI is not installed on this machine. Install it once:\n\n"
                                   f"`{grok_cli.lenh_cai()}`\n\n"
-                                  "Rồi bấm \"Đăng nhập\" ở thẻ Grok trên trang Models (chạy "
-                                  "trên VPS cũng được, nó in ra một link và một mã).")
+                                  "Then click \"Sign in\" on the Grok card on the Models page (it works "
+                                  "on a VPS too, it prints a link and a code).")
                     await ws.send_text(json.dumps({
                         "type": "response", "content": final_text, "engine": "grok-cli",
                         "model": actual_model or "", "session_id": conv_sid,
@@ -16014,10 +16014,10 @@ async def websocket_endpoint(ws: WebSocket):
                 # Hub trỏ BRAIN kể cả khi cwd là repo - xem chú thích ở nhánh Grok.
                 _apply_antigravity_hub(acli, _brain_root(brain))
                 if not acli.is_available():
-                    final_text = ("⚠ Chưa cài Antigravity CLI trên máy này. Cài một lần:\n\n"
+                    final_text = ("⚠ Antigravity CLI is not installed on this machine. Install it once:\n\n"
                                   f"`{antigravity_cli.lenh_cai()}`\n\n"
-                                  "Rồi gõ `agy` một lần để đăng nhập Google (qua SSH thì nó in "
-                                  "ra một link để mở trên máy bạn).")
+                                  "Then run `agy` once to sign in to Google (over SSH it prints "
+                                  "a link to open on your machine).")
                     await ws.send_text(json.dumps({
                         "type": "response", "content": final_text, "engine": "antigravity-cli",
                         "model": actual_model or "", "session_id": conv_sid,
@@ -16441,9 +16441,9 @@ async def websocket_endpoint(ws: WebSocket):
                         label = _api_label(prov)
                         actual_model = api_model or "?"
                         _ident = (
-                            f"\n\n[Sự thật hệ thống - TUÂN THỦ tuyệt đối: Bạn đang chạy qua {label}, "
-                            f"model thực tế là '{actual_model}'. Khi được hỏi bạn là AI/model nào, "
-                            f"trả lời ĐÚNG tên model này. KHÔNG được tự nhận là model khác.]"
+                            f"\n\n[Sự thật hệ thống - STRICT COMPLIANCE: You are running through {label}, "
+                            f"the actual model is '{actual_model}'. When asked which AI/model you are, "
+                            f"answer with EXACTLY this model name. Do NOT claim to be any other model.]"
                         )
                         _head = [{"role": "system", "content": sysprompt + _ident}]
                         if _phase8_plan.action == "use" and _phase8_plan.state_applied:
@@ -16952,7 +16952,7 @@ async def websocket_endpoint(ws: WebSocket):
                     print(f"[bao khung goc] {type(_e).__name__}: {_e}", file=sys.stderr)
             except asyncio.CancelledError:
                 _CONTEXT_RUNTIME.finish(runtime_trace, "CANCELLED", "cancelled")
-                _cau = "Đã dừng lần chạy này theo yêu cầu."
+                _cau = "This run was stopped on request."
                 # Cột phải (và icon quay ở cột trái) sống bằng luồng `wf_event`, KHÔNG đọc tin
                 # chat. Bỏ khung này thì tiến độ đứng mãi ở "Đang chạy - Bước 1/3" cho một lần
                 # chạy vừa bị người dùng dừng: màn hình nói một đằng, sự thật một nẻo.
@@ -17012,8 +17012,8 @@ async def websocket_endpoint(ws: WebSocket):
             # vừa đúng vừa tức thì (không mất một lượt model nào).
             if voice_brain.la_lenh_dung_viec(user_message):
                 _n = huy_viec_nen_giong(conv_sid)
-                _cau = (f"Rồi, em dừng {_n} việc nền đang chạy." if _n
-                        else "Hiện không có việc nền nào đang chạy đâu.")
+                _cau = (f"Okay, I stopped {_n} running background job(s)." if _n
+                        else "There are no background jobs running right now.")
                 await send_raw({"type": "stream", "content": _cau, "session_id": conv_sid, "lane": "voice"})
                 try:
                     await _persist_turn(store, conv_sid, brain, user_message, _cau)
@@ -17177,7 +17177,7 @@ async def websocket_endpoint(ws: WebSocket):
                 # chữ lạ sang trình duyệt rồi nhận câu lỗi khó hiểu.
                 dung = ui_targets.normalize_target(act, tgt)
                 if act in ("open_page", "open_group") and not dung:
-                    res = {"ok": False, "detail": f"không có {'trang' if act == 'open_page' else 'nhóm'} '{tgt}'"}
+                    res = {"ok": False, "detail": f"no {'page' if act == 'open_page' else 'group'} '{tgt}'"}
                 else:
                     try:
                         res = await ui_bridge.request(act, dung or tgt, session_id=conv_sid)
@@ -17185,7 +17185,7 @@ async def websocket_endpoint(ws: WebSocket):
                         res = {"ok": False, "detail": f"{type(e).__name__}: {e}"}
                 text = noi or ("Xong." if res.get("ok") else "")
                 if not res.get("ok"):
-                    text = (noi + " " if noi else "") + f"(chưa làm được: {res.get('detail') or 'dashboard không trả lời'})"
+                    text = (noi + " " if noi else "") + f"(could not do it: {res.get('detail') or 'the dashboard did not respond'})"
                 sent_upto = 0
                 await _flush(final=True)
                 clean = text.strip()
@@ -17223,8 +17223,8 @@ async def websocket_endpoint(ws: WebSocket):
             # dựa vào lời dặn trong prompt.
             if voice_brain.la_lenh_dung_viec(ask):
                 _n = huy_viec_nen_giong(conv_sid)
-                _cau = (f"Rồi, em dừng {_n} việc nền đang chạy." if _n
-                        else "Hiện không có việc nền nào đang chạy đâu.")
+                _cau = (f"Okay, I stopped {_n} running background job(s)." if _n
+                        else "There are no background jobs running right now.")
                 sent_upto = 0
                 await _flush(final=True)
                 await send_raw({"type": "stream", "content": _cau, "session_id": conv_sid, "lane": "voice"})
@@ -17245,10 +17245,10 @@ async def websocket_endpoint(ws: WebSocket):
             # việc y hệt, mỗi lần một thẻ trên trang Việc.
             _trung = voice_brain.viec_trung(conv_sid, ask)
             if _trung or voice_brain.day_viec_nen(conv_sid):
-                _cau = ("Việc này em đang làm rồi, xong là kết quả hiện ngay ở đây."
+                _cau = ("I am already working on this; the result will show up right here when it is done."
                         if _trung else
-                        f"Em đang chạy {voice_brain.VIEC_NEN_TOI_DA} việc nền rồi, "
-                        "đợi xong bớt một việc rồi em nhận tiếp nhé.")
+                        f"I am already running {voice_brain.VIEC_NEN_TOI_DA} background jobs, "
+                        "wait until one finishes and I will take the next one.")
                 sent_upto = 0
                 await send_raw({"type": "stream", "content": _cau, "session_id": conv_sid, "lane": "voice"})
                 try:
@@ -17263,7 +17263,7 @@ async def websocket_endpoint(ws: WebSocket):
                 return
 
             if not (filler or "").strip():
-                filler = "Ừ, để xem ngay."
+                filler = "Sure, let me look right away."
                 await send_raw({"type": "stream", "content": filler, "session_id": conv_sid, "lane": "voice"})
             await _flush(final=True)
             clean = filler.strip()
@@ -17320,7 +17320,7 @@ async def websocket_endpoint(ws: WebSocket):
                     chat_id=f"{WEB_CHAT_PREFIX}{conv_sid}",
                 )
             except Exception as e:
-                print(f"[voice bg] không tạo được thẻ Việc: {type(e).__name__}: {e}", file=sys.stderr)
+                print(f"[voice bg] could not create the job card: {type(e).__name__}: {e}", file=sys.stderr)
 
             def _dong_the(ket_qua: str, hong: str = "") -> None:
                 """Đóng thẻ khi việc xong. Hỏng thì để trạng thái CHẶN chứ không phải xong: thẻ
@@ -17333,7 +17333,7 @@ async def websocket_endpoint(ws: WebSocket):
                     else:
                         tasks_feature.store.complete(tid, "", ket_qua[:20000])
                 except Exception as e:
-                    print(f"[voice bg] không đóng được thẻ Việc: {type(e).__name__}: {e}", file=sys.stderr)
+                    print(f"[voice bg] could not close the job card: {type(e).__name__}: {e}", file=sys.stderr)
 
             # Khoá MẠCH ENGINE của riêng việc này (dùng một lần, để hai việc chạy song song
             # không xếp hàng chung một mạch). Nó KHÔNG phải khoá của cuộc trò chuyện - lượt
@@ -17349,22 +17349,22 @@ async def websocket_endpoint(ws: WebSocket):
                     timeout=VOICE_BG_TIMEOUT,
                 )
             except asyncio.TimeoutError:
-                out = (f"Chạy quá {int(VOICE_BG_TIMEOUT // 60)} phút mà chưa xong nên em dừng lại. "
-                       "Anh thử giao lại, hoặc hỏi thẳng ở khung chat để chạy trực tiếp.")
+                out = (f"It ran over {int(VOICE_BG_TIMEOUT // 60)} minutes without finishing, so I stopped it. "
+                       "Try handing it over again, or ask directly in the chat box to run it right away.")
                 viec["status"] = "timeout"
-                _dong_the(out, hong="quá hạn giờ")
+                _dong_the(out, hong="timed out")
             except asyncio.CancelledError:
                 voice_brain.note_task_done(conv_sid, request)
-                _dong_the("", hong="bị dừng giữa chừng")
-                await push_to_chat(conv_sid, "Đã dừng giữa chừng, chưa có kết quả.",
+                _dong_the("", hong="stopped midway")
+                await push_to_chat(conv_sid, "Stopped midway, no result yet.",
                                    viec=dict(viec, status="cancelled"))
                 raise
             except Exception as e:
-                out = f"Chưa làm được việc này. Lỗi gặp phải: {e or type(e).__name__}"
+                out = f"Could not do this job. Error encountered: {e or type(e).__name__}"
                 viec["status"] = "failed"
                 _dong_the(out, hong=f"{type(e).__name__}: {e}")
             else:
-                _dong_the(out or "(việc nền xong nhưng không có nội dung)")
+                _dong_the(out or "(background job finished but returned no content)")
             finally:
                 voice_brain.note_task_done(conv_sid, request)
                 luot_dang_chay.ket_thuc(_khoa_luot)
@@ -17372,7 +17372,7 @@ async def websocket_endpoint(ws: WebSocket):
                 # được dọn khi bot Telegram khởi động lại, nên nói chuyện cả buổi là cả trăm
                 # khoá chết nằm lại, mỗi khoá còn ôm một đối tượng engine CLI.
                 _TG_SESS.pop(khoa_mach, None)
-            await push_to_chat(conv_sid, out or "(việc nền xong nhưng không có nội dung)", viec=viec)
+            await push_to_chat(conv_sid, out or "(background job finished but returned no content)", viec=viec)
 
         async def _start_steer_turn(conv_sid, texts, brain, ids):
             """0.206.0: messages sent while a turn was running that it never read (a one-shot CLI engine, or it was
@@ -17412,8 +17412,8 @@ async def websocket_endpoint(ws: WebSocket):
                     break
                 await asyncio.sleep(5)
             else:
-                await push_to_chat(conv_sid, "Việc chạy nền đã xong nhưng hội thoại đang bận quá "
-                                   "lâu, mình chưa làm tiếp được. Nhắn \"làm tiếp\" để mình làm nốt.")
+                await push_to_chat(conv_sid, "The background job finished but the conversation has been busy for too "
+                                   "long, so I could not continue yet. Reply \"continue\" and I will finish up.")
                 return
             store.append_message(conv_sid, "user", text)
             turn_tag = f"chat:{conv_sid[:12]}:{uuid.uuid4().hex[:8]}"
@@ -17513,7 +17513,7 @@ async def websocket_endpoint(ws: WebSocket):
                         "Quy trình đang chạy, đợi xong đã.", "The workflow is running, wait for it to finish.")})
                     continue
                 _node = str(payload.get("node") or "")
-                _msg = f"Đã duyệt bước \"{_node}\"."
+                _msg = f"Approved step \"{_node}\"."
                 store.append_message(_sid, "user", _msg)
                 _brain_r = _row.get("brain") or payload.get("brain") or "brain"
                 _tag = f"chat:{_sid[:12]}:{uuid.uuid4().hex[:8]}"
@@ -17591,7 +17591,7 @@ async def websocket_endpoint(ws: WebSocket):
                         _nghe_tho, user_message = _speech, _ctx + _sua
                         _voice_raw = nghe_sua.sua(_voice_raw, _tv)
                 except Exception as e:
-                    print(f"[voice nghe_sua] lỗi, giữ nguyên câu: {type(e).__name__}", file=sys.stderr)
+                    print(f"[voice nghe_sua] error, keeping the sentence as is: {type(e).__name__}", file=sys.stderr)
             # Phiên đã ghim model riêng thì engine_label phải suy từ provider HIỆU LỰC
             # của phiên, không phải từ mặc định chung - nhãn sai là clear_codex_thread_id
             # dọn nhầm/không dọn mạch native khi đổi engine.
@@ -17649,7 +17649,7 @@ async def websocket_endpoint(ws: WebSocket):
             # sessions.py, không phải nhớ thêm một lệnh clear ở đây.
             _da_don_mach = store.clear_native_threads(conv_sid, keep=engine_label)
             if _da_don_mach:
-                print(f"[chat] đổi engine sang {engine_label!r}, dọn mạch stale: "
+                print(f"[chat] switched engine to {engine_label!r}, cleaning stale threads: "
                       f"{', '.join(_da_don_mach)}", file=sys.stderr)
             if _CHAT_RUNTIME.get_job(conv_sid):
                 if payload.get("voice") and payload.get("utterance_id"):
@@ -17965,7 +17965,7 @@ def _kenh_bot_cua_agent(brain, channel) -> list:
             if kenh not in out:
                 out.append(kenh)
     except Exception as e:      # noqa: BLE001 - đọc kho bot hỏng thì lịch sử Agent vẫn hiện phần của nó
-        print(f"[sessions] gộp kênh bot lỗi: {type(e).__name__}", file=__import__('sys').stderr)
+        print(f"[sessions] merging bot channels failed: {type(e).__name__}", file=__import__('sys').stderr)
     return out
 
 
@@ -19794,7 +19794,7 @@ async def runtime_preset_set(level: str = Form(...)):
     _muc_cu = current_preset(runtime_cfg)
     if _muc_cu != key:
         usage_saving.ghi_moc("muc", key, _muc_cu,
-                             f"Đổi chế độ tiết kiệm sang {preset['nhan']}")
+                             f"Changed saving mode to {preset['nhan']}")
     runtime_cfg["mode"] = preset["mode"]
     # Ký tên TRƯỚC khi ghi: từ đây trở đi mức này là quyết định của người dùng, không bản
     # cập nhật nào được nâng nó lên sau lưng.
@@ -19831,9 +19831,9 @@ async def runtime_preset_set(level: str = Form(...)):
             continue
         canh_bao.append(
             localefmt.chu(
-                f"Chưa có bảng hạn mức sẵn cho '{prov}', nên Javis biên soạn ngữ cảnh theo trần "
-                "mặc định (context_runtime.api_context). Vẫn tiết kiệm được ngay; sau lần đầu "
-                "nhà cung cấp báo vượt hạn mức, Javis dùng đúng con số thật của họ.",
+                f"There is no ready limit table for '{prov}', so Jarvis 007 compiles the context to the default "
+                "cap (context_runtime.api_context). Savings still apply right away; after the first time "
+                "the provider reports a limit breach, Jarvis 007 uses their real numbers.",
                 f"There is no built-in limit table for '{prov}' yet, so Javis builds the context "
                 "under the default ceiling (context_runtime.api_context). It still saves right "
                 "away; the first time the provider reports a limit hit, Javis uses their real "
@@ -19936,7 +19936,7 @@ async def runtime_quota_apply(provider: str = Form(...), model: str = Form(""),
         runtime_cfg[key] = entry
         applied.append(key)
     cfgmod.write_settings(cfg)
-    return {"ok": True, "provider": provider, "model": model or "(mọi model)",
+    return {"ok": True, "provider": provider, "model": model or "(any model)",
             "so_rule": len(profiles), "da_ap_cho": applied,
             "can_doi_chieu": [s.get("source") for s in suggestions if s.get("verify")],
             "luu_y": localefmt.chu("Đây là hạn mức GỢI Ý theo tài liệu công khai. Đối chiếu với gói cước "
@@ -20312,11 +20312,11 @@ def _tg_conv_sid(store, sess, brain, engine_label, model, channel="telegram"):
     luật xoay. Đổi brain và /reset gọi `_tg_quen_sid` nên xoá luôn cả liên kết bền.
     """
     sid = sess.get("sid") or _TG_SID_MAP.get(str(sess.get("key") or ""))
-    ly_do = "chưa có phiên nào cho chat này"
+    ly_do = "no session yet for this chat"
     if sid:
         row = store.get_session(sid)
         if not row:
-            ly_do = f"bản ghi {sid[:8]} không còn trong kho (đã xoá trên dashboard?)"
+            ly_do = f"record {sid[:8]} is no longer in the store (deleted on the dashboard?)"
             sid = None      # user đã xoá hội thoại đó trên dashboard → đừng hồi sinh id cũ
         elif (row.get("brain") or "") and row["brain"] not in _brain_keys(brain):
             # Brain đổi lúc server tắt (Settings, hoặc brain bị đổi tên). Nối tiếp thì
@@ -20328,8 +20328,8 @@ def _tg_conv_sid(store, sess, brain, engine_label, model, channel="telegram"):
             # có từ trước bản chuẩn hoá đều bị coi là "khác brain" và bị bỏ - MỖI LƯỢT một
             # phiên mới, đúng cái hỏng mà khối ngay dưới đang canh. Cột rỗng cũng tha, vì rỗng
             # là không biết chứ không phải là khác.
-            ly_do = (f"brain của bản ghi {sid[:8]} là {row.get('brain')!r}, "
-                     f"lượt này là {_brain_key(brain)!r}")
+            ly_do = (f"the brain of record {sid[:8]} is {row.get('brain')!r}, "
+                     f"this turn is {_brain_key(brain)!r}")
             sid = None
         else:
             # Chỉ xoay khi có BẰNG CHỨNG phiên đã cũ/đã dài. Thiếu số liệu thì giữ nguyên,
@@ -20337,7 +20337,7 @@ def _tg_conv_sid(store, sess, brain, engine_label, model, channel="telegram"):
             nghi = time.time() - float(row.get("updated_at") or time.time())
             so_tin = int(row.get("msg_count") or 0)
             if nghi >= _TG_CONV_IDLE_S or so_tin >= _TG_CONV_MAX_MSGS:
-                ly_do = f"phiên cũ nghỉ {nghi / 3600:.1f} tiếng, dài {so_tin} tin"
+                ly_do = f"old session idle for {nghi / 3600:.1f} hours, {so_tin} messages long"
                 sid = None      # nghỉ lâu / đã dài → sang khúc mới
     if sid:
         # Còn dùng tiếp: đồng bộ engine/model vì người dùng có thể vừa đổi bằng /model.
@@ -20353,7 +20353,7 @@ def _tg_conv_sid(store, sess, brain, engine_label, model, channel="telegram"):
     # VÌ SAO mở phiên mới - in ra mỗi lần, vì đây là thứ không tài nào đoán được từ giao diện:
     # ở Lịch sử chỉ thấy một loạt hội thoại ngắn mà không biết chúng bị cắt ra bởi luật nghỉ
     # 12 tiếng, bởi brain lệch, hay bởi liên kết bền không ghi được (chủ dự án báo 16/09).
-    print(f"[{channel or 'telegram'}] mở phiên mới {sess['sid'][:8]} cho chat "
+    print(f"[{channel or 'telegram'}] opened a new session {sess['sid'][:8]} for chat "
           f"{sess.get('key')}: {ly_do}", file=__import__('sys').stderr)
     # Dọn theo nhịp XOAY (hiếm, cỡ vài ngày một lần) chứ không mỗi lượt - đủ để thanh bên
     # không ngập dần vì các khúc cũ. Dọn ĐÚNG kênh vừa xoay, không phải cứ thế quét Telegram.
@@ -20361,8 +20361,8 @@ def _tg_conv_sid(store, sess, brain, engine_label, model, channel="telegram"):
         n = store.archive_stale(channel or "telegram",
                                 time.time() - _TG_CONV_ARCHIVE_DAYS * 86400)
         if n:
-            print(f"[{channel or 'telegram'}] cất {n} phiên nguội quá {_TG_CONV_ARCHIVE_DAYS} "
-                  f"ngày vào kho lưu", file=__import__('sys').stderr)
+            print(f"[{channel or 'telegram'}] archived {n} stale sessions older than {_TG_CONV_ARCHIVE_DAYS} "
+                  f"days into the archive", file=__import__('sys').stderr)
     except Exception as e:
         print(f"[{channel or 'telegram'} archive] {type(e).__name__}: {e}",
               file=__import__('sys').stderr)
@@ -20611,14 +20611,14 @@ def _tg_ket(clean_out, files, canh_bao="", loi=(), khach=False):
     The system warning and the mid-turn error then go to `canh_bao`, which the bot log shows the owner,
     instead of being glued to the reply ("⚠ Có lỗi giữa lượt: ..." in a customer group)."""
     if khach:
-        ghi_chu = [str(canh_bao or "").strip()] + (["Có lỗi giữa lượt: " + str(loi[0])] if loi else [])
+        ghi_chu = [str(canh_bao or "").strip()] + (["An error occurred mid-turn: " + str(loi[0])] if loi else [])
         ket = {"text": clean_out or "", "files": files or []}
         if any(ghi_chu):
             ket["canh_bao"] = " · ".join(x for x in ghi_chu if x)[:500]
         return ket
     txt = (canh_bao or "") + (clean_out or "")
     if loi:
-        txt += "\n\n⚠ Có lỗi giữa lượt: " + str(loi[0])
+        txt += "\n\n⚠ An error occurred mid-turn: " + str(loi[0])
     return {"text": txt, "files": files or []}
 
 
@@ -20683,17 +20683,17 @@ async def _bot_doc_stream(stream, *, progress, runtime_trace, prov, api_model):
             if t == "text":
                 if not _pinged:
                     _pinged = True
-                    await progress("✍ Đang soạn câu trả lời…")
+                    await progress("✍ Writing the answer…")
                 out += ev.get("content") or ""
             elif t == "meta":
                 actual_model = ev.get("model") or actual_model
             elif t == "tool_call":
-                await progress(f"⚙ Đang dùng công cụ: {ev.get('name', '')}")
+                await progress(f"⚙ Using tool: {ev.get('name', '')}")
             elif t == "usage":
                 usage_store.record(prov, actual_model, ev.get("input", 0), ev.get("output", 0))
                 _CONTEXT_RUNTIME.record_usage(runtime_trace, ev.get("input", 0), ev.get("output", 0))
             elif t == "error":
-                loi.append(str(ev.get("content") or "lỗi không rõ"))
+                loi.append(str(ev.get("content") or "unknown error"))
     except Exception as e:
         print(f"[bot {prov}] {type(e).__name__}: {e}", file=__import__('sys').stderr)
         loi.append(str(e))
@@ -20714,8 +20714,8 @@ def _bot_ket(out, lich_su):
 
 def _anh_khong_gui_duoc(prov) -> str:
     """Cảnh báo cho nhật ký bot khi bộ não của bot không có đường gửi ảnh (Antigravity, Grok Build)."""
-    return (f"Bot không xem được ảnh khách gửi: bộ não {prov} của bot không nhận ảnh. Đổi model của bot sang "
-            f"Claude, ChatGPT hoặc một model API nhìn được ảnh.")
+    return (f"The bot cannot see the image the customer sent: the bot's {prov} brain does not accept images. Switch the bot's model to "
+            f"Claude, ChatGPT or an API model that can see images.")
 
 
 def _bot_gan_anh(messages, prov, text, images):
@@ -20795,10 +20795,10 @@ async def _bot_xem_ho(images, text, prov, api_model, chat_id=""):
     except Exception as e:      # noqa: BLE001 - borrowed eyes failing must never cost the customer the reply
         res = {"ok": False, "errors": [f"{type(e).__name__}: {e}"]}
     if res.get("ok"):
-        print(f"[bot {prov} chat {chat_id}] ảnh khách gửi do {res.get('who')} xem hộ", file=sys.stderr)
+        print(f"[bot {prov} chat {chat_id}] the customer's image was viewed by {res.get('who')}", file=sys.stderr)
         return res["text"], res.get("who") or "", ""
     why = "; ".join(res.get("errors") or [])[:300]
-    print(f"[bot {prov} chat {chat_id}] không bộ não nào xem hộ được ảnh: {why}", file=sys.stderr)
+    print(f"[bot {prov} chat {chat_id}] no brain could view the image on its behalf: {why}", file=sys.stderr)
     return "", "", why
 
 
@@ -20810,7 +20810,7 @@ async def _bot_anh_mat_muon(messages, lich_su, text, images, prov, api_model, ch
     bot could not see the photo AND why no other brain could look for it."""
     mo_ta, who, why = await _bot_xem_ho(images, text, prov, api_model, chat_id)
     if not mo_ta:
-        return _bot_bo_anh(messages, text), f"{ly_do} Không bộ não nào khác xem hộ được: {why}"[:400]
+        return _bot_bo_anh(messages, text), f"{ly_do} No other brain could view it: {why}"[:400]
     n = len(images)
     if lich_su:
         lich_su[-1] = {"role": "user", "content": borrowed_eyes.history_text(text, mo_ta, n)}
@@ -20822,7 +20822,7 @@ def _bot_lich_su_chu(text, images):
     nhưng model vẫn biết khách từng gửi ảnh khi họ hỏi tiếp "cái áo trong ảnh lúc nãy"."""
     if not images:
         return text
-    return f"{text}\n(khách gửi kèm {len(images)} ảnh ở tin này)"
+    return f"{text}\n(the customer attached {len(images)} image(s) to this message)"
 
 
 async def _bot_tra_loi(text, *, sess, sysprompt, prov, api_key, api_model, reasoning,
@@ -20877,15 +20877,15 @@ async def _bot_tra_loi(text, *, sess, sysprompt, prov, api_key, api_model, reaso
     if not out and co_anh:
         # Model nhận ảnh mà trả rỗng hoặc lỗi: mượn mắt bộ não khác rồi trả lời lại. Lỗi GỐC đi vào cảnh báo, vì trước 0.94.0
         # mọi lỗi ở đây đều bị ghi chung là "từ chối ảnh" và không ai biết model thật sự nói gì.
-        goc = (loi[0] if loi else "không trả lời gì")[:200]
-        print(f"[bot {prov} chat {chat_id}] model không nhận ảnh ({goc}), mượn mắt bộ não khác",
+        goc = (loi[0] if loi else "no reply at all")[:200]
+        print(f"[bot {prov} chat {chat_id}] model does not accept images ({goc}), borrowing another brain's eyes",
               file=__import__('sys').stderr)
         gui, canh_bao_anh = await _bot_anh_mat_muon(
             messages, lich_su, text, images, prov, api_model, chat_id,
-            f"Bot không xem được ảnh khách gửi: model {api_model or prov} không nhận ảnh (lỗi gốc: {goc}).")
+            f"The bot cannot see the image the customer sent: model {api_model or prov} does not accept images (original error: {goc}).")
         if not canh_bao_anh:
-            canh_bao_anh = (f"Model {api_model or prov} của bot không nhận ảnh (lỗi gốc: {goc}), "
-                            f"nên một bộ não khác đã xem hộ ảnh.")
+            canh_bao_anh = (f"The bot's model {api_model or prov} does not accept images (original error: {goc}), "
+                            f"so another brain viewed the image on its behalf.")
         out, loi = await _bot_doc_stream(
             _api_stream(prov, api_key, api_model, gui, reasoning),
             progress=progress, runtime_trace=runtime_trace, prov=prov, api_model=api_model)
@@ -20895,9 +20895,9 @@ async def _bot_tra_loi(text, *, sess, sysprompt, prov, api_key, api_model, reaso
         if prov == "openai-oauth" and not (openai_oauth.valid_creds() or {}).get("access_token"):
             # Codex không chạy không-tool được nên không có đường dự phòng. Nói đúng việc cần
             # làm thay vì để chủ đọc một mã lỗi HTTP.
-            return ("⚠ Chưa đăng nhập được ChatGPT nên bot không gọi được model. "
-                    "Vào trang Models kết nối lại tài khoản ChatGPT rồi nhắn lại.")
-        return "⚠ " + (loi[0] if loi else "Không nhận được nội dung nào.")
+            return ("⚠ Not signed in to ChatGPT, so the bot cannot call the model. "
+                    "Reconnect your ChatGPT account on the Models page, then message again.")
+        return "⚠ " + (loi[0] if loi else "No content was received.")
     # Không gửi kèm file: bot ở mức này không tạo được file (không có tool), và quét thư mục
     # brain để tìm file "mới" thì lại là một đường rò tài liệu ra ngoài.
     ket = _bot_ket(out, lich_su)
@@ -20959,7 +20959,7 @@ def _bot_stream_co_tool(prov, key, model, messages, reasoning, tools, route,
 
     # Nhà cung cấp gãy tạm thời thì thử lại - nhưng dừng ngay khi tool đầu tiên đã chạy, vì từ
     # đó lượt này đã chạm vào thế giới thật.
-    return engine.thu_lai_khi_tam_thoi(_vong, nhan=f"bot {prov}/{model or 'mặc định'}")
+    return engine.thu_lai_khi_tam_thoi(_vong, nhan=f"bot {prov}/{model or 'default'}")
 
 
 class _BoQua(Exception):
@@ -20979,11 +20979,11 @@ def _bot_full_prompt(brain, sys_bot, lang, conv_sid=""):
     dẫn công cụ, kỹ năng, giao việc nằm ở đó. Vai Agent đứng SAU và nói rõ nó thắng phần giới thiệu
     Javis ở trên, để bot vẫn là con bot chủ dựng chứ không tự xưng Javis với khách."""
     base = build_system_prompt(brain, lang=lang, session_id=conv_sid or "")
-    return (base + "\n\n# === BOT TOÀN QUYỀN: VAI CỦA BẠN TRONG CUỘC CHAT NÀY ===\n"
-            "Bạn đang trả lời qua một bot chuyên trách mà chủ đã đặt ở mức TOÀN QUYỀN: bạn có đủ công "
-            "cụ, kết nối, kỹ năng và quyền thao tác như khi chủ chat trực tiếp với Javis. Người đang "
-            "nhắn có thể KHÔNG phải chủ. Nói chuyện theo đúng vai và quy định dưới đây; chỗ nào khác "
-            "phần giới thiệu Javis ở trên thì làm theo phần dưới.\n\n" + str(sys_bot or ""))
+    return (base + "\n\n# === FULL-ACCESS BOT: YOUR ROLE IN THIS CHAT ===\n"
+            "You are answering through a dedicated bot that the owner set to FULL ACCESS: you have the full "
+            "tools, connections, skills and permissions as when the owner chats with Jarvis 007 directly. The person "
+            "messaging may NOT be the owner. Talk in the right role and follow the rules below; wherever they differ from "
+            "the Jarvis 007 introduction above, follow the part below.\n\n" + str(sys_bot or ""))
 
 
 async def _bot_tra_loi_co_tool(text, *, sess, sysprompt, prov, api_key, api_model, reasoning,
@@ -21043,7 +21043,7 @@ async def _bot_tra_loi_co_tool(text, *, sess, sysprompt, prov, api_key, api_mode
             # for_bot=True: khách lạ đang lái model, nên tool chỉ-của-chủ (bộ phán xử, 0.77.0) bị bỏ khỏi danh sách.
             tools, route = await mcp_hub.discover_all(muc_quyen, vault_root=_brain_root(brain), for_bot=True)
     except Exception as e:
-        print(f"[bot {prov} chat {chat_id}] nạp tool hỏng: {type(e).__name__}: {e}",
+        print(f"[bot {prov} chat {chat_id}] loading tools failed: {type(e).__name__}: {e}",
               file=__import__('sys').stderr)
     _bot_ghim_duong(runtime_trace, prov, api_model, messages, tools)
 
@@ -21067,8 +21067,8 @@ async def _bot_tra_loi_co_tool(text, *, sess, sysprompt, prov, api_key, api_mode
             progress=progress, runtime_trace=runtime_trace, prov=prov, api_model=api_model)
         if out_ or not tools:
             return out_, loi_, False
-        print(f"[bot {prov} chat {chat_id}] vòng tool rỗng ({loi_[0] if loi_ else '?'}), "
-              f"trả lời lại KHÔNG tool", file=__import__('sys').stderr)
+        print(f"[bot {prov} chat {chat_id}] empty tool round ({loi_[0] if loi_ else '?'}), "
+              f"answering again WITHOUT tools", file=__import__('sys').stderr)
         out2, loi2 = await _bot_doc_stream(
             _api_stream(prov, api_key, api_model, gui_, reasoning),
             progress=progress, runtime_trace=runtime_trace, prov=prov, api_model=api_model)
@@ -21086,49 +21086,49 @@ async def _bot_tra_loi_co_tool(text, *, sess, sysprompt, prov, api_key, api_mode
     if not out and co_anh:
         # Có ảnh mà vẫn rỗng cả khi bỏ tool: lỗi nằm ở ảnh. Mượn mắt bộ não khác (0.94.0), thử lại với ảnh đã thành chữ (không
         # ai xem hộ được thì chỉ chữ + nhãn thật thà). Mất ảnh gốc, không mất công cụ. Lỗi GỐC đi vào cảnh báo.
-        goc = (loi[0] if loi else "không trả lời gì")[:200]
-        print(f"[bot {prov} chat {chat_id}] model không nhận ảnh ({goc}), mượn mắt bộ não khác",
+        goc = (loi[0] if loi else "no reply at all")[:200]
+        print(f"[bot {prov} chat {chat_id}] model does not accept images ({goc}), borrowing another brain's eyes",
               file=__import__('sys').stderr)
         gui, canh_bao_anh = await _bot_anh_mat_muon(
             messages, lich_su, text, images, prov, api_model, chat_id,
-            f"Bot không xem được ảnh khách gửi: model {api_model or prov} không nhận ảnh (lỗi gốc: {goc}).")
+            f"The bot cannot see the image the customer sent: model {api_model or prov} does not accept images (original error: {goc}).")
         if not canh_bao_anh:
-            canh_bao_anh = (f"Model {api_model or prov} của bot không nhận ảnh (lỗi gốc: {goc}), "
-                            f"nên một bộ não khác đã xem hộ ảnh.")
+            canh_bao_anh = (f"The bot's model {api_model or prov} does not accept images (original error: {goc}), "
+                            f"so another brain viewed the image on its behalf.")
         out, loi, roi_tool = await _mot_lan(gui)
     canh_bao = ""
     if roi_tool:
-        canh_bao = (f"Engine đang chạy ({_api_label(prov)}) không gọi được công cụ cho bot, "
-                    f"nên lượt vừa rồi trả lời ở mức Chỉ đọc chứ không phải mức "
-                    f"{chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} bạn đã đặt. "
-                    f"Cần bot làm việc thật thì đổi engine ở trang Models, hoặc hạ mức bot "
-                    f"xuống Chỉ đọc cho khỏi hiểu nhầm.")
+        canh_bao = (f"The running engine ({_api_label(prov)}) cannot call tools for the bot, "
+                    f"so the last turn answered at the Read-only level rather than the "
+                    f"{chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} level you set. "
+                    f"If you need the bot to do real work, change the engine on the Models page, or lower the bot's level "
+                    f"to Read-only to avoid confusion.")
 
     if not out:
         lich_su.pop()   # lượt hỏng thì đừng để câu hỏi treo lơ lửng không có câu trả lời
         if prov == "openai-oauth" and not (openai_oauth.valid_creds() or {}).get("access_token"):
-            return ("⚠ Chưa đăng nhập được ChatGPT nên bot không gọi được model. "
-                    "Vào trang Models kết nối lại tài khoản ChatGPT rồi nhắn lại.")
-        return "⚠ " + (loi[0] if loi else "Không nhận được nội dung nào.")
+            return ("⚠ Not signed in to ChatGPT, so the bot cannot call the model. "
+                    "Reconnect your ChatGPT account on the Models page, then message again.")
+        return "⚠ " + (loi[0] if loi else "No content was received.")
     if not tools:
         # Bot được đặt ở mức có quyền mà lại chẳng có công cụ nào - im lặng ở đây thì chủ tưởng
         # bot đang làm việc, còn thực tế nó chỉ đang nói chuyện.
         if cli_khong_tool:
-            canh_bao = (f"Bộ não {_api_label(prov)} chưa dùng được công cụ ở mức "
-                        f"{chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} của bot, nên lượt vừa rồi chỉ "
-                        f"trả lời. Cần công cụ thì đặt bot ở mức Toàn quyền (chạy như kênh admin) hoặc "
-                        f"chọn bộ não khác cho Agent.")
+            canh_bao = (f"The {_api_label(prov)} brain cannot use tools at the "
+                        f"{chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} level of the bot, so the last turn only "
+                        f"answered. If you need tools, set the bot to Full access (it runs like the admin channel) or "
+                        f"pick another brain for the Agent.")
         elif muc_quyen == "read_docs":
             # Mức này không cần nguồn nào: thiếu tool chỉ có thể là không mở được brain của bot.
-            canh_bao = (f"Bot đang ở mức {chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} nhưng "
-                        f"không mở được brain của nó, nên lượt vừa rồi chỉ dùng phần tài liệu tra sẵn. "
-                        f"Kiểm tra brain của bot còn tồn tại không.")
+            canh_bao = (f"The bot is at the {chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} level but "
+                        f"cannot open its brain, so the last turn only used the preloaded reference documents. "
+                        f"Check that the bot's brain still exists.")
         else:
-            canh_bao = (f"Bot đang ở mức {chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} nhưng "
-                        f"chưa có nguồn dữ liệu nào đấu vào, nên không có công cụ nào để dùng. "
-                        f"Đấu thêm ở trang Kết nối, hoặc hạ mức bot xuống Chỉ đọc.")
-        print(f"[bot {prov} chat {chat_id}] mức '{muc_quyen}' nhưng hub không trả tool nào - "
-              f"lượt này chỉ chat", file=__import__('sys').stderr)
+            canh_bao = (f"The bot is at the {chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} level but "
+                        f"has no data source connected, so there is no tool to use. "
+                        f"Connect one on the Connections page, or lower the bot to Read-only.")
+        print(f"[bot {prov} chat {chat_id}] level '{muc_quyen}' but the hub returned no tools - "
+              f"this turn is chat only", file=__import__('sys').stderr)
     ket = _bot_ket(out, lich_su)
     canh_bao = " · ".join(x for x in (canh_bao, canh_bao_anh) if x)
     if canh_bao:
@@ -21214,7 +21214,7 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
                 # Ảnh khách gửi: engine của chủ đọc ảnh bằng công cụ mở file (như ảnh chủ gửi qua
                 # Telegram), nên đưa đường dẫn vào câu hỏi thay cho cổng ảnh riêng của bot.
                 text = (str(text or "") + "\n" + "\n".join(
-                    f"[Người nhắn gửi kèm ảnh, đã lưu tại: {a}]" for a in _anh)).strip()
+                    f"[The sender attached an image, saved at: {a}]" for a in _anh)).strip()
                 if prov not in _MO_ANH_BANG_CONG_CU:
                     # Engine API chỉ nhận chữ từ công cụ đọc file, Antigravity và Grok Build không chắc mở được ảnh:
                     # đưa luôn mô tả ảnh do bộ não khác xem hộ vào câu hỏi (0.94.0).
@@ -21317,7 +21317,7 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
     schedule_action = None if _bot_full else await _schedule_cancel_action(text, brain)
     if schedule_action:
         for call in schedule_action.get("calls") or []:
-            await _p(f"⚙ Lịch: {call.split(':')[-1]}")
+            await _p(f"⚙ Schedule: {call.split(':')[-1]}")
         # dict (không phải chuỗi): đây là câu trả lời THẬT nên vỏ phải lưu nó lại.
         return {"text": channel_context.strip_control_blocks(_schedule_cancel_reply(schedule_action)),
                 "files": []}
@@ -21337,7 +21337,7 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
         # nhà cung cấp nói ra - lấy nó chặn lượt chat là vượt quyền (cùng lý do với dashboard).
         if _fp is not None and _fp.action == "execute":
             steer_inbox.INBOX.set_live(steer_inbox.current_sid(), False)   # 0.213.0: one model call, no step to read at
-            await _p("⚡ Đường tắt…")
+            await _p("⚡ Shortcut…")
             _txt, _mdl, _ = await _fast_path_core(
                 _fp, prov, api_key, api_model or mcfg.get("claude_model") or "mặc định",
                 reasoning, runtime_trace, text, im_lang_khi_loi=True, channel=channel)
@@ -21366,9 +21366,9 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
         kcli.mode = "full"
         _apply_grok_hub(kcli, _brain_root(brain))
         if not kcli.is_available():
-            return ("⚠ Chưa cài Grok Build CLI trên máy chạy Javis. Cài một lần:\n"
+            return ("⚠ Grok Build CLI is not installed on the machine running Jarvis 007. Install it once:\n"
                     f"`{grok_cli.lenh_cai()}`\n"
-                    "Rồi đăng nhập ở thẻ Grok trên trang Models.")
+                    "Then sign in on the Grok card on the Models page.")
         _hoi = text
         if not getattr(kcli, "session_id", None):
             # Chưa có mạch native (phiên mới, hoặc vừa restart nên object engine dựng lại từ
@@ -21380,19 +21380,19 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
         async for ev in kcli.query(_hoi):
             et = ev.get("type")
             if et == "tool_call":
-                await _p(f"⚙ Đang gọi: {ev.get('name', '')}")
+                await _p(f"⚙ Calling: {ev.get('name', '')}")
             elif et == "final":
                 out = ev.get("content") or ""
             elif et == "error":
                 loi.append(str(ev.get("content") or ""))
         if not out and loi:
             _noi = _subscription_limit_message(loi[0], "grok-cli")
-            return _noi or ("⚠ Grok Build CLI lỗi: " + loi[0][:400])
+            return _noi or ("⚠ Grok Build CLI error: " + loi[0][:400])
         # Câu trả lời THẬT phải là dict (quy ước ở `_tg_answer`: chuỗi = thông báo lỗi). Trước 0.85.3
         # nhánh này trả chuỗi, nên mọi câu trả lời qua Telegram/Zalo/Slack... bằng bộ não này bị lưu
         # như một câu lỗi: không vào nhật ký bộ nhớ, không vào vòng tự học.
         if not out:
-            return "(không có nội dung)"
+            return "(no content)"
         return {"text": channel_context.strip_control_blocks(out), "files": []}
 
     if prov == "antigravity-cli":
@@ -21412,9 +21412,9 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
         acli.mode = "full"
         _apply_antigravity_hub(acli, _brain_root(brain))
         if not acli.is_available():
-            return ("⚠ Chưa cài Antigravity CLI trên máy chạy Javis. Cài một lần:\n"
+            return ("⚠ Antigravity CLI is not installed on the machine running Jarvis 007. Install it once:\n"
                     f"`{antigravity_cli.lenh_cai()}`\n"
-                    "Rồi gõ `agy` một lần để đăng nhập Google.")
+                    "Then run `agy` once to sign in to Google.")
         _hoi = text
         if not getattr(acli, "session_id", None):
             # Chưa có mạch native (phiên mới, hoặc vừa restart nên object engine dựng lại từ
@@ -21426,19 +21426,19 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
         async for ev in acli.query(_hoi):
             et = ev.get("type")
             if et == "tool_call":
-                await _p(f"⚙ Đang gọi: {ev.get('name', '')}")
+                await _p(f"⚙ Calling: {ev.get('name', '')}")
             elif et == "final":
                 out = ev.get("content") or ""
             elif et == "error":
                 loi.append(str(ev.get("content") or ""))
         if not out and loi:
             _noi = _subscription_limit_message(loi[0], "antigravity-cli")
-            return _noi or ("⚠ Antigravity CLI lỗi: " + loi[0][:400])
+            return _noi or ("⚠ Antigravity CLI error: " + loi[0][:400])
         # Câu trả lời THẬT phải là dict (quy ước ở `_tg_answer`: chuỗi = thông báo lỗi). Trước 0.85.3
         # nhánh này trả chuỗi, nên mọi câu trả lời qua Telegram/Zalo/Slack... bằng bộ não này bị lưu
         # như một câu lỗi: không vào nhật ký bộ nhớ, không vào vòng tự học.
         if not out:
-            return "(không có nội dung)"
+            return "(no content)"
         return {"text": channel_context.strip_control_blocks(out), "files": []}
 
     if prov == "openai-oauth":
@@ -21458,8 +21458,8 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
                     cfgmod.write_settings(_fix)
                 except Exception as _e:
                     print(f"[codex model self-heal] {_e}", file=__import__('sys').stderr)
-            canh_bao = (f"⚠ Model '{api_model}' không chạy được qua Codex (tài khoản ChatGPT) - "
-                        f"đã tự đổi sang '{actual_model}'. Đổi model khác ở trang Models nếu muốn.\n\n")
+            canh_bao = (f"⚠ Model '{api_model}' does not run through Codex (ChatGPT account) - "
+                        f"switched automatically to '{actual_model}'. Pick another model on the Models page if you like.\n\n")
         openai_oauth.write_codex_auth()
         ccli = sess.get("codex")
         if ccli is None:
@@ -21477,7 +21477,7 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
         _apply_codex_hub(ccli, _brain_root(brain))
         ccli.steer = True   # 0.213.0: a channel turn takes messages mid-way when its gateway opened an inbox (codex_steer.py)
         if not ccli.is_available():
-            return "⚠ Chưa cài Codex CLI trong container nên ChatGPT chưa dùng được tool."
+            return "⚠ Codex CLI is not installed in the container, so ChatGPT cannot use tools yet."
         t0 = time.time()
         out = ""
         loi = []
@@ -21497,7 +21497,7 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
                 et = ev.get("type")
                 if et in ("tool_call", "item"):
                     if et == "tool_call":
-                        await _p(f"⚙ Đang gọi: {ev.get('name', '')}")
+                        await _p(f"⚙ Calling: {ev.get('name', '')}")
                     # Codex KHÔNG phát file_path có cấu trúc như Claude nên phải moi từ payload,
                     # nếu không thì file nó ghi ra chỉ được gửi kèm khi tình cờ được nhắc tên.
                     # 'item' = item lạ (vd bản vá file) - không in ra nhưng vẫn moi đường dẫn.
@@ -21507,7 +21507,7 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
                         pass
                 elif et == "text":
                     out += ev.get("content") or ""
-                    await _p("✍ Đang soạn câu trả lời…")
+                    await _p("✍ Writing the answer…")
                 elif et == "retry":
                     await _p("↻ " + claude_cli.cau_ket_noi_lai(ev.get("content")))
                 elif et == "final":
@@ -21523,7 +21523,7 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
                         resume_hong = True
                         if bo_qua_loi_resume:
                             continue    # còn cửa dựng lại, chưa phải lúc kêu lỗi với user
-                    loi.append(str(ev.get("content") or "Codex lỗi"))
+                    loi.append(str(ev.get("content") or "Codex error"))
                     _CONTEXT_RUNTIME.note_error(runtime_trace, "codex_error_event")
             return resume_hong
 
@@ -21553,12 +21553,12 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
             # Rollout local có thể bị dọn/mất sau nâng cấp máy. Trước đây Telegram bỏ luôn lượt
             # và mất sạch ngữ cảnh; dashboard thì dựng lại. Giờ Telegram cũng có kho phiên nên
             # dựng lại được y hệt: thread mới từ transcript đã lưu, các lượt sau resume nó.
-            await _p("Phiên Codex cũ không còn trên máy - đang khôi phục ngữ cảnh từ lịch sử đã lưu.")
+            await _p("The old Codex session is no longer on this machine - restoring the context from saved history.")
             ccli.session_id = None
             loi.clear()
             await _nuot_codex(compaction.codex_bootstrap_prompt(_raw, _hien_tai))
         if not out:
-            return "⚠ " + (loi[0] if loi else "Codex không trả về nội dung nào.")
+            return "⚠ " + (loi[0] if loi else "Codex returned no content.")
         files = channel_context.collect_turn_files(
             out, written, t0, cwd=_brain_root(brain), exclude=sess["sent"],
             vault_root=_brain_root(brain),
@@ -21570,8 +21570,8 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
     if (kind == "api" and api_key) or kind == "oauth":
         label = _api_label(prov)
         if sess["or"] is None:
-            ident = (f"\n\n[Sự thật hệ thống: bạn chạy qua {label}, model '{api_model}'. "
-                     f"Hỏi model nào thì khai đúng tên này, KHÔNG nhận là model khác.]")
+            ident = (f"\n\n[Sự thật hệ thống: you run through {label}, model '{api_model}'. "
+                     f"When asked which model you are, state exactly this name, do NOT claim to be another model.]")
             sess["or"] = [{"role": "system", "content": sysprompt + ident}]
             # Lịch sử này chỉ sống trong RAM, nên restart là mất. Dựng lại từ transcript đã
             # lưu (xem `_tg_lich_su_kho`) - đây là nửa THẬT SỰ quan trọng với người dùng chạy
@@ -21594,7 +21594,7 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
                                                brain=brain)):
             if ev["type"] == "text":
                 if not _pinged:
-                    _pinged = True; await _p("✍ Đang soạn câu trả lời…")
+                    _pinged = True; await _p("✍ Writing the answer…")
                 out += ev["content"]
             elif ev["type"] == "meta":
                 actual_model = ev.get("model") or actual_model   # model THẬT (OpenRouter tính tiền theo cái này)
@@ -21606,14 +21606,14 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
                 _CONTEXT_RUNTIME.record_usage(
                     runtime_trace, ev.get("input", 0), ev.get("output", 0))
             elif ev["type"] == "tool_call":
-                await _p(f"⚙ Đang gọi công cụ: {ev.get('name', '')}")
+                await _p(f"⚙ Calling tool: {ev.get('name', '')}")
             elif ev["type"] == "error":
                 # KHÔNG return ngay: một tool hỏng giữa chừng không có nghĩa là cả lượt hỏng,
                 # luồng thường chạy tiếp và vẫn ra câu trả lời. Dashboard vốn xử lý như vậy.
-                loi.append(str(ev.get("content") or "lỗi không rõ"))
+                loi.append(str(ev.get("content") or "unknown error"))
                 _CONTEXT_RUNTIME.note_error(runtime_trace, "api_error_event")
         if not out:
-            return "⚠ " + (loi[0] if loi else "Không nhận được nội dung nào.")
+            return "⚠ " + (loi[0] if loi else "No content was received.")
         sess["or"].append({"role": "assistant", "content": out})
         # Nén (KHÔNG cắt câm) phần cũ rơi khỏi cửa sổ, chạy NỀN. Phiên Telegram giữ lịch sử
         # in-memory nên dùng compact_mem - bản in-memory của cơ chế nén dashboard: phần cũ vào
@@ -21690,19 +21690,19 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
                         written.extend(channel_context.candidate_paths_from_tool(ev.get("input") or {}))
                     except Exception:
                         pass
-                    await _p(f"⚙ Đang gọi: {nm}")
+                    await _p(f"⚙ Calling: {nm}")
                 elif et == "tool_result":
-                    await _p("✓ Nhận kết quả - đang phân tích…")
+                    await _p("✓ Got the result - analysing…")
                 elif et == "text":
                     _streamed += ev.get("content") or ""
                     if not _pinged:
-                        _pinged = True; await _p("✍ Đang soạn câu trả lời…")
+                        _pinged = True; await _p("✍ Writing the answer…")
                 elif et == "error":
                     if ev.get("resume_failed"):
                         resume_failed = True      # mồi lại ngay dưới, không tính là lỗi của lượt
                         continue
                     # Xem nhánh API: lỗi giữa lượt không chí mạng, cứ chạy tiếp rồi báo ở cuối.
-                    loi.append(str(ev.get("content") or "lỗi không rõ"))
+                    loi.append(str(ev.get("content") or "unknown error"))
                     _CONTEXT_RUNTIME.note_error(runtime_trace, "cli_error_event")
             return resume_failed
 
@@ -21711,13 +21711,13 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
         if _co_mach and _rf and not (out or _streamed):
             # Mạch cũ không còn (đổi thư mục làm việc ở 0.55.58, hoặc transcript bị dọn): mồi lại
             # từ kho phiên rồi chạy lại - cùng cách nhánh dashboard và Codex.
-            await _p("↻ Phiên Claude cũ không còn trên máy - đang khôi phục ngữ cảnh từ lịch sử đã lưu…")
+            await _p("↻ The old Claude session is no longer on this machine - restoring the context from saved history…")
             cli.session_id = None
             _raw_cu2, _tom_cu2 = _tg_lich_su_kho(store, conv_sid, text)
             await _chay_claude(compaction.bootstrap_prompt(_raw_cu2, _cli_prompt, summary=_tom_cu2))
         out = out or _streamed
         if not out:
-            return "⚠ " + (loi[0] if loi else "Engine không trả về nội dung nào.")
+            return "⚠ " + (loi[0] if loi else "The engine returned no content.")
         # Link file → dạng khung chat/Telegram mở được, ưu tiên file vừa ghi trong lượt này.
         try:
             out = _chuan_hoa_link_file(_brain_root(brain), out,
@@ -21739,26 +21739,26 @@ async def _tg_answer_engine(text, meta, progress, *, chat_id, sess, brain, mcfg,
 
 async def _tg_help_text(brain):
     return (
-        "🤖 Javis Telegram\n\n"
-        "Lệnh:\n"
-        "/status - engine, model, vault, trạng thái\n"
-        "/skills - liệt kê skill\n"
-        "/agents - liệt kê agent + việc đang chạy\n"
-        "/workflows - liệt kê workflow\n"
-        "/model - xem/đổi model: gõ /model để chọn bằng nút (mọi nhà cung cấp đã kết nối), hoặc /model <tên model>\n"
-        "/model ghim - khoá Telegram vào model đang dùng (web đổi không kéo theo) · /model theo - bỏ ghim\n"
-        "/brain - xem/đổi brain (vault) cho riêng phiên của bạn (vd /brain hoặc /brain <tên>)\n"
-        "/cli - engine Claude (có MCP/skill)\n"
-        "/or - engine OpenRouter (chat + MCP đa-model)\n"
-        "/retry - gửi lại câu gần nhất\n"
-        "/usage - token và chi phí Javis đã dùng\n"
-        "/tasks - việc nền đang chạy, xếp hàng, bị kẹt\n"
-        "/memory - mục lục bộ nhớ dài hạn của brain\n"
-        "/plan <việc> - chỉ lập kế hoạch, chưa làm gì ra ngoài\n"
-        "/reset - hội thoại mới · /stop - dừng\n\n"
-        "Gửi tin thường để hỏi Javis. ChatGPT/Codex và OpenRouter đều dùng được MCP của Javis.\n"
-        "Gõ /tên-skill để gọi skill (cần engine Claude CLI).\n"
-        "Gửi file/ảnh vào đây để Javis đọc. File Javis tạo ra sẽ tự gửi lại cho bạn ở đây."
+        "🤖 Jarvis 007 Telegram\n\n"
+        "Commands:\n"
+        "/status - engine, model, vault, status\n"
+        "/skills - list skills\n"
+        "/agents - list agents + running jobs\n"
+        "/workflows - list workflows\n"
+        "/model - view/change model: type /model to pick with buttons (every connected provider), or /model <model name>\n"
+        "/model ghim - lock Telegram to the current model (web changes do not follow) · /model theo - unpin\n"
+        "/brain - view/change the brain (vault) for your own session only (e.g. /brain or /brain <name>)\n"
+        "/cli - Claude engine (with MCP/skills)\n"
+        "/or - OpenRouter engine (chat + multi-model MCP)\n"
+        "/retry - resend the latest message\n"
+        "/usage - tokens and cost Jarvis 007 has used\n"
+        "/tasks - background jobs running, queued, stuck\n"
+        "/memory - table of contents of the brain's long-term memory\n"
+        "/plan <task> - only make a plan, do nothing outside yet\n"
+        "/reset - new conversation · /stop - stop\n\n"
+        "Send a normal message to ask Jarvis 007. ChatGPT/Codex and OpenRouter can both use Jarvis 007's MCP.\n"
+        "Type /skill-name to call a skill (needs the Claude CLI engine).\n"
+        "Send files/images here for Jarvis 007 to read. Files Jarvis 007 creates are sent back to you here automatically."
     )
 
 
@@ -21769,9 +21769,9 @@ async def _tg_skills_text(brain):
     except Exception:
         sk = []
     if not sk:
-        return "Vault chưa có skill nào trong skills/."
+        return "The vault has no skills in skills/ yet."
     lines = [f"/{s['slug']} - {(s.get('description') or '')[:60]}" for s in sk[:30]]
-    return "🧩 Skill có sẵn (gõ /slug để gọi, cần engine Claude CLI):\n" + "\n".join(lines)
+    return "🧩 Available skills (type /slug to call one, needs the Claude CLI engine):\n" + "\n".join(lines)
 
 
 # ---- Menu chọn model (inline keyboard Telegram) - kiểu Hermes: chọn provider
@@ -21890,7 +21890,7 @@ async def _model_provider_kb():
             rows.append(row); row = []
     if row:
         rows.append(row)
-    rows.append([{"text": "✕ Đóng", "callback_data": "mx"}])
+    rows.append([{"text": "✕ Close", "callback_data": "mx"}])
     return {"inline_keyboard": rows}
 
 
@@ -21919,14 +21919,14 @@ def _model_list_kb(pid, page=0):
             nav.append({"text": "▶", "callback_data": f"ml:{pid}:{page + 1}"})
         rows.append(nav)
     rows.append([{"text": "‹ Provider", "callback_data": "mp:back"},
-                 {"text": "✕ Đóng", "callback_data": "mx"}])
+                 {"text": "✕ Close", "callback_data": "mx"}])
     return {"inline_keyboard": rows}
 
 
 def _tg_model_list_text(pid):
     n = len(_TG_MODEL_LISTS.get(pid) or [])
-    tip = "\nMẹo: gõ /model <id> để chọn nhanh không cần lật trang." if n > _TG_PAGE else ""
-    return f"⚙️ {_tg_prov_label(pid)} - chọn model ({n}):{tip}"
+    tip = "\nTip: type /model <id> to pick quickly without flipping pages." if n > _TG_PAGE else ""
+    return f"⚙️ {_tg_prov_label(pid)} - choose a model ({n}):{tip}"
 
 
 def _tg_model_hieu_luc():
@@ -21942,20 +21942,20 @@ def _tg_model_hieu_luc():
 
 def _model_header():
     prov, cur, ghim = _tg_model_hieu_luc()
-    return ("⚙️ Cấu hình model\n"
-            f"Hiện tại: {cur}\n"
+    return ("⚙️ Model settings\n"
+            f"Current: {cur}\n"
             f"Provider: {_tg_prov_label(prov)}\n"
-            + ("📌 Telegram đang GHIM riêng (web đổi không ảnh hưởng). /model theo để bỏ ghim.\n\n"
+            + ("📌 Telegram is PINNED separately (web changes do not affect it). /model theo to unpin.\n\n"
                if ghim else
-               "🔗 Telegram đang theo model chính. /model ghim để khoá riêng cho Telegram.\n\n")
-            + "Chọn provider (chỉ hiện provider đã kết nối):")
+               "🔗 Telegram follows the main model. /model ghim to lock a separate one for Telegram.\n\n")
+            + "Choose a provider (only connected providers are shown):")
 
 
 # ---- Menu chọn brain cho PHIÊN Telegram (inline keyboard, giống menu model) ----
 def _tg_brain_header(chat_key):
     cur = brain_label.display(_brain_root(_tg_brain(chat_key)))
-    return ("🧠 Brain của phiên này: " + cur + "\n"
-            "Chọn brain khác (chỉ đổi cho phiên CỦA BẠN, người khác và dashboard không đổi):")
+    return ("🧠 Brain of this session: " + cur + "\n"
+            "Pick another brain (changes only YOUR session, others and the dashboard stay as they are):")
 
 
 def _tg_brain_kb(brains, chat_key):
@@ -21971,7 +21971,7 @@ def _tg_brain_kb(brains, chat_key):
             mark = ""
         rows.append([{"text": f"{mark}{b.get('label') or b['name']} · {b.get('notes', 0)} note",
                       "callback_data": f"bs:{i}"}])
-    rows.append([{"text": "✕ Đóng", "callback_data": "bx"}])
+    rows.append([{"text": "✕ Close", "callback_data": "bx"}])
     return {"inline_keyboard": rows}
 
 

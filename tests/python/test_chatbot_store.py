@@ -379,13 +379,13 @@ check("/id trong tin nhắn RIÊNG chỉ trả id, không giảng giải về nh
 # một triệu chứng "riêng thì được, nhóm im re", nên nó phải nói được nhóm này đã bật chưa.
 _id_nhom = chay("/id", chat="-4242", meta={"chat_type": "group", "chat_id": "-4242"})
 check("/id trong nhóm chưa bật thì nói thẳng là chưa bật",
-      "-4242" in _id_nhom and "chưa được bật" in _id_nhom)
-check("/id chỉ đúng chỗ bấm cho phép", "trang Chatbot" in _id_nhom)
+      "-4242" in _id_nhom and "not enabled" in _id_nhom)
+check("/id chỉ đúng chỗ bấm cho phép", "Chatbot page" in _id_nhom)
 # Đọc nhóm từ KHO chứ không từ bản ghi chụp lúc dựng lệnh: chủ bấm "Cho phép" trên dashboard
 # là ăn ngay từ câu tiếp theo, không phải tắt bật lại bot.
 chatbot_store.update_bot(bid, {"groups": ["-100999"]})
 _id_da_bat = chay("/id", chat="-100999", meta={"chat_type": "group", "chat_id": "-100999"})
-check("/id trong nhóm ĐÃ bật thì nói đã bật", "đã được bật" in _id_da_bat)
+check("/id trong nhóm ĐÃ bật thì nói đã bật", "already enabled" in _id_da_bat)
 chatbot_store.update_bot(bid, {"groups": []})
 for xau in ("/brain", "/model", "/status", "/reset", "/mcp", "/task"):
     r = chay(xau)
@@ -424,7 +424,7 @@ chatbot_runtime.wire(answer=None, brain_root=lambda b: "/tmp/khong-dung", read_a
 p3 = chatbot_runtime.build_bot_prompt({"name": "Bot mồ côi", "agent": {"brain": "brain", "slug": "mat-roi"}})
 check("Agent biến mất thì prompt vẫn dựng được, không sập", bool(p3) and "Bot mồ côi" in p3)
 check("Agent biến mất thì prompt nói rõ là chưa nạp được hướng dẫn",
-      "chưa nạp được hướng dẫn" in p3)
+      "could not be loaded" in p3)
 
 
 # ============================================================

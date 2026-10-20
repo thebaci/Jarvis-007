@@ -36,9 +36,10 @@ class TenJavis(unittest.TestCase):
 
     def test_bo_nao_giong_hieu_theo_ngu_canh(self):
         p = voice_brain.SYSTEM_PROMPT
-        self.assertIn("HIỂU CÂU THEO NGỮ CẢNH", p)
-        self.assertIn("không nói người dùng đã nói 'David'", p)
+        self.assertIn("UNDERSTAND THE SENTENCE FROM CONTEXT", p)
+        self.assertIn("do not say the user said 'David'", p)
         self.assertNotIn("NGUYÊN VĂN", voice_brain.GHI_CHU_TAT_LOC)
+        self.assertNotIn("VERBATIM", voice_brain.GHI_CHU_TAT_LOC.upper())
 
     def test_bo_nao_chinh_duoc_dan_hieu_theo_ngu_canh(self):
         import channel_context

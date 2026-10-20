@@ -88,7 +88,7 @@ with RA.turn(A, "eA", 1, USER, BRAIN, slug="viet-bai", store=store):
     sub1 = asyncio.run(SUBMIT({"path": DELIV, "content": GOOD, "handoff": h1}))
 g1 = store.find_by_key(OWNER, R.message_ref("eA", 1))
 check("1 engine API: javis_goal nói rõ phạm vi CHƯA được cho phép và trả mã bàn giao",
-      "CHƯA được cho phép" in out and h1.startswith("bd_"), out[-400:])
+      "NOT allowed yet" in out and h1.startswith("bd_"), out[-400:])
 check("1 engine API: nộp giữ làm nháp, chưa ghi file đích", "DRAFT" in sub1 and not (Path(BRAIN) / DELIV).exists()
       and [s["status"] for s in store.submissions(OWNER, g1.id)] == ["awaiting_scope"], sub1)
 out_plain = asyncio.run(SUBMIT({"path": DELIV, "content": GOOD}))

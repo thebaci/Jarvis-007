@@ -97,7 +97,8 @@ p_tl = chatbot_runtime.build_bot_prompt(
     {**bot, "_tai_lieu": {"co": True, "khoi": "### Giá\n\nGói 3 tháng 6 triệu.", "nguon": ["gia.md"]}})
 check("tài liệu tra được vẫn đưa vào prompt", "Gói 3 tháng 6 triệu" in p_tl)
 check("khối tài liệu không kèm mệnh lệnh nào",
-      "TUYỆT ĐỐI" not in p_tl and "đừng suy ra" not in p_tl)
+      "TUYỆT ĐỐI" not in p_tl and "đừng suy ra" not in p_tl
+      and "ABSOLUTELY" not in p_tl and "do not infer" not in p_tl)
 
 # Không tìm thấy tài liệu: mặc định IM LẶNG, không dặn dò gì thêm.
 p_trong = chatbot_runtime.build_bot_prompt({**bot, "_tai_lieu": {"co": False, "khoi": "", "nguon": []}})
@@ -107,7 +108,7 @@ check("không có tài liệu -> mặc định không thêm chữ nào vào prom
 p_chat = chatbot_runtime.build_bot_prompt(
     {**bot, "nguon_tra_loi": "tai_lieu", "_tai_lieu": {"co": False, "khoi": "", "nguon": []}})
 check("chế độ chỉ-tài-liệu (người dùng tự bật) mới có một câu chỉ dẫn",
-      "chế độ CHỈ TRẢ LỜI THEO" in p_chat)
+      "ANSWER FROM DOCUMENTS ONLY mode" in p_chat)
 check("và nó vẫn KHÔNG đụng tới quy định của Agent", QUY_DINH in p_chat)
 
 

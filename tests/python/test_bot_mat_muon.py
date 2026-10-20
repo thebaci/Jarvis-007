@@ -216,7 +216,7 @@ try:
     check("refused image: first call sent the real image", isinstance(SENT[0][-1]["content"], list), SENT[0][-1])
     check("refused image: the retry carries the description, not the 'cannot see' label",
           isinstance(SENT[-1][-1]["content"], str) and "hoá đơn số 123" in SENT[-1][-1]["content"]
-          and not SENT[-1][-1]["content"].startswith("(tin này kèm một ảnh mà bạn không xem được"), SENT[-1][-1])
+          and not SENT[-1][-1]["content"].startswith("(this message came with a photo that you cannot view"), SENT[-1][-1])
     check("refused image: answered, and the bot card shows the ORIGINAL error",
           out.get("text") == "Dạ em xem rồi ạ" and "image input not supported" in out.get("canh_bao", ""), out)
 
@@ -227,7 +227,7 @@ try:
                                         api_model="grok-5", reasoning="off", progress=noop, runtime_trace=None,
                                         chat_id="u2", images=[str(IMG)]))
     check("no eyes anywhere: the old honest label, never a guess",
-          SENT[-1][-1]["content"].startswith("(tin này kèm một ảnh mà bạn không xem được"), SENT[-1][-1])
+          SENT[-1][-1]["content"].startswith("(this message came with a photo that you cannot view"), SENT[-1][-1])
     check("no eyes anywhere: warning names the brain AND why no other brain could look",
           "grok-cli" in out.get("canh_bao", "") and "HTTP 401" in out.get("canh_bao", ""), out)
 

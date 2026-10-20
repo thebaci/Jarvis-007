@@ -165,7 +165,7 @@ for c in KHONG_PHAI:
 check("câu rỗng không phải lệnh", vb.la_lenh_dung_viec("") is False and vb.la_lenh_dung_viec(None) is False)
 
 check("SYSTEM_PROMPT cấm giao việc để đi dừng việc",
-      "KHÔNG giao việc mới" in vb.SYSTEM_PROMPT)
+      "DO NOT hand off a new task" in vb.SYSTEM_PROMPT)
 
 # Sổ việc nền theo PHIÊN: huỷ đúng phiên đang nói, không đụng phiên khác.
 import asyncio  # noqa: E402

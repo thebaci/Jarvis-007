@@ -50,23 +50,23 @@ TG_API = "https://api.telegram.org/bot{token}/{method}"
 
 # Lệnh hiện trong menu Telegram (gõ "/" hoặc nút Menu). Tên chỉ a-z0-9_ (skill có dấu "-" gõ tay).
 BOT_COMMANDS = [
-    {"command": "help", "description": "Trợ giúp"},
-    {"command": "status", "description": "Engine, model, vault, trạng thái"},
-    {"command": "skills", "description": "Liệt kê skill có sẵn"},
-    {"command": "notes", "description": "Lưu tin nhắn (kèm ảnh) vào Sources của brain"},
-    {"command": "agents", "description": "Liệt kê agent + việc đang chạy"},
-    {"command": "workflows", "description": "Liệt kê workflow"},
-    {"command": "model", "description": "Xem hoặc đổi model"},
-    {"command": "brain", "description": "Xem hoặc đổi brain (vault) của phiên này"},
-    {"command": "retry", "description": "Gửi lại câu hỏi gần nhất"},
-    {"command": "usage", "description": "Token và chi phí đã dùng"},
-    {"command": "tasks", "description": "Việc nền đang chạy hoặc xếp hàng"},
-    {"command": "memory", "description": "Mục lục bộ nhớ dài hạn của brain"},
-    {"command": "plan", "description": "Chỉ lập kế hoạch, chưa làm gì ra ngoài"},
-    {"command": "stop", "description": "Dừng câu đang trả lời"},
-    {"command": "reset", "description": "Bắt đầu hội thoại mới"},
-    {"command": "cli", "description": "Engine Claude Code (MCP Javis + lệnh máy)"},
-    {"command": "or", "description": "Engine OpenRouter (MCP Javis, không lệnh máy)"},
+    {"command": "help", "description": "Help"},
+    {"command": "status", "description": "Engine, model, vault, status"},
+    {"command": "skills", "description": "List the available skills"},
+    {"command": "notes", "description": "Save the message (with photos) to the brain Sources"},
+    {"command": "agents", "description": "List agents + running jobs"},
+    {"command": "workflows", "description": "List workflows"},
+    {"command": "model", "description": "View or change the model"},
+    {"command": "brain", "description": "View or change the brain (vault) of this session"},
+    {"command": "retry", "description": "Resend the most recent question"},
+    {"command": "usage", "description": "Tokens and cost used"},
+    {"command": "tasks", "description": "Background jobs running or queued"},
+    {"command": "memory", "description": "Index of the brain long-term memory"},
+    {"command": "plan", "description": "Only make a plan, do nothing outside yet"},
+    {"command": "stop", "description": "Stop the answer in progress"},
+    {"command": "reset", "description": "Start a new conversation"},
+    {"command": "cli", "description": "Claude Code engine (Jarvis 007 MCP + shell commands)"},
+    {"command": "or", "description": "OpenRouter engine (Jarvis 007 MCP, no shell commands)"},
 ]
 
 IMG_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
@@ -297,7 +297,7 @@ class TelegramBot(HangLuot):
         # còn hơn nói ra một câu chỉ có nghĩa với người viết code.
         if not str(text or "").strip() and self.giau_trang_thai:
             return
-        text = text or "(không có nội dung)"
+        text = text or "(no content)"
         # 3500 (không phải 4096) để chừa chỗ cho ký tự escape MarkdownV2
         chunks = [text[i:i + 3500] for i in range(0, len(text), 3500)] or [text]
         for idx, chunk in enumerate(chunks):
@@ -319,7 +319,7 @@ class TelegramBot(HangLuot):
                     if ok:
                         break
                     if not use_md:
-                        print(f"[telegram send] plain vẫn lỗi: {r.text[:200]}", file=sys.stderr)
+                        print(f"[telegram send] plain still failed: {r.text[:200]}", file=sys.stderr)
                 except Exception as e:
                     print(f"[telegram send] {e}", file=sys.stderr)
                     break   # lỗi mạng: thử lại plain cũng sẽ lỗi
@@ -333,7 +333,7 @@ class TelegramBot(HangLuot):
         """
         text = str(text or "").strip()
         if not text:
-            return False, "tin rỗng"
+            return False, "empty message"
         loi = ""
         async with httpx.AsyncClient(timeout=httpx.Timeout(30.0)) as client:
             for chunk in [text[i:i + 3500] for i in range(0, len(text), 3500)]:
@@ -353,7 +353,7 @@ class TelegramBot(HangLuot):
                         break
                     loi = str(d.get("description") or f"HTTP {r.status_code}")
                 if not da_gui:
-                    return False, loi or "Telegram từ chối"
+                    return False, loi or "Telegram rejected it"
         return True, ""
 
     async def send_file(self, path, caption="", chat=None):
@@ -362,16 +362,16 @@ class TelegramBot(HangLuot):
         Trả (ok, error)."""
         chat = chat or (self.chat_ids[0] if self.chat_ids else "")
         if not chat:
-            return False, "Chưa cấu hình chat_id"
+            return False, "chat_id is not configured"
         try:
             p = Path(str(path))
             if not p.is_file():
-                return False, f"File không tồn tại: {path}"
+                return False, f"File does not exist: {path}"
             size = p.stat().st_size
             if size == 0:
-                return False, "File rỗng"
+                return False, "File is empty"
             if size > MAX_DOC_MB * 1024 * 1024:
-                return False, f"File {size // (1024 * 1024)}MB vượt trần {MAX_DOC_MB}MB của Telegram bot"
+                return False, f"File of {size // (1024 * 1024)}MB exceeds the Telegram bot limit of {MAX_DOC_MB}MB"
             content = p.read_bytes()
         except Exception as e:
             return False, f"{type(e).__name__}: {e}"
@@ -628,7 +628,7 @@ class TelegramBot(HangLuot):
                 "chat_id_moi": str(msg.get("migrate_to_chat_id") or ""),
             })
         except Exception as e:
-            print(f"[telegram sự kiện nhóm] {type(e).__name__}: {e}", file=sys.stderr)
+            print(f"[telegram group event] {type(e).__name__}: {e}", file=sys.stderr)
 
     # ---- Tải một file từ Telegram về BỘ NHỚ (không ghi đĩa) ----
     async def _tai_ve_ram(self, client, file_id):
@@ -637,7 +637,7 @@ class TelegramBot(HangLuot):
             r = await client.get(self._url("getFile"), params={"file_id": file_id})
             fp = ((r.json() or {}).get("result") or {}).get("file_path")
             if not fp:
-                return b"", "Telegram không trả đường dẫn file"
+                return b"", "Telegram did not return a file path"
             rr = await client.get(f"https://api.telegram.org/file/bot{self.token}/{fp}",
                                   timeout=httpx.Timeout(180.0))
             rr.raise_for_status()
@@ -658,11 +658,11 @@ class TelegramBot(HangLuot):
         fsize = media.get("file_size") or 0
         if fsize and fsize > MAX_DOWNLOAD_MB * 1024 * 1024:
             return stt.loi_thanh_dong("qua_lon", f"({fsize // (1024 * 1024)}MB, "
-                                                 f"trần tải về của Telegram bot là {MAX_DOWNLOAD_MB}MB)")
+                                                 f"the Telegram bot download limit is {MAX_DOWNLOAD_MB}MB)")
         ten = media.get("file_name") or f"voice_{int(time.time())}.ogg"
         data, loi = await self._tai_ve_ram(client, media.get("file_id"))
         if loi:
-            return stt.loi_thanh_dong("loi", "không tải được tin thoại về (" + loi + ")")
+            return stt.loi_thanh_dong("loi", "could not download the voice message (" + loi + ")")
         try:
             kq = await self.stt_fn(data, ten)
         except Exception as e:
@@ -697,25 +697,25 @@ class TelegramBot(HangLuot):
             fsize = doc.get("file_size") or 0
         elif photos:
             big = photos[-1]   # Telegram xếp size tăng dần → phần tử cuối nét nhất
-            kind = "ảnh"
+            kind = "photo"
             file_id = big.get("file_id")
             name = f"photo_{msg.get('message_id')}.jpg"
             fsize = big.get("file_size") or 0
         elif media_khac:
-            return _with_cap("[Người dùng gửi video qua Telegram - Javis chưa xem được loại này. "
-                             "Hãy lịch sự nhờ user gõ chữ, gửi tin thoại, hoặc gửi dạng file tài liệu.]")
+            return _with_cap("[The user sent a video via Telegram - Jarvis 007 cannot view this type yet. "
+                             "Politely ask the user to type text, send an audio message, or send it as a document file.]")
         else:
             return None
 
         if fsize and fsize > MAX_DOWNLOAD_MB * 1024 * 1024:
-            return _with_cap(f"[Người dùng gửi {kind} '{name}' ({fsize // (1024 * 1024)}MB) nhưng "
-                             f"Telegram bot chỉ cho tải file dưới {MAX_DOWNLOAD_MB}MB - không tải về được. "
-                             "Hãy báo user và gợi ý cách gửi khác.]")
+            return _with_cap(f"[The user sent a {kind} '{name}' ({fsize // (1024 * 1024)}MB) but "
+                             f"the Telegram bot only allows downloading files under {MAX_DOWNLOAD_MB}MB - it could not be downloaded. "
+                             "Tell the user and suggest another way to send it.]")
         try:
             r = await client.get(self._url("getFile"), params={"file_id": file_id})
             fp = ((r.json() or {}).get("result") or {}).get("file_path")
             if not fp:
-                return _with_cap(f"[Người dùng gửi {kind} '{name}' nhưng không lấy được từ Telegram.]")
+                return _with_cap(f"[The user sent a {kind} '{name}' but it could not be fetched from Telegram.]")
             rr = await client.get(f"https://api.telegram.org/file/bot{self.token}/{fp}",
                                   timeout=httpx.Timeout(180.0))
             rr.raise_for_status()
@@ -731,9 +731,9 @@ class TelegramBot(HangLuot):
                 dest = d / f"{Path(safe).stem}_{i}{Path(safe).suffix}"
                 i += 1
             dest.write_bytes(rr.content)
-            return _with_cap(f"[Người dùng gửi {kind} qua Telegram, gateway đã tải về: {dest}]")
+            return _with_cap(f"[The user sent a {kind} via Telegram, gateway downloaded to: {dest}]")
         except Exception as e:
-            return _with_cap(f"[Người dùng gửi {kind} qua Telegram nhưng tải về lỗi: "
+            return _with_cap(f"[The user sent a {kind} via Telegram but the download failed: "
                              f"{type(e).__name__}: {e}]")
 
     async def _handle_turn(self, client, chat, text, meta=None):
@@ -755,7 +755,7 @@ class TelegramBot(HangLuot):
         if self.giau_trang_thai:
             giu = asyncio.create_task(self._giu_typing(client, chat))
         else:
-            status_mid = await self._send_status(client, chat, "🤔 Javis đang xử lý…")
+            status_mid = await self._send_status(client, chat, "🤔 Jarvis 007 is working on it…")
         _last = [0.0]
         t0 = time.monotonic()
         tools = []          # tên công cụ đã gọi trong lượt, giữ thứ tự, không trùng
@@ -777,7 +777,7 @@ class TelegramBot(HangLuot):
             # Chuỗi nói về công cụ thì hiện NHÃN đã rút gọn, không hiện nguyên chuỗi engine gửi
             # (Codex từng gửi cả câu lệnh shell dài vài dòng làm "tên").
             await self._edit_status(client, chat, status_mid,
-                                    "⏳ " + (f"⚙ {ten}…" if ten else (txt or "Đang xử lý…")))
+                                    "⏳ " + (f"⚙ {ten}…" if ten else (txt or "Working on it…")))
 
         try:
             try:
@@ -785,14 +785,14 @@ class TelegramBot(HangLuot):
             except asyncio.CancelledError:
                 # /stop: tin trạng thái ở lại nói rõ lượt này đã bị cắt, thay vì biến mất không
                 # dấu vết rồi để người ta tự đoán câu hỏi của mình đã đi đâu.
-                await self._edit_status(client, chat, status_mid, "⏹ Đã dừng.")
+                await self._edit_status(client, chat, status_mid, "⏹ Stopped.")
                 return   # /stop sẽ tự báo, không gửi trùng
             except Exception as e:
-                print(f"[telegram lượt hỏng] {type(e).__name__}: {e}", file=sys.stderr)
+                print(f"[telegram turn failed] {type(e).__name__}: {e}", file=sys.stderr)
                 # Chế độ người thật: trục trặc kỹ thuật không gửi gì cho khách (chủ repo 15/10/2026).
                 # Lỗi đã vào stderr; chủ và người trực được báo ở tầng chatbot_runtime.
                 reply = (_im_khi_hong() if self.giau_trang_thai
-                         else f"⚠ Lỗi: {type(e).__name__}: {e}")
+                         else f"⚠ Error: {type(e).__name__}: {e}")
             im_lang = False
             if isinstance(reply, dict):
                 files = reply.get("files") or []
@@ -816,10 +816,10 @@ class TelegramBot(HangLuot):
                 fpath, fcap = (f.get("path"), f.get("caption", "")) if isinstance(f, dict) else (f, "")
                 ok, err = await self.send_file(fpath, fcap, chat=chat)
                 if not ok:
-                    print(f"[telegram gửi file] {fpath}: {err}", file=sys.stderr)
+                    print(f"[telegram send file] {fpath}: {err}", file=sys.stderr)
                     if not self.giau_trang_thai:
                         await self._send(client, chat,
-                                         f"⚠ Không gửi được file {Path(str(fpath)).name}: {err}")
+                                         f"⚠ Could not send the file {Path(str(fpath)).name}: {err}")
         finally:
             if giu:
                 giu.cancel()
@@ -840,7 +840,7 @@ class TelegramBot(HangLuot):
                 print(f"[telegram deleteWebhook] {e}", file=sys.stderr)
             await self._hoi_danh_tinh(client)
             await self._day_menu_lenh(client)
-            print(f"[telegram] bot started (chat_id={','.join(self.chat_ids) or 'mọi người'})", file=sys.stderr)
+            print(f"[telegram] bot started (chat_id={','.join(self.chat_ids) or 'everyone'})", file=sys.stderr)
             self.status = "polling"
             while not self._stop:
                 try:
@@ -852,12 +852,12 @@ class TelegramBot(HangLuot):
                             self.last_error = data.get("description") or localefmt.chu(
                                 "409 - token bị poll nơi khác hoặc còn webhook.",
                                 "409 - the token is being polled elsewhere or a webhook is still set.")
-                            print("[telegram] 409 CONFLICT - cùng token đang poll ở nơi khác. Chỉ chạy 1 nơi.", file=sys.stderr)
+                            print("[telegram] 409 CONFLICT - the same token is being polled elsewhere. Run it in only one place.", file=sys.stderr)
                             await asyncio.sleep(20)
                         else:
                             self.status = "error"
                             self.last_error = data.get("description") or localefmt.chu("getUpdates lỗi", "getUpdates failed")
-                            print(f"[telegram] getUpdates lỗi: {data.get('description')}", file=sys.stderr)
+                            print(f"[telegram] getUpdates failed: {data.get('description')}", file=sys.stderr)
                             await asyncio.sleep(10)
                         continue
                     self.status = "polling"; self.last_error = ""
@@ -880,7 +880,7 @@ class TelegramBot(HangLuot):
                         # chuyện phải biết kể cả (nhất là) khi nhóm đó chưa được cho phép.
                         await self._bao_su_kien(msg)
                         if self.chat_ids and chat not in self.chat_ids:
-                            await self._send(client, chat, "Bạn không có quyền dùng bot Javis này.")
+                            await self._send(client, chat, "You are not allowed to use this Jarvis 007 bot.")
                             continue
                         text = (msg.get("text") or "").strip()
                         if not text:
@@ -915,7 +915,7 @@ class TelegramBot(HangLuot):
         if self.chat_ids and chat not in self.chat_ids:
             try:
                 await client.post(self._url("answerCallbackQuery"),
-                                  json={"callback_query_id": cq_id, "text": "Không có quyền"})
+                                  json={"callback_query_id": cq_id, "text": "Not allowed"})
             except Exception:
                 pass
             return

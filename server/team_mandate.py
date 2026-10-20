@@ -57,14 +57,14 @@ DEFAULT_EXPIRE_H = 48
 FOLDER_MAX_FILES = 300
 TEXT_MAX = 2000
 
-KIND_LABEL = {"file_changed": "tài liệu trong thư mục được giao thay đổi",
-              "job_failed": "việc Kanban của bộ não bị lỗi hay bị chặn",
-              "test_failing": "lệnh kiểm tra đang báo lỗi",
-              "connection_down": "kết nối được giao đang lỗi"}
-KIND_BENEFIT = {"file_changed": "cập nhật kịp theo dữ liệu mới",
-                "job_failed": "gỡ việc đang kẹt trước khi ảnh hưởng tiếp",
-                "test_failing": "sửa lỗi trước khi tới tay khách",
-                "connection_down": "khôi phục nguồn dữ liệu của nhóm"}
+KIND_LABEL = {"file_changed": "documents in the assigned folder changed",
+              "job_failed": "a Kanban job in the brain failed or is blocked",
+              "test_failing": "the check command is reporting a failure",
+              "connection_down": "an assigned connection is failing"}
+KIND_BENEFIT = {"file_changed": "keep up to date with the new data",
+                "job_failed": "clear the stuck job before it affects anything further",
+                "test_failing": "fix the failure before it reaches customers",
+                "connection_down": "restore the team's data source"}
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS team_mandates(
@@ -148,7 +148,7 @@ def clean(body: dict) -> dict:
     """Validate an owner's mandate. Raises MandateError with a reason a person can act on."""
     outcome = _clip(body.get("outcome"), 1000)
     if not outcome:
-        raise MandateError("thiếu mục tiêu (outcome)")
+        raise MandateError("missing goal (outcome)")
     metrics = [_clip(m, 300) for m in (body.get("metrics") or []) if str(m or "").strip()][:12]
     sources, bad = [], []
     for raw in (body.get("sources") or [])[:20]:
@@ -158,20 +158,20 @@ def clean(body: dict) -> dict:
         elif got["raw"] not in [x["raw"] for x in sources]:
             sources.append(got)
     if bad:
-        raise MandateError("nguồn không hợp lệ: " + ", ".join(bad))
+        raise MandateError("invalid source: " + ", ".join(bad))
     if not sources:
-        raise MandateError("cần ít nhất một nguồn được giao")
+        raise MandateError("at least one assigned source is required")
     budget = dict(DEFAULT_BUDGET)
     for k in DEFAULT_BUDGET:
         if k in (body.get("budget") or {}):
             try:
                 budget[k] = max(0, min(1000, int(body["budget"][k])))
             except (TypeError, ValueError):
-                raise MandateError(f"ngân sách {k} phải là số")
+                raise MandateError(f"budget {k} must be a number")
     try:
         cadence = max(5, min(7 * 24 * 60, int(body.get("cadence_min") or DEFAULT_CADENCE_MIN)))
     except (TypeError, ValueError):
-        raise MandateError("chu kỳ quan sát phải là số phút")
+        raise MandateError("the observation cycle must be a number of minutes")
     auto = body.get("autonomy") or {}
     autonomy = {}
     for lvl in ("act", "approve", "propose"):
@@ -184,7 +184,7 @@ def clean(body: dict) -> dict:
         try:
             stop["max_open_jobs"] = max(0, int(body["stop"]["max_open_jobs"]))
         except (TypeError, ValueError):
-            raise MandateError("giới hạn việc mở phải là số")
+            raise MandateError("the open-jobs limit must be a number")
     return {"outcome": outcome, "metrics": metrics, "sources": [s["raw"] for s in sources],
             "scope": _clip(body.get("scope"), 1000), "budget": budget, "cadence_min": cadence,
             "autonomy": autonomy, "stop": stop}
@@ -243,7 +243,7 @@ class MandateStore:
         """Create or edit (a new version). A new mandate starts `off` unless `status` says otherwise."""
         m = clean(body)
         if status not in (None, "off", "active", "paused"):
-            raise MandateError("sửa mục tiêu chỉ đặt được trạng thái tắt, bật hay tạm dừng; thu hồi dùng nút Thu hồi")
+            raise MandateError("editing a goal can only set the status to off, active or paused; to revoke, use the Revoke button")
         now = self.clock()
         with team_lock(team_id), self._Tx(self) as c:
             old = c.execute("SELECT version, status, created_at FROM team_mandates WHERE team_id=?",
@@ -251,7 +251,7 @@ class MandateStore:
             ver = (int(old["version"]) + 1) if old else 1
             st = status or (old["status"] if old and old["status"] != "revoked" else "off")
             if st not in STATUSES:
-                raise MandateError("trạng thái không hợp lệ")
+                raise MandateError("invalid status")
             c.execute("INSERT OR REPLACE INTO team_mandates(team_id, version, status, outcome, metrics_json, sources_json,"
                       " scope, budget_json, cadence_min, autonomy_json, stop_json, updated_by, created_at, updated_at,"
                       " last_observed_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)",
@@ -264,13 +264,13 @@ class MandateStore:
 
     def set_status(self, team_id: str, status: str, by: str = "owner") -> Optional[dict]:
         if status not in STATUSES:
-            raise MandateError("trạng thái không hợp lệ")
+            raise MandateError("invalid status")
         with team_lock(team_id), self._Tx(self) as c:
             r = c.execute("SELECT status FROM team_mandates WHERE team_id=?", (team_id,)).fetchone()
             if r is None:
-                raise MandateError("nhóm chưa có mục tiêu")
+                raise MandateError("the team has no goal yet")
             if r["status"] == "revoked":
-                raise MandateError("mục tiêu đã thu hồi; viết lại mục tiêu mới để dùng tiếp")
+                raise MandateError("the goal was revoked; write a new goal to keep using it")
             c.execute("UPDATE team_mandates SET status=?, updated_at=? WHERE team_id=?", (status, self.clock(), team_id))
             self._event(c, team_id, "status", by, {"from": r["status"], "to": status})
         return self.get(team_id)
@@ -381,7 +381,7 @@ class MandateStore:
     def update_opportunity(self, opp_id: str, *, expect: Optional[tuple] = None, **fields) -> bool:
         allowed = {"decision", "status", "task_id", "approval_id", "message_id", "decided_by"}
         if set(fields) - allowed:
-            raise MandateError("trường không đổi được")
+            raise MandateError("field cannot be changed")
         with self._Tx(self) as c:
             q = "UPDATE mandate_opportunities SET " + ", ".join(f"{k}=?" for k in fields) + ", updated_at=? WHERE opp_id=?"
             args = list(fields.values()) + [self.clock(), opp_id]
@@ -528,7 +528,7 @@ class MandateEngine:
             listing = folder_listing(self.deps.brain_root(team), ref)
             if listing is None:
                 self.store.add_observation(tid, ver, typ, ref, "missing", False,
-                                           {"missing": f"không có thư mục '{ref}' trong bộ não"}, now)
+                                           {"missing": f"there is no folder '{ref}' in the brain"}, now)
                 return []
             key = _hash(listing)
             prev = self.store.last_observation(tid, typ, ref)
@@ -542,8 +542,8 @@ class MandateEngine:
                 old = (prev.get("summary") or {}).get("listing") or {}
                 changed = sorted(p for p in set(listing) | set(old) if listing.get(p) != old.get(p))
                 out.append({"source": typ, "ref": ref, "version_key": key, "kind": "file_changed", "obs": oid,
-                            "evidence": [f"{ref}/{p}" + ("" if p in listing else " (đã xoá)") for p in changed[:10]],
-                            "detail": f"{len(changed)} tệp trong '{ref}' thay đổi"})
+                            "evidence": [f"{ref}/{p}" + ("" if p in listing else " (deleted)") for p in changed[:10]],
+                            "detail": f"{len(changed)} files in '{ref}' changed"})
             return out
         if typ == "kanban":
             last = self.store.last_observation(tid, typ, ref)
@@ -554,13 +554,13 @@ class MandateEngine:
             for i in items[:20]:
                 out.append({"source": typ, "ref": str(i["ref"]), "version_key": str(i.get("at") or ""),
                             "kind": "job_failed", "obs": oid, "evidence": [f"kanban:{i['ref']} {i.get('error') or ''}"[:300]],
-                            "detail": f"việc \"{_clip(i.get('title'), 120)}\" đang lỗi: {_clip(i.get('error'), 200)}"})
+                            "detail": f"the job \"{_clip(i.get('title'), 120)}\" is failing: {_clip(i.get('error'), 200)}"})
             return out
         if typ == "mcp":
             st = self.deps.mcp_status(ref) or {}
             if not st.get("known"):
                 self.store.add_observation(tid, ver, typ, ref, "missing", False,
-                                           {"missing": f"chưa có kết nối '{ref}'"}, now)
+                                           {"missing": f"there is no connection '{ref}' yet"}, now)
                 return []
             key = "ok" if st.get("ok") else "down:" + _clip(st.get("error"), 80)
             prev = self.store.last_observation(tid, typ, ref)
@@ -569,13 +569,13 @@ class MandateEngine:
             if not st.get("ok") and (prev is None or prev["version_key"] != key):
                 out.append({"source": typ, "ref": ref, "version_key": key, "kind": "connection_down", "obs": oid,
                             "evidence": [f"mcp:{ref} {st.get('error') or ''}"[:300]],
-                            "detail": f"kết nối {st.get('label') or ref} đang lỗi"})
+                            "detail": f"the connection {st.get('label') or ref} is failing"})
             return out
         if typ == "test":
             res = self.deps.run_test(ref, self.deps.brain_root(team)) or {}
             if not res.get("ran"):
                 self.store.add_observation(tid, ver, typ, ref, "missing", False,
-                                           {"missing": _clip(res.get("error") or "lệnh không chạy được", 300)}, now)
+                                           {"missing": _clip(res.get("error") or "the command could not run", 300)}, now)
                 return []
             code = int(res.get("exit") or 0)
             key = f"exit:{code}:{_hash(_clip(res.get('output'), 4000))}"
@@ -584,7 +584,7 @@ class MandateEngine:
             if code != 0 and (prev is None or prev["version_key"] != key):
                 out.append({"source": typ, "ref": ref, "version_key": key, "kind": "test_failing", "obs": oid,
                             "evidence": [f"test:{ref} exit {code}", _clip(res.get("output"), 280)],
-                            "detail": f"lệnh kiểm tra `{ref}` trả mã {code}"})
+                            "detail": f"the check command `{ref}` returned code {code}"})
             return out
         return out
 
@@ -623,7 +623,7 @@ class MandateEngine:
             return self._act_locked(team, m, ev, now)
 
     def _act_locked(self, team: dict, m: dict, ev: dict, now: float) -> Optional[dict]:
-        reason = f"{KIND_LABEL[ev['kind']]}: {ev['detail']}. Gắn với mục tiêu: {m['outcome'][:200]}"
+        reason = f"{KIND_LABEL[ev['kind']]}: {ev['detail']}. Tied to the goal: {m['outcome'][:200]}"
         opp = self.store.add_opportunity(team_id=team["team_id"], version=int(m["version"]), source=ev["source"],
                                          ref=ev["ref"], version_key=ev["version_key"], kind=ev["kind"], reason=reason,
                                          benefit=KIND_BENEFIT[ev["kind"]], evidence=ev["evidence"],
@@ -645,13 +645,13 @@ class MandateEngine:
         return {"opp_id": opp["opp_id"], "decision": decision, "kind": ev["kind"], "ref": ev["ref"]}
 
     def _intent(self, m: dict, opp: dict) -> str:
-        ev = "\n".join(f"- {e}" for e in opp["evidence"]) or "- (không có)"
-        return (f"{opp['reason']}\n\nLợi ích dự kiến: {opp['benefit']}.\nPhạm vi được giao: {m['scope'] or '(theo mục tiêu)'}"
-                f"\nBằng chứng:\n{ev}\n\nDấu vết: mục tiêu v{m['version']} -> quan sát #{opp['observation_id']} -> cơ hội "
+        ev = "\n".join(f"- {e}" for e in opp["evidence"]) or "- (none)"
+        return (f"{opp['reason']}\n\nExpected benefit: {opp['benefit']}.\nAssigned scope: {m['scope'] or '(per the goal)'}"
+                f"\nEvidence:\n{ev}\n\nTrail: goal v{m['version']} -> observation #{opp['observation_id']} -> opportunity "
                 f"{opp['opp_id']} ({opp['source']}:{opp['ref']} @ {opp['version_key']}).")
 
     def _open(self, team: dict, m: dict, opp: dict, *, by: str, ask: bool) -> Optional[str]:
-        title = f"[Mục tiêu] {KIND_LABEL[opp['kind']].capitalize()}: {opp['ref']}"[:160]
+        title = f"[Goal] {KIND_LABEL[opp['kind']].capitalize()}: {opp['ref']}"[:160]
         # Opening and stopping for approval happen under the runner's pool lock, so the dispatcher cannot claim the job
         # in between and run it before the owner decides.
         # Review 0.208.0: an approve-level job is created already stopped (same transaction), so neither an error nor a
@@ -663,20 +663,20 @@ class MandateEngine:
             try:
                 aid = self.runner.mandate_job_needs_approval(team, tid, title, opp, m)
             except Exception:
-                self.runner.cancel_job(tid, "không tạo được thẻ duyệt cho việc của mục tiêu")
+                self.runner.cancel_job(tid, "could not create an approval card for the goal's job")
                 raise
         if not created:
             self.store.update_opportunity(opp["opp_id"], status="enqueued", task_id=tid, decided_by=by)
             return tid
         self.store.update_opportunity(opp["opp_id"], status="asked" if ask else "enqueued", task_id=tid,
                                       approval_id=aid, decided_by=by)
-        self.runner._system(team, (f"Mục tiêu phòng ban mở việc \"{title}\"" + (" (chờ bạn duyệt)" if ask else "") +
-                                   f". Lý do: {opp['reason'][:240]}"), "mandate_job")
+        self.runner._system(team, (f"The department goal opened the job \"{title}\"" + (" (waiting for your approval)" if ask else "") +
+                                   f". Reason: {opp['reason'][:240]}"), "mandate_job")
         self.runner._state(team["team_id"])
         return tid
 
     def _propose(self, team: dict, m: dict, opp: dict) -> None:
-        mid = self.runner._post(team, f"Cơ hội theo mục tiêu: {opp['reason'][:300]}", author_kind="system",
+        mid = self.runner._post(team, f"Opportunity from the goal: {opp['reason'][:300]}", author_kind="system",
                                 meta={"kind": "mandate_opportunity", "opportunity": view(opp)})
         self.store.update_opportunity(opp["opp_id"], status="proposed", message_id=mid)
 
@@ -737,7 +737,7 @@ class MandateEngine:
             if o.get("task_id"):
                 t = self.runner.tasks.get_task(o["task_id"])
                 if t and t["status"] in ("team_queued", "team_blocked"):
-                    if self.runner.cancel_job(o["task_id"], "mục tiêu phòng ban đã thu hồi") is not None:
+                    if self.runner.cancel_job(o["task_id"], "the department goal was revoked") is not None:
                         cancelled.append(o["task_id"])
         return {"ok": True, "mandate": m, "cancelled": cancelled, "closed": closed}
 

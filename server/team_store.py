@@ -183,7 +183,7 @@ def clean_tags(tags: Any) -> list:
     if isinstance(tags, str):
         tags = tags.split(",")
     if not isinstance(tags, (list, tuple)):
-        raise TeamError("nhãn phải là một danh sách chữ")
+        raise TeamError("tags must be a list of text")
     out, seen = [], set()
     for t in tags:
         t = " ".join(str(t or "").split())[:TAG_CHARS].strip()
@@ -328,7 +328,7 @@ class TeamStore:
         vời khi lỗi giữa chừng. `client_req_id` trùng (bấm hai lần, mạng chậm gửi lại) thì không tạo gì, trả nhóm cũ."""
         name = str(name or "").strip()
         if not name:
-            raise TeamError("thiếu tên nhóm")
+            raise TeamError("missing team name")
         tid = team_id or new_team_id()
         req = str(client_req_id or "").strip()[:80] or None
         now = time.time()
@@ -351,7 +351,7 @@ class TeamStore:
                 if leader_key:
                     if c.execute("SELECT 1 FROM team_members WHERE team_id=? AND agent_key=?",
                                  (tid, leader_key)).fetchone() is None:
-                        raise TeamError("trưởng nhóm phải là thành viên đang hoạt động của nhóm")
+                        raise TeamError("the team leader must be an active member of the team")
                     c.execute("UPDATE team_members SET role='leader' WHERE team_id=? AND agent_key=?", (tid, leader_key))
                     c.execute("UPDATE teams SET leader_key=? WHERE team_id=?", (leader_key, tid))
                     self._event(c, tid, "leader_set", by, {"leader_key": None}, {"leader_key": leader_key})
@@ -397,7 +397,7 @@ class TeamStore:
         with self._Tx(self) as c:
             r = c.execute("SELECT pinned_at FROM teams WHERE team_id=?", (team_id,)).fetchone()
             if r is None:
-                raise TeamError("không có nhóm này")
+                raise TeamError("no such team")
             after = time.time() if on else None
             c.execute("UPDATE teams SET pinned_at=? WHERE team_id=?", (after, team_id))
             self._event(c, team_id, "pinned" if on else "unpinned", by, {"pinned_at": r["pinned_at"]}, {"pinned_at": after})
@@ -417,7 +417,7 @@ class TeamStore:
         with self._Tx(self) as c:
             r = c.execute("SELECT muted FROM teams WHERE team_id=?", (team_id,)).fetchone()
             if r is None:
-                raise TeamError("không có nhóm này")
+                raise TeamError("no such team")
             c.execute("UPDATE teams SET muted=? WHERE team_id=?", (1 if on else 0, team_id))
             self._event(c, team_id, "muted" if on else "unmuted", by, {"muted": bool(r["muted"])}, {"muted": bool(on)})
         return self.get(team_id)
@@ -427,11 +427,11 @@ class TeamStore:
         event with the previous value, so the team history shows who opened or closed it and when."""
         mode = str(mode or "").strip().lower()
         if mode not in WORK_MODES:
-            raise TeamError("quyền làm việc không hợp lệ")
+            raise TeamError("invalid work mode")
         with self._Tx(self) as c:
             r = c.execute("SELECT work_mode FROM teams WHERE team_id=?", (team_id,)).fetchone()
             if r is None:
-                raise TeamError("không có nhóm này")
+                raise TeamError("no such team")
             if r["work_mode"] != mode:
                 c.execute("UPDATE teams SET work_mode=? WHERE team_id=?", (mode, team_id))
                 self._event(c, team_id, "work_mode", by, {"work_mode": r["work_mode"]}, {"work_mode": mode})
@@ -441,15 +441,15 @@ class TeamStore:
         allowed = {"name", "description", "status", "avatar_image", "tags"}
         bad = set(fields) - allowed
         if bad:
-            raise TeamError(f"trường không đổi được: {sorted(bad)}")
+            raise TeamError(f"fields that cannot be changed: {sorted(bad)}")
         if "status" in fields and fields["status"] not in TEAM_STATUS:
-            raise TeamError("trạng thái nhóm không hợp lệ")
+            raise TeamError("invalid team status")
         if "name" in fields and not str(fields["name"] or "").strip():
-            raise TeamError("thiếu tên nhóm")
+            raise TeamError("missing team name")
         with self._Tx(self) as c:
             r = c.execute("SELECT * FROM teams WHERE team_id=?", (team_id,)).fetchone()
             if r is None:
-                raise TeamError("không có nhóm này")
+                raise TeamError("no such team")
             cols = {("tags_json" if k == "tags" else k): (_j(clean_tags(v)) if k == "tags" else str(v))
                     for k, v in fields.items()}
             before = {k: (_tags_of(r["tags_json"]) if k == "tags" else r[k]) for k in fields}
@@ -472,11 +472,11 @@ class TeamStore:
         with self._Tx(self) as c:
             r = c.execute("SELECT * FROM teams WHERE team_id=?", (team_id,)).fetchone()
             if r is None:
-                raise TeamError("không có nhóm này")
+                raise TeamError("no such team")
             if r["status"] != "archived":
-                raise TeamError("chỉ xoá được nhóm đã lưu trữ, hãy lưu trữ nhóm trước")
+                raise TeamError("only an archived team can be deleted, archive the team first")
             if c.execute("SELECT 1 FROM agent_busy WHERE team_id=? AND lease_until>?", (team_id, time.time())).fetchone():
-                raise TeamError("nhóm còn lượt đang chạy, đợi lượt xong rồi xoá")
+                raise TeamError("the team still has a turn running, wait for it to finish and then delete")
             for table in self._TEAM_TABLES:
                 c.execute(f"DELETE FROM {table} WHERE team_id=?", (team_id,))
             c.execute("DELETE FROM teams WHERE team_id=?", (team_id,))
@@ -486,39 +486,39 @@ class TeamStore:
         """Chủ nhóm đổi trần (spec 12.3). Chỉ nhận khoá trong OWNER_CAPS, giá trị số không âm; trần trong UNLIMITED_CAPS
         nhận thêm `None` hay {"unlimited": true} là "Không giới hạn" (GOAL T1 mục 9). Trần máy chủ cố định bị từ chối."""
         if caps is not None and not isinstance(caps, dict):
-            raise TeamError("trần phải là một bảng tên trần và giá trị")
+            raise TeamError("caps must be a map of cap names to values")
         bad = set(caps or {}) - set(DEFAULT_CAPS)
         if bad:
-            raise TeamError(f"trần không có: {sorted(bad)}")
+            raise TeamError(f"no such caps: {sorted(bad)}")
         fixed = sorted(set(caps or {}) & set(FIXED_CAPS))
         if fixed:
-            raise TeamError(f"trần do máy chủ cố định, không đổi được: {fixed}")
+            raise TeamError(f"caps fixed by the server, cannot be changed: {fixed}")
         clean = {}
         for k, v in (caps or {}).items():
             if v is None or (isinstance(v, dict) and v.get("unlimited") is True):
                 if k not in UNLIMITED_CAPS:
-                    raise TeamError(f"trần {k} không có lựa chọn Không giới hạn")
+                    raise TeamError(f"cap {k} has no Unlimited option")
                 clean[k] = None
                 continue
             if isinstance(v, (bool, dict, list)):
-                raise TeamError(f"trần {k} phải là số")
+                raise TeamError(f"cap {k} must be a number")
             try:
                 num = float(v)
             except (TypeError, ValueError, OverflowError):
-                raise TeamError(f"trần {k} phải là số")
+                raise TeamError(f"cap {k} must be a number")
             # NaN và vô cực (JSON của trình duyệt có thể gửi) bị từ chối TRƯỚC khi ghi: int() của chúng là lỗi 500, còn
             # busy_wait_s giữ nguyên float sẽ làm hỏng caps_json và JSON trả về (review T1 #7).
             if not math.isfinite(num):
-                raise TeamError(f"trần {k} phải là số hữu hạn")
+                raise TeamError(f"cap {k} must be a finite number")
             if num < 0:
-                raise TeamError(f"trần {k} không được âm")
+                raise TeamError(f"cap {k} must not be negative")
             if k in CAP_MAX and num > CAP_MAX[k]:
-                raise TeamError(f"trần {k} tối đa là {CAP_MAX[k]}")
+                raise TeamError(f"cap {k} is at most {CAP_MAX[k]}")
             clean[k] = num if k == "busy_wait_s" else int(num)
         with self._Tx(self) as c:
             r = c.execute("SELECT caps_json FROM teams WHERE team_id=?", (team_id,)).fetchone()
             if r is None:
-                raise TeamError("không có nhóm này")
+                raise TeamError("no such team")
             before = json.loads(r["caps_json"] or "{}")
             after = dict(before, **clean)
             c.execute("UPDATE teams SET caps_json=?, updated_at=? WHERE team_id=?", (_j(after), time.time(), team_id))
@@ -553,7 +553,7 @@ class TeamStore:
         now = time.time()
         with self._Tx(self) as c:
             if c.execute("SELECT 1 FROM teams WHERE team_id=?", (team_id,)).fetchone() is None:
-                raise TeamError("không có nhóm này")
+                raise TeamError("no such team")
             r = c.execute("SELECT * FROM team_members WHERE team_id=? AND agent_key=?", (team_id, agent_key)).fetchone()
             if r is not None and r["status"] == "active":
                 return self._member(r)
@@ -609,11 +609,11 @@ class TeamStore:
         with self._Tx(self) as c:
             t = c.execute("SELECT * FROM teams WHERE team_id=?", (team_id,)).fetchone()
             if t is None:
-                raise TeamError("không có nhóm này")
+                raise TeamError("no such team")
             if agent_key is not None and c.execute(
                     "SELECT 1 FROM team_members WHERE team_id=? AND agent_key=? AND status='active'",
                     (team_id, agent_key)).fetchone() is None:
-                raise TeamError("trưởng nhóm phải là thành viên đang hoạt động của nhóm")
+                raise TeamError("the team leader must be an active member of the team")
             c.execute("UPDATE team_members SET role='member' WHERE team_id=? AND role='leader'", (team_id,))
             if agent_key is not None:
                 c.execute("UPDATE team_members SET role='leader' WHERE team_id=? AND agent_key=?", (team_id, agent_key))
@@ -685,7 +685,7 @@ class TeamStore:
     def add_step(self, task_id: str, team_id: str, kind: str, agent_key: str, job_revision: int, brief: str,
                  input_refs: list, parent_step: Optional[str] = None) -> dict:
         if kind not in STEP_KINDS:
-            raise TeamError("loại bước không hợp lệ")
+            raise TeamError("invalid step kind")
         now = time.time()
         with self._Tx(self) as c:
             seq = int(c.execute("SELECT COALESCE(MAX(seq),0)+1 FROM team_steps WHERE task_id=?",
@@ -751,7 +751,7 @@ class TeamStore:
         """Giữ chỗ một lượt. Có trần thì đếm và ghi trong CÙNG một giao dịch BEGIN IMMEDIATE: hai lượt giữ chỗ đồng thời
         (hai luồng, hai tiến trình) không cùng lọt qua chỗ trống cuối cùng. Chạm trần thì ném `TurnCapReached`."""
         if role not in TURN_ROLES:
-            raise TeamError("vai lượt không hợp lệ")
+            raise TeamError("invalid turn role")
         tid = "tu_" + secrets.token_hex(8)
         with self._Tx(self) as c:
             if daily_cap is not None and int(c.execute(
@@ -780,7 +780,7 @@ class TeamStore:
     def settle_turn(self, turn_id: str, status: str, tokens_in: Optional[int] = None, tokens_out: Optional[int] = None,
                     cost_usd: Optional[float] = None) -> None:
         if status not in ("ok", "error", "interrupted"):
-            raise TeamError("kết cục lượt không hợp lệ")
+            raise TeamError("invalid turn outcome")
         with self._Tx(self) as c:
             c.execute("UPDATE team_turns SET status=?, tokens_in=?, tokens_out=?, cost_usd=?, settled_at=? "
                       "WHERE turn_id=? AND status IN ('running','reserved')",
@@ -791,9 +791,9 @@ class TeamStore:
         with self._Tx(self) as c:
             r = c.execute("SELECT status, engine_at FROM team_turns WHERE turn_id=?", (turn_id,)).fetchone()
             if r is None:
-                raise TeamError("không có lượt này")
+                raise TeamError("no such turn")
             if r["engine_at"] is not None:
-                raise TeamError("lượt đã gọi engine, không hoàn được")
+                raise TeamError("the turn already called the engine and cannot be refunded")
             c.execute("UPDATE team_turns SET status='refunded', settled_at=? WHERE turn_id=?", (time.time(), turn_id))
 
     def claim_commit(self, turn_id: str) -> bool:
@@ -882,9 +882,9 @@ class TeamStore:
         with self._Tx(self) as c:
             t = c.execute("SELECT leader_key, status FROM teams WHERE team_id=?", (team_id,)).fetchone()
             if t is None:
-                raise TeamError("không có nhóm này")
+                raise TeamError("no such team")
             if not t["leader_key"]:
-                raise TeamError("nhóm chưa có trưởng nhóm, không bật được Toàn quyền")
+                raise TeamError("the team has no leader, so Full access cannot be turned on")
             old = self._active_authority_row(c, team_id)
             if old is not None:
                 c.execute("UPDATE team_authority SET revoked_at=?, revoke_reason='regranted' WHERE id=?", (now, old["id"]))
@@ -941,12 +941,12 @@ class TeamStore:
             m = c.execute("SELECT * FROM team_members WHERE team_id=? AND agent_key=? AND status='active'",
                           (team_id, agent_key)).fetchone()
             if m is None:
-                raise TeamError("không phải thành viên đang hoạt động")
+                raise TeamError("not an active member")
             if on:
                 other = c.execute("SELECT team_id FROM team_members WHERE agent_key=? AND managed_by_team=1 "
                                   "AND status='active' AND team_id != ?", (agent_key, team_id)).fetchone()
                 if other is not None:
-                    raise TeamError("agent này đã do một nhóm khác quản lý")
+                    raise TeamError("this agent is already managed by another team")
             c.execute("UPDATE team_members SET managed_by_team=? WHERE team_id=? AND agent_key=?",
                       (1 if on else 0, team_id, agent_key))
             self._event(c, team_id, "managed_set" if on else "managed_unset", by, None, {"agent_key": agent_key})
@@ -1002,21 +1002,21 @@ class TeamStore:
         - `seen_sha` (hash nội dung giao diện đã thấy) lệch `content_sha` thì `stale = 1`, vẫn nhận."""
         val = None if value in (None, "", "none") else str(value)
         if val is not None and val not in REACTIONS:
-            raise TeamError("reaction không hợp lệ")
+            raise TeamError("invalid reaction")
         reasons = list(dict.fromkeys(str(x) for x in (reasons or [])))
         if any(x not in REACTION_REASONS for x in reasons):
-            raise TeamError("lý do không hợp lệ")
+            raise TeamError("invalid reason")
         axis = str(axis or "").strip()
         if axis not in REACTION_AXES:
-            raise TeamError("trục nói/im không hợp lệ")
+            raise TeamError("invalid speak/stay-silent axis")
         comment = str(comment or "").strip()
         if len(comment) > COMMENT_MAX:
-            raise TeamError(f"góp ý tối đa {COMMENT_MAX} ký tự")
+            raise TeamError(f"feedback is at most {COMMENT_MAX} characters")
         nonce = str(nonce or "").strip()
         if not nonce or len(nonce) > 100:
-            raise TeamError("nonce không hợp lệ")
+            raise TeamError("invalid nonce")
         if source_kind not in SOURCE_KINDS:
-            raise TeamError("nguồn phản hồi không hợp lệ")
+            raise TeamError("invalid feedback source")
         seen_sha = str(seen_sha).strip()[:128] if seen_sha else None
         stale = 1 if seen_sha and seen_sha != content_sha else 0
         now = time.time()
@@ -1026,7 +1026,7 @@ class TeamStore:
                              (nonce,)).fetchone()
             if seen is not None and (seen["session_id"], int(seen["message_id"]), seen["reactor"]) != key:
                 # Nonce của lần gửi khác: không được trả 200 "đã lưu" cho một tin không hề đổi.
-                raise NonceConflict("nonce đã dùng cho một tin khác")
+                raise NonceConflict("this nonce was used for another message")
             log_id = int(seen["id"]) if seen is not None else None
             if seen is None:
                 old = c.execute("SELECT * FROM team_reactions WHERE session_id=? AND message_id=? AND reactor=?",
@@ -1101,7 +1101,7 @@ class TeamStore:
         """Host ghi trạng thái hiển thị của một reaction (bộ chiếu, lượt xem xét). Chỉ ghi khi reaction vẫn ở đúng lần
         đổi `log_id` (lần đổi mới hơn có trạng thái của nó). Trả trạng thái mới, None khi không ghi."""
         if status not in REACTION_STATUSES:
-            raise TeamError("trạng thái reaction không hợp lệ")
+            raise TeamError("invalid reaction status")
         with self._Tx(self) as c:
             q = ("UPDATE team_reactions SET status=?, status_reason=? WHERE session_id=? AND message_id=? AND reactor=?")
             args = [status, str(reason or "")[:300], session_id, int(message_id), reactor]

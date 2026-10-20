@@ -118,7 +118,7 @@ async def main():
     check("agy: args có --input-format stream-json + model", "--input-format" in procs[0].args and "gemini-3.8-flash-low" in procs[0].args)
     first = json.loads(procs[0].stdin.lines[0])
     check("agy: khuôn stdin event=user, message.role=user", first["event"] == "user" and first["message"]["role"] == "user")
-    check("agy: lượt đầu ghép hướng dẫn + lịch sử + câu", "HƯỚNG DẪN" in first["message"]["content"]
+    check("agy: lượt đầu ghép hướng dẫn + lịch sử + câu", "INSTRUCTIONS" in first["message"]["content"]
           and "trước đó" in first["message"]["content"] and first["message"]["content"].endswith("Chào Javis"))
     out = ""
     async for d in b.stream("Câu hai", []):
@@ -144,7 +144,7 @@ async def main():
     out = ""
     async for d in b.stream("Câu năm", []):
         out += d
-    check("agy: sau khi chết tự mở tiến trình mới và mồi lại", len(procs) == 2 and "HƯỚNG DẪN" in json.loads(procs[1].stdin.lines[0])["message"]["content"])
+    check("agy: sau khi chết tự mở tiến trình mới và mồi lại", len(procs) == 2 and "INSTRUCTIONS" in json.loads(procs[1].stdin.lines[0])["message"]["content"])
     await b.close()
 
     # ---- bộ não API với stream giả ----
@@ -323,14 +323,14 @@ async def main():
     vb.note_task_start("p1", "gửi mail cho Lan")
     ghi = vb.pending_note("p1", now=vb.pending_tasks("p1")[0]["at"] + 12)
     check("pending: hai việc, ghi chú kể cả hai kèm số giây, dặn đừng bịa", n == 1 and "doanh thu" in ghi and "gửi mail" in ghi
-          and "12 giây" in ghi and "đừng bịa" in ghi)
+          and "12 seconds" in ghi and "do not make up" in ghi)
     vb.note_task_done("p1", "xem doanh thu hôm nay")
     check("pending: xong một việc thì còn một", len(vb.pending_tasks("p1")) == 1 and "gửi mail" in vb.pending_note("p1"))
     vb.note_task_done("p1", "gửi mail cho Lan")
     check("pending: xong hết thì sổ rỗng", vb.pending_note("p1") == "" and vb.pending_tasks("p1") == [])
     vb.note_task_done("p1", "không có")   # không nổ
     check("prompt: bắt buộc câu xác nhận + việc chạy nền + yêu cầu tự đứng được",
-          "MỘT câu xác nhận" in vb.SYSTEM_PROMPT and "chạy NỀN" in vb.SYSTEM_PROMPT and "tự đứng được" in vb.SYSTEM_PROMPT)
+          "ONE short confirmation sentence" in vb.SYSTEM_PROMPT and "runs in the BACKGROUND" in vb.SYSTEM_PROMPT and "self-contained" in vb.SYSTEM_PROMPT)
 
     # ---- 5. dây nối main.py ----
     src5 = (SERVER / "main.py").read_text(encoding="utf-8")

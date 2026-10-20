@@ -113,7 +113,7 @@ async def t_khong_tin_trang_thai():
 
     gui = tg.texts()
     check("khách: KHÔNG có tin '🤔 Javis đang xử lý…'",
-          not any("đang xử lý" in t.lower() for t in gui))
+          not any("working on it" in t.lower() for t in gui))
     check("khách: KHÔNG có tin trạng thái '⏳' nào", not any("⏳" in t for t in gui))
     check("khách: không đụng tới editMessageText/deleteMessage của tin trạng thái",
           "editMessageText" not in tg.methods() and "deleteMessage" not in tg.methods())
@@ -125,7 +125,7 @@ async def t_khong_tin_trang_thai():
     tg2 = FakeTelegram()
     await bot_chu(answer)._handle_turn(tg2, "42", "còn hàng không em")
     check("chủ: vẫn gửi tin trạng thái như cũ",
-          any("Javis đang xử lý" in t for t in tg2.texts()))
+          any("working on it" in t for t in tg2.texts()))
     # Từ 0.26.4 tin trạng thái KHÔNG bị xoá nữa, nó ở lại thành dòng vết công cụ. Chi tiết và
     # lý do ở tests/python/test_tin_trang_thai_telegram.py.
     check("chủ: KHÔNG xoá tin trạng thái nữa", "deleteMessage" not in tg2.methods())
@@ -239,7 +239,7 @@ async def t_cau_rong():
     tg2 = FakeTelegram()
     await bot_chu(None)._send(tg2, "42", "")
     check("chủ: giữ '(không có nội dung)' để lỗi không bị nuốt",
-          tg2.texts() == ["(không có nội dung)"])
+          tg2.texts() == ["(no content)"])
 
 
 # ============================================================

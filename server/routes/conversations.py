@@ -289,7 +289,7 @@ def register(app, deps: ConversationsDeps):
             "bot_id": c.get("bot_id") or "",
             "external_chat_id": c.get("external_chat_id"), "chat_type": c.get("chat_type"),
             "chat_title": c.get("title") if c.get("chat_type") == "group" else "",
-            "sender_type": "human", "sender_name": "Bạn", "message_type": "text", "text": txt,
+            "sender_type": "human", "sender_name": localefmt.chu("Bạn", "You"), "message_type": "text", "text": txt,
             "metadata": {"tu_javis": True},
         })
         tiep_quan = False

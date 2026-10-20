@@ -239,7 +239,7 @@ bot = {"name": "Bot", "agent": {"brain": "brain", "slug": "cskh"}, "handoff_to":
 p_co = chatbot_runtime.build_bot_prompt({**bot, "_tai_lieu": tl})
 check("có tài liệu -> prompt kèm nguyên văn tài liệu", "185.000" in p_co)
 check("có tài liệu -> nói rõ nó lấy từ brain của bot",
-      "Tài liệu trong brain của bạn" in p_co)
+      "Documents in your brain" in p_co)
 
 p_ngoai = chatbot_runtime.build_bot_prompt(bot)
 check("dựng prompt ngoài một lượt thật -> không bịa ra khối tài liệu nào",
@@ -263,9 +263,9 @@ check("CANARY: chế độ mặc định KHÔNG ép bot câm khi thiếu tài li
 
 p_chat = chatbot_runtime.build_bot_prompt({**bot, "nguon_tra_loi": "tai_lieu", "_tai_lieu": trong})
 check("chế độ chỉ-tài-liệu + không có tài liệu -> nói thẳng đã tra và không có",
-      "không có phần nào" in p_chat.lower())
+      "found no section" in p_chat.lower())
 check("chế độ chỉ-tài-liệu -> dặn đừng dùng kiến thức chung",
-      "kiến thức chung" in p_chat)
+      "general knowledge" in p_chat)
 
 check("bản ghi cũ thiếu khoá -> rơi vào chế độ mặc định, không phải chế độ câm",
       chatbot_runtime.build_bot_prompt({**bot, "_tai_lieu": trong}) == p_agent)
@@ -554,11 +554,11 @@ async def _xin_nguoi():
 _cau = asyncio.run(_xin_nguoi())
 check("xin gặp người: chuông nhận một mẩu thư nói bot nào, ai",
       len(_CHUONG) == 1 and "Bot lỗi" in _CHUONG[0] and "Lan" in _CHUONG[0])
-check("xin gặp người: khách được nói đã báo, và vẫn mời hỏi tiếp", "đã báo" in _cau and "hỏi tiếp" in _cau)
+check("xin gặp người: khách được nói đã báo, và vẫn mời hỏi tiếp", "notified" in _cau and "keep asking" in _cau)
 chatbot_runtime.wire(answer=_loi_gia, brain_root=lambda b: str(BRAIN),
                      read_agent=lambda b, s: ({"name": "Hoa"}, ""), notify=None)
 _cau = chatbot_runtime._bao_nhan_vien({"id": _bid, "name": "Bot lỗi"}, "Lan", "x")
-check("không có chuông thì nói thật là chưa nối được người", "chưa nối máy" in _cau)
+check("không có chuông thì nói thật là chưa nối được người", "cannot connect you" in _cau)
 _CHUONG.clear()
 
 

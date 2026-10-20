@@ -225,16 +225,16 @@ base = {"name": "Bot", "agent": {"slug": "cskh", "brain": "shop"}, "nguon_tra_lo
         "_tai_lieu": {"co": False, "khoi": "", "nguon": []}}
 p_suggest = chatbot_runtime.build_bot_prompt(dict(base, muc_quyen="suggest"))
 p_docs = chatbot_runtime.build_bot_prompt(dict(base, muc_quyen="read_docs"))
-check("suggest + docs-only + no match: still says 'no info'", "CHỈ TRẢ LỜI THEO" in p_suggest
+check("suggest + docs-only + no match: still says 'no info'", "ANSWER FROM DOCUMENTS ONLY" in p_suggest
       and "javis_docs_search" not in p_suggest)
 check("read_docs + no match: told to search with the tools first", "javis_docs_search" in p_docs
-      and "PHẢI tự tìm" in p_docs)
+      and "you MUST search yourself first" in p_docs)
 check("read_docs + no match: the 'say you have no info' rule waits until after searching",
-      "CHỈ TRẢ LỜI THEO" not in p_docs and "Đã tìm kỹ mà vẫn không có" in p_docs)
+      "ANSWER FROM DOCUMENTS ONLY" not in p_docs and "If you searched thoroughly and still found nothing" in p_docs)
 p_agent = chatbot_runtime.build_bot_prompt(dict(base, muc_quyen="read_docs", nguon_tra_loi="agent"))
-check("agent-mode read_docs bot is not forced into docs-only", "Đã tìm kỹ" not in p_agent and "javis_docs_read" in p_agent)
+check("agent-mode read_docs bot is not forced into docs-only", "If you searched thoroughly" not in p_agent and "javis_docs_read" in p_agent)
 p_auto = chatbot_runtime.build_bot_prompt(dict(base, muc_quyen="read_docs", _tu_dong=True))
-check("group auto-reply counts documents the bot opens itself", "bạn tự mở" in p_auto)
+check("group auto-reply counts documents the bot opens itself", "opened by you" in p_auto)
 
 
 # ============================================================

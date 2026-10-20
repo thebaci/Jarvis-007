@@ -111,12 +111,12 @@ async def chay():
     check("CANARY: the parent's turn runs at the bot's level (Read only)", by["u_ph1"]["muc"] == "suggest", by)
     check("CANARY: her turn runs at her exception's level (Full power)", by["u_me"]["muc"] == "full", by)
     check("her prompt states the level; the parent's does not",
-          "QUYỀN CỦA CUỘC CHAT NÀY" in by["u_me"]["prompt"] and "QUYỀN CỦA CUỘC CHAT NÀY" not in by["u_ph1"]["prompt"])
+          "PERMISSION FOR THIS CHAT" in by["u_me"]["prompt"] and "PERMISSION FOR THIS CHAT" not in by["u_ph1"]["prompt"])
     pm = by["u_me"]["prompt"]
     check("CANARY: the exception line comes AFTER the personal-Zalo 'stay silent on family matters' paragraph, "
           "so her messages are not dropped as family chat",
-          "Kênh này là Zalo CÁ NHÂN" in pm and pm.index("QUYỀN CỦA CUỘC CHAT NÀY") > pm.index("Kênh này là Zalo CÁ NHÂN")
-          and "đừng im chỉ vì đó là chuyện riêng" in pm, pm[-500:])
+          "This channel is the owner's PERSONAL Zalo" in pm and pm.index("PERMISSION FOR THIS CHAT") > pm.index("This channel is the owner's PERSONAL Zalo")
+          and "do not stay silent just because it is a private" in pm, pm[-500:])
     check("both got a reply in their own chat", sorted(g["threadId"] for g in GUI) == ["u_me", "u_ph1"], GUI)
     check("the bot record is still Read only", chatbot_store.get_bot(bid)["muc_quyen"] == "suggest")
 

@@ -100,7 +100,7 @@ async def _chay():
     # Hàng đợi chưa dựng (máy chủ đang khởi động) thì phải báo rõ chứ không nổ ra traceback:
     # tool call nổ giữa lượt chat là engine thấy một đống stack trace thay vì lời giải thích.
     out = await goi({"op": "list"})
-    check("chưa có hàng đợi thì báo rõ, không nổ", "ERROR" in out and "hàng đợi" in out)
+    check("chưa có hàng đợi thì báo rõ, không nổ", "ERROR" in out and "task queue" in out)
 
     # Kèm title hẳn hoi: nếu op lạ bị đối xử như `add` thì nó sẽ THÀNH CÔNG chứ không lỗi, và
     # một test chỉ soi chữ "ERROR" trên lời gọi thiếu title sẽ xanh trong khi tool đang giao
@@ -124,14 +124,14 @@ async def _chay():
     check("tasks.current() trả đúng hàng đợi đang chạy", tasks_mod.current() is feat)
 
     out = await goi({"op": "add", "title": "soạn báo cáo tuần", "chat_id": "web:phien123"})
-    check("giao được việc", "Đã giao việc" in out)
-    check("trả mã việc để theo dõi tiếp", "Mã việc:" in out)
+    check("giao được việc", "Task added" in out)
+    check("trả mã việc để theo dõi tiếp", "Task id:" in out)
     check("CANARY: mặc định là full (Javis tự thao tác, luật cũ đã bỏ 2026-09-10)", "full" in out)
 
     # Mức full truyền tường minh cũng được nhận, không còn bị từ chối như trước 2026-09-10.
     out_full = await goi({"op": "add", "title": "chạy quảng cáo hộ anh", "mode": "full",
                           "chat_id": "web:phien123"})
-    check("mode=full được nhận, không còn ERROR", "Đã giao việc" in out_full and "full" in out_full)
+    check("mode=full được nhận, không còn ERROR", "Task added" in out_full and "full" in out_full)
 
     # Nói thẳng rằng lượt trả lời này KHÔNG đợi việc chạy xong. Luật CLAUDE.md, và là hiểu nhầm
     # số một của người dùng khi giao việc lần đầu.
@@ -141,15 +141,15 @@ async def _chay():
     # kết quả tự về" ở trạng thái đó là hứa hộ một thứ sẽ không xảy ra, rồi model chuyển tiếp
     # nguyên văn cho người dùng - đúng lỗi "giao việc xong không thấy gì, không chạy luôn".
     check("CANARY: điều phối TẮT thì KHÔNG được hứa việc đang chạy",
-          "KHÔNG tự chạy" in out and "chạy nền" not in out)
-    check("nói luôn cách bật cho người dùng", "AI tự vận hành" in out)
+          "will NOT run by itself" in out and "Running in the background" not in out)
+    check("nói luôn cách bật cho người dùng", "AI self-driving" in out)
 
     # ============================================================
     # 4. Không nuốt thiếu sót
     # ============================================================
     out = await goi({"op": "add", "title": "việc mồ côi"})
-    check("CANARY: thiếu người nhận thì CẢNH BÁO, không nuốt", "CẢNH BÁO" in out)
-    check("cảnh báo nói rõ hậu quả", "mất hút" in out)
+    check("CANARY: thiếu người nhận thì CẢNH BÁO, không nuốt", "WARNING" in out)
+    check("cảnh báo nói rõ hậu quả", "lost" in out)
 
     out = await goi({"op": "add"})
     check("thiếu title bị từ chối", "ERROR" in out)
@@ -159,12 +159,12 @@ async def _chay():
     out = await goi({"op": "add", "title": "việc mode lạ", "mode": "sieu-cap",
                      "chat_id": "web:phien123"})
     check("CANARY: mode lạ kẹp về full (mặc định), không trôi thành auto",
-          "Đã giao việc" in out and "Mức quyền: full" in out)
+          "Task added" in out and "Permission level: full" in out)
 
     # Hạ mức tường minh vẫn được: người dùng muốn việc chỉ đọc thì model truyền suggest.
     out = await goi({"op": "add", "title": "chỉ đọc rồi đề xuất", "mode": "suggest",
                      "chat_id": "web:phien123"})
-    check("mode=suggest hạ được xuống chỉ đọc", "Đã giao việc" in out and "Mức quyền: suggest" in out)
+    check("mode=suggest hạ được xuống chỉ đọc", "Task added" in out and "Permission level: suggest" in out)
 
     # ============================================================
     # 5. Việc nằm THẬT trong kho, đúng thuộc tính
@@ -218,13 +218,13 @@ async def _chay():
     feat.store.set_orchestration(str(_VAULT), "auto")
     out_auto = await goi({"op": "add", "title": "việc khi đã bật điều phối",
                           "chat_id": "web:phien123"})
-    check("bật AI tự vận hành rồi thì mới nói việc chạy nền", "chạy nền" in out_auto)
+    check("bật AI tự vận hành rồi thì mới nói việc chạy nền", "Running in the background" in out_auto)
     feat.store.set_orchestration(str(_VAULT), "off")
 
     # Cảnh báo ở op=list cũng vậy. Trước đây cổng viết là `not view.get("orchestration")`, mà
     # giá trị là CHUỖI "off" nên luôn truthy - dòng cảnh báo đó chưa từng in ra lần nào.
     check("CANARY: op=list cảnh báo khi điều phối tắt",
-          "KHÔNG tự chạy" in await goi({"op": "list"}))
+          "will NOT run by itself" in await goi({"op": "list"}))
 
 
 asyncio.run(_chay())
@@ -243,7 +243,7 @@ _pt, _pr = plugins_host.plugin_tools("full", str(_VAULT), scope_vault=False)
 check("CANARY: đường Claude Code cũng có tool giao việc",
       "javis_task" in [x["fn"] for x in _pt])
 check("mức full giao được trên cả đường đó",
-      "Đã giao việc" in asyncio.run(_pr["javis_task"]["call"](
+      "Task added" in asyncio.run(_pr["javis_task"]["call"](
           {"op": "add", "title": "chạy quảng cáo", "mode": "full", "chat_id": "web:x"})))
 
 # Chế độ chỉ-đọc phải chặn ở đường này nữa - min_mode nằm trong route của plugin_tools(mode).

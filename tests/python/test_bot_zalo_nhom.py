@@ -316,7 +316,7 @@ async def chay():
           LUOT_ENGINE[-1]["text"])
     check("meta đánh dấu tin có ảnh, và vẫn là lượt được gọi tên", LUOT_ENGINE[-1]["meta"].get("co_anh") is True and LUOT_ENGINE[-1]["meta"].get("mentioned") is True,
           LUOT_ENGINE[-1]["meta"])
-    check("model được báo tin có kèm ảnh mà nó không xem được", "kèm một ảnh" in LUOT_ENGINE[-1]["text"] and "tạo Agent giúp em" in LUOT_ENGINE[-1]["text"],
+    check("model được báo tin có kèm ảnh mà nó không xem được", "came with a photo" in LUOT_ENGINE[-1]["text"] and "tạo Agent giúp em" in LUOT_ENGINE[-1]["text"],
           LUOT_ENGINE[-1]["text"])
     check("Hộp thư ghi tin đó là ảnh (loại 'image') kèm chú thích", ("@Javis Vũ hướng dẫn thao tác tạo Agent giúp em", "customer") in _tin_tho())
 
@@ -403,7 +403,7 @@ async def chay():
           len(GUI) == 1 and len(LUOT_ENGINE) == n0 + 1, (GUI, len(LUOT_ENGINE) - n0))
     check("gửi vào nhóm (type=1)", GUI and GUI[0]["type"] == 1 and GUI[0]["threadId"] == NHOM, GUI)
     check("model được dạy đây là tin nhóm không ai gọi tên và quyền im lặng",
-          "không ai gọi tên bạn" in LUOT_ENGINE[-1]["prompt"] and "[IM_LANG]" in LUOT_ENGINE[-1]["prompt"])
+          "nobody called you by name" in LUOT_ENGINE[-1]["prompt"] and "[IM_LANG]" in LUOT_ENGINE[-1]["prompt"])
     check("và có TÀI LIỆU tra sẵn trong prompt (căn cứ để trả lời)",
           "7777" in LUOT_ENGINE[-1]["prompt"])
 

@@ -64,8 +64,8 @@ check("chặn: viết lại gần hết câu",
 
 # ---- Đường lùi: bộ não chính nhận câu gốc KÈM lời dặn, không kèm câu bị chặn ----
 g = vb.GHI_CHU_CAU_NGHE
-check("lời dặn: không giải thích chuyện nghe nhầm", "KHÔNG giải thích" in g and "em hiểu X là Y" in g)
-check("lời dặn: việc ra ngoài vẫn hỏi xác nhận", "xác nhận" in g)
+check("lời dặn: không giải thích chuyện nghe nhầm", "do NOT explain" in g and "em hiểu X là Y" in g)
+check("lời dặn: việc ra ngoài vẫn hỏi xác nhận", "confirmation" in g)
 check("lời dặn: không có dấu gạch dài", chr(0x2014) not in g)
 src = (SERVER / "main.py").read_text(encoding="utf-8")
 khoi = src[src.index("async def _giu_cau_goc():"):src.index("async def _ap_dien_giai(")]

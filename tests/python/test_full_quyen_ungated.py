@@ -123,10 +123,10 @@ check("full + provider chưa có key -> lui về Claude, không chết",
 # Không có lời khai này thì model chỉ thấy "gọi tool không được" rồi tự dựng lý do nghe hợp lý
 # mà sai. Đúng cái đã xảy ra: nó đổ cho quyền, chủ đi sửa mức quyền, mà mức quyền không hề sai.
 _src_aux = (SERVER / "aux_engine.py").read_text(encoding="utf-8")
-for _phai_co in ("Google Drive", "mcp__<tên>__*", "Bash", "không có công cụ"):
+for _phai_co in ("Google Drive", "mcp__<name>__*", "Bash", "does not have that tool"):
     check(f"engine API khai rõ {_phai_co!r}", _phai_co in _src_aux)
 check("và cấm thẳng chuyện đổ cho quyền",
-      "không mô tả chuyện này là bị chặn quyền" in _src_aux)
+      "describe this as a blocked or missing permission" in _src_aux)
 
 
 # ============================================================

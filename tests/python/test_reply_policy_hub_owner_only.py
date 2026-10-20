@@ -142,7 +142,7 @@ check("owner applies the tag knob", "#" in out and st.get_tuning("A").get("consi
 out2 = run(T({"op": "apply", "bot": "A", "action": "case_add", "decision_id": d1, "verdict": "reply"}, ctx))
 check("owner turns a silenced tag into a reply example", "#" in out2 and st.count_cases("A", "owner") == 1, out2)
 chg = run(R({"op": "changes", "bot": "A"}, ctx))
-check("changes lists both, marked as the owner's", chg.count("chủ nhờ") == 2, chg)
+check("changes lists both, marked as the owner's", chg.count("owner request") == 2, chg)
 cid = int(out.split("change_id=")[1].split(")")[0])
 check("a change id of bot A cannot be undone through bot B",
       run(T({"op": "revert", "bot": "B", "change_id": cid}, ctx)).startswith("ERROR"))

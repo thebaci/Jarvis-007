@@ -135,7 +135,7 @@ _out3 = in_turn(301, _USER3, lambda: asyncio.run(route["javis_goal"]["call"]({
                   "params": {"path": "Inbox/tom-tat.md", "must_contain": ["máy lạnh", "báo cáo quý", "quà"]}}],
     "relevant_quote": "Viết giúp anh ghi chú Inbox/tom-tat.md",
     "horizon": {"kind": "review", "at_iso": "2027-01-01T09:00:00+07:00"}, "mode": "achieve"})))
-check("M3 lời dặn của tool: nói rõ làm tiếp ở nền và kết quả tự về khung chat", "làm tiếp ở NỀN" in _out3)
+check("M3 lời dặn của tool: nói rõ làm tiếp ở nền và kết quả tự về khung chat", "in the BACKGROUND" in _out3)
 _g3 = main._resonance_store().find_by_key(RS.Principal("agent", "javis", main._brain_key(BRAIN)),
                                          R.message_ref(SID, 301))
 # Như run_turn: hết lượt thì bàn giao (lịch việc nền được giữ từ lúc tool lập mục tiêu tới đây).

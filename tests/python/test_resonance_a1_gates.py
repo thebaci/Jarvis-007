@@ -88,7 +88,7 @@ out_plain = asyncio.run(CALL({"op": "create", **PROPOSAL}))
 turn_context.reset(tok)
 out_none = asyncio.run(CALL({"op": "create", **PROPOSAL}))
 check("1 chat thường gọi javis_goal: ERROR, không ghi gì vào kho",
-      out_plain.startswith("ERROR") and "trợ lý" in out_plain and counts() == c0)
+      out_plain.startswith("ERROR") and "assistant" in out_plain and counts() == c0)
 check("1 gọi ngoài lượt: ERROR, không ghi gì", out_none.startswith("ERROR") and counts() == c0)
 
 # ═══════════ 2. agent A bật, B tắt; list chỉ của đúng agent ═══════════

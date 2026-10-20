@@ -191,7 +191,7 @@ class AppServer:
                     # Yêu cầu từ server (duyệt lệnh, duyệt file, gọi tool động): luôn từ chối.
                     try:
                         self._write({"id": msg["id"], "error": {"code": -32000,
-                                     "message": "Javis không cho phiên realtime tự làm việc trên máy."}})
+                                     "message": "Jarvis 007 does not let the realtime session act on this machine by itself."}})
                     except AppServerError:
                         pass
                     continue
@@ -202,7 +202,7 @@ class AppServer:
                     loop, q = sub
                     self._deliver(loop, q.put_nowait, msg)
         except Exception as e:  # pragma: no cover - ống đọc vỡ bất thường
-            print(f"[codex realtime] đọc stdout lỗi: {e}", file=sys.stderr)
+            print(f"[codex realtime] error reading stdout: {e}", file=sys.stderr)
         finally:
             if proc is self.proc:
                 self._dead = True

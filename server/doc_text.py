@@ -27,26 +27,26 @@ def extract(path) -> str:
             return _pdf(p)
         return _docx(p)
     except Exception as e:      # noqa: BLE001 - file hỏng hay lạ: nói thẳng, đừng làm sập lượt chat
-        return f"ERROR: không bóc được chữ từ '{p.name}': {type(e).__name__}: {e}"
+        return f"ERROR: could not extract text from '{p.name}': {type(e).__name__}: {e}"
 
 
 def _pdf(p: Path) -> str:
     try:
         import pypdf
     except ImportError:
-        return ("ERROR: máy chủ Javis thiếu thư viện pypdf nên chưa đọc được PDF. Cập nhật Javis (bản mới cài sẵn), hoặc chạy "
-                "`pip install pypdf` trong môi trường của Javis.")
+        return ("ERROR: the Jarvis 007 server is missing the pypdf library, so it cannot read PDFs yet. Update Jarvis 007 (the new version ships with it), or run "
+                "`pip install pypdf` in the Jarvis 007 environment.")
     r = pypdf.PdfReader(str(p))
     tong = len(r.pages)
     parts = []
     for i, pg in enumerate(r.pages[:MAX_PDF_PAGES], 1):
-        parts.append(f"--- Trang {i} ---\n{(pg.extract_text() or '').strip()}")
+        parts.append(f"--- Page {i} ---\n{(pg.extract_text() or '').strip()}")
     text = "\n\n".join(parts)
-    if len(re.sub(r"--- Trang \d+ ---|\s", "", text)) < 50:
-        return (f"'{p.name}' có {tong} trang nhưng gần như không có chữ (có thể là PDF scan hoặc ảnh). Tool này không đọc được "
-                f"chữ nằm trong ảnh.")
+    if len(re.sub(r"--- Page \d+ ---|\s", "", text)) < 50:
+        return (f"'{p.name}' has {tong} pages but almost no text (it may be a scanned PDF or an image). This tool cannot read "
+                f"text inside images.")
     if tong > MAX_PDF_PAGES:
-        text += f"\n\n… [chỉ đọc {MAX_PDF_PAGES} trang đầu, file có {tong} trang]"
+        text += f"\n\n… [read only the first {MAX_PDF_PAGES} pages, the file has {tong} pages]"
     return text
 
 
@@ -55,9 +55,9 @@ def _docx(p: Path) -> str:
         try:
             info = z.getinfo("word/document.xml")
         except KeyError:
-            return f"ERROR: '{p.name}' không phải file Word .docx hợp lệ (thiếu word/document.xml)."
+            return f"ERROR: '{p.name}' is not a valid Word .docx file (missing word/document.xml)."
         if info.file_size > MAX_DOCX_XML_BYTES:
-            return f"ERROR: nội dung '{p.name}' quá lớn để đọc ({info.file_size // (1024 * 1024)} MB khi giải nén)."
+            return f"ERROR: the content of '{p.name}' is too large to read ({info.file_size // (1024 * 1024)} MB when unpacked)."
         xml = z.read(info).decode("utf-8", errors="replace")
     xml = re.sub(r"</w:p>", "\n", xml)
     xml = re.sub(r"<w:(tab|br)\b[^>]*/>", lambda m: "\t" if m.group(1) == "tab" else "\n", xml)

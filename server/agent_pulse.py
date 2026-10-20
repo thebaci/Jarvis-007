@@ -495,16 +495,16 @@ def record_signal(store, *, source_ref: str, agent_key: str, context_ref: str, k
     ensure(store)
     src, key, ctx = str(source_ref or "").strip(), str(agent_key or "").strip(), str(context_ref or "").strip()
     if not src or not key or not ctx or ctx == "*":
-        raise ValueError("thiếu source_ref, agent_key hay context_ref")
+        raise ValueError("missing source_ref, agent_key or context_ref")
     if kind not in SIGNAL_KINDS:
-        raise ValueError(f"loại tín hiệu không hợp lệ: {kind}")
+        raise ValueError(f"invalid signal kind: {kind}")
     if str(reactor or "").startswith("agent:"):
         return False
     v, ww, sh = float(value), float(w), float(share)
     if abs(ww * v) > 1.0 + 1e-9:
-        raise ValueError("mỗi sự kiện nguồn đóng góp |w·v| ≤ 1")
+        raise ValueError("each source event contributes |w·v| ≤ 1")
     if not (0.0 < sh <= 1.0 + 1e-9):
-        raise ValueError("share phải trong (0, 1]")
+        raise ValueError("share must be in (0, 1]")
     t = _now(at)
     pers = (kind == "reaction") if personalize is None else bool(personalize)
     with store._Tx(store) as c:
@@ -536,7 +536,7 @@ def record_host_event(store, *, event: str, source_ref: str, agents: dict, conte
     """Tín hiệu từ sự kiện host (chấp nhận đề xuất, chốt quyết định, sửa yêu cầu sau kết quả, huỷ, kiểm khách quan).
     `agents`: {agent_key: share} (tổng 1). Trả các agent đã ghi."""
     if event not in HOST_EVENT:
-        raise ValueError(f"sự kiện host không hợp lệ: {event}")
+        raise ValueError(f"invalid host event: {event}")
     v0, w = HOST_EVENT[event]
     done = []
     for key, share in (agents or {}).items():
@@ -787,7 +787,7 @@ def set_state(store, agent_key: str, context_ref: str, state: str, by: str = "ow
     t = _now(at)
     key, ctx = str(agent_key), str(context_ref or "*")
     if state not in ("paused", "resume", "waiting_owner", "off", "on"):
-        raise ValueError(f"trạng thái không hợp lệ: {state}")
+        raise ValueError(f"invalid state: {state}")
     with store._Tx(store) as c:
         if ctx != "*":
             _ensure_row_in(c, key, ctx, t)
@@ -838,7 +838,7 @@ def reset(store, agent_key: str, context_ref: str, by: str = "owner", at: Option
     t = _now(at)
     key, ctx = str(agent_key), str(context_ref)
     if ctx == "*":
-        raise ValueError("chọn một ngữ cảnh để đặt lại")
+        raise ValueError("choose a context to reset")
     with store._Tx(store) as c:
         r = _ensure_row_in(c, key, ctx, t)
         st = r["state"] if r["state"] in ("paused", "off") else "awake"
@@ -882,10 +882,10 @@ def set_max_tier(store, agent_key: str, tier: int, by: str = "owner", at: Option
     """`max_tier` (nhịp nhanh nhất, mục 9): CHỈ chủ đặt (tới B0). Trưởng nhóm, kể cả Toàn quyền, không nâng được: mọi
     người gọi khác `owner` bị từ chối. Bậc đang nhanh hơn trần mới thì chậm lại tới trần."""
     if str(by) != "owner":
-        raise PermissionError("chỉ chủ mới đổi được nhịp nhanh nhất")
+        raise PermissionError("only the owner can change the fastest pace")
     nt = int(tier)
     if not 0 <= nt <= 7:
-        raise ValueError("bậc không hợp lệ")
+        raise ValueError("invalid tier")
     ensure(store)
     t = _now(at)
     key = str(agent_key)
@@ -1030,7 +1030,7 @@ def decide_proposal(store, proposal_id: int, decision: str, by: str = "owner", t
     """Chủ (hay trưởng nhóm có quyền) chấp nhận (+0.6 w 0.8) hay bác (-0.4 w 0.8) MỘT đề xuất còn chờ (CAS). `signal`:
     False khi nơi gọi đã ghi tín hiệu theo nguồn của chính nó (thẻ đề xuất trong nhóm). Đã quyết rồi: None."""
     if decision not in ("accepted", "rejected"):
-        raise ValueError("quyết định không hợp lệ")
+        raise ValueError("invalid decision")
     ensure(store)
     t = _now(at)
     with store._Tx(store) as c:
@@ -1142,7 +1142,7 @@ def apply_policy_change(store, agent_key: str, context_ref: str, change: dict, a
     key, ctx = str(agent_key), str(context_ref)
     kind = str((change or {}).get("kind") or "").strip()
     if not kind:
-        raise ValueError("thiếu loại thay đổi")
+        raise ValueError("missing change kind")
     with store._Tx(store) as c:
         r = _ensure_row_in(c, key, ctx, t) if ctx != "*" else _ensure_row_in(c, key, "*", t)
         sc = _score_rows(c, _live_signals(c, key, None if ctx == "*" else ctx), t, 0.0)

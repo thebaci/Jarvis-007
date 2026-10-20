@@ -166,9 +166,9 @@ check("a stranger is still not chosen",
 chatbot_runtime.wire(answer=lambda *a, **k: None, brain_root=lambda b: _STATE,
                      read_agent=lambda br, slug: ({"name": "Lan", "role": "Trợ lý"}, "Trả lời ngắn."))
 p_me = chatbot_runtime.build_bot_prompt(cfg_me)
-check("her prompt states the level given to this chat", "QUYỀN CỦA CUỘC CHAT NÀY" in p_me and "Toàn quyền" in p_me
+check("her prompt states the level given to this chat", "PERMISSION FOR THIS CHAT" in p_me and "Toàn quyền" in p_me
       and '"Mẹ"' in p_me, p_me[-300:])
-check("other prompts say nothing about it", "QUYỀN CỦA CUỘC CHAT NÀY" not in chatbot_runtime.build_bot_prompt(cfg))
+check("other prompts say nothing about it", "PERMISSION FOR THIS CHAT" not in chatbot_runtime.build_bot_prompt(cfg))
 
 # A LOWERED chat: a Full bot whose owner distrusts one chat and puts it at Read only.
 fid, err = chatbot_store.create_bot({"name": "Bot full", "agent_slug": "tro-ly", "brain": "brain", "muc_quyen": "full",
@@ -181,7 +181,7 @@ nghi = {"chat_id": "u_nghi", "chat_type": "private", "account_id": ACC}
 fcfg_nghi = chatbot_store.ap_ngoai_le(fcfg, nghi)
 check("the lowered chat runs at Read only", fcfg_nghi["muc_quyen"] == "suggest")
 check("CANARY: a lowered chat is NOT told 'this is not a stranger'",
-      "QUYỀN CỦA CUỘC CHAT NÀY" not in chatbot_runtime.build_bot_prompt(fcfg_nghi))
+      "PERMISSION FOR THIS CHAT" not in chatbot_runtime.build_bot_prompt(fcfg_nghi))
 check("CANARY: lowering a chat never makes it a chosen person",
       chatbot_runtime._ly_do_im_co_ban(fcfg, nghi) == "nguoi_chua_chon")
 

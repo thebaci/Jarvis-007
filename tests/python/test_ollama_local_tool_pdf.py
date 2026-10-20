@@ -113,7 +113,7 @@ def pdf_mot_trang(text: str) -> bytes:
 cau = "Doanh thu quy ba tang muoi hai phan tram so voi quy hai nho kenh ban le moi"
 (TMP / "bao-cao.pdf").write_bytes(pdf_mot_trang(cau))
 t = doc_text.extract(TMP / "bao-cao.pdf")
-check("PDF có chữ: bóc ra đúng câu, có đánh số trang", cau in t and "--- Trang 1 ---" in t, t[:200])
+check("PDF có chữ: bóc ra đúng câu, có đánh số trang", cau in t and "--- Page 1 ---" in t, t[:200])
 (TMP / "scan.pdf").write_bytes(pdf_mot_trang(""))
 t = doc_text.extract(TMP / "scan.pdf")
 check("PDF scan (không có chữ): nói thẳng, không trả rỗng", "gần như không có chữ" in t, t)

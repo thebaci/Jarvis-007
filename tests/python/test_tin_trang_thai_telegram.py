@@ -124,7 +124,7 @@ gui = c.goi("sendMessage")
 check("tin trạng thái gửi IM LẶNG", bool(gui) and gui[0].get("disable_notification") is True,
       gui[0] if gui else None)
 check("tin trạng thái mở đầu bằng 'đang xử lý'",
-      bool(gui) and "đang xử lý" in (gui[0].get("text") or "").lower(), gui[0] if gui else None)
+      bool(gui) and "working on it" in (gui[0].get("text") or "").lower(), gui[0] if gui else None)
 
 check("câu trả lời là tin MỚI, không phải sửa tin cũ", len(gui) == 2, len(gui))
 check("tin cuối cùng chính là câu trả lời",
@@ -151,7 +151,7 @@ c2 = chay_luot(_answer_bi_cat)
 check("/stop cũng KHÔNG xoá tin", not c2.goi("deleteMessage"), [m for m, _ in c2.calls])
 sua2 = c2.goi("editMessageText")
 check("/stop → tin trạng thái đổi thành 'Đã dừng'",
-      bool(sua2) and "Đã dừng" in (sua2[-1].get("text") or ""), sua2[-1] if sua2 else None)
+      bool(sua2) and "Stopped" in (sua2[-1].get("text") or ""), sua2[-1] if sua2 else None)
 check("/stop → KHÔNG gửi thêm câu trả lời nào", len(c2.goi("sendMessage")) == 1,
       len(c2.goi("sendMessage")))
 

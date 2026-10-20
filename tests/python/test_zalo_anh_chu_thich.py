@@ -71,7 +71,7 @@ check("nhận ra tag bot trong chú thích ảnh (nhan_dien_goi dựa vào chữ
 # ============================================================
 g = chatbot_runtime.gan_nhan_anh
 check("tin ảnh: model được báo có ảnh mà nó không xem được, chú thích vẫn còn nguyên",
-      g("[Lan] câu hỏi", {"co_anh": True}).startswith("(tin này kèm một ảnh") and g("[Lan] câu hỏi", {"co_anh": True}).endswith("[Lan] câu hỏi"))
+      g("[Lan] câu hỏi", {"co_anh": True}).startswith("(this message came with a photo") and g("[Lan] câu hỏi", {"co_anh": True}).endswith("[Lan] câu hỏi"))
 check("tin chữ: không đổi gì", g("[Lan] câu hỏi", {}) == "[Lan] câu hỏi" and g("x", None) == "x")
 
 # ============================================================
