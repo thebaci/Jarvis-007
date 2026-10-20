@@ -86,7 +86,7 @@ check("T1 review không ghi gì vào brain: file đích là đúng bản của v
 check("T1 lượt review đọc ảnh chụp bản đã tiếp nhận (hash bytes gửi bằng hash đã ghim)",
       T.GOOD in t.rev.prompts[0] and rv[0]["artifact_sha"] == R._sha(T.GOOD.encode("utf-8")))
 check("T1 lời dặn review đúng hợp đồng: mô tả vai của reviewer là dữ liệu",
-      "Mô tả vai của bạn (dữ liệu)" in t.rev.prompts[0] and "Trợ lý thử nguoi-duyet" in t.rev.prompts[0])
+      "Description of your role (data)" in t.rev.prompts[0] and "Trợ lý thử nguoi-duyet" in t.rev.prompts[0])
 check("T1 đội gắn lúc tạo: budget 8, maker 4, reviewer 4, tối đa 2 vòng",
       t.g(g).budget_calls == 8 and t.team(g)["calls"] == {"maker": {"cap": 4, "used": 1}, "reviewer": {"cap": 4, "used": 1}}
       and t.team(g)["max_rounds"] == 2)
@@ -117,7 +117,7 @@ rv = t.reviews(g)
 check("T3 succeeded; (2, 2, 4); hai hàng review gắn hai bộ ghim khác nhau", t.g(g).status == "succeeded"
       and t.calls(g) == (2, 2, 4) and len(rv) == 2 and rv[0]["bundle_ref"] != rv[1]["bundle_ref"]
       and [x["verdict"] for x in rv] == ["needs_changes", "pass"], [(x["verdict"], x["bundle_ref"][:30]) for x in rv])
-check("T3 góp ý vào lời nhắc lượt sửa (dữ liệu), vòng 1/2", "Người review góp ý" in t.work.prompts[1]
+check("T3 góp ý vào lời nhắc lượt sửa (dữ liệu), vòng 1/2", "Reviewer feedback" in t.work.prompts[1]
       and "Thêm mục Kết luận rõ hơn" in t.work.prompts[1]
       and t.store.review_rounds(t.owner, g.id, 1) == 1, t.work.prompts[1][-400:])
 check("T3 file đích là bản sửa đã được review pass", t.target().read_text(encoding="utf-8") == GOOD2)

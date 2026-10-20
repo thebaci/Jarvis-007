@@ -264,7 +264,7 @@ asyncio.run(R.advance(g5.id, {"kind": "wake"}, deps(Eng())))
 check("Đạt yêu cầu không vượt guard: guard nhảy thì không thành công",
       store.get(P, g5.id).status == "active" and store.run_state(P, g5.id)["block_reason"] == "guard")
 code, body = api("post", f"/goals/{g5.id}/commands", json={"command": "resume", "expected_revision": 1})
-check("Tiếp tục khi guard vẫn sai: không mở lại, nói rõ vì sao", body.get("ok") is False and "bảo vệ" in body.get("reason", ""))
+check("Tiếp tục khi guard vẫn sai: không mở lại, nói rõ vì sao", body.get("ok") is False and "guard condition" in body.get("reason", ""))
 keep.write_text("giữ\n", encoding="utf-8")
 code, body = api("post", f"/goals/{g5.id}/commands", json={"command": "resume", "expected_revision": 1})
 asyncio.run(R.advance(g5.id, {"kind": "wake"}, deps(Eng())))

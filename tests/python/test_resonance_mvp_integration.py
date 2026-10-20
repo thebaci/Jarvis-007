@@ -228,7 +228,7 @@ AGY = {"provider": "antigravity-cli", "model": ""}
 sw3 = aux_engine.strip_tools(aux_engine.swap(base3, mode="suggest", tag="resonance", spec=AGY,
                                              settings={"model": {"auxiliary": AGY}}), base3)
 e3, i3 = R.pick_text_only_link(sw3, base3, AGY, aux_engine._FallbackChain)
-check("chọn: Antigravity bị lùi về Claude thì chặn", e3 is None and "không tự đổi provider" in i3.get("blocked", ""))
+check("chọn: Antigravity bị lùi về Claude thì chặn", e3 is None and "does not switch provider on its own" in i3.get("blocked", ""))
 
 # Chọn OpenRouter có key: mắt đầu là engine API đã tắt công cụ
 base4 = fake_cli()
@@ -244,7 +244,7 @@ check("chọn: OpenRouter giữ mắt API, không lùi về Claude", e4 is not N
 # Mắt Claude mà KHÔNG có allowed_tools thì không có gì chặn công cụ: không được khai là chỉ chữ.
 base_open = fake_cli(allowed_tools=None)
 e7, i7 = R.pick_text_only_link(base_open, base_open, CLAUDE)
-check("chọn: Claude không có cổng chặn công cụ thì chặn", e7 is None and "chỉ chữ" in i7.get("blocked", ""))
+check("chọn: Claude không có cổng chặn công cụ thì chặn", e7 is None and "text-only" in i7.get("blocked", ""))
 
 # Review PR #566 P1-2: Codex / Grok còn công cụ NATIVE (strip_tools chỉ gỡ MCP). Dựng bằng builder THẬT qua
 # aux_engine.swap; chỉ giả availability để không cần CLI trên máy, KHÔNG chạy CLI.
@@ -265,7 +265,7 @@ try:
             check("Codex thật (sandbox=off): sandbox thật sự là None", first_c.sandbox is None)
         ec, ic = R.pick_text_only_link(swc, bc, CODEX, aux_engine._FallbackChain)
         check(f"chọn: Codex (sandbox={sandbox_env}) bị chặn trước khi gọi vì còn công cụ native",
-              ec is None and "công cụ native" in ic.get("blocked", "") and ic.get("text_only") is False)
+              ec is None and "native tools" in ic.get("blocked", "") and ic.get("text_only") is False)
     os.environ.pop("JAVIS_CODEX_SANDBOX", None)
     GROK = {"provider": "grok-cli", "model": ""}
     bg = fake_cli()
@@ -275,7 +275,7 @@ try:
     check("Grok thật: builder dựng đúng GrokCLI", isinstance(first_g, grok_cli.GrokCLI))
     eg, ig = R.pick_text_only_link(swg, bg, GROK, aux_engine._FallbackChain)
     check("chọn: Grok bị chặn trước khi gọi vì còn công cụ native",
-          eg is None and "công cụ native" in ig.get("blocked", ""))
+          eg is None and "native tools" in ig.get("blocked", ""))
     # Engine bị chặn thì run_once không gọi gì và trả lại chỗ đã giữ
     dcx = R.GoalDeps(engine_factory=lambda s, t: R.pick_text_only_link(swg, bg, GROK, aux_engine._FallbackChain),
                      budget=R.CallBudget(1))

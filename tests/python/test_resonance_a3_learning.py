@@ -53,7 +53,7 @@ GOOD = "# Sample\n\nBáo cáo quý, máy lạnh. Ghi chú tổng hợp đủ hai
 HALF = "# Sample\n\nBáo cáo quý thôi.\n"
 NONE = "# Sample\n\nChưa có gì.\n"
 MARK = R.METHODS["work.checklist.v1"]["addendum"][:40]
-PREV = "Bản hiện có, sửa tiếp"
+PREV = "Current version, keep editing"
 CRIT = [{"description": "Có báo cáo quý", "evaluator": "artifact_contract",
          "params": {"path": DELIV, "must_contain": ["báo cáo quý"]}},
         {"description": "Có máy lạnh", "evaluator": "artifact_contract",

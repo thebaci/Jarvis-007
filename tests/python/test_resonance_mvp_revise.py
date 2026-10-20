@@ -122,7 +122,7 @@ _, rel_a, kept_a = _frozen("bỏ chỉ tiêu + tự dời hạn, câu trích cũ
     "horizon": {**DEADLINE_1, "at_iso": "2026-10-20T23:00:00+07:00"}})
 check("không còn gì đổi được áp dụng: không ghi revision mới (relation none)",
       rel_a == "none" and store.get(P, g1.id).revision == 3
-      and any("hạn chót" in k for k in kept_a) and any("10 hồ sơ" in k for k in kept_a))
+      and any("deadline" in k for k in kept_a) and any("10 hồ sơ" in k for k in kept_a))
 # Đúng phép tái hiện vòng 3: câu trích CÓ MẶT trong tin hiện tại nhưng không nói bỏ gì.
 _frozen("câu trích có mặt nhưng không liên quan (vòng 3)", 23, MSG2, {
     "relevant_quote": "Thêm bảng tổng hợp", "targets": [],

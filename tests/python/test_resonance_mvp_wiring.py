@@ -116,9 +116,9 @@ luot_dang_chay.ket_thuc(k1)
 TURN["mid"] = 44
 out3 = tool({"op": "create", **{**PROPOSAL, "relevant_quote": "em đề xuất dọn wiki"}})
 check("create với căn cứ không có trong lời người dùng: ERROR, nói rõ vì sao",
-      out3.startswith("ERROR") and "lời người dùng" in out3)
+      out3.startswith("ERROR") and "user's words" in out3)
 out4 = tool({"op": "create", **{**PROPOSAL, "criteria": []}})
-check("create thiếu tiêu chí: ERROR nhắc M", out4.startswith("ERROR") and "tiêu chí" in out4)
+check("create thiếu tiêu chí: ERROR nhắc M", out4.startswith("ERROR") and "criterion" in out4)
 check("đề xuất sai luật không để lại mục tiêu nào", store.find_by_key(P, R.message_ref("s1", 44)) is None
       and len(store.list_open(P)) == 1)
 

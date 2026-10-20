@@ -196,7 +196,7 @@ r, tm, ts, ss, fake, T = world("authmsg")
 r.grant_authority(T["team_id"], {"ceilings": {"daily_turns": 50}})
 r.revoke_authority(T["team_id"])
 sys_msgs = [m["content"] for m in ss.get_team_messages_page(T["session_id"], limit=50)["messages"] if m["author_kind"] == "system"]
-check("bật rồi thu quyền decide on their own: hai tin hệ thống nói rõ", any("tự quyết" in s for s in sys_msgs)
+check("bật rồi thu quyền tự quyết: hai tin hệ thống nói rõ", any("decide on their own" in s for s in sys_msgs)
       and any("took back" in s for s in sys_msgs), sys_msgs)
 
 # ═════ Review b93c46bd #3: bản ghi chặn bị đẩy khỏi 500 sự kiện cuối của nhóm vẫn được tìm thấy theo việc ═════

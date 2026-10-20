@@ -122,7 +122,7 @@ check("test_user_unsure_discovers: người dùng chưa rõ thì vẫn lập m�
       fr_un["stage"] == "discovery")
 check("test_user_unsure_discovers: không hỏi lại câu người dùng đã nói chưa biết", fr_un["open_questions"] == [])
 check("test_user_unsure_discovers: ghi lại giả định thay cho câu hỏi",
-      any("chưa rõ" in a for a in fr_un["assumptions"]))
+      any("not clear" in a for a in fr_un["assumptions"]))
 
 # ───────────────────────────── kho mục tiêu ─────────────────────────────
 

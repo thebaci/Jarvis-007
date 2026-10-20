@@ -447,7 +447,7 @@ check("guard bị chạm: dừng phạm vi (blocked guard), bỏ lịch làm vi�
       st_g["block_reason"] == "guard" and not any(w["kind"] == "work" for w in store.wakes(P, g_g.id)))
 ga = store.assessments(P, g_g.id)[-1]
 check("guard chưa hỗ trợ nguồn: unknown và nói rõ chưa hỗ trợ",
-      any(x["verdict"] == "unknown" and "chưa hỗ trợ" in x["reason"] for x in ga["guards"])
+      any(x["verdict"] == "unknown" and "not supported" in x["reason"] for x in ga["guards"])
       and any(x["verdict"] == "triggered" for x in ga["guards"]))
 adv(g_g.id, {"kind": "wake"}, deps_g)
 check("guard đã nhảy không tự mở lại khi được đánh thức", built_g["n"] == 0 and store.run_state(P, g_g.id)["block_reason"] == "guard")
@@ -480,7 +480,7 @@ a_c2 = adv(g_c.id, {"kind": "wake"}, deps_c2)
 check("tiếp tục sau bổ sung: lời gửi model có CẢ lời gốc lẫn tin bổ sung",
       "gọi thợ sửa máy lạnh" in eng_c2.last_prompt and "gia hạn tên miền trước cuối tháng" in eng_c2.last_prompt)
 check("tiếp tục sau bổ sung: lời gửi model có bản sản phẩm hiện có để sửa tiếp",
-      "Bản hiện có" in eng_c2.last_prompt and "Nộp báo cáo quý" in eng_c2.last_prompt)
+      "Current version" in eng_c2.last_prompt and "Nộp báo cáo quý" in eng_c2.last_prompt)
 check("tiếp tục sau bổ sung: revision mới đạt, file trong brain được cập nhật (cùng mục tiêu ghi trước thì ghi đè được)",
       a_c2.verdict == "met" and a_c2.revision == 2
       and "tên miền" in (Path(BRAIN) / "Inbox" / "duy-tri.md").read_text(encoding="utf-8"))
@@ -539,7 +539,7 @@ asyncio.run(R.drain_outbox(store, deps_gu.notify))
 check("P1-2c guard unknown: không đăng, không thành công, blocked guard_unknown, báo rõ lý do, không gọi model",
       store.get(P, g_gu.id).status == "active" and not target(g_gu).exists() and eng_gu.queries == 0
       and store.run_state(P, g_gu.id)["block_reason"] == "guard_unknown"
-      and any(k == "goal.blocked" and "chưa hỗ trợ" in t for (gid, k, t) in deps_gu.notify.sent if gid == g_gu.id))
+      and any(k == "goal.blocked" and "not supported" in t for (gid, k, t) in deps_gu.notify.sent if gid == g_gu.id))
 check("P1-2c guard unknown: vẫn có lịch kiểm lại bằng code, có giới hạn",
       any(w["kind"] == "work" and w["due_at"] >= Clock()() + R.REVIEW_MIN_S - 1 for w in store.wakes(P, g_gu.id)))
 
