@@ -65,7 +65,7 @@ ns = [d for d in w3.decisions("hoa", "message")]
 check("người còn lại: silent/not_selected", ns and ns[0]["silence_code"] == "not_selected", ns)
 vt = w3.eng.roles("member_volunteer")
 check("người được chọn chạy lượt member_volunteer qua đường lượt nhóm", [c["agent"] for c in vt] == [w3.k("minh")], vt)
-check("lời nhắc lượt tự lên tiếng nói rõ không ai gọi", vt and "Không ai gọi bạn" in vt[0]["prompt"])
+check("lời nhắc lượt tự lên tiếng nói rõ không ai gọi", vt and "Nobody addressed you" in vt[0]["prompt"])
 mirror = [r for r in w3.ledger.rows() if r["mirror_ref"].startswith("team_turn:") and r["purpose"] == "reply"]
 vol_turns = [t for t in w3.tm.turns_since(0) if t["role"] == "member_volunteer"]
 vm = [r for r in mirror if r["mirror_ref"] == f"team_turn:{vol_turns[0]['turn_id']}"] if vol_turns else []

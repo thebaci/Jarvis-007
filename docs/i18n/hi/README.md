@@ -36,7 +36,7 @@
 
 [🇬🇧 English](../../../README.md) · [🇻🇳 Tiếng Việt](../vi/README.md) · [🇨🇳 简体中文](../zh/README.md) · [🇪🇸 Español](../es/README.md) · [🇯🇵 日本語](../ja/README.md) · 🇮🇳 **हिन्दी** · [🇧🇷 Português](../pt-BR/README.md) · [🇰🇷 한국어](../ko/README.md) · [🇷🇺 Русский](../ru/README.md) · [🇩🇪 Deutsch](../de/README.md) · [🇫🇷 Français](../fr/README.md) · [🇮🇩 Bahasa Indonesia](../id/README.md) · [🌍 अनुवाद में मदद करें](../../../CONTRIBUTING.md#translations)
 
-[क्विक स्टार्ट](#-क्विक-स्टार्ट) · [Jarvis 007 क्यों](#-javis-क्यों) · [ब्रेन](#-12-ब्रेन-एक-toolkit) · [फ़ीचर्स](#-फ़ीचर्स) · [इंस्टॉल](#-इंस्टॉलेशन) · [Docs](../../../docs/en/README.md) · [सपोर्ट](#-javis-os-को-सपोर्ट-करें)
+[क्विक स्टार्ट](#-क्विक-स्टार्ट) · [Jarvis 007 क्यों](#-jarvis-007-क्यों) · [ब्रेन](#-12-ब्रेन-एक-toolkit) · [फ़ीचर्स](#-फ़ीचर्स) · [इंस्टॉल](#-इंस्टॉलेशन) · [Docs](../../../docs/en/README.md) · [सपोर्ट](#-jarvis-007-को-सपोर्ट-करें)
 
 <br>
 

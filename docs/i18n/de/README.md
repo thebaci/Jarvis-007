@@ -36,7 +36,7 @@ Lass ihn auf deinem Laptop oder einem kleinen VPS laufen. Sprich mit ihm per Sti
 
 [🇬🇧 English](../../../README.md) · [🇻🇳 Tiếng Việt](../vi/README.md) · [🇨🇳 简体中文](../zh/README.md) · [🇪🇸 Español](../es/README.md) · [🇯🇵 日本語](../ja/README.md) · [🇮🇳 हिन्दी](../hi/README.md) · [🇧🇷 Português](../pt-BR/README.md) · [🇰🇷 한국어](../ko/README.md) · [🇷🇺 Русский](../ru/README.md) · 🇩🇪 **Deutsch** · [🇫🇷 Français](../fr/README.md) · [🇮🇩 Bahasa Indonesia](../id/README.md) · [🌍 Beim Übersetzen helfen](../../../CONTRIBUTING.md#translations)
 
-[Schnellstart](#-schnellstart) · [Warum Jarvis 007](#-warum-javis) · [Gehirne](#-12-gehirne-ein-werkzeugkasten) · [Funktionen](#-funktionen) · [Installation](#-installation) · [Dokumentation](../../../docs/en/README.md) · [Unterstützen](#-unterstütze-javis-os)
+[Schnellstart](#-schnellstart) · [Warum Jarvis 007](#-warum-jarvis-007) · [Gehirne](#-12-gehirne-ein-werkzeugkasten) · [Funktionen](#-funktionen) · [Installation](#-installation) · [Dokumentation](../../../docs/en/README.md) · [Unterstützen](#-unterstütze-jarvis-007)
 
 <br>
 

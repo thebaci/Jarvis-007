@@ -36,7 +36,7 @@
 
 [🇬🇧 English](../../../README.md) · [🇻🇳 Tiếng Việt](../vi/README.md) · 🇨🇳 **简体中文** · [🇪🇸 Español](../es/README.md) · [🇯🇵 日本語](../ja/README.md) · [🇮🇳 हिन्दी](../hi/README.md) · [🇧🇷 Português](../pt-BR/README.md) · [🇰🇷 한국어](../ko/README.md) · [🇷🇺 Русский](../ru/README.md) · [🇩🇪 Deutsch](../de/README.md) · [🇫🇷 Français](../fr/README.md) · [🇮🇩 Bahasa Indonesia](../id/README.md) · [🌍 帮助翻译](../../../CONTRIBUTING.md#translations)
 
-[快速开始](#-快速开始) · [为什么选择 Jarvis 007](#-为什么选择-javis) · [大脑](#-12-种大脑一套工具) · [功能](#-功能特性) · [安装](#-安装) · [文档](../../../docs/en/README.md) · [支持](#-支持-javis-os)
+[快速开始](#-快速开始) · [为什么选择 Jarvis 007](#-为什么选择-jarvis-007) · [大脑](#-12-种大脑一套工具) · [功能](#-功能特性) · [安装](#-安装) · [文档](../../../docs/en/README.md) · [支持](#-支持-jarvis-007)
 
 <br>
 

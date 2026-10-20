@@ -36,7 +36,7 @@ Rode no seu notebook ou em uma VPS pequena. Converse com ele por voz. Conecte Cl
 
 [🇬🇧 English](../../../README.md) · [🇻🇳 Tiếng Việt](../vi/README.md) · [🇨🇳 简体中文](../zh/README.md) · [🇪🇸 Español](../es/README.md) · [🇯🇵 日本語](../ja/README.md) · [🇮🇳 हिन्दी](../hi/README.md) · 🇧🇷 **Português** · [🇰🇷 한국어](../ko/README.md) · [🇷🇺 Русский](../ru/README.md) · [🇩🇪 Deutsch](../de/README.md) · [🇫🇷 Français](../fr/README.md) · [🇮🇩 Bahasa Indonesia](../id/README.md) · [🌍 Ajude a traduzir](../../../CONTRIBUTING.md#translations)
 
-[Início rápido](#-início-rápido) · [Por que o Jarvis 007](#-por-que-o-javis) · [Cérebros](#-12-cérebros-um-só-kit-de-ferramentas) · [Recursos](#-recursos) · [Instalação](#-instalação) · [Documentação](../../../docs/en/README.md) · [Apoio](#-apoie-o-javis-os)
+[Início rápido](#-início-rápido) · [Por que o Jarvis 007](#-por-que-o-jarvis-007) · [Cérebros](#-12-cérebros-um-só-kit-de-ferramentas) · [Recursos](#-recursos) · [Instalação](#-instalação) · [Documentação](../../../docs/en/README.md) · [Apoio](#-apoie-o-jarvis-007)
 
 <br>
 

@@ -36,7 +36,7 @@
 
 [🇬🇧 English](../../../README.md) · [🇻🇳 Tiếng Việt](../vi/README.md) · [🇨🇳 简体中文](../zh/README.md) · [🇪🇸 Español](../es/README.md) · [🇯🇵 日本語](../ja/README.md) · [🇮🇳 हिन्दी](../hi/README.md) · [🇧🇷 Português](../pt-BR/README.md) · 🇰🇷 **한국어** · [🇷🇺 Русский](../ru/README.md) · [🇩🇪 Deutsch](../de/README.md) · [🇫🇷 Français](../fr/README.md) · [🇮🇩 Bahasa Indonesia](../id/README.md) · [🌍 번역 돕기](../../../CONTRIBUTING.md#translations)
 
-[빠른 시작](#-빠른-시작) · [왜 Jarvis 007인가](#-왜-javis인가요) · [브레인](#-12개의-브레인-하나의-툴킷) · [기능](#-기능) · [설치](#-설치) · [문서](../../../docs/en/README.md) · [후원](#-javis-os-후원하기)
+[빠른 시작](#-빠른-시작) · [왜 Jarvis 007인가](#-왜-jarvis-007인가요) · [브레인](#-12개의-브레인-하나의-툴킷) · [기능](#-기능) · [설치](#-설치) · [문서](../../../docs/en/README.md) · [후원](#-jarvis-007-후원하기)
 
 <br>
 

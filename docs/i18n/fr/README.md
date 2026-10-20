@@ -36,7 +36,7 @@ Lancez-le sur votre ordinateur portable ou sur un petit VPS. Parlez-lui à voix 
 
 [🇬🇧 English](../../../README.md) · [🇻🇳 Tiếng Việt](../vi/README.md) · [🇨🇳 简体中文](../zh/README.md) · [🇪🇸 Español](../es/README.md) · [🇯🇵 日本語](../ja/README.md) · [🇮🇳 हिन्दी](../hi/README.md) · [🇧🇷 Português](../pt-BR/README.md) · [🇰🇷 한국어](../ko/README.md) · [🇷🇺 Русский](../ru/README.md) · [🇩🇪 Deutsch](../de/README.md) · 🇫🇷 **Français** · [🇮🇩 Bahasa Indonesia](../id/README.md) · [🌍 Aider à traduire](../../../CONTRIBUTING.md#translations)
 
-[Démarrage rapide](#-démarrage-rapide) · [Pourquoi Jarvis 007](#-pourquoi-javis-) · [Cerveaux](#-12-cerveaux-une-seule-boîte-à-outils) · [Fonctionnalités](#-fonctionnalités) · [Installation](#-installation) · [Documentation](../../../docs/en/README.md) · [Soutien](#-soutenir-javis-os)
+[Démarrage rapide](#-démarrage-rapide) · [Pourquoi Jarvis 007](#-pourquoi-jarvis-007-) · [Cerveaux](#-12-cerveaux-une-seule-boîte-à-outils) · [Fonctionnalités](#-fonctionnalités) · [Installation](#-installation) · [Documentation](../../../docs/en/README.md) · [Soutien](#-soutenir-jarvis-007)
 
 <br>
 

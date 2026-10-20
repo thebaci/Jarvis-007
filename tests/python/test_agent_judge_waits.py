@@ -108,7 +108,7 @@ cl = [d for d in w5.decisions("minh") if d["kind"] == "clarify"]
 vt = w5.eng.roles("member_volunteer")
 check("hết hạn có ask_clarify: đúng MỘT câu hỏi lại qua lượt của chính agent (agent tự viết)",
       len(cl) == 1 and len(vt) == 1 and "Anh muốn ưu tiên ads hay kho?" in vt[0]["prompt"]
-      and "ĐÚNG MỘT câu" in vt[0]["prompt"], (cl, vt))
+      and "EXACTLY ONE short question" in vt[0]["prompt"], (cl, vt))
 w5.now[0] += 1801
 check("không hỏi lại lần hai", w5.do(w5.runner.judge_tick) == [] and len(w5.eng.roles("member_volunteer")) == 1)
 

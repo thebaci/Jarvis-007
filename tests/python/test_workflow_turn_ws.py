@@ -245,15 +245,15 @@ _er = [e for e in evs if e["type"] == "error"]
 check("het luot: mot su kien error mang so buoc + ten agent",
       len(_er) == 1 and _er[0].get("i") == 0 and _er[0].get("agent") == "Người viết")
 _cau = _er[0].get("content", "")
-check("het luot: cau tieng Viet chu khong phai nguyen van tieng Anh",
-      "Hết lượt" in _cau and "session limit" not in _cau)
+check("het luot: cau cua Jarvis chu khong phai nguyen van cua nha cung cap",
+      "has run out of usage" in _cau and "session limit" not in _cau)
 check("het luot: noi lai duoc moc reset nha cung cap da bao", "12pm" in _cau)
 check("het luot: chi duong ra o trang Models, ke ten tro ly cua buoc",
       "Models" in _cau and "Người viết" in _cau)
 _tt, _text = _tin_chat(evs)
 check("het luot: lan chay ket thuc la LOI, khong phai xong", _tt == "error")
 check("het luot: tin trong chat noi ro buoc nao, ai chay",
-      _text.startswith("Quy trình dừng ở bước 1 (Người viết): ") and "Hết lượt" in _text)
+      _text.startswith("Quy trình dừng ở bước 1 (Người viết): ") and "has run out of usage" in _text)
 
 # --- 2. Động cơ phát hẳn sự kiện error ---
 _gan_engine([[{"type": "error", "content": "Anthropic trả về rỗng. Thử model khác."}]])
@@ -320,8 +320,8 @@ check("het luot: co phat step_error truoc su kien error",
 _dong5 = workflow_runs.get_store().gan_nhat(main._brain_key(str(wf_loi)), slug="hai-buoc", limit=1)
 _day5 = workflow_runs.get_store().lay(_dong5[0]["id"]) if _dong5 else {}
 _buoc5 = (_day5.get("steps") or [{}])[0]
-check("het luot: dong buoc trong kho lan chay mang cau loi tieng Viet",
-      "Hết lượt" in str(_buoc5.get("error") or ""))
+check("het luot: dong buoc trong kho lan chay mang cau loi cua Jarvis",
+      "has run out of usage" in str(_buoc5.get("error") or ""))
 check("het luot: ban ghi lan chay ket thuc la error", _day5.get("status") == "error")
 main._execute_workflow_raw = gia_raw
 

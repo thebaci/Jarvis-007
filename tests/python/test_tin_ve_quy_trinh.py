@@ -172,8 +172,8 @@ def _chay_buoc(kich_ban, verify=""):
 
 _kq, _khung = _chay_buoc([[{"type": "final", "content": _CAU_HET_LUOT}]], verify="nguoi-sua")
 check("graph: hết lượt thì bước HỎNG, không trả kết quả", _kq.get("error") and not _kq.get("output"))
-check("graph: câu lỗi là tiếng Việt, không phải nguyên văn tiếng Anh",
-      "Hết lượt" in _kq.get("error", "") and "session limit" not in _kq.get("error", ""))
+check("graph: câu lỗi là câu của Jarvis (model_limits), không phải nguyên văn của nhà cung cấp",
+      "has run out of usage" in _kq.get("error", "") and "session limit" not in _kq.get("error", ""))
 check("graph: nói lại được mốc reset nhà cung cấp đã báo", "12pm" in _kq.get("error", ""))
 check("graph: có phát step_error cho cột phải",
       [k for k in _khung if k.get("type") == "step_error"])

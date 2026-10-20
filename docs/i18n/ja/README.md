@@ -36,7 +36,7 @@
 
 [🇬🇧 English](../../../README.md) · [🇻🇳 Tiếng Việt](../vi/README.md) · [🇨🇳 简体中文](../zh/README.md) · [🇪🇸 Español](../es/README.md) · 🇯🇵 **日本語** · [🇮🇳 हिन्दी](../hi/README.md) · [🇧🇷 Português](../pt-BR/README.md) · [🇰🇷 한국어](../ko/README.md) · [🇷🇺 Русский](../ru/README.md) · [🇩🇪 Deutsch](../de/README.md) · [🇫🇷 Français](../fr/README.md) · [🇮🇩 Bahasa Indonesia](../id/README.md) · [🌍 翻訳に協力する](../../../CONTRIBUTING.md#translations)
 
-[クイックスタート](#-クイックスタート) · [Jarvis 007 を選ぶ理由](#-javis-を選ぶ理由) · [頭脳](#-12-の頭脳ひとつのツールキット) · [機能](#-機能) · [インストール](#-インストール) · [ドキュメント](../../../docs/en/README.md) · [支援](#-javis-os-を支援する)
+[クイックスタート](#-クイックスタート) · [Jarvis 007 を選ぶ理由](#-jarvis-007-を選ぶ理由) · [頭脳](#-12-の頭脳ひとつのツールキット) · [機能](#-機能) · [インストール](#-インストール) · [ドキュメント](../../../docs/en/README.md) · [支援](#-jarvis-007-を支援する)
 
 <br>
 
