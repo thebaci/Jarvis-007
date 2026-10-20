@@ -277,9 +277,9 @@ check("both Work steps were tool turns", all(tt for role, tt in ov.roles if role
 # ═════ Wording ═════
 check("TOOL_ROLES are exactly Work and Help", TR.TOOL_ROLES == ("work", "help"))
 check("the tool note tells the member to do the work itself, not to send the owner to a private chat",
-      "TỰ LÀM" in TR.WORK_TOOLS_NOTE and "chat riêng" in TR.WORK_TOOLS_NOTE)
+      "DO this step yourself" in TR.WORK_TOOLS_NOTE and "private chat" in TR.WORK_TOOLS_NOTE)
 check("the text-only note points the member to a job instead of a private chat",
-      "giao thành việc" in TR.TEXT_ONLY_NOTE and "Đừng bảo chủ nhóm chuyển sang chat riêng" in TR.TEXT_ONLY_NOTE)
+      "hand it over as a team job" in TR.TEXT_ONLY_NOTE and "Do not tell the team owner to switch to a private chat" in TR.TEXT_ONLY_NOTE)
 for name in ("team_runner.py", "team_engine.py", "team_docs.py"):
     src = (ROOT / "server" / name).read_text(encoding="utf-8")
     check(f"{name} has no long dash", "—" not in src and "–" not in src)

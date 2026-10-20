@@ -452,7 +452,7 @@ g = t.create()
 t.run(g, n=12, step=1)
 check("R3 khám phá cần sửa: vòng 1 sửa theo góp ý, pass, discovery_done; (2, 2, 4)",
       t.st(g)["block_reason"] == "discovery_done" and t.calls(g) == (2, 2, 4)
-      and [r[2] for r in rows(t, g)] == ["needs_changes", "pass"] and "góp ý" in t.work.prompts[1].lower(),
+      and [r[2] for r in rows(t, g)] == ["needs_changes", "pass"] and "reviewer feedback" in t.work.prompts[1].lower(),
       (t.st(g), t.calls(g), rows(t, g)))
 
 t = with_mode(T.Team(_STATE, "r3mc"), "maintain", "delivery")

@@ -29,7 +29,7 @@ w.eng.script[(w.k("lan"), "leader_reply")] = [
 
 def rel_only(p):
     """Chỉ lô xem xét liên quan chọn nói; lô của tin chủ thì mọi người im (để đếm đúng lượt tự lên tiếng)."""
-    v = ("speak", 0.9) if "just posted a message" in p else ("silent", 0.1)
+    v = ("speak", 0.9) if "(a teammate) just posted a message" in p else ("silent", 0.1)
     return batch(**{k: v for k in keys_in(p)})
 
 

@@ -261,7 +261,7 @@ def section_r2():
     p2 = rec.reqs[1]["prompt"]
     check("R2 lượt thứ hai có tin gốc của chủ và câu trả lời trước", "SOURCE_739" in p2 and "ANSWER_ONE" in p2, p2)
     check("R2 câu trả lời trước của chính agent có nhãn (bạn), tin sau lượt trước có nhãn mới",
-          "One (bạn)] ANSWER_ONE" in p2 and " mới Chủ nhóm] Divide" in p2, p2)
+          "One (you)] ANSWER_ONE" in p2 and " new Team owner] Divide" in p2, p2)
 
     # Đối chứng phạm vi: nhóm khác cùng kho không lọt vào.
     tid_b = team_store.new_team_id()

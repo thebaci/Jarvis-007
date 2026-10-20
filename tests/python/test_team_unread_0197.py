@@ -154,7 +154,7 @@ check("a team with no leader: any member's call to the owner is flagged", not t2
 # ---- prompt and migration ----
 note = "\n".join(team_runner.INTERNAL_GROUP_NOTE)
 check("members are told only the leader calls @Chủ nhóm and the others go through the leader",
-      "Chỉ trưởng nhóm" in note and "@Chủ nhóm" in note and "gọi trưởng nhóm" in note)
+      "Only the team leader" in note and "@Owner" in note and "call the team leader" in note)
 db = Path(tempfile.mkdtemp(prefix="javis-team-mig-")) / "teams.db"
 c = sqlite3.connect(db)
 c.execute("CREATE TABLE teams(team_id TEXT PRIMARY KEY, brain_id TEXT, name TEXT, description TEXT, session_id TEXT, "
