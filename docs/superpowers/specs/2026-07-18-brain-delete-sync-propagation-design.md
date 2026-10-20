@@ -1,158 +1,195 @@
-# Thiết kế: Xóa não lan sang mọi máy qua Sync (tombstone + thùng rác 30 ngày)
+# Design: deleting a brain propagates to every machine through Sync (tombstone + 30-day trash)
 
-Ngày: 2026-07-18
-Trạng thái: Đã duyệt thiết kế, chờ lập kế hoạch triển khai.
+Date: 2026-07-18
+Status: Design approved, waiting for the implementation plan.
 
-## 1. Bối cảnh và vấn đề
+## 1. Background and problem
 
-Jarvis 007 đồng bộ 2 chiều toàn bộ thư mục `brains/` giữa nhiều máy qua một repo GitHub riêng
-(`git_brain.sync_brains`, mô hình `máy A ⇄ repo ⇄ máy B/VPS`). Topology thực tế của user:
-**2+ máy chạy song song**, đều có thể sửa/xóa.
+Jarvis 007 syncs the whole `brains/` folder in both directions between several machines through
+a private GitHub repo (`git_brain.sync_brains`, model `machine A ⇄ repo ⇄ machine B/VPS`). The
+user's real topology: **2+ machines running in parallel**, all of which can edit/delete.
 
-Sync hiện theo chính sách "xóa KHÔNG BAO GIỜ thắng bản còn sống" để chống mất dữ liệu:
-- `_merge_with_policy` (`git_brain.py`): khi một bên xóa một bên sửa cùng file, GIỮ bản sửa.
-- Khối tự-vá trong `_sync_brains_locked` (dòng ~663-669): file có trong mirror HEAD nhưng thiếu
-  trong `brains/` thì luôn áp về (khôi phục).
-- Nhánh restore (`_integrate_remote` khi `pre_head is None`) và merge lịch-sử-rời
-  (`--allow-unrelated-histories`) kéo nguyên bản remote về.
+Sync currently follows the policy "a delete NEVER beats a surviving copy" to prevent data loss:
+- `_merge_with_policy` (`git_brain.py`): when one side deletes and the other edits the same
+  file, KEEP the edited copy.
+- The self-heal block in `_sync_brains_locked` (lines ~663-669): a file present in the mirror
+  HEAD but missing from `brains/` is always applied back (restored).
+- The restore branch (`_integrate_remote` when `pre_head is None`) and the unrelated-history
+  merge (`--allow-unrelated-histories`) pull the whole remote copy back.
 
-Hệ quả: **một não đã bị xóa có chủ đích ở máy A có thể bị "hồi sinh"** khi sync với máy B hoặc
-remote còn giữ nó. User muốn: xóa não là hành động cố ý (UI bắt gõ ĐÚNG tên dự án mới cho xóa),
-nên nó phải **lan việc xóa sang mọi máy**, không bị hồi sinh.
+Consequence: **a brain deliberately deleted on machine A can be "resurrected"** when syncing
+with machine B or a remote that still holds it. The user wants this: deleting a brain is a
+deliberate action (the UI forces typing the project name EXACTLY before allowing deletion), so
+it must **propagate the delete to every machine** and not be resurrected.
 
-## 2. Mục tiêu và ngoài phạm vi
+## 2. Goals and out of scope
 
-Mục tiêu:
-- Một lần xóa não có chủ đích (qua `/brains/delete`, đã gõ đúng tên) phải lan sang mọi máy đồng bộ,
-  ghi đè đúng chính sách "xóa không thắng" cho RIÊNG lần xóa đó.
-- KHÔNG nới lỏng lá chắn chống mất dữ liệu chung: mọi trường hợp folder biến mất mà KHÔNG phải do
-  xóa có chủ đích (volume chưa mount, engine ghi dở, máy mới trống) vẫn được bảo vệ như cũ.
-- Mỗi máy giữ một bản sao cục bộ (thùng rác) 30 ngày để cứu hộ; khi xóa báo rõ điều này.
+Goals:
+- A single deliberate brain delete (through `/brains/delete`, with the exact name typed) must
+  propagate to every synced machine, overriding the "delete does not win" policy for THAT delete
+  only.
+- Do NOT loosen the general data-loss shield: every case where a folder disappears WITHOUT a
+  deliberate delete (volume not mounted, engine half-written, a new empty machine) is still
+  protected as before.
+- Each machine keeps a local copy (trash) for 30 days for rescue; the delete says so clearly.
 
-Ngoài phạm vi (v1):
-- UI "Thùng rác" để bấm khôi phục. v1 khôi phục bằng tay (chuyển folder từ thùng rác về `brains/`).
-- Đồng bộ thùng rác giữa các máy (thùng rác là CỤC BỘ từng máy, không lên git).
-- Kênh push realtime để máy khác xóa tức thì (vẫn dựa trên chu kỳ sync của từng máy).
+Out of scope (v1):
+- A "Trash" UI with a restore button. v1 restores by hand (move the folder from the trash back
+  to `brains/`).
+- Syncing the trash between machines (the trash is LOCAL to each machine, never goes to git).
+- A realtime push channel so other machines delete instantly (still relies on each machine's
+  sync cycle).
 
-## 3. Quyết định thiết kế đã chốt
+## 3. Design decisions made
 
-- **Hướng A**: giấy báo tử (tombstone) đồng bộ + thùng rác cục bộ. (Hướng B "xóa luôn thắng" bị
-  loại vì phá lá chắn; Hướng C "xóa thẳng remote không tombstone" bị loại vì máy B vẫn hồi sinh.)
-- Thùng rác giữ **30 ngày**, tự dọn. Khi xóa, lời xác nhận báo rõ "giữ trong thùng rác 30 ngày".
-- Tombstone giữ **180 ngày** (lâu hơn thùng rác) để máy lỡ offline lâu quay lại không hồi sinh não.
-  Đây là hằng số nội bộ, không lộ ra UI.
+- **Option A**: a synced tombstone + a local trash. (Option B "delete always wins" was rejected
+  because it breaks the shield; Option C "delete straight on the remote, no tombstone" was
+  rejected because machine B still resurrects it.)
+- The trash keeps items for **30 days**, auto-cleaned. On delete, the confirmation says plainly
+  "kept in the trash for 30 days".
+- The tombstone is kept **180 days** (longer than the trash) so a machine that was offline for a
+  long time does not resurrect the brain when it returns. This is an internal constant, not
+  exposed in the UI.
 
-## 4. Kiến trúc (các thành phần)
+## 4. Architecture (components)
 
-### 4.1 Tombstone store (đồng bộ)
-- Vị trí: `<BRAINS_DIR>/.javis-tombstones/<tên>.json` - tên file dùng ĐÚNG tên folder não (kết quả
-  `_safe_brain_name`, đã bỏ ký tự nguy hiểm `\/:*?"<>|` + cắt 60 ký tự, giữ dấu tiếng Việt). Một file
-  cho mỗi não. Vì tên folder não là duy nhất và đã an toàn hệ thống file nên tên tombstone không đụng
-  nhau, không cần slug riêng.
-- Vì sao một-file-mỗi-tên: khi merge giữa các máy, các file khác tên không đụng nhau -> git gộp
-  sạch, hợp nhất tự nhiên mọi lệnh xóa (union). Xóa lại cùng tên thì ghi đè file (ts mới hơn).
-- Dot-dir này đồng bộ theo repo (`_backup_skip` chỉ bỏ `.git`, thư mục conversations/log, `.lock`,
-  `.tmp` - KHÔNG bỏ dot-dir gốc khác) và KHÔNG hiện thành não (`/brains` bỏ tên bắt đầu bằng `.`).
-  Sync đọc/ghi đường dẫn tiếng Việt qua `core.quotepath=false` + `-z` (đã có trong `git_brain`).
-- Định dạng JSON (`name` = tên folder não, dùng để định vị thư mục lúc áp tombstone):
+### 4.1 Tombstone store (synced)
+- Location: `<BRAINS_DIR>/.javis-tombstones/<name>.json` - the file name uses EXACTLY the brain
+  folder name (the result of `_safe_brain_name`, which already strips the dangerous characters
+  `\/:*?"<>|` + truncates to 60 characters, keeping Vietnamese diacritics). One file per brain.
+  Because brain folder names are unique and already filesystem-safe, tombstone names do not
+  collide, so no separate slug is needed.
+- Why one-file-per-name: when merging across machines, files with different names do not
+  collide -> git merges cleanly, naturally unioning every delete. Deleting the same name again
+  overwrites the file (newer ts).
+- This dot-dir syncs with the repo (`_backup_skip` skips only `.git`, the conversations/log
+  folders, `.lock`, `.tmp` - it does NOT skip other root dot-dirs) and does NOT show up as a
+  brain (`/brains` skips names starting with `.`). Sync reads/writes Vietnamese paths through
+  `core.quotepath=false` + `-z` (already in `git_brain`).
+- JSON format (`name` = the brain folder name, used to locate the directory when applying the
+  tombstone):
   ```json
-  { "name": "<tên folder não>", "deleted_at": 1752800000, "host": "<host tag>", "v": 1 }
+  { "name": "<brain folder name>", "deleted_at": 1752800000, "host": "<host tag>", "v": 1 }
   ```
 
-### 4.2 Thùng rác cục bộ (KHÔNG đồng bộ)
-- Vị trí: `<STATE_DIR>/brain-trash/<tên>__<YYYYMMDD-HHMMSS>/` (nằm NGOÀI `brains/` nên không lên git;
-  mỗi máy một thùng riêng). `STATE_DIR` = `server/` local, `/data` trên Docker - đều tách khỏi
-  `brains/` (local `<project>/brains`, Docker mount `/brains`).
-- Dọn tự động: xóa mục quá 30 ngày, chạy đầu mỗi lần sync (`_sync_brains_locked`). Không GC lúc
-  khởi động (giữ phạm vi gọn); sync chạy đủ thường xuyên để thùng rác không phình.
+### 4.2 Local trash (NOT synced)
+- Location: `<STATE_DIR>/brain-trash/<name>__<YYYYMMDD-HHMMSS>/` (OUTSIDE `brains/` so it never
+  goes to git; each machine has its own trash). `STATE_DIR` = local `server/`, `/data` on
+  Docker - both separate from `brains/` (local `<project>/brains`, Docker mount `/brains`).
+- Automatic cleanup: delete entries older than 30 days, run at the start of each sync
+  (`_sync_brains_locked`). No GC at startup (keeps the scope tight); sync runs often enough that
+  the trash does not bloat.
 
-### 4.3 Bước áp tombstone trong sync
-- Hàm mới `_apply_tombstones(brains_dir, mirror_dir, trash_dir, sync_start)` trong `git_brain.py`,
-  gọi trong `_sync_brains_locked` SAU `_integrate_remote` (mirror đã gộp tombstone từ mọi máy),
-  TRƯỚC bước push. Trả về danh sách não đã xóa + lỗi (nếu có) để giữ bất biến "áp không trọn -> không push".
+### 4.3 The tombstone-apply step in sync
+- A new function `_apply_tombstones(brains_dir, mirror_dir, trash_dir, sync_start)` in
+  `git_brain.py`, called in `_sync_brains_locked` AFTER `_integrate_remote` (the mirror has
+  merged the tombstones from every machine), BEFORE the push step. It returns the list of
+  deleted brains + errors (if any) to keep the invariant "applied incompletely -> do not push".
 
-## 5. Luồng dữ liệu chi tiết
+## 5. Detailed data flow
 
-### 5.1 Luồng xóa (`server/main.py`: `/brains/delete`)
-Giữ nguyên các rào cũ (chặn xóa não mặc định, `confirm == tên`, chỉ xóa folder trong `BRAINS_DIR`).
-Thay đổi phần thực thi:
+### 5.1 Delete flow (`server/main.py`: `/brains/delete`)
+Keep the old guards (block deleting the default brain, `confirm == name`, only delete folders
+inside `BRAINS_DIR`). Change the execution part:
 1. `_safe_brain_name(name)` -> `root = BRAINS_DIR/<name>`.
-2. Chuyển `root` vào thùng rác: `<STATE_DIR>/brain-trash/<name>__<ts>/` (dùng `shutil.move`; nếu
-   khác ổ đĩa thì copytree + rmtree). KHÔNG `rmtree` cứng nữa.
-3. Ghi tombstone `<BRAINS_DIR>/.javis-tombstones/<name>.json` (name = tên folder não) với
-   `deleted_at = now`, `host`.
-4. Kích hoạt một lần sync nền best-effort (nếu backup đã cấu hình) để remote nhận lệnh xóa + tombstone
-   ngay, thay vì chờ chu kỳ 6 tiếng. Không chặn response; lỗi sync không làm hỏng việc xóa cục bộ.
-5. Trả `{ok: true, name, trashed: true}`.
+2. Move `root` into the trash: `<STATE_DIR>/brain-trash/<name>__<ts>/` (use `shutil.move`; if it
+   is on a different disk, copytree + rmtree). No more hard `rmtree`.
+3. Write the tombstone `<BRAINS_DIR>/.javis-tombstones/<name>.json` (name = the brain folder
+   name) with `deleted_at = now`, `host`.
+4. Trigger one best-effort background sync (if backup is configured) so the remote receives the
+   delete + tombstone right away, instead of waiting for the 6-hour cycle. Do not block the
+   response; a sync error does not break the local delete.
+5. Return `{ok: true, name, trashed: true}`.
 
-Frontend (`dashboard/brains-ui.js` `deleteBrain`): đổi lời xác nhận cuối thành thông báo rõ
-"sẽ chuyển vào thùng rác, tự xóa hẳn sau 30 ngày, và đồng bộ việc xóa sang các máy khác".
+Frontend (`dashboard/brains-ui.js` `deleteBrain`): change the final confirmation into a clear
+notice that it "will be moved to the trash, permanently deleted after 30 days, and the delete
+will be synced to your other machines".
 
-### 5.2 Luồng sync (`git_brain.py`: `_sync_brains_locked`)
-Thứ tự mới (chèn bước áp tombstone), giữ nguyên phần còn lại:
-1. Dọn thùng rác quá 30 ngày (đầu hàm).
-2. `_sync_mirror(brains_dir, mirror)` + `git add -A` + commit backup (như cũ). Vì đã chuyển não vào
-   thùng rác ở bước xóa nên `_sync_mirror` tự prune não khỏi mirror + tombstone mới được add vào.
-3. fetch + `_integrate_remote` (như cũ) -> mirror gộp mọi tombstone + mọi thay đổi từ remote.
-4. **`_apply_tombstones`** (MỚI): với mỗi tombstone trong mirror sau hoà nhập:
-   - `bn = tombstone.name`; bỏ qua nếu `bn` là não mặc định (miễn nhiễm) hoặc tên không hợp lệ.
-   - Chốt thời gian: nếu `brains_dir/bn` còn tồn tại và có file nào `mtime > deleted_at` -> não được
-     dựng/sửa lại có chủ đích sau khi xóa -> BỎ QUA + gỡ file tombstone (superseded).
-   - Ngược lại (xóa dứt khoát):
-     - `brains_dir/bn` (nếu còn): chuyển vào thùng rác (giữ `BrainLock(brains_dir/bn)` khi thao tác;
-       không lấy được lock sau timeout thì bỏ qua vòng này, lần sau áp lại - không xóa mù).
-     - `mirror/bn` (nếu còn): `git rm -r --` để stage việc xóa.
-   - Nếu có bất kỳ `git rm` nào: commit mirror `sync: áp tombstone xóa <n> não` để HEAD phản ánh
-     việc xóa -> khối tự-vá (5.3) không hồi sinh.
-   - Trả `{deleted: [...], failed: [...]}`. `failed` không rỗng -> giữ bất biến: rollback mirror +
-     KHÔNG push (giống nhánh `_apply_back` lỗi hiện có).
-5. Khối tự-vá (dòng ~663-669) + `_apply_back` + push: như cũ. Vì tombstone đã xóa não khỏi mirror
-   HEAD, tự-vá không thấy nó "thiếu trong brains" nữa (nó đã bị xóa hợp lệ ở cả hai).
+### 5.2 Sync flow (`git_brain.py`: `_sync_brains_locked`)
+New order (inserting the tombstone-apply step), the rest unchanged:
+1. Clean trash entries older than 30 days (top of the function).
+2. `_sync_mirror(brains_dir, mirror)` + `git add -A` + backup commit (as before). Because the
+   brain was already moved into the trash in the delete step, `_sync_mirror` automatically prunes
+   the brain from the mirror + the new tombstone gets added.
+3. fetch + `_integrate_remote` (as before) -> the mirror merges every tombstone + every change
+   from the remote.
+4. **`_apply_tombstones`** (NEW): for each tombstone in the mirror after integration:
+   - `bn = tombstone.name`; skip if `bn` is the default brain (immune) or the name is invalid.
+   - Time guard: if `brains_dir/bn` still exists and any file has `mtime > deleted_at` -> the
+     brain was deliberately rebuilt/edited after the delete -> SKIP + remove the tombstone file
+     (superseded).
+   - Otherwise (a definitive delete):
+     - `brains_dir/bn` (if it still exists): move it into the trash (hold
+       `BrainLock(brains_dir/bn)` while doing so; if the lock cannot be taken after the timeout,
+       skip this round and apply again next time - no blind delete).
+     - `mirror/bn` (if it still exists): `git rm -r --` to stage the delete.
+   - If any `git rm` happened: commit the mirror with `sync: áp tombstone xóa <n> não` (Vietnamese
+     commit message, "sync: apply tombstone, delete <n> brains") so HEAD reflects the delete ->
+     the self-heal block (5.3) does not resurrect it.
+   - Return `{deleted: [...], failed: [...]}`. A non-empty `failed` -> keep the invariant:
+     roll back the mirror + do NOT push (same as the existing failing `_apply_back` branch).
+5. The self-heal block (lines ~663-669) + `_apply_back` + push: as before. Because the tombstone
+   already removed the brain from the mirror HEAD, self-heal no longer sees it as "missing from
+   brains" (it was legitimately deleted on both sides).
 
-Máy B ở lần sync của nó: fetch nhận tombstone (bước 3) -> `_apply_tombstones` xóa não ở B (chuyển vào
-thùng rác của B) + git rm khỏi mirror B -> push (nếu B là bên đẩy) hoặc đơn giản là đã đồng thuận với
-remote. Việc xóa lan mà không cần B từng biết lệnh xóa gốc.
+Machine B on its sync: fetch receives the tombstone (step 3) -> `_apply_tombstones` deletes the
+brain on B (moved into B's trash) + git rm from B's mirror -> push (if B is the pushing side) or
+simply is already in agreement with the remote. The delete propagates without B ever knowing the
+original delete command.
 
-### 5.3 Vì sao không còn hồi sinh
-- modify/delete "giữ bản sửa": kể cả khi merge giữ lại vài file của não, `_apply_tombstones` chạy SAU
-  sẽ xóa dứt khoát toàn bộ subtree não đó (vì có tombstone).
-- Khối tự-vá: chạy SAU khi tombstone đã commit việc xóa khỏi mirror HEAD -> không thấy "thiếu".
-- Nhánh restore/lịch-sử-rời: sau khi kéo bản remote về, tombstone (cũng nằm trong bản remote đó) được
-  áp -> xóa lại các não có tombstone.
+### 5.3 Why it is no longer resurrected
+- modify/delete "keep the edited copy": even when the merge keeps a few of the brain's files,
+  `_apply_tombstones` running AFTER will definitively delete that brain's whole subtree (because
+  a tombstone exists).
+- The self-heal block: runs AFTER the tombstone has committed the delete out of the mirror HEAD
+  -> sees nothing "missing".
+- The restore/unrelated-history branch: after pulling the remote copy, the tombstone (also inside
+  that remote copy) is applied -> deletes again the brains that have tombstones.
 
-## 6. Rào an toàn và bất biến
+## 6. Safety guards and invariants
 
-- Tombstone chỉ xóa được một não là **con trực tiếp** của `brains_dir` (kiểm tra `resolve()` nằm
-  đúng dưới `brains_dir`, giống guard trong `/brains/delete` hiện tại). Không bao giờ đụng rộng hơn.
-- **Não mặc định miễn nhiễm**: `_apply_tombstones` bỏ qua tombstone trỏ tên não mặc định. Luồng xóa
-  cũng đã chặn xóa não mặc định nên tombstone đó không thể sinh ra một cách hợp lệ; đây là chặn 2 lớp.
-- **Chốt thời gian**: não có file mới hơn `deleted_at` được coi là dựng lại có chủ đích -> không giết.
-- **Không push nửa vời**: chuyển-vào-thùng-rác hoặc git rm lỗi -> `failed` -> rollback mirror, hoãn push.
-- Tombstone chỉ sinh ra từ `/brains/delete` (đã gõ đúng tên). Không endpoint nào khác tạo tombstone.
-- `_safe_brain_name` làm sạch tên trước mọi thao tác đường dẫn.
+- A tombstone can only delete a brain that is a **direct child** of `brains_dir` (check that
+  `resolve()` sits exactly under `brains_dir`, like the guard in the current `/brains/delete`).
+  It never touches anything wider.
+- **The default brain is immune**: `_apply_tombstones` skips a tombstone pointing at the default
+  brain's name. The delete flow already blocks deleting the default brain so that tombstone
+  cannot legitimately arise; this is a two-layer block.
+- **Time guard**: a brain with a file newer than `deleted_at` is treated as deliberately rebuilt
+  -> not killed.
+- **No half-done push**: a failing move-to-trash or git rm -> `failed` -> roll back the mirror,
+  postpone the push.
+- Tombstones are only produced by `/brains/delete` (exact name typed). No other endpoint creates
+  a tombstone.
+- `_safe_brain_name` sanitizes the name before every path operation.
 
-## 7. Kiểm thử
+## 7. Testing
 
-File test mới ở `server/` (theo khuôn test hiện có: standalone, chạy `python test_*.py`, không mạng
-thật - dùng remote `file://` cục bộ). Các ca:
-1. **Lan xóa**: dựng brains_A, brains_B, mirror_A, mirror_B, remote bare `file://`. Tạo não "Foo" ở cả
-   hai, sync cho đồng bộ. Xóa "Foo" ở A (tombstone + move trash), sync A -> push. Sync B -> "Foo" bị
-   xóa ở B, nằm trong thùng rác B, remote không còn "Foo".
-2. **Chốt thời gian**: sau khi có tombstone "Foo", tạo lại "Foo" mới (file mtime > deleted_at) rồi
-   sync -> "Foo" mới KHÔNG bị xóa, tombstone bị gỡ.
-3. **Bảo vệ khi KHÔNG tombstone**: xóa thủ công folder "Bar" khỏi brains_B (không qua endpoint, không
-   tombstone) rồi sync -> "Bar" được khôi phục (lá chắn cũ nguyên vẹn), không bị xóa vĩnh viễn.
-4. **Não mặc định miễn nhiễm**: tombstone giả trỏ não mặc định -> `_apply_tombstones` bỏ qua, não còn.
-5. **Endpoint xóa**: gọi `/brains/delete` -> não vào thùng rác `<STATE_DIR>/brain-trash/...`, tombstone
-   được ghi, không còn trong `brains/`.
-6. **Dọn thùng rác**: tạo mục thùng rác giả có mtime > 30 ngày -> sau khi chạy dọn thì bị xóa; mục mới
-   thì giữ.
+A new test file in `server/` (following the existing test pattern: standalone, run with
+`python test_*.py`, no real network - use a local `file://` remote). Cases:
+1. **Delete propagation**: set up brains_A, brains_B, mirror_A, mirror_B, a bare `file://`
+   remote. Create brain "Foo" on both, sync to bring them into agreement. Delete "Foo" on A
+   (tombstone + move to trash), sync A -> push. Sync B -> "Foo" is deleted on B, sits in B's
+   trash, and the remote no longer has "Foo".
+2. **Time guard**: after the "Foo" tombstone exists, recreate a new "Foo" (file mtime >
+   deleted_at) and sync -> the new "Foo" is NOT deleted, and the tombstone is removed.
+3. **Protection when there is NO tombstone**: manually delete the folder "Bar" from brains_B
+   (not through the endpoint, no tombstone) then sync -> "Bar" is restored (the old shield
+   intact), not permanently deleted.
+4. **Default brain immune**: a fake tombstone pointing at the default brain ->
+   `_apply_tombstones` skips it, the brain stays.
+5. **Delete endpoint**: call `/brains/delete` -> the brain goes into the trash
+   `<STATE_DIR>/brain-trash/...`, the tombstone is written, and it is no longer in `brains/`.
+6. **Trash cleanup**: create a fake trash entry with mtime > 30 days -> it is deleted after the
+   cleanup runs; a new entry is kept.
 
-## 8. Rủi ro và câu hỏi mở
+## 8. Risks and open questions
 
-- Máy offline > 180 ngày quay lại vẫn có thể hồi sinh não (tombstone đã bị dọn). Chấp nhận được: hiếm,
-  và có thể nới hằng số nếu cần. Không lộ ra UI.
-- Xung đột hiếm: hai máy cùng xóa cùng một tên gần như đồng thời -> hai tombstone cùng slug, merge theo
-  policy sẵn có (nội dung gần như nhau, không mất mát). Không cần xử lý thêm.
-- Eager sync lúc xóa có thể trùng với sync theo lịch: đã có `_SYNC_LOCK` (non-blocking) nên phiên trùng
-  bị bỏ qua an toàn, tombstone vẫn đi ở phiên kế tiếp.
+- A machine offline for > 180 days that comes back could still resurrect a brain (the tombstone
+  has been cleaned up). Acceptable: rare, and the constant can be relaxed if needed. Not
+  exposed in the UI.
+- A rare conflict: two machines delete the same name almost simultaneously -> two tombstones
+  with the same slug, merged by the existing policy (nearly identical content, no loss). No
+  extra handling needed.
+- An eager sync at delete time may coincide with the scheduled sync: there is already a
+  `_SYNC_LOCK` (non-blocking) so the overlapping run is safely skipped, and the tombstone still
+  goes out in the next run.

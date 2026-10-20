@@ -1,8 +1,8 @@
-name: Điều khiển app trên máy
+name: "Control apps on this computer"
 name_en: "Control apps on this computer"
 slug: desktop-apps
 version: 1.0.0
-description: Mở, đóng và liệt kê ứng dụng trên CHÍNH MÁY đang chạy Jarvis 007 (Windows, macOS, Linux có màn hình) theo lời người dùng, ví dụ "mở Chrome", "tắt Excel", "đang mở app nào". Tự chặn và nói rõ khi Jarvis 007 chạy trong Docker trên máy chủ, vì khi đó máy chạy Jarvis 007 không phải máy của người dùng.
+description: "Opens, closes and lists apps on THE MACHINE running Jarvis 007 (Windows, macOS, Linux with a screen) when you ask, e.g. \"open Chrome\", \"close Excel\", \"which apps are open\". Blocks itself and says so when Jarvis 007 runs in Docker on a server, because then the machine running Jarvis 007 is not yours."
 description_en: "Opens, closes and lists apps on THE MACHINE running Jarvis 007 (Windows, macOS, Linux with a screen) when you ask, e.g. \"open Chrome\", \"close Excel\", \"which apps are open\". Blocks itself and says so when Jarvis 007 runs in Docker on a server, because then the machine running Jarvis 007 is not yours."
 author: Jarvis 007 (bundled)
 enabled: true

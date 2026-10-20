@@ -1,185 +1,189 @@
-# Zalo: chính sách theo từng cuộc chat + chatbot trả lời
+# Zalo: per-chat policy + chatbot replies
 
-Ngày: 2026-07-20
-Trạng thái: đã chốt thiết kế, đang thực thi
-Tiếp nối: [2026-07-20-zalo-listener-design.md](2026-07-20-zalo-listener-design.md)
+Date: 2026-07-20
+Status: design settled, being implemented
+Follows: [2026-07-20-zalo-listener-design.md](2026-07-20-zalo-listener-design.md)
 
-> **CẬP NHẬT 2026-07-21 - đã BỎ chế độ `chatbot` (tự phản hồi).** Chủ quyết định Jarvis 007
-> KHÔNG tự trả lời khách trên Zalo: nó chỉ ĐỌC và BÁO về Telegram. Mọi tin gửi ra đều do
-> chủ yêu cầu trực tiếp (tool `javis_zalo_send`). Bốn chế độ còn lại (im-lang, bao-het,
-> tu-khoa, nhac-quen) giữ nguyên; file luật cũ `mode: chatbot` tự hạ về `im-lang` (im
-> lặng) khi đọc. Phần "chatbot" bên dưới chỉ còn giá trị lịch sử.
+> **UPDATE 2026-07-21 - the `chatbot` mode (auto-reply) has been REMOVED.** The owner decided Jarvis 007
+> does NOT auto-reply to customers on Zalo: it only READS and REPORTS to Telegram. Every outgoing message is sent at
+> the owner's direct request (tool `javis_zalo_send`). The remaining four modes (im-lang, bao-het,
+> tu-khoa, nhac-quen) are unchanged; an old rule file with `mode: chatbot` is automatically downgraded to `im-lang` (silent)
+> when read. The "chatbot" parts below are of historical value only.
+> (Mode names are machine values the code matches on: `im-lang` = silent, `bao-het` = report everything,
+> `tu-khoa` = keyword, `nhac-quen` = remind if forgotten.)
 
-## Vấn đề
+## Problem
 
-Bản listener hiện tại là một **bộ lọc thông báo toàn cục**: một bộ từ khoá, một
-giờ im lặng dùng chung cho mọi cuộc chat, và mọi tin khớp đều dội về Telegram.
+The current listener is a **global notification filter**: one keyword set, one
+quiet-hours window shared by every chat, and every matching message is dumped to Telegram.
 
-Cái chủ thật sự cần là **chính sách riêng cho từng cuộc chat**:
+What the owner really needs is a **separate policy for each chat**:
 
-- Nhóm này: bất kỳ tin nào cũng báo.
-- Nhóm kia: chỉ nhắc khi chủ quên trả lời quá 30 phút.
-- Nhóm nọ: Jarvis 007 tự trả lời như một chatbot, chỉ báo khi gặp việc vượt khả năng.
+- This group: report any message at all.
+- That group: only remind when the owner forgets to reply for more than 30 minutes.
+- Another group: Jarvis 007 replies by itself like a chatbot, and only reports when it hits something beyond its ability.
 
-Ba chỗ cấu trúc cũ không đáp ứng được: cấu hình toàn cục thay vì theo cuộc chat;
-listener không nhớ gì nên không làm được luật theo thời gian; và không có đường
-nào để Jarvis 007 trả lời.
+Three places where the old structure falls short: the config is global rather than per chat;
+the listener remembers nothing so it cannot do time-based rules; and there is no
+path for Jarvis 007 to reply.
 
-## Bối cảnh quan trọng: Jarvis 007 có tài khoản Zalo RIÊNG
+## Important background: Jarvis 007 has its OWN Zalo account
 
-Chủ đã tạo một tài khoản Zalo riêng cho Jarvis 007 (không phải tài khoản cá nhân).
-Điều này thay đổi mấy thứ:
+The owner created a separate Zalo account for Jarvis 007 (not the personal account).
+This changes a few things:
 
-- Người trong nhóm thấy đúng một tài khoản tên Jarvis 007, nên chuyện "không biết đang
-  nói chuyện với máy" gần như hết.
-- Chủ chấp nhận rủi ro bot trả lời sai.
-- Bot chỉ được trả lời trong những cuộc chat đã bật, không phải mọi nơi trên tài khoản.
-- **Luật "30 phút chưa trả lời" trở nên làm được**: chủ trả lời bằng tài khoản riêng
-  của mình nên trong nhóm chủ là một thành viên KHÁC, tin của chủ về đầy đủ qua
-  webhook. Không còn vướng cờ `--no-self` như phân tích ban đầu.
+- People in the group see exactly one account named Jarvis 007, so the "not knowing they are
+  talking to a machine" issue is nearly gone.
+- The owner accepts the risk of the bot answering wrongly.
+- The bot may only reply in chats that have been enabled, not everywhere on the account.
+- **The "30 minutes without a reply" rule becomes feasible**: the owner replies from their own
+  personal account, so in the group the owner is a DIFFERENT member, and the owner's messages arrive in full via
+  the webhook. The `--no-self` flag no longer gets in the way as in the initial analysis.
 
-Điều tài khoản riêng KHÔNG giải quyết: engine vẫn là engine của chủ. Người lạ điều
-khiển được nó thì thứ họ chạm tới là MCP, file, bộ nhớ - rủi ro rò dữ liệu, khác
-loại với rủi ro trả lời sai.
+What a separate account does NOT solve: the engine is still the owner's engine. If a stranger
+can steer it, what they reach is MCP, files, memory - a data-leak risk, different in
+kind from the risk of a wrong reply.
 
-## Quyết định
+## Decisions
 
-| Điểm | Chốt |
+| Point | Decision |
 |---|---|
-| Đơn vị cấu hình | Một file luật cho mỗi cuộc chat |
-| Nơi lưu | `<brain>/Javis/zalo/<slug>.md` (như loop/agent/skill) |
-| Cách đặt luật | Nói bằng lời qua chat hoặc Telegram, Jarvis 007 ghi file |
-| Giao diện | CHỈ hiển thị để xem lại, không có form nhập |
-| Tri thức của bot | Kịch bản riêng từng nhóm, không chạm brain/POS |
+| Unit of configuration | One rule file per chat |
+| Where stored | `<brain>/Javis/zalo/<slug>.md` (like loop/agent/skill) |
+| How rules are set | Say it in words via chat or Telegram, Jarvis 007 writes the file |
+| UI | Display ONLY, for review, no input form |
+| Bot's knowledge | A per-group script, does not touch brain/POS |
 
-## Năm chế độ
+## Five modes
 
-| mode | Làm gì | Có cần engine đọc nội dung? |
+| mode | What it does | Does an engine need to read the content? |
 |---|---|---|
-| `im-lang` | Chỉ ghi nhận vào sổ, không báo | Không |
-| `bao-het` | Mọi tin đều báo Telegram | Không |
-| `tu-khoa` | Báo khi tin chứa từ khoá | Không |
-| `nhac-quen` | Khách nhắn mà quá N phút không ai đáp thì báo | Không |
-| `chatbot` | Engine hộp cát tự trả lời, báo khi bí | **Có** |
+| `im-lang` | Only records into the ledger, no report | No |
+| `bao-het` | Every message is reported to Telegram | No |
+| `tu-khoa` | Reports when a message contains a keyword | No |
+| `nhac-quen` | Reports when a customer writes and nobody answers for more than N minutes | No |
+| `chatbot` | A sandboxed engine replies by itself, reports when stuck | **Yes** |
 
-Bốn chế độ đầu giữ nguyên rào bảo mật của bản trước (nội dung không chạm engine).
-Chỉ `chatbot` mở rào, nên nó có rào riêng ở mục dưới.
+The first four modes keep the security barrier of the previous version (content never touches the engine).
+Only `chatbot` opens the barrier, so it has its own barrier in the section below.
 
-## File luật
+## Rule file
 
 `<brain>/Javis/zalo/<slug>.md`:
 
 ```yaml
 ---
 type: zalo-rule
-thread_id: "<id cuộc chat>"
+thread_id: "<chat id>"
 thread_name: "Nhóm Kim Khí Hà Lộc"
 mode: chatbot            # im-lang | bao-het | tu-khoa | nhac-quen | chatbot
-enabled: false           # chatbot LUÔN tạo ở trạng thái tắt
-keywords: []             # chỉ dùng cho mode tu-khoa
-escalate_after_min: 30   # chỉ dùng cho mode nhac-quen
-owner_uid: ""            # uid Zalo của CHỦ trong nhóm, để biết chủ đã trả lời chưa
-max_reply_per_hour: 20   # chỉ dùng cho mode chatbot
+enabled: false           # chatbot is ALWAYS created in the off state
+keywords: []             # only used for mode tu-khoa
+escalate_after_min: 30   # only used for mode nhac-quen
+owner_uid: ""            # the OWNER's Zalo uid in the group, to know whether the owner has replied
+max_reply_per_hour: 20   # only used for mode chatbot
 updated: 2026-07-20
 ---
-<Kịch bản: bot biết gì, trả lời thế nào, gặp gì thì đẩy về cho chủ.>
+<Script: what the bot knows, how it replies, what to push back to the owner.>
 ```
 
-Đặt trong brain vì ba lý do: nhất quán với loop/agent/skill (đều là `.md` do chat
-sinh ra), có git nên lần lại được mọi thay đổi, và sửa tay được khi cần.
+(`thread_name: "Nhóm Kim Khí Hà Lộc"` is a sample group name meaning "Kim Khí Hà Lộc group"; the name itself is proper-noun data and is kept as is.)
 
-Đọc từ brain MẶC ĐỊNH (listener là dịch vụ nền, không có khái niệm "brain đang mở").
+Placed in the brain for three reasons: consistency with loop/agent/skill (all `.md` produced
+by chat), git history so every change can be traced, and it can be edited by hand when needed.
 
-## Đặt luật bằng lời
+Read from the DEFAULT brain (the listener is a background service, with no notion of an "open brain").
 
-Tool `javis_zalo_rule` (plugin bundled) để engine gọi khi chủ nói bằng lời:
+## Setting rules in words
 
-- `op=list` - liệt kê luật đang có.
-- `op=show` - xem chi tiết một luật.
-- `op=set` - tạo hoặc sửa (nhận `thread`, `mode`, `script`, và các trường tuỳ chọn).
-- `op=off` - tắt một luật.
+The tool `javis_zalo_rule` (a bundled plugin) is for the engine to call when the owner speaks:
 
-**Nhận diện cuộc chat**: tham số `thread` nhận id hoặc TÊN. Khớp tên theo sổ cuộc
-chat đã thấy. Nhiều hơn một kết quả thì tool **trả về danh sách và không làm gì** -
-đoán bừa là gắn kịch bản nhầm nhóm rồi bot trả lời khách của nhóm khác.
+- `op=list` - list the existing rules.
+- `op=show` - view the details of one rule.
+- `op=set` - create or edit (takes `thread`, `mode`, `script`, and optional fields).
+- `op=off` - turn a rule off.
 
-**Chế độ chatbot luôn tạo với `enabled: false`.** Bốn chế độ kia chỉ báo về Telegram
-nên sai cũng chỉ phiền chủ; chatbot gửi tin ra ngoài không rút lại được, nên bật phải
-là một hành động riêng có ý thức. Đây là chỗ duy nhất thêm ma sát, và cùng luật với
-loop trong CLAUDE.md.
+**Identifying the chat**: the `thread` parameter accepts an id or a NAME. Names are matched against the ledger of
+chats seen. If more than one result matches, the tool **returns the list and does nothing** -
+guessing blindly means attaching the script to the wrong group and the bot replying to another group's customers.
 
-## Chế độ nhac-quen
+**Chatbot mode is always created with `enabled: false`.** The other four modes only report to Telegram,
+so a mistake only bothers the owner; a chatbot sends messages outward that cannot be recalled, so turning it on must
+be a separate, deliberate action. This is the only place that adds friction, and it follows the same rule as
+loops in CLAUDE.md.
 
-Cần trạng thái theo cuộc chat: `{since, from_name, text}` = tin của khách đang chờ
-được đáp.
+## nhac-quen mode
 
-- Tin từ người khác (không phải chủ) → nếu chưa có mốc chờ thì đặt mốc.
-- Tin từ `owner_uid` → xoá mốc (chủ đã trả lời).
-- Bot tự trả lời (mode chatbot) → xoá mốc luôn, vì code biết ngay, không cần đợi webhook.
-- Scheduler nền (tick 30s, đã có sẵn) quét: mốc quá `escalate_after_min` thì báo
-  Telegram một lần rồi xoá mốc, không nhắc lặp.
+Needs per-chat state: `{since, from_name, text}` = the customer message waiting
+for a reply.
 
-`owner_uid` trống thì mốc không bao giờ được xoá bởi tin của chủ, nên sẽ nhắc cả khi
-chủ đã trả lời. Tool phải cảnh báo rõ khi tạo luật `nhac-quen` mà chưa có `owner_uid`,
-và gợi ý danh sách người gửi đã thấy trong nhóm để chọn.
+- A message from someone else (not the owner) -> if there is no waiting mark yet, set the mark.
+- A message from `owner_uid` -> clear the mark (the owner has replied).
+- The bot replies by itself (chatbot mode) -> clear the mark too, because the code knows immediately, no need to wait for the webhook.
+- The background scheduler (30s tick, already existing) scans: a mark older than `escalate_after_min` triggers one
+  Telegram report and then the mark is cleared, with no repeated reminders.
 
-## Chế độ chatbot: hộp cát
+If `owner_uid` is empty, the mark is never cleared by the owner's messages, so it will remind even when the
+owner has replied. The tool must warn clearly when creating a `nhac-quen` rule without an `owner_uid`,
+and suggest the list of senders seen in the group to choose from.
 
-Đây là phần rủi ro nhất, luật phải cứng.
+## chatbot mode: sandbox
 
-### Bẫy đã phát hiện: `allowed_tools=[]` KHÔNG khoá tool
+This is the riskiest part, so the rules must be hard.
 
-`claude_sdk_engine.py:300` viết `if self.allowed_tools:`. Danh sách **rỗng là falsy**,
-nên `allowed_tools=[]` rơi xuống nhánh `else`: `permission_mode = "bypassPermissions"`
-kèm nạp settings máy và MCP sẵn có.
+### Trap discovered: `allowed_tools=[]` does NOT lock the tools
 
-Nghĩa là cách viết trực giác nhất để tạo hộp cát lại **mở toang mọi quyền**, đúng lúc
-nội dung do người lạ soạn đi vào engine.
+`claude_sdk_engine.py:300` has `if self.allowed_tools:`. An **empty list is falsy**,
+so `allowed_tools=[]` falls into the `else` branch: `permission_mode = "bypassPermissions"`
+along with loading the machine's settings and existing MCP.
 
-Phải truyền whitelist KHÁC RỖNG chứa một tên tool không tồn tại
-(`__zalo_bot_khong_co_tool__`). Khi đó `allowed_tools` truthy → gate bật → mọi tool
-thật rơi vào `_permission_gate` → bị từ chối thật từng lần. Có test chốt điều này.
+That means the most intuitive way to write a sandbox actually **throws every permission wide open**, at exactly the moment
+content authored by strangers enters the engine.
 
-### Các rào khác
+You must pass a NON-EMPTY whitelist containing a tool name that does not exist
+(`__zalo_bot_khong_co_tool__`). Then `allowed_tools` is truthy -> the gate is on -> every
+real tool falls into `_permission_gate` -> is genuinely denied every time. A test pins this down.
 
-- `mcp_config` trỏ file MCP rỗng + `mcp_strict = True` → không thấy connector nào.
-- System prompt = kịch bản của nhóm + rào chống injection. **Không** kèm bộ nhớ,
-  không kèm brain, không kèm CLAUDE.md của chủ.
-- Nội dung khách được rào giữa hai vạch có nhãn, y như cách làm với Telegram.
-- **Model không có tool nào nên không thể chọn người nhận.** Nó chỉ sinh ra CHỮ; code
-  Jarvis 007 quyết định gửi đi đâu, và luôn gửi về đúng cuộc chat vừa phát sinh tin. Dù bị
-  dụ hoàn toàn cũng không nhắn được cho người khác. Đây là khác biệt giữa rào thật và
-  lời dặn trong prompt.
-- Đầu ra bắt đầu bằng `[CHUYEN CHU]` → không gửi cho khách, đẩy về Telegram cho chủ.
-- Trần `max_reply_per_hour` mỗi nhóm. Vượt thì im và báo chủ một lần.
-- `max_wall_s = 60`: đây là trả lời chat, chậm hơn thì vô nghĩa.
-- Mọi tin bot tự gửi đều ghi log để chủ soi lại được.
+### Other barriers
 
-### Gửi tin đi bằng đường nào
+- `mcp_config` points to an empty MCP file + `mcp_strict = True` -> no connector is visible.
+- System prompt = the group's script + an anti-injection guard. It does **not** include memory,
+  the brain, or the owner's CLAUDE.md.
+- Customer content is fenced between two labeled rules, just as is done for Telegram.
+- **The model has no tools so it cannot choose a recipient.** It only produces TEXT; the Jarvis 007
+  code decides where to send it, and always sends it to the very chat that produced the message. Even if fully
+  tricked it cannot message anyone else. This is the difference between a real barrier and a
+  note in the prompt.
+- Output starting with `[CHUYEN CHU]` ("hand over to owner") -> not sent to the customer, pushed to the owner on Telegram.
+- A `max_reply_per_hour` ceiling per group. Past it, stay silent and tell the owner once.
+- `max_wall_s = 60`: this is a chat reply, anything slower is pointless.
+- Every message the bot sends itself is logged so the owner can review it.
 
-Sidecar `listen` không gửi được tin. Gửi qua connector MCP `zalo` (tool
-`zalo_send_message`). Đây là chỗ CHẠM vào va chạm một-socket-mỗi-tài-khoản đã ghi
-trong spec trước. Chưa kiểm chứng được; nếu va thật thì phương án là tạm dừng listener,
-gửi, bật lại. Không đoán trước, để lộ ra rồi xử.
+### Which path messages go out on
 
-## An toàn tổng thể
+The `listen` sidecar cannot send messages. Sending goes through the `zalo` MCP connector (tool
+`zalo_send_message`). This is where it TOUCHES the one-socket-per-account collision noted
+in the previous spec. Not yet verified; if it really collides, the fallback is to pause the listener,
+send, and turn it back on. No guessing in advance, let it surface and then handle it.
 
-- Bot chỉ trả lời trong cuộc chat có luật `mode: chatbot` **và** `enabled: true`.
-  Kiểm bằng code trước khi gọi engine, không phải bằng lời dặn.
-- Bốn chế độ còn lại không gọi engine.
-- Tin của chính tài khoản Jarvis 007 không kích hoạt gì (tránh bot tự nói chuyện với mình).
-- Rào XSS trên giao diện giữ nguyên: tên nhóm và tên người gửi vẫn bọc `esc()`.
+## Overall safety
 
-## Test
+- The bot only replies in a chat that has a rule with `mode: chatbot` **and** `enabled: true`.
+  Checked in code before calling the engine, not by a note in the prompt.
+- The other four modes do not call the engine.
+- Messages from the Jarvis 007 account itself trigger nothing (so the bot does not talk to itself).
+- The XSS guard in the UI stays: group names and sender names are still wrapped in `esc()`.
 
-- Đọc/ghi file luật, khớp tên nhóm nhập nhằng thì trả danh sách chứ không đoán.
-- Từng chế độ: đúng tin nào báo, tin nào không.
-- `nhac-quen`: đặt mốc, xoá mốc khi chủ trả lời, bắn đúng một lần khi quá hạn.
-- Chatbot: whitelist tool KHÁC RỖNG (chốt cứng cái bẫy `[]`), đầu ra `[CHUYEN CHU]`
-  không gửi cho khách, trần số tin mỗi giờ, và bot không chạy khi luật đang tắt.
-- Không gọi engine ở bốn chế độ đầu.
+## Tests
 
-## Ngoài phạm vi
+- Reading/writing the rule file; an ambiguous group name match returns a list rather than guessing.
+- Each mode: exactly which messages report and which do not.
+- `nhac-quen`: set the mark, clear it when the owner replies, fire exactly once when overdue.
+- Chatbot: a NON-EMPTY tool whitelist (hard-pins the `[]` trap), output `[CHUYEN CHU]`
+  is not sent to the customer, the per-hour message ceiling, and the bot does not run when the rule is off.
+- No engine call in the first four modes.
 
-Bot đọc Wiki hoặc số liệu POS (đã chốt là không, chỉ kịch bản riêng nhóm). Duyệt
-từng câu trả lời qua Telegram trước khi gửi (chủ chọn tự gửi thẳng). Đường OA chính thức.
+## Out of scope
+
+The bot reading the Wiki or POS figures (decided no, only a per-group script). Approving
+each reply via Telegram before sending (the owner chose to send directly). The official OA route.

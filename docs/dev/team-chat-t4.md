@@ -18,7 +18,7 @@ chain: [team-chat-t4-ops.md](team-chat-t4-ops.md), [team-chat-t4-bench.md](team-
    - newest first, at most 50 results;
    - each result has the sender and an excerpt around the match;
    - never mixes in another team.
-3. **Jump to an old message.** Clicking a result loads the chunk of messages ending at exactly that message and highlights it. The banner "Viewing an old message" has a **Back to latest** button. While viewing an old message, new incoming messages are not inserted into the middle of the old chunk.
+3. **Jump to an old message.** Clicking a result loads the chunk of messages ending at exactly that message and highlights it. The banner "Viewing older messages." has a **Back to latest** button. While viewing an old message, new incoming messages are not inserted into the middle of the old chunk.
 
 ## Code map
 
@@ -61,7 +61,7 @@ Opening a team only loads the first page: 30 messages, `has_more=true`.
 ## Final review (fresh reviewer, strongest model)
 
 Verdict "Ready with fixes": 0 Critical, 1 Important, 7 Minor. All eight fixed:
-- **Important:** after jumping to an old message and then sending a message or filtering jobs, the "Viewing an old message" banner stayed and the new message (the assistant's reply) was not appended. Now every load of the latest chunk leaves the old-message view.
+- **Important:** after jumping to an old message and then sending a message or filtering jobs, the "Viewing older messages." banner stayed and the new message (the assistant's reply) was not appended. Now every load of the latest chunk leaves the old-message view.
 - The excerpt was offset when a message was typed with combining characters (NFD) or had characters that change length under casefold: normalize to NFC, then fold character by character with a position map.
 - Search read up to 50,000 full rows inside the session store's shared lock: now it reads in batches of 2,000 rows containing only id and content, stops once there are enough results, at most 20,000 messages; the full message is only read for matching messages.
 - The summary sentence said "above" while the history is below; there is a separate sentence for when the latest message is so long that no history shows.

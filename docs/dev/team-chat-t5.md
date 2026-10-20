@@ -1,253 +1,253 @@
-# Nhóm chat team T5: trang Nhóm gọn như app chat (0.129.0)
+# Team chat T5: the Teams page as compact as a chat app (0.129.0)
 
-Chồng trên T4 (PR #643). Nguồn: buổi soi giao diện ngày 14/10/2026 (ảnh trong `exports/reviews/team-ux-audit/`), chủ dự án duyệt hướng làm và bảo làm cả ba bước một lèo. Không đổi luồng nhóm của T1 tới T4; chỉ đổi cách trình bày, chữ, và thêm một nút "Cho thêm lượt".
+Stacked on T4 (PR #643). Source: the UI inspection session of 2026-10-14 (screenshots in `exports/reviews/team-ux-audit/`), the project owner approved the direction and asked for all three steps in one go. The T1 to T4 team flow is unchanged; only the presentation, the wording, and one new "Allow more turns" button change.
 
-## Vấn đề lúc soi (điện thoại 375px)
+## Problems found (phone, 375px)
 
-- Khung tin chỉ còn 284px (35% màn hình). Nó bị ép bởi:
-  - đầu trang chung;
-  - đầu khung chat hai hàng;
-  - ô lọc việc;
-  - băng tạm dừng;
-  - khung soạn 5 hàng (209 tới 249px).
-- Tên thành viên vỡ mỗi chữ một dòng.
-- Tab Cài đặt dài 2.003px với 31 ô nhập.
-- Khung soạn có hai lỗi:
-  - nút bật Giao việc và nút gửi cùng chữ "Giao việc";
-  - người được @ hiện hai lần (chip và chữ).
-- Việc bị chặn vì hết lượt có nút "Cho chạy tiếp" nhưng bấm xong chặn lại ngay, vì trần chưa nâng.
-- Chữ nội bộ lộ ra người dùng: trần, lượt model, Toàn quyền, Quyền giới hạn, vị trí hàng.
-- Linh vật che khung soạn; tiêu đề "Nhóm" lặp hai lần.
-- Máy tính: khung chat chỉ rộng 564px vì cột cài đặt luôn mở.
+- The message frame was only 284px (35% of the screen). It was squeezed by:
+  - the shared page header;
+  - a two-row chat header;
+  - the job filter box;
+  - the paused banner;
+  - a 5-row composer (209 to 249px).
+- Member names broke one word per line.
+- The Settings tab was 2,003px long with 31 input fields.
+- The composer had two bugs:
+  - the Assign job toggle and the send button both read "Assign job";
+  - a person who was @-mentioned showed up twice (chip and text).
+- A job blocked for running out of turns had a "Continue" button, but after clicking it the job was blocked again at once, because the cap had not been raised.
+- Internal wording leaked to the user: cap, model turns, full authority, limited authority, queue position.
+- The mascot covered the composer; the "Team" title appeared twice.
+- Desktop: the chat frame was only 564px wide because the settings column was always open.
 
-## Bố cục mới
+## New layout
 
-1. **Trang chiếm trọn chiều cao.**
-   - `console.js` thêm `.cview-flush` và `body.on-teams`; `_pageLeave` gỡ cả hai.
-   - Trên điện thoại, đầu trang chung và linh vật ẩn.
-   - Khung soạn luôn ở đáy, chừa vùng an toàn đáy máy.
-2. **Danh sách nhóm kiểu app chat.**
-   - Mỗi dòng có ảnh chữ đầu (màu cố định theo tên), tên, giờ, dòng xem trước "Lan: ..." hay "Bạn: ...", và nhãn Cần bạn / Đang làm / Tạm dừng / Lưu trữ.
-   - Chưa có nhóm thì hiện thẻ hướng dẫn ba bước kèm nút Tạo nhóm.
-3. **Đầu khung chat một hàng:** quay lại, tên nhóm và "Lan dẫn nhóm · 3 người", chip việc, tìm, ba chấm.
-   - Chip việc ghi "Cần bạn N" (màu cảnh báo) hay "Việc N"; trên điện thoại chỉ còn icon kèm số.
-   - Bỏ ô chọn lọc tin. Lọc theo việc giờ là một băng "Đang xem tin của việc X" kèm nút Xem tất cả.
-4. **Băng báo gọn có nút:** tạm dừng thì Bật lại, chưa có trưởng nhóm thì Chọn.
-5. **Dải việc ở đầu khung chat.**
-   - Việc đang làm hiện một dòng, kèm Sửa yêu cầu và Huỷ.
-   - Việc chờ bạn hiện tối đa hai thẻ, mỗi thẻ một nút giải quyết theo lý do (bảng dưới); còn nhiều hơn thì gom thành một nút.
-6. **Tin dạng bong bóng.**
-   - Tin của chủ ở bên phải, không tên.
-   - Tin của trợ lý ở bên trái, kèm ảnh và tên.
-   - Nhãn vai chỉ hiện cho bước của việc.
-   - Trạng thái "Xong" ẩn; câu trả lời không được dùng thì hiện một dòng cảnh báo.
-   - Tin hệ thống là dòng xám ở giữa.
-   - Nút cảm xúc (tin trợ lý) hay ba chấm (tin của chủ) nằm cạnh bong bóng, không thêm hàng.
-   - Nhấn giữ mở bảng cho mọi tin. Ghim nằm trong bảng; tin đã ghim có nhãn Quyết định, bấm nhãn để bỏ ghim.
-7. **Khung soạn một hàng:** công tắc Giao việc (`aria-pressed`), ô chữ tự cao tới khoảng năm dòng, nút gửi tròn.
-   - Người được gọi là các "@Tên" còn trong chữ lúc gửi: xoá chữ là bỏ gọi, không còn chip trùng.
-   - Chỉ khi bật Giao việc mới có một dòng "Sẽ tạo một việc cho ...".
-8. **Ngăn "Việc | Nhóm" đóng sẵn**, mở từ chip việc hay ba chấm.
-   - Hiện thành cột phải trên máy tính, ngăn kéo có nền mờ dưới 1060px, trang trượt lên dưới 760px.
-   - Escape hay chạm nền mờ thì đóng, focus về lại đúng nút đã mở.
-   - **Tab Việc:** Đang làm, Chờ bạn, Sắp làm (đánh số, Ưu tiên, Huỷ).
-   - **Tab Nhóm:**
-     - thành viên mỗi người một dòng, chạm để mở thao tác;
-     - "Trưởng nhóm tự quyết đến đâu?" với ba mức;
-     - "Hôm nay đã dùng X/Y lần trả lời";
-     - tên, mô tả, trạng thái;
-     - "Nâng cao" (đóng sẵn) chứa số giới hạn, hộp quyền chi tiết của T3 và sổ lần trả lời.
+1. **The page takes the full height.**
+   - `console.js` adds `.cview-flush` and `body.on-teams`; `_pageLeave` removes both.
+   - On phones, the shared page header and the mascot are hidden.
+   - The composer is always at the bottom, leaving the bottom safe area.
+2. **Team list in the style of a chat app.**
+   - Each row has an initial-letter avatar (a fixed color per name), the name, the time, a preview line "Lan: ..." or "You: ...", and a badge: Needs you / Working / Paused / Archive.
+   - When there are no teams yet, a three-step guide card appears with a New team button.
+3. **One-row chat header:** back, the team name and "Lan leads the team · 3 people", the jobs chip, search, three dots.
+   - The jobs chip reads "Needs you N" (warning color) or "Jobs N"; on phones only an icon with the number remains.
+   - The message filter select is gone. Filtering by job is now a banner "Showing messages of job X" with a Show all button.
+4. **Compact banners with buttons:** if paused, Resume; if there is no team lead yet, Pick.
+5. **A job strip at the top of the chat frame.**
+   - A running job shows one line, with Edit request and Cancel.
+   - Jobs waiting for you show at most two cards, each with one button that resolves it according to the reason (table below); if there are more, they collapse into one button.
+6. **Bubble-style messages.**
+   - The owner's messages are on the right, without a name.
+   - The assistant's messages are on the left, with an avatar and name.
+   - The role label only shows for job steps.
+   - The "Done" status is hidden; a reply that was not used shows a one-line warning.
+   - A system message is a gray line in the middle.
+   - The emotion button (assistant messages) or three dots (owner messages) sits next to the bubble, adding no row.
+   - Long-press opens the sheet for every message. Pinning is inside the sheet; a pinned message has a Decision label, and clicking the label unpins it.
+7. **One-row composer:** the Assign job toggle (`aria-pressed`), a text box that grows up to about five lines, a round send button.
+   - The people being called are the "@Name" strings still in the text at send time: deleting the text removes the call, and there are no duplicate chips.
+   - Only when Assign job is on is there a line "Will create a job for ...".
+8. **The "Jobs | Team" drawer is closed by default**, opened from the jobs chip or the three dots.
+   - It shows as a right column on desktop, a drawer with a dimmed backdrop below 1060px, and a page that slides up below 760px.
+   - Escape or tapping the backdrop closes it, and focus returns to the exact button that opened it.
+   - **Jobs tab:** Working on, Waiting for you, Up next (in order) (numbered, Prioritize, Cancel).
+   - **Team tab:**
+     - members one per row, tap to open the actions;
+     - "How much can the coordinator decide alone?" with three levels;
+     - "Used today: X of Y replies";
+     - name, description, status;
+     - "Advanced" (closed by default) holding the limit numbers, T3's detailed permissions box and the reply log.
 
-9. **Ảnh đại diện đúng ảnh trợ lý và ghim nhóm** (chủ dặn thêm cùng ngày, mẫu tham khảo: Zalo, "Offsite crew").
-   - Mọi chỗ vẽ trợ lý (tin, danh sách thành viên, gợi ý @) dùng bộ `JavisAvatar` của trang Cộng sự, theo slug và `avatar` trong file trợ lý. `_resonance_agents_meta` kèm `avatar`; `member_views` trả `avatar` cho từng thành viên.
-   - Ảnh nhóm ghép từ ảnh thành viên đang hoạt động (trưởng nhóm trước): 1 người một ảnh, 2 người chéo, 3 người tam giác, 4 người lưới 2x2. Hơn 4 người thì ba ảnh và ô "+N" (quá 99 ghi "99+"). `GET /teams` kèm `faces` (tối đa 4) và `member_count`; đầu khung chat suy từ thành viên.
-   - Ghim: cột `pinned_at` trong `teams` (tự thêm cho kho cũ), `TeamStore.set_pinned` (sự kiện `pinned` / `unpinned`), route `POST /teams/{id}/pin {on}`. Trang đầu của danh sách mở bằng các nhóm đã ghim (ghim sau đứng trước), trang sau chỉ gồm nhóm không ghim nên không lặp. Dòng nhóm có dấu ghim; công tắc "Ghim nhóm lên đầu danh sách" nằm trong tab Nhóm.
+9. **The avatar is the assistant's real avatar, and team pinning** (the owner asked for this the same day, reference: Zalo, "Offsite crew").
+   - Every place that draws an assistant (messages, member list, @ suggestions) uses the `JavisAvatar` set from the Partners page, by slug and the `avatar` in the assistant's file. `_resonance_agents_meta` includes `avatar`; `member_views` returns `avatar` for each member.
+   - The team picture is composed from the active members' pictures (team lead first): 1 person one picture, 2 people diagonal, 3 people a triangle, 4 people a 2x2 grid. With more than 4 people, three pictures and a "+N" cell (over 99 shows "99+"). `GET /teams` includes `faces` (at most 4) and `member_count`; the chat header derives it from the members.
+   - Pinning: column `pinned_at` in `teams` (added automatically to old stores), `TeamStore.set_pinned` (events `pinned` / `unpinned`), route `POST /teams/{id}/pin {on}`. The first page of the list opens with the pinned teams (the most recently pinned first), and later pages only contain unpinned teams so nothing repeats. A team row has a pin mark; the "Pin this team to the top" toggle is in the Team tab.
 
-10. **Ghim ngay trên danh sách** (chủ duyệt sau khi hỏi "có cần ghim bằng nhấn giữ không").
-    - Công tắc trong tab Nhóm vẫn là lối dễ thấy; đây là lối tắt quen tay của người dùng Zalo, Messenger.
-    - Máy tính: rê chuột lên dòng nhóm thì hiện nút ghim ở góc dòng. Nút này là anh em của nút mở nhóm, không lồng nút.
-    - Chuột phải lên dòng mở menu "Ghim nhóm" hay "Bỏ ghim".
-    - Điện thoại: nhấn giữ dòng nhóm 0,5 giây mở cùng menu đó. Cú bấm sinh ra lúc nhấc tay bị chặn (`swallowClick`, xoá ở lần chạm sau) nên không mở nhầm nhóm. Máy chạm không có nút ghim nổi.
-    - Menu đóng bằng Escape (focus về dòng nhóm), bấm ra ngoài, hay sau khi chọn.
-    - Ghim từ danh sách dùng chung `savePin`: lỗi thì báo, không kẹt.
-    - Smoke trên sandbox: rê chuột rồi bấm nút ghim; chuột phải rồi Bỏ ghim; Escape; nhấn giữ bằng sự kiện chạm giả lập (menu mở, không mở nhầm nhóm); chạm ngắn vẫn mở nhóm.
+10. **Pin right on the list** (the owner approved after asking "do we need pinning by long-press").
+    - The toggle in the Team tab is still the visible path; this is the shortcut that Zalo and Messenger users are used to.
+    - Desktop: hovering a team row shows a pin button in the corner of the row. This button is a sibling of the open-team button, not nested inside it.
+    - Right-click on a row opens a menu "Pin team" or "Unpin".
+    - Phone: long-pressing a team row for 0.5 seconds opens the same menu. The click generated on release is blocked (`swallowClick`, cleared on the next touch) so the wrong team is not opened. Touch devices have no floating pin button.
+    - The menu closes with Escape (focus goes back to the team row), a click outside, or after choosing.
+    - Pinning from the list shares `savePin`: an error is reported, nothing gets stuck.
+    - Sandbox smoke: hover then click the pin button; right-click then Unpin; Escape; long-press with simulated touch events (the menu opens, the team is not opened by mistake); a short tap still opens the team.
 
-## Nút giải quyết việc bị chặn
+## Buttons that resolve a blocked job
 
-| Lý do chặn | Nút |
+| Block reason | Button |
 |---|---|
-| `cap_reached` | Cho thêm lượt (route mới `extend`) |
-| `failed`, `no_progress` | Thử lại (chạy lại bước) |
-| `interrupted` | Làm tiếp (chạy lại bước) |
-| `no_leader` | Chọn trưởng nhóm (mở tab Nhóm) |
-| `agent_busy_long`, `waiting_user` | Cho chạy tiếp |
-| `assignee_removed` | chỉ Huỷ |
+| `cap_reached` | Allow more turns (new route `extend`) |
+| `failed`, `no_progress` | Try again (reruns the step) |
+| `interrupted` | Continue (reruns the step) |
+| `no_leader` | Pick a coordinator (opens the Team tab) |
+| `agent_busy_long`, `waiting_user` | Continue |
+| `assignee_removed` | Cancel only |
 
-## Ba mức tự quyết (đặt lên Toàn quyền của T3)
+## Three levels of self-decision (built on T3's Full authority)
 
-| Mức | Gửi tới `POST /teams/{id}/authority` |
+| Level | Sent to `POST /teams/{id}/authority` |
 |---|---|
-| 1 Hỏi tôi trước | `mode: limited` (thu hồi) |
-| 2 Tự làm, báo tôi | `ceilings {task_turns 24, task_steps 12, help_depth 3, daily_turns 200}`, không ngắt việc, không provider Không giới hạn, gói thuê bao |
-| 3 Tự quản cả nhóm | mọi trần tối đa Không giới hạn, được ngắt việc, không provider Không giới hạn (hỏi lại trước khi bật) |
+| 1 Ask me first | `mode: limited` (revoke) |
+| 2 Act, then tell me | `ceilings {task_turns 24, task_steps 12, help_depth 3, daily_turns 200}`, no interrupting jobs, no Unlimited provider, subscription plan |
+| 3 Run the whole team | every maximum cap Unlimited, may interrupt jobs, no Unlimited provider (asks again before turning on) |
 
-- `levelOf` đọc ngược hộp quyền và chỉ so trần tối đa, quyền ngắt việc, provider. Trưởng nhóm tự chỉnh số trong khoảng cho phép thì vẫn giữ mức.
-- Hộp quyền khác ba mức hiện là "Tuỳ chỉnh"; sửa chi tiết trong Nâng cao.
+- `levelOf` reads the grant box back and only compares the maximum caps, the interrupt permission, and the providers. If the team lead adjusts the numbers within the allowed range, the level stays.
+- A grant box that matches none of the three levels shows as "Custom"; edit the details in Advanced.
 
-## Bản đồ mã
+## Code map
 
-| Phần | File | Việc |
+| Part | File | What it does |
 |---|---|---|
-| Bộ chạy | `server/team_runner.py` | `_block_cap` (ghi sự kiện `cap_blocked` kèm trần đã chạm và các bước bị từ chối, rồi chặn), `_put_steps`, `extend_job`, `usage`; lý do chặn và tin hệ thống bằng lời thường (`CAP_PLAIN`, `EXTEND_TEXT`) |
-| Kho nhóm | `server/team_store.py` | `update_authority_caps(..., ceilings=)` để chủ nâng cả trần tối đa |
-| Route | `server/team_api.py` | `GET /teams` kèm `last`; `GET /teams/{id}` kèm `usage`; `POST /teams/{id}/tasks/{task}/extend` (404 việc nhóm khác, 409 việc không chặn vì hết lượt) |
-| Giao diện | `dashboard/teams.js`, `console.css` (khối `tm-*` cuối file), `console.js`, i18n vi và en | như trên |
+| Runner | `server/team_runner.py` | `_block_cap` (records a `cap_blocked` event with the cap that was hit and the rejected steps, then blocks), `_put_steps`, `extend_job`, `usage`; block reasons and system messages in plain words (`CAP_PLAIN`, `EXTEND_TEXT`) |
+| Team store | `server/team_store.py` | `update_authority_caps(..., ceilings=)` so the owner can raise the maximum caps too |
+| Routes | `server/team_api.py` | `GET /teams` includes `last`; `GET /teams/{id}` includes `usage`; `POST /teams/{id}/tasks/{task}/extend` (404 for a job of another team, 409 for a job not blocked for running out of turns) |
+| UI | `dashboard/teams.js`, `console.css` (the `tm-*` block at the end of the file), `console.js`, i18n vi and en | as above |
 
-## Cho thêm lượt (`extend_job`)
+## Allow more turns (`extend_job`)
 
-Toàn bộ chạy trong `accept_lock`, nên hai lần bấm cùng lúc chỉ một lần có tác dụng.
+All of it runs inside `accept_lock`, so when two clicks arrive at the same time only one has an effect.
 
-1. Đọc bản ghi `cap_blocked` mới nhất của việc. Bản ghi được ghi TRƯỚC khi chặn, nên đó là của lần chặn hiện tại.
-2. Trần đó còn chặn (theo số đã dùng thật) thì nâng nó lên `max(trần, số đã dùng) + nấc`. Nấc: lần trả lời trong ngày +20, lần trả lời mỗi việc +6, bước +4.
-   - Hộp quyền đặt số cho trần đó thì nâng trong hộp quyền (và nâng trần tối đa nếu thấp hơn).
-   - Không thì nâng trần của nhóm.
-3. Trần đó không còn chặn (sang ngày mới, chủ đã tự nâng) thì không nâng gì.
-4. Thêm lại các bước bị từ chối. Bước tiếp nối sau khi nhờ hỗ trợ được nối lại đúng như lúc thêm bình thường.
-5. Việc về hàng chờ.
-6. Có sự kiện `caps_extended` và một tin hệ thống bằng lời thường.
+1. Read the job's newest `cap_blocked` record. The record is written BEFORE blocking, so it belongs to the current block.
+2. If that cap still blocks (by the real number used), raise it to `max(cap, used) + step`. Steps: replies per day +20, replies per job +6, steps +4.
+   - If the grant box sets a number for that cap, raise it in the grant box (and raise the maximum cap if it is lower).
+   - Otherwise raise the team's own cap.
+3. If that cap no longer blocks (a new day, or the owner already raised it), raise nothing.
+4. Add back the rejected steps. A step that follows after asking for help is reconnected exactly as in a normal add.
+5. The job goes back to the waiting queue.
+6. A `caps_extended` event and a system message in plain words are recorded.
 
-Việc chặn từ trước khi có bản ghi thì đoán theo số thật. Trần bước chỉ được đoán khi không có bước nào đang chờ, vì chặn do lượt thì bước luôn về hàng chờ.
+A job blocked from before the record existed is guessed from the real numbers. The step cap is only guessed when no step is waiting, because a block caused by turns always sends the steps back to the queue.
 
-## Phán quyết
+## Verdicts
 
-- **Nâng từ số đã dùng chứ không từ trần.**
-  - Vì sao: trần bị hạ dưới số đã dùng thì nâng từ trần vẫn chặn lại ngay.
-  - Giá nếu sai: một lần bấm có thể cho nhiều hơn một nấc so với trần cũ.
-- **Cho thêm lượt khi trần ngày là 0 (chủ cố ý tắt) vẫn nâng lên 20.**
-  - Vì sao: đây là một cú bấm rõ ràng của chủ, có tin hệ thống ghi lại.
-  - Giá nếu sai: nút này vượt được "công tắc tắt" bằng trần 0.
-- **Nhóm tạm dừng vẫn cho thêm lượt.**
-  - Việc về hàng chờ và câu báo nói rõ phải Bật lại nhóm.
-- **Mức 3 là "trần tối đa Không giới hạn" chứ không phải "lượt model Không giới hạn".**
-  - Không provider nào được Không giới hạn (D6), nên trưởng nhóm phải tự đặt số.
-  - Mô tả nói đúng điều đó.
-- **Linh vật chỉ ẩn trên điện thoại.**
-  - Trên máy tính nó nằm ở mép phải như mọi trang khác, có lúc đè mép ngăn Nhóm.
+- **Raise from the number used, not from the cap.**
+  - Why: if the cap was lowered below the number used, raising from the cap would block again at once.
+  - Cost if wrong: one click can give more than one step over the old cap.
+- **Allow more turns when the daily cap is 0 (the owner turned it off on purpose) still raises it to 20.**
+  - Why: this is a clear click by the owner, with a system message recording it.
+  - Cost if wrong: this button can get past the "off switch" of a cap of 0.
+- **A paused team can still be given more turns.**
+  - The job goes back to the queue and the message says clearly that the team must be resumed.
+- **Level 3 is "maximum caps Unlimited", not "model turns Unlimited".**
+  - No provider is Unlimited (D6), so the team lead has to set the numbers itself.
+  - The description says exactly that.
+- **The mascot is only hidden on phones.**
+  - On desktop it sits at the right edge like on every other page, and sometimes overlaps the edge of the Team drawer.
 
-## Review cuối (người review mới, model mạnh nhất)
+## Final review (fresh reviewer, strongest model)
 
-Kết luận "Not ready": 1 Critical, 5 Important, cùng các Minor. Em sửa hết Critical và Important, cộng hai Minor nâng lên vì người dùng chịu hậu quả thật, và vài Minor rẻ.
+Verdict "Not ready": 1 Critical, 5 Important, plus Minors. I fixed all the Critical and Important ones, plus two Minors raised in priority because users bear real consequences, and a few cheap Minors.
 
-- **C1. Chặn vì trần bước làm mất các bước bị từ chối.** Cho thêm lượt xong, việc thành `failed` ("Không còn bước nào để chạy").
-  - Nay các bước bị từ chối được ghi trong sự kiện `cap_blocked` và thêm lại khi cho thêm lượt.
-- **I1. Trần đã chạm không còn chặn thì nâng nhầm trần bước.**
-  - Nay đọc trần từ bản ghi lúc chặn, và không nâng gì nếu trần đó không còn chặn.
-- **I2. Trần bị hạ dưới số đã dùng thì cho thêm vẫn chặn lại ngay.** Nay nâng từ số đã dùng.
-- **I3. Ngăn kéo ở khổ 761 tới 1060px nằm dưới thanh trên toàn cục**, nên hàng tab và nút đóng bị che.
-  - Nay bắt đầu từ `--topbar-h`; trang trượt lên cao theo khung nhìn thật.
-- **I4. Mô tả mức 3 hứa bỏ giới hạn trong khi server vẫn áp trần nhóm.** Đã viết lại.
-- **I5. Tin của chủ đã ghim mở một bảng trống**, và từ đó tin mới không tự cuộn xuống.
-  - Nay bỏ nút ba chấm và không mở bảng cho tin đó.
-  - `drawMsgs` cũng bỏ trạng thái mở khi bảng không vẽ ra.
-- **Nâng lên Important:**
-  - địa chỉ email "ho@lan.vn" bị coi là gọi Lan (tốn một lượt model); nay "@" phải đứng đầu chữ hay sau ký tự không phải chữ, và so trên chữ NFC;
-  - đang gõ trong tab Nhóm mà có sự kiện nhóm thì ngăn vẽ lại và mất chữ; nay không vẽ lại khi đang gõ trong ô chữ.
-- **Minor đã sửa:**
-  - Cho thêm lượt lỗi không còn để nút kẹt tắt;
-  - đổi mức lỗi thì lựa chọn quay về mức thật;
-  - sổ lần trả lời về muộn sau khi đổi nhóm thì bỏ;
-  - ba mức là một nhóm lựa chọn có tên (fieldset + legend);
-  - nút mở ngăn có `aria-expanded`, thân ngăn là `tabpanel`;
-  - công tắc thành viên và nút chọn trạng thái đủ 44px;
-  - nhãn việc dài cắt bằng dấu ba chấm;
-  - bỏ 9 khoá chữ không còn dùng.
+- **C1. A block from the step cap lost the rejected steps.** After Allow more turns, the job became `failed` ("No steps left to run").
+  - Now the rejected steps are recorded in the `cap_blocked` event and added back on Allow more turns.
+- **I1. A cap that was hit but no longer blocks raised the wrong step cap.**
+  - Now it reads the cap from the record made at block time, and raises nothing if that cap no longer blocks.
+- **I2. A cap lowered below the number used still blocked again right after allowing more.** Now it raises from the number used.
+- **I3. The drawer at 761 to 1060px sat under the global top bar**, so the tab row and the close button were covered.
+  - Now it starts from `--topbar-h`; the page slides up to the real viewport height.
+- **I4. The level 3 description promised to remove limits while the server still applies the team's cap.** Rewritten.
+- **I5. A pinned owner message opened an empty sheet**, and from then on new messages no longer scrolled down on their own.
+  - Now the three-dots button is gone and no sheet opens for that message.
+  - `drawMsgs` also drops the open state when the sheet is not drawn.
+- **Raised to Important:**
+  - the email address "ho@lan.vn" was treated as calling Lan (costing a model turn); now the "@" must be at the start of the text or after a non-letter character, and matching uses NFC text;
+  - while typing in the Team tab, a team event made the drawer redraw and lose the text; now it does not redraw while typing in a text field.
+- **Minors fixed:**
+  - a failing Allow more turns no longer leaves the button stuck disabled;
+  - when changing the level fails, the selection returns to the real level;
+  - a reply log that comes back late after switching teams is dropped;
+  - the three levels are a named choice group (fieldset + legend);
+  - the drawer button has `aria-expanded`, and the drawer body is a `tabpanel`;
+  - member toggles and the status choice buttons are a full 44px;
+  - long job labels are cut with an ellipsis;
+  - 9 unused text keys were removed.
 
-Ca đỏ trước rồi xanh:
+Cases red first, then green:
 - `test_team_ux.py`: C1, I1, I2.
-- `test_teams_ui.js`: các ca "review T5".
+- `test_teams_ui.js`: the "review T5" cases.
 
-Hai ca CSS (I3, 44px) em sửa trước khi viết test nên không thấy đỏ.
+I fixed the two CSS cases (I3, 44px) before writing tests, so they were never seen red.
 
-## Review head `b93c46bd` (biên bản `exports/reviews/PR-645-b93c46bd-review.md`)
+## Review of head `b93c46bd` (report `exports/reviews/PR-645-b93c46bd-review.md`)
 
-Ba lỗi P2, sửa hết. Mỗi lỗi có test tái hiện chạy đỏ trước rồi xanh.
+Three P2 bugs, all fixed. Each has a reproducing test that ran red first, then green.
 
-1. **Công tắc ghim kẹt khi lưu lỗi.** HTTP khác 200 hay lỗi mạng để công tắc ở trạng thái chưa lưu và bị tắt, lỗi mạng còn bị bỏ sót.
-   - Nay `savePin` khoá công tắc trong lúc lưu. Lỗi thì trả về trạng thái đã lưu, bật lại để thử lại, báo lỗi (lỗi mạng có câu riêng).
-   - Test hành vi với công tắc giả: HTTP 500, fetch bị từ chối (không có unhandled rejection), lưu được.
-2. **Tin cũ mất ảnh và tên khi trợ lý rời nhóm.** Ảnh tin tra theo thành viên đang hoạt động.
-   - Nay `GET /teams/{id}` trả thêm `authors` {agent_key: {slug, name, avatar}} của mọi trợ lý từng ở nhóm (`members(include_removed=True)`, tra danh tính theo agent_key).
-   - Tin tra tác giả theo thành viên rồi tới sổ này; kết quả tìm cũng vậy.
-   - Ảnh nhóm và gợi ý @ vẫn chỉ lấy thành viên đang hoạt động.
-   - Test: route sau khi bỏ, xoá rồi tạo lại trợ lý; tin của tác giả không còn trong nhóm.
-3. **Cho thêm lượt mất các bước bị từ chối khi bản ghi chặn trôi khỏi 500 sự kiện cuối của nhóm.**
-   - Nay `TeamStore.cap_record(team_id, task_id)` tra thẳng bản ghi `cap_blocked` mới nhất của đúng việc trong SQLite (`json_extract`), không giới hạn số sự kiện.
-   - Test: chặn vì trần bước, thêm một bản ghi của việc khác, rồi 600 sự kiện ghim / bỏ ghim. Sau đó cho thêm lượt thì thêm lại đủ hai bước, việc chạy tới xong.
+1. **The pin toggle got stuck when saving failed.** A non-200 HTTP response or a network error left the toggle in the unsaved state and disabled, and the network error was even missed.
+   - Now `savePin` locks the toggle while saving. On an error it returns to the saved state, re-enables it to try again, and reports the error (a network error has its own sentence).
+   - Behavior test with a fake toggle: HTTP 500, a rejected fetch (no unhandled rejection), a successful save.
+2. **Old messages lost their avatar and name when an assistant left the team.** The message avatar was looked up among the active members.
+   - Now `GET /teams/{id}` also returns `authors` {agent_key: {slug, name, avatar}} for every assistant that was ever in the team (`members(include_removed=True)`, identity looked up by agent_key).
+   - A message looks up its author among the members and then in this table; search results do too.
+   - The team picture and the @ suggestions still only use active members.
+   - Test: the route after removing, and after deleting then recreating an assistant; a message by an author no longer in the team.
+3. **Allow more turns lost the rejected steps when the block record fell out of the team's last 500 events.**
+   - Now `TeamStore.cap_record(team_id, task_id)` looks up the newest `cap_blocked` record of exactly that job directly in SQLite (`json_extract`), with no limit on the number of events.
+   - Test: blocked by the step cap, then add a record for another job, then 600 pin / unpin events. After that, Allow more turns adds back both steps, and the job runs to completion.
 
-Kiểm:
+Checks:
 - `tests/run.py --js` 186/186.
-- `test_teams_ui.js` 184 mục.
+- `test_teams_ui.js` 184 items.
 - `tests/run.py team agent_avatar agents_danh_sach_nhe resonance_mvp_main route_table icons` 24/24.
 
-SQLite tạm, engine giả, không gọi model.
+Temporary SQLite, fake engine, no model calls.
 
-Sửa số liệu: biên bản và báo cáo trước ghi test giao diện "190 mục". Thật ra lúc đó là 178 mục.
+Correction of numbers: the report and earlier write-up said the UI test had "190 items". It was actually 178 items at that time.
 
-## Review head `4f6268bd` (biên bản `exports/reviews/PR-645-4f6268bd-review.md`)
+## Review of head `4f6268bd` (report `exports/reviews/PR-645-4f6268bd-review.md`)
 
-Hai lỗi P2, sửa hết. Mỗi lỗi có test tái hiện chạy đỏ trước rồi xanh.
+Two P2 bugs, all fixed. Each has a reproducing test that ran red first, then green.
 
-1. **Tin cũ nhận tên và ảnh của trợ lý mới dùng lại slug.**
-   - **Lỗi:** sổ tác giả lấy tên và ảnh theo slug của file hiện tại. Xoá Minh rồi tạo Minh mới cùng slug thì mã cũ cũng thành "Minh mới".
-   - **Ảnh chụp nhân dạng:** nhân dạng giờ giữ theo agent_key (`TeamApi._identity`). File hiện tại chỉ được dùng khi dòng danh tính của đúng mã đó còn `active`; mã đã nghỉ hay đang `missing` thì không. Khi xác nhận được, nhân dạng được chụp vào cột mới `team_members.identity_json` (tự thêm cho kho cũ; chỉ ghi khi đổi).
-   - **Không xác nhận được:** dùng ảnh chụp gần nhất của chính mã đó.
-   - **Chưa từng chụp (bản ghi cũ):** dự phòng theo chính mã, tức tên theo slug lúc vào nhóm và ảnh suy từ mã (`avatar_seed`, dashboard vẽ theo mã chứ không theo slug). Không bao giờ lấy tên hay ảnh của trợ lý mới.
-   - **Test:** Minh cũ (ảnh mặc định) bị xoá; Minh mới cùng slug có hình và màu khác. Mã cũ giữ đúng "Minh" và ảnh cũ, mã mới là "Minh mới" với ảnh mới. Thêm ca xoá ảnh chụp thì mã cũ rơi về dự phòng của chính nó.
-2. **Lỗi ghim từ danh sách không nhìn thấy trên điện thoại.** Vùng thông báo nằm trong khung chat, mà khung chat bị ẩn khi đang ở danh sách.
-   - **Toast chung:** vùng thông báo `.tm-note` chuyển ra ngoài khung chat thành lớp nổi trên cả trang (`role="status"`, nền đặc). Có nút Thử lại khi thao tác chạy lại được, có nút đóng; tự ẩn sau 8 giây, có Thử lại thì 15 giây.
-   - **Ghim từ danh sách:** đi qua `pinTeamWith(id, on, btn, deps)`. Lỗi HTTP hay mất mạng thì báo kèm Thử lại chạy lại đúng thao tác. Mất mạng có câu riêng `teams.err_network` thay chữ "network", dùng cả khi gửi tin.
-   - **Test:** HTTP 500, fetch bị từ chối (không có unhandled rejection), Thử lại rồi lưu được. Kiểm thêm thông báo nằm ngoài khung chat và CSS không ẩn nó ở danh sách.
-   - **Smoke trình duyệt** ở 375px, đang ở danh sách: giả lập POST /pin trả 500 rồi mất mạng, thông báo nhìn thấy kèm Thử lại; Thử lại khi mạng ổn thì ghim được. Ảnh `exports/reviews/team-t5-smoke/m08-ghim-loi-mang-danh-sach-375.jpg`.
+1. **Old messages took the name and avatar of a new assistant that reused the slug.**
+   - **Bug:** the author table took the name and avatar by the slug of the current file. Deleting Minh and then creating a new Minh with the same slug made the old key also become "new Minh".
+   - **Identity snapshot:** identity is now kept by agent_key (`TeamApi._identity`). The current file is only used when the identity row of exactly that key is still `active`; a key that has retired or is `missing` does not use it. When it can be confirmed, the identity is captured into a new column `team_members.identity_json` (added automatically to old stores; written only on change).
+   - **Cannot be confirmed:** use that key's own latest snapshot.
+   - **Never captured (an old record):** fall back to the key itself, meaning the name by the slug at the time of joining the team and the avatar derived from the key (`avatar_seed`, the dashboard draws by key, not by slug). It never takes the name or avatar of the new assistant.
+   - **Test:** old Minh (default avatar) is deleted; new Minh with the same slug has a different picture and color. The old key keeps exactly "Minh" and the old avatar, the new key is "new Minh" with the new avatar. Added a case where deleting the snapshot makes the old key fall back to its own fallback.
+2. **A pin error from the list was invisible on phones.** The notice area was inside the chat frame, and the chat frame is hidden while on the list.
+   - **Shared toast:** the `.tm-note` notice area moves out of the chat frame into a layer floating over the whole page (`role="status"`, solid background). It has a Try again button when the action can be rerun, and a close button; it hides itself after 8 seconds, or 15 seconds if it has Try again.
+   - **Pin from the list:** goes through `pinTeamWith(id, on, btn, deps)`. An HTTP error or lost network is reported with a Try again that reruns exactly that action. Lost network has its own sentence `teams.err_network` in place of the word "network", also used when sending a message.
+   - **Test:** HTTP 500, a rejected fetch (no unhandled rejection), Try again and then a successful save. Also checks that the notice sits outside the chat frame and that CSS does not hide it on the list.
+   - **Browser smoke** at 375px, on the list: simulating POST /pin returning 500 and then lost network, the notice is visible with Try again; Try again with a healthy network pins. Screenshot `exports/reviews/team-t5-smoke/m08-ghim-loi-mang-danh-sach-375.jpg`.
 
-Kiểm:
+Checks:
 - `tests/run.py --js` 186/186.
-- `test_teams_ui.js` 200 mục.
+- `test_teams_ui.js` 200 items.
 - `tests/run.py team agent_avatar agents_danh_sach_nhe resonance_mvp_main route_table icons i18n changelog em_dash docs` 29/29.
 
-SQLite tạm, engine giả, không gọi model.
+Temporary SQLite, fake engine, no model calls.
 
-## Còn để lại (Minor, chưa làm)
+## Left over (Minor, not done)
 
-- Hai thành viên trùng tên hiển thị: @ luôn trỏ người đầu.
-- Ngăn chưa bẫy focus và tab chưa đi bằng phím mũi tên.
-- Cho thêm lượt nâng trần tối đa của mức 2 thì mức hiện thành "Tuỳ chỉnh".
-- Mỗi sự kiện nhóm tải lại danh sách nhóm kèm tin cuối của từng nhóm (tối đa 50); chạy được, nên theo dõi.
+- Two members with the same display name: an @ always points to the first.
+- The drawer does not trap focus yet and the tabs do not move with the arrow keys.
+- Allow more turns raising the maximum caps of level 2 makes the level show as "Custom".
+- Every team event reloads the team list along with each team's last message (at most 50); it works, but should be watched.
 
-## Kiểm
+## Checks
 
-| Lệnh | Kết quả |
+| Command | Result |
 |---|---|
-| `tests/python/test_team_ux.py` | cho thêm lượt theo trần ngày, trần mỗi việc, trần bước (thêm lại bước bị từ chối, chạy tới xong), Toàn quyền đặt số (nâng trong hộp quyền và trần tối đa), trần không còn chặn, trần dưới số đã dùng, việc không chặn thì không làm gì; số đã dùng hôm nay; lý do chặn và tin hệ thống bằng lời thường |
-| `tests/python/test_team_api.py` | `last` ở danh sách, `usage` ở chi tiết, route extend: 200, 409, 404 |
-| `tests/js/test_teams_ui.js` | 163 mục: danh sách, bong bóng, dải việc, nút giải quyết, chip việc, @ theo chữ (email, NFD, tên dài thắng), ba mức, tab Nhóm và Nâng cao, ngăn, khung soạn một hàng, CSS `[hidden]` và 44px, chữ vi/en |
+| `tests/python/test_team_ux.py` | allow more turns by the daily cap, the per-job cap, the step cap (add back rejected steps, run to completion), Full authority with numbers (raise in the grant box and the maximum cap), a cap that no longer blocks, a cap below the number used, a job that is not blocked does nothing; the number used today; block reasons and system messages in plain words |
+| `tests/python/test_team_api.py` | `last` in the list, `usage` in the details, the extend route: 200, 409, 404 |
+| `tests/js/test_teams_ui.js` | 163 items: list, bubbles, job strip, resolve buttons, jobs chip, @ by text (email, NFD, the long name wins), three levels, the Team tab and Advanced, drawer, one-row composer, CSS `[hidden]` and 44px, vi/en text |
 | `tests/run.py --js` | 186/186 |
-| Python chịu tác động | 12/12 (`team_runner`, `team_t1_review`, `team_authority`, `team_reactions`, `team_history`, `team_ux`, `team_perf_bench`, `route_table`, `team_store`, `team_api`, `icons`) |
+| Affected Python | 12/12 (`team_runner`, `team_t1_review`, `team_authority`, `team_reactions`, `team_history`, `team_ux`, `team_perf_bench`, `route_table`, `team_store`, `team_api`, `icons`) |
 
-**Smoke giao diện** (sandbox cổng 7788, nhóm tạm dừng, trần ngày 0, không gọi model). Ảnh trong `exports/reviews/team-t5-smoke/`; so với ảnh trước trong `exports/reviews/team-ux-audit/`.
+**UI smoke** (sandbox port 7788, team paused, daily cap 0, no model calls). Screenshots in `exports/reviews/team-t5-smoke/`; compare with the earlier screenshots in `exports/reviews/team-ux-audit/`.
 
-| Đo | Trước | Sau |
+| Measurement | Before | After |
 |---|---|---|
-| Khung tin trên điện thoại 375px | 284px | 461px |
-| Hàng soạn | 209 tới 249px | 44px |
-| Tab Nhóm (cài đặt) | 2.003px | 908px, số đặt trong Nâng cao |
-| Tên thành viên | mỗi chữ một dòng | một dòng |
-| Khung chat trên máy tính 1366px | 564px | 926px, ngăn đóng |
+| Message frame on a 375px phone | 284px | 461px |
+| Composer row | 209 to 249px | 44px |
+| Team tab (settings) | 2,003px | 908px, numbers set in Advanced |
+| Member names | one word per line | one line |
+| Chat frame on a 1366px desktop | 564px | 926px, drawer closed |
 
-Đã thử trên sandbox:
-- ba mức (đổi qua lại, mức 3 hỏi lại);
-- Cho thêm lượt (trần ngày 0 thành 20, việc về hàng chờ; sau đó đặt lại 0 ngay);
-- @ chèn tên và dòng gợi ý Giao việc;
-- ngăn kéo với nền mờ ở 900px;
-- tin hệ thống mới.
+Tried on the sandbox:
+- the three levels (switching back and forth, level 3 asks again);
+- Allow more turns (daily cap 0 became 20, the job went back to the queue; then reset to 0 right away);
+- @ inserting a name and the Assign job hint line;
+- the drawer with a dimmed backdrop at 900px;
+- a new system message.
 
-Chưa thử trên máy thật iOS/Android hay với trình đọc màn hình.
+Not tried on a real iOS/Android device or with a screen reader.

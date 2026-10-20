@@ -1,201 +1,201 @@
-# Zalo listener liên tục (sidecar webhook)
+# Continuous Zalo listener (webhook sidecar)
 
-Ngày: 2026-07-20
-Trạng thái: đã chốt thiết kế, đang thực thi
+Date: 2026-07-20
+Status: design settled, being implemented
 
-## Vấn đề
+## Problem
 
-Jarvis 007 đã nối được Zalo qua connector `zalo` (`zalo-agent-cli`, đăng nhập QR, xem
-`server/zalo_login.py`). Nhưng connector đó là **pull-only**: phải gọi tool
-`zalo_get_messages` mới biết có tin. Không có đường nào để Jarvis 007 biết ngay khi
-khách nhắn tới.
+Jarvis 007 is already connected to Zalo through the `zalo` connector (`zalo-agent-cli`, QR login, see
+`server/zalo_login.py`). But that connector is **pull-only**: you must call the tool
+`zalo_get_messages` to learn there are messages. There is no way for Jarvis 007 to know the moment a
+customer writes.
 
-Hai thứ chặn việc nghe liên tục:
+Two things block continuous listening:
 
-1. `mcp_client.py:30` đặt `_IDLE_TTL = 600`. Quá 10 phút không gọi tool là pool
-   đóng session, subprocess bị kill, websocket đứt và ring buffer 500 tin của
-   `zalo-agent-cli mcp start` mất sạch.
-2. Jarvis 007 chưa có cổng nào để connector đẩy sự kiện ngược vào.
+1. `mcp_client.py:30` sets `_IDLE_TTL = 600`. After 10 minutes without a tool call the pool
+   closes the session, the subprocess is killed, the websocket drops, and the 500-message ring buffer of
+   `zalo-agent-cli mcp start` is wiped out.
+2. Jarvis 007 has no door yet for the connector to push events back in.
 
-Nên nghe liên tục **không** làm được bằng cách gọi MCP. Phải có một tiến trình
-sống độc lập với pool.
+So continuous listening can **not** be done by calling MCP. There must be a process
+that lives independently of the pool.
 
-## Quyết định
+## Decision
 
-| Điểm | Chốt |
+| Point | Decision |
 |---|---|
-| Đường đi | Sidecar `zalo-agent listen --webhook`, tài khoản Zalo phụ |
-| Hành vi | Chỉ báo Telegram, có lọc. KHÔNG tự trả lời khách |
-| Nơi chạy | VPS Hostinger (bật 24/7, IP tĩnh) |
-| Quản tiến trình | Jarvis 007 tự quản, theo khuôn `zalo_login.py` |
+| Route | Sidecar `zalo-agent listen --webhook`, secondary Zalo account |
+| Behavior | Only report to Telegram, with filtering. Does NOT auto-reply to customers |
+| Where it runs | The Hostinger VPS (on 24/7, static IP) |
+| Process management | Jarvis 007 manages it itself, following the `zalo_login.py` mold |
 
-Các lựa chọn đã cân nhắc và loại: chạy container riêng trong docker-compose
-(phải sửa compose, chia volume home để đăng nhập, mất nút bật tắt trong UI);
-dùng `--save` ghi jsonl rồi đọc file (quay về polling, mất realtime); đi OA
-chính thức (không rủi ro khoá nhưng cần OA đã xác thực và nhiều khả năng gói
-trả phí, lại chỉ bắt hội thoại OA chứ không đụng chat cá nhân).
+Options considered and rejected: running a separate container in docker-compose
+(would need compose changes, splitting the home volume for login, and losing the on/off button in the UI);
+using `--save` to write jsonl and reading the file (back to polling, loses realtime); going through the official OA
+(no risk of being locked but needs a verified OA and most likely a
+paid plan, and it only captures OA conversations, not personal chats).
 
-## Kiến trúc
+## Architecture
 
 ```
-npx zalo-agent-cli listen  --(HOME = home cô lập của connection)
+npx zalo-agent-cli listen  --(HOME = the connection's isolated home)
         |
-        |  POST http://127.0.0.1:<port>/hook/zalo   (mỗi sự kiện 1 JSON)
+        |  POST http://127.0.0.1:<port>/hook/zalo   (1 JSON per event)
         v
-Jarvis 007  /hook/zalo  ->  trả 200 ngay  ->  hàng đợi
-                                            |
-                                     lọc + khử trùng lặp
-                                            |
-                                     _notify_owner -> Telegram
+Jarvis 007  /hook/zalo  ->  return 200 at once  ->  queue
+                                                    |
+                                             filter + dedupe
+                                                    |
+                                             _notify_owner -> Telegram
 ```
 
-Không gọi model ở bất kỳ khâu nào, nên listener chạy cả ngày không tốn token.
+No model is called at any stage, so the listener can run all day without spending tokens.
 
-## Thành phần
+## Components
 
 ### 1. `server/zalo_listener.py`
 
-Module độc lập, **không import main** (tiêm helper qua dataclass deps, đúng
-kiểu `reminders.py`). Gồm:
+A standalone module that **does not import main** (helpers injected via a deps dataclass, in the
+style of `reminders.py`). It contains:
 
-- Quản vòng đời tiến trình: `start()`, `stop()`, `status()`. Spawn npx với
-  `HOME`/`USERPROFILE` trỏ vào `config.home_dir` của connection Zalo đã chọn.
-- Đọc stdout để biết trạng thái: đang nối, đứt, trùng phiên, lỗi đăng nhập.
-- Tự dựng lại có backoff (5s rồi 30s, trần 5 phút). Trùng phiên hoặc lỗi xác
-  thực lặp lại thì dừng hẳn và báo lên UI thay vì quay vòng vô ích.
-- Hàm thuần `should_notify(event, cfg, now)` và `seen_once(msg_id)` tách riêng
-  để test được không cần tiến trình thật.
+- Process lifecycle management: `start()`, `stop()`, `status()`. Spawns npx with
+  `HOME`/`USERPROFILE` pointing at the `config.home_dir` of the chosen Zalo connection.
+- Reads stdout to learn the state: connecting, dropped, duplicate session, login error.
+- Rebuilds itself with backoff (5s then 30s, capped at 5 minutes). A repeated duplicate session or auth error
+  stops it for good and reports to the UI instead of spinning uselessly.
+- The pure functions `should_notify(event, cfg, now)` and `seen_once(msg_id)` are kept separate
+  so they can be tested without a real process.
 
 ### 2. Endpoint `POST /hook/zalo`
 
-Trong router của module, đăng ký vào app ở main.py. Thêm đường dẫn vào
-`_AUTH_LOCAL_EXACT` (main.py:82) để miễn cookie đăng nhập khi gọi từ loopback;
-request từ ngoài vẫn bị `_auth_guard` chặn.
+In the module's router, registered into the app in main.py. Add the path to
+`_AUTH_LOCAL_EXACT` (main.py:82) to exempt it from the login cookie when called from loopback;
+requests from outside are still blocked by `_auth_guard`.
 
-Bắt buộc **trả 200 ngay** rồi xử lý bất đồng bộ, vì `zalo-agent-cli` chỉ chờ 5
-giây rồi bỏ qua âm thầm.
+It is mandatory to **return 200 at once** and then process asynchronously, because `zalo-agent-cli` waits only 5
+seconds and then silently gives up.
 
-### 3. Bộ lọc: whitelist cuộc chat
+### 3. Filter: a whitelist of chats
 
-Đọc cấu hình từ `settings.json` khoá `zalo_listener`:
+Reads its configuration from `settings.json` under the key `zalo_listener`:
 
 ```json
 {
   "enabled": false,
-  "conn_id": "<id connection zalo>",
+  "conn_id": "<zalo connection id>",
   "threads": ["<thread id>"],
   "keywords": [],
   "quiet_hours": "23-07",
-  "secret": "<sinh tự động>",
+  "secret": "<auto-generated>",
   "owner_chat": ""
 }
 ```
 
-**`threads` là cổng chính.** Chủ chỉ muốn nghe liên tục đúng vài nhóm hoặc vài
-khách cần support, phần còn lại để đọc theo yêu cầu hoặc theo loop. Chưa chọn
-cuộc chat nào thì **không báo gì** - im lặng là mặc định đúng, không phải lỗi.
+**`threads` is the main gate.** The owner only wants continuous listening on a few groups or a few customers who
+need support, with the rest read on demand or by loop. If no chat has been chosen yet, it
+**reports nothing** - silence is the correct default, not an error.
 
-`keywords` chỉ là lọc phụ, thu hẹp thêm bên trong các cuộc chat đã chọn. Bỏ qua
-tin của chính mình. Trong giờ im lặng thì nuốt thông báo, không dồn lại bắn một loạt.
+`keywords` is only a secondary filter, narrowing further inside the chosen chats. Messages from
+yourself are skipped. During quiet hours notifications are swallowed, not queued up and fired in a burst.
 
-Không còn `dm_only`: chọn cuộc chat nào là nghe cuộc chat đó, nhóm hay riêng
-không còn là tiêu chí. Để một ô lọc mâu thuẫn với whitelist chỉ gây rối.
+There is no more `dm_only`: choosing a chat means listening to that chat, whether group or
+private is no longer a criterion. Leaving a filter box that contradicts the whitelist only causes confusion.
 
-**Sổ cuộc chat (roster).** Chủ không biết thread ID, nên sidecar học từ chính
-luồng webhook: mỗi tin đi qua đều ghi vào sổ (id, tên, loại, lần cuối), giao
-diện hiện thành danh sách để tick. Ghi sổ xảy ra **trước** bộ lọc, nếu không thì
-cuộc chat chưa chọn sẽ không bao giờ hiện ra để mà chọn.
+**Chat roster.** The owner does not know thread IDs, so the sidecar learns from the webhook
+stream itself: every message passing through is recorded in the roster (id, name, type, last seen), and the UI
+shows it as a list to tick. Recording into the roster happens **before** the filter, otherwise
+a chat that has not been chosen would never show up to be chosen.
 
-Cố ý không gọi tool `zalo_list_threads` để lấy danh sách: gọi tool sẽ dựng thêm
-một socket cho cùng tài khoản, đúng vào va chạm chưa kiểm chứng nói ở dưới.
+It deliberately does not call the `zalo_list_threads` tool to get the list: calling a tool would build another
+socket for the same account, right into the unverified collision described below.
 
-### 4. Chống trùng lặp
+### 4. Deduplication
 
-Giữ set `msgId` đã xử lý gần đây (trần 2000, hết thì cắt nửa cũ). CLI gửi lại
-sau khi nối lại là chuyện bình thường, không được bắn Telegram hai lần.
+Keep a set of recently processed `msgId`s (capped at 2000, halving the oldest when full). The CLI resends
+after reconnecting as a matter of course, and it must not fire Telegram twice.
 
-### 5. UI trang Kết nối
+### 5. Connections page UI
 
-Chọn connection Zalo nào làm listener, ô nhập từ khoá, nút bật/tắt, và hiện
-trạng thái thật: đang nghe, mất kết nối đang thử lại, hay trùng phiên.
+Choose which Zalo connection acts as the listener, a keyword input box, an on/off button, and show
+the real state: listening, connection lost and retrying, or duplicate session.
 
-## An toàn
+## Safety
 
-- Endpoint chỉ nhận từ `127.0.0.1`/`::1`, kèm shared secret phòng tiến trình khác
-  trên cùng VPS gọi bừa.
+- The endpoint accepts only from `127.0.0.1`/`::1`, plus a shared secret in case another process
+  on the same VPS calls it at random.
 
-  Secret đi trong **query** (`/hook/zalo?k=...`), không phải header. Lý do: cờ
-  `--webhook <url>` của `zalo-agent-cli` chỉ POST JSON trần, không có cách đặt
-  header tuỳ ý, nên gác bằng header là chặn sạch tin và tính năng chết câm.
-  Đánh đổi chấp nhận được vì kênh này chỉ sống trên loopback: rào CHÍNH là
-  `_AUTH_LOCAL_EXACT` cộng loopback, secret chỉ là tầng hai. Endpoint vẫn nhận
-  cả header cho ai tự dựng nguồn đẩy khác.
-- Jarvis 007 vẫn **không tự gửi tin Zalo**. Loop nền vẫn bị cấm gửi như hiện tại.
-- Giới hạn tần suất thông báo để một nhóm đông không làm nổ Telegram.
-- `home_dir` chứa `zalo-session.json`, tương đương quyền đăng nhập đầy đủ. Đã
-  kiểm tra: `.gitignore:33` che `server/connector-home/` và `STATE_DIR` mặc định
-  trỏ vào `server/`, nên không lọt lên git.
-- Rủi ro nền: chạy 24/7 trên tài khoản cá nhân là vi phạm điều khoản Zalo, có
-  thể bị khoá số. Dùng SIM phụ, không dùng số chính của cửa hàng.
+  The secret travels in the **query** (`/hook/zalo?k=...`), not a header. Reason: the
+  `--webhook <url>` flag of `zalo-agent-cli` only POSTs bare JSON, with no way to set an arbitrary
+  header, so guarding by header would block every message and the feature would die silently.
+  The tradeoff is acceptable because this channel lives only on loopback: the MAIN barrier is
+  `_AUTH_LOCAL_EXACT` plus loopback, the secret is only a second layer. The endpoint still accepts
+  a header too for anyone who sets up a different push source.
+- Jarvis 007 still **does not send Zalo messages by itself**. Background loops are still forbidden from sending, as today.
+- Notification rate limiting so a busy group does not blow up Telegram.
+- `home_dir` holds `zalo-session.json`, equivalent to full login rights. Checked:
+  `.gitignore:33` covers `server/connector-home/` and the default `STATE_DIR` points into
+  `server/`, so it does not leak into git.
+- Underlying risk: running 24/7 on a personal account violates Zalo's terms and
+  may get the number locked. Use a spare SIM, not the shop's main number.
 
-## Chống prompt injection từ tin nhắn Zalo
+## Defending against prompt injection from Zalo messages
 
-Đây là bề mặt tấn công thật: nội dung do người lạ soạn, đi thẳng vào hệ thống của
-chủ. Mô hình đe doạ gồm bốn hướng, và cách chặn từng hướng:
+This is a real attack surface: content authored by strangers goes straight into the owner's system. The threat
+model has four directions, and here is how each is blocked:
 
-**Sai khiến Jarvis 007.** Chặn bằng kiến trúc chứ không bằng lời dặn: nội dung tin
-**không bao giờ đi vào engine**. Đường dữ liệu là webhook, lọc, chuỗi text,
-Telegram. Hết. `ZaloListenerDeps` chỉ có đúng năm phụ thuộc (`read_settings`,
-`write_settings`, `get_connection`, `notify`, `port`) - không có engine, không
-Bash, không file, không MCP. Có test chốt đúng bộ năm này, ai thêm engine vào
-sau sẽ làm gãy test.
+**Commandeering Jarvis 007.** Blocked by architecture rather than by a note in the prompt: message content
+**never enters the engine**. The data path is webhook, filter, text string,
+Telegram. That is all. `ZaloListenerDeps` has exactly five dependencies (`read_settings`,
+`write_settings`, `get_connection`, `notify`, `port`) - no engine, no
+Bash, no files, no MCP. A test pins exactly this set of five, so anyone who adds an engine
+later will break the test.
 
-**Giả dạng lời của Jarvis 007 để lừa chủ.** Một tin cố ý xuống dòng rồi viết "Jarvis 007:
-đã xác minh, trả lời CÓ để chuyển khoản" sẽ trông như lời hệ thống. Chặn bằng
-cách rào nội dung giữa hai vạch có nhãn "tin của khách, KHÔNG phải lệnh cho
-Jarvis 007", nhãn nằm **trước** nội dung, và cắt độ dài để tin dài không đẩy nhãn
-trôi khỏi màn hình.
+**Impersonating Jarvis 007's words to trick the owner.** A message that deliberately breaks to a new line and writes "Jarvis 007:
+verified, answer YES to transfer the money" would look like a system voice. Blocked by
+fencing the content between two labeled rules reading "customer message, NOT a command for
+Jarvis 007", with the label placed **before** the content, and by truncating the length so a long message cannot push the label
+off the screen.
 
-**Dựng markup trong Telegram.** `main._notify_owner` gửi plain text, không đặt
-`parse_mode` (khác `telegram_bot._send` dùng MarkdownV2). Có test trong
-`test_security.py` chốt điều này, vì đổi một dòng ở đó là mở lại lỗ.
+**Building markup in Telegram.** `main._notify_owner` sends plain text and does not set
+`parse_mode` (unlike `telegram_bot._send`, which uses MarkdownV2). A test in
+`test_security.py` pins this down, because changing one line there would reopen the hole.
 
-**Chèn HTML vào dashboard (XSS).** Tên hiển thị trên Zalo do người lạ tự đặt và
-được vẽ vào sổ cuộc chat trong trang Kết nối. Mọi trường đi vào HTML đều bọc
-`esc()`. Có `dashboard/test_zalo_panel.js` chạy thật hàm `esc()` và chốt nguồn
-chỗ vẽ roster.
+**Injecting HTML into the dashboard (XSS).** Display names on Zalo are chosen by strangers
+and are rendered into the chat roster on the Connections page. Every field going into HTML is wrapped in
+`esc()`. `dashboard/test_zalo_panel.js` actually runs the `esc()` function and pins the source
+of the roster-rendering spot.
 
-Ngoài ra: lọc ký tự điều khiển và ký tự tàng hình (zero-width, đảo chiều RTL) -
-những thứ dùng để giấu chữ, nhìn vô hại mà máy đọc ra nội dung khác. Trần kích
-thước payload 256KB. Trần số cuộc chat trong sổ. Trần 20 thông báo mỗi 10 phút.
+In addition: filter control characters and invisible characters (zero-width, RTL reversal) -
+the things used to hide text, harmless to look at but read differently by a machine. A payload size
+cap of 256KB. A cap on the number of chats in the roster. A cap of 20 notifications per 10 minutes.
 
-Chiều ngược lại cũng đóng: không có đường nào để một tin Zalo khiến máy chủ chạy
-lệnh, đọc ghi file, hay gọi MCP.
+The reverse direction is closed too: there is no path for a Zalo message to make the server run
+commands, read or write files, or call MCP.
 
-## Điều chưa kiểm chứng
+## Not yet verified
 
-**Zalo chỉ cho một socket mỗi tài khoản.** Connector `zalo` (`mcp start`) cũng
-giữ socket, sidecar `listen` cũng cần socket. Cùng một tài khoản thì có thể đá
-nhau, `zalo-agent-cli` thấy trùng phiên là tự thoát. Chưa kiểm chứng được hai
-tiến trình cùng home có sống chung nổi không.
+**Zalo allows only one socket per account.** The `zalo` connector (`mcp start`) also
+holds a socket, and the `listen` sidecar also needs a socket. On the same account they may
+kick each other out, `zalo-agent-cli` exits by itself when it sees a duplicate session. It is not yet verified whether two
+processes sharing the same home can coexist.
 
-Cách xử lý: **không đoán, làm cho va chạm hiện ra rõ**. Bắt chuỗi trùng phiên
-trong stdout, đẩy lên UI thành trạng thái đọc được, tự dừng thay vì quay vòng.
-Anh dùng ngày đầu là biết ngay có va hay không.
+How it is handled: **do not guess, make the collision visible**. Catch the duplicate-session string
+in stdout, push it to the UI as a readable state, and stop by itself instead of spinning.
+Using it on the first day will show right away whether there is a collision.
 
-Nếu va chạm là thật và xảy ra thường xuyên, bước tiếp theo là tạm dừng listener
-khi cần gửi tin rồi bật lại. Chưa làm bây giờ vì chưa có bằng chứng là cần, mà
-nó kéo theo lỗ hổng mất tin trong lúc dừng.
+If the collision is real and happens often, the next step is to pause the listener
+whenever a message needs to be sent and then turn it back on. Not done now because there is no evidence it is needed, and
+it brings a hole of lost messages while paused.
 
-## Test
+## Tests
 
-- Unit test cho `should_notify` và `seen_once`: hàm thuần, phủ từ khoá, dm_only,
-  giờ im lặng, tin của chính mình, trùng msgId.
-- Test endpoint bằng POST giả, kiểm tra trả 200 nhanh và sai secret thì bị chặn.
-- Phần socket thật phải thử tay vì phụ thuộc tài khoản Zalo sống. Không giả vờ
-  test được.
+- Unit tests for `should_notify` and `seen_once`: pure functions, covering keywords, dm_only,
+  quiet hours, own messages, duplicate msgId.
+- Test the endpoint with a fake POST, checking it returns 200 quickly and a wrong secret is blocked.
+- The real socket part must be tried by hand because it depends on a live Zalo account. No pretending
+  it can be tested.
 
-## Ngoài phạm vi
+## Out of scope
 
-Tự trả lời khách, soạn nháp trả lời bằng model, đường OA chính thức, và đồng bộ
-tin Zalo vào Second Brain. Để lần sau nếu cần.
+Auto-replying to customers, drafting replies with a model, the official OA route, and syncing
+Zalo messages into the Second Brain. Left for next time if needed.

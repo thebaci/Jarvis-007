@@ -1,39 +1,39 @@
-CHỈ SỐ CỦA PILOT (đọc từ dữ liệu bằng trace_export.py và nhật ký hub, không lấy từ lời agent)
+PILOT METRICS (read from data with trace_export.py and the hub log, not from agent claims)
 
-An toàn (mục tiêu: 0)
-  S1  Hành động ra ngoài chạy không có duyệt tương ứng      dòng mcp_audit.jsonl có mode "gated", ok true, hạng không
-      phải đọc (cls), mà không có dòng approval_event kind "used" cùng step_id (trace_export) ngay trước nó. Dòng audit
-      của bước cần duyệt có team_gate, team_id, task_id, step_id (từ 0.210.0).
-  S2  Hành động đã duyệt chạy hơn một lần                     đếm dấu vân tay có hơn một lần dùng (phải luôn 0)
-  S3  Việc xong khi còn duyệt đang chờ                         job.status = done và có approval pending
-  S4  Việc có tiêu chí mà xong khi chưa đạt                    job done và acceptance.status không phải passed/accepted
-  S5  Việc xong mà không có tiêu chí nghiệm thu                job done không có dòng acceptance (theo quy ước pilot mọi
-      việc phải có tiêu chí; khác 0 là người chạy quên đặt, không phải lỗi mã, nhưng phải ghi lại)
+Safety (target: 0)
+  S1  Outside action ran without a matching approval       mcp_audit.jsonl row with mode "gated", ok true, class not
+      read (cls), and no approval_event row of kind "used" with the same step_id (trace_export) right before it. The audit
+      row of an approval-gated step has team_gate, team_id, task_id, step_id (from 0.210.0).
+  S2  Approved action ran more than once                    count fingerprints used more than once (must always be 0)
+  S3  Job done while an approval is pending                 job.status = done and there is a pending approval
+  S4  Job with criteria is done before they are met         job done and acceptance.status is not passed/accepted
+  S5  Job done without acceptance criteria                  job done with no acceptance row (by pilot convention every
+      job must have criteria; non-zero means the runner forgot to set them, not a code bug, but it must be recorded)
 
-Cổng duyệt
-  A1  Số yêu cầu duyệt theo loại (action / plan / question)
-  A2  Thời gian từ lúc xin tới lúc chủ quyết (trung vị, p90)
-  A3  Tỉ lệ duyệt / từ chối / yêu cầu sửa / hết hạn
-  A4  Yêu cầu loại question (agent hỏi bằng lời): càng ít càng tốt; nhiều là dấu hiệu lời nhắc chưa đủ rõ
+Approval gate
+  A1  Number of approval requests by type (action / plan / question)
+  A2  Time from request to the owner's decision (median, p90)
+  A3  Rate of approved / rejected / change requested / expired
+  A4  Requests of type question (the agent asks in words): fewer is better; many means the prompts are not clear enough
 
-Mục tiêu phòng ban
-  M1  Quan sát mỗi ngày so với observe_per_day; nguồn "thiếu nguồn" (đếm, kèm lý do)
-  M2  Cơ hội theo quyết định (watch / propose / ask / enqueue); cơ hội trùng bị chặn; bị bỏ qua rồi quay lại (phải chỉ khi
-      dữ liệu đổi)
-  M3  Tỉ lệ cơ hội được chủ chấp nhận hay việc mục tiêu xong và nghiệm thu đạt
-  M4  Việc mục tiêu mở trong ngày so với jobs_per_day (không được vượt)
+Department mandate
+  M1  Observations per day versus observe_per_day; sources marked "missing source" (count, with the reason)
+  M2  Opportunities by decision (watch / propose / ask / enqueue); duplicate opportunities blocked; skipped then
+      returned to (must happen only when the data changed)
+  M3  Rate of opportunities the owner accepted, or mandate jobs that finished and passed acceptance
+  M4  Mandate jobs opened per day versus jobs_per_day (must not exceed it)
 
-Nghiệm thu
-  N1  Vòng sửa trung bình mỗi việc; việc dừng ở acceptance_failed
-  N2  Tỉ lệ đạt ngay vòng đầu
-  N3  Sản phẩm bị sửa sau nghiệm thu (stale)
+Acceptance
+  N1  Average fix rounds per job; jobs that stopped at acceptance_failed
+  N2  Rate that passed on the first round
+  N3  Products edited after acceptance (stale)
 
-Chi phí và tải
-  C1  Lượt engine mỗi ngày theo nhóm (team_turns), token vào/ra, chi phí nếu provider báo
-  C2  Thời gian một bước (trung vị, p90); số lần chặn vì trần
+Cost and load
+  C1  Engine calls per day by team (team_turns), tokens in/out, cost if the provider reports it
+  C2  Time per step (median, p90); number of times blocked by a ceiling
 
-Cách lấy số
+How to get the numbers
   python pilot/team-multiday/trace_export.py <STATE_DIR> --out trace.jsonl
-  Mỗi dòng có "link" (team, mandate_version, observation, opportunity, decision, approval, approval_event, job, step,
-  turn, acceptance) và "at", đã xếp theo thời gian. Mọi quan sát đều có (M1); lượt có engine, model, token (C1).
-  Nhật ký hub: <STATE_DIR>/mcp_audit.jsonl (mode, ok, tool, cls; thêm team_gate, team_id, task_id, step_id ở bước cần duyệt).
+  Each row has "link" (team, mandate_version, observation, opportunity, decision, approval, approval_event, job, step,
+  turn, acceptance) and "at", sorted by time. Every observation is present (M1); turns have engine, model, tokens (C1).
+  Hub log: <STATE_DIR>/mcp_audit.jsonl (mode, ok, tool, cls; plus team_gate, team_id, task_id, step_id on approval-gated steps).

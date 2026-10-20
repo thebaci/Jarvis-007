@@ -1,65 +1,65 @@
 # Jarvis 007 Resonance Evolution Implementation Plan
 
-**Trạng thái sau phản biện vòng 2:** tham chiếu cho kiến trúc mở rộng. Phép thử phương pháp nhỏ được làm sớm trong [MVP một agent](2026-10-06-resonance-00-mvp.md); chưa cần toàn bộ ExperimentService, kho biến thể hoặc supervisor. C3 đến C5 chỉ mở sau khi vòng nhỏ đã chạy và có bằng chứng cần mở rộng; không tự sửa code ở MVP.
+**Status after the second round of challenge:** reference for the extended architecture. The small method trial is done early in the [single-agent MVP](2026-10-06-resonance-00-mvp.md); the full ExperimentService, variant store or supervisor is not needed yet. C3 to C5 only open after the small loop has run and there is evidence that expansion is needed; there is no self-modifying code in the MVP.
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (- [ ]) syntax for tracking. Đây là kế hoạch, không phải chỉ dẫn tự bắt đầu cập nhật Jarvis 007 đang chạy.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (- [ ]) syntax for tracking. This is a plan, not an instruction to start updating a running Jarvis 007 on its own.
 
-**Goal:** Cho agent cải thiện khả năng hiểu nhu cầu, hình thành mục tiêu và thực hiện công việc bằng thử nghiệm có bằng chứng; sau đó mở rộng tới sửa code Jarvis 007 với khả năng khôi phục thực tế.
+**Goal:** Let the agent improve its ability to understand needs, form goals and do work through experiments with evidence; then extend to editing Jarvis 007 code with real recoverability.
 
-**Architecture:** Experiment service quản lý baseline/candidate, dữ liệu kiểm chứng và điều kiện áp dụng. Candidate chỉ có quyền của worker; supervisor độc lập giữ phép chấm, quyền áp dụng, bản phục hồi và nhật ký. Sửa phương pháp và sửa ứng dụng là hai đích áp dụng riêng.
+**Architecture:** The experiment service manages the baseline/candidate, the verification data and the conditions for applying. A candidate only has worker permissions; an independent supervisor holds the scoring, the right to apply, the recovery copy and the log. Changing a method and changing the application are two separate apply targets.
 
-**Tech Stack:** Python, SQLite, runner hiện có, Git checkout cho code candidate, supervisor host và container worker ở chế độ live self-update. V1 không hỗ trợ tự cập nhật live nếu môi trường chưa có ranh giới worker/supervisor đã kiểm tra.
+**Tech Stack:** Python, SQLite, the existing runner, a Git checkout for candidate code, a host supervisor and a container worker in live self-update mode. V1 does not support live self-update if the environment has no verified worker/supervisor boundary.
 
-**Spec:** [Thiết kế tổng thể](../specs/2026-10-06-javis-resonance-design.md), mục 10 đến 17. Phụ thuộc [Foundation](2026-10-06-resonance-01-foundation.md) và B1 đến B3 của [Runtime](2026-10-06-resonance-02-runtime.md).
+**Spec:** [Overall design](../specs/2026-10-06-javis-resonance-design.md), sections 10 to 17. Depends on [Foundation](2026-10-06-resonance-01-foundation.md) and B1 to B3 of [Runtime](2026-10-06-resonance-02-runtime.md).
 
 ## Global Constraints
 
-- Kế thừa Global Constraints và kiểu dữ liệu của hai plan trước.
-- Candidate không ghi vào quyền, evaluator được bảo vệ, receipt hoặc tập đáp án giữ riêng của phép thử hiện tại.
-- Không cần người dùng duyệt lại thay đổi nếu grant đã cho phép áp dụng đúng phạm vi và phép kiểm chứng đạt.
-- Thay tiêu chí đánh giá tạo revision riêng; không so điểm khác thước đo để tuyên bố cải thiện.
-- Điều chỉnh mục tiêu suy ra là hoạt động bình thường; kết quả thực thi của mỗi revision giữ riêng. Goal framer được cải thiện bằng đối chứng trên cùng đầu vào/ràng buộc, không bằng tự chọn đích dễ hơn.
-- Khám phá nằm trong tổng tài nguyên gốc; lưu biến thể theo hạn mức, không tạo kho vô hạn.
-- Tự sửa code được opt-in riêng; không thay mặc định full của loop thành quyền self_modify/deploy.
-- Không quảng bá khả năng bảo vệ live bằng một file cờ hoặc một process cùng tài khoản toàn quyền.
-- Health check không thay kiểm tra hành vi; Git rollback không thay phục hồi dữ liệu và tác động ngoài.
-- C1 và C2 thực hiện ngay sau B3; C3 sau B4/B5; C4/C5 chỉ mở live khi đủ ranh giới môi trường.
+- Inherit the Global Constraints and data types of the two previous plans.
+- A candidate does not write to permissions, protected evaluators, receipts or the answer set kept private for the current trial.
+- The user does not need to approve a change again if the grant already allows applying within the exact scope and the verification passes.
+- Changing the evaluation criteria creates its own revision; do not compare scores on different metrics to claim an improvement.
+- Adjusting the inferred goal is normal operation; the execution result of each revision is kept separate. The goal framer is improved by a control comparison on the same input/constraints, not by choosing an easier target.
+- Discovery sits inside the total original resources; variants are stored within a limit, and no unbounded store is created.
+- Self-modifying code is a separate opt-in; do not replace a loop's default full with the self_modify/deploy permission.
+- Do not advertise live protection by a flag file or a process running under the same fully privileged account.
+- A health check does not replace a behavior check; a Git rollback does not replace restoring data and outside effects.
+- C1 and C2 are done right after B3; C3 after B4/B5; C4/C5 only open live when the environment boundaries are sufficient.
 
 ## Review Focus
 
-1. Candidate sửa đề/đáp án hoặc tạo log test giả không được công nhận: C1, C4.
-2. Baseline/candidate khác ngân sách, dữ liệu hoặc thước đo không được so như tương đương: C1.
-3. Kết quả chưa đủ dữ liệu không được tự áp dụng; bản kém phải giữ baseline: C2.
-4. Bài học mới sai hoặc rút lại không tiếp tục được chèn vào prompt: C3.
-5. Crash lúc deploy, app healthy nhưng sai hành vi, migration không tương thích phải khôi phục hoặc giữ trạng thái chặn rõ ràng: C5.
-6. Mục tiêu dễ đạt nhưng lệch nhu cầu không được chấm tốt; agent không học cách né câu hỏi cần thiết hoặc hỏi lặp để giảm trách nhiệm: C1, C3, C6.
+1. A candidate that edits the questions/answers or creates a fake test log must not be accepted: C1, C4.
+2. A baseline/candidate with different budget, data or metric must not be compared as equivalent: C1.
+3. A result without enough data must not be applied on its own; a worse version must keep the baseline: C2.
+4. A new lesson that is wrong or withdrawn must not continue to be inserted into the prompt: C3.
+5. A crash during deploy, an app that is healthy but behaves wrongly, or an incompatible migration must be recovered or kept in a clearly blocked state: C5.
+6. A goal that is easy to reach but off the need must not be scored well; the agent must not learn to dodge necessary questions or ask repeatedly to reduce its responsibility: C1, C3, C6.
 
-## Task C1 Experiment và bộ thử nghiệm phương pháp
+## Task C1 Experiments and the method trial set
 
 **Files:** Create server/resonance_experiments.py, server/resonance_trials.py, tests/python/test_resonance_experiments.py, tests/fixtures/resonance/README.md, tests/fixtures/resonance/document_cases.json, tests/fixtures/resonance/index_cases.json, tests/fixtures/resonance/intent_cases.json. Modify server/resonance_contracts.py, server/resonance_store.py.
 
 **Interfaces:**
 
-- ExperimentSpec(id, brain_id, goal_id, contract_revision, hypothesis, baseline_ref, candidate_ref, evaluator_ref, evaluator_revision, development_set_ref, holdout_set_ref, resource_envelope, acceptance, target, status); target method/app_code; status draft/running/inconclusive/rejected/eligible/applied/reverted. Định nghĩa tại resonance_contracts.py.
-- TrialResult(id, experiment_id, variant_ref, case_id, receipt_ids, assessment_ids, resources, completed_at); mọi ref phải truy được.
+- ExperimentSpec(id, brain_id, goal_id, contract_revision, hypothesis, baseline_ref, candidate_ref, evaluator_ref, evaluator_revision, development_set_ref, holdout_set_ref, resource_envelope, acceptance, target, status); target is method/app_code; status is draft/running/inconclusive/rejected/eligible/applied/reverted. Defined in resonance_contracts.py.
+- TrialResult(id, experiment_id, variant_ref, case_id, receipt_ids, assessment_ids, resources, completed_at); every ref must be traceable.
 - ExperimentService.create(spec: ExperimentSpec, principal: Principal) -> ExperimentSpec.
 - TrialRunner.run(experiment: ExperimentSpec, variant_ref: str, case_id: str) -> TrialResult.
-- ExperimentService.compare(experiment_id: str, principal: Principal) -> dict; verdict inconclusive/rejected/eligible, reasons và evidence_ids.
+- ExperimentService.compare(experiment_id: str, principal: Principal) -> dict; verdict inconclusive/rejected/eligible, with reasons and evidence_ids.
 
-- [ ] Viết test hai biến thể trên cùng trường hợp có kết quả tốt/xấu/unknown; cùng evaluator revision và envelope; trường hợp thiếu receipt không được chấm passed.
-- [ ] Viết test đổi tiêu chí giữa thử, lệch bộ dữ liệu, baseline budget khác không được kết luận thắng; chi phí không được đo phải giữ unknown.
-- [ ] Viết test reframe hợp lệ trong lúc thử: giữ trial và verdict của revision cũ, phép thử không còn áp dụng trả inconclusive/goal_reframed. Không apply cho revision mới khi chưa so sánh lại cùng thước đo và kiểm tra tính áp dụng.
-- [ ] Viết test case phát triển không trùng holdout; candidate không nhận đường dẫn/đáp án holdout; payload nói PASS nhưng checker thất bại vẫn rejected.
-- [ ] Chạy python tests/run.py resonance_experiments -v; xác nhận đỏ.
-- [ ] Implement thử trên bản sao tài nguyên mô phỏng, không chạy lại hành động không hoàn tác trên dịch vụ thật để lấy đối chứng. Ghim revision và seed/thứ tự nếu có yếu tố ngẫu nhiên; ghi mọi trial, kể cả thất bại.
-- [ ] Ở C1/C2 trước khi có C4, variant chỉ là cấu hình phương pháp khai báo chạy qua host tools đã kiểm phạm vi; model không nhận đáp án/checker path. Chưa chạy Python/shell do candidate sinh cùng quyền host. Arbitrary code candidate cần backend C4.
-- [ ] Với fixture đầu: baseline bỏ một mục bắt buộc trong tài liệu, candidate bổ sung; fixture khác baseline bỏ sót một thay đổi file trong chỉ mục. Checker artifact/state từ A3 xác nhận kết quả, không dùng lời tự chấm của worker.
-- [ ] Thêm intent_cases: yêu cầu mơ hồ, thông tin có sẵn không cần hỏi, trả lời chưa biết, ràng buộc mâu thuẫn, mục tiêu khó và cơ hội hạ tiêu chí để thắng. Fixture ghi nhu cầu/ràng buộc và hành vi chấp nhận được, không ép một câu mục tiêu duy nhất. C1 kiểm cấu trúc, quyền và lịch sử bằng checker xác định; C6 bổ sung đánh giá ngữ nghĩa độc lập với model thực thi.
-- [ ] Khi thử biến thể Goal framer, baseline/candidate nhận cùng đầu vào và ngân sách, tự tạo mục tiêu riêng; phép chấm ngoài giữ cố định theo nhu cầu/ràng buộc gốc. Báo riêng độ phù hợp mục tiêu và hiệu quả đầu ra, không so tỷ lệ đạt các tiêu chí do mỗi candidate tự chọn như cùng thước đo.
-- [ ] Acceptance của fixture: candidate đạt toàn bộ ca giữ lại, không làm ca baseline đã đạt trở thành không đạt và không vượt envelope được cấp. Đây là điều kiện phép thử cụ thể, không phải luật mọi experiment tương lai.
-- [ ] Chạy lại test; review và commit.
+- [ ] Write a test that two variants on the same case have good/bad/unknown results; the same evaluator revision and envelope; a case missing a receipt must not be scored passed.
+- [ ] Write tests that changing the criteria midway, a mismatched dataset, or a different baseline budget must not conclude a win; an unmeasured cost must stay unknown.
+- [ ] Write a test of a valid reframe during a trial: keep the trial and the verdict of the old revision, and a trial that no longer applies returns inconclusive/goal_reframed. Do not apply to the new revision before comparing again on the same metric and checking applicability.
+- [ ] Write tests that development cases do not overlap the holdout; a candidate does not receive the holdout path/answers; a payload that says PASS but whose checker fails is still rejected.
+- [ ] Run python tests/run.py resonance_experiments -v; confirm red.
+- [ ] Implement trials on a copy of simulated resources, and do not rerun an irreversible action on a real service to get a control comparison. Pin the revision and the seed/order if there is a random element; record every trial, including failures.
+- [ ] In C1/C2 before C4, a variant is only a declared method configuration run through host tools whose scope has been checked; the model does not receive the answers/checker path. Do not yet run Python/shell generated by a candidate with host permissions. Arbitrary candidate code needs the C4 backend.
+- [ ] For the first fixture: the baseline omits a required section in a document and the candidate adds it; in another fixture the baseline misses a file change in an index. The artifact/state checker from A3 confirms the result, not the worker's self-grading.
+- [ ] Add intent_cases: a vague request, information already available that needs no question, an "I don't know" answer, contradictory constraints, a hard goal and an opportunity to lower the criteria to win. The fixture records the need/constraints and the acceptable behavior, and does not force a single goal sentence. C1 checks structure, permissions and history with a deterministic checker; C6 adds a semantic evaluation independent of the executing model.
+- [ ] When trying Goal framer variants, the baseline/candidate receive the same input and budget and create their own goals; the outside scoring stays fixed by the original need/constraints. Report goal fit and output effectiveness separately, and do not compare the pass rate of criteria each candidate chose for itself as the same metric.
+- [ ] Fixture acceptance: the candidate passes all held-out cases, does not turn a case the baseline already passed into a failure, and does not exceed the granted envelope. This is a condition of this specific trial, not a rule for every future experiment.
+- [ ] Rerun the tests; review and commit.
 
-## Task C2 Áp dụng phương pháp và giữ biến thể
+## Task C2 Applying a method and keeping variants
 
 **Files:** Create server/resonance_variants.py, tests/python/test_resonance_variants.py. Modify server/resonance_store.py, server/resonance_experiments.py, server/resonance_executor.py, server/resonance_api.py, dashboard/resonance.js, dashboard/i18n/vi.json, dashboard/i18n/en.json.
 
@@ -68,20 +68,20 @@
 - VariantStore.register(brain_id: str, owner_id: str, parent_ref: str, artifact_ref: str, evidence_ids: tuple[str,...]) -> str.
 - VariantStore.activate(owner_id: str, expected_active_ref: str, candidate_ref: str, experiment_id: str, principal: Principal) -> str.
 - VariantStore.revert(owner_id: str, expected_active_ref: str, restore_ref: str, principal: Principal) -> str.
-- API: GET /goals/{id}/experiments; POST /goals/{id}/experiments; POST /experiments/{id}/apply; POST /experiments/{id}/revert. Quyền apply lấy từ grant; ứng dụng tự gọi service sau khi đủ điều kiện nếu được ủy quyền.
+- API: GET /goals/{id}/experiments; POST /goals/{id}/experiments; POST /experiments/{id}/apply; POST /experiments/{id}/revert. The apply permission comes from the grant; the application calls the service itself once the conditions are met if authorized.
 
-- [ ] Viết test eligible + grant apply hợp lệ đổi active_ref; rejected/inconclusive hoặc hết hạn grant giữ bản cũ.
-- [ ] Viết test hai experiment apply đồng thời chỉ một bên thắng CAS; run đang chạy giữ revision cũ; run tiếp theo dùng bản mới.
-- [ ] Viết test goal đã reframe không tự apply một experiment thuộc revision cũ; kiểm tra phạm vi áp dụng, tiêu chí và bằng chứng trước khi tạo phép thử mới. Biến thể framer đã được xác nhận vẫn không có quyền viết lại chỉ dẫn gốc hoặc tăng grant.
-- [ ] Viết test vượt quota lưu trữ dọn theo chính sách nhưng không xóa active, pinned hoặc restore_ref đang cần; bản khác biệt chưa thắng có thể giữ trong quota.
-- [ ] Chạy python tests/run.py resonance_variants -v; xác nhận đỏ.
-- [ ] Implement pointer phiên bản trong transaction, ghi event applied/reverted. V1 áp dụng phương pháp qua ref cấu hình, không ghi đè hàng loạt agent/skill trong brain.
-- [ ] Hoàn thành demo A -> B1 -> C1: agent chạy mục tiêu, thử phương pháp cải tiến, checker xác nhận, tự áp dụng trong quyền, run tiếp theo dùng phương pháp mới và có thể quay lại.
-- [ ] Chạy lại test, kiểm tra UI hiển thị bằng chứng thắng và giới hạn phép thử; review và commit. Sau mốc này tiếp tục nhóm ở B4/B5.
+- [ ] Write tests that eligible + a valid apply grant changes the active_ref; rejected/inconclusive or an expired grant keeps the old version.
+- [ ] Write tests that two experiments applying at the same time have only one winning the CAS; a running run keeps the old revision; the next run uses the new version.
+- [ ] Write a test that a goal that has been reframed does not automatically apply an experiment belonging to an old revision; check the scope of applicability, the criteria and the evidence before creating a new trial. A framer variant that has been confirmed still has no right to rewrite the original instruction or raise a grant.
+- [ ] Write tests that exceeding the storage quota cleans up by policy but does not delete the active, pinned or still-needed restore_ref; a different version that has not won may be kept within quota.
+- [ ] Run python tests/run.py resonance_variants -v; confirm red.
+- [ ] Implement the version pointer in a transaction, recording applied/reverted events. V1 applies a method through a configuration ref, and does not overwrite agents/skills in the brain in bulk.
+- [ ] Complete the demo A -> B1 -> C1: the agent runs a goal, tries an improved method, the checker confirms, it applies it itself within permissions, the next run uses the new method and can go back.
+- [ ] Rerun the tests, check that the UI shows the winning evidence and the limits of the trial; review and commit. After this milestone continue with groups at B4/B5.
 
-## Task C3 Bài học và đánh giá định tính có nguồn
+## Task C3 Lessons and qualitative evaluation with a source
 
-**Files:** Create server/resonance_learning.py, server/resonance_eval_rubric.py, server/resonance_eval_human.py, tests/python/test_resonance_learning.py, tests/python/test_resonance_rubric.py. Modify server/main.py tại đường JAVIS_LESSON, server/resonance_evaluators.py, server/resonance_store.py.
+**Files:** Create server/resonance_learning.py, server/resonance_eval_rubric.py, server/resonance_eval_human.py, tests/python/test_resonance_learning.py, tests/python/test_resonance_rubric.py. Modify server/main.py at the JAVIS_LESSON path, server/resonance_evaluators.py, server/resonance_store.py.
 
 **Interfaces:**
 
@@ -89,85 +89,85 @@
 - LearningService.validate(lesson_id: str, assessment_id: str, principal: Principal) -> None.
 - LearningService.supersede(lesson_id: str, replacement_id: str | None, evidence_ids: tuple[str,...]) -> None.
 - LearningService.active_lessons(brain_id: str, owner_id: str, scope: dict) -> list[dict].
-- RubricEvaluator và HumanConfirmationEvaluator thực hiện Evaluator Protocol của A3. Prompt/rubric revision và danh tính nguồn xác nhận được ghi trong assessment.
+- RubricEvaluator and HumanConfirmationEvaluator implement the A3 Evaluator Protocol. The prompt/rubric revision and the identity of the confirming source are recorded in the assessment.
 
-- [ ] Viết test reaction không tạo lesson validated; nhận xét của worker chỉ là proposed; chỉ dẫn rõ của principal có quyền có thể xác nhận.
-- [ ] Viết test người dùng sửa cách hiểu tạo IntentRecord mới, ghi rõ phạm vi nhu cầu này; không suy thành sở thích mọi lĩnh vực. Giả định về nhu cầu còn chưa chắc không được nâng thành lesson validated chỉ vì agent hoàn thành mục tiêu tự đặt; bài học bị bác bỏ phải rút khỏi framer lẫn planner.
-- [ ] Viết test lesson chỉ áp đúng scope, bị supersede không còn đưa vào prompt, không sửa vùng memory người dùng viết tay, không rò bài học qua brain.
-- [ ] Viết test rubric thiếu bằng chứng trả unknown; model confidence không được trình bày là xác suất; không có quyền xem dữ liệu thì evaluator không được đọc để chấm.
-- [ ] Chạy python tests/run.py resonance_learning resonance_rubric -v; xác nhận đỏ.
-- [ ] Implement provenance riêng cho lesson Resonance; bridge sang cơ chế bộ nhớ hiện có bằng id/hash để thu hồi bài học sinh tự động đúng dòng. Giữ hành vi JAVIS_LESSON legacy chưa thuộc Resonance.
-- [ ] Thêm các evaluator mới bằng registry, không sửa state machine. Human confirmation yêu cầu danh tính xác thực, không nhận câu tự báo của model là chữ ký người dùng.
-- [ ] Chạy test mới và python tests/run.py learn_agent_workflow agent_tu_boi_dap memory_hoa_thuong -v; review và commit.
+- [ ] Write tests that a reaction does not create a validated lesson; a worker's comment is only proposed; a clear instruction from a principal with the right permission can confirm.
+- [ ] Write tests that a user editing the understanding creates a new IntentRecord, stating clearly the scope of this need; it is not inferred as a preference for every domain. An assumption about a need that is still uncertain must not be promoted to a validated lesson just because the agent completed the goal it set itself; a refuted lesson must be withdrawn from both the framer and the planner.
+- [ ] Write tests that a lesson only applies within its scope, a superseded one is no longer put in the prompt, it does not edit the memory area the user wrote by hand, and no lesson leaks across brains.
+- [ ] Write tests that a rubric with missing evidence returns unknown; model confidence is not presented as a probability; without permission to see the data the evaluator must not read it to score.
+- [ ] Run python tests/run.py resonance_learning resonance_rubric -v; confirm red.
+- [ ] Implement separate provenance for Resonance lessons; bridge to the existing memory mechanism by id/hash to withdraw an auto-generated lesson at the right line. Keep the legacy JAVIS_LESSON behavior that is not part of Resonance.
+- [ ] Add the new evaluators through the registry, without editing the state machine. Human confirmation requires an authenticated identity, and does not accept a model's self-reported sentence as the user's signature.
+- [ ] Run the new tests and python tests/run.py learn_agent_workflow agent_tu_boi_dap memory_hoa_thuong -v; review and commit.
 
-## Task C4 Supervisor và worker có quyền tách biệt
+## Task C4 Supervisor and worker with separated permissions
 
 **Files:** Create server/resonance_supervisor.py, server/resonance_worker.py, server/resonance_isolation.py, tests/python/test_resonance_supervisor.py, tests/python/test_resonance_isolation.py, docs/dev/resonance-supervisor.md.
 
 **Interfaces:**
 
-- IsolationProbe(supported: bool, reason: str, verified_boundaries: tuple[str,...]); kiểu trong resonance_isolation.py.
+- IsolationProbe(supported: bool, reason: str, verified_boundaries: tuple[str,...]); a type in resonance_isolation.py.
 - IsolationBackend.probe() -> IsolationProbe; launch(workspace: Path, manifest: dict) -> str; stop(worker_id: str) -> None; inspect(worker_id: str) -> dict.
 - Supervisor.issue_job(experiment_id: str, grant_id: str, workspace_ref: str) -> str.
 - Supervisor.revoke_tree(goal_id: str, principal: Principal) -> None.
 - Supervisor.collect_receipt(worker_id: str) -> dict.
 
-- [ ] Viết test worker không tự tạo grant, đổi epoch thu hồi, sửa receipt hoặc báo test giả thành host receipt.
-- [ ] Viết test probe chưa đủ boundary thì supported=false và app_code chỉ ở chế độ prepare, không tự fallback sang full shell host.
-- [ ] Viết integration test với worker thử ghi vào grant/evaluator/receipt/supervisor control path: bị từ chối; revoke chặn job mới và dừng worker; không in secret vào log test.
-- [ ] Chạy python tests/run.py resonance_supervisor resonance_isolation -v. Test môi trường chưa có isolation phải xác nhận unavailable đúng, không ghi PASS cho boundary chưa chạy thực tế.
-- [ ] Implement supervisor bên ngoài candidate checkout. V1 live dùng container worker không privileged, không Docker socket, không host PID, không mount grant store/host secrets; chỉ workspace và dữ liệu đầu vào cần thiết. Network/tool access đi qua cổng có grant scoped, không trao credential quản trị host.
-- [ ] Hỗ trợ Linux/Docker Desktop khi probe thực chứng đủ điều kiện. Không tự cài hoặc cấu hình môi trường production trong module; tài liệu ghi điều kiện host và cách kiểm chứng.
-- [ ] Bảo vệ evaluator/receipt và nội dung hợp đồng ở phía supervisor. Cùng process/cùng quyền host chỉ được đánh dấu trusted-development, không phải chế độ live self-update được bảo vệ.
-- [ ] Chạy lại unit test và integration boundary trên host mục tiêu; ghi môi trường và kết quả. Review rồi commit.
+- [ ] Write tests that a worker does not create a grant itself, change the revocation epoch, edit a receipt or report a fake test as a host receipt.
+- [ ] Write tests that when the probe lacks enough boundaries, supported=false and app_code stays in prepare mode only, with no automatic fallback to a full host shell.
+- [ ] Write an integration test with a trial worker writing to the grant/evaluator/receipt/supervisor control path: it is rejected; revoke blocks new jobs and stops the worker; no secret is printed in the test log.
+- [ ] Run python tests/run.py resonance_supervisor resonance_isolation -v. A test in an environment without isolation must confirm unavailable correctly, and must not record PASS for a boundary that has not actually run.
+- [ ] Implement the supervisor outside the candidate checkout. V1 live uses an unprivileged container worker, with no Docker socket, no host PID, no mount of the grant store/host secrets; only the workspace and the necessary input data. Network/tool access goes through a gate with a scoped grant, and no host admin credential is handed over.
+- [ ] Support Linux/Docker Desktop when the probe actually proves the conditions. The module does not install or configure a production environment on its own; the document records the host conditions and how to verify.
+- [ ] Protect the evaluator/receipt and the contract content on the supervisor side. The same process/same host permissions can only be marked trusted-development, not a protected live self-update mode.
+- [ ] Rerun the unit tests and the boundary integration on the target host; record the environment and the result. Review and then commit.
 
-## Task C5 Candidate code và áp dụng phiên bản Jarvis 007
+## Task C5 Candidate code and applying a Jarvis 007 version
 
-**Files:** Create server/resonance_deployment.py, tests/python/test_resonance_deployment.py. Modify server/resonance_supervisor.py, server/resonance_experiments.py. Tái sử dụng server/updater.py và server/update_state.py qua adapter, chỉ sửa giao diện nếu kiểm thử chứng minh cần. Create docs/dev/resonance-recovery.md.
+**Files:** Create server/resonance_deployment.py, tests/python/test_resonance_deployment.py. Modify server/resonance_supervisor.py, server/resonance_experiments.py. Reuse server/updater.py and server/update_state.py through an adapter, only editing the interface if testing proves it is needed. Create docs/dev/resonance-recovery.md.
 
 **Interfaces:**
 
-- DeploymentPlan(id, experiment_id, candidate_sha, baseline_sha, manifest_hash, data_compatibility, recovery_ref, smoke_suite_ref, rollout_scope); kiểu trong resonance_deployment.py.
+- DeploymentPlan(id, experiment_id, candidate_sha, baseline_sha, manifest_hash, data_compatibility, recovery_ref, smoke_suite_ref, rollout_scope); a type in resonance_deployment.py.
 - DeploymentService.prepare(experiment_id: str, principal: Principal) -> DeploymentPlan.
 - DeploymentService.validate(plan_id: str) -> dict.
 - DeploymentService.apply(plan_id: str, principal: Principal) -> dict.
 - DeploymentService.recover(plan_id: str, reason: str) -> dict.
-- Kết quả deployment có phase, code_revision, data_state, checks, unresolved_effects; không có boolean rollback_ok nếu chưa kiểm đủ code và data.
+- The deployment result has phase, code_revision, data_state, checks, unresolved_effects; there is no boolean rollback_ok unless code and data have both been checked.
 
-- [ ] Viết test candidate_sha không trùng bản đã kiểm, sửa protected path, grant thiếu deploy hoặc probe thất bại đều chặn apply.
-- [ ] Viết test đổi goal revision sau validate nhưng trước apply làm kiểm tra lại tính áp dụng; reframe không bỏ qua pause, guard hoặc thu hồi. Receipt và chi phí deploy cũ giữ nguyên dù mục tiêu được điều chỉnh.
-- [ ] Viết test app health xanh nhưng smoke behavior đỏ; crash trước/sau đổi active version; recovery thất bại báo rõ và giữ supervisor hoạt động.
-- [ ] Viết test migration backward-compatible phục hồi được; migration không chứng minh compatibility hoặc không có recovery_ref thì chặn live. Không reset sạch thay đổi người dùng trong checkout gốc để triển khai candidate.
-- [ ] Chạy python tests/run.py resonance_deployment -v; xác nhận đỏ.
-- [ ] Implement checkout candidate riêng, kiểm CI/test theo repo, artifact manifest có SHA, smoke suite do supervisor giữ. Candidate không được sửa updater/guard trong cùng experiment; có thể tạo đề xuất riêng cho owner xem xét.
-- [ ] Apply theo phạm vi thử hạn chế đã cấp; mở rộng chỉ khi các checks đạt. Drain/checkpoint run trước restart, resume bằng state; không mất lịch và không chạy lại effect không chắc chắn.
-- [ ] Recovery phục hồi app và data theo plan đã thử, giữ nguyên ledger tác động bên ngoài. Không tự gửi hành động bù trừ nếu grant chưa có quyền đó.
-- [ ] Chạy test mới và python tests/run.py update update_lui_hong update_diagnose workflow_graph_phase10 -v. Chạy smoke/recovery thật trên bản sao triển khai, không trên dữ liệu người dùng trong lượt lập kế hoạch.
-- [ ] Viết hướng dẫn khôi phục có điều kiện cụ thể; review và commit.
+- [ ] Write tests that a candidate_sha that does not match the verified version, an edit to a protected path, a grant missing deploy, or a failed probe all block apply.
+- [ ] Write a test that changing the goal revision after validate but before apply makes the applicability be rechecked; a reframe does not skip a pause, guard or revocation. The old deploy receipts and cost are kept even if the goal is adjusted.
+- [ ] Write tests of the app health green but the smoke behavior red; a crash before/after changing the active version; a failed recovery reports clearly and keeps the supervisor running.
+- [ ] Write tests that a backward-compatible migration can be recovered; a migration that does not prove compatibility, or has no recovery_ref, blocks live. Do not wipe the user's changes in the original checkout to deploy a candidate.
+- [ ] Run python tests/run.py resonance_deployment -v; confirm red.
+- [ ] Implement a separate candidate checkout, CI/test checks per the repo, an artifact manifest with a SHA, and a smoke suite held by the supervisor. A candidate may not edit the updater/guard in the same experiment; it may create a separate proposal for the owner to consider.
+- [ ] Apply within the limited trial scope that was granted; expand only when the checks pass. Drain/checkpoint runs before a restart, resume from state; do not lose schedules and do not rerun an uncertain effect.
+- [ ] Recovery restores the app and data per the plan that was tried, keeping the ledger of outside effects as is. Do not send a compensating action on its own if the grant lacks that permission.
+- [ ] Run the new tests and python tests/run.py update update_lui_hong update_diagnose workflow_graph_phase10 -v. Run a real smoke/recovery on a copy of the deployment, not on user data during the planning turn.
+- [ ] Write a recovery guide with specific conditions; review and commit.
 
-## Task C6 Đối chứng toàn hệ thống và phát hành có giới hạn
+## Task C6 System-wide control comparison and limited release
 
-**Files:** Create tests/python/test_resonance_acceptance.py, tests/fixtures/resonance/evaluation_protocol.json, docs/dev/resonance-evaluation.md. Modify hướng dẫn người dùng vi/en và cấu hình feature flag nơi tích hợp ở server/main.py.
+**Files:** Create tests/python/test_resonance_acceptance.py, tests/fixtures/resonance/evaluation_protocol.json, docs/dev/resonance-evaluation.md. Modify the vi/en user guides and the feature flag configuration where it is integrated in server/main.py.
 
-**Interfaces:** run_acceptance_suite(profile: dict) -> dict trong test harness; báo cáo chứa intent/contract/evaluator/model/variant revisions, case results, goal_fit, execution_outcome, actual resources, intervention count và unavailable measurements.
+**Interfaces:** run_acceptance_suite(profile: dict) -> dict in the test harness; the report contains the intent/contract/evaluator/model/variant revisions, case results, goal_fit, execution_outcome, actual resources, intervention count and unavailable measurements.
 
-- [ ] Viết các tình huống end-to-end ở mục 16 spec với fixture không dùng dịch vụ thật. Đối chứng cùng runner bật/tắt học và cùng nguồn lực.
-- [ ] Tạo bộ đầu vào chưa thấy trước cho Goal framer: mơ hồ, đủ rõ, user_unsure, không trả lời, xung đột và thay đổi nhu cầu. Chấm độ phù hợp theo nguồn và ràng buộc giữ riêng; evaluator ngữ nghĩa không nhận danh tính baseline/candidate khi khả thi. Cho phép nhiều mục tiêu hợp lý; ca không đủ căn cứ có kết luận unknown, không dùng sự tự tin của model làm đáp án.
-- [ ] Đo số câu hỏi thực sự cần, số lần hỏi lặp, công sửa cách hiểu, mức tiến triển hữu ích và chi phí khám phá. Không tối ưu riêng ít câu hỏi vì có thể tạo hành động sai; bỏ câu hỏi cần thiết cũng là lỗi. Kiểm rằng hoàn thành khám phá không tự báo đã giải quyết nhu cầu.
-- [ ] Thêm ca hồi quy từ đối chiếu Claude: chuỗi số có id/ngày/mã lỗi; nguồn ổn định nhưng đủ chất lượng; đổi cadence không đổi cùng kết quả nguồn; guard vượt ngưỡng khi agent chưa hành động; hai brain trùng slug; mất audit trước/sau effect; chat refresh giữ đúng action. Chỉ chạy suite undo khi adapter B6 được phát hành, còn không phải xác nhận UI không quảng bá khả năng đó.
-- [ ] Chạy suite với clock/executor giả để kiểm determinism, sau đó chạy pilot bằng engine được người dùng chọn trên tài nguyên mô phỏng. Không tự ghi kết quả pilot khi chưa thực hiện.
-- [ ] Báo cáo riêng độ phù hợp mục tiêu, kết quả công việc, chất lượng phép đo, chi phí và công can thiệp. Nếu tiêu chí thay đổi, ghi bảng theo revision và lý do; không cộng gộp thành tỷ lệ thắng che việc hạ mục tiêu. Không lấy token mỗi tim hoặc số cuộc chat làm metric chính.
-- [ ] Kiểm thử thêm loại adapter mới chỉ bằng đăng ký plugin/evaluator và fixture; goal service không thêm nhánh nghiệp vụ.
-- [ ] Đo một mốc nhỏ trước: cùng yêu cầu, một agent, artifact adapter và hai cấu hình phương pháp trên fixture. Ghi rõ phần đã kiểm và phần chưa mở, không cần đợi nhiều tuần reaction hoặc xây xong nhóm/undo mới kiểm tra giá trị vòng tự cải thiện.
-- [ ] Chạy python tests/run.py resonance -v, rồi toàn bộ checks bắt buộc của repo trước phát hành. Lỗi mới được xử lý trước mở rộng; không lặp toàn bộ suite nếu không có thay đổi hay vấn đề mới.
-- [ ] Bật theo brain/goal được chọn, có switch quay về hành vi cũ; tự cập nhật live vẫn là quyền opt-in riêng. Ghi điều kiện mở rộng bằng số liệu pilot, không ấn định trước tỷ lệ thắng giả định.
-- [ ] Hoàn thiện PR theo docs/quy-uoc-dev.md; CI xanh và đối chiếu tiêu chí giai đoạn trước khi tích hợp.
+- [ ] Write the end-to-end scenarios of section 16 of the spec with fixtures that use no real services. Compare the same runner with learning on/off and the same resources.
+- [ ] Create an unseen input set for the Goal framer: vague, clear enough, user_unsure, no answer, conflict and a change of need. Score fit against the source and constraints kept private; the semantic evaluator does not receive the identity of baseline/candidate when feasible. Allow multiple reasonable goals; a case without enough basis has an unknown conclusion, and the model's confidence is not used as the answer.
+- [ ] Measure the number of questions actually needed, the number of repeated questions, the effort of fixing the understanding, the level of useful progress and the discovery cost. Do not optimize for fewer questions alone, because it may create wrong actions; dropping a necessary question is also an error. Check that finishing discovery does not report the need as resolved on its own.
+- [ ] Add regression cases from the Claude comparison: a numeric string with an id/date/error code; a stable source with enough quality; changing cadence does not change the result for the same source; a guard exceeding its threshold when the agent has not acted; two brains with the same slug; losing the audit before/after an effect; a chat refresh keeping the right action. Only run the undo suite when the B6 adapter is released; otherwise confirm the UI does not advertise that capability.
+- [ ] Run the suite with a fake clock/executor to check determinism, then run a pilot with the engine the user chose on simulated resources. Do not record pilot results before they have been run.
+- [ ] Report goal fit, work results, measurement quality, cost and intervention effort separately. If the criteria change, record a table by revision with the reason; do not aggregate into a win rate that hides lowering the goal. Do not use tokens per heartbeat or the number of chats as the main metric.
+- [ ] Test adding a new adapter type only through plugin/evaluator registration and fixtures; the goal service adds no business branch.
+- [ ] Measure one small milestone first: the same request, one agent, an artifact adapter and two method configurations on a fixture. Record clearly what was checked and what is not yet open; there is no need to wait for weeks of reactions or to finish building groups/undo before checking the value of the self-improvement loop.
+- [ ] Run python tests/run.py resonance -v, then all the repo's mandatory checks before release. New errors are handled before expanding; do not repeat the whole suite if there is no new change or problem.
+- [ ] Enable per brain/goal chosen, with a switch back to the old behavior; live self-update remains a separate opt-in permission. Record the conditions for expansion with pilot numbers, and do not set in advance an assumed win rate.
+- [ ] Finish the PR per docs/quy-uoc-dev.md; CI green and check against the phase criteria before integration.
 
-## Điều kiện hoàn thành toàn bộ chương trình
+## Conditions for completing the whole program
 
-- [ ] Một nhu cầu tự nhiên được agent chuyển thành mục tiêu, thực hiện, kiểm chứng và báo kết quả mà không bắt người dùng chọn mục tiêu, không phụ thuộc reaction hoặc ngành cụ thể.
-- [ ] Khi người dùng chưa rõ, agent làm rõ có chọn lọc hoặc tự khám phá trong quyền; sửa cách hiểu theo bằng chứng, giữ lịch sử và không tự chấm thắng bằng đổi tiêu chí.
-- [ ] Agent và nhóm dùng cùng hợp đồng, có bằng chứng đóng góp và quyền kế thừa.
-- [ ] Ít nhất một thay đổi phương pháp được tự thử, xác nhận, áp dụng và có thể khôi phục.
-- [ ] Tuyên bố tự cập nhật live chỉ được bật trên môi trường đã qua kiểm thử supervisor, effect recovery và data compatibility.
-- [ ] Có thể chỉ rõ phần cải thiện được đo, phần còn chưa chắc và số liệu làm cơ sở.
+- [ ] A natural need is turned by the agent into a goal, executed, verified and reported, without making the user pick a goal, without depending on reactions or a specific industry.
+- [ ] When the user is unclear, the agent clarifies selectively or discovers on its own within permissions; it fixes its understanding according to evidence, keeps the history and does not score itself a win by changing the criteria.
+- [ ] The agent and the group use the same contract, with contribution evidence and inherited permissions.
+- [ ] At least one method change is tried, confirmed, applied and recoverable on its own.
+- [ ] The live self-update claim is only enabled on an environment that has passed supervisor testing, effect recovery and data compatibility.
+- [ ] It is possible to point clearly at what improvement was measured, what is still uncertain and the numbers that serve as the basis.

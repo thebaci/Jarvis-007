@@ -1,38 +1,39 @@
-GIỚI HẠN VÀ NGÂN SÁCH CỦA PILOT
+PILOT LIMITS AND BUDGET
 
-Provider và model (đề xuất mặc định: provider "Anthropic API" cho cả 3 nhóm; model cụ thể chủ chọn ở trang Models
-trước khi chạy và ghi vào báo cáo)
-  - Khuyên dùng: Claude Code với KHOÁ API Anthropic, hoặc một model API (OpenRouter, OpenAI API). Lý do: pilot chạy nền
-    nhiều ngày; gói Pro/Max của Anthropic dành cho dùng cá nhân thông thường, chạy nền 24/7 hay trên VPS có rủi ro bị
-    khoá tài khoản. Gói xAI cũng chưa nói rõ chuyện này.
-  - Claude Code chạy được ở quyền "cần duyệt" khi bản claude-agent-sdk có móc PreToolUse (bản ghim trong
-    requirements.txt có); thiếu thì Jarvis 007 từ chối bước và nói rõ.
-  - Codex (gói ChatGPT) chạy được ở quyền "cần duyệt" khi: MCP Hub bật, sandbox riêng của Codex bật (KHÔNG đặt
-    JAVIS_CODEX_SANDBOX=off, nên trong Docker không bubblewrap thì Codex không dùng được cho nhóm cần duyệt), và
-    ~/.codex/config.toml không có MCP riêng ngoài Jarvis 007.
-  - KHÔNG dùng Grok Build hay Antigravity cho nhóm ở quyền "cần duyệt": Jarvis 007 từ chối bước có công cụ trên hai engine
-    này (không chặn được trước khi chạy). Muốn dùng thì phải bật "Nhóm tự làm", và khi đó không còn cổng duyệt.
+Provider and model (suggested default: provider "Anthropic API" for all 3 teams; the owner picks the exact model on the
+Models page before the run and records it in the report)
+  - Recommended: Claude Code with an Anthropic API KEY, or an API model (OpenRouter, OpenAI API). Reason: the pilot runs
+    in the background for several days; the Anthropic Pro/Max plan is meant for ordinary personal use, and running 24/7
+    in the background or on a VPS risks the account being locked. The xAI plan has not spelled this out either.
+  - Claude Code can run at the "needs approval" permission level when the claude-agent-sdk build has the PreToolUse hook
+    (the build pinned in requirements.txt has it); without it, Jarvis 007 refuses the step and says so clearly.
+  - Codex (ChatGPT plan) can run at the "needs approval" permission level when: MCP Hub is on, Codex's own sandbox is on
+    (do NOT set JAVIS_CODEX_SANDBOX=off, so in Docker without bubblewrap Codex cannot be used for approval-gated teams), and
+    ~/.codex/config.toml has no MCP of its own outside Jarvis 007.
+  - Do NOT use Grok Build or Antigravity for a team at the "needs approval" permission level: Jarvis 007 refuses a step
+    with tools on these two engines (it cannot block them before they run). To use them you must turn on "The team acts
+    without asking", and then there is no approval gate.
 
-Ngân sách mặc định cho mỗi nhóm (đặt ở tab Nhóm > Nâng cao và mục Mục tiêu phòng ban). config/teams.json đặt riêng
-cho từng nhóm và THẮNG các số dưới đây khi khác nhau.
-  daily_turns (lần trả lời mỗi ngày)        40
-  task_turns (lần trả lời mỗi việc)         12
-  task_steps (bước mỗi việc)                8
-  observe_per_day (lần quan sát mục tiêu)   24
-  jobs_per_day (việc mục tiêu tự mở)        2
-  max_open_jobs (dừng mở khi đang có)       3
-  fix_rounds (vòng sửa nghiệm thu)          2
-  Trần chung của máy chủ: JAVIS_RESONANCE_CALL_CEILING (ví dụ 300 lượt mỗi ngày cho cả máy pilot).
-  Chi phí: đặt giới hạn chi tiêu ở trang nhà cung cấp API trước khi chạy (ví dụ 5 USD mỗi ngày).
+Default budget for each team (set in the Group tab > Advanced and in the Department mandate section). config/teams.json sets
+its own values per team and WINS over the numbers below when they differ.
+  daily_turns (replies per day)                    40
+  task_turns (replies per job)                     12
+  task_steps (steps per job)                       8
+  observe_per_day (mandate observations)           24
+  jobs_per_day (jobs the mandate opens by itself)  2
+  max_open_jobs (stop opening when this many open) 3
+  fix_rounds (acceptance fix rounds)               2
+  Server-wide ceiling: JAVIS_RESONANCE_CALL_CEILING (for example 300 calls per day for the whole pilot machine).
+  Cost: set a spending limit on the API provider's page before the run (for example 5 USD per day).
 
-Điều kiện dừng ngay (dừng khẩn, xem run_guide.txt)
-  - Bất kỳ hành động ra ngoài nào chạy mà không có yêu cầu đã duyệt tương ứng (so dấu vết với nhật ký hub).
-  - Một việc thành "xong" trong khi còn yêu cầu duyệt đang chờ, hoặc có tiêu chí nghiệm thu mà chưa đạt.
-  - Mục tiêu mở việc ngoài nguồn được giao hay vượt jobs_per_day.
-  - Chi phí một ngày vượt 2 lần ngân sách, hay trần lượt chung chạm 100%.
-  - Lỗi lặp lại cùng một bước quá 3 lần trong một ngày.
+Stop immediately (emergency stop, see run_guide.txt)
+  - Any outside action runs without a matching approved request (compare the trace against the hub log).
+  - A job becomes "done" while an approval request is still pending, or it has acceptance criteria that are not met.
+  - The mandate opens a job outside its assigned sources or exceeds jobs_per_day.
+  - One day's cost exceeds 2 times the budget, or the shared call ceiling reaches 100%.
+  - The same step fails more than 3 times in one day.
 
-Quyền
-  - Nhóm 1 và 2: "Cần chủ duyệt". Nhóm 3: "Cần chủ duyệt" 3 ngày đầu, sau đó chủ có thể thử "Nhóm tự làm" nếu không có
-    vi phạm nào (ghi lại thời điểm đổi).
-  - Nguồn test: chỉ lệnh kiểm tra chủ viết (chạy ở mức Ghi nháp của trang Coding, chạy được mã).
+Permissions
+  - Teams 1 and 2: "Needs your approval". Team 3: "Needs your approval" for the first 3 days, after which the owner may try
+    "The team acts without asking" if there were no violations (record when it was changed).
+  - Test source: only check commands the owner wrote (run at the Draft writes level of the Coding page, which can run code).
