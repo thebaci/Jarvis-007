@@ -2,6 +2,8 @@
 
 The dashboard's brain is a local perspective Canvas renderer: a gold cortical wire structure, cerebellum, brainstem, blue glow and depth-scaled memory dots. The wire structure is decorative; dots correspond to actual notes returned by the existing authenticated graph endpoint. Dot positions are deterministic visual placement, not semantic embeddings or claims about human brain anatomy. Only supplied graph links connect memories.
 
+Background scenery adds calibration rings, edge circuitry, a perspective floor and a layered hologram projector. Wide screens also show panels with real memory/link/category counts. The Scene button hides the scenery. Background drawing is cached and never intercepts memory clicks.
+
 Controls:
 - Slow spin is on initially, except when the device requests reduced motion. The toggle pauses/resumes it.
 - Drag to rotate; Shift-drag to pan. Scroll, pinch with two fingers, or use the plus/minus buttons to zoom (0.45–5×). Reset restores the initial camera.
