@@ -37,6 +37,7 @@
       this._paused = false; this._last = 0; this._interactUntil = 0;
       this._motion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
       this._orbit = !(this._motion && this._motion.matches);
+      this._scene = true;
       this.canvas = document.createElement('canvas'); this.canvas.tabIndex = 0;
       this.canvas.className = 'brain-spatial-canvas';
       this.canvas.setAttribute('aria-label', '3D memory brain. Drag to rotate, pinch or use plus and minus to zoom. Arrow keys rotate. Page Up and Page Down browse memories. Enter opens the selected memory.');
@@ -47,7 +48,10 @@
       this._button('Reset', 'Reset brain view', () => this.refit());
       this.orbitButton = this._button('Slow spin', 'Toggle slow rotation', () => {
         this._orbit = !this._orbit; this._syncSpin(); this._invalidate();
-      }); this._syncSpin(); container.append(this.toolbar);
+      }); this._syncSpin();
+      this.sceneButton = this._button('Scene', 'Toggle holographic background', () => {
+        this._scene = !this._scene; this.sceneButton.setAttribute('aria-pressed', String(this._scene)); this._invalidate();
+      }); this.sceneButton.setAttribute('aria-pressed', 'true'); container.append(this.toolbar);
       this.detail = document.createElement('div'); this.detail.className = 'brain-memory-detail'; this.detail.hidden = true;
       this.title = document.createElement('strong'); this.path = document.createElement('span');
       this.openButton = document.createElement('button'); this.openButton.type = 'button'; this.openButton.textContent = 'Open memory';
@@ -60,7 +64,7 @@
       this.graph = {
         graphData(data) {
           if (data === undefined) return self._data;
-          self._data = data;
+          self._data = data; self._backdropKey = null;
           data.nodes.forEach(n => { n.__brainPosition = memoryPosition(n.id); });
           if (self._selected && !data.nodes.some(n => n.id === self._selected.id)) self._select(null);
           self.status.textContent = `${data.nodes.length} memories · ${data.links.length} links${data.nodes.length ? ' · Drag to explore' : ' · No memories in this view'}`;
@@ -178,14 +182,70 @@
       this._width = w; this._height = h; this.canvas.width = Math.round(w * dpr); this.canvas.height = Math.round(h * dpr); this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); this._invalidate();
     }
     _project(p) { return project(p, this._yaw, this._pitch, this._zoom, this._width, this._height, this._pan); }
+    // Jarvis 007: cached scenery never adds pretend memories, links or live metrics.
+    _drawBackdrop(ctx, w, h, light, gold, blue) {
+      const key = `${w}:${h}:${light}:${this._data.nodes.length}:${this._data.links.length}`;
+      if (this._backdropKey !== key) {
+        const layer = document.createElement('canvas'), dpr = Math.min(window.devicePixelRatio || 1, 2);
+        layer.width = Math.round(w * dpr); layer.height = Math.round(h * dpr);
+        const c = layer.getContext('2d'); c.scale(dpr, dpr);
+        const cx = w / 2, cy = h * .44, r = Math.min(w * .46, h * .40);
+        const ink = (color, a) => `rgba(${color},${a})`;
+        const line = (x1,y1,x2,y2,color,a) => { c.strokeStyle=ink(color,a); c.lineWidth=.65; c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke(); };
+        const halo=c.createRadialGradient(cx,cy,10,cx,cy,Math.max(1,r*1.4));
+        halo.addColorStop(0,ink(blue,light?.04:.12));halo.addColorStop(1,ink(blue,0));c.fillStyle=halo;c.fillRect(0,0,w,h);
+        // Star-like specks and edge circuitry are deliberately faint and non-interactive.
+        for(let i=0;i<115;i++){const x=(hash('scene-x'+i)%10000)/10000*w,y=(hash('scene-y'+i)%10000)/10000*h;c.fillStyle=ink(i%4?blue:gold,.16);c.fillRect(x,y,i%11?1:2,1);}
+        for(let i=0;i<9;i++){
+          const x=12+i*11,y=h*(.15+i*.075), right=w-x;
+          line(x,0,x,y,blue,.10);line(x,y,x+22,y+22,gold,.20);line(x+22,y+22,x+56,y+22,gold,.20);
+          line(right,h,right,h-y,blue,.10);line(right,h-y,right-32,h-y-32,blue,.20);
+        }
+        // Orbital calibration arcs remain behind the brain rather than rotating over labels.
+        for(let i=0;i<4;i++){
+          c.strokeStyle=ink(i%2?blue:gold,light?.17:.27);c.lineWidth=i===0?1:.6;
+          c.beginPath();c.arc(cx,cy,r*(1+i*.045),Math.PI*(.12+i*.13),Math.PI*(1.80-i*.11));c.stroke();
+        }
+        for(let i=0;i<100;i++){
+          const a=i/100*Math.PI*2,major=i%10===0,rr=r*1.13;
+          line(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,cx+Math.cos(a)*(rr+(major?10:4)),cy+Math.sin(a)*(rr+(major?10:4)),i%5?gold:blue,major?.40:.18);
+        }
+        // A perspective grid and layered projection pedestal anchor the suspended brain.
+        const baseY=h*.86,rx=Math.min(w*.39,h*.41),ry=Math.max(8,h*.045);
+        for(let i=-5;i<=5;i++)line(cx+i*w*.065,h*.98,cx+i*w*.018,h*.70,blue,.065);
+        for(let i=0;i<6;i++)line(w*.10,h*(.72+i*.045),w*.90,h*(.72+i*.045),blue,.055);
+        const beam=c.createLinearGradient(0,h*.57,0,baseY);
+        beam.addColorStop(0,ink(blue,0));beam.addColorStop(1,ink(blue,light?.06:.15));c.fillStyle=beam;
+        c.beginPath();c.moveTo(cx-rx*.42,h*.57);c.lineTo(cx+rx*.42,h*.57);c.lineTo(cx+rx*.13,baseY);c.lineTo(cx-rx*.13,baseY);c.closePath();c.fill();
+        for(let i=3;i>=0;i--){c.fillStyle=light?'#e7eef2':'#080f18';c.strokeStyle=ink(i%2?blue:gold,.35);c.lineWidth=i===3?1.2:.7;c.beginPath();c.ellipse(cx,baseY+i*6,rx*(1+i*.025),ry,0,0,Math.PI*2);c.fill();c.stroke();}
+        for(let i=0;i<5;i++){c.strokeStyle=ink(i%2?gold:blue,.28);c.beginPath();c.ellipse(cx,baseY,rx*(.88-i*.14),ry*(.88-i*.14),0,0,Math.PI*2);c.stroke();}
+        for(let i=0;i<64;i++){const a=i/64*Math.PI*2;line(cx+Math.cos(a)*rx*.94,baseY+Math.sin(a)*ry*.94,cx+Math.cos(a)*rx*(i%8?.97:1.01),baseY+Math.sin(a)*ry*(i%8?.97:1.01),i%8?blue:gold,.42);}
+        // Data panels show actual graph counts/category distribution, never invented telemetry.
+        if(w>800&&h>420){
+          const pw=Math.min(164,w*.15),left=22,right=w-pw-22,top=h*.17;
+          const panel=(x,y,title)=>{c.fillStyle=light?'rgba(248,251,253,.75)':'rgba(8,20,31,.68)';c.fillRect(x,y,pw,125);c.strokeStyle=ink(blue,.22);c.lineWidth=.6;c.strokeRect(x,y,pw,125);line(x,y,x+pw*.65,y,gold,.65);c.font='9px ui-monospace,monospace';c.fillStyle=ink(gold,.85);c.fillText(title,x+10,y+17);};
+          panel(left,top,'MEMORY CLUSTERS');
+          const groups=new Map();for(const n of this._data.nodes)groups.set(n.__cat||'notes',(groups.get(n.__cat||'notes')||0)+1);
+          const cats=[...groups].sort((a,b)=>b[1]-a[1]).slice(0,4),max=Math.max(1,...cats.map(c=>c[1]));
+          cats.forEach(([name,count],i)=>{const y=top+36+i*23;c.fillStyle=ink(blue,.65);c.fillText(name.toUpperCase().slice(0,15),left+10,y);c.fillStyle=ink(gold,.45);c.fillRect(left+10,y+5,(pw-22)*count/max,2);});
+          panel(right,top+24,'VAULT CONNECTIONS');
+          [[this._data.nodes.length,'MEMORIES'],[this._data.links.length,'LINKS'],[groups.size,'CLUSTERS']].forEach(([value,label],i)=>{const y=top+62+i*24;c.font='15px ui-monospace,monospace';c.fillStyle=ink(gold,.9);c.fillText(String(value),right+10,y);c.font='8px ui-monospace,monospace';c.fillStyle=ink(blue,.65);c.fillText(label,right+56,y-2);});
+          // A small orbital reticle echoes the reference without looking like another memory dot.
+          const tx=left+pw*.5,ty=h*.69;
+          for(let i=0;i<3;i++){c.strokeStyle=ink(i===1?gold:blue,.25);c.beginPath();c.arc(tx,ty,15+i*6,0,Math.PI*2);c.stroke();}
+          line(tx-36,ty,tx+36,ty,gold,.25);line(tx,ty-36,tx,ty+36,blue,.25);
+          line(right,h*.64,right+pw,h*.64,gold,.30);
+          for(let i=0;i<25;i++){const x=right+i*pw/25;line(x,h*.64,x,h*.64+4+(i%5)*3,blue,.24);}
+        }
+        this._backdrop = layer; this._backdropKey = key;
+      }
+      ctx.drawImage(this._backdrop, 0, 0, w, h);
+    }
     _draw() {
       const c = this.ctx, w = this._width, h = this._height, light = document.documentElement.getAttribute('data-theme') === 'light';
       c.clearRect(0, 0, w, h);
       const gold = light ? '123,86,26' : '231,182,94', blue = light ? '27,116,151' : '77,184,225';
-      const halo = c.createRadialGradient(w/2,h/2,10,w/2,h/2,Math.max(1,Math.min(w,h)*.48));
-      halo.addColorStop(0,`rgba(${blue},.085)`);halo.addColorStop(1,`rgba(${blue},0)`);c.fillStyle=halo;c.fillRect(0,0,w,h);
-      // Jarvis 007: restrained holographic stage; it conveys depth without fake statistics.
-      for (let ring=0;ring<3;ring++) { c.strokeStyle=`rgba(${ring===1?gold:blue},${light?.14:.22})`; c.lineWidth=.7; c.beginPath(); c.ellipse(w/2+this._pan[0],h*.87+this._pan[1],Math.min(w*.36,h*.36)*(1-ring*.12),h*.045*(1-ring*.12),0,0,Math.PI*2); c.stroke(); }
+      if (this._scene) this._drawBackdrop(c, w, h, light, gold, blue);
       for (const line of this._shell) {
         c.beginPath(); let avg=0;
         line.forEach((p,i)=>{const q=this._project(p);avg+=q.z;if(i)c.lineTo(q.x,q.y);else c.moveTo(q.x,q.y);});
