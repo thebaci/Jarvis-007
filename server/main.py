@@ -2293,7 +2293,7 @@ _RESONANCE_GOAL_HINT = (
     "GOALS (the resonance system is on): if the work finishes within this turn, just do it; for a one-off background job where "
     "you are done once it finishes, use javis_task; for a reminder at a fixed time, use javis_schedule. When the user hands over "
     "responsibility for pursuing a result AFTER the chat turn (do it, self-check, fix from feedback, maintain, wait for an event, "
-    "keep the work open until achieved), call the tool javis_goal with op=create; to add detail to an open goal use "
+    "keep the work open until achieved), call the tool javis_goal op=create; to add detail to an open goal use "
     "op=update. If the tool is not loaded, look for it: Claude Code uses ToolSearch (mcp__javis-plugins__javis_goal), "
     "other engines use javis_search_tools. Questions and advice: do NOT set a goal. Deliverables: submit the full text via "
     "javis_submit_deliverable."
@@ -21100,7 +21100,7 @@ async def _bot_tra_loi_co_tool(text, *, sess, sysprompt, prov, api_key, api_mode
     if roi_tool:
         canh_bao = (f"The running engine ({_api_label(prov)}) cannot call tools for the bot, "
                     f"so the last turn answered at the Read-only level rather than the "
-                    f"{chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} level you set. "
+                    f"{chatbot_store.MUC_NHAN_EN.get(muc_quyen, muc_quyen)} level you set. "
                     f"If you need the bot to do real work, change the engine on the Models page, or lower the bot's level "
                     f"to Read-only to avoid confusion.")
 
@@ -21115,16 +21115,16 @@ async def _bot_tra_loi_co_tool(text, *, sess, sysprompt, prov, api_key, api_mode
         # bot đang làm việc, còn thực tế nó chỉ đang nói chuyện.
         if cli_khong_tool:
             canh_bao = (f"The {_api_label(prov)} brain cannot use tools at the "
-                        f"{chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} level of the bot, so the last turn only "
+                        f"{chatbot_store.MUC_NHAN_EN.get(muc_quyen, muc_quyen)} level of the bot, so the last turn only "
                         f"answered. If you need tools, set the bot to Full access (it runs like the admin channel) or "
                         f"pick another brain for the Agent.")
         elif muc_quyen == "read_docs":
             # Mức này không cần nguồn nào: thiếu tool chỉ có thể là không mở được brain của bot.
-            canh_bao = (f"The bot is at the {chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} level but "
+            canh_bao = (f"The bot is at the {chatbot_store.MUC_NHAN_EN.get(muc_quyen, muc_quyen)} level but "
                         f"cannot open its brain, so the last turn only used the preloaded reference documents. "
                         f"Check that the bot's brain still exists.")
         else:
-            canh_bao = (f"The bot is at the {chatbot_store.MUC_NHAN.get(muc_quyen, muc_quyen)} level but "
+            canh_bao = (f"The bot is at the {chatbot_store.MUC_NHAN_EN.get(muc_quyen, muc_quyen)} level but "
                         f"has no data source connected, so there is no tool to use. "
                         f"Connect one on the Connections page, or lower the bot to Read-only.")
         print(f"[bot {prov} chat {chat_id}] level '{muc_quyen}' but the hub returned no tools - "
